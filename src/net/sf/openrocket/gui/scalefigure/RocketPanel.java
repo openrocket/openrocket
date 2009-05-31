@@ -37,11 +37,11 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.BasicSlider;
-import net.sf.openrocket.gui.StageSelector;
-import net.sf.openrocket.gui.UnitSelector;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
+import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StageSelector;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
@@ -360,7 +360,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * 
 	 * Get the components clicked.
 	 * If no component is clicked, do nothing.
-	 * If the primary currently selected component is in the set, keep it, 
+	 * If the currently selected component is in the set, keep it, 
 	 * unless the selector specified is pressed.  If it is pressed, cycle to 
 	 * the next component. Otherwise select the first component in the list. 
 	 */
@@ -399,7 +399,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Currently selected component not clicked
 		if (path == null) {
-			path = ComponentTreeModel.makeTreePath(clicked[0]);
+			if (event.isShiftDown() && event.getClickCount()==1 && clicked.length>1) {
+				path = ComponentTreeModel.makeTreePath(clicked[1]);
+			} else {
+				path = ComponentTreeModel.makeTreePath(clicked[0]);
+			}
 		}
 		
 		// Set selection and check for double-click

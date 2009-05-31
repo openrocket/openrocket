@@ -11,12 +11,12 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.BasicSlider;
-import net.sf.openrocket.gui.DescriptionArea;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.UnitSelector;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.DescriptionArea;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;

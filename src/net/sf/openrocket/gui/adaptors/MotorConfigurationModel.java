@@ -30,8 +30,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.ResizeLabel;
 import net.sf.openrocket.gui.TextFieldListener;
+import net.sf.openrocket.gui.components.ResizeLabel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Motor;

@@ -16,8 +16,8 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.ResizeLabel;
-import net.sf.openrocket.gui.UnitSelector;
+import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataBranch.Type;
 import net.sf.openrocket.unit.Unit;

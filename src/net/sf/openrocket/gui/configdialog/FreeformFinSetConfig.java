@@ -17,13 +17,13 @@ import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.BasicSlider;
-import net.sf.openrocket.gui.ResizeLabel;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.UnitSelector;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
+import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.FinPointFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
 import net.sf.openrocket.gui.scalefigure.ScaleSelector;

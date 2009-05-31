@@ -26,11 +26,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.BasicSlider;
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.UnitSelector;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.InnerTube;

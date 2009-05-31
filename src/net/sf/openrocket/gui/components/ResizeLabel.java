@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.components;
 
 import java.awt.Font;
 import javax.swing.JLabel;

@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.components;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;

@@ -12,7 +12,7 @@
 
 	
 	<!-- The main class of the application -->
-	<property name="main-class"  value="net.sf.openrocket.gui.main.BasicFrame"/>
+	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
 
 	
 	<!-- Classpath definition -->

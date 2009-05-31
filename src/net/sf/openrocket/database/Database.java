@@ -5,10 +5,6 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +20,7 @@ import javax.swing.event.EventListenerList;
 
 import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.JarUtil;
 
 
 
@@ -182,17 +179,9 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 		if (!dir.endsWith("/")) {
 			dir += "/";
 		}
-
-		// Find the jar file this class is contained in and open it
-		URL jarUrl = null;
-		CodeSource codeSource = Database.class.getProtectionDomain().getCodeSource();
-		if (codeSource != null)
-			jarUrl = codeSource.getLocation();
 		
-		if (jarUrl == null) {
-			throw new IOException("Could not find containing JAR file.");
-		}
-		File file = urlToFile(jarUrl);
+		// Find and open the jar file this class is contained in
+		File file = JarUtil.getCurrentJarFile();
 		JarFile jarFile = new JarFile(file);
 		
 		try {
@@ -216,22 +205,6 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 		} finally {
 			jarFile.close();
 		}
-	}
-	
-	
-	static File urlToFile(URL url) {
-		URI uri;
-		try {
-			uri = url.toURI();
-		} catch (URISyntaxException e) {
-			try {
-				uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), 
-						url.getPath(), url.getQuery(), url.getRef());
-			} catch (URISyntaxException e1) {
-				throw new IllegalArgumentException("Broken URL: " + url);
-			}
-		}
-		return new File(uri);
 	}
 	
 	

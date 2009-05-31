@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.components;
 
 import javax.swing.BoundedRangeModel;
 import javax.swing.JSlider;

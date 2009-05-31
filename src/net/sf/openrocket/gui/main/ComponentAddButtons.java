@@ -26,7 +26,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.ResizeLabel;
+import net.sf.openrocket.gui.components.ResizeLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -40,12 +40,14 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
 
 /**
@@ -94,20 +96,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 		////////////////////////////////////////////
 		
-//		addButtonRow("Body components",row,
-//				new ComponentButton(NoseCone.class,"Nose cone") {
-//					@Override
-//					public boolean isAddable(RocketComponent c) {
-//						if (!(c instanceof ComponentAssembly))
-//							return false;
-//						if (c.getSiblingCount() == 0)
-//							return true;
-//						return false;
-//					}
-//				},
-//				new BodyComponentButton(BodyTube.class,"Body tube"),
-//				new BodyComponentButton(null,"Transition"));
-		
 		
 		addButtonRow("Body components and fin sets",row,
 				new BodyComponentButton(NoseCone.class,"Nose cone"),
@@ -120,7 +108,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		);
 		
 		row++;
-/////
 		
 		
 		/////////////////////////////////////////////
@@ -328,16 +315,16 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		/**
 		 * Return the position to add the component if component c is selected currently.
 		 * The first element of the returned array is the RocketComponent to add the component
-		 * to, and the second (in any) an Integer telling the position of the component.
+		 * to, and the second (if non-null) an Integer telling the position of the component.
 		 * A return value of null means that the user cancelled addition of the component.
-		 * If the array has only one element, the component is added at the end of the sibling 
+		 * If the Integer is null, the component is added at the end of the sibling 
 		 * list.  By default returns the end of the currently selected component.
 		 * 
 		 * @param c  The component currently selected
 		 * @return   The position to add the new component to, or null if should not add.
 		 */
-		public Object[] getAdditionPosition(RocketComponent c) {
-			return new Object[] { c };
+		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
+			return new Pair<RocketComponent, Integer>(c, null);
 		}
 		
 		/**
@@ -381,17 +368,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			TreePath p = selectionModel.getSelectionPath();
 			if (p!= null)
 				c = (RocketComponent)p.getLastPathComponent();
-			if (c != null) {
-				Object[] pos = getAdditionPosition(c);
-				if (pos==null || pos.length==0) {
-					// Cancel addition
-					return;
-				}
 
-				c = (RocketComponent)pos[0];
-				if (pos.length>1)
-					position = (Integer)pos[1];
+			Pair<RocketComponent, Integer> pos = getAdditionPosition(c);
+			if (pos==null) {
+				// Cancel addition
+				return;
 			}
+			c = pos.getU();
+			position = pos.getV();
+
 			
 			if (c == null) {
 				// Should not occur
@@ -460,17 +445,27 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public boolean isAddable(RocketComponent c) {
 			if (super.isAddable(c))
 				return true;
-			if (c instanceof BodyComponent)  // Handled separately
+			// Handled separately:
+			if (c instanceof BodyComponent)
+				return true;
+			if (c == null || c instanceof Rocket)
 				return true;
 			return false;
 		}
 		
 		@Override
-		public Object[] getAdditionPosition(RocketComponent c) {
+		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
 			if (super.isAddable(c))     // Handled automatically
 				return super.getAdditionPosition(c);
 			
-			// Handle BodyComponent separately
+			
+			if (c == null || c instanceof Rocket) {
+				// Add as last body component of the last stage
+				Rocket rocket = document.getRocket();
+				return new Pair<RocketComponent,Integer>(rocket.getChild(rocket.getStageCount()-1),
+						null);
+			}
+			
 			if (!(c instanceof BodyComponent))
 				return null;
 			RocketComponent parent = c.getParent();
@@ -492,10 +487,10 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				return null;
 			case 1:
 				// Insert after current position
-				return new Object[] { parent, new Integer(parent.getChildPosition(c)+1) };
+				return new Pair<RocketComponent,Integer>(parent, parent.getChildPosition(c)+1);
 			case 2:
 				// Insert at the end of the parent
-				return new Object[] { parent };
+				return new Pair<RocketComponent,Integer>(parent, null);
 			default:
 				System.err.println("ERROR:  Bad position type: "+pos);
 				Thread.dumpStack();

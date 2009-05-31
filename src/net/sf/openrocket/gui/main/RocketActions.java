@@ -28,7 +28,7 @@ import net.sf.openrocket.util.Pair;
 
 
 /**
- * A class that holds Actions for common rocket operations such as
+ * A class that holds Actions for common rocket and simulation operations such as
  * cut/copy/paste/delete etc.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>

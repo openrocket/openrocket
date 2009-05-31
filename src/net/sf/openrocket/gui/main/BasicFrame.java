@@ -59,6 +59,7 @@ import net.sf.openrocket.gui.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.PreferencesDialog;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.dialogs.BugDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -87,6 +88,8 @@ public class BasicFrame extends JFrame {
 		}
 		@Override
 		public boolean accept(File f) {
+			if (f.isDirectory())
+				return true;
 			String name = f.getName().toLowerCase();
 			return name.endsWith(".ork") || name.endsWith(".ork.gz");
 		}
@@ -117,7 +120,8 @@ public class BasicFrame extends JFrame {
 	
 	private RocketPanel rocketpanel;
 	private ComponentTree tree = null;
-	private final TreeSelectionModel selectionModel;
+	private final TreeSelectionModel componentSelectionModel;
+	// private final ListSelectionModel simulationSelectionModel; ...
 	
 	/** Actions available for rocket modifications */
 	private final RocketActions actions;
@@ -147,10 +151,10 @@ public class BasicFrame extends JFrame {
 		
 		
 		// Create the selection model that will be used
-		selectionModel = new DefaultTreeSelectionModel();
-		selectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		componentSelectionModel = new DefaultTreeSelectionModel();
+		componentSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
-		actions = new RocketActions(document, selectionModel, this);
+		actions = new RocketActions(document, componentSelectionModel, this);
 		
 		
 		// The main vertical split pane		
@@ -232,7 +236,7 @@ public class BasicFrame extends JFrame {
 		JPanel panel = new JPanel(new MigLayout("fill, flowy","","[grow]"));
 
 		tree = new ComponentTree(rocket);
-		tree.setSelectionModel(selectionModel);
+		tree.setSelectionModel(componentSelectionModel);
 
 		// Remove JTree key events that interfere with menu accelerators
 		InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
@@ -265,10 +269,10 @@ public class BasicFrame extends JFrame {
 		tree.addMouseListener(ml);
 
 		// Update dialog when selection is changed
-		selectionModel.addTreeSelectionListener(new TreeSelectionListener() {
+		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				// Scroll tree to the selected item
-				TreePath path = selectionModel.getSelectionPath();
+				TreePath path = componentSelectionModel.getSelectionPath();
 				if (path == null)
 					return;
 				tree.scrollPathToVisible(path);
@@ -313,7 +317,7 @@ public class BasicFrame extends JFrame {
 
 		scroll = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setViewportView(new ComponentAddButtons(document, selectionModel,
+		scroll.setViewportView(new ComponentAddButtons(document, componentSelectionModel,
 				scroll.getViewport()));
 		scroll.setBorder(null);
 		scroll.setViewportBorder(null);
@@ -513,11 +517,23 @@ public class BasicFrame extends JFrame {
 		menu.getAccessibleContext().setAccessibleDescription("Information about OpenRocket");
 		menubar.add(menu);
 		
+		
+		
 		item = new JMenuItem("License",KeyEvent.VK_L);
 		item.getAccessibleContext().setAccessibleDescription("OpenRocket license information");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new LicenseDialog(BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		item = new JMenuItem("Bug report",KeyEvent.VK_B);
+		item.getAccessibleContext().setAccessibleDescription("Information about reporting " +
+				"bugs in OpenRocket");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new BugDialog(BasicFrame.this).setVisible(true);
 			}
 		});
 		menu.add(item);
@@ -537,14 +553,13 @@ public class BasicFrame extends JFrame {
 	
 	
 	
-	// TODO: HIGH: Remember last directory on open/save
 	
 	private void openAction() {
 	    JFileChooser chooser = new JFileChooser();
 	    chooser.setFileFilter(ROCKET_DESIGN_FILTER);
 	    chooser.setMultiSelectionEnabled(true);
 	    chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
-	    if (chooser.showOpenDialog(BasicFrame.this) != JFileChooser.APPROVE_OPTION)
+	    if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
 	    	return;
 	    
 	    Prefs.setDefaultDirectory(chooser.getCurrentDirectory());

@@ -33,7 +33,7 @@ public class TransitionSaver extends SymmetricComponentSaver {
 
 
 		Transition.Shape shape = trans.getType();
-		elements.add("<shape>" + shape.getName().toLowerCase() + "</shape>");
+		elements.add("<shape>" + shape.name().toLowerCase() + "</shape>");
 		if (shape.isClippable()) {
 			elements.add("<shapeclipped>" + trans.isClipped() + "</shapeclipped>");
 		}

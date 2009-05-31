@@ -32,7 +32,7 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.gui.ResizeLabel;
+import net.sf.openrocket.gui.components.ResizeLabel;
 import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;

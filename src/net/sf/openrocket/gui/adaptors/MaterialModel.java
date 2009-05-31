@@ -20,7 +20,7 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.gui.UnitSelector;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;

@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.ResizeLabel;
+import net.sf.openrocket.gui.components.ResizeLabel;
 import net.sf.openrocket.util.GUIUtil;
 
 public class LicenseDialog extends JDialog {

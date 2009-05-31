@@ -47,7 +47,7 @@ public class FixedPrecisionUnit extends Unit {
 
 	@Override
 	public String toString(double value) {
-		return String.format(formatString, value);
+		return String.format(formatString, this.toUnit(value));
 	}
 	
 	

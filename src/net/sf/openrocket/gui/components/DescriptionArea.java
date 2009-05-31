@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.components;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;

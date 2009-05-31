@@ -25,14 +25,14 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.BasicSlider;
-import net.sf.openrocket.gui.ResizeLabel;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.UnitSelector;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
+import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;

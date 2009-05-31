@@ -1,4 +1,15 @@
+2009-05-28  Sampo Niskanen
+
+	* Added startup check for Java 1.6 and OpenJDK
+
+2009-05-28  Sampo Niskanen
+
+	* Fixed FixedPrecisionUnit formatting
+	* Fixed saving of transitions
+	* Fixed file dialog directory browsing
+	* Initial shift-click selects second component from figure
+	* Allow adding body components without selecting stage
+	
 2009-05-24  Sampo Niskanen  <sampo.niskanen@iki.fi>
 
 	* Initial release 0.9.0
-
