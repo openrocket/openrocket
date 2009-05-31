@@ -1,0 +1,30 @@
+; Aerotech E23 RASP.ENG file made from NAR published data
+; File produced July 4, 2000
+; Submitted to ThrustCurve.org by Chris Kobel (3/30/07)
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+E23T   29   124   5-8   .0174   .1039   AT
+   0.024   16.299
+   0.035   21.959
+   0.067   30.785
+   0.090   35.774
+   0.153   37.577
+   0.200   38.220
+   0.240   37.357
+   0.322   37.577
+   0.393   35.093
+   0.534   32.378
+   0.727   27.168
+   0.766   26.938
+   0.798   25.125
+   0.908   21.729
+   1.057   16.980
+   1.187   12.682
+   1.336    7.471
+   1.450    3.169
+   1.497    1.584
+   1.532    0.679
+   1.570    0.000

@@ -1,0 +1,36 @@
+;
+;F23FJ Motor Thrust Curve created by Tim Van Milligan
+;for RockSim Users - www.rocksim.com
+;file produced March 2, 2005
+;Based on data supplied by Aerotech for the newer molded case F23 econojet.
+F23FJ 29 83 4-7 0.033 0.0839 AeroTech
+0.03 48.7
+0.05 43.11
+0.08 41.41
+0.1 42.26
+0.13 40.84
+0.17 39.42
+0.23 38.85
+0.27 38.85
+0.3 37.44
+0.31 38.57
+0.36 37.72
+0.43 36.59
+0.5 36.02
+0.56 36.02
+0.59 34.6
+0.69 33.18
+0.77 32.61
+0.85 31.2
+0.94 29.5
+1.04 27.79
+1.18 24.39
+1.2 25.24
+1.25 22.97
+1.37 20.98
+1.53 16.73
+1.69 12.48
+1.83 9.07
+1.95 5.11
+2.07 2.27
+2.22 0

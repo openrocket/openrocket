@@ -1,0 +1,29 @@
+;
+; Sky Ripper Systems 38mm hybrid motors
+; prepared by Andrew MacMillen NAR 77472 8/10/04
+;
+; based on TMT thrust data & cert docs
+; NOX weight calc'd at 90 deg. F; 0.5469 gm/cc; 984 psi
+; compiled with RockSim6 EngEdit
+;
+;
+; SRS J144 38/580 PP
+J144_pp  38.0 914.00 0 0.37000 1.13300 SRS
+   0.01     301.25 
+   0.03     376.44 
+   0.03     376.86 
+   0.08     247.31 
+   0.22     273.45 
+   0.45     263.59 
+   0.79     231.99 
+   1.09     175.69 
+   1.21     185.68 
+   2.05     149.60 
+   2.86     127.64 
+   3.42      69.07 
+   3.88      42.69 
+   4.59      20.49 
+   5.20      10.00 
+   5.80       6.12 
+   5.80       0.00 
+;

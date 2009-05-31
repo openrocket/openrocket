@@ -1,0 +1,38 @@
+;
+;Animal Motor Works K475 RASP.ENG file made from NAR data
+;File produced Feb 22, 2003
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+K475WW 54 403 100 0.7286 1.4925 Animal_Motor_Works 
+0.022 127.831
+0.041 386.016
+0.063 548.326
+0.096 521.308
+0.134 499.129
+0.18 486.83
+0.285 486.83
+0.478 501.649
+0.731 523.727
+1.096 553.266
+1.433 577.962
+1.601 588.29
+1.756 582.704
+1.895 580.284
+1.958 575.344
+2.063 550.746
+2.209 518.788
+2.344 477.051
+2.495 417.974
+2.561 354.058
+2.582 334.399
+2.599 331.98
+2.62 297.501
+2.67 226.226
+2.707 157.37
+2.74 98.353
+2.799 49.176
+2.853 17.208
+2.94 0

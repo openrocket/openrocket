@@ -1,0 +1,33 @@
+;
+;Aerotech G12RC RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+G12RC 32 107 100 0.0511 0.131 AT
+0.03 18.549
+0.117 19.96
+0.239 20.64
+0.362 20.111
+0.519 18.982
+0.694 17.138
+0.886 15.02
+1.131 13.186
+1.375 11.915
+1.689 11.069
+2.021 10.363
+2.422 10.232
+3.172 9.677
+4.114 9.267
+5.039 8.857
+6.137 8.733
+7.132 8.607
+7.795 8.335
+7.952 8.196
+8.074 8.055
+8.179 6.924
+8.319 4.661
+8.476 1.973
+8.55 0

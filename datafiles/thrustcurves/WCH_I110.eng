@@ -1,0 +1,32 @@
+;
+; West Coast Hybrid motor
+; prepared for WestCoast/Scott Harrison by
+; Andrew MacMillen NAR 77472 9/13/02
+;
+; based on CAR thrust curves & cert letters
+; since the cert letters and test curves don't agree
+; the data is hand entered data points from CAR thrust curves
+; NOX weight calc'd at 90 deg. F; 0.5469 gm/cc; 984 psi
+; compiled with RockSim5 EngEdit
+;
+; within 2-3 percent for total impulse, peak and average thrust
+; accurate thrust profile
+;
+; NOTE: NOT WCH, CAR, TMT OR NAR APPROVED
+;
+; West Coast Hybrids I110
+;
+I110H  38.0 606.00 0 0.32700 0.82400 WCH
+   0.05     240.00 
+   0.38     200.00 
+   0.76     182.00 
+   1.14     160.00 
+   1.52     142.00 
+   1.90     125.00 
+   2.23     113.00 
+   2.66      71.00 
+   3.04      44.00 
+   3.42      29.00 
+   3.78      22.00 
+   4.00       0.00 
+;

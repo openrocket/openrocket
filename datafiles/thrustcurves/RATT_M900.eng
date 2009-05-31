@@ -1,0 +1,23 @@
+;
+;Rattworks M900 Hybrid
+;prepared by Andrew MacMillen NAR 77472 12/23/04
+;based on TMT thrust data from Paul Holmes & TMT cert doc
+;NOX weight calc'd at .7048gm/cc, 75 deg F @ 812 psi
+;compiled with RockSim6 EngEdit
+;within 2 percent for total impulse
+;peak and average thrust are off due to data spike smoothing
+;accurate thrust profile
+;NOTE: NOT RATT, CAR, TMT OR NAR APPROVED
+;Rattworks M900
+M900 69 1828 100 3.288 5.956 RATT_Works 
+0.04 151.9
+0.43 241.76
+0.5 1054.61
+7.04 718.06
+7.22 346.42
+7.26 297.14
+7.35 241.24
+7.48 200.65
+7.66 164.8
+12.28 49.36
+12.3 0

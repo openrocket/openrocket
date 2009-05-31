@@ -1,0 +1,36 @@
+; Aerotech E28 RASP.ENG file made from NAR published data
+; File produced July 4, 2000
+; Submitted to ThrustCurve.org by Chris Kobel (3/29/07)
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+E28T  24   70   2-5-8   .0184   .0545   A
+   0.010   29.8620
+   0.018   45.1390
+   0.038   47.5620
+   0.081   50.5200
+   0.106   48.9530
+   0.146   48.2630
+   0.161   48.9530
+   0.197   48.9530
+   0.242   47.5620
+   0.313   46.1800
+   0.411   43.0570
+   0.494   40.6240
+   0.527   39.5830
+   0.542   40.2740
+   0.562   38.5420
+   0.633   36.4600
+   0.683   34.3770
+   0.743   31.2440
+   0.799   29.1620
+   0.877   26.0380
+   0.970   20.8320
+   1.006   17.3590
+   1.046   11.4620
+   1.089    6.9430
+   1.132    3.8190
+   1.172    1.7350
+   1.220    0.0000

@@ -1,0 +1,37 @@
+;
+;Apogee B7 RASP.ENG file made from NAR published data
+;File produced September 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+B7 13 50 4-6-8-10 0.0028 0.0091 Apogee 
+0.007 5.708
+0.013 7.211
+0.032 6.111
+0.045 8.116
+0.056 7.717
+0.069 9.02
+0.078 12.122
+0.087 14.76
+0.106 13.832
+0.117 13.733
+0.125 12.636
+0.155 12.438
+0.168 11.836
+0.2 11.243
+0.209 11.737
+0.219 10.739
+0.266 9.846
+0.29 9.849
+0.299 8.949
+0.367 7.456
+0.393 7.159
+0.429 5.761
+0.487 4.567
+0.571 2.975
+0.607 2.178
+0.669 1.084
+0.708 0.489
+0.74 0

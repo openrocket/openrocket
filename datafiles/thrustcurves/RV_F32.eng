@@ -1,0 +1,11 @@
+; Rocketvision F32
+; from NAR data sheet updated 11/2000
+; created by John Coker 5/2006
+F32 24 124 5-10-15 .0377 .0695 RV
+   0.01 50
+   0.05 56
+   0.10 48
+   2.00 24
+   2.20 19
+   2.45  5
+   2.72  0

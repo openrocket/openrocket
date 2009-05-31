@@ -1,0 +1,18 @@
+;
+;Aerotech F50 RASP.ENG file made by Tim Van Milligan
+;For RockSim www.RockSim.com
+;File Created March 2, 2005
+;Thrust curve supplied by Aerotech for the molded case F50T motors.
+F50T 29 98 4-6-9 0.0336 0.0898 AeroTech
+0.013 73.762
+0.0326 70.383
+0.267 69.82
+0.518 67.005
+0.792 56.87
+0.906 50.676
+1 44.482
+1.036 39.978
+1.107 23.649
+1.199 6.194
+1.316 1.126
+1.43 0

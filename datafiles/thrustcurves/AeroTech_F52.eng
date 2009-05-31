@@ -1,0 +1,39 @@
+;
+;Aerotech F52 RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+F52 29 124 5-8-11 0.0366 0.1214 AT
+0.012 46.899
+0.033 61.778
+0.056 69.441
+0.097 73.483
+0.115 76.636
+0.13 74.381
+0.153 74.82
+0.168 78.422
+0.182 78.95
+0.206 77.963
+0.238 77.504
+0.258 73.892
+0.314 72.974
+0.39 72.046
+0.428 70.679
+0.501 65.699
+0.565 62.975
+0.688 58.874
+0.749 56.15
+0.837 52.517
+0.901 49.793
+0.971 46.161
+1.088 39.365
+1.144 34.386
+1.173 29.417
+1.222 20.376
+1.275 13.151
+1.339 5.461
+1.389 1.838
+1.42 0

@@ -1,0 +1,40 @@
+;
+; Animal Motor Works K600 RASP.ENG file made from NAR data
+; File produced August 22, 2002
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+K600 75 368 P 1.2233 2.9129 AMW
+   0.010 412.229
+   0.029 522.21
+   0.059 547.215
+   0.083 524.8
+   0.122 497.305
+   0.181 484.852
+   0.333 495.113
+   0.690 560.464
+   1.195 643.548
+   1.400 673.833
+   1.420 708.799
+   1.508 701.427
+   1.591 721.551
+   1.782 731.712
+   2.017 752.035
+   2.174 756.816
+   2.257 765.2
+   2.502 766.44
+   2.727 752.931
+   2.918 738.187
+   3.143 705.91
+   3.408 643.847
+   3.603 569.131
+   3.692 526.793
+   3.745 439.426
+   3.799 289.596
+   3.883 112.272
+   3.922 64.862
+   3.971 37.437
+   3.995 22.474
+   4.070 0

@@ -1,0 +1,38 @@
+;
+;AMW M1900 RASP.ENG file made from NAR published data
+;File produced April 19, 2004
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+M1900BB 75 785 100 2.733 5.4225 Animal_Motor_Works 
+0.018 1109.21
+0.044 1761.75
+0.061 1910.65
+0.085 1938.62
+0.159 1929.63
+0.29 1956.62
+0.409 2031.56
+0.438 1974.6
+0.569 2011.58
+0.815 2104.51
+1.073 2197.44
+1.401 2280.39
+1.688 2324.7
+1.905 2297.37
+2.073 2241.41
+2.254 2138.49
+2.397 2063.54
+2.479 2016.57
+2.54 2025.57
+2.581 2006.58
+2.63 1885.67
+2.716 1493.94
+2.805 1120.21
+2.887 840.605
+2.972 569.996
+3.046 299.488
+3.119 150.193
+3.168 56.829
+3.23 0

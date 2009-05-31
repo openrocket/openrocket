@@ -1,0 +1,126 @@
+
+GUI:
+
+- Preferences dialog
+
+
+BUGS:
+
+
+COMPUTATION:
+
+
+FILE/STORAGE:
+
+
+OTHER:
+
+- web-sivut
+
+
+DIPPA:
+
+
+
+
+-------------------
+
+LATER:
+
+- Simulation delete/copy/paste hotkeys
+  (either component or simulation selected, but not both)
+- Add BodyComponent at end of rocket when no component is selected
+- Showing events in plot (maybe future)
+- Search field in motor selection dialog
+- Through-the-wall fins
+- Store materials
+
+- Streamer CD estimation
+
+- exporting (maybe later)
+
+- Make ThicknessRingComponent implement RadialParent and allow
+  attaching components to a TubeCoupler
+
+
+
+
+DONE:
+
+- Automatic diameters of body components
+- Copy/paste
+
+18.4.:
+- Esc, Ctrl-Z and Y etc.
+- Look and feel
+
+19.4.:
+- Nose cone and transition shoulders in GUI
+- zoom, cut/copy/paste etc. icons
+
+23.4.:
+- Figure or rocket not updating when using a new BasicFrame
+
+24.4.:
+- File save and load
+- Motor configuration editing		(pre-alpha)
+- Save simulations
+
+25.4.:
+- Multi-stages simulation		(pre-alpha)
+- Make sure simulations end
+- Mass and CG overrides			(pre-alpha)
+- General loader
+
+26.4.:
+- Centering ring inner diameter automatics	(pre-alpha)
+- Landing simulation			(pre-alpha ??)
+- Parachute/Streamer editing in GUI	(pre-alpha)
+- Launch lug editing in GUI		(pre-alpha)
+
+29.4.:
+- Actual plotting done
+- Refactored source code packages
+
+2.5.:
+- Plotting				(pre-alpha)
+- Gravity model
+- More units and specific custom units (angle, temperature, ...)
+- Transition/Nose cone description text wrapping
+- Fin set CP jumps at Mach 0.9
+
+- Error dialogs for load/save/etc
+
+3.5.:
+- More materials			(pre-alpha)
+- File opening from command line
+
+9.5.:
+- Rocket configuration dialog
+- Warnings in poor conditions (transition supersonic)
+- New or old fin-body interference?
+- poista tiedot laminaarisesta vastuksesta
+- vertailuosio
+
+11.5.:
+- Better default values for components
+- Component analysis dialog show zero total mass and CG
+- Compression support in save
+- Simulation storage options
+
+12.5.:
+- Load simulations
+- Update file version to 1.0
+
+13.5.:
+- statistiikat softasta
+
+17.5.:
+- jonkin verran TODOja
+- conclusion
+- viitteet
+- Draw the component icons
+- splashscreen
+
+18.5.:
+- About dialog + version number

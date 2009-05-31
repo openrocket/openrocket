@@ -1,0 +1,642 @@
+package net.sf.openrocket.gui.main;
+
+
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.Collator;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.gui.ResizeLabel;
+import net.sf.openrocket.rocketcomponent.Motor;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.util.Prefs;
+
+public class MotorChooserDialog extends JDialog {
+	
+	private static final int SHOW_ALL = 0;
+	private static final int SHOW_SMALLER = 1;
+	private static final int SHOW_EXACT = 2;
+	private static final String[] SHOW_DESCRIPTIONS = {
+		"Show all motors",
+		"Show motors with diameter less than that of the motor mount",
+		"Show motors with diameter equal to that of the motor mount"
+	};
+	private static final int SHOW_MAX = 2;
+	
+
+	private final double diameter;
+
+	private Motor selectedMotor = null;
+	private double selectedDelay = 0;
+
+	private JTable table;
+	private TableRowSorter<TableModel> sorter;
+	private JComboBox delayBox;
+	private MotorDatabaseModel model;
+	
+	private boolean okClicked = false;
+
+	
+	public MotorChooserDialog(double diameter) {
+		this(null,5,diameter,null);
+	}
+	
+	public MotorChooserDialog(Motor current, double delay, double diameter) {
+		this(current,delay,diameter,null);
+	}
+	
+	public MotorChooserDialog(Motor current, double delay, double diameter, Frame owner) {
+		super(owner, "Select a rocket motor", true);
+		
+		JButton button;
+
+		this.selectedMotor = current;
+		this.selectedDelay = delay;
+		this.diameter = diameter;
+		
+		JPanel panel = new JPanel(new MigLayout("fill"));
+
+		// Label
+		JLabel label = new JLabel("Select a rocket motor:");
+		label.setFont(label.getFont().deriveFont(Font.BOLD));
+		panel.add(label,"split 2, growx");
+		
+		label = new JLabel("Motor mount diameter: " +
+				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(diameter));
+		panel.add(label,"alignx 100%, wrap paragraph");
+		
+		
+		// Diameter selection
+		JComboBox combo = new JComboBox(SHOW_DESCRIPTIONS);
+		combo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				int sel = cb.getSelectedIndex();
+				if ((sel < 0) || (sel > SHOW_MAX))
+					sel = SHOW_ALL;
+				switch (sel) {
+				case SHOW_ALL:
+					System.out.println("Setting filter: all");
+					sorter.setRowFilter(new MotorRowFilterAll());
+					break;
+					
+				case SHOW_SMALLER:
+					System.out.println("Setting filter: smaller");
+					sorter.setRowFilter(new MotorRowFilterSmaller());
+					break;
+					
+				case SHOW_EXACT:
+					System.out.println("Setting filter: exact");
+					sorter.setRowFilter(new MotorRowFilterExact());
+					break;
+					
+				default:
+					assert(false) : "Should not occur.";	
+				}
+				Prefs.putChoise("MotorDiameterMatch", sel);
+				setSelectionVisible();
+			}
+		});
+		panel.add(combo,"growx, wrap");
+
+		
+		// Table, overridden to show meaningful tooltip texts
+		model = new MotorDatabaseModel(current);
+		table = new JTable(model) {
+			@Override
+			public String getToolTipText(MouseEvent e) {
+		        java.awt.Point p = e.getPoint();
+		        int colIndex = columnAtPoint(p);
+		        int viewRow = rowAtPoint(p);
+		        if (viewRow < 0)
+		        	return null;
+		        int rowIndex = convertRowIndexToModel(viewRow);
+		        Motor motor = model.getMotor(rowIndex);
+
+		        if (colIndex < 0 || colIndex >= MotorColumns.values().length)
+		        	return null;
+
+		        return MotorColumns.values()[colIndex].getToolTipText(motor);
+			}
+		};
+		
+		// Set comparators and widths
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		sorter = new TableRowSorter<TableModel>(model);
+		for (int i=0; i < MotorColumns.values().length; i++) {
+			MotorColumns column = MotorColumns.values()[i];
+			sorter.setComparator(i, column.getComparator());
+			table.getColumnModel().getColumn(i).setPreferredWidth(column.getWidth());
+		}
+		table.setRowSorter(sorter);
+
+		// Set selection and double-click listeners
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				int row = table.getSelectedRow();
+				if (row >= 0) {
+					row = table.convertRowIndexToModel(row);
+					Motor m = model.getMotor(row);
+					if (!m.equals(selectedMotor)) {
+						selectedMotor = model.getMotor(row);
+						setDelays(true);  // Reset delay times
+					}
+				}
+			}
+		});
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+					okClicked = true;
+					MotorChooserDialog.this.setVisible(false);
+				}
+			}
+		});
+		// (Current selection and scrolling performed later)
+		
+		JScrollPane scrollpane = new JScrollPane();
+		scrollpane.setViewportView(table);
+		panel.add(scrollpane,"grow, width :700:, height :300:, wrap paragraph");
+		
+		
+		// Ejection delay
+		panel.add(new JLabel("Select ejection charge delay:"), "split 3, gap rel");
+		
+		delayBox = new JComboBox();
+		delayBox.setEditable(true);
+		delayBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String sel = (String)cb.getSelectedItem();
+				if (sel.equalsIgnoreCase("None")) {
+					selectedDelay = Motor.PLUGGED;
+				} else {
+					try {
+						selectedDelay = Double.parseDouble(sel);
+					} catch (NumberFormatException ignore) { }
+				}
+				setDelays(false);
+			}
+		});
+		panel.add(delayBox,"gapright unrel");
+		panel.add(new ResizeLabel("(Number of seconds or \"None\")", -1), "wrap para");
+		setDelays(false);
+		
+		
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				okClicked = true;
+				MotorChooserDialog.this.setVisible(false);
+			}
+		});
+		panel.add(okButton,"split, tag ok");
+
+		button = new JButton("Cancel");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MotorChooserDialog.this.setVisible(false);
+			}
+		});
+		panel.add(button,"tag cancel");
+
+				
+		// Sets the filter:
+		int showMode = Prefs.getChoise("MotorDiameterMatch", SHOW_MAX, SHOW_EXACT);
+		combo.setSelectedIndex(showMode);
+		
+		
+		this.add(panel);
+		this.pack();
+//		this.setAlwaysOnTop(true);
+
+		GUIUtil.setDefaultButton(okButton);
+		GUIUtil.installEscapeCloseOperation(this);
+		
+		// Table can be scrolled only after pack() has been called
+		setSelectionVisible();
+	}
+	
+	private void setSelectionVisible() {
+		if (selectedMotor != null) {
+			int index = table.convertRowIndexToView(model.getIndex(selectedMotor));
+			table.getSelectionModel().setSelectionInterval(index, index);
+			Rectangle rect = table.getCellRect(index, 0, true);
+			rect = new Rectangle(rect.x,rect.y-100,rect.width,rect.height+200);
+			table.scrollRectToVisible(rect);
+		}
+	}
+	
+	
+	/**
+	 * Set the values in the delay combo box.  If <code>reset</code> is <code>true</code>
+	 * then sets the selected value as the value closest to selectedDelay, otherwise
+	 * leaves selection alone.
+	 */
+	private void setDelays(boolean reset) {
+		if (selectedMotor == null) {
+			
+			delayBox.setModel(new DefaultComboBoxModel(new String[] { "None" }));
+			delayBox.setSelectedIndex(0);
+			
+		} else {
+			
+			double[] delays = selectedMotor.getStandardDelays();
+			String[] delayStrings = new String[delays.length];
+			double currentDelay = selectedDelay;  // Store current setting locally
+			
+			for (int i=0; i < delays.length; i++) {
+				delayStrings[i] = Motor.getDelayString(delays[i], "None");
+			}
+			delayBox.setModel(new DefaultComboBoxModel(delayStrings));
+			
+			if (reset) {
+
+				// Find and set the closest value
+				double closest = Double.NaN;
+				for (int i=0; i < delays.length; i++) {
+					// if-condition to always become true for NaN
+					if (!(Math.abs(delays[i] - currentDelay) > 
+						  Math.abs(closest - currentDelay))) {
+						closest = delays[i];
+					}
+				}
+				if (!Double.isNaN(closest)) {
+					selectedDelay = closest;
+					delayBox.setSelectedItem(Motor.getDelayString(closest, "None"));
+				} else {
+					delayBox.setSelectedItem("None");
+				}
+
+			} else {
+				
+				selectedDelay = currentDelay;
+				delayBox.setSelectedItem(Motor.getDelayString(currentDelay, "None"));
+				
+			}
+			
+		}
+	}
+
+	
+	
+	public Motor getSelectedMotor() {
+		if (!okClicked)
+			return null;
+		return selectedMotor;
+	}
+	
+	
+	public double getSelectedDelay() {
+		return selectedDelay;
+	}
+	
+
+	
+	
+	////////////////  JTable elements  ////////////////
+	
+	
+	/**
+	 * Enum defining the table columns.
+	 */
+	private enum MotorColumns {
+		MANUFACTURER("Manufacturer",100) {
+			@Override
+			public String getValue(Motor m) {
+				return m.getManufacturer();
+			}
+//			@Override
+//			public String getToolTipText(Motor m) {
+//				return "<html>" + m.getDescription().replace((CharSequence)"\n", "<br>");
+//			}
+			@Override
+			public Comparator<?> getComparator() {
+				return Collator.getInstance();
+			}
+		},
+		DESIGNATION("Designation") {
+			@Override
+			public String getValue(Motor m) {
+				return m.getDesignation();
+			}
+//			@Override
+//			public String getToolTipText(Motor m) {
+//				return "<html>" + m.getDescription().replace((CharSequence)"\n", "<br>");
+//			}
+			@Override
+			public Comparator<?> getComparator() {
+				return Motor.getDesignationComparator();
+			}
+		},
+		TYPE("Type") {
+			@Override
+			public String getValue(Motor m) {
+				return m.getMotorType().getName();
+			}
+//			@Override
+//			public String getToolTipText(Motor m) {
+//				return m.getMotorType().getDescription();
+//			}
+			@Override
+			public Comparator<?> getComparator() {
+				return Collator.getInstance();
+			}
+		},
+		DIAMETER("Diameter") {
+			@Override
+			public String getValue(Motor m) {
+				return UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(
+						m.getDiameter());
+			}
+			@Override
+			public Comparator<?> getComparator() {
+				return getNumericalComparator();
+			}
+		},
+		LENGTH("Length") {
+			@Override
+			public String getValue(Motor m) {
+				return UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(
+						m.getLength());
+			}
+			@Override
+			public Comparator<?> getComparator() {
+				return getNumericalComparator();
+			}
+		},
+		IMPULSE("Impulse") {
+			@Override
+			public String getValue(Motor m) {
+				return UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(
+						m.getTotalImpulse());
+			}
+			@Override
+			public Comparator<?> getComparator() {
+				return getNumericalComparator();
+			}
+		},
+		TIME("Burn time") {
+			@Override
+			public String getValue(Motor m) {
+				return UnitGroup.UNITS_SHORT_TIME.getDefaultUnit().toStringUnit(
+						m.getAverageTime());
+			}
+			@Override
+			public Comparator<?> getComparator() {
+				return getNumericalComparator();
+			}
+		};
+		
+		
+		private final String title;
+		private final int width;
+		
+		MotorColumns(String title) {
+			this(title, 50);
+		}
+		
+		MotorColumns(String title, int width) {
+			this.title = title;
+			this.width = width;
+		}
+		
+		
+		public abstract String getValue(Motor m);
+		public abstract Comparator<?> getComparator();
+
+		public String getTitle() {
+			return title;
+		}
+		
+		public int getWidth() {
+			return width;
+		}
+		
+		public String getToolTipText(Motor m) {
+			String tip = "<html>";
+			tip += "<b>" + m.toString() + "</b>";
+			tip += " (" + m.getMotorType().getDescription() + ")<br><hr>";
+			
+			String desc = m.getDescription().trim();
+			if (desc.length() > 0) {
+				tip += "<i>" + desc.replace("\n", "<br>") + "</i><br><hr>";
+			}
+			
+			tip += ("Diameter: " + 
+					UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(m.getDiameter()) +
+					"<br>");
+			tip += ("Length: " + 
+					UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(m.getLength()) +
+					"<br>");
+			tip += ("Maximum thrust: " + 
+					UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(m.getMaxThrust()) +
+					"<br>");
+			tip += ("Average thrust: " + 
+					UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(m.getAverageThrust()) +
+					"<br>");
+			tip += ("Burn time: " + 
+					UnitGroup.UNITS_SHORT_TIME.getDefaultUnit()
+					.toStringUnit(m.getAverageTime()) + "<br>");
+			tip += ("Total impulse: " +
+					UnitGroup.UNITS_IMPULSE.getDefaultUnit()
+					.toStringUnit(m.getTotalImpulse()) + "<br>");
+			tip += ("Launch mass: " + 
+					UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(m.getMass(0)) +
+					"<br>");
+			tip += ("Empty mass: " + 
+					UnitGroup.UNITS_MASS.getDefaultUnit()
+					.toStringUnit(m.getMass(Double.MAX_VALUE)));
+			return tip;
+		}
+		
+	}
+	
+	
+	/**
+	 * The JTable model.  Includes an extra motor, given in the constructor,
+	 * if it is not already in the database.
+	 */
+	private class MotorDatabaseModel extends AbstractTableModel {
+		private final Motor extra;
+		
+		public MotorDatabaseModel(Motor current) {
+			if (Databases.MOTOR.contains(current))
+				extra = null;
+			else
+				extra = current;
+		}
+		
+		@Override
+		public int getColumnCount() {
+			return MotorColumns.values().length;
+		}
+
+		@Override
+		public int getRowCount() {
+			if (extra == null)
+				return Databases.MOTOR.size();
+			else
+				return Databases.MOTOR.size()+1;
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			MotorColumns column = getColumn(columnIndex);
+			if (extra == null) {
+				return column.getValue(Databases.MOTOR.get(rowIndex));
+			} else {
+				if (rowIndex == 0)
+					return column.getValue(extra);
+				else
+					return column.getValue(Databases.MOTOR.get(rowIndex - 1));
+			}
+		}
+		
+		@Override
+		public String getColumnName(int columnIndex) {
+			return getColumn(columnIndex).getTitle();
+		}
+		
+		
+		public Motor getMotor(int rowIndex) {
+			if (extra == null) {
+				return Databases.MOTOR.get(rowIndex);
+			} else {
+				if (rowIndex == 0)
+					return extra;
+				else
+					return Databases.MOTOR.get(rowIndex-1);
+			}
+		}
+		
+		public int getIndex(Motor m) {
+			if (extra == null) {
+				return Databases.MOTOR.indexOf(m);
+			} else {
+				if (extra.equals(m))
+					return 0;
+				else
+					return Databases.MOTOR.indexOf(m)+1;
+			}
+		}
+		
+		private MotorColumns getColumn(int index) {
+			return MotorColumns.values()[index];
+		}
+	}
+
+	
+	////////  Row filters
+	
+	/**
+	 * Abstract adapter class.
+	 */
+	private abstract class MotorRowFilter extends RowFilter<TableModel,Integer> {
+		@Override
+		public boolean include(
+				RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
+			int index = entry.getIdentifier();
+			Motor m = model.getMotor(index);
+			return include(m);
+		}
+		
+		public abstract boolean include(Motor m);
+	}
+	
+	/**
+	 * Show all motors.
+	 */
+	private class MotorRowFilterAll extends MotorRowFilter {
+		@Override
+		public boolean include(Motor m) {
+			return true;
+		}
+	}
+	
+	/**
+	 * Show motors smaller than the mount.
+	 */
+	private class MotorRowFilterSmaller extends MotorRowFilter {
+		@Override
+		public boolean include(Motor m) {
+			return (m.getDiameter() <= diameter + 0.0004);
+		}
+	}
+	
+	/**
+	 * Show motors that fit the mount.
+	 */
+	private class MotorRowFilterExact extends MotorRowFilter {
+		@Override
+		public boolean include(Motor m) {
+			return ((m.getDiameter() <= diameter + 0.0004) &&
+					(m.getDiameter() >= diameter - 0.0015));
+		}
+	}
+	
+	
+	private static Comparator<String> numericalComparator = null;
+	private static Comparator<String> getNumericalComparator() {
+		if (numericalComparator == null)
+			numericalComparator = new NumericalComparator();
+		return numericalComparator;
+	}
+	
+	private static class NumericalComparator implements Comparator<String> {
+		private Pattern pattern = 
+			Pattern.compile("^\\s*([0-9]*[.,][0-9]+|[0-9]+[.,]?[0-9]*).*?$");
+		private Collator collator = null;
+		@Override
+		public int compare(String s1, String s2) {
+			Matcher m1, m2;
+			
+			m1 = pattern.matcher(s1);
+			m2 = pattern.matcher(s2);
+			if (m1.find() && m2.find()) {
+				double d1 = Double.parseDouble(m1.group(1));
+				double d2 = Double.parseDouble(m2.group(1));
+				
+				return (int)((d1-d2)*1000);
+			}
+			
+			if (collator == null)
+				collator = Collator.getInstance(Locale.US);
+			return collator.compare(s1, s2);
+		}
+	}
+	
+}

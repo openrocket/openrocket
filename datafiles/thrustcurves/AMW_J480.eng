@@ -1,0 +1,32 @@
+;
+;AMW J480 RASP.ENG file made from NAR published data
+;File produced April 19, 2004
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+J480BB 54 326 100 0.556 1.2131 Animal_Motor_Works 
+0.015 225.429
+0.041 348.18
+0.071 388.127
+0.194 422.453
+0.385 459.49
+0.699 502.347
+0.968 528.042
+1.2 536.573
+1.454 543.15
+1.674 533.763
+1.887 522.321
+2.044 519.41
+2.108 525.131
+2.164 528.042
+2.197 488.095
+2.25 419.543
+2.283 333.928
+2.328 231.15
+2.354 176.95
+2.392 111.309
+2.418 68.501
+2.436 37.106
+2.49 0

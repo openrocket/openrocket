@@ -1,0 +1,63 @@
+<project name="OpenRocket" basedir=".">
+
+	<property name="src.dir"     value="src"/>			<!-- Source directory -->
+	<property name="build.dir"   value="build"/>		<!-- Build directory -->
+	
+	<!-- Distribution directory, from which stuff is jar'ed -->
+	<property name="dist.dir"    value="${build.dir}/dist"/> 
+	
+	<property name="classes.dir" value="${dist.dir}"/>	<!-- Directory for classes -->
+	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
+	<property name="lib.dir"     value="lib"/>				<!-- Library source directory -->
+
+	
+	<!-- The main class of the application -->
+	<property name="main-class"  value="net.sf.openrocket.gui.main.BasicFrame"/>
+
+	
+	<!-- Classpath definition -->
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+	
+	
+	<!-- CLEAN -->
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+		
+	<!-- BUILD -->
+	<target name="build">
+		<mkdir dir="${classes.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+	</target>
+	
+	<!-- JAR -->
+	<target name="jar" depends="build">
+		<copy todir="${dist.dir}/">
+			<fileset dir="." includes="LICENSE.TXT" />
+			<fileset dir="." includes="README.TXT" />
+			<fileset dir="." includes="datafiles/**/* pix/**/*" />
+		</copy>
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${dist.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}"/>
+				<attribute name="SplashScreen-Image" value="pix/splashscreen.png"/>
+			</manifest>
+			<zipfileset src="lib/miglayout15-swing.jar" />
+			<zipfileset src="lib/jcommon-1.0.16.jar" />
+			<zipfileset src="lib/jfreechart-1.0.13.jar" />
+		</jar>
+	</target>
+	
+	<!-- RUN -->
+	<target name="run" depends="jar">
+		<java fork="true" classname="${main-class}">
+			<classpath>
+				<path location="${jar.dir}/${ant.project.name}.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+</project>

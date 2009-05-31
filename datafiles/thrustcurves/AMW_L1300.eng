@@ -1,0 +1,35 @@
+;
+;AMW L1300 RASP.ENG file made from NAR published data
+;File produced April 19, 2004
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+L1300BB 75 728 100 1.314 2.5454 Animal_Motor_Works 
+0.014 710.467
+0.025 1247.64
+0.039 1384.13
+0.053 1447.83
+0.074 1420.53
+0.12 1447.83
+0.276 1474.12
+0.475 1519.61
+0.712 1555
+0.942 1586.74
+1.147 1562.08
+1.36 1534.78
+1.484 1551.97
+1.537 1551.97
+1.569 1497.37
+1.59 1406.38
+1.604 1451.87
+1.615 1333.58
+1.64 1168.78
+1.689 986.687
+1.753 767.749
+1.824 512.503
+1.891 275.512
+1.933 147.816
+1.987 74.737
+2.06 0

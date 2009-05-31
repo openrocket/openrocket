@@ -1,0 +1,49 @@
+;
+; Aerotech G67R (Redline)
+;
+; AeroTech RMS-38/120 EZ Access Reloadable Motors (New! Hardware).
+; New AeroTech Redline Motor. Just announced on AeroTech's Website!
+; File produced 28 Feb 2005.
+;
+; The file was produced by scaling data points off the
+; thrust curve in the manufacturers catalog sheet.
+;
+; The motor is not yet on www.thrustcurve.org.
+; Hence the amateur file production.
+; The file was created by Stan Hemphill.
+; Contact at stanley_hemphill@hotmail.com.
+;
+; Motor Dia  Len  Delay Prop Gross Mfg
+G67R 38 106 4-6-8-9-10-12-13-15-17 0.0576 0.191 AT
+0.0400 004.9200
+0.0500 006.5600
+0.0600 009.8400
+0.0700 016.4100
+0.0800 032.8100
+0.1000 049.2200
+0.1300 068.0800
+0.1500 076.2900
+0.1800 080.3900
+0.2400 082.8500
+0.2600 085.3100
+0.3100 087.7700
+0.5100 089.4100
+0.5300 091.0500
+0.5600 087.7700
+0.6000 086.9500
+0.6100 088.5900
+0.6700 086.9500
+0.6900 085.3100
+0.7100 086.9500
+0.7200 085.3100
+0.7400 086.1300
+0.7700 085.3100
+0.8100 082.0300
+0.9500 078.7500
+1.0500 073.8200
+1.4300 053.3200
+1.5000 052.5000
+1.5200 050.8600
+1.5400 045.9400
+1.6200 011.4800
+1.6400 000.0000

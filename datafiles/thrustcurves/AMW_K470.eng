@@ -1,0 +1,36 @@
+;
+;AMW K470ST RASP.ENG file made from Tripoli published data
+;File produced May 15, 2004
+;This file my be used or given away. All I ask is that this header
+;is maintained to give credit to the people who produced the data.
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+K470ST 75 302 100 0.826 2.779 Animal_Motor_Works 
+0.028 699.309
+0.039 799.337
+0.09 765.845
+0.157 770.311
+0.258 785.941
+0.41 804
+0.572 794.425
+0.707 794.425
+0.886 792.192
+0.998 783.261
+1.15 752.002
+1.318 709.579
+1.447 655.992
+1.593 595.707
+1.728 522.025
+1.885 444.101
+2.092 354.923
+2.356 270.167
+2.664 187.554
+2.945 131.734
+3.27 78.058
+3.433 55.686
+3.478 48.987
+3.556 28.909
+3.7 0

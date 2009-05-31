@@ -1,0 +1,38 @@
+;
+;Aerotech F13RCJ RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+F13RCJ 32 107 100 0.0323 0.1105 AT
+0.048 15.309
+0.084 18.629
+0.143 19.98
+0.311 18.968
+0.538 18.172
+0.729 17.138
+0.992 15.428
+1.279 13.828
+1.673 12.456
+1.984 11.879
+2.044 12.227
+2.139 11.313
+2.378 11.193
+2.51 11.084
+2.558 12.108
+2.641 10.855
+2.976 10.736
+3.49 10.627
+3.873 10.507
+3.992 10.965
+4.028 10.627
+4.41 10.507
+4.625 10.736
+4.769 9.941
+4.829 8.684
+4.865 6.742
+4.96 3.199
+5.02 1.485
+5.1 0

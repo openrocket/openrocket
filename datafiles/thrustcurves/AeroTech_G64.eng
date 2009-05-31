@@ -1,0 +1,38 @@
+;
+;Aerotech G64 RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+G64 29 124 4-8-10 0.0625 0.1512 AT
+0.014 54.325
+0.032 81.488
+0.059 98.31
+0.101 85.021
+0.165 83.847
+0.274 85.614
+0.37 87.39
+0.476 86.798
+0.503 91.516
+0.517 85.614
+0.585 83.847
+0.723 80.896
+0.745 82.07
+0.773 77.945
+0.883 75.576
+0.988 74.401
+1.093 69.673
+1.262 61.412
+1.28 61.994
+1.326 58.451
+1.372 54.907
+1.422 47.238
+1.505 34.841
+1.591 23.027
+1.701 13.581
+1.829 7.085
+1.902 4.133
+1.966 1.771
+2.09 0

@@ -1,0 +1,29 @@
+
+Copyright of the icons:
+-----------------------
+
+
+From the "Nuvola" package by David Vignoni:
+http://www.icon-king.com/projects/nuvola/
+
+application-exit.png
+document-close.png
+document-new.png
+document-open.png
+document-save-as.png
+document-save.png
+edit-copy.png
+edit-cut.png
+edit-delete.png
+edit-paste.png
+edit-redo.png
+edit-undo.png
+
+
+From the "Crystal" project:
+http://www.everaldo.com/crystal/
+
+preferences.png
+zoom-in.png
+zoom-out.png
+

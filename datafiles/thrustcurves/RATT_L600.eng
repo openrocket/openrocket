@@ -1,0 +1,35 @@
+;
+;Rattworks L600 Hybrid
+;prepared by Andrew MacMillen NAR 77472 2/28/04
+;based on TMT thrust data from Paul Holmes & TMT cert doc
+;NOX weight calc'd at .7048gm/cc, 75 deg F @ 812 psi
+;compiled with RockSim7 EngEdit
+;within 3 percent for total impulse
+;peak and average thrust are off due to data spike smoothing
+;accurate thrust profile
+;NOTE: NOT RATT, CAR, TMT OR NAR APPROVED
+;Rattworks L600
+L600 64 1066 100 1.863 2.25 RATT_Works 
+0 88.62
+0.02 153.82
+0.19 158.02
+0.35 169.94
+0.4 1127.04
+0.78 1001.2
+2.23 778.11
+2.84 736.24
+3.07 704
+3.62 673.43
+3.81 435.29
+3.89 350.43
+4.14 240.05
+4.31 197.19
+4.49 165.4
+4.66 139.26
+4.82 119.21
+5.01 99.01
+5.34 70.99
+5.93 49.74
+6.49 38.96
+6.98 36.42
+7.1 0

@@ -1,0 +1,162 @@
+package net.sf.openrocket.util;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+
+
+public class Reflection {
+	
+	private static final String ROCKETCOMPONENT_PACKAGE = "net.sf.openrocket.rocketcomponent";
+	
+	/**
+	 * Simple wrapper class that converts the Method.invoke() exceptions into suitable
+	 * RuntimeExceptions.
+	 * 
+	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+	 */
+	public static class Method {
+		private final java.lang.reflect.Method method;
+		public Method(java.lang.reflect.Method m) {
+			method = m;
+		}
+		/**
+		 * Same as Method.invoke(), but the possible exceptions are wrapped into 
+		 * RuntimeExceptions.
+		 */
+		public Object invoke(Object obj, Object... args) {
+			try {
+				return method.invoke(obj, args);
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException("Error while invoking method '"+method+"'. "+
+						"Please report this as a bug.",e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException("Error while invoking method '"+method+"'. "+
+						"Please report this as a bug.",e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException("Error while invoking method '"+method+"'. "+
+						"Please report this as a bug.",e);
+			}
+		}
+		/**
+		 * Invoke static method.  Equivalent to invoke(null, args...).
+		 */
+		public Object invokeStatic(Object... args) {
+			return invoke(null,args);
+		}
+		/**
+		 * Same as Method.toString().
+		 */
+		@Override
+		public String toString() {
+			return method.toString();
+		}
+	}
+	
+	
+	/**
+	 * Throws an exception if method not found.
+	 */
+	public static Reflection.Method findMethodStatic(
+			Class<? extends RocketComponent> componentClass,
+			String method, Class<?>... params) {
+		Reflection.Method m = findMethod(ROCKETCOMPONENT_PACKAGE, componentClass, 
+				"", method, params);
+		if (m == null) {
+			throw new RuntimeException("Could not find method for componentClass="
+					+componentClass+" method="+method);
+		}
+		return m;
+	}
+	
+	
+	
+	public static Reflection.Method findMethod(String pack, RocketComponent component, 
+			String method, Class<?>...params) {
+		return findMethod(pack,component.getClass(),"",method,params);
+	}
+	
+	
+	public static Reflection.Method findMethod(String pack, RocketComponent component, 
+			String suffix, String method, Class<?>... params) {
+		return findMethod(pack, component.getClass(), suffix, method, params);
+	}
+
+	
+	public static Reflection.Method findMethod(String pack, 
+			Class<? extends RocketComponent> componentClass, 
+			String suffix, String method, Class<?>... params) {
+		Class<?> currentclass;
+		String name;
+		
+		currentclass = componentClass;
+		while ((currentclass != null) && (currentclass != Object.class)) {
+			name = currentclass.getCanonicalName();
+			if (name.lastIndexOf('.')>=0)
+				name = name.substring(name.lastIndexOf(".")+1);
+			name = pack + "." + name + suffix;
+			
+			try {
+				Class<?> c = Class.forName(name);
+				java.lang.reflect.Method m = c.getMethod(method,params);
+				return new Reflection.Method(m);
+			} catch (ClassNotFoundException ignore) {
+			} catch (NoSuchMethodException ignore) {
+			}
+
+			currentclass = currentclass.getSuperclass();
+		}
+		return null;
+	}
+	
+	
+	public static Object construct(String pack, RocketComponent component, String suffix,
+			Object... params) {
+		
+		Class<?> currentclass;
+		String name;
+		
+		currentclass = component.getClass();
+		while ((currentclass != null) && (currentclass != Object.class)) {
+			name = currentclass.getCanonicalName();
+			if (name.lastIndexOf('.')>=0)
+				name = name.substring(name.lastIndexOf(".")+1);
+			name = pack + "." + name + suffix;
+			
+			try {
+				Class<?> c = Class.forName(name);
+				Class<?>[] paramClasses = new Class<?>[params.length];
+				for (int i=0; i < params.length; i++) {
+					paramClasses[i] = params[i].getClass();
+				}
+				
+				// Constructors must be searched manually.  Why?!
+				main: for (Constructor<?> constructor: c.getConstructors()) {
+					Class<?>[] parameterTypes = constructor.getParameterTypes();
+					if (params.length != parameterTypes.length)
+						continue;
+					for (int i=0; i < params.length; i++) {
+						if (!parameterTypes[i].isInstance(params[i])) 
+							continue main;
+					}
+					// Matching constructor found
+					return constructor.newInstance(params);
+				}
+			} catch (ClassNotFoundException ignore) {
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException("Construction of "+name+" failed",e);
+			} catch (InstantiationException e) {
+				throw new RuntimeException("Construction of "+name+" failed",e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException("Construction of "+name+" failed",e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException("Construction of "+name+" failed",e);
+			}
+
+			currentclass = currentclass.getSuperclass();
+		}
+		throw new RuntimeException("Suitable constructor for component "+component+ 
+				" not found");
+	}
+}

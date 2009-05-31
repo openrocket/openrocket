@@ -1,0 +1,37 @@
+;
+;AMW K560 RASP.ENG file made from NAR published data
+;File produced April 19, 2004
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+K560RR 54 430 100 0.75 1.5866 Animal_Motor_Works 
+0.023 229.13
+0.046 415.135
+0.059 485.264
+0.078 512.268
+0.106 525.67
+0.154 523.05
+0.211 528.39
+0.261 536.451
+0.369 560.734
+0.511 587.738
+0.657 603.86
+0.77 612.022
+1.096 625.75
+1.358 620.083
+1.627 612.022
+1.839 603.86
+2.057 590.459
+2.218 598.52
+2.335 609.301
+2.385 601.24
+2.407 585.018
+2.426 533.831
+2.467 385.511
+2.507 283.037
+2.542 164.441
+2.576 67.399
+2.595 29.653
+2.62 0

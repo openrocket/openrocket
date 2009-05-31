@@ -1,0 +1,33 @@
+;Aerotech D21 RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;Submitted to ThrustCurve.org by Chris Kobel (3/29/07)
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+D21T 18 70 4-7 0.0096 0.025 AT 
+   0.01   1.367
+   0.021 19.367
+   0.029 32.12
+   0.037 31.667
+   0.051 30.528
+   0.094 30.074
+   0.115 31.213
+   0.133 30.074
+   0.177 30.76
+   0.189 29.842
+   0.203 30.528
+   0.226 29.842
+   0.275 28.935
+   0.296 29.389
+   0.331 28.027
+   0.421 25.971
+   0.478 24.146
+   0.579 20.728
+   0.659 17.774
+   0.739 14.356
+   0.799  9.569
+   0.852  4.557
+   0.899  1.139
+   0.94   0

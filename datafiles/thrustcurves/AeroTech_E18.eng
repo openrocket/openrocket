@@ -1,0 +1,37 @@
+; Aerotech E18 RASP.ENG file made from NAR published data
+; File produced July 4, 2000
+; Submitted to ThrustCurve.org by Chris Kobel (3/29/07)
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+E18W   24   70   4-8-10   .0207   .057 AT
+   0.016    6.586
+   0.042   18.004
+   0.073   27.138
+   0.098   29.815
+   0.134   30.357
+   0.170   30.347
+   0.195   31.080
+   0.236   30.347
+   0.287   30.878
+   0.338   30.337
+   0.368   30.878
+   0.404   29.795
+   0.424   30.688
+   0.465   29.976
+   0.526   29.785
+   0.592   29.063
+   0.669   28.341
+   0.786   26.908
+   0.908   23.850
+   1.025   21.163
+   1.157   17.905
+   1.284   14.857
+   1.462   11.338
+   1.660    7.106
+   1.838    3.470
+   2.006    1.309
+   2.083    0.588
+   2.140    0.000

@@ -1,0 +1,41 @@
+;
+;Aerotech F23RCWSK RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+F23-RC-SK 32 107 100 0.0378 0.1287 AT
+0.042 22.644
+0.133 28.191
+0.161 27.261
+0.189 29.57
+0.252 31.419
+0.343 32.578
+0.399 32.348
+0.441 33.737
+0.476 30.729
+0.539 33.507
+0.609 34.197
+0.777 34.886
+0.826 34.656
+0.896 36
+0.938 34.656
+1.015 34.656
+1.071 34.197
+1.12 33.038
+1.218 32.578
+1.267 29.81
+1.351 29.34
+1.393 27.731
+1.54 26.802
+1.645 24.263
+1.799 21.255
+1.862 19.866
+2.051 15.479
+2.317 11.552
+2.618 6.7
+2.884 3.234
+3.185 1.386
+3.47 0

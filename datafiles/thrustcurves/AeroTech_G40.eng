@@ -1,0 +1,18 @@
+;
+;Aerotech G40W RASP.ENG file made by Tim Van Milligan
+;For RockSim www.RockSim.com
+;File Created March 2, 2005
+;Thrust curve supplied by Aerotech for the molded case G40W motors.
+G40W 29 124 4-7-10 0.0538 0.123 AeroTech
+0.024 74.325
+0.057 67.005
+0.252 65.879
+0.5 63.063
+0.765 60.248
+1 54.054
+1.25 47.298
+1.502 36.599
+1.751 25.338
+1.999 12.951
+2.121 3.941
+2.3 0
