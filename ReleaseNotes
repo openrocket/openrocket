@@ -1,0 +1,12 @@
+
+OpenRocket 0.9.1  (2009-06-09):
+-------------------------------
+
+Bug fixes to file dialog and saving; initial support for cut/copy/paste
+of simulations.
+
+
+OpenRocket 0.9.0  (2009-05-24):
+-------------------------------
+
+Initial release.

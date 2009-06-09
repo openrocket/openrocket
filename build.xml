@@ -13,9 +13,11 @@
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
 	<property name="lib.dir"     value="lib"/>				<!-- Library source directory -->
 
+	<property name="pkgname"     value="${ant.project.name}-${build.version}"/>
+	
 	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
-	<property name="dist.bin"    value="${jar.dir}/${ant.project.name}-${build.version}.jar"/>
-	<property name="dist.src"    value="${jar.dir}/${ant.project.name}-src-${build.version}.zip"/>
+	<property name="dist.bin"    value="${jar.dir}/${pkgname}.jar"/>
+	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
 	
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
@@ -49,7 +51,7 @@
 	<!-- JAR -->
 	<target name="jar" depends="build">
 		<copy todir="${dist.dir}/">
-			<fileset dir="." includes="LICENSE.TXT README.TXT build.properties" />
+			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes build.properties" />
 			<fileset dir="." includes="datafiles/ pix/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
@@ -70,14 +72,16 @@
 		<echo>			
 		Building source distribution
 		</echo>
+		<mkdir dir="${build.dir}/${pkgname}"/>
 		<mkdir dir="${jar.dir}"/>
-		<zip destfile="${dist.src}">
-			<!-- Base directory: -->
+		<copy todir="${build.dir}/${pkgname}">
 			<fileset dir="." includes="*">
 				<type type="file"/>
 			</fileset>
 			<fileset dir="." includes="datafiles/ lib/ pix/ src/"/>
-		</zip>
+		</copy>
+		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
+		<delete dir="${build.dir}/${pkgname}"/>
 	</target>
 	
 	
@@ -89,7 +93,7 @@
 		<delete dir="${test.dir}"/>
 		<mkdir dir="${test.dir}"/>
 		<unzip dest="${test.dir}" src="${dist.src}"/>
-		<ant dir="${test.dir}" antfile="build.xml" target="jar"/>
+		<ant dir="${test.dir}/${pkgname}" antfile="build.xml" target="jar"/>
 		<delete dir="${test.dir}"/>
 		<echo>
 		Test successful
