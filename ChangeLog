@@ -1,3 +1,12 @@
+2009-06-08  Sampo Niskanen
+
+	* Fixed loading of icons from JAR
+
+2009-06-06  Sampo Niskanen
+
+	* Cut/Copy/Paste of simulations
+	* Improved build scripts
+
 2009-05-28  Sampo Niskanen
 
 	* Added startup check for Java 1.6 and OpenJDK

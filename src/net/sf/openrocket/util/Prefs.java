@@ -5,8 +5,12 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -46,7 +50,37 @@ public class Prefs {
 	
 	
 	
-	private static final String VERSION = "0.9.0";
+	private static final String BUILD_VERSION;
+	private static final String BUILD_SOURCE;
+	
+	static {
+		try {
+			InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
+			if (is == null) {
+				throw new MissingResourceException(
+						"build.properties not found, distribution built wrong",
+						"build.properties", "build.version");
+			}
+			
+			Properties props = new Properties();
+			props.load(is);
+			is.close();
+			
+			BUILD_VERSION = props.getProperty("build.version");
+			if (BUILD_VERSION == null) {
+				throw new MissingResourceException(
+						"build.version not found in property file",
+						"build.properties", "build.version");
+			}
+			
+			BUILD_SOURCE = props.getProperty("build.source");
+			
+		} catch (IOException e) {
+			throw new MissingResourceException(
+					"Error reading build.properties",
+					"build.properties", "build.version");
+		}
+	}
 	
 	
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
@@ -112,7 +146,12 @@ public class Prefs {
 	
 	
 	public static String getVersion() {
-		return VERSION;
+		return BUILD_VERSION;
+	}
+	
+	
+	public static String getBuildSource() {
+		return BUILD_SOURCE;
 	}
 	
 	

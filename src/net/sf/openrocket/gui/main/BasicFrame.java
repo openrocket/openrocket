@@ -34,6 +34,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
@@ -96,6 +97,10 @@ public class BasicFrame extends JFrame {
     };
     
     
+    
+    public static final int COMPONENT_TAB = 0;
+    public static final int SIMULATION_TAB = 1;
+    
 
 	/**
 	 * List of currently open frames.  When the list goes empty
@@ -118,10 +123,13 @@ public class BasicFrame extends JFrame {
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
 	
+	private JTabbedPane tabbedPane;
 	private RocketPanel rocketpanel;
 	private ComponentTree tree = null;
+	
+	private final DocumentSelectionModel selectionModel;
 	private final TreeSelectionModel componentSelectionModel;
-	// private final ListSelectionModel simulationSelectionModel; ...
+	private final ListSelectionModel simulationSelectionModel;
 	
 	/** Actions available for rocket modifications */
 	private final RocketActions actions;
@@ -150,11 +158,21 @@ public class BasicFrame extends JFrame {
 		});
 		
 		
-		// Create the selection model that will be used
+		// Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
-		actions = new RocketActions(document, componentSelectionModel, this);
+		// Obtain the simulation selection model that will be used
+		SimulationPanel simulationPanel = new SimulationPanel(document);
+		simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
+		
+		// Combine into a DocumentSelectionModel
+		selectionModel = new DocumentSelectionModel(document);
+		selectionModel.attachComponentTreeSelectionModel(componentSelectionModel);
+		selectionModel.attachSimulationListSelectionModel(simulationSelectionModel);
+		
+		
+		actions = new RocketActions(document, selectionModel, this);
 		
 		
 		// The main vertical split pane		
@@ -164,11 +182,11 @@ public class BasicFrame extends JFrame {
 
 		
 		// The top tabbed pane
-		JTabbedPane tabbed = new JTabbedPane();
-		tabbed.addTab("Rocket design", null, designTab());
-		tabbed.addTab("Flight simulations", null, simulationsTab());
+		tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Rocket design", null, designTab());
+		tabbedPane.addTab("Flight simulations", null, simulationPanel);
 		
-		vertical.setTopComponent(tabbed);
+		vertical.setTopComponent(tabbedPane);
 		
 
 
@@ -331,15 +349,6 @@ public class BasicFrame extends JFrame {
 		horizontal.setRightComponent(panel);
 
 		return horizontal;
-	}
-	
-	
-	/**
-	 * Construct the "Flight simulations" tab.
-	 * @return
-	 */
-	private JComponent simulationsTab() {
-		return new SimulationPanel(document);
 	}
 	
 	
@@ -552,6 +561,16 @@ public class BasicFrame extends JFrame {
 	}
 	
 	
+	
+	/**
+	 * Select the tab on the main pane.
+	 * 
+	 * @param tab	one of {@link #COMPONENT_TAB} or {@link #SIMULATION_TAB}.
+	 */
+	public void selectTab(int tab) {
+		tabbedPane.setSelectedIndex(tab);
+	}
+
 	
 	
 	private void openAction() {

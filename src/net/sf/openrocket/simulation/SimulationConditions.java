@@ -80,9 +80,17 @@ public class SimulationConditions implements ChangeSource, Cloneable {
 		return motorID;
 	}
 	
+	/**
+	 * Set the motor configuration ID.  This must be a valid motor configuration ID of
+	 * the rocket, otherwise the configuration is set to <code>null</code>.
+	 * 
+	 * @param id	the configuration to set.
+	 */
 	public void setMotorConfigurationID(String id) {
 		if (id != null)
 			id = id.intern();
+		if (!rocket.isMotorConfigurationID(id))
+			id = null;
 		if (id == motorID)
 			return;
 		motorID = id;
@@ -319,14 +327,31 @@ public class SimulationConditions implements ChangeSource, Cloneable {
 	
 	
 	public void copyFrom(SimulationConditions src) {
-		if (this.rocket != src.rocket) {
-			throw new IllegalArgumentException("Unable to copy simulation conditions of "+
-					"a difference rocket");
-		}
-		if (this.equals(src))
-			return;
 		
-		this.motorID = src.motorID;
+		if (this.rocket == src.rocket) {
+			
+			this.motorID = src.motorID;
+			
+		} else {
+		
+			if (src.rocket.hasMotors(src.motorID)) {
+				// Try to find a matching motor ID
+				String motorDesc = src.rocket.getMotorConfigurationDescription(src.motorID);
+				String matchID = null;
+				
+				for (String id: this.rocket.getMotorConfigurationIDs()) {
+					if (motorDesc.equals(this.rocket.getMotorConfigurationDescription(id))) {
+						matchID = id;
+						break;
+					}
+				}
+				
+				this.motorID = matchID;
+			} else {
+				this.motorID = null;
+			}
+		}
+		
 		this.launchAltitude = src.launchAltitude;
 		this.launchLatitude = src.launchLatitude;
 		this.launchPressure = src.launchPressure;

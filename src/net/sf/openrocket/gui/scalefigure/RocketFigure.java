@@ -121,7 +121,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	public void setSelection(RocketComponent[] selection) {
 		if (selection == null) {
-			selection = new RocketComponent[0];
+			this.selection = new RocketComponent[0];
 		} else {
 			this.selection = selection;
 		}

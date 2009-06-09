@@ -35,21 +35,21 @@ public class Startup {
 		try {
 			
 			Class cls = Class.forName(START_CLASS);
-			Method m = cls.getMethod("main", String[].class);
+			Method m = cls.getMethod("main", new Class[] {String[].class});
 			m.invoke(null, new Object[] { args });
 			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			error("Error starting main class!", "Please report a bug.");
+			error(new String[] {"Error starting main class!", "Please report a bug."});
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
-			error("Error starting main class!", "Please report a bug.");
+			error(new String[] {"Error starting main class!", "Please report a bug."});
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
-			error("Error starting main class!", "Please report a bug.");
+			error(new String[] {"Error starting main class!", "Please report a bug."});
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-			error("Error starting main class!", "Please report a bug.");
+			error(new String[] {"Error starting main class!", "Please report a bug."});
 		}
 
 	}
@@ -73,16 +73,16 @@ public class Startup {
 			
 			if (major < REQUIRED_MAJOR_VERSION || 
 					(major == REQUIRED_MAJOR_VERSION && minor < REQUIRED_MINOR_VERSION)) {
-				error("Java SE version 6 is required to run OpenRocket.",
+				error(new String[] {"Java SE version 6 is required to run OpenRocket.",
 						"You are currently running " + jreName + " version " +
-						jreVersion + " by " + jreVendor);
+						jreVersion + " by " + jreVendor});
 			}
 			
 		} catch (RuntimeException e) {
 			
-			confirm("The Java version in use could not be detected.",
+			confirm(new String[] {"The Java version in use could not be detected.",
 					"OpenRocket requires at least Java SE 6.",
-					"Continue anyway?");
+					"Continue anyway?"});
 			
 		}
 		
@@ -118,11 +118,11 @@ public class Startup {
 			String jreVersion = System.getProperty("java.runtime.version", "(unknown)");
 			String jreVendor = System.getProperty("java.vendor", "(unknown)");
 
-			confirm("OpenJDK is known to have problems running OpenRocket.",
+			confirm(new String[] {"OpenJDK is known to have problems running OpenRocket.",
 					" ",
 					"You are currently running " + jreName + " version " +
 					jreVersion + " by " + jreVendor,
-					"Do you want to continue?");
+					"Do you want to continue?"});
 			
 		}
 	}
@@ -135,7 +135,7 @@ public class Startup {
 	 * 
 	 * @param message	an array of messages to present.
 	 */
-	private static void error(String ... message) {
+	private static void error(String[] message) {
 
 		System.err.println();
 		System.err.println("Error starting OpenRocket:");
@@ -163,7 +163,7 @@ public class Startup {
 	 * 
 	 * @param message	the message Strings to show.
 	 */
-	private static void confirm(String ... message) {
+	private static void confirm(String[] message) {
 
 		if (!GraphicsEnvironment.isHeadless()) {
 			
@@ -171,10 +171,7 @@ public class Startup {
 					JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
 				System.exit(1);
 			}
-			
 		}
-
 	}
-	
 	
 }

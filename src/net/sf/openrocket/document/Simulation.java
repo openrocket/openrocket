@@ -21,7 +21,7 @@ import net.sf.openrocket.simulation.exception.SimulationListenerException;
 import net.sf.openrocket.util.ChangeSource;
 
 
-public class Simulation implements ChangeSource {
+public class Simulation implements ChangeSource, Cloneable {
 	
 	public static enum Status {
 		/** Up-to-date */
@@ -48,9 +48,9 @@ public class Simulation implements ChangeSource {
 	private Status status = Status.NOT_SIMULATED;
 	
 	/** The conditions to use */
-	private final SimulationConditions conditions;
+	private SimulationConditions conditions;
 	
-	private List<String> simulationListeners = new ArrayList<String>();
+	private ArrayList<String> simulationListeners = new ArrayList<String>();
 	
 	private Class<? extends FlightSimulator> simulatorClass = RK4Simulator.class;
 	private Class<? extends AerodynamicCalculator> calculatorClass = BarrowmanCalculator.class;
@@ -58,7 +58,7 @@ public class Simulation implements ChangeSource {
 	
 	
 	/** Listeners for this object */
-	private final List<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
 	
 	
 	/** The conditions actually used in the previous simulation, or null */
@@ -304,7 +304,7 @@ public class Simulation implements ChangeSource {
 	 * 
 	 * @return	a description of the motor configuration of the previous simulation, or
 	 * 			<code>null</code>.
-	 * @see		Rocket#getMotorConfigurationDescription(String)
+	 * @see		Rocket#getMotorConfigurationNameOrDescription(String)
 	 */
 	public String getSimulatedMotorDescription() {
 		return simulatedMotors;
@@ -321,7 +321,56 @@ public class Simulation implements ChangeSource {
 	}
 	
 	
+	
+	/**
+	 * Returns a copy of this simulation suitable for cut/copy/paste operations.  
+	 * This excludes any simulated data.
+	 *  
+	 * @return	a copy of this simulation and its conditions.
+	 */
+	@SuppressWarnings("unchecked")
+	public Simulation copy() {
+		try {
 
+			Simulation copy = (Simulation)super.clone();
+
+			copy.status = Status.NOT_SIMULATED;
+			copy.conditions = this.conditions.clone();
+			copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
+			copy.listeners = new ArrayList<ChangeListener>();
+			copy.simulatedConditions = null;
+			copy.simulatedMotors = null;
+			copy.simulatedData = null;
+			copy.simulatedRocketID = -1;
+
+			return copy;
+
+		
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException("Clone not supported, BUG", e);
+		}
+	}
+	
+	
+	/**
+	 * Create a duplicate of this simulation with the specified rocket.  The new
+	 * simulation is in non-simulated state.
+	 * 
+	 * @param newRocket		the rocket for the new simulation.
+	 * @return				a new simulation with the same conditions and properties.
+	 */
+	@SuppressWarnings("unchecked")
+	public Simulation duplicateSimulation(Rocket newRocket) {
+		Simulation copy = new Simulation(newRocket);
+		
+		copy.name = this.name;
+		copy.conditions.copyFrom(this.conditions);
+		copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
+		copy.simulatorClass = this.simulatorClass;
+		copy.calculatorClass = this.calculatorClass;
+
+		return copy;
+	}
 	
 	
 

@@ -193,7 +193,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	public String getMotorConfigurationDescription() {
-		return rocket.getMotorConfigurationDescription(motorConfiguration);
+		return rocket.getMotorConfigurationNameOrDescription(motorConfiguration);
 	}
 	
 	

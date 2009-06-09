@@ -535,6 +535,42 @@ public class Rocket extends RocketComponent {
 
 	
 	/**
+	 * Check whether <code>id</code> is a valid motor configuration ID.
+	 * 
+	 * @param id	the configuration ID.
+	 * @return		whether a motor configuration with that ID exists.
+	 */
+	public boolean isMotorConfigurationID(String id) {
+		return motorConfigurationIDs.contains(id);
+	}
+	
+	
+	
+	/**
+	 * Check whether the given motor configuration ID has motors defined for it.
+	 * 
+	 * @param id	the motor configuration ID (may be invalid).
+	 * @return		whether any motors are defined for it.
+	 */
+	public boolean hasMotors(String id) {
+		Iterator<RocketComponent> iterator = this.deepIterator();
+		while (iterator.hasNext()) {
+			RocketComponent c = iterator.next();
+
+			if (c instanceof MotorMount) {
+				MotorMount mount = (MotorMount) c;
+				if (!mount.isMotorMount())
+					continue;
+				if (mount.getMotor(id) != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
 	 * Return the user-set name of the motor configuration.  If no name has been set,
 	 * returns an empty string (not null).
 	 *  
@@ -563,9 +599,24 @@ public class Rocket extends RocketComponent {
 	
 		
 	/**
-	 * Return a description for the motor configuration.  This is either the 
-	 * name previously set by {@link #setMotorConfigurationName(String, String)} or
-	 * a string generated from the motor designations of the components.
+	 * Return either the motor configuration name (if set) or its description. 
+	 * 
+	 * @param id  the motor configuration ID.
+	 * @return    a textual representation of the configuration
+	 */
+	public String getMotorConfigurationNameOrDescription(String id) {
+		String name;
+		
+		name = motorConfigurationNames.get(id);
+		if (name != null  &&  !name.equals(""))
+			return name;
+		
+		return getMotorConfigurationDescription(id);
+	}
+	
+	/**
+	 * Return a description for the motor configuration, generated from the motor 
+	 * designations of the components.
 	 * 
 	 * @param id  the motor configuration ID.
 	 * @return    a textual representation of the configuration
@@ -578,10 +629,6 @@ public class Rocket extends RocketComponent {
 		if (!motorConfigurationIDs.contains(id)) {
 			throw new IllegalArgumentException("Motor configuration ID does not exist: "+id);
 		}
-		
-		name = motorConfigurationNames.get(id);
-		if (name != null  &&  !name.equals(""))
-			return name;
 		
 		// Generate the description
 		

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
@@ -17,6 +18,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -25,6 +28,9 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.events.DocumentChangeEvent;
+import net.sf.openrocket.document.events.DocumentChangeListener;
+import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.ResizeLabel;
@@ -43,8 +49,6 @@ public class SimulationPanel extends JPanel {
 	private static final Color OK_COLOR = new Color(60,150,0);
 	private static final String OK_TEXT = "\u2714";   		// Heavy check mark
 	
-	private static final String NAME_PREFIX = "Simulation ";
-
 	
 	
 	private final OpenRocketDocument document;
@@ -70,21 +74,8 @@ public class SimulationPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				// Generate unique name for the simulation
-				int maxValue = 0;
-				for (Simulation s: document.getSimulations()) {
-					String name = s.getName();
-					if (name.startsWith(NAME_PREFIX)) {
-						try {
-							maxValue = Math.max(maxValue, 
-									Integer.parseInt(name.substring(NAME_PREFIX.length())));
-						} catch (NumberFormatException ignore) { }
-					}
-				}
-
 				Simulation sim = new Simulation(document.getRocket());
-				sim.setName(NAME_PREFIX + (maxValue+1));
+				sim.setName(document.getNextSimulationName());
 				
 				int n = document.getSimulationCount();
 				document.addSimulation(sim);
@@ -231,6 +222,7 @@ public class SimulationPanel extends JPanel {
 						
 						// Set simulation status icon
 						Simulation.Status status = document.getSimulation(row).getStatus();
+						System.out.println("status=" + status);
 						label.setIcon(Icons.SIMULATION_STATUS_ICON_MAP.get(status));
 						
 
@@ -388,11 +380,22 @@ public class SimulationPanel extends JPanel {
 			}
 		};
 		
-		simulationTable = new JTable(simulationTableModel);
+		// Override processKeyBinding so that the JTable does not catch
+		// key bindings used in menu accelerators
+		simulationTable = new JTable(simulationTableModel) {
+			@Override
+			protected boolean processKeyBinding(KeyStroke ks,
+                    KeyEvent e,
+                    int condition,
+                    boolean pressed) {
+				return false;
+			}
+		};
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
 
+		
 		// Mouse listener to act on double-clicks
 		simulationTable.addMouseListener(new MouseAdapter() {
 			@Override
@@ -409,6 +412,15 @@ public class SimulationPanel extends JPanel {
 					openDialog(document.getSimulations().get(selected), 
 							SimulationEditDialog.DEFAULT);
 				}
+			}
+		});
+		
+		document.addDocumentChangeListener(new DocumentChangeListener() {
+			@Override
+			public void documentChanged(DocumentChangeEvent event) {
+				if (!(event instanceof SimulationChangeEvent))
+					return;
+				simulationTableModel.fireTableDataChanged();
 			}
 		});
 		 
@@ -431,6 +443,10 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	
+	public ListSelectionModel getSimulationListSelectionModel() {
+		return simulationTable.getSelectionModel();
+	}
+	
 	private void openDialog(final Simulation sim, int position) {
 		new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), sim, position)
 			.setVisible(true);
@@ -441,6 +457,8 @@ public class SimulationPanel extends JPanel {
 		   int[] selection = simulationTable.getSelectedRows();
 		   simulationTableModel.fireTableDataChanged();
 		   for (int row: selection) {
+			   if (row >= simulationTableModel.getRowCount())
+				   break;
 			   simulationTable.addRowSelectionInterval(row, row);
 		   }
 	}

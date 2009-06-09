@@ -10,6 +10,9 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import net.sf.openrocket.document.events.DocumentChangeEvent;
+import net.sf.openrocket.document.events.DocumentChangeListener;
+import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -29,6 +32,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public static final int UNDO_MARGIN = 10;
 
 	
+	public static final String SIMULATION_NAME_PREFIX = "Simulation ";
+	
 	private final Rocket rocket;
 	private final Configuration configuration;
 
@@ -47,6 +52,9 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final StorageOptions storageOptions = new StorageOptions();
 	
+	
+	private final List<DocumentChangeListener> listeners = 
+		new ArrayList<DocumentChangeListener>();
 	
 	/* These must be initialized after undo history is set up. */
 	private final UndoRedoAction undoAction;
@@ -70,8 +78,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		redoAction = new UndoRedoAction(UndoRedoAction.REDO);
 		
 		rocket.addComponentChangeListener(this);
-		
-		
 	}
 	
 	
@@ -135,17 +141,43 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	public void addSimulation(Simulation simulation) {
 		simulations.add(simulation);
+		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	public void addSimulation(Simulation simulation, int n) {
 		simulations.add(n, simulation);
+		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	public void removeSimulation(Simulation simulation) {
 		simulations.remove(simulation);
+		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
 	}
 	public Simulation removeSimulation(int n) {
-		return simulations.remove(n);
+		Simulation simulation = simulations.remove(n);
+		fireDocumentChangeEvent(new SimulationChangeEvent(simulation));
+		return simulation;
 	}
 	
+	/**
+	 * Return a unique name suitable for the next simulation.  The name begins
+	 * with {@link #SIMULATION_NAME_PREFIX} and has a unique number larger than any
+	 * previous simulation.
+	 * 
+	 * @return	the new name.
+	 */
+	public String getNextSimulationName() {
+		// Generate unique name for the simulation
+		int maxValue = 0;
+		for (Simulation s: simulations) {
+			String name = s.getName();
+			if (name.startsWith(SIMULATION_NAME_PREFIX)) {
+				try {
+					maxValue = Math.max(maxValue, 
+							Integer.parseInt(name.substring(SIMULATION_NAME_PREFIX.length())));
+				} catch (NumberFormatException ignore) { }
+			}
+		}
+		return SIMULATION_NAME_PREFIX + (maxValue+1);
+	}
 	
 	
 	/**
@@ -299,6 +331,24 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
+	
+	
+	///////  Listeners
+	
+	public void addDocumentChangeListener(DocumentChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeDocumentChangeListener(DocumentChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	protected void fireDocumentChangeEvent(DocumentChangeEvent event) {
+		DocumentChangeListener[] array = listeners.toArray(new DocumentChangeListener[0]);
+		for (DocumentChangeListener l: array) {
+			l.documentChanged(event);
+		}
+	}
 	
 	
 	

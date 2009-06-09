@@ -1,18 +1,25 @@
 <project name="OpenRocket" basedir=".">
 
+	<property file="build.properties" />
+	
 	<property name="src.dir"     value="src"/>			<!-- Source directory -->
 	<property name="build.dir"   value="build"/>		<!-- Build directory -->
 	
 	<!-- Distribution directory, from which stuff is jar'ed -->
 	<property name="dist.dir"    value="${build.dir}/dist"/> 
+	<property name="test.dir"    value="${build.dir}/test"/>
 	
 	<property name="classes.dir" value="${dist.dir}"/>	<!-- Directory for classes -->
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
 	<property name="lib.dir"     value="lib"/>				<!-- Library source directory -->
 
+	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
+	<property name="dist.bin"    value="${jar.dir}/${ant.project.name}-${build.version}.jar"/>
+	<property name="dist.src"    value="${jar.dir}/${ant.project.name}-src-${build.version}.zip"/>
 	
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
+	<property name="main-dir" value="net/sf/openrocket/startup"/>
 
 	
 	<!-- Classpath definition -->
@@ -21,26 +28,32 @@
 	</path>
 	
 	
+	
+	
 	<!-- CLEAN -->
 	<target name="clean">
 		<delete dir="${build.dir}"/>
 	</target>
 		
+	
 	<!-- BUILD -->
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
-		<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+		<echo>Compiling main classes</echo>
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" excludes="${main-dir}/*" classpathref="classpath"/>
+		<echo>Compiling startup classes</echo>
+		<javac srcdir="${src.dir}/${main-dir}" destdir="${classes.dir}" source="1.4" classpathref="classpath"/>
 	</target>
+	
 	
 	<!-- JAR -->
 	<target name="jar" depends="build">
 		<copy todir="${dist.dir}/">
-			<fileset dir="." includes="LICENSE.TXT" />
-			<fileset dir="." includes="README.TXT" />
-			<fileset dir="." includes="datafiles/**/* pix/**/*" />
+			<fileset dir="." includes="LICENSE.TXT README.TXT build.properties" />
+			<fileset dir="." includes="datafiles/ pix/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
-		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${dist.dir}">
+		<jar destfile="${jar.file}" basedir="${dist.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}"/>
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png"/>
@@ -51,13 +64,48 @@
 		</jar>
 	</target>
 	
-	<!-- RUN -->
-	<target name="run" depends="jar">
-		<java fork="true" classname="${main-class}">
-			<classpath>
-				<path location="${jar.dir}/${ant.project.name}.jar"/>
-			</classpath>
-		</java>
+	
+	<!-- DIST-SRC -->
+	<target name="dist-src" depends="clean">
+		<echo>			
+		Building source distribution
+		</echo>
+		<mkdir dir="${jar.dir}"/>
+		<zip destfile="${dist.src}">
+			<!-- Base directory: -->
+			<fileset dir="." includes="*">
+				<type type="file"/>
+			</fileset>
+			<fileset dir="." includes="datafiles/ lib/ pix/ src/"/>
+		</zip>
+	</target>
+	
+	
+	<!-- DIST-SRC-TEST -->
+	<target name="dist-src-test" depends="dist-src">
+		<echo>
+		Testing source distribution
+		</echo>
+		<delete dir="${test.dir}"/>
+		<mkdir dir="${test.dir}"/>
+		<unzip dest="${test.dir}" src="${dist.src}"/>
+		<ant dir="${test.dir}" antfile="build.xml" target="jar"/>
+		<delete dir="${test.dir}"/>
+		<echo>
+		Test successful
+		</echo>
+	</target>	
+	
+	
+	<!-- DIST-BIN -->
+	<target name="dist-bin" depends="clean,jar">
+		<move file="${jar.file}" tofile="${dist.bin}"/>
 	</target>
 
+	
+	<!-- DIST -->
+	<target name="dist" depends="dist-bin,dist-src,dist-src-test">
+		<echo>Distribution ${build.version} (${build.source}) built into directory ${jar.dir}</echo>
+	</target>
+	
 </project>

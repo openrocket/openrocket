@@ -55,6 +55,19 @@ public class DocumentSelectionModel {
 	public Simulation[] getSelectedSimulations() {
 		return Arrays.copyOf(simulationSelection, simulationSelection.length);
 	}
+	
+	public void setSelectedSimulations(Simulation[] sims) {
+		simulationSelection = sims;
+		clearComponentSelection();
+
+		simulationListSelectionModel.clearSelection();
+		for (Simulation s: sims) {
+			int index = document.getSimulationIndex(s);
+			if (index >= 0) {
+				simulationListSelectionModel.addSelectionInterval(index, index);
+			}
+		}
+	}
 
 	/**
 	 * Return the currently selected rocket component.  Returns <code>null</code>
@@ -64,6 +77,14 @@ public class DocumentSelectionModel {
 	 */
 	public RocketComponent getSelectedComponent() {
 		return componentSelection;
+	}
+	
+	public void setSelectedComponent(RocketComponent component) {
+		componentSelection = component;
+		clearSimulationSelection();
+	
+		TreePath path = ComponentTreeModel.makeTreePath(component);
+		componentTreeSelectionModel.setSelectionPath(path);
 	}
 
 

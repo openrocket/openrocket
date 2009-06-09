@@ -41,6 +41,7 @@ public class BugDialog extends JDialog {
 		sb.append('\n');
 		sb.append("---------- Included system information ----------\n");
 		sb.append("OpenRocket version: " + Prefs.getVersion() + "\n");
+		sb.append("OpenRocket source: " + Prefs.getBuildSource() + "\n");
 		sb.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
 		sb.append("System properties:\n");
 

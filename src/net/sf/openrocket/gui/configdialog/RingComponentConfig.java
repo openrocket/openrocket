@@ -16,8 +16,10 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
@@ -142,8 +144,17 @@ public class RingComponentConfig extends RocketComponentConfig {
 
 		
 		//// Material
-		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
-				"cell 4 0, gapleft paragraph, aligny 0%, spany");
+		JPanel sub = materialPanel(new JPanel(new MigLayout()), Material.Type.BULK);
+		
+		if (component instanceof EngineBlock) {
+			DescriptionArea desc = new DescriptionArea(6,-1);
+			desc.setText("<html>An engine block stops the motor from moving forwards in " +
+					"the motor mount tube.<br><br>In order to add a motor, create a body tube " +
+					"or inner tube and mark it as a motor mount in the <em>Motor</em> " +
+					"tab.");
+			sub.add(desc, "growx");
+		}
+		panel.add(sub,"cell 4 0, gapleft paragraph, aligny 0%, spany");
 		
 		return panel;
 	}

@@ -181,7 +181,7 @@ public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
 		
 		@Override
 		public String toString() {
-			return rocket.getMotorConfigurationDescription(id);
+			return rocket.getMotorConfigurationNameOrDescription(id);
 		}
 	}
 	
@@ -219,7 +219,7 @@ public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
 			columnList.add(new Column("Name") {
 				@Override
 				public Object getValueAt(int row) {
-					return rocket.getMotorConfigurationDescription(ids[row]);
+					return rocket.getMotorConfigurationNameOrDescription(ids[row]);
 				}
 			});
 			
