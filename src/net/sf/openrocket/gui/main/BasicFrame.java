@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.main;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -14,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,6 +40,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
@@ -56,17 +59,20 @@ import net.sf.openrocket.file.OpenRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.gui.ComponentAnalysisDialog;
-import net.sf.openrocket.gui.PreferencesDialog;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.BugDialog;
+import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
+import net.sf.openrocket.gui.dialogs.LicenseDialog;
+import net.sf.openrocket.gui.dialogs.PreferencesDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.util.ConcurrentProgressMonitor;
+import net.sf.openrocket.util.ConcurrentProgressMonitorInputStream;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Prefs;
 
@@ -588,7 +594,7 @@ public class BasicFrame extends JFrame {
 	    
 	    for (File file: files) {
 	    	System.out.println("Opening file: " + file);
-	    	if (open(file)) {
+	    	if (open(file, this)) {
 	    		opened = true;
 	    	}
 	    }
@@ -604,13 +610,16 @@ public class BasicFrame extends JFrame {
 	 * Open the specified file in a new design frame.  If an error occurs, an error dialog
 	 * is shown and <code>false</code> is returned.
 	 * 
-	 * @param file	the file to open.
-	 * @return		whether the file was successfully loaded and opened.
+	 * @param file		the file to open.
+	 * @param parent	the parent component for which a progress dialog is opened.
+	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(File file) {
+	private static boolean open(File file, Component parent) {
 	    OpenRocketDocument doc = null;
+	    
+	    
 		try {
-			doc = ROCKET_LOADER.load(file);
+			doc = ROCKET_LOADER.load(file, parent);
 		} catch (RocketLoadException e) {
 			JOptionPane.showMessageDialog(null, "Unable to open file '" + file.getName() 
 					+"': " + e.getMessage(), "Error opening file", JOptionPane.ERROR_MESSAGE);
@@ -640,6 +649,33 @@ public class BasicFrame extends JFrame {
 
 	    return true;
 	}
+	
+	
+	
+	private static class OpenWorker extends SwingWorker<OpenRocketDocument, Void> {
+		private final File file;
+		private final Component parent;
+		private ConcurrentProgressMonitor monitor = null;
+		
+		public OpenWorker(File file, Component parent) {
+			this.file = file;
+			this.parent = parent;
+		}
+		
+		@Override
+		protected OpenRocketDocument doInBackground() throws Exception {
+			ConcurrentProgressMonitorInputStream is = 
+				new ConcurrentProgressMonitorInputStream(parent, 
+						"Loading " + file.getName(), new FileInputStream(file));
+			monitor = is.getProgressMonitor();
+			return ROCKET_LOADER.load(is);
+		}
+		
+		public ConcurrentProgressMonitor getMonitor() {
+			return monitor;
+		}
+	}
+	
 	
 	
 	
@@ -804,6 +840,35 @@ public class BasicFrame extends JFrame {
 	
 	
 	
+	/**
+	 * Find a currently open BasicFrame containing the specified rocket.  This method
+	 * can be used to map a Rocket to a BasicFrame from GUI methods.
+	 * 
+	 * @param rocket the Rocket.
+	 * @return		 the corresponding BasicFrame, or <code>null</code> if none found.
+	 */
+	public static BasicFrame findFrame(Rocket rocket) {
+		for (BasicFrame f: frames) {
+			if (f.rocket == rocket)
+				return f;
+		}
+		return null;
+	}
+	
+	/**
+	 * Find a currently open document by the rocket object.  This method can be used
+	 * to map a Rocket to OpenRocketDocument from GUI methods.
+	 * 
+	 * @param rocket the Rocket.
+	 * @return		 the corresponding OpenRocketDocument, or <code>null</code> if not found.
+	 */
+	public static OpenRocketDocument findDocument(Rocket rocket) {
+		for (BasicFrame f: frames) {
+			if (f.rocket == rocket)
+				return f.document;
+		}
+		return null;
+	}
 	
 	
 	
@@ -861,7 +926,7 @@ public class BasicFrame extends JFrame {
 		// Check command-line for files
 		boolean opened = false;
 		for (String file: args) {
-			if (open(new File(file))) {
+			if (open(new File(file), null)) {
 				opened = true;
 			}
 		}

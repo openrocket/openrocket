@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.dialogs;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;

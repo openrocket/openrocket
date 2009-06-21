@@ -30,6 +30,7 @@ import net.sf.openrocket.gui.scalefigure.ScaleSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
+import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
@@ -275,7 +276,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				finset.addPoint(index);
 				try {
 					finset.setPoint(index, point.x, point.y);
-				} catch (IllegalArgumentException ignore) { }
+				} catch (IllegalFinPointException ignore) { }
 				dragIndex = index;
 				
 				return;
@@ -299,7 +300,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			
 			try {
 				finset.setPoint(dragIndex, point.x, point.y);
-			} catch (IllegalArgumentException ignore) {
+			} catch (IllegalFinPointException ignore) {
 				System.out.println("IAE:"+ignore);
 			}
 		}
@@ -328,7 +329,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 
 			try {
 				finset.removePoint(index);
-			} catch (IllegalArgumentException ignore) {
+			} catch (IllegalFinPointException ignore) {
 			}
 		}
 		
@@ -462,6 +463,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 				finset.setPoint(rowIndex, c.x, c.y);
 			
 			} catch (NumberFormatException ignore) {
+			} catch (IllegalFinPointException ignore) {
 			}
 		}
 		

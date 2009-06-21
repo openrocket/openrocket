@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.dialogs;
 
 import static net.sf.openrocket.unit.Unit.NOUNIT2;
 

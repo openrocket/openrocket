@@ -56,8 +56,10 @@ public class ClusterConfiguration {
 	};
 	
 	
+	
 	private final List<Double> points;
 	private final String xmlName;
+	
 	
 	private ClusterConfiguration(String xmlName, double... points) {
 		this.xmlName = xmlName;
@@ -99,5 +101,11 @@ public class ClusterConfiguration {
 			ret.add(-x*sin + y*cos);
 		}
 		return ret;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return xmlName;
 	}
 }

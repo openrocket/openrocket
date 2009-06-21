@@ -6,6 +6,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
+import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -144,13 +145,17 @@ public class Test {
 		bodytube = new BodyTube(0.69,0.033,0.001);
 
 		finset = new FreeformFinSet();
-		finset.setPoints(new Coordinate[] {
-				new Coordinate(0, 0),
-				new Coordinate(0.115, 0.072),
-				new Coordinate(0.255, 0.072),
-				new Coordinate(0.255, 0.037),
-				new Coordinate(0.150, 0)
-		});
+		try {
+			finset.setPoints(new Coordinate[] {
+					new Coordinate(0, 0),
+					new Coordinate(0.115, 0.072),
+					new Coordinate(0.255, 0.072),
+					new Coordinate(0.255, 0.037),
+					new Coordinate(0.150, 0)
+			});
+		} catch (IllegalFinPointException e) {
+			e.printStackTrace();
+		}
 		finset.setThickness(0.003);
 		finset.setFinCount(4);
 		

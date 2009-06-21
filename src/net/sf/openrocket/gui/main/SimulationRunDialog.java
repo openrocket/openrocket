@@ -25,7 +25,7 @@ import javax.swing.JProgressBar;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.DetailDialog;
+import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;

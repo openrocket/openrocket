@@ -45,6 +45,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private LinkedList<String> undoDescription = new LinkedList<String>();
 	
 	private String nextDescription = null;
+	private String storedDescription = null;
 	
 	
 	private File file = null;
@@ -70,9 +71,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		this.configuration = configuration;
 		this.rocket = configuration.getRocket();
 		
-		undoHistory.add(rocket.copy());
-		undoDescription.add(null);
-		undoPosition = 0;
+		clearUndo();
 		
 		undoAction = new UndoRedoAction(UndoRedoAction.UNDO);
 		redoAction = new UndoRedoAction(UndoRedoAction.REDO);
@@ -234,6 +233,31 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 
 	
+	/**
+	 * Start a time-limited undoable operation.  After the operation {@link #stopUndo()}
+	 * must be called, which will restore the previous undo description into effect.
+	 * Only one level of start-stop undo descriptions is supported, i.e. start-stop
+	 * undo cannot be nested, and no other undo operations may be called between
+	 * the start and stop calls.
+	 * 
+	 * @param description	Description of the following undoable operations.
+	 */
+	public void startUndo(String description) {
+		storedDescription = nextDescription;
+		addUndoPosition(description);
+	}
+	
+	/**
+	 * End the previous time-limited undoable operation.  This must be called after
+	 * {@link #startUndo(String)} has been called before any other undo operations are
+	 * performed.
+	 */
+	public void stopUndo() {
+		addUndoPosition(storedDescription);
+		storedDescription = null;
+	}
+	
+	
 	public Action getUndoAction() {
 		return undoAction;
 	}
@@ -241,6 +265,24 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	public Action getRedoAction() {
 		return redoAction;
+	}
+	
+	
+	/**
+	 * Clear the undo history.
+	 */
+	public void clearUndo() {
+		undoHistory.clear();
+		undoDescription.clear();
+		
+		undoHistory.add(rocket.copy());
+		undoDescription.add(null);
+		undoPosition = 0;
+		
+		if (undoAction != null)
+			undoAction.setAllValues();
+		if (redoAction != null)
+			redoAction.setAllValues();
 	}
 	
 	

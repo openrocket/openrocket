@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -22,8 +23,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -49,7 +53,9 @@ public class MotorChooserDialog extends JDialog {
 		"Show motors with diameter equal to that of the motor mount"
 	};
 	private static final int SHOW_MAX = 2;
-	
+
+	private final JTextField searchField; 
+	private String[] searchTerms = new String[0];
 
 	private final double diameter;
 
@@ -81,16 +87,16 @@ public class MotorChooserDialog extends JDialog {
 		this.selectedDelay = delay;
 		this.diameter = diameter;
 		
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill", "[grow][]"));
 
 		// Label
 		JLabel label = new JLabel("Select a rocket motor:");
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
-		panel.add(label,"split 2, growx");
+		panel.add(label,"growx");
 		
 		label = new JLabel("Motor mount diameter: " +
 				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(diameter));
-		panel.add(label,"alignx 100%, wrap paragraph");
+		panel.add(label,"gapleft para, wrap paragraph");
 		
 		
 		// Diameter selection
@@ -104,17 +110,14 @@ public class MotorChooserDialog extends JDialog {
 					sel = SHOW_ALL;
 				switch (sel) {
 				case SHOW_ALL:
-					System.out.println("Setting filter: all");
 					sorter.setRowFilter(new MotorRowFilterAll());
 					break;
 					
 				case SHOW_SMALLER:
-					System.out.println("Setting filter: smaller");
 					sorter.setRowFilter(new MotorRowFilterSmaller());
 					break;
 					
 				case SHOW_EXACT:
-					System.out.println("Setting filter: exact");
 					sorter.setRowFilter(new MotorRowFilterExact());
 					break;
 					
@@ -125,8 +128,45 @@ public class MotorChooserDialog extends JDialog {
 				setSelectionVisible();
 			}
 		});
-		panel.add(combo,"growx, wrap");
+		panel.add(combo,"growx 1000");
 
+		
+		
+		label = new JLabel("Search:");
+		panel.add(label, "gapleft para, split 2");
+		
+		searchField = new JTextField();
+		searchField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				update();
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				update();
+			}
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				update();
+			}
+			
+			private void update() {
+				String text = searchField.getText().trim();
+				String[] split = text.split("\\s+");
+				ArrayList<String> list = new ArrayList<String>();
+				for (String s: split) {
+					s = s.trim().toLowerCase();
+					if (s.length() > 0) {
+						list.add(s);
+					}
+				}
+				searchTerms = list.toArray(new String[0]);
+				sorter.sort();
+			}
+		});
+		panel.add(searchField, "growx 1, wrap");
+		
+		
 		
 		// Table, overridden to show meaningful tooltip texts
 		model = new MotorDatabaseModel(current);
@@ -186,11 +226,11 @@ public class MotorChooserDialog extends JDialog {
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(table);
-		panel.add(scrollpane,"grow, width :700:, height :300:, wrap paragraph");
+		panel.add(scrollpane,"spanx, grow, width :700:, height :300:, wrap paragraph");
 		
 		
 		// Ejection delay
-		panel.add(new JLabel("Select ejection charge delay:"), "split 3, gap rel");
+		panel.add(new JLabel("Select ejection charge delay:"), "spanx, split 3, gap rel");
 		
 		delayBox = new JComboBox();
 		delayBox.setEditable(true);
@@ -222,7 +262,7 @@ public class MotorChooserDialog extends JDialog {
 				MotorChooserDialog.this.setVisible(false);
 			}
 		});
-		panel.add(okButton,"split, tag ok");
+		panel.add(okButton,"spanx, split, tag ok");
 
 		button = new JButton("Cancel");
 		button.addActionListener(new ActionListener() {
@@ -248,6 +288,9 @@ public class MotorChooserDialog extends JDialog {
 		
 		// Table can be scrolled only after pack() has been called
 		setSelectionVisible();
+		
+		// Focus the search field
+		searchField.grabFocus();
 	}
 	
 	private void setSelectionVisible() {
@@ -567,14 +610,26 @@ public class MotorChooserDialog extends JDialog {
 	 */
 	private abstract class MotorRowFilter extends RowFilter<TableModel,Integer> {
 		@Override
-		public boolean include(
-				RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
+		public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 			int index = entry.getIdentifier();
 			Motor m = model.getMotor(index);
-			return include(m);
+			return filterByDiameter(m) && filterByString(m);
 		}
 		
-		public abstract boolean include(Motor m);
+		public abstract boolean filterByDiameter(Motor m);
+		
+		
+		public boolean filterByString(Motor m) {
+			main: for (String s : searchTerms) {
+				for (MotorColumns col : MotorColumns.values()) {
+					String str = col.getValue(m).toLowerCase();
+					if (str.indexOf(s) >= 0)
+						continue main;
+				}
+				return false;
+			}
+			return true;
+		}
 	}
 	
 	/**
@@ -582,7 +637,7 @@ public class MotorChooserDialog extends JDialog {
 	 */
 	private class MotorRowFilterAll extends MotorRowFilter {
 		@Override
-		public boolean include(Motor m) {
+		public boolean filterByDiameter(Motor m) {
 			return true;
 		}
 	}
@@ -592,7 +647,7 @@ public class MotorChooserDialog extends JDialog {
 	 */
 	private class MotorRowFilterSmaller extends MotorRowFilter {
 		@Override
-		public boolean include(Motor m) {
+		public boolean filterByDiameter(Motor m) {
 			return (m.getDiameter() <= diameter + 0.0004);
 		}
 	}
@@ -602,7 +657,7 @@ public class MotorChooserDialog extends JDialog {
 	 */
 	private class MotorRowFilterExact extends MotorRowFilter {
 		@Override
-		public boolean include(Motor m) {
+		public boolean filterByDiameter(Motor m) {
 			return ((m.getDiameter() <= diameter + 0.0004) &&
 					(m.getDiameter() >= diameter - 0.0015));
 		}

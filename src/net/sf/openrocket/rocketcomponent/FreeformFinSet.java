@@ -59,10 +59,11 @@ public class FreeformFinSet extends FinSet {
 	 * if attempted.
 	 * 
 	 * @param index   the fin point index to remove
+	 * @throws IllegalFinPointException if removing the first or last fin point was attempted.
 	 */
-	public void removePoint(int index) {
+	public void removePoint(int index) throws IllegalFinPointException {
 		if (index == 0  ||  index == points.size()-1) {
-			throw new IllegalArgumentException("cannot remove first or last point");
+			throw new IllegalFinPointException("cannot remove first or last point");
 		}
 		points.remove(index);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -73,19 +74,19 @@ public class FreeformFinSet extends FinSet {
 		return points.size();
 	}
 	
-	public void setPoints(Coordinate[] p) {
+	public void setPoints(Coordinate[] p) throws IllegalFinPointException {
 		if (p[0].x != 0 || p[0].y != 0 || p[p.length-1].y != 0) {
-			throw new IllegalArgumentException("Start or end point illegal.");
+			throw new IllegalFinPointException("Start or end point illegal.");
 		}
 		for (int i=0; i < p.length-1; i++) {
 			for (int j=i+2; j < p.length-1; j++) {
 				if (intersects(p[i].x, p[i].y, p[i+1].x, p[i+1].y,
 						       p[j].x, p[j].y, p[j+1].x, p[j+1].y)) {
-					throw new IllegalArgumentException("segments intersect");
+					throw new IllegalFinPointException("segments intersect");
 				}
 			}
 			if (p[i].z != 0) {
-				throw new IllegalArgumentException("z-coordinate not zero");
+				throw new IllegalFinPointException("z-coordinate not zero");
 			}
 		}
 		
@@ -112,8 +113,10 @@ public class FreeformFinSet extends FinSet {
 	 * @param index	the point index to modify.
 	 * @param x		the x-coordinate.
 	 * @param y		the y-coordinate.
+	 * @throws IllegalFinPointException	if the specified fin point would cause intersecting
+	 * 									segments
 	 */
-	public void setPoint(int index, double x, double y) {
+	public void setPoint(int index, double x, double y) throws IllegalFinPointException {
 		if (y < 0)
 			y = 0;
 		
@@ -160,12 +163,12 @@ public class FreeformFinSet extends FinSet {
 			
 			if (i != index-1 && i != index && i != index+1) {
 				if (intersects(x0,y0,x,y,px0,py0,px1,py1)) {
-					throw new IllegalArgumentException("segments intersect");
+					throw new IllegalFinPointException("segments intersect");
 				}
 			}
 			if (i != index && i != index+1 && i != index+2) {
 				if (intersects(x,y,x1,y1,px0,py0,px1,py1)) {
-					throw new IllegalArgumentException("segments intersect");
+					throw new IllegalFinPointException("segments intersect");
 				}
 			}
 			

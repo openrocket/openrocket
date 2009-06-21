@@ -1,3 +1,16 @@
+2009-06-20  Sampo Niskanen
+
+	* New edit motor configurations dialog
+	* Changed FreeformFinSet to throw checked exceptions
+
+2009-06-11  Sampo Niskanen
+
+	* Added search field to motor chooser dialog
+
+2009-06-09  Sampo Niskanen
+
+	* Release 0.9.1
+
 2009-06-08  Sampo Niskanen
 
 	* Fixed loading of icons from JAR

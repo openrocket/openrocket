@@ -29,6 +29,7 @@ import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
+import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -137,6 +138,8 @@ public class OpenRocketLoader extends RocketLoader {
 		doc.getDefaultStorageOptions().setSimulationTimeSkip(timeSkip);
 		doc.getDefaultStorageOptions().setCompressionEnabled(false); // Set by caller if compressed
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
+		
+		doc.clearUndo();
 		return doc;
 	}
 
@@ -977,7 +980,7 @@ class FinSetPointHandler extends ElementHandler {
 			String content, WarningSet warnings) {
 		try {
 			finset.setPoints(coordinates.toArray(new Coordinate[0]));
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalFinPointException e) {
 			warnings.add(Warning.fromString("Freeform fin set point definitions illegal, ignoring."));
 		}
 	}

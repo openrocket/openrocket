@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.swing.event.ChangeListener;
@@ -72,8 +71,8 @@ public class Rocket extends RocketComponent {
 	
 	
 	// Motor configuration list
-	private List<String> motorConfigurationIDs = new ArrayList<String>();
-	private Map<String, String> motorConfigurationNames = new HashMap<String, String>();
+	private ArrayList<String> motorConfigurationIDs = new ArrayList<String>();
+	private HashMap<String, String> motorConfigurationNames = new HashMap<String, String>();
 	{
 		motorConfigurationIDs.add(null);
 	}
@@ -267,21 +266,24 @@ public class Rocket extends RocketComponent {
 	}
 	
 
+	
+	
+	
 	/**
 	 * Make a deep copy of the Rocket structure.  This is a helper method which simply 
 	 * casts the result of the superclass method to a Rocket.
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Rocket copy() {
 		Rocket copy = (Rocket)super.copy();
+		copy.motorConfigurationIDs = (ArrayList<String>) this.motorConfigurationIDs.clone();
+		copy.motorConfigurationNames = 
+			(HashMap<String, String>) this.motorConfigurationNames.clone();
 		copy.resetListeners();
+		
 		return copy;
 	}
-	
-	
-	
-
-	
 	
 	/**
 	 * Load the rocket structure from the source.  The method loads the fields of this
@@ -293,6 +295,7 @@ public class Rocket extends RocketComponent {
 	 * and therefore fires an UNDO_EVENT, masked with all applicable mass/aerodynamic/tree
 	 * changes.
 	 */
+	@SuppressWarnings("unchecked")
 	public void loadFrom(Rocket r) {
 		super.copyFrom(r);
 		
@@ -312,9 +315,14 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.motorConfigurationIDs = r.motorConfigurationIDs;
-		this.motorConfigurationNames = r.motorConfigurationNames;
+		this.motorConfigurationIDs = (ArrayList<String>) r.motorConfigurationIDs.clone();
+		this.motorConfigurationNames = 
+			(HashMap<String, String>) r.motorConfigurationNames.clone();
 		this.perfectFinish = r.perfectFinish;
+		
+		String id = defaultConfiguration.getMotorConfigurationID();
+		if (!this.motorConfigurationIDs.contains(id))
+			defaultConfiguration.setMotorConfigurationID(null);
 		
 		fireComponentChangeEvent(type);
 	}
@@ -594,7 +602,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public void setMotorConfigurationName(String id, String name) {
 		motorConfigurationNames.put(id,name);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 		

@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui;
+package net.sf.openrocket.gui.dialogs;
 
 import java.awt.Component;
 
