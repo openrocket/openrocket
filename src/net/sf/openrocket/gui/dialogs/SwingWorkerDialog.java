@@ -1,6 +1,9 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Dimension;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -12,7 +15,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.util.Pair;
+import net.sf.openrocket.util.MathUtil;
 
 
 /**
@@ -25,94 +28,135 @@ import net.sf.openrocket.util.Pair;
  */
 public class SwingWorkerDialog extends JDialog implements PropertyChangeListener {
 
-	private final JLabel label;
-	private final JProgressBar progressBar;
+	/** Number of milliseconds to wait at a time between checking worker status */
+	private static final int DELAY = 100;
 	
-	private int position;
-	private Pair<String, SwingWorker<?,?>>[] workers;
+	/** Minimum number of milliseconds to wait before estimating work length */
+	private static final int ESTIMATION_DELAY = 190;
+	
+	/** Open the dialog if estimated remaining time is longer than this */
+	private static final int REMAINING_TIME_FOR_DIALOG = 1000;
+	
+	/** Open the dialog if estimated total time is longed than this */
+	private static final int TOTAL_TIME_FOR_DIALOG = 2000;
+
+	
+	private final SwingWorker<?,?> worker;
+	private final JProgressBar progressBar;
 	
 	private boolean cancelled = false;
 	
-	public SwingWorkerDialog(Window parent, String title) {
+	
+	private SwingWorkerDialog(Window parent, String title, String label, 
+			SwingWorker<?,?> w) {
 		super(parent, title, ModalityType.APPLICATION_MODAL);
+		
+		this.worker = w;
+		w.addPropertyChangeListener(this);
 
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		label = new JLabel("");
-		panel.add(label, "wrap para");
+		if (label != null) {
+			panel.add(new JLabel(label), "wrap para");
+		}
 		
 		progressBar = new JProgressBar();
 		panel.add(progressBar, "growx, wrap para");
 		
 		JButton cancel = new JButton("Cancel");
-		// TODO: CRITICAL: Implement cancel
+		cancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cancelled = true;
+				worker.cancel(true);
+				close();
+			}
+		});
 		panel.add(cancel, "right");
 		
 		this.add(panel);
+		this.setMinimumSize(new Dimension(250,100));
 		this.pack();
+		this.setLocationRelativeTo(parent);
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 
-	
-	/**
-	 * Execute the provided workers one after another.  When this call returns
-	 * the workers will all have completed.
-	 *   
-	 * @param workers	pairs of description texts and workers to run.
-	 */
-	public void runWorkers(Pair<String, SwingWorker<?,?>> ... workers) {
-		if (workers.length == 0) {
-			throw new IllegalArgumentException("No workers provided.");
-		}
-		
-		this.workers = workers;
-		position = -1;
-		
-		for (int i=0; i < workers.length; i++) {
-			workers[i].getV().addPropertyChangeListener(this);
-		}
-		
-		nextWorker();
-		this.setVisible(true);  // Waits until all have ended
-	}
-
-	
-	
-	/**
-	 * Starts the execution of the next worker in the queue.  If the last worker
-	 * has completed or the operation has been cancelled, closes the dialog.
-	 */
-	private void nextWorker() {
-		if ((position >= workers.length-1) || cancelled) {
-			close();
-			return;
-		}
-		
-		position++;
-		
-		label.setText(workers[position].getU());
-		workers[position].getV().execute();
-	}
-	
-	
-
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (workers[position].getV().getState() == SwingWorker.StateValue.DONE) {
-			nextWorker();
+		if (worker.getState() == SwingWorker.StateValue.DONE) {
+			close();
 		}
-		
-		int value = workers[position].getV().getProgress();
-		value = (value + position*100 ) / workers.length;
-		progressBar.setValue(value);
+		progressBar.setValue(worker.getProgress());
+	}
+	
+	private void close() {
+		worker.removePropertyChangeListener(this);
+		this.setVisible(false);
 	}
 	
 	
-	
-	private void close() {
-		for (int i=0; i < workers.length; i++) {
-			workers[i].getV().removePropertyChangeListener(this);
+	/**
+	 * Run a SwingWorker and if necessary show a dialog displaying the progress of
+	 * the worker.  The progress information is obtained from the SwingWorker's
+	 * progress property.  The dialog is shown only if the worker is estimated to
+	 * take a notable amount of time.
+	 * <p>
+	 * The dialog contains a cancel button.  Clicking it will call
+	 * <code>worker.cancel(true)</code> and close the dialog immediately.
+	 * 
+	 * @param parent	the parent window for the dialog, or <code>null</code>.
+	 * @param title		the title for the dialog.
+	 * @param label		an additional label for the dialog, or <code>null</code>.
+	 * @param worker	the SwingWorker to execute.
+	 * @return			<code>true</code> if the worker has completed normally,
+	 * 					<code>false</code> if the user cancelled the operation
+	 */
+	public static boolean runWorker(Window parent, String title, String label,
+			SwingWorker<?,?> worker) {
+		
+		// Start timing the worker
+		final long startTime = System.currentTimeMillis();
+		worker.execute();
+
+		// Monitor worker thread before opening the dialog
+		while (true) {
+			
+			try {
+				Thread.sleep(DELAY);
+			} catch (InterruptedException e) {
+				// Should never occur
+				e.printStackTrace();
+			}
+			
+			if (worker.isDone()) {
+				// Worker has completed within time limits
+				return true;
+			}
+			
+			// Check whether enough time has gone to get realistic estimate
+			long elapsed = System.currentTimeMillis() - startTime;
+			if (elapsed < ESTIMATION_DELAY)
+				continue;
+			
+			
+			// Calculate and check estimated remaining time
+			int progress = MathUtil.clamp(worker.getProgress(), 1, 100); // Avoid div-by-zero
+			long estimate = elapsed * 100 / progress;
+			long remaining = estimate - elapsed;
+			
+			if (estimate >= TOTAL_TIME_FOR_DIALOG)
+				break;
+			
+			if (remaining >= REMAINING_TIME_FOR_DIALOG)
+				break;
 		}
-		this.setVisible(false);
+		
+		
+		// Dialog is required
+		
+		SwingWorkerDialog dialog = new SwingWorkerDialog(parent, title, label, worker);
+		dialog.setVisible(true);
+		
+		return !dialog.cancelled;
 	}
 }

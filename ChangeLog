@@ -1,3 +1,8 @@
+2009-06-26  Sampo Niskanen
+
+	* Progress dialogs for file open/save
+	* File size estimate in save dialog
+
 2009-06-20  Sampo Niskanen
 
 	* New edit motor configurations dialog

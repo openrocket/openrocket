@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
@@ -14,6 +15,7 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -33,6 +35,17 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	private static final String METHOD_PACKAGE = "net.sf.openrocket.file.openrocket";
 	private static final String METHOD_SUFFIX = "Saver";
+	
+	
+	// Estimated storage used by different portions
+	// These have been hand-estimated from saved files
+	private static final int BYTES_PER_COMPONENT_UNCOMPRESSED = 590;
+	private static final int BYTES_PER_COMPONENT_COMPRESSED = 80;
+	private static final int BYTES_PER_SIMULATION_UNCOMPRESSED = 1000;
+	private static final int BYTES_PER_SIMULATION_COMPRESSED = 100;
+	private static final int BYTES_PER_DATAPOINT_UNCOMPRESSED = 350;
+	private static final int BYTES_PER_DATAPOINT_COMPRESSED = 100;
+	
 	
 	private int indent;
 	private Writer dest;
@@ -81,6 +94,55 @@ public class OpenRocketSaver extends RocketSaver {
 		dest.flush();
 		if (output instanceof GZIPOutputStream)
 			((GZIPOutputStream)output).finish();
+	}
+	
+	
+	
+	@Override
+	public long estimateFileSize(OpenRocketDocument doc, StorageOptions options) {
+		
+		long size = 0;
+		
+		// Size per component
+		int componentCount = 0;
+		Rocket rocket = doc.getRocket();
+		Iterator<RocketComponent> iterator = rocket.deepIterator(true);
+		while (iterator.hasNext()) {
+			iterator.next();
+			componentCount++;
+		}
+		
+		if (options.isCompressionEnabled())
+			size += componentCount * BYTES_PER_COMPONENT_COMPRESSED;
+		else
+			size += componentCount * BYTES_PER_COMPONENT_UNCOMPRESSED;
+		
+		
+		// Size per simulation
+		if (options.isCompressionEnabled())
+			size += doc.getSimulationCount() * BYTES_PER_SIMULATION_COMPRESSED;
+		else
+			size += doc.getSimulationCount() * BYTES_PER_SIMULATION_UNCOMPRESSED;
+		
+		
+		// Size per flight data point
+		int pointCount = 0;
+		double timeSkip = options.getSimulationTimeSkip();
+		if (timeSkip != StorageOptions.SIMULATION_DATA_NONE) {
+			for (Simulation s: doc.getSimulations()) {
+				FlightData data = s.getSimulatedData();
+				for (int i=0; i < data.getBranchCount(); i++) {
+					pointCount += countFlightDataBranchPoints(data.getBranch(i), timeSkip);
+				}
+			}
+		}
+		
+		if (options.isCompressionEnabled())
+			size += pointCount * BYTES_PER_DATAPOINT_COMPRESSED;
+		else
+			size += pointCount * BYTES_PER_DATAPOINT_UNCOMPRESSED;
+		
+		return size;
 	}
 	
 
@@ -231,8 +293,9 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	
 	
-	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip) throws IOException {
-		double previousTime = -100;
+	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip) 
+	throws IOException {
+		double previousTime = -100000;
 		
 		if (branch == null)
 			return;
@@ -296,6 +359,53 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</databranch>");
 	}
+	
+	
+	
+	/* TODO: LOW: This is largely duplicated from above! */
+	private int countFlightDataBranchPoints(FlightDataBranch branch, double timeSkip) {
+		int count = 0;
+
+		double previousTime = -100000;
+		
+		if (branch == null)
+			return 0;
+		
+		// Retrieve the types from the branch
+		FlightDataBranch.Type[] types = branch.getTypes();
+		
+		if (types.length == 0)
+			return 0;
+		
+		List<Double> timeData = branch.get(FlightDataBranch.TYPE_TIME);
+		if (timeData == null) {
+			// TODO: MEDIUM: External data may not have time data
+			throw new IllegalArgumentException("Data did not contain time data");
+		}
+		
+		// Write the data
+		int length = branch.getLength();
+		if (length > 0) {
+			count++;
+			previousTime = timeData.get(0);
+		}
+		
+		for (int i=1; i < length-1; i++) {
+			if (Math.abs(timeData.get(i) - previousTime - timeSkip) < 
+					Math.abs(timeData.get(i+1) - previousTime - timeSkip)) {
+				count++;
+				previousTime = timeData.get(i);
+			}
+		}
+		
+		if (length > 1) {
+			count++;
+		}
+
+		return count;
+	}
+	
+	
 	
 	private void writeDataPointString(List<List<Double>> data, int index, StringBuilder sb)
 	throws IOException {

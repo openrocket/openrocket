@@ -1,9 +1,9 @@
 package net.sf.openrocket.gui.main;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -15,10 +15,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -40,7 +41,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
@@ -65,16 +65,17 @@ import net.sf.openrocket.gui.dialogs.BugDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PreferencesDialog;
+import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.util.ConcurrentProgressMonitor;
-import net.sf.openrocket.util.ConcurrentProgressMonitorInputStream;
 import net.sf.openrocket.util.Icons;
+import net.sf.openrocket.util.OpenFileWorker;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.SaveFileWorker;
 
 public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -83,6 +84,9 @@ public class BasicFrame extends JFrame {
 	 * The RocketLoader instance used for loading all rocket designs.
 	 */
 	private static final RocketLoader ROCKET_LOADER = new GeneralRocketLoader();
+	
+	// TODO: Always uses OpenRocketSaver
+	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
 
 	
 	/**
@@ -241,7 +245,6 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		frames.add(this);
-		
 	}
 	
 	
@@ -590,19 +593,18 @@ public class BasicFrame extends JFrame {
 	    Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
 
 	    File[] files = chooser.getSelectedFiles();
-	    boolean opened = false;
 	    
 	    for (File file: files) {
 	    	System.out.println("Opening file: " + file);
 	    	if (open(file, this)) {
-	    		opened = true;
+	    		
+	    		// Close previous window if replacing
+	    		if (replaceable && document.isSaved()) {
+	    			closeAction();
+	    			replaceable = false;
+	    		}
 	    	}
 	    }
-
-	    // Close this frame if replaceable and file opened successfully
-		if (replaceable && opened) {
-			closeAction();
-		}
 	}
 	
 	
@@ -614,23 +616,58 @@ public class BasicFrame extends JFrame {
 	 * @param parent	the parent component for which a progress dialog is opened.
 	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(File file, Component parent) {
-	    OpenRocketDocument doc = null;
-	    
-	    
-		try {
-			doc = ROCKET_LOADER.load(file, parent);
-		} catch (RocketLoadException e) {
-			JOptionPane.showMessageDialog(null, "Unable to open file '" + file.getName() 
-					+"': " + e.getMessage(), "Error opening file", JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
+	private static boolean open(File file, Window parent) {
+
+		// Open the file in a Swing worker thread
+		OpenFileWorker worker = new OpenFileWorker(file);
+		if (!SwingWorkerDialog.runWorker(parent, "Opening file", 
+				"Reading " + file.getName() + "...", worker)) {
+
+			// User cancelled the operation
 			return false;
 		}
+
 		
-	    if (doc == null) {
-	    	throw new RuntimeException("BUG: Rocket loader returned null");
-	    }	    
-	    
+		// Handle the document
+		OpenRocketDocument doc = null;
+		try {
+
+			doc = worker.get();
+
+		} catch (ExecutionException e) {
+
+			Throwable cause = e.getCause();
+
+			if (cause instanceof FileNotFoundException) {
+
+				JOptionPane.showMessageDialog(parent, 
+						"File not found: " + file.getName(), 
+						"Error opening file", JOptionPane.ERROR_MESSAGE);
+				return false;
+
+			} else if (cause instanceof RocketLoadException) {
+
+				JOptionPane.showMessageDialog(parent, 
+						"Unable to open file '" + file.getName() +"': " 
+						+ cause.getMessage(),
+						"Error opening file", JOptionPane.ERROR_MESSAGE);
+				return false;
+
+			} else {
+
+				throw new RuntimeException("Unknown error when opening file", e);
+
+			}
+
+		} catch (InterruptedException e) {
+			throw new RuntimeException("EDT was interrupted", e);
+		}
+		
+		if (doc == null) {
+			throw new RuntimeException("BUG: Document loader returned null");
+		}
+		
+		
 	    // Show warnings
 	    Iterator<Warning> warns = ROCKET_LOADER.getWarnings().iterator();
 	    System.out.println("Warnings:");
@@ -652,29 +689,8 @@ public class BasicFrame extends JFrame {
 	
 	
 	
-	private static class OpenWorker extends SwingWorker<OpenRocketDocument, Void> {
-		private final File file;
-		private final Component parent;
-		private ConcurrentProgressMonitor monitor = null;
-		
-		public OpenWorker(File file, Component parent) {
-			this.file = file;
-			this.parent = parent;
-		}
-		
-		@Override
-		protected OpenRocketDocument doInBackground() throws Exception {
-			ConcurrentProgressMonitorInputStream is = 
-				new ConcurrentProgressMonitorInputStream(parent, 
-						"Loading " + file.getName(), new FileInputStream(file));
-			monitor = is.getProgressMonitor();
-			return ROCKET_LOADER.load(is);
-		}
-		
-		public ConcurrentProgressMonitor getMonitor() {
-			return monitor;
-		}
-	}
+	
+	
 	
 	
 	
@@ -688,11 +704,12 @@ public class BasicFrame extends JFrame {
 		}
 	}
 	
+	
 	private boolean saveAsAction() {
 		File file = null;
 		while (file == null) {
 			StorageOptionChooser storageChooser = 
-				new StorageOptionChooser(document.getDefaultStorageOptions());
+				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 			JFileChooser chooser = new JFileChooser();
 			chooser.setFileFilter(ROCKET_DESIGN_FILTER);
 			chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
@@ -738,18 +755,39 @@ public class BasicFrame extends JFrame {
 	    	return false;
 	    }
 
-	    RocketSaver saver = new OpenRocketSaver();
-	    try {
-	    	saver.save(file, document);
-	    	document.setFile(file);
-	    	document.setSaved(true);
-	    	saved = true;
-	    } catch (IOException e) {
-	    	JOptionPane.showMessageDialog(this, new String[] { 
-	    			"An I/O error occurred while saving:",
-	    			e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
+
+	    SaveFileWorker worker = new SaveFileWorker(document, file, ROCKET_SAVER);
+
+	    if (!SwingWorkerDialog.runWorker(this, "Saving file", 
+	    		"Writing " + file.getName() + "...", worker)) {
+	    	
+	    	// User cancelled the save
+	    	file.delete();
+	    	return false;
 	    }
-	    setTitle();
+	    
+	    try {
+			worker.get();
+			document.setFile(file);
+			document.setSaved(true);
+			saved = true;
+		    setTitle();
+		} catch (ExecutionException e) {
+			Throwable cause = e.getCause();
+			
+			if (cause instanceof IOException) {
+		    	JOptionPane.showMessageDialog(this, new String[] { 
+		    			"An I/O error occurred while saving:",
+		    			e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
+		    	return false;
+			} else {
+				throw new RuntimeException("Unknown error when saving file", e);
+			}
+			
+		} catch (InterruptedException e) {
+			throw new RuntimeException("EDT was interrupted", e);
+		}
+	    
 	    return saved;
 	}
 	
@@ -785,6 +823,16 @@ public class BasicFrame extends JFrame {
 		if (frames.isEmpty())
 			System.exit(0);
 		return true;
+	}
+	
+	
+	/**
+	 * Closes this frame if it is replaceable.
+	 */
+	public void closeIfReplaceable() {
+		if (this.replaceable && document.isSaved()) {
+			closeAction();
+		}
 	}
 	
 	/**

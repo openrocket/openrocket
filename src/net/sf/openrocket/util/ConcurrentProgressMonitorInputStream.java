@@ -130,6 +130,7 @@ public class ConcurrentProgressMonitorInputStream extends FilterInputStream {
 	@Override
 	public void close() throws IOException {
 		in.close();
+        monitor.close();
 	}
 
 

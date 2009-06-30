@@ -36,10 +36,26 @@ public class ConcurrentProgressMonitor extends ProgressMonitor {
 				}
 				
 			});
-			
 		}
 	}
 	
 	
+	@Override
+	public void close() {
+		if (SwingUtilities.isEventDispatchThread()) {
+			super.close();
+		} else {
+			
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					ConcurrentProgressMonitor.super.close();
+				}
+				
+			});
+		}
+	}
+
 
 }

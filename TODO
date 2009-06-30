@@ -9,7 +9,7 @@ Must-have:
 - Read more thrust curve formats / go through thrust curves and correct errors
 - Create application icon and take into use
 - Fix engine block icons
-- Progress and error dialogs when reading/writing files
+- Better error/warning dialogs when reading/writing files
 
 
 Maybe:

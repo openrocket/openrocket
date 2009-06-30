@@ -68,6 +68,16 @@ public abstract class RocketSaver {
 	
 	
 	
+	/**
+	 * Provide an estimate of the file size when saving the document with the
+	 * specified options.  This is used as an indication to the user and when estimating
+	 * file save progress.
+	 * 
+	 * @param doc		the document.
+	 * @param options	the save options, compression must be taken into account.
+	 * @return			the estimated number of bytes the storage would take.
+	 */
+	public abstract long estimateFileSize(OpenRocketDocument doc, StorageOptions options);
 	
 	
 	
