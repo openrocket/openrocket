@@ -8,7 +8,6 @@ Must-have:
 - Store custom materials
 - Read more thrust curve formats / go through thrust curves and correct errors
 - Create application icon and take into use
-- Fix engine block icons
 - Better error/warning dialogs when reading/writing files
 
 
@@ -25,6 +24,8 @@ Maybe:
 Postponed:
 
 - Importing flight data
+- Water rocket modelling
+- Landing scatter plots
 
 
 Done:
@@ -32,4 +33,5 @@ Done:
 - Search field in motor selection dialog
 - Motor selection/editing from Edit configurations dialog
 - Change FreeformFinSet to throw checked exceptions
+- Fix engine block icons
 

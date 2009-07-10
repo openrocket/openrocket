@@ -107,19 +107,19 @@ public class UnitGroup {
 		UNITS_VELOCITY = new UnitGroup();
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1, "m/s"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1/3.6, "km/h"));
-		UNITS_VELOCITY.addUnit(new GeneralUnit(1/0.3048, "ft/s"));
+		UNITS_VELOCITY.addUnit(new GeneralUnit(0.3048, "ft/s"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(0.44704, "mph"));
 		
 		UNITS_ACCELERATION = new UnitGroup();
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s\u00b2"));
-		UNITS_ACCELERATION.addUnit(new GeneralUnit(1/0.3048, "ft/s\00b2"));
+		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s\00b2"));
 		
 
 		UNITS_MASS = new UnitGroup();
 		UNITS_MASS.addUnit(new GeneralUnit(0.001,"g"));
 		UNITS_MASS.addUnit(new GeneralUnit(1,"kg"));
-		UNITS_MASS.addUnit(new GeneralUnit(0.0283495,"oz"));
-		UNITS_MASS.addUnit(new GeneralUnit(0.0453592,"lb"));
+		UNITS_MASS.addUnit(new GeneralUnit(0.0283495231,"oz"));
+		UNITS_MASS.addUnit(new GeneralUnit(0.45359237,"lb"));
 		
 		UNITS_ANGLE = new UnitGroup();
 		UNITS_ANGLE.addUnit(new DegreeUnit());
@@ -128,31 +128,31 @@ public class UnitGroup {
 		UNITS_DENSITY_BULK = new UnitGroup();
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000,"g/cm\u00b3"));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1,"kg/m\u00b3"));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.004,"oz/in\u00b3"));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.01846,"lb/ft\u00b3"));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404,"oz/in\u00b3"));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.0184634,"lb/ft\u00b3"));
 
 		UNITS_DENSITY_SURFACE = new UnitGroup();
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10,"g/cm\u00b2"));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001,"g/m\u00b2"));
 		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1,"kg/m\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418,"oz/in\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.30515173,"oz/ft\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88243,"lb/ft\u00b2"));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487,"oz/in\u00b2"));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727,"oz/ft\u00b2"));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764,"lb/ft\u00b2"));
 		UNITS_DENSITY_SURFACE.setDefaultUnit(1);
 
 		UNITS_DENSITY_LINE = new UnitGroup();
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.001,"g/m"));
 		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(1,"kg/m"));
-		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.0930102,"oz/ft"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.0930102465,"oz/ft"));
 
 		UNITS_FORCE = new UnitGroup();
 		UNITS_FORCE.addUnit(new GeneralUnit(1,"N"));
-		UNITS_FORCE.addUnit(new GeneralUnit(4.448222,"lbf"));
+		UNITS_FORCE.addUnit(new GeneralUnit(4.44822162,"lbf"));
 		UNITS_FORCE.addUnit(new GeneralUnit(9.80665,"kgf"));
 
 		UNITS_IMPULSE = new UnitGroup();
 		UNITS_IMPULSE.addUnit(new GeneralUnit(1,"Ns"));
-		UNITS_IMPULSE.addUnit(new GeneralUnit(4.448222, "lbf\u00b7s"));
+		UNITS_IMPULSE.addUnit(new GeneralUnit(4.44822162, "lbf\u00b7s"));
 
 		UNITS_TIME_STEP = new UnitGroup();
 		UNITS_TIME_STEP.addUnit(new FixedPrecisionUnit("ms", 1, 0.001));
@@ -182,9 +182,9 @@ public class UnitGroup {
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mbar", 1, 1.0e2));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("bar", 0.001, 1.0e5));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("atm", 0.001, 1.01325e5));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(133.322, "mmHg"));
+		UNITS_PRESSURE.addUnit(new GeneralUnit(101325.0/760.0, "mmHg"));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(3386.389, "inHg"));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(6894.757, "psi"));
+		UNITS_PRESSURE.addUnit(new GeneralUnit(6894.75729, "psi"));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(1, "Pa"));
 
 		UNITS_RELATIVE = new UnitGroup();

@@ -148,10 +148,10 @@ public class RingComponentConfig extends RocketComponentConfig {
 		
 		if (component instanceof EngineBlock) {
 			DescriptionArea desc = new DescriptionArea(6,-1);
-			desc.setText("<html>An engine block stops the motor from moving forwards in " +
-					"the motor mount tube.<br><br>In order to add a motor, create a body tube " +
-					"or inner tube and mark it as a motor mount in the <em>Motor</em> " +
-					"tab.");
+			desc.setText("<html>An <b>engine block</b> stops the motor from moving forwards " +
+					"in the motor mount tube.<br><br>In order to add a motor, create a " +
+					"<b>body tube</b> or <b>inner tube</b> and mark it as a motor mount in " +
+					"the <em>Motor</em> tab.");
 			sub.add(desc, "growx");
 		}
 		panel.add(sub,"cell 4 0, gapleft paragraph, aligny 0%, spany");
