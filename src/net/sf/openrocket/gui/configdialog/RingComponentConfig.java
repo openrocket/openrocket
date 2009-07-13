@@ -147,12 +147,12 @@ public class RingComponentConfig extends RocketComponentConfig {
 		JPanel sub = materialPanel(new JPanel(new MigLayout()), Material.Type.BULK);
 		
 		if (component instanceof EngineBlock) {
-			DescriptionArea desc = new DescriptionArea(6,-1);
+			final DescriptionArea desc = new DescriptionArea(6);
 			desc.setText("<html>An <b>engine block</b> stops the motor from moving forwards " +
 					"in the motor mount tube.<br><br>In order to add a motor, create a " +
 					"<b>body tube</b> or <b>inner tube</b> and mark it as a motor mount in " +
 					"the <em>Motor</em> tab.");
-			sub.add(desc, "growx");
+			sub.add(desc, "width 1px, growx, wrap");
 		}
 		panel.add(sub,"cell 4 0, gapleft paragraph, aligny 0%, spany");
 		

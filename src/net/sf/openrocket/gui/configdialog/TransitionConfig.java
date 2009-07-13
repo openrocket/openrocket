@@ -34,7 +34,7 @@ public class TransitionConfig extends RocketComponentConfig {
 	
 
 	// Prepended to the description from Transition.DESCRIPTIONS
-	private static final String PREDESC = "<html><p style=\"font-size: x-small\">";
+	private static final String PREDESC = "<html>";
 	
 	
 	public TransitionConfig(RocketComponent c) {
@@ -181,8 +181,6 @@ public class TransitionConfig extends RocketComponentConfig {
 		tabbedPane.insertTab("Shoulder", null, shoulderTab(), "Shoulder properties", 1);
 		tabbedPane.setSelectedIndex(0);
 	}
-	
-	
 	
 	
 	

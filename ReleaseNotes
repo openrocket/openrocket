@@ -1,9 +1,10 @@
 
-OpenRocket 0.9.2  (future):
----------------------------
+OpenRocket 0.9.2  (2009-07-13):
+-------------------------------
 
-- a new and enhanced "Edit motor configurations" dialog
-- a search field in the motor selection dialog
+Fixed imperial unit conversions.  Significant UI enhancements to the
+motor configuration edit dialog, motor selection dialog and file
+open/save.
 
 
 OpenRocket 0.9.1  (2009-06-09):

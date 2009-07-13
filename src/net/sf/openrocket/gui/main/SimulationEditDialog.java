@@ -649,7 +649,7 @@ public class SimulationEditDialog extends JDialog {
 		panel.add(sub, "growx, growy");
 		
 		
-		DescriptionArea desc = new DescriptionArea(5, -1);
+		DescriptionArea desc = new DescriptionArea(5);
 		desc.setText("<html><p>" +
 				"<i>Simulation listeners</i> is an advanced feature that allows "+
 				"user-written code to listen to and interact with the simulation.  " +

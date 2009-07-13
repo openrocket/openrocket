@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
@@ -919,8 +920,26 @@ public class BasicFrame extends JFrame {
 	}
 	
 	
+	public static void main(final String[] args) {
+		
+		// Run the actual startup method in the EDT since it can use dialogs etc. 
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					runMain(args);
+				}
+			});
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	
-	public static void main(String[] args) {
+	
+	private static void runMain(String[] args) {
 		
 		/*
 		 * Set the look-and-feel.  On Linux, Motif/Metal is sometimes incorrectly used 
@@ -928,12 +947,6 @@ public class BasicFrame extends JFrame {
 		 * other alternatives.
 		 */
 		try {
-			UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
-//			System.out.println("Available look-and-feels:");
-//			for (int i=0; i<info.length; i++) {
-//				System.out.println("  "+info[i]);
-//			}
-
 			// Set system L&F
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			
@@ -944,19 +957,22 @@ public class BasicFrame extends JFrame {
 					laf.getName().matches(".*[mM][eE][tT][aA][lL].*")) {
 				
 				// Search for better LAF
-				for (UIManager.LookAndFeelInfo l: info) {
-					if (l.getName().matches(".*[gG][tT][kK].*")) {
-						UIManager.setLookAndFeel(l.getClassName());
-						break;
-					}
-					if (l.getName().contains(".*[wW][iI][nN].*")) {
-						UIManager.setLookAndFeel(l.getClassName());
-						break;
-					}
-					if (l.getName().contains(".*[mM][aA][cC].*")) {
-						UIManager.setLookAndFeel(l.getClassName());
-						break;
-					}
+				UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
+				String lafNames[] = {
+						".*[gG][tT][kK].*",
+						".*[wW][iI][nN].*",
+						".*[mM][aA][cC].*",
+						".*[aA][qQ][uU][aA].*",
+						".*[nN][iI][mM][bB].*"
+				};
+				
+				lf: for (String lafName: lafNames) {
+					for (UIManager.LookAndFeelInfo l: info) {
+						if (l.getName().matches(lafName)) {
+							UIManager.setLookAndFeel(l.getClassName());
+							break lf;
+						}
+					}					
 				}
 			}
 		} catch (Exception e) {

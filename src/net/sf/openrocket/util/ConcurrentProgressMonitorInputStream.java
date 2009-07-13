@@ -1,7 +1,3 @@
-/*
- * TODO: CRITICAL: Licensing
- */
-
 package net.sf.openrocket.util;
 
 import java.awt.Component;

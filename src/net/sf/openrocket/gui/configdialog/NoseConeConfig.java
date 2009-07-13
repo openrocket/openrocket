@@ -35,7 +35,7 @@ public class NoseConeConfig extends RocketComponentConfig {
 	private JSlider shapeSlider;
 	
 	// Prepended to the description from NoseCone.DESCRIPTIONS
-	private static final String PREDESC = "<html><p style=\"font-size: x-small\">";
+	private static final String PREDESC = "<html>";
 	
 	public NoseConeConfig(RocketComponent c) {
 		super(c);
