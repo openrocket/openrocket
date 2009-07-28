@@ -1,17 +1,12 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -22,7 +17,6 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -154,32 +148,6 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		materialPanel(panel, Material.Type.BULK);
 		
 		
-		
-		//// Convert button
-		
-		JButton button = new JButton("Convert to freeform fin set");
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Do change in future for overall safety
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						FreeformFinSet freeform = new FreeformFinSet((FinSet)component);
-						RocketComponent parent = component.getParent();
-						int index = parent.getChildPosition(component);
-						
-						ComponentConfigDialog.addUndoPosition("Convert fin set");
-						parent.removeChild(index);
-						parent.addChild(freeform, index);
-						ComponentConfigDialog.showDialog(freeform);
-					}
-				});
-
-				ComponentConfigDialog.hideDialog();
-			}
-		});
-		panel.add(button,"span, growx, gaptop paragraph");
 		
 		
 		

@@ -112,7 +112,7 @@ public class UnitGroup {
 		
 		UNITS_ACCELERATION = new UnitGroup();
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s\u00b2"));
-		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s\00b2"));
+		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s\u00b2"));
 		
 
 		UNITS_MASS = new UnitGroup();

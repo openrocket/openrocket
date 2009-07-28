@@ -1,0 +1,868 @@
+<?xml version='1.0' encoding='utf-8'?>
+<openrocket version="1.0" creator="OpenRocket 0.9.3pre">
+  <rocket>
+    <name>A clustered rocket</name>
+    <comment>Edit the &quot;Clustered Inner Tube&quot; and see the &quot;Cluster&quot; tab for clustering options.</comment>
+    <designer>Sampo Niskanen</designer>
+    <motorconfiguration configid="da326836-0959-4c94-bcd5-49dee07235a4"/>
+    <motorconfiguration configid="05896b5a-71a7-48ac-b7ae-eadeb267975b"/>
+    <motorconfiguration configid="b13e8ca2-f54d-4ca8-9b23-06c6c9eb237a"/>
+    <motorconfiguration configid="e1dc7488-77c0-403a-b54f-c01db07aba2f" default="true"/>
+    <motorconfiguration configid="5d9a2765-395d-4d9c-9678-38eed0988c72"/>
+    <referencetype>maximum</referencetype>
+
+    <subcomponents>
+      <stage>
+        <name>Sustainer</name>
+
+        <subcomponents>
+          <nosecone>
+            <name>Nose cone</name>
+            <finish>normal</finish>
+            <material type="bulk" density="1050.0">Polystyrene</material>
+            <length>0.1</length>
+            <thickness>0.0020</thickness>
+            <shape>ellipsoid</shape>
+            <shapeclipped>false</shapeclipped>
+            <aftradius>0.0275</aftradius>
+            <aftshoulderradius>0.024</aftshoulderradius>
+            <aftshoulderlength>0.035</aftshoulderlength>
+            <aftshoulderthickness>0.0020</aftshoulderthickness>
+            <aftshouldercapped>true</aftshouldercapped>
+          </nosecone>
+
+          <bodytube>
+            <name>Body tube</name>
+            <finish>normal</finish>
+            <material type="bulk" density="680.0">Cardboard</material>
+            <length>0.6</length>
+            <thickness>0.0010</thickness>
+            <radius>auto</radius>
+
+            <subcomponents>
+              <innertube>
+                <name>Clustered Inner Tube</name>
+                <position type="bottom">0.0050</position>
+                <comment>Clustering the inner tube automatically multiplies also the components attached to it.
+The cluster configuration can be modified at any point in the &quot;Cluster&quot; tab.</comment>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <length>0.075</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.0095</outerradius>
+                <thickness>5.000000000000004E-4</thickness>
+                <clusterconfiguration>4-ring</clusterconfiguration>
+                <clusterscale>1.1</clusterscale>
+                <clusterrotation>0.0</clusterrotation>
+                <motormount>
+                  <motor configid="da326836-0959-4c94-bcd5-49dee07235a4">
+                    <manufacturer>Estes</manufacturer>
+                    <designation>A8</designation>
+                    <diameter>0.018</diameter>
+                    <length>0.07</length>
+                    <delay>3.0</delay>
+                  </motor>
+                  <motor configid="05896b5a-71a7-48ac-b7ae-eadeb267975b">
+                    <manufacturer>Estes</manufacturer>
+                    <designation>B4</designation>
+                    <diameter>0.018</diameter>
+                    <length>0.07</length>
+                    <delay>4.0</delay>
+                  </motor>
+                  <motor configid="b13e8ca2-f54d-4ca8-9b23-06c6c9eb237a">
+                    <manufacturer>Estes</manufacturer>
+                    <designation>C6</designation>
+                    <diameter>0.018</diameter>
+                    <length>0.07</length>
+                    <delay>3.0</delay>
+                  </motor>
+                  <motor configid="e1dc7488-77c0-403a-b54f-c01db07aba2f">
+                    <manufacturer>Estes</manufacturer>
+                    <designation>C6</designation>
+                    <diameter>0.018</diameter>
+                    <length>0.07</length>
+                    <delay>5.0</delay>
+                  </motor>
+                  <motor configid="5d9a2765-395d-4d9c-9678-38eed0988c72">
+                    <manufacturer>Estes</manufacturer>
+                    <designation>C6</designation>
+                    <diameter>0.018</diameter>
+                    <length>0.07</length>
+                    <delay>7.0</delay>
+                  </motor>
+                  <ignitionevent>automatic</ignitionevent>
+                  <ignitiondelay>0.0</ignitiondelay>
+                  <overhang>0.0030</overhang>
+                </motormount>
+
+                <subcomponents>
+                  <engineblock>
+                    <name>Engine block</name>
+                    <position type="top">0.0020</position>
+                    <material type="bulk" density="680.0">Cardboard</material>
+                    <length>0.0050</length>
+                    <radialposition>0.0</radialposition>
+                    <radialdirection>0.0</radialdirection>
+                    <outerradius>auto</outerradius>
+                    <thickness>0.0030</thickness>
+                  </engineblock>
+                </subcomponents>
+              </innertube>
+
+              <centeringring>
+                <name>Centering ring</name>
+                <position type="bottom">0.0</position>
+                <comment>The centering ring automatically takes the outer diameter of the body tube and the inner diameter of the inner tube.</comment>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <length>0.0020</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>auto</outerradius>
+                <innerradius>auto</innerradius>
+              </centeringring>
+
+              <centeringring>
+                <name>Centering ring</name>
+                <position type="bottom">-0.045</position>
+                <comment>The centering ring automatically takes the outer diameter of the body tube and the inner diameter of the inner tube.</comment>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <length>0.0020</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>auto</outerradius>
+                <innerradius>auto</innerradius>
+              </centeringring>
+
+              <shockcord>
+                <name>Shock cord</name>
+                <position type="top">0.035</position>
+                <comment>The shock cord does not need to be attached to anything in particular, as it functions only as a mass component.</comment>
+                <packedlength>0.052000000000000005</packedlength>
+                <packedradius>0.0080</packedradius>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <cordlength>0.6</cordlength>
+                <material type="line" density="0.0043">Elastic cord (flat  6mm, 1/4 in)</material>
+              </shockcord>
+
+              <parachute>
+                <name>Parachute</name>
+                <position type="top">0.04</position>
+                <packedlength>0.042</packedlength>
+                <packedradius>0.015</packedradius>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <cd>auto</cd>
+                <deployevent>ejection</deployevent>
+                <deployaltitude>200.0</deployaltitude>
+                <deploydelay>0.0</deploydelay>
+                <material type="surface" density="0.067">Ripstop nylon</material>
+                <diameter>0.4</diameter>
+                <linecount>6</linecount>
+                <linelength>0.3</linelength>
+                <linematerial type="line" density="0.0010">Braided nylon (2 mm, 1/16 in)</linematerial>
+              </parachute>
+
+              <masscomponent>
+                <name>Wadding</name>
+                <position type="top">0.09</position>
+                <packedlength>0.03</packedlength>
+                <packedradius>0.0235</packedradius>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <mass>0.0020</mass>
+              </masscomponent>
+
+              <launchlug>
+                <name>Launch lug</name>
+                <position type="middle">0.0</position>
+                <finish>normal</finish>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <radius>0.0035</radius>
+                <length>0.035</length>
+                <thickness>0.0010</thickness>
+                <radialdirection>10.0</radialdirection>
+              </launchlug>
+
+              <launchlug>
+                <name>Launch lug</name>
+                <position type="bottom">-0.01</position>
+                <finish>normal</finish>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <radius>0.0035</radius>
+                <length>0.035</length>
+                <thickness>0.0010</thickness>
+                <radialdirection>10.0</radialdirection>
+              </launchlug>
+
+              <innertube>
+                <name>Pressure distribution tube</name>
+                <position type="bottom">-0.1</position>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <length>0.38</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.01</outerradius>
+                <thickness>5.000000000000004E-4</thickness>
+                <clusterconfiguration>single</clusterconfiguration>
+                <clusterscale>1.0</clusterscale>
+                <clusterrotation>0.0</clusterrotation>
+              </innertube>
+
+              <centeringring>
+                <name>Centering ring</name>
+                <position type="bottom">-0.105</position>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <length>0.0020</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>auto</outerradius>
+                <innerradius>auto</innerradius>
+              </centeringring>
+
+              <centeringring>
+                <name>Centering ring</name>
+                <position type="bottom">-0.47000000000000003</position>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <length>0.0020</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>auto</outerradius>
+                <innerradius>auto</innerradius>
+              </centeringring>
+
+              <ellipticalfinset>
+                <name>Elliptical fin set</name>
+                <position type="bottom">0.0</position>
+                <finish>normal</finish>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <fincount>3</fincount>
+                <rotation>0.0</rotation>
+                <thickness>0.0030</thickness>
+                <crosssection>square</crosssection>
+                <cant>0.0</cant>
+                <rootchord>0.06</rootchord>
+                <height>0.06</height>
+              </ellipticalfinset>
+            </subcomponents>
+          </bodytube>
+        </subcomponents>
+      </stage>
+    </subcomponents>
+  </rocket>
+
+  <simulations>
+    <simulation status="uptodate">
+      <name>Simulation 1</name>
+      <simulator>RK4Simulator</simulator>
+      <calculator>BarrowmanCalculator</calculator>
+      <conditions>
+        <configid>da326836-0959-4c94-bcd5-49dee07235a4</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>0.0</launchroddirection>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>45.0</launchlatitude>
+        <atmosphere model="isa"/>
+        <timestep>0.05</timestep>
+      </conditions>
+      <flightdata maxaltitude="46.539" maxvelocity="27.915" maxacceleration="121.17" maxmach="0.082022" timetoapogee="3.3203" flighttime="11.353" groundhitvelocity="6.3748">
+        <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
+          <event time="0" type="launch"/>
+          <event time="0" type="ignition"/>
+          <event time="0.10000" type="liftoff"/>
+          <event time="0.25000" type="launchrod"/>
+          <event time="0.74675" type="burnout"/>
+          <event time="3.3703" type="apogee"/>
+          <event time="3.7703" type="ejectioncharge"/>
+          <event time="3.7703" type="recoverydevicedeployment"/>
+          <event time="11.353" type="groundhit"/>
+          <event time="11.353" type="simulationend"/>
+          <datapoint>0,0,0,-4.5905,1.9380,4.5905,0,0,0,0,0,0,1.5708,0,0,0,0.26739,NaN,NaN,NaN,0.0056936,92367,1.3975,0,0.77836,0,0.44517,0.21319,0.12000,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.055000,0.0023758,1.5708,0,1.9380,288.15,101325,340.39,0.050000,0.0055471</datapoint>
+          <datapoint>0.25000,1.3925,16.356,57.233,16.506,57.273,0,0,0,0,0,2.1262,0.13488,0,0,0,0.26138,0.47162,0.42930,0.76947,0.048493,786608,17.805,0.28004,0.62534,0.70640,0.29158,0.21346,0.12031,1.4019,1.0787,0,0,0,0,0,0,0.055000,0.0023758,1.5708,0,2.2197,288.14,101309,340.38,0.050000,0.027575</datapoint>
+          <datapoint>0.50100,6.6096,24.249,24.096,24.311,24.105,-0.056486,0,0.056486,3.1416,0.33128,0.65700,0.028135,0,0.32552,0,0.25789,0.49508,0.42601,1.2560,0.071427,1158093,9.2872,0.54219,0.62605,0.63080,0.29150,0.21389,0.12066,0.24121,0.30032,0,0,0,0,0,0.0026289,0.055000,0.0023758,1.5277,0,2.0610,288.11,101247,340.36,0.034284,0.081942</datapoint>
+          <datapoint>0.74675,13.166,27.242,-12.688,27.331,12.745,-0.075617,0,0.075617,3.1416,0.18940,1.2092,0.036741,0,-0.15472,0,0.25419,0.51087,0.42241,1.6083,0.080306,1301313,0,0.68866,0.62638,0.63431,0.29146,0.21409,0.12084,0.35998,0.57942,0,0,0,0,0,-4.6376e-4,0.055000,0.0023758,1.4533,0,2.0163,288.06,101171,340.34,0.019132,0.19201</datapoint>
+          <datapoint>1.0042,19.766,24.070,-11.933,24.184,11.933,0.0053147,0,0.0053147,0,0.38775,0.089350,0.010107,0,0.17082,0,0.25419,0.51821,0.42241,1.7419,0.071064,1150883,0,0.53237,0.62604,0.62668,0.29150,0.21388,0.12066,0.094370,0.16366,0,0,0,0,0,7.2198e-4,0.055000,0.0023758,1.4635,0,1.9582,288.02,101093,340.31,0.040033,0.46167</datapoint>
+          <datapoint>1.2745,25.845,20.928,-11.362,21.040,11.399,0.097882,0,0.097882,0,0.24710,0.92217,0.037083,0,-0.078611,0,0.25419,0.49269,0.42241,1.2777,0.061831,1000824,0,0.40730,0.62573,0.63379,0.29153,0.21369,0.12050,0.32358,0.41366,0,0,0,0,0,-2.0201e-4,0.055000,0.0023758,1.5047,0,1.9206,287.98,101022,340.29,0.045876,0.50285</datapoint>
+          <datapoint>1.5320,30.862,18.055,-10.962,18.169,10.987,0.12893,0,0.12893,0,0.0044473,0.73790,0.039519,0,0.12023,0,0.25419,0.49203,0.42241,1.2659,0.053396,863921,0,0.30395,0.62547,0.63457,0.29156,0.21353,0.12037,0.34646,0.43795,0,0,0,0,0,6.3366e-4,0.055000,0.0023758,1.4982,0,2.0289,287.95,100963,340.27,0.046477,0.55880</datapoint>
+          <datapoint>1.7722,34.886,15.460,-10.659,15.596,10.663,0.11193,0,0.11193,0,0.12665,0.28845,0.016290,0,0.22222,0,0.25419,0.49829,0.42241,1.3797,0.045836,741345,0,0.22118,0.62529,0.62692,0.29158,0.21343,0.12027,0.13627,0.18507,0,0,0,0,0,0.0029381,0.055000,0.0023758,1.4549,0,2.1817,287.92,100916,340.25,0.049408,0.56648</datapoint>
+          <datapoint>2.0206,38.399,12.840,-10.440,12.993,10.440,0.076482,0,0.076482,0,0.14217,0.058427,0.017978,0,-0.20639,0,0.25419,0.51588,0.42241,1.6995,0.038188,617452,0,0.15351,0.62516,0.62714,0.29160,0.21337,0.12019,0.17021,0.29292,0,0,0,0,0,-0.0036516,0.055000,0.0023758,1.3993,0,2.1292,287.90,100875,340.24,0.049900,0.57939</datapoint>
+          <datapoint>2.2703,41.283,10.260,-10.228,10.467,10.228,0.042246,0,0.042246,0,0.13155,0.020789,0.018418,0,-0.16266,0,0.25419,0.51575,0.42241,1.6970,0.030765,497312,0,0.10089,0.63318,0.63528,0.29974,0.21331,0.12012,0.17450,0.29962,0,0,0,0,0,-0.0034947,0.055000,0.0023758,1.3533,0,2.2020,287.88,100841,340.23,0.049983,0.58705</datapoint>
+          <datapoint>2.5203,43.530,7.7273,-10.036,8.0230,10.036,0.0090901,0,0.0090901,0,0.13697,0.11080,0.016911,0,0.14564,0,0.25419,0.49808,0.42241,1.3758,0.023582,381122,0,0.060887,0.65084,0.65267,0.31751,0.21327,0.12007,0.14163,0.19008,0,0,0,0,0,0.0047688,0.055000,0.0023758,1.3154,0,2.2949,287.87,100814,340.22,0.049997,0.60598</datapoint>
+          <datapoint>2.7703,45.149,5.2346,-9.9157,5.5333,9.9161,-0.028822,0,0.028822,3.1416,0.16299,0.087497,0.036284,0,0.15943,0,0.25419,0.49282,0.42241,1.2801,0.016264,262821,0,0.030468,0.67833,0.68672,0.34507,0.21323,0.12003,0.31596,0.39245,0,0,0,0,0,0.012013,0.055000,0.0023758,1.2770,0,1.9565,287.86,100795,340.21,0.050000,0.61370</datapoint>
+          <datapoint>3.0203,46.149,2.7680,-9.8214,3.2227,9.8225,-0.072902,0,0.072902,3.1416,0.19078,0.14730,0.20199,0,0.17571,0,0.25419,0.46100,0.42241,0.70163,0.0094726,153058,0,0.013400,0.72526,0.89048,0.39205,0.21320,0.12001,2.3246,1.5880,0,0,0,0,0,0.043020,0.055000,0.0023758,1.2351,0,1.8412,287.85,100784,340.21,0.050000,0.62109</datapoint>
+          <datapoint>3.2703,46.535,0.32110,-9.7972,1.6796,9.7974,-0.12594,0,0.12594,3.1416,0.22997,0.060058,0.99812,0,0.17438,0,0.25419,0.51967,0.42241,1.7684,0.0049370,79769,0,0.0010182,0.79581,0.24910,0.46262,0.21318,0.12000,3.9228,-3.0946,0,0,0,0,0,0.15599,0.055000,0.0023758,1.1905,0,1.8786,287.85,100779,340.21,0.050000,0.63290</datapoint>
+          <datapoint>3.5203,46.310,-2.1225,-9.7349,2.7723,9.7364,-0.18597,0,0.18597,3.1416,0.25460,0.16945,2.0211,0,0.15267,0,0.25419,0.57205,0.42241,2.7208,0.0081488,131665,0,-0.0013905,0.74005,-0.12487,0.40685,0.21319,0.12001,4.2954,-4.1120,0,0,0,0,0,0.043889,0.055000,0.0023758,1.1491,0,2.0380,287.85,100782,340.21,0.050000,0.65867</datapoint>
+          <datapoint>3.7203,45.691,-4.0555,-9.5791,4.3618,9.5871,-0.24167,0,0.24167,3.1416,0.30941,0.39190,2.3154,0,0.12174,0,0.25419,0.58930,0.42241,3.0344,0.012821,207169,0,-0.011218,0.69788,-0.40691,0.36465,0.21321,0.12002,4.2076,-2.0214,0,0,0,0,0,0.011273,0.055000,0.0023758,1.1217,0,1.9152,287.85,100789,340.21,0.050000,0.66497</datapoint>
+          <datapoint>3.9973,44.338,-5.4416,-3.5473,5.2019,3.9851,-0.38015,0,0.38015,3.1416,0.74631,1.8159,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.015290,247081,0,1.6592,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9657,287.86,100797,340.21,0.12547,0.66646</datapoint>
+          <datapoint>4.1653,43.388,-5.8621,-2.5027,5.5719,2.9760,-0.52827,0,0.52827,3.1416,1.0169,1.6104,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.016378,264671,0,1.9038,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9444,287.86,100805,340.21,0.16801,0.66659</datapoint>
+          <datapoint>4.4222,41.835,-6.2277,-1.4234,5.9349,1.9464,-0.83328,0,0.83328,3.1416,1.3579,1.3276,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.017445,281934,0,2.1601,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9441,287.87,100816,340.22,0.25688,0.66673</datapoint>
+          <datapoint>4.8533,39.114,-6.3985,-0.39619,6.2692,1.1597,-1.5200,0,1.5200,3.1416,1.8278,1.0899,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018427,297851,0,2.4107,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0784,287.88,100834,340.22,0.43114,0.66687</datapoint>
+          <datapoint>5.3533,35.923,-6.3654,0.066322,6.3998,0.21028,-2.4589,0,2.4589,3.1416,1.9276,0.19954,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018810,304117,0,2.5128,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9570,287.90,100866,340.23,0.50000,0.66702</datapoint>
+          <datapoint>5.8533,32.736,-6.3809,-0.031054,6.3679,0.27705,-3.3883,0,3.3883,3.1416,1.7899,0.27530,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018715,302672,0,2.4885,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7485,287.92,100904,340.25,0.50000,0.66716</datapoint>
+          <datapoint>6.3533,29.548,-6.3709,0.019937,6.3836,0.28642,-4.3190,0,4.3190,3.1416,1.9328,0.28573,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018761,303492,0,2.5015,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9753,287.94,100941,340.26,0.50000,0.66730</datapoint>
+          <datapoint>6.8533,26.362,-6.3734,-0.0050170,6.3754,0.36996,-5.3316,0,5.3316,3.1416,2.1178,0.36993,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018736,303178,0,2.4959,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1730,287.96,100978,340.27,0.50000,0.66744</datapoint>
+          <datapoint>7.3533,23.175,-6.3735,-2.3288e-4,6.3741,0.14711,-6.3721,0,6.3721,3.1416,2.0442,0.14711,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018732,303189,0,2.4956,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0223,287.98,101016,340.29,0.50000,0.66759</datapoint>
+          <datapoint>7.8533,19.989,-6.3726,0.0019566,6.3735,0.012126,-7.3957,0,7.3957,3.1416,2.0502,0.011967,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018729,303234,0,2.4959,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0520,288.00,101053,340.30,0.50000,0.66773</datapoint>
+          <datapoint>8.3533,16.803,-6.3711,0.0029552,6.3733,0.14675,-8.4024,0,8.4024,3.1416,1.9768,0.14672,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018728,303294,0,2.4964,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9550,288.02,101091,340.31,0.50000,0.66787</datapoint>
+          <datapoint>8.8533,13.617,-6.3709,3.3909e-4,6.3712,0.046657,-9.3850,0,9.3850,3.1416,1.9535,0.046656,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018721,303266,0,2.4955,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9466,288.04,101128,340.32,0.50000,0.66801</datapoint>
+          <datapoint>9.3533,10.437,-6.3511,0.039542,6.3949,0.85638,-10.469,0,10.469,3.1416,2.3812,0.85546,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018790,304468,0,2.5149,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.5065,288.06,101165,340.34,0.50000,0.66815</datapoint>
+          <datapoint>9.8533,7.2545,-6.3779,-0.053489,6.3523,0.19690,-11.636,0,11.636,3.1416,2.2865,0.18950,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018664,302516,0,2.4823,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2580,288.08,101203,340.35,0.50000,0.66830</datapoint>
+          <datapoint>10.353,4.0728,-6.3492,0.057285,6.3956,0.73807,-12.687,0,12.687,3.1416,1.9186,0.73584,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018791,304648,0,2.5169,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8112,288.10,101240,340.36,0.50000,0.66844</datapoint>
+          <datapoint>10.853,0.89175,-6.3748,-0.051090,6.3520,0.29361,-13.610,0,13.610,3.1416,1.7740,0.28913,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018662,302646,0,2.4835,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7306,288.12,101277,340.37,0.50000,0.66858</datapoint>
+          <datapoint>11.353,-2.2924,-6.3617,0.026257,6.3748,0.026375,-14.497,0,14.497,3.1416,1.7752,0.0024849,NaN,NaN,NaN,NaN,0.25419,NaN,NaN,NaN,0.018728,303803,0,2.5021,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7756,288.14,101315,340.39,0.50000,0.66872</datapoint>
+        </databranch>
+      </flightdata>
+    </simulation>
+
+    <simulation status="uptodate">
+      <name>Simulation 2</name>
+      <simulator>RK4Simulator</simulator>
+      <calculator>BarrowmanCalculator</calculator>
+      <conditions>
+        <configid>05896b5a-71a7-48ac-b7ae-eadeb267975b</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>0.0</launchroddirection>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>45.0</launchlatitude>
+        <atmosphere model="isa"/>
+        <timestep>0.05</timestep>
+      </conditions>
+      <flightdata maxaltitude="123.66" maxvelocity="50.690" maxacceleration="152.00" maxmach="0.14897" timetoapogee="5.1226" flighttime="25.321" groundhitvelocity="6.3672">
+        <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
+          <event time="0" type="launch"/>
+          <event time="0" type="ignition"/>
+          <event time="0.050000" type="liftoff"/>
+          <event time="0.20000" type="launchrod"/>
+          <event time="1.0315" type="burnout"/>
+          <event time="5.0729" type="ejectioncharge"/>
+          <event time="5.0729" type="recoverydevicedeployment"/>
+          <event time="5.1735" type="apogee"/>
+          <event time="25.321" type="groundhit"/>
+          <event time="25.321" type="simulationend"/>
+          <datapoint>0,0,0,4.5438,1.7331,4.5438,0,0,0,0,0,0,1.5708,0,0,0,0.27759,NaN,NaN,NaN,0.0050914,82598,3.9865,0,0.79157,0,0.45838,0.21318,0.12000,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.055000,0.0023758,1.5708,0,1.7331,288.15,101325,340.39,0.050000,0.0046788</datapoint>
+          <datapoint>0.25000,2.7587,22.720,50.633,22.800,50.678,-0.0024441,0,0.0024441,3.1416,0.10007,2.1155,0.082269,0,0.061601,0,0.26813,0.48198,0.43544,0.84624,0.066984,1086416,16.708,0.50004,0.62590,0.66120,0.29152,0.21380,0.12058,0.78173,0.66142,0,0,0,0,0,1.1126e-4,0.055000,0.0023758,1.5693,0,2.0073,288.13,101293,340.38,0.025547,0.014177</datapoint>
+          <datapoint>0.48982,9.4856,32.921,37.695,32.954,37.780,-0.053243,0,0.053243,3.1416,0.13988,2.5448,0.0042133,0,-0.27290,0,0.26560,0.52004,0.43318,1.5793,0.096823,1569470,13.627,0.99025,0.62707,0.62718,0.29137,0.21448,0.12122,0.038935,0.062526,0,0,0,0,0,-0.0010350,0.055000,0.0023758,1.5222,0,1.6036,288.09,101214,340.35,0.043168,0.031436</datapoint>
+          <datapoint>0.74629,19.118,42.090,34.738,42.167,35.056,0.050864,0,0.050864,0,1.0713,4.7115,0.014624,0,0.14485,0,0.26244,0.51712,0.43028,1.5789,0.12391,2006808,13.380,1.6272,0.62869,0.63002,0.29120,0.21549,0.12200,0.13789,0.21753,0,0,0,0,0,1.7596e-4,0.055000,0.0023758,1.4957,0,1.4756,288.03,101101,340.31,0.018212,0.13073</datapoint>
+          <datapoint>0.99595,30.704,50.597,12.382,50.690,12.411,0.39280,0,0.39280,0,1.4371,0.85163,0.015214,0,0.072424,0,0.25524,0.49905,0.42344,1.3747,0.14897,2410326,8.0063,2.3560,0.63045,0.63189,0.29100,0.21657,0.12289,0.12735,0.17503,0,0,0,0,0,2.9650e-5,0.055000,0.0023758,1.5253,0,1.6381,287.95,100965,340.27,0.017349,0.16347</datapoint>
+          <datapoint>1.2462,42.873,46.364,-17.706,46.462,17.736,0.72363,0,0.72363,0,1.3573,1.0271,0.014172,0,0.0071364,0,0.25359,0.51732,0.42182,1.7364,0.13657,2207250,0,1.9737,0.62955,0.63080,0.29110,0.21603,0.12242,0.13358,0.23195,0,0,0,0,0,3.4069e-7,0.055000,0.0023758,1.4916,0,1.6626,287.87,100822,340.22,0.016515,0.18041</datapoint>
+          <datapoint>1.4934,53.809,42.190,-16.176,42.289,16.244,1.0598,0,1.0598,0,1.2497,1.4873,0.013349,0,-0.042187,0,0.25359,0.49943,0.42182,1.4111,0.12431,2007302,0,1.6308,0.62872,0.62983,0.29120,0.21551,0.12201,0.11120,0.15693,0,0,0,0,0,-1.4372e-5,0.055000,0.0023758,1.5158,0,1.6388,287.80,100694,340.18,0.030005,0.21239</datapoint>
+          <datapoint>1.7382,63.663,38.368,-15.098,38.474,15.106,1.3282,0,1.3282,0,0.98328,0.49239,0.0015545,0,0.14526,0,0.25359,0.50284,0.42182,1.4732,0.11311,1824878,0,1.3448,0.62800,0.62801,0.29127,0.21506,0.12166,0.012629,0.018399,0,0,0,0,0,2.0586e-4,0.055000,0.0023758,1.4979,0,1.8773,287.74,100578,340.14,0.045406,0.22297</datapoint>
+          <datapoint>1.9754,72.350,34.889,-14.240,35.035,14.241,1.5559,0,1.5559,0,0.95268,0.097146,0.0082200,0,-0.054427,0,0.25359,0.51888,0.42182,1.7648,0.10301,1660638,0,1.1138,0.62739,0.62781,0.29134,0.21467,0.12138,0.076543,0.13512,0,0,0,0,0,-3.4852e-5,0.055000,0.0023758,1.4714,0,2.2361,287.68,100476,340.10,0.049228,0.23049</datapoint>
+          <datapoint>2.2233,80.569,31.470,-13.361,31.628,13.369,1.7913,0,1.7913,0,0.91735,0.45312,0.0022952,0,-0.028524,0,0.25359,0.50253,0.42182,1.4675,0.093003,1498197,0,0.90572,0.62690,0.62694,0.29139,0.21438,0.12112,0.018664,0.027401,0,0,0,0,0,-1.1746e-5,0.055000,0.0023758,1.4734,0,2.2303,287.63,100380,340.07,0.049870,0.23806</datapoint>
+          <datapoint>2.4729,88.017,28.227,-12.650,28.378,12.662,2.0051,0,2.0051,0,0.78829,0.55173,0.0073821,0,0.027065,0,0.25359,0.50097,0.42182,1.4392,0.083454,1343490,0,0.72854,0.62651,0.62685,0.29144,0.21416,0.12091,0.060663,0.087294,0,0,0,0,0,1.3136e-5,0.055000,0.0023758,1.4749,0,2.1364,287.58,100293,340.04,0.049978,0.28412</datapoint>
+          <datapoint>2.7229,94.683,25.135,-12.107,25.255,12.107,2.1905,0,2.1905,0,0.72258,0.038332,0.0082992,0,-0.023251,0,0.25359,0.51875,0.42182,1.7624,0.074277,1195064,0,0.57644,0.62615,0.62659,0.29149,0.21395,0.12072,0.077233,0.13613,0,0,0,0,0,-1.2240e-5,0.055000,0.0023758,1.4649,0,1.7386,287.53,100215,340.02,0.049996,0.29154</datapoint>
+          <datapoint>2.9729,100.59,22.180,-11.564,22.326,11.569,2.3671,0,2.3671,0,0.67155,0.34650,0.0067437,0,0.016434,0,0.25359,0.50110,0.42182,1.4416,0.065665,1055950,0,0.44988,0.62585,0.62614,0.29152,0.21377,0.12056,0.055322,0.079743,0,0,0,0,0,7.8251e-6,0.055000,0.0023758,1.4631,0,1.8775,287.50,100145,339.99,0.049999,0.30034</datapoint>
+          <datapoint>3.2229,105.78,19.343,-11.156,19.476,11.157,2.5244,0,2.5244,0,0.59407,0.15319,2.2184e-4,0,-0.052303,0,0.25359,0.52111,0.42182,1.8053,0.057286,920779,0,0.34188,0.62558,0.62558,0.29155,0.21361,0.12043,0.0020328,0.0037741,0,0,0,0,0,-1.0415e-4,0.055000,0.0023758,1.4537,0,1.6775,287.46,100084,339.97,0.050000,0.30785</datapoint>
+          <datapoint>3.4729,110.27,16.602,-10.788,16.779,10.792,2.6653,0,2.6653,0,0.52593,0.29363,0.012214,0,0.085282,0,0.25359,0.49946,0.42182,1.4118,0.049357,793032,0,0.25395,0.62536,0.62628,0.29157,0.21347,0.12032,0.10132,0.14267,0,0,0,0,0,3.7305e-4,0.055000,0.0023758,1.4375,0,1.9065,287.43,100032,339.95,0.050000,0.31539</datapoint>
+          <datapoint>3.7229,114.09,13.939,-10.523,14.103,10.523,2.7900,0,2.7900,0,0.48401,0.058071,0.0051089,0,-0.096103,0,0.25359,0.51962,0.42182,1.7781,0.041486,666339,0,0.17907,0.62521,0.62538,0.29160,0.21339,0.12022,0.047236,0.084663,0,0,0,0,0,-6.7061e-4,0.055000,0.0023758,1.4133,0,1.6566,287.41,99987,339.94,0.050000,0.33852</datapoint>
+          <datapoint>3.9729,117.25,11.341,-10.275,11.549,10.276,2.9079,0,2.9079,0,0.45586,0.13798,0.0085398,0,0.098976,0,0.25359,0.50051,0.42182,1.4307,0.033974,545529,0,0.12052,0.62739,0.62785,0.29391,0.21333,0.12015,0.070289,0.099500,0,0,0,0,0,0.0010607,0.055000,0.0023758,1.3896,0,1.7222,287.39,99950,339.93,0.050000,0.34595</datapoint>
+          <datapoint>4.2229,119.76,8.7977,-10.087,9.0568,10.088,3.0164,0,3.0164,0,0.41137,0.18330,0.030768,0,0.12491,0,0.25359,0.49428,0.42182,1.3175,0.026644,427735,0,0.076574,0.64299,0.64878,0.30961,0.21328,0.12009,0.26502,0.34641,0,0,0,0,0,0.0027470,0.055000,0.0023758,1.3618,0,1.7392,287.37,99920,339.92,0.050000,0.35297</datapoint>
+          <datapoint>4.4729,121.65,6.2958,-9.9363,6.6714,9.9398,3.1127,0,3.1127,0,0.35520,0.26273,0.092539,0,0.16248,0,0.25359,0.47971,0.42182,1.0526,0.019627,315031,0,0.045499,0.66450,0.71058,0.33120,0.21324,0.12005,0.89511,0.93364,0,0,0,0,0,0.0085662,0.055000,0.0023758,1.3262,0,1.8517,287.36,99898,339.91,0.050000,0.36072</datapoint>
+          <datapoint>4.7229,122.92,3.8248,-9.8352,4.3300,9.8385,3.1937,0,3.1937,0,0.29210,0.25666,0.19785,0,0.19938,0,0.25359,0.46158,0.42182,0.72302,0.012739,204448,0,0.023043,0.69902,0.85440,0.36578,0.21321,0.12002,2.2635,1.6060,0,0,0,0,0,0.030620,0.055000,0.0023758,1.2808,0,1.7377,287.35,99883,339.90,0.050000,0.38996</datapoint>
+          <datapoint>4.9729,123.57,1.3780,-9.7384,2.4105,9.7427,3.2582,0,3.2582,0,0.22385,0.29071,0.61968,0,0.21016,0,0.25359,0.42928,0.42182,0.13566,0.0070919,113812,0,0.0060094,0.75517,0.71899,0.42198,0.21319,0.12001,9.1082,-5.6966,0,0,0,0,0,0.10977,0.055000,0.0023758,1.2282,0,1.7540,287.35,99876,339.90,0.050000,0.39741</datapoint>
+          <datapoint>5.2257,123.60,-1.0916,-9.5215,2.0713,9.5725,3.3000,0,3.3000,0,0.060328,0.98640,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.0060938,97795,0,0.26112,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8724,287.35,99875,339.90,0.052233,0.40257</datapoint>
+          <datapoint>5.4570,123.11,-3.0703,-7.8728,3.1426,7.9887,3.2817,0,3.2817,0,0.22858,1.3559,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.0092455,148377,0,0.60109,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9414,287.35,99879,339.90,0.062588,0.40327</datapoint>
+          <datapoint>5.6858,122.23,-4.5256,-5.6344,4.3096,5.8417,3.1873,0,3.1873,0,0.59119,1.5425,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.012679,203490,0,1.1305,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9504,287.35,99887,339.91,0.085591,0.40369</datapoint>
+          <datapoint>5.9129,121.09,-5.4518,-3.5756,5.1970,3.9832,3.0130,0,3.0130,0,0.96043,1.7554,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.015289,245409,0,1.6442,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1472,287.36,99897,339.91,0.12553,0.40396</datapoint>
+          <datapoint>6.0767,120.17,-5.8570,-2.4735,5.6109,3.0518,2.8317,0,2.8317,0,1.2533,1.7874,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.016507,264968,0,1.9166,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2874,287.36,99905,339.91,0.16384,0.40410</datapoint>
+          <datapoint>6.3211,118.69,-6.2139,-1.4607,5.9425,2.0463,2.4827,0,2.4827,0,1.6035,1.4331,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.017482,280647,0,2.1500,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2578,287.37,99916,339.92,0.24434,0.40425</datapoint>
+          <datapoint>6.8211,115.52,-6.4752,-0.52244,6.2293,0.83653,1.5993,0,1.5993,0,1.9301,0.65333,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018326,294221,0,2.3628,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0402,287.38,99933,339.92,0.50000,0.40439</datapoint>
+          <datapoint>7.3211,112.32,-6.3363,0.27763,6.4906,0.75088,0.54702,0,0.54702,0,2.2790,0.69766,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.019094,306639,0,2.5660,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3776,287.40,99970,339.93,0.50000,0.40453</datapoint>
+          <datapoint>7.8211,109.13,-6.4210,-0.16938,6.3372,0.22967,-0.61185,0,0.61185,3.1416,2.3565,0.15511,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018642,299463,0,2.4469,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3808,287.42,100008,339.95,0.50000,0.40467</datapoint>
+          <datapoint>8.3211,105.93,-6.3727,0.096618,6.4241,0.31935,-1.7521,0,1.7521,3.1416,2.2043,0.30438,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018897,303644,0,2.5152,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1594,287.44,100045,339.96,0.50000,0.40482</datapoint>
+          <datapoint>8.8211,102.74,-6.3919,-0.038453,6.3826,0.54694,-2.7860,0,2.7860,3.1416,1.9315,0.54558,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018774,301760,0,2.4836,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8488,287.46,100083,339.97,0.50000,0.40496</datapoint>
+          <datapoint>9.3211,99.544,-6.3867,0.010480,6.3933,0.20602,-3.7775,0,3.7775,3.1416,2.0344,0.20575,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018805,302340,0,2.4927,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0654,287.48,100120,339.98,0.50000,0.40510</datapoint>
+          <datapoint>9.8211,96.350,-6.3888,-0.0041731,6.3871,0.11219,-4.8087,0,4.8087,3.1416,2.0905,0.11211,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018786,302120,0,2.4886,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1074,287.50,100158,340.00,0.50000,0.40535</datapoint>
+          <datapoint>10.321,93.156,-6.3860,0.0056299,6.3895,0.14498,-5.8721,0,5.8721,3.1416,2.1629,0.14487,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018792,302306,0,2.4912,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1847,287.52,100195,340.01,0.50000,0.40550</datapoint>
+          <datapoint>10.821,89.963,-6.3851,0.0018424,6.3879,0.24173,-6.9233,0,6.9233,3.1416,2.0420,0.24172,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018787,302305,0,2.4907,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0057,287.54,100232,340.02,0.50000,0.40564</datapoint>
+          <datapoint>11.321,86.771,-6.3849,2.1914e-4,6.3859,0.15509,-7.9637,0,7.9637,3.1416,2.1196,0.15509,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018780,302281,0,2.4899,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1429,287.57,100270,340.03,0.50000,0.40578</datapoint>
+          <datapoint>11.821,83.579,-6.3841,0.0016944,6.3850,0.039718,-9.0285,0,9.0285,3.1416,2.1394,0.039682,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018777,302315,0,2.4900,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1454,287.59,100307,340.05,0.50000,0.40592</datapoint>
+          <datapoint>12.321,80.388,-6.3792,0.0098660,6.3892,0.39444,-10.049,0,10.049,3.1416,1.9423,0.39432,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018789,302589,0,2.4940,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8833,287.61,100345,340.06,0.50000,0.40607</datapoint>
+          <datapoint>12.821,77.198,-6.3813,-0.0043403,6.3830,0.34089,-10.977,0,10.977,3.1416,1.7718,0.34086,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018770,302368,0,2.4899,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7207,287.63,100382,340.07,0.50000,0.40621</datapoint>
+          <datapoint>13.321,74.007,-6.3815,-2.5021e-4,6.3816,0.086545,-11.853,0,11.853,3.1416,1.7286,0.086544,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018765,302374,0,2.4896,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7156,287.65,100420,340.08,0.50000,0.40635</datapoint>
+          <datapoint>13.821,70.817,-6.3792,0.0046117,6.3827,0.19369,-12.741,0,12.741,3.1416,1.8254,0.19363,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018767,302500,0,2.4912,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8544,287.67,100457,340.10,0.50000,0.40650</datapoint>
+          <datapoint>14.321,67.627,-6.3798,-0.0013496,6.3792,0.043171,-13.648,0,13.648,3.1416,1.8038,0.043150,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018756,302409,0,2.4892,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7973,287.69,100494,340.11,0.50000,0.40664</datapoint>
+          <datapoint>14.821,64.438,-6.3778,0.0040736,6.3802,0.098629,-14.538,0,14.538,3.1416,1.7545,0.098544,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018758,302526,0,2.4907,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7398,287.71,100532,340.12,0.50000,0.40679</datapoint>
+          <datapoint>15.321,61.253,-6.3618,0.031927,6.3984,0.79241,-15.514,0,15.514,3.1416,2.1504,0.79177,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018811,303464,0,2.5057,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2673,287.73,100569,340.14,0.50000,0.40693</datapoint>
+          <datapoint>15.821,58.068,-6.3778,-0.031988,6.3709,0.52337,-16.655,0,16.655,3.1416,2.4116,0.52240,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018730,302234,0,2.4849,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.4901,287.75,100607,340.15,0.50000,0.40709</datapoint>
+          <datapoint>16.321,54.880,-6.3727,0.010265,6.3804,0.28195,-17.825,0,17.825,3.1416,2.2707,0.28176,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018757,302760,0,2.4931,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2288,287.77,100644,340.16,0.50000,0.40723</datapoint>
+          <datapoint>16.821,51.694,-6.3722,0.0010364,6.3777,0.38844,-18.912,0,18.912,3.1416,2.0765,0.38844,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018748,302702,0,2.4917,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0186,287.79,100681,340.17,0.50000,0.40738</datapoint>
+          <datapoint>17.321,48.507,-6.3740,-0.0036691,6.3732,0.17896,-19.928,0,19.928,3.1416,1.9871,0.17892,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018735,302565,0,2.4890,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9603,287.81,100719,340.19,0.50000,0.40752</datapoint>
+          <datapoint>17.821,45.321,-6.3700,0.0080972,6.3771,0.30767,-20.883,0,20.883,3.1416,1.8333,0.30756,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018745,302823,0,2.4928,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7875,287.83,100756,340.20,0.50000,0.40766</datapoint>
+          <datapoint>18.321,42.136,-6.3731,-0.0062512,6.3700,0.0086312,-21.799,0,21.799,3.1416,1.8303,0.0059516,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018724,302556,0,2.4879,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8294,287.86,100793,340.21,0.50000,0.40780</datapoint>
+          <datapoint>18.821,38.950,-6.3697,0.0067773,6.3734,0.095975,-22.702,0,22.702,3.1416,1.7824,0.095735,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018733,302791,0,2.4914,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7682,287.88,100831,340.22,0.50000,0.40795</datapoint>
+          <datapoint>19.321,35.766,-6.3667,0.0060379,6.3744,0.37741,-23.640,0,23.640,3.1416,1.9711,0.37736,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018735,302912,0,2.4929,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0271,287.90,100868,340.24,0.50000,0.40809</datapoint>
+          <datapoint>19.821,32.583,-6.3661,0.0010809,6.3723,0.41265,-24.678,0,24.678,3.1416,2.1774,0.41265,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018728,302886,0,2.4920,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2387,287.92,100906,340.25,0.50000,0.40824</datapoint>
+          <datapoint>20.321,29.399,-6.3693,-0.0063005,6.3661,0.021029,-25.764,0,25.764,3.1416,2.1674,0.020063,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018710,302667,0,2.4879,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1644,287.94,100943,340.26,0.50000,0.40838</datapoint>
+          <datapoint>20.821,26.215,-6.3661,0.0063960,6.3693,0.039751,-26.852,0,26.852,3.1416,2.1870,0.039233,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018718,302891,0,2.4912,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1928,287.96,100980,340.27,0.50000,0.40852</datapoint>
+          <datapoint>21.321,23.032,-6.3641,0.0039761,6.3691,0.30062,-27.983,0,27.983,3.1416,2.3373,0.30059,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018717,302951,0,2.4917,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3819,287.98,101018,340.29,0.50000,0.40866</datapoint>
+          <datapoint>21.821,19.850,-6.3653,-0.0023661,6.3651,0.16961,-29.131,0,29.131,3.1416,2.2525,0.16959,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018704,302833,0,2.4893,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2274,288.00,101055,340.30,0.50000,0.40881</datapoint>
+          <datapoint>22.321,16.668,-6.3639,0.0027390,6.3653,0.0046845,-30.257,0,30.257,3.1416,2.2506,0.0038004,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018704,302917,0,2.4902,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2501,288.02,101092,340.31,0.50000,0.40895</datapoint>
+          <datapoint>22.821,13.487,-6.3613,0.0051752,6.3663,0.27129,-31.416,0,31.416,3.1416,2.3862,0.27124,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018707,303040,0,2.4918,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.4264,288.04,101130,340.32,0.50000,0.40910</datapoint>
+          <datapoint>23.321,10.305,-6.3630,-0.0034093,6.3615,0.066751,-32.601,0,32.601,3.1416,2.3529,0.066664,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018692,302881,0,2.4887,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3430,288.06,101167,340.34,0.50000,0.40928</datapoint>
+          <datapoint>23.821,7.1249,-6.3589,0.0081641,6.3654,0.26705,-33.744,0,33.744,3.1416,2.2195,0.26692,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018703,303140,0,2.4925,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1800,288.08,101204,340.35,0.50000,0.40943</datapoint>
+          <datapoint>24.321,3.9476,-6.3504,0.017071,6.3733,0.66237,-34.771,0,34.771,3.1416,1.8884,0.66215,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018725,303592,0,2.4995,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7913,288.10,101241,340.36,0.50000,0.40991</datapoint>
+          <datapoint>24.821,0.76914,-6.3634,-0.025933,6.3521,0.22865,-35.743,0,35.743,3.1416,2.0020,0.22717,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018662,302653,0,2.4836,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0357,288.12,101279,340.37,0.50000,0.41006</datapoint>
+          <datapoint>25.321,-2.4100,-6.3532,0.020297,6.3672,0.34257,-36.702,0,36.702,3.1416,1.8310,0.34196,NaN,NaN,NaN,NaN,0.25359,NaN,NaN,NaN,0.018706,303445,0,2.4962,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7808,288.15,101316,340.39,0.50000,0.41020</datapoint>
+        </databranch>
+      </flightdata>
+    </simulation>
+
+    <simulation status="uptodate">
+      <name>Simulation 3 - too short delay</name>
+      <simulator>RK4Simulator</simulator>
+      <calculator>BarrowmanCalculator</calculator>
+      <conditions>
+        <configid>b13e8ca2-f54d-4ca8-9b23-06c6c9eb237a</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>0.0</launchroddirection>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>45.0</launchlatitude>
+        <atmosphere model="isa"/>
+        <timestep>0.05</timestep>
+      </conditions>
+      <flightdata maxaltitude="256.49" maxvelocity="87.650" maxacceleration="167.43" maxmach="0.25778" timetoapogee="5.7283" flighttime="46.493" groundhitvelocity="6.3314">
+        <warning>Recovery device deployment at high speed (25.5 m/s).</warning>
+        <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
+          <event time="0" type="launch"/>
+          <event time="0" type="ignition"/>
+          <event time="0.050000" type="liftoff"/>
+          <event time="0.20000" type="launchrod"/>
+          <event time="1.8759" type="burnout"/>
+          <event time="4.9028" type="ejectioncharge"/>
+          <event time="4.9028" type="recoverydevicedeployment"/>
+          <event time="5.7791" type="apogee"/>
+          <event time="46.493" type="groundhit"/>
+          <event time="46.493" type="simulationend"/>
+          <datapoint>0,0,0,2.6470,1.7876,2.6470,0,0,0,0,0,0,1.5708,0,0,0,0.29439,NaN,NaN,NaN,0.0052517,85199,3.6693,0,0.78785,0,0.45466,0.21319,0.12000,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.055000,0.0023758,1.5708,0,1.7876,288.15,101325,340.39,0.050000,0.0043768</datapoint>
+          <datapoint>0.25000,2.3315,22.765,68.852,22.848,68.883,-0.0024600,0,0.0024600,3.1416,0.099691,2.0487,0.084328,0,0.035997,0,0.28877,0.48154,0.45241,0.52951,0.067124,1088736,23.220,0.50337,0.62590,0.66278,0.29151,0.21380,0.12059,0.80427,0.42583,0,0,0,0,0,4.1088e-5,0.055000,0.0023758,1.5700,0,2.0434,288.13,101298,340.38,0.041992,0.013726</datapoint>
+          <datapoint>0.48941,9.4754,36.104,47.777,36.142,47.796,-0.061470,0,0.061470,3.1416,0.25897,1.3418,0.011434,0,0.22720,0,0.28565,0.49989,0.45001,0.90687,0.10619,1721283,17.649,1.1934,0.62758,0.62839,0.29132,0.21479,0.12147,0.094821,0.085344,0,0,0,0,0,6.4594e-4,0.055000,0.0023758,1.5366,0,1.9090,288.09,101214,340.35,0.044971,0.058797</datapoint>
+          <datapoint>0.74086,20.005,47.472,42.736,47.543,43.129,-0.014753,0,0.014753,3.1416,0.85354,5.8145,0.017912,0,0.044163,0,0.28051,0.51627,0.44592,1.2792,0.13970,2262482,16.895,2.0741,0.62978,0.63176,0.29108,0.21616,0.12254,0.17001,0.21746,0,0,0,0,0,1.3814e-5,0.055000,0.0023758,1.4982,0,1.7428,288.02,101090,340.31,0.017725,0.073811</datapoint>
+          <datapoint>0.99746,33.631,58.673,41.966,58.766,41.968,0.33175,0,0.33175,0,1.5927,0.36285,0.012540,0,-0.030147,0,0.27697,0.49998,0.44302,1.0358,0.17271,2793680,17.507,3.1743,0.63266,0.63365,0.29078,0.21801,0.12388,0.10450,0.10824,0,0,0,0,0,-4.1538e-6,0.055000,0.0023758,1.5273,0,1.6996,287.93,100931,340.26,0.024081,0.087871</datapoint>
+          <datapoint>1.2565,50.183,68.810,35.402,68.922,35.617,0.78953,0,0.78953,0,2.1507,3.9027,0.0046764,0,-0.011384,0,0.26980,0.52055,0.43690,1.5209,0.20260,3272397,16.620,4.3778,0.63616,0.63630,0.29045,0.22037,0.12534,0.043459,0.066098,0,0,0,0,0,-4.1849e-7,0.055000,0.0023758,1.5091,0,1.7754,287.82,100736,340.19,0.026410,0.12445</datapoint>
+          <datapoint>1.4850,66.852,77.070,35.447,77.214,35.542,1.3562,0,1.3562,0,2.7554,2.6078,5.3448e-4,0,0.030893,0,0.26361,0.50403,0.43136,1.3212,0.22702,3661472,17.494,5.5424,0.64284,0.64284,0.29014,0.22599,0.12670,0.0043574,0.0057547,0,0,0,0,0,2.3977e-6,0.055000,0.0023758,1.5101,0,1.9694,287.72,100541,340.13,0.047095,0.13377</datapoint>
+          <datapoint>1.7270,86.513,85.336,32.504,85.517,32.576,2.1083,0,2.1083,0,3.4537,2.1639,0.0015639,0,-0.0021762,0,0.25802,0.50398,0.42613,1.4156,0.25148,4049094,17.792,6.8589,0.64974,0.64976,0.28980,0.23172,0.12822,0.012800,0.018119,0,0,0,0,0,-9.4999e-9,0.055000,0.0023758,1.5074,0,2.1017,287.59,100310,340.05,0.049512,0.14142</datapoint>
+          <datapoint>1.9976,109.61,81.460,-34.433,81.655,34.513,3.0591,0,3.0591,0,3.3492,2.3539,0.0022520,0,-0.0091988,0,0.25119,0.50365,0.41942,1.5315,0.24019,3859407,0,6.2090,0.64653,0.64656,0.28996,0.22906,0.12750,0.018443,0.028245,0,0,0,0,0,-1.8178e-7,0.055000,0.0023758,1.5040,0,2.2863,287.44,100039,339.96,0.044355,0.15104</datapoint>
+          <datapoint>2.2613,129.96,73.066,-29.411,73.246,29.441,3.8810,0,3.8810,0,2.9654,1.3344,1.5531e-4,0,0.052871,0,0.25119,0.52202,0.41942,1.8655,0.21551,3456568,0,4.9333,0.63966,0.63966,0.29029,0.22333,0.12604,0.0014324,0.0026647,0,0,0,0,0,7.4629e-6,0.055000,0.0023758,1.5006,0,2.1635,287.31,99801,339.88,0.042911,0.16319</datapoint>
+          <datapoint>2.5193,147.88,65.989,-25.714,66.153,25.716,4.5878,0,4.5878,0,2.5873,0.30513,0.0037777,0,-0.0014695,0,0.25119,0.52076,0.41942,1.8425,0.19468,3117546,0,3.9879,0.63489,0.63498,0.29054,0.21943,0.12493,0.035032,0.064547,0,0,0,0,0,-7.0679e-9,0.055000,0.0023758,1.4965,0,2.0745,287.19,99591,339.81,0.030570,0.17267</datapoint>
+          <datapoint>2.7733,163.84,59.855,-22.779,60.016,22.805,5.2105,0,5.2105,0,2.2607,1.0962,9.3908e-4,0,0.065144,0,0.25119,0.50344,0.41942,1.5278,0.17665,2824816,0,3.2673,0.63305,0.63305,0.29074,0.21825,0.12406,0.0076395,0.011654,0,0,0,0,0,1.6876e-5,0.055000,0.0023758,1.4985,0,2.1312,287.09,99403,339.74,0.043840,0.18298</datapoint>
+          <datapoint>3.0062,177.18,54.799,-20.647,54.966,20.669,5.7196,0,5.7196,0,2.1089,0.95090,8.1768e-4,0,-0.016498,0,0.25119,0.50337,0.41942,1.5264,0.16181,2584440,0,2.7308,0.63161,0.63162,0.29088,0.21733,0.12340,0.0066453,0.010144,0,0,0,0,0,-1.2904e-6,0.055000,0.0023758,1.4937,0,2.1670,287.00,99247,339.69,0.048965,0.19069</datapoint>
+          <datapoint>3.2534,190.12,49.936,-18.786,50.105,18.803,6.2088,0,6.2088,0,1.8643,0.79669,5.3465e-4,0,0.042867,0,0.25119,0.50335,0.41942,1.5261,0.14752,2353554,0,2.2619,0.63035,0.63035,0.29101,0.21651,0.12283,0.0043397,0.0066124,0,0,0,0,0,1.0484e-5,0.055000,0.0023758,1.4891,0,2.2517,286.91,99095,339.64,0.049826,0.20151</datapoint>
+          <datapoint>3.5029,202.01,45.445,-17.225,45.609,17.240,6.6580,0,6.6580,0,1.7347,0.70348,8.2597e-4,0,-0.015113,0,0.25119,0.50318,0.41942,1.5230,0.13430,2140352,0,1.8692,0.62939,0.62940,0.29112,0.21593,0.12234,0.0067048,0.010213,0,0,0,0,0,-1.5727e-6,0.055000,0.0023758,1.4868,0,2.1306,286.84,98956,339.59,0.049971,0.20935</datapoint>
+          <datapoint>3.7528,212.84,41.309,-15.911,41.471,15.930,7.0689,0,7.0689,0,1.5507,0.78836,0.0033547,0,0.031978,0,0.25119,0.50235,0.41942,1.5079,0.12214,1944545,0,1.5420,0.62857,0.62864,0.29121,0.21542,0.12194,0.027366,0.041255,0,0,0,0,0,8.5162e-6,0.055000,0.0023758,1.4856,0,2.1152,286.77,98829,339.55,0.049995,0.21682</datapoint>
+          <datapoint>4.0028,222.68,37.467,-14.872,37.635,14.873,7.4348,0,7.4348,0,1.4105,0.15661,0.0046415,0,-0.040429,0,0.25119,0.51997,0.41942,1.8282,0.11085,1763338,0,1.2674,0.62786,0.62799,0.29129,0.21497,0.12160,0.042945,0.078531,0,0,0,0,0,-1.6528e-5,0.055000,0.0023758,1.4715,0,2.1449,286.70,98713,339.51,0.049999,0.22447</datapoint>
+          <datapoint>4.2528,231.59,33.872,-13.895,34.052,13.911,7.7810,0,7.7810,0,1.3350,0.65218,0.0046446,0,-0.013362,0,0.25119,0.50186,0.41942,1.4989,0.10031,1594326,0,1.0356,0.62723,0.62737,0.29135,0.21457,0.12131,0.037965,0.056906,0,0,0,0,0,-2.2053e-6,0.055000,0.0023758,1.4727,0,2.1583,286.64,98609,339.48,0.050000,0.23156</datapoint>
+          <datapoint>4.5028,239.64,30.498,-13.143,30.657,13.146,8.0951,0,8.0951,0,1.1880,0.27127,0.0014989,0,-0.046226,0,0.25119,0.52083,0.41942,1.8438,0.090315,1434466,0,0.83800,0.62679,0.62680,0.29141,0.21432,0.12106,0.013779,0.025438,0,0,0,0,0,-3.2566e-5,0.055000,0.0023758,1.4674,0,1.9294,286.59,98514,339.44,0.050000,0.26101</datapoint>
+          <datapoint>4.7528,246.86,27.300,-12.456,27.497,12.467,8.3824,0,8.3824,0,1.0937,0.52177,0.0062457,0,0.058183,0,0.25119,0.50130,0.41942,1.4888,0.081014,1285901,0,0.67355,0.62641,0.62666,0.29145,0.21410,0.12085,0.051199,0.076161,0,0,0,0,0,6.4128e-5,0.055000,0.0023758,1.4571,0,2.1955,286.55,98430,339.42,0.050000,0.26846</datapoint>
+          <datapoint>5.0017,252.74,15.031,-67.998,15.656,68.409,8.5701,0,8.5701,0,0.21792,7.4831,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.046129,731809,0,14.735,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1604,286.51,98362,339.39,0.0073090,0.27640</datapoint>
+          <datapoint>5.2576,255.21,6.0730,-20.304,6.6701,20.386,8.3769,0,8.3769,0,1.0835,1.8286,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.019654,311722,0,2.6740,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1844,286.49,98334,339.38,0.024527,0.27889</datapoint>
+          <datapoint>5.4923,256.19,2.5827,-12.202,3.2349,12.226,8.0876,0,8.0876,0,1.3420,0.76122,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.0095317,151168,0,0.62888,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2944,286.49,98322,339.38,0.040897,0.27984</datapoint>
+          <datapoint>5.7283,256.49,0.084463,-9.9513,0.96082,9.9528,7.7581,0,7.7581,0,1.4309,0.17531,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.0028311,44898,0,0.055478,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1848,286.48,98317,339.38,0.050237,0.28053</datapoint>
+          <datapoint>5.9934,256.18,-2.4141,-8.8510,2.1086,8.8622,7.3703,0,7.3703,0,1.5096,0.44550,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.0062131,98534,0,0.26720,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3675,286.48,98319,339.38,0.056419,0.28255</datapoint>
+          <datapoint>6.2706,255.21,-4.4091,-6.1227,3.9481,6.1440,6.9320,0,6.9320,0,1.6509,0.51177,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.011633,184507,0,0.93683,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1510,286.49,98328,339.38,0.081380,0.28310</datapoint>
+          <datapoint>6.4904,254.13,-5.4038,-4.0308,4.9272,4.0636,6.5590,0,6.5590,0,1.7496,0.51485,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.014518,230275,0,1.4592,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1229,286.49,98337,339.39,0.12304,0.28338</datapoint>
+          <datapoint>6.6656,253.14,-5.8963,-2.8122,5.4171,2.8550,6.2451,0,6.2451,0,1.8358,0.49232,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.015961,253184,0,1.7639,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1294,286.50,98344,339.39,0.17513,0.28351</datapoint>
+          <datapoint>6.9929,251.13,-6.3841,-1.4902,5.9011,1.5274,5.6261,0,5.6261,0,1.9455,0.33502,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.017387,275824,0,2.0933,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0730,286.50,98356,339.39,0.32736,0.28365</datapoint>
+          <datapoint>7.4929,247.93,-6.4146,-0.060947,6.3844,0.10772,4.6645,0,4.6645,0,1.9011,0.088825,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018811,298462,0,2.4508,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8874,286.52,98380,339.40,0.50000,0.28417</datapoint>
+          <datapoint>7.9929,244.73,-6.3970,0.035127,6.4146,0.053176,3.7090,0,3.7090,0,1.9210,0.039923,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018899,299952,0,2.4748,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9271,286.54,98417,339.41,0.50000,0.28432</datapoint>
+          <datapoint>8.4929,241.53,-6.4035,-0.012936,6.3989,0.23748,2.7188,0,2.7188,0,2.0396,0.23713,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018852,299291,0,2.4634,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0758,286.56,98455,339.42,0.50000,0.28446</datapoint>
+          <datapoint>8.9929,238.33,-6.3998,0.0072961,6.4036,0.068729,1.7075,0,1.7075,0,2.0054,0.068341,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018865,299588,0,2.4679,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9951,286.58,98492,339.44,0.50000,0.28461</datapoint>
+          <datapoint>9.4929,235.13,-6.3922,0.015319,6.4106,0.56922,0.63370,0,0.63370,0,2.2899,0.56901,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018885,299987,0,2.4739,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3758,286.60,98530,339.45,0.50000,0.28475</datapoint>
+          <datapoint>9.9929,231.93,-6.3955,-0.0066691,6.4019,0.54135,-0.44360,0,0.44360,3.1416,2.0193,0.54131,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018859,299657,0,2.4680,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9372,286.62,98567,339.46,0.50000,0.28489</datapoint>
+          <datapoint>10.493,228.73,-6.3953,4.2780e-4,6.4012,0.41491,-1.5051,0,1.5051,3.1416,2.2267,0.41491,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018856,299700,0,2.4683,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2896,286.64,98605,339.48,0.50000,0.28503</datapoint>
+          <datapoint>10.993,225.54,-6.3957,-7.8028e-4,6.3987,0.31917,-2.5786,0,2.5786,3.1416,2.0671,0.31917,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018848,299656,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0188,286.66,98642,339.49,0.50000,0.28517</datapoint>
+          <datapoint>11.493,222.34,-6.3916,0.0081865,6.4022,0.44227,-3.5569,0,3.5569,3.1416,1.8461,0.44219,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018858,299894,0,2.4705,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7793,286.68,98680,339.50,0.50000,0.28531</datapoint>
+          <datapoint>11.993,219.14,-6.3908,0.0015237,6.4000,0.50221,-4.4171,0,4.4171,3.1416,1.5949,0.50221,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018850,299866,0,2.4696,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.5191,286.70,98717,339.51,0.50000,0.28546</datapoint>
+          <datapoint>12.493,215.95,-6.3937,-0.0057909,6.3940,0.30802,-5.2531,0,5.2531,3.1416,1.7489,0.30797,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018832,299661,0,2.4657,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7956,286.73,98755,339.53,0.50000,0.28564</datapoint>
+          <datapoint>12.993,212.75,-6.3928,0.0019314,6.3942,0.11302,-6.1417,0,6.1417,3.1416,1.8054,0.11300,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018832,299744,0,2.4666,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8225,286.75,98792,339.54,0.50000,0.28578</datapoint>
+          <datapoint>13.493,209.56,-6.3903,0.0050165,6.3952,0.26927,-7.0781,0,7.0781,3.1416,1.9400,0.26922,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018834,299866,0,2.4681,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9807,286.77,98830,339.55,0.50000,0.28592</datapoint>
+          <datapoint>13.993,206.36,-6.3903,-1.4758e-4,6.3924,0.25137,-8.0167,0,8.0167,3.1416,1.8144,0.25137,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018825,299809,0,2.4667,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7764,286.79,98867,339.56,0.50000,0.28606</datapoint>
+          <datapoint>14.493,203.17,-6.3879,0.0049278,6.3936,0.31533,-8.9633,0,8.9633,3.1416,1.9720,0.31529,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018828,299943,0,2.4685,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0195,286.81,98905,339.58,0.50000,0.28621</datapoint>
+          <datapoint>14.993,199.97,-6.3899,-0.0039847,6.3883,0.11790,-9.9640,0,9.9640,3.1416,2.0309,0.11783,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018812,299769,0,2.4651,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0487,286.83,98942,339.59,0.50000,0.28635</datapoint>
+          <datapoint>15.493,196.78,-6.3862,0.0072888,6.3917,0.23690,-11.009,0,11.009,3.1416,2.1493,0.23679,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018821,300003,0,2.4685,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1849,286.85,98980,339.60,0.50000,0.28649</datapoint>
+          <datapoint>15.993,193.58,-6.3864,-3.3301e-4,6.3885,0.25949,-12.051,0,12.051,3.1416,2.0196,0.25949,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018811,299924,0,2.4667,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9805,286.87,99017,339.61,0.50000,0.28663</datapoint>
+          <datapoint>16.493,190.39,-6.3865,-1.4628e-4,6.3865,0.044610,-13.067,0,13.067,3.1416,2.0419,0.044610,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018804,299904,0,2.4659,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0486,286.89,99055,339.63,0.50000,0.28677</datapoint>
+          <datapoint>16.993,187.20,-6.3848,0.0033277,6.3867,0.082892,-14.098,0,14.098,3.1416,2.0833,0.082825,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018804,299990,0,2.4669,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0957,286.91,99092,339.64,0.50000,0.28711</datapoint>
+          <datapoint>17.493,184.01,-6.3783,0.012970,6.3927,0.48853,-15.201,0,15.201,3.1416,2.3275,0.48835,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018821,300345,0,2.4723,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.4005,286.93,99129,339.65,0.50000,0.28727</datapoint>
+          <datapoint>17.993,180.82,-6.3858,-0.014920,6.3791,0.15166,-16.345,0,16.345,3.1416,2.2520,0.15092,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018781,299781,0,2.4625,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2293,286.95,99167,339.66,0.50000,0.28741</datapoint>
+          <datapoint>18.493,177.63,-6.3615,0.048478,6.4109,0.87688,-17.362,0,17.362,3.1416,1.8142,0.87554,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018873,301350,0,2.4879,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.6853,286.97,99204,339.68,0.50000,0.28755</datapoint>
+          <datapoint>18.993,174.44,-6.3924,-0.061634,6.3615,0.061658,-18.269,0,18.269,3.1416,1.8134,0.0017100,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018728,299105,0,2.4505,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8131,287.00,99242,339.69,0.50000,0.28770</datapoint>
+          <datapoint>19.493,171.25,-6.3699,0.044926,6.3981,0.41969,-19.228,0,19.228,3.1416,2.0220,0.41728,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018834,300897,0,2.4795,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0839,287.02,99279,339.70,0.50000,0.28784</datapoint>
+          <datapoint>19.993,168.06,-6.3849,-0.030030,6.3699,0.031912,-20.240,0,20.240,3.1416,2.0274,0.010797,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018751,299646,0,2.4584,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0290,287.04,99317,339.71,0.50000,0.28798</datapoint>
+          <datapoint>20.493,164.87,-6.3753,0.019165,6.3849,0.025940,-21.256,0,21.256,3.1416,2.0362,0.017481,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018794,300426,0,2.4708,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0388,287.06,99354,339.73,0.50000,0.28812</datapoint>
+          <datapoint>20.993,161.68,-6.3785,-0.0063663,6.3760,0.14038,-22.292,0,22.292,3.1416,2.1063,0.14023,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018767,300080,0,2.4646,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1273,287.08,99391,339.74,0.50000,0.28827</datapoint>
+          <datapoint>21.493,158.50,-6.3710,0.014956,6.3847,0.43371,-23.291,0,23.291,3.1416,1.8895,0.43345,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018792,300565,0,2.4721,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8251,287.10,99429,339.75,0.50000,0.28841</datapoint>
+          <datapoint>21.993,155.31,-6.3783,-0.014613,6.3710,0.021564,-24.233,0,24.233,3.1416,1.8816,0.015858,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018751,299995,0,2.4623,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8792,287.12,99466,339.76,0.50000,0.28855</datapoint>
+          <datapoint>22.493,152.12,-6.3727,0.011241,6.3786,0.088054,-25.185,0,25.185,3.1416,1.9253,0.087334,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018773,300425,0,2.4689,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9383,287.14,99503,339.78,0.50000,0.28869</datapoint>
+          <datapoint>22.993,148.93,-6.3744,-0.0033599,6.3728,0.049028,-26.142,0,26.142,3.1416,1.9008,0.048913,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018755,300226,0,2.4651,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8935,287.16,99541,339.79,0.50000,0.28884</datapoint>
+          <datapoint>23.493,145.75,-6.3710,0.0067666,6.3758,0.20305,-27.117,0,27.117,3.1416,2.0023,0.20294,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018763,300439,0,2.4682,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0325,287.18,99578,339.80,0.50000,0.28897</datapoint>
+          <datapoint>23.993,142.56,-6.3723,-0.0026470,6.3711,0.050743,-28.125,0,28.125,3.1416,2.0276,0.050674,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018749,300294,0,2.4653,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0352,287.20,99616,339.81,0.50000,0.28912</datapoint>
+          <datapoint>24.493,139.38,-6.3700,0.0046886,6.3726,0.090291,-29.127,0,29.127,3.1416,1.9826,0.090169,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018752,300438,0,2.4672,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9691,287.22,99653,339.83,0.50000,0.28926</datapoint>
+          <datapoint>24.993,136.19,-6.3686,0.0028658,6.3718,0.23641,-30.089,0,30.089,3.1416,1.8644,0.23640,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018750,300476,0,2.4674,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8292,287.24,99690,339.84,0.50000,0.28940</datapoint>
+          <datapoint>25.493,133.01,-6.3690,-8.9906e-4,6.3689,0.10166,-31.009,0,31.009,3.1416,1.8135,0.10166,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018740,300411,0,2.4659,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7984,287.26,99728,339.85,0.50000,0.28955</datapoint>
+          <datapoint>25.993,129.82,-6.3648,0.0085057,6.3726,0.33129,-31.957,0,31.957,3.1416,1.9791,0.33118,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018750,300661,0,2.4695,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0282,287.29,99765,339.86,0.50000,0.28977</datapoint>
+          <datapoint>26.493,126.64,-6.3571,0.015272,6.3793,0.66633,-33.030,0,33.030,3.1416,2.3122,0.66616,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018770,301052,0,2.4755,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.4103,287.31,99802,339.88,0.50000,0.28992</datapoint>
+          <datapoint>26.993,123.46,-6.3701,-0.025955,6.3583,0.19129,-34.162,0,34.162,3.1416,2.2174,0.18952,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018707,300132,0,2.4599,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1891,287.33,99840,339.89,0.50000,0.29006</datapoint>
+          <datapoint>27.493,120.28,-6.3622,0.015843,6.3705,0.11477,-35.257,0,35.257,3.1416,2.1606,0.11368,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018742,300782,0,2.4701,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1438,287.35,99877,339.90,0.50000,0.29021</datapoint>
+          <datapoint>27.993,117.10,-6.3612,0.0019219,6.3675,0.40189,-36.287,0,36.287,3.1416,1.9596,0.40189,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018733,300713,0,2.4685,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9002,287.37,99914,339.92,0.50000,0.29035</datapoint>
+          <datapoint>28.493,113.92,-6.3600,0.0023592,6.3668,0.41265,-37.318,0,37.318,3.1416,2.1660,0.41264,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018730,300755,0,2.4687,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2270,287.39,99952,339.93,0.50000,0.29049</datapoint>
+          <datapoint>28.993,110.74,-6.3623,-0.0046100,6.3616,0.21592,-38.374,0,38.374,3.1416,2.0580,0.21587,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018714,300580,0,2.4654,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0260,287.41,99989,339.94,0.50000,0.29063</datapoint>
+          <datapoint>29.493,107.56,-6.3607,0.0032606,6.3624,0.058931,-39.410,0,39.410,3.1416,2.0875,0.058841,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018716,300695,0,2.4668,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0962,287.43,100026,339.95,0.50000,0.29078</datapoint>
+          <datapoint>29.993,104.38,-6.3578,0.0057170,6.3638,0.30436,-40.416,0,40.416,3.1416,1.9353,0.30431,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018719,300830,0,2.4686,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8904,287.45,100064,339.97,0.50000,0.29091</datapoint>
+          <datapoint>30.493,101.20,-6.3560,0.0036726,6.3634,0.40980,-41.333,0,41.333,3.1416,1.7304,0.40978,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018717,300885,0,2.4690,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.6700,287.47,100101,339.98,0.50000,0.29106</datapoint>
+          <datapoint>30.993,98.024,-6.3363,0.039428,6.3865,0.96695,-42.318,0,42.318,3.1416,2.2135,0.96615,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018784,302051,0,2.4877,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3534,287.49,100138,339.99,0.50000,0.29120</datapoint>
+          <datapoint>31.493,94.849,-6.3670,-0.061321,6.3390,0.28938,-43.461,0,43.461,3.1416,2.3549,0.28280,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018644,299877,0,2.4516,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3972,287.51,100175,340.00,0.50000,0.29134</datapoint>
+          <datapoint>31.993,91.672,-6.3396,0.054728,6.3816,0.67123,-44.554,0,44.554,3.1416,2.0204,0.66899,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018768,301965,0,2.4854,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9234,287.53,100213,340.02,0.50000,0.29148</datapoint>
+          <datapoint>32.493,88.496,-6.3643,-0.049399,6.3396,0.051825,-45.563,0,45.563,3.1416,2.0126,0.015671,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018644,300053,0,2.4536,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0102,287.55,100250,340.03,0.50000,0.29163</datapoint>
+          <datapoint>32.993,85.318,-6.3493,0.029900,6.3644,0.053999,-46.575,0,46.575,3.1416,2.0350,0.044966,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018716,301298,0,2.4735,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0416,287.57,100287,340.04,0.50000,0.29177</datapoint>
+          <datapoint>33.493,82.142,-6.3536,-0.0084481,6.3526,0.31412,-47.631,0,47.631,3.1416,2.1920,0.31400,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018681,300814,0,2.4651,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2383,287.60,100324,340.05,0.50000,0.29191</datapoint>
+          <datapoint>33.993,78.966,-6.3512,0.0046881,6.3550,0.20657,-48.753,0,48.753,3.1416,2.2953,0.20652,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018687,300999,0,2.4677,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3256,287.62,100362,340.07,0.50000,0.29206</datapoint>
+          <datapoint>34.493,75.790,-6.3521,-0.0017257,6.3513,0.035322,-49.896,0,49.896,3.1416,2.2777,0.035280,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018676,300896,0,2.4655,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2725,287.64,100399,340.08,0.50000,0.29220</datapoint>
+          <datapoint>34.993,72.615,-6.3456,0.013032,6.3580,0.42618,-51.088,0,51.088,3.1416,2.4907,0.42598,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018695,301291,0,2.4716,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.5529,287.66,100436,340.09,0.50000,0.29234</datapoint>
+          <datapoint>35.493,69.442,-6.3492,-0.0073110,6.3495,0.34569,-52.291,0,52.291,3.1416,2.3178,0.34561,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018669,300959,0,2.4657,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2671,287.68,100473,340.10,0.50000,0.29248</datapoint>
+          <datapoint>35.993,66.268,-6.3473,0.0037720,6.3511,0.24019,-53.419,0,53.419,3.1416,2.1978,0.24016,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018673,301108,0,2.4676,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1626,287.70,100511,340.12,0.50000,0.29262</datapoint>
+          <datapoint>36.493,63.094,-6.3481,-0.0014979,6.3477,0.10549,-54.505,0,54.505,3.1416,2.1450,0.10548,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018663,301019,0,2.4657,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1296,287.72,100548,340.13,0.50000,0.29277</datapoint>
+          <datapoint>36.993,59.920,-6.3460,0.0040788,6.3487,0.13279,-55.561,0,55.561,3.1416,2.0787,0.13273,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018665,301137,0,2.4672,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0592,287.74,100585,340.14,0.50000,0.29291</datapoint>
+          <datapoint>37.493,56.747,-6.3447,0.0026879,6.3479,0.23818,-56.571,0,56.571,3.1416,1.9596,0.23816,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018662,301174,0,2.4674,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9247,287.76,100622,340.15,0.50000,0.29305</datapoint>
+          <datapoint>37.993,53.575,-6.3440,0.0013648,6.3465,0.23437,-57.521,0,57.521,3.1416,1.8424,0.23436,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018657,301180,0,2.4670,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8081,287.78,100659,340.17,0.50000,0.29350</datapoint>
+          <datapoint>38.493,50.406,-6.3318,0.024495,6.3603,0.70485,-58.354,0,58.354,3.1416,1.4902,0.70442,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018697,301905,0,2.4784,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.3883,287.80,100697,340.18,0.50000,0.29370</datapoint>
+          <datapoint>38.993,47.237,-6.3464,-0.029319,6.3358,0.35133,-59.143,0,59.143,3.1416,1.6652,0.35011,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018624,300818,0,2.4602,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7167,287.82,100734,340.19,0.50000,0.29384</datapoint>
+          <datapoint>39.493,44.065,-6.3401,0.012693,6.3464,0.012982,-59.976,0,59.976,3.1416,1.6666,0.0027239,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018655,301394,0,2.4691,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.6670,287.84,100771,340.20,0.50000,0.29398</datapoint>
+          <datapoint>39.993,40.895,-6.3411,-0.0019893,6.3414,0.20062,-60.835,0,60.835,3.1416,1.7669,0.20061,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018639,301228,0,2.4660,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7962,287.86,100808,340.22,0.50000,0.29413</datapoint>
+          <datapoint>40.493,37.725,-6.3364,0.0093502,6.3459,0.38148,-61.766,0,61.766,3.1416,1.9576,0.38136,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018652,301512,0,2.4702,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0130,287.88,100845,340.23,0.50000,0.29427</datapoint>
+          <datapoint>40.993,34.556,-6.3405,-0.0081210,6.3374,0.17072,-62.766,0,62.766,3.1416,2.0429,0.17053,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018626,301181,0,2.4643,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0677,287.90,100883,340.24,0.50000,0.29441</datapoint>
+          <datapoint>41.493,31.387,-6.3374,0.0061847,6.3407,0.076879,-63.797,0,63.797,3.1416,2.0812,0.076630,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018635,301410,0,2.4676,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0923,287.93,100920,340.25,0.50000,0.29455</datapoint>
+          <datapoint>41.993,28.218,-6.3371,5.6978e-4,6.3382,0.16288,-64.817,0,64.817,3.1416,1.9997,0.16288,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018627,301367,0,2.4664,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9760,287.95,100957,340.27,0.50000,0.29470</datapoint>
+          <datapoint>42.493,25.051,-6.3328,0.0086106,6.3418,0.38071,-65.864,0,65.864,3.1416,2.1900,0.38061,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018637,301610,0,2.4700,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2452,287.97,100994,340.28,0.50000,0.29484</datapoint>
+          <datapoint>42.993,21.884,-6.3356,-0.0055347,6.3351,0.26772,-66.926,0,66.926,3.1416,2.0562,0.26766,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018617,301364,0,2.4655,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0173,287.99,101031,340.29,0.50000,0.29498</datapoint>
+          <datapoint>43.493,18.717,-6.3300,0.011030,6.3412,0.41474,-68.006,0,68.006,3.1416,2.2635,0.41459,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018634,301724,0,2.4709,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3235,288.01,101068,340.30,0.50000,0.29512</datapoint>
+          <datapoint>43.993,15.552,-6.3317,-0.0032936,6.3356,0.41103,-69.086,0,69.086,3.1416,2.0580,0.41102,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018617,301529,0,2.4673,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9984,288.03,101105,340.32,0.50000,0.29527</datapoint>
+          <datapoint>44.493,12.385,-6.3336,-0.0038366,6.3317,0.031386,-70.111,0,70.111,3.1416,2.0424,0.031151,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018605,301417,0,2.4650,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0379,288.05,101143,340.33,0.50000,0.29541</datapoint>
+          <datapoint>44.993,9.2201,-6.3279,0.011427,6.3378,0.35679,-71.088,0,71.088,3.1416,1.8641,0.35660,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018622,301777,0,2.4705,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8126,288.07,101180,340.34,0.50000,0.29555</datapoint>
+          <datapoint>45.493,6.0560,-6.3288,-0.0017625,6.3331,0.39874,-72.070,0,72.070,3.1416,2.0635,0.39874,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018607,301627,0,2.4676,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1212,288.09,101217,340.35,0.50000,0.29569</datapoint>
+          <datapoint>45.993,2.8912,-6.3305,-0.0033806,6.3293,0.12871,-73.086,0,73.086,3.1416,1.9991,0.12866,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018596,301519,0,2.4653,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9805,288.11,101254,340.37,0.50000,0.29584</datapoint>
+          <datapoint>46.493,-0.27340,-6.3277,0.0054273,6.3314,0.17239,-74.064,0,74.064,3.1416,1.9130,0.17231,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018601,301692,0,2.4677,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8881,288.13,101291,340.38,0.50000,0.29600</datapoint>
+        </databranch>
+      </flightdata>
+    </simulation>
+
+    <simulation status="uptodate">
+      <name>Simulation 4</name>
+      <simulator>RK4Simulator</simulator>
+      <calculator>BarrowmanCalculator</calculator>
+      <conditions>
+        <configid>e1dc7488-77c0-403a-b54f-c01db07aba2f</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>0.0</launchroddirection>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>45.0</launchlatitude>
+        <atmosphere model="isa"/>
+        <timestep>0.05</timestep>
+      </conditions>
+      <flightdata maxaltitude="282.06" maxvelocity="88.294" maxacceleration="159.57" maxmach="0.25968" timetoapogee="7.2361" flighttime="52.314" groundhitvelocity="6.3246">
+        <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
+          <event time="0" type="launch"/>
+          <event time="0" type="ignition"/>
+          <event time="0.050000" type="liftoff"/>
+          <event time="0.20000" type="launchrod"/>
+          <event time="1.8852" type="burnout"/>
+          <event time="6.8718" type="ejectioncharge"/>
+          <event time="6.8718" type="recoverydevicedeployment"/>
+          <event time="7.2863" type="apogee"/>
+          <event time="52.314" type="groundhit"/>
+          <event time="52.314" type="simulationend"/>
+          <datapoint>0,0,0,2.6470,1.8858,2.6470,0,0,0,0,0,0,1.5708,0,0,0,0.29439,NaN,NaN,NaN,0.0055402,89878,3.6693,0,0.78154,0,0.44835,0.21319,0.12000,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.055000,0.0023758,1.5708,0,1.8858,288.15,101325,340.39,0.050000,0.027805</datapoint>
+          <datapoint>0.25000,2.3315,22.766,68.665,22.834,68.690,-0.0022905,0,0.0022905,3.1416,0.091848,1.8270,0.076570,0,0.034800,0,0.28877,0.48323,0.45241,0.56027,0.067085,1088093,23.161,0.49836,0.62590,0.65696,0.29151,0.21380,0.12059,0.72012,0.40342,0,0,0,0,0,3.8446e-5,0.055000,0.0023758,1.5700,0,1.8573,288.13,101298,340.38,0.044357,0.097669</datapoint>
+          <datapoint>0.48222,9.2161,35.759,47.969,35.805,47.979,-0.058790,0,0.058790,3.1416,0.29330,0.95213,0.017527,0,0.24026,0,0.28571,0.49814,0.45005,0.87431,0.10520,1705303,17.683,1.1732,0.62752,0.62941,0.29132,0.21476,0.12144,0.14718,0.12795,0,0,0,0,0,7.3619e-4,0.055000,0.0023758,1.5377,0,2.1049,288.09,101217,340.35,0.041538,0.10671</datapoint>
+          <datapoint>0.72956,19.471,46.999,42.342,47.092,42.878,-0.033190,0,0.033190,3.1416,0.76693,6.7583,0.021368,0,-0.041912,0,0.28069,0.51530,0.44607,1.2587,0.13838,2241139,16.786,2.0374,0.62968,0.63248,0.29109,0.21610,0.12249,0.20408,0.25688,0,0,0,0,0,-1.2691e-5,0.055000,0.0023758,1.4865,0,2.1951,288.02,101097,340.31,0.015917,0.11903</datapoint>
+          <datapoint>0.98745,33.042,58.231,42.205,58.361,42.205,0.34928,0,0.34928,0,1.8615,0.097500,0.017680,0,-0.10386,0,0.27709,0.49851,0.44312,1.0071,0.17152,2774589,17.531,3.1351,0.63254,0.63448,0.29079,0.21793,0.12382,0.14890,0.15001,0,0,0,0,0,-5.0006e-5,0.055000,0.0023758,1.5216,0,2.0381,287.94,100937,340.26,0.017613,0.17105</datapoint>
+          <datapoint>1.2361,48.779,68.093,34.430,68.224,34.901,0.82540,0,0.82540,0,2.2721,5.7141,0.010632,0,-0.071353,0,0.27105,0.51879,0.43799,1.4690,0.20054,3239605,16.364,4.2903,0.63561,0.63632,0.29047,0.21990,0.12523,0.099883,0.14674,0,0,0,0,0,-1.6862e-5,0.055000,0.0023758,1.4981,0,1.9605,287.83,100753,340.20,0.012985,0.19497</datapoint>
+          <datapoint>1.4936,67.500,77.336,35.384,77.485,35.387,1.5450,0,1.5450,0,3.0281,0.44331,0.0074414,0,0.035906,0,0.26342,0.50197,0.43119,1.2869,0.22782,3674142,17.482,5.5861,0.64306,0.64342,0.29013,0.22618,0.12675,0.061557,0.079213,0,0,0,0,0,3.2141e-6,0.055000,0.0023758,1.5161,0,1.7842,287.71,100533,340.12,0.017781,0.22766</datapoint>
+          <datapoint>1.7430,87.858,85.807,32.284,85.993,32.336,2.3805,0,2.3805,0,3.7723,1.8371,0.0024433,0,-0.056477,0,0.25759,0.50373,0.42571,1.4185,0.25289,4071209,17.792,6.9391,0.65014,0.65018,0.28978,0.23205,0.12831,0.020036,0.028429,0,0,0,0,0,-6.3180e-6,0.055000,0.0023758,1.5075,0,1.8778,287.58,100295,340.04,0.034738,0.24887</datapoint>
+          <datapoint>2.0089,110.66,81.802,-34.687,81.989,34.728,3.3816,0,3.3816,0,3.6219,1.6900,2.0057e-5,0,-0.043664,0,0.25119,0.50434,0.41942,1.5440,0.24118,3874894,0,6.2617,0.64681,0.64681,0.28995,0.22929,0.12756,1.6350e-4,2.5649e-4,0,0,0,0,0,-4.0625e-6,0.055000,0.0023758,1.5032,0,1.9176,287.43,100027,339.95,0.038856,0.26332</datapoint>
+          <datapoint>2.2762,131.34,73.260,-29.538,73.426,29.553,4.2834,0,4.2834,0,3.1867,0.93385,0.0014921,0,0.0055730,0,0.25119,0.52162,0.41942,1.8583,0.21604,3464709,0,4.9582,0.63981,0.63982,0.29028,0.22346,0.12607,0.013796,0.025637,0,0,0,0,0,8.2513e-8,0.055000,0.0023758,1.5019,0,1.7574,287.30,99785,339.87,0.048689,0.28906</datapoint>
+          <datapoint>2.5225,148.54,66.457,-25.905,66.617,25.915,5.0266,0,5.0266,0,2.8701,0.74368,0.0017107,0,-0.0042385,0,0.25119,0.52139,0.41942,1.8540,0.19605,3139252,0,4.0442,0.63504,0.63506,0.29053,0.21952,0.12500,0.015804,0.029300,0,0,0,0,0,-5.7982e-8,0.055000,0.0023758,1.4997,0,1.7471,287.18,99583,339.80,0.049780,0.29630</datapoint>
+          <datapoint>2.7719,164.34,60.375,-22.997,60.522,23.028,5.7122,0,5.7122,0,2.5922,1.1785,0.0016455,0,0.027810,0,0.25119,0.50324,0.41942,1.5241,0.17814,2848538,0,3.3233,0.63320,0.63321,0.29072,0.21835,0.12413,0.013408,0.020431,0,0,0,0,0,3.0242e-6,0.055000,0.0023758,1.5028,0,1.6198,287.08,99398,339.74,0.049963,0.30794</datapoint>
+          <datapoint>3.0218,178.73,54.922,-20.699,55.076,20.716,6.3329,0,6.3329,0,2.3879,0.83587,1.7295e-4,0,0.012277,0,0.25119,0.50357,0.41942,1.5300,0.16214,2589311,0,2.7415,0.63165,0.63165,0.29088,0.21735,0.12342,0.0014037,0.0021469,0,0,0,0,0,7.1177e-7,0.055000,0.0023758,1.4964,0,1.7176,286.99,99229,339.68,0.049994,0.31629</datapoint>
+          <datapoint>3.2718,191.83,49.994,-18.787,50.172,18.818,6.9020,0,6.9020,0,2.1642,1.0753,0.0029373,0,0.047866,0,0.25119,0.50263,0.41942,1.5129,0.14772,2356367,0,2.2678,0.63036,0.63042,0.29101,0.21651,0.12284,0.023964,0.036243,0,0,0,0,0,1.3037e-5,0.055000,0.0023758,1.4895,0,2.0574,286.90,99075,339.63,0.049999,0.33515</datapoint>
+          <datapoint>3.5218,203.76,45.490,-17.268,45.676,17.275,7.4203,0,7.4203,0,2.0117,0.46123,0.0020876,0,-0.0061461,0,0.25119,0.52085,0.41942,1.8443,0.13450,2143217,0,1.8745,0.62941,0.62944,0.29112,0.21594,0.12235,0.019240,0.035484,0,0,0,0,0,-2.5934e-7,0.055000,0.0023758,1.4784,0,2.1067,286.83,98935,339.59,0.050000,0.34289</datapoint>
+          <datapoint>3.7718,214.61,41.348,-15.901,41.560,15.944,7.9029,0,7.9029,0,1.8199,1.1690,0.0073808,0,0.042494,0,0.25119,0.50115,0.41942,1.4861,0.12240,1948431,0,1.5490,0.62859,0.62893,0.29121,0.21543,0.12195,0.060722,0.090225,0,0,0,0,0,1.4975e-5,0.055000,0.0023758,1.4772,0,2.3687,286.76,98808,339.54,0.050000,0.35053</datapoint>
+          <datapoint>4.0218,224.46,37.502,-14.906,37.717,14.906,8.3315,0,8.3315,0,1.6590,0.096775,0.0063817,0,-0.053331,0,0.25119,0.51946,0.41942,1.8189,0.11109,1766898,0,1.2729,0.62787,0.62813,0.29129,0.21498,0.12160,0.059239,0.10778,0,0,0,0,0,-2.8638e-5,0.055000,0.0023758,1.4578,0,2.3564,286.69,98692,339.50,0.050000,0.36184</datapoint>
+          <datapoint>4.2718,233.38,33.900,-13.919,34.116,13.930,8.7408,0,8.7408,0,1.6010,0.54071,0.0015452,0,-0.043793,0,0.25119,0.50279,0.41942,1.5158,0.10050,1597098,0,1.0392,0.62724,0.62726,0.29135,0.21458,0.12131,0.012548,0.019043,0,0,0,0,0,-2.3602e-5,0.055000,0.0023758,1.4597,0,2.2323,286.63,98588,339.47,0.050000,0.37263</datapoint>
+          <datapoint>4.5218,241.43,30.525,-13.113,30.735,13.133,9.1200,0,9.1200,0,1.4305,0.72418,0.0082220,0,0.031828,0,0.25119,0.50076,0.41942,1.4789,0.090547,1437924,0,0.84271,0.62680,0.62722,0.29141,0.21432,0.12107,0.067696,0.10010,0,0,0,0,0,1.5361e-5,0.055000,0.0023758,1.4620,0,2.1576,286.58,98493,339.44,0.050000,0.39421</datapoint>
+          <datapoint>4.7718,248.66,27.329,-12.491,27.550,12.495,9.4562,0,9.4562,0,1.2821,0.29481,0.0012298,0,-0.097206,0,0.25119,0.52087,0.41942,1.8447,0.081169,1288157,0,0.67574,0.62642,0.62642,0.29145,0.21410,0.12086,0.011296,0.021016,0,0,0,0,0,-1.7832e-4,0.055000,0.0023758,1.4430,0,2.1962,286.53,98409,339.41,0.050000,0.40182</datapoint>
+          <datapoint>5.0218,255.11,24.268,-11.949,24.484,11.949,9.7759,0,9.7759,0,1.2903,0.085760,0.0067277,0,0.019985,0,0.25119,0.51921,0.41942,1.8144,0.072142,1144229,0,0.53333,0.62608,0.62636,0.29149,0.21391,0.12068,0.062424,0.11325,0,0,0,0,0,9.5436e-6,0.055000,0.0023758,1.4313,0,1.9519,286.49,98333,339.38,0.050000,0.41345</datapoint>
+          <datapoint>5.2718,260.80,21.351,-11.412,21.587,11.424,10.090,0,10.090,0,1.2093,0.53061,0.014260,0,-0.0032956,0,0.25119,0.49891,0.41942,1.4454,0.063612,1008417,0,0.41483,0.62578,0.62704,0.29153,0.21373,0.12053,0.11883,0.17175,0,0,0,0,0,-3.3382e-7,0.055000,0.0023758,1.4369,0,1.9773,286.45,98266,339.36,0.050000,0.42089</datapoint>
+          <datapoint>5.5218,265.79,18.549,-11.012,18.793,11.022,10.377,0,10.377,0,1.0879,0.49180,0.018894,0,0.072886,0,0.25119,0.49758,0.41942,1.4211,0.055382,877552,0,0.31458,0.62553,0.62771,0.29156,0.21357,0.12040,0.15893,0.22564,0,0,0,0,0,2.1544e-4,0.055000,0.0023758,1.4282,0,1.9333,286.42,98208,339.34,0.050000,0.42862</datapoint>
+          <datapoint>5.7718,270.09,15.836,-10.684,16.117,10.692,10.637,0,10.637,0,1.0005,0.39051,0.019447,0,0.12172,0,0.25119,0.49741,0.41942,1.4180,0.047498,752340,0,0.23124,0.62532,0.62763,0.29158,0.21345,0.12029,0.16375,0.23137,0,0,0,0,0,8.1687e-4,0.055000,0.0023758,1.4030,0,1.9990,286.39,98157,339.33,0.050000,0.43648</datapoint>
+          <datapoint>6.0218,273.71,13.199,-10.421,13.537,10.424,10.875,0,10.875,0,0.91052,0.28164,0.017529,0,0.17752,0,0.25119,0.49793,0.41942,1.4275,0.039895,631710,0,0.16292,0.62519,0.62707,0.29160,0.21338,0.12021,0.14700,0.20738,0,0,0,0,0,0.0024633,0.055000,0.0023758,1.3646,0,2.0932,286.37,98115,339.31,0.050000,0.44418</datapoint>
+          <datapoint>6.2718,276.69,10.620,-10.223,10.994,10.224,11.096,0,11.096,0,0.85972,0.15172,0.0080323,0,0.19924,0,0.25119,0.50065,0.41942,1.4770,0.032403,512937,0,0.10822,0.63123,0.63164,0.29777,0.21332,0.12014,0.066041,0.092836,0,0,0,0,0,0.0047042,0.055000,0.0023758,1.3171,0,1.9848,286.35,98080,339.30,0.050000,0.45838</datapoint>
+          <datapoint>6.5218,279.03,8.0897,-10.038,8.5864,10.040,11.305,0,11.305,0,0.80771,0.20372,0.035260,0,0.22758,0,0.25119,0.49309,0.41942,1.3395,0.025307,400522,0,0.068434,0.64743,0.65501,0.31407,0.21328,0.12008,0.30644,0.40041,0,0,0,0,0,0.010062,0.055000,0.0023758,1.2643,0,2.0703,286.34,98052,339.29,0.050000,0.48324</datapoint>
+          <datapoint>6.7718,280.74,5.5988,-9.8884,6.2717,9.8919,11.500,0,11.500,0,0.75302,0.26118,0.10026,0,0.26142,0,0.25119,0.47813,0.41942,1.0675,0.018485,292513,0,0.040317,0.67006,0.72341,0.33678,0.21324,0.12004,0.98301,1.0244,0,0,0,0,0,0.024886,0.055000,0.0023758,1.2036,0,2.0733,286.33,98032,339.28,0.050000,0.49059</datapoint>
+          <datapoint>7.0103,281.75,2.6536,-12.825,4.0079,13.044,11.645,0,11.645,0,0.32358,2.3760,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.011813,186913,0,0.96295,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0694,286.32,98022,339.28,0.038333,0.49414</datapoint>
+          <datapoint>7.2361,282.06,0.17640,-10.148,2.0574,10.193,11.675,0,11.675,0,0.0067868,0.95442,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.0060642,95949,0,0.25376,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9038,286.32,98017,339.28,0.049054,0.49483</datapoint>
+          <datapoint>7.5024,281.76,-2.3089,-8.6995,2.5826,8.7730,11.639,0,11.639,0,0.27561,1.1335,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.0076119,120440,0,0.39983,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0502,286.32,98019,339.28,0.056993,0.49674</datapoint>
+          <datapoint>7.7771,280.84,-4.2713,-6.1021,4.1101,6.3000,11.514,0,11.514,0,0.65266,1.5669,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.012114,191689,0,1.0128,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1256,286.32,98027,339.28,0.079365,0.49728</datapoint>
+          <datapoint>7.9795,279.88,-5.2143,-4.2103,4.9470,4.5180,11.349,0,11.349,0,0.98390,1.6388,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.014581,230733,0,1.4673,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1904,286.33,98036,339.28,0.11067,0.49755</datapoint>
+          <datapoint>8.1250,279.09,-5.6825,-3.2197,5.3006,3.4379,11.193,0,11.193,0,1.1592,1.2052,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.015623,247235,0,1.6846,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9364,286.33,98042,339.29,0.14544,0.49769</datapoint>
+          <datapoint>8.3479,277.77,-6.1412,-2.0576,5.7201,2.2432,10.912,0,10.912,0,1.3583,0.89330,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.016859,266819,0,1.9620,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8134,286.34,98052,339.29,0.22290,0.49783</datapoint>
+          <datapoint>8.8139,274.82,-6.5062,-0.78327,6.1614,1.0730,10.200,0,10.200,0,1.7000,0.73335,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018159,287434,0,2.2767,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8568,286.34,98067,339.29,0.46599,0.49797</datapoint>
+          <datapoint>9.3139,271.61,-6.3466,0.31921,6.5236,0.80866,9.2570,0,9.2570,0,2.0715,0.74299,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.019226,304404,0,2.5530,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1769,286.36,98102,339.31,0.50000,0.49811</datapoint>
+          <datapoint>9.8139,268.41,-6.4421,-0.19098,6.3491,0.33203,8.2552,0,8.2552,0,1.9357,0.27161,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018711,296335,0,2.4189,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8924,286.38,98139,339.32,0.50000,0.49825</datapoint>
+          <datapoint>10.314,265.20,-6.3917,0.10073,6.4425,0.15773,7.3025,0,7.3025,0,1.8750,0.12138,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018986,300772,0,2.4914,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8569,286.41,98177,339.33,0.50000,0.49859</datapoint>
+          <datapoint>10.814,262.00,-6.4149,-0.046465,6.3950,0.31528,6.4039,0,6.4039,0,1.7191,0.31184,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018845,298626,0,2.4555,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.6710,286.43,98215,339.34,0.50000,0.49877</datapoint>
+          <datapoint>11.314,258.80,-6.3988,0.032287,6.4212,0.43543,5.4901,0,5.4901,0,1.9362,0.43423,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018922,299925,0,2.4765,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0019,286.45,98252,339.36,0.50000,0.49891</datapoint>
+          <datapoint>11.814,255.60,-6.4083,-0.019002,6.4019,0.30415,4.4841,0,4.4841,0,2.0880,0.30356,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018864,299099,0,2.4624,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1345,286.47,98290,339.37,0.50000,0.49905</datapoint>
+          <datapoint>12.314,252.39,-6.4034,0.0097275,6.4091,0.15926,3.4202,0,3.4202,0,2.1675,0.15897,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018885,299514,0,2.4687,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1917,286.49,98327,339.38,0.50000,0.49919</datapoint>
+          <datapoint>12.814,249.19,-6.4009,0.0049796,6.4089,0.40678,2.3873,0,2.3873,0,1.9641,0.40675,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018883,299579,0,2.4693,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9023,286.51,98365,339.39,0.50000,0.49934</datapoint>
+          <datapoint>13.314,245.99,-6.3999,0.0020161,6.4075,0.44455,1.3497,0,1.3497,0,2.1864,0.44454,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018878,299588,0,2.4690,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2539,286.53,98402,339.41,0.50000,0.49948</datapoint>
+          <datapoint>13.814,242.79,-6.4019,-0.0039477,6.4026,0.28534,0.29212,0,0.29212,0,2.0437,0.28531,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018863,299436,0,2.4660,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0003,286.55,98440,339.42,0.50000,0.49962</datapoint>
+          <datapoint>14.314,239.59,-6.3996,0.0045324,6.4042,0.26396,-0.69675,0,0.69675,3.1416,1.9118,0.26392,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018867,299585,0,2.4680,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8717,286.57,98477,339.43,0.50000,0.49976</datapoint>
+          <datapoint>14.814,236.39,-6.3998,-2.7645e-4,6.4014,0.22848,-1.6241,0,1.6241,3.1416,1.7975,0.22848,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018858,299527,0,2.4666,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7628,286.59,98515,339.45,0.50000,0.49991</datapoint>
+          <datapoint>15.314,233.19,-6.3995,5.3910e-4,6.3998,0.021317,-2.5255,0,2.5255,3.1416,1.8082,0.021310,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018853,299528,0,2.4661,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8114,286.61,98553,339.46,0.50000,0.50004</datapoint>
+          <datapoint>15.814,229.99,-6.3962,0.0065229,6.4020,0.27369,-3.4638,0,3.4638,3.1416,1.9450,0.27362,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018859,299706,0,2.4686,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9864,286.63,98590,339.47,0.50000,0.50019</datapoint>
+          <datapoint>16.314,226.79,-6.3983,-0.0041661,6.3963,0.045491,-4.4306,0,4.4306,3.1416,1.9223,0.045300,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018841,299516,0,2.4649,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9155,286.66,98628,339.48,0.50000,0.50041</datapoint>
+          <datapoint>16.814,223.60,-6.3957,0.0051603,6.3983,0.018537,-5.3940,0,5.3940,3.1416,1.9312,0.017804,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018847,299685,0,2.4673,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9339,286.68,98665,339.50,0.50000,0.50055</datapoint>
+          <datapoint>17.314,220.40,-6.3946,0.0023454,6.3971,0.20321,-6.3851,0,6.3851,3.1416,2.0328,0.20319,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018842,299703,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0636,286.70,98703,339.51,0.50000,0.50069</datapoint>
+          <datapoint>17.814,217.20,-6.3946,-3.9228e-5,6.3948,0.076723,-7.3919,0,7.3919,3.1416,1.9945,0.076723,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018835,299668,0,2.4660,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9829,286.72,98740,339.52,0.50000,0.50083</datapoint>
+          <datapoint>18.314,214.00,-6.3932,0.0027377,6.3946,0.0031375,-8.3889,0,8.3889,3.1416,1.9937,0.0015327,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018833,299735,0,2.4666,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9935,286.74,98778,339.53,0.50000,0.50098</datapoint>
+          <datapoint>18.814,210.81,-6.3924,0.0015786,6.3932,0.024448,-9.3888,0,9.3888,3.1416,2.0059,0.024397,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018829,299746,0,2.4664,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0096,286.76,98815,339.55,0.50000,0.50112</datapoint>
+          <datapoint>19.314,207.61,-6.3898,0.0051990,6.3944,0.24538,-10.361,0,10.361,3.1416,1.8833,0.24533,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018832,299877,0,2.4680,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8463,286.78,98853,339.56,0.50000,0.50126</datapoint>
+          <datapoint>19.814,204.42,-6.3911,-0.0024265,6.3901,0.089986,-11.292,0,11.292,3.1416,1.8383,0.089953,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018818,299748,0,2.4655,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8247,286.80,98890,339.57,0.50000,0.50140</datapoint>
+          <datapoint>20.314,201.22,-6.3855,0.011104,6.3957,0.37674,-12.258,0,12.258,3.1416,2.0266,0.37657,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018834,300087,0,2.4706,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0832,286.82,98928,339.58,0.50000,0.50154</datapoint>
+          <datapoint>20.814,198.03,-6.3900,-0.0090143,6.3862,0.14991,-13.290,0,13.290,3.1416,2.1014,0.14964,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018805,299716,0,2.4640,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1240,286.84,98965,339.60,0.50000,0.50169</datapoint>
+          <datapoint>21.314,194.83,-6.3860,0.0080862,6.3909,0.16529,-14.361,0,14.361,3.1416,2.1839,0.16509,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018818,300010,0,2.4683,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2088,286.86,99002,339.61,0.50000,0.50183</datapoint>
+          <datapoint>21.814,191.64,-6.3865,-0.0010930,6.3870,0.17906,-15.431,0,15.431,3.1416,2.0944,0.17906,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018806,299902,0,2.4661,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0674,286.88,99040,339.62,0.50000,0.50197</datapoint>
+          <datapoint>22.314,188.45,-6.3855,0.0020117,6.3865,0.033295,-16.474,0,16.474,3.1416,2.0778,0.033234,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018804,299954,0,2.4665,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0728,286.90,99077,339.63,0.50000,0.50211</datapoint>
+          <datapoint>22.814,185.26,-6.3800,0.010956,6.3914,0.42320,-17.460,0,17.460,3.1416,1.8662,0.42306,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018818,300257,0,2.4710,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8029,286.93,99115,339.65,0.50000,0.50225</datapoint>
+          <datapoint>23.314,182.06,-6.3859,-0.011838,6.3801,0.054722,-18.399,0,18.399,3.1416,1.8930,0.053427,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018784,299801,0,2.4630,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9010,286.95,99152,339.66,0.50000,0.50239</datapoint>
+          <datapoint>23.814,178.88,-6.3715,0.028920,6.3988,0.62450,-19.424,0,19.424,3.1416,2.2049,0.62383,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018838,300751,0,2.4782,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2976,286.97,99190,339.67,0.50000,0.50253</datapoint>
+          <datapoint>24.314,175.69,-6.3864,-0.029769,6.3731,0.22243,-20.499,0,20.499,3.1416,2.0947,0.22043,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018762,299620,0,2.4591,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0614,286.99,99227,339.68,0.50000,0.50302</datapoint>
+          <datapoint>24.814,172.50,-6.3776,0.017535,6.3870,0.14270,-21.564,0,21.564,3.1416,2.1655,0.14161,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018802,300349,0,2.4706,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1866,287.01,99264,339.70,0.50000,0.50316</datapoint>
+          <datapoint>25.314,169.31,-6.3808,-0.0064434,6.3783,0.14256,-22.629,0,22.629,3.1416,2.0943,0.14242,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018776,300011,0,2.4646,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0729,287.03,99302,339.71,0.50000,0.50331</datapoint>
+          <datapoint>25.814,166.12,-6.3764,0.0088449,6.3830,0.25943,-23.644,0,23.644,3.1416,1.9646,0.25928,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018789,300310,0,2.4690,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9259,287.05,99339,339.72,0.50000,0.50345</datapoint>
+          <datapoint>26.314,162.93,-6.3787,-0.0046166,6.3768,0.10711,-24.639,0,24.639,3.1416,2.0181,0.10701,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018770,300089,0,2.4649,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0342,287.07,99377,339.73,0.50000,0.50359</datapoint>
+          <datapoint>26.814,159.74,-6.3757,0.0060759,6.3795,0.15270,-25.629,0,25.629,3.1416,1.9418,0.15258,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018777,300290,0,2.4678,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9191,287.09,99414,339.75,0.50000,0.50373</datapoint>
+          <datapoint>27.314,156.55,-6.3763,-0.0011718,6.3759,0.077749,-26.590,0,26.590,3.1416,1.9030,0.077740,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018766,300194,0,2.4657,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8913,287.11,99452,339.76,0.50000,0.50387</datapoint>
+          <datapoint>27.814,153.36,-6.3716,0.0092739,6.3801,0.34273,-27.585,0,27.585,3.1416,2.0743,0.34261,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018778,300469,0,2.4698,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1253,287.13,99489,339.77,0.50000,0.50402</datapoint>
+          <datapoint>28.314,150.18,-6.3742,-0.0052083,6.3734,0.23395,-28.593,0,28.593,3.1416,1.9573,0.23389,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018757,300227,0,2.4654,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9224,287.15,99526,339.78,0.50000,0.50416</datapoint>
+          <datapoint>28.814,146.99,-6.3706,0.0072211,6.3770,0.28807,-29.535,0,29.535,3.1416,1.8133,0.28798,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018767,300468,0,2.4688,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7705,287.17,99564,339.80,0.50000,0.50434</datapoint>
+          <datapoint>29.314,143.81,-6.3708,-3.0753e-4,6.3738,0.30828,-30.480,0,30.480,3.1416,1.9675,0.30828,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018757,300390,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0134,287.19,99601,339.81,0.50000,0.50448</datapoint>
+          <datapoint>29.814,140.62,-6.3665,0.0085991,6.3775,0.45027,-31.521,0,31.521,3.1416,2.1926,0.45019,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018767,300638,0,2.4707,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2594,287.22,99638,339.82,0.50000,0.50462</datapoint>
+          <datapoint>30.314,137.44,-6.3724,-0.011948,6.3665,0.025705,-32.620,0,32.620,3.1416,2.2040,0.022760,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018734,300195,0,2.4630,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2074,287.24,99676,339.83,0.50000,0.50476</datapoint>
+          <datapoint>30.814,134.25,-6.3677,0.0094101,6.3724,0.011057,-33.721,0,33.721,3.1416,2.2011,0.0058067,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018751,300550,0,2.4683,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2002,287.26,99713,339.85,0.50000,0.50491</datapoint>
+          <datapoint>31.314,131.07,-6.3675,4.5021e-4,6.3694,0.22505,-34.793,0,34.793,3.1416,2.0885,0.22505,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018741,300481,0,2.4667,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0551,287.28,99750,339.86,0.50000,0.50505</datapoint>
+          <datapoint>31.814,127.89,-6.3550,0.024974,6.3836,0.70086,-35.750,0,35.750,3.1416,1.7383,0.70042,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018782,301225,0,2.4785,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.6354,287.30,99788,339.87,0.50000,0.50519</datapoint>
+          <datapoint>32.314,124.71,-6.3715,-0.032858,6.3567,0.22413,-36.647,0,36.647,3.1416,1.8492,0.22171,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018702,300026,0,2.4583,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8823,287.32,99825,339.89,0.50000,0.50533</datapoint>
+          <datapoint>32.814,121.52,-6.3586,0.025660,6.3763,0.38330,-37.619,0,37.619,3.1416,2.0404,0.38244,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018759,301025,0,2.4743,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0967,287.34,99862,339.90,0.50000,0.50548</datapoint>
+          <datapoint>33.314,118.34,-6.3634,-0.0094850,6.3644,0.41798,-38.692,0,38.692,3.1416,2.2493,0.41788,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018724,300538,0,2.4658,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3113,287.36,99900,339.91,0.50000,0.50562</datapoint>
+          <datapoint>33.814,115.16,-6.3516,0.023637,6.3792,0.69513,-39.730,0,39.730,3.1416,1.9020,0.69473,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018767,301311,0,2.4780,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8001,287.38,99937,339.92,0.50000,0.50576</datapoint>
+          <datapoint>34.314,111.98,-6.3680,-0.032995,6.3524,0.16190,-40.661,0,40.661,3.1416,1.8227,0.15850,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018687,300117,0,2.4580,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7991,287.40,99974,339.94,0.50000,0.50590</datapoint>
+          <datapoint>34.814,108.81,-6.3478,0.040469,6.3816,0.64423,-41.492,0,41.492,3.1416,1.5012,0.64296,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018772,301570,0,2.4814,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.4074,287.42,100012,339.95,0.50000,0.50605</datapoint>
+          <datapoint>35.314,105.63,-6.3677,-0.039843,6.3479,0.052736,-42.238,0,42.238,3.1416,1.4840,0.034549,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018672,300049,0,2.4560,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.4788,287.44,100049,339.96,0.50000,0.50620</datapoint>
+          <datapoint>35.814,102.45,-6.3417,0.052049,6.3855,0.74054,-43.072,0,43.072,3.1416,1.8533,0.73871,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018783,301905,0,2.4860,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9606,287.46,100086,339.97,0.50000,0.50634</datapoint>
+          <datapoint>36.314,99.272,-6.3665,-0.049637,6.3438,0.25460,-44.030,0,44.030,3.1416,1.9782,0.24971,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018659,300003,0,2.4543,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0154,287.48,100123,339.99,0.50000,0.50648</datapoint>
+          <datapoint>36.814,96.092,-6.3519,0.029326,6.3682,0.22927,-45.048,0,45.048,3.1416,2.0919,0.22739,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018730,301232,0,2.4740,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1252,287.50,100161,340.00,0.50000,0.50663</datapoint>
+          <datapoint>37.314,92.915,-6.3587,-0.013763,6.3531,0.19263,-46.070,0,46.070,3.1416,1.9958,0.19214,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018685,300589,0,2.4630,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9674,287.53,100198,340.01,0.50000,0.50677</datapoint>
+          <datapoint>37.814,89.737,-6.3528,0.011938,6.3609,0.25838,-47.100,0,47.100,3.1416,2.1248,0.25810,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018707,301034,0,2.4698,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1628,287.55,100235,340.02,0.50000,0.54785</datapoint>
+          <datapoint>38.314,86.559,-6.3560,-0.0065048,6.3531,0.093176,-48.151,0,48.151,3.1416,2.0784,0.092949,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018684,300734,0,2.4644,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0647,287.57,100273,340.04,0.50000,0.54804</datapoint>
+          <datapoint>38.814,83.382,-6.3522,0.0077374,6.3571,0.18249,-49.167,0,49.167,3.1416,1.9872,0.18232,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018695,301000,0,2.4683,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9604,287.59,100310,340.05,0.50000,0.54948</datapoint>
+          <datapoint>39.314,80.206,-6.3529,-0.0013872,6.3532,0.17621,-50.139,0,50.139,3.1416,1.8991,0.17620,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018683,300886,0,2.4660,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8732,287.61,100347,340.06,0.50000,0.54964</datapoint>
+          <datapoint>39.814,77.030,-6.3510,0.0036685,6.3539,0.17479,-51.110,0,51.110,3.1416,1.9865,0.17475,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018684,300991,0,2.4673,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0122,287.63,100384,340.07,0.50000,0.54976</datapoint>
+          <datapoint>40.314,73.855,-6.3509,1.6247e-4,6.3515,0.12382,-52.088,0,52.088,3.1416,1.9246,0.12382,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018676,300953,0,2.4662,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9064,287.65,100422,340.09,0.50000,0.54989</datapoint>
+          <datapoint>40.814,70.681,-6.3446,0.012661,6.3578,0.45692,-53.107,0,53.107,3.1416,2.1529,0.45674,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018694,301323,0,2.4718,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2197,287.67,100459,340.10,0.50000,0.55001</datapoint>
+          <datapoint>41.314,67.507,-6.3518,-0.014453,6.3447,0.049999,-54.178,0,54.178,3.1416,2.1290,0.047864,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018655,300775,0,2.4624,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1220,287.69,100496,340.11,0.50000,0.55014</datapoint>
+          <datapoint>41.814,64.333,-6.3429,0.017789,6.3564,0.37383,-55.289,0,55.289,3.1416,2.3157,0.37341,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018689,301404,0,2.4722,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3702,287.71,100533,340.12,0.50000,0.55027</datapoint>
+          <datapoint>42.314,61.160,-6.3487,-0.011462,6.3445,0.21767,-56.419,0,56.419,3.1416,2.2070,0.21737,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018653,300911,0,2.4637,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1751,287.73,100570,340.14,0.50000,0.55039</datapoint>
+          <datapoint>42.814,57.987,-6.3453,0.0067888,6.3487,0.013499,-57.521,0,57.521,3.1416,2.2012,0.011667,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018664,301182,0,2.4677,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1995,287.75,100608,340.15,0.50000,0.55052</datapoint>
+          <datapoint>43.314,54.814,-6.3448,8.7477e-4,6.3464,0.18101,-58.599,0,58.599,3.1416,2.1107,0.18101,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018657,301145,0,2.4666,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0842,287.77,100645,340.16,0.50000,0.55064</datapoint>
+          <datapoint>43.814,51.642,-6.3444,8.1709e-4,6.3449,0.027577,-59.658,0,59.658,3.1416,2.1245,0.027564,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018652,301147,0,2.4662,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1285,287.79,100682,340.17,0.50000,0.55077</datapoint>
+          <datapoint>44.314,48.470,-6.3430,0.0029405,6.3448,0.099375,-60.733,0,60.733,3.1416,2.1741,0.099332,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018651,301214,0,2.4668,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1887,287.81,100719,340.19,0.50000,0.55090</datapoint>
+          <datapoint>44.814,45.300,-6.3380,0.0099747,6.3489,0.42483,-61.767,0,61.767,3.1416,1.9618,0.42472,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018662,301482,0,2.4708,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9000,287.83,100757,340.20,0.50000,0.55102</datapoint>
+          <datapoint>45.314,42.129,-6.3438,-0.011672,6.3380,0.029228,-62.744,0,62.744,3.1416,1.9484,0.026796,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018630,301038,0,2.4630,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9445,287.86,100794,340.21,0.50000,0.55115</datapoint>
+          <datapoint>45.814,38.959,-6.3387,0.010166,6.3444,0.13253,-63.735,0,63.735,3.1416,2.0145,0.13214,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018648,301414,0,2.4687,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0337,287.88,100831,340.22,0.50000,0.55128</datapoint>
+          <datapoint>46.314,35.789,-6.3381,0.0013050,6.3419,0.30878,-64.781,0,64.781,3.1416,2.1688,0.30878,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018640,301366,0,2.4675,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2138,287.90,100868,340.24,0.50000,0.55140</datapoint>
+          <datapoint>46.814,32.620,-6.3394,-0.0026177,6.3381,0.026795,-65.869,0,65.869,3.1416,2.1822,0.026667,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018628,301260,0,2.4653,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1861,287.92,100905,340.25,0.50000,0.55153</datapoint>
+          <datapoint>47.314,29.451,-6.3372,0.0043190,6.3394,0.010765,-66.959,0,66.959,3.1416,2.1772,0.0098601,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018631,301393,0,2.4670,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1758,287.94,100942,340.26,0.50000,0.55165</datapoint>
+          <datapoint>47.814,26.287,-6.3189,0.036718,6.3606,0.84756,-67.941,0,67.941,3.1416,1.7539,0.84676,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018693,302473,0,2.4843,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.6327,287.96,100980,340.27,0.50000,0.55178</datapoint>
+          <datapoint>48.314,23.121,-6.3455,-0.053361,6.3189,0.055802,-68.816,0,68.816,3.1416,1.7457,0.016325,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018569,300562,0,2.4526,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7433,287.98,101017,340.29,0.50000,0.55191</datapoint>
+          <datapoint>48.814,19.953,-6.3246,0.041957,6.3519,0.44173,-69.744,0,69.744,3.1416,1.9656,0.43973,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018666,302203,0,2.4790,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0287,288.00,101054,340.30,0.50000,0.55203</datapoint>
+          <datapoint>49.314,16.787,-6.3385,-0.027901,6.3259,0.20238,-70.752,0,70.752,3.1416,2.0658,0.20045,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018589,301040,0,2.4595,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0951,288.02,101091,340.31,0.50000,0.55216</datapoint>
+          <datapoint>49.814,13.620,-6.3301,0.016740,6.3389,0.10642,-71.798,0,71.798,3.1416,2.1183,0.10510,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018626,301730,0,2.4703,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1335,288.04,101128,340.32,0.50000,0.55232</datapoint>
+          <datapoint>50.314,10.455,-6.3299,5.0983e-4,6.3349,0.38094,-72.809,0,72.809,3.1416,1.9279,0.38094,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018614,301613,0,2.4679,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8727,288.06,101165,340.34,0.50000,0.55281</datapoint>
+          <datapoint>50.814,7.2910,-6.3272,0.0053212,6.3364,0.44548,-73.829,0,73.829,3.1416,2.1506,0.44545,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018617,301756,0,2.4698,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2149,288.08,101202,340.35,0.50000,0.55296</datapoint>
+          <datapoint>51.314,4.1271,-6.3283,-0.0021260,6.3324,0.39628,-74.954,0,74.954,3.1416,2.3487,0.39627,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018605,301637,0,2.4674,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.4061,288.10,101239,340.36,0.50000,0.55308</datapoint>
+          <datapoint>51.814,0.96473,-6.3213,0.014049,6.3399,0.59547,-76.054,0,76.054,3.1416,2.0511,0.59530,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018626,302066,0,2.4740,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9655,288.12,101277,340.37,0.50000,0.55321</datapoint>
+          <datapoint>52.314,-2.1981,-6.3301,-0.017717,6.3246,0.31661,-77.040,0,77.040,3.1416,1.8930,0.31612,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018581,301408,0,2.4628,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8472,288.14,101314,340.39,0.50000,0.55333</datapoint>
+        </databranch>
+      </flightdata>
+    </simulation>
+
+    <simulation status="uptodate">
+      <name>Simulation 5</name>
+      <simulator>RK4Simulator</simulator>
+      <calculator>BarrowmanCalculator</calculator>
+      <conditions>
+        <configid>5d9a2765-395d-4d9c-9678-38eed0988c72</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>0.0</launchroddirection>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>45.0</launchlatitude>
+        <atmosphere model="isa"/>
+        <timestep>0.05</timestep>
+      </conditions>
+      <flightdata maxaltitude="281.99" maxvelocity="88.051" maxacceleration="159.56" maxmach="0.25897" timetoapogee="7.3453" flighttime="51.321" groundhitvelocity="6.3289">
+        <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
+          <event time="0" type="launch"/>
+          <event time="0" type="ignition"/>
+          <event time="0.050000" type="liftoff"/>
+          <event time="0.20000" type="launchrod"/>
+          <event time="1.8710" type="burnout"/>
+          <event time="7.3953" type="apogee"/>
+          <event time="8.8805" type="ejectioncharge"/>
+          <event time="8.8805" type="recoverydevicedeployment"/>
+          <event time="51.321" type="groundhit"/>
+          <event time="51.321" type="simulationend"/>
+          <datapoint>0,0,0,2.6470,1.8743,2.6470,0,0,0,0,0,0,1.5708,0,0,0,0.29439,NaN,NaN,NaN,0.0055063,89329,3.6693,0,0.78225,0,0.44906,0.21319,0.12000,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.055000,0.0023758,1.5708,0,1.8743,288.15,101325,340.39,0.050000,0.012737</datapoint>
+          <datapoint>0.25000,2.3315,22.765,68.715,22.837,68.740,-0.0023515,0,0.0023515,3.1416,0.094330,1.8790,0.078417,0,0.035182,0,0.28877,0.48282,0.45241,0.55286,0.067093,1088222,23.176,0.49950,0.62590,0.65832,0.29151,0.21380,0.12059,0.73997,0.40906,0,0,0,0,0,3.9286e-5,0.055000,0.0023758,1.5700,0,1.9022,288.13,101298,340.38,0.043740,0.071628</datapoint>
+          <datapoint>0.52118,10.647,37.616,46.998,37.647,47.070,-0.070616,0,0.070616,3.1416,0.20384,2.6111,0.0026633,0,-0.23637,0,0.28540,0.52056,0.44981,1.2863,0.11061,1792808,17.526,1.2937,0.62784,0.62789,0.29129,0.21496,0.12159,0.024551,0.032224,0,0,0,0,0,-6.4370e-4,0.055000,0.0023758,1.5280,0,1.7148,288.08,101200,340.35,0.045008,0.082222</datapoint>
+          <datapoint>0.76055,20.950,48.331,43.344,48.401,43.593,0.0093040,0,0.0093040,0,0.96688,4.6557,0.010663,0,0.10451,0,0.28019,0.51837,0.44566,1.3219,0.14223,2303176,17.094,2.1458,0.62996,0.63067,0.29106,0.21627,0.12263,0.099880,0.13196,0,0,0,0,0,7.4549e-5,0.055000,0.0023758,1.5062,0,1.6437,288.01,101079,340.31,0.022815,0.14958</datapoint>
+          <datapoint>1.0020,33.905,58.890,41.861,58.972,41.864,0.32275,0,0.32275,0,1.4307,0.42959,0.011303,0,0.025943,0,0.27692,0.50035,0.44297,1.0432,0.17332,2803417,17.499,3.1959,0.63272,0.63352,0.29077,0.21804,0.12390,0.093953,0.098005,0,0,0,0,0,3.0539e-6,0.055000,0.0023758,1.5294,0,1.6780,287.93,100927,340.26,0.024414,0.16246</datapoint>
+          <datapoint>1.2617,50.554,69.032,35.615,69.134,35.790,0.75965,0,0.75965,0,2.1210,3.5392,0.0037828,0,0.046976,0,0.26954,0.52083,0.43668,1.5299,0.20322,3282366,16.686,4.4055,0.63633,0.63642,0.29044,0.22052,0.12537,0.035097,0.053690,0,0,0,0,0,7.0757e-6,0.055000,0.0023758,1.5128,0,1.6229,287.82,100732,340.19,0.026776,0.19048</datapoint>
+          <datapoint>1.4964,67.755,77.511,35.304,77.628,35.386,1.3155,0,1.3155,0,2.5269,2.3965,2.7762e-4,0,0.096182,0,0.26336,0.50412,0.43114,1.3270,0.22824,3680830,17.504,5.6044,0.64317,0.64318,0.29013,0.22628,0.12677,0.0022622,0.0029789,0,0,0,0,0,2.2972e-5,0.055000,0.0023758,1.5161,0,1.7403,287.71,100530,340.12,0.034770,0.20683</datapoint>
+          <datapoint>1.7515,88.646,86.156,32.162,86.303,32.173,2.0647,0,2.0647,0,3.2346,0.83180,0.0041957,0,0.0071043,0,0.25736,0.50322,0.42549,1.4132,0.25380,4085680,17.792,6.9925,0.65041,0.65052,0.28977,0.23227,0.12837,0.034536,0.048805,0,0,0,0,0,9.9169e-8,0.055000,0.0023758,1.5166,0,1.7999,287.57,100285,340.04,0.023715,0.22068</datapoint>
+          <datapoint>2.0095,110.73,81.611,-34.528,81.765,34.585,2.9009,0,2.9009,0,3.0733,1.9717,0.0015622,0,0.018062,0,0.25119,0.50386,0.41942,1.5353,0.24052,3864287,0,6.2259,0.64662,0.64664,0.28996,0.22914,0.12752,0.012776,0.019614,0,0,0,0,0,6.9898e-7,0.055000,0.0023758,1.5109,0,1.9461,287.43,100026,339.95,0.043456,0.23269</datapoint>
+          <datapoint>2.2737,131.15,73.182,-29.442,73.323,29.481,3.6649,0,3.6649,0,2.7527,1.5038,0.0012237,0,-0.050195,0,0.25119,0.50371,0.41942,1.5325,0.21574,3459895,0,4.9437,0.63973,0.63973,0.29029,0.22339,0.12605,0.0099837,0.015307,0,0,0,0,0,-6.7125e-6,0.055000,0.0023758,1.5099,0,1.7974,287.30,99787,339.87,0.044471,0.24564</datapoint>
+          <datapoint>2.5014,147.08,66.880,-26.094,67.014,26.108,4.2496,0,4.2496,0,2.4277,0.83926,8.7121e-4,0,-0.034467,0,0.25119,0.52165,0.41942,1.8587,0.19721,3158308,0,4.0938,0.63516,0.63517,0.29051,0.21959,0.12506,0.0080365,0.014942,0,0,0,0,0,-3.7891e-6,0.055000,0.0023758,1.5066,0,1.8112,287.19,99600,339.81,0.048192,0.25516</datapoint>
+          <datapoint>2.7463,162.71,60.850,-23.198,60.979,23.234,4.8216,0,4.8216,0,2.2450,1.3007,0.0026617,0,-0.041581,0,0.25119,0.50295,0.41942,1.5187,0.17948,2870424,0,3.3751,0.63333,0.63338,0.29071,0.21844,0.12419,0.021735,0.033016,0,0,0,0,0,-6.6598e-6,0.055000,0.0023758,1.5082,0,1.7317,287.09,99417,339.75,0.049696,0.26482</datapoint>
+          <datapoint>2.9955,177.18,55.368,-20.880,55.479,20.888,5.3461,0,5.3461,0,2.0140,0.58072,7.7906e-4,0,2.4163e-4,0,0.25119,0.52142,0.41942,1.8546,0.16332,2608564,0,2.7827,0.63176,0.63176,0.29087,0.21742,0.12347,0.0071718,0.013301,0,0,0,0,0,0,0.055000,0.0023758,1.5070,0,1.4797,287.00,99247,339.69,0.049949,0.27195</datapoint>
+          <datapoint>3.2454,190.38,50.403,-18.955,50.515,18.963,5.8254,0,5.8254,0,1.8178,0.53684,5.7647e-4,0,-0.036756,0,0.25119,0.52139,0.41942,1.8541,0.14873,2372741,0,2.2993,0.63044,0.63044,0.29100,0.21656,0.12288,0.0053012,0.0098362,0,0,0,0,0,-7.5835e-6,0.055000,0.0023758,1.5037,0,1.5396,286.91,99092,339.64,0.049991,0.28121</datapoint>
+          <datapoint>3.4953,202.40,45.871,-17.329,46.002,17.367,6.2663,0,6.2663,0,1.6718,1.1580,0.0064275,0,0.030493,0,0.25119,0.50151,0.41942,1.4926,0.13546,2158765,0,1.9025,0.62947,0.62974,0.29111,0.21598,0.12239,0.052799,0.078802,0,0,0,0,0,6.2934e-6,0.055000,0.0023758,1.5015,0,1.8089,286.83,98951,339.59,0.049999,0.29718</datapoint>
+          <datapoint>3.7453,213.34,41.699,-16.060,41.832,16.063,6.6623,0,6.6623,0,1.5417,0.29241,0.0024215,0,-0.019461,0,0.25119,0.52069,0.41942,1.8414,0.12320,1961396,0,1.5689,0.62864,0.62868,0.29120,0.21547,0.12197,0.022322,0.041105,0,0,0,0,0,-3.0999e-6,0.055000,0.0023758,1.4885,0,1.7959,286.76,98823,339.55,0.050000,0.32615</datapoint>
+          <datapoint>3.9953,223.28,37.833,-14.914,37.999,14.933,7.0303,0,7.0303,0,1.3851,0.74541,0.0043093,0,0.058154,0,0.25119,0.50201,0.41942,1.5017,0.11192,1780293,0,1.2920,0.62792,0.62804,0.29128,0.21501,0.12163,0.035212,0.052843,0,0,0,0,0,3.3547e-5,0.055000,0.0023758,1.4816,0,2.1629,286.70,98706,339.51,0.050000,0.33601</datapoint>
+          <datapoint>4.2453,232.28,34.220,-14.018,34.417,14.022,7.3570,0,7.3570,0,1.2520,0.32073,0.0022603,0,-0.075296,0,0.25119,0.52064,0.41942,1.8404,0.10138,1611344,0,1.0578,0.62729,0.62733,0.29135,0.21461,0.12134,0.020814,0.038375,0,0,0,0,0,-6.8554e-5,0.055000,0.0023758,1.4614,0,2.4270,286.64,98601,339.47,0.050000,0.34538</datapoint>
+          <datapoint>4.4953,240.41,30.813,-13.211,31.017,13.216,7.6660,0,7.6660,0,1.2180,0.37604,3.1155e-4,0,0.023657,0,0.25119,0.52119,0.41942,1.8504,0.091375,1451204,0,0.85776,0.62683,0.62683,0.29140,0.21434,0.12109,0.0028576,0.0052792,0,0,0,0,0,8.3325e-6,0.055000,0.0023758,1.4559,0,2.3285,286.59,98505,339.44,0.050000,0.36841</datapoint>
+          <datapoint>4.7453,247.70,27.602,-12.498,27.820,12.520,7.9551,0,7.9551,0,1.0823,0.73909,0.011853,0,0.029511,0,0.25119,0.49966,0.41942,1.4590,0.081966,1300916,0,0.69014,0.62645,0.62732,0.29145,0.21412,0.12087,0.098318,0.14343,0,0,0,0,0,1.6117e-5,0.055000,0.0023758,1.4573,0,2.3970,286.54,98420,339.41,0.050000,0.38404</datapoint>
+          <datapoint>4.9953,254.22,24.547,-11.962,24.768,11.967,8.2065,0,8.2065,0,0.94139,0.34860,0.0022835,0,0.10177,0,0.25119,0.50246,0.41942,1.5098,0.072980,1157614,0,0.54565,0.62611,0.62614,0.29149,0.21392,0.12069,0.018560,0.027780,0,0,0,0,0,2.4184e-4,0.055000,0.0023758,1.4393,0,2.3616,286.50,98343,339.39,0.050000,0.39121</datapoint>
+          <datapoint>5.2453,259.99,21.609,-11.527,21.819,11.527,8.4380,0,8.4380,0,0.93172,0.029880,0.011352,0,-0.024968,0,0.25119,0.51783,0.41942,1.7894,0.064295,1019323,0,0.42354,0.62581,0.62661,0.29153,0.21374,0.12054,0.10622,0.19008,0,0,0,0,0,-1.8756e-5,0.055000,0.0023758,1.4204,0,2.0934,286.46,98276,339.36,0.050000,0.42163</datapoint>
+          <datapoint>5.4953,265.03,18.786,-11.067,19.015,11.071,8.6688,0,8.6688,0,0.90091,0.27900,0.0053299,0,-0.0084519,0,0.25119,0.50150,0.41942,1.4923,0.056034,887957,0,0.32105,0.62555,0.62573,0.29155,0.21358,0.12041,0.043586,0.065049,0,0,0,0,0,-2.8299e-6,0.055000,0.0023758,1.4208,0,2.0405,286.43,98217,339.34,0.050000,0.43118</datapoint>
+          <datapoint>5.7453,269.39,16.065,-10.723,16.284,10.726,8.8834,0,8.8834,0,0.81951,0.27549,0.010805,0,0.034352,0,0.25119,0.49987,0.41942,1.4628,0.047989,760171,0,0.23548,0.62533,0.62606,0.29158,0.21345,0.12030,0.089367,0.13066,0,0,0,0,0,6.3740e-5,0.055000,0.0023758,1.4174,0,1.8425,286.40,98166,339.33,0.050000,0.44490</datapoint>
+          <datapoint>5.9953,273.07,13.422,-10.439,13.664,10.443,9.0780,0,9.0780,0,0.74003,0.28671,0.020069,0,0.084308,0,0.25119,0.49722,0.41942,1.4145,0.040270,637681,0,0.16617,0.62519,0.62765,0.29160,0.21338,0.12021,0.16919,0.23878,0,0,0,0,0,5.4528e-4,0.055000,0.0023758,1.4023,0,1.8210,286.38,98122,339.31,0.050000,0.45450</datapoint>
+          <datapoint>6.2453,276.11,10.841,-10.210,11.145,10.215,9.2551,0,9.2551,0,0.67499,0.32671,0.039805,0,0.12590,0,0.25119,0.49192,0.41942,1.3183,0.032848,520002,0,0.11263,0.63037,0.63967,0.29691,0.21333,0.12014,0.34908,0.45835,0,0,0,0,0,0.0018279,0.055000,0.0023758,1.3764,0,1.9118,286.36,98087,339.30,0.050000,0.46397</datapoint>
+          <datapoint>6.4953,278.50,8.3105,-10.032,8.7107,10.038,9.4142,0,9.4142,0,0.59850,0.34408,0.071515,0,0.18015,0,0.25119,0.48427,0.41942,1.1792,0.025673,406338,0,0.072564,0.64645,0.67482,0.31309,0.21328,0.12009,0.66607,0.77932,0,0,0,0,0,0.0061265,0.055000,0.0023758,1.3380,0,2.0114,286.34,98059,339.29,0.050000,0.47335</datapoint>
+          <datapoint>6.7453,280.26,5.8184,-9.9087,6.2843,9.9122,9.5540,0,9.5540,0,0.52502,0.26208,0.10290,0,0.23033,0,0.25119,0.47760,0.41942,1.0578,0.018522,293110,0,0.040607,0.66990,0.72565,0.33662,0.21324,0.12004,1.0135,1.0528,0,0,0,0,0,0.019242,0.055000,0.0023758,1.2862,0,1.8496,286.33,98038,339.28,0.050000,0.48054</datapoint>
+          <datapoint>6.9953,281.41,3.3549,-9.8032,4.0318,9.8072,9.6771,0,9.6771,0,0.45723,0.28008,0.24081,0,0.26818,0,0.25119,0.45593,0.41942,0.66380,0.011883,188031,0,0.020692,0.70633,0.89850,0.37310,0.21321,0.12002,2.9236,1.8773,0,0,0,0,0,0.063375,0.055000,0.0023758,1.2237,0,1.7787,286.32,98025,339.28,0.050000,0.49649</datapoint>
+          <datapoint>7.2453,281.94,0.92252,-9.7737,2.6490,9.7748,9.7810,0,9.7810,0,0.36983,0.14417,0.79980,0,0.25982,0,0.25119,0.51019,0.41942,1.6503,0.0078078,123539,0,0.0046708,0.74656,0.46983,0.41336,0.21319,0.12001,3.7741,-1.2402,0,0,0,0,0,0.13779,0.055000,0.0023758,1.1555,0,2.1134,286.32,98018,339.28,0.050000,0.52982</datapoint>
+          <datapoint>7.4953,281.87,-1.5146,-9.7161,2.9023,9.7180,9.8689,0,9.8689,0,0.33174,0.19497,1.6425,0,0.23040,0,0.25119,0.54575,0.41942,2.2970,0.0085545,135353,0,-7.8187e-6,0.73728,-6.5516e-4,0.40407,0.21320,0.12001,4.6207,-5.4261,0,0,0,0,0,0.090264,0.055000,0.0023758,1.0935,0,2.1440,286.32,98019,339.28,0.050000,0.54072</datapoint>
+          <datapoint>7.7453,281.19,-3.9228,-9.5275,4.4915,9.5383,9.9433,0,9.9433,0,0.25204,0.45553,2.1055,0,0.16388,0,0.25119,0.57049,0.41942,2.7467,0.013238,209474,0,-0.0052472,0.69694,-0.18358,0.36370,0.21321,0.12002,4.7399,-3.8550,0,0,0,0,0,0.019068,0.055000,0.0023758,1.0434,0,1.9354,286.32,98027,339.28,0.050000,0.54986</datapoint>
+          <datapoint>7.9953,279.91,-6.2536,-9.0953,6.5419,9.1500,9.9867,0,9.9867,0,0.071706,0.99828,2.2877,0,0.054124,0,0.25119,0.57596,0.41942,2.8462,0.019281,305134,0,-0.021657,0.66688,-0.35712,0.33358,0.21324,0.12005,5.0898,-2.9451,0,0,0,0,0,9.8045e-4,0.055000,0.0023758,1.0149,0,1.8491,286.33,98042,339.29,0.050000,0.55714</datapoint>
+          <datapoint>8.2453,278.07,-8.4533,-8.4622,8.5863,8.6537,9.9662,0,9.9662,0,0.26971,1.8103,2.4133,0,-0.090683,0,0.25119,0.57875,0.41942,2.8969,0.025306,400546,0,-0.051271,0.64743,-0.49070,0.31407,0.21328,0.12008,5.4137,-2.2406,0,0,0,0,0,-0.0015977,0.055000,0.0023758,1.0187,0,1.7749,286.34,98064,339.29,0.050000,0.65357</datapoint>
+          <datapoint>8.4815,275.85,-10.372,-7.8185,10.448,8.3129,9.8425,0,9.8425,0,0.81732,2.8243,2.5103,0,-0.26273,0,0.25119,0.58186,0.41942,2.9535,0.030794,487499,0,-0.091496,0.63445,-0.59124,0.30102,0.21331,0.12012,5.5849,-1.5204,0,0,0,0,0,-0.0090566,0.055000,0.0023758,1.0605,0,2.0780,286.36,98090,339.30,0.047312,0.66077</datapoint>
+          <datapoint>8.7240,273.10,-12.226,-7.4553,12.243,8.2840,9.5548,0,9.5548,0,1.5867,3.6114,2.6524,0,-0.30198,0,0.25119,0.59563,0.41942,3.2038,0.036081,571337,0,-0.15355,0.62513,-0.72250,0.29161,0.21335,0.12017,5.0489,0.48150,0,0,0,0,0,-0.0087147,0.055000,0.0023758,1.1338,0,2.2257,286.37,98122,339.31,0.049548,0.68164</datapoint>
+          <datapoint>8.9756,269.96,-10.884,21.147,11.385,21.150,9.0566,0,9.0566,0,2.1335,0.30050,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.033551,531415,0,7.7784,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0301,286.39,98156,339.32,0.023641,0.68775</datapoint>
+          <datapoint>9.2417,267.53,-7.8878,6.9976,8.3899,7.0133,8.5077,0,8.5077,0,1.9929,0.46987,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.024725,391694,0,4.2254,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7920,286.41,98180,339.33,0.071293,0.68849</datapoint>
+          <datapoint>9.4948,265.68,-6.8897,3.2309,7.3896,3.2423,8.0094,0,8.0094,0,1.9367,0.27126,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.021776,345028,0,3.2783,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8249,286.42,98196,339.34,0.15421,0.68873</datapoint>
+          <datapoint>9.8211,263.51,-6.3907,1.5295,6.8900,1.5326,7.3724,0,7.3724,0,1.9682,0.096795,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.020304,321729,0,2.8503,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9954,286.42,98209,339.34,0.32625,0.68886</datapoint>
+          <datapoint>10.321,260.31,-6.4167,-0.052023,6.3913,0.13683,6.4041,0,6.4041,0,1.9050,0.12655,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018834,298493,0,2.4531,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8854,286.44,98234,339.35,0.50000,0.68898</datapoint>
+          <datapoint>10.821,257.11,-6.3972,0.039087,6.4228,0.42879,5.3982,0,5.3982,0,2.1185,0.42701,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018926,300039,0,2.4781,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1830,286.46,98272,339.36,0.50000,0.69174</datapoint>
+          <datapoint>11.321,253.91,-6.4076,-0.020813,6.4012,0.34920,4.3826,0,4.3826,0,1.9442,0.34858,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018862,299109,0,2.4623,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8908,286.48,98310,339.38,0.50000,0.69194</datapoint>
+          <datapoint>11.821,250.70,-6.4017,0.011711,6.4101,0.27385,3.3763,0,3.3763,0,2.0810,0.27359,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018887,299598,0,2.4699,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1225,286.50,98347,339.39,0.50000,0.69206</datapoint>
+          <datapoint>12.321,247.50,-6.4043,-0.0051062,6.4030,0.19343,2.3116,0,2.3116,0,2.1776,0.19336,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018866,299341,0,2.4652,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2071,286.52,98385,339.40,0.50000,0.69218</datapoint>
+          <datapoint>12.821,244.30,-6.4013,0.0059980,6.4057,0.20559,1.1971,0,1.1971,0,2.2804,0.20551,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018873,299544,0,2.4680,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3116,286.54,98422,339.41,0.50000,0.69231</datapoint>
+          <datapoint>13.321,241.10,-6.4025,-0.0023162,6.4013,0.0029622,0.056694,0,0.056694,0,2.2813,0.0018467,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018859,299413,0,2.4654,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2816,286.56,98460,339.43,0.50000,0.69243</datapoint>
+          <datapoint>13.821,237.90,-6.4002,0.0044258,6.4026,0.056259,-1.0910,0,1.0910,3.1416,2.3094,0.056084,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018862,299547,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3179,286.58,98497,339.44,0.50000,0.69256</datapoint>
+          <datapoint>14.321,234.70,-6.3970,0.0064375,6.4041,0.34160,-2.2030,0,2.2030,3.1416,2.1386,0.34154,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018866,299695,0,2.4691,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0868,286.60,98535,339.45,0.50000,0.69269</datapoint>
+          <datapoint>14.821,231.50,-6.4001,-0.0062458,6.3971,0.044273,-3.2668,0,3.2668,3.1416,2.1167,0.043830,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018845,299441,0,2.4644,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1100,286.62,98572,339.46,0.50000,0.69282</datapoint>
+          <datapoint>15.321,228.30,-6.3939,0.012389,6.4041,0.34742,-4.2817,0,4.2817,3.1416,1.9431,0.34720,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018865,299846,0,2.4706,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8906,286.65,98610,339.48,0.50000,0.69294</datapoint>
+          <datapoint>15.821,225.10,-6.3970,-0.0061086,6.3963,0.26653,-5.2866,0,5.2866,3.1416,2.0763,0.26646,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018841,299555,0,2.4653,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1167,286.67,98647,339.49,0.50000,0.69307</datapoint>
+          <datapoint>16.321,221.91,-6.3949,0.0042532,6.3980,0.17659,-6.3027,0,6.3027,3.1416,1.9880,0.17654,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018845,299711,0,2.4674,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9613,286.69,98685,339.50,0.50000,0.69319</datapoint>
+          <datapoint>16.821,218.71,-6.3953,-8.3523e-4,6.3949,0.012328,-7.2982,0,7.2982,3.1416,1.9942,0.012300,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018835,299638,0,2.4658,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9960,286.71,98722,339.51,0.50000,0.69332</datapoint>
+          <datapoint>17.321,215.51,-6.3936,0.0034664,6.3953,0.014307,-8.2970,0,8.2970,3.1416,2.0011,0.013881,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018836,299732,0,2.4668,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0032,286.73,98760,339.53,0.50000,0.69349</datapoint>
+          <datapoint>17.821,212.31,-6.3923,0.0024958,6.3944,0.16264,-9.3179,0,9.3179,3.1416,2.0824,0.16262,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018833,299767,0,2.4669,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1070,286.75,98797,339.54,0.50000,0.69362</datapoint>
+          <datapoint>18.321,209.12,-6.3913,0.0020647,6.3934,0.18461,-10.382,0,10.382,3.1416,2.1747,0.18459,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018829,299795,0,2.4669,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2026,286.77,98835,339.55,0.50000,0.69374</datapoint>
+          <datapoint>18.821,205.92,-6.3897,0.0032021,6.3933,0.24411,-11.439,0,11.439,3.1416,2.0527,0.24408,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018828,299861,0,2.4675,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0159,286.79,98872,339.57,0.50000,0.69387</datapoint>
+          <datapoint>19.321,202.73,-6.3897,-1.0596e-5,6.3908,0.18427,-12.488,0,12.488,3.1416,2.1448,0.18427,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018820,299821,0,2.4664,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1726,286.81,98910,339.58,0.50000,0.69399</datapoint>
+          <datapoint>19.821,199.53,-6.3890,0.0012847,6.3897,0.0036957,-13.560,0,13.560,3.1416,2.1431,0.0034652,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018816,299843,0,2.4663,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1426,286.83,98947,339.59,0.50000,0.69412</datapoint>
+          <datapoint>20.321,196.34,-6.3875,0.0030360,6.3895,0.11893,-14.617,0,14.617,3.1416,2.0836,0.11889,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018815,299909,0,2.4669,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0657,286.85,98985,339.60,0.50000,0.69425</datapoint>
+          <datapoint>20.821,193.15,-6.3846,0.0057594,6.3908,0.31685,-15.619,0,15.619,3.1416,1.9252,0.31680,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018818,300046,0,2.4687,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8776,286.87,99022,339.62,0.50000,0.69437</datapoint>
+          <datapoint>21.321,189.95,-6.3870,-0.0047824,6.3849,0.090200,-16.593,0,16.593,3.1416,1.9703,0.090073,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018800,299842,0,2.4649,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9839,286.89,99060,339.63,0.50000,0.69450</datapoint>
+          <datapoint>21.821,186.76,-6.3819,0.010335,6.3904,0.31934,-17.618,0,17.618,3.1416,2.1299,0.31917,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018815,300175,0,2.4699,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1777,286.92,99097,339.64,0.50000,0.73045</datapoint>
+          <datapoint>22.321,183.57,-6.3850,-0.0061707,6.3829,0.17537,-18.705,0,18.705,3.1416,2.2175,0.17526,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018792,299896,0,2.4648,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2439,286.94,99135,339.65,0.50000,0.73073</datapoint>
+          <datapoint>22.821,180.38,-6.3821,0.0057780,6.3856,0.14233,-19.796,0,19.796,3.1416,2.1464,0.14222,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018800,300099,0,2.4677,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1251,286.96,99172,339.67,0.50000,0.73086</datapoint>
+          <datapoint>23.321,177.19,-6.3815,0.0010659,6.3835,0.20831,-20.843,0,20.843,3.1416,2.0422,0.20830,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018793,300073,0,2.4668,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0110,286.98,99209,339.68,0.50000,0.73098</datapoint>
+          <datapoint>23.821,174.00,-6.3805,0.0020929,6.3828,0.19232,-21.888,0,21.888,3.1416,2.1384,0.19231,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018790,300113,0,2.4670,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1672,287.00,99247,339.69,0.50000,0.73111</datapoint>
+          <datapoint>24.321,170.81,-6.3789,0.0032035,6.3826,0.25164,-22.926,0,22.926,3.1416,2.0126,0.25161,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018789,300179,0,2.4676,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9749,287.02,99284,339.70,0.50000,0.73123</datapoint>
+          <datapoint>24.821,167.62,-6.3775,0.0028315,6.3820,0.30684,-23.971,0,23.971,3.1416,2.1660,0.30682,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018786,300225,0,2.4679,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2119,287.04,99322,339.72,0.50000,0.73136</datapoint>
+          <datapoint>25.321,164.43,-6.3748,0.0052387,6.3830,0.41055,-25.002,0,25.002,3.1416,1.9607,0.41052,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018789,300348,0,2.4694,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8995,287.06,99359,339.73,0.50000,0.73149</datapoint>
+          <datapoint>25.821,161.24,-6.3702,0.0092110,6.3863,0.58927,-25.909,0,25.909,3.1416,1.6661,0.58920,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018798,300576,0,2.4727,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.5785,287.08,99397,339.74,0.50000,0.73161</datapoint>
+          <datapoint>26.321,158.06,-6.3798,-0.019100,6.3706,0.10059,-26.755,0,26.755,3.1416,1.7155,0.098756,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018751,299910,0,2.4613,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7303,287.10,99434,339.75,0.50000,0.73174</datapoint>
+          <datapoint>26.821,154.87,-6.3731,0.013354,6.3802,0.10654,-27.626,0,27.626,3.1416,1.7684,0.10570,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018778,300435,0,2.4695,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7841,287.12,99471,339.77,0.50000,0.73187</datapoint>
+          <datapoint>27.321,151.68,-6.3679,0.010486,6.3830,0.54886,-28.578,0,28.578,3.1416,2.0427,0.54876,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018786,300645,0,2.4724,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1242,287.14,99509,339.78,0.50000,0.73199</datapoint>
+          <datapoint>27.821,148.50,-6.3766,-0.017533,6.3682,0.093750,-29.588,0,29.588,3.1416,1.9967,0.092096,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018741,300018,0,2.4617,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9829,287.16,99546,339.79,0.50000,0.73212</datapoint>
+          <datapoint>28.321,145.31,-6.3697,0.013839,6.3778,0.19005,-30.563,0,30.563,3.1416,1.9019,0.18955,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018769,300547,0,2.4699,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8737,287.18,99583,339.80,0.50000,0.73224</datapoint>
+          <datapoint>28.821,142.12,-6.3725,-0.0056550,6.3702,0.11564,-31.499,0,31.499,3.1416,1.8442,0.11550,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018746,300260,0,2.4647,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8269,287.21,99621,339.82,0.50000,0.73237</datapoint>
+          <datapoint>29.321,138.94,-6.3653,0.014478,6.3785,0.42417,-32.474,0,32.474,3.1416,2.0561,0.42392,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018770,300725,0,2.4719,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1189,287.23,99658,339.83,0.50000,0.73249</datapoint>
+          <datapoint>29.821,135.76,-6.3712,-0.011769,6.3667,0.20884,-33.476,0,33.476,3.1416,1.9519,0.20850,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018734,300246,0,2.4636,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9208,287.25,99695,339.84,0.50000,0.73262</datapoint>
+          <datapoint>30.321,132.57,-6.3666,0.0092851,6.3726,0.20655,-34.478,0,34.478,3.1416,2.0550,0.20634,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018751,300596,0,2.4688,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0857,287.27,99733,339.85,0.50000,0.73274</datapoint>
+          <datapoint>30.821,129.39,-6.3646,0.0038692,6.3718,0.39902,-35.556,0,35.556,3.1416,2.2545,0.39900,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018748,300632,0,2.4690,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3137,287.29,99770,339.87,0.50000,0.73328</datapoint>
+          <datapoint>31.321,126.21,-6.3676,-0.0058941,6.3655,0.16178,-36.703,0,36.703,3.1416,2.3354,0.16168,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018729,300407,0,2.4648,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.3594,287.31,99807,339.88,0.50000,0.73345</datapoint>
+          <datapoint>31.821,123.02,-6.3634,0.0083731,6.3699,0.26422,-37.838,0,37.838,3.1416,2.2033,0.26409,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018741,300688,0,2.4690,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1642,287.33,99845,339.89,0.50000,0.73357</datapoint>
+          <datapoint>32.321,119.84,-6.3659,-0.0051173,6.3634,0.012822,-38.938,0,38.938,3.1416,2.1975,0.011757,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018721,300455,0,2.4647,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1957,287.35,99882,339.90,0.50000,0.73370</datapoint>
+          <datapoint>32.821,116.66,-6.3631,0.0057463,6.3659,0.018815,-40.039,0,40.039,3.1416,2.2064,0.017916,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018728,300650,0,2.4674,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2091,287.37,99919,339.92,0.50000,0.73382</datapoint>
+          <datapoint>33.321,113.48,-6.3623,0.0015528,6.3642,0.18425,-41.119,0,41.119,3.1416,2.1143,0.18425,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018722,300640,0,2.4668,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0870,287.39,99957,339.93,0.50000,0.73395</datapoint>
+          <datapoint>33.821,110.30,-6.3593,0.0060068,6.3659,0.33249,-42.135,0,42.135,3.1416,1.9481,0.33244,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018727,300796,0,2.4689,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8990,287.41,99994,339.94,0.50000,0.73408</datapoint>
+          <datapoint>34.321,107.12,-6.3612,-0.0039231,6.3606,0.19840,-43.084,0,43.084,3.1416,1.8489,0.19836,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018710,300617,0,2.4655,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8195,287.43,100031,339.95,0.50000,0.73420</datapoint>
+          <datapoint>34.821,103.94,-6.3593,0.0038902,6.3618,0.12619,-43.993,0,43.993,3.1416,1.7858,0.12613,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018713,300746,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7672,287.45,100069,339.97,0.50000,0.73433</datapoint>
+          <datapoint>35.321,100.76,-6.3581,0.0024915,6.3609,0.22002,-44.913,0,44.913,3.1416,1.8958,0.22001,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018710,300778,0,2.4672,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9283,287.47,100106,339.98,0.50000,0.73446</datapoint>
+          <datapoint>35.821,97.578,-6.3580,3.1008e-5,6.3586,0.13290,-45.878,0,45.878,3.1416,1.9623,0.13290,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018702,300745,0,2.4662,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9819,287.50,100143,339.99,0.50000,0.73458</datapoint>
+          <datapoint>36.321,94.399,-6.3564,0.0032313,6.3588,0.15349,-46.840,0,46.840,3.1416,1.8856,0.15345,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018702,300826,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8629,287.52,100181,340.00,0.50000,0.73471</datapoint>
+          <datapoint>36.821,91.221,-6.3563,2.9494e-4,6.3566,0.077436,-47.773,0,47.773,3.1416,1.8468,0.077435,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018695,300795,0,2.4661,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8354,287.54,100218,340.02,0.50000,0.73483</datapoint>
+          <datapoint>37.321,88.043,-6.3539,0.0047528,6.3577,0.21140,-48.670,0,48.670,3.1416,1.7412,0.21134,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018698,300922,0,2.4677,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7101,287.56,100255,340.03,0.50000,0.73496</datapoint>
+          <datapoint>37.821,84.870,-6.3399,0.027903,6.3732,0.76854,-49.636,0,49.636,3.1416,2.1252,0.76803,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018742,301727,0,2.4805,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.2369,287.58,100292,340.04,0.50000,0.73508</datapoint>
+          <datapoint>38.321,81.695,-6.3610,-0.042024,6.3400,0.047495,-50.702,0,50.702,3.1416,2.1362,0.022130,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018644,300226,0,2.4554,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1395,287.60,100330,340.05,0.50000,0.73521</datapoint>
+          <datapoint>38.821,78.518,-6.3463,0.029362,6.3633,0.26666,-51.737,0,51.737,3.1416,2.0037,0.26504,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018712,301402,0,2.4742,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9650,287.62,100367,340.07,0.50000,0.73533</datapoint>
+          <datapoint>39.321,75.343,-6.3542,-0.015904,6.3468,0.12208,-52.723,0,52.723,3.1416,1.9432,0.12104,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018663,300693,0,2.4622,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9254,287.64,100404,340.08,0.50000,0.73546</datapoint>
+          <datapoint>39.821,72.167,-6.3481,0.012167,6.3551,0.16062,-53.715,0,53.715,3.1416,2.0233,0.16016,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018686,301160,0,2.4693,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0467,287.66,100441,340.09,0.50000,0.73560</datapoint>
+          <datapoint>40.321,68.993,-6.3476,0.0010654,6.3521,0.34566,-54.683,0,54.683,3.1416,1.8505,0.34566,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018677,301091,0,2.4678,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7998,287.68,100479,340.10,0.50000,0.73573</datapoint>
+          <datapoint>40.821,65.819,-6.3472,8.7246e-4,6.3506,0.30072,-55.646,0,55.646,3.1416,2.0008,0.30071,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018672,301093,0,2.4673,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0449,287.70,100516,340.12,0.50000,0.73585</datapoint>
+          <datapoint>41.321,62.646,-6.3482,-0.0019616,6.3473,0.060644,-56.654,0,56.654,3.1416,2.0311,0.060613,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018661,301010,0,2.4655,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0400,287.72,100553,340.13,0.50000,0.73599</datapoint>
+          <datapoint>41.821,59.472,-6.3462,0.0038184,6.3482,0.0090241,-57.671,0,57.671,3.1416,2.0352,0.0081764,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018663,301124,0,2.4669,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0364,287.74,100590,340.14,0.50000,0.73613</datapoint>
+          <datapoint>42.321,56.300,-6.3428,0.0069900,6.3502,0.34794,-58.645,0,58.645,3.1416,1.8613,0.34787,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018669,301294,0,2.4693,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8105,287.76,100627,340.15,0.50000,0.73626</datapoint>
+          <datapoint>42.821,53.128,-6.3461,-0.0067424,6.3430,0.078112,-59.566,0,59.566,3.1416,1.8224,0.077820,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018647,301022,0,2.4643,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8110,287.78,100665,340.17,0.50000,0.73806</datapoint>
+          <datapoint>43.321,49.955,-6.3425,0.0072699,6.3467,0.13786,-60.460,0,60.460,3.1416,1.7535,0.13767,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018657,301274,0,2.4680,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7334,287.80,100702,340.18,0.50000,0.73820</datapoint>
+          <datapoint>43.821,46.786,-6.3369,0.011111,6.3510,0.50873,-61.400,0,61.400,3.1416,2.0078,0.50861,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018669,301548,0,2.4721,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0818,287.83,100739,340.19,0.50000,0.74431</datapoint>
+          <datapoint>44.321,43.615,-6.3449,-0.015849,6.3372,0.094931,-62.392,0,62.392,3.1416,1.9610,0.093599,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018628,300967,0,2.4621,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9473,287.85,100776,340.20,0.50000,0.74454</datapoint>
+          <datapoint>44.821,40.444,-6.3393,0.011157,6.3449,0.014531,-63.372,0,63.372,3.1416,1.9564,0.0093096,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018649,301402,0,2.4688,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9550,287.87,100813,340.22,0.50000,0.74467</datapoint>
+          <datapoint>45.321,37.275,-6.3381,0.0023016,6.3428,0.32901,-64.391,0,64.391,3.1416,2.1209,0.32900,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018643,301379,0,2.4679,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1688,287.89,100851,340.23,0.50000,0.74479</datapoint>
+          <datapoint>45.821,34.106,-6.3379,3.9166e-4,6.3409,0.28884,-65.415,0,65.415,3.1416,1.9765,0.28884,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018636,301358,0,2.4671,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9344,287.91,100888,340.24,0.50000,0.74492</datapoint>
+          <datapoint>46.321,30.937,-6.3384,-9.1086e-4,6.3383,0.11187,-66.418,0,66.418,3.1416,2.0324,0.11187,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018628,301310,0,2.4659,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0487,287.93,100925,340.25,0.50000,0.74504</datapoint>
+          <datapoint>46.821,27.768,-6.3370,0.0027838,6.3384,0.013322,-67.432,0,67.432,3.1416,2.0259,0.013027,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018628,301385,0,2.4667,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0240,287.95,100962,340.27,0.50000,0.74517</datapoint>
+          <datapoint>47.321,24.600,-6.3339,0.0062110,6.3401,0.30846,-68.407,0,68.407,3.1416,1.8717,0.30839,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018632,301539,0,2.4687,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8269,287.97,100999,340.28,0.50000,0.74529</datapoint>
+          <datapoint>47.821,21.434,-6.3313,0.0052431,6.3407,0.45637,-69.399,0,69.399,3.1416,2.0999,0.45634,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018633,301640,0,2.4699,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1660,287.99,101036,340.29,0.50000,0.74547</datapoint>
+          <datapoint>48.321,18.267,-6.3357,-0.0088558,6.3324,0.18299,-70.426,0,70.426,3.1416,2.0085,0.18278,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018608,301314,0,2.4642,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9819,288.01,101074,340.30,0.50000,0.74560</datapoint>
+          <datapoint>48.821,15.100,-6.3316,0.0081710,6.3371,0.20342,-71.456,0,71.456,3.1416,2.1101,0.20325,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018621,301609,0,2.4685,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.1395,288.03,101111,340.32,0.50000,0.74573</datapoint>
+          <datapoint>49.321,11.934,-6.3334,-0.0035196,6.3317,0.058401,-72.504,0,72.504,3.1416,2.0809,0.058295,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018605,301428,0,2.4651,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0725,288.05,101148,340.33,0.50000,0.74585</datapoint>
+          <datapoint>49.821,8.7681,-6.3301,0.0066112,6.3346,0.19563,-73.520,0,73.520,3.1416,1.9832,0.19552,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018613,301638,0,2.4681,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9549,288.07,101185,340.34,0.50000,0.74598</datapoint>
+          <datapoint>50.321,5.6027,-6.3314,-0.0026507,6.3301,0.025880,-74.515,0,74.515,3.1416,1.9961,0.025743,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018599,301494,0,2.4653,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9998,288.09,101222,340.35,0.50000,0.74610</datapoint>
+          <datapoint>50.821,2.4377,-6.3288,0.0051616,6.3319,0.12828,-75.497,0,75.497,3.1416,1.9320,0.12818,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018603,301654,0,2.4675,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9134,288.11,101259,340.37,0.50000,0.74623</datapoint>
+          <datapoint>51.321,-0.72682,-6.3291,-6.6779e-4,6.3289,0.047601,-76.457,0,76.457,3.1416,1.9082,0.047597,NaN,NaN,NaN,NaN,0.25119,NaN,NaN,NaN,0.018594,301580,0,2.4658,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.9013,288.13,101296,340.38,0.50000,0.74636</datapoint>
+        </databranch>
+      </flightdata>
+    </simulation>
+  </simulations>
+</openrocket>

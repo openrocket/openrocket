@@ -2,11 +2,13 @@ package net.sf.openrocket.database;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import net.sf.openrocket.file.MotorLoader;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.Motor;
+import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.MathUtil;
 
 
@@ -47,8 +49,18 @@ public class Databases {
 		} catch (IOException e) {
 			System.out.println("Could not read thrust curves from JAR: "+e.getMessage());
 			
+			// Try to find directory as a system resource
+			File dir;
+			URL url = ClassLoader.getSystemResource("datafiles/thrustcurves/");
+			
 			try {
-				MOTOR.loadDirectory(new File("datafiles/thrustcurves/"),".*\\.[eE][nN][gG]$");
+				dir = JarUtil.urlToFile(url);
+			} catch (Exception e1) {
+				dir = new File("datafiles/thrustcurves/");
+			}
+				
+			try {
+				MOTOR.loadDirectory(dir, ".*\\.[eE][nN][gG]$");
 			} catch (IOException e1) {
 				System.out.println("Could not read thrust curves from directory either.");
 				throw new RuntimeException(e1);

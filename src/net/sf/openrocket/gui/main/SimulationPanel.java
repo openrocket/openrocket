@@ -180,8 +180,8 @@ public class SimulationPanel extends JPanel {
 		this.add(button,"gapright para");
 		
 		
-//		button = new JButton("Plot / export");
-		button = new JButton("Plot flight");
+		button = new JButton("Plot / export");
+//		button = new JButton("Plot flight");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

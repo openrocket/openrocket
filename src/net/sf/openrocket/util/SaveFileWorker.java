@@ -3,10 +3,6 @@ package net.sf.openrocket.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.OutputStream;
 
 import javax.swing.SwingWorker;
 
@@ -28,9 +24,21 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 	
 	@Override
 	protected Void doInBackground() throws Exception {
+		
+		int estimate = (int)saver.estimateFileSize(document, 
+				document.getDefaultStorageOptions());
+		
+		// Create the ProgressOutputStream that provides progress estimates
 		ProgressOutputStream os = new ProgressOutputStream(
 				new BufferedOutputStream(new FileOutputStream(file)), 
-				(int)saver.estimateFileSize(document, document.getDefaultStorageOptions()));
+				estimate, this) {
+			
+			@Override
+			protected void setProgress(int progress) {
+				SaveFileWorker.this.setProgress(progress);
+			}
+			
+		};
 		
 		try {
 			saver.save(os, document);
@@ -45,55 +53,4 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 		return null;
 	}
 	
-	
-	private class ProgressOutputStream extends FilterOutputStream {
-
-		private final int totalBytes;
-		private int writtenBytes = 0;
-		private int progress = -1;
-		
-		public ProgressOutputStream(OutputStream out, int estimate) {
-			super(out);
-			this.totalBytes = estimate;
-		}
-
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			out.write(b, off, len);
-			writtenBytes += len;
-			setProgress();
-			if (isCancelled()) {
-				throw new InterruptedIOException("SaveFileWorker was cancelled");
-			}
-		}
-
-		@Override
-		public void write(byte[] b) throws IOException {
-			out.write(b);
-			writtenBytes += b.length;
-			setProgress();
-			if (isCancelled()) {
-				throw new InterruptedIOException("SaveFileWorker was cancelled");
-			}
-		}
-
-		@Override
-		public void write(int b) throws IOException {
-			out.write(b);
-			writtenBytes++;
-			setProgress();
-			if (isCancelled()) {
-				throw new InterruptedIOException("SaveFileWorker was cancelled");
-			}
-		}
-		
-		
-		private void setProgress() {
-			int p = MathUtil.clamp(writtenBytes * 100 / totalBytes, 0, 100);
-			if (progress != p) {
-				progress = p;
-				SaveFileWorker.this.setProgress(progress);
-			}
-		}
-	}
 }

@@ -209,7 +209,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 //		panel.add(new JLabel("    View:"), "wrap, aligny bottom");
 		
 		
-		panel.add(tablePane,"growy, width :100lp:, height 100lp:250lp:");
+		panel.add(tablePane,"growy, width 100lp:100lp:, height 100lp:250lp:");
 		panel.add(figurePane,"gap unrel, spanx, growx, growy 1000, height 100lp:250lp:, wrap");
 		
 		panel.add(new ResizeLabel("Double-click", -2), "alignx 50%");

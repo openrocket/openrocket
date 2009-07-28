@@ -321,7 +321,7 @@ class DocumentConfig {
 				Reflection.findMethodStatic(LaunchLug.class, "setLength", double.class)));
 		setters.put("LaunchLug:thickness", new DoubleSetter(
 				Reflection.findMethodStatic(LaunchLug.class, "setThickness", double.class)));
-		setters.put("LaunchLug:radialDirection", new DoubleSetter(
+		setters.put("LaunchLug:radialdirection", new DoubleSetter(
 				Reflection.findMethodStatic(LaunchLug.class, "setRadialDirection", double.class),
 				Math.PI/180.0));
 		

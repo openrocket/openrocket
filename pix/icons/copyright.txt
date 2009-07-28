@@ -10,6 +10,7 @@ application-exit.png
 document-close.png
 document-new.png
 document-open.png
+document-open-example.png (modified)
 document-save-as.png
 document-save.png
 edit-copy.png

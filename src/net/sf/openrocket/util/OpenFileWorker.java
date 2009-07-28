@@ -25,16 +25,39 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	private static final RocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 
 	private final File file;
+	private final InputStream stream;
 	
 	public OpenFileWorker(File file) {
 		this.file = file;
+		this.stream = null;
+	}
+	
+	
+	public OpenFileWorker(InputStream stream) {
+		this.stream = stream;
+		this.file = null;
 	}
 	
 	
 	@Override
 	protected OpenRocketDocument doInBackground() throws Exception {
-		ProgressInputStream is = new ProgressInputStream(
-				new BufferedInputStream(new FileInputStream(file)));
+		InputStream is;
+		
+		// Get the correct input stream
+		if (file != null) {
+			is = new FileInputStream(file);
+		} else {
+			is = stream;
+		}
+		
+		// Buffer stream unless already buffered
+		if (!(is instanceof BufferedInputStream)) {
+			is = new BufferedInputStream(is);
+		}
+		
+		// Encapsulate in a ProgressInputStream
+		is = new ProgressInputStream(is);
+		
 		try {
 			return ROCKET_LOADER.load(is);
 		} finally {
@@ -65,7 +88,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 				System.err.println("ERROR estimating available bytes!");
 				s = 0;
 			}
-			size = s;
+			size = Math.max(s, 1);
 		}
 
 		

@@ -4,25 +4,36 @@ Feature roadmap for OpenRocket 1.0
 
 Must-have:
 
-- Exporting flight data
 - Store custom materials
-- Read more thrust curve formats / go through thrust curves and correct errors
 - Create application icon and take into use
 - Better error/warning dialogs when reading/writing files
+- Error dialog for uncaught exceptions
+- Split cluster into separate components
+- Example rocket designs (hybrid w/ dual deployment, staged rocket)
+
+
+Bugs:
+
+- Debug stage simulation
+- Sometimes saves wrong?
+- Simulation time step not loaded correctly from files??
+- JTree text is cropped unnecessarily
 
 
 Maybe:
 
-- Reading (writing) .RKT format
 - Showing events in plots
 - Through-the-wall fins
 - Make ThicknessRingComponent implement RadialParent and allow
   attaching components to a TubeCoupler
 - Reading thrust curves from external directory
+- Read more thrust curve formats / go through thrust curves and correct errors
+- Only schedule rocket figure update instead of each time updating it
 
 
 Postponed:
 
+- Reading (writing) .RKT format
 - Importing flight data
 - Water rocket modelling
 - Landing scatter plots
@@ -34,4 +45,5 @@ Done:
 - Motor selection/editing from Edit configurations dialog
 - Change FreeformFinSet to throw checked exceptions
 - Fix engine block icons
+- Exporting flight data
 

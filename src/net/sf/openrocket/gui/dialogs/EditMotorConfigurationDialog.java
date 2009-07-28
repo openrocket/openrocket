@@ -52,6 +52,9 @@ public class EditMotorConfigurationDialog extends JDialog {
 	private String currentID = null;
 	private MotorMount currentMount = null;
 	
+	// Positive when user is modifying configuration name
+	private int configurationNameModification = 0;
+	
 	public EditMotorConfigurationDialog(final Rocket rocket, Window parent) {
 		super(parent, "Edit motor configurations");
 		
@@ -133,12 +136,17 @@ public class EditMotorConfigurationDialog extends JDialog {
 				update();
 			}
 			private void update() {
+				if (configurationNameModification != 0)
+					return;
+
 				String text = configurationNameField.getText();
 				if (currentID != null) {
+					configurationNameModification++;
 					rocket.setMotorConfigurationName(currentID, text);
 					int row = configurationTable.getSelectedRow();
 					configurationTableModel.fireTableCellUpdated(row, 0);
 					updateEnabled();
+					configurationNameModification--;
 				}
 			}
 		});
@@ -278,11 +286,18 @@ public class EditMotorConfigurationDialog extends JDialog {
 			
 		}
 
-		configurationNameField.setEnabled(currentID != null);
-		if (currentID == null) {
-			configurationNameField.setText("");
-		} else {
-			configurationNameField.setText(rocket.getMotorConfigurationName(currentID));
+		if (configurationNameModification == 0) {
+			// Don't update name field when user is modifying it
+			configurationNameModification++;
+			
+			configurationNameField.setEnabled(currentID != null);
+			if (currentID == null) {
+				configurationNameField.setText("");
+			} else {
+				configurationNameField.setText(rocket.getMotorConfigurationName(currentID));
+			}
+			
+			configurationNameModification--;
 		}
 		removeConfButton.setEnabled(currentID != null);
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);

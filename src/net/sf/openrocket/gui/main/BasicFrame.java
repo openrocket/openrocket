@@ -17,7 +17,13 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
@@ -64,6 +70,7 @@ import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.BugDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
+import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PreferencesDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
@@ -86,7 +93,6 @@ public class BasicFrame extends JFrame {
 	 */
 	private static final RocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 	
-	// TODO: Always uses OpenRocketSaver
 	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
 
 	
@@ -402,6 +408,23 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
+		item = new JMenuItem("Open example...");
+		item.getAccessibleContext().setAccessibleDescription("Open an example rocket design");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, 
+				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				URL[] urls = ExampleDesignDialog.selectExampleDesigns(BasicFrame.this);
+				if (urls != null) {
+					for (URL u: urls) {
+						open(u, BasicFrame.this);
+					}
+				}
+			}
+		});
+		menu.add(item);
+		
 		menu.addSeparator();
 		
 		item = new JMenuItem("Save",KeyEvent.VK_S);
@@ -609,20 +632,91 @@ public class BasicFrame extends JFrame {
 	}
 	
 	
+	
+	
+	private static boolean open(URL url, Window parent) {
+		String filename = null;
+		
+		// Try using URI.getPath();
+		try {
+			URI uri = url.toURI();
+			filename = uri.getPath();
+		} catch (URISyntaxException ignore) { }
+
+		// Try URL-decoding the URL
+		if (filename == null) {
+			try {
+				filename = URLDecoder.decode(url.toString(), "UTF-8");
+			} catch (UnsupportedEncodingException ignore) { }
+		}
+		
+		// Last resort
+		if (filename == null) {
+			filename = "";
+		}
+		
+		// Remove path from filename
+		if (filename.lastIndexOf('/') >= 0) {
+			filename = filename.substring(filename.lastIndexOf('/')+1);
+		}
+		
+		try {
+			InputStream is = url.openStream();
+			open(is, filename, parent);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(parent, 
+					"An error occurred while opening the file " + filename,
+					"Error loading file", JOptionPane.ERROR_MESSAGE);
+		}
+		
+		return false;
+	}
+	
+	
 	/**
-	 * Open the specified file in a new design frame.  If an error occurs, an error dialog
-	 * is shown and <code>false</code> is returned.
+	 * Open the specified file from an InputStream in a new design frame.  If an error
+	 * occurs, an error dialog is shown and <code>false</code> is returned.
+	 * 
+	 * @param stream	the stream to load from.
+	 * @param filename	the file name to display in dialogs (not set to the document).
+	 * @param parent	the parent component for which a progress dialog is opened.
+	 * @return			whether the file was successfully loaded and opened.
+	 */
+	private static boolean open(InputStream stream, String filename, Window parent) {
+		OpenFileWorker worker = new OpenFileWorker(stream);
+		return open(worker, filename, null, parent);
+	}
+	
+
+	/**
+	 * Open the specified file in a new design frame.  If an error occurs, an error
+	 * dialog is shown and <code>false</code> is returned.
 	 * 
 	 * @param file		the file to open.
 	 * @param parent	the parent component for which a progress dialog is opened.
 	 * @return			whether the file was successfully loaded and opened.
 	 */
 	private static boolean open(File file, Window parent) {
+		OpenFileWorker worker = new OpenFileWorker(file);
+		return open(worker, file.getName(), file, parent);
+	}
+	
+
+	/**
+	 * Open the specified file using the provided worker.
+	 * 
+	 * @param worker	the OpenFileWorker that loads the file.
+	 * @param filename	the file name to display in dialogs.
+	 * @param file		the File to set the document to (may be null).
+	 * @param parent
+	 * @return
+	 */
+	private static boolean open(OpenFileWorker worker, String filename, File file, 
+			Window parent) {
 
 		// Open the file in a Swing worker thread
-		OpenFileWorker worker = new OpenFileWorker(file);
 		if (!SwingWorkerDialog.runWorker(parent, "Opening file", 
-				"Reading " + file.getName() + "...", worker)) {
+				"Reading " + filename + "...", worker)) {
 
 			// User cancelled the operation
 			return false;
@@ -642,14 +736,14 @@ public class BasicFrame extends JFrame {
 			if (cause instanceof FileNotFoundException) {
 
 				JOptionPane.showMessageDialog(parent, 
-						"File not found: " + file.getName(), 
+						"File not found: " + filename,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
 
 			} else if (cause instanceof RocketLoadException) {
 
 				JOptionPane.showMessageDialog(parent, 
-						"Unable to open file '" + file.getName() +"': " 
+						"Unable to open file '" + filename +"': " 
 						+ cause.getMessage(),
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
@@ -940,7 +1034,7 @@ public class BasicFrame extends JFrame {
 	
 	
 	private static void runMain(String[] args) {
-		
+
 		/*
 		 * Set the look-and-feel.  On Linux, Motif/Metal is sometimes incorrectly used 
 		 * which is butt-ugly, so if the system l&f is Motif/Metal, we search for a few

@@ -37,6 +37,7 @@ public class Icons {
 
 	public static final Icon FILE_NEW = loadImageIcon("pix/icons/document-new.png", "New document");
 	public static final Icon FILE_OPEN = loadImageIcon("pix/icons/document-open.png", "Open document");
+	public static final Icon FILE_OPEN_EXAMPLE = loadImageIcon("pix/icons/document-open-example.png", "Open example document");
 	public static final Icon FILE_SAVE = loadImageIcon("pix/icons/document-save.png", "Save document");
 	public static final Icon FILE_SAVE_AS = loadImageIcon("pix/icons/document-save-as.png", "Save document as");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");

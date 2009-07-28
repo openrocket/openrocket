@@ -71,7 +71,7 @@ public abstract class FinSet extends ExternalComponent {
 	/**
 	 * Thickness of the fins.
 	 */
-	protected double thickness = 0;
+	protected double thickness = 0.003;
 	
 	
 	/**

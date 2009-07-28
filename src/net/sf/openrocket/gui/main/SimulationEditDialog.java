@@ -38,6 +38,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
+import net.sf.openrocket.gui.components.SimulationExportPanel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
@@ -126,7 +127,7 @@ public class SimulationEditDialog extends JDialog {
 		tabbedPane.addTab("Launch conditions", flightConditionsTab());
 		tabbedPane.addTab("Simulation options", simulationOptionsTab());
 		tabbedPane.addTab("Plot data", plotTab());
-//		tabbedPane.addTab("Export data", exportTab());
+		tabbedPane.addTab("Export data", exportTab());
 		
 		// Select the initial tab
 		if (tab == EDIT) {
@@ -650,11 +651,11 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		DescriptionArea desc = new DescriptionArea(5);
-		desc.setText("<html><p>" +
+		desc.setText("<html>" +
 				"<i>Simulation listeners</i> is an advanced feature that allows "+
 				"user-written code to listen to and interact with the simulation.  " +
 				"For details on writing simulation listeners, see the OpenRocket " +
-				"technical documentation.</p>");
+				"technical documentation.");
 		sub.add(desc, "aligny 0, growx, wrap para");
 		
 		
@@ -778,19 +779,15 @@ public class SimulationEditDialog extends JDialog {
 	 * A panel for exporting the data.
 	 */
 	private JPanel exportTab() {
+		FlightData data = simulation.getSimulatedData();
 
 		// Check that data exists
-		if (simulation.getSimulatedData() == null  ||
-				simulation.getSimulatedData().getBranchCount() == 0) {
+		if (data == null  || data.getBranchCount() == 0 ||
+				data.getBranch(0).getTypes().length == 0) {
 			return noDataPanel();
 		}
 		
-		
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		
-		panel.add(new JLabel("Not implemented yet.")); // TODO: HIGH: Implement export
-		
-		return panel;
+		return new SimulationExportPanel(simulation);
 	}
 	
 	
@@ -801,7 +798,7 @@ public class SimulationEditDialog extends JDialog {
 	 * Return a panel stating that there is no data available, and that the user
 	 * should run the simulation first.
 	 */
-	private JPanel noDataPanel() {
+	public static JPanel noDataPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// No data available

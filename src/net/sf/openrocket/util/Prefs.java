@@ -25,6 +25,7 @@ import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.RK4Simulator;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.unit.UnitGroup;
@@ -88,11 +89,21 @@ public class Prefs {
 	
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 
+	// Preferences related to data export
+	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
+	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
+	public static final String EXPORT_FIELD_NAME_COMMENT = "ExportFieldDescriptionComment";
+	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
+	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
+	
 	
 	/**
 	 * Node to this application's preferences.
+	 * @deprecated  Use the static methods instead.
 	 */
+	@Deprecated
 	public static final Preferences NODE;
+	private static final Preferences PREFNODE;
 	
 	
 	static {
@@ -106,7 +117,8 @@ public class Prefs {
 				throw new RuntimeException("Unable to clear preference node",e);
 			}
 		}
-		NODE = root.node(NODENAME);
+		PREFNODE = root.node(NODENAME);
+		NODE = PREFNODE;
 	}
 	
 	
@@ -157,7 +169,7 @@ public class Prefs {
 	
 	
 	public static void storeVersion() {
-		NODE.put("OpenRocketVersion", getVersion());
+		PREFNODE.put("OpenRocketVersion", getVersion());
 	}
 	
 	
@@ -172,7 +184,7 @@ public class Prefs {
 	 * @return   The preference value.
 	 */
 	public static int getChoise(String key, int max, int def) {
-		int v = NODE.getInt(key, def);
+		int v = PREFNODE.getInt(key, def);
 		if ((v<0) || (v>max))
 			return def;
 		return v;
@@ -186,28 +198,37 @@ public class Prefs {
 	 * @param value   the value to store.
 	 */
 	public static void putChoise(String key, int value) {
-		NODE.putInt(key, value);
+		PREFNODE.putInt(key, value);
 		storeVersion();
 	}
 	
 	
 	
 	public static String getString(String key, String def) {
-		return NODE.get(key, def);
+		return PREFNODE.get(key, def);
 	}
 	
 	public static void putString(String key, String value) {
-		NODE.put(key, value);
+		PREFNODE.put(key, value);
 		storeVersion();
 	}
 	
+	
+	public static boolean getBoolean(String key, boolean def) {
+		return PREFNODE.getBoolean(key, def);
+	}
+	
+	public static void putBoolean(String key, boolean value) {
+		PREFNODE.putBoolean(key, value);
+		storeVersion();
+	}
 
 	
 	
 	//////////////////
 	
 	public static File getDefaultDirectory() {
-		String file = NODE.get("defaultDirectory", null);
+		String file = PREFNODE.get("defaultDirectory", null);
 		if (file == null)
 			return null;
 		return new File(file);
@@ -220,7 +241,7 @@ public class Prefs {
 		} else {
 			d = dir.getAbsolutePath();
 		}
-		NODE.put("defaultDirectory", d);
+		PREFNODE.put("defaultDirectory", d);
 		storeVersion();
 	}
 	
@@ -287,7 +308,7 @@ public class Prefs {
 	 * @return    the DPI setting to use.
 	 */
 	public static double getDPI() {
-		int dpi = NODE.getInt("DPI", 0);  // Tenths of a dpi
+		int dpi = PREFNODE.getInt("DPI", 0);  // Tenths of a dpi
 		
 		if (dpi < 10) {
 			dpi = Toolkit.getDefaultToolkit().getScreenResolution()*10;
@@ -347,7 +368,7 @@ public class Prefs {
 	
 	public static Point getWindowPosition(Class<?> c) {
 		int x, y;
-		String pref = NODE.node("windows").get("position." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -365,7 +386,7 @@ public class Prefs {
 	}
 	
 	public static void setWindowPosition(Class<?> c, Point p) {
-		NODE.node("windows").put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
+		PREFNODE.node("windows").put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
 	
@@ -374,7 +395,7 @@ public class Prefs {
 
 	public static Dimension getWindowSize(Class<?> c) {
 		int x, y;
-		String pref = NODE.node("windows").get("size." + c.getCanonicalName(), null);
+		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
 		
 		if (pref == null)
 			return null;
@@ -392,7 +413,7 @@ public class Prefs {
 	}
 	
 	public static void setWindowSize(Class<?> c, Dimension d) {
-		NODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
+		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
 		storeVersion();
 	}
 	
@@ -400,7 +421,7 @@ public class Prefs {
 	////  Background flight data computation
 	
 	public static boolean computeFlightInBackground() {
-		return NODE.getBoolean("backgroundFlight", true);
+		return PREFNODE.getBoolean("backgroundFlight", true);
 	}
 	
 	public static Simulation getBackgroundSimulation(Rocket rocket) {
@@ -416,11 +437,24 @@ public class Prefs {
 	
 	
 	
+	/////////  Export variables
+	
+	public static boolean isExportSelected(FlightDataBranch.Type type) {
+		Preferences prefs = PREFNODE.node("exports");
+		return prefs.getBoolean(type.getName(), false);
+	}
+	
+	public static void setExportSelected(FlightDataBranch.Type type, boolean selected) {
+		Preferences prefs = PREFNODE.node("exports");
+		prefs.putBoolean(type.getName(), selected);
+	}
+	
+	
 	
 	/////////  Default unit storage
 	
 	public static void loadDefaultUnits() {
-		Preferences prefs = NODE.node("units");
+		Preferences prefs = PREFNODE.node("units");
 		try {
 			
 			for (String key: prefs.keys()) {
@@ -438,7 +472,7 @@ public class Prefs {
 	}
 	
 	public static void storeDefaultUnits() {
-		Preferences prefs = NODE.node("units");
+		Preferences prefs = PREFNODE.node("units");
 		
 		for (String key: UnitGroup.UNITS.keySet()) {
 			UnitGroup group = UnitGroup.UNITS.get(key);
@@ -459,7 +493,7 @@ public class Prefs {
 
 		// Search preferences
 		Class<?> c = componentClass;
-		Preferences prefs = NODE.node(directory);
+		Preferences prefs = PREFNODE.node(directory);
 		while (c!=null && RocketComponent.class.isAssignableFrom(c)) {
 			String value = prefs.get(c.getSimpleName(), null);
 			if (value != null)
@@ -485,7 +519,7 @@ public class Prefs {
 
 	private static void set(String directory, Class<? extends RocketComponent> componentClass,
 			String value) {
-		Preferences prefs = NODE.node(directory);
+		Preferences prefs = PREFNODE.node(directory);
 		if (value == null)
 			prefs.remove(componentClass.getSimpleName());
 		else

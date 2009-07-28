@@ -8,7 +8,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 
 import net.sf.openrocket.aerodynamics.Warning;
@@ -21,10 +20,10 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationConditions;
-import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.TextUtil;
 
 public class OpenRocketSaver extends RocketSaver {
 	
@@ -131,8 +130,10 @@ public class OpenRocketSaver extends RocketSaver {
 		if (timeSkip != StorageOptions.SIMULATION_DATA_NONE) {
 			for (Simulation s: doc.getSimulations()) {
 				FlightData data = s.getSimulatedData();
-				for (int i=0; i < data.getBranchCount(); i++) {
-					pointCount += countFlightDataBranchPoints(data.getBranch(i), timeSkip);
+				if (data != null) {
+					for (int i=0; i < data.getBranchCount(); i++) {
+						pointCount += countFlightDataBranchPoints(data.getBranch(i), timeSkip);
+					}
 				}
 			}
 		}
@@ -250,19 +251,19 @@ public class OpenRocketSaver extends RocketSaver {
 		if (data != null) {
 			String str = "<flightdata";
 			if (!Double.isNaN(data.getMaxAltitude()))
-				str += " maxaltitude=\"" + doubleToString(data.getMaxAltitude()) + "\"";
+				str += " maxaltitude=\"" + TextUtil.doubleToString(data.getMaxAltitude()) + "\"";
 			if (!Double.isNaN(data.getMaxVelocity()))
-				str += " maxvelocity=\"" + doubleToString(data.getMaxVelocity()) + "\"";
+				str += " maxvelocity=\"" + TextUtil.doubleToString(data.getMaxVelocity()) + "\"";
 			if (!Double.isNaN(data.getMaxAcceleration()))
-				str += " maxacceleration=\"" + doubleToString(data.getMaxAcceleration()) + "\"";
+				str += " maxacceleration=\"" + TextUtil.doubleToString(data.getMaxAcceleration()) + "\"";
 			if (!Double.isNaN(data.getMaxMachNumber()))
-				str += " maxmach=\"" + doubleToString(data.getMaxMachNumber()) + "\"";
+				str += " maxmach=\"" + TextUtil.doubleToString(data.getMaxMachNumber()) + "\"";
 			if (!Double.isNaN(data.getTimeToApogee()))
-				str += " timetoapogee=\"" + doubleToString(data.getTimeToApogee()) + "\"";
+				str += " timetoapogee=\"" + TextUtil.doubleToString(data.getTimeToApogee()) + "\"";
 			if (!Double.isNaN(data.getFlightTime()))
-				str += " flighttime=\"" + doubleToString(data.getFlightTime()) + "\"";
+				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime()) + "\"";
 			if (!Double.isNaN(data.getGroundHitVelocity()))
-				str += " groundhitvelocity=\"" + doubleToString(data.getGroundHitVelocity()) + "\"";
+				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity()) + "\"";
 			str += ">";
 			writeln(str);
 			indent++;
@@ -333,7 +334,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (Pair<Double,FlightEvent> p: branch.getEvents()) {
-			writeln("<event time=\"" + doubleToString(p.getU())
+			writeln("<event time=\"" + TextUtil.doubleToString(p.getU())
 					+ "\" type=\"" + enumToXMLName(p.getV().getType()) + "\"/>");
 		}
 		
@@ -414,7 +415,7 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int j=0; j < data.size(); j++) {
 			if (j > 0)
 				sb.append(",");
-			sb.append(doubleToString(data.get(j).get(index)));
+			sb.append(TextUtil.doubleToString(data.get(j).get(index)));
 		}
 		sb.append("</datapoint>");
 		writeln(sb.toString());
@@ -443,81 +444,12 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-	/**
-	 * Return a string of the double value with suitable precision.
-	 * The string is the shortest representation of the value including the
-	 * required precision.
-	 * 
-	 * @param d		the value to present.
-	 * @return		a representation with suitable precision.
-	 */
-	public static final String doubleToString(double d) {
-		
-		// Check for special cases
-		if (MathUtil.equals(d, 0))
-			return "0";
-		
-		if (Double.isNaN(d))
-			return "NaN";
-		
-		if (Double.isInfinite(d)) {
-			if (d < 0)
-				return "-Inf";
-			else
-				return "Inf";
-		}
-		
-		
-		double abs = Math.abs(d);
-		
-		if (abs < 0.001) {
-			// Compact exponential notation
-			int exp = 0;
-			
-			while (abs < 1.0) {
-				abs *= 10;
-				exp++;
-			}
-			
-			String sign = (d < 0) ? "-" : "";
-			return sign + String.format((Locale)null, "%.4fe-%d", abs, exp);
-		}
-		if (abs < 0.01)
-			return String.format((Locale)null, "%.7f", d);
-		if (abs < 0.1)
-			return String.format((Locale)null, "%.6f", d);
-		if (abs < 1)
-			return String.format((Locale)null, "%.5f", d);
-		if (abs < 10)
-			return String.format((Locale)null, "%.4f", d);
-		if (abs < 100)
-			return String.format((Locale)null, "%.3f", d);
-		if (abs < 1000)
-			return String.format((Locale)null, "%.2f", d);
-		if (abs < 10000)
-			return String.format((Locale)null, "%.1f", d);
-		if (abs < 100000000.0)
-			return String.format((Locale)null, "%.0f", d);
-			
-		// Compact exponential notation
-		int exp = 0;
-		while (abs >= 10.0) {
-			abs /= 10;
-			exp++;
-		}
-		
-		String sign = (d < 0) ? "-" : "";
-		return sign + String.format((Locale)null, "%.4fe%d", abs, exp);
-	}
-	
-	
-	
 	public static void main(String[] arg) {
 		double d = -0.000000123456789123;
 		
 		
 		for (int i=0; i< 20; i++) {
-			String str = doubleToString(d);
+			String str = TextUtil.doubleToString(d);
 			System.out.println(str + "   ->   " + Double.parseDouble(str));
 			d *= 10;
 		}
