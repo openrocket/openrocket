@@ -412,6 +412,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		panel.add(button,"span, split, tag cancel");
 		
 
+		this.setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		GUIUtil.installEscapeCloseOperation(this);
 		pack();

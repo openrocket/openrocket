@@ -316,10 +316,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		clone.children = new ArrayList<RocketComponent>();
 
 		// Add copied children to the structure without firing events.
-		for (RocketComponent c: this.children) {
-			RocketComponent copy = c.copy();
-			clone.children.add(copy);
-			copy.parent = clone;
+		for (RocketComponent child: this.children) {
+			RocketComponent childCopy = child.copy();
+			// Don't use add method since it fires events
+			clone.children.add(childCopy);
+			childCopy.parent = clone;
 		}
 
 		return clone;
@@ -1079,6 +1080,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		RocketComponent stage = this;
 		while (!(stage instanceof Stage)) {
 			stage = stage.parent;
+			if (stage == null || stage.parent == null) {
+				throw new IllegalStateException("getStageNumber() could not find parent " +
+						"stage.");
+			}
 		}
 		return stage.parent.getChildPosition(stage);
 	}
@@ -1107,6 +1112,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		if (parent == null)
 			return null;
 		int pos = parent.getChildPosition(this);
+		if (pos < 0) {
+			throw new IllegalStateException("Inconsistent internal state: " +
+					"this="+this+" parent="+parent+" parent.children="+
+					parent.children.toString());
+		}
 		assert(pos >= 0);
 		if (pos == 0)
 			return parent;
@@ -1401,8 +1411,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 
 	
 	/**
-	 * Loads the RocketComponent fields from the given component.  This method is meant
-	 * for use with the undo/redo mechanism.
+	 * Loads the RocketComponent fields from the given component.  This method may
+	 * be called only for a Rocket component and is meant for use with the
+	 * undo/redo mechanism.
 	 *
 	 * The fields are copied by reference, and the supplied component must not be used
 	 * after the call, as it is in an undefined state.
@@ -1410,8 +1421,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * TODO: MEDIUM: Make general to copy all private/protected fields...
 	 */
 	protected void copyFrom(RocketComponent src) {
+		
+		if (!(this instanceof Rocket)) {
+			throw new UnsupportedOperationException("copyFrom called for component " + this);
+		}
+		if (this.parent != null) {
+			throw new UnsupportedOperationException("copyFrom called for non-root component " 
+					+ this);
+		}
+		
 		// Set parents and children
-		this.parent = null;
 		this.children = src.children;
 		src.children = new ArrayList<RocketComponent>();
 		

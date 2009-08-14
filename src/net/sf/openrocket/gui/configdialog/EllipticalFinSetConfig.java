@@ -58,6 +58,25 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI,Math.PI)),"w 100lp, wrap");
 		
 		
+		////  Fin cant
+		JLabel label = new JLabel("Fin cant:");
+		label.setToolTipText("The angle that the fins are canted with respect to the rocket " +
+				"body.");
+		panel.add(label);
+		
+		m = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE,
+				-FinSet.MAX_CANT, FinSet.MAX_CANT);
+		
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin,"growx");
+		
+		panel.add(new UnitSelector(m),"growx");
+		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT,FinSet.MAX_CANT)),
+				"w 100lp, wrap");
+		
+
+		
 		////  Root chord
 		panel.add(new JLabel("Root chord:"));
 		

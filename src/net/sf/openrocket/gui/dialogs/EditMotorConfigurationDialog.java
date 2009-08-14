@@ -27,7 +27,6 @@ import javax.swing.table.TableColumnModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.MotorChooserDialog;
 import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -250,6 +249,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 		
 		GUIUtil.installEscapeCloseOperation(this);
 		GUIUtil.setDefaultButton(close);
+		this.setLocationByPlatform(true);
 		
 		// Undo description
 		final OpenRocketDocument document = BasicFrame.findDocument(rocket);
@@ -312,7 +312,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 			return;
 		
 		MotorChooserDialog dialog = new MotorChooserDialog(currentMount.getMotor(currentID),
-				currentMount.getMotorDelay(currentID), currentMount.getMotorMountDiameter());
+				currentMount.getMotorDelay(currentID), currentMount.getMotorMountDiameter(),
+				this);
 		dialog.setVisible(true);
 		Motor m = dialog.getSelectedMotor();
 		double d = dialog.getSelectedDelay();

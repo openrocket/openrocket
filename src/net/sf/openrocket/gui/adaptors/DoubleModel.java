@@ -586,13 +586,12 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		try {
 			return (Double)getMethod.invoke(source)*multiplier;
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new RuntimeException("BUG: Unable to invoke getMethod of "+this, e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new RuntimeException("BUG: Unable to invoke getMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw new RuntimeException("BUG: Unable to invoke getMethod of "+this, e);
 		}
-		return lastValue;  // Should not occur
 	}
 	
 	/**
@@ -614,13 +613,12 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			setMethod.invoke(source, v/multiplier);
 			return;
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
 		}
-		fireStateChanged();  // Should not occur
 	}
 
 	

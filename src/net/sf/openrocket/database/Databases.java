@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import net.sf.openrocket.file.MotorLoader;
+import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.util.JarUtil;
@@ -23,7 +23,7 @@ public class Databases {
 	/**
 	 * The motor database.
 	 */
-	public static final Database<Motor> MOTOR = new Database<Motor>(new MotorLoader());
+	public static final Database<Motor> MOTOR = new Database<Motor>(new GeneralMotorLoader());
 	
 	
 	/**
@@ -71,44 +71,44 @@ public class Databases {
 	// TODO: HIGH: Move materials into data files
 	static {
 		
-		BULK_MATERIAL.add(new Material.Bulk("Acrylic",		1190));
-		BULK_MATERIAL.add(new Material.Bulk("Balsa",		 170));
-		BULK_MATERIAL.add(new Material.Bulk("Birch",		 670));
-		BULK_MATERIAL.add(new Material.Bulk("Cardboard",	 680));
-		BULK_MATERIAL.add(new Material.Bulk("Carbon fiber",	1780));
-		BULK_MATERIAL.add(new Material.Bulk("Cork",			 240));
-		BULK_MATERIAL.add(new Material.Bulk("Fiberglass",	1850));
-		BULK_MATERIAL.add(new Material.Bulk("Kraft phenolic",950));
-		BULK_MATERIAL.add(new Material.Bulk("Maple",		 755));
-		BULK_MATERIAL.add(new Material.Bulk("Paper (office)",820));
-		BULK_MATERIAL.add(new Material.Bulk("Pine",			 530));
-		BULK_MATERIAL.add(new Material.Bulk("Plywood (birch)",630));
-		BULK_MATERIAL.add(new Material.Bulk("Polycarbonate (Lexan)",1200));
-		BULK_MATERIAL.add(new Material.Bulk("Polystyrene",  1050));
-		BULK_MATERIAL.add(new Material.Bulk("PVC",			1390));
-		BULK_MATERIAL.add(new Material.Bulk("Spruce",		 450));
-		BULK_MATERIAL.add(new Material.Bulk("Quantum tubing",1050));
+		BULK_MATERIAL.add(new Material.Bulk("Acrylic",		1190, false));
+		BULK_MATERIAL.add(new Material.Bulk("Balsa",		 170, false));
+		BULK_MATERIAL.add(new Material.Bulk("Birch",		 670, false));
+		BULK_MATERIAL.add(new Material.Bulk("Cardboard",	 680, false));
+		BULK_MATERIAL.add(new Material.Bulk("Carbon fiber",	1780, false));
+		BULK_MATERIAL.add(new Material.Bulk("Cork",			 240, false));
+		BULK_MATERIAL.add(new Material.Bulk("Fiberglass",	1850, false));
+		BULK_MATERIAL.add(new Material.Bulk("Kraft phenolic",950, false));
+		BULK_MATERIAL.add(new Material.Bulk("Maple",		 755, false));
+		BULK_MATERIAL.add(new Material.Bulk("Paper (office)",820, false));
+		BULK_MATERIAL.add(new Material.Bulk("Pine",			 530, false));
+		BULK_MATERIAL.add(new Material.Bulk("Plywood (birch)",630, false));
+		BULK_MATERIAL.add(new Material.Bulk("Polycarbonate (Lexan)",1200, false));
+		BULK_MATERIAL.add(new Material.Bulk("Polystyrene",  1050, false));
+		BULK_MATERIAL.add(new Material.Bulk("PVC",			1390, false));
+		BULK_MATERIAL.add(new Material.Bulk("Spruce",		 450, false));
+		BULK_MATERIAL.add(new Material.Bulk("Quantum tubing",1050, false));
 		
-		SURFACE_MATERIAL.add(new Material.Surface("Ripstop nylon",			0.067));
-		SURFACE_MATERIAL.add(new Material.Surface("Mylar", 					0.021));
-		SURFACE_MATERIAL.add(new Material.Surface("Polyethylene (thin)",	0.015));
-		SURFACE_MATERIAL.add(new Material.Surface("Polyethylene (heavy)", 	0.040));
-		SURFACE_MATERIAL.add(new Material.Surface("Silk", 					0.060));
-		SURFACE_MATERIAL.add(new Material.Surface("Paper (office)",			0.080));
-		SURFACE_MATERIAL.add(new Material.Surface("Cellophane", 			0.018));
-		SURFACE_MATERIAL.add(new Material.Surface("Cr\u00eape paper", 		0.025));
+		SURFACE_MATERIAL.add(new Material.Surface("Ripstop nylon",			0.067, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Mylar", 					0.021, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Polyethylene (thin)",	0.015, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Polyethylene (heavy)", 	0.040, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Silk", 					0.060, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Paper (office)",			0.080, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Cellophane", 			0.018, false));
+		SURFACE_MATERIAL.add(new Material.Surface("Cr\u00eape paper", 		0.025, false));
 		
-		LINE_MATERIAL.add(new Material.Line("Thread (heavy-duty)", 				0.0003));
-		LINE_MATERIAL.add(new Material.Line("Elastic cord (round 2mm, 1/16 in)",0.0018));
-		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat  6mm, 1/4 in)",	0.0043));
-		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat 12mm, 1/2 in)",	0.008));
-		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat 19mm, 3/4 in)",	0.0012));
-		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat 25mm, 1 in)",	0.0016));
-		LINE_MATERIAL.add(new Material.Line("Braided nylon (2 mm, 1/16 in)", 	0.001));
-		LINE_MATERIAL.add(new Material.Line("Braided nylon (3 mm, 1/8 in)", 	0.0035));
-		LINE_MATERIAL.add(new Material.Line("Tubular nylon (11 mm, 7/16 in)",	0.013));
-		LINE_MATERIAL.add(new Material.Line("Tubular nylon (14 mm, 9/16 in)",	0.016));
-		LINE_MATERIAL.add(new Material.Line("Tubular nylon (25 mm, 1 in)",		0.029));
+		LINE_MATERIAL.add(new Material.Line("Thread (heavy-duty)", 				0.0003, false));
+		LINE_MATERIAL.add(new Material.Line("Elastic cord (round 2mm, 1/16 in)",0.0018, false));
+		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat  6mm, 1/4 in)",	0.0043, false));
+		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat 12mm, 1/2 in)",	0.008, false));
+		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat 19mm, 3/4 in)",	0.0012, false));
+		LINE_MATERIAL.add(new Material.Line("Elastic cord (flat 25mm, 1 in)",	0.0016, false));
+		LINE_MATERIAL.add(new Material.Line("Braided nylon (2 mm, 1/16 in)", 	0.001, false));
+		LINE_MATERIAL.add(new Material.Line("Braided nylon (3 mm, 1/8 in)", 	0.0035, false));
+		LINE_MATERIAL.add(new Material.Line("Tubular nylon (11 mm, 7/16 in)",	0.013, false));
+		LINE_MATERIAL.add(new Material.Line("Tubular nylon (14 mm, 9/16 in)",	0.016, false));
+		LINE_MATERIAL.add(new Material.Line("Tubular nylon (25 mm, 1 in)",		0.029, false));
 	}
 	
 	

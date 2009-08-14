@@ -3,6 +3,7 @@ package net.sf.openrocket.file;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -20,9 +21,10 @@ public class GeneralRocketLoader extends RocketLoader {
 	private static final int READ_BYTES = 300;
 	
 	private static final byte[] GZIP_SIGNATURE = { 31, -117 };  // 0x1f, 0x8b
-	private static final byte[] OPENROCKET_SIGNATURE = "<openrocket".getBytes();
+	private static final byte[] OPENROCKET_SIGNATURE = 
+		"<openrocket".getBytes(Charset.forName("US-ASCII"));
 	
-	private static final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
+	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
 	
 	@Override
 	protected OpenRocketDocument loadFromStream(InputStream source) throws IOException,
@@ -59,7 +61,7 @@ public class GeneralRocketLoader extends RocketLoader {
 			if (buffer[i] == OPENROCKET_SIGNATURE[match]) {
 				match++;
 				if (match == OPENROCKET_SIGNATURE.length) {
-					return openRocketLoader.load(source);
+					return loadUsing(source, openRocketLoader);
 				}
 			} else {
 				match = 0;
@@ -67,5 +69,13 @@ public class GeneralRocketLoader extends RocketLoader {
 		}
 		
 		throw new RocketLoadException("Unsupported or corrupt file.");
+	}
+	
+	private OpenRocketDocument loadUsing(InputStream source, RocketLoader loader) 
+	throws RocketLoadException {
+		warnings.clear();
+		OpenRocketDocument doc = loader.load(source);
+		warnings.addAll(loader.getWarnings());
+		return doc;
 	}
 }

@@ -1,9 +1,10 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.dialogs;
 
 
+import java.awt.Dialog;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -78,8 +79,8 @@ public class MotorChooserDialog extends JDialog {
 		this(current,delay,diameter,null);
 	}
 	
-	public MotorChooserDialog(Motor current, double delay, double diameter, Frame owner) {
-		super(owner, "Select a rocket motor", true);
+	public MotorChooserDialog(Motor current, double delay, double diameter, Window owner) {
+		super(owner, "Select a rocket motor", Dialog.ModalityType.APPLICATION_MODAL);
 		
 		JButton button;
 
@@ -285,6 +286,7 @@ public class MotorChooserDialog extends JDialog {
 
 		GUIUtil.setDefaultButton(okButton);
 		GUIUtil.installEscapeCloseOperation(this);
+		this.setLocationByPlatform(true);
 		
 		// Table can be scrolled only after pack() has been called
 		setSelectionVisible();

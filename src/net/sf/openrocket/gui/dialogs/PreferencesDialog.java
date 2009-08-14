@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -12,7 +14,6 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -29,7 +30,7 @@ public class PreferencesDialog extends JDialog {
 	private final List<DefaultUnitSelector> unitSelectors = new ArrayList<DefaultUnitSelector>();
 
 	private PreferencesDialog() {
-		super((JFrame)null, "Preferences", true);
+		super((Window)null, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill, gap unrel","[grow]","[grow][]"));
 				

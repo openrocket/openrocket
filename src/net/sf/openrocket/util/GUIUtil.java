@@ -1,15 +1,21 @@
 package net.sf.openrocket.util;
 
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -24,6 +30,32 @@ public class GUIUtil {
 
 	private static final KeyStroke ESCAPE = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 	private static final String CLOSE_ACTION_KEY =  "escape:WINDOW_CLOSING"; 
+	
+    private static final List<Image> images = new ArrayList<Image>();
+    static {
+    	loadImage("pix/icon/icon-256.png");
+    	loadImage("pix/icon/icon-064.png");
+    	loadImage("pix/icon/icon-048.png");
+    	loadImage("pix/icon/icon-032.png");
+    	loadImage("pix/icon/icon-016.png");
+    }
+    
+    private static void loadImage(String file) {
+    	InputStream is;
+ 
+    	is = ClassLoader.getSystemResourceAsStream(file);
+    	if (is == null)
+    		return;
+    	
+    	try {
+    		Image image = ImageIO.read(is);
+    		images.add(image);
+    	} catch (IOException ignore) {
+    		ignore.printStackTrace();
+    	}
+    }
+    
+
 	
 	
 	/**
@@ -76,5 +108,9 @@ public class GUIUtil {
         c.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, strokes);
     }
 
+    
+    public static void setWindowIcons(Window window) {
+    	window.setIconImages(images);
+    }
 	
 }

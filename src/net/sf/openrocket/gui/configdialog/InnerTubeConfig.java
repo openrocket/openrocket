@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -21,6 +22,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,6 +39,7 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 
 
 public class InnerTubeConfig extends ThicknessRingComponentConfig {
@@ -96,7 +99,8 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		l = new JLabel("Rotation:");
 		l.setToolTipText("Rotation angle of the cluster configuration");
 		subPanel.add(l);
-		dm  = new DoubleModel(component,"ClusterRotation",1,UnitGroup.UNITS_ANGLE,0);
+		dm  = new DoubleModel(component,"ClusterRotation",1,UnitGroup.UNITS_ANGLE,
+				-Math.PI,Math.PI);
 
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -106,10 +110,57 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		subPanel.add(new UnitSelector(dm),"growx");
 		bs = new BasicSlider(dm.getSliderModel(-Math.PI, 0, Math.PI));
 		bs.setToolTipText("Rotation angle of the cluster configuration");
-		subPanel.add(bs,"w 100lp, wrap");
+		subPanel.add(bs,"w 100lp, wrap para");
 
+		
+		
+		// Split button
+		JButton split = new JButton("Split cluster");
+		split.setToolTipText("<html>Split the cluster into separate components.<br>" +
+				"This also duplicates all components attached to this inner tube.");
+		split.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Do change in future for overall safety
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						RocketComponent parent = component.getParent();
+						int index = parent.getChildPosition(component);
+						if (index < 0) {
+							throw new IllegalStateException("component="+component+
+									" parent="+parent+" parent.children=" + 
+									Arrays.toString(parent.getChildren()));
+						}
+
+						InnerTube tube = (InnerTube)component;
+						if (tube.getClusterCount() <= 1)
+							return;
+
+						ComponentConfigDialog.addUndoPosition("Split cluster");
+
+						Coordinate[] coords = { Coordinate.NUL };
+						coords = component.shiftCoordinates(coords);
+						parent.removeChild(index);
+						for (int i=0; i<coords.length; i++) {
+							InnerTube copy = (InnerTube)component.copy();
+							copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
+							copy.setClusterRotation(0.0);
+							copy.setClusterScale(1.0);
+							copy.setRadialShift(coords[i].y, coords[i].z);
+							copy.setName(copy.getName() + " #" + (i+1));
+							
+							parent.addChild(copy, index+i);
+						}
+					}
+				});
+			}
+		});
+		subPanel.add(split, "spanx, split 2, gapright para, sizegroup buttons, right");
+		
+		
 		// Reset button
-		JButton reset = new JButton("Reset");
+		JButton reset = new JButton("Reset settings");
 		reset.setToolTipText("Reset the separation and rotation to the default values");
 		reset.addActionListener(new ActionListener() {
 			@Override
@@ -118,7 +169,7 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 				((InnerTube)component).setClusterRotation(0.0);
 			}
 		});
-		subPanel.add(reset,"spanx,right");
+		subPanel.add(reset,"sizegroup buttons, right");
 		
 		panel.add(subPanel,"grow");
 		

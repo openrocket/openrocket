@@ -38,14 +38,27 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 	private final List<T> list = new ArrayList<T>();
 	private final EventListenerList listenerList = new EventListenerList();
 	private final Loader<T> loader;
+	private final DatabaseStore<T> store;
 	
 	
 	public Database() {
 		loader = null;
+		store = null;
 	}
 	
 	public Database(Loader<T> loader) {
 		this.loader = loader;
+		this.store = null;
+	}
+	
+	public Database(DatabaseStore<T> store) {
+		this.loader = null;
+		this.store = store;
+	}
+	
+	public Database(Loader<T> loader, DatabaseStore<T> store) {
+		this.loader = loader;
+		this.store = store;
 	}
 	
 		
@@ -73,6 +86,8 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 			index = -(index+1);
 		}
 		list.add(index,element);
+		if (store != null)
+			store.elementAdded(element);
 		fireChangeEvent();
 		return true;
 	}
@@ -223,6 +238,7 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 	 */
 	private class DBIterator implements Iterator<T> {
 		private Iterator<T> iterator = list.iterator();
+		private T current = null;
 		
 		@Override
 		public boolean hasNext() {
@@ -231,12 +247,15 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 
 		@Override
 		public T next() {
-			return iterator.next();
+			current = iterator.next();
+			return current;
 		}
 
 		@Override
 		public void remove() {
 			iterator.remove();
+			if (store != null)
+				store.elementRemoved(current);
 			fireChangeEvent();
 		}
 	}

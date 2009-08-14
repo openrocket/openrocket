@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.dialogs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +47,7 @@ public class AboutDialog extends JDialog {
 		this.setTitle("OpenRocket " + version);
 		this.pack();
 		this.setResizable(false);
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(parent);
 		GUIUtil.setDefaultButton(close);
 		GUIUtil.installEscapeCloseOperation(this);
 	}

@@ -56,12 +56,26 @@ public class PlotDialog extends JDialog {
 			throw new IllegalArgumentException("Domain axis type not specified.");
 		}
 		List<Double> x = branch.get(domainType);
-
+		
+		
+		// Get plot length (ignore trailing NaN's)
+		int typeCount = filled.getTypeCount();
+		int dataLength = 0;
+		for (int i=0; i<typeCount; i++) {
+			FlightDataBranch.Type type = filled.getType(i);
+			List<Double> y = branch.get(type);
+			
+			for (int j = dataLength; j < y.size(); j++) {
+				if (!Double.isNaN(y.get(j)) && !Double.isInfinite(y.get(j)))
+					dataLength = j;
+			}
+		}
+		dataLength = Math.min(dataLength, x.size());
+		
 		
 		// Create the XYSeries objects from the flight data and store into the collections
-		int length = filled.getTypeCount();
 		String[] axisLabel = new String[2];
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < typeCount; i++) {
 			// Get info
 			FlightDataBranch.Type type = filled.getType(i);
 			Unit unit = filled.getUnit(i);
@@ -71,7 +85,7 @@ public class PlotDialog extends JDialog {
 			// Store data in provided units
 			List<Double> y = branch.get(type);
 			XYSeries series = new XYSeries(name, false, true);
-			for (int j=0; j<x.size(); j++) {
+			for (int j=0; j < dataLength; j++) {
 				series.add(domainUnit.toUnit(x.get(j)), unit.toUnit(y.get(j)));
 			}
 			data[axis].addSeries(series);

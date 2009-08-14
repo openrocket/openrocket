@@ -1,13 +1,16 @@
 package net.sf.openrocket.gui.components;
 
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import javax.swing.JLabel;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A label of a URL that is clickable.  Clicking the URL will launch the URL in
@@ -15,20 +18,39 @@ import javax.swing.JLabel;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class URLLabel extends JLabel {
+public class URLLabel extends SelectableLabel {
 	
-	private final String url;
+	/**
+	 * Create a label showing the url it will direct to.
+	 * 
+	 * @param url	the URL.
+	 */
+	public URLLabel(String url) {
+		this(url, url);
+	}
 	
-	public URLLabel(String urlLabel) {
+	/**
+	 * Create a label with separate URL and label.
+	 * 
+	 * @param url	the URL clicking will open.
+	 * @param label	the label.
+	 */
+	public URLLabel(final String url, String label) {
 		super();
 		
-		this.url = urlLabel;
-		
+		setText(label);
 
 		if (Desktop.isDesktopSupported()) {
 			
-			setText("<html><a href=\"" + url + "\">" + url + "</a>");
-
+			// Blue, underlined font
+			Map<TextAttribute, Object> map = new HashMap<TextAttribute, Object>();
+			map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+			this.setFont(this.getFont().deriveFont(map));
+			this.setForeground(Color.BLUE);
+			
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			
+			
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
@@ -43,9 +65,7 @@ public class URLLabel extends JLabel {
 					}
 				}
 			});
-			
-		} else {
-			setText(url);
+
 		}
 	}
 }

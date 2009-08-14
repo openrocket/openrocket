@@ -132,6 +132,27 @@ public abstract class RingComponent extends StructuralComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
+	
+	public double getRadialShiftY() {
+		return shiftY;
+	}
+	
+	public double getRadialShiftZ() {
+		return shiftZ;
+	}
+	
+	public void setRadialShift(double y, double z) {
+		radialPosition = Math.hypot(y, z);
+		radialDirection = Math.atan2(z, y);
+		
+		// Re-calculate to ensure consistency 
+		shiftY = radialPosition * Math.cos(radialDirection);
+		shiftZ = radialPosition * Math.sin(radialDirection);
+		assert(MathUtil.equals(y, shiftY));
+		assert(MathUtil.equals(z, shiftZ));
+		
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
 
 
 	/**

@@ -24,7 +24,7 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.main.MotorChooserDialog;
+import net.sf.openrocket.gui.dialogs.MotorChooserDialog;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;

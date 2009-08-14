@@ -115,15 +115,4 @@ public abstract class ExternalComponent extends RocketComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
-	
-	
-	@Override
-	protected void copyFrom(RocketComponent c) {
-		super.copyFrom(c);
-		
-		ExternalComponent src = (ExternalComponent)c;
-		this.material = src.material;
-		this.finish = src.finish;
-	}
-	
 }

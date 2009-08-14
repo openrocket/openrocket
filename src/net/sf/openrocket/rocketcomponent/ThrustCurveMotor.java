@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
 /**
  * A class of motors specified by a fixed thrust curve.  This is the most
@@ -9,6 +10,8 @@ import net.sf.openrocket.util.Coordinate;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class ThrustCurveMotor extends Motor {
+	
+	public static final double MAX_THRUST = 10e6;
 
 	private final double[] time;
 	private final double[] thrust;
@@ -54,15 +57,36 @@ public class ThrustCurveMotor extends Motor {
 						"time[" + (i+1) + "]=" + time[i+1]);
 			}
 		}
-		if (time[0] != 0) {
-			throw new IllegalArgumentException("Curve starts at time=" + time[0]);
+		if (!MathUtil.equals(time[0], 0)) {
+			throw new IllegalArgumentException("Curve starts at time " + time[0]);
+		}
+		if (!MathUtil.equals(thrust[0], 0)) {
+			throw new IllegalArgumentException("Curve starts at thrust " + thrust[0]);
+		}
+		if (!MathUtil.equals(thrust[thrust.length-1], 0)) {
+			throw new IllegalArgumentException("Curve ends at thrust " + 
+					thrust[thrust.length-1]);
 		}
 		for (double t: thrust) {
 			if (t < 0) {
 				throw new IllegalArgumentException("Negative thrust.");
 			}
+			if (t > MAX_THRUST || Double.isNaN(t)) {
+				throw new IllegalArgumentException("Invalid thrust " + t);
+			}
 			if (t > max)
 				max = t;
+		}
+		for (Coordinate c: cg) {
+			if (c.isNaN()) {
+				throw new IllegalArgumentException("Invalid CG " + c);
+			}
+			if (c.x < 0 || c.x > length) {
+				throw new IllegalArgumentException("Invalid CG position " + c.x);
+			}
+			if (c.weight < 0) {
+				throw new IllegalArgumentException("Negative mass " + c.weight);
+			}
 		}
 
 		this.maxThrust = max;
@@ -91,6 +115,9 @@ public class ThrustCurveMotor extends Motor {
 		for (int i=0; i < time.length-1; i++) {
 			if ((t >= time[i]) && (t <= time[i+1])) {
 				double delta = time[i+1] - time[i];
+				if (delta < 0.0001) {
+					return thrust[i];
+				}
 				t = t - time[i];
 				return thrust[i] * (1 - t/delta) + thrust[i+1] * (t/delta);
 			}
@@ -118,4 +145,17 @@ public class ThrustCurveMotor extends Motor {
 		return cg[cg.length-1];
 	}
 
+	
+	public double[] getTimePoints() {
+		return time.clone();
+	}
+	
+	public double[] getThrustPoints() {
+		return thrust.clone();
+	}
+	
+	public Coordinate[] getCGPoints() {
+		return cg.clone();
+	}
+	
 }

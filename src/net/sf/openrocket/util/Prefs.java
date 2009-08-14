@@ -335,7 +335,7 @@ public class Prefs {
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
-				Material m = Material.fromStorableString(material);
+				Material m = Material.fromStorableString(material, false);
 				if (m.getType() == type)
 					return m;
 			} catch (IllegalArgumentException ignore) { }

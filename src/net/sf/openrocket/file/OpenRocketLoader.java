@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -17,6 +16,9 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.Simulation.Status;
+import net.sf.openrocket.file.simplesax.ElementHandler;
+import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -66,12 +68,8 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 
 /**
@@ -93,13 +91,9 @@ public class OpenRocketLoader extends RocketLoader {
 		InputSource xmlSource = new InputSource(source);
 		OpenRocketHandler handler = new OpenRocketHandler();
 
-		DelegatorHandler xmlhandler = new DelegatorHandler(handler, warnings);
-
+		
 		try {
-			XMLReader parser = XMLReaderFactory.createXMLReader();
-			parser.setContentHandler(xmlhandler);
-			parser.setErrorHandler(xmlhandler);
-			parser.parse(xmlSource);
+			SimpleSAX.readXML(xmlSource, handler, warnings);
 		} catch (SAXException e) {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
@@ -507,171 +501,6 @@ class DocumentConfig {
 
 
 
-/**
- * The actual handler class.  Contains the necessary methods for parsing the SAX source.
- */
-class DelegatorHandler extends DefaultHandler {
-	private final WarningSet warnings;
-
-	private final Stack<ElementHandler> handlerStack = new Stack<ElementHandler>();
-	private final Stack<StringBuilder> elementData = new Stack<StringBuilder>();
-	private final Stack<HashMap<String, String>> elementAttributes = new Stack<HashMap<String, String>>();
-
-
-	// Ignore all elements as long as ignore > 0
-	private int ignore = 0;
-
-
-	public DelegatorHandler(ElementHandler initialHandler, WarningSet warnings) {
-		this.warnings = warnings;
-		handlerStack.add(initialHandler);
-		elementData.add(new StringBuilder()); // Just in case
-	}
-
-
-	/////////  SAX handlers
-
-	@Override
-	public void startElement(String uri, String localName, String name,
-			Attributes attributes) throws SAXException {
-
-		// Check for ignore
-		if (ignore > 0) {
-			ignore++;
-			return;
-		}
-
-		// Check for unknown namespace
-		if (!uri.equals("")) {
-			warnings.add(Warning.fromString("Unknown namespace element '" + uri
-					+ "' encountered, ignoring."));
-			ignore++;
-			return;
-		}
-
-		// Add layer to data stacks
-		elementData.push(new StringBuilder());
-		elementAttributes.push(copyAttributes(attributes));
-
-		// Call the handler
-		ElementHandler h = handlerStack.peek();
-		h = h.openElement(localName, elementAttributes.peek(), warnings);
-		if (h != null) {
-			handlerStack.push(h);
-		} else {
-			// Start ignoring elements
-			ignore++;
-		}
-	}
-
-
-	/**
-	 * Stores encountered characters in the elementData stack.
-	 */
-	@Override
-	public void characters(char[] chars, int start, int length) throws SAXException {
-		// Check for ignore
-		if (ignore > 0)
-			return;
-
-		StringBuilder sb = elementData.peek();
-		sb.append(chars, start, length);
-	}
-
-
-	/**
-	 * Removes the last layer from the stack.
-	 */
-	@Override
-	public void endElement(String uri, String localName, String name) throws SAXException {
-
-		// Check for ignore
-		if (ignore > 0) {
-			ignore--;
-			return;
-		}
-
-		// Remove data from stack
-		String data = elementData.pop().toString(); // throws on error
-		HashMap<String, String> attr = elementAttributes.pop();
-
-		// Remove last handler and call the next one
-		ElementHandler h;
-		
-		h = handlerStack.pop();
-		h.endHandler(localName, attr, data, warnings);
-		
-		h = handlerStack.peek();
-		h.closeElement(localName, attr, data, warnings);
-	}
-
-
-	private static HashMap<String, String> copyAttributes(Attributes atts) {
-		HashMap<String, String> ret = new HashMap<String, String>();
-		for (int i = 0; i < atts.getLength(); i++) {
-			ret.put(atts.getLocalName(i), atts.getValue(i));
-		}
-		return ret;
-	}
-}
-
-
-
-
-abstract class ElementHandler {
-
-	/**
-	 * Called when an opening element is encountered.  Returns the handler that will handle
-	 * the elements within that element, or <code>null</code> if the element and all of
-	 * its contents is to be ignored.
-	 * 
-	 * @param element		the element name.
-	 * @param attributes	attributes of the element.
-	 * @param warnings		the warning set to store warnings in.
-	 * @return				the handler that handles elements encountered within this element,
-	 * 						or <code>null</code> if the element is to be ignored.
-	 */
-	public abstract ElementHandler openElement(String element,
-			HashMap<String, String> attributes, WarningSet warnings);
-
-	/**
-	 * Called when an element is closed.  The default implementation checks whether there is
-	 * any non-space text within the element and if there exists any attributes, and adds
-	 * a warning of both.  This can be used at the and of the method to check for 
-	 * spurious data.
-	 * 
-	 * @param element		the element name.
-	 * @param attributes	attributes of the element.
-	 * @param content		the textual content of the element.
-	 * @param warnings		the warning set to store warnings in.
-	 */
-	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
-
-		if (!content.trim().equals("")) {
-			warnings.add(Warning.fromString("Unknown text in element " + element
-					+ ", ignoring."));
-		}
-		if (!attributes.isEmpty()) {
-			warnings.add(Warning.fromString("Unknown attributes in element " + element
-					+ ", ignoring."));
-		}
-	}
-	
-	
-	/**
-	 * Called when the element block that this handler is handling ends.
-	 * The default implementation is a no-op.
-	 * 
-	 * @param warnings		the warning set to store warnings in.
-	 */
-	public void endHandler(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
-		// No-op
-	}
-	
-}
-
 
 /**
  * The starting point of the handlers.  Accepts a single <openrocket> element and hands
@@ -709,6 +538,7 @@ class OpenRocketHandler extends ElementHandler {
 
 		// Check version number
 		String version = null;
+		String creator = attributes.remove("creator");
 		String docVersion = attributes.remove("version");
 		for (String v : DocumentConfig.SUPPORTED_VERSIONS) {
 			if (v.equals(docVersion)) {
@@ -717,17 +547,28 @@ class OpenRocketHandler extends ElementHandler {
 			}
 		}
 		if (version == null) {
+			String str = "Unsupported document version";
 			if (docVersion != null)
-				warnings.add(Warning.fromString("Unsupported document version "
-						+ docVersion + ", attempting to read anyway."));
-			else
-				warnings.add(Warning.fromString("Unsupported document version, attempting to"
-								+ " read anyway."));
+				str += " " + docVersion;
+			if (creator != null && !creator.trim().equals(""))
+				str += " (written using '" + creator.trim() + "')";
+			str += ", attempting to read file anyway.";
+			warnings.add(str);
 		}
 
 		handler = new OpenRocketContentHandler();
 		return handler;
 	}
+
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes,
+			String content, WarningSet warnings) throws SAXException {
+		attributes.remove("version");
+		attributes.remove("creator");
+		super.closeElement(element, attributes, content, warnings);
+	}
+	
+	
 }
 
 
@@ -785,30 +626,6 @@ class OpenRocketContentHandler extends ElementHandler {
 	}
 }
 
-
-/**
- * An element handler that does not allow any sub-elements.  If any are encountered
- * a warning is generated and they are ignored.
- */
-class PlainTextHandler extends ElementHandler {
-	public static final PlainTextHandler INSTANCE = new PlainTextHandler();
-
-	private PlainTextHandler() {
-	}
-
-	@Override
-	public ElementHandler openElement(String element, HashMap<String, String> attributes,
-			WarningSet warnings) {
-		warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
-		return null;
-	}
-
-	@Override
-	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
-		// Warning from openElement is sufficient.
-	}
-}
 
 
 
@@ -927,8 +744,8 @@ class ComponentParameterHandler extends ElementHandler {
 			}
 		}
 		if (c == null) {
-			warnings.add(Warning.fromString("Unknown parameter type " + element + " for "
-					+ component.getComponentName()));
+			warnings.add(Warning.fromString("Unknown parameter type '" + element + "' for "
+					+ component.getComponentName() + ", ignoring."));
 		}
 	}
 }
@@ -955,7 +772,7 @@ class FinSetPointHandler extends ElementHandler {
 
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
+			String content, WarningSet warnings) throws SAXException {
 
 		String strx = attributes.remove("x");
 		String stry = attributes.remove("y");
@@ -1019,7 +836,7 @@ class MotorMountHandler extends ElementHandler {
 
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
+			String content, WarningSet warnings) throws SAXException {
 
 		if (element.equals("motor")) {
 			String id = attributes.get("configid");
@@ -1111,7 +928,7 @@ class MotorConfigurationHandler extends ElementHandler {
 
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
+			String content, WarningSet warnings) throws SAXException {
 
 		String configid = attributes.remove("configid");
 		if (configid == null || configid.equals("")) {
@@ -1192,7 +1009,7 @@ class MotorHandler extends ElementHandler {
 
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
+			String content, WarningSet warnings) throws SAXException {
 		
 		content = content.trim();
 		
@@ -1213,7 +1030,7 @@ class MotorHandler extends ElementHandler {
 		} else if (element.equals("manufacturer")) {
 			
 			// Manufacturer
-			manufacturer = content;
+			manufacturer = MotorLoader.convertManufacturer(content);
 
 		} else if (element.equals("designation")) {
 			
@@ -1291,6 +1108,15 @@ class SimulationsHandler extends ElementHandler {
 		handler = new SingleSimulationHandler(doc);
 		return handler;
 	}
+
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes,
+			String content, WarningSet warnings) throws SAXException {
+		attributes.remove("status");
+		super.closeElement(element, attributes, content, warnings);
+	}
+	
+	
 }
 
 class SingleSimulationHandler extends ElementHandler {
@@ -1336,12 +1162,12 @@ class SingleSimulationHandler extends ElementHandler {
 		if (element.equals("name")) {
 			name = content;
 		} else if (element.equals("simulator")) {
-			if (!content.equals("RK4Simulator")) {
-				warnings.add("Unknown simulator specified, ignoring.");
+			if (!content.trim().equals("RK4Simulator")) {
+				warnings.add("Unknown simulator '" + content.trim() + "' specified, ignoring.");
 			}
 		} else if (element.equals("calculator")) {
-			if (!content.equals("BarrowmanSimulator")) {
-				warnings.add("Unknown calculator specified, ignoring.");
+			if (!content.trim().equals("BarrowmanCalculator")) {
+				warnings.add("Unknown calculator '" + content.trim() + "' specified, ignoring.");
 			}
 		} else if (element.equals("listener") && content.trim().length() > 0) {
 			listeners.add(content.trim());
@@ -1496,7 +1322,7 @@ class AtmosphereHandler extends ElementHandler {
 
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
+			String content, WarningSet warnings) throws SAXException {
 
 		double d = Double.NaN;
 		try {

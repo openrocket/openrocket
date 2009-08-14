@@ -82,6 +82,13 @@ public class ClusterConfiguration {
 		return points.size()/2;
 	}
 	
+	/**
+	 * Returns the relative positions of the cluster components.  The list is of length
+	 * <code>2*getClusterCount()</code> with (x,y) value pairs.  The origin is at (0,0)
+	 * and the values are positioned so that the closest clusters have distance of 1.
+	 * 
+	 * @return	a list of (x,y) coordinate pairs.
+	 */
 	public List<Double> getPoints() {
 		return points;  // Unmodifiable
 	}

@@ -23,8 +23,8 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Line extends Material {
-		public Line(String name, double density) {
-			super(name, density);
+		public Line(String name, double density, boolean userDefined) {
+			super(name, density, userDefined);
 		}
 
 		@Override
@@ -40,8 +40,8 @@ public abstract class Material implements Comparable<Material> {
 	
 	public static class Surface extends Material {
 		
-		public Surface(String name, double density) {
-			super(name, density);
+		public Surface(String name, double density, boolean userDefined) {
+			super(name, density, userDefined);
 		}
 		
 		@Override
@@ -61,8 +61,8 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Bulk extends Material {
-		public Bulk(String name, double density) {
-			super(name, density);
+		public Bulk(String name, double density, boolean userDefined) {
+			super(name, density, userDefined);
 		}
 
 		@Override
@@ -80,11 +80,13 @@ public abstract class Material implements Comparable<Material> {
 	
 	private final String name;
 	private final double density;
+	private final boolean userDefined;
 	
 	
-	public Material(String name, double density) {
+	public Material(String name, double density, boolean userDefined) {
 		this.name = name;
 		this.density = density;
+		this.userDefined = userDefined;
 	}
 	
 	
@@ -99,6 +101,10 @@ public abstract class Material implements Comparable<Material> {
 	
 	public String getName(Unit u) {
 		return name + " (" + u.toStringUnit(density) + ")";
+	}
+	
+	public boolean isUserDefined() {
+		return userDefined;
 	}
 	
 	public abstract UnitGroup getUnitGroup();
@@ -148,17 +154,27 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	
-	
+	/**
+	 * Return a new material that is not user-defined.
+	 */
 	public static Material newMaterial(Type type, String name, double density) {
+		return newMaterial(type, name, density, false);
+	}
+
+	/**
+	 * Return a new material of the specified type.
+	 */
+	public static Material newMaterial(Type type, String name, double density, 
+			boolean userDefined) {
 		switch (type) {
 		case LINE:
-			return new Material.Line(name, density);
+			return new Material.Line(name, density, userDefined);
 			
 		case SURFACE:
-			return new Material.Surface(name, density);
+			return new Material.Surface(name, density, userDefined);
 			
 		case BULK:
-			return new Material.Bulk(name, density);
+			return new Material.Bulk(name, density, userDefined);
 			
 		default:
 			throw new IllegalArgumentException("Unknown material type: "+type);
@@ -170,7 +186,7 @@ public abstract class Material implements Comparable<Material> {
 		return getType().name() + "|" + name.replace('|', ' ') + '|' + density;
 	}
 	
-	public static Material fromStorableString(String str) {
+	public static Material fromStorableString(String str, boolean userDefined) {
 		String[] split = str.split("\\|",3);
 		if (split.length < 3)
 			throw new IllegalArgumentException("Illegal material string: "+str);
@@ -195,13 +211,13 @@ public abstract class Material implements Comparable<Material> {
 		
 		switch (type) {
 		case BULK:
-			return new Material.Bulk(name, density);
+			return new Material.Bulk(name, density, userDefined);
 			
 		case SURFACE:
-			return new Material.Surface(name, density);
+			return new Material.Surface(name, density, userDefined);
 			
 		case LINE:
-			return new Material.Line(name, density);
+			return new Material.Line(name, density, userDefined);
 			
 		default:
 			throw new IllegalArgumentException("Illegal material string: "+str);

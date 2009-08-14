@@ -75,7 +75,8 @@ public abstract class Motor implements Comparable<Motor> {
 	
 	/**
 	 * Below what portion of maximum thrust is the motor chosen to be off when
-	 * calculating average thrust and burn time.double
+	 * calculating average thrust and burn time.  NFPA 1125 defines the "official"
+	 * burn time to be the time which the motor produces over 5% of its maximum thrust.
 	 */
 	public static final double AVERAGE_MARGINAL = 0.05;
 	
@@ -259,8 +260,8 @@ public abstract class Motor implements Comparable<Motor> {
 	
 	/**
 	 * Return the time used in calculating the average thrust.  The time is the
-	 * length of time from motor ignition until the thrust has dropped below
-	 * {@link #AVERAGE_MARGINAL} times the maximum thrust.
+	 * length of time that the motor produces over 5% ({@link #AVERAGE_MARGINAL})
+	 * of its maximum thrust.
 	 * 
 	 * @return  the nominal burn time.
 	 */
@@ -270,33 +271,49 @@ public abstract class Motor implements Comparable<Motor> {
 			double max = getMaxThrust();
 			double time = getTotalTime();
 			
-			for (int i=DIVISIONS; i >= 0; i--) {
-				avgTime = time * i / DIVISIONS;
-				if (getThrust(avgTime) > max*AVERAGE_MARGINAL)
-					break;
+			avgTime = 0;
+			for (int i=0; i <= DIVISIONS; i++) {
+				double t = i*time/DIVISIONS;
+				if (getThrust(t) >= max*AVERAGE_MARGINAL)
+					avgTime++;
 			}
+			avgTime *= time/(DIVISIONS+1);
+			
+			if (Double.isNaN(avgTime))
+				throw new RuntimeException("Calculated avg. time is NaN for motor "+this);
+
 		}
 		return avgTime;
 	}
 	
 	
 	/**
-	 * Return the calculated average thrust during time from ignition to
-	 * {@link #getAverageTime()}.
+	 * Return the calculated average thrust during the time the motor produces
+	 * over 5% ({@link #AVERAGE_MARGINAL}) of its thrust.
 	 * 
 	 * @return  the nominal average thrust.
 	 */
 	public double getAverageThrust() {
 		// Compute average thrust lazily
 		if (avgThrust < 0) {
-			double time = getAverageTime();
+			double max = getMaxThrust();
+			double time = getTotalTime();
+			int points = 0;
 			
 			avgThrust = 0;
-			for (int i=0; i < DIVISIONS; i++) {
-				double t = time * i / DIVISIONS;
-				avgThrust += getThrust(t);
+			for (int i=0; i <= DIVISIONS; i++) {
+				double t = i*time/DIVISIONS;
+				double thrust = getThrust(t);
+				if (thrust >= max*AVERAGE_MARGINAL) {
+					avgThrust += thrust;
+					points++;
+				}
 			}
-			avgThrust /= DIVISIONS;
+			if (points > 0)
+				avgThrust /= points;
+			
+			if (Double.isNaN(avgThrust))
+				throw new RuntimeException("Calculated average thrust is NaN for motor "+this);
 		}
 		return avgThrust;
 	}
@@ -325,6 +342,9 @@ public abstract class Motor implements Comparable<Motor> {
 				t0 = t1;
 				f0 = f1;
 			}
+			
+			if (Double.isNaN(totalImpulse))
+				throw new RuntimeException("Calculated total impulse is NaN for motor "+this);
 		}
 		return totalImpulse;
 	}
@@ -518,9 +538,6 @@ public abstract class Motor implements Comparable<Motor> {
 	public int compareTo(Motor other) {
 		int value;
 		
-		if (COLLATOR == null) {
-		}
-		
 		// 1. Manufacturer
 		value = COLLATOR.compare(this.manufacturer, other.manufacturer);
 		if (value != 0)
@@ -619,5 +636,4 @@ public abstract class Motor implements Comparable<Motor> {
 			}
 		}
 	}
-
 }

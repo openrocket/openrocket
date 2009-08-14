@@ -11,7 +11,6 @@ import java.io.InterruptedIOException;
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoader;
 
 
@@ -22,22 +21,26 @@ import net.sf.openrocket.file.RocketLoader;
  */
 public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 
-	private static final RocketLoader ROCKET_LOADER = new GeneralRocketLoader();
-
 	private final File file;
 	private final InputStream stream;
+	private final RocketLoader loader;
 	
-	public OpenFileWorker(File file) {
+	public OpenFileWorker(File file, RocketLoader loader) {
 		this.file = file;
 		this.stream = null;
+		this.loader = loader;
 	}
 	
 	
-	public OpenFileWorker(InputStream stream) {
+	public OpenFileWorker(InputStream stream, RocketLoader loader) {
 		this.stream = stream;
 		this.file = null;
+		this.loader = loader;
 	}
 	
+	public RocketLoader getRocketLoader() {
+		return loader;
+	}
 	
 	@Override
 	protected OpenRocketDocument doInBackground() throws Exception {
@@ -59,7 +62,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			return ROCKET_LOADER.load(is);
+			return loader.load(is);
 		} finally {
 			try {
 				is.close();

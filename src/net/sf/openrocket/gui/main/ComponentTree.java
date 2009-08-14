@@ -9,7 +9,7 @@ import java.awt.Graphics2D;
 import javax.swing.Icon;
 import javax.swing.JTree;
 
-import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 
 public class ComponentTree extends JTree {
@@ -18,8 +18,7 @@ public class ComponentTree extends JTree {
 	public ComponentTree(RocketComponent root) {
 		super();
 		this.setModel(new ComponentTreeModel(root,this));
-//		this.setModel(new BareComponentTreeModel(root,this));
-		setToggleClickCount(0);
+		this.setToggleClickCount(0);
 		
 		javax.swing.plaf.basic.BasicTreeUI ui = new javax.swing.plaf.basic.BasicTreeUI();
 		this.setUI(ui);

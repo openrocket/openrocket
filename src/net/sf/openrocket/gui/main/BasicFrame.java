@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Action;
@@ -59,7 +58,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.OpenRocketSaver;
@@ -68,18 +67,21 @@ import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
-import net.sf.openrocket.gui.dialogs.BugDialog;
+import net.sf.openrocket.gui.dialogs.AboutDialog;
+import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PreferencesDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
+import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.OpenFileWorker;
 import net.sf.openrocket.util.Prefs;
@@ -241,7 +243,9 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		this.setLocationByPlatform(true);
-				
+
+		GUIUtil.setWindowIcons(this);
+		
 		this.validate();
 		vertical.setDividerLocation(0.4);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -551,6 +555,13 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 		
+		////  Debug
+		// (shown if openrocket.debug.menu is defined)
+		if (System.getProperty("openrocket.debug.menu") != null) {
+			menubar.add(makeDebugMenu());
+		}
+
+		
 		
 		////  Help
 		
@@ -575,7 +586,8 @@ public class BasicFrame extends JFrame {
 				"bugs in OpenRocket");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new BugDialog(BasicFrame.this).setVisible(true);
+//				new BugDialog(BasicFrame.this).setVisible(true);
+				BugReportDialog.showBugReportDialog(BasicFrame.this);
 			}
 		});
 		menu.add(item);
@@ -591,6 +603,73 @@ public class BasicFrame extends JFrame {
 		
 		
 		this.setJMenuBar(menubar);
+	}
+	
+	
+	private JMenu makeDebugMenu() {
+		JMenu menu;
+		JMenuItem item;
+		
+		////  Debug menu
+		menu = new JMenu("Debug");
+		menu.getAccessibleContext().setAccessibleDescription("OpenRocket debugging tasks");
+		
+		item = new JMenuItem("What is this menu?");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(BasicFrame.this,
+						new Object[] {
+						"The 'Debug' menu includes actions for testing and debugging " +
+						"OpenRocket.", " ",
+						"The menu is made visible by defining the system property " +
+						"'openrocket.debug.menu' when starting OpenRocket.",
+						"It should not be visible by default." },
+						"Debug menu", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		menu.add(item);
+		
+		menu.addSeparator();
+		
+		item = new JMenuItem("Exception here");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				throw new RuntimeException("Testing exception from menu action listener");
+			}
+		});
+		menu.add(item);
+		
+		item = new JMenuItem("Exception from EDT");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						throw new RuntimeException("Testing exception from " +
+								"later invoked EDT thread");
+					}
+				});
+			}
+		});
+		menu.add(item);
+		
+		item = new JMenuItem("Exception from other thread");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new Thread() {
+					@Override
+					public void run() {
+						throw new RuntimeException("Testing exception from " +
+								"newly created thread");
+					}
+				}.start();
+			}
+		});
+		menu.add(item);
+		
+		
+		
+		return menu;
 	}
 	
 	
@@ -683,7 +762,7 @@ public class BasicFrame extends JFrame {
 	 * @return			whether the file was successfully loaded and opened.
 	 */
 	private static boolean open(InputStream stream, String filename, Window parent) {
-		OpenFileWorker worker = new OpenFileWorker(stream);
+		OpenFileWorker worker = new OpenFileWorker(stream, ROCKET_LOADER);
 		return open(worker, filename, null, parent);
 	}
 	
@@ -697,7 +776,7 @@ public class BasicFrame extends JFrame {
 	 * @return			whether the file was successfully loaded and opened.
 	 */
 	private static boolean open(File file, Window parent) {
-		OpenFileWorker worker = new OpenFileWorker(file);
+		OpenFileWorker worker = new OpenFileWorker(file, ROCKET_LOADER);
 		return open(worker, file.getName(), file, parent);
 	}
 	
@@ -764,12 +843,16 @@ public class BasicFrame extends JFrame {
 		
 		
 	    // Show warnings
-	    Iterator<Warning> warns = ROCKET_LOADER.getWarnings().iterator();
-	    System.out.println("Warnings:");
-	    while (warns.hasNext()) {
-	    	System.out.println("  "+warns.next());
-	    	// TODO: HIGH: dialog
-	    }
+		WarningSet warnings = worker.getRocketLoader().getWarnings();
+		if (!warnings.isEmpty()) {
+			WarningDialog.showWarnings(parent,
+					new Object[] {
+					"The following problems were encountered while opening " + filename + ".",
+					"Some design features may not have been loaded correctly."
+					},
+					"Warnings while opening file", warnings);
+		}
+		
 	    
 	    // Set document state
 	    doc.setFile(file);
@@ -1016,7 +1099,7 @@ public class BasicFrame extends JFrame {
 	
 	public static void main(final String[] args) {
 		
-		// Run the actual startup method in the EDT since it can use dialogs etc. 
+		// Run the actual startup method in the EDT since it can use progress dialogs etc.
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
@@ -1077,9 +1160,31 @@ public class BasicFrame extends JFrame {
 		ToolTipManager.sharedInstance().setDismissDelay(30000);
 		
 		
+		// Setup the uncaught exception handler
+		ExceptionHandler.registerExceptionHandler();
+		
+		
 		// Load defaults
 		Prefs.loadDefaultUnits();
 
+		
+		// Starting action
+		if (!handleCommandLine(args)) {
+			newAction();
+		}
+	}
+	
+	
+	/**
+	 * Handles arguments passed from the command line.  This may be used either
+	 * when starting the first instance of OpenRocket or later when OpenRocket is
+	 * executed again while running.
+	 * 
+	 * @param args	the command-line arguments.
+	 * @return		whether a new frame was opened or similar user desired action was
+	 * 				performed as a result.
+	 */
+	public static boolean handleCommandLine(String[] args) {
 		
 		// Check command-line for files
 		boolean opened = false;
@@ -1088,10 +1193,7 @@ public class BasicFrame extends JFrame {
 				opened = true;
 			}
 		}
-		
-		if (!opened) {
-			newAction();
-		}
+		return opened;
 	}
 
 }

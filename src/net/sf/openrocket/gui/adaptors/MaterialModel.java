@@ -1,6 +1,8 @@
 package net.sf.openrocket.gui.adaptors;
 
 
+import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -8,7 +10,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -157,7 +158,7 @@ public class MaterialModel extends AbstractListModel implements
 //		private JCheckBox addBox;
 		
 		public AddMaterialDialog() {
-			super((JFrame)null, "Custom material", true);
+			super((Window)null, "Custom material", Dialog.ModalityType.APPLICATION_MODAL);
 			
 			Material material = (Material) getSelectedItem();
 			
@@ -201,6 +202,5 @@ public class MaterialModel extends AbstractListModel implements
 			this.setAlwaysOnTop(true);
 			this.setLocationRelativeTo(null);
 		}
-		
 	}
 }

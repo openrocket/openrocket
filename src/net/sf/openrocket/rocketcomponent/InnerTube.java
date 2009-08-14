@@ -139,6 +139,10 @@ implements Clusterable, RadialParent, MotorMount {
 	}
 
 
+	/**
+	 * Return the distance between the closest two cluster inner tube center points.
+	 * This is equivalent to the cluster scale multiplied by the tube diameter.
+	 */
 	@Override
 	public double getClusterSeparation() {
 		return 2*getOuterRadius()*clusterScale;
@@ -273,4 +277,22 @@ implements Clusterable, RadialParent, MotorMount {
 		this.overhang = overhang;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
+	
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * Copy the motor and ejection delay HashMaps.
+	 * 
+	 * @see rocketcomponent.RocketComponent#copy()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public RocketComponent copy() {
+		RocketComponent c = super.copy();
+		((InnerTube)c).motors = (HashMap<String,Motor>) motors.clone();
+		((InnerTube)c).ejectionDelays = (HashMap<String,Double>) ejectionDelays.clone();
+		return c;
+	}
+
 }
