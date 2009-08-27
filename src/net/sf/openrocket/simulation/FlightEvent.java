@@ -19,55 +19,64 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		/** 
 		 * Rocket launch.
 		 */
-		LAUNCH,
-		/**
-		 * When the motor has lifted off the ground.
-		 */
-		LIFTOFF,
-		/**
-		 * Launch rod has been cleared.
-		 */
-		LAUNCHROD,
+		LAUNCH("Launch"),
 		/** 
 		 * Ignition of a motor.  Source is the motor mount the motor of which has ignited. 
 		 */
-		IGNITION,
+		IGNITION("Motor ignition"),
+		/**
+		 * When the motor has lifted off the ground.
+		 */
+		LIFTOFF("Lift-off"),
+		/**
+		 * Launch rod has been cleared.
+		 */
+		LAUNCHROD("Launch rod clearance"),
 		/** 
 		 * Burnout of a motor.  Source is the motor mount the motor of which has burnt out. 
 		 */
-		BURNOUT,
+		BURNOUT("Motor burnout"),
 		/** 
 		 * Ejection charge of a motor fired.  Source is the motor mount the motor of
 		 * which has exploded its ejection charge. 
 		 */
-		EJECTION_CHARGE,
-		/** 
-		 * Opening of a recovery device.  Source is the RecoveryComponent which has opened. 
-		 */
-		RECOVERY_DEVICE_DEPLOYMENT,
+		EJECTION_CHARGE("Ejection charge"),
 		/** 
 		 * Separation of a stage.  Source is the stage which has separated all lower stages. 
 		 */
-		STAGE_SEPARATION,
+		STAGE_SEPARATION("Stage separation"),
 		/** 
 		 * Apogee has been reached.
 		 */
-		APOGEE,
+		APOGEE("Apogee"),
+		/** 
+		 * Opening of a recovery device.  Source is the RecoveryComponent which has opened. 
+		 */
+		RECOVERY_DEVICE_DEPLOYMENT("Recovery device deployment"),
 		/** 
 		 * Ground has been hit after flight.
 		 */
-		GROUND_HIT,
+		GROUND_HIT("Ground hit"),
 		
 		/**
 		 * End of simulation.  Placing this to the queue will end the simulation.
 		 */
-		SIMULATION_END,
+		SIMULATION_END("Simulation end"),
 		
 		/**
 		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
 		 * which contains the old and new altitudes.
 		 */
-		ALTITUDE
+		ALTITUDE("Altitude change");
+
+		private final String name;
+		private Type(String name) {
+			this.name = name;
+		}
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 
 	private final Type type;
@@ -130,6 +139,6 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	
 	@Override
 	public String toString() {
-		return "FlightEvent[type="+type.toString()+",time="+time+",source="+source+"]";
+		return "FlightEvent[type="+type.name()+",time="+time+",source="+source+"]";
 	}
 }

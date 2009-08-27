@@ -55,7 +55,7 @@ public class Icons {
 
 	public static final Icon PREFERENCES = loadImageIcon("pix/icons/preferences.png", "Preferences");
 
-	
+	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
 	
 	private static ImageIcon loadImageIcon(String file, String name) {
 		URL url = ClassLoader.getSystemResource(file);

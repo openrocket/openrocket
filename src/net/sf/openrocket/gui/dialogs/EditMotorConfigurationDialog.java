@@ -101,6 +101,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		col0.setPreferredWidth(w);
 		col0.setMaxWidth(w);
 		
+		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
+		
 		JScrollPane scroll = new JScrollPane(table);
 		panel.add(scroll, "w 200lp, h 150lp, grow, wrap 20lp");
 		

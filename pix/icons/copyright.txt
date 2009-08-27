@@ -24,6 +24,7 @@ edit-undo.png
 From the "Crystal" project:
 http://www.everaldo.com/crystal/
 
+delete.png
 preferences.png
 zoom-in.png
 zoom-out.png

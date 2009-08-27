@@ -9,27 +9,28 @@ import java.awt.event.ActionListener;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Database;
+import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Reflection;
 
 public class MaterialModel extends AbstractListModel implements
-		ComboBoxModel, ChangeListener {
+		ComboBoxModel, ComponentChangeListener, DatabaseListener<Material> {
 	
 	private static final String CUSTOM = "Custom";
 
@@ -76,8 +77,8 @@ public class MaterialModel extends AbstractListModel implements
 					"not present in class "+component.getClass().getCanonicalName());
 		}
 		
-		component.addChangeListener(this);
-		database.addChangeListener(this);
+		component.addComponentChangeListener(this);
+		database.addDatabaseListener(this);
 	}
 	
 	@Override
@@ -101,13 +102,12 @@ public class MaterialModel extends AbstractListModel implements
 					
 					Material material = Material.newMaterial(type, 
 							dialog.nameField.getText().trim(),
-							dialog.density.getValue());
+							dialog.density.getValue(), true);
 					setMethod.invoke(component, material);
 					
-					// TODO: HIGH: Allow saving added material to database
-//					if (dialog.addBox.isSelected()) {
-//						database.add(material);
-//					}
+					if (dialog.addBox.isSelected()) {
+						database.add(material);
+					}
 				}
 			});
 			
@@ -116,7 +116,8 @@ public class MaterialModel extends AbstractListModel implements
 			setMethod.invoke(component, item);
 			
 		} else {
-			assert(false): "Should not occur";
+			throw new IllegalArgumentException("Illegal item class " + item.getClass() + 
+					" item=" + item);
 		}
 	}
 
@@ -136,18 +137,29 @@ public class MaterialModel extends AbstractListModel implements
 	}
 
 
+
+	////////  Change listeners
+
 	@Override
-	public void stateChanged(ChangeEvent e) {
-		if (e instanceof ComponentChangeEvent) {
-			if (((ComponentChangeEvent)e).isMassChange()) {
-				this.fireContentsChanged(this, 0, 0);
-			}
-		} else {
-			this.fireContentsChanged(this, 0, database.size());
+	public void componentChanged(ComponentChangeEvent e) {
+		if (((ComponentChangeEvent)e).isMassChange()) {
+			this.fireContentsChanged(this, 0, 0);
 		}
 	}
-	
-	
+
+	@Override
+	public void elementAdded(Material element, Database<Material> source) {
+		this.fireContentsChanged(this, 0, database.size());
+	}
+
+	@Override
+	public void elementRemoved(Material element, Database<Material> source) {
+		this.fireContentsChanged(this, 0, database.size());
+	}
+
+
+
+
 	
 	
 	private class AddMaterialDialog extends JDialog {
@@ -155,7 +167,7 @@ public class MaterialModel extends AbstractListModel implements
 		private boolean okClicked = false;
 		private JTextField nameField;
 		private DoubleModel density;
-//		private JCheckBox addBox;
+		private JCheckBox addBox;
 		
 		public AddMaterialDialog() {
 			super((Window)null, "Custom material", Dialog.ModalityType.APPLICATION_MODAL);
@@ -175,8 +187,8 @@ public class MaterialModel extends AbstractListModel implements
 			panel.add(spinner, "growx");
 			panel.add(new UnitSelector(density),"wrap");
 			
-//			addBox = new JCheckBox("Add material to database");
-//			panel.add(addBox,"span, wrap");
+			addBox = new JCheckBox("Add material to database");
+			panel.add(addBox,"span, wrap");
 			
 			JButton button = new JButton("OK");
 			button.addActionListener(new ActionListener() {
@@ -203,4 +215,6 @@ public class MaterialModel extends AbstractListModel implements
 			this.setLocationRelativeTo(null);
 		}
 	}
+
+
 }

@@ -7,9 +7,11 @@ import java.util.ArrayList;
 
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.material.MaterialStorage;
 import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Prefs;
 
 
 /**
@@ -68,9 +70,9 @@ public class Databases {
 		}
 	}
 	
-	// TODO: HIGH: Move materials into data files
 	static {
 		
+		// Add default materials
 		BULK_MATERIAL.add(new Material.Bulk("Acrylic",		1190, false));
 		BULK_MATERIAL.add(new Material.Bulk("Balsa",		 170, false));
 		BULK_MATERIAL.add(new Material.Bulk("Birch",		 670, false));
@@ -109,6 +111,33 @@ public class Databases {
 		LINE_MATERIAL.add(new Material.Line("Tubular nylon (11 mm, 7/16 in)",	0.013, false));
 		LINE_MATERIAL.add(new Material.Line("Tubular nylon (14 mm, 9/16 in)",	0.016, false));
 		LINE_MATERIAL.add(new Material.Line("Tubular nylon (25 mm, 1 in)",		0.029, false));
+		
+		
+		// Add user-defined materials
+		for (Material m: Prefs.getUserMaterials()) {
+			switch (m.getType()) {
+			case LINE:
+				LINE_MATERIAL.add(m);
+				break;
+				
+			case SURFACE:
+				SURFACE_MATERIAL.add(m);
+				break;
+				
+			case BULK:
+				BULK_MATERIAL.add(m);
+				break;
+				
+			default:
+				System.err.println("ERROR: Unknown material type " + m);
+			}
+		}
+		
+		// Add database storage listener
+		MaterialStorage listener = new MaterialStorage();
+		LINE_MATERIAL.addDatabaseListener(listener);
+		SURFACE_MATERIAL.addDatabaseListener(listener);
+		BULK_MATERIAL.addDatabaseListener(listener);
 	}
 	
 	
@@ -149,12 +178,14 @@ public class Databases {
 	 * Find a material from the database or return a new material if the specified
 	 * material with the specified density is not found.
 	 * 
-	 * @param type		the material type.
-	 * @param name		the material name.
-	 * @param density	the density of the material.
-	 * @return			the material object from the database or a new material.
+	 * @param type			the material type.
+	 * @param name			the material name.
+	 * @param density		the density of the material.
+	 * @param userDefined	whether a newly created material should be user-defined.
+	 * @return				the material object from the database or a new material.
 	 */
-	public static Material findMaterial(Material.Type type, String name, double density) {
+	public static Material findMaterial(Material.Type type, String name, double density,
+			boolean userDefined) {
 		Database<Material> db;
 		switch (type) {
 		case BULK:
@@ -175,7 +206,7 @@ public class Databases {
 				return m;
 			}
 		}
-		return Material.newMaterial(type, name, density);
+		return Material.newMaterial(type, name, density, userDefined);
 	}	
 	
 	

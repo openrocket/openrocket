@@ -14,12 +14,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-
 import net.sf.openrocket.file.Loader;
-import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.JarUtil;
 
 
@@ -31,35 +26,22 @@ import net.sf.openrocket.util.JarUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-
-// TODO: HIGH: Database saving
-public class Database<T extends Comparable<T>> extends AbstractSet<T> implements ChangeSource {
+public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 
 	private final List<T> list = new ArrayList<T>();
-	private final EventListenerList listenerList = new EventListenerList();
+	private final ArrayList<DatabaseListener<T>> listeners = 
+		new ArrayList<DatabaseListener<T>>();
 	private final Loader<T> loader;
-	private final DatabaseStore<T> store;
 	
 	
 	public Database() {
 		loader = null;
-		store = null;
 	}
 	
 	public Database(Loader<T> loader) {
 		this.loader = loader;
-		this.store = null;
 	}
 	
-	public Database(DatabaseStore<T> store) {
-		this.loader = null;
-		this.store = store;
-	}
-	
-	public Database(Loader<T> loader, DatabaseStore<T> store) {
-		this.loader = loader;
-		this.store = store;
-	}
 	
 		
 	@Override
@@ -86,12 +68,10 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 			index = -(index+1);
 		}
 		list.add(index,element);
-		if (store != null)
-			store.elementAdded(element);
-		fireChangeEvent();
+		fireAddEvent(element);
 		return true;
 	}
-	
+
 	
 	/**
 	 * Get the element with the specified index.
@@ -113,28 +93,29 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 	}
 	
 
-	@Override
-	public void addChangeListener(ChangeListener listener) {
-		listenerList .add(ChangeListener.class, listener);
+	public void addDatabaseListener(DatabaseListener<T> listener) {
+		listeners.add(listener);
 	}
 
-
-	@Override
-	public void removeChangeListener(ChangeListener listener) {
-		listenerList .remove(ChangeListener.class, listener);
+	public void removeChangeListener(DatabaseListener<T> listener) {
+		listeners.remove(listener);
 	}
 
 	
-	protected void fireChangeEvent() {
-		Object[] listeners = listenerList.getListenerList();
-		ChangeEvent e = null;
-		for (int i = listeners.length-2; i>=0; i-=2) {
-			if (listeners[i]==ChangeListener.class) {
-				// Lazily create the event:
-				if (e == null)
-					e = new ChangeEvent(this);
-				((ChangeListener)listeners[i+1]).stateChanged(e);
-			}
+	
+	@SuppressWarnings("unchecked")
+	protected void fireAddEvent(T element) {
+		Object[] array = listeners.toArray();
+		for (Object l: array) {
+			((DatabaseListener<T>)l).elementAdded(element, this);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected void fireRemoveEvent(T element) {
+		Object[] array = listeners.toArray();
+		for (Object l: array) {
+			((DatabaseListener<T>)l).elementRemoved(element, this);
 		}
 	}
 	
@@ -254,9 +235,7 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> implements
 		@Override
 		public void remove() {
 			iterator.remove();
-			if (store != null)
-				store.elementRemoved(current);
-			fireChangeEvent();
+			fireRemoveEvent(current);
 		}
 	}
 }

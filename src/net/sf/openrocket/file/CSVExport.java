@@ -160,7 +160,7 @@ public class CSVExport {
 	
 	private static void printEvent(PrintWriter writer, Pair<Double, FlightEvent> e,
 			String commentStarter) {
-		writer.println(commentStarter + " Event " + e.getV().getType().toString() + 
+		writer.println(commentStarter + " Event " + e.getV().getType().name() + 
 				" occurred at t=" + TextUtil.doubleToString(e.getU()) + " seconds");
 	}
 

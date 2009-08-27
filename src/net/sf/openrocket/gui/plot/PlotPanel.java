@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Arrays;
+import java.util.EnumSet;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -12,15 +13,23 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.ResizeLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.FlightDataBranch.Type;
 import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.util.Icons;
+import net.sf.openrocket.util.Pair;
 
 public class PlotPanel extends JPanel {
 	
@@ -67,6 +76,7 @@ public class PlotPanel extends JPanel {
 	private UnitSelector domainUnitSelector;
 	
 	private JPanel typeSelectorPanel;
+	private FlightEventTableModel eventTableModel;
 	
 	
 	private int modifying = 0;
@@ -87,7 +97,7 @@ public class PlotPanel extends JPanel {
 		configuration = defaultConfiguration.clone();
 		
 		
-		
+		////  Configuration selector
 		
 		// Setup the combo box
 		configurationSelector = new JComboBox(PRESET_ARRAY);
@@ -113,6 +123,9 @@ public class PlotPanel extends JPanel {
 		this.add(new JLabel("Preset plot configurations: "), "spanx, split");
 		this.add(configurationSelector,"growx, wrap 30lp");
 
+		
+		
+		//// X axis
 		
 		
 		this.add(new JLabel("X axis type:"), "spanx, split");
@@ -153,14 +166,62 @@ public class PlotPanel extends JPanel {
 		
 		
 		
-		this.add(new JLabel("Y axis types:"), "spanx, wrap rel");
+		//// Y axis selector panel
+		
+		this.add(new JLabel("Y axis types:"));
+		
+		this.add(new JLabel("Flight events:"), "wrap rel");
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		this.add(scroll, "spanx, height :0:, grow, wrap para");
+		this.add(scroll, "spany 2, height 10px, grow 100, gapright para");
 		
 		
-		JButton button = new JButton("New Y axis plot type");
+		//// Flight events
+		eventTableModel = new FlightEventTableModel();
+		JTable table = new JTable(eventTableModel);
+		table.setTableHeader(null);
+		table.setShowVerticalLines(false);
+		table.setRowSelectionAllowed(false);
+		table.setColumnSelectionAllowed(false);
+		
+		TableColumnModel columnModel = table.getColumnModel();
+		TableColumn col0 = columnModel.getColumn(0);
+		int w = table.getRowHeight() + 2;
+		col0.setMinWidth(w);
+		col0.setPreferredWidth(w);
+		col0.setMaxWidth(w);
+		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
+		this.add(new JScrollPane(table), "height 1px, width 200lp, grow 1, wrap rel");
+		
+		
+		////  All + None buttons
+		JButton button = new JButton("All");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (FlightEvent.Type t: FlightEvent.Type.values())
+					configuration.setEvent(t, true);
+				eventTableModel.fireTableDataChanged();
+			}
+		});
+		this.add(button, "split 2, gapleft para, gapright para, growx, sizegroup buttons");
+		
+		button = new JButton("None");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (FlightEvent.Type t: FlightEvent.Type.values())
+					configuration.setEvent(t, false);
+				eventTableModel.fireTableDataChanged();
+			}
+		});
+		this.add(button, "gapleft para, gapright para, growx, sizegroup buttons, wrap para");
+		
+		
+		
+		
+		button = new JButton("New Y axis plot type");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -205,6 +266,7 @@ public class PlotPanel extends JPanel {
 		});
 		this.add(button, "spanx, split");
 		
+		
 		this.add(new JPanel(), "growx");
 		
 		button = new JButton("Plot flight");
@@ -224,8 +286,10 @@ public class PlotPanel extends JPanel {
 	
 	
 	private void setToCustom() {
+		modifying++;
 		configuration.setName(CUSTOM);
 		configurationSelector.setSelectedItem(CUSTOM_CONFIGURATION);
+		modifying--;
 	}
 	
 	
@@ -244,6 +308,8 @@ public class PlotPanel extends JPanel {
 		}
 		
 		typeSelectorPanel.repaint();
+		
+		eventTableModel.fireTableDataChanged();
 	}
 	
 	
@@ -266,7 +332,7 @@ public class PlotPanel extends JPanel {
 		}
 		
 		public PlotTypeSelector(int plotIndex, FlightDataBranch.Type type, Unit unit, int position) {
-			super(new MigLayout(""));
+			super(new MigLayout("ins 0"));
 			
 			this.index = plotIndex;
 			
@@ -318,10 +384,12 @@ public class PlotPanel extends JPanel {
 					configuration.setPlotDataAxis(index, axis);
 				}
 			});
-			this.add(axisSelector, "gapright para");
+			this.add(axisSelector);
 			
 			
-			JButton button = new JButton("Remove");
+			JButton button = new JButton(Icons.DELETE);
+			button.setToolTipText("Remove this plot");
+			button.setBorderPainted(false);
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -330,7 +398,87 @@ public class PlotPanel extends JPanel {
 					updatePlots();
 				}
 			});
-			this.add(button);
+			this.add(button, "gapright 0");
+		}
+	}
+	
+	
+	
+	private class FlightEventTableModel extends AbstractTableModel {
+		private final FlightEvent.Type[] eventTypes;
+		
+		public FlightEventTableModel() {
+			EnumSet<FlightEvent.Type> set = EnumSet.noneOf(FlightEvent.Type.class);
+			for (int i=0; i < simulation.getSimulatedData().getBranchCount(); i++) {
+				for (Pair<Double,FlightEvent> e:
+					simulation.getSimulatedData().getBranch(i).getEvents()) {
+					set.add(e.getV().getType());
+				}
+			}
+			set.remove(FlightEvent.Type.ALTITUDE);
+			int count = set.size();
+			
+			eventTypes = new FlightEvent.Type[count];
+			int pos = 0;
+			for (FlightEvent.Type t: FlightEvent.Type.values()) {
+				if (set.contains(t)) {
+					eventTypes[pos] = t;
+					pos++;
+				}
+			}
+		}
+		
+		@Override
+		public int getColumnCount() {
+			return 2;
+		}
+
+		@Override
+		public int getRowCount() {
+			return eventTypes.length;
+		}
+		
+		@Override
+		public Class<?> getColumnClass(int column) {
+			switch (column) {
+			case 0:
+				return Boolean.class;
+				
+			case 1:
+				return String.class;
+				
+			default:
+				throw new IndexOutOfBoundsException("column="+column);
+			}
+		}
+
+		@Override
+		public Object getValueAt(int row, int column) {
+			switch (column) {
+			case 0:
+				return new Boolean(configuration.isEventActive(eventTypes[row]));
+				
+			case 1:
+				return eventTypes[row].toString();
+				
+			default:
+				throw new IndexOutOfBoundsException("column="+column);
+			}
+		}
+		
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return column == 0;
+		}
+		
+		@Override
+		public void setValueAt(Object value, int row, int column) {
+			if (column != 0 || !(value instanceof Boolean)) {
+				throw new IllegalArgumentException("column="+column+", value="+value);
+			}
+			
+			configuration.setEvent(eventTypes[row], (Boolean)value);
+			this.fireTableCellUpdated(row, column);
 		}
 	}
 }

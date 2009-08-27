@@ -155,13 +155,6 @@ public abstract class Material implements Comparable<Material> {
 	
 	
 	/**
-	 * Return a new material that is not user-defined.
-	 */
-	public static Material newMaterial(Type type, String name, double density) {
-		return newMaterial(type, name, density, false);
-	}
-
-	/**
 	 * Return a new material of the specified type.
 	 */
 	public static Material newMaterial(Type type, String name, double density, 
@@ -186,7 +179,19 @@ public abstract class Material implements Comparable<Material> {
 		return getType().name() + "|" + name.replace('|', ' ') + '|' + density;
 	}
 	
+	
+	/**
+	 * Return a material defined by the provided string.
+	 * 
+	 * @param str			the material storage string.
+	 * @param userDefined	whether the created material is user-defined.
+	 * @return				a new <code>Material</code> object.
+	 * @throws IllegalArgumentException		if <code>str</code> is invalid or null.
+	 */
 	public static Material fromStorableString(String str, boolean userDefined) {
+		if (str == null)
+			throw new IllegalArgumentException("Material string is null");
+		
 		String[] split = str.split("\\|",3);
 		if (split.length < 3)
 			throw new IllegalArgumentException("Illegal material string: "+str);

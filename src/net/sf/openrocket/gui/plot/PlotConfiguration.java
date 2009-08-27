@@ -1,9 +1,12 @@
 package net.sf.openrocket.gui.plot;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.FlightDataBranch.Type;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.MathUtil;
@@ -21,22 +24,46 @@ public class PlotConfiguration implements Cloneable {
 		config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE, 0);
 		config.addPlotDataType(FlightDataBranch.TYPE_VELOCITY_Z);
 		config.addPlotDataType(FlightDataBranch.TYPE_ACCELERATION_Z);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
 		config = new PlotConfiguration("Total motion vs. time");
 		config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE, 0);
 		config.addPlotDataType(FlightDataBranch.TYPE_VELOCITY_TOTAL);
 		config.addPlotDataType(FlightDataBranch.TYPE_ACCELERATION_TOTAL);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
 		config = new PlotConfiguration("Flight side profile", FlightDataBranch.TYPE_POSITION_X);
 		config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 
 		config = new PlotConfiguration("Stability vs. time");
 		config.addPlotDataType(FlightDataBranch.TYPE_STABILITY, 0);
 		config.addPlotDataType(FlightDataBranch.TYPE_CP_LOCATION, 1);
 		config.addPlotDataType(FlightDataBranch.TYPE_CG_LOCATION, 1);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
 		config = new PlotConfiguration("Drag coefficients vs. Mach number", 
@@ -52,11 +79,36 @@ public class PlotConfiguration implements Cloneable {
 		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_MOMENT_COEFF, 1);
 		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_FORCING_COEFF, 1);
 		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_DAMPING_COEFF, 1);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.LAUNCHROD, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		configs.add(config);
+
+		config = new PlotConfiguration("Angle of attack and orientation vs. time");
+		config.addPlotDataType(FlightDataBranch.TYPE_AOA, 0);
+		config.addPlotDataType(FlightDataBranch.TYPE_ORIENTATION_PHI);
+		config.addPlotDataType(FlightDataBranch.TYPE_ORIENTATION_THETA);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 
 		config = new PlotConfiguration("Simulation time step and computation time");
 		config.addPlotDataType(FlightDataBranch.TYPE_TIME_STEP);
 		config.addPlotDataType(FlightDataBranch.TYPE_COMPUTATION_TIME);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 
 		DEFAULT_CONFIGURATIONS = configs.toArray(new PlotConfiguration[0]);
@@ -92,6 +144,7 @@ public class PlotConfiguration implements Cloneable {
 	/** The corresponding Axis on which they will be plotted, or null to auto-select. */
 	private ArrayList<Integer> plotDataAxes = new ArrayList<Integer>();
 
+	private EnumSet<FlightEvent.Type> events = EnumSet.noneOf(FlightEvent.Type.class);
 	
 	/** The domain (x) axis. */
 	private FlightDataBranch.Type domainAxisType = null;
@@ -233,6 +286,27 @@ public class PlotConfiguration implements Cloneable {
 	public int getTypeCount() {
 		return plotDataTypes.size();
 	}
+	
+	
+	/// Events
+	
+	public Set<FlightEvent.Type> getActiveEvents() {
+		return (Set<FlightEvent.Type>) events.clone();
+	}
+	
+	public void setEvent(FlightEvent.Type type, boolean active) {
+		if (active) {
+			events.add(type);
+		} else {
+			events.remove(type);
+		}
+	}
+	
+	public boolean isEventActive(FlightEvent.Type type) {
+		return events.contains(type);
+	}
+	
+	
 	
 	
 	
@@ -647,6 +721,7 @@ public class PlotConfiguration implements Cloneable {
 			copy.plotDataTypes = (ArrayList<Type>) this.plotDataTypes.clone();
 			copy.plotDataAxes = (ArrayList<Integer>) this.plotDataAxes.clone();
 			copy.plotDataUnits = (ArrayList<Unit>) this.plotDataUnits.clone();
+			copy.events = this.events.clone();
 			
 			// Deep-clone all Axis since they are mutable
 			copy.allAxes = new ArrayList<Axis>();

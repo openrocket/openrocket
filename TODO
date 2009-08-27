@@ -4,32 +4,35 @@ Feature roadmap for OpenRocket 1.0
 
 Must-have:
 
-- Store custom materials
-- Better error/warning dialogs when reading/writing files
-- Example rocket designs (hybrid w/ dual deployment, staged rocket)
-- Read more thrust curve formats / go through thrust curves and correct errors
+- Draw remaining event icons (for 0.9.3)
+- Change automatic exception reporting success code to 202 (for 0.9.3)
+- Test automatic exception reporting (for 0.9.3)
+
+- Allow editing user-defined materials
+- Go through thrust curves and correct errors
 - Add styrofoam and depron materials
+- Through-the-wall fins
+- Update "About" dialog with icon and source info
 
 
 Bugs:
 
+- Simulation plot dialog forces dialog one button row too high (All/None)
 - JTree text is cropped unnecessarily
-- Inner tube cluster rotation, edit with spinner arrows, slider wrong
+- BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
 
 
 Maybe:
 
-- Showing events in plots
-- Through-the-wall fins
 - Make ThicknessRingComponent implement RadialParent and allow
   attaching components to a TubeCoupler
 - Reading thrust curves from external directory
-- Only schedule rocket figure update instead of each time updating it
-- Allow only one instance of OpenRocket running
 
 
 Postponed:
 
+- Allow only one instance of OpenRocket running (RMI communication)
+- Only schedule rocket figure update instead of each time updating it
 - Reading (writing) .RKT format
 - Importing flight data
 - Water rocket modelling
@@ -47,4 +50,10 @@ Done:
 - Create application icon and take into use
 - Error dialog for uncaught exceptions
 - Check where plot data ends (all rest NaN)
+- Example rocket designs (hybrid w/ dual deployment, staged rocket)
+- Better error/warning dialogs when reading/writing files
+- Store custom materials
+- Read more thrust curve formats
+- Showing events in plots
+- Table boolean selecting by clicking label
 

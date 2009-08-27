@@ -43,7 +43,7 @@ public class BugReportDialog extends JDialog {
 
 	private static final String REPORT_VERSION_PARAM = "version";
 	private static final String REPORT_PARAM = "content";
-	private static final int REPORT_RESPONSE_CODE = HttpURLConnection.HTTP_CREATED;
+	private static final int REPORT_RESPONSE_CODE = HttpURLConnection.HTTP_ACCEPTED;
 	private static final int REPORT_TIMEOUT = 10000;  // in milliseconds
 	
 
@@ -300,6 +300,7 @@ public class BugReportDialog extends JDialog {
 		connection.setInstanceFollowRedirects(true);
 		connection.setRequestMethod("POST");
 		connection.setUseCaches(false);
+		connection.setRequestProperty("X-OpenRocket-Version", Prefs.getVersion());
 		
 		String post;
 		post = (REPORT_VERSION_PARAM + "=" + URLEncoder.encode(Prefs.getVersion(), "UTF-8")

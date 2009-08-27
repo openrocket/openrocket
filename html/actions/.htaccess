@@ -6,5 +6,5 @@
 
 # Redirect bug reports to a server that allows sending mail
 
-Redirect 307 /actions/reportbug http://sampo.kapsi.fi/reportbug.php
+Redirect 307 /actions/reportbug http://sampo.kapsi.fi/openrocket/reportbug.php
 

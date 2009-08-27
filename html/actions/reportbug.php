@@ -36,9 +36,9 @@ if (preg_match("/^[a-zA-Z0-9. -]{1,30}$/", $version) &&
     	"From: Automatic Bug Reports <".$mailaddr.">\r\n".
     	"Content-Type: text/plain; charset=utf-8")) {
     	
-    	// Success
-    	header("HTTP/1.0 201 Created");
-    	echo "201 Created:  Bug report successfully sent.";
+    	// Success - OpenRocket recognizes status code 202
+    	header("HTTP/1.0 202 Accepted");
+    	echo "202 Accepted:  Bug report successfully sent.";
 //    	echo "\nContent:\n$content";
     	
     } else {

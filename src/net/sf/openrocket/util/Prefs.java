@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -96,6 +98,7 @@ public class Prefs {
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	
+	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 	
 	/**
 	 * Node to this application's preferences.
@@ -147,11 +150,12 @@ public class Prefs {
 	
 	
 	private static final Material DEFAULT_LINE_MATERIAL = 
-		Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)", 0.0018);
+		Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)", 
+				0.0018, false);
 	private static final Material DEFAULT_SURFACE_MATERIAL = 
-		Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067);
+		Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067, false);
 	private static final Material DEFAULT_BULK_MATERIAL = 
-		Databases.findMaterial(Material.Type.BULK, "Cardboard", 680);
+		Databases.findMaterial(Material.Type.BULK, "Cardboard", 680, false);
 
 	
 	//////////////////////
@@ -483,6 +487,101 @@ public class Prefs {
 		}
 	}
 	
+	
+	
+	////  Material storage
+
+	
+	/**
+	 * Add a user-defined material to the preferences.  The preferences are
+	 * first checked for an existing material matching the provided one using
+	 * {@link Material#equals(Object)}.
+	 * 
+	 * @param m		the material to add.
+	 */
+	public static void addUserMaterial(Material m) {
+		Preferences prefs = PREFNODE.node("userMaterials");
+		
+		
+		// Check whether material already exists
+		if (getUserMaterials().contains(m)) {
+			return;
+		}
+
+		// Add material using next free key (key is not used when loading)
+		String mat = m.toStorableString();
+		for (int i = 0; ; i++) {
+			String key = "material" + i;
+			if (prefs.get(key, null) == null) {
+				prefs.put(key, mat);
+				return;
+			}
+		}
+	}
+
+	
+	/**
+	 * Remove a user-defined material from the preferences.  The matching is performed
+	 * using {@link Material#equals(Object)}.
+	 * 
+	 * @param m		the material to remove.
+	 */
+	public static void removeUserMaterial(Material m) {
+		Preferences prefs = PREFNODE.node("userMaterials");
+		
+		try {
+			
+			// Iterate through materials and remove all keys with a matching material
+			for (String key: prefs.keys()) {
+				String value = prefs.get(key, null);
+				try {
+					
+					Material existing = Material.fromStorableString(value, true);
+					if (existing.equals(m)) {
+						prefs.remove(key);
+					}
+					
+				} catch (IllegalArgumentException ignore) { }
+				
+			}
+			
+		} catch (BackingStoreException e) {
+			throw new IllegalStateException("Cannot read preferences!", e);
+		}
+	}
+	
+	
+	/**
+	 * Return a set of all user-defined materials in the preferences.  The materials
+	 * are created marked as user-defined.
+	 * 
+	 * @return	a set of all user-defined materials.
+	 */
+	public static Set<Material> getUserMaterials() {
+		Preferences prefs = PREFNODE.node("userMaterials");
+		
+		HashSet<Material> materials = new HashSet<Material>();
+		try {
+			
+			for (String key: prefs.keys()) {
+				String value = prefs.get(key, null);
+				try {
+					
+					Material m = Material.fromStorableString(value, true);
+					materials.add(m);
+					
+				} catch (IllegalArgumentException e) { 
+					System.err.println("Illegal material string " + value);
+				}
+				
+			}
+			
+		} catch (BackingStoreException e) {
+			throw new IllegalStateException("Cannot read preferences!", e);
+		}
+		
+		return materials;
+	}
 	
 	
 	////  Helper methods

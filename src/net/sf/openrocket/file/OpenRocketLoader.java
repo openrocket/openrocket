@@ -1855,7 +1855,7 @@ class MaterialSetter implements Setter {
 			return;
 		}
 
-		mat = Material.newMaterial(type, name, density);
+		mat = Databases.findMaterial(type, name, density, false);
 		
 		setMethod.invoke(c, mat);
 	}

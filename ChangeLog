@@ -1,3 +1,19 @@
+2009-08-27  Sampo Niskanen
+
+	* Allow clicking on label to toggle checkbox in two tables
+
+2009-08-21  Sampo Niskanen
+
+	* Showing events in non-time-domain-plots
+
+2009-08-20  Sampo Niskanen
+
+	* Showing events in time-domain plots
+
+2009-08-15  Sampo Niskanen
+
+	* Possibility to save user-defined materials
+
 2009-08-14  Sampo Niskanen
 
 	* Plots ignore trailing NaN values

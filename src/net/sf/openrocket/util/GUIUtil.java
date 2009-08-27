@@ -3,9 +3,12 @@ package net.sf.openrocket.util;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,9 +25,12 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JRootPane;
+import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 public class GUIUtil {
 
@@ -111,6 +117,69 @@ public class GUIUtil {
     
     public static void setWindowIcons(Window window) {
     	window.setIconImages(images);
+    }
+    
+    
+    /**
+     * A mouse listener that toggles the state of a boolean value in a table model
+     * when clicked on another column of the table.
+     * <p>
+     * NOTE:  If the table model does not extend AbstractTableModel, the model must
+     * fire a change event (which in normal table usage is not necessary).
+     * 
+     * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+     */
+    public static class BooleanTableClickListener extends MouseAdapter {
+    	
+    	private final JTable table;
+    	private final int clickColumn;
+    	private final int booleanColumn;
+    	
+    	
+    	public BooleanTableClickListener(JTable table) {
+    		this(table, 1, 0);
+    	}
+
+    	
+    	public BooleanTableClickListener(JTable table, int clickColumn, int booleanColumn) {
+    		this.table = table;
+    		this.clickColumn = clickColumn;
+    		this.booleanColumn = booleanColumn;
+    	}
+    	
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			Point p = e.getPoint();
+			int col = table.columnAtPoint(p);
+			if (col < 0)
+				return;
+			col = table.convertColumnIndexToModel(col);
+			if (col != clickColumn) 
+				return;
+			
+			int row = table.rowAtPoint(p);
+			if (row < 0)
+				return;
+			row = table.convertRowIndexToModel(row);
+			if (row < 0)
+				return;
+			
+			TableModel model = table.getModel();
+			Object value = model.getValueAt(row, booleanColumn);
+			
+			if (!(value instanceof Boolean)) {
+				throw new IllegalStateException("Table value at row="+row+" col="+
+						booleanColumn + " is not a Boolean, value=" +value);
+			}
+			
+			Boolean b = (Boolean)value;
+			b = !b;
+			model.setValueAt(b, row, booleanColumn);
+			if (model instanceof AbstractTableModel) {
+				((AbstractTableModel)model).fireTableCellUpdated(row, booleanColumn);
+			}
+		}
+
     }
 	
 }
