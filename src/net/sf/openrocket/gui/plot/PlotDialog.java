@@ -81,16 +81,18 @@ public class PlotDialog extends JDialog {
 	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES =
 		new HashMap<FlightEvent.Type, Image>();
 	static {
-		loadImage(FlightEvent.Type.LAUNCH, "pix/spheres/red-16x16.png");
+		loadImage(FlightEvent.Type.LAUNCH, "pix/eventicons/event-launch.png");
 		loadImage(FlightEvent.Type.LIFTOFF, "pix/eventicons/event-liftoff.png");
 		loadImage(FlightEvent.Type.LAUNCHROD, "pix/eventicons/event-launchrod.png");
 		loadImage(FlightEvent.Type.IGNITION, "pix/eventicons/event-ignition.png");
 		loadImage(FlightEvent.Type.BURNOUT, "pix/eventicons/event-burnout.png");
-		loadImage(FlightEvent.Type.EJECTION_CHARGE, "pix/spheres/green-16x16.png");
-		loadImage(FlightEvent.Type.STAGE_SEPARATION, "pix/eventicons/event-stage-separation.png");
+		loadImage(FlightEvent.Type.EJECTION_CHARGE,"pix/eventicons/event-ejection-charge.png");
+		loadImage(FlightEvent.Type.STAGE_SEPARATION, 
+				"pix/eventicons/event-stage-separation.png");
 		loadImage(FlightEvent.Type.APOGEE, "pix/eventicons/event-apogee.png");
-		loadImage(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, "pix/spheres/blue-16x16.png");
-		loadImage(FlightEvent.Type.GROUND_HIT, "pix/spheres/gray-16x16.png");
+		loadImage(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, 
+				"pix/eventicons/event-recovery-device-deployment.png");
+		loadImage(FlightEvent.Type.GROUND_HIT, "pix/eventicons/event-ground-hit.png");
 		loadImage(FlightEvent.Type.SIMULATION_END, "pix/eventicons/event-simulation-end.png");
 	}
 

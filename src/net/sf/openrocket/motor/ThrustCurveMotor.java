@@ -1,4 +1,4 @@
-package net.sf.openrocket.rocketcomponent;
+package net.sf.openrocket.motor;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -33,7 +33,7 @@ public class ThrustCurveMotor extends Motor {
 	 * @param thrust        thrust at the time points.
 	 * @param cg            cg at the time points.
 	 */
-	public ThrustCurveMotor(String manufacturer, String designation, String description, 
+	public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description, 
 			Motor.Type type, double[] delays, double diameter, double length,
 			double[] time, double[] thrust, Coordinate[] cg) {
 		super(manufacturer, designation, description, type, delays, diameter, length);

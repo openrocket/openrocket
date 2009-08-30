@@ -25,8 +25,8 @@ import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.MotorChooserDialog;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -186,7 +186,7 @@ public class MotorConfig extends JPanel {
 		if (m == null)
 			motorLabel.setText("None");
 		else
-			motorLabel.setText(m.getManufacturer() + " " +
+			motorLabel.setText(m.getManufacturer().getDisplayName() + " " +
 					m.getDesignation(mount.getMotorDelay(id)));
 	}
 	

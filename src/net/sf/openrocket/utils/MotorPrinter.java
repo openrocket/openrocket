@@ -8,8 +8,8 @@ import java.util.List;
 
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.file.MotorLoader;
-import net.sf.openrocket.rocketcomponent.Motor;
-import net.sf.openrocket.rocketcomponent.ThrustCurveMotor;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class MotorPrinter {
 

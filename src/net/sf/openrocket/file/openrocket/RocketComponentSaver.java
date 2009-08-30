@@ -7,8 +7,8 @@ import java.util.List;
 
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
-import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -121,7 +121,7 @@ public class RocketComponentSaver {
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase() + "</type>");
 			}
-			elements.add("    <manufacturer>" + RocketSaver.escapeXML(motor.getManufacturer()) + "</manufacturer>");
+			elements.add("    <manufacturer>" + RocketSaver.escapeXML(motor.getManufacturer().getSimpleName()) + "</manufacturer>");
 			elements.add("    <designation>" + RocketSaver.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");
 			elements.add("    <length>" + motor.getLength() + "</length>");

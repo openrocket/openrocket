@@ -73,7 +73,7 @@ public class MathUtil {
 		if (equals(toMin, toMax))
 			return toMin;
 		if (equals(fromMin, fromMax)) {
-			throw new IllegalArgumentException("from range is singular an to range is not.");
+			throw new IllegalArgumentException("from range is singular and to range is not.");
 		}
 		return (value - fromMin)/(fromMax-fromMin) * (toMax - toMin) + toMin;
 	}
@@ -168,6 +168,16 @@ public class MathUtil {
 		return Math.abs(a-b) < EPSILON*absb;
 	}
 	
+	
+	/**
+	 * Return the sign of the number.  This corresponds to Math.signum, but ignores
+	 * the special cases of zero and NaN.  The value returned for those is arbitrary.
+	 * <p>
+	 * This method is about 4 times faster than Math.signum().
+	 * 
+	 * @param x		the checked value.
+	 * @return		-1.0 if x<0; 1.0 if x>0; otherwise either -1.0 or 1.0.
+	 */
 	public static double sign(double x) {
 		return (x<0) ? -1.0 : 1.0;
 	}
@@ -179,39 +189,5 @@ public class MathUtil {
 	}
 	*/
 	
-	
-	public static void main(String[] arg) {
-		double nan = Double.NaN;
-		System.out.println("min(5,6)     = " + min(5, 6));
-		System.out.println("min(5,nan)   = " + min(5, nan));
-		System.out.println("min(nan,6)   = " + min(nan, 6));
-		System.out.println("min(nan,nan) = " + min(nan, nan));
-		System.out.println();
-		System.out.println("max(5,6)     = " + max(5, 6));
-		System.out.println("max(5,nan)   = " + max(5, nan));
-		System.out.println("max(nan,6)   = " + max(nan, 6));
-		System.out.println("max(nan,nan) = " + max(nan, nan));
-		System.out.println();
-		System.out.println("min(5,6,7)       = " + min(5, 6, 7));
-		System.out.println("min(5,6,nan)     = " + min(5, 6, nan));
-		System.out.println("min(5,nan,7)     = " + min(5, nan, 7));
-		System.out.println("min(5,nan,nan)   = " + min(5, nan, nan));
-		System.out.println("min(nan,6,7)     = " + min(nan, 6, 7));
-		System.out.println("min(nan,6,nan)   = " + min(nan, 6, nan));
-		System.out.println("min(nan,nan,7)   = " + min(nan, nan, 7));
-		System.out.println("min(nan,nan,nan) = " + min(nan, nan, nan));
-		System.out.println();
-		System.out.println("max(5,6,7)       = " + max(5, 6, 7));
-		System.out.println("max(5,6,nan)     = " + max(5, 6, nan));
-		System.out.println("max(5,nan,7)     = " + max(5, nan, 7));
-		System.out.println("max(5,nan,nan)   = " + max(5, nan, nan));
-		System.out.println("max(nan,6,7)     = " + max(nan, 6, 7));
-		System.out.println("max(nan,6,nan)   = " + max(nan, 6, nan));
-		System.out.println("max(nan,nan,7)   = " + max(nan, nan, 7));
-		System.out.println("max(nan,nan,nan) = " + max(nan, nan, nan));
-		System.out.println();
-		
-		
-	}
 	
 }

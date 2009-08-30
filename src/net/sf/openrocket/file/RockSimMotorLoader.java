@@ -12,8 +12,9 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.NullElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
-import net.sf.openrocket.rocketcomponent.Motor;
-import net.sf.openrocket.rocketcomponent.ThrustCurveMotor;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.Coordinate;
 
 import org.xml.sax.InputSource;
@@ -147,7 +148,7 @@ public class RockSimMotorLoader extends MotorLoader {
 			str = attributes.get("mfg");
 			if (str == null)
 				throw new SAXException("Manufacturer missing");
-			manufacturer = convertManufacturer(str);
+			manufacturer = str;
 			
 			// Designation
 			str = attributes.get("code");
@@ -339,7 +340,8 @@ public class RockSimMotorLoader extends MotorLoader {
 			}
 			
 			try {
-				return new ThrustCurveMotor(manufacturer, designation, description, type,
+				return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer), 
+						designation, description, type,
 						delays, diameter, length, timeArray, thrustArray, cgArray);
 			} catch (IllegalArgumentException e) {
 				throw new SAXException("Illegal motor data", e);

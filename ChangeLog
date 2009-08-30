@@ -1,3 +1,13 @@
+2009-08-29  Sampo Niskanen
+
+	* Extracted motor manufacturer into separate class
+	* Started writing unit tests
+
+2009-08-28  Sampo Niskanen
+
+	* Added icon and source info to About dialog
+	* Finalized flight event plot icons
+	
 2009-08-27  Sampo Niskanen
 
 	* Allow clicking on label to toggle checkbox in two tables

@@ -10,25 +10,57 @@ import java.io.Serializable;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class Coordinate implements Serializable {
+	
+	////////  Debug section
+	/*
+	 * Debugging info.  If openrocket.debug.coordinatecount is defined, a line is
+	 * printed every 1000000 instantiations (or as many as defined).
+	 */
+	private static final boolean COUNT_DEBUG;
+	private static final int COUNT_DIFF;
+	static {
+		String str = System.getProperty("openrocket.debug.coordinatecount", null);
+		int diff = 0;
+		if (str == null) {
+			COUNT_DEBUG = false;
+			COUNT_DIFF = 0;
+		} else {
+			COUNT_DEBUG = true;
+			try {
+				diff = Integer.parseInt(str);
+			} catch (NumberFormatException ignore) { }
+			if (diff < 1000)
+				diff = 1000000;
+			COUNT_DIFF = diff;
+		}
+	}
+	
+	private static int count = 0;
+	{
+		// Debug count
+		if (COUNT_DEBUG) {
+			count++;
+			if ((count % COUNT_DIFF) == 0) {
+				System.out.println("Coordinate instantiated " + count + " times.");
+			}
+		}
+	}
+	
+	////////  End debug section
+	
+	
+	
+	
 	public static final Coordinate NUL = new Coordinate(0,0,0,0);
 	public static final Coordinate NaN = new Coordinate(Double.NaN,Double.NaN,
 			Double.NaN,Double.NaN);
-	public static final double COMPARISON_DELTA = 0.000001;
+
 	public final double x,y,z;
 	public final double weight;
 	
 	
 	private double length = -1;  /* Cached when calculated */
 	
-	
-	/* Count and report the number of times a Coordinate is constructed: */
-//	private static int count=0;
-//	{
-//		count++;
-//		if ((count % 1000) == 0) {
-//			System.err.println("Coordinate instantiated "+count+" times");
-//		}
-//	}
 	
 	
 
@@ -52,6 +84,7 @@ public final class Coordinate implements Serializable {
 		this.y = y;
 		this.z = z;
 		this.weight=w;
+		
 	}
 
 	
@@ -260,32 +293,5 @@ public final class Coordinate implements Serializable {
 			return String.format("(%.3f,%.3f,%.3f)", x,y,z);
 	}
 	
-	
-	
-	public static void main(String[] arg) {
-		double a=1.2;
-		double x;
-		Coordinate c;
-		long t1, t2;
-		
-		x = 0;
-		t1 = System.nanoTime();
-		for (int i=0; i < 100000000; i++) {
-			x = x + a;
-		}
-		t2 = System.nanoTime();
-		System.out.println("Value: "+x);
-		System.out.println("Plain addition: "+ ((t2-t1+500000)/1000000) + " ms");
-		
-		c = Coordinate.NUL;
-		t1 = System.nanoTime();
-		for (int i=0; i < 100000000; i++) {
-			c = c.add(a,0,0);
-		}
-		t2 = System.nanoTime();
-		System.out.println("Value: "+c.x);
-		System.out.println("Coordinate addition: "+ ((t2-t1+500000)/1000000) + " ms");
-		
-	}
 	
 }

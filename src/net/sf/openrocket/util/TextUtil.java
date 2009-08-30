@@ -1,15 +1,12 @@
 package net.sf.openrocket.util;
 
-import java.util.Locale;
 
 public class TextUtil {
 
 	/**
-	 * Return a string of the double value with suitable precision.
+	 * Return a string of the double value with suitable precision (5 digits).
 	 * The string is the shortest representation of the value including the
 	 * required precision.
-	 * 
-	 * TODO: MEDIUM: Extra zeros are added unnecessarily to the end of the string.
 	 * 
 	 * @param d		the value to present.
 	 * @return		a representation with suitable precision.
@@ -31,46 +28,106 @@ public class TextUtil {
 		}
 		
 		
+		final String sign = (d < 0) ? "-" : "";
 		double abs = Math.abs(d);
 		
-		if (abs < 0.001) {
-			// Compact exponential notation
-			int exp = 0;
-			
-			while (abs < 1.0) {
-				abs *= 10;
-				exp++;
-			}
-			
-			String sign = (d < 0) ? "-" : "";
-			return sign + String.format((Locale)null, "%.4fe-%d", abs, exp);
+		// Small and large values always in exponential notation
+		if (abs < 0.001 || abs >= 100000000) {
+			return sign + exponentialFormat(abs);
 		}
-		if (abs < 0.01)
-			return String.format((Locale)null, "%.7f", d);
-		if (abs < 0.1)
-			return String.format((Locale)null, "%.6f", d);
-		if (abs < 1)
-			return String.format((Locale)null, "%.5f", d);
-		if (abs < 10)
-			return String.format((Locale)null, "%.4f", d);
-		if (abs < 100)
-			return String.format((Locale)null, "%.3f", d);
-		if (abs < 1000)
-			return String.format((Locale)null, "%.2f", d);
-		if (abs < 10000)
-			return String.format((Locale)null, "%.1f", d);
-		if (abs < 100000000.0)
-			return String.format((Locale)null, "%.0f", d);
-			
-		// Compact exponential notation
-		int exp = 0;
-		while (abs >= 10.0) {
-			abs /= 10;
+		
+		// Check whether decimal or exponential notation is shorter
+		
+		String exp = exponentialFormat(abs);
+		String dec = decimalFormat(abs);
+		
+		if (dec.length() <= exp.length())
+			return sign + dec;
+		else
+			return sign + exp;
+	}
+	
+	
+	/*
+	 * value must be positive and not zero!
+	 */
+	private static String exponentialFormat(double value) {
+		int exp;
+		
+		exp = 0;
+		while (value < 1.0) {
+			value *= 10;
+			exp--;
+		}
+		while (value >= 10.0) {
+			value /= 10;
 			exp++;
 		}
 		
-		String sign = (d < 0) ? "-" : "";
-		return sign + String.format((Locale)null, "%.4fe%d", abs, exp);
+		return shortDecimal(value, 4) + "e" + exp;
+	}
+	
+	
+	/*
+	 * value must be positive and not zero!
+	 */
+	private static String decimalFormat(double value) {
+		if (value >= 10000)
+			return "" + (int)(value + 0.5);
+		
+		int decimals = 1;
+		double v = value;
+		while (v < 1000) {
+			v *= 10;
+			decimals++;
+		}
+		
+		return shortDecimal(value, decimals);
+	}
+	
+	
+	
+	
+	/*
+	 * value must be positive!
+	 */
+	private static String shortDecimal(double value, int decimals) {
+		
+		int whole = (int)value;
+		value -= whole;
+		
+		// Calculate limit, return when remaining value less than this
+		double limit;
+		limit = 0.5;
+		for (int i=0; i<decimals; i++)
+			limit /= 10;
+		
+		
+		if (value < limit)
+			return "" + whole; 
+		limit *= 10;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("" + whole);
+		sb.append('.');
+
+		
+		for (int i = 0; i<decimals; i++) {
+			
+			value *= 10;
+			if (i == decimals-1)
+				value += 0.5;
+			whole = (int)value;
+			value -= whole;
+			sb.append((char)('0' + whole));
+			
+			if (value < limit)
+				return sb.toString();
+			limit *= 10;
+
+		}
+
+		return sb.toString();
 	}
 
 }

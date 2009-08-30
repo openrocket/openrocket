@@ -20,6 +20,7 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
@@ -37,7 +38,6 @@ import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
@@ -1030,7 +1030,7 @@ class MotorHandler extends ElementHandler {
 		} else if (element.equals("manufacturer")) {
 			
 			// Manufacturer
-			manufacturer = MotorLoader.convertManufacturer(content);
+			manufacturer = content;
 
 		} else if (element.equals("designation")) {
 			

@@ -55,6 +55,7 @@ public class Prefs {
 	
 	private static final String BUILD_VERSION;
 	private static final String BUILD_SOURCE;
+	public static final String DEFAULT_BUILD_SOURCE = "default";
 	
 	static {
 		try {

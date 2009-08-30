@@ -4,15 +4,11 @@ Feature roadmap for OpenRocket 1.0
 
 Must-have:
 
-- Draw remaining event icons (for 0.9.3)
-- Change automatic exception reporting success code to 202 (for 0.9.3)
-- Test automatic exception reporting (for 0.9.3)
 
 - Allow editing user-defined materials
 - Go through thrust curves and correct errors
 - Add styrofoam and depron materials
 - Through-the-wall fins
-- Update "About" dialog with icon and source info
 
 
 Bugs:
@@ -56,4 +52,7 @@ Done:
 - Read more thrust curve formats
 - Showing events in plots
 - Table boolean selecting by clicking label
+- Test automatic exception reporting (for 0.9.3)
+- Draw remaining event icons (for 0.9.3)
+- Update "About" dialog with icon and source info
 

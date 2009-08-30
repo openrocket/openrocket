@@ -1,4 +1,4 @@
-package net.sf.openrocket.rocketcomponent;
+package net.sf.openrocket.motor;
 
 import java.text.Collator;
 import java.util.Comparator;
@@ -94,7 +94,7 @@ public abstract class Motor implements Comparable<Motor> {
 	
 	
 	
-	private final String manufacturer;
+	private final Manufacturer manufacturer;
 	private final String designation;
 	private final String description;
 	private final Type motorType;
@@ -125,7 +125,7 @@ public abstract class Motor implements Comparable<Motor> {
 	 * @param diameter		maximum diameter of the motor
 	 * @param length		length of the motor
 	 */
-	protected Motor(String manufacturer, String designation, String description, 
+	protected Motor(Manufacturer manufacturer, String designation, String description, 
 			Type type, double[] delays, double diameter, double length) {
 
 		if (manufacturer == null || designation == null || description == null ||
@@ -355,7 +355,7 @@ public abstract class Motor implements Comparable<Motor> {
 	 * 
 	 * @return the manufacturer
 	 */
-	public String getManufacturer() {
+	public Manufacturer getManufacturer() {
 		return manufacturer;
 	}
 	
@@ -539,7 +539,8 @@ public abstract class Motor implements Comparable<Motor> {
 		int value;
 		
 		// 1. Manufacturer
-		value = COLLATOR.compare(this.manufacturer, other.manufacturer);
+		value = COLLATOR.compare(this.manufacturer.getDisplayName(), 
+				other.manufacturer.getDisplayName());
 		if (value != 0)
 			return value;
 		

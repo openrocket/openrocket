@@ -143,7 +143,7 @@ public class BugReportDialog extends JDialog {
 		this.pack();
 		this.setLocationRelativeTo(parent);
 		GUIUtil.installEscapeCloseOperation(this);
-//		GUIUtil.setDefaultButton(close);
+		GUIUtil.setDefaultButton(send);
 	}
 
 	

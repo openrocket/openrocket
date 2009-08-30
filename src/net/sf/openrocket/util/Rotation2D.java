@@ -41,18 +41,4 @@ public class Rotation2D {
 		return new Coordinate(cos*c.x + sin*c.y, cos*c.y - sin*c.x, c.z, c.weight);
 	}
 	
-
-	
-	public static void main(String arg[]) {
-		Coordinate c = new Coordinate(1,1,1,2.5);
-		Rotation2D rot = new Rotation2D(Math.PI/4);
-		
-		System.out.println("X: "+rot.rotateX(c));
-		System.out.println("Y: "+rot.rotateY(c));
-		System.out.println("Z: "+rot.rotateZ(c));
-		System.out.println("invX: "+rot.invRotateX(c));
-		System.out.println("invY: "+rot.invRotateY(c));
-		System.out.println("invZ: "+rot.invRotateZ(c));
-	}
-	
 }

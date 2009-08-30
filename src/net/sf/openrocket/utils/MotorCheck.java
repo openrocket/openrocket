@@ -7,8 +7,9 @@ import java.util.List;
 
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.file.MotorLoader;
-import net.sf.openrocket.rocketcomponent.Motor;
-import net.sf.openrocket.rocketcomponent.ThrustCurveMotor;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class MotorCheck {
 
@@ -38,7 +39,7 @@ public class MotorCheck {
 			}
 			
 			String base = file.split("_")[0];
-			String mfg = MotorLoader.convertManufacturer(base);
+			Manufacturer mfg = Manufacturer.getManufacturer(base);
 			
 			if (motors != null) {
 				if (motors.size() == 0) {
@@ -63,7 +64,7 @@ public class MotorCheck {
 							ok = false;
 						}
 						
-						if (!m.getManufacturer().equals(mfg)) {
+						if (m.getManufacturer() != mfg) {
 							System.out.println("ERROR: Inconsistent manufacturer " + 
 									m.getManufacturer() + " (file name indicates " + mfg 
 									+ ")");

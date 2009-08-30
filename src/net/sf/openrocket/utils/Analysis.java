@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.utils;
 
 import static net.sf.openrocket.aerodynamics.AtmosphericConditions.GAMMA;
 import static net.sf.openrocket.aerodynamics.AtmosphericConditions.R;
@@ -18,6 +18,7 @@ import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.util.MathUtil;
 
 public class Analysis {
 	

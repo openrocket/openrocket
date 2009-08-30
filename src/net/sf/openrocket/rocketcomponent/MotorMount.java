@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.util.ChangeSource;
 

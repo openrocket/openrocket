@@ -57,7 +57,9 @@ public class Icons {
 
 	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
 	
-	private static ImageIcon loadImageIcon(String file, String name) {
+	
+	
+	public static ImageIcon loadImageIcon(String file, String name) {
 		URL url = ClassLoader.getSystemResource(file);
 		if (url == null) {
 			System.err.println("Resource "+file+" not found!  Ignoring...");

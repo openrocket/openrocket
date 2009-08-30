@@ -38,7 +38,7 @@ import javax.swing.table.TableRowSorter;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.components.ResizeLabel;
-import net.sf.openrocket.rocketcomponent.Motor;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
@@ -382,7 +382,7 @@ public class MotorChooserDialog extends JDialog {
 		MANUFACTURER("Manufacturer",100) {
 			@Override
 			public String getValue(Motor m) {
-				return m.getManufacturer();
+				return m.getManufacturer().getDisplayName();
 			}
 //			@Override
 //			public String getToolTipText(Motor m) {

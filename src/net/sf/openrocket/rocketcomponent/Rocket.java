@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 

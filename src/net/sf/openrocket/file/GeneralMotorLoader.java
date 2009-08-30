@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import net.sf.openrocket.rocketcomponent.Motor;
+import net.sf.openrocket.motor.Motor;
 
 /**
  * A motor loader class that detects the file type based on the file name extension.

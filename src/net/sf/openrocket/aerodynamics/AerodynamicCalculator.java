@@ -5,8 +5,8 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;

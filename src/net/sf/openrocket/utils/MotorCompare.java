@@ -8,8 +8,9 @@ import java.util.List;
 
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.file.MotorLoader;
-import net.sf.openrocket.rocketcomponent.Motor;
-import net.sf.openrocket.rocketcomponent.ThrustCurveMotor;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class MotorCompare {
 	
@@ -83,10 +84,10 @@ public class MotorCompare {
 		
 		// Manufacturers
 		System.out.printf("Manufacture:");
-		String mfg = motors.get(0).getManufacturer();
+		Manufacturer mfg = motors.get(0).getManufacturer();
 		for (Motor m: motors) {
 			System.out.printf("\t%s", m.getManufacturer());
-			if (!m.getManufacturer().equals(mfg)) {
+			if (m.getManufacturer() != mfg) {
 				cause.add("Manufacturer");
 				bad = true;
 			}

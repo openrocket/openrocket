@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.openrocket.rocketcomponent.Motor;
-import net.sf.openrocket.rocketcomponent.ThrustCurveMotor;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.Coordinate;
 
 public class RASPMotorLoader extends MotorLoader {
@@ -118,7 +119,7 @@ public class RASPMotorLoader extends MotorLoader {
 				
 				propW = Double.parseDouble(pieces[4]);
 				totalW = Double.parseDouble(pieces[5]);
-				manufacturer = convertManufacturer(pieces[6]);
+				manufacturer = pieces[6];
 				
 				if (propW > totalW) {
 					throw new IOException("Propellant weight exceeds total weight in " +
@@ -196,7 +197,8 @@ public class RASPMotorLoader extends MotorLoader {
 		
 		try {
 			
-			return new ThrustCurveMotor(manufacturer, designation, comment, Motor.Type.UNKNOWN,
+			return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer), 
+					designation, comment, Motor.Type.UNKNOWN,
 					delays, diameter, length, timeArray, thrustArray, cgArray);
 			
 		} catch (IllegalArgumentException e) {

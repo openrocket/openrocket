@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.MaterialStorage;
-import net.sf.openrocket.rocketcomponent.Motor;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
@@ -229,7 +229,7 @@ public class Databases {
 			boolean match = true;
 			if (type != null  &&  type != m.getMotorType())
 				match = false;
-			else if (manufacturer != null  &&  !manufacturer.equalsIgnoreCase(m.getManufacturer()))
+			else if (manufacturer != null  &&  !m.getManufacturer().matches(manufacturer))
 				match = false;
 			else if (designation != null  &&  !designation.equalsIgnoreCase(m.getDesignation()))
 				match = false;
