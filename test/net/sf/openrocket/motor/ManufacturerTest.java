@@ -1,9 +1,6 @@
 package net.sf.openrocket.motor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -20,10 +17,10 @@ public class ManufacturerTest {
 		m4 = Manufacturer.getManufacturer("at/rcs");
 		m5 = Manufacturer.getManufacturer("e");
 		
-		assertEquals(m1, m2);
-		assertEquals(m1, m3);
-		assertEquals(m1, m4);
-		assertNotSame(m1, m5);
+		assertTrue(m1 == m2);
+		assertTrue(m1 == m3);
+		assertTrue(m1 == m4);
+		assertFalse(m1 == m5);
 		
 	}
 	
@@ -38,15 +35,15 @@ public class ManufacturerTest {
 		
 		assertEquals(m1.getDisplayName(), "Unknown");
 		assertEquals(m2.getDisplayName(), "Unknown");
-		assertEquals(m1, m2);
+		assertTrue(m1 == m2);
 		
 		assertEquals(m3.getDisplayName(), "Unknown/a");
-		assertNotSame(m1, m3);
+		assertFalse(m1 == m3);
 		
 	}
 	
 	@Test
-	public void simpleNameTest() {
+	public void testSimpleName() {
 		
 		Manufacturer m1, m2, m3, m4;
 		
@@ -59,14 +56,14 @@ public class ManufacturerTest {
 		assertEquals(m1.toString(), "Cesaroni Technology Inc.");
 		assertEquals(m1.getSimpleName(), "Cesaroni Technology");
 		
-		assertEquals(m1, m2);
-		assertEquals(m1, m3);
-		assertEquals(m1, m4);
+		assertTrue(m1 == m2);
+		assertTrue(m1 == m3);
+		assertTrue(m1 == m4);
 		
 	}
 	
 	@Test
-	public void matchesTest() {
+	public void testMatches() {
 		
 		Manufacturer m1;
 		

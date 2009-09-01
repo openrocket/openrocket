@@ -93,14 +93,20 @@ public class TextUtil {
 	 */
 	private static String shortDecimal(double value, int decimals) {
 		
+		// Calculate rounding and limit values (rounding slightly smaller)
+		int rounding = 1;
+		double limit = 0.5;
+		for (int i=0; i<decimals; i++) {
+			rounding *= 10;
+			limit /= 10;
+		}
+
+		// Round value
+		value = (Math.rint(value * rounding)+0.1) / rounding;
+		
+		
 		int whole = (int)value;
 		value -= whole;
-		
-		// Calculate limit, return when remaining value less than this
-		double limit;
-		limit = 0.5;
-		for (int i=0; i<decimals; i++)
-			limit /= 10;
 		
 		
 		if (value < limit)
@@ -115,8 +121,6 @@ public class TextUtil {
 		for (int i = 0; i<decimals; i++) {
 			
 			value *= 10;
-			if (i == decimals-1)
-				value += 0.5;
 			whole = (int)value;
 			value -= whole;
 			sb.append((char)('0' + whole));

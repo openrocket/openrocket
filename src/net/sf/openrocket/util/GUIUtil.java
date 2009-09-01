@@ -149,6 +149,9 @@ public class GUIUtil {
     	
 		@Override
 		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() != MouseEvent.BUTTON1)
+				return;
+			
 			Point p = e.getPoint();
 			int col = table.columnAtPoint(p);
 			if (col < 0)

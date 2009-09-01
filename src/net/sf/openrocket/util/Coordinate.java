@@ -50,7 +50,6 @@ public final class Coordinate implements Serializable {
 	
 	
 	
-	
 	public static final Coordinate NUL = new Coordinate(0,0,0,0);
 	public static final Coordinate NaN = new Coordinate(Double.NaN,Double.NaN,
 			Double.NaN,Double.NaN);

@@ -2,12 +2,14 @@
 
 	<property file="build.properties" />
 	
-	<property name="src.dir"     value="src"/>			<!-- Source directory -->
-	<property name="build.dir"   value="build"/>		<!-- Build directory -->
-	
+	<property name="src.dir"    	value="src"/>		<!-- Source directory -->
+	<property name="src-test.dir"	value="test"/>		<!-- Test directory -->
+	<property name="build.dir"   	value="build"/>		<!-- Build directory -->
+	<property name="build-test.dir" value="build/test"/><!-- Build directory -->
+		
 	<!-- Distribution directory, from which stuff is jar'ed -->
-	<property name="dist.dir"    value="${build.dir}/dist"/> 
-	<property name="test.dir"    value="${build.dir}/test"/>
+	<property name="dist.dir"    	value="${build.dir}/dist"/> 
+	<property name="dist-test.dir"	value="${build.dir}/dist-test"/>
 	
 	<property name="classes.dir" value="${dist.dir}"/>	<!-- Directory for classes -->
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
@@ -29,8 +31,7 @@
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
 	</path>
 	
-	
-	
+
 	
 	<!-- CLEAN -->
 	<target name="clean">
@@ -68,7 +69,7 @@
 	
 	
 	<!-- DIST-SRC -->
-	<target name="dist-src" depends="clean">
+	<target name="dist-src" depends="checktodo,clean,unittest">
 		<echo>			
 		Building source distribution
 		</echo>
@@ -78,7 +79,7 @@
 			<fileset dir="." includes="*">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="." includes="datafiles/ lib/ pix/ src/"/>
+			<fileset dir="." includes="datafiles/ lib/ pix/ src/ test/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
@@ -90,19 +91,20 @@
 		<echo>
 		Testing source distribution
 		</echo>
-		<delete dir="${test.dir}"/>
-		<mkdir dir="${test.dir}"/>
-		<unzip dest="${test.dir}" src="${dist.src}"/>
-		<ant dir="${test.dir}/${pkgname}" antfile="build.xml" target="jar"/>
-		<delete dir="${test.dir}"/>
+		<delete dir="${dist-test.dir}"/>
+		<mkdir dir="${dist-test.dir}"/>
+		<unzip dest="${dist-test.dir}" src="${dist.src}"/>
+		<ant dir="${dist-test.dir}/${pkgname}" antfile="build.xml" target="jar"/>
+		<ant dir="${dist-test.dir}/${pkgname}" antfile="build.xml" target="unittest"/>
+		<delete dir="${dist-test.dir}"/>
 		<echo>
-		Test successful
+		Source distribution test successful
 		</echo>
 	</target>	
 	
 	
 	<!-- DIST-BIN -->
-	<target name="dist-bin" depends="clean,jar">
+	<target name="dist-bin" depends="checktodo,clean,unittest,jar">
 		<move file="${jar.file}" tofile="${dist.bin}"/>
 	</target>
 
@@ -112,4 +114,55 @@
 		<echo>Distribution ${build.version} (${build.source}) built into directory ${jar.dir}</echo>
 	</target>
 	
+	
+	<!-- CHECK TODOs -->
+	<target name="checktodo">
+		<tempfile property="todo.file" prefix="checktodo-"/>
+		<echo>Checking project for critical TODOs.</echo>
+		<concat destfile="${todo.file}">
+			<fileset dir="${src.dir}">
+			    <include name="**/*.java"/>
+			</fileset>
+			<filterchain>
+				<linecontainsregexp>
+					<regexp pattern="TODO:.*CRITICAL"/>
+				</linecontainsregexp>
+			</filterchain>
+		</concat>
+		<loadfile srcfile="${todo.file}" property="criticaltodos"/>
+		<delete file="${todo.file}"/>
+		<fail if="criticaltodos">CRITICAL TODOs exist in project:
+${criticaltodos}</fail>
+		<echo>No critical TODOs in project.</echo>
+	</target>
+	
+	
+	<!--  Unit tests  -->
+	<target name="unittest" description="Execute unit tests" depends="build">
+		<echo>Building unit tests</echo>
+		<mkdir dir="${build-test.dir}"/>
+		<javac srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="classpath" classpath="${classes.dir}:${ant.library.dir}/junit4.jar"/>
+		
+		<echo>Running unit tests</echo>
+		<mkdir dir="tmp/rawtestoutput"/>
+		<junit printsummary="true" failureproperty="junit.failure">
+			<classpath path="${build-test.dir}"/>
+			<classpath path="${classes.dir}"/>
+			<classpath path="${ant.library.dir}/junit4.jar"/>
+		  
+			<batchtest todir="tmp/rawtestoutput">
+				<fileset dir="${src-test.dir}">
+					<include name="**/*Test*.java" />
+					<exclude name="Test.java" />
+				</fileset>
+				<formatter type="xml"/>
+			</batchtest>
+		</junit>
+		<junitreport todir="tmp">
+			<fileset dir="tmp/rawtestoutput"/>
+			<report todir="tmp/test-reports"/>
+		</junitreport>
+		<fail if="junit.failure" message="Unit test(s) failed.  See reports!"/>
+ 	</target>
+    
 </project>

@@ -1,0 +1,13 @@
+
+Steps for making a release:
+
+1. Update build.properties for the new version.
+2. Update ReleaseNotes
+3. Update ChangeLog
+4. ant dist
+5. Test new features (not in project directory)
+6. Copy distribution files into dist/
+7. Update Eclipse project and commit files to SVN
+8. Tag the version in SVN
+
+

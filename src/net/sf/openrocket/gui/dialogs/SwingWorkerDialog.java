@@ -67,9 +67,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cancelled = true;
-				worker.cancel(true);
-				close();
+				cancel();
 			}
 		});
 		panel.add(cancel, "right");
@@ -89,9 +87,17 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		progressBar.setValue(worker.getProgress());
 	}
 	
+	private void cancel() {
+		cancelled = true;
+		worker.cancel(true);
+		close();
+	}
+	
 	private void close() {
 		worker.removePropertyChangeListener(this);
 		this.setVisible(false);
+		// For some reason setVisible(false) is not always enough...
+		this.dispose();
 	}
 	
 	
@@ -150,7 +156,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 			if (remaining >= REMAINING_TIME_FOR_DIALOG)
 				break;
 		}
-		
+
 		
 		// Dialog is required
 		

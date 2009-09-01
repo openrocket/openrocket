@@ -29,6 +29,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.SaveCSVWorker;
 
@@ -141,6 +142,7 @@ public class SimulationExportPanel extends JPanel {
 		col = columnModel.getColumn(2);
 		col.setPreferredWidth(100);
 
+		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
 		
 		// Add table
 		panel = new JPanel(new MigLayout("fill"));

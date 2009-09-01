@@ -133,6 +133,9 @@ public class TextUtilTest {
 	@Test
 	public void roundingTest() {
 		
+		assertEquals("1.001", TextUtil.doubleToString(1.00096));
+		
+		
 		/*
 		 * Not testing with 1.00015 because it might be changed during number formatting
 		 * calculations.  Its rounding is basically arbitrary anyway.
@@ -205,6 +208,22 @@ public class TextUtilTest {
 		assertEquals("-1.0002e10", TextUtil.doubleToString(-1.0001500001e10));
 		assertEquals("-1.0001e10", TextUtil.doubleToString(-1.0001499999e10));
 		
+	}
+	
+	
+	@Test
+	public void randomTest() {
+		for (int i=0; i<10000; i++) {
+			double orig = Math.random();
+			double result;
+			double expected = Math.rint(orig*100000) / 100000.0;
+			
+			if (orig < 0.1)
+				continue;
+			String s = TextUtil.doubleToString(orig);
+			result = Double.parseDouble(s);
+			assertEquals(expected, result, 0.00000001);
+		}
 	}
 	
 }
