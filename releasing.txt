@@ -9,5 +9,10 @@ Steps for making a release:
 6. Copy distribution files into dist/
 7. Update Eclipse project and commit files to SVN
 8. Tag the version in SVN
-
+9. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
+   (Project Admin -> File Manager, create new version directory + upload)
+10. Update HTML: index.html (release notes) download.html (version number)
+11. Update HTML to web server
+12. Send email about new release
+13. Update build.properties to "pre" version + commit
 
