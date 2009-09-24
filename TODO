@@ -4,25 +4,20 @@ Feature roadmap for OpenRocket 1.0
 
 Must-have:
 
-
 - Allow editing user-defined materials
 - Go through thrust curves and correct errors
 - Add styrofoam and depron materials
-- Through-the-wall fins
 
 
 Bugs:
 
 - Simulation plot dialog forces dialog one button row too high (All/None)
-- JTree text is cropped unnecessarily
-- BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
+- All configuration dialogs too high
 
 
 Maybe:
 
-- Make ThicknessRingComponent implement RadialParent and allow
-  attaching components to a TubeCoupler
-- Reading thrust curves from external directory
+- Windows executable wrapper (launch4j)
 
 
 Postponed:
@@ -30,9 +25,26 @@ Postponed:
 - Allow only one instance of OpenRocket running (RMI communication)
 - Only schedule rocket figure update instead of each time updating it
 - Reading (writing) .RKT format
-- Importing flight data
+- Importing flight data (file/altimeter)
 - Water rocket modelling
 - Landing scatter plots
+- Simulate other branches
+- Implement setDefaults() method for RocketComponent
+- BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
+- Inform user about software updates
+- Reading thrust curves from external directory
+- NAR/CNES/etc competition validity checking
+
+
+Refactoring tasks:
+
+- Remove database etc. initialization from class initialization,
+  create separate set of test motors
+- Extract event rules and data saving from Simulator into listeners
+- Change SimulationStatus to include methods for obtaining basic
+  position (maybe even an interface)
+- Change Motor (immutable) to be a factory of MotorInstance (stateful)
+
 
 
 Done:
@@ -55,4 +67,11 @@ Done:
 - Test automatic exception reporting (for 0.9.3)
 - Draw remaining event icons (for 0.9.3)
 - Update "About" dialog with icon and source info
+In 0.9.4:
+- Through-the-wall fins
+- Make ThicknessRingComponent implement RadialParent and allow
+  attaching components to a TubeCoupler  (for 0.9.4)
+- Save file as oldest OpenRocket format possible  (for 0.9.4)
+- Non-exception bug handling
+- JTree text is cropped unnecessarily
 
