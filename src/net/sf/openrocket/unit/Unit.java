@@ -167,6 +167,17 @@ public abstract class Unit {
 	
 	
 	
+	/**
+	 * Creates a new Value object with the specified value and this unit.
+	 * 
+	 * @param value	the value to set.
+	 * @return		a new Value object.
+	 */
+	public Value toValue(double value) {
+		return new Value(value, this);
+	}
+	
+	
 
 	/**
 	 * Round the value (in the current units) to a precision suitable for rough valuing

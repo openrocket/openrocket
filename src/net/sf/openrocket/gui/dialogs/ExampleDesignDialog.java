@@ -88,8 +88,8 @@ public class ExampleDesignDialog extends JDialog {
 		this.add(panel);
 		this.pack();
 		this.setLocationByPlatform(true);
-		GUIUtil.installEscapeCloseOperation(this);
-		GUIUtil.setDefaultButton(openButton);
+		
+		GUIUtil.setDisposableDialogOptions(this, openButton);
 	}
 	
 	

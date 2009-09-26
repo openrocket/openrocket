@@ -414,8 +414,9 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 
 		this.setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		GUIUtil.installEscapeCloseOperation(this);
 		pack();
+		
+		GUIUtil.setDisposableDialogOptions(this, null);
 	}
 	
 	

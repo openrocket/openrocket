@@ -18,6 +18,7 @@ import java.util.prefs.Preferences;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -62,7 +63,8 @@ public class Prefs {
 			InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
 			if (is == null) {
 				throw new MissingResourceException(
-						"build.properties not found, distribution built wrong",
+						"build.properties not found, distribution built wrong" + 
+						"   path:"+System.getProperty("java.class.path"),
 						"build.properties", "build.version");
 			}
 			
@@ -169,6 +171,16 @@ public class Prefs {
 	
 	public static String getBuildSource() {
 		return BUILD_SOURCE;
+	}
+	
+	
+	public static String getUniqueID() {
+		String id = PREFNODE.get("id", null);
+		if (id == null) {
+			id = UniqueID.generateHashedID();
+			PREFNODE.put("id", id);
+		}
+		return id;
 	}
 	
 	
@@ -471,8 +483,7 @@ public class Prefs {
 			}
 			
 		} catch (BackingStoreException e) {
-			System.err.println("BackingStoreException:");
-			e.printStackTrace();
+			ExceptionHandler.handleErrorCondition(e);
 		}
 	}
 	

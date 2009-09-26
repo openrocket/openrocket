@@ -72,8 +72,8 @@ public class LicenseDialog extends JDialog {
 		this.setTitle("OpenRocket license");
 		this.pack();
 		this.setLocationRelativeTo(parent);
-		GUIUtil.setDefaultButton(close);
-		GUIUtil.installEscapeCloseOperation(this);
+		
+		GUIUtil.setDisposableDialogOptions(this, close);
 	}
 	
 }

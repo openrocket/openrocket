@@ -26,9 +26,16 @@
 	<property name="main-dir" value="net/sf/openrocket/startup"/>
 
 	
-	<!-- Classpath definition -->
+	<!-- Classpath definitions -->
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+	
+	<path id="test-classpath">
+		<path refid="classpath"/>
+		<pathelement location="${build-test.dir}"/>
+		<pathelement location="${classes.dir}"/>
+		<pathelement location="${ant.library.dir}/junit4.jar"/>
 	</path>
 	
 
@@ -36,6 +43,7 @@
 	<!-- CLEAN -->
 	<target name="clean">
 		<delete dir="${build.dir}"/>
+		<delete dir="tmp/"/>
 	</target>
 		
 	
@@ -46,13 +54,14 @@
 		<javac srcdir="${src.dir}" destdir="${classes.dir}" excludes="${main-dir}/*" classpathref="classpath"/>
 		<echo>Compiling startup classes</echo>
 		<javac srcdir="${src.dir}/${main-dir}" destdir="${classes.dir}" source="1.4" classpathref="classpath"/>
+		<copy file="build.properties" todir="${dist.dir}"/>
 	</target>
 	
 	
 	<!-- JAR -->
 	<target name="jar" depends="build">
 		<copy todir="${dist.dir}/">
-			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes build.properties" />
+			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes build.properties fileformat.txt" />
 			<fileset dir="." includes="datafiles/ pix/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
@@ -69,7 +78,7 @@
 	
 	
 	<!-- DIST-SRC -->
-	<target name="dist-src" depends="checktodo,clean,unittest">
+	<target name="dist-src">
 		<echo>			
 		Building source distribution
 		</echo>
@@ -141,19 +150,19 @@ ${criticaltodos}</fail>
 	<target name="unittest" description="Execute unit tests" depends="build">
 		<echo>Building unit tests</echo>
 		<mkdir dir="${build-test.dir}"/>
-		<javac srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="classpath" classpath="${classes.dir}:${ant.library.dir}/junit4.jar"/>
+		<javac srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
 		
 		<echo>Running unit tests</echo>
 		<mkdir dir="tmp/rawtestoutput"/>
 		<junit printsummary="true" failureproperty="junit.failure">
-			<classpath path="${build-test.dir}"/>
-			<classpath path="${classes.dir}"/>
-			<classpath path="${ant.library.dir}/junit4.jar"/>
-		  
+			<classpath>
+				<path refid="test-classpath"/>
+				<path location="${basedir}"/>
+			</classpath>
 			<batchtest todir="tmp/rawtestoutput">
-				<fileset dir="${src-test.dir}">
-					<include name="**/*Test*.java" />
-					<exclude name="Test.java" />
+				<fileset dir="${build-test.dir}">
+					<include name="**/*Test*.class" />
+					<exclude name="Test.class" />
 				</fileset>
 				<formatter type="xml"/>
 			</batchtest>

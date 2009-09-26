@@ -142,7 +142,8 @@ public class SimulationRunDialog extends JDialog {
 		this.setLocationByPlatform(true);
 		this.validate();
 		this.pack();
-		GUIUtil.installEscapeCloseOperation(this);
+		
+		GUIUtil.setDisposableDialogOptions(this, null);
 
 		updateProgress();
 	}

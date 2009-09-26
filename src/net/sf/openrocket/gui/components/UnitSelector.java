@@ -39,7 +39,7 @@ import net.sf.openrocket.unit.UnitGroup;
 public class UnitSelector extends ResizeLabel implements ChangeListener, MouseListener,
 		ItemSelectable {
 
-	private final DoubleModel model;
+	private DoubleModel model;
 	private final Action[] extraActions;
 
 	private UnitGroup unitGroup;
@@ -73,9 +73,12 @@ public class UnitSelector extends ResizeLabel implements ChangeListener, MouseLi
 		if (model != null) {
 			this.unitGroup = model.getUnitGroup();
 			this.currentUnit = model.getCurrentUnit();
-		} else {
+		} else if (group != null) {
 			this.unitGroup = group;
 			this.currentUnit = group.getDefaultUnit();
+		} else {
+			this.unitGroup = UnitGroup.UNITS_NONE;
+			this.currentUnit = UnitGroup.UNITS_NONE.getDefaultUnit();
 		}
 
 		this.extraActions = actions;
@@ -90,6 +93,10 @@ public class UnitSelector extends ResizeLabel implements ChangeListener, MouseLi
 		withinBorder = new CompoundBorder(new LineBorder(new Color(0f, 0f, 0f, 0.6f)),
 				new EmptyBorder(1, 1, 1, 1));
 
+		// Add model listener if showing value
+		if (showValue)
+			this.model.addChangeListener(this);
+		
 		setBorder(normalBorder);
 		updateText();
 	}
@@ -102,9 +109,6 @@ public class UnitSelector extends ResizeLabel implements ChangeListener, MouseLi
 
 	public UnitSelector(DoubleModel model, boolean showValue, Action... actions) {
 		this(model, showValue, null, actions);
-
-		// Add model listener
-		this.model.addChangeListener(this);
 	}
 
 
@@ -125,6 +129,26 @@ public class UnitSelector extends ResizeLabel implements ChangeListener, MouseLi
 		return model;
 	}
 
+	
+	/**
+	 * Set the current double model.  
+	 * 
+	 * @param model		the model to set, <code>null</code> is NOT allowed.
+	 */
+	public void setModel(DoubleModel model) {
+		if (this.model != null && showValue) {
+			this.model.removeChangeListener(this);
+		}
+		this.model = model;
+		this.unitGroup = model.getUnitGroup();
+		this.currentUnit = model.getCurrentUnit();
+		if (showValue) {
+			this.model.addChangeListener(this);
+		}
+		updateText();
+	}
+	
+	
 
 	/**
 	 * Return the unit group that is being shown, or <code>null</code>.  Either this method

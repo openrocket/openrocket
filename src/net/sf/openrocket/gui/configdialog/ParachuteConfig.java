@@ -52,7 +52,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		panel.add(new JLabel("Material:"));
 		
-		JComboBox combo = new JComboBox(new MaterialModel(component, Material.Type.SURFACE));
+		JComboBox combo = new JComboBox(new MaterialModel(panel, component, 
+				Material.Type.SURFACE));
 		combo.setToolTipText("The component material affects the weight of the component.");
 		panel.add(combo,"spanx 3, growx, wrap paragraph");
 
@@ -112,7 +113,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		panel.add(new JLabel("Material:"));
 		
-		combo = new JComboBox(new MaterialModel(component, Material.Type.LINE, 
+		combo = new JComboBox(new MaterialModel(panel, component, Material.Type.LINE, 
 				"LineMaterial"));
 		panel.add(combo,"spanx 3, growx, wrap");
 

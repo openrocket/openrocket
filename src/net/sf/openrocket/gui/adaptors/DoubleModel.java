@@ -37,6 +37,8 @@ import net.sf.openrocket.util.MathUtil;
 
 public class DoubleModel implements ChangeListener, ChangeSource {
 	private static final boolean DEBUG_LISTENERS = false;
+	
+	public static final DoubleModel ZERO = new DoubleModel(0);
 
 	//////////// JSpinner Model ////////////
 	
@@ -706,7 +708,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	
 	
 	/**
-	 * Add a listener to the model.  Adds the model as a listener to the Component if this
+	 * Add a listener to the model.  Adds the model as a listener to the value source if this
 	 * is the first listener.
 	 * @param l Listener to add.
 	 */

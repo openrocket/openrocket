@@ -13,6 +13,7 @@ import javax.swing.SwingWorker;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.CSVExport;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
+import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataBranch.Type;
 import net.sf.openrocket.unit.Unit;
@@ -75,8 +76,7 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 			try {
 				os.close();
 			} catch (Exception e) {
-				System.err.println("Error closing file: ");
-				e.printStackTrace();
+				ExceptionHandler.handleErrorCondition("Error closing file", e);
 			}
 		}
 		return null;

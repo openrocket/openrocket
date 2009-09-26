@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +33,22 @@ public abstract class FinSet extends ExternalComponent {
 		public double getRelativeVolume() {
 			return volume;
 		}
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+	
+	public enum TabRelativePosition {
+		FRONT("Root chord leading edge"),
+		CENTER("Root chord midpoint"),
+		END("Root chord trailing edge");
+		
+		private final String name;
+		TabRelativePosition(String name) {
+			this.name = name;
+		}
+		
 		@Override
 		public String toString() {
 			return name;
@@ -80,7 +97,17 @@ public abstract class FinSet extends ExternalComponent {
 	protected CrossSection crossSection = CrossSection.SQUARE;
 	
 	
+	/*
+	 * Fin tab properties.
+	 */
+	private double tabHeight = 0;
+	private double tabLength = 0.05;
+	private double tabShift = 0;
+	private TabRelativePosition tabRelativePosition = TabRelativePosition.CENTER;
+	
+	
 	// Cached fin area & CG.  Validity of both must be checked using finArea!
+	// Fin area does not include fin tabs, CG does.
 	private double finArea = -1;
 	private double finCGx = -1;
 	private double finCGy = -1;
@@ -220,16 +247,123 @@ public abstract class FinSet extends ExternalComponent {
 		super.setPositionValue(value);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
+	
+	
 
 	
+	public double getTabHeight() {
+		return tabHeight;
+	}
+
+	public void setTabHeight(double height) {
+		height = MathUtil.max(height, 0);
+		if (MathUtil.equals(this.tabHeight, height))
+			return;
+		this.tabHeight = height;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+
+	public double getTabLength() {
+		return tabLength;
+	}
+
+	public void setTabLength(double length) {
+		length = MathUtil.max(length, 0);
+		if (MathUtil.equals(this.tabLength, length))
+			return;
+		this.tabLength = length;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+
+
+	public double getTabShift() {
+		return tabShift;
+	}
+
+	public void setTabShift(double shift) {
+		this.tabShift = shift;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+	
+	
+	public TabRelativePosition getTabRelativePosition() {
+		return tabRelativePosition;
+	}
+	
+	public void setTabRelativePosition(TabRelativePosition position) {
+		if (this.tabRelativePosition == position)
+			return;
+		
+
+		double front = getTabFrontEdge();
+		switch (position) {
+		case FRONT:
+			this.tabShift = front;
+			break;
+			
+		case CENTER:
+			this.tabShift = front + tabLength/2 - getLength()/2;
+			break;
+			
+		case END:
+			this.tabShift = front + tabLength - getLength();
+			break;
+			
+		default:
+			throw new IllegalArgumentException("position="+position);
+		}
+		this.tabRelativePosition = position;
+		
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+
+	
+	/**
+	 * Return the tab front edge position from the front of the fin.
+	 */
+	public double getTabFrontEdge() {
+		switch (this.tabRelativePosition) {
+		case FRONT:
+			return tabShift;
+			
+		case CENTER:
+			return getLength()/2 - tabLength/2 + tabShift;
+			
+		case END:
+			return getLength() - tabLength + tabShift;
+			
+		default:
+			throw new IllegalStateException("tabRelativePosition="+tabRelativePosition);
+		}
+	}
+
+	/**
+	 * Return the tab trailing edge position *from the front of the fin*.
+	 */
+	public double getTabTrailingEdge() {
+		switch (this.tabRelativePosition) {
+		case FRONT:
+			return tabLength + tabShift;			
+		case CENTER:
+			return getLength()/2 + tabLength/2 + tabShift;
+			
+		case END:
+			return getLength() + tabShift;
+			
+		default:
+			throw new IllegalStateException("tabRelativePosition="+tabRelativePosition);
+		}
+	}
 
 	
 	
 	
 	///////////  Calculation methods  ///////////
-	
+
 	/**
-	 * Return the area of one side of one fin.
+	 * Return the area of one side of one fin.  This does NOT include the area of
+	 * the fin tab.
 	 * 
 	 * @return   the area of one side of one fin.
 	 */
@@ -239,6 +373,7 @@ public abstract class FinSet extends ExternalComponent {
 		
 		return finArea;
 	}
+	
 	
 	/**
 	 * Return the unweighted CG of a single fin.  The X-coordinate is relative to
@@ -257,7 +392,8 @@ public abstract class FinSet extends ExternalComponent {
 
 	@Override
 	public double getComponentVolume() {
-		return fins * getFinArea() * thickness * crossSection.getRelativeVolume();
+		return fins * (getFinArea() + tabHeight*tabLength) * thickness * 
+			crossSection.getRelativeVolume();
 	}
 	
 
@@ -303,9 +439,21 @@ public abstract class FinSet extends ExternalComponent {
 		if (finArea < 0)
 			finArea = 0;
 		
-		if (finArea > 0) {
-			finCGx /= finArea;
-			finCGy /= finArea;
+		// Add effect of fin tabs to CG
+		double tabArea = tabLength * tabHeight;
+		if (!MathUtil.equals(tabArea, 0)) {
+			
+			double x = (getTabFrontEdge() + getTabTrailingEdge())/2;
+			double y = -this.tabHeight/2;
+			
+			finCGx += x*tabArea;
+			finCGy += y*tabArea;
+			
+		}
+		
+		if ((finArea + tabArea) > 0) {
+			finCGx /= (finArea + tabArea);
+			finCGy /= (finArea + tabArea);
 		} else {
 			finCGx = (points[0].x + points[points.length-1].x)/2;
 			finCGy = 0;
@@ -488,6 +636,38 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	public abstract Coordinate[] getFinPoints();
 	
+	
+	/**
+	 * Return a list of coordinates defining the geometry of a single fin, including a
+	 * possible fin tab.  The coordinates are the XY-coordinates of points defining the 
+	 * shape of a single fin, where the origin is the leading root edge.  This implementation
+	 * calls {@link #getFinPoints()} and adds the necessary points for the fin tab.
+	 * The tab coordinates will have a negative y value.
+	 * 
+	 * @return  List of XY-coordinates.
+	 */
+	public Coordinate[] getFinPointsWithTab() {
+		Coordinate[] points = getFinPoints();
+		
+		if (MathUtil.equals(getTabHeight(), 0) || 
+				MathUtil.equals(getTabLength(), 0))
+			return points;
+		
+		double x1 = getTabFrontEdge();
+		double x2 = getTabTrailingEdge();
+		double y = -getTabHeight();
+
+		int n = points.length;
+		points = Arrays.copyOf(points, points.length+4);
+		points[n] = new Coordinate(x2, 0);
+		points[n+1] = new Coordinate(x2, y);
+		points[n+2] = new Coordinate(x1, y);
+		points[n+3] = new Coordinate(x1, 0);
+		return points;
+	}
+	
+	
+	
 	/**
 	 * Get the span of a single fin.  That is, the length from the root to the tip of the fin.
 	 * @return  Span of a single fin.
@@ -508,5 +688,9 @@ public abstract class FinSet extends ExternalComponent {
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;
 		this.crossSection = src.crossSection;
+		this.tabHeight = src.tabHeight;
+		this.tabLength = src.tabLength;
+		this.tabRelativePosition = src.tabRelativePosition;
+		this.tabShift = src.tabShift;
 	}
 }

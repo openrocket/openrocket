@@ -9,6 +9,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.main.ExceptionHandler;
 
 
 public class Icons {
@@ -59,10 +60,19 @@ public class Icons {
 	
 	
 	
+	/**
+	 * Load an ImageIcon from the specified file.  The file is obtained as a system
+	 * resource from the normal classpath.  If the file cannot be loaded a bug dialog
+	 * is opened and <code>null</code> is returned.
+	 * 
+	 * @param file	the file to load.
+	 * @param name	the description of the icon.
+	 * @return		the ImageIcon, or null if could not be loaded (after the user closes the dialog)
+	 */
 	public static ImageIcon loadImageIcon(String file, String name) {
 		URL url = ClassLoader.getSystemResource(file);
 		if (url == null) {
-			System.err.println("Resource "+file+" not found!  Ignoring...");
+			ExceptionHandler.handleErrorCondition("Image file " + file + " not found, ignoring.");
 			return null;
 		}
 		return new ImageIcon(url, name);

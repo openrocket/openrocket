@@ -380,8 +380,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			if (c == null) {
 				// Should not occur
-				System.err.println("ERROR:  Could not place new component.");
-				Thread.dumpStack();
+				ExceptionHandler.handleErrorCondition("ERROR:  Could not place new component.");
 				updateEnabled();
 				return;
 			}
@@ -492,8 +491,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				// Insert at the end of the parent
 				return new Pair<RocketComponent,Integer>(parent, null);
 			default:
-				System.err.println("ERROR:  Bad position type: "+pos);
-				Thread.dumpStack();
+				ExceptionHandler.handleErrorCondition("ERROR:  Bad position type: "+pos);
 				return null;
 			}
 		}
@@ -533,8 +531,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				sel = 2;
 				break;
 			default:
-				System.err.println("ERROR:  JOptionPane returned "+sel);
-				Thread.dumpStack();
+				ExceptionHandler.handleErrorCondition("ERROR:  JOptionPane returned "+sel);
 				return 0;
 			}
 			

@@ -174,7 +174,7 @@ public class RocketComponentConfig extends JPanel {
 		label.setToolTipText("The component material affects the weight of the component.");
 		panel.add(label,"spanx 4, wrap rel");
 		
-		JComboBox combo = new JComboBox(new MaterialModel(component,type));
+		JComboBox combo = new JComboBox(new MaterialModel(panel, component, type));
 		combo.setToolTipText("The component material affects the weight of the component.");
 		panel.add(combo,"spanx 4, growx, wrap paragraph");
 		
@@ -229,8 +229,8 @@ public class RocketComponentConfig extends JPanel {
 		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
 				"[][65lp::][30lp::][]",""));
 		
-		panel.add(new JLabel("Override the mass or center of gravity of the " +
-				component.getComponentName() + ":"),"spanx, wrap 20lp");
+		panel.add(new JLabel("<html><b>Override the mass or center of gravity of the " +
+				component.getComponentName() + ":</b>"),"spanx, wrap 20lp");
 
 		JCheckBox check;
 		BooleanModel bm;
@@ -315,7 +315,8 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel commentTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new JLabel("Comments on the "+component.getComponentName()+":"), "wrap");
+		panel.add(new JLabel("<html><b>Comments on the "+component.getComponentName()+":</b>"), 
+				"wrap");
 		
 		// TODO: LOW:  Changes in comment from other sources not reflected in component
 		commentTextArea = new JTextArea(component.getComment());
@@ -325,7 +326,7 @@ public class RocketComponentConfig extends JPanel {
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
 		
-		panel.add(new JScrollPane(commentTextArea), "growx, growy");
+		panel.add(new JScrollPane(commentTextArea), "width 10px, height 10px, growx, growy");
 		
 		return panel;
 	}
@@ -335,7 +336,7 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel figureTab() {
 		JPanel panel = new JPanel(new MigLayout("align 20% 20%"));
 		
-		panel.add(new JLabel("Figure style:"), "wrap para");
+		panel.add(new JLabel("<html><b>Figure style:</b>"), "wrap para");
 		
 		
 		panel.add(new JLabel("Component color:"), "gapleft para, gapright 10lp");

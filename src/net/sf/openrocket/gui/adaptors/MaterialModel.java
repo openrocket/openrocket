@@ -1,32 +1,20 @@
 package net.sf.openrocket.gui.adaptors;
 
 
-import java.awt.Dialog;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Component;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Reflection;
 
 public class MaterialModel extends AbstractListModel implements
@@ -34,6 +22,8 @@ public class MaterialModel extends AbstractListModel implements
 	
 	private static final String CUSTOM = "Custom";
 
+	
+	private final Component parentComponent;
 	
 	private final RocketComponent component;
 	private final Material.Type type;
@@ -43,11 +33,13 @@ public class MaterialModel extends AbstractListModel implements
 	private final Reflection.Method setMethod;
 	
 	
-	public MaterialModel(RocketComponent component, Material.Type type) {
-		this(component, type, "Material");
+	public MaterialModel(Component parent, RocketComponent component, Material.Type type) {
+		this(parent, component, type, "Material");
 	}	
 
-	public MaterialModel(RocketComponent component, Material.Type type, String name) {
+	public MaterialModel(Component parent, RocketComponent component, Material.Type type, 
+			String name) {
+		this.parentComponent = parent;
 		this.component = component;
 		this.type = type;
 		
@@ -94,18 +86,20 @@ public class MaterialModel extends AbstractListModel implements
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					AddMaterialDialog dialog = new AddMaterialDialog();
+					CustomMaterialDialog dialog = new CustomMaterialDialog(
+							SwingUtilities.getWindowAncestor(parentComponent), 
+							(Material) getSelectedItem(), true,
+							"Define custom material");
+
 					dialog.setVisible(true);
 					
-					if (!dialog.okClicked)
+					if (!dialog.getOkClicked())
 						return;
 					
-					Material material = Material.newMaterial(type, 
-							dialog.nameField.getText().trim(),
-							dialog.density.getValue(), true);
+					Material material = dialog.getMaterial();
 					setMethod.invoke(component, material);
 					
-					if (dialog.addBox.isSelected()) {
+					if (dialog.isAddSelected()) {
 						database.add(material);
 					}
 				}
@@ -156,65 +150,5 @@ public class MaterialModel extends AbstractListModel implements
 	public void elementRemoved(Material element, Database<Material> source) {
 		this.fireContentsChanged(this, 0, database.size());
 	}
-
-
-
-
 	
-	
-	private class AddMaterialDialog extends JDialog {
-		
-		private boolean okClicked = false;
-		private JTextField nameField;
-		private DoubleModel density;
-		private JCheckBox addBox;
-		
-		public AddMaterialDialog() {
-			super((Window)null, "Custom material", Dialog.ModalityType.APPLICATION_MODAL);
-			
-			Material material = (Material) getSelectedItem();
-			
-			JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::]"));
-			
-			panel.add(new JLabel("Material name:"));
-			nameField = new JTextField(15);
-			nameField.setText(material.getName());
-			panel.add(nameField,"span 2, growx, wrap");
-			
-			panel.add(new JLabel("Material density:"));
-			density = new DoubleModel(material.getDensity(),UnitGroup.UNITS_DENSITY_BULK,0);
-			JSpinner spinner = new JSpinner(density.getSpinnerModel());
-			panel.add(spinner, "growx");
-			panel.add(new UnitSelector(density),"wrap");
-			
-			addBox = new JCheckBox("Add material to database");
-			panel.add(addBox,"span, wrap");
-			
-			JButton button = new JButton("OK");
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					okClicked = true;
-					AddMaterialDialog.this.setVisible(false);
-				}
-			});
-			panel.add(button,"span, split, tag ok");
-			
-			button = new JButton("Cancel");
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					AddMaterialDialog.this.setVisible(false);
-				}
-			});
-			panel.add(button,"tag cancel");
-			
-			this.setContentPane(panel);
-			this.pack();
-			this.setAlwaysOnTop(true);
-			this.setLocationRelativeTo(null);
-		}
-	}
-
-
 }

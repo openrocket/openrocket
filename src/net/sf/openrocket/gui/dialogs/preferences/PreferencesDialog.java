@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.dialogs;
+package net.sf.openrocket.gui.dialogs.preferences;
 
 import java.awt.Dialog;
 import java.awt.Window;
@@ -39,8 +39,8 @@ public class PreferencesDialog extends JDialog {
 		
 
 		tabbedPane.addTab("Units", null, unitsPane(), "Default units");
+		tabbedPane.addTab("Materials", null, new MaterialEditPanel(), "Custom materials");
 		tabbedPane.addTab("Confirmation", null, confirmationPane(), "Confirmation dialog settings");
-		
 		
 		
 		JButton close = new JButton("Close");
@@ -55,7 +55,6 @@ public class PreferencesDialog extends JDialog {
 		
 		this.setContentPane(panel);
 		pack();
-		setAlwaysOnTop(true);
 		this.setLocationRelativeTo(null);
 		
 		this.addWindowListener(new WindowAdapter() {
@@ -65,8 +64,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		GUIUtil.setDefaultButton(close);
-		GUIUtil.installEscapeCloseOperation(this);
+		GUIUtil.setDisposableDialogOptions(this, close);
 	}
 	
 	
@@ -84,37 +82,14 @@ public class PreferencesDialog extends JDialog {
 		return panel;
 	}
 	
+	
+	
 	private JPanel unitsPane() {
 		JPanel panel = new JPanel(new MigLayout("", "[][]40lp[][]"));
 		JComboBox combo;
 		
 		panel.add(new JLabel("Select your preferred units:"), "span, wrap paragraph");
 		
-/*
-		public static final UnitGroup UNITS_LENGTH;
-		public static final UnitGroup UNITS_MOTOR_DIMENSIONS;
-		public static final UnitGroup UNITS_DISTANCE;
-		
-		public static final UnitGroup UNITS_VELOCITY;
-		public static final UnitGroup UNITS_ACCELERATION;
-		public static final UnitGroup UNITS_MASS;
-		public static final UnitGroup UNITS_FORCE;
-		public static final UnitGroup UNITS_IMPULSE;
-
-		public static final UnitGroup UNITS_STABILITY;
-		public static final UnitGroup UNITS_FLIGHT_TIME;
-		public static final UnitGroup UNITS_ROLL;
-		
-		public static final UnitGroup UNITS_AREA;
-		public static final UnitGroup UNITS_DENSITY_LINE;
-		public static final UnitGroup UNITS_DENSITY_SURFACE;
-		public static final UnitGroup UNITS_DENSITY_BULK;
-		public static final UnitGroup UNITS_ROUGHNESS;
-		
-		public static final UnitGroup UNITS_TEMPERATURE;
-		public static final UnitGroup UNITS_PRESSURE;
-		public static final UnitGroup UNITS_ANGLE;
-*/
 		
 		panel.add(new JLabel("Rocket dimensions:"));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_LENGTH));
@@ -235,6 +210,7 @@ public class PreferencesDialog extends JDialog {
 
 		return panel;
 	}
+	
 	
 	
 	

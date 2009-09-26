@@ -86,7 +86,7 @@ public class ComponentIcons {
 	private static ImageIcon loadSmall(String file, String desc) {
 		URL url = ClassLoader.getSystemResource(file);
 		if (url==null) {
-	        System.err.println("ERROR:  Couldn't find file: " + file);
+	        ExceptionHandler.handleErrorCondition("ERROR:  Couldn't find file: " + file);
 			return null;
 		}
 		return new ImageIcon(url, desc);
@@ -103,8 +103,7 @@ public class ComponentIcons {
 				bi = ImageIO.read(url);
 				bi2 = ImageIO.read(url);   //  How the fsck can one duplicate a BufferedImage???
 			} catch (IOException e) {
-				System.err.println("ERROR:  Couldn't read file: "+file);
-				e.printStackTrace();
+				ExceptionHandler.handleErrorCondition("ERROR:  Couldn't read file: "+file, e);
 		        return new ImageIcon[]{null,null};
 			}
 			
@@ -138,7 +137,7 @@ public class ComponentIcons {
 	    	
 	        return icons;
 	    } else {
-	        System.err.println("ERROR:  Couldn't find file: " + file);
+	    	ExceptionHandler.handleErrorCondition("ERROR:  Couldn't find file: " + file);
 	        return new ImageIcon[]{null,null};
 	    }
 	}

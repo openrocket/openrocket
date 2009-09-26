@@ -57,6 +57,7 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -144,7 +145,7 @@ public class OpenRocketLoader extends RocketLoader {
 class DocumentConfig {
 
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0" };
+	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1" };
 
 
 	////////  Component constructors
@@ -289,6 +290,11 @@ class DocumentConfig {
 				FinSet.CrossSection.class));
 		setters.put("FinSet:cant", new DoubleSetter(
 				Reflection.findMethodStatic(FinSet.class, "setCantAngle", double.class), Math.PI/180.0));
+		setters.put("FinSet:tabheight", new DoubleSetter(
+				Reflection.findMethodStatic(FinSet.class, "setTabHeight", double.class)));
+		setters.put("FinSet:tablength", new DoubleSetter(
+				Reflection.findMethodStatic(FinSet.class, "setTabLength", double.class)));
+		setters.put("FinSet:tabposition", new FinTabPositionSetter());
 		
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
@@ -462,7 +468,8 @@ class DocumentConfig {
 	 * @param enumClass		the class of the enum.
 	 * @return				the found enum value, or <code>null</code>.
 	 */
-	public static <T extends Enum<T>> Enum<T> findEnum(String name, Class<? extends Enum<T>> enumClass) {
+	public static <T extends Enum<T>> Enum<T> findEnum(String name, 
+			Class<? extends Enum<T>> enumClass) {
 		
 		if (name == null)
 			return null;
@@ -1900,6 +1907,43 @@ class PositionSetter implements Setter {
 	}
 }
 
+
+class FinTabPositionSetter extends DoubleSetter {
+
+	public FinTabPositionSetter() {
+		super(Reflection.findMethodStatic(FinSet.class, "setTabShift", double.class));
+	}
+
+	@Override
+	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
+			WarningSet warnings) {
+		
+		if (!(c instanceof FinSet)) {
+			throw new IllegalStateException("FinTabPositionSetter called for component " + c);
+		}
+
+		String relative = attributes.get("relativeto");
+		FinSet.TabRelativePosition position = 
+			(TabRelativePosition) DocumentConfig.findEnum(relative,
+					FinSet.TabRelativePosition.class);
+		
+		if (position != null) {
+			
+			((FinSet)c).setTabRelativePosition(position);
+			
+		} else {
+			if (relative == null) {
+				warnings.add("Required attribute 'relativeto' not found for fin tab position.");
+			} else {
+				warnings.add("Illegal attribute value '" + relative + "' encountered.");
+			}
+		}
+		
+		super.set(c, s, attributes, warnings);
+	}
+
+	
+}
 
 
 class ClusterConfigurationSetter implements Setter {

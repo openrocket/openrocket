@@ -32,11 +32,12 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			handling = false;
 		}
 
+		e.printStackTrace();
+		
 		try {
 			
 			if (handling) {
-				System.err.println("Exception is currently being handled, " +
-						"dumping exception instead:");
+				System.err.println("Exception is currently being handled, ignoring:");
 				e.printStackTrace();
 				return;
 			}
@@ -71,6 +72,63 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
 	
 	/**
+	 * Handle an error condition programmatically without throwing an exception.
+	 * This can be used in cases where recovery of the error is desirable.
+	 * 
+	 * @param message	the error message.
+	 */
+	public static void handleErrorCondition(String message) {
+		handleErrorCondition(new InternalException(message));
+	}
+	
+
+	/**
+	 * Handle an error condition programmatically without throwing an exception.
+	 * This can be used in cases where recovery of the error is desirable.
+	 * 
+	 * @param message	the error message.
+	 * @param exception	the exception that occurred.
+	 */
+	public static void handleErrorCondition(String message, Exception exception) {
+		handleErrorCondition(new InternalException(message, exception));
+	}
+	
+	
+	/**
+	 * Handle an error condition programmatically without throwing an exception.
+	 * This can be used in cases where recovery of the error is desirable.
+	 * 
+	 * @param exception		the exception that occurred.
+	 */
+	public static void handleErrorCondition(final Exception exception) {
+		final ExceptionHandler handler;
+
+		try {
+
+			if (instance == null) {
+				handler = new ExceptionHandler();
+			} else {
+				handler = instance;
+			}
+
+			final Thread thread = Thread.currentThread();
+
+			if (SwingUtilities.isEventDispatchThread()) {
+				handler.showDialog(thread, exception);
+			} else {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						handler.showDialog(thread, exception);
+					}
+				});
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
 	 * The actual handling routine.
 	 * 
 	 * @param t		the thread that caused the exception, or <code>null</code>.
@@ -103,10 +161,17 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		
 		
 		// Normal exception, show question dialog
+		String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
+		if (msg.length() > 90) {
+			msg = msg.substring(0, 90) + "...";
+		}
+		
 		
 		int selection = JOptionPane.showOptionDialog(null, new Object[] {
 				"OpenRocket encountered an uncaught exception.  This typically signifies " +
-				"a bug in the software.", " ",
+				"a bug in the software.", 
+				"<html><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + msg + "</em>",
+				" ",
 				"Please take a moment to report this bug to the developers.",
 				"This can be done automatically if you have an Internet connection."
 				}, "Uncaught exception", JOptionPane.DEFAULT_OPTION, 
@@ -158,9 +223,45 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 */
 	public static class AwtHandler {
 		public void handle(Throwable t) {
+			
+			/*
+			 * Detect and ignore bug 6828938 in Sun JRE 1.6.0_14 - 1.6.0_16.
+			 */
+			if (t instanceof ArrayIndexOutOfBoundsException) {
+				final String buggyClass = "sun.font.FontDesignMetrics";
+				StackTraceElement[] elements = t.getStackTrace();
+				if (elements.length >= 3 &&
+						(buggyClass.equals(elements[0].getClassName()) ||
+						 buggyClass.equals(elements[1].getClassName()) ||
+						 buggyClass.equals(elements[2].getClassName()))) {
+					System.err.println("Ignoring Sun JRE bug 6828938:  " + t);
+					return;
+				}
+			}
+			
+			
 			if (instance != null) {
 				instance.uncaughtException(Thread.currentThread(), t);
 			}
+		}
+	}
+	
+	
+	private static class InternalException extends Exception {
+		public InternalException() {
+			super();
+		}
+
+		public InternalException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public InternalException(String message) {
+			super(message);
+		}
+
+		public InternalException(Throwable cause) {
+			super(cause);
 		}
 	}
 }

@@ -1,6 +1,8 @@
 package net.sf.openrocket.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Defines an affine transformation of the form  A*x+c,  where x and c are Coordinates and
@@ -240,6 +242,20 @@ public class Transformation implements java.io.Serializable {
 		System.out.println();
 	}
 	
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof Transformation))
+			return false;
+		Transformation o = (Transformation)other;
+		for (int i=0; i<3; i++) {
+			for (int j=0; j<3; j++) {
+				if (!MathUtil.equals(this.rotation[i][j], o.rotation[i][j]))
+					return false;
+			}
+		}
+		return this.translate.equals(o.translate);
+	}
 	
 	public static void main(String[] arg) {
 		Transformation t;

@@ -1,3 +1,34 @@
+2009-09-26  Sampo Niskanen
+
+	* Implemented custom material editing
+
+2009-09-20  Sampo Niskanen
+
+	* Implemented more unit tests, fixed bugs
+
+2009-09-19  Sampo Niskanen
+
+	* [BUG] Ignore Sun JRE bug 6828938 in ExceptionHandler
+	* Implemented non-exception throwing bug handling
+	* [BUG] Fixed unnecessary cropping for component tree names
+
+2009-09-10  Sampo Niskanen
+
+	* [BUG] Freeform fin set shape undo not working
+	* [BUG] Conversion to freeform fin set not working
+
+2009-09-08  Sampo Niskanen
+
+	* Allow components to be attached to tube coupler
+
+2009-09-07  Sampo Niskanen
+
+	* Implemented fin tab save/load
+
+2009-09-04  Sampo Niskanen
+
+	* Implemented through-the-wall fin tabs (excluding save/load)
+
 2009-09-01  Sampo Niskanen
 
 	* Released version 0.9.3

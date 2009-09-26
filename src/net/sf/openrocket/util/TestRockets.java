@@ -1,83 +1,250 @@
 package net.sf.openrocket.util;
 
+import java.awt.Color;
+import java.util.Random;
+
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
+import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
 
-public class Test {
-
-	public static double noseconeLength=0.10,noseconeRadius=0.01;
-	public static double bodytubeLength=0.20,bodytubeRadius=0.01,bodytubeThickness=0.001;
+public class TestRockets {
 	
-	public static int finCount=3;
-	public static double finRootChord=0.04,finTipChord=0.05,finSweep=0.01,finThickness=0.003, finHeight=0.03;
+	private final String key;
+	private final Random rnd;
 	
-	public static double materialDensity=1000;  // kg/m3
 	
+	public TestRockets(String key) {
 
-	public static Rocket makeRocket() {
-		Rocket rocket;
-		Stage stage,stage2;
-		NoseCone nosecone;
-		BodyTube bodytube, bt2;
-		Transition transition;
-		TrapezoidFinSet finset;
+		if (key == null) {
+			Random rnd = new Random();
+			StringBuilder sb = new StringBuilder();
+			for (int i=0; i<6; i++) {
+				int n = rnd.nextInt(62);
+				if (n < 10) {
+					sb.append((char)('0'+n));
+				} else if (n < 36) {
+					sb.append((char)('A'+n-10));
+				} else {
+					sb.append((char)('a'+n-36));
+				}
+			}
+			key = sb.toString();
+		}
 		
-		rocket = new Rocket();
-		stage = new Stage();
-		stage.setName("Stage1");
-		stage2 = new Stage();
-		stage2.setName("Stage2");
-		nosecone = new NoseCone(Transition.Shape.ELLIPSOID,noseconeLength,noseconeRadius);
-		bodytube = new BodyTube(bodytubeLength,bodytubeRadius,bodytubeThickness);
-		transition = new Transition();
-		bt2 = new BodyTube(bodytubeLength,bodytubeRadius*2,bodytubeThickness);
-		bt2.setMotorMount(true);
+		this.key = key;
+		this.rnd = new Random(key.hashCode());
 
-		finset = new TrapezoidFinSet(finCount,finRootChord,finTipChord,finSweep,finHeight);
+	}
+
+
+	/**
+	 * Create a new test rocket based on the value 'key'.  The rocket utilizes most of the 
+	 * properties and features available.  The same key always returns the same rocket,
+	 * but different key values produce slightly different rockets.  A key value of
+	 * <code>null</code> generates a rocket using a random key.
+	 * <p>
+	 * The rocket created by this method is not fly-worthy.  It is also NOT guaranteed
+	 * that later versions would produce exactly the same rocket!
+	 * 
+	 * @return		a rocket design.
+	 */
+	public Rocket makeTestRocket() {
+		
+		Rocket rocket = new Rocket();
+		setBasics(rocket);
+		rocket.setCustomReferenceLength(rnd(0.05));
+		rocket.setDesigner("Designer " + key);
+		rocket.setReferenceType((ReferenceType) randomEnum(ReferenceType.class));
+		rocket.setRevision("Rocket revision " + key);
+		rocket.setName(key);
 		
 		
-		// Stage construction
+		Stage stage = new Stage();
+		setBasics(stage);
 		rocket.addChild(stage);
-		rocket.addChild(stage2);
+		
+		
+		NoseCone nose = new NoseCone();
+		setBasics(stage);
+		nose.setAftRadius(rnd(0.03));
+		nose.setAftRadiusAutomatic(rnd.nextBoolean());
+		nose.setAftShoulderCapped(rnd.nextBoolean());
+		nose.setAftShoulderLength(rnd(0.02));
+		nose.setAftShoulderRadius(rnd(0.02));
+		nose.setAftShoulderThickness(rnd(0.002));
+		nose.setClipped(rnd.nextBoolean());
+		nose.setThickness(rnd(0.002));
+		nose.setFilled(rnd.nextBoolean());
+		nose.setForeRadius(rnd(0.1));  // Unset
+		nose.setLength(rnd(0.15));
+		nose.setShapeParameter(rnd(0.5));
+		nose.setType((Shape) randomEnum(Shape.class));
+		stage.addChild(nose);
+		
+		
+		Transition shoulder = new Transition();
+		setBasics(shoulder);
+		shoulder.setAftRadius(rnd(0.06));
+		shoulder.setAftRadiusAutomatic(rnd.nextBoolean());
+		shoulder.setAftShoulderCapped(rnd.nextBoolean());
+		shoulder.setAftShoulderLength(rnd(0.02));
+		shoulder.setAftShoulderRadius(rnd(0.05));
+		shoulder.setAftShoulderThickness(rnd(0.002));
+		shoulder.setClipped(rnd.nextBoolean());
+		shoulder.setThickness(rnd(0.002));
+		shoulder.setFilled(rnd.nextBoolean());
+		shoulder.setForeRadius(rnd(0.03));
+		shoulder.setForeRadiusAutomatic(rnd.nextBoolean());
+		shoulder.setForeShoulderCapped(rnd.nextBoolean());
+		shoulder.setForeShoulderLength(rnd(0.02));
+		shoulder.setForeShoulderRadius(rnd(0.02));
+		shoulder.setForeShoulderThickness(rnd(0.002));
+		shoulder.setLength(rnd(0.15));
+		shoulder.setShapeParameter(rnd(0.5));
+		shoulder.setThickness(rnd(0.003));
+		shoulder.setType((Shape) randomEnum(Shape.class));
+		stage.addChild(shoulder);
+		
+		
+		BodyTube body = new BodyTube();
+		setBasics(body);
+		body.setThickness(rnd(0.002));
+		body.setFilled(rnd.nextBoolean());
+		body.setIgnitionDelay(rnd.nextDouble()*3);
+		body.setIgnitionEvent((IgnitionEvent) randomEnum(IgnitionEvent.class));
+		body.setLength(rnd(0.3));
+		body.setMotorMount(rnd.nextBoolean());
+		body.setMotorOverhang(rnd.nextGaussian()*0.03);
+		body.setRadius(rnd(0.06));
+		body.setRadiusAutomatic(rnd.nextBoolean());
+		stage.addChild(body);
 
 		
-		// Component construction
-		stage.addChild(nosecone);
+		Transition boattail = new Transition();
+		setBasics(boattail);
+		boattail.setAftRadius(rnd(0.03));
+		boattail.setAftRadiusAutomatic(rnd.nextBoolean());
+		boattail.setAftShoulderCapped(rnd.nextBoolean());
+		boattail.setAftShoulderLength(rnd(0.02));
+		boattail.setAftShoulderRadius(rnd(0.02));
+		boattail.setAftShoulderThickness(rnd(0.002));
+		boattail.setClipped(rnd.nextBoolean());
+		boattail.setThickness(rnd(0.002));
+		boattail.setFilled(rnd.nextBoolean());
+		boattail.setForeRadius(rnd(0.06));
+		boattail.setForeRadiusAutomatic(rnd.nextBoolean());
+		boattail.setForeShoulderCapped(rnd.nextBoolean());
+		boattail.setForeShoulderLength(rnd(0.02));
+		boattail.setForeShoulderRadius(rnd(0.05));
+		boattail.setForeShoulderThickness(rnd(0.002));
+		boattail.setLength(rnd(0.15));
+		boattail.setShapeParameter(rnd(0.5));
+		boattail.setThickness(rnd(0.003));
+		boattail.setType((Shape) randomEnum(Shape.class));
+		stage.addChild(boattail);
 		
-		stage.addChild(bodytube);
 
+		MassComponent mass = new MassComponent();
+		setBasics(mass);
+		mass.setComponentMass(rnd(0.05));
+		mass.setLength(rnd(0.05));
+		mass.setRadialDirection(rnd(100));
+		mass.setRadialPosition(rnd(0.02));
+		mass.setRadius(rnd(0.05));
+		nose.addChild(mass);
 		
-		stage2.addChild(transition);
-		
-		stage2.addChild(bt2);
-		
-		bodytube.addChild(finset);
 		
 		
-		rocket.getDefaultConfiguration().setAllStages();
 		
 		return rocket;
 	}
 	
+	
+	private void setBasics(RocketComponent c) {
+		c.setComment(c.getComponentName() + " comment " + key);
+		c.setName(c.getComponentName() + " name " + key);
 
-	public static Rocket makeSmallFlyable() {
+		c.setCGOverridden(rnd.nextBoolean());
+		c.setMassOverridden(rnd.nextBoolean());
+		c.setOverrideCGX(rnd(0.2));
+		c.setOverrideMass(rnd(0.05));
+		c.setOverrideSubcomponents(rnd.nextBoolean());
+
+		if (c.isMassive()) {
+			// Only massive components are drawn
+			c.setColor(randomColor());
+			c.setLineStyle((LineStyle) randomEnum(LineStyle.class));
+		}
+		
+		if (c instanceof ExternalComponent) {
+			ExternalComponent e = (ExternalComponent)c;
+			e.setFinish((Finish) randomEnum(Finish.class));
+			double d = rnd(100);
+			e.setMaterial(Material.newMaterial(Type.BULK, "Testmat "+d, d, rnd.nextBoolean()));
+		}
+		
+		if (c instanceof InternalComponent) {
+			InternalComponent i = (InternalComponent)c;
+			i.setRelativePosition((Position) randomEnum(Position.class));
+			i.setPositionValue(rnd(0.3));
+		}
+	}
+	
+	
+	
+	private double rnd(double scale) {
+		return (rnd.nextDouble()*0.2+0.9) * scale;
+	}
+	
+	private Color randomColor() {
+		return new Color(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+	}
+	
+	private <T extends Enum<T>> Enum<T> randomEnum(Class<T> c) {
+		Enum<T>[] values = c.getEnumConstants();
+		if (values.length == 0)
+			return null;
+		
+		return values[rnd.nextInt(values.length)];
+	}
+
+	
+	
+	
+	
+	
+	public Rocket makeSmallFlyable() {
+		double noseconeLength=0.10,noseconeRadius=0.01;
+		double bodytubeLength=0.20,bodytubeRadius=0.01,bodytubeThickness=0.001;
+		
+		int finCount=3;
+		double finRootChord=0.04,finTipChord=0.05,finSweep=0.01,finThickness=0.003, finHeight=0.03;
+		
+		
 		Rocket rocket;
 		Stage stage;
 		NoseCone nosecone;

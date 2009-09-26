@@ -14,12 +14,15 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationConditions;
+import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
@@ -27,8 +30,13 @@ import net.sf.openrocket.util.TextUtil;
 
 public class OpenRocketSaver extends RocketSaver {
 	
-	/* Remember to update OpenRocketLoader as well! */
-	public static final String FILE_VERSION = "1.0";
+	/**
+	 * Divisor used in converting an integer version to the point-represented version.
+	 * The integer version divided by this value is the major version and the remainder is
+	 * the minor version.  For example 101 corresponds to file version "1.1".
+	 */
+	public static final int FILE_VERSION_DIVISOR = 100;
+
 	
 	private static final String OPENROCKET_CHARSET = "UTF-8";
 	
@@ -59,14 +67,18 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		dest = new BufferedWriter(new OutputStreamWriter(output, OPENROCKET_CHARSET)); 
 		
+		final int fileVersion = calculateNecessaryFileVersion(document, options);
+		final String fileVersionString = 
+			(fileVersion / FILE_VERSION_DIVISOR) + "." + (fileVersion % FILE_VERSION_DIVISOR); 
+		
 		
 		this.indent = 0;
 		
 		System.out.println("Writing...");
 		
 		writeln("<?xml version='1.0' encoding='utf-8'?>");
-		writeln("<openrocket version=\""+FILE_VERSION+"\" creator=\"OpenRocket "
-				+Prefs.getVersion()+ "\">");
+		writeln("<openrocket version=\"" + fileVersionString + "\" creator=\"OpenRocket "
+				+ Prefs.getVersion() + "\">");
 		indent++;
 		
 		// Recursively save the rocket structure
@@ -91,8 +103,9 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("</openrocket>");
 		
 		dest.flush();
-		if (output instanceof GZIPOutputStream)
+		if (options.isCompressionEnabled()) {
 			((GZIPOutputStream)output).finish();
+		}
 	}
 	
 	
@@ -147,6 +160,51 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 
+	/**
+	 * Determine which file version is required in order to store all the features of the
+	 * current design.  By default the oldest version that supports all the necessary features
+	 * will be used.
+	 * 
+	 * @param document	the document to output.
+	 * @param opts		the storage options.
+	 * @return			the integer file version to use.
+	 */
+	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
+		/*
+		 * File version 1.1 is required for:
+		 *  - fin tabs
+		 *  - components attached to tube coupler
+		 * 
+		 * Otherwise use version 1.0.
+		 */
+		
+		// Check for fin tabs (version 1.1)
+		Iterator<RocketComponent> iterator = document.getRocket().deepIterator();
+		while (iterator.hasNext()) {
+			RocketComponent c = iterator.next();
+			
+			// Check for fin tabs
+			if (c instanceof FinSet) {
+				FinSet fin = (FinSet)c;
+				if (!MathUtil.equals(fin.getTabHeight(),0) &&
+						!MathUtil.equals(fin.getTabLength(), 0)) {
+					return FILE_VERSION_DIVISOR + 1;
+				}
+			}
+			
+			// Check for components attached to tube coupler
+			if (c instanceof TubeCoupler) {
+				if (c.getChildCount() > 0) {
+					return FILE_VERSION_DIVISOR + 1;
+				}
+			}
+		}
+		
+		// Default (version 1.0)
+		return FILE_VERSION_DIVISOR + 0;
+	}
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	private void saveComponent(RocketComponent component) throws IOException {

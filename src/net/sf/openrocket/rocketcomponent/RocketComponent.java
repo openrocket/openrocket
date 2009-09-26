@@ -1411,10 +1411,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 
 	
 	/**
-	 * Loads the RocketComponent fields from the given component.  This method may
-	 * be called only for a Rocket component and is meant for use with the
-	 * undo/redo mechanism.
-	 *
+	 * Loads the RocketComponent fields from the given component.  This method is meant
+	 * for in-place replacement of a component.  It is used with the undo/redo
+	 * mechanism and when converting a finset into a freeform fin set.
+	 * This component must not have a parent, otherwise this method will fail.
+	 * <p>
 	 * The fields are copied by reference, and the supplied component must not be used
 	 * after the call, as it is in an undefined state.
 	 * 
@@ -1422,9 +1423,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 */
 	protected void copyFrom(RocketComponent src) {
 		
-		if (!(this instanceof Rocket)) {
-			throw new UnsupportedOperationException("copyFrom called for component " + this);
-		}
 		if (this.parent != null) {
 			throw new UnsupportedOperationException("copyFrom called for non-root component " 
 					+ this);

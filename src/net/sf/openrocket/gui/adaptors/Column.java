@@ -46,6 +46,12 @@ public abstract class Column {
 	}
 	
 	
+	/**
+	 * Return the column type class.  This is necessary for example for numerical
+	 * sorting of Value objects, showing booleans as checkboxes etc.
+	 * 
+	 * @return	the object class of this column, by default <code>Object.class</code>.
+	 */
 	public Class<?> getColumnClass() {
 		return Object.class;
 	}

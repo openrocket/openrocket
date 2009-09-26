@@ -284,9 +284,8 @@ public class MotorChooserDialog extends JDialog {
 		this.pack();
 //		this.setAlwaysOnTop(true);
 
-		GUIUtil.setDefaultButton(okButton);
-		GUIUtil.installEscapeCloseOperation(this);
 		this.setLocationByPlatform(true);
+		GUIUtil.setDisposableDialogOptions(this, okButton);
 		
 		// Table can be scrolled only after pack() has been called
 		setSelectionVisible();

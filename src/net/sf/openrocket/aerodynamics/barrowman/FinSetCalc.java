@@ -1,26 +1,20 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
-import net.sf.openrocket.util.Test;
 
 
 public class FinSetCalc extends RocketComponentCalc {
@@ -603,38 +597,38 @@ public class FinSetCalc extends RocketComponentCalc {
 	}
 	
 	
-	@SuppressWarnings("null")
-	public static void main(String arg[]) {
-		Rocket rocket = Test.makeRocket();
-		FinSet finset = null;
-		
-		Iterator<RocketComponent> iter = rocket.deepIterator();
-		while (iter.hasNext()) {
-			RocketComponent c = iter.next();
-			if (c instanceof FinSet) {
-				finset = (FinSet)c;
-				break;
-			}
-		}
-		
-		((TrapezoidFinSet)finset).setHeight(0.10);
-		((TrapezoidFinSet)finset).setRootChord(0.10);
-		((TrapezoidFinSet)finset).setTipChord(0.10);
-		((TrapezoidFinSet)finset).setSweep(0.0);
-
-		
-		FinSetCalc calc = new FinSetCalc(finset);
-		
-		calc.calculateFinGeometry();
-		FlightConditions cond = new FlightConditions(new Configuration(rocket));
-		for (double m=0; m < 3; m+=0.05) {
-			cond.setMach(m);
-			cond.setAOA(0.0*Math.PI/180);
-			double cna = calc.calculateFinCNa1(cond);
-			System.out.printf("%5.2f "+cna+"\n", m);
-		}
-		
-	}
+//	@SuppressWarnings("null")
+//	public static void main(String arg[]) {
+//		Rocket rocket = TestRocket.makeRocket();
+//		FinSet finset = null;
+//		
+//		Iterator<RocketComponent> iter = rocket.deepIterator();
+//		while (iter.hasNext()) {
+//			RocketComponent c = iter.next();
+//			if (c instanceof FinSet) {
+//				finset = (FinSet)c;
+//				break;
+//			}
+//		}
+//		
+//		((TrapezoidFinSet)finset).setHeight(0.10);
+//		((TrapezoidFinSet)finset).setRootChord(0.10);
+//		((TrapezoidFinSet)finset).setTipChord(0.10);
+//		((TrapezoidFinSet)finset).setSweep(0.0);
+//
+//		
+//		FinSetCalc calc = new FinSetCalc(finset);
+//		
+//		calc.calculateFinGeometry();
+//		FlightConditions cond = new FlightConditions(new Configuration(rocket));
+//		for (double m=0; m < 3; m+=0.05) {
+//			cond.setMach(m);
+//			cond.setAOA(0.0*Math.PI/180);
+//			double cna = calc.calculateFinCNa1(cond);
+//			System.out.printf("%5.2f "+cna+"\n", m);
+//		}
+//		
+//	}
 
 
 	@Override

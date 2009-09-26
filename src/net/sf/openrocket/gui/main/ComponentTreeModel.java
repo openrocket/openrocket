@@ -90,6 +90,13 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		listeners.remove(l);
 	}
 	
+	private void fireTreeNodeChanged(RocketComponent node) {
+		TreeModelEvent e = new TreeModelEvent(this, makeTreePath(node), null, null);
+		Object[] l = listeners.toArray();
+		for (int i=0; i<l.length; i++)
+			((TreeModelListener)l[i]).treeNodesChanged(e);
+	}
+	
 	private void fireTreeNodesChanged() {
 		Object[] path = { root };
 		TreeModelEvent e = new TreeModelEvent(this,path);
@@ -167,7 +174,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 				expandAll();
 			}
 		} else if (e.isOtherChange()) {
-			fireTreeNodesChanged();
+			fireTreeNodeChanged(e.getSource());
 		}
 	}
 

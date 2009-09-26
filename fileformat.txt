@@ -1,0 +1,35 @@
+
+The current OpenRocket file format is "documented" only as the
+reference implementation.  This will hopefully change in the future.
+
+
+The "version" attribute of the <openrocket> tag describes the file
+format version used, while the "creator" attribute MAY describe the
+software version used to write the document.
+
+The file format version is increased every time the format is
+changed.  The minor number is increased when changes are made that are
+mostly backward-compatible, meaning that older software versions
+should be able to read the design sans the new features.  The major
+number is increased when changes are made that render the design
+problematic or impossible to read for older software.  For maximum
+compatibility software should save a file in the oldest file format
+version that supports all the necessary design features.
+
+
+The following file format versions exist:
+
+
+0.9:  Used before the first public release of Openrocket; effectively
+      equivalent to 1.0.  Should not be used when writing documents.
+      OpenRocket accepts this version when reading files, but other
+      software need not.
+
+1.0:  File format version of the first public release (OpenRocket 0.9.0)
+
+1.1:  Introduced with OpenRocket 0.9.4.  Adds support for saving fin
+      tabs (<tabheight>, <tablength> and <tabposition> elements) and
+      allows attaching subcomponents to a tube coupler (previously
+      forbidden).
+
+

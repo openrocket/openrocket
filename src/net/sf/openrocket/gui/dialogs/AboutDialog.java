@@ -62,8 +62,8 @@ public class AboutDialog extends JDialog {
 		this.pack();
 		this.setResizable(false);
 		this.setLocationRelativeTo(parent);
-		GUIUtil.setDefaultButton(close);
-		GUIUtil.installEscapeCloseOperation(this);
+		
+		GUIUtil.setDisposableDialogOptions(this, close);
 	}
 	
 	

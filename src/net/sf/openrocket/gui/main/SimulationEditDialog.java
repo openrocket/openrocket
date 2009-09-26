@@ -174,8 +174,8 @@ public class SimulationEditDialog extends JDialog {
 		this.validate();
 		this.pack();
 		this.setLocationByPlatform(true);
-		GUIUtil.setDefaultButton(button);
-		GUIUtil.installEscapeCloseOperation(this);
+		
+		GUIUtil.setDisposableDialogOptions(this, button);
 	}
 	
 	
@@ -931,8 +931,8 @@ public class SimulationEditDialog extends JDialog {
 
 		dialog.setLocationByPlatform(true);
 		dialog.pack();
-		GUIUtil.installEscapeCloseOperation(dialog);
-		GUIUtil.setDefaultButton(button);
+		
+		GUIUtil.setDisposableDialogOptions(dialog, button);
 
 		dialog.setVisible(true);
 	}

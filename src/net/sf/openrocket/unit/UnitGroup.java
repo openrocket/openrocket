@@ -316,6 +316,26 @@ public class UnitGroup {
 		defaultUnit = n;
 	}
 	
+	
+	
+	/**
+	 * Find a unit by approximate unit name.  Only letters and (ordinary) numbers are
+	 * considered in the matching.  This method is mainly means for testing, allowing
+	 * a simple means to obtain a particular unit.
+	 * 
+	 * @param str	the unit name.
+	 * @return		the corresponding unit, or <code>null</code> if not found.
+	 */
+	public Unit findApproximate(String str) {
+		str = str.replaceAll("\\W", "").trim();
+		for (Unit u: units) {
+			String name = u.getUnit().replaceAll("\\W", "").trim();
+			if (str.equalsIgnoreCase(name))
+				return u;
+		}
+		return null;
+	}
+	
 	/**
 	 * Set the default unit based on the unit name.  Does nothing if the name
 	 * does not match any of the units.
@@ -391,6 +411,22 @@ public class UnitGroup {
 	public String toStringUnit(double value) {
 		return this.getDefaultUnit().toStringUnit(value);
 	}
+	
+	
+
+	
+	
+	/**
+	 * Creates a new Value object with the specified value and the default unit of this group.
+	 * 
+	 * @param value	the value to set.
+	 * @return		a new Value object.
+	 */
+	public Value toValue(double value) {
+		return this.getDefaultUnit().toValue(value);
+	}
+	
+	
 	
 	
 	private static final Pattern STRING_PATTERN = Pattern.compile("^\\s*([0-9.,-]+)(.*?)$");

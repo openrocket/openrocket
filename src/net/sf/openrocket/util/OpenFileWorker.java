@@ -12,6 +12,7 @@ import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketLoader;
+import net.sf.openrocket.gui.main.ExceptionHandler;
 
 
 /**
@@ -67,8 +68,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			try {
 				is.close();
 			} catch (Exception e) {
-				System.err.println("Error closing file: ");
-				e.printStackTrace();
+				ExceptionHandler.handleErrorCondition("Error closing file", e);
 			}
 		}
 	}

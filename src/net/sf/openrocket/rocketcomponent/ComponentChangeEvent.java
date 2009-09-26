@@ -39,6 +39,15 @@ public class ComponentChangeEvent extends ChangeEvent {
 	}
 	
 	
+	/**
+	 * Return the source component of this event as specified in the constructor.
+	 */
+	@Override
+	public RocketComponent getSource() {
+		return (RocketComponent) super.getSource();
+	}
+
+
 	public boolean isAerodynamicChange() {
 		return (type & AERODYNAMIC_CHANGE) != 0;
 	}

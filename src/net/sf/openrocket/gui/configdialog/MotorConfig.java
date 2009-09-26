@@ -152,7 +152,7 @@ public class MotorConfig extends JPanel {
 				updateFields();
 			}
 		});
-		panel.add(button,"span, split, grow");
+		panel.add(button,"span, split, growx");
 		
 		button = new JButton("Remove motor");
 		button.addActionListener(new ActionListener() {
@@ -162,7 +162,7 @@ public class MotorConfig extends JPanel {
 				updateFields();
 			}
 		});
-		panel.add(button,"grow, wrap");
+		panel.add(button,"growx, wrap");
 		
 		
 		

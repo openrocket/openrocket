@@ -13,7 +13,6 @@ import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -21,7 +20,6 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
 import net.sf.openrocket.util.Reflection;
-import net.sf.openrocket.util.Test;
 
 /**
  * An aerodynamic calculator that uses the extended Barrowman method to 
@@ -809,89 +807,89 @@ public class BarrowmanCalculator extends AerodynamicCalculator {
 	
 	
 	
-	public static void main(String[] arg) {
-		
-		PolyInterpolator interpolator;
-		
-		interpolator = new PolyInterpolator(
-				new double[] { 0, 17*Math.PI/180 },
-				new double[] { 0, 17*Math.PI/180 }
-		);
-		double[] poly1 = interpolator.interpolator(1, 1.3, 0, 0);
-		
-		interpolator = new PolyInterpolator(
-				new double[] { 17*Math.PI/180, Math.PI/2 },
-				new double[] { 17*Math.PI/180, Math.PI/2 },
-				new double[] { Math.PI/2 }
-		);
-		double[] poly2 = interpolator.interpolator(1.3, 0, 0, 0, 0);
-				
-		
-		for (double a=0; a<=180.1; a++) {
-			double r = a*Math.PI/180;
-			if (r > Math.PI/2)
-				r = Math.PI - r;
-			
-			double value;
-			if (r < 18*Math.PI/180)
-				value = PolyInterpolator.eval(r, poly1);
-			else
-				value = PolyInterpolator.eval(r, poly2);
-			
-			System.out.println(""+a+" "+value);
-		}
-		
-		System.exit(0);
-		
-		
-		Rocket normal = Test.makeRocket();
-		Rocket perfect = Test.makeRocket();
-		normal.setPerfectFinish(false);
-		perfect.setPerfectFinish(true);
-		
-		Configuration confNormal = new Configuration(normal);
-		Configuration confPerfect = new Configuration(perfect);
-		
-		for (RocketComponent c: confNormal) {
-			if (c instanceof ExternalComponent) {
-				((ExternalComponent)c).setFinish(Finish.NORMAL);
-			}
-		}
-		for (RocketComponent c: confPerfect) {
-			if (c instanceof ExternalComponent) {
-				((ExternalComponent)c).setFinish(Finish.NORMAL);
-			}
-		}
-		
-		
-		confNormal.setToStage(0);
-		confPerfect.setToStage(0);
-		
-		
-		
-		BarrowmanCalculator calcNormal = new BarrowmanCalculator(confNormal);
-		BarrowmanCalculator calcPerfect = new BarrowmanCalculator(confPerfect);
-		
-		FlightConditions conditions = new FlightConditions(confNormal);
-		
-		for (double mach=0; mach < 3; mach += 0.1) {
-			conditions.setMach(mach);
-
-			Map<RocketComponent, AerodynamicForces> data = 
-				calcNormal.getForceAnalysis(conditions, null);
-			AerodynamicForces forcesNormal = data.get(normal);
-			
-			data = calcPerfect.getForceAnalysis(conditions, null);
-			AerodynamicForces forcesPerfect = data.get(perfect);
-			
-			System.out.printf("%f %f %f %f %f %f %f\n",mach, 
-					forcesNormal.pressureCD, forcesPerfect.pressureCD, 
-					forcesNormal.frictionCD, forcesPerfect.frictionCD,
-					forcesNormal.CD, forcesPerfect.CD);
-		}
-		
-		
-		
-	}
+//	public static void main(String[] arg) {
+//		
+//		PolyInterpolator interpolator;
+//		
+//		interpolator = new PolyInterpolator(
+//				new double[] { 0, 17*Math.PI/180 },
+//				new double[] { 0, 17*Math.PI/180 }
+//		);
+//		double[] poly1 = interpolator.interpolator(1, 1.3, 0, 0);
+//		
+//		interpolator = new PolyInterpolator(
+//				new double[] { 17*Math.PI/180, Math.PI/2 },
+//				new double[] { 17*Math.PI/180, Math.PI/2 },
+//				new double[] { Math.PI/2 }
+//		);
+//		double[] poly2 = interpolator.interpolator(1.3, 0, 0, 0, 0);
+//				
+//		
+//		for (double a=0; a<=180.1; a++) {
+//			double r = a*Math.PI/180;
+//			if (r > Math.PI/2)
+//				r = Math.PI - r;
+//			
+//			double value;
+//			if (r < 18*Math.PI/180)
+//				value = PolyInterpolator.eval(r, poly1);
+//			else
+//				value = PolyInterpolator.eval(r, poly2);
+//			
+//			System.out.println(""+a+" "+value);
+//		}
+//		
+//		System.exit(0);
+//		
+//		
+//		Rocket normal = TestRocket.makeRocket();
+//		Rocket perfect = TestRocket.makeRocket();
+//		normal.setPerfectFinish(false);
+//		perfect.setPerfectFinish(true);
+//		
+//		Configuration confNormal = new Configuration(normal);
+//		Configuration confPerfect = new Configuration(perfect);
+//		
+//		for (RocketComponent c: confNormal) {
+//			if (c instanceof ExternalComponent) {
+//				((ExternalComponent)c).setFinish(Finish.NORMAL);
+//			}
+//		}
+//		for (RocketComponent c: confPerfect) {
+//			if (c instanceof ExternalComponent) {
+//				((ExternalComponent)c).setFinish(Finish.NORMAL);
+//			}
+//		}
+//		
+//		
+//		confNormal.setToStage(0);
+//		confPerfect.setToStage(0);
+//		
+//		
+//		
+//		BarrowmanCalculator calcNormal = new BarrowmanCalculator(confNormal);
+//		BarrowmanCalculator calcPerfect = new BarrowmanCalculator(confPerfect);
+//		
+//		FlightConditions conditions = new FlightConditions(confNormal);
+//		
+//		for (double mach=0; mach < 3; mach += 0.1) {
+//			conditions.setMach(mach);
+//
+//			Map<RocketComponent, AerodynamicForces> data = 
+//				calcNormal.getForceAnalysis(conditions, null);
+//			AerodynamicForces forcesNormal = data.get(normal);
+//			
+//			data = calcPerfect.getForceAnalysis(conditions, null);
+//			AerodynamicForces forcesPerfect = data.get(perfect);
+//			
+//			System.out.printf("%f %f %f %f %f %f %f\n",mach, 
+//					forcesNormal.pressureCD, forcesPerfect.pressureCD, 
+//					forcesNormal.frictionCD, forcesPerfect.frictionCD,
+//					forcesNormal.CD, forcesPerfect.CD);
+//		}
+//		
+//		
+//		
+//	}
 
 }

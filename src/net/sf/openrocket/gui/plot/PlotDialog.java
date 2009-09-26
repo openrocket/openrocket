@@ -397,7 +397,7 @@ public class PlotDialog extends JDialog {
 		
 		panel.add(chartPanel, "grow, wrap 20lp");
 		
-		final JCheckBox check = new JCheckBox("Show points");
+		final JCheckBox check = new JCheckBox("Show data points");
 		check.setSelected(initialShowPoints);
 		check.addActionListener(new ActionListener() {
 			@Override
@@ -424,8 +424,8 @@ public class PlotDialog extends JDialog {
 
 		this.setLocationByPlatform(true);
 		this.pack();
-		GUIUtil.installEscapeCloseOperation(this);
-		GUIUtil.setDefaultButton(button);
+		
+		GUIUtil.setDisposableDialogOptions(this, button);
 	}
 	
 	

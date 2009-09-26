@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
@@ -72,9 +73,9 @@ import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
-import net.sf.openrocket.gui.dialogs.PreferencesDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
+import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -86,6 +87,7 @@ import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.OpenFileWorker;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.SaveFileWorker;
+import net.sf.openrocket.util.TestRockets;
 
 public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -295,7 +297,7 @@ public class BasicFrame extends JFrame {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 				if(selRow != -1) {
-					if(e.getClickCount() == 2) {
+					if((e.getClickCount() == 2) && !ComponentConfigDialog.isDialogVisible()) {
 						// Double-click
 						RocketComponent c = (RocketComponent)selPath.getLastPathComponent();
 						ComponentConfigDialog.showDialog(BasicFrame.this, 
@@ -625,6 +627,38 @@ public class BasicFrame extends JFrame {
 						"'openrocket.debug.menu' when starting OpenRocket.",
 						"It should not be visible by default." },
 						"Debug menu", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		menu.add(item);
+		
+		menu.addSeparator();
+		
+		item = new JMenuItem("Create test rocket");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextField field = new JTextField();
+				int sel = JOptionPane.showOptionDialog(BasicFrame.this, new Object[] {
+						"Input text key to generate random rocket:",
+						field
+					}, "Generate random test rocket", JOptionPane.DEFAULT_OPTION, 
+					JOptionPane.QUESTION_MESSAGE, null, new Object[] {
+						"Random", "OK"
+				}, "OK");
+				
+				Rocket r;
+				if (sel == 0) {
+					r = new TestRockets(null).makeTestRocket();
+				} else if (sel == 1) {
+					r = new TestRockets(field.getText()).makeTestRocket();
+				} else {
+					return;
+				}
+				
+				OpenRocketDocument doc = new OpenRocketDocument(r);
+				doc.setSaved(true);
+				BasicFrame frame = new BasicFrame(doc);
+				frame.setVisible(true);
 			}
 		});
 		menu.add(item);

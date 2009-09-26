@@ -1,14 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.openrocket.util.Coordinate;
 
 
 public class FreeformFinSet extends FinSet {
 
-	private final List<Coordinate> points = new ArrayList<Coordinate>();
+	private ArrayList<Coordinate> points = new ArrayList<Coordinate>();
 	
 	public FreeformFinSet() {
 		points.add(Coordinate.NUL);
@@ -19,7 +18,16 @@ public class FreeformFinSet extends FinSet {
 		this.length = 0.05;
 	}
 	
-	
+
+	public FreeformFinSet(Coordinate[] finpoints) {
+		points.clear();
+		for (Coordinate c: finpoints) {
+			points.add(c);
+		}
+		this.length = points.get(points.size()-1).x - points.get(0).x;
+	}
+
+	/*
 	public FreeformFinSet(FinSet finset) {
 		Coordinate[] finpoints = finset.getFinPoints();
 		this.copyFrom(finset);
@@ -30,7 +38,68 @@ public class FreeformFinSet extends FinSet {
 		}
 		this.length = points.get(points.size()-1).x - points.get(0).x;
 	}
+	*/
 	
+	
+	/**
+	 * Convert an existing fin set into a freeform fin set.  The specified
+	 * fin set is taken out of the rocket tree (if any) and the new component
+	 * inserted in its stead.
+	 * <p>
+	 * The specified fin set should not be used after the call!
+	 * 
+	 * @param finset	the fin set to convert.
+	 * @return			the new freeform fin set.
+	 */
+	public static FreeformFinSet convertFinSet(FinSet finset) {
+		final RocketComponent root = finset.getRoot();
+		FreeformFinSet freeform;
+		
+		try {
+			if (root instanceof Rocket) {
+				((Rocket)root).freeze();
+			}
+
+			// Get fin set position and remove fin set
+			final RocketComponent parent = finset.getParent();
+			final int position;
+			if (parent != null) {
+				position = parent.getChildPosition(finset);
+				parent.removeChild(position);
+			} else {
+				position = -1;
+			}
+
+			
+			// Create the freeform fin set
+			Coordinate[] finpoints = finset.getFinPoints();
+			freeform = new FreeformFinSet(finpoints);
+
+			// Copy component attributes
+			freeform.copyFrom(finset);
+			
+			// Set name
+			final String componentTypeName = finset.getComponentName();
+			final String name = freeform.getName();
+
+			if (name.startsWith(componentTypeName)) {
+				freeform.setName(freeform.getComponentName() + 
+						name.substring(componentTypeName.length()));
+			}
+
+			// Add freeform fin set to parent
+			if (parent != null) {
+				parent.addChild(freeform, position);
+			}
+
+		} finally {
+			if (root instanceof Rocket) {
+				((Rocket)root).thaw();
+			}
+		}
+		return freeform;
+	}
+
 	
 	
 	/**
@@ -227,6 +296,15 @@ public class FreeformFinSet extends FinSet {
 	@Override
 	public String getComponentName() {
 		return "Freeform fin set";
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public RocketComponent copy() {
+		RocketComponent c = super.copy();
+		((FreeformFinSet)c).points = (ArrayList<Coordinate>) this.points.clone();
+		return c;
 	}
 
 }

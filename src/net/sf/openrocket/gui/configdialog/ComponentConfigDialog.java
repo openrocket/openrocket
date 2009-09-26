@@ -1,8 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
@@ -10,14 +8,9 @@ import java.awt.event.ComponentEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JDialog;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -25,7 +18,7 @@ import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
 
 /**
- * A JFrame dialog that contains the configuration elements of one component.
+ * A dialog that contains the configuration elements of one component.
  * The contents of the dialog are instantiated from CONFIGDIALOGPACKAGE according
  * to the current component.
  * 
@@ -69,9 +62,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			}
 		});
 		
-		
-		// Install ESC listener
-		GUIUtil.installEscapeCloseOperation(this);
+		GUIUtil.setDisposableDialogOptions(this, null);
 	}
 	
 
@@ -88,9 +79,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 
 		if (configurator != null) {
 			// Remove listeners by setting all applicable models to null
-			setNullModels(configurator);  // null-safe
-
-//			mainPanel.remove(configurator);
+			GUIUtil.setNullModels(configurator);  // null-safe
 		}
 		
 		this.document = document;
@@ -100,47 +89,14 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		configurator = getDialogContents();
 		this.setContentPane(configurator);
 		configurator.updateFields();
-//		mainPanel.add(configurator,"cell 0 0, growx, growy");
 		
 		setTitle(component.getComponentName()+" configuration");
 
 //		Dimension pref = getPreferredSize();
 //		Dimension real = getSize();
 //		if (pref.width > real.width || pref.height > real.height)
-		pack();
+		this.pack();
 	}
-	
-	/**
-	 * Traverses recursively the component tree, and sets all applicable component 
-	 * models to null, so as to remove the listener connections.
-	 * 
-	 * NOTE:  All components in the configuration dialogs that use custom models must be added
-	 * to this method.
-	 */
-	private void setNullModels(Component c) {
-		if (c==null)
-			return;
-		
-		// Remove models for known components
-		//  Why the FSCK must this be so hard?!?!?
-
-		if (c instanceof JSpinner) {
-			((JSpinner)c).setModel(new SpinnerNumberModel());
-		} else if (c instanceof JSlider) {
-			((JSlider)c).setModel(new DefaultBoundedRangeModel());
-		} else if (c instanceof Resettable) {
-			((Resettable)c).resetModel();
-		}
-
-		
-		if (c instanceof Container) {
-			Component[] cs = ((Container)c).getComponents();
-			for (Component sub: cs)
-				setNullModels(sub);
-		}
-
-	}
-	
 	
 	/**
 	 * Return the configurator panel of the current component.

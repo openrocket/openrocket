@@ -7,14 +7,11 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -28,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.communication.Communication;
 import net.sf.openrocket.gui.components.ResizeLabel;
 import net.sf.openrocket.gui.components.SelectableLabel;
 import net.sf.openrocket.util.GUIUtil;
@@ -37,14 +35,6 @@ import net.sf.openrocket.util.Prefs;
 public class BugReportDialog extends JDialog {
 	
 	private static final String REPORT_EMAIL = "openrocket-bugs@lists.sourceforge.net";
-	
-	private static final String REPORT_URL = 
-		"http://openrocket.sourceforge.net/actions/reportbug";
-
-	private static final String REPORT_VERSION_PARAM = "version";
-	private static final String REPORT_PARAM = "content";
-	private static final int REPORT_RESPONSE_CODE = HttpURLConnection.HTTP_ACCEPTED;
-	private static final int REPORT_TIMEOUT = 10000;  // in milliseconds
 	
 
 	public BugReportDialog(Window parent, String labelText, String message) {
@@ -117,7 +107,8 @@ public class BugReportDialog extends JDialog {
 				String text = textArea.getText();
 				try {
 					
-					sendReport(text);
+					Communication.sendBugReport(text);
+
 					// Success if we came here
 					JOptionPane.showMessageDialog(BugReportDialog.this,
 							new Object[] { "Bug report successfully sent.",
@@ -142,8 +133,8 @@ public class BugReportDialog extends JDialog {
 		this.pack();
 		this.pack();
 		this.setLocationRelativeTo(parent);
-		GUIUtil.installEscapeCloseOperation(this);
-		GUIUtil.setDefaultButton(send);
+		
+		GUIUtil.setDisposableDialogOptions(this, send);
 	}
 
 	
@@ -282,50 +273,6 @@ public class BugReportDialog extends JDialog {
 	
 	
 	
-	/**
-	 * Send the provided report to the OpenRocket bug report URL.  If the connection
-	 * fails or the server does not respond with the correct response code, an
-	 * exception is thrown.
-	 * 
-	 * @param report		the report to send.
-	 * @throws IOException	if an error occurs while connecting to the server or
-	 * 						the server responds with a wrong response code.
-	 */
-	private void sendReport(String report) throws IOException {
-		URL url = new URL(REPORT_URL);
-		
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		
-		connection.setConnectTimeout(REPORT_TIMEOUT);
-		connection.setInstanceFollowRedirects(true);
-		connection.setRequestMethod("POST");
-		connection.setUseCaches(false);
-		connection.setRequestProperty("X-OpenRocket-Version", Prefs.getVersion());
-		
-		String post;
-		post = (REPORT_VERSION_PARAM + "=" + URLEncoder.encode(Prefs.getVersion(), "UTF-8")
-				+ "&" + REPORT_PARAM + "=" + URLEncoder.encode(report, "UTF-8"));
-		
-		OutputStreamWriter wr = null;
-		try {
-			// Send post information
-			connection.setDoOutput(true);
-			wr = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
-			wr.write(post);
-			wr.flush();
-			
-			if (connection.getResponseCode() != REPORT_RESPONSE_CODE) {
-				throw new IOException("Server responded with code " + 
-						connection.getResponseCode() + ", expecting " + REPORT_RESPONSE_CODE);
-			}
-		} finally {
-			if (wr != null)
-				wr.close();
-			connection.disconnect();
-		}
-	}
-	
-
 	/**
 	 * Open the default email client with the suitable bug report.
 	 * Note that this does not work on some systems even if Desktop.isSupported()

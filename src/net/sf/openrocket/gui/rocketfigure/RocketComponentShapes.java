@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.rocketfigure;
 
 import java.awt.Shape;
 
+import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.scalefigure.RocketFigure;
 import net.sf.openrocket.util.Transformation;
 
@@ -17,14 +18,16 @@ public class RocketComponentShapes {
 	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
 			Transformation t) {
 		// no-op
-		System.err.println("ERROR:  RocketComponent.getShapesSide called with "+component);
+		ExceptionHandler.handleErrorCondition("ERROR:  RocketComponent.getShapesSide called with "
+				+ component);
 		return new Shape[0];
 	}
 	
 	public static Shape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component,
 			Transformation t) {
 		// no-op
-		System.err.println("ERROR:  RocketComponent.getShapesBack called with "+component);
+		ExceptionHandler.handleErrorCondition("ERROR:  RocketComponent.getShapesBack called with "
+				+component);
 		return new Shape[0];
 	}
 	

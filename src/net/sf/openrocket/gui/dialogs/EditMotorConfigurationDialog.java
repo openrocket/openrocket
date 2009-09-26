@@ -249,9 +249,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		
 		updateEnabled();
 		
-		GUIUtil.installEscapeCloseOperation(this);
-		GUIUtil.setDefaultButton(close);
 		this.setLocationByPlatform(true);
+		GUIUtil.setDisposableDialogOptions(this, close);
 		
 		// Undo description
 		final OpenRocketDocument document = BasicFrame.findDocument(rocket);

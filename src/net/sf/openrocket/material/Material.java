@@ -17,19 +17,31 @@ import net.sf.openrocket.util.MathUtil;
 public abstract class Material implements Comparable<Material> {
 
 	public enum Type {
-		LINE,
-		SURFACE,
-		BULK
+		LINE("Line", UnitGroup.UNITS_DENSITY_LINE),
+		SURFACE("Surface", UnitGroup.UNITS_DENSITY_SURFACE),
+		BULK("Bulk", UnitGroup.UNITS_DENSITY_BULK);
+		
+		private final String name;
+		private final UnitGroup units;
+		private Type(String name, UnitGroup units) {
+			this.name = name;
+			this.units = units;
+		}
+		public UnitGroup getUnitGroup() {
+			return units;
+		}
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
+	
+	
+	/////  Definitions of different material types  /////
 	
 	public static class Line extends Material {
 		public Line(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
-		}
-
-		@Override
-		public UnitGroup getUnitGroup() {
-			return UnitGroup.UNITS_DENSITY_LINE;
 		}
 
 		@Override
@@ -45,11 +57,6 @@ public abstract class Material implements Comparable<Material> {
 		}
 		
 		@Override
-		public UnitGroup getUnitGroup() {
-			return UnitGroup.UNITS_DENSITY_SURFACE;
-		}
-
-		@Override
 		public Type getType() {
 			return Type.SURFACE;
 		}
@@ -63,11 +70,6 @@ public abstract class Material implements Comparable<Material> {
 	public static class Bulk extends Material {
 		public Bulk(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
-		}
-
-		@Override
-		public UnitGroup getUnitGroup() {
-			return UnitGroup.UNITS_DENSITY_BULK;
 		}
 
 		@Override
@@ -107,12 +109,11 @@ public abstract class Material implements Comparable<Material> {
 		return userDefined;
 	}
 	
-	public abstract UnitGroup getUnitGroup();
 	public abstract Type getType();
 	
 	@Override
 	public String toString() {
-		return getName(getUnitGroup().getDefaultUnit());
+		return this.getName(this.getType().getUnitGroup().getDefaultUnit());
 	}
 	
 

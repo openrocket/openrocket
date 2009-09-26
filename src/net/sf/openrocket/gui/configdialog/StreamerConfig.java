@@ -85,7 +85,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		panel.add(new JLabel("Material:"));
 		
-		JComboBox combo = new JComboBox(new MaterialModel(component, Material.Type.SURFACE));
+		JComboBox combo = new JComboBox(new MaterialModel(panel, component, 
+				Material.Type.SURFACE));
 		combo.setToolTipText("The component material affects the weight of the component.");
 		panel.add(combo,"spanx 3, growx, wrap 20lp");
 
