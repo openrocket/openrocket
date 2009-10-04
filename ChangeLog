@@ -1,3 +1,12 @@
+2009-10-04  Sampo Niskanen
+
+	* [BUG] Fixed too high configuration dialogs
+
+2009-10-03  Sampo Niskanen
+
+	* Added debug information to ant build file compilation
+	* Implemented update information fetching (client side)
+
 2009-09-26  Sampo Niskanen
 
 	* Implemented custom material editing

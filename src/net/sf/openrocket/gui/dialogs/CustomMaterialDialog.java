@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.util.GUIUtil;
@@ -54,7 +54,7 @@ public class CustomMaterialDialog extends JDialog {
 					"gapleft para, span, wrap" + (note == null ? " para":""));
 		}
 		if (note != null) {
-			panel.add(new ResizeLabel(note, -1), "span, wrap para");
+			panel.add(new StyledLabel(note, -1), "span, wrap para");
 		}
 		
 

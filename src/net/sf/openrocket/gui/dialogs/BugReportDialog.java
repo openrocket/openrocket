@@ -25,8 +25,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.communication.Communication;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.communication.BugReporter;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.SelectableLabel;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.JarUtil;
@@ -66,7 +66,7 @@ public class BugReportDialog extends JDialog {
 		panel.add(new JScrollPane(textArea), "grow, wrap");
 		
 		
-		panel.add(new ResizeLabel("The information above may be included in a public " +
+		panel.add(new StyledLabel("The information above may be included in a public " +
 				"bug report.  Make sure it does not contain any sensitive information you " +
 				"do not want to be made public.", -1), "wrap para");
 		
@@ -107,7 +107,7 @@ public class BugReportDialog extends JDialog {
 				String text = textArea.getText();
 				try {
 					
-					Communication.sendBugReport(text);
+					BugReporter.sendBugReport(text);
 
 					// Success if we came here
 					JOptionPane.showMessageDialog(BugReportDialog.this,

@@ -13,6 +13,9 @@ public class ComponentCompareTest {
 
 	@Test
 	public void testComponentEquality() {
+		
+		System.out.println("TEST CLASSPATH: " + System.getProperty("java.class.path"));
+		
 		Rocket r1 = net.sf.openrocket.util.TestRockets.makeBigBlue();
 		Rocket r2 = net.sf.openrocket.util.TestRockets.makeBigBlue();
 

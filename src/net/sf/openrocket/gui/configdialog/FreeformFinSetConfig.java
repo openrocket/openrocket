@@ -22,7 +22,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.FinPointFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
@@ -212,14 +212,14 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		panel.add(tablePane,"growy, width 100lp:100lp:, height 100lp:250lp:");
 		panel.add(figurePane,"gap unrel, spanx, growx, growy 1000, height 100lp:250lp:, wrap");
 		
-		panel.add(new ResizeLabel("Double-click", -2), "alignx 50%");
+		panel.add(new StyledLabel("Double-click", -2), "alignx 50%");
 		
 		panel.add(new ScaleSelector(figurePane),"spany 2");
-		panel.add(new ResizeLabel("Click+drag: Add and move points   " +
+		panel.add(new StyledLabel("Click+drag: Add and move points   " +
 				"Ctrl+click: Remove point", -2), "spany 2, right, wrap");
 		
 		
-		panel.add(new ResizeLabel("to edit", -2), "alignx 50%");
+		panel.add(new StyledLabel("to edit", -2), "alignx 50%");
 		
 		return panel;
 	}

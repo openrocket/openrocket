@@ -57,6 +57,7 @@ public class Prefs {
 	private static final String BUILD_VERSION;
 	private static final String BUILD_SOURCE;
 	public static final String DEFAULT_BUILD_SOURCE = "default";
+	private static final boolean DEFAULT_CHECK_UPDATES;
 	
 	static {
 		try {
@@ -81,6 +82,12 @@ public class Prefs {
 			
 			BUILD_SOURCE = props.getProperty("build.source");
 			
+			String value = props.getProperty("build.checkupdates");
+			if (value != null)
+				DEFAULT_CHECK_UPDATES = Boolean.parseBoolean(value);
+			else
+				DEFAULT_CHECK_UPDATES = true;
+			
 		} catch (IOException e) {
 			throw new MissingResourceException(
 					"Error reading build.properties",
@@ -102,6 +109,8 @@ public class Prefs {
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
+	
+	private static final String CHECK_UPDATES = "CheckUpdates";
 	
 	/**
 	 * Node to this application's preferences.
@@ -152,14 +161,18 @@ public class Prefs {
 	}
 	
 	
-	private static final Material DEFAULT_LINE_MATERIAL = 
-		Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)", 
-				0.0018, false);
-	private static final Material DEFAULT_SURFACE_MATERIAL = 
-		Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067, false);
-	private static final Material DEFAULT_BULK_MATERIAL = 
-		Databases.findMaterial(Material.Type.BULK, "Cardboard", 680, false);
-
+	/*
+	 * Within a holder class so they will load only when needed.
+	 */
+	private static class DefaultMaterialHolder {
+		private static final Material DEFAULT_LINE_MATERIAL = 
+			Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)", 
+					0.0018, false);
+		private static final Material DEFAULT_SURFACE_MATERIAL = 
+			Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067, false);
+		private static final Material DEFAULT_BULK_MATERIAL = 
+			Databases.findMaterial(Material.Type.BULK, "Cardboard", 680, false);
+	}
 	
 	//////////////////////
 	
@@ -240,6 +253,16 @@ public class Prefs {
 		storeVersion();
 	}
 
+	
+	
+	public static boolean getCheckUpdates() {
+		return PREFNODE.getBoolean(CHECK_UPDATES, DEFAULT_CHECK_UPDATES);
+	}
+	
+	public static void setCheckUpdates(boolean check) {
+		PREFNODE.putBoolean(CHECK_UPDATES, check);
+		storeVersion();
+	}
 	
 	
 	//////////////////
@@ -360,11 +383,11 @@ public class Prefs {
 		
 		switch (type) {
 		case LINE:
-			return DEFAULT_LINE_MATERIAL;
+			return DefaultMaterialHolder.DEFAULT_LINE_MATERIAL;
 		case SURFACE:
-			return DEFAULT_SURFACE_MATERIAL;
+			return DefaultMaterialHolder.DEFAULT_SURFACE_MATERIAL;
 		case BULK:
-			return DEFAULT_BULK_MATERIAL;
+			return DefaultMaterialHolder.DEFAULT_BULK_MATERIAL;
 		}
 		throw new IllegalArgumentException("Unknown material type: "+type);
 	}

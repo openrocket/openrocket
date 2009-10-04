@@ -48,6 +48,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
@@ -60,6 +61,9 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.communication.UpdateInfo;
+import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.OpenRocketSaver;
@@ -74,6 +78,7 @@ import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
+import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
@@ -1151,7 +1156,18 @@ public class BasicFrame extends JFrame {
 	
 	
 	private static void runMain(String[] args) {
-
+		
+		// Start update info fetching
+		final UpdateInfoRetriever updateInfo;
+		if (Prefs.getCheckUpdates()) {
+			updateInfo = new UpdateInfoRetriever();
+			updateInfo.start();
+		} else {
+			updateInfo = null;
+		}
+		
+		
+		
 		/*
 		 * Set the look-and-feel.  On Linux, Motif/Metal is sometimes incorrectly used 
 		 * which is butt-ugly, so if the system l&f is Motif/Metal, we search for a few
@@ -1200,12 +1216,51 @@ public class BasicFrame extends JFrame {
 		
 		// Load defaults
 		Prefs.loadDefaultUnits();
-
 		
-		// Starting action
+
+		// Load motors etc.
+		Databases.fakeMethod();
+		
+		// Starting action (load files or open new document)
 		if (!handleCommandLine(args)) {
 			newAction();
 		}
+		
+		
+		// Check whether update info has been fetched or whether it needs more time
+		checkUpdateStatus(updateInfo);
+	}
+	
+	
+	private static void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
+		if (updateInfo == null)
+			return;
+
+		int delay = 1000;
+		if (!updateInfo.isRunning())
+			delay = 100;
+
+		final Timer timer = new Timer(delay, null);
+
+		ActionListener listener = new ActionListener() {
+			private int count = 5;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!updateInfo.isRunning()) {
+					timer.stop();
+
+					UpdateInfo info = updateInfo.getUpdateInfo();
+					if (info != null && !Prefs.getVersion().equals(info.getLatestVersion())) {
+						new UpdateInfoDialog(info).setVisible(true);
+					}
+				}
+				count--;
+				if (count <= 0)
+					timer.stop();
+			}
+		};
+		timer.addActionListener(listener);
+		timer.start();
 	}
 	
 	

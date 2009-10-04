@@ -26,7 +26,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -269,7 +269,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			// Add labels
 			String[] l = text.split("\n");
 			for (int i=0; i<l.length; i++) {
-				add(new ResizeLabel(l[i],SwingConstants.CENTER,-3.0f),"growx");
+				add(new StyledLabel(l[i],SwingConstants.CENTER,-3.0f),"growx");
 			}
 			
 			add(new JLabel(),"push, sizegroup spacing");
@@ -502,7 +502,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			JPanel panel = new JPanel(new MigLayout());
 			JCheckBox check = new JCheckBox("Do not ask me again");
 			panel.add(check,"wrap");
-			panel.add(new ResizeLabel("You can change the default operation in the " +
+			panel.add(new StyledLabel("You can change the default operation in the " +
 					"preferences.",-2));
 			
 			int sel = JOptionPane.showOptionDialog(null,  // parent component 

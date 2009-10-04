@@ -15,7 +15,9 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -107,7 +109,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 //		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 //				"[40lp][80lp::][30lp::][100lp::]",""));
 
-		panel.add(new JLabel("<html><b>Through-the-wall fin tabs:</b>"), "spanx, wrap 30lp");
+		panel.add(new StyledLabel("Through-the-wall fin tabs:", Style.BOLD), 
+				"spanx, wrap 30lp");
 		
 		JLabel label;
 		DoubleModel m;

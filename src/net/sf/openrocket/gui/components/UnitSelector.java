@@ -36,7 +36,7 @@ import net.sf.openrocket.unit.UnitGroup;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class UnitSelector extends ResizeLabel implements ChangeListener, MouseListener,
+public class UnitSelector extends StyledLabel implements ChangeListener, MouseListener,
 		ItemSelectable {
 
 	private DoubleModel model;

@@ -17,7 +17,10 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.HtmlLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.Parachute;
@@ -36,7 +39,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Canopy
-		panel.add(new JLabel("<html><b>Canopy:</b>"), "wrap unrel");
+		panel.add(new StyledLabel("Canopy:", Style.BOLD), "wrap unrel");
 		
 
 		panel.add(new JLabel("Diameter:"));
@@ -62,7 +65,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		// CD
-		JLabel label = new JLabel("<html>Drag coefficient C<sub>D</sub>:");
+		JLabel label = new HtmlLabel("<html>Drag coefficient C<sub>D</sub>:");
 		String tip = "<html>The drag coefficient relative to the total area of the parachute.<br>" +
 				"A larger drag coefficient yields a slowed descent rate.  " +
 				"A typical value for parachutes is 0.8.";
@@ -89,7 +92,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		////  Shroud lines
-		panel.add(new JLabel("<html><b>Shroud lines:</b>"), "wrap unrel");
+		panel.add(new StyledLabel("Shroud lines:", Style.BOLD), "wrap unrel");
 
 
 		panel.add(new JLabel("Number of lines:"));

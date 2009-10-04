@@ -21,7 +21,7 @@ import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
@@ -160,7 +160,7 @@ public class PlotPanel extends JPanel {
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
 		
-		ResizeLabel desc = new ResizeLabel("<html><p>The data will be plotted in time order " +
+		StyledLabel desc = new StyledLabel("<html><p>The data will be plotted in time order " +
 				"even if the X axis type is not time.", -2);
 		this.add(desc, "width :0px:, growx, wrap para");
 		

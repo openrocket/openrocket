@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
@@ -204,7 +204,7 @@ public class PreferencesDialog extends JDialog {
 		panel.add(button, "grow, wrap para");
 		
 		
-		panel.add(new ResizeLabel("The effects will take place the next time you open a window.",-2),
+		panel.add(new StyledLabel("The effects will take place the next time you open a window.",-2),
 				"spanx, wrap");
 		
 

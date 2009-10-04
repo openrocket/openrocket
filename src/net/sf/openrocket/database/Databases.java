@@ -79,6 +79,7 @@ public class Databases {
 		BULK_MATERIAL.add(new Material.Bulk("Cardboard",	 680, false));
 		BULK_MATERIAL.add(new Material.Bulk("Carbon fiber",	1780, false));
 		BULK_MATERIAL.add(new Material.Bulk("Cork",			 240, false));
+		BULK_MATERIAL.add(new Material.Bulk("Depron",		  40, false));
 		BULK_MATERIAL.add(new Material.Bulk("Fiberglass",	1850, false));
 		BULK_MATERIAL.add(new Material.Bulk("Kraft phenolic",950, false));
 		BULK_MATERIAL.add(new Material.Bulk("Maple",		 755, false));
@@ -89,6 +90,7 @@ public class Databases {
 		BULK_MATERIAL.add(new Material.Bulk("Polystyrene",  1050, false));
 		BULK_MATERIAL.add(new Material.Bulk("PVC",			1390, false));
 		BULK_MATERIAL.add(new Material.Bulk("Spruce",		 450, false));
+		// TODO: CRITICAL: Add styrofoam
 		BULK_MATERIAL.add(new Material.Bulk("Quantum tubing",1050, false));
 		
 		SURFACE_MATERIAL.add(new Material.Surface("Ripstop nylon",			0.067, false));
@@ -138,6 +140,14 @@ public class Databases {
 		LINE_MATERIAL.addDatabaseListener(listener);
 		SURFACE_MATERIAL.addDatabaseListener(listener);
 		BULK_MATERIAL.addDatabaseListener(listener);
+	}
+	
+	
+	/*
+	 * Used just for ensuring initialization of the class.
+	 */
+	public static void fakeMethod() {
+		
 	}
 	
 	

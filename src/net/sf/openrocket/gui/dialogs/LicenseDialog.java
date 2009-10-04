@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.util.GUIUtil;
 
 public class LicenseDialog extends JDialog {
@@ -32,7 +32,7 @@ public class LicenseDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new ResizeLabel("OpenRocket license", 10), "ax 50%, wrap para");
+		panel.add(new StyledLabel("OpenRocket license", 10), "ax 50%, wrap para");
 
 		String licenseText;
 		try {

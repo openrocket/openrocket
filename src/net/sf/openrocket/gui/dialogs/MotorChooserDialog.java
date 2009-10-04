@@ -37,7 +37,7 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
@@ -251,7 +251,7 @@ public class MotorChooserDialog extends JDialog {
 			}
 		});
 		panel.add(delayBox,"gapright unrel");
-		panel.add(new ResizeLabel("(Number of seconds or \"None\")", -1), "wrap para");
+		panel.add(new StyledLabel("(Number of seconds or \"None\")", -1), "wrap para");
 		setDelays(false);
 		
 		

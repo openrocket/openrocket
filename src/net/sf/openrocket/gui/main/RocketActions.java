@@ -15,7 +15,7 @@ import javax.swing.KeyStroke;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -209,7 +209,7 @@ public class RocketActions {
 			JPanel panel = new JPanel(new MigLayout());
 			JCheckBox dontAsk = new JCheckBox("Do not ask me again");
 			panel.add(dontAsk,"wrap");
-			panel.add(new ResizeLabel("You can change the default operation in the " +
+			panel.add(new StyledLabel("You can change the default operation in the " +
 					"preferences.",-2));
 
 			int ret = JOptionPane.showConfirmDialog(

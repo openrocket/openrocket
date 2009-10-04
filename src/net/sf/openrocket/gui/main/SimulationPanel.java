@@ -33,7 +33,7 @@ import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.simulation.FlightData;
@@ -146,7 +146,7 @@ public class SimulationPanel extends JPanel {
 						JPanel panel = new JPanel(new MigLayout());
 						JCheckBox dontAsk = new JCheckBox("Do not ask me again");
 						panel.add(dontAsk,"wrap");
-						panel.add(new ResizeLabel("You can change the default operation in the " +
+						panel.add(new StyledLabel("You can change the default operation in the " +
 								"preferences.",-2));
 						
 					   int ret = JOptionPane.showConfirmDialog(SimulationPanel.this,
@@ -215,7 +215,7 @@ public class SimulationPanel extends JPanel {
 						
 						// Initialize the label
 						if (label == null) {
-							label = new ResizeLabel(2f);
+							label = new StyledLabel(2f);
 							label.setIconTextGap(1);
 //							label.setFont(label.getFont().deriveFont(Font.BOLD));
 						}

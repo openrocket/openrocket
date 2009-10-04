@@ -45,7 +45,7 @@ import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
@@ -370,14 +370,14 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		});
 		
 
-		panel.add(new ResizeLabel("Reference length: ", -1), 
+		panel.add(new StyledLabel("Reference length: ", -1), 
 				"span, split, gapleft para, gapright rel");
 		DoubleModel dm = new DoubleModel(conditions, "RefLength", UnitGroup.UNITS_LENGTH);
 		UnitSelector sel = new UnitSelector(dm, true);
 		sel.resizeFont(-1);
 		panel.add(sel, "gapright para");
 		
-		panel.add(new ResizeLabel("Reference area: ", -1), "gapright rel");
+		panel.add(new StyledLabel("Reference area: ", -1), "gapright rel");
 		dm = new DoubleModel(conditions, "RefArea", UnitGroup.UNITS_AREA);
 		sel = new UnitSelector(dm, true);
 		sel.resizeFont(-1);

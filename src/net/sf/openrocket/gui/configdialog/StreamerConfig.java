@@ -17,7 +17,8 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.HtmlLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.MassComponent;
@@ -93,7 +94,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		// CD
-		JLabel label = new JLabel("<html>Drag coefficient C<sub>D</sub>:");
+		JLabel label = new HtmlLabel("<html>Drag coefficient C<sub>D</sub>:");
 		String tip = "<html>The drag coefficient relative to the total area of the streamer.<br>" +
 				"A larger drag coefficient yields a slowed descent rate.";
 		label.setToolTipText(tip);
@@ -110,7 +111,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		check.setText("Automatic");
 		panel.add(check,"skip, span, wrap");
 		
-		panel.add(new ResizeLabel("The drag coefficient is relative to the area of the streamer.",
+		panel.add(new StyledLabel("The drag coefficient is relative to the area of the streamer.",
 				-2), "span, wrap");
 		
 		

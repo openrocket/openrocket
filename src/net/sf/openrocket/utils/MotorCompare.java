@@ -14,17 +14,24 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class MotorCompare {
 	
+	/** Maximum allowed difference in maximum thrust */
 	private static final double MAX_THRUST_MARGIN = 0.20;
+	/** Maximum allowed difference in total impulse */
 	private static final double TOTAL_IMPULSE_MARGIN = 0.10;
+	/** Maximum allowed difference in mass values */
 	private static final double MASS_MARGIN = 0.10;
-	
-	private static final double THRUST_MARGIN = 0.15;
-	
+
+	/** Number of time points in thrust curve to compare */
 	private static final int DIVISIONS = 100;
+	/** Maximum difference in thrust for a time point to be considered invalid */
+	private static final double THRUST_MARGIN = 0.15;
+	/** Number of invalid time points allowed */
 	private static final int ALLOWED_INVALID_POINTS = 15;
-	
+
+	/** Minimum number of thrust curve points allowed (incl. start and end points) */
 	private static final int MIN_POINTS = 7;
 
+	
 	public static void main(String[] args) throws IOException {
 		final double maxThrust;
 		final double maxTime;

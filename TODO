@@ -4,7 +4,6 @@ Feature roadmap for OpenRocket 1.0
 
 Must-have:
 
-- Allow editing user-defined materials
 - Go through thrust curves and correct errors
 - Add styrofoam and depron materials
 
@@ -12,12 +11,13 @@ Must-have:
 Bugs:
 
 - Simulation plot dialog forces dialog one button row too high (All/None)
-- All configuration dialogs too high
+- Unit tests fail from ant script
 
 
 Maybe:
 
 - Windows executable wrapper (launch4j)
+- Inform user about software updates
 
 
 Postponed:
@@ -31,18 +31,21 @@ Postponed:
 - Simulate other branches
 - Implement setDefaults() method for RocketComponent
 - BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
-- Inform user about software updates
 - Reading thrust curves from external directory
 - NAR/CNES/etc competition validity checking
+- Running from command line
+- Print support
+- Saving as SVG
 
 
 Refactoring tasks:
 
+- Move startup class to src14 directory, remove reflection
 - Remove database etc. initialization from class initialization,
   create separate set of test motors
 - Extract event rules and data saving from Simulator into listeners
 - Change SimulationStatus to include methods for obtaining basic
-  position (maybe even an interface)
+  position (maybe even change to an interface, implements Cloneable)
 - Change Motor (immutable) to be a factory of MotorInstance (stateful)
 
 
@@ -74,4 +77,6 @@ In 0.9.4:
 - Save file as oldest OpenRocket format possible  (for 0.9.4)
 - Non-exception bug handling
 - JTree text is cropped unnecessarily
+- Allow editing user-defined materials
+- [BUG] All configuration dialogs too high
 
