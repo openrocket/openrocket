@@ -12,14 +12,21 @@ import java.util.List;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
+import javax.swing.Timer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.communication.UpdateInfo;
+import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
@@ -40,7 +47,7 @@ public class PreferencesDialog extends JDialog {
 
 		tabbedPane.addTab("Units", null, unitsPane(), "Default units");
 		tabbedPane.addTab("Materials", null, new MaterialEditPanel(), "Custom materials");
-		tabbedPane.addTab("Confirmation", null, confirmationPane(), "Confirmation dialog settings");
+		tabbedPane.addTab("Options", null, optionsPane(), "Miscellaneous options");
 		
 		
 		JButton close = new JButton("Close");
@@ -68,16 +75,39 @@ public class PreferencesDialog extends JDialog {
 	}
 	
 	
-	private JPanel confirmationPane() {
-		JPanel panel = new JPanel(new MigLayout("fill"));
+	private JPanel optionsPane() {
+		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
 		
-		panel.add(new JLabel("Position to insert new body components:"));
+		
+		panel.add(new JLabel("Position to insert new body components:"), "gapright para");
 		panel.add(new JComboBox(new PrefChoiseSelector(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY,
-				"Always ask", "Insert in middle", "Add to end")), "wrap para, sg combos");
+				"Always ask", "Insert in middle", "Add to end")), "wrap para, growx, sg combos");
 		
 		panel.add(new JLabel("Confirm deletion of simulations:"));
 		panel.add(new JComboBox(new PrefBooleanSelector(Prefs.CONFIRM_DELETE_SIMULATION,
-				"Delete", "Confirm", true)), "wrap para, sg combos");
+				"Delete", "Confirm", true)), "wrap 40lp, growx, sg combos");
+		
+		
+		final JCheckBox softwareUpdateBox = new JCheckBox("Check for software updates");
+		softwareUpdateBox.setSelected(Prefs.getCheckUpdates());
+		softwareUpdateBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Prefs.setCheckUpdates(softwareUpdateBox.isSelected());
+			}
+		});
+		panel.add(softwareUpdateBox);
+		
+		JButton button = new JButton("Check now");
+		button.setToolTipText("Check for software updates now");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkForUpdates();
+			}
+		});
+		panel.add(button, "right, wrap");
+		
 		
 		return panel;
 	}
@@ -349,6 +379,73 @@ public class PreferencesDialog extends JDialog {
 		}
 	}
 	
+	
+	private void checkForUpdates() {
+		final UpdateInfoRetriever retriever = new UpdateInfoRetriever();
+		retriever.start();
+		
+		
+		// Progress dialog
+		final JDialog dialog = new JDialog(this, ModalityType.APPLICATION_MODAL);
+		JPanel panel = new JPanel(new MigLayout());
+		
+		panel.add(new JLabel("Checking for updates..."), "wrap");
+		
+		JProgressBar bar = new JProgressBar();
+		bar.setIndeterminate(true);
+		panel.add(bar, "growx, wrap para");
+		
+		JButton cancel = new JButton("Cancel");
+		cancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dialog.dispose();
+			}
+		});
+		panel.add(cancel, "right");
+		dialog.add(panel);
+		
+		GUIUtil.setDisposableDialogOptions(dialog, cancel);
+		
+		
+		// Timer to monitor progress
+		final Timer timer = new Timer(100, null);
+		final long startTime = System.currentTimeMillis();
+
+		ActionListener listener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!retriever.isRunning() || startTime+10000 < System.currentTimeMillis()) {
+					timer.stop();
+					dialog.dispose();
+				}
+			}
+		};
+		timer.addActionListener(listener);
+		timer.start();
+		
+		
+		// Wait for action
+		dialog.setVisible(true);
+		
+		
+		// Check result
+		UpdateInfo info = retriever.getUpdateInfo();
+		if (info == null) {
+			JOptionPane.showMessageDialog(this, 
+					"An error occurred while communicating with the server.", 
+					"Unable to retrieve update information", JOptionPane.WARNING_MESSAGE, null);
+		} else if (info.getLatestVersion() == null || 
+				info.getLatestVersion().equals("") ||
+				Prefs.getVersion().equalsIgnoreCase(info.getLatestVersion())) {
+			JOptionPane.showMessageDialog(this, 
+					"You are running the latest version of OpenRocket.", 
+					"No updates available", JOptionPane.INFORMATION_MESSAGE, null);
+		} else {
+			new UpdateInfoDialog(info).setVisible(true);
+		}
+		
+	}
 	
 	
 	////////  Singleton implementation  ////////

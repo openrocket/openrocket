@@ -7,6 +7,7 @@ import java.awt.event.ItemListener;
 import java.util.Arrays;
 import java.util.EnumSet;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -21,7 +22,7 @@ import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
@@ -31,7 +32,7 @@ import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Pair;
 
-public class PlotPanel extends JPanel {
+public class SimulationPlotPanel extends JPanel {
 	
 	// TODO: LOW: Should these be somewhere else?
 	public static final int AUTO = -1;
@@ -82,7 +83,7 @@ public class PlotPanel extends JPanel {
 	private int modifying = 0;
 	
 
-	public PlotPanel(final Simulation simulation) {
+	public SimulationPlotPanel(final Simulation simulation) {
 		super(new MigLayout("fill"));
 		
 		this.simulation = simulation;
@@ -121,7 +122,7 @@ public class PlotPanel extends JPanel {
 			}
 		});
 		this.add(new JLabel("Preset plot configurations: "), "spanx, split");
-		this.add(configurationSelector,"growx, wrap 30lp");
+		this.add(configurationSelector,"growx, wrap 20lp");
 
 		
 		
@@ -160,9 +161,10 @@ public class PlotPanel extends JPanel {
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
 		
-		StyledLabel desc = new StyledLabel("<html><p>The data will be plotted in time order " +
-				"even if the X axis type is not time.", -2);
-		this.add(desc, "width :0px:, growx, wrap para");
+		DescriptionArea desc = new DescriptionArea("The data will be plotted in time order " +
+				"even if the X axis type is not time.", 2, -2f);
+		desc.setViewportBorder(BorderFactory.createEmptyBorder());
+		this.add(desc, "width 1px, growx 1, wrap unrel");
 		
 		
 		
@@ -192,7 +194,7 @@ public class PlotPanel extends JPanel {
 		col0.setPreferredWidth(w);
 		col0.setMaxWidth(w);
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
-		this.add(new JScrollPane(table), "height 1px, width 200lp, grow 1, wrap rel");
+		this.add(new JScrollPane(table), "height 10px, width 200lp, grow 1, wrap rel");
 		
 		
 		////  All + None buttons
@@ -226,7 +228,7 @@ public class PlotPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (configuration.getTypeCount() >= 15) {
-					JOptionPane.showMessageDialog(PlotPanel.this, 
+					JOptionPane.showMessageDialog(SimulationPlotPanel.this, 
 							"A maximum of 15 plots is allowed.", "Cannot add plot", 
 							JOptionPane.ERROR_MESSAGE);
 					return;
@@ -274,7 +276,7 @@ public class PlotPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				defaultConfiguration = configuration.clone();
-				PlotDialog.showPlot(SwingUtilities.getWindowAncestor(PlotPanel.this), 
+				PlotDialog.showPlot(SwingUtilities.getWindowAncestor(SimulationPlotPanel.this), 
 						simulation, configuration);
 			}
 		});

@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.URLLabel;
+import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Prefs;
@@ -42,7 +43,7 @@ public class AboutDialog extends JDialog {
 			panel.add(new StyledLabel(" ", -1), "ax 50%, growy, wrap para");
 		}
 		
-		panel.add(new StyledLabel("Copyright \u00A9 2007-2009 Sampo Niskanen"), 
+		panel.add(new StyledLabel("Copyright " + Chars.COPY +" 2007-2009 Sampo Niskanen"), 
 				"ax 50%, growy, wrap para");
 		
 		panel.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");

@@ -42,7 +42,7 @@ import net.sf.openrocket.gui.components.SimulationExportPanel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
-import net.sf.openrocket.gui.plot.PlotPanel;
+import net.sf.openrocket.gui.plot.SimulationPlotPanel;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -52,6 +52,7 @@ import net.sf.openrocket.simulation.SimulationListener;
 import net.sf.openrocket.simulation.listeners.CSVSaveListener;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Prefs;
@@ -393,7 +394,7 @@ public class SimulationEditDialog extends JDialog {
 		spin.setToolTipText(tip);
 		sub.add(spin,"w 65lp!");
 		
-		label = new JLabel("\u00b0 N");
+		label = new JLabel(Chars.DEGREE + " N");
 		label.setToolTipText(tip);
 		sub.add(label,"growx");
 		slider = new BasicSlider(m.getSliderModel(-90, 90));
@@ -745,7 +746,7 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		if (true)
-			return new PlotPanel(simulation);
+			return new SimulationPlotPanel(simulation);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		

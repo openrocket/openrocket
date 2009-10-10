@@ -1,9 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
-import static net.sf.openrocket.util.MathUtil.pow2;
-import static net.sf.openrocket.util.MathUtil.pow3;
+import static java.lang.Math.*;
+import static net.sf.openrocket.util.Chars.*;
+import static net.sf.openrocket.util.MathUtil.*;
 
 import java.util.Collection;
 
@@ -594,14 +593,14 @@ public class Transition extends SymmetricComponent {
 				"<i>Radius</i>&nbsp;&times;&nbsp;(<i>x</i>&nbsp;/&nbsp;<i>Length</i>)" +
 				"<sup><i>k</i></sup> "+
 				"where <i>k</i> is the shape parameter.  For <i>k</i>=0.5 this is a "+
-				"<b>½-power</b> or <b>parabolic</b> nose cone, for <i>k</i>=0.75 a "+
-				"<b>¾-power</b>, and for <i>k</i>=1 a <b>conical</b> nose cone.",
+				"<b>" + FRAC12 +"-power</b> or <b>parabolic</b> nose cone, for <i>k</i>=0.75 a "+
+				"<b>" + FRAC34 +"-power</b>, and for <i>k</i>=1 a <b>conical</b> nose cone.",
 				"A power series transition has a profile of "+
 				"<i>Radius</i>&nbsp;&times;&nbsp;(<i>x</i>&nbsp;/&nbsp;<i>Length</i>)" +
 				"<sup><i>k</i></sup> "+
 				"where <i>k</i> is the shape parameter.  For <i>k</i>=0.5 the transition is "+
-				"<b>½-power</b> or <b>parabolic</b>, for <i>k</i>=0.75 a <b>¾-power</b>, and for " +
-				"<i>k</i>=1 <b>conical</b>.",true) {
+				"<b>" + FRAC12 + "-power</b> or <b>parabolic</b>, for <i>k</i>=0.75 a " +
+				"<b>" + FRAC34 + "-power</b>, and for <i>k</i>=1 <b>conical</b>.",true) {
 			@Override
 			public boolean usesParameter() {  // Range 0...1
 				return true;

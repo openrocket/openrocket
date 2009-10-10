@@ -2,10 +2,12 @@ package net.sf.openrocket.unit;
 
 import java.text.DecimalFormat;
 
+import net.sf.openrocket.util.Chars;
+
 public class DegreeUnit extends GeneralUnit {
 
 	public DegreeUnit() {
-		super(Math.PI/180.0,"\u00b0");
+		super(Math.PI/180.0, ""+Chars.DEGREE);
 	}
 
 	@Override

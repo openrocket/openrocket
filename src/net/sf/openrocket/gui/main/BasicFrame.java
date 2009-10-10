@@ -1248,9 +1248,15 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (!updateInfo.isRunning()) {
 					timer.stop();
+					
+					String current = Prefs.getVersion();
+					String last = Prefs.getString(Prefs.LAST_UPDATE, "");
 
 					UpdateInfo info = updateInfo.getUpdateInfo();
-					if (info != null && !Prefs.getVersion().equals(info.getLatestVersion())) {
+					if (info != null && info.getLatestVersion() != null &&
+							!current.equals(info.getLatestVersion()) &&
+							!last.equals(info.getLatestVersion())) {
+						Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
 						new UpdateInfoDialog(info).setVisible(true);
 					}
 				}

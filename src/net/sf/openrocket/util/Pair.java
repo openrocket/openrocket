@@ -26,4 +26,40 @@ public class Pair<U,V> {
 		return v;
 	}
 	
+	
+	/**
+	 * Compare both components of the Pair to another object.
+	 * The pair is equal iff both items are equal (or null).
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof Pair))
+			return false;
+		Object otherU = ((Pair)other).getU();
+		Object otherV = ((Pair)other).getV();
+		
+		if (otherU == null) {
+			if (this.u != null)
+				return false;
+		} else {
+			if (!otherU.equals(this.u))
+				return false;
+		}
+
+		if (otherV == null) {
+			if (this.v != null)
+				return false;
+		} else {
+			if (!otherV.equals(this.v))
+				return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return ((u != null) ? u.hashCode() : 0) + ((v != null) ? v.hashCode() : 0);
+	}
+	
 }

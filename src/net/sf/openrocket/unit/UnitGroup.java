@@ -1,5 +1,6 @@
 package net.sf.openrocket.unit;
 
+import static net.sf.openrocket.util.Chars.*;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.ArrayList;
@@ -89,11 +90,11 @@ public class UnitGroup {
 		UNITS_DISTANCE.addUnit(new GeneralUnit(1609.344,"mi"));
 		
 		UNITS_AREA = new UnitGroup();
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.001),"mm\u00b2"));
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.01),"cm\u00b2"));
-		UNITS_AREA.addUnit(new GeneralUnit(1,"m\u00b2"));
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254),"in\u00b2"));
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048),"ft\u00b2"));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.001),"mm" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.01),"cm" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(1,"m" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254),"in" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048),"ft" + SQUARED));
 		UNITS_AREA.setDefaultUnit(1);
 		
 		
@@ -111,8 +112,8 @@ public class UnitGroup {
 		UNITS_VELOCITY.addUnit(new GeneralUnit(0.44704, "mph"));
 		
 		UNITS_ACCELERATION = new UnitGroup();
-		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s\u00b2"));
-		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s\u00b2"));
+		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s" + SQUARED));
+		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s" + SQUARED));
 		
 
 		UNITS_MASS = new UnitGroup();
@@ -126,18 +127,18 @@ public class UnitGroup {
 		UNITS_ANGLE.addUnit(new FixedPrecisionUnit("rad",0.01));
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000,"g/cm\u00b3"));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1,"kg/m\u00b3"));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404,"oz/in\u00b3"));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.0184634,"lb/ft\u00b3"));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000,"g/cm" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1,"kg/m" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404,"oz/in" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.0184634,"lb/ft" + CUBED));
 
 		UNITS_DENSITY_SURFACE = new UnitGroup();
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10,"g/cm\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001,"g/m\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1,"kg/m\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487,"oz/in\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727,"oz/ft\u00b2"));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764,"lb/ft\u00b2"));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10,"g/cm" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001,"g/m" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1,"kg/m" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487,"oz/in" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727,"oz/ft" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764,"lb/ft" + SQUARED));
 		UNITS_DENSITY_SURFACE.setDefaultUnit(1);
 
 		UNITS_DENSITY_LINE = new UnitGroup();
@@ -152,7 +153,7 @@ public class UnitGroup {
 
 		UNITS_IMPULSE = new UnitGroup();
 		UNITS_IMPULSE.addUnit(new GeneralUnit(1,"Ns"));
-		UNITS_IMPULSE.addUnit(new GeneralUnit(4.44822162, "lbf\u00b7s"));
+		UNITS_IMPULSE.addUnit(new GeneralUnit(4.44822162, "lbf"+DOT+"s"));
 
 		UNITS_TIME_STEP = new UnitGroup();
 		UNITS_TIME_STEP.addUnit(new FixedPrecisionUnit("ms", 1, 0.001));
@@ -174,8 +175,8 @@ public class UnitGroup {
 
 		UNITS_TEMPERATURE = new UnitGroup();
 		UNITS_TEMPERATURE.addUnit(new FixedPrecisionUnit("K", 1));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, "\u00b0C"));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0/9.0, 459.67, "\u00b0F"));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, DEGREE+"C"));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0/9.0, 459.67, DEGREE+"F"));
 		UNITS_TEMPERATURE.setDefaultUnit(1);
 		
 		UNITS_PRESSURE = new UnitGroup();
@@ -188,18 +189,19 @@ public class UnitGroup {
 		UNITS_PRESSURE.addUnit(new GeneralUnit(1, "Pa"));
 
 		UNITS_RELATIVE = new UnitGroup();
-		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("\u200b", 0.01));
+		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit(""+ZWSP, 0.01, 1.0));
 		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("%", 1, 0.01));
+		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit(""+PERMILLE, 1, 0.001));
 		UNITS_RELATIVE.setDefaultUnit(1);
 
 		
 		UNITS_ROUGHNESS = new UnitGroup();
-		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, "\u03bcm"));
+		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, MICRO+"m"));
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.0000254, "mil"));
 		
 		
 		UNITS_COEFFICIENT = new UnitGroup();
-		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("\u200b", 0.01));  // zero-width space
+		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit(""+ZWSP, 0.01));  // zero-width space
 		
 
 		HashMap<String,UnitGroup> map = new HashMap<String,UnitGroup>();
@@ -235,45 +237,45 @@ public class UnitGroup {
 		UNITS_LENGTH.setDefaultUnit("cm");
 		UNITS_MOTOR_DIMENSIONS.setDefaultUnit("mm");
 		UNITS_DISTANCE.setDefaultUnit("m");
-		UNITS_AREA.setDefaultUnit("cm\u00b2");
+		UNITS_AREA.setDefaultUnit("cm"+SQUARED);
 		UNITS_STABILITY.setDefaultUnit("cal");
 		UNITS_VELOCITY.setDefaultUnit("m/s");
-		UNITS_ACCELERATION.setDefaultUnit("m/s\u00b2");
+		UNITS_ACCELERATION.setDefaultUnit("m/s"+SQUARED);
 		UNITS_MASS.setDefaultUnit("g");
-		UNITS_ANGLE.setDefaultUnit(0);
-		UNITS_DENSITY_BULK.setDefaultUnit("g/cm\u00b3");
-		UNITS_DENSITY_SURFACE.setDefaultUnit("g/m\u00b2");
+		UNITS_ANGLE.setDefaultUnit(""+DEGREE);
+		UNITS_DENSITY_BULK.setDefaultUnit("g/cm"+CUBED);
+		UNITS_DENSITY_SURFACE.setDefaultUnit("g/m"+SQUARED);
 		UNITS_DENSITY_LINE.setDefaultUnit("g/m");
 		UNITS_FORCE.setDefaultUnit("N");
 		UNITS_IMPULSE.setDefaultUnit("Ns");
 		UNITS_TIME_STEP.setDefaultUnit("s");
 		UNITS_FLIGHT_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
-		UNITS_TEMPERATURE.setDefaultUnit(1);
+		UNITS_TEMPERATURE.setDefaultUnit(DEGREE+"C");
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
-		UNITS_ROUGHNESS.setDefaultUnit("\u03bcm");
+		UNITS_ROUGHNESS.setDefaultUnit(MICRO+"m");
 	}
 	
 	public static void setDefaultImperialUnits() {
 		UNITS_LENGTH.setDefaultUnit("in");
 		UNITS_MOTOR_DIMENSIONS.setDefaultUnit("in");
 		UNITS_DISTANCE.setDefaultUnit("ft");
-		UNITS_AREA.setDefaultUnit("in\u00b2");
+		UNITS_AREA.setDefaultUnit("in"+SQUARED);
 		UNITS_STABILITY.setDefaultUnit("cal");
 		UNITS_VELOCITY.setDefaultUnit("ft/s");
-		UNITS_ACCELERATION.setDefaultUnit("ft/s\u00b2");
+		UNITS_ACCELERATION.setDefaultUnit("ft/s"+SQUARED);
 		UNITS_MASS.setDefaultUnit("oz");
-		UNITS_ANGLE.setDefaultUnit(0);
-		UNITS_DENSITY_BULK.setDefaultUnit("oz/in\u00b3");
-		UNITS_DENSITY_SURFACE.setDefaultUnit("oz/ft\u00b2");
+		UNITS_ANGLE.setDefaultUnit(""+DEGREE);
+		UNITS_DENSITY_BULK.setDefaultUnit("oz/in"+CUBED);
+		UNITS_DENSITY_SURFACE.setDefaultUnit("oz/ft"+SQUARED);
 		UNITS_DENSITY_LINE.setDefaultUnit("oz/ft");
 		UNITS_FORCE.setDefaultUnit("N");
 		UNITS_IMPULSE.setDefaultUnit("Ns");
 		UNITS_TIME_STEP.setDefaultUnit("s");
 		UNITS_FLIGHT_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
-		UNITS_TEMPERATURE.setDefaultUnit(2);
+		UNITS_TEMPERATURE.setDefaultUnit(DEGREE+"F");
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit("mil");
@@ -337,24 +339,20 @@ public class UnitGroup {
 	}
 	
 	/**
-	 * Set the default unit based on the unit name.  Does nothing if the name
-	 * does not match any of the units.
+	 * Set the default unit based on the unit name.  Throws an exception if a
+	 * unit with the provided name is not available.
 	 * 
-	 * @param name	the unit name (<code>null</code> ok).
-	 * @return		<code>true</code> if the the default was set, 
-	 * 				<code>false</code> if a matching unit was not found.  
+	 * @param   name	the unit name.
+	 * @throws  IllegalArgumentException	if the corresponding unit is not found in the group.
 	 */
-	public boolean setDefaultUnit(String name) {
-		if (name == null)
-			return false;
-		
+	public void setDefaultUnit(String name) throws IllegalArgumentException {
 		for (int i=0; i < units.size(); i++) {
-			if (name.equals(units.get(i).getUnit())) {
+			if (units.get(i).getUnit().equals(name)) {
 				setDefaultUnit(i);
-				return true;
+				return;
 			}
 		}
-		return false;
+		throw new IllegalArgumentException("name="+name);
 	}
 
 	

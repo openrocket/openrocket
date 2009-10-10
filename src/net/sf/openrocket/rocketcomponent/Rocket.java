@@ -13,6 +13,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -694,7 +695,7 @@ public class Rocket extends RocketComponent {
 					if (previous != null) {
 						String s = "";
 						if (count > 1) {
-							s = "" + count + "\u00d7" + previous;
+							s = "" + count + Chars.TIMES + previous;
 						} else {
 							s = previous;
 						}
@@ -713,7 +714,7 @@ public class Rocket extends RocketComponent {
 			if (previous != null) {
 				String s = "";
 				if (count > 1) {
-					s = "" + count + "\u00d7" + previous;
+					s = "" + count + Chars.TIMES + previous;
 				} else {
 					s = previous;
 				}

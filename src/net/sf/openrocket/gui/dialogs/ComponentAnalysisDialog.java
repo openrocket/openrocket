@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs;
 
 import static net.sf.openrocket.unit.Unit.NOUNIT2;
+import static net.sf.openrocket.util.Chars.ALPHA;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -45,8 +46,8 @@ import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StageSelector;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -203,7 +204,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 						return unit.toString(cpData.get(row).cp.x);
 					}
 				},
-				new Column("<html>C<sub>N<sub>\u03b1</sub></sub>") {
+				new Column("<html>C<sub>N<sub>"+ALPHA+"</sub></sub>") {
 					@Override public Object getValueAt(int row) {
 						return NOUNIT2.toString(cpData.get(row).cp.weight);
 					}

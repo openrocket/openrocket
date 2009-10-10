@@ -90,7 +90,7 @@
 			<fileset dir="." includes="*">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="." includes="datafiles/ lib/ pix/ src/ test/"/>
+			<fileset dir="." includes="datafiles/ lib/ lib-test/ pix/ src/ test/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
@@ -115,7 +115,7 @@
 	
 	
 	<!-- DIST-BIN -->
-	<target name="dist-bin" depends="checktodo,clean,unittest,jar">
+	<target name="dist-bin" depends="check,clean,unittest,jar">
 		<move file="${jar.file}" tofile="${dist.bin}"/>
 	</target>
 
@@ -126,12 +126,18 @@
 	</target>
 	
 	
+	<!-- CHECK -->
+	<target name="check" depends="checktodo,checkascii"/>
+	
 	<!-- CHECK TODOs -->
 	<target name="checktodo">
 		<tempfile property="todo.file" prefix="checktodo-"/>
 		<echo>Checking project for critical TODOs.</echo>
 		<concat destfile="${todo.file}">
 			<fileset dir="${src.dir}">
+			    <include name="**/*.java"/>
+			</fileset>
+			<fileset dir="${src-test.dir}">
 			    <include name="**/*.java"/>
 			</fileset>
 			<filterchain>
@@ -148,6 +154,31 @@ ${criticaltodos}</fail>
 	</target>
 	
 	
+	<!-- CHECK TODOs -->
+	<target name="checkascii">
+		<tempfile property="ascii.file" prefix="checkascii-"/>
+		<echo>Checking project for non-ASCII characters.</echo>
+		<concat destfile="${ascii.file}">
+			<fileset dir="${src.dir}">
+			    <include name="**/*.java"/>
+			</fileset>
+			<fileset dir="${src-test.dir}">
+			    <include name="**/*.java"/>
+			</fileset>
+			<filterchain>
+				<linecontainsregexp>
+					<regexp pattern="\P{ASCII}"/>
+				</linecontainsregexp>
+			</filterchain>
+		</concat>
+		<loadfile srcfile="${ascii.file}" property="nonascii"/>
+		<delete file="${ascii.file}"/>
+		<fail if="nonascii">Non-ASCII characters exist in project:
+${nonascii}</fail>
+		<echo>No non-ASCII characters in project.</echo>
+	</target>
+	
+	
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
 		<echo>Building unit tests</echo>
@@ -156,7 +187,7 @@ ${criticaltodos}</fail>
 		
 		<echo>Running unit tests</echo>
 		<mkdir dir="tmp/rawtestoutput"/>
-		<junit printsummary="true" failureproperty="junit.failure">
+		<junit fork="yes" forkmode="once" printsummary="true" failureproperty="junit.failure">
 			<classpath>
 				<path refid="test-classpath"/>
 				<path location="${basedir}"/>
@@ -164,6 +195,7 @@ ${criticaltodos}</fail>
 			<batchtest todir="tmp/rawtestoutput">
 				<fileset dir="${build-test.dir}">
 					<include name="**/*Test*.class" />
+					<exclude name="**/*$*.class" />
 					<exclude name="Test.class" />
 				</fileset>
 				<formatter type="xml"/>
@@ -173,7 +205,10 @@ ${criticaltodos}</fail>
 			<fileset dir="tmp/rawtestoutput"/>
 			<report todir="tmp/test-reports"/>
 		</junitreport>
-		<fail if="junit.failure" message="Unit test(s) failed.  See reports!"/>
+		<fail if="junit.failure" message="Unit test(s) failed.  See report in ${basedir}/tmp/test-reports/index.html"/>
+		<echo>
+	Unit tests passed successfully.
+		</echo>
  	</target>
     
 </project>

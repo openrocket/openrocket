@@ -17,24 +17,24 @@ public class MathUtilTest {
 		assertEquals(PI*PI*PI, MathUtil.pow3(PI), EPS);
 		assertEquals(PI*PI*PI*PI, MathUtil.pow4(PI), EPS);
 		
-		assertEquals(1.0, MathUtil.clamp(0.9999, 1.0, 2.0));
-		assertEquals(1.23, MathUtil.clamp(1.23, 1.0, 2.0));
-		assertEquals(2.0, MathUtil.clamp(2 + EPS/100, 1.0, 2.0));
+		assertEquals(1.0, MathUtil.clamp(0.9999, 1.0, 2.0), 0);
+		assertEquals(1.23, MathUtil.clamp(1.23, 1.0, 2.0), 0);
+		assertEquals(2.0, MathUtil.clamp(2 + EPS/100, 1.0, 2.0), 0);
 		
-		assertEquals(1.0f, MathUtil.clamp(0.9999f, 1.0f, 2.0f));
-		assertEquals(1.23f, MathUtil.clamp(1.23f, 1.0f, 2.0f));
-		assertEquals(2.0f, MathUtil.clamp(2.0001f, 1.0f, 2.0f));
+		assertEquals(1.0f, MathUtil.clamp(0.9999f, 1.0f, 2.0f), 0);
+		assertEquals(1.23f, MathUtil.clamp(1.23f, 1.0f, 2.0f), 0);
+		assertEquals(2.0f, MathUtil.clamp(2.0001f, 1.0f, 2.0f), 0);
 		
 		assertEquals(1, MathUtil.clamp(-3, 1, 5));
 		assertEquals(3, MathUtil.clamp(3, 1, 5));
 		assertEquals(5, MathUtil.clamp(6, 1, 5));
 		
-		assertEquals(-1.0, MathUtil.sign(Double.NEGATIVE_INFINITY));
-		assertEquals(-1.0, MathUtil.sign(-100));
-		assertEquals(-1.0, MathUtil.sign(Math.nextAfter(0.0, -1.0)));
-		assertEquals( 1.0, MathUtil.sign(Math.nextUp(0.0)));
-		assertEquals( 1.0, MathUtil.sign(100));
-		assertEquals( 1.0, MathUtil.sign(Double.POSITIVE_INFINITY));
+		assertEquals(-1.0, MathUtil.sign(Double.NEGATIVE_INFINITY), EPS);
+		assertEquals(-1.0, MathUtil.sign(-100), EPS);
+		assertEquals(-1.0, MathUtil.sign(Math.nextAfter(0.0, -1.0)), EPS);
+		assertEquals( 1.0, MathUtil.sign(Math.nextUp(0.0)), EPS);
+		assertEquals( 1.0, MathUtil.sign(100), EPS);
+		assertEquals( 1.0, MathUtil.sign(Double.POSITIVE_INFINITY), EPS);
 	}
 	
 	@Test
@@ -68,33 +68,33 @@ public class MathUtilTest {
 	
 	@Test
 	public void minmaxTest() {
-		assertEquals(1.0, MathUtil.min(1.0, Math.nextUp(1.0)));
-		assertEquals(1.0, MathUtil.min(1.0, Double.POSITIVE_INFINITY));
-		assertEquals(1.0, MathUtil.min(NaN, 1.0));
-		assertEquals(1.0, MathUtil.min(1.0, NaN));
-		assertEquals(NaN, MathUtil.min(NaN, NaN));
+		assertEquals(1.0, MathUtil.min(1.0, Math.nextUp(1.0)), 0);
+		assertEquals(1.0, MathUtil.min(1.0, Double.POSITIVE_INFINITY), 0);
+		assertEquals(1.0, MathUtil.min(NaN, 1.0), 0);
+		assertEquals(1.0, MathUtil.min(1.0, NaN), 0);
+		assertEquals(NaN, MathUtil.min(NaN, NaN), 0);
 
-		assertEquals(Math.nextUp(1.0), MathUtil.max(1.0, Math.nextUp(1.0)));
-		assertEquals(Double.POSITIVE_INFINITY, MathUtil.max(1.0, Double.POSITIVE_INFINITY));
-		assertEquals(1.0, MathUtil.max(NaN, 1.0));
-		assertEquals(1.0, MathUtil.max(1.0, NaN));
-		assertEquals(NaN, MathUtil.max(NaN, NaN));
+		assertEquals(Math.nextUp(1.0), MathUtil.max(1.0, Math.nextUp(1.0)), 0);
+		assertEquals(Double.POSITIVE_INFINITY, MathUtil.max(1.0, Double.POSITIVE_INFINITY), 0);
+		assertEquals(1.0, MathUtil.max(NaN, 1.0), 0);
+		assertEquals(1.0, MathUtil.max(1.0, NaN), 0);
+		assertEquals(NaN, MathUtil.max(NaN, NaN), 0);
 		
-		assertEquals(1.0, MathUtil.min(1.0, 2.0, 3.0));
-		assertEquals(1.0, MathUtil.min(1.0, NaN, NaN));
-		assertEquals(1.0, MathUtil.min(NaN, 1.0, NaN));
-		assertEquals(1.0, MathUtil.min(NaN, NaN, 1.0));
-		assertEquals(1.0, MathUtil.min(2.0, NaN, 1.0));
-		assertEquals(1.0, MathUtil.min(1.0, 2.0, NaN));
-		assertEquals(1.0, MathUtil.min(NaN, 2.0, 1.0));
+		assertEquals(1.0, MathUtil.min(1.0, 2.0, 3.0), 0);
+		assertEquals(1.0, MathUtil.min(1.0, NaN, NaN), 0);
+		assertEquals(1.0, MathUtil.min(NaN, 1.0, NaN), 0);
+		assertEquals(1.0, MathUtil.min(NaN, NaN, 1.0), 0);
+		assertEquals(1.0, MathUtil.min(2.0, NaN, 1.0), 0);
+		assertEquals(1.0, MathUtil.min(1.0, 2.0, NaN), 0);
+		assertEquals(1.0, MathUtil.min(NaN, 2.0, 1.0), 0);
 		
-		assertEquals(3.0, MathUtil.max(1.0, 3.0, 2.0));
-		assertEquals(1.0, MathUtil.max(1.0, NaN, NaN));
-		assertEquals(1.0, MathUtil.max(NaN, 1.0, NaN));
-		assertEquals(1.0, MathUtil.max(NaN, NaN, 1.0));
-		assertEquals(2.0, MathUtil.max(2.0, NaN, 1.0));
-		assertEquals(2.0, MathUtil.max(1.0, 2.0, NaN));
-		assertEquals(2.0, MathUtil.max(NaN, 2.0, 1.0));
+		assertEquals(3.0, MathUtil.max(1.0, 3.0, 2.0), 0);
+		assertEquals(1.0, MathUtil.max(1.0, NaN, NaN), 0);
+		assertEquals(1.0, MathUtil.max(NaN, 1.0, NaN), 0);
+		assertEquals(1.0, MathUtil.max(NaN, NaN, 1.0), 0);
+		assertEquals(2.0, MathUtil.max(2.0, NaN, 1.0), 0);
+		assertEquals(2.0, MathUtil.max(1.0, 2.0, NaN), 0);
+		assertEquals(2.0, MathUtil.max(NaN, 2.0, 1.0), 0);
 	}
 	
 	@Test

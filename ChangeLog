@@ -1,3 +1,9 @@
+2009-10-10  Sampo Niskanen
+
+	* Removed non-ASCII characters from source code files
+	* Created Chars class for non-ASCII characters
+	* Added styrofoam materials
+
 2009-10-04  Sampo Niskanen
 
 	* [BUG] Fixed too high configuration dialogs

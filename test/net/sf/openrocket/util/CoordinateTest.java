@@ -38,11 +38,11 @@ public class CoordinateTest {
 
 		assertCoordinateEquals(new Coordinate(2,4,6,8), y.multiply(2));
 		
-		assertEquals(1+2+3, y.dot(x));
-		assertEquals(1+2+3, x.dot(y));
-		assertEquals(1+2+3, Coordinate.dot(x,y));
-		assertEquals(x.dot(x), x.length2());
-		assertEquals(y.dot(y), y.length2());
+		assertEquals(1+2+3, y.dot(x), EPS);
+		assertEquals(1+2+3, x.dot(y), EPS);
+		assertEquals(1+2+3, Coordinate.dot(x,y), EPS);
+		assertEquals(x.dot(x), x.length2(), EPS);
+		assertEquals(y.dot(y), y.length2(), EPS);
 		assertEquals(Math.sqrt(1+4+9), y.length(), EPS);
 		assertEquals(1, y.normalize().length(), EPS);
 		

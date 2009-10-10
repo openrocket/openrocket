@@ -52,49 +52,61 @@ public class Prefs {
 	 */
 	public static final String NODENAME = (DEBUG?"OpenRocket-debug":"OpenRocket");
 	
-	
-	
-	private static final String BUILD_VERSION;
-	private static final String BUILD_SOURCE;
+
 	public static final String DEFAULT_BUILD_SOURCE = "default";
-	private static final boolean DEFAULT_CHECK_UPDATES;
+
 	
-	static {
-		try {
-			InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
-			if (is == null) {
+	/*
+	 * Load property file only when necessary.
+	 */
+	private static class BuildPropertyHolder {
+
+		public static final String BUILD_VERSION;
+		public static final String BUILD_SOURCE;
+		public static final boolean DEFAULT_CHECK_UPDATES;
+
+		static {
+			try {
+				InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
+				if (is == null) {
+					throw new MissingResourceException(
+							"build.properties not found, distribution built wrong" + 
+							"   classpath:"+System.getProperty("java.class.path"),
+							"build.properties", "build.version");
+				}
+
+				Properties props = new Properties();
+				props.load(is);
+				is.close();
+
+				String version = props.getProperty("build.version");
+				if (version == null) {
+					throw new MissingResourceException(
+							"build.version not found in property file",
+							"build.properties", "build.version");
+				}
+				BUILD_VERSION = version.trim();
+
+				BUILD_SOURCE = props.getProperty("build.source");
+				if (BUILD_SOURCE == null) {
+					throw new MissingResourceException(
+							"build.source not found in property file",
+							"build.properties", "build.source");
+				}
+
+				String value = props.getProperty("build.checkupdates");
+				if (value != null)
+					DEFAULT_CHECK_UPDATES = Boolean.parseBoolean(value);
+				else
+					DEFAULT_CHECK_UPDATES = true;
+
+			} catch (IOException e) {
 				throw new MissingResourceException(
-						"build.properties not found, distribution built wrong" + 
-						"   path:"+System.getProperty("java.class.path"),
+						"Error reading build.properties",
 						"build.properties", "build.version");
 			}
-			
-			Properties props = new Properties();
-			props.load(is);
-			is.close();
-			
-			BUILD_VERSION = props.getProperty("build.version");
-			if (BUILD_VERSION == null) {
-				throw new MissingResourceException(
-						"build.version not found in property file",
-						"build.properties", "build.version");
-			}
-			
-			BUILD_SOURCE = props.getProperty("build.source");
-			
-			String value = props.getProperty("build.checkupdates");
-			if (value != null)
-				DEFAULT_CHECK_UPDATES = Boolean.parseBoolean(value);
-			else
-				DEFAULT_CHECK_UPDATES = true;
-			
-		} catch (IOException e) {
-			throw new MissingResourceException(
-					"Error reading build.properties",
-					"build.properties", "build.version");
 		}
 	}
-	
 	
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	
@@ -111,6 +123,7 @@ public class Prefs {
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
 	
 	private static final String CHECK_UPDATES = "CheckUpdates";
+	public static final String LAST_UPDATE = "LastUpdateVersion";
 	
 	/**
 	 * Node to this application's preferences.
@@ -178,12 +191,12 @@ public class Prefs {
 	
 	
 	public static String getVersion() {
-		return BUILD_VERSION;
+		return BuildPropertyHolder.BUILD_VERSION;
 	}
 	
 	
 	public static String getBuildSource() {
-		return BUILD_SOURCE;
+		return BuildPropertyHolder.BUILD_SOURCE;
 	}
 	
 	
@@ -256,7 +269,7 @@ public class Prefs {
 	
 	
 	public static boolean getCheckUpdates() {
-		return PREFNODE.getBoolean(CHECK_UPDATES, DEFAULT_CHECK_UPDATES);
+		return PREFNODE.getBoolean(CHECK_UPDATES, BuildPropertyHolder.DEFAULT_CHECK_UPDATES);
 	}
 	
 	public static void setCheckUpdates(boolean check) {
@@ -502,7 +515,9 @@ public class Prefs {
 				if (group == null)
 					continue;
 				
-				group.setDefaultUnit(prefs.get(key, null));
+				try {
+					group.setDefaultUnit(prefs.get(key, null));
+				} catch (IllegalArgumentException ignore) { }
 			}
 			
 		} catch (BackingStoreException e) {

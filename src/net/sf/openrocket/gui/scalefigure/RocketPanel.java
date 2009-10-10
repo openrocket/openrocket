@@ -59,6 +59,7 @@ import net.sf.openrocket.simulation.listeners.ApogeeEndListener;
 import net.sf.openrocket.simulation.listeners.InterruptListener;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
@@ -222,7 +223,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		// Add rotation slider
 		// Minimum size to fit "360deg"
-		JLabel l = new JLabel("360\u00b0");
+		JLabel l = new JLabel("360" + Chars.DEGREE);
 		Dimension d = l.getPreferredSize();
 		
 		add(new BasicSlider(theta.getSliderModel(0,2*Math.PI),JSlider.VERTICAL,true),

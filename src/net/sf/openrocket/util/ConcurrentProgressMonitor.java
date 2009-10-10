@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
  * A thread-safe <code>ProgressMonitor</code>.  This class may be instantiated
  * and the method {@link #setProgress(int)} called safely from any thread.
  * <p>
- * Why the FSCK&!¤#&%¤ isn't the default API version thread-safe?!?!
+ * Why the FSCK&!#&% isn't the default API version thread-safe?!?!
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */

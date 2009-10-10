@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.figureelements;
 
+import static net.sf.openrocket.util.Chars.*;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -14,7 +16,6 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
-
 
 
 /**
@@ -166,10 +167,10 @@ public class RocketInfo implements FigureElement {
 		
 		at = "at M="+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(mach);
 		if (!Double.isNaN(aoa)) {
-			at += " \u03b1=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
+			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
 		}
 		if (!Double.isNaN(theta)) {
-			at += " \u0398=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
+			at += " "+THETA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(theta);
 		}
 		
 		GlyphVector cgValue = createText(

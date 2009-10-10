@@ -2,10 +2,12 @@ package net.sf.openrocket.unit;
 
 import java.text.DecimalFormat;
 
+import net.sf.openrocket.util.Chars;
+
 public abstract class Unit {
 	
 	/** No unit with 2 digit precision */
-	public static final Unit NOUNIT2 = new GeneralUnit(1,"\u200b", 2);  // zero-width space
+	public static final Unit NOUNIT2 = new GeneralUnit(1,""+Chars.ZWSP, 2);
 
 	protected final double multiplier;   // meters = units * multiplier
 	protected final String unit;

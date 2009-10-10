@@ -31,6 +31,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.GUIUtil;
 
 public class EditMotorConfigurationDialog extends JDialog {
@@ -466,7 +467,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 			String str = motor.getDesignation(mount.getMotorDelay(id)); 
 			int count = mount.getMotorCount();
 			if (count > 1) {
-				str = "" + count + "\u00d7 " + str;
+				str = "" + count + Chars.TIMES + " " + str;
 			}
 			return str;
 		}
@@ -482,15 +483,11 @@ public class EditMotorConfigurationDialog extends JDialog {
 			String name = mount.toString();
 			int count = mount.getMotorCount();
 			if (count > 1) {
-				name = name + " (\u00d7" + count + ")";
+				name = name + " (" + Chars.TIMES + count + ")";
 			}
 			return name;
 		}
 		
-		
 	}
-
-	
-	
 	
 }

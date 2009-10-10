@@ -13,11 +13,15 @@ public class DescriptionArea extends JScrollPane {
 
 	private final JEditorPane editorPane;
 	
+
 	public DescriptionArea(int rows) {
-		this(rows, -1);
+		this("", rows, -1);
+	}
+	public DescriptionArea(int rows, float size) {
+		this("", rows, size);
 	}
 	
-	public DescriptionArea(int rows, float size) {
+	public DescriptionArea(String text, int rows, float size) {
 		super(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		
@@ -41,6 +45,7 @@ public class DescriptionArea extends JScrollPane {
 		this.setPreferredSize(dim);
 		
 		this.setViewportView(editorPane);
+		this.setText(text);
 	}
 	
 	public void setText(String txt) {

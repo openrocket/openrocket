@@ -73,7 +73,7 @@ public class ManufacturerTest {
 		assertTrue(m1.matches("a/"));
 		assertTrue(m1.matches("a/rcs"));
 		assertTrue(m1.matches("a/rms"));
-		assertTrue(m1.matches("aerotech  ...-/%¤#_!"));
+		assertTrue(m1.matches("aerotech  ...-/%#_!"));
 		assertTrue(m1.matches(" .isp/"));
 		
 		assertFalse(m1.matches("aero/tech"));

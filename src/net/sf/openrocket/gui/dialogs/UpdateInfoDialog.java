@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.gui.components.URLLabel;
+import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.ComparablePair;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
@@ -45,7 +46,8 @@ public class UpdateInfoDialog extends JDialog {
 				if (count >= 4 && n != updates.get(i).getU())
 					break;
 				n = updates.get(i).getU();
-				panel.add(new JLabel("   \u2022 " + updates.get(i).getV()), "wrap 0px");
+				panel.add(new JLabel("   " + Chars.BULLET + " " + updates.get(i).getV()), 
+						"wrap 0px");
 				count++;
 			}
 		}

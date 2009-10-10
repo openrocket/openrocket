@@ -10,18 +10,17 @@ Must-have:
 
 Bugs:
 
-- Simulation plot dialog forces dialog one button row too high (All/None)
 - Unit tests fail from ant script
 
 
 Maybe:
 
-- Windows executable wrapper (launch4j)
 - Inform user about software updates
 
 
 Postponed:
 
+- Windows executable wrapper (launch4j)
 - Allow only one instance of OpenRocket running (RMI communication)
 - Only schedule rocket figure update instead of each time updating it
 - Reading (writing) .RKT format
@@ -79,4 +78,5 @@ In 0.9.4:
 - JTree text is cropped unnecessarily
 - Allow editing user-defined materials
 - [BUG] All configuration dialogs too high
+- Simulation plot dialog forces dialog one button row too high (All/None)
 
