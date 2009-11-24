@@ -379,16 +379,17 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		}
 
 		// Implement a wrapper to the ChangeListeners
-		ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+		ArrayList<PropertyChangeListener> propertyChangeListeners = 
+			new ArrayList<PropertyChangeListener>();
 		@Override
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
-			listeners.add(listener);
+			propertyChangeListeners.add(listener);
 			DoubleModel.this.addChangeListener(this);
 		}
 		@Override
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
-			listeners.remove(listener);
-			if (listeners.isEmpty())
+			propertyChangeListeners.remove(listener);
+			if (propertyChangeListeners.isEmpty())
 				DoubleModel.this.removeChangeListener(this);
 		}
 		// If the value has changed, generate an event to the listeners
@@ -399,7 +400,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			PropertyChangeEvent event = new PropertyChangeEvent(this,Action.SELECTED_KEY,
 					oldValue,newValue);
 			oldValue = newValue;
-			Object[] l = listeners.toArray();
+			Object[] l = propertyChangeListeners.toArray();
 			for (int i=0; i<l.length; i++) {
 				((PropertyChangeListener)l[i]).propertyChange(event);
 			}
@@ -619,7 +620,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
+			throw new RuntimeException("Setter method of "+this+" threw exception", e);
 		}
 	}
 

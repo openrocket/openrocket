@@ -26,8 +26,8 @@ import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.BugReporter;
-import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.SelectableLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.Prefs;
@@ -179,8 +179,8 @@ public class BugReportDialog extends JDialog {
 		
 		BugReportDialog reportDialog = 
 			new BugReportDialog(parent,
-					"<html>You can report a bug in OpenRocket by filling in and submitting " +
-					"the form below.<br>" +
+					"<html><b>You can report a bug in OpenRocket by filling in and submitting " +
+					"the form below.</b><br>" +
 					"You can also report bugs and include attachments on the project " +
 					"web site.", sb.toString());
 		reportDialog.setVisible(true);
@@ -239,8 +239,8 @@ public class BugReportDialog extends JDialog {
 		sb.append('\n');
 		
 		BugReportDialog reportDialog = 
-			new BugReportDialog(parent, "Please include a short description about " +
-					"what you were doing when the exception occurred.", sb.toString());
+			new BugReportDialog(parent, "<html><b>Please include a short description about " +
+					"what you were doing when the exception occurred.</b>", sb.toString());
 		reportDialog.setVisible(true);
 	}
 	

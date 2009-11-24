@@ -4,10 +4,10 @@
 	<classpathentry kind="src" path="src-extra"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/sampo/Projects/OpenRocket/lib/miglayout15-swing.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JCommon 1.0.16"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JFreeChart 1.0.13"/>
 	<classpathentry kind="lib" path="lib-extra/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="lib-test/junit-4.7.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout15-swing.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

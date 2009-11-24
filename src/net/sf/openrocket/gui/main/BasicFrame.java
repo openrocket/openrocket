@@ -752,7 +752,7 @@ public class BasicFrame extends JFrame {
 	
 	
 	
-	private static boolean open(URL url, Window parent) {
+	private static boolean open(URL url, BasicFrame parent) {
 		String filename = null;
 		
 		// Try using URI.getPath();
@@ -780,7 +780,13 @@ public class BasicFrame extends JFrame {
 		
 		try {
 			InputStream is = url.openStream();
-			open(is, filename, parent);
+			if (open(is, filename, parent)) {
+	    		// Close previous window if replacing
+	    		if (parent.replaceable && parent.document.isSaved()) {
+	    			parent.closeAction();
+	    			parent.replaceable = false;
+	    		}
+			}
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(parent, 
 					"An error occurred while opening the file " + filename,

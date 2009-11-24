@@ -163,7 +163,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		// Normal exception, show question dialog
 		String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
 		if (msg.length() > 90) {
-			msg = msg.substring(0, 90) + "...";
+			msg = msg.substring(0, 80) + "...";
 		}
 		
 		

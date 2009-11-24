@@ -35,8 +35,8 @@ public class ThrustCurveMotor extends Motor {
 	 */
 	public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description, 
 			Motor.Type type, double[] delays, double diameter, double length,
-			double[] time, double[] thrust, Coordinate[] cg) {
-		super(manufacturer, designation, description, type, delays, diameter, length);
+			double[] time, double[] thrust, Coordinate[] cg, String digest) {
+		super(manufacturer, designation, description, type, delays, diameter, length, digest);
 
 		double max = -1;
 
@@ -157,5 +157,5 @@ public class ThrustCurveMotor extends Motor {
 	public Coordinate[] getCGPoints() {
 		return cg.clone();
 	}
-	
+
 }

@@ -10,7 +10,9 @@ import java.util.List;
 
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.util.Coordinate;
 
 public class RASPMotorLoader extends MotorLoader {
@@ -195,11 +197,19 @@ public class RASPMotorLoader extends MotorLoader {
 		
 		designation = removeDelay(designation);
 		
+		// Create the motor digest from data available in RASP files
+		MotorDigest motorDigest = new MotorDigest();
+		motorDigest.update(DataType.TIME_ARRAY, timeArray);
+		motorDigest.update(DataType.MASS_SPECIFIC, totalW, totalW-propW);
+		motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
+		final String digest = motorDigest.getDigest();
+		
+		
 		try {
 			
 			return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer), 
 					designation, comment, Motor.Type.UNKNOWN,
-					delays, diameter, length, timeArray, thrustArray, cgArray);
+					delays, diameter, length, timeArray, thrustArray, cgArray, digest);
 			
 		} catch (IllegalArgumentException e) {
 			

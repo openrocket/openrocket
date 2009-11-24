@@ -57,6 +57,8 @@ public class UnitGroup {
 	
 	public static final UnitGroup UNITS_COEFFICIENT;
 	
+//	public static final UnitGroup UNITS_FREQUENCY;
+	
 	
 	public static final Map<String, UnitGroup> UNITS;
 	
@@ -202,6 +204,16 @@ public class UnitGroup {
 		
 		UNITS_COEFFICIENT = new UnitGroup();
 		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit(""+ZWSP, 0.01));  // zero-width space
+		
+		
+		// This is not used by OpenRocket, and not extensively tested:
+//		UNITS_FREQUENCY = new UnitGroup();
+//		UNITS_FREQUENCY.addUnit(new GeneralUnit(1, "s"));
+//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.001, "ms"));
+//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.000001, MICRO + "s"));
+//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1, "Hz"));
+//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
+//		UNITS_FREQUENCY.setDefaultUnit(3);
 		
 
 		HashMap<String,UnitGroup> map = new HashMap<String,UnitGroup>();

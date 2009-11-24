@@ -450,6 +450,12 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			if (!(o instanceof String))
 				return;
 			
+			if (rowIndex < 0 || rowIndex >= finset.getFinPoints().length ||
+					columnIndex < 0 || columnIndex >= Columns.values().length) {
+				throw new IllegalArgumentException("Index out of bounds, row="+rowIndex+
+						" column="+columnIndex+" fin point count="+finset.getFinPoints().length);
+			}
+			
 			String str = (String)o;
 			try {
 				
@@ -466,7 +472,5 @@ public class FreeformFinSetConfig extends FinSetConfig {
 			} catch (IllegalFinPointException ignore) {
 			}
 		}
-		
-		
 	}
 }

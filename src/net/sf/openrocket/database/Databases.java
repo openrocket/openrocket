@@ -90,8 +90,9 @@ public class Databases {
 		BULK_MATERIAL.add(new Material.Bulk("Polystyrene",  1050, false));
 		BULK_MATERIAL.add(new Material.Bulk("PVC",			1390, false));
 		BULK_MATERIAL.add(new Material.Bulk("Spruce",		 450, false));
-		BULK_MATERIAL.add(new Material.Bulk("Styrofoam generic (EPS)", 20, false));
-		BULK_MATERIAL.add(new Material.Bulk("Styrofoam / Blue Foam (XPS)", 32, false));
+		BULK_MATERIAL.add(new Material.Bulk("Styrofoam (generic EPS)", 20, false));
+//		BULK_MATERIAL.add(new Material.Bulk("Styrofoam (Blue foam, XPS)", 32, false));
+		BULK_MATERIAL.add(new Material.Bulk("Styrofoam \"Blue foam\" (XPS)", 32, false));
 		BULK_MATERIAL.add(new Material.Bulk("Quantum tubing",1050, false));
 		
 		SURFACE_MATERIAL.add(new Material.Surface("Ripstop nylon",			0.067, false));

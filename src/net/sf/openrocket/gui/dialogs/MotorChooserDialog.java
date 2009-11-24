@@ -12,9 +12,6 @@ import java.awt.event.MouseEvent;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -40,6 +37,8 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.unit.Value;
+import net.sf.openrocket.unit.ValueComparator;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
 
@@ -383,10 +382,6 @@ public class MotorChooserDialog extends JDialog {
 			public String getValue(Motor m) {
 				return m.getManufacturer().getDisplayName();
 			}
-//			@Override
-//			public String getToolTipText(Motor m) {
-//				return "<html>" + m.getDescription().replace((CharSequence)"\n", "<br>");
-//			}
 			@Override
 			public Comparator<?> getComparator() {
 				return Collator.getInstance();
@@ -397,10 +392,6 @@ public class MotorChooserDialog extends JDialog {
 			public String getValue(Motor m) {
 				return m.getDesignation();
 			}
-//			@Override
-//			public String getToolTipText(Motor m) {
-//				return "<html>" + m.getDescription().replace((CharSequence)"\n", "<br>");
-//			}
 			@Override
 			public Comparator<?> getComparator() {
 				return Motor.getDesignationComparator();
@@ -411,10 +402,6 @@ public class MotorChooserDialog extends JDialog {
 			public String getValue(Motor m) {
 				return m.getMotorType().getName();
 			}
-//			@Override
-//			public String getToolTipText(Motor m) {
-//				return m.getMotorType().getDescription();
-//			}
 			@Override
 			public Comparator<?> getComparator() {
 				return Collator.getInstance();
@@ -422,46 +409,42 @@ public class MotorChooserDialog extends JDialog {
 		},
 		DIAMETER("Diameter") {
 			@Override
-			public String getValue(Motor m) {
-				return UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(
-						m.getDiameter());
+			public Object getValue(Motor m) {
+				return new Value(m.getDiameter(), UnitGroup.UNITS_MOTOR_DIMENSIONS);
 			}
 			@Override
 			public Comparator<?> getComparator() {
-				return getNumericalComparator();
+				return ValueComparator.INSTANCE;
 			}
 		},
 		LENGTH("Length") {
 			@Override
-			public String getValue(Motor m) {
-				return UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(
-						m.getLength());
+			public Object getValue(Motor m) {
+				return new Value(m.getLength(), UnitGroup.UNITS_MOTOR_DIMENSIONS);
 			}
 			@Override
 			public Comparator<?> getComparator() {
-				return getNumericalComparator();
+				return ValueComparator.INSTANCE;
 			}
 		},
 		IMPULSE("Impulse") {
 			@Override
-			public String getValue(Motor m) {
-				return UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(
-						m.getTotalImpulse());
+			public Object getValue(Motor m) {
+				return new Value(m.getTotalImpulse(), UnitGroup.UNITS_IMPULSE);
 			}
 			@Override
 			public Comparator<?> getComparator() {
-				return getNumericalComparator();
+				return ValueComparator.INSTANCE;
 			}
 		},
 		TIME("Burn time") {
 			@Override
-			public String getValue(Motor m) {
-				return UnitGroup.UNITS_SHORT_TIME.getDefaultUnit().toStringUnit(
-						m.getAverageTime());
+			public Object getValue(Motor m) {
+				return new Value(m.getAverageTime(), UnitGroup.UNITS_SHORT_TIME);
 			}
 			@Override
 			public Comparator<?> getComparator() {
-				return getNumericalComparator();
+				return ValueComparator.INSTANCE;
 			}
 		};
 		
@@ -479,7 +462,7 @@ public class MotorChooserDialog extends JDialog {
 		}
 		
 		
-		public abstract String getValue(Motor m);
+		public abstract Object getValue(Motor m);
 		public abstract Comparator<?> getComparator();
 
 		public String getTitle() {
@@ -623,7 +606,7 @@ public class MotorChooserDialog extends JDialog {
 		public boolean filterByString(Motor m) {
 			main: for (String s : searchTerms) {
 				for (MotorColumns col : MotorColumns.values()) {
-					String str = col.getValue(m).toLowerCase();
+					String str = col.getValue(m).toString().toLowerCase();
 					if (str.indexOf(s) >= 0)
 						continue main;
 				}
@@ -661,37 +644,6 @@ public class MotorChooserDialog extends JDialog {
 		public boolean filterByDiameter(Motor m) {
 			return ((m.getDiameter() <= diameter + 0.0004) &&
 					(m.getDiameter() >= diameter - 0.0015));
-		}
-	}
-	
-	
-	private static Comparator<String> numericalComparator = null;
-	private static Comparator<String> getNumericalComparator() {
-		if (numericalComparator == null)
-			numericalComparator = new NumericalComparator();
-		return numericalComparator;
-	}
-	
-	private static class NumericalComparator implements Comparator<String> {
-		private Pattern pattern = 
-			Pattern.compile("^\\s*([0-9]*[.,][0-9]+|[0-9]+[.,]?[0-9]*).*?$");
-		private Collator collator = null;
-		@Override
-		public int compare(String s1, String s2) {
-			Matcher m1, m2;
-			
-			m1 = pattern.matcher(s1);
-			m2 = pattern.matcher(s2);
-			if (m1.find() && m2.find()) {
-				double d1 = Double.parseDouble(m1.group(1));
-				double d2 = Double.parseDouble(m2.group(1));
-				
-				return (int)((d1-d2)*1000);
-			}
-			
-			if (collator == null)
-				collator = Collator.getInstance(Locale.US);
-			return collator.compare(s1, s2);
 		}
 	}
 	

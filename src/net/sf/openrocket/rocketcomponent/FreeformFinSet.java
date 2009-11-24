@@ -124,7 +124,7 @@ public class FreeformFinSet extends FinSet {
 	
 	/**
 	 * Remove the fin point with the given index.  The first and last fin points
-	 * cannot be removed, and will cause an <code>IllegalArgumentException</code>
+	 * cannot be removed, and will cause an <code>IllegalFinPointException</code>
 	 * if attempted.
 	 * 
 	 * @param index   the fin point index to remove
@@ -173,8 +173,8 @@ public class FreeformFinSet extends FinSet {
 	 * <p>
 	 * Note that this method enforces basic fin shape restrictions (non-negative y,
 	 * first and last point locations) silently, but throws an 
-	 * <code>IllegalArgumentException</code> if the point causes fin segments to
-	 * intersect.  The calling method should always catch this exception.
+	 * <code>IllegalFinPointException</code> if the point causes fin segments to
+	 * intersect.
 	 * <p>
 	 * Moving of the first point in the X-axis is allowed, but this actually moves
 	 * all of the other points the corresponding distance back.

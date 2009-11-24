@@ -1,7 +1,8 @@
 ; Sachsen Feuerwerk / WECO Feuerwerk D7-0, D7-3
-; Created by Sampo Niskanen
-; Data taken from:
+; Created by Sampo Niskanen for OpenRocket, released into the Public Domain
+; Thrust curve data taken from:
 ; http://www.raketenmodellbautechnik.de/produkte/Motoren/SF-Motoren.pdf
+; Mass measured by the author from D7-3 motors.
 D7 25 70 0-3 0.019 0.043 SF
    0.079 1.625
    0.179 6.979

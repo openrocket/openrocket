@@ -308,7 +308,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			} else {
 				// Hollow piece
 				final double height = thickness*hyp/l;
-				dV = pil*height*(r1+r2-height);
+				dV = MathUtil.max(pil*height*(r1+r2-height), 0);
 			}
 
 			// Add to the volume-related components
@@ -334,11 +334,14 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		if (planArea > 0)
 			planCenter /= planArea;
 		
-		if (volume == 0) {
-			cg = Coordinate.NUL;
+		if (volume < 0.0000000001) {  // 0.1 mm^3
+			volume = 0;
+			cg = new Coordinate(length/2, 0, 0, 0);
 		} else {
 			// getComponentMass is safe now
-			cg = new Coordinate(cgx/volume,0,0,getComponentMass());
+			// Use super.getComponentMass() to ensure only the transition shape mass
+			// is used, not the shoulders
+			cg = new Coordinate(cgx/volume,0,0,super.getComponentMass());
 		}
 	}
 	

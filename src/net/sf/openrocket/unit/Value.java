@@ -27,6 +27,18 @@ public class Value implements Comparable<Value> {
 		this.value = value;
 		this.unit = unit;
 	}
+	
+	
+	/**
+	 * Creates a new Value object using unit group.  Currently it simply uses the default
+	 * unit of the group, but may later change.
+	 * 
+	 * @param value		the value to set.
+	 * @param group		the group the value belongs to.
+	 */
+	public Value(double value, UnitGroup group) {
+		this(value, group.getDefaultUnit());
+	}
 
 	
 	/**

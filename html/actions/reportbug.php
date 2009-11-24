@@ -31,8 +31,8 @@ header("Content-type: text/plain; charset=utf-8");
 if (preg_match("/^[a-zA-Z0-9. -]{1,30}$/", $version) &&
     strlen($content) > 0) {
 
-  if (mail($mailaddr, "Automatic bug report for OpenRocket " . $version,
-    	$content . $headers, 
+  $subject = date("Y-m-d H:i:s") . " Automatic bug report for OpenRocket " . $version;
+  if (mail($mailaddr, $subject, $content . $headers, 
     	"From: Automatic Bug Reports <".$mailaddr.">\r\n".
     	"Content-Type: text/plain; charset=utf-8")) {
     	

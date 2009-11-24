@@ -88,7 +88,7 @@ public class PreferencesDialog extends JDialog {
 				"Delete", "Confirm", true)), "wrap 40lp, growx, sg combos");
 		
 		
-		final JCheckBox softwareUpdateBox = new JCheckBox("Check for software updates");
+		final JCheckBox softwareUpdateBox = new JCheckBox("Check for software updates at startup");
 		softwareUpdateBox.setSelected(Prefs.getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override

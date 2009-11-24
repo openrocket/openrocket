@@ -203,7 +203,7 @@ public class Prefs {
 	public static String getUniqueID() {
 		String id = PREFNODE.get("id", null);
 		if (id == null) {
-			id = UniqueID.generateHashedID();
+			id = UniqueID.uuid();
 			PREFNODE.put("id", id);
 		}
 		return id;

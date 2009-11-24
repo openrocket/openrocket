@@ -8,3 +8,7 @@
 
 Redirect 307 /actions/reportbug http://sampo.kapsi.fi/openrocket/reportbug.php
 
+RewriteEngine On
+RewriteBase /actions/
+RewriteRule ^updates$ updates.php
+

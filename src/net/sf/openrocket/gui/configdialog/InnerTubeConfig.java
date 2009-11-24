@@ -50,14 +50,14 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		
 		JPanel tab;
 		
-		tab = positionTab();
-		tabbedPane.insertTab("Radial position", null, tab, "Radial position", 1);
-		
 		tab = new MotorConfig((MotorMount)c);
-		tabbedPane.insertTab("Motor", null, tab, "Motor mount configuration", 2);
+		tabbedPane.insertTab("Motor", null, tab, "Motor mount configuration", 1);
 
 		tab = clusterTab();
-		tabbedPane.insertTab("Cluster", null, tab, "Cluster configuration", 3);
+		tabbedPane.insertTab("Cluster", null, tab, "Cluster configuration", 2);
+		
+		tab = positionTab();
+		tabbedPane.insertTab("Radial position", null, tab, "Radial position", 3);
 		
 		tabbedPane.setSelectedIndex(0);
 	}

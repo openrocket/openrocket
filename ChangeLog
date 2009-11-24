@@ -1,3 +1,20 @@
+2009-11-24  Sampo Niskanen
+
+	* Released version 0.9.4
+
+2009-11-24  Sampo Niskanen
+
+	* Close original window when opening example design
+	
+2009-11-10  Sampo Niskanen
+
+	* [BUG] Fixed transition volume/mass computation
+	* [BUG] Simulations etc. using removed motor configuration IDs
+
+2009-10-11  Sampo Niskanen
+
+	* [BUG] Sorting motor selection dialog with ',' decimal separator
+	
 2009-10-10  Sampo Niskanen
 
 	* Removed non-ASCII characters from source code files

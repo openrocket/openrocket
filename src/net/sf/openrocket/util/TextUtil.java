@@ -2,6 +2,28 @@ package net.sf.openrocket.util;
 
 
 public class TextUtil {
+	private static final char[] HEX = { 
+		'0','1','2','3','4','5','6','7',
+		'8','9','a','b','c','d','e','f' 
+	};
+
+	
+	/**
+	 * Return the bytes formatted as a hexadecimal string.  The length of the
+	 * string will be twice the number of bytes, with no spacing between the bytes
+	 * and lowercase letters utilized.
+	 * 
+	 * @param bytes		the bytes to convert.
+	 * @return			the bytes in hexadecimal notation.
+	 */
+	public static final String hexString(byte[] bytes) {
+		StringBuilder sb = new StringBuilder(bytes.length * 2);
+		for (byte b: bytes) {
+			sb.append(HEX[(b >>> 4) & 0xF]);
+			sb.append(HEX[b & 0xF]);
+		}
+		return sb.toString();
+	}
 
 	/**
 	 * Return a string of the double value with suitable precision (5 digits).

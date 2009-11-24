@@ -201,11 +201,26 @@ implements Clusterable, RadialParent, MotorMount {
 	
 	@Override
 	public Motor getMotor(String id) {
+		if (id == null)
+			return null;
+		
+		// Check whether the id is valid for the current rocket
+		RocketComponent root = this.getRoot();
+		if (!(root instanceof Rocket))
+			return null;
+		if (!((Rocket) root).isMotorConfigurationID(id))
+			return null;
+		
 		return motors.get(id);
 	}
 
 	@Override
 	public void setMotor(String id, Motor motor) {
+		if (id == null) {
+			if (motor != null) {
+				throw new IllegalArgumentException("Cannot set non-null motor for id null");
+			}
+		}
 		Motor current = motors.get(id);
 		if ((motor == null && current == null) ||
 				(motor != null && motor.equals(current)))
@@ -228,6 +243,7 @@ implements Clusterable, RadialParent, MotorMount {
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
+	@Deprecated
 	@Override
 	public int getMotorCount() {
 		return getClusterCount();

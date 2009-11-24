@@ -83,7 +83,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		}
 		
 		if (!(item instanceof Enum<?>)) {
-			throw new IllegalArgumentException("Not String or Enum");
+			throw new IllegalArgumentException("Not String or Enum, item="+item);
 		}
 		
 		// Comparison with == ok, since both are enums

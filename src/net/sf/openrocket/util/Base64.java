@@ -16,6 +16,18 @@ public class Base64 {
 			'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
 	};
 	private static final char PAD = '=';
+
+//	private static final byte[] REVERSE;
+//	static {
+//		REVERSE = new byte[128];
+//		Arrays.fill(REVERSE, (byte)-1);
+//		for (int i=0; i<64; i++) {
+//			REVERSE[ALPHABET[i]] = (byte)i;
+//		}
+//		REVERSE['-'] = 62;
+//		REVERSE['_'] = 63;
+//		REVERSE[PAD] = 0;
+//	}
 	
 	private static final Map<Character,Integer> REVERSE = new HashMap<Character,Integer>();
 	static {

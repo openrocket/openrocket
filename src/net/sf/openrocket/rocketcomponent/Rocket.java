@@ -563,6 +563,9 @@ public class Rocket extends RocketComponent {
 	 * @return		whether any motors are defined for it.
 	 */
 	public boolean hasMotors(String id) {
+		if (id == null)
+			return false;
+		
 		Iterator<RocketComponent> iterator = this.deepIterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
@@ -588,6 +591,8 @@ public class Rocket extends RocketComponent {
 	 * @return	   the configuration name
 	 */
 	public String getMotorConfigurationName(String id) {
+		if (!isMotorConfigurationID(id))
+			return "";
 		String s = motorConfigurationNames.get(id);
 		if (s == null)
 			return "";
@@ -607,7 +612,7 @@ public class Rocket extends RocketComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
-		
+	
 	/**
 	 * Return either the motor configuration name (if set) or its description. 
 	 * 
@@ -617,10 +622,10 @@ public class Rocket extends RocketComponent {
 	public String getMotorConfigurationNameOrDescription(String id) {
 		String name;
 		
-		name = motorConfigurationNames.get(id);
+		name = getMotorConfigurationName(id);
 		if (name != null  &&  !name.equals(""))
 			return name;
-		
+
 		return getMotorConfigurationDescription(id);
 	}
 	
@@ -635,10 +640,6 @@ public class Rocket extends RocketComponent {
 	public String getMotorConfigurationDescription(String id) {
 		String name;
 		int motorCount = 0;
-		
-		if (!motorConfigurationIDs.contains(id)) {
-			throw new IllegalArgumentException("Motor configuration ID does not exist: "+id);
-		}
 		
 		// Generate the description
 		

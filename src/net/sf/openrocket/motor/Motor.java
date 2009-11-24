@@ -98,6 +98,7 @@ public abstract class Motor implements Comparable<Motor> {
 	private final String designation;
 	private final String description;
 	private final Type motorType;
+	private final String digest;
 	
 	private final double[] delays;
 	
@@ -126,7 +127,7 @@ public abstract class Motor implements Comparable<Motor> {
 	 * @param length		length of the motor
 	 */
 	protected Motor(Manufacturer manufacturer, String designation, String description, 
-			Type type, double[] delays, double diameter, double length) {
+			Type type, double[] delays, double diameter, double length, String digest) {
 
 		if (manufacturer == null || designation == null || description == null ||
 				type == null || delays == null) {
@@ -140,6 +141,7 @@ public abstract class Motor implements Comparable<Motor> {
 		this.delays = delays.clone();
 		this.diameter = diameter;
 		this.length = length;
+		this.digest = digest;
 	}
 
 
@@ -432,6 +434,20 @@ public abstract class Motor implements Comparable<Motor> {
 	 */
 	public double getLength() {
 		return length;
+	}
+	
+	
+	/**
+	 * Return a digest string of this motor.  This digest should be computed from all
+	 * flight-affecting data.  For example for thrust curve motors the thrust curve
+	 * should be digested using suitable precision.  The intention is that the combination
+	 * of motor type, manufacturer, designation, diameter, length and digest uniquely
+	 * identify any particular motor data file.
+	 * 
+	 * @return	a string digest of this motor (0-60 chars)
+	 */
+	public String getDigestString() {
+		return digest;
 	}
 	
 	

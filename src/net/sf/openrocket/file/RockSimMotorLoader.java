@@ -14,7 +14,9 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.util.Coordinate;
 
 import org.xml.sax.InputSource;
@@ -321,6 +323,11 @@ public class RockSimMotorLoader extends MotorLoader {
 			finalizeThrustCurve(time, force, mass, cg);
 			final int n = time.size();
 			
+			if (hasIllegalValue(mass))
+				calculateMass = true;
+			if (hasIllegalValue(cg))
+				calculateCG = true;
+			
 			if (calculateMass) {
 				mass = calculateMass(time, force, initMass, propMass);
 			}
@@ -330,19 +337,33 @@ public class RockSimMotorLoader extends MotorLoader {
 				}
 			}
 			
-			double[] timeArray = new double[n];
-			double[] thrustArray = new double[n];
+			double[] timeArray = toArray(time);
+			double[] thrustArray = toArray(force);
 			Coordinate[] cgArray = new Coordinate[n];
 			for (int i=0; i < n; i++) {
-				timeArray[i] = time.get(i);
-				thrustArray[i] = force.get(i);
 				cgArray[i] = new Coordinate(cg.get(i),0,0,mass.get(i));
 			}
+			
+
+			// Create the motor digest from all data available in the file
+			MotorDigest motorDigest = new MotorDigest();
+			motorDigest.update(DataType.TIME_ARRAY, timeArray);
+			if (!calculateMass) {
+				motorDigest.update(DataType.MASS_PER_TIME, toArray(mass));
+			} else {
+				motorDigest.update(DataType.MASS_SPECIFIC, initMass, initMass-propMass);
+			}
+			if (!calculateCG) {
+				motorDigest.update(DataType.CG_PER_TIME, toArray(cg));
+			}
+			motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
+			final String digest = motorDigest.getDigest();
+			
 			
 			try {
 				return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer), 
 						designation, description, type,
-						delays, diameter, length, timeArray, thrustArray, cgArray);
+						delays, diameter, length, timeArray, thrustArray, cgArray, digest);
 			} catch (IllegalArgumentException e) {
 				throw new SAXException("Illegal motor data", e);
 			}
@@ -416,5 +437,25 @@ public class RockSimMotorLoader extends MotorLoader {
 				return Double.NaN;
 			}
 		}
+	}
+	
+	
+	
+	private static boolean hasIllegalValue(List<Double> list) {
+		for (Double d: list) {
+			if (d == null || d.isNaN() || d.isInfinite()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static double[] toArray(List<Double> list) {
+		final int n = list.size();
+		double[] array = new double[n];
+		for (int i=0; i < n; i++) {
+			array[i] = list.get(i);
+		}
+		return array;
 	}
 }

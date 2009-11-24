@@ -88,7 +88,8 @@ public interface MotorMount extends ChangeSource {
 	/**
 	 * Return the motor for the motor configuration.  May return <code>null</code>
 	 * if no motor has been set.  This method must return <code>null</code> if ID
-	 * is <code>null</code>.
+	 * is <code>null</code> or if the ID is not valid for the current rocket
+	 * (or if the component is not part of any rocket).
 	 * 
 	 * @param id	the motor configuration ID
 	 * @return  	the motor, or <code>null</code> if not set.
@@ -107,8 +108,11 @@ public interface MotorMount extends ChangeSource {
 	/**
 	 * Get the number of similar motors clustered.
 	 * 
+	 * TODO: HIGH: This should not be used, since the components themselves can be clustered
+	 * 
 	 * @return  the number of motors.
 	 */
+	@Deprecated
 	public int getMotorCount();
 	
 	

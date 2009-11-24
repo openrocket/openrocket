@@ -3,9 +3,38 @@ package net.sf.openrocket.util;
 import static java.lang.Math.PI;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 public class TextUtilTest {
+	
+	@Test
+	public void textHexString() {
+		assertEquals("", TextUtil.hexString(new byte[0]));
+		assertEquals("00", TextUtil.hexString(new byte[] { 0x00 }));
+		assertEquals("ff", TextUtil.hexString(new byte[] { (byte) 0xff }));
+
+		for (int i=0; i <= 0xff; i++) {
+			assertEquals(String.format("%02x", i), TextUtil.hexString(new byte[] { (byte) i }));
+		}
+		
+		assertEquals("0f1e2d3c4b5a6978", TextUtil.hexString(new byte[] { 
+				0x0f, 0x1e, 0x2d, 0x3c, 0x4b, 0x5a, 0x69, 0x78
+		}));
+		
+		Random rnd = new Random();
+		for (int count=0; count<10; count++) {
+			int n = rnd.nextInt(100);
+			byte[] bytes = new byte[n];
+			rnd.nextBytes(bytes);
+			StringBuilder sb = new StringBuilder();
+			for (byte b: bytes) {
+				sb.append(String.format("%02x", b & 0xFF));
+			}
+			assertEquals(sb.toString(), TextUtil.hexString(bytes));
+		}
+	}
 
 	@Test
 	public void specialCaseTest() {

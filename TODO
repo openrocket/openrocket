@@ -5,20 +5,27 @@ Feature roadmap for OpenRocket 1.0
 Must-have:
 
 - Go through thrust curves and correct errors
-- Add styrofoam and depron materials
+or
+- Hide duplicate motors
 
 
 Bugs:
 
-- Unit tests fail from ant script
 
 
 Maybe:
 
-- Inform user about software updates
+- Re-investigate 15% reduction of three-fin CNa
+- Take into account all fins in interference effects
+- Add slight randomness to yaw moment
 
 
 Postponed:
+
+- Integration with thrustcurve.org (syncing?)
+- Reading thrust curves from external directory
+- Plot motor thrust curve
+
 
 - Windows executable wrapper (launch4j)
 - Allow only one instance of OpenRocket running (RMI communication)
@@ -30,7 +37,6 @@ Postponed:
 - Simulate other branches
 - Implement setDefaults() method for RocketComponent
 - BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
-- Reading thrust curves from external directory
 - NAR/CNES/etc competition validity checking
 - Running from command line
 - Print support
@@ -79,4 +85,6 @@ In 0.9.4:
 - Allow editing user-defined materials
 - [BUG] All configuration dialogs too high
 - Simulation plot dialog forces dialog one button row too high (All/None)
+- Add styrofoam and depron materials
+- Inform user about software updates
 

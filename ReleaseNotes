@@ -1,4 +1,12 @@
 
+OpenRocket 0.9.4  (2009-11-24):
+-------------------------------
+
+Added through-the-wall fin tabs, attaching components to tube
+couplers, material editing and automatic update checks, and fixed
+numerous of the most commonly occurring bugs.
+
+
 OpenRocket 0.9.3  (2009-09-01):
 -------------------------------
 
