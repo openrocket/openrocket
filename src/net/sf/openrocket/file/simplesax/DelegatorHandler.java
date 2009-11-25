@@ -11,7 +11,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * The actual handler class.  Contains the necessary methods for parsing the SAX source.
+ * The actual SAX handler class.  Contains the necessary methods for parsing the SAX source.
  * Delegates the actual content parsing to {@link ElementHandler} objects.
  */
 class DelegatorHandler extends DefaultHandler {

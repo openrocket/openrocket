@@ -8,16 +8,18 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import org.xml.sax.SAXException;
 
 /**
- * An element handler that does not accept any content in the element except whitespace
- * text.  All subelements are ignored and an error is produced of them.  Any attributes
- * are ignored.
+ * A singleton element handler that does not accept any content in the element
+ * except whitespace text.  All subelements are ignored and a warning is produced
+ * of them.  It ignores any attributes.
+ * <p>
+ * This class can be used for elements that have no content but contain attributes.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class NullElementHandler extends ElementHandler {
 	public static final NullElementHandler INSTANCE = new NullElementHandler();
 
-	private static final HashMap<String, String> EMPTY_MAP = new HashMap<String,String>(); 
+	private static final HashMap<String, String> EMPTY_MAP = new HashMap<String,String>();
 	
 	private NullElementHandler() {
 	}
