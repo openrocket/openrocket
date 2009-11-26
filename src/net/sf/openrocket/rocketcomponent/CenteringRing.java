@@ -28,6 +28,7 @@ public class CenteringRing extends RadiusRingComponent {
 					if (pos2 < 0 || pos1 > sibling.getLength())
 						continue;
 					
+					// TODO: CRITICAL: ClassCastException below:
 					innerRadius = Math.max(innerRadius, ((InnerTube)sibling).getOuterRadius());
 				}
 				innerRadius = Math.min(innerRadius, getOuterRadius());

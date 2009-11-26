@@ -6,6 +6,8 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import net.sf.openrocket.file.motor.RASPMotorLoader;
+import net.sf.openrocket.file.motor.RockSimMotorLoader;
 import net.sf.openrocket.motor.Motor;
 
 /**

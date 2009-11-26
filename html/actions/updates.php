@@ -60,6 +60,6 @@ header("Content-type: text/plain; charset=utf-8");
 $version = $_GET["version"];
 
 // No updates available
-header("HTTP/1.0 202 No Content");
+header("HTTP/1.0 204 No Content");
 
 ?>

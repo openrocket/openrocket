@@ -26,6 +26,7 @@ Postponed:
 - Reading thrust curves from external directory
 - Plot motor thrust curve
 
+- Screw weights for nose cones / transitions
 
 - Windows executable wrapper (launch4j)
 - Allow only one instance of OpenRocket running (RMI communication)

@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.openrocket.OpenRocketLoader;
 
 
 /**

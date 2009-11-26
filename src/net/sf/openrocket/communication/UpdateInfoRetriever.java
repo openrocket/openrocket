@@ -124,6 +124,7 @@ public class UpdateInfoRetriever {
 			try {
 				doConnection();
 			} catch (IOException e) {
+				System.out.println("fetching update failed: " + e);
 				return;
 			}
 		}
@@ -157,6 +158,8 @@ public class UpdateInfoRetriever {
 			InputStream is = null;
 			try {
 				connection.connect();
+				
+				System.out.println("response code: " + connection.getResponseCode());
 				
 				if (connection.getResponseCode() == Communicator.UPDATE_INFO_NO_UPDATE_CODE) {
 					// No updates are available
