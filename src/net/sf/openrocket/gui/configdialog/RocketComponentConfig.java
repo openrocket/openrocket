@@ -31,8 +31,9 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ResizeLabel;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -98,7 +99,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
 		
-		massLabel = new ResizeLabel("Mass: ", -1);
+		massLabel = new StyledLabel("Mass: ", -1);
 		buttonPanel.add(massLabel, "growx");
 		
 		for (JButton b: buttons) {
@@ -229,8 +230,8 @@ public class RocketComponentConfig extends JPanel {
 		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
 				"[][65lp::][30lp::][]",""));
 		
-		panel.add(new JLabel("<html><b>Override the mass or center of gravity of the " +
-				component.getComponentName() + ":</b>"),"spanx, wrap 20lp");
+		panel.add(new StyledLabel("Override the mass or center of gravity of the " +
+				component.getComponentName() + ":", Style.BOLD),"spanx, wrap 20lp");
 
 		JCheckBox check;
 		BooleanModel bm;
@@ -303,7 +304,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(check, "gap para, spanx, wrap para");
 		
 
-		panel.add(new ResizeLabel("<html>The overridden mass does not include motors.<br>" +
+		panel.add(new StyledLabel("<html>The overridden mass does not include motors.<br>" +
 				"The center of gravity is measured from the front end of the " +
 				component.getComponentName().toLowerCase()+".", -1),
 				"spanx, wrap, gap para, height 0::30lp");
@@ -315,8 +316,8 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel commentTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new JLabel("<html><b>Comments on the "+component.getComponentName()+":</b>"), 
-				"wrap");
+		panel.add(new StyledLabel("Comments on the "+component.getComponentName()+":", 
+				Style.BOLD), "wrap");
 		
 		// TODO: LOW:  Changes in comment from other sources not reflected in component
 		commentTextArea = new JTextArea(component.getComment());
@@ -336,7 +337,7 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel figureTab() {
 		JPanel panel = new JPanel(new MigLayout("align 20% 20%"));
 		
-		panel.add(new JLabel("<html><b>Figure style:</b>"), "wrap para");
+		panel.add(new StyledLabel("Figure style:", Style.BOLD), "wrap para");
 		
 		
 		panel.add(new JLabel("Component color:"), "gapleft para, gapright 10lp");
