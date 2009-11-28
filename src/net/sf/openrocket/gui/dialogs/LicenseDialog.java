@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import javax.swing.JButton;
@@ -46,7 +47,7 @@ public class LicenseDialog extends JDialog {
 			}
 			licenseText = sb.toString();
 			
-		} catch (Exception e) {
+		} catch (IOException e) {
 
 			licenseText = DEFAULT_LICENSE_TEXT;
 			

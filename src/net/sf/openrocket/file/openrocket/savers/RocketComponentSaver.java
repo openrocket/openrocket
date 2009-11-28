@@ -12,6 +12,7 @@ import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.LineStyle;
 
 
@@ -94,7 +95,7 @@ public class RocketComponentSaver {
 			str += " type=\"bulk\"";
 			break;
 		default:
-			throw new RuntimeException("Unknown material type: " + mat.getType());
+			throw new BugException("Unknown material type: " + mat.getType());
 		}
 
 		return str + " density=\"" + mat.getDensity() + "\">" + RocketSaver.escapeXML(mat.getName()) + "</"+tag+">";

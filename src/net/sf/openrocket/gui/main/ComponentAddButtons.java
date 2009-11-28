@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -47,8 +48,10 @@ import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.Reflection;
 
 /**
  * A component that contains addition buttons to add different types of rocket components
@@ -393,9 +396,14 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			RocketComponent component;
 			try {
 				component = (RocketComponent)constructor.newInstance();
-			} catch (Exception e) {
-				throw new RuntimeException("Could not construct new instance of class "+
+			} catch (InstantiationException e) {
+				throw new BugException("Could not construct new instance of class "+
 						constructor,e);
+			} catch (IllegalAccessException e) {
+				throw new BugException("Could not construct new instance of class "+
+						constructor,e);
+			} catch (InvocationTargetException e) {
+				throw Reflection.handleInvocationTargetException(e);
 			}
 			
 			// Next undo position is set by opening the configuration dialog

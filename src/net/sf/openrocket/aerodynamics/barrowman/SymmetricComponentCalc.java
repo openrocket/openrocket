@@ -10,6 +10,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
@@ -172,7 +173,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			return 0;
 		
 		if (!(component instanceof Transition)) {
-			throw new RuntimeException("Pressure calculation of unknown type: "+
+			throw new BugException("Pressure calculation of unknown type: "+
 					component.getComponentName());
 		}
 		

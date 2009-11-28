@@ -87,6 +87,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.OpenFileWorker;
@@ -874,16 +875,16 @@ public class BasicFrame extends JFrame {
 
 			} else {
 
-				throw new RuntimeException("Unknown error when opening file", e);
+				throw new BugException("Unknown error when opening file", e);
 
 			}
 
 		} catch (InterruptedException e) {
-			throw new RuntimeException("EDT was interrupted", e);
+			throw new BugException("EDT was interrupted", e);
 		}
 		
 		if (doc == null) {
-			throw new RuntimeException("BUG: Document loader returned null");
+			throw new BugException("BUG: Document loader returned null");
 		}
 		
 		
@@ -1004,11 +1005,11 @@ public class BasicFrame extends JFrame {
 		    			e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
 		    	return false;
 			} else {
-				throw new RuntimeException("Unknown error when saving file", e);
+				throw new BugException("Unknown error when saving file", e);
 			}
 			
 		} catch (InterruptedException e) {
-			throw new RuntimeException("EDT was interrupted", e);
+			throw new BugException("EDT was interrupted", e);
 		}
 	    
 	    return saved;
@@ -1262,8 +1263,14 @@ public class BasicFrame extends JFrame {
 					if (info != null && info.getLatestVersion() != null &&
 							!current.equals(info.getLatestVersion()) &&
 							!last.equals(info.getLatestVersion())) {
-						Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
-						new UpdateInfoDialog(info).setVisible(true);
+						
+						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
+						infoDialog.setVisible(true);
+						if (infoDialog.isReminderSelected()) {
+							Prefs.putString(Prefs.LAST_UPDATE, "");
+						} else {
+							Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+						}
 					}
 				}
 				count--;

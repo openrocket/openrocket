@@ -28,6 +28,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.BugReporter;
 import net.sf.openrocket.gui.components.SelectableLabel;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.Prefs;
@@ -288,7 +289,7 @@ public class BugReportDialog extends JDialog {
 			text = URLEncoder.encode(text, "UTF-8");
 			version = URLEncoder.encode(Prefs.getVersion(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new BugException(e);
 		}
 		
 		

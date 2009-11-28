@@ -1,6 +1,7 @@
 package net.sf.openrocket.aerodynamics;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 public class AerodynamicForces implements Cloneable {
@@ -132,7 +133,7 @@ public class AerodynamicForces implements Cloneable {
 		try {
 			return (AerodynamicForces)super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("CloneNotSupportedException?!?");
+			throw new BugException("CloneNotSupportedException?!?");
 		}
 	}
 	

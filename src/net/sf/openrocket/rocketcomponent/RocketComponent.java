@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
@@ -307,7 +308,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		try {
 			clone = (RocketComponent)this.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("CloneNotSupportedException encountered, " +
+			throw new BugException("CloneNotSupportedException encountered, " +
 					"report a bug!",e);
 		}
 
@@ -778,7 +779,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 				break;
 				
 			default:
-				throw new RuntimeException("Unknown relative positioning type of component"+
+				throw new BugException("Unknown relative positioning type of component"+
 						component+": "+component.relativePosition);
 			}
 
@@ -1113,9 +1114,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 			return null;
 		int pos = parent.getChildPosition(this);
 		if (pos < 0) {
-			throw new IllegalStateException("Inconsistent internal state: " +
-					"this="+this+" parent="+parent+" parent.children="+
-					parent.children.toString());
+			StringBuffer sb = new StringBuffer();
+			sb.append("Inconsistent internal state: ");
+			sb.append("this=").append(this).append('[').append(System.identityHashCode(this)).append(']');
+			sb.append(" parent.children=[");
+			for (int i=0; i < parent.children.size(); i++) {
+				RocketComponent c = parent.children.get(i);
+				sb.append(c).append('[').append(System.identityHashCode(c)).append(']');
+				if (i < parent.children.size()-1)
+					sb.append(", ");
+			}
+			throw new IllegalStateException(sb.toString());
 		}
 		assert(pos >= 0);
 		if (pos == 0)

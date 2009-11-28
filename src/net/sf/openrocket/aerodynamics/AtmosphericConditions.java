@@ -1,5 +1,7 @@
 package net.sf.openrocket.aerodynamics;
 
+import net.sf.openrocket.util.BugException;
+
 public class AtmosphericConditions implements Cloneable {
 
 	/** Specific gas constant of dry air. */
@@ -92,7 +94,7 @@ public class AtmosphericConditions implements Cloneable {
 		try {
 			return (AtmosphericConditions) super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("BUG:  CloneNotSupportedException encountered!");
+			throw new BugException("BUG:  CloneNotSupportedException encountered!");
 		}
 	}
 	

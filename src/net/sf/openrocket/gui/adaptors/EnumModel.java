@@ -76,6 +76,10 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 
 	@Override
 	public void setSelectedItem(Object item) {
+		if (item == null) {
+			// Clear selection - huh?
+			return;
+		}
 		if (item instanceof String) {
 			if (currentValue != null)
 				setMethod.invoke(source, (Object)null);

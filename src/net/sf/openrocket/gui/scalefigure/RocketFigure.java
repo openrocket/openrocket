@@ -25,6 +25,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
@@ -438,7 +439,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			break;
 			
 		default:
-			throw new RuntimeException("Unknown figure type = "+type);
+			throw new BugException("Unknown figure type = "+type);
 		}
 		
 		if (m == null) {
@@ -537,7 +538,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			return new Rectangle2D.Double(-maxR,-maxR,2*maxR,2*maxR);
 			
 		default:
-			throw new RuntimeException("Illegal figure type = "+type);
+			throw new BugException("Illegal figure type = "+type);
 		}
 	}
 

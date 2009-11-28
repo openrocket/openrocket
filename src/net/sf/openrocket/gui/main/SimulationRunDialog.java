@@ -389,6 +389,8 @@ public class SimulationRunDialog extends JDialog {
 				
 			} else if (t instanceof Exception) {
 				
+				// TODO: MEDIUM: Check the exception handling here...
+				
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this, 
 						new Object[] {
 						"An exception occurred during the simulation:",

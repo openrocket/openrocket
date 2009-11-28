@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 import net.sf.openrocket.aerodynamics.AtmosphericModel;
 import net.sf.openrocket.aerodynamics.ExtendedISAModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.MathUtil;
 
@@ -321,7 +322,7 @@ public class SimulationConditions implements ChangeSource, Cloneable {
 			copy.listeners = new ArrayList<ChangeListener>();
 			return copy;
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
+			throw new BugException(e);
 		}
 	}
 	

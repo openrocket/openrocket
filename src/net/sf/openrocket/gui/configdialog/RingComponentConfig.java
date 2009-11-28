@@ -210,7 +210,13 @@ public class RingComponentConfig extends RocketComponentConfig {
 				((RingComponent) component).setRadialPosition(0.0);
 			}
 		});
-		panel.add(button,"spanx, right");
+		panel.add(button,"spanx, right, wrap para");
+		
+		
+		DescriptionArea note = new DescriptionArea(2);
+		note.setText("Note: An inner tube will not affect the aerodynamics" +
+				" of the rocket even if it is located outside of the body tube.");
+		panel.add(note, "spanx, growx");
 		
 		
 		return panel;

@@ -29,14 +29,13 @@ public class Reflection {
 			try {
 				return method.invoke(obj, args);
 			} catch (IllegalArgumentException e) {
-				throw new RuntimeException("Error while invoking method '"+method+"'. "+
+				throw new BugException("Error while invoking method '"+method+"'. "+
 						"Please report this as a bug.",e);
 			} catch (IllegalAccessException e) {
-				throw new RuntimeException("Error while invoking method '"+method+"'. "+
+				throw new BugException("Error while invoking method '"+method+"'. "+
 						"Please report this as a bug.",e);
 			} catch (InvocationTargetException e) {
-				throw new RuntimeException("Error while invoking method '"+method+"'. "+
-						"Please report this as a bug.",e);
+				throw Reflection.handleInvocationTargetException(e);
 			}
 		}
 		/**
@@ -56,6 +55,34 @@ public class Reflection {
 	
 	
 	/**
+	 * Handles an InvocationTargetException gracefully.  If the cause is an unchecked
+	 * exception it is thrown, otherwise it is encapsulated in a BugException.
+	 * <p>
+	 * This method has a return type of Error in order to allow writing code like:
+	 * <pre>throw Reflection.handleInvocationTargetException(e)</pre>
+	 * This allows the compiler verifying that the call will never succeed correctly
+	 * and ending that branch of execution.
+	 * 
+	 * @param e		the InvocationTargetException that occurred (not null).
+	 * @return		never returns normally.
+	 */
+	public static Error handleInvocationTargetException(InvocationTargetException e) {
+		Throwable cause = e.getCause();
+		if (cause == null) {
+			throw new BugException("BUG: InvocationTargetException without cause", e);
+		}
+		if (cause instanceof RuntimeException) {
+			throw (RuntimeException)cause;
+		}
+		if (cause instanceof Error) {
+			throw (Error)cause;
+		}
+		throw new BugException("InvocationTargetException occurred", cause);
+	}
+	
+	
+	
+	/**
 	 * Throws an exception if method not found.
 	 */
 	public static Reflection.Method findMethodStatic(
@@ -64,7 +91,7 @@ public class Reflection {
 		Reflection.Method m = findMethod(ROCKETCOMPONENT_PACKAGE, componentClass, 
 				"", method, params);
 		if (m == null) {
-			throw new RuntimeException("Could not find method for componentClass="
+			throw new BugException("Could not find method for componentClass="
 					+componentClass+" method="+method);
 		}
 		return m;
@@ -145,18 +172,18 @@ public class Reflection {
 				}
 			} catch (ClassNotFoundException ignore) {
 			} catch (IllegalArgumentException e) {
-				throw new RuntimeException("Construction of "+name+" failed",e);
+				throw new BugException("Construction of "+name+" failed",e);
 			} catch (InstantiationException e) {
-				throw new RuntimeException("Construction of "+name+" failed",e);
+				throw new BugException("Construction of "+name+" failed",e);
 			} catch (IllegalAccessException e) {
-				throw new RuntimeException("Construction of "+name+" failed",e);
+				throw new BugException("Construction of "+name+" failed",e);
 			} catch (InvocationTargetException e) {
-				throw new RuntimeException("Construction of "+name+" failed",e);
+				throw Reflection.handleInvocationTargetException(e);
 			}
 
 			currentclass = currentclass.getSuperclass();
 		}
-		throw new RuntimeException("Suitable constructor for component "+component+ 
+		throw new BugException("Suitable constructor for component "+component+ 
 				" not found");
 	}
 }

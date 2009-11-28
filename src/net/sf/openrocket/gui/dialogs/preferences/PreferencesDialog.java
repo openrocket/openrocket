@@ -259,6 +259,10 @@ public class PreferencesDialog extends JDialog {
 		}
 		@Override
 		public void setSelectedItem(Object item) {
+			if (item == null) {
+				// Clear selection - huh?
+				return;
+			}
 			if (!(item instanceof Unit)) {
 				throw new IllegalArgumentException("Illegal argument "+item);
 			}
@@ -297,6 +301,10 @@ public class PreferencesDialog extends JDialog {
 		
 		@Override
 		public void setSelectedItem(Object item) {
+			if (item == null) {
+				// Clear selection - huh?
+				return;
+			}
 			if (!(item instanceof String)) {
 				throw new IllegalArgumentException("Illegal argument "+item);
 			}
@@ -347,6 +355,10 @@ public class PreferencesDialog extends JDialog {
 		
 		@Override
 		public void setSelectedItem(Object item) {
+			if (item == null) {
+				// Clear selection - huh?
+				return;
+			}
 			if (!(item instanceof String)) {
 				throw new IllegalArgumentException("Illegal argument "+item);
 			}
@@ -442,7 +454,13 @@ public class PreferencesDialog extends JDialog {
 					"You are running the latest version of OpenRocket.", 
 					"No updates available", JOptionPane.INFORMATION_MESSAGE, null);
 		} else {
-			new UpdateInfoDialog(info).setVisible(true);
+			UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
+			infoDialog.setVisible(true);
+			if (infoDialog.isReminderSelected()) {
+				Prefs.putString(Prefs.LAST_UPDATE, "");
+			} else {
+				Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+			}
 		}
 		
 	}

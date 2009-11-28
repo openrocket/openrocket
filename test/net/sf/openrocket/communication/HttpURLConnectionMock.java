@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.openrocket.util.BugException;
+
 public class HttpURLConnectionMock extends HttpURLConnection {
 
 	private static final URL MOCK_URL;
@@ -23,7 +25,7 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 		try {
 			MOCK_URL = new URL("http://localhost/");
 		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+			throw new BugException(e);
 		}
 	}
 	

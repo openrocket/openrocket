@@ -1,5 +1,7 @@
 package net.sf.openrocket.document;
 
+import net.sf.openrocket.util.BugException;
+
 public class StorageOptions implements Cloneable {
 	
 	public static final double SIMULATION_DATA_NONE = Double.POSITIVE_INFINITY;
@@ -45,7 +47,7 @@ public class StorageOptions implements Cloneable {
 		try {
 			return (StorageOptions)super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("CloneNotSupportedException?!?", e);
+			throw new BugException("CloneNotSupportedException?!?", e);
 		}
 	}
 }

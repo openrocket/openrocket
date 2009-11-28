@@ -135,7 +135,7 @@ public class Quaternion implements Cloneable {
 		try {
 			return (Quaternion) super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("CloneNotSupportedException encountered");
+			throw new BugException("CloneNotSupportedException encountered");
 		}
 	}
 

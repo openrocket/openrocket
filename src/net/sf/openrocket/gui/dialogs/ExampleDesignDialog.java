@@ -27,6 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.JarUtil;
 
@@ -160,7 +161,7 @@ public class ExampleDesignDialog extends JDialog {
 				designs[i] = new ExampleDesign(files[i].toURI().toURL(), 
 						name.substring(0, name.length()-4));
 			} catch (MalformedURLException e) {
-				throw new RuntimeException(e);
+				throw new BugException(e);
 			}
 		}
 		return designs;
@@ -185,7 +186,7 @@ public class ExampleDesignDialog extends JDialog {
 			fileUrl = file.toURI().toURL();
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
-			throw new RuntimeException(e1);
+			throw new BugException(e1);
 		}
 		
 		// Iterate over JAR entries searching for designs

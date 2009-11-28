@@ -62,4 +62,10 @@ public class Pair<U,V> {
 		return ((u != null) ? u.hashCode() : 0) + ((v != null) ? v.hashCode() : 0);
 	}
 	
+	
+	@Override
+	public String toString() {
+		return "[" + u + ";" + v + "]";
+	}
+	
 }

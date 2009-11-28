@@ -80,6 +80,11 @@ public class MaterialModel extends AbstractListModel implements
 
 	@Override
 	public void setSelectedItem(Object item) {
+		if (item == null) {
+			// Clear selection - huh?
+			return;
+		}
+
 		if (item == CUSTOM) {
 			
 			// Open custom material dialog in the future, after combo box has closed

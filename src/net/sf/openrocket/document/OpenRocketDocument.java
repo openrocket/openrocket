@@ -17,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Icons;
 
 
@@ -449,7 +450,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 				break;
 				
 			default:
-				throw new RuntimeException("EEEK!");
+				throw new BugException("illegal type="+type);
 			}
 			
 			if (desc != null)

@@ -9,6 +9,7 @@ import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.FlightDataBranch.Type;
 import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 
@@ -733,7 +734,7 @@ public class PlotConfiguration implements Cloneable {
 			
 			
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("BUG! Could not clone().");
+			throw new BugException("BUG! Could not clone().");
 		}
 	}
 	

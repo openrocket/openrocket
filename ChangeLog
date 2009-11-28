@@ -1,3 +1,15 @@
+2009-11-28  Sampo Niskanen
+
+	* Released version 0.9.5
+	* [BUG] NPE when clearing combo box selections
+	* Minor fixes to update checking
+	* Added a few guidance texts
+
+2009-11-27  Sampo Niskanen
+
+	* [BUG] Fixed computing inner radius of centering ring
+	* Removed RuntimeException instantiation from all classes
+
 2009-11-24  Sampo Niskanen
 
 	* Released version 0.9.4

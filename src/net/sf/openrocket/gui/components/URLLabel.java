@@ -12,6 +12,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.openrocket.util.BugException;
+
 /**
  * A label of a URL that is clickable.  Clicking the URL will launch the URL in
  * the default browser if the Desktop class is supported.
@@ -58,7 +60,7 @@ public class URLLabel extends SelectableLabel {
 					try {
 						d.browse(new URI(url));
 					} catch (URISyntaxException e1) {
-						throw new RuntimeException("BUG: Illegal URL: " + url, e1);
+						throw new BugException("BUG: Illegal URL: " + url, e1);
 					} catch (IOException e1) {
 						System.err.println("Unable to launch browser:");
 						e1.printStackTrace();

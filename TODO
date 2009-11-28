@@ -1,15 +1,12 @@
 
 Feature roadmap for OpenRocket 1.0
+----------------------------------
 
 
 Must-have:
 
-- Go through thrust curves and correct errors
-or
-- Hide duplicate motors
-
-
-Bugs:
+- Go through thrust curves and select best ones
+- Updated splash screen
 
 
 
@@ -20,28 +17,53 @@ Maybe:
 - Add slight randomness to yaw moment
 
 
+
 Postponed:
+----------
+
+
+Motor support:
 
 - Integration with thrustcurve.org (syncing?)
 - Reading thrust curves from external directory
 - Plot motor thrust curve
+- Water rocket modelling
 
-- Screw weights for nose cones / transitions
+
+Running:
 
 - Windows executable wrapper (launch4j)
 - Allow only one instance of OpenRocket running (RMI communication)
+- Running from command line
+
+
+UI issues:
+
 - Only schedule rocket figure update instead of each time updating it
-- Reading (writing) .RKT format
 - Importing flight data (file/altimeter)
-- Water rocket modelling
-- Landing scatter plots
-- Simulate other branches
+- Saving as SVG
 - Implement setDefaults() method for RocketComponent
 - BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
 - NAR/CNES/etc competition validity checking
-- Running from command line
 - Print support
-- Saving as SVG
+
+
+Simulation:
+
+- Landing scatter plots
+- Simulate other branches
+
+
+Component support:
+
+- Screw weights for nose cones / transitions
+- Support for external pods
+- Support for tube fins
+
+
+Other:
+
+- Reading (writing) .RKT format
 
 
 Refactoring tasks:
@@ -57,7 +79,7 @@ Refactoring tasks:
 
 
 Done:
-
+-----
 - Search field in motor selection dialog
 - Motor selection/editing from Edit configurations dialog
 - Change FreeformFinSet to throw checked exceptions
@@ -88,4 +110,5 @@ In 0.9.4:
 - Simulation plot dialog forces dialog one button row too high (All/None)
 - Add styrofoam and depron materials
 - Inform user about software updates
-
+In 0.9.5:
+- Add label to motor panel to tell current number of stages

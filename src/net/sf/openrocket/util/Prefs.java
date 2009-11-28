@@ -142,7 +142,7 @@ public class Prefs {
 					root.node(NODENAME).removeNode();
 				}
 			} catch (BackingStoreException e) {
-				throw new RuntimeException("Unable to clear preference node",e);
+				throw new BugException("Unable to clear preference node",e);
 			}
 		}
 		PREFNODE = root.node(NODENAME);

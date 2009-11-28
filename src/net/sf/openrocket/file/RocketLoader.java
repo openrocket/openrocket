@@ -52,11 +52,6 @@ public abstract class RocketLoader {
 			throw e;
 		} catch (IOException e) {
 			throw new RocketLoadException("I/O error: " + e.getMessage());
-		} catch (Exception e) {
-			throw new RocketLoadException("An unknown error occurred.  Please report a bug.", e);
-		} catch (Throwable e) {
-			throw new RocketLoadException("A serious error occurred and the software may be "
-					+ "unstable.  Save your designs and restart OpenRocket.", e);
 		}
 	}
 

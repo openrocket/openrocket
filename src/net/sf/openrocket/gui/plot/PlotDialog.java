@@ -34,6 +34,7 @@ import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
@@ -341,7 +342,7 @@ public class PlotDialog extends JDialog {
 					double t2 = time.get(tindex+1);
 					
 					if ((t1 > t) || (t2 < t)) {
-						throw new RuntimeException("BUG: t1="+t1+" t2="+t2+" t="+t);
+						throw new BugException("BUG: t1="+t1+" t2="+t2+" t="+t);
 					}
 					
 					if (MathUtil.equals(t1, t2)) {

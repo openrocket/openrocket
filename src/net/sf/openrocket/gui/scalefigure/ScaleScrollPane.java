@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
 
 
 
@@ -144,7 +145,7 @@ public class ScaleScrollPane extends JScrollPane
 	
 	public void setFitting(boolean fit) {
 		if (fit && !allowFit) {
-			throw new RuntimeException("Attempting to fit figure not allowing fit.");
+			throw new BugException("Attempting to fit figure not allowing fit.");
 		}
 		this.fit = fit;
 		if (fit) {

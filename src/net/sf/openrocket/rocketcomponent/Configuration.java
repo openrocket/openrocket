@@ -13,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -393,7 +394,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			rocket.addComponentChangeListener(config);
 			return config;
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("BUG: clone not supported!",e);
+			throw new BugException("BUG: clone not supported!",e);
 		}
 	}
 

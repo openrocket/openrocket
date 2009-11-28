@@ -11,7 +11,9 @@ import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Reflection;
 
 
 /**
@@ -94,9 +96,9 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		try {
 			return (Boolean)getMethod.invoke(source);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("getMethod execution error for source "+source,e);
+			throw new BugException("getMethod execution error for source "+source,e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("getMethod execution error for source "+source,e);
+			throw Reflection.handleInvocationTargetException(e);
 		}
 	}
 	
@@ -104,9 +106,9 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		try {
 			setMethod.invoke(source, new Object[] { (Boolean)b });
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("setMethod execution error for source "+source,e);
+			throw new BugException("setMethod execution error for source "+source,e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("setMethod execution error for source "+source,e);
+			throw Reflection.handleInvocationTargetException(e);
 		}
 	}
 	
@@ -167,9 +169,9 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		try {
 			return (Boolean)getEnabled.invoke(source);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("getEnabled execution error for source "+source,e);
+			throw new BugException("getEnabled execution error for source "+source,e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("getEnabled execution error for source "+source,e);
+			throw Reflection.handleInvocationTargetException(e);
 		}
 	}
 	

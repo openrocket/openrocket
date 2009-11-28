@@ -4,6 +4,8 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import net.sf.openrocket.util.BugException;
+
 /**
  * A set that contains multiple <code>Warning</code>s.  When adding a
  * {@link Warning} to this set, the contents is checked for a warning of the
@@ -72,7 +74,7 @@ public class WarningSet extends AbstractSet<Warning> implements Cloneable {
 			return newSet;
 			
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("CloneNotSupportedException occurred, report bug!",e);
+			throw new BugException("CloneNotSupportedException occurred, report bug!",e);
 		}
 	}
 	

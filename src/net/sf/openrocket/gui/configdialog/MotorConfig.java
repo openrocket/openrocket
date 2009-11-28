@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.MotorChooserDialog;
 import net.sf.openrocket.motor.Motor;
@@ -123,9 +124,23 @@ public class MotorConfig extends JPanel {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin,"gap rel rel");
 		
-		panel.add(new JLabel("seconds"),"wrap paragraph");
+		panel.add(new JLabel("seconds"),"wrap unrel");
 
 
+		
+		// Check stage count
+		RocketComponent c = (RocketComponent)mount;
+		c = c.getRocket();
+		int stages = c.getChildCount();
+		
+		if (stages == 1) {
+			panel.add(new StyledLabel("The current design has only one stage.  " +
+					"Stages can be added by clicking \"New stage\".", -1), 
+					"spanx, right, wrap para");
+		} else {
+			panel.add(new StyledLabel("The current design has " + stages + " stages.", -1), 
+					"skip 1, spanx, wrap para");
+		}
 		
 		
 		// Select etc. buttons

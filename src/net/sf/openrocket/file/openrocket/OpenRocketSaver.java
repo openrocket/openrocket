@@ -23,6 +23,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationConditions;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
@@ -213,7 +214,7 @@ public class OpenRocketSaver extends RocketSaver {
 		Reflection.Method m = Reflection.findMethod(METHOD_PACKAGE, component, METHOD_SUFFIX,
 				"getElements", RocketComponent.class);
 		if (m==null) {
-			throw new RuntimeException("Unable to find saving class for component "+
+			throw new BugException("Unable to find saving class for component "+
 					component.getComponentName());
 		}
 

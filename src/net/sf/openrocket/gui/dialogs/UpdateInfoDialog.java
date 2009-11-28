@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +21,8 @@ import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 
 public class UpdateInfoDialog extends JDialog {
+	
+	private final JCheckBox remind;
 
 	public UpdateInfoDialog(UpdateInfo info) {
 		super((Window)null, "OpenRocket update available", ModalityType.APPLICATION_MODAL);
@@ -56,6 +59,11 @@ public class UpdateInfoDialog extends JDialog {
 				"gaptop para, alignx 50%, wrap unrel");
 		panel.add(new URLLabel(AboutDialog.OPENROCKET_URL), "alignx 50%, wrap para");
 		
+		remind = new JCheckBox("Remind me later");
+		remind.setToolTipText("Show this update also the next time you start OpenRocket");
+		remind.setSelected(true);
+		panel.add(remind);
+		
 		JButton button = new JButton("Close");
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -63,13 +71,18 @@ public class UpdateInfoDialog extends JDialog {
 				UpdateInfoDialog.this.dispose();
 			}
 		});
-		panel.add(button, "right");
+		panel.add(button, "right, gapright para");
 		
 		this.add(panel);
 		
 		this.pack();
 		this.setLocationRelativeTo(null);
 		GUIUtil.setDisposableDialogOptions(this, button);
+	}
+	
+	
+	public boolean isReminderSelected() {
+		return remind.isSelected();
 	}
 	
 }

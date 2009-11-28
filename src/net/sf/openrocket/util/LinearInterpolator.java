@@ -109,7 +109,7 @@ public class LinearInterpolator implements Cloneable {
 			other.sortMap = (TreeMap<Double,Double>)this.sortMap.clone();
 			return other;
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("CloneNotSupportedException?!",e);
+			throw new BugException("CloneNotSupportedException?!",e);
 		}
 	}
 

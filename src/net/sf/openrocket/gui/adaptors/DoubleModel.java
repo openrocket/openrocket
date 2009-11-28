@@ -17,8 +17,10 @@ import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Reflection;
 
 
 /**
@@ -589,11 +591,11 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		try {
 			return (Double)getMethod.invoke(source)*multiplier;
 		} catch (IllegalArgumentException e) {
-			throw new RuntimeException("BUG: Unable to invoke getMethod of "+this, e);
+			throw new BugException("BUG: Unable to invoke getMethod of "+this, e);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("BUG: Unable to invoke getMethod of "+this, e);
+			throw new BugException("BUG: Unable to invoke getMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("BUG: Unable to invoke getMethod of "+this, e);
+			throw Reflection.handleInvocationTargetException(e);
 		}
 	}
 	
@@ -614,13 +616,12 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 
 		try {
 			setMethod.invoke(source, v/multiplier);
-			return;
 		} catch (IllegalArgumentException e) {
-			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
+			throw new BugException("BUG: Unable to invoke setMethod of "+this, e);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("BUG: Unable to invoke setMethod of "+this, e);
+			throw new BugException("BUG: Unable to invoke setMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("Setter method of "+this+" threw exception", e);
+			throw Reflection.handleInvocationTargetException(e);
 		}
 	}
 
@@ -643,13 +644,12 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		try {
 			return (Boolean)getAutoMethod.invoke(source);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new BugException("Method call failed", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new BugException("Method call failed", e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw Reflection.handleInvocationTargetException(e);
 		}
-		return false;  // Should not occur
 	}
 	
 	/**
@@ -662,18 +662,16 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			return;
 		}
 		
+		lastAutomatic = auto;
 		try {
-			lastAutomatic = auto;
 			setAutoMethod.invoke(source, auto);
-			return;
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new BugException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new BugException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw Reflection.handleInvocationTargetException(e);
 		}
-		fireStateChanged();  // Should not occur
 	}
 	
 

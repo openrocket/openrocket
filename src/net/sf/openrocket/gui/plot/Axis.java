@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.plot;
 
+import net.sf.openrocket.util.BugException;
+
 public class Axis implements Cloneable {
 
 	private double minValue = Double.NaN;
@@ -45,7 +47,7 @@ public class Axis implements Cloneable {
 			return (Axis) super.clone();
 			
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("BUG! Could not clone().");
+			throw new BugException("BUG! Could not clone().");
 		}
 	}
 	

@@ -9,7 +9,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Reflection;
 
 
 public class IntegerModel implements ChangeListener {
@@ -149,13 +151,12 @@ public class IntegerModel implements ChangeListener {
 		try {
 			return (Integer)getMethod.invoke(source);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new BugException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new BugException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw Reflection.handleInvocationTargetException(e);
 		}
-		return lastValue;  // Should not occur
 	}
 	
 	/**
@@ -164,15 +165,13 @@ public class IntegerModel implements ChangeListener {
 	public void setValue(int v) {
 		try {
 			setMethod.invoke(source, v);
-			return;
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new BugException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new BugException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw Reflection.handleInvocationTargetException(e);
 		}
-		fireStateChanged();  // Should not occur
 	}
 
 	

@@ -67,6 +67,7 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.FlightEvent.Type;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
@@ -179,7 +180,7 @@ class DocumentConfig {
 			constructors.put("stage", Stage.class.getConstructor(new Class<?>[0]));
 			
 		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(
+			throw new BugException(
 					"Error in constructing the 'constructors' HashMap.");
 		}
 	}
@@ -665,11 +666,11 @@ class ComponentHandler extends ElementHandler {
 		try {
 			c = constructor.newInstance();
 		} catch (InstantiationException e) {
-			throw new RuntimeException("Error constructing component.", e);
+			throw new BugException("Error constructing component.", e);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Error constructing component.", e);
+			throw new BugException("Error constructing component.", e);
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("Error constructing component.", e);
+			throw Reflection.handleInvocationTargetException(e);
 		}
 
 		parent.addChild(c);

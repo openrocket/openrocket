@@ -9,6 +9,7 @@ import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.MaterialStorage;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.util.ConfigurationException;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
@@ -65,7 +66,8 @@ public class Databases {
 				MOTOR.loadDirectory(dir, ".*\\.[eE][nN][gG]$");
 			} catch (IOException e1) {
 				System.out.println("Could not read thrust curves from directory either.");
-				throw new RuntimeException(e1);
+				throw new ConfigurationException("Couldn't read thrust curves from either " +
+						"JAR file or system resource directory", e1);
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 
@@ -22,7 +23,7 @@ public class ShockCord extends MassObject {
 	
 	public void setMaterial(Material m) {
 		if (m.getType() != Material.Type.LINE)
-			throw new RuntimeException("Attempting to set non-linear material.");
+			throw new BugException("Attempting to set non-linear material.");
 		if (material.equals(m))
 			return;
 		this.material = m;

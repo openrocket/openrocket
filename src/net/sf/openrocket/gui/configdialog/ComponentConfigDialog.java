@@ -14,8 +14,10 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.Reflection;
 
 /**
  * A dialog that contains the configuration elements of one component.
@@ -108,17 +110,17 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			try {
 				return (RocketComponentConfig) c.newInstance(component);
 			} catch (InstantiationException e) {
-				throw new RuntimeException("BUG in constructor reflection",e);
+				throw new BugException("BUG in constructor reflection",e);
 			} catch (IllegalAccessException e) {
-				throw new RuntimeException("BUG in constructor reflection",e);
+				throw new BugException("BUG in constructor reflection",e);
 			} catch (InvocationTargetException e) {
-				throw new RuntimeException("BUG in constructor reflection",e);
+				throw Reflection.handleInvocationTargetException(e);
 			}
 		}
 		
 		// Should never be reached, since RocketComponentConfig should catch all
 		// components without their own configurator.
-		throw new RuntimeException("Unable to find any configurator for "+component);
+		throw new BugException("Unable to find any configurator for "+component);
 	}
 
 	/**

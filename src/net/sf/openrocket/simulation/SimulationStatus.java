@@ -8,6 +8,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.aerodynamics.WindSimulator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -66,7 +67,7 @@ public class SimulationStatus implements Cloneable {
 		try {
 			return (SimulationStatus) super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("BUG:  CloneNotSupportedException?!?",e);
+			throw new BugException("BUG:  CloneNotSupportedException?!?",e);
 		}
 	}
 }

@@ -39,8 +39,11 @@ foreach (getallheaders() as $header => $value) {
 }
 
 // Log the request
-if (strlen($orversion) > 0 || strlen($orid) > 0 || strlen($oros) > 0
-	|| strlen($orjava) > 0 || strlen($orcountry) > 0) {
+if ((strlen($orversion) > 0 || strlen($orid) > 0 || strlen($oros) > 0
+     || strlen($orjava) > 0 || strlen($orcountry) > 0) &&
+
+    (strlen($orversion) < 20 && strlen($orid) < 50 && strlen($oros) < 50
+     && strlen($orjava) < 50 && strlen($orcountry) < 50)) {
 
     $file = $logfiles . gmdate("Y-m");
     $line = gmdate("Y-m-d H:i:s") . ";" . $orid . ";" . $orversion .
@@ -55,11 +58,33 @@ if (strlen($orversion) > 0 || strlen($orid) > 0 || strlen($oros) > 0
 
 
 // Set HTTP content-type header
-header("Content-type: text/plain; charset=utf-8");
+// No charset allowed for 0.9.4
+//header("Content-type: text/plain; charset=utf-8");
+header("Content-type: text/plain");
 
+/*
+ * Currently all old versions are handled manually.
+ * Update checking was introduced in OpenRocket 0.9.4
+ */
 $version = $_GET["version"];
+$updates = "";
 
-// No updates available
-header("HTTP/1.0 204 No Content");
+if (preg_match("/^0\.9\.(4|5pre)/",$version)) {
+  $updates = "Version: 0.9.5\n" .
+    "5: Important bug fixes";
+}
+
+
+if (strlen($updates) == 0) {
+
+  // No updates available
+  header("HTTP/1.0 204 No Content");
+
+} else {
+
+  header("HTTP/1.0 200 OK");
+  echo $updates;
+
+}
 
 ?>

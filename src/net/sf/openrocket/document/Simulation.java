@@ -18,6 +18,7 @@ import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationListener;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationListenerException;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 
 
@@ -250,7 +251,7 @@ public class Simulation implements ChangeSource, Cloneable {
 				l = (SimulationListener)c.newInstance();
 			} catch (Exception e) {
 				throw new SimulationListenerException("Could not instantiate listener of " +
-						"class: " + className);
+						"class: " + className, e);
 			}
 			simulator.addSimulationListener(l);
 		}
@@ -347,7 +348,7 @@ public class Simulation implements ChangeSource, Cloneable {
 
 		
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("Clone not supported, BUG", e);
+			throw new BugException("Clone not supported, BUG", e);
 		}
 	}
 	

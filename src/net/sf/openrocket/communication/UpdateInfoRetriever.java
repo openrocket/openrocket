@@ -153,7 +153,7 @@ public class UpdateInfoRetriever {
 							System.getProperty("java.version")));
 			connection.setRequestProperty("X-OpenRocket-Country", 
 					Communicator.encode(System.getProperty("user.country") + " " +
-							Communicator.encode(System.getProperty("user.timezone"))));
+							System.getProperty("user.timezone")));
 			
 			InputStream is = null;
 			try {
@@ -169,15 +169,19 @@ public class UpdateInfoRetriever {
 				
 				if (connection.getResponseCode() != Communicator.UPDATE_INFO_UPDATE_AVAILABLE) {
 					// Error communicating with server
+					System.out.println("Unknown response code: " + connection.getResponseCode());
 					return;
 				}
 				
-				if (!Communicator.UPDATE_INFO_CONTENT_TYPE.equalsIgnoreCase(
-						connection.getContentType())) {
+				String contentType = connection.getContentType();
+				if (contentType == null || 
+						contentType.toLowerCase().indexOf(Communicator.UPDATE_INFO_CONTENT_TYPE) < 0) {
 					// Unknown response type
+					System.out.println("Unknown Content-type received:"+contentType);
 					return;
 				}
 				
+				System.out.println("Update is available");
 				
 				// Update is available, parse input
 				is = connection.getInputStream();
@@ -209,12 +213,13 @@ public class UpdateInfoRetriever {
 				if (version == null || version.length() == 0 || 
 						version.equalsIgnoreCase(Prefs.getVersion())) {
 					// Invalid response
+					System.out.println("Invalid version received, ignoring.");
 					return;
 				}
 				
 				
 				info = new UpdateInfo(version, updates);
-				
+				System.out.println("Found update: " + info);
 			} finally {
 				try {
 					if (is != null)

@@ -118,11 +118,11 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 		    			e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
 		    	return false;
 			} else {
-				throw new RuntimeException("Unknown error when saving file", e);
+				throw new BugException("Unknown error when saving file", e);
 			}
 			
 		} catch (InterruptedException e) {
-			throw new RuntimeException("EDT was interrupted", e);
+			throw new BugException("EDT was interrupted", e);
 		}
 		
 		return true;

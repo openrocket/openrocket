@@ -1,26 +1,31 @@
 
 Steps for making a release:
 
-1. Update build.properties for the new version.
-2. Update ReleaseNotes
-3. Update ChangeLog
-4. ant dist
-5. Test new features (not in project directory)
-6. Copy distribution files into dists/
-7. Update Eclipse project and commit files to SVN
-8. Tag the version in SVN, URL:
-   https://openrocket.svn.sourceforge.net/svnroot/openrocket/tags/Release_0.9.x
-9. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
-    - Project Admin -> File Manager
-    - create new version directory under /openrocket
-    - upload JAR, ZIP and ReleaseNotes
-    - select ReleaseNotes properties, set as release notes
-    - select JAR properties, set release note file and default downloads
-    - select ZIP properties, set release note file
-10. Update HTML: index.html (release notes) download.html (version number)
-11. Update HTML to web server:
+1.  Update build.properties for the new version.
+2.  Update ReleaseNotes
+3.  Update ChangeLog
+4.  ant dist
+5.  Test new features (not in project directory)
+6.  Copy distribution files into dists/
+7.  Update Eclipse project and commit files to SVN
+8.  Tag the version in SVN, URL:
+    https://openrocket.svn.sourceforge.net/svnroot/openrocket/tags/Release_0.9.x
+9.  Update updates.php and test various versions using a different name:
+    scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/testupdates.php
+    java -Dopenrocket.debug.updateurl=http://openrocket.sourceforge.net/actions/testupdates.php -jar OpenRocket-0.9.4.jar
+10. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
+     - Project Admin -> File Manager
+     - create new version directory under /openrocket
+     - upload JAR, ZIP and ReleaseNotes
+     - select ReleaseNotes properties, set as release notes
+     - select JAR properties, set release note file and default downloads
+     - select ZIP properties, set release note file
+11. Update HTML: index.html (release notes) download.html (version number)
+12. Update HTML to web server:
     scp * plaa,openrocket@web.sourceforge.net:htdocs/
-12. Test downloading from Sourceforge and web site
-13. Update build.properties to "pre" version + commit
-14. Send email about new release to openrocket-announce@lists.sourceforge.net
+13. Test downloading from Sourceforge and web site
+14. Update update.php to web server:
+    scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/
+15. Update build.properties to "pre" version + commit
+16. Send email about new release to openrocket-announce@lists.sourceforge.net
 

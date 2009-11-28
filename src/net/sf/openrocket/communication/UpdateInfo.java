@@ -47,4 +47,9 @@ public class UpdateInfo {
 		return (List<ComparablePair<Integer, String>>) updates.clone();
 	}
 	
+	@Override
+	public String toString() {
+		return "UpdateInfo[version=" + latestVersion + "; updates=" + updates.toString() + "]";
+	}
+	
 }

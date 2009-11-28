@@ -7,6 +7,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.MathUtil;
 
@@ -369,7 +370,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 			cond.atmosphericConditions = atmosphericConditions.clone();
 			return cond;
 		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException("BUG: clone not supported!",e);
+			throw new BugException("BUG: clone not supported!",e);
 		}
 	}
 

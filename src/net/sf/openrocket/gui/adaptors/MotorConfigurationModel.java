@@ -63,6 +63,10 @@ public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
 
 	@Override
 	public void setSelectedItem(Object item) {
+		if (item == null) {
+			// Clear selection - huh?
+			return;
+		}
 		if (item == EDIT) {
 			
 			// Open edit dialog in the future, after combo box has closed
@@ -76,8 +80,9 @@ public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
 
 			return;
 		}
-		if (!(item instanceof ID))
-			return;
+		if (!(item instanceof ID)) {
+			throw new IllegalArgumentException("MotorConfigurationModel item="+item);
+		}
 		
 		ID idObject = (ID) item;
 		config.setMotorConfigurationID(idObject.getID());

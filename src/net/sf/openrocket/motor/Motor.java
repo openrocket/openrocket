@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -282,7 +283,7 @@ public abstract class Motor implements Comparable<Motor> {
 			avgTime *= time/(DIVISIONS+1);
 			
 			if (Double.isNaN(avgTime))
-				throw new RuntimeException("Calculated avg. time is NaN for motor "+this);
+				throw new BugException("Calculated avg. time is NaN for motor "+this);
 
 		}
 		return avgTime;
@@ -315,7 +316,7 @@ public abstract class Motor implements Comparable<Motor> {
 				avgThrust /= points;
 			
 			if (Double.isNaN(avgThrust))
-				throw new RuntimeException("Calculated average thrust is NaN for motor "+this);
+				throw new BugException("Calculated average thrust is NaN for motor "+this);
 		}
 		return avgThrust;
 	}
@@ -346,7 +347,7 @@ public abstract class Motor implements Comparable<Motor> {
 			}
 			
 			if (Double.isNaN(totalImpulse))
-				throw new RuntimeException("Calculated total impulse is NaN for motor "+this);
+				throw new BugException("Calculated total impulse is NaN for motor "+this);
 		}
 		return totalImpulse;
 	}

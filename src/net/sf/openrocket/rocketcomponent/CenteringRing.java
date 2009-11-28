@@ -20,7 +20,11 @@ public class CenteringRing extends RadiusRingComponent {
 			// Component can be parentless if disattached from rocket
 			if (this.getParent() != null) {
 				for (RocketComponent sibling: this.getParent().getChildren()) {
-					if (!(sibling instanceof RadialParent))  // Excludes itself
+					/*
+					 * Only InnerTubes are considered when determining the automatic
+					 * inner radius (for now).
+					 */
+					if (!(sibling instanceof InnerTube))  // Excludes itself
 						continue;
 					
 					double pos1 = this.toRelative(Coordinate.NUL, sibling)[0].x;
@@ -28,7 +32,6 @@ public class CenteringRing extends RadiusRingComponent {
 					if (pos2 < 0 || pos1 > sibling.getLength())
 						continue;
 					
-					// TODO: CRITICAL: ClassCastException below:
 					innerRadius = Math.max(innerRadius, ((InnerTube)sibling).getOuterRadius());
 				}
 				innerRadius = Math.min(innerRadius, getOuterRadius());
