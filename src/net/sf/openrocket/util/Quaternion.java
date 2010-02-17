@@ -201,14 +201,20 @@ public class Quaternion implements Cloneable {
 		
 		assert(Math.abs(norm2()-1) < 0.00001) : "Quaternion not unit length: "+this;
 		
+		
+		//  (a,b,c,d) = this * coord = (w,x,y,z) * (0,cx,cy,cz)
 		a = - x * coord.x - y * coord.y - z * coord.z;  // w
 		b =   w * coord.x + y * coord.z - z * coord.y;  // x i
 		c =   w * coord.y - x * coord.z + z * coord.x;  // y j
 		d =   w * coord.z + x * coord.y - y * coord.x;  // z k
 		
-		assert(MathUtil.equals(a*w + b*x + c*y + d*z, 0)) : 
-			("Should be zero: " + (a*w - b*x - c*y - d*z) + " in " + this + " c=" + coord);
-				
+		
+		//  return = (a,b,c,d) * (this)^-1 = (a,b,c,d) * (w,-x,-y,-z)
+		
+		// Assert that the w-value is zero
+		assert(Math.abs(a*w + b*x + c*y + d*z) < coord.max() * MathUtil.EPSILON):
+			("Should be zero: " + (a*w + b*x + c*y + d*z) + " in " + this + " c=" + coord);
+		
 		return new Coordinate(
 				- a*x + b*w - c*z + d*y,
 				- a*y + b*z + c*w - d*x,
@@ -222,12 +228,15 @@ public class Quaternion implements Cloneable {
 
 		assert(Math.abs(norm2()-1) < 0.00001) : "Quaternion not unit length: "+this;
 
+		//  (a,b,c,d) = (this)^-1 * coord = (w,-x,-y,-z) * (0,cx,cy,cz)
 		a = + x * coord.x + y * coord.y + z * coord.z;
 		b =   w * coord.x - y * coord.z + z * coord.y;
 		c =   w * coord.y + x * coord.z - z * coord.x;
 		d =   w * coord.z - x * coord.y + y * coord.x;
 		
-		assert(MathUtil.equals(a*w - b*x - c*y - d*z, 0)): 
+		
+		//  return = (a,b,c,d) * this = (a,b,c,d) * (w,x,y,z)
+		assert(Math.abs(a*w - b*x - c*y - d*z) < Math.max(coord.max(), 1) * MathUtil.EPSILON): 
 			("Should be zero: " + (a*w - b*x - c*y - d*z) + " in " + this + " c=" + coord);
 		
 		return new Coordinate(
@@ -278,6 +287,13 @@ public class Quaternion implements Cloneable {
 		System.out.println("Rotated: "+ coord);
 		coord = q.rotate(coord);
 		System.out.println("Back:       "+coord);
+		
+		
+		q = new Quaternion(0.237188,0.570190,-0.514542,0.594872);
+		q.normalize();
+		Coordinate c = new Coordinate(148578428.914,8126778.954,-607.741);
+		
+		System.out.println("Rotated: " + q.rotate(c));
 		
 //		Coordinate c = new Coordinate(0,1,0);
 //		Coordinate rot = new Coordinate(Math.PI/4,0,0);

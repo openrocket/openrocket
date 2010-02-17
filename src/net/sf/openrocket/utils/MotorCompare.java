@@ -15,18 +15,18 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 public class MotorCompare {
 	
 	/** Maximum allowed difference in maximum thrust */
-	private static final double MAX_THRUST_MARGIN = 0.20;
+	private static final double MAX_THRUST_MARGIN = 0.30;
 	/** Maximum allowed difference in total impulse */
-	private static final double TOTAL_IMPULSE_MARGIN = 0.10;
+	private static final double TOTAL_IMPULSE_MARGIN = 0.20;
 	/** Maximum allowed difference in mass values */
-	private static final double MASS_MARGIN = 0.10;
+	private static final double MASS_MARGIN = 0.20;
 
 	/** Number of time points in thrust curve to compare */
 	private static final int DIVISIONS = 100;
 	/** Maximum difference in thrust for a time point to be considered invalid */
-	private static final double THRUST_MARGIN = 0.15;
+	private static final double THRUST_MARGIN = 0.20;
 	/** Number of invalid time points allowed */
-	private static final int ALLOWED_INVALID_POINTS = 15;
+	private static final int ALLOWED_INVALID_POINTS = 20;
 
 	/** Minimum number of thrust curve points allowed (incl. start and end points) */
 	private static final int MIN_POINTS = 7;
@@ -72,23 +72,65 @@ public class MotorCompare {
 		}
 		System.out.println();
 		
+		compare(motors, files);
+	}
+	
+	
+	
+	
+	
+	
+	public static void compare(List<Motor> motors, List<String> files) {
+		final double maxThrust;
+		final double maxTime;
+		int maxDelays;
+		int maxPoints;
+		int maxCommentLen;
+
+		double min, max;
+		double diff;
+
+		int[] goodness;
+
+		boolean bad = false;
+		List<String> cause = new ArrayList<String>();
+
+
 		if (motors.size() == 0) {
 			System.err.println("No motors loaded.");
 			System.out.println("ERROR: No motors loaded.\n");
 			return;
-			
+
 		}
-		
+
 		if (motors.size() == 1) {
 			System.out.println("Best (ONLY): " + files.get(0));
 			System.out.println();
 			return;
 		}
-		
+
 		final int n = motors.size(); 
 		goodness = new int[n];
+
 		
-		
+		for (String s: files) {
+			System.out.print("\t"+s);
+		}
+		System.out.println();
+
+
+		// Designations
+		System.out.printf("Designation:");
+		String des = motors.get(0).getDesignation();
+		for (Motor m: motors) {
+			System.out.printf("\t%s", m.getDesignation());
+			if (!m.getDesignation().equals(des)) {
+				cause.add("Designation");
+				bad = true;
+			}
+		}
+		System.out.println();
+
 		// Manufacturers
 		System.out.printf("Manufacture:");
 		Manufacturer mfg = motors.get(0).getManufacturer();
@@ -100,8 +142,8 @@ public class MotorCompare {
 			}
 		}
 		System.out.println();
-		
-		
+
+
 		// Max. thrust
 		max = 0;
 		min = Double.MAX_VALUE;
@@ -119,8 +161,8 @@ public class MotorCompare {
 		}
 		System.out.printf("\t(discrepancy %.1f%%)\n", 100.0*diff);
 		maxThrust = (min+max)/2;
-		
-		
+
+
 		// Total time
 		max = 0;
 		min = Double.MAX_VALUE;
@@ -134,8 +176,8 @@ public class MotorCompare {
 		diff = (max-min)/min;
 		System.out.printf("\t(discrepancy %.1f%%)\n", 100.0*diff);
 		maxTime = max;
-		
-		
+
+
 		// Total impulse
 		max = 0;
 		min = Double.MAX_VALUE;
@@ -152,8 +194,8 @@ public class MotorCompare {
 			cause.add("Total impulse");
 		}
 		System.out.printf("\t(discrepancy %.1f%%)\n", 100.0*diff);
-		
-		
+
+
 		// Initial mass
 		max = 0;
 		min = Double.MAX_VALUE;
@@ -170,8 +212,8 @@ public class MotorCompare {
 			cause.add("Initial mass");
 		}
 		System.out.printf("\t(discrepancy %.1f%%)\n", 100.0*diff);
-		
-		
+
+
 		// Empty mass
 		max = 0;
 		min = Double.MAX_VALUE;
@@ -188,8 +230,8 @@ public class MotorCompare {
 			cause.add("Empty mass");
 		}
 		System.out.printf("\t(discrepancy %.1f%%)\n", 100.0*diff);
-		
-		
+
+
 		// Delays
 		maxDelays = 0;
 		System.out.printf("Delays     :");
@@ -198,8 +240,8 @@ public class MotorCompare {
 			maxDelays = Math.max(maxDelays, m.getStandardDelays().length);
 		}
 		System.out.println();
-		
-		
+
+
 		// Data points
 		maxPoints = 0;
 		System.out.printf("Points     :");
@@ -208,8 +250,8 @@ public class MotorCompare {
 			maxPoints = Math.max(maxPoints, ((ThrustCurveMotor)m).getTimePoints().length);
 		}
 		System.out.println();
-		
-		
+
+
 		// Comment length
 		maxCommentLen = 0;
 		System.out.printf("Comment len:");
@@ -218,8 +260,8 @@ public class MotorCompare {
 			maxCommentLen = Math.max(maxCommentLen, m.getDescription().length());
 		}
 		System.out.println();
-		
-		
+
+
 		if (bad) {
 			String str = "ERROR: ";
 			for (int i=0; i<cause.size(); i++) {
@@ -232,34 +274,34 @@ public class MotorCompare {
 			System.out.println();
 			return;
 		}
-		
+
 		// Check consistency
 		int invalidPoints = 0;
 		for (int i=0; i < DIVISIONS; i++) {
 			double t = maxTime * i/(DIVISIONS-1);
 			min = Double.MAX_VALUE;
 			max = 0;
-//			System.out.printf("%.2f:", t);
+			//				System.out.printf("%.2f:", t);
 			for (Motor m: motors) {
 				double f = m.getThrust(t);
-//				System.out.printf("\t%.2f", f);
+				//					System.out.printf("\t%.2f", f);
 				min = Math.min(min, f);
 				max = Math.max(max, f);
 			}
 			diff = (max-min)/maxThrust;
-//			System.out.printf("\t(diff %.1f%%)\n", diff*100);
+			//				System.out.printf("\t(diff %.1f%%)\n", diff*100);
 			if (diff > THRUST_MARGIN)
 				invalidPoints++;
 		}
-		
+
 		if (invalidPoints > ALLOWED_INVALID_POINTS) {
 			System.out.println("ERROR: " + invalidPoints + "/" + DIVISIONS 
 					+ " points have thrust differing over " + (THRUST_MARGIN*100) + "%");
 			System.out.println();
 			return;
 		}
-		
-		
+
+
 		// Check goodness
 		for (int i=0; i<n; i++) {
 			Motor m = motors.get(i);
@@ -277,20 +319,18 @@ public class MotorCompare {
 			if (goodness[i] > goodness[best])
 				best = i;
 		}
-		
-		
+
+
 		// Verify enough points
 		int pts = ((ThrustCurveMotor)motors.get(best)).getTimePoints().length;
 		if (pts < MIN_POINTS) {
-			System.out.println("ERROR: Best has only " + pts + " data points");
-			System.out.println();
-			return;
+			System.out.println("WARNING: Best has only " + pts + " data points");
 		}
-		
+
 		System.out.println("Best (" + goodness[best] + "): " + files.get(best));
 		System.out.println();
-		
-		
+
+
 	}
-	
+
 }

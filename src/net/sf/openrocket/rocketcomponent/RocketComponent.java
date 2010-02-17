@@ -1116,7 +1116,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		if (pos < 0) {
 			StringBuffer sb = new StringBuffer();
 			sb.append("Inconsistent internal state: ");
-			sb.append("this=").append(this).append('[').append(System.identityHashCode(this)).append(']');
+			sb.append("this=").append(this).append('[')
+				.append(System.identityHashCode(this)).append(']');
 			sb.append(" parent.children=[");
 			for (int i=0; i < parent.children.size(); i++) {
 				RocketComponent c = parent.children.get(i);
@@ -1124,6 +1125,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 				if (i < parent.children.size()-1)
 					sb.append(", ");
 			}
+			sb.append(']');
 			throw new IllegalStateException(sb.toString());
 		}
 		assert(pos >= 0);
@@ -1174,12 +1176,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	/**
 	 * Removes a ComponentChangeListener from the rocket tree.  The listener is removed from
 	 * the root component, which must be of type Rocket (which overrides this method).
+	 * Does nothing if the root component is not a Rocket.  (The asymmetry is so
+	 * that listeners can always be removed just in case.)
 	 * 
 	 * @param l  Listener to remove
-	 * @throws IllegalStateException - if the root component is not a Rocket
 	 */
 	public void removeComponentChangeListener(ComponentChangeListener l) {
-		getRocket().removeComponentChangeListener(l);
+		if (parent != null) {
+			getRoot().removeComponentChangeListener(l);
+		}
 	}
 	
 
@@ -1199,12 +1204,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	/**
 	 * Removes a ChangeListener from the rocket tree.  This is identical to
 	 * removeComponentChangeListener() except it uses a ChangeListener.
+	 * Does nothing if the root component is not a Rocket.  (The asymmetry is so
+	 * that listeners can always be removed just in case.)
 	 * 
 	 * @param l  Listener to remove
-	 * @throws IllegalStateException - if the root component is not a Rocket
 	 */
 	public void removeChangeListener(ChangeListener l) {
-		getRocket().removeChangeListener(l);
+		if (this.parent != null) {
+			getRoot().removeChangeListener(l);
+		}
 	}
 	
 	

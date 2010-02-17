@@ -35,7 +35,8 @@ public class UpdateInfoTest {
 		assertEquals(Communicator.UPDATE_INFO_URL + "?version=" + Prefs.getVersion(),
 				connection.getTrueUrl());
 		assertTrue(connection.getConnectTimeout() > 0);
-		assertEquals(Prefs.getVersion(), connection.getRequestProperty("X-OpenRocket-Version"));
+		assertEquals(Prefs.getVersion() + "+" + Prefs.getBuildSource(), 
+				connection.getRequestProperty("X-OpenRocket-Version"));
 		assertNotNull(connection.getRequestProperty("X-OpenRocket-Country"));
 		assertNotNull(connection.getRequestProperty("X-OpenRocket-ID"));
 		assertNotNull(connection.getRequestProperty("X-OpenRocket-OS"));

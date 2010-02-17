@@ -98,7 +98,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		} catch (IllegalAccessException e) {
 			throw new BugException("getMethod execution error for source "+source,e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		} catch (IllegalAccessException e) {
 			throw new BugException("setMethod execution error for source "+source,e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
@@ -171,7 +171,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		} catch (IllegalAccessException e) {
 			throw new BugException("getEnabled execution error for source "+source,e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	

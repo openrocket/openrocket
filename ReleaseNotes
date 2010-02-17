@@ -1,3 +1,10 @@
+OpenRocket 0.9.6  (2010-02-17):
+-------------------------------
+
+Updated aerodynamic calculation methods to be more in line with the
+Barrowman method and enhanced simulation time step selection.  Fixed
+numerous bugs.
+
 
 OpenRocket 0.9.5  (2009-11-28):
 -------------------------------

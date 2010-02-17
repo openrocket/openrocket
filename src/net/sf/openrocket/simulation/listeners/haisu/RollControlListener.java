@@ -49,17 +49,6 @@ public class RollControlListener extends AbstractSimulationListener {
 
 	@Override
 	public void flightConditions(SimulationStatus status, FlightConditions conditions) {
-		// Limit movement:
-		
-//		conditions.setAOA(0);
-//		conditions.setTheta(0);
-//		conditions.setMach(MACH);
-//		conditions.setPitchRate(0);
-//		conditions.setYawRate(0);
-//		status.position = new Coordinate(0,0,100);
-//		status.velocity = Coordinate.NUL;
-
-		
 		rollrate = conditions.getRollRate();
 	}
 	
@@ -116,9 +105,6 @@ public class RollControlListener extends AbstractSimulationListener {
 				
 		return null;
 	}
-	
-	
-	
 	
 	
 }

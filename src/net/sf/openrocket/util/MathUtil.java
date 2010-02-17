@@ -73,7 +73,9 @@ public class MathUtil {
 		if (equals(toMin, toMax))
 			return toMin;
 		if (equals(fromMin, fromMax)) {
-			throw new IllegalArgumentException("from range is singular and to range is not.");
+			throw new IllegalArgumentException("from range is singular and to range is not: "+
+					"value=" + value + " fromMin=" + fromMin + " fromMax=" + fromMax +
+					"toMin=" + toMin + " toMax=" + toMax);
 		}
 		return (value - fromMin)/(fromMax-fromMin) * (toMax - toMin) + toMin;
 	}

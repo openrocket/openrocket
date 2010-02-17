@@ -670,7 +670,7 @@ class ComponentHandler extends ElementHandler {
 		} catch (IllegalAccessException e) {
 			throw new BugException("Error constructing component.", e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 
 		parent.addChild(c);

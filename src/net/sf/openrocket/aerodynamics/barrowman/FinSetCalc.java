@@ -11,6 +11,7 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
@@ -39,9 +40,12 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected double cosGammaLead = Double.NaN; // Cosine of leading edge sweep angle
 	protected double rollSum = Double.NaN;      // Roll damping sum term
 	
+	private int interferenceFinCount = -1;      // No. of fins in interference
+
 	protected double[] chordLead = new double[DIVISIONS];
 	protected double[] chordTrail = new double[DIVISIONS];
 	protected double[] chordLength = new double[DIVISIONS];
+	
 
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
@@ -105,9 +109,62 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		// TODO: MEDIUM:  Take into account multiple fin sets
 		int fins = component.getFinCount();
+		int interferenceFins = getInterferenceFinCount();
 		double theta = conditions.getTheta();
 		double angle = component.getBaseRotation();
+
 		
+		// Compute basic CNa without interference effects
+		if (fins == 1 || fins == 2) {
+			// Basic CNa from geometry
+			double mul = 0;
+			for (int i=0; i < fins; i++) {
+				mul += MathUtil.pow2(Math.sin(theta - angle));
+				angle += 2 * Math.PI / fins;
+			}
+			cna = cna1*mul;
+		} else {
+			// Basic CNa assuming full efficiency
+			cna = cna1 * fins/2.0;
+		}
+		
+		
+		// Take into account fin-fin interference effects
+		switch (interferenceFins) {
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+			// No interference effect
+			break;
+			
+		case 5:
+			cna *= 0.948;
+			break;
+			
+		case 6:
+			cna *= 0.913;
+			break;
+			
+		case 7:
+			cna *= 0.854;
+			break;
+			
+		case 8:
+			cna *= 0.81;
+			break;
+			
+		default:
+			// Assume 75% efficiency
+			cna *= 0.75;
+			warnings.add("Too many parallel fins");
+			break;
+		}
+		
+		/*
+		 * Used in 0.9.5 and earlier.  Takes into account rotation angle for three
+		 * and four fins, does not take into account interference from other fin sets.
+		 * 
 		switch (fins) {
 		case 1:
 		case 2:
@@ -151,7 +208,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			cna = cna1 * fins * 3.0/8.0;
 			break;
 		}
-		
+		*/
 		
 		// Body-fin interference effect
 		double r = component.getBodyRadius();
@@ -205,14 +262,24 @@ public class FinSetCalc extends RocketComponentCalc {
 		forces.CN = cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE);
 		forces.cp = new Coordinate(x, 0, 0, cna);
 		forces.Cm = forces.CN * x / conditions.getRefLength();
+
+		/*
+		 * TODO: HIGH:  Compute actual side force and yaw moment.
+		 * This is not currently performed because it produces strange results for
+		 * stable rockets that have two fins in the front part of the fuselage,
+		 * where the rocket flies at an ever-increasing angle of attack.  This may
+		 * be due to incorrect computation of pitch/yaw damping moments.
+		 */
+//		if (fins == 1 || fins == 2) {
+//			forces.Cside = fins * cna1 * Math.cos(theta-angle) * Math.sin(theta-angle);
+//			forces.Cyaw = fins * forces.Cside * x / conditions.getRefLength();
+//		} else {
+//			forces.Cside = 0;
+//			forces.Cyaw = 0;
+//		}
+		forces.Cside = 0;
+		forces.Cyaw = 0;
 		
-		if (fins == 1) {
-			forces.Cside = cna1 * Math.cos(theta-angle) * Math.sin(theta-angle);
-			forces.Cyaw = forces.Cside * x / conditions.getRefLength();
-		} else {
-			forces.Cside = 0;
-			forces.Cyaw = 0;
-		}
 		
 	}
 	
@@ -682,6 +749,38 @@ public class FinSetCalc extends RocketComponentCalc {
 				conditions.getRefArea();
 		
 		return drag;
+	}
+	
+	
+	private int getInterferenceFinCount() {
+		if (interferenceFinCount < 1) {
+
+			RocketComponent parent = component.getParent();
+			if (parent == null) {
+				throw new IllegalStateException("fin set without parent component");
+			}
+			
+			double lead = component.toRelative(Coordinate.NUL, parent)[0].x;
+			double trail = component.toRelative(new Coordinate(component.getLength()), 
+					parent)[0].x;
+
+			interferenceFinCount = 0;
+			for (RocketComponent c: parent.getChildren()) {
+				if (c instanceof FinSet) {
+					double finLead = c.toRelative(Coordinate.NUL, parent)[0].x;
+					double finTrail = c.toRelative(new Coordinate(c.getLength()), parent)[0].x;
+					if ((finLead < trail - 0.005) && (finTrail > lead + 0.005)) {
+						interferenceFinCount += ((FinSet)c).getFinCount();
+					}
+				}
+			}
+			
+			if (interferenceFinCount < component.getFinCount()) {
+				throw new BugException("Counted " + interferenceFinCount + " parallel fins, " +
+						"when component itself has " + component.getFinCount());
+			}
+		}
+		return interferenceFinCount;
 	}
 	
 }

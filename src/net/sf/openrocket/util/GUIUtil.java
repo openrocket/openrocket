@@ -44,9 +44,11 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
 import javax.swing.RootPaneContainer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
@@ -172,7 +174,7 @@ public class GUIUtil {
     
     /**
      * Add a listener to the provided window that will call {@link #setNullModels(Component)}
-     * on the window once it is disposed.  This method may only be used on single-use
+     * on the window once it is closed.  This method may only be used on single-use
      * windows and dialogs, that will never be shown again once closed!
      * 
      * @param window	the window to add the listener to.
@@ -187,6 +189,51 @@ public class GUIUtil {
     }
 
 
+    
+    /**
+     * Set the best available look-and-feel into use.
+     */
+    public static void setBestLAF() {
+		/*
+		 * Set the look-and-feel.  On Linux, Motif/Metal is sometimes incorrectly used 
+		 * which is butt-ugly, so if the system l&f is Motif/Metal, we search for a few
+		 * other alternatives.
+		 */
+		try {
+			// Set system L&F
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			
+			// Check whether we have an ugly L&F
+			LookAndFeel laf = UIManager.getLookAndFeel();
+			if (laf == null ||
+					laf.getName().matches(".*[mM][oO][tT][iI][fF].*") ||
+					laf.getName().matches(".*[mM][eE][tT][aA][lL].*")) {
+				
+				// Search for better LAF
+				UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
+				String lafNames[] = {
+						".*[gG][tT][kK].*",
+						".*[wW][iI][nN].*",
+						".*[mM][aA][cC].*",
+						".*[aA][qQ][uU][aA].*",
+						".*[nN][iI][mM][bB].*"
+				};
+				
+				lf: for (String lafName: lafNames) {
+					for (UIManager.LookAndFeelInfo l: info) {
+						if (l.getName().matches(lafName)) {
+							UIManager.setLookAndFeel(l.getClassName());
+							break lf;
+						}
+					}					
+				}
+			}
+		} catch (Exception e) {
+			System.err.println("Error setting LAF: " + e);
+		}
+    }
+    
+    
 	/**
 	 * Traverses recursively the component tree, and sets all applicable component 
 	 * models to null, so as to remove the listener connections.  After calling this

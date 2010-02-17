@@ -142,7 +142,7 @@ public class UpdateInfoRetriever {
 			connection.setUseCaches(false);
 			connection.setDoInput(true);
 			connection.setRequestProperty("X-OpenRocket-Version", 
-					Communicator.encode(Prefs.getVersion()));
+					Communicator.encode(Prefs.getVersion() + " " + Prefs.getBuildSource()));
 			connection.setRequestProperty("X-OpenRocket-ID", 
 					Communicator.encode(Prefs.getUniqueID()));
 			connection.setRequestProperty("X-OpenRocket-OS", 

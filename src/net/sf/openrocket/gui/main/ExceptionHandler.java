@@ -12,8 +12,10 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	
 	/**
 	 * A memory reserve of 0.5 MB of memory, that can be freed when showing the dialog.
+	 * <p>
+	 * This field is package-private so that the JRE cannot optimize its use away.
 	 */
-	private static volatile byte[] memoryReserve = null;
+	static volatile byte[] memoryReserve = null;
 	
 	private static ExceptionHandler instance = null;
 	
@@ -27,7 +29,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	public void uncaughtException(final Thread t, final Throwable e) {
 		
 		// Free memory reserve if out of memory
-		if (e instanceof OutOfMemoryError) {
+		if (isOutOfMemoryError(e)) {
 			memoryReserve = null;
 			handling = false;
 		}
@@ -137,11 +139,11 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	private void showDialog(Thread t, Throwable e) {
 		
 		// Out of memory
-		if (e instanceof OutOfMemoryError) {
+		if (isOutOfMemoryError(e)) {
 			JOptionPane.showMessageDialog(null, 
 					new Object[] { 
-						"Out of memory!",
-						"<html>You should immediately close unnecessary design windows,<br>" +
+						"OpenRocket can out of available memory!",
+						"You should immediately close unnecessary design windows,",
 						"save any unsaved designs and restart OpenRocket!"
 					}, "Out of memory", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -210,6 +212,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	}
 	
 	
+	/**
+	 * Reserve the buffer memory that is freed in case an OutOfMemoryError occurs.
+	 */
 	private static void reserveMemory() {
 		memoryReserve = new byte[MEMORY_RESERVE];
 		for (int i=0; i<MEMORY_RESERVE; i++) {
@@ -217,6 +222,29 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 	}
 
+	
+	
+	/**
+	 * Return whether this throwable was caused by an OutOfMemoryError
+	 * condition.  An exception is deemed to be caused by OutOfMemoryError
+	 * if the throwable or any of its causes is of the type OutOfMemoryError.
+	 * <p>
+	 * This method is required because Apple's JRE implementation sometimes
+	 * masks OutOfMemoryErrors within RuntimeExceptions.  Idiots.
+	 * 
+	 * @param t		the throwable to examine.
+	 * @return		whether this is an out-of-memory condition.
+	 */
+	private boolean isOutOfMemoryError(Throwable t) {
+		while (t != null) {
+			if (t instanceof OutOfMemoryError)
+				return true;
+			t = t.getCause();
+		}
+		return false;
+	}
+	
+	
 	
 	/**
 	 * Handler used in modal dialogs by Sun Java implementation.

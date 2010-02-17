@@ -10,7 +10,7 @@ import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 
 
-public abstract class AbstractSimulationListener implements SimulationListener {
+public class AbstractSimulationListener implements SimulationListener {
 
 	@Override 
 	public void flightConditions(SimulationStatus status, FlightConditions conditions)

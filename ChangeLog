@@ -1,3 +1,56 @@
+2010-02-17  Sampo Niskanen
+
+	* Released version 0.9.6
+
+2010-01-11  Sampo Niskanen
+
+	* Detect out of memory condition even if masked by another exception
+	* Updated copyright year
+
+2009-12-31  Sampo Niskanen
+
+	* [BUG] Exception when removing component listeners
+	* [BUG] OutOfMemoryError was masked when saving file
+
+2009-12-30  Sampo Niskanen
+
+	* [BUG] "Reset" button did nothing for simulation time step
+
+2009-12-29  Sampo Niskanen
+
+	* Update fin calculation methods for 1 and 2 fin sets
+	* Rotate rocket to worst roll angle before simulations
+
+2009-12-23  Sampo Niskanen
+
+	* Updated time step selection methods
+
+2009-12-16  Sampo Niskanen
+
+	* [BUG] Fixed NullPointerException in ComponentConfigDialog
+
+2009-12-15  Sampo Niskanen
+
+	* [BUG] Illegal mapping in SimulationRunDialog
+	* [BUG] Fixed assertions in Quaternion class
+
+2009-12-14  Sampo Niskanen
+
+	* Implemented central logging system (not taken into use yet)
+
+2009-12-05  Sampo Niskanen
+
+	* [BUG] Fixed assertions in Quaternion class
+
+2009-12-03  Sampo Niskanen
+
+	* [BUG] Fixed fin computation of two-fin set
+
+2009-12-02  Sampo Niskanen
+
+	* Take into account all fins in fin-fin interference
+	* Removed 15%/6% fin dependence on lateral wind direction
+
 2009-11-28  Sampo Niskanen
 
 	* Released version 0.9.5

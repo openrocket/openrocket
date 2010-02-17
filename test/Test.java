@@ -1,30 +1,44 @@
-import net.sf.openrocket.util.Coordinate;
+import java.util.ArrayList;
+
+import net.sf.openrocket.simulation.SimulationListener;
+import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 
 
 public class Test {
 
-	public static int COUNT = 10000000;
+	public static int COUNT = 1000000;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
+		System.out.println("COUNT="+COUNT);
+		
 		for (int i=1; ; i++) {
 			long t1 = System.currentTimeMillis();
 			run();
 			long t2 = System.currentTimeMillis();
-			System.out.println("Run " + i + " took " + (t2-t1) + " ms");
+			System.out.printf("Run %2d took %d ms, %.1f ms / 1000 rounds\n",
+					i, (t2-t1), ((t2-t1)*1000.0/COUNT));
 		}
 		
 	}
 	
 	
-	private static void run() {
-		Coordinate a = new Coordinate(1,1,1,1);
-		Coordinate b = new Coordinate(1,1,1,1);
-		
-		for (int i=0; i < COUNT; i++) {
-			a = a.add(b);
+	static volatile ArrayList<SimulationListener> listeners = new ArrayList<SimulationListener>();
+	static {
+		for (int i=0; i<5; i++) {
+			listeners.add(new AbstractSimulationListener());
 		}
-		System.out.println("value:"+a);
+	}
+	private static void run() throws SimulationException {
+
+		
+		for (int i=0; i<COUNT; i++) {
+			SimulationListener[] array = listeners.toArray(new SimulationListener[0]);
+			for (SimulationListener l: array) {
+				l.forceCalculation(null, null, null);
+			}
+		}
 		
 		return;
 	}

@@ -130,6 +130,7 @@
 	<target name="check" depends="checktodo,checkascii"/>
 	
 	<!-- CHECK TODOs -->
+	<target name="todo" depends="checktodo"/>
 	<target name="checktodo">
 		<tempfile property="todo.file" prefix="checktodo-"/>
 		<echo>Checking project for critical TODOs.</echo>
@@ -155,6 +156,7 @@ ${criticaltodos}</fail>
 	
 	
 	<!-- CHECK TODOs -->
+	<target name="ascii" depends="checkascii"/>
 	<target name="checkascii">
 		<tempfile property="ascii.file" prefix="checkascii-"/>
 		<echo>Checking project for non-ASCII characters.</echo>

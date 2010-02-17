@@ -35,7 +35,7 @@ public class Reflection {
 				throw new BugException("Error while invoking method '"+method+"'. "+
 						"Please report this as a bug.",e);
 			} catch (InvocationTargetException e) {
-				throw Reflection.handleInvocationTargetException(e);
+				throw Reflection.handleWrappedException(e);
 			}
 		}
 		/**
@@ -66,10 +66,10 @@ public class Reflection {
 	 * @param e		the InvocationTargetException that occurred (not null).
 	 * @return		never returns normally.
 	 */
-	public static Error handleInvocationTargetException(InvocationTargetException e) {
+	public static Error handleWrappedException(Exception e) {
 		Throwable cause = e.getCause();
 		if (cause == null) {
-			throw new BugException("BUG: InvocationTargetException without cause", e);
+			throw new BugException("BUG: wrapped exception without cause", e);
 		}
 		if (cause instanceof RuntimeException) {
 			throw (RuntimeException)cause;
@@ -77,7 +77,7 @@ public class Reflection {
 		if (cause instanceof Error) {
 			throw (Error)cause;
 		}
-		throw new BugException("InvocationTargetException occurred", cause);
+		throw new BugException("wrapped exception occurred", cause);
 	}
 	
 	
@@ -178,7 +178,7 @@ public class Reflection {
 			} catch (IllegalAccessException e) {
 				throw new BugException("Construction of "+name+" failed",e);
 			} catch (InvocationTargetException e) {
-				throw Reflection.handleInvocationTargetException(e);
+				throw Reflection.handleWrappedException(e);
 			}
 
 			currentclass = currentclass.getSuperclass();

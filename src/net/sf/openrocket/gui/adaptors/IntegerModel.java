@@ -155,7 +155,7 @@ public class IntegerModel implements ChangeListener {
 		} catch (IllegalAccessException e) {
 			throw new BugException(e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
@@ -170,7 +170,7 @@ public class IntegerModel implements ChangeListener {
 		} catch (IllegalAccessException e) {
 			throw new BugException(e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 

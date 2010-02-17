@@ -403,7 +403,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				throw new BugException("Could not construct new instance of class "+
 						constructor,e);
 			} catch (InvocationTargetException e) {
-				throw Reflection.handleInvocationTargetException(e);
+				throw Reflection.handleWrappedException(e);
 			}
 			
 			// Next undo position is set by opening the configuration dialog

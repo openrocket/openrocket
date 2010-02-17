@@ -634,6 +634,12 @@ public class SimulationEditDialog extends JDialog {
 		button.setToolTipText("Reset the time step to its default value (" +
 				UnitGroup.UNITS_SHORT_TIME.toStringUnit(RK4Simulator.RECOMMENDED_TIME_STEP) +
 				").");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				conditions.setTimeStep(RK4Simulator.RECOMMENDED_TIME_STEP);
+			}
+		});
 				
 //		button.setToolTipText("<html>Reset the step value to its default:<br>" +
 //				"Time step " +

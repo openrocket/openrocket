@@ -1,6 +1,7 @@
 package net.sf.openrocket.simulation;
 
 import java.util.Collection;
+import java.util.Random;
 
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
@@ -22,6 +23,8 @@ import net.sf.openrocket.util.Rotation2D;
 
 public class RK4Simulator extends FlightSimulator {
 	
+	private static final boolean DEBUG = false;
+
 	/**
 	 * A recommended reasonably accurate time step.
 	 */
@@ -33,21 +36,27 @@ public class RK4Simulator extends FlightSimulator {
 	public static final double RECOMMENDED_ANGLE_STEP = 3*Math.PI/180;
 	
 	/**
+	 * A random amount that is added to pitch and yaw coefficients, plus or minus.
+	 */
+	public static final double PITCH_YAW_RANDOM = 0.0005;
+	
+	/**
 	 * Maximum roll step allowed.  This is selected as an uneven division of the full
 	 * circle so that the simulation will sample the most wind directions
 	 */
-	private static final double MAX_ROLL_STEP_ANGLE = 28.32 * Math.PI/180;
+	private static final double MAX_ROLL_STEP_ANGLE = 2*28.32 * Math.PI/180;
 //	private static final double MAX_ROLL_STEP_ANGLE = 8.32 * Math.PI/180;
 	
 	private static final double MAX_ROLL_RATE_CHANGE = 2 * Math.PI/180;
-	private static final double MAX_PITCH_CHANGE = 2 * Math.PI/180;
+	private static final double MAX_PITCH_CHANGE = 4 * Math.PI/180;
 
 	
-	private static final boolean DEBUG = false;
-
 	
 	/* Single instance so it doesn't have to be created each semi-step. */
 	private final FlightConditions flightConditions = new FlightConditions(null);
+	
+	
+	private final Random random = new Random();
 	
 	
 	private Coordinate linearAcceleration;
@@ -131,10 +140,19 @@ public class RK4Simulator extends FlightSimulator {
 		
 		
 		Quaternion o = new Quaternion();
+		
+		// Initialize to roll angle with least stability w.r.t. the wind
+		FlightConditions cond = new FlightConditions(configuration);
+		calculator.getWorstCP(cond, null);
+		double angle = -cond.getTheta() - simulation.getLaunchRodDirection();
+		o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, angle)));
+		
+		// Launch rod angle and direction
 		o.multiplyLeft(Quaternion.rotation(
 				new Coordinate(0, simulation.getLaunchRodAngle(), 0)));
 		o.multiplyLeft(Quaternion.rotation(
 				new Coordinate(0, 0, simulation.getLaunchRodDirection())));
+
 		status.orientation = o;
 		status.position = Coordinate.NUL;
 		status.velocity = Coordinate.NUL;
@@ -193,8 +211,8 @@ public class RK4Simulator extends FlightSimulator {
 		 * The last two are required since near the steady-state roll rate the roll rate
 		 * may oscillate significantly even between the sub-steps of the RK4 integration.
 		 * 
-		 * Additionally a low-pass filter is applied to the time step selectively 
-		 * if the new time step is longer than the previous time step.
+		 * Additionally if the time step is longer than the previous time step, the
+		 * increase is limited to 50% of the previous time step.
 		 */
 		double dt1 = simulation.getTimeStep();
 		double dt2 = simulation.getMaximumStepAngle() / lateralPitchRate;
@@ -204,18 +222,25 @@ public class RK4Simulator extends FlightSimulator {
 		timestep = MathUtil.min(dt1,dt2,dt3);
 		timestep = MathUtil.min(timestep,dt4,dt5);
 		
-		if (oldTimestep > 0 && oldTimestep < timestep) {
-			timestep = 0.3*timestep + 0.7*oldTimestep;
+		if (status.launchRod) {
+			// Use 1/5th time step while on launch rod
+			timestep = MathUtil.min(timestep, simulation.getTimeStep()/5);
 		}
 		
-		if (timestep < 0.001)
-			timestep = 0.001;
+		if (oldTimestep > 0.0001 && oldTimestep < timestep) {
+			timestep = Math.min(timestep, oldTimestep*1.5);
+		}
+		
+//		if (timestep < 0.001)
+//			timestep = 0.001;
+		if (timestep < simulation.getTimeStep() / 10) 
+			timestep = simulation.getTimeStep() / 10;
 		
 		oldTimestep = timestep;
-		if (DEBUG)
-			System.out.printf("Time step: %.3f  dt1=%.3f dt2=%.3f dt3=%.3f dt4=%.3f dt5=%.3f\n",
-			timestep,dt1,dt2,dt3,dt4,dt5);
-
+		if (DEBUG) {
+			System.out.printf("Time step (t=%.3f): %.3f  dt1=%.3f dt2=%.3f dt3=%.3f dt4=%.3f dt5=%.3f\n",
+					status.time, timestep,dt1,dt2,dt3,dt4,dt5);
+		}
 		
 		
 		//// First position, k1 = f(t, y)
@@ -351,6 +376,15 @@ public class RK4Simulator extends FlightSimulator {
 		}
 		
 		
+		// Add very small randomization to yaw & pitch moments to prevent
+		// over-perfect flight
+		// TODO: HIGH: This should rather be performed as a listener
+		forces.Cm += PITCH_YAW_RANDOM * 2 * (random.nextDouble()-0.5);
+		forces.Cyaw += PITCH_YAW_RANDOM * 2 * (random.nextDouble()-0.5);
+		
+		
+		
+		
 		// Allow listeners to modify the forces
 		int mod = flightConditions.getModCount();
 		SimulationListener[] list = listeners.toArray(new SimulationListener[0]);
@@ -361,6 +395,9 @@ public class RK4Simulator extends FlightSimulator {
 			status.warnings.add(Warning.LISTENERS_AFFECTED);
 		}
 
+		
+		
+		
 		
 		assert(!Double.isNaN(forces.CD));
 		assert(!Double.isNaN(forces.CN));
@@ -474,6 +511,7 @@ public class RK4Simulator extends FlightSimulator {
 		windSpeed = status.windSimulator.getWindSpeed(status.time);
 		Coordinate airSpeed = status.velocity.add(windSpeed, 0, 0);
 		airSpeed = status.orientation.invRotate(airSpeed);
+		
 		
 		
         // Lateral direction:

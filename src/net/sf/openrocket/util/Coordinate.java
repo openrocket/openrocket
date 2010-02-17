@@ -204,6 +204,19 @@ public final class Coordinate implements Serializable {
 		return x*x+y*y+z*z;
 	}
 	
+	
+	/**
+	 * Return the largest of the absolute values of the coordinates.  This can be
+	 * used as a norm of the vector that is faster to calculate than the
+	 * 2-norm.
+	 * 
+	 * @return	the largest absolute value of (x,y,z)
+	 */
+	public double max() {
+		return MathUtil.max(Math.abs(x), Math.abs(y), Math.abs(z));
+	}
+	
+	
 	/**
 	 * Returns a new coordinate which has the same direction from the origin as this
 	 * coordinate but is at a distance of one.  If this coordinate is the origin,

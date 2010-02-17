@@ -35,15 +35,15 @@ public class AboutDialog extends JDialog {
 		panel.add(new StyledLabel("OpenRocket", 20), "ax 50%, growy, wrap para");
 		panel.add(new StyledLabel("Version " + version, 3), "ax 50%, growy, wrap rel");
 		
-		String source = Prefs.getBuildSource();
-		if (!Prefs.DEFAULT_BUILD_SOURCE.equalsIgnoreCase(source)) {
-			panel.add(new StyledLabel("Distributed by " + source, -1), 
-					"ax 50%, growy, wrap para");
-		} else {
-			panel.add(new StyledLabel(" ", -1), "ax 50%, growy, wrap para");
-		}
+//		String source = Prefs.getBuildSource();
+//		if (!Prefs.DEFAULT_BUILD_SOURCE.equalsIgnoreCase(source)) {
+//			panel.add(new StyledLabel("Distributed by " + source, -1), 
+//					"ax 50%, growy, wrap para");
+//		} else {
+//			panel.add(new StyledLabel(" ", -1), "ax 50%, growy, wrap para");
+//		}
 		
-		panel.add(new StyledLabel("Copyright " + Chars.COPY +" 2007-2009 Sampo Niskanen"), 
+		panel.add(new StyledLabel("Copyright " + Chars.COPY +" 2007-2010 Sampo Niskanen"), 
 				"ax 50%, growy, wrap para");
 		
 		panel.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");

@@ -45,12 +45,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.LookAndFeel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -92,6 +90,7 @@ import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.OpenFileWorker;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.SaveFileWorker;
 import net.sf.openrocket.util.TestRockets;
 
@@ -669,6 +668,37 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
+		
+
+		item = new JMenuItem("Create 'Iso-Haisu'");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Rocket r = TestRockets.makeIsoHaisu();
+				OpenRocketDocument doc = new OpenRocketDocument(r);
+				doc.setSaved(true);
+				BasicFrame frame = new BasicFrame(doc);
+				frame.setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+
+		item = new JMenuItem("Create 'Big Blue'");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Rocket r = TestRockets.makeBigBlue();
+				OpenRocketDocument doc = new OpenRocketDocument(r);
+				doc.setSaved(true);
+				BasicFrame frame = new BasicFrame(doc);
+				frame.setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		
+		
 		menu.addSeparator();
 		
 		item = new JMenuItem("Exception here");
@@ -997,6 +1027,7 @@ public class BasicFrame extends JFrame {
 			saved = true;
 		    setTitle();
 		} catch (ExecutionException e) {
+
 			Throwable cause = e.getCause();
 			
 			if (cause instanceof IOException) {
@@ -1005,7 +1036,7 @@ public class BasicFrame extends JFrame {
 		    			e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
 		    	return false;
 			} else {
-				throw new BugException("Unknown error when saving file", e);
+				Reflection.handleWrappedException(e);
 			}
 			
 		} catch (InterruptedException e) {
@@ -1174,44 +1205,8 @@ public class BasicFrame extends JFrame {
 		}
 		
 		
-		
-		/*
-		 * Set the look-and-feel.  On Linux, Motif/Metal is sometimes incorrectly used 
-		 * which is butt-ugly, so if the system l&f is Motif/Metal, we search for a few
-		 * other alternatives.
-		 */
-		try {
-			// Set system L&F
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			
-			// Check whether we have an ugly L&F
-			LookAndFeel laf = UIManager.getLookAndFeel();
-			if (laf == null ||
-					laf.getName().matches(".*[mM][oO][tT][iI][fF].*") ||
-					laf.getName().matches(".*[mM][eE][tT][aA][lL].*")) {
-				
-				// Search for better LAF
-				UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
-				String lafNames[] = {
-						".*[gG][tT][kK].*",
-						".*[wW][iI][nN].*",
-						".*[mM][aA][cC].*",
-						".*[aA][qQ][uU][aA].*",
-						".*[nN][iI][mM][bB].*"
-				};
-				
-				lf: for (String lafName: lafNames) {
-					for (UIManager.LookAndFeelInfo l: info) {
-						if (l.getName().matches(lafName)) {
-							UIManager.setLookAndFeel(l.getClassName());
-							break lf;
-						}
-					}					
-				}
-			}
-		} catch (Exception e) {
-			System.err.println("Error setting LAF: " + e);
-		}
+		// Set the best available look-and-feel
+		GUIUtil.setBestLAF();
 
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);

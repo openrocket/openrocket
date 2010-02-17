@@ -327,7 +327,7 @@ public class SimulationRunDialog extends JDialog {
 			
 			if (simulationStage == -1 && status.velocity.z < 0) {
 				simulationStage++;
-				apogeeAltitude = status.position.z;
+				apogeeAltitude = MathUtil.max(status.position.z, 1);
 			}
 			
 			// 3. z-position from apogee to zero
@@ -390,7 +390,7 @@ public class SimulationRunDialog extends JDialog {
 			} else if (t instanceof Exception) {
 				
 				// TODO: MEDIUM: Check the exception handling here...
-				
+				t.printStackTrace();
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this, 
 						new Object[] {
 						"An exception occurred during the simulation:",
@@ -402,6 +402,7 @@ public class SimulationRunDialog extends JDialog {
 				
 			} else if (t instanceof AssertionError) {
 				
+				t.printStackTrace();
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this, 
 						new Object[] {
 							"A computation error occurred during the simulation.",

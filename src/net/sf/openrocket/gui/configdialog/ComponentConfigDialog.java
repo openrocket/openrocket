@@ -114,7 +114,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			} catch (IllegalAccessException e) {
 				throw new BugException("BUG in constructor reflection",e);
 			} catch (InvocationTargetException e) {
-				throw Reflection.handleInvocationTargetException(e);
+				throw Reflection.handleWrappedException(e);
 			}
 		}
 		
@@ -232,7 +232,14 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			dialog.setVisible(false);
 
 		} else {
-			configurator.updateFields();
+			/*
+			 * TODO: HIGH:  The line below has caused a NullPointerException (without null check)
+			 * How is this possible?  The null check was added to avoid this, but the
+			 * root cause should be analyzed.
+			 * [Openrocket-bugs] 2009-12-12 19:23:22 Automatic bug report for OpenRocket 0.9.5
+			 */
+			if (configurator != null)
+				configurator.updateFields();
 		}
 	}
 	

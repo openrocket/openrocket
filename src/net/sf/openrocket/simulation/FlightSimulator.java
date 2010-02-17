@@ -518,6 +518,7 @@ public abstract class FlightSimulator {
 			// Count the number of motors in a cluster
 			int count = 1;
 			for (RocketComponent c = (RocketComponent)mount; c != null; c = c.getParent()) {
+				// TODO: HIGH: This does not take into account clusters of clusters!
 				if (c instanceof Clusterable) 
 					count *= ((Clusterable)c).getClusterConfiguration().getClusterCount();
 			}

@@ -26,6 +26,7 @@ Steps for making a release:
 13. Test downloading from Sourceforge and web site
 14. Update update.php to web server:
     scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/
-15. Update build.properties to "pre" version + commit
-16. Send email about new release to openrocket-announce@lists.sourceforge.net
+15. Test update checking without specific options
+16. Update build.properties to "pre" version + commit
+17. Send email about new release to openrocket-announce@lists.sourceforge.net
 

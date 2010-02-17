@@ -2,7 +2,7 @@
 OpenRocket - an Open Source model rocket simulator
 --------------------------------------------------
 
-Copyright (C) 2007-2009  Sampo Niskanen
+Copyright (C) 2007-2010  Sampo Niskanen
 
 
 For license information see the file LICENSE.TXT.

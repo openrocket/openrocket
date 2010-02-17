@@ -595,7 +595,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		} catch (IllegalAccessException e) {
 			throw new BugException("BUG: Unable to invoke getMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
@@ -621,7 +621,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		} catch (IllegalAccessException e) {
 			throw new BugException("BUG: Unable to invoke setMethod of "+this, e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 
@@ -648,7 +648,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		} catch (IllegalAccessException e) {
 			throw new BugException("Method call failed", e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
@@ -670,7 +670,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		} catch (IllegalAccessException e) {
 			throw new BugException(e);
 		} catch (InvocationTargetException e) {
-			throw Reflection.handleInvocationTargetException(e);
+			throw Reflection.handleWrappedException(e);
 		}
 	}
 	

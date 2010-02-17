@@ -15,7 +15,7 @@ public class ReflectionTest {
 		
 		try {
 			cause = new InvocationTargetException(null);
-			Reflection.handleInvocationTargetException((InvocationTargetException)cause);
+			Reflection.handleWrappedException((InvocationTargetException)cause);
 			fail();
 		} catch (BugException e) {
 			assertTrue(cause == e.getCause());
@@ -23,7 +23,7 @@ public class ReflectionTest {
 		
 		try {
 			cause = new IllegalStateException("Test");
-			Reflection.handleInvocationTargetException(new InvocationTargetException(cause));
+			Reflection.handleWrappedException(new InvocationTargetException(cause));
 			fail();
 		} catch (IllegalStateException e) {
 			assertTrue(cause == e);
@@ -31,7 +31,7 @@ public class ReflectionTest {
 		
 		try {
 			cause = new AbstractMethodError();
-			Reflection.handleInvocationTargetException(new InvocationTargetException(cause));
+			Reflection.handleWrappedException(new InvocationTargetException(cause));
 			fail();
 		} catch (AbstractMethodError e) { 
 			assertTrue(cause == e);
@@ -39,7 +39,7 @@ public class ReflectionTest {
 		
 		try {
 			cause = new IOException();
-			Reflection.handleInvocationTargetException(new InvocationTargetException(cause));
+			Reflection.handleWrappedException(new InvocationTargetException(cause));
 			fail();
 		} catch (BugException e) { 
 			assertTrue(cause == e.getCause());

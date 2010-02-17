@@ -9,17 +9,34 @@ Must-have:
 - Updated splash screen
 
 
-
 Maybe:
 
-- Re-investigate 15% reduction of three-fin CNa
-- Take into account all fins in interference effects
-- Add slight randomness to yaw moment
 
 
 
 Postponed:
 ----------
+
+
+Memory usage:
+
+- Reduce memory leakage when closing windows
+- Make simulation data immutable, don't store copies in undo/redo
+- Profile memory usage during operation (send data to server?)
+
+
+Logging:
+
+- Implement a central logging system
+  - takes messages with different priorities
+  - converts them into LogLine's that are passed to log handlers
+  - printing log handler and storing log handler
+  - bug reports to contain last ~50 log lines
+- LogLine
+  - contains TraceException for log position information
+  - contains sequential number
+- log storing handler stores separately debug and info/warn levels
+- remove all System.out/err writing, replace with logging
 
 
 Motor support:
@@ -30,11 +47,20 @@ Motor support:
 - Water rocket modelling
 
 
+Optimization:
+
+- Automatic general rocket optimizer (for altitude, velocity, duration etc)
+  that allows changing any rocket parameters for optimization
+- Analysis of various motors for the rocket.  Search all motors by
+  diameter, impulse range, manufacturer, simulate them and present the
+  results.
+
+
 Running:
 
 - Windows executable wrapper (launch4j)
 - Allow only one instance of OpenRocket running (RMI communication)
-- Running from command line
+- Running/simulating from command line
 
 
 UI issues:
@@ -46,12 +72,30 @@ UI issues:
 - BUG: Inner tube cluster rotation, edit with spinner arrows, slider wrong
 - NAR/CNES/etc competition validity checking
 - Print support
+- Drag and drop of components / other table items
+- Ctrl+scroll wheel to zoom in/out
+- Move components by dragging on the figure
+- Progress bar during startup
 
 
 Simulation:
 
 - Landing scatter plots
 - Simulate other branches
+- Remove need for 5m launch rod in real-time simulations (reduces apogee)
+  A simulation listener that checks when sufficient velocity has been reached?
+
+
+Structural analysis:
+
+- Run a simulation with each step doing a component analysis
+- Compute the force between different components:
+  - between body components (pushing against and pulling apart)
+  - inner tubes and the parent body tubes
+  - lateral forces on fins
+  - individual fin normal forces?
+- Take into account acceleration, drag, gravity
+- Plot forces against time
 
 
 Component support:
@@ -61,9 +105,9 @@ Component support:
 - Support for tube fins
 
 
-Other:
+File support:
 
-- Reading (writing) .RKT format
+- Reading (and writing) .RKT format
 
 
 Refactoring tasks:
@@ -72,8 +116,11 @@ Refactoring tasks:
 - Remove database etc. initialization from class initialization,
   create separate set of test motors
 - Extract event rules and data saving from Simulator into listeners
+- How to handle different simulation situations elegantly
+  (launch rod, free flight, recovery)
 - Change SimulationStatus to include methods for obtaining basic
   position (maybe even change to an interface, implements Cloneable)
+- Modularize calculators, simulators, atmospheric conditions, etc.
 - Change Motor (immutable) to be a factory of MotorInstance (stateful)
 
 
@@ -112,3 +159,11 @@ In 0.9.4:
 - Inform user about software updates
 In 0.9.5:
 - Add label to motor panel to tell current number of stages
+In 0.9.6:
+- Take into account all fins in interference effects
+- Two-fin rocket stable at large number of roll angles?!
+- Add slight randomness to yaw moment
+- Update simulation time step filtering from exponential MA to
+  exponential growth until time step is reached (t1 = 1.5*t0)
+- Limit time step during while on launch rod
+- Re-investigate 15% reduction of three-fin CNa
