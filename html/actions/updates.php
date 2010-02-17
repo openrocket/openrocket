@@ -69,9 +69,10 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-if (preg_match("/^0\.9\.(4|5pre)/",$version)) {
-  $updates = "Version: 0.9.5\n" .
-    "5: Important bug fixes";
+if (preg_match("/^0\.9\.(4|5pre|5|6pre)/",$version)) {
+  $updates = "Version: 0.9.6\n" .
+    "6: Aerodynamic computation updates\n" .
+    "5: Numerous bug fixes";
 }
 
 
