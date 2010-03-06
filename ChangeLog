@@ -1,3 +1,11 @@
+2010-03-05  Sampo Niskanen
+
+	* [BUG] Fixed exception for fins with small root chord
+
+2010-02-26  Sampo Niskanen
+
+	* Simulation panel max.acceleration now from flight stage only
+
 2010-02-17  Sampo Niskanen
 
 	* Released version 0.9.6

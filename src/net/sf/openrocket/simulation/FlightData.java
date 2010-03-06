@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Pair;
 
 
 public class FlightData {
@@ -128,6 +129,9 @@ public class FlightData {
 		return maxVelocity;
 	}
 	
+	/**
+	 * NOTE:  This value will also contain any possible acceleration peak when opening a parachute!
+	 */
 	public double getMaxAcceleration() {
 		return maxAcceleration;
 	}
@@ -161,7 +165,6 @@ public class FlightData {
 		FlightDataBranch branch = branches.get(0);
 		maxAltitude = branch.getMaximum(FlightDataBranch.TYPE_ALTITUDE);
 		maxVelocity = branch.getMaximum(FlightDataBranch.TYPE_VELOCITY_TOTAL);
-		maxAcceleration = branch.getMaximum(FlightDataBranch.TYPE_ACCELERATION_TOTAL);
 		maxMachNumber = branch.getMaximum(FlightDataBranch.TYPE_MACH_NUMBER);
 
 		flightTime = branch.getLast(FlightDataBranch.TYPE_TIME);
@@ -177,6 +180,7 @@ public class FlightData {
 		
 		if (time == null || altitude == null) {
 			timeToApogee = Double.NaN;
+			maxAcceleration = Double.NaN;
 			return;
 		}
 		int index = 0;
@@ -192,6 +196,13 @@ public class FlightData {
 			timeToApogee = time.get(index);
 		else
 			timeToApogee = Double.NaN;
+
+		// Max. acceleration (must be after apogee time)
+		if (branch.get(FlightDataBranch.TYPE_ACCELERATION_TOTAL) != null) {
+			maxAcceleration = calculateMaxAcceleration();
+		} else {
+			maxAcceleration = Double.NaN;
+		}
 	}
 
 
@@ -203,4 +214,41 @@ public class FlightData {
 	}
 	
 	
+
+	/**
+	 * Find the maximum acceleration before apogee.
+	 */
+	private double calculateMaxAcceleration() {
+		
+		// End check at first recovery device deployment
+		double endTime = Double.MAX_VALUE;
+		FlightDataBranch branch = this.getBranch(0);
+		for (Pair<Double, FlightEvent> event: branch.getEvents()) {
+			if (event.getV().getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
+				if (event.getV().getTime() < endTime) {
+					endTime = event.getV().getTime();
+				}
+			}
+		}
+		
+		List<Double> time = branch.get(FlightDataBranch.TYPE_TIME);
+		List<Double> acceleration = branch.get(FlightDataBranch.TYPE_ACCELERATION_TOTAL);
+		
+		if (time == null || acceleration == null) {
+			return Double.NaN;
+		}
+		
+		double max = 0;
+		
+		for (int i=0; i<time.size(); i++) {
+			if (time.get(i) >= endTime) {
+				break;
+			}
+			double a = acceleration.get(i);
+			if (a > max)
+				max = a;
+		}
+
+		return max;
+	}
 }

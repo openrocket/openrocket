@@ -1,7 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -19,12 +21,8 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 
-	public FreeformFinSet(Coordinate[] finpoints) {
-		points.clear();
-		for (Coordinate c: finpoints) {
-			points.add(c);
-		}
-		this.length = points.get(points.size()-1).x - points.get(0).x;
+	public FreeformFinSet(Coordinate[] finpoints) throws IllegalFinPointException {
+		setPoints(finpoints);
 	}
 
 	/*
@@ -73,7 +71,13 @@ public class FreeformFinSet extends FinSet {
 			
 			// Create the freeform fin set
 			Coordinate[] finpoints = finset.getFinPoints();
-			freeform = new FreeformFinSet(finpoints);
+			try {
+				freeform = new FreeformFinSet(finpoints);
+			} catch (IllegalFinPointException e) {
+				throw new BugException("Illegal fin points when converting existing fin to " +
+						"freeform fin, fin=" + finset + " points="+Arrays.toString(finpoints),
+						e);
+			}
 
 			// Copy component attributes
 			freeform.copyFrom(finset);
@@ -134,6 +138,7 @@ public class FreeformFinSet extends FinSet {
 		if (index == 0  ||  index == points.size()-1) {
 			throw new IllegalFinPointException("cannot remove first or last point");
 		}
+		// TODO: CRITICAL: Can result in invalid fin points
 		points.remove(index);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -144,7 +149,7 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	public void setPoints(Coordinate[] p) throws IllegalFinPointException {
-		if (p[0].x != 0 || p[0].y != 0 || p[p.length-1].y != 0) {
+		if (p[0].x != 0 || p[0].y != 0 || p[p.length-1].x < 0 || p[p.length-1].y != 0) {
 			throw new IllegalFinPointException("Start or end point illegal.");
 		}
 		for (int i=0; i < p.length-1; i++) {

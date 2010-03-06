@@ -149,12 +149,18 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			return;
 		}
 		
+		// Create the message
+		String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
+		if (msg.length() > 90) {
+			msg = msg.substring(0, 80) + "...";
+		}
+		
 		// Unknown Error
 		if (!(e instanceof Exception)) {
 			JOptionPane.showMessageDialog(null, 
 					new Object[] { 
 						"An unknown Java error occurred:",
-						e.getMessage(),
+						msg,
 						"<html>You should immediately close unnecessary design windows,<br>" +
 						"save any unsaved designs and restart OpenRocket!"
 					}, "Unknown Java error", JOptionPane.ERROR_MESSAGE);
@@ -162,13 +168,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 		
 		
-		// Normal exception, show question dialog
-		String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
-		if (msg.length() > 90) {
-			msg = msg.substring(0, 80) + "...";
-		}
-		
-		
+		// Normal exception, show question dialog		
 		int selection = JOptionPane.showOptionDialog(null, new Object[] {
 				"OpenRocket encountered an uncaught exception.  This typically signifies " +
 				"a bug in the software.", 

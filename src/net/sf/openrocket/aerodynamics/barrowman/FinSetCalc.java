@@ -763,21 +763,32 @@ public class FinSetCalc extends RocketComponentCalc {
 			double lead = component.toRelative(Coordinate.NUL, parent)[0].x;
 			double trail = component.toRelative(new Coordinate(component.getLength()), 
 					parent)[0].x;
+			
+			/*
+			 * The counting fails if the fin root chord is very small, in that case assume
+			 * no other fin interference than this fin set.
+			 */
+			if (trail-lead < 0.007) {
+				interferenceFinCount = component.getFinCount();
+			} else {
+				interferenceFinCount = 0;
+				for (RocketComponent c: parent.getChildren()) {
+					if (c instanceof FinSet) {
+						double finLead = c.toRelative(Coordinate.NUL, parent)[0].x;
+						double finTrail = c.toRelative(new Coordinate(c.getLength()), parent)[0].x;
 
-			interferenceFinCount = 0;
-			for (RocketComponent c: parent.getChildren()) {
-				if (c instanceof FinSet) {
-					double finLead = c.toRelative(Coordinate.NUL, parent)[0].x;
-					double finTrail = c.toRelative(new Coordinate(c.getLength()), parent)[0].x;
-					if ((finLead < trail - 0.005) && (finTrail > lead + 0.005)) {
-						interferenceFinCount += ((FinSet)c).getFinCount();
+						// Compute overlap of the fins
+
+						if ((finLead < trail - 0.005) && (finTrail > lead + 0.005)) {
+							interferenceFinCount += ((FinSet)c).getFinCount();
+						}
 					}
 				}
 			}
-			
 			if (interferenceFinCount < component.getFinCount()) {
 				throw new BugException("Counted " + interferenceFinCount + " parallel fins, " +
-						"when component itself has " + component.getFinCount());
+						"when component itself has " + component.getFinCount() + 
+						", fin points=" + Arrays.toString(component.getFinPoints()));
 			}
 		}
 		return interferenceFinCount;

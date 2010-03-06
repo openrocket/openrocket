@@ -750,34 +750,7 @@ public class SimulationEditDialog extends JDialog {
 			return noDataPanel();
 		}
 		
-		
-		if (true)
-			return new SimulationPlotPanel(simulation);
-		
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		
-		
-		
-		
-		JButton button = new JButton("test");
-
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PlotConfiguration config = new PlotConfiguration();
-				config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE);
-				config.addPlotDataType(FlightDataBranch.TYPE_VELOCITY_Z);
-				config.addPlotDataType(FlightDataBranch.TYPE_ACCELERATION_Z);
-				config.addPlotDataType(FlightDataBranch.TYPE_ACCELERATION_TOTAL);
-				
-				config.setDomainAxisType(FlightDataBranch.TYPE_TIME);
-				
-				performPlot(config);
-			}
-		});
-		panel.add(button);
-		
-		return panel;
+		return new SimulationPlotPanel(simulation);
 	}
 	
 	

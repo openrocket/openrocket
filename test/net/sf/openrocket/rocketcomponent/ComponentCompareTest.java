@@ -71,7 +71,7 @@ public class ComponentCompareTest {
 	
 	
 	@Test
-	public void testComponentSimilarity() {
+	public void testComponentSimilarity() throws IllegalFinPointException {
 		FinSet trap = new TrapezoidFinSet(
 				5,   // fins
 				5.0, // root

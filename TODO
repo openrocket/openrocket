@@ -7,7 +7,7 @@ Must-have:
 
 - Go through thrust curves and select best ones
 - Updated splash screen
-
+- BUG: Invalid fin points possible when removing points
 
 Maybe:
 
@@ -167,3 +167,5 @@ In 0.9.6:
   exponential growth until time step is reached (t1 = 1.5*t0)
 - Limit time step during while on launch rod
 - Re-investigate 15% reduction of three-fin CNa
+In 0.9.7:
+- BUG: Simulation table max. acceleration takes into account parachute deceleration
