@@ -1,0 +1,41 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="K1200WT" Type="reloadable" dia="54."
+len="488." initWt="1631.9" propWt="981.4" delays="16" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1183.15" peakThrust="1369.46" throatDia="0."
+exitDia="0." Itot="2011.35" burn-time="1.7" massFrac="60.14" Isp="208.99"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="981.4" cg="244."/>
+<eng-data  t="0.01" f="492.25" m="980.199" cg="244."/>
+<eng-data  t="0.01" f="1235.24" m="980.199" cg="244."/>
+<eng-data  t="0.02" f="1369.46" m="973.845" cg="244."/>
+<eng-data  t="0.05" f="1236.01" m="954.775" cg="244."/>
+<eng-data  t="0.1" f="1279.47" m="924.091" cg="244."/>
+<eng-data  t="0.2" f="1311.39" m="860.883" cg="244."/>
+<eng-data  t="0.3" f="1319.85" m="796.689" cg="244."/>
+<eng-data  t="0.4" f="1331.39" m="732.008" cg="244."/>
+<eng-data  t="0.5" f="1325.23" m="667.196" cg="244."/>
+<eng-data  t="0.7" f="1323.31" m="537.966" cg="244."/>
+<eng-data  t="0.8" f="1304.08" m="473.866" cg="244."/>
+<eng-data  t="0.9" f="1280.62" m="410.809" cg="244."/>
+<eng-data  t="1." f="1249.86" m="349.074" cg="244."/>
+<eng-data  t="1.1" f="1217.94" m="288.868" cg="244."/>
+<eng-data  t="1.2" f="1199.29" m="229.896" cg="244."/>
+<eng-data  t="1.3" f="1158.77" m="172.367" cg="244."/>
+<eng-data  t="1.4" f="1112.56" m="116.955" cg="244."/>
+<eng-data  t="1.5" f="1099.87" m="62.9789" cg="244."/>
+<eng-data  t="1.55" f="941.81" m="38.0739" cg="244."/>
+<eng-data  t="1.6" f="726.07" m="17.7286" cg="244."/>
+<eng-data  t="1.62" f="559.17" m="11.4575" cg="244."/>
+<eng-data  t="1.64" f="399.95" m="6.7777" cg="244."/>
+<eng-data  t="1.66" f="317.66" m="3.27626" cg="244."/>
+<eng-data  t="1.67" f="247.28" m="1.898" cg="244."/>
+<eng-data  t="1.68" f="198.05" m="0.811551" cg="244."/>
+<eng-data  t="1.69" f="67.3" m="0.164189" cg="244."/>
+<eng-data  t="1.7" f="0." m="0." cg="244."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

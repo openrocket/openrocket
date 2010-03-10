@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="I224-CL" Type="unspecified" dia="29." len="365." initWt="370."
+propWt="196.7" delays="15,12,10,8,6" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="223.658" peakThrust="433.079" throatDia="0." exitDia="0."
+Itot="380.218" burn-time="1.7" massFrac="53.16" Isp="197.11" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro29-6GXL 381I224-CL 15A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="196.7" cg="182.5"/>
+      <eng-data  t="0.008" f="357.455" m="195.96" cg="182.5"/>
+      <eng-data  t="0.02" f="433.079" m="193.506" cg="182.5"/>
+      <eng-data  t="0.111" f="343.833" m="175.219" cg="182.5"/>
+      <eng-data  t="0.229" f="318.938" m="154.989" cg="182.5"/>
+      <eng-data  t="0.479" f="295.922" m="115.228" cg="182.5"/>
+      <eng-data  t="0.836" f="277.133" m="62.3099" cg="182.5"/>
+      <eng-data  t="1.022" f="269.618" m="36.0045" cg="182.5"/>
+      <eng-data  t="1.097" f="233.919" m="26.2359" cg="182.5"/>
+      <eng-data  t="1.233" f="117.899" m="13.8594" cg="182.5"/>
+      <eng-data  t="1.294" f="93.004" m="10.5316" cg="182.5"/>
+      <eng-data  t="1.39" f="62.003" m="6.68245" cg="182.5"/>
+      <eng-data  t="1.667" f="26.774" m="0.321495" cg="182.5"/>
+      <eng-data  t="1.692" f="17.38" m="0.0359651" cg="182.5"/>
+      <eng-data  t="1.7" f="0." m="0." cg="182.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

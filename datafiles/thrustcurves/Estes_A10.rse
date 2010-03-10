@@ -1,0 +1,37 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="53.61" Itot="1.998" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="2.35" burn-time="0.85" cgDiv="10" cgFix="1" cgStep="-1." code="A10T" delays="3,100" dia="13." exitDia="0." initWt="5.25" len="45." mDiv="10" mFix="1" mStep="-1." massFrac="72.38" mfg="Estes" peakThrust="12.64" propWt="3.8" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Estes A10T RASP.ENG file made from NAR published data
+File produced October 3, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="22.5" f="0." m="3.8" t="0."/>
+<eng-data cg="22.5" f="0.478" m="3.78818" t="0.026"/>
+<eng-data cg="22.5" f="1.919" m="3.72207" t="0.055"/>
+<eng-data cg="22.5" f="4.513" m="3.48963" t="0.093"/>
+<eng-data cg="22.5" f="8.165" m="3.11587" t="0.124"/>
+<eng-data cg="22.5" f="10.956" m="2.71582" t="0.146"/>
+<eng-data cg="22.5" f="12.64" m="2.26703" t="0.166"/>
+<eng-data cg="22.5" f="11.046" m="1.97419" t="0.179"/>
+<eng-data cg="22.5" f="7.966" m="1.70299" t="0.194"/>
+<eng-data cg="22.5" f="6.042" m="1.58309" t="0.203"/>
+<eng-data cg="22.5" f="3.154" m="1.53062" t="0.209"/>
+<eng-data cg="22.5" f="1.421" m="1.46101" t="0.225"/>
+<eng-data cg="22.5" f="1.225" m="1.37293" t="0.26"/>
+<eng-data cg="22.5" f="1.41" m="1.19" t="0.333"/>
+<eng-data cg="22.5" f="1.206" m="0.884002" t="0.456"/>
+<eng-data cg="22.5" f="1.195" m="0.612283" t="0.575"/>
+<eng-data cg="22.5" f="1.282" m="0.404987" t="0.663"/>
+<eng-data cg="22.5" f="1.273" m="0.169296" t="0.76"/>
+<eng-data cg="22.5" f="1.268" m="0.0460542" t="0.811"/>
+<eng-data cg="22.5" f="0.689" m="0.0144153" t="0.828"/>
+<eng-data cg="22.5" f="0." m="0." t="0.85"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

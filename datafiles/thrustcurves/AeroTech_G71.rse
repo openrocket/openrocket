@@ -1,0 +1,29 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="191.57" Itot="106.894" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="62.879" burn-time="1.7" cgDiv="10" cgFix="1" cgStep="-1." code="G71R" delays="4,7,10" dia="29." exitDia="0." initWt="147." len="124." mDiv="10" mFix="1" mStep="-1." massFrac="38.71" mfg="Aerotech" peakThrust="117.884" propWt="56.9" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>G71R based on Aerotech instruction sheet by C. Kobel 3/29/07</comments>
+<data>
+<eng-data cg="62." f="0." m="56.9" t="0."/>
+<eng-data cg="62." f="0.389" m="56.9" t="0."/>
+<eng-data cg="62." f="109.714" m="55.4348" t="0.05"/>
+<eng-data cg="62." f="117.884" m="52.406" t="0.1"/>
+<eng-data cg="62." f="113.216" m="46.2552" t="0.2"/>
+<eng-data cg="62." f="109.714" m="40.3219" t="0.3"/>
+<eng-data cg="62." f="105.045" m="34.606" t="0.4"/>
+<eng-data cg="62." f="99.21" m="29.1697" t="0.5"/>
+<eng-data cg="62." f="92.207" m="24.0751" t="0.6"/>
+<eng-data cg="62." f="83.258" m="19.405" t="0.7"/>
+<eng-data cg="62." f="75.477" m="15.1803" t="0.8"/>
+<eng-data cg="62." f="68.085" m="11.3593" t="0.9"/>
+<eng-data cg="62." f="57.97" m="8.00433" t="1."/>
+<eng-data cg="62." f="47.465" m="5.19815" t="1.1"/>
+<eng-data cg="62." f="33.848" m="3.03398" t="1.2"/>
+<eng-data cg="62." f="21.009" m="1.57395" t="1.3"/>
+<eng-data cg="62." f="11.283" m="0.714487" t="1.4"/>
+<eng-data cg="62." f="5.447" m="0.269213" t="1.5"/>
+<eng-data cg="62." f="2.334" m="0.06212" t="1.6"/>
+<eng-data cg="62." f="0." m="0." t="1.7"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

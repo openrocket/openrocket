@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="1041.1" Itot="929.081" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="216.065" burn-time="4.3" cgDiv="10" cgFix="1" cgStep="-1." code="J222" delays="1000" dia="38." exitDia="0." initWt="1043." len="1219.2" mDiv="10" mFix="1" mStep="-1." massFrac="8.72" mfg="Contrail" peakThrust="547.473" propWt="91." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>J-222-HP Reload
+Medium Nozzle
+38mm/48 Inch Hardware
+830cc
+</comments>
+<data>
+<eng-data cg="609.6" f="0." m="91." t="0."/>
+<eng-data cg="609.6" f="547.473" m="90.85" t="0.00559284"/>
+<eng-data cg="609.6" f="355.858" m="83.6748" t="0.167785"/>
+<eng-data cg="609.6" f="191.616" m="11.3979" t="2.86353"/>
+<eng-data cg="609.6" f="143.712" m="9.83646" t="2.95861"/>
+<eng-data cg="609.6" f="130.025" m="8.11195" t="3.08725"/>
+<eng-data cg="609.6" f="95.8079" m="3.90582" t="3.46756"/>
+<eng-data cg="609.6" f="0." m="0." t="4.3"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

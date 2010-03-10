@@ -1,0 +1,15 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="166.57" Itot="1633.52" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="297.003" burn-time="5.5" cgDiv="10" cgFix="1" cgStep="-1." code="K327WC" delays="1000" dia="54." exitDia="0." initWt="1816.7" len="492." mDiv="10" mFix="1" mStep="-1." massFrac="55.04" mfg="Gorilla Motors" peakThrust="684.54" propWt="1000." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="246." f="0." m="1000." t="0."/>
+<eng-data cg="246." f="556.25" m="991.487" t="0.05"/>
+<eng-data cg="246." f="520.65" m="958.524" t="0.15"/>
+<eng-data cg="246." f="684.54" m="829.411" t="0.5"/>
+<eng-data cg="246." f="534." m="773.464" t="0.65"/>
+<eng-data cg="246." f="22.25" m="2.17935" t="5.18"/>
+<eng-data cg="246." f="0." m="0." t="5.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,39 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="188.34" Itot="1682.18" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="431.549" burn-time="3.9" cgDiv="10" cgFix="1" cgStep="-1." code="K485HW" delays="1000" dia="54." exitDia="0." initWt="2220.29" len="699." mDiv="10" mFix="1" mStep="-1." massFrac="41.02" mfg="Aerotech" peakThrust="831.332" propWt="910.784" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AeroTech K485HW
+Copyright Tripoli Motor Testing 1999 (www.tripoli.org)
+provided by ThrustCurve.org (www.thrustcurve.org)
+</comments>
+<data>
+<eng-data cg="349.5" f="0." m="910.784" t="0."/>
+<eng-data cg="349.5" f="454.453" m="901.557" t="0.075"/>
+<eng-data cg="349.5" f="568.735" m="859.454" t="0.227"/>
+<eng-data cg="349.5" f="831.332" m="801.464" t="0.38"/>
+<eng-data cg="349.5" f="825.584" m="732.835" t="0.533"/>
+<eng-data cg="349.5" f="795.935" m="665.673" t="0.686"/>
+<eng-data cg="349.5" f="759.473" m="600.827" t="0.84"/>
+<eng-data cg="349.5" f="727.238" m="539.651" t="0.992"/>
+<eng-data cg="349.5" f="680.051" m="481.362" t="1.145"/>
+<eng-data cg="349.5" f="653.091" m="426.144" t="1.298"/>
+<eng-data cg="349.5" f="627.316" m="373.11" t="1.451"/>
+<eng-data cg="349.5" f="601.548" m="322.211" t="1.604"/>
+<eng-data cg="349.5" f="576.27" m="273.745" t="1.756"/>
+<eng-data cg="349.5" f="542.033" m="227.425" t="1.909"/>
+<eng-data cg="349.5" f="479.078" m="184.855" t="2.063"/>
+<eng-data cg="349.5" f="394.184" m="148.685" t="2.216"/>
+<eng-data cg="349.5" f="346.719" m="117.997" t="2.369"/>
+<eng-data cg="349.5" f="307.435" m="91.0794" t="2.521"/>
+<eng-data cg="349.5" f="276.291" m="66.9018" t="2.674"/>
+<eng-data cg="349.5" f="216.608" m="46.4861" t="2.827"/>
+<eng-data cg="349.5" f="146.021" m="31.4662" t="2.98"/>
+<eng-data cg="349.5" f="106.838" m="20.9929" t="3.133"/>
+<eng-data cg="349.5" f="81.226" m="13.2543" t="3.285"/>
+<eng-data cg="349.5" f="52.105" m="7.69571" t="3.439"/>
+<eng-data cg="349.5" f="37.385" m="3.98907" t="3.592"/>
+<eng-data cg="349.5" f="29.462" m="1.2203" t="3.745"/>
+<eng-data cg="349.5" f="0." m="0." t="3.898"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

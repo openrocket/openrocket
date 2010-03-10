@@ -1,0 +1,16 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="633.66" Itot="1684.02" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="269.013" burn-time="6.26" cgDiv="10" cgFix="1" cgStep="-1." code="K265" delays="1000" dia="54." exitDia="0." initWt="2085." len="1219.2" mDiv="10" mFix="1" mStep="-1." massFrac="13." mfg="Contrail" peakThrust="470.387" propWt="271." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="609.6" f="0." m="271." t="0."/>
+<eng-data cg="609.6" f="470.387" m="271." t="0."/>
+<eng-data cg="609.6" f="347.677" m="110.347" t="2.44068"/>
+<eng-data cg="609.6" f="224.968" m="42.4043" t="3.91525"/>
+<eng-data cg="609.6" f="173.839" m="14.6666" t="4.77966"/>
+<eng-data cg="609.6" f="112.484" m="6.46656" t="5.13559"/>
+<eng-data cg="609.6" f="51.129" m="3.78901" t="5.33898"/>
+<eng-data cg="609.6" f="0." m="0." t="6.26"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

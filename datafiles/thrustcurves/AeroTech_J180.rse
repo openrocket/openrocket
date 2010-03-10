@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="211.47" Itot="825.773" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="183.505" burn-time="4.5" cgDiv="10" cgFix="1" cgStep="-1." code="J180T" delays="6,10,14" dia="54." exitDia="0." initWt="840.9" len="230." mDiv="10" mFix="1" mStep="-1." massFrac="47.35" mfg="Aerotech" peakThrust="360.56" propWt="398.2" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="115." f="0." m="398.2" t="0."/>
+<eng-data cg="115." f="0.04" m="398.2" t="0."/>
+<eng-data cg="115." f="360.56" m="389.506" t="0.1"/>
+<eng-data cg="115." f="341.61" m="372.576" t="0.2"/>
+<eng-data cg="115." f="351.08" m="322.472" t="0.5"/>
+<eng-data cg="115." f="327.37" m="240.682" t="1."/>
+<eng-data cg="115." f="265.68" m="140.59" t="1.7"/>
+<eng-data cg="115." f="142.34" m="52.0514" t="2.6"/>
+<eng-data cg="115." f="52.17" m="9.84345" t="3.5"/>
+<eng-data cg="115." f="33.23" m="5.72533" t="3.7"/>
+<eng-data cg="115." f="4.76" m="0.229534" t="4.3"/>
+<eng-data cg="115." f="0." m="0." t="4.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

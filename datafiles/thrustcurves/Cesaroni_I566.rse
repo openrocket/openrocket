@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="I566-Vmax" Type="reloadable" dia="38."
+len="245." initWt="384.2" propWt="197.8" delays="6,8,10,12,15" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="569.516" peakThrust="628.65" throatDia="0."
+exitDia="0." Itot="370.185" burn-time="0.65" massFrac="51.48" Isp="190.84"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="197.8" cg="122.5"/>
+<eng-data  t="0.01" f="396.82" m="196.74" cg="122.5"/>
+<eng-data  t="0.02" f="462.72" m="194.443" cg="122.5"/>
+<eng-data  t="0.04" f="473.24" m="189.442" cg="122.5"/>
+<eng-data  t="0.07" f="512.07" m="181.545" cg="122.5"/>
+<eng-data  t="0.1" f="537.85" m="173.13" cg="122.5"/>
+<eng-data  t="0.15" f="572.85" m="158.293" cg="122.5"/>
+<eng-data  t="0.2" f="587.73" m="142.79" cg="122.5"/>
+<eng-data  t="0.25" f="600.41" m="126.919" cg="122.5"/>
+<eng-data  t="0.3" f="609.75" m="110.753" cg="122.5"/>
+<eng-data  t="0.4" f="611.42" m="78.1279" cg="122.5"/>
+<eng-data  t="0.5" f="602.61" m="45.6935" cg="122.5"/>
+<eng-data  t="0.6" f="600.26" m="13.5572" cg="122.5"/>
+<eng-data  t="0.61" f="607.55" m="10.3303" cg="122.5"/>
+<eng-data  t="0.62" f="628.65" m="7.02766" cg="122.5"/>
+<eng-data  t="0.63" f="612.18" m="3.71261" cg="122.5"/>
+<eng-data  t="0.64" f="388.73" m="1.03854" cg="122.5"/>
+<eng-data  t="0.65" f="0." m="0." cg="122.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

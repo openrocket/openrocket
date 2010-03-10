@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="233.25" Itot="112.085" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="312.214" burn-time="0.36" cgDiv="10" cgFix="1" cgStep="-1." code="G339N" delays="100" dia="38." exitDia="0." initWt="190." len="97." mDiv="10" mFix="1" mStep="-1." massFrac="25.79" mfg="Aerotech" peakThrust="375." propWt="49." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Created from TRA Certification Record issued 23 Nov 2006
+Bill Wagstaff - 04/30/07
+</comments>
+<data>
+<eng-data cg="48.5" f="0." m="49." t="0."/>
+<eng-data cg="48.5" f="371." m="48.2701" t="0.009"/>
+<eng-data cg="48.5" f="375." m="41.5845" t="0.05"/>
+<eng-data cg="48.5" f="375." m="33.3876" t="0.1"/>
+<eng-data cg="48.5" f="364." m="25.3109" t="0.15"/>
+<eng-data cg="48.5" f="349." m="17.5184" t="0.2"/>
+<eng-data cg="48.5" f="310." m="10.3161" t="0.25"/>
+<eng-data cg="48.5" f="264." m="4.04271" t="0.3"/>
+<eng-data cg="48.5" f="257." m="1.30954" t="0.324"/>
+<eng-data cg="48.5" f="39." m="0.144921" t="0.342"/>
+<eng-data cg="48.5" f="0." m="0." t="0.359"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

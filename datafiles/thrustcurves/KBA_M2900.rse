@@ -1,0 +1,50 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-Aerotech" code="M2900R" Type="reloadable" dia="75." len="1039."
+initWt="7195." propWt="3755." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="2264.18" peakThrust="3102.43" throatDia="0." exitDia="0."
+Itot="5460.99" burn-time="2.41" massFrac="52.19" Isp="148.3" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>@File: 070616w11.txt, @Pts-I: 1207, @Pts-O: 32, @Sm: 5, @CO: 5%
+@TI: 5460.0, @TIa: 5447.69, @TIe: 0.0%, @ThMax: 3102.43, @ThAvg: 2675.68, @Tb: 2.036
+Exported using ThrustCurveTool, www.ThrustGear.com
+</comments>
+<data>
+<eng-data  t="0." f="0." m="3755." cg="519.5"/>
+<eng-data  t="0." f="2.43719" m="3755." cg="519.5"/>
+<eng-data  t="0.034" f="19.468" m="3754.74" cg="519.5"/>
+<eng-data  t="0.05" f="69.6872" m="3754.25" cg="519.5"/>
+<eng-data  t="0.052" f="166.128" m="3754.09" cg="519.5"/>
+<eng-data  t="0.056" f="533.998" m="3753.13" cg="519.5"/>
+<eng-data  t="0.06" f="1067.23" m="3750.93" cg="519.5"/>
+<eng-data  t="0.064" f="1683.24" m="3747.14" cg="519.5"/>
+<eng-data  t="0.066" f="1897.53" m="3744.68" cg="519.5"/>
+<eng-data  t="0.072" f="2294.77" m="3736.03" cg="519.5"/>
+<eng-data  t="0.082" f="2495.75" m="3719.56" cg="519.5"/>
+<eng-data  t="0.102" f="2708.42" m="3683.78" cg="519.5"/>
+<eng-data  t="0.108" f="2734.74" m="3672.55" cg="519.5"/>
+<eng-data  t="0.204" f="2696.52" m="3493.29" cg="519.5"/>
+<eng-data  t="0.438" f="2690.17" m="3059.94" cg="519.5"/>
+<eng-data  t="0.726" f="2744.74" m="2521.8" cg="519.5"/>
+<eng-data  t="0.824" f="2794." m="2335.18" cg="519.5"/>
+<eng-data  t="1.1159" f="3041.86" m="1749.52" cg="519.5"/>
+<eng-data  t="1.3179" f="3102.43" m="1322.81" cg="519.5"/>
+<eng-data  t="1.5659" f="3015.86" m="801.147" cg="519.5"/>
+<eng-data  t="1.8159" f="2846.44" m="297.279" cg="519.5"/>
+<eng-data  t="1.8639" f="2744.09" m="205.022" cg="519.5"/>
+<eng-data  t="1.8979" f="2565.3" m="142.959" cg="519.5"/>
+<eng-data  t="1.9079" f="2455.92" m="125.696" cg="519.5"/>
+<eng-data  t="1.9599" f="1357.39" m="57.5225" cg="519.5"/>
+<eng-data  t="1.9879" f="857.187" m="36.2039" cg="519.5"/>
+<eng-data  t="2.0059" f="603.283" m="27.1659" cg="519.5"/>
+<eng-data  t="2.0259" f="417.576" m="20.1464" cg="519.5"/>
+<eng-data  t="2.0439" f="303.914" m="15.6815" cg="519.5"/>
+<eng-data  t="2.0899" f="150.616" m="8.49318" cg="519.5"/>
+<eng-data  t="2.1419" f="73.2216" m="4.49148" cg="519.5"/>
+<eng-data  t="2.2259" f="25.6056" m="1.63741" cg="519.5"/>
+<eng-data  t="2.4119" f="0." m="0." cg="519.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

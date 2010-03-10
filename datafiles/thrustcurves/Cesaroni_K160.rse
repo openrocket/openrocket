@@ -1,0 +1,30 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="K160-CL" Type="unspecified" dia="54." len="404." initWt="1472."
+propWt="848." delays="6" auto-calc-mass="1" auto-calc-cg="1" avgThrust="157.444"
+peakThrust="272.248" throatDia="0." exitDia="0." Itot="1523.9" burn-time="9.68"
+massFrac="57.61" Isp="183.25" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro54 4G 1526 K160-CL 6</comments>
+    <data>
+      <eng-data  t="0." f="0." m="848." cg="202."/>
+      <eng-data  t="0.027" f="160.187" m="846.797" cg="202."/>
+      <eng-data  t="0.08" f="242.037" m="840.865" cg="202."/>
+      <eng-data  t="0.321" f="260.656" m="807.157" cg="202."/>
+      <eng-data  t="0.455" f="259.602" m="787.76" cg="202."/>
+      <eng-data  t="0.957" f="270.492" m="713.72" cg="202."/>
+      <eng-data  t="1.593" f="272.248" m="617.679" cg="202."/>
+      <eng-data  t="2.102" f="265.222" m="541.562" cg="202."/>
+      <eng-data  t="2.564" f="254.333" m="474.776" cg="202."/>
+      <eng-data  t="2.925" f="239.578" m="425.166" cg="202."/>
+      <eng-data  t="3.956" f="190.047" m="301.924" cg="202."/>
+      <eng-data  t="5.301" f="138.759" m="178.877" cg="202."/>
+      <eng-data  t="7.617" f="67.799" m="45.7728" cg="202."/>
+      <eng-data  t="9.19" f="25.644" m="4.87637" cg="202."/>
+      <eng-data  t="9.572" f="15.808" m="0.470621" cg="202."/>
+      <eng-data  t="9.679" f="0." m="0." cg="202."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

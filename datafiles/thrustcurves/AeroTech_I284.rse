@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="180.85" Itot="554.236" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="307.909" burn-time="1.8" cgDiv="10" cgFix="1" cgStep="-1." code="I284W" delays="6,10,14" dia="38." exitDia="0." initWt="567.8" len="297." mDiv="10" mFix="1" mStep="-1." massFrac="55.04" mfg="Aerotech" peakThrust="487.77" propWt="312.5" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="148.5" f="0." m="312.5" t="0."/>
+<eng-data cg="148.5" f="487.77" m="312.5" t="0."/>
+<eng-data cg="148.5" f="408.77" m="287.225" t="0.1"/>
+<eng-data cg="148.5" f="408.77" m="264.177" t="0.2"/>
+<eng-data cg="148.5" f="430.74" m="216.842" t="0.4"/>
+<eng-data cg="148.5" f="413.18" m="169.258" t="0.6"/>
+<eng-data cg="148.5" f="307.67" m="67.6475" t="1.1"/>
+<eng-data cg="148.5" f="250.51" m="36.1751" t="1.3"/>
+<eng-data cg="148.5" f="193.35" m="11.1485" t="1.5"/>
+<eng-data cg="148.5" f="79.08" m="3.46818" t="1.6"/>
+<eng-data cg="148.5" f="21.97" m="0.619377" t="1.7"/>
+<eng-data cg="148.5" f="0." m="0." t="1.8"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

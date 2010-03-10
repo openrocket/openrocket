@@ -1,0 +1,51 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="179.39" Itot="1401.55" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="526.897" burn-time="2.66" cgDiv="10" cgFix="1" cgStep="-1." code="K530GG" delays="1000" dia="54." exitDia="0." initWt="1616." len="403." mDiv="10" mFix="1" mStep="-1." massFrac="49.3" mfg="Animal Motor Works" peakThrust="657.23" propWt="796.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments><![CDATA[Animal Motor Works 54-1400
+AMW K530GG RASP.ENG file made from NAR data
+File produced Feb 25, 2003
+This file my be used or given away. All I ask is that this header
+is maintained to give credit to NAR S&T. Thank you, Jack Kane
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+]]></comments>
+<data>
+<eng-data cg="201.5" f="0." m="796.7" t="0."/>
+<eng-data cg="201.5" f="129.764" m="796.221" t="0.013"/>
+<eng-data cg="201.5" f="171.852" m="792.706" t="0.054"/>
+<eng-data cg="201.5" f="284.122" m="787.263" t="0.096"/>
+<eng-data cg="201.5" f="392.892" m="779.181" t="0.138"/>
+<eng-data cg="201.5" f="455.975" m="771.219" t="0.171"/>
+<eng-data cg="201.5" f="501.662" m="758.699" t="0.217"/>
+<eng-data cg="201.5" f="498.063" m="752.732" t="0.238"/>
+<eng-data cg="201.5" f="508.66" m="727.552" t="0.326"/>
+<eng-data cg="201.5" f="564.745" m="661.654" t="0.542"/>
+<eng-data cg="201.5" f="613.831" m="590.303" t="0.755"/>
+<eng-data cg="201.5" f="645.423" m="499.037" t="1.01"/>
+<eng-data cg="201.5" f="657.23" m="439.798" t="1.17"/>
+<eng-data cg="201.5" f="648.922" m="401.561" t="1.273"/>
+<eng-data cg="201.5" f="638.425" m="314.844" t="1.51"/>
+<eng-data cg="201.5" f="634.925" m="262.005" t="1.656"/>
+<eng-data cg="201.5" f="606.833" m="245.77" t="1.702"/>
+<eng-data cg="201.5" f="606.833" m="210.93" t="1.803"/>
+<eng-data cg="201.5" f="585.839" m="192.625" t="1.857"/>
+<eng-data cg="201.5" f="589.338" m="166.238" t="1.936"/>
+<eng-data cg="201.5" f="575.242" m="153.66" t="1.974"/>
+<eng-data cg="201.5" f="589.338" m="140.089" t="2.015"/>
+<eng-data cg="201.5" f="564.745" m="131.889" t="2.04"/>
+<eng-data cg="201.5" f="536.652" m="103.089" t="2.132"/>
+<eng-data cg="201.5" f="540.251" m="80.1328" t="2.207"/>
+<eng-data cg="201.5" f="522.656" m="54.7562" t="2.291"/>
+<eng-data cg="201.5" f="487.566" m="35.8058" t="2.357"/>
+<eng-data cg="201.5" f="375.297" m="20.3554" t="2.42"/>
+<eng-data cg="201.5" f="242.033" m="10.1788" t="2.478"/>
+<eng-data cg="201.5" f="140.361" m="4.63588" t="2.529"/>
+<eng-data cg="201.5" f="66.651" m="1.45866" t="2.583"/>
+<eng-data cg="201.5" f="0." m="0." t="2.66"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

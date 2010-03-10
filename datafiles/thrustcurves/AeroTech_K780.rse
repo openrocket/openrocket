@@ -1,0 +1,38 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="189.9" Itot="2361.06" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="770.832" burn-time="3.06" cgDiv="10" cgFix="1" cgStep="-1." code="K780R" delays="1000" dia="75." exitDia="0." initWt="2934.4" len="395." mDiv="10" mFix="1" mStep="-1." massFrac="43.21" mfg="Aerotech" peakThrust="953.578" propWt="1267.84" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AeroTech K780R
+provided by ThrustCurve.org (www.thrustcurve.org)
+</comments>
+<data>
+<eng-data cg="197.5" f="0." m="1267.84" t="0."/>
+<eng-data cg="197.5" f="383.29" m="1262.39" t="0.053"/>
+<eng-data cg="197.5" f="718.241" m="1226.9" t="0.173"/>
+<eng-data cg="197.5" f="849.343" m="1176.81" t="0.292"/>
+<eng-data cg="197.5" f="885.503" m="1120.45" t="0.413"/>
+<eng-data cg="197.5" f="903.243" m="1062.82" t="0.533"/>
+<eng-data cg="197.5" f="924.403" m="1004.43" t="0.652"/>
+<eng-data cg="197.5" f="938.825" m="944.395" t="0.772"/>
+<eng-data cg="197.5" f="938.623" m="883.906" t="0.892"/>
+<eng-data cg="197.5" f="947.13" m="822.643" t="1.013"/>
+<eng-data cg="197.5" f="953.578" m="761.404" t="1.133"/>
+<eng-data cg="197.5" f="944.001" m="700.267" t="1.253"/>
+<eng-data cg="197.5" f="935.448" m="639.713" t="1.373"/>
+<eng-data cg="197.5" f="929.447" m="578.627" t="1.495"/>
+<eng-data cg="197.5" f="920.379" m="518.035" t="1.617"/>
+<eng-data cg="197.5" f="897.293" m="459.471" t="1.737"/>
+<eng-data cg="197.5" f="888.917" m="401.922" t="1.857"/>
+<eng-data cg="197.5" f="861.127" m="345.538" t="1.977"/>
+<eng-data cg="197.5" f="840.971" m="290.241" t="2.098"/>
+<eng-data cg="197.5" f="812.36" m="237.417" t="2.217"/>
+<eng-data cg="197.5" f="779.614" m="186.125" t="2.337"/>
+<eng-data cg="197.5" f="747.866" m="136.912" t="2.457"/>
+<eng-data cg="197.5" f="726.819" m="89.0033" t="2.578"/>
+<eng-data cg="197.5" f="729.258" m="42.4812" t="2.697"/>
+<eng-data cg="197.5" f="279.891" m="9.96767" t="2.817"/>
+<eng-data cg="197.5" f="10.969" m="0.362243" t="2.94"/>
+<eng-data cg="197.5" f="0." m="0." t="3.063"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

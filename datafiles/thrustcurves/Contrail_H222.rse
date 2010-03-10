@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="744.73" Itot="160.673" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="229.532" burn-time="0.7" cgDiv="10" cgFix="1" cgStep="-1." code="H222" delays="1000" dia="38." exitDia="0." initWt="520." len="406.4" mDiv="10" mFix="1" mStep="-1." massFrac="4.23" mfg="Contrail" peakThrust="684.342" propWt="22." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>H-222-HP Reload
+38mm/16 inch Case Used
+Medium Nozzle Used For Reload
+140cc of Nitrous Oxide Used
+</comments>
+<data>
+<eng-data cg="203.2" f="0." m="22." t="0."/>
+<eng-data cg="203.2" f="684.342" m="22." t="0."/>
+<eng-data cg="203.2" f="656.968" m="19.2266" t="0.0302013"/>
+<eng-data cg="203.2" f="574.847" m="17.34" t="0.0525727"/>
+<eng-data cg="203.2" f="349.014" m="16.9863" t="0.0581655"/>
+<eng-data cg="203.2" f="260.05" m="4.95265" t="0.346756"/>
+<eng-data cg="203.2" f="191.616" m="4.39924" t="0.364653"/>
+<eng-data cg="203.2" f="0." m="0." t="0.7"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

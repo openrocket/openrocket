@@ -1,0 +1,46 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="RR" code="F45R" Type="single-use" dia="29." len="93." initWt="93."
+propWt="30." delays="5,8,1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="43.266" peakThrust="62.422" throatDia="0." exitDia="0." Itot="61.438"
+burn-time="1.42" massFrac="32.26" Isp="208.83" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>ROADRUNNER F45R RASP ENG FILE</comments>
+    <data>
+      <eng-data  t="0." f="0." m="30." cg="46.5"/>
+      <eng-data  t="0." f="4.1971" m="30." cg="46.5"/>
+      <eng-data  t="0.019" f="45.5" m="29.7695" cg="46.5"/>
+      <eng-data  t="0.038" f="53.07" m="29.3122" cg="46.5"/>
+      <eng-data  t="0.057" f="52.402" m="28.823" cg="46.5"/>
+      <eng-data  t="0.095" f="54.741" m="27.8289" cg="46.5"/>
+      <eng-data  t="0.113" f="55.298" m="27.3453" cg="46.5"/>
+      <eng-data  t="0.132" f="56.744" m="26.8256" cg="46.5"/>
+      <eng-data  t="0.151" f="57.19" m="26.2971" cg="46.5"/>
+      <eng-data  t="0.227" f="60.419" m="24.1148" cg="46.5"/>
+      <eng-data  t="0.284" f="61.754" m="22.4146" cg="46.5"/>
+      <eng-data  t="0.416" f="62.422" m="18.4127" cg="46.5"/>
+      <eng-data  t="0.491" f="60.753" m="16.1573" cg="46.5"/>
+      <eng-data  t="0.51" f="61.42" m="15.5905" cg="46.5"/>
+      <eng-data  t="0.567" f="60.307" m="13.8965" cg="46.5"/>
+      <eng-data  t="0.624" f="58.414" m="12.2444" cg="46.5"/>
+      <eng-data  t="0.662" f="58.08" m="11.1636" cg="46.5"/>
+      <eng-data  t="0.737" f="55.298" m="9.08752" cg="46.5"/>
+      <eng-data  t="0.775" f="52.959" m="8.08316" cg="46.5"/>
+      <eng-data  t="0.813" f="51.513" m="7.11391" cg="46.5"/>
+      <eng-data  t="0.888" f="46.169" m="5.32525" cg="46.5"/>
+      <eng-data  t="0.983" f="34.701" m="3.44955" cg="46.5"/>
+      <eng-data  t="1.002" f="31.807" m="3.14104" cg="46.5"/>
+      <eng-data  t="1.096" f="23.902" m="1.86252" cg="46.5"/>
+      <eng-data  t="1.134" f="21.453" m="1.44174" cg="46.5"/>
+      <eng-data  t="1.21" f="14.106" m="0.781934" cg="46.5"/>
+      <eng-data  t="1.229" f="12.992" m="0.656232" cg="46.5"/>
+      <eng-data  t="1.285" f="8.4282" m="0.36337" cg="46.5"/>
+      <eng-data  t="1.342" f="5.5328" m="0.169083" cg="46.5"/>
+      <eng-data  t="1.361" f="5.4218" m="0.118267" cg="46.5"/>
+      <eng-data  t="1.418" f="2.9723" m="0.00145136" cg="46.5"/>
+      <eng-data  t="1.42" f="0." m="0." cg="46.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

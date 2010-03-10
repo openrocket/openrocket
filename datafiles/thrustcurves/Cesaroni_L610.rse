@@ -1,0 +1,37 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="L610" Type="reloadable" dia="98."
+len="427." initWt="4840." propWt="2415." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="595.595" peakThrust="929.678" throatDia="0."
+exitDia="0." Itot="4842.19" burn-time="8.13" massFrac="49.9" Isp="204.46"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Data Entered by Tim Van Milligan based on RMS case weight.
+Based on CAR certification data
+This data has not been approved by Cesaroni or Canadian Association of Rocketry.
+</comments>
+<data>
+<eng-data  t="0." f="0." m="2415." cg="213.5"/>
+<eng-data  t="0.155" f="929.678" m="2379.07" cg="213.5"/>
+<eng-data  t="0.247" f="913.867" m="2336.77" cg="213.5"/>
+<eng-data  t="0.355" f="891.846" m="2288.14" cg="213.5"/>
+<eng-data  t="0.433" f="880.836" m="2253.66" cg="213.5"/>
+<eng-data  t="0.618" f="897.352" m="2171.62" cg="213.5"/>
+<eng-data  t="1.005" f="913.867" m="1996.83" cg="213.5"/>
+<eng-data  t="1.87" f="902.857" m="1604.95" cg="213.5"/>
+<eng-data  t="2.179" f="880.836" m="1467.51" cg="213.5"/>
+<eng-data  t="2.411" f="875.331" m="1365.91" cg="213.5"/>
+<eng-data  t="3.044" f="809.268" m="1099.99" cg="213.5"/>
+<eng-data  t="3.988" f="677.143" m="750.081" cg="213.5"/>
+<eng-data  t="4.853" f="550.523" m="485.267" cg="213.5"/>
+<eng-data  t="5.502" f="500.975" m="315.091" cg="213.5"/>
+<eng-data  t="5.889" f="473.449" m="221.052" cg="213.5"/>
+<eng-data  t="6.306" f="456.934" m="124.304" cg="213.5"/>
+<eng-data  t="6.507" f="401.881" m="81.2573" cg="213.5"/>
+<eng-data  t="6.94" f="110.105" m="25.9743" cg="213.5"/>
+<eng-data  t="7.172" f="66.063" m="15.7823" cg="213.5"/>
+<eng-data  t="8.13" f="0." m="0." cg="213.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

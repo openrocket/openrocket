@@ -1,0 +1,17 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="208.02" Itot="50.998" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="50.998" burn-time="1." cgDiv="10" cgFix="1" cgStep="-1." code="F62T" delays="6,10,14" dia="29." exitDia="0." initWt="109." len="99." mDiv="10" mFix="1" mStep="-1." massFrac="22.94" mfg="Aerotech" peakThrust="59.51" propWt="25." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="49.5" f="0." m="25." t="0."/>
+<eng-data cg="49.5" f="47.82" m="25." t="0."/>
+<eng-data cg="49.5" f="59.51" m="19.7386" t="0.2"/>
+<eng-data cg="49.5" f="59.51" m="10.9868" t="0.5"/>
+<eng-data cg="49.5" f="55.56" m="8.16642" t="0.6"/>
+<eng-data cg="49.5" f="51.55" m="5.54109" t="0.7"/>
+<eng-data cg="49.5" f="43.63" m="3.20818" t="0.8"/>
+<eng-data cg="49.5" f="43.63" m="1.06939" t="0.9"/>
+<eng-data cg="49.5" f="0." m="0." t="1."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

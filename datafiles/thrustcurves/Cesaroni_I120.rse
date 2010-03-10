@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="I120-IM" Type="unspecified" dia="54." len="143." initWt="623.2"
+propWt="300." delays="15,14,13,12,11,10,9,8,7,6,5" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="117.259" peakThrust="148.493" throatDia="0."
+exitDia="0." Itot="504.215" burn-time="4.3" massFrac="48.14" Isp="171.39"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro54-1G 502I120-IM 15A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="300." cg="71.5"/>
+      <eng-data  t="0.035" f="13.687" m="299.857" cg="71.5"/>
+      <eng-data  t="0.047" f="87.183" m="299.497" cg="71.5"/>
+      <eng-data  t="0.067" f="148.493" m="298.095" cg="71.5"/>
+      <eng-data  t="0.096" f="129.744" m="295.695" cg="71.5"/>
+      <eng-data  t="0.212" f="141.931" m="286.319" cg="71.5"/>
+      <eng-data  t="0.385" f="142.118" m="271.701" cg="71.5"/>
+      <eng-data  t="0.671" f="141.743" m="247.549" cg="71.5"/>
+      <eng-data  t="1.032" f="139.681" m="217.325" cg="71.5"/>
+      <eng-data  t="1.545" f="136.868" m="175.12" cg="71.5"/>
+      <eng-data  t="2.15" f="127.869" m="127.472" cg="71.5"/>
+      <eng-data  t="3.757" f="92.433" m="22.1526" cg="71.5"/>
+      <eng-data  t="4.031" f="89.058" m="7.35878" cg="71.5"/>
+      <eng-data  t="4.122" f="67.122" m="3.13071" cg="71.5"/>
+      <eng-data  t="4.216" f="23.436" m="0.59832" cg="71.5"/>
+      <eng-data  t="4.283" f="5.25" m="0.0265512" cg="71.5"/>
+      <eng-data  t="4.3" f="0." m="0." cg="71.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

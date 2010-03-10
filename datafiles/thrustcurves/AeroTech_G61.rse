@@ -1,0 +1,29 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="184.29" Itot="110.787" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="54.307" burn-time="2.04" cgDiv="10" cgFix="1" cgStep="-1." code="G61W" delays="6,10,14" dia="38." exitDia="0." initWt="190.4" len="106.7" mDiv="10" mFix="1" mStep="-1." massFrac="32.2" mfg="Aerotech" peakThrust="81.037" propWt="61.3" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>G61W Data Entered by Tim Van Milligan
+For RockSim: www.RockSim.com
+Based on TRA Certification Test date: June 13, 2004
+Not Approved by TRA or Aerotech
+</comments>
+<data>
+<eng-data cg="53.35" f="0." m="61.3" t="0."/>
+<eng-data cg="53.35" f="3.083" m="61.2932" t="0.008"/>
+<eng-data cg="53.35" f="71.348" m="60.3459" t="0.054"/>
+<eng-data cg="53.35" f="72.229" m="58.9557" t="0.089"/>
+<eng-data cg="53.35" f="75.312" m="55.4861" t="0.174"/>
+<eng-data cg="53.35" f="78.394" m="53.7001" t="0.216"/>
+<eng-data cg="53.35" f="79.716" m="52.3441" t="0.247"/>
+<eng-data cg="53.35" f="81.037" m="41.0034" t="0.502"/>
+<eng-data cg="53.35" f="77.073" m="30.024" t="0.753"/>
+<eng-data cg="53.35" f="72.669" m="19.7501" t="1.001"/>
+<eng-data cg="53.35" f="66.944" m="14.6902" t="1.132"/>
+<eng-data cg="53.35" f="55.933" m="10.6108" t="1.252"/>
+<eng-data cg="53.35" f="38.316" m="4.06608" t="1.503"/>
+<eng-data cg="53.35" f="10.13" m="0.701938" t="1.754"/>
+<eng-data cg="53.35" f="3.523" m="0.13158" t="1.905"/>
+<eng-data cg="53.35" f="0." m="0." t="2.04"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

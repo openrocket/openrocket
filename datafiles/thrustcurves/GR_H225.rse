@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Rocket_Motors" code="H225BL" Type="reloadable" dia="38." len="248."
+initWt="475." propWt="182." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="241.149" peakThrust="305.169" throatDia="0." exitDia="0."
+Itot="313.493" burn-time="1.3" massFrac="38.32" Isp="175.65" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="182." cg="124."/>
+      <eng-data  t="0.0150659" f="113.792" m="181.502" cg="124."/>
+      <eng-data  t="0.0326428" f="193.101" m="179.937" cg="124."/>
+      <eng-data  t="0.0489642" f="172.412" m="178.205" cg="124."/>
+      <eng-data  t="0.166981" f="256.893" m="163.498" cg="124."/>
+      <eng-data  t="0.310107" f="296.548" m="140.504" cg="124."/>
+      <eng-data  t="0.512241" f="303.445" m="105.3" cg="124."/>
+      <eng-data  t="0.617702" f="305.169" m="86.6684" cg="124."/>
+      <eng-data  t="0.838669" f="298.272" m="47.9627" cg="124."/>
+      <eng-data  t="0.898933" f="291.376" m="37.6479" cg="124."/>
+      <eng-data  t="0.98" f="266.893" m="24.5108" cg="124."/>
+      <eng-data  t="1.02" f="244.652" m="18.5712" cg="124."/>
+      <eng-data  t="1.05" f="222.411" m="14.5038" cg="124."/>
+      <eng-data  t="1.26303" f="10.3447" m="0.111027" cg="124."/>
+      <eng-data  t="1.3" f="0." m="0." cg="124."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,35 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="M1450-Classic" Type="reloadable" dia="98."
+len="702." initWt="8578." propWt="4830." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1449.16" peakThrust="2416." throatDia="0."
+exitDia="0." Itot="9955.75" burn-time="6.87" massFrac="56.31" Isp="210.19"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="4830." cg="351."/>
+<eng-data  t="0.01" f="60." m="4829.85" cg="351."/>
+<eng-data  t="0.06" f="524." m="4822.77" cg="351."/>
+<eng-data  t="0.1" f="2164." m="4796.69" cg="351."/>
+<eng-data  t="0.15" f="2416." m="4741.14" cg="351."/>
+<eng-data  t="0.25" f="2162." m="4630.09" cg="351."/>
+<eng-data  t="0.5" f="2037." m="4375.45" cg="351."/>
+<eng-data  t="0.75" f="2022." m="4129.3" cg="351."/>
+<eng-data  t="1." f="2009." m="3884.84" cg="351."/>
+<eng-data  t="1.5" f="2006." m="3397.88" cg="351."/>
+<eng-data  t="2." f="1968." m="2915.88" cg="351."/>
+<eng-data  t="2.5" f="1895." m="2447.35" cg="351."/>
+<eng-data  t="3." f="1770." m="2002.84" cg="351."/>
+<eng-data  t="3.5" f="1673." m="1585.25" cg="351."/>
+<eng-data  t="4." f="1517." m="1198.34" cg="351."/>
+<eng-data  t="4.5" f="1337." m="852.192" cg="351."/>
+<eng-data  t="5." f="1166." m="548.611" cg="351."/>
+<eng-data  t="5.5" f="954." m="291.483" cg="351."/>
+<eng-data  t="5.8" f="687." m="172.065" cg="351."/>
+<eng-data  t="6.2" f="360." m="70.4748" cg="351."/>
+<eng-data  t="6.86" f="79." m="0.191633" cg="351."/>
+<eng-data  t="6.87" f="0." m="0." cg="351."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

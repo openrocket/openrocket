@@ -1,0 +1,13 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="199." Itot="200.23" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="70.01" burn-time="2.86" cgDiv="10" cgFix="1" cgStep="-1." code="H70W" delays="6,10,14" dia="29." exitDia="0." initWt="172." len="197." mDiv="10" mFix="1" mStep="-1." massFrac="59.65" mfg="Aerotech" peakThrust="107." propWt="102.6" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="98.5" f="0." m="102.6" t="0."/>
+<eng-data cg="98.5" f="107." m="99.8586" t="0.1"/>
+<eng-data cg="98.5" f="75." m="57.8922" t="1."/>
+<eng-data cg="98.5" f="61." m="5.62627" t="2.5"/>
+<eng-data cg="98.5" f="0." m="0." t="2.86"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

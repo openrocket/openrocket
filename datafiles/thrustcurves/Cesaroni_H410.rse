@@ -1,0 +1,32 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="H410-VM" Type="unspecified" dia="29." len="187." initWt="182.5"
+propWt="84.5" delays="14,11,9,7,5,3" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="402.761" peakThrust="517.452" throatDia="0." exitDia="0."
+Itot="166.743" burn-time="0.41" massFrac="46.3" Isp="201.22" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro29-3G 168H410-VM 14A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="84.5" cg="93.5"/>
+      <eng-data  t="0.004" f="152.778" m="84.3452" cg="93.5"/>
+      <eng-data  t="0.009" f="341.425" m="83.719" cg="93.5"/>
+      <eng-data  t="0.013" f="367.995" m="83." cg="93.5"/>
+      <eng-data  t="0.019" f="367.995" m="81.8811" cg="93.5"/>
+      <eng-data  t="0.046" f="385.93" m="76.7232" cg="93.5"/>
+      <eng-data  t="0.074" f="416.486" m="71.0303" cg="93.5"/>
+      <eng-data  t="0.143" f="471.618" m="55.5031" cg="93.5"/>
+      <eng-data  t="0.21" f="517.452" m="38.7119" cg="93.5"/>
+      <eng-data  t="0.253" f="500.845" m="27.6171" cg="93.5"/>
+      <eng-data  t="0.287" f="460.326" m="19.3365" cg="93.5"/>
+      <eng-data  t="0.338" f="383.273" m="8.43506" cg="93.5"/>
+      <eng-data  t="0.357" f="343.418" m="4.93655" cg="93.5"/>
+      <eng-data  t="0.361" f="293.599" m="4.29091" cg="93.5"/>
+      <eng-data  t="0.369" f="263.043" m="3.16256" cg="93.5"/>
+      <eng-data  t="0.378" f="253.744" m="1.98405" cg="93.5"/>
+      <eng-data  t="0.4" f="62.44" m="0.221498" cg="93.5"/>
+      <eng-data  t="0.414" f="0." m="0." cg="93.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

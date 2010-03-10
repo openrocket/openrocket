@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="I216-CL(I)" Type="reloadable" dia="38." len="367." initWt="601."
+propWt="312.5" delays="5,7,9,11,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="205.198" peakThrust="345." throatDia="0." exitDia="0." Itot="636.114"
+burn-time="3.1" massFrac="52." Isp="207.57" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>This motor is a standard Pro38-5G with a different nozzle to keep total impulse in 'I' range</comments>
+    <data>
+      <eng-data  t="0." f="0." m="312.5" cg="183.5"/>
+      <eng-data  t="0.017" f="35." m="312.354" cg="183.5"/>
+      <eng-data  t="0.03" f="300." m="311.284" cg="183.5"/>
+      <eng-data  t="0.035" f="345." m="310.492" cg="183.5"/>
+      <eng-data  t="0.05" f="325." m="308.023" cg="183.5"/>
+      <eng-data  t="0.07" f="275." m="305.076" cg="183.5"/>
+      <eng-data  t="0.14" f="292." m="295.327" cg="183.5"/>
+      <eng-data  t="0.26" f="296." m="277.995" cg="183.5"/>
+      <eng-data  t="0.8" f="280." m="201.593" cg="183.5"/>
+      <eng-data  t="1.1" f="280.4" m="160.298" cg="183.5"/>
+      <eng-data  t="1.62" f="255." m="91.9118" cg="183.5"/>
+      <eng-data  t="1.8" f="226." m="70.645" cg="183.5"/>
+      <eng-data  t="2.105" f="210." m="37.9809" cg="183.5"/>
+      <eng-data  t="2.2" f="195." m="28.5302" cg="183.5"/>
+      <eng-data  t="2.45" f="80." m="11.643" cg="183.5"/>
+      <eng-data  t="2.75" f="36." m="3.09496" cg="183.5"/>
+      <eng-data  t="3.1" f="0." m="0." cg="183.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

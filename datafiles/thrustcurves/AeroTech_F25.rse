@@ -1,0 +1,23 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="185.98" Itot="70.767" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="26.307" burn-time="2.69" cgDiv="10" cgFix="1" cgStep="-1." code="F25" delays="4,6,9" dia="29." exitDia="0." initWt="97.2" len="98." mDiv="10" mFix="1" mStep="-1." massFrac="39.92" mfg="Aerotech" peakThrust="57.631" propWt="38.8" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>F25 Motor Thrust Curve created by Tim Van Milligan
+for RockSim Users - www.rocksim.com
+file produced March 2, 2005
+Based on data supplied by Aerotech for the newer molded case F25.
+</comments>
+<data>
+<eng-data cg="49." f="0." m="38.8" t="0."/>
+<eng-data cg="49." f="57.631" m="38.1838" t="0.039"/>
+<eng-data cg="49." f="53.491" m="33.6753" t="0.187"/>
+<eng-data cg="49." f="51.239" m="29.2252" t="0.342"/>
+<eng-data cg="49." f="47.86" m="24.9328" t="0.5"/>
+<eng-data cg="49." f="33.806" m="13.7388" t="1."/>
+<eng-data cg="49." f="22.94" m="5.96068" t="1.5"/>
+<eng-data cg="49." f="10.135" m="1.42709" t="2."/>
+<eng-data cg="49." f="4.504" m="0.596372" t="2.207"/>
+<eng-data cg="49." f="0." m="0." t="2.69"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

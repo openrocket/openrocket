@@ -1,0 +1,43 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="213.76" Itot="1848.03" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="449.643" burn-time="4.11" cgDiv="10" cgFix="1" cgStep="-1." code="K450BB" delays="1000" dia="75." exitDia="0." initWt="2834.9" len="302." mDiv="10" mFix="1" mStep="-1." massFrac="31.1" mfg="Animal Motor Works" peakThrust="660.62" propWt="881.6" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments><![CDATA[AMW K450BB RASP.ENG file made from NAR published data
+File produced Aug 19, 2003
+This file my be used or given away. All I ask is that this header
+is maintained to give credit to NAR S&T. Thank you, Jack Kane.
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+]]></comments>
+<data>
+<eng-data cg="151." f="0." m="881.6" t="0."/>
+<eng-data cg="151." f="78.903" m="881.035" t="0.03"/>
+<eng-data cg="151." f="227.9" m="879.938" t="0.045"/>
+<eng-data cg="151." f="449.955" m="876.866" t="0.064"/>
+<eng-data cg="151." f="508.417" m="875.723" t="0.069"/>
+<eng-data cg="151." f="555.187" m="869.38" t="0.094"/>
+<eng-data cg="151." f="563.956" m="854.165" t="0.151"/>
+<eng-data cg="151." f="625.442" m="794.304" t="0.362"/>
+<eng-data cg="151." f="651.85" m="733.371" t="0.562"/>
+<eng-data cg="151." f="660.62" m="651.038" t="0.825"/>
+<eng-data cg="151." f="652.254" m="554.274" t="1.134"/>
+<eng-data cg="151." f="626.147" m="457.001" t="1.453"/>
+<eng-data cg="151." f="594.296" m="358.026" t="1.793"/>
+<eng-data cg="151." f="538.958" m="271.527" t="2.113"/>
+<eng-data cg="151." f="469.106" m="188.573" t="2.458"/>
+<eng-data cg="151." f="384.538" m="119.344" t="2.798"/>
+<eng-data cg="151." f="276.686" m="61.4618" t="3.165"/>
+<eng-data cg="151." f="279.609" m="56.6849" t="3.201"/>
+<eng-data cg="151." f="232.94" m="41.5253" t="3.325"/>
+<eng-data cg="151." f="171.757" m="23.6673" t="3.51"/>
+<eng-data cg="151." f="107.65" m="8.87205" t="3.732"/>
+<eng-data cg="151." f="58.018" m="3.77452" t="3.861"/>
+<eng-data cg="151." f="40.55" m="1.47046" t="3.959"/>
+<eng-data cg="151." f="20.149" m="0.355645" t="4.036"/>
+<eng-data cg="151." f="0." m="0." t="4.11"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="166.59" Itot="414.966" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="276.644" burn-time="1.5" cgDiv="10" cgFix="1" cgStep="-1." code="I285R" delays="10,14,1000" dia="38." exitDia="0." initWt="498." len="250." mDiv="10" mFix="1" mStep="-1." massFrac="51." mfg="Aerotech" peakThrust="373.97" propWt="254." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="125." f="0." m="254." t="0."/>
+<eng-data cg="125." f="171.41" m="252.426" t="0.03"/>
+<eng-data cg="125." f="325.57" m="243.3" t="0.09"/>
+<eng-data cg="125." f="341.7" m="231.047" t="0.15"/>
+<eng-data cg="125." f="358.92" m="218.182" t="0.21"/>
+<eng-data cg="125." f="373.71" m="204.728" t="0.27"/>
+<eng-data cg="125." f="373.97" m="190.999" t="0.33"/>
+<eng-data cg="125." f="368.44" m="177.366" t="0.39"/>
+<eng-data cg="125." f="367.5" m="163.852" t="0.45"/>
+<eng-data cg="125." f="361.9" m="150.458" t="0.51"/>
+<eng-data cg="125." f="351.93" m="137.35" t="0.57"/>
+<eng-data cg="125." f="346.11" m="124.532" t="0.63"/>
+<eng-data cg="125." f="340.99" m="111.915" t="0.69"/>
+<eng-data cg="125." f="329.38" m="99.6047" t="0.75"/>
+<eng-data cg="125." f="321.63" m="87.6502" t="0.81"/>
+<eng-data cg="125." f="310.86" m="76.0358" t="0.87"/>
+<eng-data cg="125." f="295.95" m="64.893" t="0.93"/>
+<eng-data cg="125." f="283.7" m="54.2489" t="0.99"/>
+<eng-data cg="125." f="269.65" m="44.0877" t="1.05"/>
+<eng-data cg="125." f="253.42" m="34.4826" t="1.11"/>
+<eng-data cg="125." f="240.22" m="25.4179" t="1.17"/>
+<eng-data cg="125." f="224.12" m="16.8913" t="1.23"/>
+<eng-data cg="125." f="204.12" m="9.02751" t="1.29"/>
+<eng-data cg="125." f="118.73" m="3.09903" t="1.35"/>
+<eng-data cg="125." f="23.48" m="0.487628" t="1.41"/>
+<eng-data cg="125." f="2.05" m="0.018822" t="1.47"/>
+<eng-data cg="125." f="0." m="0." t="1.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

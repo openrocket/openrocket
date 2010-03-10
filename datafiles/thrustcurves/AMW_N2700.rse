@@ -1,0 +1,33 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="241.94" Itot="11350.1" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="2728.39" burn-time="4.16" cgDiv="10" cgFix="1" cgStep="-1." code="N2700BB" delays="1000" dia="98." exitDia="0." initWt="9930.8" len="870." mDiv="10" mFix="1" mStep="-1." massFrac="48.17" mfg="Animal Motor Works" peakThrust="3519.92" propWt="4783.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Animal Motor Works 98-11000</comments>
+<data>
+<eng-data cg="435." f="0." m="4783.7" t="0."/>
+<eng-data cg="435." f="2229.53" m="4771.01" t="0.027"/>
+<eng-data cg="435." f="2476.18" m="4729.37" t="0.069"/>
+<eng-data cg="435." f="2539.74" m="4684.97" t="0.111"/>
+<eng-data cg="435." f="2723.21" m="4408.81" t="0.36"/>
+<eng-data cg="435." f="2863.83" m="4212.19" t="0.527"/>
+<eng-data cg="435." f="3016.48" m="3954.44" t="0.735"/>
+<eng-data cg="435." f="3141.25" m="3684.53" t="0.943"/>
+<eng-data cg="435." f="3241.72" m="3404.75" t="1.151"/>
+<eng-data cg="435." f="3335.56" m="3116.45" t="1.359"/>
+<eng-data cg="435." f="3519.92" m="2815.95" t="1.567"/>
+<eng-data cg="435." f="3425.88" m="2511.5" t="1.775"/>
+<eng-data cg="435." f="3420.56" m="2211.4" t="1.983"/>
+<eng-data cg="435." f="3356.08" m="1914.37" t="2.191"/>
+<eng-data cg="435." f="3270.48" m="1623.91" t="2.399"/>
+<eng-data cg="435." f="3182.6" m="1341.05" t="2.607"/>
+<eng-data cg="435." f="3098.31" m="1065.74" t="2.815"/>
+<eng-data cg="435." f="3002.95" m="798.309" t="3.023"/>
+<eng-data cg="435." f="2888.73" m="540.062" t="3.231"/>
+<eng-data cg="435." f="2266.61" m="314.09" t="3.439"/>
+<eng-data cg="435." f="1498.26" m="149.066" t="3.647"/>
+<eng-data cg="435." f="780.04" m="49.202" t="3.855"/>
+<eng-data cg="435." f="233.545" m="4.77393" t="4.063"/>
+<eng-data cg="435." f="0." m="0." t="4.16"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

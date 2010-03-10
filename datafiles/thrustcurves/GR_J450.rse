@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="173.88" Itot="1122.02" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="436.584" burn-time="2.57" cgDiv="10" cgFix="1" cgStep="-1." code="J450BL" delays="1000" dia="54." exitDia="0." initWt="1454.54" len="430." mDiv="10" mFix="1" mStep="-1." massFrac="45.24" mfg="Gorilla Motors" peakThrust="601." propWt="658." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+  <eng-data cg="215." f="0." m="658." t="0."/>
+  <eng-data cg="215." f="124.6" m="655.077" t="0.08"/>
+  <eng-data cg="215." f="333.75" m="640.293" t="0.19"/>
+  <eng-data cg="215." f="413.85" m="616.18" t="0.3"/>
+  <eng-data cg="215." f="556.25" m="508.088" t="0.68"/>
+  <eng-data cg="215." f="578.5" m="468.16" t="0.8"/>
+  <eng-data cg="215." f="601." m="381.696" t="1.05"/>
+  <eng-data cg="215." f="547.35" m="233.539" t="1.49"/>
+  <eng-data cg="215." f="409.4" m="34.3563" t="2.2"/>
+  <eng-data cg="215." f="267." m="14.5228" t="2.3"/>
+  <eng-data cg="215." f="84.55" m="4.21461" t="2.4"/>
+  <eng-data cg="215." f="0." m="0." t="2.57"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

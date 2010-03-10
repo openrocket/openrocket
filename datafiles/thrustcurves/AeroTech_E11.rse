@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="134.05" Itot="32.865" Type="unspecified" auto-calc-cg="1" auto-calc-mass="1" avgThrust="11.613" burn-time="2.83" cgDiv="10" cgFix="1" cgStep="-1." code="E11J" delays="4" dia="24." exitDia="0." initWt="62.4" len="70." mDiv="10" mFix="1" mStep="-1." massFrac="40.06" mfg="Aerotech" peakThrust="19.259" propWt="25." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Based On NAR Test Data
+12/23/93
+</comments>
+<data>
+<eng-data cg="35." f="0." m="25." t="0."/>
+<eng-data cg="35." f="14.3704" m="24.6035" t="0.0725446"/>
+<eng-data cg="35." f="17.6296" m="23.5168" t="0.16183"/>
+<eng-data cg="35." f="18.3704" m="22.9055" t="0.206473"/>
+<eng-data cg="35." f="19.2593" m="19.8705" t="0.418527"/>
+<eng-data cg="35." f="18.3704" m="15.3979" t="0.731027"/>
+<eng-data cg="35." f="14.2222" m="8.13432" t="1.31696"/>
+<eng-data cg="35." f="9.03704" m="2.80264" t="1.91964"/>
+<eng-data cg="35." f="2.22222" m="0.269489" t="2.51116"/>
+<eng-data cg="35." f="0." m="0." t="2.83"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

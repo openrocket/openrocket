@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="666.3" Itot="431.257" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="253.681" burn-time="1.7" cgDiv="10" cgFix="1" cgStep="-1." code="I250" delays="1000" dia="38." exitDia="0." initWt="724." len="711.2" mDiv="10" mFix="1" mStep="-1." massFrac="9.12" mfg="Contrail" peakThrust="622.751" propWt="66." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>I-250-HP
+38mm/28 Inch Hardware
+430cc
+Medium Nozzle
+</comments>
+<data>
+<eng-data cg="355.6" f="0." m="66." t="0."/>
+<eng-data cg="355.6" f="622.751" m="65.7868" t="0.00447427"/>
+<eng-data cg="355.6" f="437.979" m="64.1525" t="0.0246085"/>
+<eng-data cg="355.6" f="273.737" m="10.7884" t="1.00447"/>
+<eng-data cg="355.6" f="171.085" m="10.1792" t="1.02237"/>
+<eng-data cg="355.6" f="157.399" m="5.68061" t="1.20134"/>
+<eng-data cg="355.6" f="136.868" m="4.82427" t="1.23937"/>
+<eng-data cg="355.6" f="0." m="0." t="1.7"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

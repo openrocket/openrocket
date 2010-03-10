@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="165.47" Itot="1298.15" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="196.689" burn-time="6.6" cgDiv="10" cgFix="1" cgStep="-1." code="K222WC" delays="1000" dia="54." exitDia="0." initWt="1596.54" len="430." mDiv="10" mFix="1" mStep="-1." massFrac="50.11" mfg="Gorilla Motors" peakThrust="422.75" propWt="800." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="215." f="0." m="800." t="0."/>
+<eng-data cg="215." f="400.5" m="787.659" t="0.1"/>
+<eng-data cg="215." f="378.25" m="775.661" t="0.15"/>
+<eng-data cg="215." f="422.75" m="713.958" t="0.4"/>
+<eng-data cg="215." f="347.1" m="690.237" t="0.5"/>
+<eng-data cg="215." f="289.25" m="562.785" t="1.15"/>
+<eng-data cg="215." f="267." m="374.247" t="2.25"/>
+<eng-data cg="215." f="231.4" m="259.068" t="3."/>
+<eng-data cg="215." f="169.1" m="135.661" t="4."/>
+<eng-data cg="215." f="44.5" m="8.1414" t="5.9375"/>
+<eng-data cg="215." f="22.25" m="2.74237" t="6.2"/>
+<eng-data cg="215." f="0." m="0." t="6.6"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

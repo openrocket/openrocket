@@ -1,0 +1,34 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="111.49" Itot="172.742" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="62.815" burn-time="2.75" cgDiv="10" cgFix="1" cgStep="-1." code="H78" delays="1000" dia="29." exitDia="0." initWt="418." len="520.7" mDiv="10" mFix="1" mStep="-1." massFrac="37.8" mfg="Sky Ripper Systems" peakThrust="150.1" propWt="158." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Sky Ripper Systems 29/185 H78</comments>
+<data>
+<eng-data cg="260.35" f="0." m="158." t="0."/>
+<eng-data cg="260.35" f="138.21" m="157.368" t="0.01"/>
+<eng-data cg="260.35" f="150.1" m="148.138" t="0.08"/>
+<eng-data cg="260.35" f="142.67" m="142.783" t="0.12"/>
+<eng-data cg="260.35" f="132.27" m="139.01" t="0.15"/>
+<eng-data cg="260.35" f="130.49" m="130.599" t="0.22"/>
+<eng-data cg="260.35" f="90.3" m="123.53" t="0.29"/>
+<eng-data cg="260.35" f="88.27" m="119.447" t="0.34"/>
+<eng-data cg="260.35" f="86.81" m="114.643" t="0.4"/>
+<eng-data cg="260.35" f="86.52" m="97.9965" t="0.61"/>
+<eng-data cg="260.35" f="81.59" m="89.5395" t="0.72"/>
+<eng-data cg="260.35" f="71.72" m="86.735" t="0.76"/>
+<eng-data cg="260.35" f="64.46" m="80.507" t="0.86"/>
+<eng-data cg="260.35" f="63.3" m="71.7428" t="1.01"/>
+<eng-data cg="260.35" f="62.42" m="61.9685" t="1.18"/>
+<eng-data cg="260.35" f="60.39" m="56.352" t="1.28"/>
+<eng-data cg="260.35" f="57.49" m="44.4918" t="1.5"/>
+<eng-data cg="260.35" f="58.36" m="28.5973" t="1.8"/>
+<eng-data cg="260.35" f="59.23" m="23.7573" t="1.89"/>
+<eng-data cg="260.35" f="55.46" m="17.4632" t="2.01"/>
+<eng-data cg="260.35" f="36.29" m="9.07119" t="2.21"/>
+<eng-data cg="260.35" f="22.94" m="5.00804" t="2.36"/>
+<eng-data cg="260.35" f="13.36" m="2.01984" t="2.54"/>
+<eng-data cg="260.35" f="9.58" m="0.131437" t="2.72"/>
+<eng-data cg="260.35" f="0." m="0." t="2.75"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

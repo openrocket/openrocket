@@ -1,0 +1,39 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="199.08" Itot="78.094" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="37.91" burn-time="2.06" cgDiv="10" cgFix="1" cgStep="-1." code="F40" delays="4,7,10" dia="29." exitDia="0." initWt="126." len="124." mDiv="10" mFix="1" mStep="-1." massFrac="31.75" mfg="Aerotech" peakThrust="68.07" propWt="40." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Aerotech F40 RASP.ENG file made from NAR published data
+File produced July 4, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="62." f="0." m="40." t="0."/>
+<eng-data cg="62." f="17.776" m="39.9317" t="0.015"/>
+<eng-data cg="62." f="41.016" m="39.4198" t="0.049"/>
+<eng-data cg="62." f="58.793" m="38.3973" t="0.089"/>
+<eng-data cg="62." f="62.9" m="37.3065" t="0.124"/>
+<eng-data cg="62." f="65.173" m="36.5193" t="0.148"/>
+<eng-data cg="62." f="62.442" m="35.3754" t="0.183"/>
+<eng-data cg="62." f="68.07" m="33.4034" t="0.242"/>
+<eng-data cg="62." f="60.617" m="31.7556" t="0.292"/>
+<eng-data cg="62." f="61.524" m="30.8484" t="0.321"/>
+<eng-data cg="62." f="60.617" m="27.908" t="0.415"/>
+<eng-data cg="62." f="58.334" m="24.5875" t="0.524"/>
+<eng-data cg="62." f="52.412" m="18.4329" t="0.741"/>
+<eng-data cg="62." f="48.314" m="15.1052" t="0.87"/>
+<eng-data cg="62." f="49.221" m="14.6306" t="0.889"/>
+<eng-data cg="62." f="47.397" m="14.012" t="0.914"/>
+<eng-data cg="62." f="40.109" m="9.79883" t="1.102"/>
+<eng-data cg="62." f="33.728" m="6.33834" t="1.285"/>
+<eng-data cg="62." f="25.064" m="3.22159" t="1.492"/>
+<eng-data cg="62." f="15.952" m="1.40435" t="1.665"/>
+<eng-data cg="62." f="8.659" m="0.503032" t="1.808"/>
+<eng-data cg="62." f="3.19" m="0.0964019" t="1.942"/>
+<eng-data cg="62." f="0." m="0." t="2.06"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

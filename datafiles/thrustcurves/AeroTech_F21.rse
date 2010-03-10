@@ -1,0 +1,67 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="189.81" Itot="55.842" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="22.202" burn-time="2.52" cgDiv="10" cgFix="1" cgStep="-1." code="F21W" delays="4,6,8" dia="24." exitDia="0." initWt="64." len="96." mDiv="10" mFix="1" mStep="-1." massFrac="46.88" mfg="Aerotech" peakThrust="42.504" propWt="30." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Aerotech F21W (White Lightning) RASP.ENG file.
+File produced Jun 22 2004.
+The file was produced by scaling data points off the
+thrust curve in the Tripoli.org motor pdf file.
+
+The F21W cannot be found on thrustcurve.org.
+Hence the amateur file production.
+The file was created by Stan Hemphill
+Contact at stanley_hemphill@hotmail.com;
+</comments>
+<data>
+<eng-data cg="48." f="0." m="30." t="0."/>
+<eng-data cg="48." f="37.2266" m="29.955" t="0.0045"/>
+<eng-data cg="48." f="42.1474" m="29.8591" t="0.009"/>
+<eng-data cg="48." f="42.504" m="29.6544" t="0.018"/>
+<eng-data cg="48." f="40.5071" m="29.4537" t="0.027"/>
+<eng-data cg="48." f="38.8669" m="29.3109" t="0.0337"/>
+<eng-data cg="48." f="38.225" m="29.1245" t="0.0427"/>
+<eng-data cg="48." f="37.7258" m="28.9409" t="0.0517"/>
+<eng-data cg="48." f="36.87" m="28.7606" t="0.0607"/>
+<eng-data cg="48." f="36.4422" m="28.538" t="0.072"/>
+<eng-data cg="48." f="36.4422" m="28.2307" t="0.0877"/>
+<eng-data cg="48." f="35.3724" m="27.7966" t="0.1102"/>
+<eng-data cg="48." f="35.8716" m="27.322" t="0.135"/>
+<eng-data cg="48." f="35.4437" m="26.9351" t="0.1552"/>
+<eng-data cg="48." f="36.2282" m="26.5885" t="0.1732"/>
+<eng-data cg="48." f="35.6577" m="26.0228" t="0.2025"/>
+<eng-data cg="48." f="37.2979" m="25.186" t="0.2452"/>
+<eng-data cg="48." f="36.5848" m="24.4259" t="0.2835"/>
+<eng-data cg="48." f="38.0111" m="23.7045" t="0.3195"/>
+<eng-data cg="48." f="37.4406" m="23.3397" t="0.3375"/>
+<eng-data cg="48." f="38.5816" m="22.5596" t="0.3757"/>
+<eng-data cg="48." f="38.225" m="22.1408" t="0.396"/>
+<eng-data cg="48." f="39.3661" m="21.4384" t="0.4297"/>
+<eng-data cg="48." f="38.0111" m="21.1121" t="0.4454"/>
+<eng-data cg="48." f="38.7242" m="20.5082" t="0.4747"/>
+<eng-data cg="48." f="37.7971" m="20.2307" t="0.4882"/>
+<eng-data cg="48." f="38.1537" m="19.8186" t="0.5084"/>
+<eng-data cg="48." f="38.5103" m="19.2626" t="0.5354"/>
+<eng-data cg="48." f="37.9398" m="18.6609" t="0.5647"/>
+<eng-data cg="48." f="37.2266" m="18.253" t="0.5849"/>
+<eng-data cg="48." f="37.8685" m="17.9343" t="0.6007"/>
+<eng-data cg="48." f="36.87" m="17.1674" t="0.6389"/>
+<eng-data cg="48." f="37.1553" m="16.5411" t="0.6704"/>
+<eng-data cg="48." f="35.9429" m="14.6856" t="0.7649"/>
+<eng-data cg="48." f="32.9477" m="11.8136" t="0.9201"/>
+<eng-data cg="48." f="30.309" m="10.3608" t="1.0056"/>
+<eng-data cg="48." f="29.7385" m="9.30753" t="1.0709"/>
+<eng-data cg="48." f="24.0333" m="6.51409" t="1.2643"/>
+<eng-data cg="48." f="24.0333" m="6.22359" t="1.2868"/>
+<eng-data cg="48." f="20.8241" m="5.19337" t="1.3723"/>
+<eng-data cg="48." f="20.8241" m="4.96627" t="1.3926"/>
+<eng-data cg="48." f="15.4754" m="3.05808" t="1.5883"/>
+<eng-data cg="48." f="15.4754" m="2.87102" t="1.6108"/>
+<eng-data cg="48." f="5.0634" m="0.662014" t="2.0112"/>
+<eng-data cg="48." f="3.4231" m="0.415818" t="2.1192"/>
+<eng-data cg="48." f="2.4247" m="0.224965" t="2.2407"/>
+<eng-data cg="48." f="1.4976" m="0.0803083" t="2.378"/>
+<eng-data cg="48." f="0.9271" m="0.00560322" t="2.4927"/>
+<eng-data cg="48." f="0." m="0." t="2.5152"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

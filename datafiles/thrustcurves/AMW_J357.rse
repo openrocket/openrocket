@@ -1,0 +1,40 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="185.87" Itot="999.076" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="338.67" burn-time="2.95" cgDiv="10" cgFix="1" cgStep="-1." code="J357WW" delays="1000" dia="54." exitDia="0." initWt="1210.1" len="326." mDiv="10" mFix="1" mStep="-1." massFrac="45.29" mfg="Animal Motor Works" peakThrust="402.35" propWt="548.1" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+    <data>
+      <eng-data cg="163." f="0." m="548.1" t="0."/>
+      <eng-data cg="163." f="129.64" m="547.389" t="0.02"/>
+      <eng-data cg="163." f="205.95" m="546.468" t="0.03"/>
+      <eng-data cg="163." f="265." m="543.885" t="0.05"/>
+      <eng-data cg="163." f="316.51" m="542.289" t="0.06"/>
+      <eng-data cg="163." f="326.05" m="537.002" t="0.09"/>
+      <eng-data cg="163." f="314.6" m="529.972" t="0.13"/>
+      <eng-data cg="163." f="301.25" m="521.526" t="0.18"/>
+      <eng-data cg="163." f="299.34" m="511.641" t="0.24"/>
+      <eng-data cg="163." f="312.69" m="493.174" t="0.35"/>
+      <eng-data cg="163." f="326.05" m="466.893" t="0.5"/>
+      <eng-data cg="163." f="333.68" m="437.938" t="0.66"/>
+      <eng-data cg="163." f="345.13" m="398.836" t="0.87"/>
+      <eng-data cg="163." f="358.48" m="360.236" t="1.07"/>
+      <eng-data cg="163." f="383.18" m="280.894" t="1.46"/>
+      <eng-data cg="163." f="398.45" m="214.429" t="1.77"/>
+      <eng-data cg="163." f="400.36" m="194.709" t="1.86"/>
+      <eng-data cg="163." f="402.35" m="168.286" t="1.98"/>
+      <eng-data cg="163." f="398.45" m="124.354" t="2.18"/>
+      <eng-data cg="163." f="390.82" m="100.539" t="2.29"/>
+      <eng-data cg="163." f="369.93" m="75.4978" t="2.41"/>
+      <eng-data cg="163." f="354.67" m="55.6218" t="2.51"/>
+      <eng-data cg="163." f="352.76" m="47.8597" t="2.55"/>
+      <eng-data cg="163." f="347.03" m="38.262" t="2.6"/>
+      <eng-data cg="163." f="335.59" m="28.8997" t="2.65"/>
+      <eng-data cg="163." f="310.79" m="21.8076" t="2.69"/>
+      <eng-data cg="163." f="249.73" m="12.5824" t="2.75"/>
+      <eng-data cg="163." f="175.43" m="5.58504" t="2.81"/>
+      <eng-data cg="163." f="108.65" m="3.24731" t="2.84"/>
+      <eng-data cg="163." f="53.38" m="0.580591" t="2.9"/>
+      <eng-data cg="163." f="20.98" m="0.172647" t="2.92"/>
+      <eng-data cg="163." f="0." m="0." t="2.95"/>
+    </data>
+  </engine>
+ </engine-list>
+</engine-database>

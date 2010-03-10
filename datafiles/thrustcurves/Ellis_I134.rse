@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="161.65" Itot="444.976" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="86.403" burn-time="5.15" cgDiv="10" cgFix="1" cgStep="-1." code="I134" delays="15" dia="38." exitDia="0." initWt="581.2" len="355." mDiv="10" mFix="1" mStep="-1." massFrac="48.3" mfg="Ellis Mountain" peakThrust="268.8" propWt="280.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Ellis Mountain Rocket Works
+I134 38mm Single Use motor
+</comments>
+<data>
+<eng-data cg="177.5" f="0." m="280.7" t="0."/>
+<eng-data cg="177.5" f="268.8" m="272.222" t="0.1"/>
+<eng-data cg="177.5" f="138." m="259.391" t="0.2"/>
+<eng-data cg="177.5" f="116." m="195.3" t="1."/>
+<eng-data cg="177.5" f="102." m="126.54" t="2."/>
+<eng-data cg="177.5" f="85." m="67.5584" t="3."/>
+<eng-data cg="177.5" f="67." m="19.6161" t="4."/>
+<eng-data cg="177.5" f="16.46" m="2.50537" t="4.65"/>
+<eng-data cg="177.5" f="6.86" m="1.25495" t="4.82"/>
+<eng-data cg="177.5" f="6.86" m="0.173097" t="5.07"/>
+<eng-data cg="177.5" f="0." m="-0." t="5.15"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

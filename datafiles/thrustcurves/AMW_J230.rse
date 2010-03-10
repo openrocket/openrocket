@@ -1,0 +1,65 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Animal Motor Works" code="J230SK" Type="reloadable" dia="54." len="326."
+initWt="1183.53" propWt="525." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="227.973" peakThrust="277.759" throatDia="0." exitDia="0."
+Itot="768.724" burn-time="3.37" massFrac="44.36" Isp="149.31" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve from the AMW motor assembly instructions and
+CAR/NAR/TRA certified rocket motor list dated 9/28/08. The total weight was
+provided by Paul Robinson of AMW.
+</comments>
+<data>
+<eng-data  t="0." f="0." m="525." cg="163."/>
+<eng-data  t="0.033" f="219.31" m="522.529" cg="163."/>
+<eng-data  t="0.048" f="257.069" m="520.089" cg="163."/>
+<eng-data  t="0.059" f="271.034" m="518.105" cg="163."/>
+<eng-data  t="0.084" f="271.034" m="513.477" cg="163."/>
+<eng-data  t="0.132" f="263.276" m="504.72" cg="163."/>
+<eng-data  t="0.176" f="253.966" m="496.948" cg="163."/>
+<eng-data  t="0.216" f="237.414" m="490.236" cg="163."/>
+<eng-data  t="0.246" f="228.621" m="485.462" cg="163."/>
+<eng-data  t="0.29" f="225." m="478.647" cg="163."/>
+<eng-data  t="0.337" f="225." m="471.424" cg="163."/>
+<eng-data  t="0.421" f="229.138" m="458.398" cg="163."/>
+<eng-data  t="0.59" f="234.828" m="431.623" cg="163."/>
+<eng-data  t="0.788" f="243.621" m="399.274" cg="163."/>
+<eng-data  t="0.96" f="248.276" m="370.383" cg="163."/>
+<eng-data  t="1.096" f="256.552" m="346.938" cg="163."/>
+<eng-data  t="1.231" f="255.517" m="323.333" cg="163."/>
+<eng-data  t="1.374" f="261.724" m="298.075" cg="163."/>
+<eng-data  t="1.646" f="270." m="248.688" cg="163."/>
+<eng-data  t="1.799" f="275.172" m="220.205" cg="163."/>
+<eng-data  t="1.851" f="277.759" m="210.387" cg="163."/>
+<eng-data  t="1.906" f="273.621" m="200.031" cg="163."/>
+<eng-data  t="1.957" f="270.517" m="190.555" cg="163."/>
+<eng-data  t="2.027" f="273.103" m="177.561" cg="163."/>
+<eng-data  t="2.078" f="272.069" m="168.067" cg="163."/>
+<eng-data  t="2.144" f="272.069" m="155.803" cg="163."/>
+<eng-data  t="2.228" f="271.552" m="140.21" cg="163."/>
+<eng-data  t="2.28" f="271.552" m="130.566" cg="163."/>
+<eng-data  t="2.316" f="267.414" m="123.941" cg="163."/>
+<eng-data  t="2.379" f="263.793" m="112.513" cg="163."/>
+<eng-data  t="2.43" f="259.655" m="103.397" cg="163."/>
+<eng-data  t="2.551" f="240.517" m="82.7305" cg="163."/>
+<eng-data  t="2.752" f="211.034" m="51.7377" cg="163."/>
+<eng-data  t="2.837" f="200.69" m="39.7872" cg="163."/>
+<eng-data  t="2.888" f="196.034" m="32.8782" cg="163."/>
+<eng-data  t="2.914" f="199.138" m="29.3697" cg="163."/>
+<eng-data  t="2.939" f="206.379" m="25.9079" cg="163."/>
+<eng-data  t="2.961" f="215.172" m="22.741" cg="163."/>
+<eng-data  t="2.983" f="219.828" m="19.4731" cg="163."/>
+<eng-data  t="3.016" f="206.379" m="14.6703" cg="163."/>
+<eng-data  t="3.057" f="158.276" m="9.56496" cg="163."/>
+<eng-data  t="3.093" f="113.793" m="6.22039" cg="163."/>
+<eng-data  t="3.145" f="69.31" m="2.96909" cg="163."/>
+<eng-data  t="3.185" f="40.345" m="1.47131" cg="163."/>
+<eng-data  t="3.236" f="14.483" m="0.516472" cg="163."/>
+<eng-data  t="3.287" f="5.69" m="0.165154" cg="163."/>
+<eng-data  t="3.372" f="0." m="0." cg="163."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

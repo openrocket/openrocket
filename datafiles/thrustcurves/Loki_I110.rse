@@ -1,0 +1,19 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="171.11" Itot="484.959" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="121.24" burn-time="4." cgDiv="10" cgFix="1" cgStep="-1." code="I110" delays="5,8,12" dia="38." exitDia="0." initWt="589." len="292." mDiv="10" mFix="1" mStep="-1." massFrac="49.07" mfg="Loki Research" peakThrust="282.365" propWt="289." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+  <eng-data cg="146." f="0." m="289." t="0."/>
+  <eng-data cg="146." f="282.365" m="289." t="0."/>
+  <eng-data cg="146." f="218.735" m="283.804" t="0.0348028"/>
+  <eng-data cg="146." f="170.944" m="273.701" t="0.12181"/>
+  <eng-data cg="146." f="163.592" m="264.45" t="0.214617"/>
+  <eng-data cg="146." f="169.106" m="246.05" t="0.400232"/>
+  <eng-data cg="146." f="176.458" m="132.573" t="1.50232"/>
+  <eng-data cg="146." f="152.563" m="83.6686" t="2.00116"/>
+  <eng-data cg="146." f="108.448" m="44.873" t="2.5"/>
+  <eng-data cg="146." f="64.3338" m="19.1913" t="2.99884"/>
+  <eng-data cg="146." f="0." m="0." t="4."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

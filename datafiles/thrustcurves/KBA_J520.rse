@@ -1,0 +1,55 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-Aerotech" code="J520F" Type="reloadable" dia="38." len="368."
+initWt="722." propWt="327." delays="6,10,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="514.335" peakThrust="737.092" throatDia="0." exitDia="0."
+Itot="645.491" burn-time="1.25" massFrac="45.29" Isp="201.29" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve and engine data TRA certification dated Nov. 25,
+2007.
+</comments>
+<data>
+<eng-data  t="0." f="0." m="327." cg="184."/>
+<eng-data  t="0.018" f="696.864" m="323.823" cg="184."/>
+<eng-data  t="0.024" f="547.629" m="321.931" cg="184."/>
+<eng-data  t="0.031" f="737.092" m="319.654" cg="184."/>
+<eng-data  t="0.039" f="529.461" m="317.087" cg="184."/>
+<eng-data  t="0.051" f="524.27" m="313.884" cg="184."/>
+<eng-data  t="0.054" f="415.263" m="313.17" cg="184."/>
+<eng-data  t="0.063" f="547.629" m="310.975" cg="184."/>
+<eng-data  t="0.079" f="613.811" m="306.268" cg="184."/>
+<eng-data  t="0.094" f="543.735" m="301.87" cg="184."/>
+<eng-data  t="0.106" f="533.354" m="298.596" cg="184."/>
+<eng-data  t="0.127" f="546.331" m="292.853" cg="184."/>
+<eng-data  t="0.146" f="546.331" m="287.595" cg="184."/>
+<eng-data  t="0.191" f="548.926" m="275.111" cg="184."/>
+<eng-data  t="0.28" f="547.629" m="250.391" cg="184."/>
+<eng-data  t="0.379" f="560.605" m="222.6" cg="184."/>
+<eng-data  t="0.473" f="577.476" m="195.503" cg="184."/>
+<eng-data  t="0.558" f="591.75" m="170.329" cg="184."/>
+<eng-data  t="0.629" f="599.536" m="148.905" cg="184."/>
+<eng-data  t="0.689" f="598.239" m="130.702" cg="184."/>
+<eng-data  t="0.787" f="596.941" m="101.034" cg="184."/>
+<eng-data  t="0.827" f="593.048" m="88.9768" cg="184."/>
+<eng-data  t="0.892" f="587.857" m="69.5341" cg="184."/>
+<eng-data  t="0.947" f="574.88" m="53.3357" cg="184."/>
+<eng-data  t="0.971" f="572.285" m="46.362" cg="184."/>
+<eng-data  t="0.997" f="576.178" m="38.7986" cg="184."/>
+<eng-data  t="1.015" f="582.666" m="33.5151" cg="184."/>
+<eng-data  t="1.026" f="582.666" m="30.2681" cg="184."/>
+<eng-data  t="1.039" f="552.819" m="26.5292" cg="184."/>
+<eng-data  t="1.069" f="443.813" m="18.9559" cg="184."/>
+<eng-data  t="1.1" f="330.913" m="12.8726" cg="184."/>
+<eng-data  t="1.12" f="275.112" m="9.80254" cg="184."/>
+<eng-data  t="1.145" f="254.349" m="6.44978" cg="184."/>
+<eng-data  t="1.161" f="224.502" m="4.50913" cg="184."/>
+<eng-data  t="1.193" f="134.961" m="1.59551" cg="184."/>
+<eng-data  t="1.209" f="77.862" m="0.732999" cg="184."/>
+<eng-data  t="1.227" f="32.442" m="0.230088" cg="184."/>
+<eng-data  t="1.255" f="0." m="0." cg="184."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

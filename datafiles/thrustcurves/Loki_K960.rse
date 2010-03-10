@@ -1,0 +1,32 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="213.79" Itot="1949.48" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="974.741" burn-time="2." cgDiv="10" cgFix="1" cgStep="-1." code="K960" delays="1000" dia="54." exitDia="0." initWt="1746.33" len="498." mDiv="10" mFix="1" mStep="-1." massFrac="53.25" mfg="Loki Research" peakThrust="1535." propWt="929.864" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="249." f="0." m="929.864" t="0."/>
+<eng-data cg="249." f="1210." m="921.207" t="0.03"/>
+<eng-data cg="249." f="1512." m="908.223" t="0.05"/>
+<eng-data cg="249." f="1535." m="890.056" t="0.075"/>
+<eng-data cg="249." f="1502." m="871.949" t="0.1"/>
+<eng-data cg="249." f="1437." m="854.426" t="0.125"/>
+<eng-data cg="249." f="1237." m="806.597" t="0.2"/>
+<eng-data cg="249." f="1175." m="749.073" t="0.3"/>
+<eng-data cg="249." f="1139." m="638.7" t="0.5"/>
+<eng-data cg="249." f="1130." m="584.587" t="0.6"/>
+<eng-data cg="249." f="1156." m="530.068" t="0.7"/>
+<eng-data cg="249." f="1182." m="474.309" t="0.8"/>
+<eng-data cg="249." f="1192." m="417.691" t="0.9"/>
+<eng-data cg="249." f="1166." m="361.455" t="1."/>
+<eng-data cg="249." f="1139." m="306.483" t="1.1"/>
+<eng-data cg="249." f="1101." m="253.062" t="1.2"/>
+<eng-data cg="249." f="1091." m="200.785" t="1.3"/>
+<eng-data cg="249." f="1026." m="150.296" t="1.4"/>
+<eng-data cg="249." f="839." m="105.818" t="1.5"/>
+<eng-data cg="249." f="790." m="66.968" t="1.6"/>
+<eng-data cg="249." f="575." m="34.4141" t="1.7"/>
+<eng-data cg="249." f="284." m="13.9278" t="1.8"/>
+<eng-data cg="249." f="150." m="3.57735" t="1.9"/>
+<eng-data cg="249." f="0." m="0." t="2."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

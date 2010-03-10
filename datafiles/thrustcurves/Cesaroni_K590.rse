@@ -1,0 +1,52 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="K590-DT" Type="unspecified" dia="54." len="572." initWt="1994."
+propWt="1239." delays="15,13,11,9,7" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="561.562" peakThrust="1812.1" throatDia="0." exitDia="0."
+Itot="2415.28" burn-time="4.301" massFrac="62.1364" Isp="198.781" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Dual-Thrust</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1239." cg="286."/>
+      <eng-data  t="0.01" f="2.69" m="1238.99" cg="286."/>
+      <eng-data  t="0.02" f="1589.05" m="1234.91" cg="286."/>
+      <eng-data  t="0.03" f="1587.51" m="1226.76" cg="286."/>
+      <eng-data  t="0.04" f="1812.1" m="1218.04" cg="286."/>
+      <eng-data  t="0.05" f="1717.11" m="1208.99" cg="286."/>
+      <eng-data  t="0.06" f="1665.58" m="1200.31" cg="286."/>
+      <eng-data  t="0.07" f="1486.75" m="1192.23" cg="286."/>
+      <eng-data  t="0.08" f="1464.83" m="1184.66" cg="286."/>
+      <eng-data  t="0.09" f="1411.38" m="1177.28" cg="286."/>
+      <eng-data  t="0.2" f="1419.45" m="1097.41" cg="286."/>
+      <eng-data  t="0.4" f="1392.92" m="953.141" cg="286."/>
+      <eng-data  t="0.5" f="1373.69" m="882.18" cg="286."/>
+      <eng-data  t="0.6" f="1353.69" m="812.225" cg="286."/>
+      <eng-data  t="0.7" f="961.81" m="752.834" cg="286."/>
+      <eng-data  t="0.8" f="514.56" m="714.966" cg="286."/>
+      <eng-data  t="0.9" f="525.32" m="688.294" cg="286."/>
+      <eng-data  t="1." f="526.09" m="661.326" cg="286."/>
+      <eng-data  t="1.1" f="516.86" m="634.575" cg="286."/>
+      <eng-data  t="1.2" f="520.32" m="607.973" cg="286."/>
+      <eng-data  t="1.4" f="518.02" m="554.707" cg="286."/>
+      <eng-data  t="1.6" f="505.33" m="502.211" cg="286."/>
+      <eng-data  t="1.8" f="488.79" m="451.214" cg="286."/>
+      <eng-data  t="2." f="471.1" m="401.973" cg="286."/>
+      <eng-data  t="2.2" f="471.48" m="353.62" cg="286."/>
+      <eng-data  t="2.4" f="481.48" m="304.735" cg="286."/>
+      <eng-data  t="2.6" f="461.49" m="256.362" cg="286."/>
+      <eng-data  t="2.8" f="454.95" m="209.35" cg="286."/>
+      <eng-data  t="3." f="450.33" m="162.911" cg="286."/>
+      <eng-data  t="3.3" f="429.18" m="95.2345" cg="286."/>
+      <eng-data  t="3.4" f="389.95" m="74.2244" cg="286."/>
+      <eng-data  t="3.5" f="314.96" m="56.144" cg="286."/>
+      <eng-data  t="3.7" f="204.59" m="29.4919" cg="286."/>
+      <eng-data  t="3.9" f="118.83" m="12.901" cg="286."/>
+      <eng-data  t="4." f="89.22" m="7.56463" cg="286."/>
+      <eng-data  t="4.1" f="68.07" m="3.53026" cg="286."/>
+      <eng-data  t="4.2" f="34.61" m="0.896597" cg="286."/>
+      <eng-data  t="4.301" f="0." m="0." cg="286."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

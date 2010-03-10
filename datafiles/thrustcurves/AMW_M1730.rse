@@ -1,0 +1,41 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="166.23" Itot="8061.6" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1737.41" burn-time="4.64" cgDiv="10" cgFix="1" cgStep="-1." code="M1730SK" delays="1000" dia="98." exitDia="0." initWt="9871.8" len="870." mDiv="10" mFix="1" mStep="-1." massFrac="50.09" mfg="Animal Motor Works" peakThrust="2679.42" propWt="4945.2" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="435." f="0." m="4945.2" t="0."/>
+<eng-data cg="435." f="682.64" m="4936.83" t="0.04"/>
+<eng-data cg="435." f="1153.39" m="4925.56" t="0.06"/>
+<eng-data cg="435." f="1354.67" m="4802.48" t="0.22"/>
+<eng-data cg="435." f="1414.77" m="4760.01" t="0.27"/>
+<eng-data cg="435." f="1458.03" m="4663.09" t="0.38"/>
+<eng-data cg="435." f="1526.92" m="4516.6" t="0.54"/>
+<eng-data cg="435." f="1589.2" m="4363.68" t="0.7"/>
+<eng-data cg="435." f="1675.2" m="4203.48" t="0.86"/>
+<eng-data cg="435." f="1732.67" m="4036.25" t="1.02"/>
+<eng-data cg="435." f="1802.23" m="3862.77" t="1.18"/>
+<eng-data cg="435." f="1886.64" m="3681.74" t="1.34"/>
+<eng-data cg="435." f="1973.71" m="3492.3" t="1.5"/>
+<eng-data cg="435." f="2070.51" m="3293.83" t="1.66"/>
+<eng-data cg="435." f="2183.82" m="3085.06" t="1.82"/>
+<eng-data cg="435." f="2299.31" m="2865.05" t="1.98"/>
+<eng-data cg="435." f="2433.86" m="2632.78" t="2.14"/>
+<eng-data cg="435." f="2568.12" m="2387.31" t="2.3"/>
+<eng-data cg="435." f="2679.42" m="2129.79" t="2.46"/>
+<eng-data cg="435." f="2638.38" m="1868.82" t="2.62"/>
+<eng-data cg="435." f="2484.18" m="1617.44" t="2.78"/>
+<eng-data cg="435." f="2306.04" m="1382.36" t="2.94"/>
+<eng-data cg="435." f="2173.85" m="1162.51" t="3.1"/>
+<eng-data cg="435." f="2074.69" m="954.02" t="3.26"/>
+<eng-data cg="435." f="1961.3" m="755.958" t="3.42"/>
+<eng-data cg="435." f="1807.81" m="570.992" t="3.58"/>
+<eng-data cg="435." f="1640.26" m="401.781" t="3.74"/>
+<eng-data cg="435." f="1303.04" m="257.341" t="3.9"/>
+<eng-data cg="435." f="940.6" m="147.236" t="4.06"/>
+<eng-data cg="435." f="567.15" m="73.2443" t="4.22"/>
+<eng-data cg="435." f="309.14" m="30.2411" t="4.38"/>
+<eng-data cg="435." f="188.98" m="5.79627" t="4.54"/>
+<eng-data cg="435." f="0." m="0." t="4.64"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

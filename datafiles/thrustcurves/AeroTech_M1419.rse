@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="193.79" Itot="7582.66" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1083.24" burn-time="7." cgDiv="10" cgFix="1" cgStep="-1." code="M1419W" delays="1000" dia="98." exitDia="0." initWt="6930.7" len="597." mDiv="10" mFix="1" mStep="-1." massFrac="57.57" mfg="Aerotech" peakThrust="1462.23" propWt="3990." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="298.5" f="0." m="3990." t="0."/>
+<eng-data cg="298.5" f="0.22" m="3990." t="0."/>
+<eng-data cg="298.5" f="1307.13" m="3955.6" t="0.1"/>
+<eng-data cg="298.5" f="1218.53" m="3889.15" t="0.2"/>
+<eng-data cg="298.5" f="1373.59" m="3070.77" t="1.4"/>
+<eng-data cg="298.5" f="1462.23" m="2250.05" t="2.5"/>
+<eng-data cg="298.5" f="1440.04" m="1868.26" t="3."/>
+<eng-data cg="298.5" f="1404.63" m="1419.2" t="3.6"/>
+<eng-data cg="298.5" f="1160.84" m="879.219" t="4.4"/>
+<eng-data cg="298.5" f="664.66" m="206.814" t="5.8"/>
+<eng-data cg="298.5" f="629.17" m="104.692" t="6.1"/>
+<eng-data cg="298.5" f="177.25" m="19.8246" t="6.5"/>
+<eng-data cg="298.5" f="8.9" m="0.234159" t="6.9"/>
+<eng-data cg="298.5" f="0." m="0." t="7."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

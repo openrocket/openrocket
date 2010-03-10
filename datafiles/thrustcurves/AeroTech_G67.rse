@@ -1,0 +1,34 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="193.91" Itot="109.53" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="68.456" burn-time="1.6" cgDiv="10" cgFix="1" cgStep="-1." code="G67R" delays="10" dia="38." exitDia="0." initWt="191." len="106.43" mDiv="10" mFix="1" mStep="-1." massFrac="30.16" mfg="Aerotech" peakThrust="90.425" propWt="57.6" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>G67R Data Entered by Tim Van Milligan
+For RockSim: www.RockSim.com
+Based on Aerotech's Reload Kit Instruction Sheet.
+Not Officially Approved by TRA or Aerotech
+</comments>
+<data>
+<eng-data cg="53.215" f="0." m="57.6" t="0."/>
+<eng-data cg="53.215" f="11.795" m="57.4728" t="0.041"/>
+<eng-data cg="53.215" f="57.288" m="56.4375" t="0.098"/>
+<eng-data cg="53.215" f="71.329" m="55.7273" t="0.119"/>
+<eng-data cg="53.215" f="75.822" m="54.5278" t="0.15"/>
+<eng-data cg="53.215" f="80.877" m="52.4677" t="0.2"/>
+<eng-data cg="53.215" f="88.74" m="48.0077" t="0.3"/>
+<eng-data cg="53.215" f="89.301" m="43.3263" t="0.4"/>
+<eng-data cg="53.215" f="90.425" m="38.7423" t="0.497"/>
+<eng-data cg="53.215" f="89.301" m="33.5913" t="0.606"/>
+<eng-data cg="53.215" f="85.932" m="25.0672" t="0.791"/>
+<eng-data cg="53.215" f="75.26" m="16.0818" t="1.003"/>
+<eng-data cg="53.215" f="64.589" m="9.20544" t="1.19"/>
+<eng-data cg="53.215" f="58.411" m="5.68019" t="1.299"/>
+<eng-data cg="53.215" f="55.041" m="2.69707" t="1.399"/>
+<eng-data cg="53.215" f="52.233" m="2.02011" t="1.423"/>
+<eng-data cg="53.215" f="47.74" m="1.15264" t="1.456"/>
+<eng-data cg="53.215" f="22.466" m="0.395774" t="1.497"/>
+<eng-data cg="53.215" f="12.356" m="0.203495" t="1.518"/>
+<eng-data cg="53.215" f="2.808" m="0.0280569" t="1.562"/>
+<eng-data cg="53.215" f="0." m="0." t="1.6"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

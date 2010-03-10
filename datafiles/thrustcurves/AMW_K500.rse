@@ -1,0 +1,50 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Animal" code="K500SK" Type="reloadable" dia="75." len="368." initWt="2713."
+propWt="1123.5" delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="455.234" peakThrust="841.432" throatDia="0." exitDia="0."
+Itot="1796.35" burn-time="3.95" massFrac="41.41" Isp="163.04" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Entered by Tim Van Milligan. Used John Coker's ThrustCurve Tracer software and
+data from NAR certification dated May 7, 2007
+</comments>
+<data>
+<eng-data  t="0." f="0." m="1123.5" cg="184."/>
+<eng-data  t="0.018" f="194.373" m="1122.41" cg="184."/>
+<eng-data  t="0.031" f="207.161" m="1120.77" cg="184."/>
+<eng-data  t="0.036" f="268.542" m="1120.03" cg="184."/>
+<eng-data  t="0.103" f="319.693" m="1107.71" cg="184."/>
+<eng-data  t="0.138" f="322.251" m="1100.68" cg="184."/>
+<eng-data  t="0.17" f="314.578" m="1094.31" cg="184."/>
+<eng-data  t="0.67" f="309.463" m="996.732" cg="184."/>
+<eng-data  t="0.692" f="322.251" m="992.386" cg="184."/>
+<eng-data  t="0.902" f="319.693" m="950.229" cg="184."/>
+<eng-data  t="0.929" f="332.481" m="944.723" cg="184."/>
+<eng-data  t="1.263" f="355.499" m="872.865" cg="184."/>
+<eng-data  t="1.585" f="383.632" m="798.438" cg="184."/>
+<eng-data  t="1.969" f="411.765" m="702.924" cg="184."/>
+<eng-data  t="2.112" f="416.88" m="665.869" cg="184."/>
+<eng-data  t="2.272" f="447.57" m="622.616" cg="184."/>
+<eng-data  t="2.415" f="488.491" m="580.757" cg="184."/>
+<eng-data  t="2.46" f="485.934" m="567.044" cg="184."/>
+<eng-data  t="2.634" f="534.527" m="511.518" cg="184."/>
+<eng-data  t="2.83" f="618.926" m="440.82" cg="184."/>
+<eng-data  t="3.018" f="710.997" m="362.633" cg="184."/>
+<eng-data  t="3.143" f="767.263" m="304.849" cg="184."/>
+<eng-data  t="3.228" f="815.857" m="262.768" cg="184."/>
+<eng-data  t="3.339" f="841.432" m="205.241" cg="184."/>
+<eng-data  t="3.402" f="826.087" m="172.389" cg="184."/>
+<eng-data  t="3.504" f="785.166" m="120.994" cg="184."/>
+<eng-data  t="3.585" f="718.67" m="82.902" cg="184."/>
+<eng-data  t="3.661" f="631.714" m="50.8081" cg="184."/>
+<eng-data  t="3.728" f="519.182" m="26.6945" cg="184."/>
+<eng-data  t="3.772" f="365.729" m="14.5185" cg="184."/>
+<eng-data  t="3.826" f="181.586" m="5.27619" cg="184."/>
+<eng-data  t="3.862" f="99.744" m="2.10903" cg="184."/>
+<eng-data  t="3.893" f="43.478" m="0.720604" cg="184."/>
+<eng-data  t="3.946" f="0." m="0." cg="184."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

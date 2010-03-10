@@ -1,0 +1,31 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="178.08" Itot="9255.91" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="578.494" burn-time="16." cgDiv="10" cgFix="1" cgStep="-1." code="M750W" delays="1000" dia="98." exitDia="0." initWt="8776." len="732." mDiv="10" mFix="1" mStep="-1." massFrac="60.39" mfg="Aerotech" peakThrust="1218." propWt="5300." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>98-10240 case
+Greg Gardner - 10/25/07
+</comments>
+<data>
+<eng-data cg="366." f="0." m="5300." t="0."/>
+<eng-data cg="366." f="1032." m="5270.45" t="0.1"/>
+<eng-data cg="366." f="992." m="5212.51" t="0.2"/>
+<eng-data cg="366." f="974." m="5156.22" t="0.3"/>
+<eng-data cg="366." f="966." m="5056.24" t="0.48"/>
+<eng-data cg="366." f="1055." m="4755.36" t="1."/>
+<eng-data cg="366." f="1152." m="4439.42" t="1.5"/>
+<eng-data cg="366." f="1192." m="4103.88" t="2."/>
+<eng-data cg="366." f="1218." m="3758.88" t="2.5"/>
+<eng-data cg="366." f="1103." m="2762.11" t="4."/>
+<eng-data cg="366." f="818." m="1662.14" t="6."/>
+<eng-data cg="366." f="561." m="872.51" t="8."/>
+<eng-data cg="366." f="318." m="369.188" t="10."/>
+<eng-data cg="366." f="216." m="216.302" t="11."/>
+<eng-data cg="366." f="125." m="118.673" t="12."/>
+<eng-data cg="366." f="76." m="61.1258" t="13."/>
+<eng-data cg="366." f="47." m="25.9105" t="14."/>
+<eng-data cg="366." f="23." m="5.86922" t="15."/>
+<eng-data cg="366." f="9." m="1.28837" t="15.5"/>
+<eng-data cg="366." f="0." m="0." t="16."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

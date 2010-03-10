@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="179.66" Itot="440.462" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="200.21" burn-time="2.2" cgDiv="10" cgFix="1" cgStep="-1." code="I211W" delays="6,10,14" dia="38." exitDia="0." initWt="476.3" len="250." mDiv="10" mFix="1" mStep="-1." massFrac="52.49" mfg="Aerotech" peakThrust="386." propWt="250." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="125." f="0." m="250." t="0."/>
+<eng-data cg="125." f="386." m="250." t="0."/>
+<eng-data cg="125." f="289.39" m="230.833" t="0.1"/>
+<eng-data cg="125." f="276.22" m="214.781" t="0.2"/>
+<eng-data cg="125." f="276.22" m="199.103" t="0.3"/>
+<eng-data cg="125." f="293.79" m="182.927" t="0.4"/>
+<eng-data cg="125." f="271.86" m="166.874" t="0.5"/>
+<eng-data cg="125." f="271.86" m="151.444" t="0.6"/>
+<eng-data cg="125." f="206.08" m="56.4989" t="1.3"/>
+<eng-data cg="125." f="131.57" m="8.58756" t="1.8"/>
+<eng-data cg="125." f="52.62" m="3.36039" t="1.9"/>
+<eng-data cg="125." f="21.93" m="1.24471" t="2."/>
+<eng-data cg="125." f="0." m="0." t="2.2"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

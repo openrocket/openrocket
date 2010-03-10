@@ -1,0 +1,18 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="194.47" Itot="587.39" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="132.594" burn-time="4.43" cgDiv="10" cgFix="1" cgStep="-1." code="I130" delays="1000" dia="38." exitDia="0." initWt="625." len="330." mDiv="10" mFix="1" mStep="-1." massFrac="49.28" mfg="Ellis Mountain" peakThrust="266.453" propWt="308." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="165." f="0." m="308." t="0."/>
+<eng-data cg="165." f="266.453" m="306.92" t="0.015456"/>
+<eng-data cg="165." f="160.753" m="302.592" t="0.0540958"/>
+<eng-data cg="165." f="169.561" m="263.776" t="0.502318"/>
+<eng-data cg="165." f="180.571" m="104.871" t="2.23338"/>
+<eng-data cg="165." f="149.742" m="82.7852" t="2.48841"/>
+<eng-data cg="165." f="136.53" m="45.0842" t="2.99073"/>
+<eng-data cg="165." f="77.0732" m="16.954" t="3.49304"/>
+<eng-data cg="165." f="26.4251" m="2.9041" t="4.01082"/>
+<eng-data cg="165." f="0." m="-0." t="4.43"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

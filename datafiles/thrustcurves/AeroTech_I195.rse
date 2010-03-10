@@ -1,0 +1,28 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="148.54" Itot="455.2" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="160.848" burn-time="2.83" cgDiv="10" cgFix="1" cgStep="-1." code="I195J" delays="6,10,14" dia="38." exitDia="0." initWt="582.4" len="297." mDiv="10" mFix="1" mStep="-1." massFrac="53.66" mfg="Aerotech" peakThrust="244.78" propWt="312.5" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="148.5" f="0." m="312.5" t="0."/>
+<eng-data cg="148.5" f="244.78" m="312.5" t="0."/>
+<eng-data cg="148.5" f="236.61" m="295.976" t="0.1"/>
+<eng-data cg="148.5" f="216.19" m="280.433" t="0.2"/>
+<eng-data cg="148.5" f="212.11" m="265.732" t="0.3"/>
+<eng-data cg="148.5" f="212.11" m="105.554" t="1.4"/>
+<eng-data cg="148.5" f="203.94" m="91.2728" t="1.5"/>
+<eng-data cg="148.5" f="188.46" m="77.8035" t="1.6"/>
+<eng-data cg="148.5" f="179.49" m="65.1734" t="1.7"/>
+<eng-data cg="148.5" f="156.65" m="53.6352" t="1.8"/>
+<eng-data cg="148.5" f="142.78" m="43.357" t="1.9"/>
+<eng-data cg="148.5" f="130.53" m="33.9755" t="2."/>
+<eng-data cg="148.5" f="118.28" m="25.435" t="2.1"/>
+<eng-data cg="148.5" f="106.08" m="17.7337" t="2.2"/>
+<eng-data cg="148.5" f="89.74" m="11.012" t="2.3"/>
+<eng-data cg="148.5" f="63.63" m="5.74751" t="2.4"/>
+<eng-data cg="148.5" f="32.62" m="2.44367" t="2.5"/>
+<eng-data cg="148.5" f="8.97" m="1.01607" t="2.6"/>
+<eng-data cg="148.5" f="8.97" m="0.400271" t="2.7"/>
+<eng-data cg="148.5" f="0." m="0." t="2.83"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

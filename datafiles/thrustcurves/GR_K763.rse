@@ -1,0 +1,33 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Motors" code="K763GT" Type="reloadable" dia="54." len="492."
+initWt="1810." propWt="954." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="760.078" peakThrust="867.75" throatDia="0." exitDia="0."
+Itot="1725.38" burn-time="2.27" massFrac="52.71" Isp="184.42" tDiv="6"
+tStep="-1." tFix="1" FDiv="6" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1"
+cgDiv="10" cgStep="-1." cgFix="1">
+    <comments><![CDATA[The K763GT "Green Tornado" motor is a green flame, low smoke propellant.
+This reload produces a 36% "K" motor with 1740.27 N-seconds of total impulse,
+maximum thrust of 867.75 Newtons, and an average thrust of 763.56 Newtons,
+for a 2.27 second burn time.
+]]></comments>
+    <data>
+      <eng-data  t="0." f="0." m="954." cg="246."/>
+      <eng-data  t="0.05" f="498.4" m="947.111" cg="246."/>
+      <eng-data  t="0.07" f="565.15" m="941.23" cg="246."/>
+      <eng-data  t="0.08" f="623." m="937.945" cg="246."/>
+      <eng-data  t="0.1" f="689.75" m="930.687" cg="246."/>
+      <eng-data  t="0.12" f="720.9" m="922.887" cg="246."/>
+      <eng-data  t="0.25" f="801." m="868.19" cg="246."/>
+      <eng-data  t="0.38" f="845.5" m="809.015" cg="246."/>
+      <eng-data  t="0.65" f="867.75" m="681.13" cg="246."/>
+      <eng-data  t="0.83" f="854.4" m="595.43" cg="246."/>
+      <eng-data  t="1.95" f="778.75" m="89.747" cg="246."/>
+      <eng-data  t="2.1" f="712." m="27.9268" cg="246."/>
+      <eng-data  t="2.15" f="400.5" m="12.5486" cg="246."/>
+      <eng-data  t="2.25" f="44.5" m="0.246051" cg="246."/>
+      <eng-data  t="2.27" f="0." m="0." cg="246."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,29 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="149.89" Itot="443.903" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="277.44" burn-time="1.6" cgDiv="10" cgFix="1" cgStep="-1." code="I305FJ" delays="6,10,14" dia="38." exitDia="0." initWt="581." len="298." mDiv="10" mFix="1" mStep="-1." massFrac="51.98" mfg="Aerotech" peakThrust="405.662" propWt="302." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>I305FJ based on Aerotech instruction sheet by C. Kobel 3/30/07</comments>
+<data>
+<eng-data cg="149." f="0." m="302." t="0."/>
+<eng-data cg="149." f="341.398" m="299.677" t="0.02"/>
+<eng-data cg="149." f="365.497" m="280.441" t="0.1"/>
+<eng-data cg="149." f="383.571" m="254.96" t="0.2"/>
+<eng-data cg="149." f="403.653" m="228.181" t="0.3"/>
+<eng-data cg="149." f="405.662" m="200.651" t="0.4"/>
+<eng-data cg="149." f="405.662" m="173.053" t="0.5"/>
+<eng-data cg="149." f="404.657" m="145.489" t="0.6"/>
+<eng-data cg="149." f="374.534" m="118.984" t="0.7"/>
+<eng-data cg="149." f="342.402" m="94.596" t="0.8"/>
+<eng-data cg="149." f="309.267" m="72.4285" t="0.9"/>
+<eng-data cg="149." f="272.115" m="52.652" t="1."/>
+<eng-data cg="149." f="238.979" m="35.2664" t="1.1"/>
+<eng-data cg="149." f="224.921" m="27.3763" t="1.15"/>
+<eng-data cg="149." f="194.798" m="20.2376" t="1.2"/>
+<eng-data cg="149." f="119.489" m="9.54671" t="1.3"/>
+<eng-data cg="149." f="62.255" m="3.36443" t="1.4"/>
+<eng-data cg="149." f="33.136" m="1.742" t="1.45"/>
+<eng-data cg="149." f="23.095" m="0.785609" t="1.5"/>
+<eng-data cg="149." f="0." m="0." t="1.6"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

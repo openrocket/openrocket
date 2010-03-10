@@ -1,0 +1,32 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="K490-GR" Type="unspecified" dia="54." len="488." initWt="1854.1"
+propWt="1201.2" delays="16,15,14,13,12,11,10,9,8,7,6" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="488.864" peakThrust="593.796" throatDia="0."
+exitDia="0." Itot="1987.72" burn-time="4.07" massFrac="64.79" Isp="168.74"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro54-5G 1990K490-GR 16A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1201.2" cg="244."/>
+      <eng-data  t="0.013" f="445.79" m="1199.45" cg="244."/>
+      <eng-data  t="0.024" f="376.662" m="1196.72" cg="244."/>
+      <eng-data  t="0.083" f="559.232" m="1180.03" cg="244."/>
+      <eng-data  t="0.121" f="584.047" m="1166.9" cg="244."/>
+      <eng-data  t="0.316" f="573.412" m="1098.71" cg="244."/>
+      <eng-data  t="0.727" f="569.867" m="956.727" cg="244."/>
+      <eng-data  t="1.116" f="553.914" m="824.64" cg="244."/>
+      <eng-data  t="1.875" f="522.009" m="577.893" cg="244."/>
+      <eng-data  t="1.893" f="593.796" m="571.824" cg="244."/>
+      <eng-data  t="1.944" f="519.35" m="554.671" cg="244."/>
+      <eng-data  t="2.658" f="479.468" m="339.187" cg="244."/>
+      <eng-data  t="3.063" f="473.264" m="222.599" cg="244."/>
+      <eng-data  t="3.358" f="444.018" m="140.836" cg="244."/>
+      <eng-data  t="3.618" f="448.449" m="70.7237" cg="244."/>
+      <eng-data  t="3.894" f="240.177" m="13.296" cg="244."/>
+      <eng-data  t="4.055" f="31.019" m="0.103098" cg="244."/>
+      <eng-data  t="4.066" f="0." m="0." cg="244."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

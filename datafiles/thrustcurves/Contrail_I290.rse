@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="0." Itot="434.822" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="289.881" burn-time="1.5" cgDiv="10" cgFix="1" cgStep="-1." code="I290" delays="1000" dia="38." exitDia="0." initWt="884." len="914.4" mDiv="10" mFix="1" mStep="-1." massFrac="0." mfg="Contrail" peakThrust="521.516" propWt="68." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="0." f="0." m="0." t="0."/>
+<eng-data cg="0." f="521.516" m="0." t="0."/>
+<eng-data cg="0." f="337.451" m="0." t="0.0847458"/>
+<eng-data cg="0." f="357.903" m="0." t="0.138983"/>
+<eng-data cg="0." f="398.806" m="0." t="0.19661"/>
+<eng-data cg="0." f="490.838" m="0." t="0.308475"/>
+<eng-data cg="0." f="449.935" m="0." t="0.40339"/>
+<eng-data cg="0." f="357.903" m="0." t="0.589831"/>
+<eng-data cg="0." f="419.258" m="0." t="0.762712"/>
+<eng-data cg="0." f="265.871" m="0." t="0.932203"/>
+<eng-data cg="0." f="163.613" m="0." t="1.08814"/>
+<eng-data cg="0." f="81.8064" m="0." t="1.24068"/>
+<eng-data cg="0." f="0." m="0." t="1.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

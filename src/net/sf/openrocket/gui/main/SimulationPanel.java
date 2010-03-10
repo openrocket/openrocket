@@ -323,8 +323,6 @@ public class SimulationPanel extends JPanel {
 						if (data==null)
 							return null;
 						
-						
-						// TODO: CRITICAL: Show getMaxAcceleration if branches not available!
 						return UnitGroup.UNITS_ACCELERATION.getDefaultUnit().toStringUnit(
 								data.getMaxAcceleration());
 					}

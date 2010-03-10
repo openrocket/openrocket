@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="131.14" Itot="180.052" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="51.443" burn-time="3.5" cgDiv="10" cgFix="1" cgStep="-1." code="H73J" delays="6,10" dia="38." exitDia="0." initWt="308.3" len="154." mDiv="10" mFix="1" mStep="-1." massFrac="45.41" mfg="Aerotech" peakThrust="69.57" propWt="140." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="77." f="0." m="140." t="0."/>
+<eng-data cg="77." f="69.57" m="140." t="0."/>
+<eng-data cg="77." f="61.43" m="114.535" t="0.5"/>
+<eng-data cg="77." f="57.38" m="68.3444" t="1.5"/>
+<eng-data cg="77." f="57.38" m="37.1131" t="2.2"/>
+<eng-data cg="77." f="49.15" m="20.5465" t="2.6"/>
+<eng-data cg="77." f="45.06" m="16.8838" t="2.7"/>
+<eng-data cg="77." f="36.87" m="10.5133" t="2.9"/>
+<eng-data cg="77." f="32.78" m="5.09765" t="3.1"/>
+<eng-data cg="77." f="28.69" m="2.70784" t="3.2"/>
+<eng-data cg="77." f="4.09" m="0.15901" t="3.4"/>
+<eng-data cg="77." f="0." m="0." t="3.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

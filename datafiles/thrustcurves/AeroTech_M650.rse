@@ -1,0 +1,32 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="182.76" Itot="6005.98" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="522.259" burn-time="11.5" cgDiv="10" cgFix="1" cgStep="-1." code="M650W" delays="1000" dia="75." exitDia="0." initWt="5125." len="801." mDiv="10" mFix="1" mStep="-1." massFrac="65.39" mfg="AT" peakThrust="1328." propWt="3351." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>75-6400 case
+Greg Gardner - 10/25/07
+</comments>
+<data>
+<eng-data cg="400.5" f="0." m="3351." t="0."/>
+<eng-data cg="400.5" f="1240." m="3323.33" t="0.08"/>
+<eng-data cg="400.5" f="1328." m="3294.67" t="0.12"/>
+<eng-data cg="400.5" f="1230." m="3201.9" t="0.25"/>
+<eng-data cg="400.5" f="1142." m="3036.47" t="0.5"/>
+<eng-data cg="400.5" f="1071." m="2727.79" t="1."/>
+<eng-data cg="400.5" f="1048." m="2432.22" t="1.5"/>
+<eng-data cg="400.5" f="1018." m="2144.04" t="2."/>
+<eng-data cg="400.5" f="982." m="1865.07" t="2.5"/>
+<eng-data cg="400.5" f="950." m="1595.58" t="3."/>
+<eng-data cg="400.5" f="853." m="1344.09" t="3.5"/>
+<eng-data cg="400.5" f="781." m="1116.17" t="4."/>
+<eng-data cg="400.5" f="595." m="732.301" t="5."/>
+<eng-data cg="400.5" f="443." m="442.728" t="6."/>
+<eng-data cg="400.5" f="297." m="236.289" t="7."/>
+<eng-data cg="400.5" f="155." m="110.194" t="8."/>
+<eng-data cg="400.5" f="88." m="42.4037" t="9."/>
+<eng-data cg="400.5" f="32." m="8.9271" t="10."/>
+<eng-data cg="400.5" f="12." m="2.78972" t="10.5"/>
+<eng-data cg="400.5" f="4." m="0.557944" t="11."/>
+<eng-data cg="400.5" f="0." m="0." t="11.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

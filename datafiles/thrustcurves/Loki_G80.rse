@@ -1,0 +1,18 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="G80-LW" Type="reloadable" dia="38." len="127." initWt="275."
+propWt="60." delays="5,8,10,13,17" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="80.352" peakThrust="112.069" throatDia="0." exitDia="0."
+Itot="120.528" burn-time="1.5" massFrac="21.82" Isp="204.84" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="60." cg="63.5"/>
+      <eng-data  t="0.00931677" f="112.069" m="59.7401" cg="63.5"/>
+      <eng-data  t="0.416149" f="112.069" m="37.0433" cg="63.5"/>
+      <eng-data  t="0.876781" f="89.6825" m="13.9118" cg="63.5"/>
+      <eng-data  t="1.5" f="0." m="0." cg="63.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

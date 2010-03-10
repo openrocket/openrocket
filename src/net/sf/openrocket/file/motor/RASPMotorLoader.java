@@ -126,7 +126,7 @@ public class RASPMotorLoader extends MotorLoader {
 				
 				if (propW > totalW) {
 					throw new IOException("Propellant weight exceeds total weight in " +
-							"RASP file");
+							"RASP file " + filename);
 				}
 				
 				// Read the data

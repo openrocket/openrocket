@@ -1,0 +1,22 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="M900-LR" Type="reloadable" dia="75." len="785." initWt="5530."
+propWt="3130." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="912.815" peakThrust="1060.69" throatDia="0." exitDia="0."
+Itot="5476.89" burn-time="6." massFrac="56.6" Isp="178.43" tDiv="10" tStep="-1."
+tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="3130." cg="392.5"/>
+      <eng-data  t="0.02" f="807.388" m="3125.39" cg="392.5"/>
+      <eng-data  t="1." f="992.084" m="2621.48" cg="392.5"/>
+      <eng-data  t="2." f="1050.13" m="2037.92" cg="392.5"/>
+      <eng-data  t="3." f="1060.69" m="1434.76" cg="392.5"/>
+      <eng-data  t="4." f="992.084" m="848.191" cg="392.5"/>
+      <eng-data  t="5." f="923.483" m="300.825" cg="392.5"/>
+      <eng-data  t="5.5" f="591.029" m="84.4422" cg="392.5"/>
+      <eng-data  t="6." f="0." m="0." cg="392.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

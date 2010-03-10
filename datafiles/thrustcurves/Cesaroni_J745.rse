@@ -1,0 +1,75 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="J745WW" Type="reloadable" dia="54."
+len="326." initWt="1220." propWt="549." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="744.284" peakThrust="864.521" throatDia="0."
+exitDia="0." Itot="1198.3" burn-time="1.61" massFrac="45." Isp="222.57" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Entered by Tim Van Milligan for RockSim users. Used ThrustCurve Tracer by John
+Coker. Data from CAR web site, thrust curve from AMW web site.
+</comments>
+<data>
+<eng-data  t="0." f="0." m="549." cg="163."/>
+<eng-data  t="0.016" f="666.494" m="546.557" cg="163."/>
+<eng-data  t="0.019" f="715.262" m="545.608" cg="163."/>
+<eng-data  t="0.029" f="744.818" m="542.263" cg="163."/>
+<eng-data  t="0.04" f="746.296" m="538.506" cg="163."/>
+<eng-data  t="0.053" f="768.463" m="533.995" cg="163."/>
+<eng-data  t="0.063" f="778.808" m="530.45" cg="163."/>
+<eng-data  t="0.075" f="812.798" m="526.075" cg="163."/>
+<eng-data  t="0.087" f="823.142" m="521.578" cg="163."/>
+<eng-data  t="0.112" f="839.398" m="512.057" cg="163."/>
+<eng-data  t="0.127" f="834.965" m="506.304" cg="163."/>
+<eng-data  t="0.144" f="846.787" m="499.754" cg="163."/>
+<eng-data  t="0.156" f="846.787" m="495.099" cg="163."/>
+<eng-data  t="0.173" f="848.265" m="488.498" cg="163."/>
+<eng-data  t="0.205" f="848.265" m="476.062" cg="163."/>
+<eng-data  t="0.213" f="848.265" m="472.953" cg="163."/>
+<eng-data  t="0.221" f="858.61" m="469.825" cg="163."/>
+<eng-data  t="0.242" f="858.61" m="461.564" cg="163."/>
+<eng-data  t="0.269" f="860.088" m="450.934" cg="163."/>
+<eng-data  t="0.279" f="863.043" m="446.986" cg="163."/>
+<eng-data  t="0.3" f="860.088" m="438.697" cg="163."/>
+<eng-data  t="0.322" f="864.521" m="430.006" cg="163."/>
+<eng-data  t="0.34" f="861.566" m="422.888" cg="163."/>
+<eng-data  t="0.348" f="858.61" m="419.736" cg="163."/>
+<eng-data  t="0.362" f="861.566" m="414.219" cg="163."/>
+<eng-data  t="0.385" f="860.088" m="405.148" cg="163."/>
+<eng-data  t="0.414" f="858.61" m="393.731" cg="163."/>
+<eng-data  t="0.443" f="855.654" m="382.343" cg="163."/>
+<eng-data  t="0.459" f="861.566" m="376.049" cg="163."/>
+<eng-data  t="0.47" f="858.61" m="371.714" cg="163."/>
+<eng-data  t="0.478" f="861.566" m="368.562" cg="163."/>
+<eng-data  t="0.489" f="855.654" m="364.235" cg="163."/>
+<eng-data  t="0.528" f="849.743" m="348.999" cg="163."/>
+<eng-data  t="0.55" f="855.654" m="340.404" cg="163."/>
+<eng-data  t="0.585" f="848.265" m="326.743" cg="163."/>
+<eng-data  t="0.619" f="849.743" m="313.518" cg="163."/>
+<eng-data  t="0.637" f="846.787" m="306.522" cg="163."/>
+<eng-data  t="0.661" f="846.787" m="297.211" cg="163."/>
+<eng-data  t="0.736" f="834.965" m="268.318" cg="163."/>
+<eng-data  t="0.826" f="817.231" m="234.255" cg="163."/>
+<eng-data  t="0.92" f="795.064" m="199.537" cg="163."/>
+<eng-data  t="1.057" f="755.163" m="150.886" cg="163."/>
+<eng-data  t="1.156" f="722.651" m="117.372" cg="163."/>
+<eng-data  t="1.228" f="707.873" m="93.7776" cg="163."/>
+<eng-data  t="1.305" f="693.095" m="69.0662" cg="163."/>
+<eng-data  t="1.347" f="679.794" m="55.8575" cg="163."/>
+<eng-data  t="1.392" f="666.494" m="41.9794" cg="163."/>
+<eng-data  t="1.416" f="666.494" m="34.6509" cg="163."/>
+<eng-data  t="1.426" f="666.494" m="31.5974" cg="163."/>
+<eng-data  t="1.448" f="666.494" m="24.8796" cg="163."/>
+<eng-data  t="1.477" f="666.494" m="16.0243" cg="163."/>
+<eng-data  t="1.48" f="665.016" m="15.1093" cg="163."/>
+<eng-data  t="1.485" f="633.982" m="13.6214" cg="163."/>
+<eng-data  t="1.493" f="561.569" m="11.4305" cg="163."/>
+<eng-data  t="1.515" f="366.498" m="6.75335" cg="163."/>
+<eng-data  t="1.533" f="257.14" m="4.18187" cg="163."/>
+<eng-data  t="1.555" f="162.56" m="2.06673" cg="163."/>
+<eng-data  t="1.583" f="81.28" m="0.502719" cg="163."/>
+<eng-data  t="1.61" f="0." m="0." cg="163."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

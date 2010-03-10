@@ -1,0 +1,37 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="AT-RMS" code="I1299N" Type="reloadable" dia="38." len="249." initWt="422."
+propWt="192." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1248.44" peakThrust="1491." throatDia="0." exitDia="0." Itot="424.469"
+burn-time="0.34" massFrac="45.5" Isp="225.44" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Entered by Jim Yehle
+from TRA cert document
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="192." cg="124.5"/>
+      <eng-data  t="0." f="15.7171" m="192." cg="124.5"/>
+      <eng-data  t="0.00361" f="222.5" m="191.806" cg="124.5"/>
+      <eng-data  t="0.0115" f="1112." m="189.424" cg="124.5"/>
+      <eng-data  t="0.0134228" f="1237.11" m="188.403" cg="124.5"/>
+      <eng-data  t="0.02" f="1287." m="184.648" cg="124.5"/>
+      <eng-data  t="0.04" f="1359." m="172.679" cg="124.5"/>
+      <eng-data  t="0.1" f="1451." m="134.548" cg="124.5"/>
+      <eng-data  t="0.12" f="1470." m="121.335" cg="124.5"/>
+      <eng-data  t="0.18" f="1491." m="81.1548" cg="124.5"/>
+      <eng-data  t="0.2" f="1483." m="67.7025" cg="124.5"/>
+      <eng-data  t="0.22" f="1462." m="54.3814" cg="124.5"/>
+      <eng-data  t="0.24" f="1399." m="41.4402" cg="124.5"/>
+      <eng-data  t="0.28" f="1208." m="17.8557" cg="124.5"/>
+      <eng-data  t="0.294743" f="1131.63" m="10.0547" cg="124.5"/>
+      <eng-data  t="0.3" f="1065." m="7.4429" cg="124.5"/>
+      <eng-data  t="0.304251" f="974.46" m="5.48231" cg="124.5"/>
+      <eng-data  t="0.32" f="305." m="0.92491" cg="124.5"/>
+      <eng-data  t="0.330537" f="55.0098" m="0.0669778" cg="124.5"/>
+      <eng-data  t="0.333893" f="11.7878" m="0.0162822" cg="124.5"/>
+      <eng-data  t="0.34" f="0." m="0." cg="124.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

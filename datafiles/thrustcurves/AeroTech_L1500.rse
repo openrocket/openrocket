@@ -1,0 +1,14 @@
+<engine-database>
+  <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="224.32" Itot="3616.45" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1500.6" burn-time="2.41" cgDiv="10" cgFix="1" cgStep="-1." code="L1500T" delays="1000" dia="98." exitDia="0." initWt="2300." len="665." mDiv="10" mFix="1" mStep="-1." massFrac="71.48" mfg="Aerotech" peakThrust="2381." propWt="1644." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="332.5" f="0." m="1644." t="0."/>
+<eng-data cg="332.5" f="1800." m="1562.17" t="0.2"/>
+<eng-data cg="332.5" f="2381." m="1277.08" t="0.5"/>
+<eng-data cg="332.5" f="2372." m="1266.28" t="0.51"/>
+<eng-data cg="332.5" f="1072." m="99.9004" t="2."/>
+<eng-data cg="332.5" f="0." m="0." t="2.41"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

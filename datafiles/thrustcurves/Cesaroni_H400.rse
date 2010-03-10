@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="H400-Vmax" Type="reloadable" dia="38."
+len="186." initWt="283.6" propWt="122.4" delays="4,6,8,10,14" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="398.559" peakThrust="439.18" throatDia="0."
+exitDia="0." Itot="255.078" burn-time="0.64" massFrac="47.67" Isp="192.39"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="135.2" cg="93."/>
+<eng-data  t="0.01" f="222.15" m="134.611" cg="93."/>
+<eng-data  t="0.02" f="305.29" m="133.213" cg="93."/>
+<eng-data  t="0.03" f="314.52" m="131.571" cg="93."/>
+<eng-data  t="0.05" f="342.46" m="128.089" cg="93."/>
+<eng-data  t="0.1" f="382.51" m="118.482" cg="93."/>
+<eng-data  t="0.15" f="407.45" m="108.014" cg="93."/>
+<eng-data  t="0.2" f="420.81" m="97.0393" cg="93."/>
+<eng-data  t="0.25" f="433.45" m="85.7196" cg="93."/>
+<eng-data  t="0.3" f="439.18" m="74.1565" cg="93."/>
+<eng-data  t="0.4" f="436.45" m="50.9508" cg="93."/>
+<eng-data  t="0.5" f="422.67" m="28.1827" cg="93."/>
+<eng-data  t="0.6" f="423.13" m="5.76749" cg="93."/>
+<eng-data  t="0.62" f="364.93" m="1.5905" cg="93."/>
+<eng-data  t="0.63" f="117.61" m="0.311687" cg="93."/>
+<eng-data  t="0.64" f="0." m="0." cg="93."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

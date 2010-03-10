@@ -1,0 +1,19 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="966.16" Itot="928.528" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="343.899" burn-time="2.7" cgDiv="10" cgFix="1" cgStep="-1." code="J345" delays="1000" dia="38." exitDia="0." initWt="1118." len="1219.2" mDiv="10" mFix="1" mStep="-1." massFrac="8.77" mfg="Contrail" peakThrust="881.09" propWt="98." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>J-345-PVC
+38mm/48 Inch Hardware
+735cc
+Fast Nozzle
+</comments>
+<data>
+<eng-data cg="609.6" f="0." m="98." t="0."/>
+<eng-data cg="609.6" f="881.09" m="97.74" t="0.00559284"/>
+<eng-data cg="609.6" f="667.233" m="91.7992" t="0.0782998"/>
+<eng-data cg="609.6" f="376.388" m="28.9635" t="1.21924"/>
+<eng-data cg="609.6" f="359.279" m="27.2266" t="1.26398"/>
+<eng-data cg="609.6" f="0." m="0." t="2.7"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

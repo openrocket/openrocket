@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="211.01" Itot="7191.18" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="875.906" burn-time="8.21" cgDiv="10" cgFix="1" cgStep="-1." code="M1000" delays="1000" dia="75." exitDia="0." initWt="5577.6" len="787." mDiv="10" mFix="1" mStep="-1." massFrac="62.31" mfg="Ellis Mountain" peakThrust="1897.85" propWt="3475.14" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="393.5" f="0." m="3475.14" t="0."/>
+<eng-data cg="393.5" f="1897.85" m="3401.77" t="0.16"/>
+<eng-data cg="393.5" f="1606.84" m="3130.79" t="0.48"/>
+<eng-data cg="393.5" f="1442.25" m="2895.03" t="0.8"/>
+<eng-data cg="393.5" f="1360.56" m="2671.55" t="1.13"/>
+<eng-data cg="393.5" f="1300.03" m="2465.83" t="1.45"/>
+<eng-data cg="393.5" f="1259.95" m="2267.89" t="1.77"/>
+<eng-data cg="393.5" f="1231.62" m="2075.24" t="2.09"/>
+<eng-data cg="393.5" f="1203.01" m="1887." t="2.41"/>
+<eng-data cg="393.5" f="1180.44" m="1702.71" t="2.73"/>
+<eng-data cg="393.5" f="1155.04" m="1516.49" t="3.06"/>
+<eng-data cg="393.5" f="1109.26" m="1341.41" t="3.38"/>
+<eng-data cg="393.5" f="1075.88" m="1172.46" t="3.7"/>
+<eng-data cg="393.5" f="1045.73" m="1008.41" t="4.02"/>
+<eng-data cg="393.5" f="1010.71" m="849.409" t="4.34"/>
+<eng-data cg="393.5" f="951.57" m="692.944" t="4.67"/>
+<eng-data cg="393.5" f="860.89" m="552.804" t="4.99"/>
+<eng-data cg="393.5" f="727.66" m="429.978" t="5.31"/>
+<eng-data cg="393.5" f="595.9" m="327.64" t="5.63"/>
+<eng-data cg="393.5" f="519.12" m="238.732" t="5.96"/>
+<eng-data cg="393.5" f="440.08" m="164.567" t="6.28"/>
+<eng-data cg="393.5" f="347.88" m="103.642" t="6.6"/>
+<eng-data cg="393.5" f="239.48" m="58.2273" t="6.92"/>
+<eng-data cg="393.5" f="144.67" m="28.5248" t="7.24"/>
+<eng-data cg="393.5" f="75.14" m="10.998" t="7.57"/>
+<eng-data cg="393.5" f="33.55" m="2.59409" t="7.89"/>
+<eng-data cg="393.5" f="0." m="-0." t="8.21"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

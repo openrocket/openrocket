@@ -1,0 +1,34 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="215.97" Itot="3477.72" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1107.55" burn-time="3.14" cgDiv="10" cgFix="1" cgStep="-1." code="L1111ST" delays="1000" dia="76." exitDia="0." initWt="3517." len="497." mDiv="10" mFix="1" mStep="-1." massFrac="46.69" mfg="Animal Motor Works" peakThrust="1398.33" propWt="1642." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>L1111ST entered by Tim Van Milligan
+For RockSim - http://www.rocksim.com
+Based on TRA Certification paperwork from 06-01-2002
+Initial Mass from Jim Robinson at AMW
+Not approved by TRA or AMW.
+</comments>
+<data>
+<eng-data cg="248.5" f="0." m="1642." t="0."/>
+<eng-data cg="248.5" f="1023.97" m="1638.37" t="0.015"/>
+<eng-data cg="248.5" f="924.878" m="1599.27" t="0.1"/>
+<eng-data cg="248.5" f="902.857" m="1578.99" t="0.147"/>
+<eng-data cg="248.5" f="1034.98" m="1416.59" t="0.502"/>
+<eng-data cg="248.5" f="1156.1" m="1288.31" t="0.75"/>
+<eng-data cg="248.5" f="1266.2" m="1142.49" t="1.005"/>
+<eng-data cg="248.5" f="1354.29" m="1003.91" t="1.229"/>
+<eng-data cg="248.5" f="1398.33" m="833.009" t="1.492"/>
+<eng-data cg="248.5" f="1398.33" m="669.935" t="1.739"/>
+<eng-data cg="248.5" f="1354.29" m="494.483" t="2.009"/>
+<eng-data cg="248.5" f="1244.18" m="333.151" t="2.272"/>
+<eng-data cg="248.5" f="1123.07" m="203.498" t="2.504"/>
+<eng-data cg="248.5" f="968.92" m="92.8724" t="2.728"/>
+<eng-data cg="248.5" f="902.857" m="69.011" t="2.782"/>
+<eng-data cg="248.5" f="770.732" m="47.6761" t="2.836"/>
+<eng-data cg="248.5" f="363.345" m="9.12349" t="2.98"/>
+<eng-data cg="248.5" f="99.094" m="1.15408" t="3.053"/>
+<eng-data cg="248.5" f="22.021" m="0.29632" t="3.083"/>
+<eng-data cg="248.5" f="0." m="0." t="3.14"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="119.38" Itot="2458.58" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="910.585" burn-time="2.7" cgDiv="10" cgFix="1" cgStep="-1." code="K888" delays="1000" dia="75." exitDia="0." initWt="4100." len="990.6" mDiv="10" mFix="1" mStep="-1." massFrac="51.22" mfg="Contrail" peakThrust="1365." propWt="2100." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Contrail Rockets Hybrid Rocket Motor (K888)
+75mm-2000cc Hardware with Medium Injector Kit and Nozzle
+Black Smoke Reload
+Data Input By Tom R. Sanders of Contrail Rockets LLC.
+</comments>
+<data>
+<eng-data cg="495.3" f="0." m="2100." t="0."/>
+<eng-data cg="495.3" f="1365." m="2100." t="0."/>
+<eng-data cg="495.3" f="1365." m="1517.04" t="0.5"/>
+<eng-data cg="495.3" f="1069.77" m="954.045" t="1.04143"/>
+<eng-data cg="495.3" f="434.109" m="19.0464" t="2.4972"/>
+<eng-data cg="495.3" f="124.031" m="8.3699" t="2.54199"/>
+<eng-data cg="495.3" f="0." m="0." t="2.7"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

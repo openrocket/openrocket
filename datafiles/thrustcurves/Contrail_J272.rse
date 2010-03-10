@@ -1,0 +1,19 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="958.3" Itot="1071.34" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="277.55" burn-time="3.86" cgDiv="10" cgFix="1" cgStep="-1." code="J272" delays="1000" dia="54." exitDia="0." initWt="1746." len="914.4" mDiv="10" mFix="1" mStep="-1." massFrac="6.53" mfg="Contrail" peakThrust="572.645" propWt="114." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="457.2" f="0." m="114." t="0."/>
+<eng-data cg="457.2" f="398.806" m="113.82" t="0.00847458"/>
+<eng-data cg="457.2" f="572.645" m="105.498" t="0.169492"/>
+<eng-data cg="457.2" f="460.161" m="85.4739" t="0.533898"/>
+<eng-data cg="457.2" f="388.58" m="70.1666" t="0.872881"/>
+<eng-data cg="457.2" f="357.903" m="62.7619" t="1.05932"/>
+<eng-data cg="457.2" f="204.516" m="7.22672" t="2.91525"/>
+<eng-data cg="457.2" f="71.5806" m="3.11864" t="3.19492"/>
+<eng-data cg="457.2" f="40.9032" m="1.19139" t="3.51695"/>
+<eng-data cg="457.2" f="51.129" m="0.610449" t="3.63559"/>
+<eng-data cg="457.2" f="0." m="0." t="3.86"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

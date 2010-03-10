@@ -1,0 +1,33 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="179.25" Itot="107.054" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="75.39" burn-time="1.42" cgDiv="10" cgFix="1" cgStep="-1." code="G79W" delays="6,10,14" dia="29." exitDia="0." initWt="154." len="149.86" mDiv="10" mFix="1" mStep="-1." massFrac="39.55" mfg="Aerotech" peakThrust="99.645" propWt="60.9" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>G79W Data Entered by Tim Van Milligan
+For RockSim: www.RockSim.com
+Based on TRA Certification Test date: June 13, 2004
+Not Approved by TRA or Aerotech
+</comments>
+<data>
+<eng-data cg="74.93" f="0." m="60.9" t="0."/>
+<eng-data cg="74.93" f="7.157" m="60.8695" t="0.015"/>
+<eng-data cg="74.93" f="91.937" m="59.2065" t="0.074"/>
+<eng-data cg="74.93" f="91.387" m="58.3722" t="0.09"/>
+<eng-data cg="74.93" f="84.781" m="57.1696" t="0.114"/>
+<eng-data cg="74.93" f="84.23" m="55.6793" t="0.145"/>
+<eng-data cg="74.93" f="89.185" m="52.9171" t="0.201"/>
+<eng-data cg="74.93" f="94.69" m="48.21" t="0.291"/>
+<eng-data cg="74.93" f="98.544" m="42.219" t="0.4"/>
+<eng-data cg="74.93" f="99.645" m="30.9446" t="0.6"/>
+<eng-data cg="74.93" f="96.892" m="24.9071" t="0.708"/>
+<eng-data cg="74.93" f="93.038" m="19.937" t="0.8"/>
+<eng-data cg="74.93" f="85.331" m="14.1025" t="0.915"/>
+<eng-data cg="74.93" f="77.624" m="10.1627" t="1."/>
+<eng-data cg="74.93" f="71.017" m="6.56901" t="1.085"/>
+<eng-data cg="74.93" f="68.265" m="3.00348" t="1.175"/>
+<eng-data cg="74.93" f="44.59" m="2.23308" t="1.199"/>
+<eng-data cg="74.93" f="22.021" m="0.698401" t="1.28"/>
+<eng-data cg="74.93" f="4.955" m="0.0845631" t="1.36"/>
+<eng-data cg="74.93" f="0." m="0." t="1.42"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

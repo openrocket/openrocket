@@ -1,0 +1,50 @@
+<engine-database>
+  <engine-list>
+  <engine  mfg="West Coast Hybrids" code="L600" Type="hybrid" dia="75." len="1016."
+initWt="5134." propWt="2265." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="583.141" peakThrust="1148.36" throatDia="0." exitDia="0."
+Itot="3174.03" burn-time="5.44" massFrac="44.12" Isp="142.9" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve and engine data from C.A.R. certification dated
+6-30-06.
+</comments>
+<data>
+<eng-data  t="0." f="0." m="2265." cg="508."/>
+<eng-data  t="0.072" f="871.284" m="2242.62" cg="508."/>
+<eng-data  t="0.119" f="580.856" m="2218.27" cg="508."/>
+<eng-data  t="0.215" f="674.327" m="2175.27" cg="508."/>
+<eng-data  t="0.263" f="564.164" m="2154.06" cg="508."/>
+<eng-data  t="0.31" f="704.371" m="2132.79" cg="508."/>
+<eng-data  t="0.43" f="831.225" m="2067.04" cg="508."/>
+<eng-data  t="0.477" f="787.827" m="2039.89" cg="508."/>
+<eng-data  t="0.561" f="1148.36" m="1981.86" cg="508."/>
+<eng-data  t="0.633" f="1098.29" m="1924.14" cg="508."/>
+<eng-data  t="0.752" f="1124.99" m="1829.74" cg="508."/>
+<eng-data  t="0.883" f="1101.62" m="1725.67" cg="508."/>
+<eng-data  t="0.979" f="804.519" m="1660.38" cg="508."/>
+<eng-data  t="1.134" f="761.121" m="1573.79" cg="508."/>
+<eng-data  t="1.241" f="847.916" m="1512.36" cg="508."/>
+<eng-data  t="1.337" f="767.798" m="1457.02" cg="508."/>
+<eng-data  t="1.42" f="754.445" m="1411.94" cg="508."/>
+<eng-data  t="1.468" f="774.474" m="1385.75" cg="508."/>
+<eng-data  t="1.552" f="744.43" m="1340.23" cg="508."/>
+<eng-data  t="1.946" f="711.048" m="1135.62" cg="508."/>
+<eng-data  t="2.626" f="684.342" m="797.064" cg="508."/>
+<eng-data  t="3.056" f="674.327" m="588.611" cg="508."/>
+<eng-data  t="3.39" f="614.238" m="435.05" cg="508."/>
+<eng-data  t="3.473" f="630.93" m="398.175" cg="508."/>
+<eng-data  t="3.593" f="627.591" m="344.29" cg="508."/>
+<eng-data  t="3.724" f="610.9" m="286.402" cg="508."/>
+<eng-data  t="3.796" f="574.179" m="255.958" cg="508."/>
+<eng-data  t="3.927" f="450.664" m="208.055" cg="508."/>
+<eng-data  t="4.058" f="380.561" m="169.203" cg="508."/>
+<eng-data  t="4.393" f="257.045" m="92.9911" cg="508."/>
+<eng-data  t="4.727" f="166.913" m="42.4673" cg="508."/>
+<eng-data  t="5.168" f="63.427" m="6.22348" cg="508."/>
+<eng-data  t="5.443" f="0." m="0." cg="508."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

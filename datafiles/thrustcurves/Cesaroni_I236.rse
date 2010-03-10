@@ -1,0 +1,42 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Cesaroni" code="I236-Blue Streak" Type="reloadable" dia="38." len="245."
+initWt="400." propWt="204." delays="17,14,12,10,8" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="229.006" peakThrust="313.594" throatDia="0."
+exitDia="0." Itot="414.501" burn-time="1.81" massFrac="51." Isp="207.19"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="204." cg="122.5"/>
+      <eng-data  t="0.028" f="290.772" m="201.997" cg="122.5"/>
+      <eng-data  t="0.042" f="313.594" m="199.914" cg="122.5"/>
+      <eng-data  t="0.049" f="267.95" m="198.913" cg="122.5"/>
+      <eng-data  t="0.053" f="253.58" m="198.399" cg="122.5"/>
+      <eng-data  t="0.072" f="245.973" m="196.064" cg="122.5"/>
+      <eng-data  t="0.095" f="256.961" m="193.217" cg="122.5"/>
+      <eng-data  t="0.127" f="262.033" m="189.13" cg="122.5"/>
+      <eng-data  t="0.153" f="266.259" m="185.75" cg="122.5"/>
+      <eng-data  t="0.243" f="268.795" m="173.9" cg="122.5"/>
+      <eng-data  t="0.338" f="269.64" m="161.313" cg="122.5"/>
+      <eng-data  t="0.454" f="270.486" m="145.895" cg="122.5"/>
+      <eng-data  t="0.633" f="266.259" m="122.253" cg="122.5"/>
+      <eng-data  t="0.753" f="262.878" m="106.627" cg="122.5"/>
+      <eng-data  t="0.89" f="256.116" m="89.1307" cg="122.5"/>
+      <eng-data  t="1.01" f="251.89" m="74.1295" cg="122.5"/>
+      <eng-data  t="1.119" f="247.663" m="60.7302" cg="122.5"/>
+      <eng-data  t="1.277" f="236.675" m="41.899" cg="122.5"/>
+      <eng-data  t="1.353" f="231.603" m="33.1412" cg="122.5"/>
+      <eng-data  t="1.453" f="227.377" m="21.8467" cg="122.5"/>
+      <eng-data  t="1.525" f="225.686" m="13.8195" cg="122.5"/>
+      <eng-data  t="1.555" f="195.257" m="10.7119" cg="122.5"/>
+      <eng-data  t="1.581" f="158.91" m="8.44594" cg="122.5"/>
+      <eng-data  t="1.618" f="119.183" m="5.91393" cg="122.5"/>
+      <eng-data  t="1.685" f="89.598" m="2.4717" cg="122.5"/>
+      <eng-data  t="1.729" f="56.633" m="0.888384" cg="122.5"/>
+      <eng-data  t="1.743" f="36.347" m="0.568058" cg="122.5"/>
+      <eng-data  t="1.766" f="21.977" m="0.237955" cg="122.5"/>
+      <eng-data  t="1.81" f="0." m="0." cg="122.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

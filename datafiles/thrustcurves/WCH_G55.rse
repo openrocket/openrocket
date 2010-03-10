@@ -1,0 +1,40 @@
+<engine-database>
+  <engine-list>
+  <engine  mfg="West Coast Hybrids" code="G55" Type="hybrid" dia="38." len="308."
+initWt="465.8" propWt="140.8" delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="48.019" peakThrust="144.052" throatDia="0." exitDia="0."
+Itot="150.683" burn-time="3.14" massFrac="30.23" Isp="109.13" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+  <comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve and engine data from C.A.R. certification dated
+June 8, 2006.
+</comments>
+  <data>
+    <eng-data  t="0." f="0." m="140.8" cg="154."/>
+    <eng-data  t="0.053" f="144.052" m="137.233" cg="154."/>
+    <eng-data  t="0.124" f="75.173" m="129.961" cg="154."/>
+    <eng-data  t="0.212" f="73.425" m="123.851" cg="154."/>
+    <eng-data  t="0.313" f="70.977" m="117.037" cg="154."/>
+    <eng-data  t="0.649" f="62.936" m="96.0155" cg="154."/>
+    <eng-data  t="0.879" f="57.341" m="83.0908" cg="154."/>
+    <eng-data  t="1.02" f="55.243" m="75.6742" cg="154."/>
+    <eng-data  t="1.162" f="54.194" m="68.4138" cg="154."/>
+    <eng-data  t="1.239" f="56.992" m="64.4139" cg="154."/>
+    <eng-data  t="1.498" f="54.194" m="50.9597" cg="154."/>
+    <eng-data  t="1.539" f="51.397" m="48.937" cg="154."/>
+    <eng-data  t="1.634" f="49.999" m="44.4366" cg="154."/>
+    <eng-data  t="1.693" f="52.097" m="41.6223" cg="154."/>
+    <eng-data  t="1.822" f="51.747" m="35.3636" cg="154."/>
+    <eng-data  t="1.899" f="49.999" m="31.7033" cg="154."/>
+    <eng-data  t="2.047" f="48.251" m="24.9097" cg="154."/>
+    <eng-data  t="2.094" f="46.153" m="22.8367" cg="154."/>
+    <eng-data  t="2.17" f="39.859" m="19.7826" cg="154."/>
+    <eng-data  t="2.247" f="36.363" m="17.0405" cg="154."/>
+    <eng-data  t="2.577" f="22.377" m="7.98407" cg="154."/>
+    <eng-data  t="2.955" f="15.384" m="1.31532" cg="154."/>
+    <eng-data  t="3.138" f="0." m="0." cg="154."/>
+  </data>
+</engine>
+</engine-list>
+</engine-database>

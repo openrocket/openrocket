@@ -206,6 +206,7 @@ public class MotorChooserDialog extends JDialog {
 				if (row >= 0) {
 					row = table.convertRowIndexToModel(row);
 					Motor m = model.getMotor(row);
+					// TODO: HIGH: equals or == ?
 					if (!m.equals(selectedMotor)) {
 						selectedMotor = model.getMotor(row);
 						setDelays(true);  // Reset delay times

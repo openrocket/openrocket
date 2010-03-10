@@ -1,0 +1,24 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="875.68" Itot="1571.52" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="320.718" burn-time="4.9" cgDiv="10" cgFix="1" cgStep="-1." code="K321" delays="1000" dia="54." exitDia="0." initWt="2043." len="1219.2" mDiv="10" mFix="1" mStep="-1." massFrac="8.96" mfg="Contrail" peakThrust="732.246" propWt="183." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>K-321-BG Reload
+54mm/48 Inch Hardware
+Medium Nozzle
+</comments>
+<data>
+<eng-data cg="609.6" f="0." m="183." t="0."/>
+<eng-data cg="609.6" f="218.989" m="182.929" t="0.00559284"/>
+<eng-data cg="609.6" f="410.605" m="175.138" t="0.218121"/>
+<eng-data cg="609.6" f="718.559" m="125.499" t="0.973154"/>
+<eng-data cg="609.6" f="732.246" m="124.081" t="0.989933"/>
+<eng-data cg="609.6" f="444.822" m="119.482" t="1.05705"/>
+<eng-data cg="609.6" f="403.762" m="98.2041" t="1.4877"/>
+<eng-data cg="609.6" f="232.676" m="6.18609" t="3.97092"/>
+<eng-data cg="609.6" f="88.9644" m="3.46297" t="4.11633"/>
+<eng-data cg="609.6" f="54.7473" m="2.48021" t="4.23378"/>
+<eng-data cg="609.6" f="54.7473" m="1.76708" t="4.34564"/>
+<eng-data cg="609.6" f="0." m="0." t="4.9"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

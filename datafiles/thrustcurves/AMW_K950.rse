@@ -1,0 +1,47 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="213.59" Itot="1858.76" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="943.534" burn-time="1.97" cgDiv="10" cgFix="1" cgStep="-1." code="K950ST" delays="1000" dia="54." exitDia="0." initWt="1794.9" len="492." mDiv="10" mFix="1" mStep="-1." massFrac="49.44" mfg="Animal Motor Works" peakThrust="1204.52" propWt="887.4" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AMW K950 RASP.ENG file made from NAR published data
+File produced SEPT 4, 2002
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="246." f="0." m="887.4" t="0."/>
+<eng-data cg="246." f="771.836" m="885.373" t="0.011"/>
+<eng-data cg="246." f="1204.52" m="878.769" t="0.025"/>
+<eng-data cg="246." f="1083.24" m="871.123" t="0.039"/>
+<eng-data cg="246." f="1158.05" m="863.633" t="0.053"/>
+<eng-data cg="246." f="1036.36" m="856.299" t="0.067"/>
+<eng-data cg="246." f="1110.18" m="847.076" t="0.085"/>
+<eng-data cg="246." f="1022.4" m="839.949" t="0.099"/>
+<eng-data cg="246." f="982.102" m="822.724" t="0.135"/>
+<eng-data cg="246." f="968.835" m="783.139" t="0.22"/>
+<eng-data cg="246." f="1010.43" m="696.206" t="0.404"/>
+<eng-data cg="246." f="1044.34" m="616.746" t="0.566"/>
+<eng-data cg="246." f="1079.25" m="548.313" t="0.701"/>
+<eng-data cg="246." f="1106.19" m="461.714" t="0.867"/>
+<eng-data cg="246." f="1134.12" m="393.262" t="0.995"/>
+<eng-data cg="246." f="1114.17" m="277.339" t="1.211"/>
+<eng-data cg="246." f="1101.2" m="223.398" t="1.313"/>
+<eng-data cg="246." f="1067.29" m="162.835" t="1.43"/>
+<eng-data cg="246." f="1020.4" m="113.499" t="1.529"/>
+<eng-data cg="246." f="993.772" m="89.459" t="1.579"/>
+<eng-data cg="246." f="892.43" m="61.0933" t="1.642"/>
+<eng-data cg="246." f="818.119" m="48.027" t="1.674"/>
+<eng-data cg="246." f="757.273" m="31.8566" t="1.717"/>
+<eng-data cg="246." f="621.918" m="24.9429" t="1.738"/>
+<eng-data cg="246." f="466.313" m="17.6694" t="1.766"/>
+<eng-data cg="246." f="351.306" m="12.7901" t="1.791"/>
+<eng-data cg="246." f="249.864" m="8.19795" t="1.823"/>
+<eng-data cg="246." f="175.553" m="3.93285" t="1.865"/>
+<eng-data cg="246." f="87.696" m="1.23075" t="1.908"/>
+<eng-data cg="246." f="33.654" m="0.216903" t="1.943"/>
+<eng-data cg="246." f="0." m="0." t="1.97"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,6 +1,7 @@
 package net.sf.openrocket.motor;
 
 import java.text.Collator;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -140,6 +141,7 @@ public abstract class Motor implements Comparable<Motor> {
 		this.description = description.trim();
 		this.motorType = type;
 		this.delays = delays.clone();
+		Arrays.sort(this.delays);
 		this.diameter = diameter;
 		this.length = length;
 		this.digest = digest;
@@ -452,6 +454,48 @@ public abstract class Motor implements Comparable<Motor> {
 	}
 	
 	
+	public boolean similar(Motor other) {
+		// TODO: HIGH:  Merge with equals / cleanup
+
+		// Tests manufacturer, designation, diameter and length
+		if (this.compareTo(other) != 0)
+			return false;
+		
+		// Compare total time
+		if (Math.abs(this.getTotalTime() - other.getTotalTime()) > 0.5) {
+			return false;
+		}
+		
+		// Consider type only if neither is of unknown type
+		if ((this.motorType != Type.UNKNOWN) && (other.motorType != Type.UNKNOWN) &&
+				(this.motorType != other.motorType)) {
+			return false;
+		}
+
+		// Compare delays if both have some delays defined
+		if (this.delays.length != 0 && other.delays.length != 0) {
+			if (this.delays.length != other.delays.length) {
+				return false;
+			}
+			for (int i=0; i < delays.length; i++) {
+				// INF - INF == NaN, which produces false when compared
+				if (Math.abs(this.delays[i] - other.delays[i]) > 0.5) {
+					return false;
+				}
+			}
+		}
+		
+		double time = getTotalTime();
+		for (int i=0; i < 10; i++) {
+			double t = time * i/10;
+			if (Math.abs(this.getThrust(t) - other.getThrust(t)) > 1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
 	/**
 	 * Compares two <code>Motor</code> objects.  The motors are considered equal
 	 * if they have identical manufacturers, designations and types, near-identical
@@ -459,6 +503,8 @@ public abstract class Motor implements Comparable<Motor> {
 	 * (sampled at 10 equidistant points).
 	 * <p>
 	 * The comment field is ignored when comparing equality.
+	 * <p>
+	 * TODO: HIGH: Check for identical contents instead
 	 */
 	@Override
 	public boolean equals(Object o) {
@@ -471,13 +517,21 @@ public abstract class Motor implements Comparable<Motor> {
 		if (this.compareTo(other) != 0)
 			return false;
 		
-		if (Math.abs(this.getTotalTime() - other.getTotalTime()) > 0.5 ||
-				this.motorType != other.motorType ||
-				this.delays.length != other.delays.length) {
-			
+		// Compare total time
+		if (Math.abs(this.getTotalTime() - other.getTotalTime()) > 0.5) {
 			return false;
 		}
 		
+		// Consider type only if neither is of unknown type
+		if ((this.motorType != Type.UNKNOWN) && (other.motorType != Type.UNKNOWN) &&
+				(this.motorType != other.motorType)) {
+			return false;
+		}
+
+		// Compare delays
+		if (this.delays.length != other.delays.length) {
+			return false;
+		}
 		for (int i=0; i < delays.length; i++) {
 			// INF - INF == NaN, which produces false when compared
 			if (Math.abs(this.delays[i] - other.delays[i]) > 0.5) {
@@ -492,6 +546,7 @@ public abstract class Motor implements Comparable<Motor> {
 				return false;
 			}
 		}
+
 		return true;
 	}
 	
@@ -645,9 +700,6 @@ public abstract class Motor implements Comparable<Motor> {
 				return COLLATOR.compare(o1Extra, o2Extra);
 				
 			} else {
-				
-				System.out.println("Falling back");
-				System.out.println("o1:"+o1 + " o2:"+o2);
 				
 				// Not understandable designation, simply compare strings
 				return COLLATOR.compare(o1, o2);

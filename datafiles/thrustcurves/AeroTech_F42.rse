@@ -1,0 +1,25 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="210.99" Itot="55.866" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="38.004" burn-time="1.47" cgDiv="10" cgFix="1" cgStep="-1." code="F42T" delays="4,8" dia="29." exitDia="0." initWt="76." len="83." mDiv="10" mFix="1" mStep="-1." massFrac="35.53" mfg="Aerotech" peakThrust="68.694" propWt="27." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>F42T Motor Thrust Curve created by Tim Van Milligan
+for RockSim Users - www.rocksim.com
+Based on data supplied by Aerotech prior to NAR certification.
+</comments>
+<data>
+<eng-data cg="41.5" f="0." m="27." t="0."/>
+<eng-data cg="41.5" f="68.694" m="26.834" t="0.01"/>
+<eng-data cg="41.5" f="65.879" m="26.2161" t="0.029"/>
+<eng-data cg="41.5" f="62.5" m="20.8492" t="0.202"/>
+<eng-data cg="41.5" f="51.802" m="12.3143" t="0.511"/>
+<eng-data cg="41.5" f="43.356" m="7.07144" t="0.739"/>
+<eng-data cg="41.5" f="31.532" m="2.47488" t="0.993"/>
+<eng-data cg="41.5" f="29.279" m="2.07812" t="1.02"/>
+<eng-data cg="41.5" f="23.086" m="1.42011" t="1.072"/>
+<eng-data cg="41.5" f="9.572" m="0.41785" t="1.199"/>
+<eng-data cg="41.5" f="4.505" m="0.203543" t="1.262"/>
+<eng-data cg="41.5" f="2.815" m="0.102717" t="1.319"/>
+<eng-data cg="41.5" f="0." m="0." t="1.47"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

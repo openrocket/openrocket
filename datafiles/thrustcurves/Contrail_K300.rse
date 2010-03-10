@@ -1,0 +1,24 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="1078.95" Itot="1915.14" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="294.637" burn-time="6.5" cgDiv="10" cgFix="1" cgStep="-1." code="K300" delays="1000" dia="75." exitDia="0." initWt="4059." len="1016." mDiv="10" mFix="1" mStep="-1." massFrac="4.46" mfg="Contrail" peakThrust="526.943" propWt="181." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>K-300-BS
+75mm/40 Inch Hardware
+2050cc
+Slow Nozzle
+</comments>
+<data>
+<eng-data cg="508." f="0." m="181." t="0."/>
+<eng-data cg="508." f="431.135" m="181." t="0."/>
+<eng-data cg="508." f="526.943" m="166.314" t="0.324385"/>
+<eng-data cg="508." f="479.039" m="134.941" t="0.98434"/>
+<eng-data cg="508." f="369.545" m="127.316" t="1.1745"/>
+<eng-data cg="508." f="280.58" m="9.78984" t="5."/>
+<eng-data cg="508." f="171.085" m="5.73117" t="5.19016"/>
+<eng-data cg="508." f="102.651" m="3.56087" t="5.35794"/>
+<eng-data cg="508." f="54.7473" m="1.5641" t="5.6264"/>
+<eng-data cg="508." f="27.3737" m="0.91301" t="5.79418"/>
+<eng-data cg="508." f="0." m="0." t="6.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

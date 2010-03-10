@@ -1,0 +1,21 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="M2550" Type="unspecified" dia="76." len="785." initWt="5530."
+propWt="3130." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="2540.65"
+peakThrust="3017.24" throatDia="0." exitDia="0." Itot="6605.69" burn-time="2.6"
+massFrac="56.6" Isp="215.21" tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1."
+FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="3130." cg="392.5"/>
+      <eng-data  t="0.00776398" f="2974.14" m="3124.53" cg="392.5"/>
+      <eng-data  t="0.0621118" f="2887.93" m="3049.05" cg="392.5"/>
+      <eng-data  t="0.427019" f="2887.93" m="2549.71" cg="392.5"/>
+      <eng-data  t="0.861801" f="3017.24" m="1941.44" cg="392.5"/>
+      <eng-data  t="1.49845" f="2974.14" m="1037.74" cg="392.5"/>
+      <eng-data  t="2.11957" f="2413.79" m="244.885" cg="392.5"/>
+      <eng-data  t="2.45342" f="474.138" m="16.4655" cg="392.5"/>
+      <eng-data  t="2.6" f="0." m="0." cg="392.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

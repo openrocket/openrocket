@@ -1,0 +1,14 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="196.19" Itot="319.77" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="44.975" burn-time="7.11" cgDiv="10" cgFix="1" cgStep="-1." code="H45W" delays="10,15" dia="38." exitDia="0." initWt="320." len="191." mDiv="10" mFix="1" mStep="-1." massFrac="51.94" mfg="Aerotech" peakThrust="128." propWt="166.2" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="95.5" f="0." m="166.2" t="0."/>
+<eng-data cg="95.5" f="89." m="165.044" t="0.05"/>
+<eng-data cg="95.5" f="128." m="139.667" t="0.5"/>
+<eng-data cg="95.5" f="63." m="128.251" t="0.73"/>
+<eng-data cg="95.5" f="50." m="46.9073" t="3.5"/>
+<eng-data cg="95.5" f="0." m="0." t="7.11"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

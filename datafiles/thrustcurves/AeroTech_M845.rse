@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="188.62" Itot="6601.6" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="880.213" burn-time="7.5" cgDiv="10" cgFix="1" cgStep="-1." code="M845HW" delays="1000" dia="98." exitDia="0." initWt="6833." len="795.02" mDiv="10" mFix="1" mStep="-1." massFrac="52.23" mfg="Aerotech" peakThrust="1706.62" propWt="3569." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="397.51" f="0." m="3569." t="0."/>
+<eng-data cg="397.51" f="1332.26" m="3563.43" t="0.015456"/>
+<eng-data cg="397.51" f="1706.62" m="3538.04" t="0.0463679"/>
+<eng-data cg="397.51" f="1178.12" m="3513.94" t="0.0772798"/>
+<eng-data cg="397.51" f="1310.24" m="3441.16" t="0.185471"/>
+<eng-data cg="397.51" f="1222.16" m="2901.57" t="0.973725"/>
+<eng-data cg="397.51" f="1200.14" m="2547.36" t="1.51468"/>
+<eng-data cg="397.51" f="1123.07" m="2256.18" t="1.97836"/>
+<eng-data cg="397.51" f="1057." m="1081.21" t="3.97218"/>
+<eng-data cg="397.51" f="880.836" m="959.771" t="4.20402"/>
+<eng-data cg="397.51" f="627.596" m="222.422" t="6.01236"/>
+<eng-data cg="397.51" f="418.397" m="85.9577" t="6.495"/>
+<eng-data cg="397.51" f="99.0941" m="12.9379" t="7.017"/>
+<eng-data cg="397.51" f="0." m="0." t="7.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

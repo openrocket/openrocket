@@ -1,0 +1,44 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-AeroTech" code="I310S" Type="reloadable" dia="38." len="368."
+initWt="713.216" propWt="312.256" delays="6,14,1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="265.458" peakThrust="351.943" throatDia="0."
+exitDia="0." Itot="621.438" burn-time="2.34" massFrac="43.78" Isp="202.94"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Kosdon by AeroTech I310S
+Copyright Tripoli Motor Testing 2001 (www.tripoli.org)
+provided by ThrustCurve.org (www.thrustcurve.org)
+</comments>
+<data>
+<eng-data  t="0." f="0." m="312.256" cg="184."/>
+<eng-data  t="0.045" f="334.66" m="308.472" cg="184."/>
+<eng-data  t="0.136" f="314.409" m="293.633" cg="184."/>
+<eng-data  t="0.228" f="322.556" m="278.91" cg="184."/>
+<eng-data  t="0.32" f="326.871" m="263.9" cg="184."/>
+<eng-data  t="0.411" f="331.851" m="248.84" cg="184."/>
+<eng-data  t="0.503" f="335.911" m="233.405" cg="184."/>
+<eng-data  t="0.595" f="336.933" m="217.853" cg="184."/>
+<eng-data  t="0.686" f="340.151" m="202.373" cg="184."/>
+<eng-data  t="0.778" f="342.066" m="186.605" cg="184."/>
+<eng-data  t="0.87" f="344.722" m="170.73" cg="184."/>
+<eng-data  t="0.961" f="348.578" m="154.88" cg="184."/>
+<eng-data  t="1.053" f="349.548" m="138.744" cg="184."/>
+<eng-data  t="1.146" f="351.943" m="122.353" cg="184."/>
+<eng-data  t="1.239" f="347.939" m="106." cg="184."/>
+<eng-data  t="1.33" f="345.079" m="90.1563" cg="184."/>
+<eng-data  t="1.422" f="337.035" m="74.39" cg="184."/>
+<eng-data  t="1.514" f="333.332" m="58.8953" cg="184."/>
+<eng-data  t="1.605" f="323.832" m="43.8709" cg="184."/>
+<eng-data  t="1.697" f="289." m="29.706" cg="184."/>
+<eng-data  t="1.789" f="215.097" m="18.0544" cg="184."/>
+<eng-data  t="1.88" f="136.596" m="10.0138" cg="184."/>
+<eng-data  t="1.972" f="83.863" m="4.9182" cg="184."/>
+<eng-data  t="2.064" f="37.922" m="2.10328" cg="184."/>
+<eng-data  t="2.155" f="20.736" m="0.762213" cg="184."/>
+<eng-data  t="2.248" f="5.943" m="0.138858" cg="184."/>
+<eng-data  t="2.341" f="0." m="0." cg="184."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

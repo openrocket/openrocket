@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-AeroTech" code="I280F" Type="reloadable" dia="38." len="258."
+initWt="520." propWt="182." delays="14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="255.025" peakThrust="330.314" throatDia="0." exitDia="0."
+Itot="382.538" burn-time="1.5" massFrac="19265.8" Isp="0.39" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="100182." cg="129."/>
+<eng-data  t="0.009" f="253.24" m="99883.6" cg="129."/>
+<eng-data  t="0.055" f="255.442" m="96819.6" cg="129."/>
+<eng-data  t="0.219" f="277.463" m="85375.5" cg="129."/>
+<eng-data  t="0.482" f="301.686" m="65430.7" cg="129."/>
+<eng-data  t="0.67" f="323.707" m="50035.1" cg="129."/>
+<eng-data  t="0.735" f="330.314" m="44468.5" cg="129."/>
+<eng-data  t="0.797" f="323.707" m="39158.8" cg="129."/>
+<eng-data  t="1.001" f="297.282" m="22570.6" cg="129."/>
+<eng-data  t="1.162" f="266.453" m="10686." cg="129."/>
+<eng-data  t="1.205" f="259.847" m="7722.6" cg="129."/>
+<eng-data  t="1.236" f="237.826" m="5702.42" cg="129."/>
+<eng-data  t="1.363" f="50.6481" m="905.132" cg="129."/>
+<eng-data  t="1.428" f="26.4251" m="249.135" cg="129."/>
+<eng-data  t="1.5" f="0." m="0." cg="129."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

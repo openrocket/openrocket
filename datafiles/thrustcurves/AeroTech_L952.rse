@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="195.43" Itot="5097.92" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="760.884" burn-time="6.7" cgDiv="10" cgFix="1" cgStep="-1." code="L952W" delays="1000" dia="98." exitDia="0." initWt="5026.5" len="443." mDiv="10" mFix="1" mStep="-1." massFrac="52.92" mfg="Aerotech" peakThrust="1056.44" propWt="2660." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="221.5" f="0." m="2660." t="0."/>
+<eng-data cg="221.5" f="1.51" m="2660." t="0."/>
+<eng-data cg="221.5" f="776.75" m="2639.7" t="0.1"/>
+<eng-data cg="221.5" f="909.97" m="2243.65" t="1."/>
+<eng-data cg="221.5" f="962.28" m="2097.12" t="1.3"/>
+<eng-data cg="221.5" f="1056.44" m="1307.12" t="2.8"/>
+<eng-data cg="221.5" f="1047.59" m="1032.66" t="3.3"/>
+<eng-data cg="221.5" f="1034.25" m="978.343" t="3.4"/>
+<eng-data cg="221.5" f="887.78" m="677.479" t="4."/>
+<eng-data cg="221.5" f="519.39" m="200.227" t="5.3"/>
+<eng-data cg="221.5" f="288.5" m="52.6869" t="6."/>
+<eng-data cg="221.5" f="0." m="0." t="6.7"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

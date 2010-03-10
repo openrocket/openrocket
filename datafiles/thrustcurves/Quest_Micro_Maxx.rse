@@ -1,0 +1,15 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="77.28" Itot="0.303" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="0.37" burn-time="0.82" cgDiv="10" cgFix="1" cgStep="-1." code="Micro Maxx" delays="1" dia="6." exitDia="0." initWt="1.07" len="16." mDiv="10" mFix="1" mStep="-1." massFrac="37.38" mfg="Quest" peakThrust="1.24" propWt="0.4" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+    <data>
+      <eng-data cg="8." f="0." m="0.4" t="0."/>
+      <eng-data cg="8." f="0.24" m="0.398416" t="0.01"/>
+      <eng-data cg="8." f="1.24" m="0.349592" t="0.06"/>
+      <eng-data cg="8." f="0.394366" m="0.30193" t="0.104199"/>
+      <eng-data cg="8." f="0.267606" m="0.0125636" t="0.766719"/>
+      <eng-data cg="8." f="0.14" m="0.000923713" t="0.81"/>
+      <eng-data cg="8." f="0." m="-0." t="0.82"/>
+    </data>
+  </engine>
+ </engine-list>
+</engine-database>

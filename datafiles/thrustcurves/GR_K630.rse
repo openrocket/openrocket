@@ -1,0 +1,26 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Rocket_Motors" code="K630WC" Type="reloadable" dia="54." len="430."
+initWt="1453.3" propWt="732." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="632.417" peakThrust="800.68" throatDia="0." exitDia="0."
+Itot="1416.61" burn-time="2.24" massFrac="50.37" Isp="197.34" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="732." cg="215."/>
+      <eng-data  t="0.042" f="359.461" m="728.099" cg="215."/>
+      <eng-data  t="0.05" f="440.908" m="726.445" cg="215."/>
+      <eng-data  t="0.075" f="556.028" m="720.006" cg="215."/>
+      <eng-data  t="0.15" f="622.751" m="697.164" cg="215."/>
+      <eng-data  t="0.217" f="667.233" m="674.834" cg="215."/>
+      <eng-data  t="0.9" f="800.68" m="415.804" cg="215."/>
+      <eng-data  t="1.159" f="796.232" m="308.945" cg="215."/>
+      <eng-data  t="1.33871" f="778.439" m="235.833" cg="215."/>
+      <eng-data  t="1.517" f="720.612" m="166.781" cg="215."/>
+      <eng-data  t="1.9" f="556.028" m="40.4538" cg="215."/>
+      <eng-data  t="2.1" f="133.447" m="4.82688" cg="215."/>
+      <eng-data  t="2.24" f="0." m="0." cg="215."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

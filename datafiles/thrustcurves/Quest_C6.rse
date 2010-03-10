@@ -1,0 +1,26 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="79.14" Itot="8.537" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="5.238" burn-time="1.63" cgDiv="10" cgFix="1" cgStep="-1." code="C6" delays="0,3,5" dia="18." exitDia="0." initWt="20.4" len="70." mDiv="10" mFix="1" mStep="-1." massFrac="53.92" mfg="Quest" peakThrust="13.4" propWt="11." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="35." f="0." m="11." t="0."/>
+<eng-data cg="35." f="3.8" m="10.8776" t="0.05"/>
+<eng-data cg="35." f="6.5" m="10.5458" t="0.1"/>
+<eng-data cg="35." f="11.75" m="9.95798" t="0.15"/>
+<eng-data cg="35." f="13.4" m="9.14788" t="0.2"/>
+<eng-data cg="35." f="9.25" m="8.4183" t="0.25"/>
+<eng-data cg="35." f="7." m="7.89488" t="0.3"/>
+<eng-data cg="35." f="5.6" m="7.08316" t="0.4"/>
+<eng-data cg="35." f="5.2" m="6.38741" t="0.5"/>
+<eng-data cg="35." f="5.05" m="5.72709" t="0.6"/>
+<eng-data cg="35." f="4.8" m="5.09253" t="0.7"/>
+<eng-data cg="35." f="4.5" m="4.49341" t="0.8"/>
+<eng-data cg="35." f="4.6" m="3.90717" t="0.9"/>
+<eng-data cg="35." f="4.45" m="3.32416" t="1."/>
+<eng-data cg="35." f="4.2" m="2.20966" t="1.2"/>
+<eng-data cg="35." f="4." m="1.41728" t="1.35"/>
+<eng-data cg="35." f="4." m="0.0257687" t="1.62"/>
+<eng-data cg="35." f="0." m="-0." t="1.63"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

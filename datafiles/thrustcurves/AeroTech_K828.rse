@@ -1,0 +1,44 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="AT-RMS" code="K828FJ" Type="reloadable" dia="54." len="579." initWt="2223."
+propWt="1373." auto-calc-mass="1" auto-calc-cg="1" avgThrust="862.878"
+peakThrust="1303.79" throatDia="0." exitDia="0." Itot="2157.2" burn-time="2.5"
+massFrac="61.76" Isp="160.21" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Cert data from TRA
+Converted from Mark Koelsch</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1373." cg="289.5"/>
+      <eng-data  t="0.01" f="1112.06" m="1369.46" cg="289.5"/>
+      <eng-data  t="0.02" f="1112.06" m="1362.38" cg="289.5"/>
+      <eng-data  t="0.04" f="1238.6" m="1347.42" cg="289.5"/>
+      <eng-data  t="0.06" f="1303.79" m="1331.24" cg="289.5"/>
+      <eng-data  t="0.08" f="1135.06" m="1315.72" cg="289.5"/>
+      <eng-data  t="0.13" f="1077.54" m="1280.51" cg="289.5"/>
+      <eng-data  t="0.2" f="1031.53" m="1233.53" cg="289.5"/>
+      <eng-data  t="0.5" f="1016.19" m="1038.03" cg="289.5"/>
+      <eng-data  t="0.65" f="993.18" m="942.111" cg="289.5"/>
+      <eng-data  t="1." f="1004.68" m="719.583" cg="289.5"/>
+      <eng-data  t="1.08" f="985.51" m="668.915" cg="289.5"/>
+      <eng-data  t="1.19" f="974.01" m="600.32" cg="289.5"/>
+      <eng-data  t="1.42" f="974.01" m="457.735" cg="289.5"/>
+      <eng-data  t="1.51" f="954.83" m="402.491" cg="289.5"/>
+      <eng-data  t="1.69" f="935.66" m="294.198" cg="289.5"/>
+      <eng-data  t="1.75" f="912.65" m="258.906" cg="289.5"/>
+      <eng-data  t="1.83" f="885.81" m="213.119" cg="289.5"/>
+      <eng-data  t="1.89" f="893.48" m="179.145" cg="289.5"/>
+      <eng-data  t="1.95" f="843.63" m="145.976" cg="289.5"/>
+      <eng-data  t="2." f="774.6" m="120.227" cg="289.5"/>
+      <eng-data  t="2.15" f="667.23" m="51.4005" cg="289.5"/>
+      <eng-data  t="2.2" f="444.82" m="33.7057" cg="289.5"/>
+      <eng-data  t="2.23" f="364.29" m="25.9811" cg="289.5"/>
+      <eng-data  t="2.27" f="260.76" m="18.0245" cg="289.5"/>
+      <eng-data  t="2.33" f="184.06" m="9.53099" cg="289.5"/>
+      <eng-data  t="2.39" f="111.21" m="3.89303" cg="289.5"/>
+      <eng-data  t="2.5" f="0." m="0." cg="289.5"/>
+      <eng-data  t="2.5" f="49.85" m="0." cg="289.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,28 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="165.28" Itot="249.609" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="56.729" burn-time="4.4" cgDiv="10" cgFix="1" cgStep="-1." code="H48" delays="1000" dia="38." exitDia="0." initWt="292." len="200." mDiv="10" mFix="1" mStep="-1." massFrac="52.74" mfg="Ellis Mountain" peakThrust="101.5" propWt="154." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Ellis Mountain Rocket Works
+H48 Single Use motor
+</comments>
+<data>
+<eng-data cg="100." f="0." m="154." t="0."/>
+<eng-data cg="100." f="101.5" m="152.434" t="0.05"/>
+<eng-data cg="100." f="101.5" m="149.303" t="0.1"/>
+<eng-data cg="100." f="92.18" m="142.731" t="0.21"/>
+<eng-data cg="100." f="86.48" m="128.953" t="0.46"/>
+<eng-data cg="100." f="83.38" m="114.281" t="0.74"/>
+<eng-data cg="100." f="80." m="101.177" t="1."/>
+<eng-data cg="100." f="74.57" m="77.8131" t="1.49"/>
+<eng-data cg="100." f="68.36" m="55.7674" t="1.99"/>
+<eng-data cg="100." f="63.18" m="35.8843" t="2.48"/>
+<eng-data cg="100." f="56.45" m="17.0635" t="2.99"/>
+<eng-data cg="100." f="34.18" m="11.1923" t="3.2"/>
+<eng-data cg="100." f="18." m="6.36336" t="3.5"/>
+<eng-data cg="100." f="13.46" m="4.51945" t="3.69"/>
+<eng-data cg="100." f="11." m="2.18035" t="4."/>
+<eng-data cg="100." f="7.77" m="0.0958762" t="4.36"/>
+<eng-data cg="100." f="0." m="-0." t="4.4"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

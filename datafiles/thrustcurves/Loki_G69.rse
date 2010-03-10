@@ -1,0 +1,20 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="G69-SF" Type="unspecified" dia="38." len="127." initWt="240."
+propWt="63." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="69.2659"
+peakThrust="97.9215" throatDia="0." exitDia="0." Itot="110.826" burn-time="1.6"
+massFrac="26.25" Isp="179.382" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="63." cg="63.5"/>
+      <eng-data  t="0.01" f="97.9215" m="62.7217" cg="63.5"/>
+      <eng-data  t="0.2" f="96.5358" m="52.2202" cg="63.5"/>
+      <eng-data  t="0.4" f="94.2263" m="41.3762" cg="63.5"/>
+      <eng-data  t="0.799544" f="76.6744" m="21.9682" cg="63.5"/>
+      <eng-data  t="1.2" f="58.1986" m="6.61673" cg="63.5"/>
+      <eng-data  t="1.6" f="0." m="0." cg="63.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-AeroTech" code="I450F" Type="reloadable" dia="38." len="370."
+initWt="730." propWt="303.2" delays="14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="449.448" peakThrust="634.202" throatDia="0." exitDia="0."
+Itot="633.722" burn-time="1.41" massFrac="41.53" Isp="213.13" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="303.2" cg="185."/>
+<eng-data  t="0.012" f="634.202" m="301.379" cg="185."/>
+<eng-data  t="0.037" f="550.523" m="294.294" cg="185."/>
+<eng-data  t="0.108" f="519.693" m="276.117" cg="185."/>
+<eng-data  t="0.241" f="510.885" m="243.327" cg="185."/>
+<eng-data  t="0.639" f="550.523" m="142.271" cg="185."/>
+<eng-data  t="0.729" f="554.927" m="118.47" cg="185."/>
+<eng-data  t="0.809" f="546.118" m="97.3988" cg="185."/>
+<eng-data  t="0.939" f="497.672" m="64.9381" cg="185."/>
+<eng-data  t="1.072" f="471.247" m="34.1105" cg="185."/>
+<eng-data  t="1.128" f="440.418" m="21.8975" cg="185."/>
+<eng-data  t="1.165" f="387.568" m="14.5688" cg="185."/>
+<eng-data  t="1.211" f="206.996" m="8.02613" cg="185."/>
+<eng-data  t="1.295" f="88.0836" m="2.09662" cg="185."/>
+<eng-data  t="1.36" f="26.4251" m="0.316073" cg="185."/>
+<eng-data  t="1.41" f="0." m="0." cg="185."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

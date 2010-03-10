@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="1301.45" Itot="6075.12" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="2641.36" burn-time="2.3" cgDiv="10" cgFix="1" cgStep="-1." code="M2800" delays="1000" dia="98." exitDia="0." initWt="10704." len="1524." mDiv="10" mFix="1" mStep="-1." massFrac="4.45" mfg="Contrail" peakThrust="5611.6" propWt="476." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>M-2800-Black Gold Reload
+5300cc
+98mm/60 inch Hardware
+</comments>
+<data>
+<eng-data cg="762." f="0." m="476." t="0."/>
+<eng-data cg="762." f="2395.2" m="475.213" t="0.00838926"/>
+<eng-data cg="762." f="2805.8" m="425.641" t="0.251678"/>
+<eng-data cg="762." f="3695.45" m="350.857" t="0.545302"/>
+<eng-data cg="762." f="5611.6" m="273.366" t="0.75783"/>
+<eng-data cg="762." f="4311.35" m="213.576" t="0.911633"/>
+<eng-data cg="762." f="3558.58" m="132.531" t="1.1745"/>
+<eng-data cg="762." f="2258.33" m="79.001" t="1.4094"/>
+<eng-data cg="762." f="1505.55" m="34.8812" t="1.70861"/>
+<eng-data cg="762." f="0." m="0." t="2.3"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

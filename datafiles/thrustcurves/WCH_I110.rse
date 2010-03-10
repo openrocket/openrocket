@@ -1,0 +1,38 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="West Coast Hybrids" code="I110" Type="hybrid" dia="38." len="606."
+initWt="824." propWt="327." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="112.605" peakThrust="240." throatDia="0." exitDia="0." Itot="450.42"
+burn-time="4." massFrac="39.68" Isp="140.46" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments><![CDATA[based on CAR thrust curve & cert letter
+received from WestCoast/Scott Harrison
+compiled by RockSim EngEdit
+hand entered data points from CAR thrust curve
+approx 10% higher total impulse than cert letter
+approx 5% higher total impulse than thrust curve
+within a couple percent for peak & average thrust
+accurate thrust profile
+Andrew MacMillen NAR 77472 8/8/02
+NOTE: NOT WCH, CAR, TMT OR NAR APPROVED
+West Coast Hybrids I110
+]]></comments>
+    <data>
+      <eng-data  t="0." f="0." m="327." cg="303."/>
+      <eng-data  t="0.05" f="240." m="322.644" cg="303."/>
+      <eng-data  t="0.38" f="200." m="269.937" cg="303."/>
+      <eng-data  t="0.76" f="182." m="217.245" cg="303."/>
+      <eng-data  t="1.14" f="160." m="170.07" cg="303."/>
+      <eng-data  t="1.52" f="142." m="128.413" cg="303."/>
+      <eng-data  t="1.9" f="125." m="91.5835" cg="303."/>
+      <eng-data  t="2.23" f="113." m="63.0739" cg="303."/>
+      <eng-data  t="2.66" f="71." m="34.3538" cg="303."/>
+      <eng-data  t="3.04" f="44." m="18.4909" cg="303."/>
+      <eng-data  t="3.42" f="29." m="8.42147" cg="303."/>
+      <eng-data  t="3.78" f="22." m="1.75689" cg="303."/>
+      <eng-data  t="4." f="0." m="0." cg="303."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

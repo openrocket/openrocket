@@ -1,0 +1,13 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="201.17" Itot="639.965" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="131.952" burn-time="4.85" cgDiv="10" cgFix="1" cgStep="-1." code="I132W" delays="10,14" dia="38." exitDia="0." initWt="557." len="330." mDiv="10" mFix="1" mStep="-1." massFrac="58.24" mfg="Aerotech" peakThrust="227." propWt="324.4" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="165." f="0." m="324.4" t="0."/>
+<eng-data cg="165." f="89." m="323.047" t="0.06"/>
+<eng-data cg="165." f="227." m="207.716" t="1.5"/>
+<eng-data cg="165." f="143." m="67.0506" t="3."/>
+<eng-data cg="165." f="0." m="0." t="4.85"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

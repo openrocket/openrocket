@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="196.28" Itot="2560.01" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="400.002" burn-time="6.4" cgDiv="10" cgFix="1" cgStep="-1." code="K458W" delays="1000" dia="98." exitDia="0." initWt="3106.2" len="275." mDiv="10" mFix="1" mStep="-1." massFrac="42.82" mfg="Aerotech" peakThrust="596.79" propWt="1330." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="137.5" f="0." m="1330." t="0."/>
+<eng-data cg="137.5" f="417.98" m="1330." t="0."/>
+<eng-data cg="137.5" f="358.91" m="1289.64" t="0.2"/>
+<eng-data cg="137.5" f="379.77" m="1251.26" t="0.4"/>
+<eng-data cg="137.5" f="404.81" m="1190.12" t="0.7"/>
+<eng-data cg="137.5" f="467.44" m="1076.83" t="1.2"/>
+<eng-data cg="137.5" f="538.39" m="893.935" t="1.9"/>
+<eng-data cg="137.5" f="596.79" m="687.52" t="2.6"/>
+<eng-data cg="137.5" f="538.39" m="392.641" t="3.6"/>
+<eng-data cg="137.5" f="500.8" m="365.646" t="3.7"/>
+<eng-data cg="137.5" f="313.01" m="175.387" t="4.6"/>
+<eng-data cg="137.5" f="287.96" m="144.165" t="4.8"/>
+<eng-data cg="137.5" f="166.89" m="26.0112" t="5.8"/>
+<eng-data cg="137.5" f="0." m="0." t="6.4"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

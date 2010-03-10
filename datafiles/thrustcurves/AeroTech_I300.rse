@@ -1,0 +1,26 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="200.99" Itot="436.789" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="272.993" burn-time="1.6" cgDiv="10" cgFix="1" cgStep="-1." code="I300T" delays="6,10,14" dia="38." exitDia="0." initWt="440.5" len="250." mDiv="10" mFix="1" mStep="-1." massFrac="50.31" mfg="Aerotech" peakThrust="473.17" propWt="221.6" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="125." f="0." m="221.6" t="0."/>
+<eng-data cg="125." f="473.17" m="221.6" t="0."/>
+<eng-data cg="125." f="395.68" m="199.56" t="0.1"/>
+<eng-data cg="125." f="375.31" m="180.002" t="0.2"/>
+<eng-data cg="125." f="367.14" m="161.169" t="0.3"/>
+<eng-data cg="125." f="358.97" m="142.749" t="0.4"/>
+<eng-data cg="125." f="346.72" m="124.848" t="0.5"/>
+<eng-data cg="125." f="338.56" m="107.465" t="0.6"/>
+<eng-data cg="125." f="318.19" m="90.8051" t="0.7"/>
+<eng-data cg="125." f="305.94" m="74.9729" t="0.8"/>
+<eng-data cg="125." f="295.35" m="59.72" t="0.9"/>
+<eng-data cg="125." f="269.23" m="35.3732" t="1.07"/>
+<eng-data cg="125." f="258.01" m="31.3609" t="1.1"/>
+<eng-data cg="125." f="246.79" m="18.5556" t="1.2"/>
+<eng-data cg="125." f="179.49" m="7.74224" t="1.3"/>
+<eng-data cg="125." f="48.95" m="1.94742" t="1.4"/>
+<eng-data cg="125." f="13.91" m="0.352854" t="1.5"/>
+<eng-data cg="125." f="0." m="0." t="1.6"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

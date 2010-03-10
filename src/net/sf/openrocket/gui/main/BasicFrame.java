@@ -1195,6 +1195,10 @@ public class BasicFrame extends JFrame {
 	
 	private static void runMain(String[] args) {
 		
+		// Initialize the splash screen with version info
+		Splash.init();
+		
+		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;
 		if (Prefs.getCheckUpdates()) {

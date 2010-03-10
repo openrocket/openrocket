@@ -1,0 +1,18 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="198.38" Itot="206.999" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="215.624" burn-time="0.96" cgDiv="10" cgFix="1" cgStep="-1." code="H220T" delays="6,10,14" dia="29." exitDia="0." initWt="238.6" len="239." mDiv="10" mFix="1" mStep="-1." massFrac="44.59" mfg="Aerotech" peakThrust="314.1" propWt="106.4" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="119.5" f="0." m="106.4" t="0."/>
+<eng-data cg="119.5" f="314.1" m="106.4" t="0."/>
+<eng-data cg="119.5" f="236.61" m="92.2464" t="0.1"/>
+<eng-data cg="119.5" f="269.23" m="79.246" t="0.2"/>
+<eng-data cg="119.5" f="261.06" m="65.6172" t="0.3"/>
+<eng-data cg="119.5" f="252.9" m="52.4081" t="0.4"/>
+<eng-data cg="119.5" f="252.9" m="10.81" t="0.72"/>
+<eng-data cg="119.5" f="112.58" m="3.29554" t="0.8"/>
+<eng-data cg="119.5" f="9.78" m="0.150811" t="0.9"/>
+<eng-data cg="119.5" f="0." m="0." t="0.96"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

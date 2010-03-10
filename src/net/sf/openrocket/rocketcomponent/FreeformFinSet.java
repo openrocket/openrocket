@@ -132,14 +132,19 @@ public class FreeformFinSet extends FinSet {
 	 * if attempted.
 	 * 
 	 * @param index   the fin point index to remove
-	 * @throws IllegalFinPointException if removing the first or last fin point was attempted.
+	 * @throws IllegalFinPointException if removing would result in invalid fin planform
 	 */
+	@SuppressWarnings("unchecked")
 	public void removePoint(int index) throws IllegalFinPointException {
 		if (index == 0  ||  index == points.size()-1) {
 			throw new IllegalFinPointException("cannot remove first or last point");
 		}
-		// TODO: CRITICAL: Can result in invalid fin points
-		points.remove(index);
+		
+		ArrayList<Coordinate> copy = (ArrayList<Coordinate>) this.points.clone();
+		copy.remove(index);
+		validate(copy);
+		this.points = copy;
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -148,27 +153,15 @@ public class FreeformFinSet extends FinSet {
 		return points.size();
 	}
 	
-	public void setPoints(Coordinate[] p) throws IllegalFinPointException {
-		if (p[0].x != 0 || p[0].y != 0 || p[p.length-1].x < 0 || p[p.length-1].y != 0) {
-			throw new IllegalFinPointException("Start or end point illegal.");
+	public void setPoints(Coordinate[] points) throws IllegalFinPointException {
+		ArrayList<Coordinate> list = new ArrayList<Coordinate>(points.length);
+		for (Coordinate p: points) {
+			list.add(p);
 		}
-		for (int i=0; i < p.length-1; i++) {
-			for (int j=i+2; j < p.length-1; j++) {
-				if (intersects(p[i].x, p[i].y, p[i+1].x, p[i+1].y,
-						       p[j].x, p[j].y, p[j+1].x, p[j+1].y)) {
-					throw new IllegalFinPointException("segments intersect");
-				}
-			}
-			if (p[i].z != 0) {
-				throw new IllegalFinPointException("z-coordinate not zero");
-			}
-		}
+		validate(list);
+		this.points = list;
 		
-		points.clear();
-		for (Coordinate c: p) {
-			points.add(c);
-		}
-		this.length = p[p.length-1].x;
+		this.length = points[points.length-1].x;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -310,6 +303,26 @@ public class FreeformFinSet extends FinSet {
 		RocketComponent c = super.copy();
 		((FreeformFinSet)c).points = (ArrayList<Coordinate>) this.points.clone();
 		return c;
+	}
+	
+	
+	private void validate(ArrayList<Coordinate> points) throws IllegalFinPointException {
+		final int n = points.size();
+		if (points.get(0).x != 0 || points.get(0).y != 0 || 
+				points.get(n-1).x < 0 || points.get(n-1).y != 0) {
+			throw new IllegalFinPointException("Start or end point illegal.");
+		}
+		for (int i=0; i < n-1; i++) {
+			for (int j=i+2; j < n-1; j++) {
+				if (intersects(points.get(i).x, points.get(i).y, points.get(i+1).x, points.get(i+1).y,
+						       points.get(j).x, points.get(j).y, points.get(j+1).x, points.get(j+1).y)) {
+					throw new IllegalFinPointException("segments intersect");
+				}
+			}
+			if (points.get(i).z != 0) {
+				throw new IllegalFinPointException("z-coordinate not zero");
+			}
+		}
 	}
 
 }

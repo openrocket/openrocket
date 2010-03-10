@@ -1,0 +1,39 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="204.75" Itot="4900.81" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="511.674" burn-time="9.58" cgDiv="10" cgFix="1" cgStep="-1." code="L600" delays="1000" dia="76." exitDia="0." initWt="4119.81" len="584." mDiv="10" mFix="1" mStep="-1." massFrac="59.24" mfg="Ellis Mountain" peakThrust="829.668" propWt="2440.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Ellis Mountain L600
+Copyright Tripoli Motor Testing 1998 (www.tripoli.org)
+provided by ThrustCurve.org (www.thrustcurve.org)
+</comments>
+<data>
+<eng-data cg="292." f="0." m="2440.7" t="0."/>
+<eng-data cg="292." f="829.668" m="2402.27" t="0.186"/>
+<eng-data cg="292." f="773.861" m="2252.54" t="0.561"/>
+<eng-data cg="292." f="767.837" m="2108.58" t="0.936"/>
+<eng-data cg="292." f="755.034" m="1965.61" t="1.313"/>
+<eng-data cg="292." f="736.454" m="1825.97" t="1.689"/>
+<eng-data cg="292." f="722.717" m="1689.71" t="2.064"/>
+<eng-data cg="292." f="706.215" m="1555.93" t="2.44"/>
+<eng-data cg="292." f="688.253" m="1425.37" t="2.816"/>
+<eng-data cg="292." f="673.457" m="1298.21" t="3.191"/>
+<eng-data cg="292." f="660.981" m="1173.27" t="3.567"/>
+<eng-data cg="292." f="648.124" m="1050.7" t="3.943"/>
+<eng-data cg="292." f="634.689" m="930.914" t="4.318"/>
+<eng-data cg="292." f="622.058" m="813.248" t="4.694"/>
+<eng-data cg="292." f="607.97" m="698.083" t="5.07"/>
+<eng-data cg="292." f="594.926" m="585.758" t="5.445"/>
+<eng-data cg="292." f="583.003" m="475.471" t="5.821"/>
+<eng-data cg="292." f="573.084" m="367.229" t="6.197"/>
+<eng-data cg="292." f="553.53" m="262.028" t="6.572"/>
+<eng-data cg="292." f="399.379" m="172.809" t="6.948"/>
+<eng-data cg="292." f="270.41" m="110.098" t="7.324"/>
+<eng-data cg="292." f="211.401" m="65.1072" t="7.699"/>
+<eng-data cg="292." f="144.237" m="31.8097" t="8.075"/>
+<eng-data cg="292." f="74.227" m="11.3554" t="8.451"/>
+<eng-data cg="292." f="19.378" m="2.61465" t="8.826"/>
+<eng-data cg="292." f="4.274" m="0.400165" t="9.202"/>
+<eng-data cg="292." f="0." m="-0." t="9.578"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

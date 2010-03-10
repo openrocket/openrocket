@@ -1,0 +1,34 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Aerotech" code="J575FJ" Type="reloadable" dia="38." len="478.79"
+initWt="914.24" propWt="576." delays="6,10,14" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="597.435" peakThrust="884.242" throatDia="0."
+exitDia="0." Itot="800.563" burn-time="1.34" massFrac="63." Isp="141.73"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="576." cg="239.4"/>
+      <eng-data  t="0.0156556" f="656.682" m="572.302" cg="239.4"/>
+      <eng-data  t="0.0195695" f="840.689" m="570.193" cg="239.4"/>
+      <eng-data  t="0.0550206" f="878.839" m="548.263" cg="239.4"/>
+      <eng-data  t="0.090784" f="880.64" m="525.626" cg="239.4"/>
+      <eng-data  t="0.154058" f="882.441" m="485.494" cg="239.4"/>
+      <eng-data  t="0.209078" f="884.242" m="450.525" cg="239.4"/>
+      <eng-data  t="0.261348" f="880.64" m="417.339" cg="239.4"/>
+      <eng-data  t="0.341128" f="878.839" m="366.841" cg="239.4"/>
+      <eng-data  t="0.390646" f="873.436" m="335.625" cg="239.4"/>
+      <eng-data  t="0.451169" f="862.631" m="297.826" cg="239.4"/>
+      <eng-data  t="0.525447" f="821.21" m="252.832" cg="239.4"/>
+      <eng-data  t="0.599725" f="783.391" m="209.955" cg="239.4"/>
+      <eng-data  t="0.797799" f="669.935" m="106.396" cg="239.4"/>
+      <eng-data  t="0.836314" f="639.319" m="88.2555" cg="239.4"/>
+      <eng-data  t="1.00138" f="340.37" m="30.0811" cg="239.4"/>
+      <eng-data  t="1.0729" f="205.303" m="16.0401" cg="239.4"/>
+      <eng-data  t="1.14993" f="108.054" m="7.35668" cg="239.4"/>
+      <eng-data  t="1.21045" f="72.036" m="3.43561" cg="239.4"/>
+      <eng-data  t="1.28473" f="32.4162" m="0.644517" cg="239.4"/>
+      <eng-data  t="1.34" f="0." m="0." cg="239.4"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="184.86" Itot="853.842" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="213.461" burn-time="4." cgDiv="10" cgFix="1" cgStep="-1." code="J210H" delays="1000" dia="54." exitDia="0." initWt="1497." len="609.6" mDiv="10" mFix="1" mStep="-1." massFrac="31.46" mfg="Aerotech" peakThrust="651.819" propWt="471." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="304.8" f="0." m="471." t="0."/>
+<eng-data cg="304.8" f="651.819" m="469.611" t="0.00772798"/>
+<eng-data cg="304.8" f="528.502" m="449.484" t="0.0695518"/>
+<eng-data cg="304.8" f="488.864" m="412.62" t="0.200927"/>
+<eng-data cg="304.8" f="409.589" m="337.934" t="0.502318"/>
+<eng-data cg="304.8" f="374.355" m="230.993" t="0.996909"/>
+<eng-data cg="304.8" f="312.697" m="137.269" t="1.4915"/>
+<eng-data cg="304.8" f="286.272" m="120.673" t="1.59196"/>
+<eng-data cg="304.8" f="167.359" m="68.4605" t="2.00927"/>
+<eng-data cg="304.8" f="88.0836" m="38.5146" t="2.43431"/>
+<eng-data cg="304.8" f="101.296" m="34.8818" t="2.50386"/>
+<eng-data cg="304.8" f="74.8711" m="32.6287" t="2.55023"/>
+<eng-data cg="304.8" f="57.2543" m="15.4497" t="3.02164"/>
+<eng-data cg="304.8" f="0." m="0." t="4."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

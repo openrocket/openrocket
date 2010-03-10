@@ -1,0 +1,46 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="194.99" Itot="76.489" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="35.91" burn-time="2.13" cgDiv="10" cgFix="1" cgStep="-1." code="F35" delays="6,10" dia="29." exitDia="0." initWt="111." len="112." mDiv="10" mFix="1" mStep="-1." massFrac="36.04" mfg="Roadrunner Rocketry" peakThrust="51.01" propWt="40." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+    <comments>ROADRUNNER F35 RASP.ENG FILE
+File produced April 5, 2006
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+    <data>
+      <eng-data cg="56." f="0." m="40." t="0."/>
+      <eng-data cg="56." f="33.7" m="39.7973" t="0.023"/>
+      <eng-data cg="56." f="44.462" m="39.4499" t="0.04"/>
+      <eng-data cg="56." f="47.206" m="38.4672" t="0.081"/>
+      <eng-data cg="56." f="48.579" m="37.4654" t="0.121"/>
+      <eng-data cg="56." f="49.27" m="36.314" t="0.166"/>
+      <eng-data cg="56." f="49.55" m="34.3503" t="0.242"/>
+      <eng-data cg="56." f="51.01" m="32.4308" t="0.315"/>
+      <eng-data cg="56." f="50.111" m="29.8925" t="0.411"/>
+      <eng-data cg="56." f="49.71" m="26.8387" t="0.528"/>
+      <eng-data cg="56." f="48.208" m="23.3567" t="0.664"/>
+      <eng-data cg="56." f="47.256" m="20.1866" t="0.791"/>
+      <eng-data cg="56." f="46.986" m="17.5992" t="0.896"/>
+      <eng-data cg="56." f="45.484" m="15.0846" t="1."/>
+      <eng-data cg="56." f="44.943" m="12.7911" t="1.097"/>
+      <eng-data cg="56." f="42.338" m="10.5774" t="1.194"/>
+      <eng-data cg="56." f="40.4" m="8.78175" t="1.277"/>
+      <eng-data cg="56." f="40.706" m="7.80622" t="1.323"/>
+      <eng-data cg="56." f="37.691" m="7.12976" t="1.356"/>
+      <eng-data cg="56." f="35.637" m="6.24778" t="1.402"/>
+      <eng-data cg="56." f="32.753" m="5.37154" t="1.451"/>
+      <eng-data cg="56." f="29.467" m="4.49302" t="1.505"/>
+      <eng-data cg="56." f="25.491" m="3.444" t="1.578"/>
+      <eng-data cg="56." f="20.833" m="2.26908" t="1.675"/>
+      <eng-data cg="56." f="17.137" m="1.52446" t="1.75"/>
+      <eng-data cg="56." f="13.021" m="0.909384" t="1.828"/>
+      <eng-data cg="56." f="8.638" m="0.461984" t="1.907"/>
+      <eng-data cg="56." f="5.075" m="0.185892" t="1.984"/>
+      <eng-data cg="56." f="2.61" m="0.0552785" t="2.049"/>
+      <eng-data cg="56." f="0." m="0." t="2.13"/>
+    </data>
+  </engine>
+ </engine-list>
+</engine-database>

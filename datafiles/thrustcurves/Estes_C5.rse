@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="82.08" Itot="9.095" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="5.257" burn-time="1.73" cgDiv="10" cgFix="1" cgStep="-1." code="C5" delays="3" dia="18." exitDia="0." initWt="24.8" len="70." mDiv="10" mFix="1" mStep="-1." massFrac="45.56" mfg="Estes" peakThrust="21.85" propWt="11.3" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Estes C5 RASP.ENG file made from NAR published data
+File produced October 3, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="35." f="0." m="11.3" t="0."/>
+<eng-data cg="35." f="2.195" m="11.2427" t="0.042"/>
+<eng-data cg="35." f="9.118" m="10.7859" t="0.107"/>
+<eng-data cg="35." f="16.213" m="9.96769" t="0.159"/>
+<eng-data cg="35." f="21.85" m="8.76182" t="0.21"/>
+<eng-data cg="35." f="18.407" m="8.18665" t="0.233"/>
+<eng-data cg="35." f="13.677" m="7.44923" t="0.27"/>
+<eng-data cg="35." f="9.793" m="7.17222" t="0.289"/>
+<eng-data cg="35." f="7.092" m="7.02537" t="0.303"/>
+<eng-data cg="35." f="5.065" m="6.85168" t="0.326"/>
+<eng-data cg="35." f="4.39" m="6.41117" t="0.401"/>
+<eng-data cg="35." f="3.883" m="5.64544" t="0.55"/>
+<eng-data cg="35." f="3.714" m="4.4562" t="0.802"/>
+<eng-data cg="35." f="3.883" m="3.39909" t="1.026"/>
+<eng-data cg="35." f="3.883" m="2.12068" t="1.291"/>
+<eng-data cg="35." f="4.221" m="0.947721" t="1.524"/>
+<eng-data cg="35." f="4.221" m="0.113905" t="1.683"/>
+<eng-data cg="35." f="2.195" m="0.0381786" t="1.702"/>
+<eng-data cg="35." f="0." m="0." t="1.73"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

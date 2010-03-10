@@ -1,0 +1,46 @@
+<engine-database>
+  <engine-list>
+  <engine  mfg="Kosdon-by-Aerotech" code="G135R" Type="reloadable" dia="29." len="206."
+initWt="226." propWt="80." delays="6,10,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="136.999" peakThrust="158.178" throatDia="0." exitDia="0."
+Itot="143.712" burn-time="1.05" massFrac="35.4" Isp="183.18" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+  <comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve and engine data TRA certification dated Oct 14,
+2008.
+</comments>
+  <data>
+    <eng-data  t="0." f="0." m="80." cg="103."/>
+    <eng-data  t="0.011" f="156.916" m="79.5196" cg="103."/>
+    <eng-data  t="0.016" f="63.461" m="79.2129" cg="103."/>
+    <eng-data  t="0.027" f="98.191" m="78.718" cg="103."/>
+    <eng-data  t="0.061" f="109.872" m="76.749" cg="103."/>
+    <eng-data  t="0.094" f="111.135" m="74.719" cg="103."/>
+    <eng-data  t="0.14" f="116.187" m="71.8085" cg="103."/>
+    <eng-data  t="0.197" f="127.553" m="67.9415" cg="103."/>
+    <eng-data  t="0.26" f="135.13" m="63.3354" cg="103."/>
+    <eng-data  t="0.316" f="139.235" m="59.0589" cg="103."/>
+    <eng-data  t="0.354" f="141.445" m="56.0902" cg="103."/>
+    <eng-data  t="0.408" f="147.128" m="51.7529" cg="103."/>
+    <eng-data  t="0.459" f="149.022" m="47.5491" cg="103."/>
+    <eng-data  t="0.502" f="153.443" m="43.929" cg="103."/>
+    <eng-data  t="0.546" f="156.6" m="40.132" cg="103."/>
+    <eng-data  t="0.6" f="158.178" m="35.4009" cg="103."/>
+    <eng-data  t="0.684" f="155.968" m="28.0561" cg="103."/>
+    <eng-data  t="0.743" f="152.811" m="22.9854" cg="103."/>
+    <eng-data  t="0.816" f="149.97" m="16.8334" cg="103."/>
+    <eng-data  t="0.875" f="148.075" m="11.9389" cg="103."/>
+    <eng-data  t="0.91" f="146.812" m="9.06622" cg="103."/>
+    <eng-data  t="0.963" f="151.232" m="4.66954" cg="103."/>
+    <eng-data  t="0.981" f="152.18" m="3.14944" cg="103."/>
+    <eng-data  t="0.993" f="149.022" m="2.14342" cg="103."/>
+    <eng-data  t="1.014" f="103.558" m="0.667078" cg="103."/>
+    <eng-data  t="1.02" f="61.251" m="0.391845" cg="103."/>
+    <eng-data  t="1.034" f="22.732" m="0.0645891" cg="103."/>
+    <eng-data  t="1.039" f="7.893" m="0.021969" cg="103."/>
+    <eng-data  t="1.049" f="0." m="0." cg="103."/>
+  </data>
+</engine>
+</engine-list>
+</engine-database>

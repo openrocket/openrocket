@@ -1,0 +1,49 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="169.92" Itot="6275.34" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="2017.79" burn-time="3.11" cgDiv="10" cgFix="1" cgStep="-1." code="M2200SK" delays="1000" dia="75." exitDia="0." initWt="7009.8" len="1039." mDiv="10" mFix="1" mStep="-1." massFrac="53.72" mfg="Animal Motor Works" peakThrust="2979.38" propWt="3766." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AMW M2200SK RASP.ENG file made from NAR published data
+File produced April 19, 2004
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="519.5" f="0." m="3766." t="0."/>
+<eng-data cg="519.5" f="972.329" m="3760.16" t="0.02"/>
+<eng-data cg="519.5" f="1612.84" m="3737.67" t="0.049"/>
+<eng-data cg="519.5" f="1601.78" m="3687.51" t="0.101"/>
+<eng-data cg="519.5" f="1701.33" m="3546.77" t="0.243"/>
+<eng-data cg="519.5" f="1878.3" m="3290.05" t="0.482"/>
+<eng-data cg="519.5" f="1889.36" m="3189.44" t="0.571"/>
+<eng-data cg="519.5" f="2088.45" m="2913.72" t="0.802"/>
+<eng-data cg="519.5" f="2254.36" m="2659.61" t="0.997"/>
+<eng-data cg="519.5" f="2254.36" m="2556.79" t="1.073"/>
+<eng-data cg="519.5" f="2486.63" m="2337.71" t="1.227"/>
+<eng-data cg="519.5" f="2574.11" m="2035.52" t="1.426"/>
+<eng-data cg="519.5" f="2651.53" m="1737.59" t="1.616"/>
+<eng-data cg="519.5" f="2751.08" m="1632.22" t="1.681"/>
+<eng-data cg="519.5" f="2839.56" m="1462.79" t="1.782"/>
+<eng-data cg="519.5" f="2817.44" m="1379.61" t="1.831"/>
+<eng-data cg="519.5" f="2916.99" m="1155.92" t="1.961"/>
+<eng-data cg="519.5" f="2979.38" m="963.069" t="2.07"/>
+<eng-data cg="519.5" f="2939.11" m="812.115" t="2.155"/>
+<eng-data cg="519.5" f="2961.23" m="739.526" t="2.196"/>
+<eng-data cg="519.5" f="2872.75" m="634.492" t="2.256"/>
+<eng-data cg="519.5" f="2839.56" m="523.078" t="2.321"/>
+<eng-data cg="519.5" f="2684.72" m="435.223" t="2.374"/>
+<eng-data cg="519.5" f="2331.78" m="362.97" t="2.422"/>
+<eng-data cg="519.5" f="1568.6" m="291.578" t="2.483"/>
+<eng-data cg="519.5" f="1215.66" m="257.325" t="2.524"/>
+<eng-data cg="519.5" f="1094." m="215.742" t="2.584"/>
+<eng-data cg="519.5" f="1060.81" m="157.55" t="2.674"/>
+<eng-data cg="519.5" f="961.268" m="113.257" t="2.747"/>
+<eng-data cg="519.5" f="740.358" m="51.4748" t="2.868"/>
+<eng-data cg="519.5" f="464.043" m="20.756" t="2.953"/>
+<eng-data cg="519.5" f="165.708" m="3.18227" t="3.046"/>
+<eng-data cg="519.5" f="0." m="0." t="3.11"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

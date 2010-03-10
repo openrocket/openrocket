@@ -1,0 +1,19 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="1037.36" Itot="223.807" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="248.675" burn-time="0.9" cgDiv="10" cgFix="1" cgStep="-1." code="H246" delays="1000" dia="38." exitDia="0." initWt="598." len="508." mDiv="10" mFix="1" mStep="-1." massFrac="3.68" mfg="Contrail" peakThrust="609.064" propWt="22." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>H-246 HP Reload
+38mm/20 Inch Case Used
+Medium Nozzle Used
+185cc Nitrous Oxide Used
+</comments>
+<data>
+<eng-data cg="254." f="0." m="22." t="0."/>
+<eng-data cg="254." f="609.064" m="21.9665" t="0.00111857"/>
+<eng-data cg="254." f="499.57" m="21.357" t="0.0123043"/>
+<eng-data cg="254." f="253.206" m="3.23024" t="0.502237"/>
+<eng-data cg="254." f="157.399" m="2.98194" t="0.514541"/>
+<eng-data cg="254." f="0." m="0." t="0.9"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

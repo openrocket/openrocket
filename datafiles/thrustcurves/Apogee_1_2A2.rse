@@ -1,0 +1,47 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="82.98" Itot="1.221" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1.938" burn-time="0.63" cgDiv="10" cgFix="1" cgStep="-1." code="1/2A2" delays="2,4,6" dia="11." exitDia="0." initWt="4.4" len="57." mDiv="10" mFix="1" mStep="-1." massFrac="34.09" mfg="Apogee" peakThrust="3.97" propWt="1.5" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+  <comments>Apogee 1/2A2 RASP.ENG file made from NAR published data
+File produced September 4, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+  <data>
+    <eng-data cg="28.5" f="0." m="1.5" t="0."/>
+    <eng-data cg="28.5" f="0.19" m="1.49918" t="0.007"/>
+    <eng-data cg="28.5" f="1.494" m="1.45986" t="0.045"/>
+    <eng-data cg="28.5" f="3.152" m="1.36566" t="0.078"/>
+    <eng-data cg="28.5" f="3.805" m="1.32291" t="0.088"/>
+    <eng-data cg="28.5" f="3.805" m="1.29954" t="0.093"/>
+    <eng-data cg="28.5" f="3.97" m="1.2661" t="0.1"/>
+    <eng-data cg="28.5" f="3.696" m="1.24254" t="0.105"/>
+    <eng-data cg="28.5" f="3.071" m="1.22176" t="0.11"/>
+    <eng-data cg="28.5" f="2.554" m="1.19756" t="0.117"/>
+    <eng-data cg="28.5" f="2.582" m="1.17863" t="0.123"/>
+    <eng-data cg="28.5" f="2.31" m="1.15158" t="0.132"/>
+    <eng-data cg="28.5" f="2.146" m="1.0667" t="0.163"/>
+    <eng-data cg="28.5" f="1.984" m="0.972809" t="0.2"/>
+    <eng-data cg="28.5" f="1.902" m="0.872527" t="0.242"/>
+    <eng-data cg="28.5" f="2.01" m="0.846087" t="0.253"/>
+    <eng-data cg="28.5" f="1.929" m="0.792841" t="0.275"/>
+    <eng-data cg="28.5" f="1.929" m="0.63402" t="0.342"/>
+    <eng-data cg="28.5" f="1.929" m="0.489421" t="0.403"/>
+    <eng-data cg="28.5" f="1.848" m="0.473176" t="0.41"/>
+    <eng-data cg="28.5" f="1.902" m="0.450135" t="0.42"/>
+    <eng-data cg="28.5" f="1.902" m="0.340282" t="0.467"/>
+    <eng-data cg="28.5" f="1.929" m="0.196695" t="0.528"/>
+    <eng-data cg="28.5" f="1.929" m="0.108988" t="0.565"/>
+    <eng-data cg="28.5" f="1.902" m="0.0736794" t="0.58"/>
+    <eng-data cg="28.5" f="1.848" m="0.0437259" t="0.593"/>
+    <eng-data cg="28.5" f="1.657" m="0.0221902" t="0.603"/>
+    <eng-data cg="28.5" f="1.141" m="0.0101559" t="0.61"/>
+    <eng-data cg="28.5" f="0.597" m="0.00481652" t="0.615"/>
+    <eng-data cg="28.5" f="0.244" m="0.00119937" t="0.622"/>
+    <eng-data cg="28.5" f="0." m="-0." t="0.63"/>
+  </data>
+</engine>
+ </engine-list>
+</engine-database>

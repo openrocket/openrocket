@@ -1,0 +1,33 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="H340-SS" Type="reloadable" dia="29." len="365." initWt="391."
+propWt="206.7" delays="5,7,9,11,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="319.233" peakThrust="447.5" throatDia="0." exitDia="0." Itot="287.31"
+burn-time="0.9" massFrac="52.86" Isp="141.74" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="206.7" cg="182.5"/>
+      <eng-data  t="0.017" f="6." m="206.663" cg="182.5"/>
+      <eng-data  t="0.024" f="255." m="206.006" cg="182.5"/>
+      <eng-data  t="0.0311" f="395." m="204.346" cg="182.5"/>
+      <eng-data  t="0.035" f="423." m="203.198" cg="182.5"/>
+      <eng-data  t="0.043" f="447.5" m="200.693" cg="182.5"/>
+      <eng-data  t="0.06" f="398." m="195.523" cg="182.5"/>
+      <eng-data  t="0.064" f="389." m="194.391" cg="182.5"/>
+      <eng-data  t="0.075" f="397.5" m="191.279" cg="182.5"/>
+      <eng-data  t="0.25" f="388." m="141.831" cg="182.5"/>
+      <eng-data  t="0.4" f="382." m="100.284" cg="182.5"/>
+      <eng-data  t="0.542" f="376." m="61.5654" cg="182.5"/>
+      <eng-data  t="0.62" f="379." m="40.3817" cg="182.5"/>
+      <eng-data  t="0.66" f="400." m="29.173" cg="182.5"/>
+      <eng-data  t="0.68" f="407." m="23.3672" cg="182.5"/>
+      <eng-data  t="0.705" f="398." m="16.1279" cg="182.5"/>
+      <eng-data  t="0.74" f="248." m="7.99469" cg="182.5"/>
+      <eng-data  t="0.8" f="59.5" m="1.35793" cg="182.5"/>
+      <eng-data  t="0.85" f="8." m="0.143886" cg="182.5"/>
+      <eng-data  t="0.9" f="0." m="0." cg="182.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

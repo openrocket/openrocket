@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="183.2" Itot="326.785" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="181.245" burn-time="1.8" cgDiv="10" cgFix="1" cgStep="-1." code="I200W" delays="6,10,14" dia="29." exitDia="0." initWt="357.504" len="333." mDiv="10" mFix="1" mStep="-1." massFrac="50.88" mfg="Aerotech" peakThrust="303.951" propWt="181.888" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="166.5" f="0." m="181.888" t="0."/>
+<eng-data cg="166.5" f="303.951" m="179.097" t="0.033"/>
+<eng-data cg="166.5" f="273.452" m="167.848" t="0.103"/>
+<eng-data cg="166.5" f="276.061" m="156.99" t="0.174"/>
+<eng-data cg="166.5" f="271.625" m="146.168" t="0.245"/>
+<eng-data cg="166.5" f="268.233" m="135.501" t="0.316"/>
+<eng-data cg="166.5" f="258.449" m="125.241" t="0.386"/>
+<eng-data cg="166.5" f="252.48" m="115.145" t="0.457"/>
+<eng-data cg="166.5" f="246.642" m="105.283" t="0.528"/>
+<eng-data cg="166.5" f="242.304" m="95.6219" t="0.599"/>
+<eng-data cg="166.5" f="237.737" m="86.1366" t="0.67"/>
+<eng-data cg="166.5" f="234.769" m="76.8003" t="0.741"/>
+<eng-data cg="166.5" f="233.171" m="67.6843" t="0.811"/>
+<eng-data cg="166.5" f="230.66" m="58.5194" t="0.882"/>
+<eng-data cg="166.5" f="224.985" m="49.5162" t="0.953"/>
+<eng-data cg="166.5" f="221.658" m="40.6909" t="1.024"/>
+<eng-data cg="166.5" f="214.548" m="32.0718" t="1.095"/>
+<eng-data cg="166.5" f="177.365" m="24.3279" t="1.166"/>
+<eng-data cg="166.5" f="154.208" m="17.8685" t="1.236"/>
+<eng-data cg="166.5" f="119.146" m="12.4672" t="1.307"/>
+<eng-data cg="166.5" f="91.586" m="8.30333" t="1.378"/>
+<eng-data cg="166.5" f="65.33" m="5.20279" t="1.449"/>
+<eng-data cg="166.5" f="32.877" m="3.26229" t="1.52"/>
+<eng-data cg="166.5" f="28.702" m="2.04553" t="1.591"/>
+<eng-data cg="166.5" f="22.211" m="1.0537" t="1.661"/>
+<eng-data cg="166.5" f="15.558" m="0.307414" t="1.732"/>
+<eng-data cg="166.5" f="0." m="0." t="1.803"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

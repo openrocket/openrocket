@@ -130,7 +130,7 @@ public class FlightData {
 	}
 	
 	/**
-	 * NOTE:  This value will also contain any possible acceleration peak when opening a parachute!
+	 * NOTE:  This value only takes into account flight phase.
 	 */
 	public double getMaxAcceleration() {
 		return maxAcceleration;

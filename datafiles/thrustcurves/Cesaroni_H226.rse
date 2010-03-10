@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="H226-SK" Type="reloadable" dia="29." len="365." initWt="360."
+propWt="175." delays="5,7,9,11,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="204.232" peakThrust="362." throatDia="0." exitDia="0." Itot="306.349"
+burn-time="1.5" massFrac="48.61" Isp="178.51" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="175." cg="182.5"/>
+      <eng-data  t="0.007" f="9." m="174.982" cg="182.5"/>
+      <eng-data  t="0.012" f="178." m="174.715" cg="182.5"/>
+      <eng-data  t="0.017" f="320." m="174.004" cg="182.5"/>
+      <eng-data  t="0.023" f="362." m="172.835" cg="182.5"/>
+      <eng-data  t="0.047" f="319." m="168.167" cg="182.5"/>
+      <eng-data  t="0.08" f="302." m="162.314" cg="182.5"/>
+      <eng-data  t="0.14" f="291." m="152.151" cg="182.5"/>
+      <eng-data  t="0.615" f="276." m="75.2259" cg="182.5"/>
+      <eng-data  t="0.95" f="257.5" m="24.1788" cg="182.5"/>
+      <eng-data  t="1." f="215." m="17.431" cg="182.5"/>
+      <eng-data  t="1.077" f="105." m="10.3932" cg="182.5"/>
+      <eng-data  t="1.18" f="81." m="4.92127" cg="182.5"/>
+      <eng-data  t="1.29" f="31." m="1.4024" cg="182.5"/>
+      <eng-data  t="1.34" f="16." m="0.731193" cg="182.5"/>
+      <eng-data  t="1.5" f="0." m="0." cg="182.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

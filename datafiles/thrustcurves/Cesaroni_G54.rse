@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="G54-RL" Type="unspecified" dia="29." len="187." initWt="198.2"
+propWt="96.8" delays="12,9,7,5,3" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="52.725" peakThrust="121.712" throatDia="0." exitDia="0."
+Itot="159.544" burn-time="3.03" massFrac="48.84" Isp="168.07" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro29-3G 159G54-RL 12A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="96.8" cg="93.5"/>
+      <eng-data  t="0.018" f="107.269" m="96.2143" cg="93.5"/>
+      <eng-data  t="0.031" f="113.588" m="95.3433" cg="93.5"/>
+      <eng-data  t="0.059" f="103.508" m="93.4992" cg="93.5"/>
+      <eng-data  t="0.135" f="121.712" m="88.3066" cg="93.5"/>
+      <eng-data  t="0.22" f="104.561" m="82.4719" cg="93.5"/>
+      <eng-data  t="0.299" f="95.534" m="77.6765" cg="93.5"/>
+      <eng-data  t="0.432" f="88.312" m="70.2588" cg="93.5"/>
+      <eng-data  t="0.959" f="69.657" m="45.0039" cg="93.5"/>
+      <eng-data  t="1.757" f="43.479" m="17.6154" cg="93.5"/>
+      <eng-data  t="2.418" f="20.762" m="4.73356" cg="93.5"/>
+      <eng-data  t="2.851" f="9.478" m="0.761341" cg="93.5"/>
+      <eng-data  t="3.013" f="5.567" m="0.0219548" cg="93.5"/>
+      <eng-data  t="3.026" f="0." m="0." cg="93.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

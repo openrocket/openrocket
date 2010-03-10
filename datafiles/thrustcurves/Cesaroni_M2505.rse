@@ -1,0 +1,26 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="M2505-Classic" Type="reloadable" dia="98."
+len="548." initWt="6258." propWt="3423." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="2461.6" peakThrust="2938." throatDia="0."
+exitDia="0." Itot="7384.8" burn-time="3." massFrac="54.7" Isp="219.99" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="3423." cg="274."/>
+<eng-data  t="0.12" f="2600." m="3350.69" cg="274."/>
+<eng-data  t="0.21" f="2482." m="3244.69" cg="274."/>
+<eng-data  t="0.6" f="2715." m="2774.95" cg="274."/>
+<eng-data  t="0.9" f="2876." m="2386.22" cg="274."/>
+<eng-data  t="1.2" f="2938." m="1981.98" cg="274."/>
+<eng-data  t="1.5" f="2889." m="1576.84" cg="274."/>
+<eng-data  t="1.8" f="2785." m="1182.34" cg="274."/>
+<eng-data  t="2.1" f="2573." m="809.811" cg="274."/>
+<eng-data  t="2.4" f="2349." m="467.594" cg="274."/>
+<eng-data  t="2.7" f="2182." m="152.563" cg="274."/>
+<eng-data  t="2.99" f="85." m="0.196996" cg="274."/>
+<eng-data  t="3." f="0." m="0." cg="274."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

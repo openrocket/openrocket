@@ -1,0 +1,33 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Cesaroni" code="J357-Blue Streak" Type="reloadable" dia="38." len="367."
+initWt="601." propWt="337." delays="17,14,12,10,8" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="360.248" peakThrust="514.383" throatDia="0."
+exitDia="0." Itot="657.092" burn-time="1.82" massFrac="56.07" Isp="198.83"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="337." cg="183.5"/>
+      <eng-data  t="0.019" f="514.383" m="334.494" cg="183.5"/>
+      <eng-data  t="0.042" f="502.824" m="328.494" cg="183.5"/>
+      <eng-data  t="0.054" f="446.473" m="325.573" cg="183.5"/>
+      <eng-data  t="0.073" f="434.914" m="321.279" cg="183.5"/>
+      <eng-data  t="0.122" f="433.469" m="310.367" cg="183.5"/>
+      <eng-data  t="0.258" f="430.579" m="280.234" cg="183.5"/>
+      <eng-data  t="0.474" f="427.69" m="232.695" cg="183.5"/>
+      <eng-data  t="0.952" f="404.571" m="130.68" cg="183.5"/>
+      <eng-data  t="1.236" f="381.453" m="73.4366" cg="183.5"/>
+      <eng-data  t="1.386" f="372.784" m="44.4249" cg="183.5"/>
+      <eng-data  t="1.454" f="367.004" m="31.5249" cg="183.5"/>
+      <eng-data  t="1.487" f="345.33" m="25.4969" cg="183.5"/>
+      <eng-data  t="1.515" f="317.877" m="20.735" cg="183.5"/>
+      <eng-data  t="1.552" f="268.751" m="15.1691" cg="183.5"/>
+      <eng-data  t="1.615" f="196.506" m="7.6527" cg="183.5"/>
+      <eng-data  t="1.655" f="134.375" m="4.25875" cg="183.5"/>
+      <eng-data  t="1.721" f="49.127" m="1.15306" cg="183.5"/>
+      <eng-data  t="1.758" f="26.008" m="0.440175" cg="183.5"/>
+      <eng-data  t="1.824" f="0." m="0." cg="183.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

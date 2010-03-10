@@ -1,0 +1,38 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="KOS" code="K1750R" Type="reloadable" dia="54." len="727." initWt="2564."
+propWt="1441." auto-calc-mass="1" auto-calc-cg="1" avgThrust="1690.93"
+peakThrust="2133.94" throatDia="0." exitDia="0." Itot="2468.76" burn-time="1.46"
+massFrac="56.2" Isp="174.7" tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1."
+FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>MFR data converted from RASP file from Mark Koelsch</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1441." cg="363.5"/>
+      <eng-data  t="0.02" f="1309.09" m="1433.36" cg="363.5"/>
+      <eng-data  t="0.03" f="1679.77" m="1424.64" cg="363.5"/>
+      <eng-data  t="0.05" f="1679.77" m="1405.03" cg="363.5"/>
+      <eng-data  t="0.11" f="1736.54" m="1345.2" cg="363.5"/>
+      <eng-data  t="0.26" f="1689.79" m="1195.21" cg="363.5"/>
+      <eng-data  t="0.4" f="1799.99" m="1052.62" cg="363.5"/>
+      <eng-data  t="0.46" f="1913.54" m="987.596" cg="363.5"/>
+      <eng-data  t="0.68" f="1896.84" m="742.945" cg="363.5"/>
+      <eng-data  t="0.9" f="2023.74" m="491.22" cg="363.5"/>
+      <eng-data  t="0.95" f="2133.94" m="430.549" cg="363.5"/>
+      <eng-data  t="1." f="2097.21" m="368.807" cg="363.5"/>
+      <eng-data  t="1.05" f="2050.46" m="308.283" cg="363.5"/>
+      <eng-data  t="1.1" f="1920.21" m="250.342" cg="363.5"/>
+      <eng-data  t="1.16" f="1793.31" m="185.315" cg="363.5"/>
+      <eng-data  t="1.21" f="1676.43" m="134.683" cg="363.5"/>
+      <eng-data  t="1.25" f="1719.85" m="95.0355" cg="363.5"/>
+      <eng-data  t="1.27" f="1526.15" m="76.0889" cg="363.5"/>
+      <eng-data  t="1.32" f="1302.41" m="34.8136" cg="363.5"/>
+      <eng-data  t="1.35" f="874.95" m="15.7499" cg="363.5"/>
+      <eng-data  t="1.36" f="454.17" m="11.8709" cg="363.5"/>
+      <eng-data  t="1.37" f="317.25" m="9.61956" cg="363.5"/>
+      <eng-data  t="1.4" f="200.37" m="5.08759" cg="363.5"/>
+      <eng-data  t="1.46" f="90.17" m="0." cg="363.5"/>
+      <eng-data  t="1.46" f="90.17" m="0." cg="363.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -38,7 +38,7 @@ public class Manufacturer {
 		manufacturers.add(new Manufacturer("Cesaroni Technology Inc.",
 				"Cesaroni Technology",
 				"CES", "CESARONI", "CESARONI TECHNOLOGY INCORPORATED", "CTI",
-				"CS", "CSR", "PRO38"));
+				"CS", "CSR", "PRO38", "ABC"));
 
 		manufacturers.add(new Manufacturer("Contrail Rockets","Contrail Rockets",
 				"CR", "CONTR", "CONTRAIL", "CONTRAIL ROCKET"));

@@ -1,0 +1,16 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="151.01" Itot="162.901" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="262.744" burn-time="0.62" cgDiv="10" cgFix="1" cgStep="-1." code="H300" delays="1000" dia="38." exitDia="0." initWt="612." len="516." mDiv="10" mFix="1" mStep="-1." massFrac="17.97" mfg="Contrail" peakThrust="717.233" propWt="110." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="258." f="0." m="110." t="0."/>
+<eng-data cg="258." f="558.614" m="110." t="0."/>
+<eng-data cg="258." f="717.233" m="60.3706" t="0.115213"/>
+<eng-data cg="258." f="268.962" m="57.0187" t="0.12528"/>
+<eng-data cg="258." f="248.273" m="41.3916" t="0.214765"/>
+<eng-data cg="258." f="241.376" m="29.5567" t="0.286353"/>
+<eng-data cg="258." f="227.583" m="21.9411" t="0.334452"/>
+<eng-data cg="258." f="0." m="0." t="0.62"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

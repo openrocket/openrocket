@@ -1,0 +1,21 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Rocket_Motors" code="K470WC" Type="reloadable" dia="54." len="728."
+initWt="2327." propWt="1400." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="464.469" peakThrust="1050.2" throatDia="0." exitDia="0."
+Itot="2450.07" burn-time="5.28" massFrac="60.16" Isp="178.46" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="1400." cg="364."/>
+      <eng-data  t="0.025" f="1001.25" m="1392.85" cg="364."/>
+      <eng-data  t="0.175" f="905." m="1311.15" cg="364."/>
+      <eng-data  t="0.45" f="1050.2" m="1157.54" cg="364."/>
+      <eng-data  t="0.65" f="827.7" m="1050.23" cg="364."/>
+      <eng-data  t="1.091" f="716.45" m="855.674" cg="364."/>
+      <eng-data  t="1.633" f="623." m="648.257" cg="364."/>
+      <eng-data  t="5.275" f="0." m="0." cg="364."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

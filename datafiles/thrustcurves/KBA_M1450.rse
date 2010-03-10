@@ -1,0 +1,35 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-Aerotech" code="M1450W" Type="reloadable" dia="75." len="1038.9"
+initWt="7600." propWt="4150." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1353.98" peakThrust="2287.09" throatDia="0." exitDia="0."
+Itot="8069.72" burn-time="5.96" massFrac="54.61" Isp="198.28" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>KBA M1450W</comments>
+<data>
+<eng-data  t="0." f="0." m="4150." cg="519.45"/>
+<eng-data  t="0.035" f="1842.93" m="4133.41" cg="519.45"/>
+<eng-data  t="0.076" f="2287.09" m="4089.87" cg="519.45"/>
+<eng-data  t="0.146" f="1968.88" m="4013.27" cg="519.45"/>
+<eng-data  t="0.215" f="1882.7" m="3944.93" cg="519.45"/>
+<eng-data  t="0.291" f="1836.3" m="3872.26" cg="519.45"/>
+<eng-data  t="0.499" f="1862.82" m="3674.41" cg="519.45"/>
+<eng-data  t="1.005" f="1935.74" m="3180.18" cg="519.45"/>
+<eng-data  t="1.559" f="1889.33" m="2635.29" cg="519.45"/>
+<eng-data  t="2.155" f="1816.41" m="2067.38" cg="519.45"/>
+<eng-data  t="2.862" f="1750.12" m="1419.01" cg="519.45"/>
+<eng-data  t="3.493" f="1663.94" m="865.069" cg="519.45"/>
+<eng-data  t="3.853" f="1358.99" m="585.242" cg="519.45"/>
+<eng-data  t="4.221" f="1060.68" m="356.279" cg="519.45"/>
+<eng-data  t="4.484" f="788.88" m="231.2" cg="519.45"/>
+<eng-data  t="4.761" f="523.71" m="137.71" cg="519.45"/>
+<eng-data  t="4.942" f="258.54" m="101.303" cg="519.45"/>
+<eng-data  t="5.323" f="258.54" m="50.6454" cg="519.45"/>
+<eng-data  t="5.6" f="172.36" m="19.9541" cg="519.45"/>
+<eng-data  t="5.801" f="119.326" m="4.87856" cg="519.45"/>
+<eng-data  t="5.96" f="0." m="0." cg="519.45"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

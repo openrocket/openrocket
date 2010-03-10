@@ -1,0 +1,22 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="L480-LR" Type="reloadable" dia="75." len="498." initWt="3538."
+propWt="1814." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="500.07" peakThrust="567.282" throatDia="0." exitDia="0."
+Itot="3200.45" burn-time="6.4" massFrac="51.27" Isp="179.91" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="1814." cg="249."/>
+      <eng-data  t="0.02" f="419.525" m="1811.62" cg="249."/>
+      <eng-data  t="1." f="509.235" m="1553.68" cg="249."/>
+      <eng-data  t="2." f="551.451" m="1253.08" cg="249."/>
+      <eng-data  t="3." f="567.282" m="936.035" cg="249."/>
+      <eng-data  t="4." f="564.644" m="615.25" cg="249."/>
+      <eng-data  t="5." f="522.427" m="307.176" cg="249."/>
+      <eng-data  t="6." f="401.055" m="45.4633" cg="249."/>
+      <eng-data  t="6.4" f="0." m="0." cg="249."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

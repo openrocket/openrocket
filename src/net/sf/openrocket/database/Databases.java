@@ -46,9 +46,9 @@ public class Databases {
 
 	// TODO: HIGH: loading the thrust curves and other databases
 	static {
-		
+		final String filePattern = ".*\\.([eE][nN][gG]|[rR][sS][eE])$";
 		try {
-			MOTOR.loadJarDirectory("datafiles/thrustcurves/", ".*\\.[eE][nN][gG]$");
+			MOTOR.loadJarDirectory("datafiles/thrustcurves/", filePattern);
 		} catch (IOException e) {
 			System.out.println("Could not read thrust curves from JAR: "+e.getMessage());
 			
@@ -63,7 +63,7 @@ public class Databases {
 			}
 				
 			try {
-				MOTOR.loadDirectory(dir, ".*\\.[eE][nN][gG]$");
+				MOTOR.loadDirectory(dir, filePattern);
 			} catch (IOException e1) {
 				System.out.println("Could not read thrust curves from directory either.");
 				throw new ConfigurationException("Couldn't read thrust curves from either " +

@@ -1,0 +1,38 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="78.81" Itot="4.328" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="5.033" burn-time="0.86" cgDiv="10" cgFix="1" cgStep="-1." code="B6" delays="0,2,4,6" dia="18." exitDia="0." initWt="18.22" len="70." mDiv="10" mFix="1" mStep="-1." massFrac="30.74" mfg="Estes" peakThrust="12.14" propWt="5.6" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Estes B6 RASP.ENG file made from NAR published data
+File produced October 3, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="35." f="0." m="5.6" t="0."/>
+<eng-data cg="35." f="0.688" m="5.58976" t="0.023"/>
+<eng-data cg="35." f="2.457" m="5.52059" t="0.057"/>
+<eng-data cg="35." f="4.816" m="5.37002" t="0.089"/>
+<eng-data cg="35." f="7.274" m="5.15884" t="0.116"/>
+<eng-data cg="35." f="9.929" m="4.80271" t="0.148"/>
+<eng-data cg="35." f="12.14" m="4.47433" t="0.171"/>
+<eng-data cg="35." f="11.695" m="4.16594" t="0.191"/>
+<eng-data cg="35." f="10.719" m="4.03544" t="0.2"/>
+<eng-data cg="35." f="9.24" m="3.91923" t="0.209"/>
+<eng-data cg="35." f="7.667" m="3.68954" t="0.23"/>
+<eng-data cg="35." f="6.488" m="3.4606" t="0.255"/>
+<eng-data cg="35." f="5.505" m="3.07267" t="0.305"/>
+<eng-data cg="35." f="4.816" m="2.60528" t="0.375"/>
+<eng-data cg="35." f="4.62" m="1.98262" t="0.477"/>
+<eng-data cg="35." f="4.62" m="1.36692" t="0.58"/>
+<eng-data cg="35." f="4.521" m="0.828784" t="0.671"/>
+<eng-data cg="35." f="4.226" m="0.404379" t="0.746"/>
+<eng-data cg="35." f="4.325" m="0.183102" t="0.786"/>
+<eng-data cg="35." f="3.145" m="0.105781" t="0.802"/>
+<eng-data cg="35." f="1.572" m="0.0355943" t="0.825"/>
+<eng-data cg="35." f="0." m="0." t="0.86"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

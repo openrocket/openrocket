@@ -1,0 +1,53 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="L2375-WT" Type="reloadable" dia="75."
+len="621." initWt="4161." propWt="2321." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="2326.93" peakThrust="2608.28" throatDia="0."
+exitDia="0." Itot="4905.17" burn-time="2.11" massFrac="55.78" Isp="215.51"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>White Thunder</comments>
+<data>
+<eng-data  t="0." f="0." m="2321." cg="310.5"/>
+<eng-data  t="0.01" f="18.15" m="2320.96" cg="310.5"/>
+<eng-data  t="0.02" f="1195.14" m="2318.09" cg="310.5"/>
+<eng-data  t="0.03" f="2264.26" m="2309.9" cg="310.5"/>
+<eng-data  t="0.04" f="2353.98" m="2298.98" cg="310.5"/>
+<eng-data  t="0.05" f="2301.31" m="2287.96" cg="310.5"/>
+<eng-data  t="0.06" f="2230.24" m="2277.24" cg="310.5"/>
+<eng-data  t="0.07" f="2218.64" m="2266.72" cg="310.5"/>
+<eng-data  t="0.08" f="2193.69" m="2256.28" cg="310.5"/>
+<eng-data  t="0.09" f="2195.46" m="2245.89" cg="310.5"/>
+<eng-data  t="0.1" f="2221.16" m="2235.44" cg="310.5"/>
+<eng-data  t="0.2" f="2464.37" m="2124.59" cg="310.5"/>
+<eng-data  t="0.3" f="2415.98" m="2009.13" cg="310.5"/>
+<eng-data  t="0.4" f="2459.33" m="1893.78" cg="310.5"/>
+<eng-data  t="0.5" f="2481.51" m="1776.89" cg="310.5"/>
+<eng-data  t="0.6" f="2557.37" m="1657.68" cg="310.5"/>
+<eng-data  t="0.7" f="2560.4" m="1536.6" cg="310.5"/>
+<eng-data  t="0.8" f="2589.38" m="1414.76" cg="310.5"/>
+<eng-data  t="0.9" f="2608.28" m="1291.79" cg="310.5"/>
+<eng-data  t="1." f="2599.97" m="1168.57" cg="310.5"/>
+<eng-data  t="1.1" f="2567.46" m="1046.31" cg="310.5"/>
+<eng-data  t="1.2" f="2552.08" m="925.193" cg="310.5"/>
+<eng-data  t="1.3" f="2513.27" m="805.354" cg="310.5"/>
+<eng-data  t="1.4" f="2465.13" m="687.571" cg="310.5"/>
+<eng-data  t="1.5" f="2406.91" m="572.305" cg="310.5"/>
+<eng-data  t="1.6" f="2365.58" m="459.394" cg="310.5"/>
+<eng-data  t="1.7" f="2339.37" m="348.081" cg="310.5"/>
+<eng-data  t="1.8" f="2322.73" m="237.782" cg="310.5"/>
+<eng-data  t="1.9" f="2310.89" m="128.157" cg="310.5"/>
+<eng-data  t="1.95" f="2285.18" m="73.7883" cg="310.5"/>
+<eng-data  t="1.97" f="2112.54" m="52.9794" cg="310.5"/>
+<eng-data  t="2." f="1549.75" m="26.9859" cg="310.5"/>
+<eng-data  t="2.02" f="1115.75" m="14.3735" cg="310.5"/>
+<eng-data  t="2.04" f="591.77" m="6.29392" cg="310.5"/>
+<eng-data  t="2.05" f="408.04" m="3.9285" cg="310.5"/>
+<eng-data  t="2.06" f="243.72" m="2.38652" cg="310.5"/>
+<eng-data  t="2.08" f="103.33" m="0.744369" cg="310.5"/>
+<eng-data  t="2.1" f="38.56" m="0.0729823" cg="310.5"/>
+<eng-data  t="2.108" f="0." m="0." cg="310.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

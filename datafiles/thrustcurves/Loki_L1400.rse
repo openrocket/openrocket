@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="207.07" Itot="2842.88" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1421.44" burn-time="2." cgDiv="10" cgFix="1" cgStep="-1." code="L1400" delays="1000" dia="54." exitDia="0." initWt="2540." len="726." mDiv="10" mFix="1" mStep="-1." massFrac="55.12" mfg="Loki Research" peakThrust="1906.38" propWt="1400." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="363." f="0." m="1400." t="0."/>
+<eng-data cg="363." f="1606.3" m="1397.71" t="0.00580046"/>
+<eng-data cg="363." f="1535.7" m="1310.2" t="0.11891"/>
+<eng-data cg="363." f="1535.7" m="1152.28" t="0.327726"/>
+<eng-data cg="363." f="1588.65" m="1020.64" t="0.49884"/>
+<eng-data cg="363." f="1782.82" m="604.118" t="1.00058"/>
+<eng-data cg="363." f="1906.38" m="235.285" t="1.40661"/>
+<eng-data cg="363." f="1376.83" m="160.255" t="1.49942"/>
+<eng-data cg="363." f="953.19" m="98.6898" t="1.60673"/>
+<eng-data cg="363." f="547.202" m="47.26" t="1.74594"/>
+<eng-data cg="363." f="335.382" m="12.5957" t="1.90545"/>
+<eng-data cg="363." f="211.82" m="0.0907518" t="1.99826"/>
+<eng-data cg="363." f="0." m="0." t="2."/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

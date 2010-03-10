@@ -1,12 +1,17 @@
 package net.sf.openrocket.utils;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -27,14 +32,28 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class MotorPlot extends JFrame {
+public class MotorPlot extends JDialog {
 
+	private int selected = -1;
 	
 	public MotorPlot(List<String> filenames, List<Motor> motors) {
+		super((JFrame)null, "Motor plot", true);
 		
 		JTabbedPane tabs = new JTabbedPane();
 		for (int i=0; i<filenames.size(); i++) {
 			JPanel pane = createPlotPanel((ThrustCurveMotor) motors.get(i));
+			
+			JButton button = new JButton("Select");
+			final int number = i;
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selected = number;
+					MotorPlot.this.setVisible(false);
+				}
+			});
+			pane.add(button, "wrap", 0);
+			
 			tabs.addTab(filenames.get(i), pane);
 		}
 		
@@ -91,16 +110,24 @@ public class MotorPlot extends JFrame {
 		JTextArea area = new JTextArea(5, 40);
 		StringBuilder sb = new StringBuilder();
 		sb.append("Designation:  ").append(motor.getDesignation()).append("        ");
-		sb.append("Manufacturer: ").append(motor.getManufacturer()).append('\n');
+		sb.append("Manufacturer: ").append(motor.getManufacturer()).append("        ");
+		sb.append("Type: ").append(motor.getMotorType()).append('\n');
+		sb.append("Delays: ").append(Arrays.toString(motor.getStandardDelays())).append('\n');
 		sb.append("Comment:\n").append(motor.getDescription());
 		area.setText(sb.toString());
-		panel.add(area, "grow");
+		panel.add(area, "grow, wrap");
 		
 		
 		return panel;
 	}
 	
 	
+	
+	public int getSelected() {
+		return selected;
+	}
+
+
 	public static void main(String[] args) throws IOException {
 		if (args.length == 0) {
 			System.err.println("MotorPlot <files>");

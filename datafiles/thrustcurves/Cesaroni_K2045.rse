@@ -1,0 +1,40 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="K2045-Vmax" Type="unspecified" dia="54." len="404."
+initWt="1290." propWt="725." delays="17,15,13,10,7" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1931.18" peakThrust="2183.98" throatDia="0."
+exitDia="0." Itot="1417.49" burn-time="0.734" massFrac="56.2016" Isp="199.37"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="725." cg="202."/>
+      <eng-data  t="0.01" f="1165.25" m="722.02" cg="202."/>
+      <eng-data  t="0.02" f="1854.79" m="714.297" cg="202."/>
+      <eng-data  t="0.03" f="1907.47" m="704.675" cg="202."/>
+      <eng-data  t="0.04" f="1947.47" m="694.817" cg="202."/>
+      <eng-data  t="0.05" f="1944.77" m="684.863" cg="202."/>
+      <eng-data  t="0.06" f="1970.16" m="674.851" cg="202."/>
+      <eng-data  t="0.07" f="1994.77" m="664.712" cg="202."/>
+      <eng-data  t="0.08" f="1998.62" m="654.499" cg="202."/>
+      <eng-data  t="0.09" f="2018.23" m="644.227" cg="202."/>
+      <eng-data  t="0.1" f="2034.77" m="633.862" cg="202."/>
+      <eng-data  t="0.15" f="2042.46" m="581.728" cg="202."/>
+      <eng-data  t="0.2" f="2138.98" m="528.261" cg="202."/>
+      <eng-data  t="0.3" f="2183.98" m="417.708" cg="202."/>
+      <eng-data  t="0.4" f="2164.75" m="306.496" cg="202."/>
+      <eng-data  t="0.5" f="2148.98" m="196.179" cg="202."/>
+      <eng-data  t="0.6" f="2154.75" m="86.1179" cg="202."/>
+      <eng-data  t="0.62" f="2121.29" m="64.2474" cg="202."/>
+      <eng-data  t="0.63" f="2106.68" m="53.435" cg="202."/>
+      <eng-data  t="0.65" f="2091.91" m="31.9605" cg="202."/>
+      <eng-data  t="0.655" f="2038.61" m="26.6789" cg="202."/>
+      <eng-data  t="0.67" f="1507.52" m="13.0759" cg="202."/>
+      <eng-data  t="0.68" f="982.58" m="6.70791" cg="202."/>
+      <eng-data  t="0.69" f="481.87" m="2.96281" cg="202."/>
+      <eng-data  t="0.7" f="184.59" m="1.25844" cg="202."/>
+      <eng-data  t="0.72" f="36.15" m="0.129427" cg="202."/>
+      <eng-data  t="0.734" f="0." m="0." cg="202."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

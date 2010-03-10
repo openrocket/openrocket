@@ -1,0 +1,38 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="K1440WT" Type="reloadable" dia="54."
+len="572." initWt="1892.6" propWt="1162.4" delays="7,17" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1426.68" peakThrust="2168.21" throatDia="0."
+exitDia="0." Itot="2368.29" burn-time="1.66" massFrac="61.42" Isp="207.76"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="1162.4" cg="286."/>
+<eng-data  t="0.01" f="1061.8" m="1159.79" cg="286."/>
+<eng-data  t="0.01" f="2168.21" m="1159.79" cg="286."/>
+<eng-data  t="0.02" f="2036.3" m="1149.48" cg="286."/>
+<eng-data  t="0.07" f="1691.73" m="1103.73" cg="286."/>
+<eng-data  t="0.1" f="1805.18" m="1077.99" cg="286."/>
+<eng-data  t="0.2" f="1747.49" m="990.8" cg="286."/>
+<eng-data  t="0.3" f="1721.72" m="905.663" cg="286."/>
+<eng-data  t="0.4" f="1712.49" m="821.384" cg="286."/>
+<eng-data  t="0.5" f="1709.03" m="737.417" cg="286."/>
+<eng-data  t="0.6" f="1682.11" m="654.195" cg="286."/>
+<eng-data  t="0.7" f="1678.65" m="571.719" cg="286."/>
+<eng-data  t="0.8" f="1638.27" m="490.318" cg="286."/>
+<eng-data  t="0.9" f="1601.35" m="410.815" cg="286."/>
+<eng-data  t="1.01" f="1539.56" m="326.026" cg="286."/>
+<eng-data  t="1.11" f="1462.58" m="252.351" cg="286."/>
+<eng-data  t="1.21" f="1398.43" m="182.139" cg="286."/>
+<eng-data  t="1.3" f="1111.41" m="126.704" cg="286."/>
+<eng-data  t="1.4" f="1039.5" m="73.919" cg="286."/>
+<eng-data  t="1.45" f="922.2" m="49.848" cg="286."/>
+<eng-data  t="1.5" f="701.07" m="29.9297" cg="286."/>
+<eng-data  t="1.55" f="556.47" m="14.4991" cg="286."/>
+<eng-data  t="1.6" f="272.66" m="4.32529" cg="286."/>
+<eng-data  t="1.65" f="66.53" m="0.163271" cg="286."/>
+<eng-data  t="1.66" f="0." m="0." cg="286."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

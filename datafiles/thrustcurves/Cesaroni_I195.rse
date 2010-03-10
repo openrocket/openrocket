@@ -1,0 +1,45 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="I195-RL" Type="reloadable" dia="38."
+len="245." initWt="417." propWt="226." delays="7,9,11,13,16" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="195.675" peakThrust="235.422" throatDia="0."
+exitDia="0." Itot="395.264" burn-time="2.02" massFrac="54.2" Isp="178.34"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="226." cg="122.5"/>
+<eng-data  t="0." f="10.17" m="226." cg="122.5"/>
+<eng-data  t="0.01" f="67.545" m="225.778" cg="122.5"/>
+<eng-data  t="0.02" f="179.678" m="225.071" cg="122.5"/>
+<eng-data  t="0.03" f="203.433" m="223.976" cg="122.5"/>
+<eng-data  t="0.04" f="206.127" m="222.805" cg="122.5"/>
+<eng-data  t="0.05" f="192.2" m="221.666" cg="122.5"/>
+<eng-data  t="0.06" f="195.73" m="220.557" cg="122.5"/>
+<eng-data  t="0.07" f="177.667" m="219.49" cg="122.5"/>
+<eng-data  t="0.08" f="181.689" m="218.462" cg="122.5"/>
+<eng-data  t="0.09" f="186.85" m="217.409" cg="122.5"/>
+<eng-data  t="0.1" f="195.73" m="216.315" cg="122.5"/>
+<eng-data  t="0.2" f="226.58" m="204.242" cg="122.5"/>
+<eng-data  t="0.3" f="235.422" m="191.034" cg="122.5"/>
+<eng-data  t="0.4" f="231.02" m="177.699" cg="122.5"/>
+<eng-data  t="0.5" f="231.703" m="164.47" cg="122.5"/>
+<eng-data  t="0.6" f="226.011" m="151.385" cg="122.5"/>
+<eng-data  t="0.7" f="222.596" m="138.56" cg="122.5"/>
+<eng-data  t="0.8" f="223.696" m="125.801" cg="122.5"/>
+<eng-data  t="0.9" f="210.567" m="113.386" cg="122.5"/>
+<eng-data  t="1." f="208.48" m="101.406" cg="122.5"/>
+<eng-data  t="1.1" f="205.482" m="89.5719" cg="122.5"/>
+<eng-data  t="1.2" f="204.002" m="77.8654" cg="122.5"/>
+<eng-data  t="1.3" f="196.602" m="66.4128" cg="122.5"/>
+<eng-data  t="1.4" f="191.517" m="55.317" cg="122.5"/>
+<eng-data  t="1.5" f="188.633" m="44.4491" cg="122.5"/>
+<eng-data  t="1.6" f="183.511" m="33.8101" cg="122.5"/>
+<eng-data  t="1.7" f="186.357" m="23.2362" cg="122.5"/>
+<eng-data  t="1.8" f="181.727" m="12.7132" cg="122.5"/>
+<eng-data  t="1.9" f="113.726" m="4.26665" cg="122.5"/>
+<eng-data  t="2." f="29.598" m="0.169232" cg="122.5"/>
+<eng-data  t="2.02" f="0." m="0." cg="122.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

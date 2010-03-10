@@ -1,0 +1,15 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="205.82" Itot="38.35" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="14.099" burn-time="2.72" cgDiv="10" cgFix="1" cgStep="-1." code="E16" delays="4,7" dia="29." exitDia="0." initWt="107." len="121." mDiv="10" mFix="1" mStep="-1." massFrac="17.76" mfg="Aerotech" peakThrust="27.92" propWt="19." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="60.5" f="0." m="19." t="0."/>
+<eng-data cg="60.5" f="27.92" m="18.7233" t="0.04"/>
+<eng-data cg="60.5" f="23.5" m="17.1948" t="0.16"/>
+<eng-data cg="60.5" f="21.4" m="16.0826" t="0.26"/>
+<eng-data cg="60.5" f="10.9" m="2.16039" t="2."/>
+<eng-data cg="60.5" f="6.36" m="0.535663" t="2.38"/>
+<eng-data cg="60.5" f="0." m="0." t="2.72"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

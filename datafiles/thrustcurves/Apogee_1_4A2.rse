@@ -1,0 +1,39 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="72.61" Itot="0.57" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="2.477" burn-time="0.23" cgDiv="10" cgFix="1" cgStep="-1." code="1/4A2" delays="2,4" dia="11." exitDia="0." initWt="3.6" len="38." mDiv="10" mFix="1" mStep="-1." massFrac="22.22" mfg="Apogee" peakThrust="5.4" propWt="0.8" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+    <comments>Apogee 1/4A2 RASP.ENG file made from NAR published data
+File produced September 4, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+    <data>
+      <eng-data cg="19." f="0." m="0.8" t="0."/>
+      <eng-data cg="19." f="0.162" m="0.799204" t="0.007"/>
+      <eng-data cg="19." f="0.65" m="0.79008" t="0.023"/>
+      <eng-data cg="19." f="1.463" m="0.763372" t="0.041"/>
+      <eng-data cg="19." f="2.519" m="0.715836" t="0.058"/>
+      <eng-data cg="19." f="3.738" m="0.645536" t="0.074"/>
+      <eng-data cg="19." f="3.9" m="0.618718" t="0.079"/>
+      <eng-data cg="19." f="4.915" m="0.563007" t="0.088"/>
+      <eng-data cg="19." f="5.119" m="0.499593" t="0.097"/>
+      <eng-data cg="19." f="5.4" m="0.433113" t="0.106"/>
+      <eng-data cg="19." f="5.119" m="0.403567" t="0.11"/>
+      <eng-data cg="19." f="3.981" m="0.352445" t="0.118"/>
+      <eng-data cg="19." f="3.656" m="0.314905" t="0.125"/>
+      <eng-data cg="19." f="3.453" m="0.279961" t="0.132"/>
+      <eng-data cg="19." f="3.209" m="0.261248" t="0.136"/>
+      <eng-data cg="19." f="3.169" m="0.194067" t="0.151"/>
+      <eng-data cg="19." f="2.966" m="0.172526" t="0.156"/>
+      <eng-data cg="19." f="2.884" m="0.12323" t="0.168"/>
+      <eng-data cg="19." f="2.397" m="0.0787293" t="0.18"/>
+      <eng-data cg="19." f="1.625" m="0.0391887" t="0.194"/>
+      <eng-data cg="19." f="1.056" m="0.0147143" t="0.207"/>
+      <eng-data cg="19." f="0.406" m="0.00342121" t="0.218"/>
+      <eng-data cg="19." f="0." m="-0." t="0.23"/>
+    </data>
+  </engine>
+ </engine-list>
+</engine-database>

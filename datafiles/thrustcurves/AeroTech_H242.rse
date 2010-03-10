@@ -1,0 +1,20 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="215.56" Itot="234.218" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="195.182" burn-time="1.2" cgDiv="10" cgFix="1" cgStep="-1." code="H242T" delays="6,10,14" dia="38." exitDia="0." initWt="279.1" len="154." mDiv="10" mFix="1" mStep="-1." massFrac="39.7" mfg="Aerotech" peakThrust="286.05" propWt="110.8" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="77." f="0." m="110.8" t="0."/>
+<eng-data cg="77." f="286.05" m="110.8" t="0."/>
+<eng-data cg="77." f="255.09" m="98.0003" t="0.1"/>
+<eng-data cg="77." f="241.88" m="74.4906" t="0.3"/>
+<eng-data cg="77." f="241.88" m="63.0481" t="0.4"/>
+<eng-data cg="77." f="233.16" m="51.8119" t="0.5"/>
+<eng-data cg="77." f="211.15" m="30.7933" t="0.7"/>
+<eng-data cg="77." f="193.53" m="21.2213" t="0.8"/>
+<eng-data cg="77." f="171.51" m="12.587" t="0.9"/>
+<eng-data cg="77." f="118.76" m="5.72122" t="1."/>
+<eng-data cg="77." f="61.56" m="1.45609" t="1.1"/>
+<eng-data cg="77." f="0." m="0." t="1.2"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

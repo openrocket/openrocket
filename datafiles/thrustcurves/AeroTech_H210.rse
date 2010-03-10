@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="175.59" Itot="210.078" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="207.998" burn-time="1.01" cgDiv="10" cgFix="1" cgStep="-1." code="H210R" delays="10,1000" dia="29." exitDia="0." initWt="249." len="238." mDiv="10" mFix="1" mStep="-1." massFrac="49." mfg="Aerotech" peakThrust="260.22" propWt="122." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="119." f="0." m="122." t="0."/>
+<eng-data cg="119." f="105.92" m="121.385" t="0.02"/>
+<eng-data cg="119." f="211.29" m="117.701" t="0.06"/>
+<eng-data cg="119." f="219.77" m="112.694" t="0.1"/>
+<eng-data cg="119." f="229.64" m="107.474" t="0.14"/>
+<eng-data cg="119." f="235.08" m="102.077" t="0.18"/>
+<eng-data cg="119." f="241.59" m="96.5402" t="0.22"/>
+<eng-data cg="119." f="242.71" m="90.9152" t="0.26"/>
+<eng-data cg="119." f="245.35" m="85.2465" t="0.3"/>
+<eng-data cg="119." f="249.1" m="79.5036" t="0.34"/>
+<eng-data cg="119." f="253.41" m="73.6671" t="0.38"/>
+<eng-data cg="119." f="258.55" m="67.7208" t="0.42"/>
+<eng-data cg="119." f="260.22" m="61.6955" t="0.46"/>
+<eng-data cg="119." f="258." m="55.6765" t="0.5"/>
+<eng-data cg="119." f="259.25" m="49.6688" t="0.54"/>
+<eng-data cg="119." f="256.61" m="43.6772" t="0.58"/>
+<eng-data cg="119." f="252.44" m="37.7647" t="0.62"/>
+<eng-data cg="119." f="245.06" m="31.9864" t="0.66"/>
+<eng-data cg="119." f="219.91" m="26.5859" t="0.7"/>
+<eng-data cg="119." f="209.34" m="21.6003" t="0.74"/>
+<eng-data cg="119." f="200.59" m="16.8391" t="0.78"/>
+<eng-data cg="119." f="193.57" m="12.261" t="0.82"/>
+<eng-data cg="119." f="184.32" m="7.87196" t="0.86"/>
+<eng-data cg="119." f="153.88" m="2.96184" t="0.91"/>
+<eng-data cg="119." f="58.24" m="1.11405" t="0.94"/>
+<eng-data cg="119." f="13.21" m="0.0767152" t="0.99"/>
+<eng-data cg="119." f="0." m="0." t="1.01"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,40 @@
+; RocketVision E15 RASP.ENG file made from NAR published data
+; File produced December 10, 2000
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+E15 24 70 4-7 .0201 .0501 RV
+0.020 23.330
+0.036 27.318
+0.058 28.840
+0.079 27.171
+0.139 25.638
+0.183 24.263
+0.237 24.106
+0.297 22.426
+0.373 21.964
+0.400 20.894
+0.443 21.355
+0.487 20.442
+0.617 19.833
+0.742 18.457
+0.812 20.000
+0.850 18.006
+0.899 18.467
+1.035 17.711
+1.100 16.945
+1.160 16.945
+1.377 15.736
+1.426 14.656
+1.436 16.198
+1.463 14.813
+1.550 14.361
+1.572 15.432
+1.610 13.752
+1.827 12.839
+2.126 10.098
+2.337 6.116
+2.538 1.369
+2.640 0.000

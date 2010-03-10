@@ -1,0 +1,38 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="J3354-15A" Type="reloadable" dia="38." len="367." initWt="627."
+propWt="341.5" delays="15,12,10,8,6" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="321.441" peakThrust="409.543" throatDia="0." exitDia="0."
+Itot="646.739" burn-time="2.01" massFrac="54.47" Isp="193.12" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro-38 Red Lightning 5G.</comments>
+    <data>
+      <eng-data  t="0." f="0." m="341.5" cg="183.5"/>
+      <eng-data  t="0.013" f="313.676" m="340.423" cg="183.5"/>
+      <eng-data  t="0.025" f="364.294" m="338.275" cg="183.5"/>
+      <eng-data  t="0.038" f="409.543" m="335.619" cg="183.5"/>
+      <eng-data  t="0.091" f="409.543" m="324.158" cg="183.5"/>
+      <eng-data  t="0.148" f="405.708" m="311.889" cg="183.5"/>
+      <eng-data  t="0.242" f="402.641" m="291.828" cg="183.5"/>
+      <eng-data  t="0.374" f="405.708" m="263.657" cg="183.5"/>
+      <eng-data  t="0.515" f="401.107" m="233.622" cg="183.5"/>
+      <eng-data  t="0.735" f="387.302" m="187.828" cg="183.5"/>
+      <eng-data  t="0.892" f="378.866" m="156.07" cg="183.5"/>
+      <eng-data  t="1.108" f="360.459" m="113.908" cg="183.5"/>
+      <eng-data  t="1.25" f="349.722" m="87.2833" cg="183.5"/>
+      <eng-data  t="1.366" f="346.654" m="65.9561" cg="183.5"/>
+      <eng-data  t="1.504" f="344.354" m="40.7796" cg="183.5"/>
+      <eng-data  t="1.551" f="334.383" m="32.3573" cg="183.5"/>
+      <eng-data  t="1.607" f="320.579" m="22.6737" cg="183.5"/>
+      <eng-data  t="1.667" f="257.69" m="13.5134" cg="183.5"/>
+      <eng-data  t="1.708" f="179.463" m="8.78133" cg="183.5"/>
+      <eng-data  t="1.777" f="95.867" m="3.7656" cg="183.5"/>
+      <eng-data  t="1.833" f="44.482" m="1.69054" cg="183.5"/>
+      <eng-data  t="1.925" f="14.572" m="0.256147" cg="183.5"/>
+      <eng-data  t="1.987" f="0.767" m="0.00506253" cg="183.5"/>
+      <eng-data  t="2.012" f="0." m="0." cg="183.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

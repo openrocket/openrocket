@@ -1,0 +1,14 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="60.46" Itot="2.075" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="5.062" burn-time="0.41" cgDiv="10" cgFix="1" cgStep="-1." code="A6Q" delays="4" dia="18." exitDia="0." initWt="15.3" len="70." mDiv="10" mFix="1" mStep="-1." massFrac="22.88" mfg="Quest" peakThrust="11.82" propWt="3.5" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+  <eng-data cg="35." f="0." m="3.5" t="0."/>
+  <eng-data cg="35." f="4.8" m="3.09524" t="0.1"/>
+  <eng-data cg="35." f="11.82" m="1.69376" t="0.2"/>
+  <eng-data cg="35." f="7.9" m="1.19489" t="0.23"/>
+  <eng-data cg="35." f="4.8" m="0.445237" t="0.3"/>
+  <eng-data cg="35." f="0." m="-0." t="0.41"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

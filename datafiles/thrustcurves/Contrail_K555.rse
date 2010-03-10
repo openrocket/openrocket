@@ -1,0 +1,24 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="1101.92" Itot="1685.76" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="554.527" burn-time="3.04" cgDiv="10" cgFix="1" cgStep="-1." code="K555" delays="1000" dia="54." exitDia="0." initWt="2038." len="1219.2" mDiv="10" mFix="1" mStep="-1." massFrac="7.65" mfg="Contrail" peakThrust="1385.79" propWt="156." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>K-555-BG Reload
+54mm/48 Inch Case
+XF Nozzle
+</comments>
+<data>
+<eng-data cg="609.6" f="0." m="156." t="0."/>
+<eng-data cg="609.6" f="769.885" m="154.207" t="0.0503356"/>
+<eng-data cg="609.6" f="889.644" m="132.305" t="0.33557"/>
+<eng-data cg="609.6" f="1385.79" m="108.751" t="0.559284"/>
+<eng-data cg="609.6" f="872.536" m="78.9464" t="0.844519"/>
+<eng-data cg="609.6" f="581.691" m="67.6569" t="1.0123"/>
+<eng-data cg="609.6" f="342.171" m="4.54053" t="2.48881"/>
+<eng-data cg="609.6" f="222.411" m="2.49509" t="2.56711"/>
+<eng-data cg="609.6" f="136.868" m="1.28637" t="2.63982"/>
+<eng-data cg="609.6" f="51.3256" m="0.409769" t="2.74049"/>
+<eng-data cg="609.6" f="17.1085" m="0.179537" t="2.8132"/>
+<eng-data cg="609.6" f="0." m="0." t="3.04"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

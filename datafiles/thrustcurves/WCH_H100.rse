@@ -1,0 +1,45 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="West Coast Hybrids" code="H100" Type="hybrid" dia="38." len="403."
+initWt="450." propWt="95." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="85.301" peakThrust="169.257" throatDia="0." exitDia="0."
+Itot="213.252" burn-time="2.5" massFrac="21.11" Isp="228.9" tDiv="10" tStep="-1."
+tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+<comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve and engine data from C.A.R. certification dated
+10-29-04.
+</comments>
+<data>
+  <eng-data  t="0." f="0." m="95." cg="201.5"/>
+  <eng-data  t="0.017" f="32.438" m="94.8772" cg="201.5"/>
+  <eng-data  t="0.168" f="167.972" m="88.1366" cg="201.5"/>
+  <eng-data  t="0.206" f="169.257" m="85.2822" cg="201.5"/>
+  <eng-data  t="0.217" f="166.688" m="84.4591" cg="201.5"/>
+  <eng-data  t="0.324" f="139.709" m="77.1567" cg="201.5"/>
+  <eng-data  t="0.423" f="137.14" m="71.0518" cg="201.5"/>
+  <eng-data  t="0.484" f="134.571" m="67.36" cg="201.5"/>
+  <eng-data  t="0.548" f="130.395" m="63.5828" cg="201.5"/>
+  <eng-data  t="0.582" f="127.184" m="61.6321" cg="201.5"/>
+  <eng-data  t="0.643" f="125.257" m="58.2021" cg="201.5"/>
+  <eng-data  t="1.002" f="114.979" m="38.9919" cg="201.5"/>
+  <eng-data  t="1.037" f="114.337" m="37.2042" cg="201.5"/>
+  <eng-data  t="1.092" f="114.016" m="34.4067" cg="201.5"/>
+  <eng-data  t="1.159" f="113.052" m="31.018" cg="201.5"/>
+  <eng-data  t="1.243" f="108.556" m="26.8717" cg="201.5"/>
+  <eng-data  t="1.269" f="104.702" m="25.6366" cg="201.5"/>
+  <eng-data  t="1.335" f="96.673" m="22.6762" cg="201.5"/>
+  <eng-data  t="1.373" f="93.461" m="21.0669" cg="201.5"/>
+  <eng-data  t="1.408" f="91.855" m="19.6222" cg="201.5"/>
+  <eng-data  t="1.472" f="89.607" m="17.0354" cg="201.5"/>
+  <eng-data  t="1.512" f="86.395" m="15.4673" cg="201.5"/>
+  <eng-data  t="1.547" f="82.862" m="14.1478" cg="201.5"/>
+  <eng-data  t="1.582" f="77.723" m="12.8958" cg="201.5"/>
+  <eng-data  t="1.75" f="54.92" m="7.93228" cg="201.5"/>
+  <eng-data  t="1.868" f="41.431" m="5.39985" cg="201.5"/>
+  <eng-data  t="2.071" f="25.051" m="2.39377" cg="201.5"/>
+  <eng-data  t="2.5" f="0." m="0." cg="201.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

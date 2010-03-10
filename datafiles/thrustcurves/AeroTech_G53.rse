@@ -1,0 +1,50 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Aerotech" code="G53FJ" Type="reloadable" dia="29." len="124." initWt="147."
+propWt="60." delays="5,7,10" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="45.499" peakThrust="85.647" throatDia="0." exitDia="0." Itot="90.993"
+burn-time="2." massFrac="40.82" Isp="154.65" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>@File: G53FJ_Combined.txt, @Pts-I: 1310, @Pts-O: 32, @Sm: 2, @CO: 5%
+@TI: 90.9683, @TIa: 90.6677, @TIe: 0.0%, @ThMax: 85.8995, @ThAvg: 52.9292, @Tb: 1.713
+Exported using ThrustCurveTool, www.ThrustGear.com
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="60." cg="62."/>
+      <eng-data  t="0." f="0.0161325" m="60." cg="62."/>
+      <eng-data  t="0.084" f="0.173372" m="59.9948" cg="62."/>
+      <eng-data  t="0.098" f="0.875543" m="59.9899" cg="62."/>
+      <eng-data  t="0.102" f="1.97607" m="59.9861" cg="62."/>
+      <eng-data  t="0.104" f="3.2865" m="59.9827" cg="62."/>
+      <eng-data  t="0.106" f="5.66335" m="59.9768" cg="62."/>
+      <eng-data  t="0.108" f="10.0044" m="59.9664" cg="62."/>
+      <eng-data  t="0.112" f="26.8138" m="59.9179" cg="62."/>
+      <eng-data  t="0.114" f="36.5078" m="59.8761" cg="62."/>
+      <eng-data  t="0.118" f="51.1937" m="59.7605" cg="62."/>
+      <eng-data  t="0.12" f="56.7099" m="59.6893" cg="62."/>
+      <eng-data  t="0.124" f="64.8595" m="59.529" cg="62."/>
+      <eng-data  t="0.128" f="70.2176" m="59.3509" cg="62."/>
+      <eng-data  t="0.134" f="74.2385" m="59.0651" cg="62."/>
+      <eng-data  t="0.146" f="78.8965" m="58.4593" cg="62."/>
+      <eng-data  t="0.152" f="79.8043" m="58.1453" cg="62."/>
+      <eng-data  t="0.164" f="83.1003" m="57.5008" cg="62."/>
+      <eng-data  t="0.188" f="85.6475" m="56.1656" cg="62."/>
+      <eng-data  t="0.234" f="85.447" m="53.5708" cg="62."/>
+      <eng-data  t="0.298" f="82.0177" m="50.0372" cg="62."/>
+      <eng-data  t="0.354" f="79.7728" m="47.0501" cg="62."/>
+      <eng-data  t="0.748" f="69.4245" m="27.6694" cg="62."/>
+      <eng-data  t="1.0239" f="56.7367" m="16.1934" cg="62."/>
+      <eng-data  t="1.1599" f="48.3545" m="11.4813" cg="62."/>
+      <eng-data  t="1.3439" f="35.2918" m="6.40698" cg="62."/>
+      <eng-data  t="1.5599" f="22.1026" m="2.31969" cg="62."/>
+      <eng-data  t="1.5999" f="19.2471" m="1.77438" cg="62."/>
+      <eng-data  t="1.6979" f="11.0049" m="0.796939" cg="62."/>
+      <eng-data  t="1.7699" f="6.58917" m="0.379291" cg="62."/>
+      <eng-data  t="1.8179" f="4.26533" m="0.207515" cg="62."/>
+      <eng-data  t="1.9179" f="1.11474" m="0.030137" cg="62."/>
+      <eng-data  t="1.9999" f="0." m="0." cg="62."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

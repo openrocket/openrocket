@@ -1,0 +1,19 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="937.33" Itot="29184.8" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="6802.98" burn-time="4.29" cgDiv="10" cgFix="1" cgStep="-1." code="O6300" delays="1000" dia="152." exitDia="0." initWt="28576." len="1828.8" mDiv="10" mFix="1" mStep="-1." massFrac="11.11" mfg="Contrail Rockets" peakThrust="12271." propWt="3175." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="914.4" f="0." m="3175." t="0."/>
+<eng-data cg="914.4" f="12271." m="3152.37" t="0.0338983"/>
+<eng-data cg="914.4" f="9714.51" m="2321.33" t="0.728814"/>
+<eng-data cg="914.4" f="9203.22" m="1370.79" t="1.65254"/>
+<eng-data cg="914.4" f="8947.57" m="659.592" t="2.37288"/>
+<eng-data cg="914.4" f="6646.77" m="537.386" t="2.51695"/>
+<eng-data cg="914.4" f="4601.61" m="371.46" t="2.78814"/>
+<eng-data cg="914.4" f="4857.25" m="266.814" t="2.99153"/>
+<eng-data cg="914.4" f="3579.03" m="134.591" t="3.27966"/>
+<eng-data cg="914.4" f="1278.22" m="47.2678" t="3.61017"/>
+<eng-data cg="914.4" f="0." m="0." t="4.29"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

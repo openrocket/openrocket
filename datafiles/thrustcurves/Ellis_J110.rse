@@ -1,0 +1,17 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="169.06" Itot="751.993" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="110.587" burn-time="6.8" cgDiv="10" cgFix="1" cgStep="-1." code="J110" delays="1000" dia="54." exitDia="0." initWt="875.4" len="276.2" mDiv="10" mFix="1" mStep="-1." massFrac="51.82" mfg="Ellis Mountain" peakThrust="193.784" propWt="453.59" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="138.1" f="0." m="453.59" t="0."/>
+<eng-data cg="138.1" f="193.784" m="447.267" t="0.108192"/>
+<eng-data cg="138.1" f="147.54" m="418.628" t="0.386399"/>
+<eng-data cg="138.1" f="139.833" m="365.046" t="1.00464"/>
+<eng-data cg="138.1" f="116.711" m="130.659" t="4.034"/>
+<eng-data cg="138.1" f="94.6899" m="68.5771" t="5.00773"/>
+<eng-data cg="138.1" f="67.1637" m="19.5374" t="6.01236"/>
+<eng-data cg="138.1" f="37.4355" m="2.95951" t="6.53787"/>
+<eng-data cg="138.1" f="0." m="-0." t="6.8"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

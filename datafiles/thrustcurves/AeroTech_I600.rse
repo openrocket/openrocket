@@ -1,0 +1,31 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="201.66" Itot="640.142" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="542.493" burn-time="1.18" cgDiv="10" cgFix="1" cgStep="-1." code="I600R" delays="10" dia="38." exitDia="0." initWt="617." len="344.68" mDiv="10" mFix="1" mStep="-1." massFrac="52.46" mfg="Aerotech" peakThrust="817.754" propWt="323.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>I600R Data Entered by Tim Van Milligan
+For RockSim: www.RockSim.com
+Based on Aerotech's Reload Kit Instruction Sheet.
+Not Officially Approved by TRA or Aerotech
+</comments>
+<data>
+<eng-data cg="172.34" f="0." m="323.7" t="0."/>
+<eng-data cg="172.34" f="40.438" m="323.649" t="0.005"/>
+<eng-data cg="172.34" f="817.754" m="314.753" t="0.046"/>
+<eng-data cg="172.34" f="813.261" m="309.392" t="0.059"/>
+<eng-data cg="172.34" f="772.822" m="292.95" t="0.1"/>
+<eng-data cg="172.34" f="736.877" m="254.78" t="0.2"/>
+<eng-data cg="172.34" f="696.439" m="182.301" t="0.4"/>
+<eng-data cg="172.34" f="669.48" m="147.766" t="0.5"/>
+<eng-data cg="172.34" f="620.055" m="115.162" t="0.6"/>
+<eng-data cg="172.34" f="539.178" m="57.7157" t="0.796"/>
+<eng-data cg="172.34" f="485.261" m="32.3324" t="0.894"/>
+<eng-data cg="172.34" f="453.809" m="18.7989" t="0.951"/>
+<eng-data cg="172.34" f="435.836" m="15.8748" t="0.964"/>
+<eng-data cg="172.34" f="274.082" m="9.4131" t="1."/>
+<eng-data cg="172.34" f="152.767" m="3.80114" t="1.052"/>
+<eng-data cg="172.34" f="62.904" m="0.856571" t="1.106"/>
+<eng-data cg="172.34" f="13.48" m="0.122696" t="1.144"/>
+<eng-data cg="172.34" f="0." m="0." t="1.18"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

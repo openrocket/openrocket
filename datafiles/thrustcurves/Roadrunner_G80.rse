@@ -1,0 +1,43 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="194.81" Itot="105.074" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="80.209" burn-time="1.31" cgDiv="10" cgFix="1" cgStep="-1." code="G80R" delays="4,7,10" dia="29." exitDia="0." initWt="133." len="140." mDiv="10" mFix="1" mStep="-1." massFrac="41.35" mfg="Roadrunner Rocketry" peakThrust="112.75" propWt="55." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>ROADRUNNER G80 RASP.ENG FILE
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+  <eng-data cg="70." f="0." m="55." t="0."/>
+  <eng-data cg="70." f="63.563" m="54.8004" t="0.012"/>
+  <eng-data cg="70." f="84.077" m="54.1821" t="0.028"/>
+  <eng-data cg="70." f="89.563" m="52.8642" t="0.057"/>
+  <eng-data cg="70." f="96.03" m="49.8527" t="0.119"/>
+  <eng-data cg="70." f="102.518" m="45.3318" t="0.206"/>
+  <eng-data cg="70." f="104.42" m="43.382" t="0.242"/>
+  <eng-data cg="70." f="106.923" m="40.3398" t="0.297"/>
+  <eng-data cg="70." f="109.826" m="36.9929" t="0.356"/>
+  <eng-data cg="70." f="111.829" m="33.1641" t="0.422"/>
+  <eng-data cg="70." f="111.328" m="29.6015" t="0.483"/>
+  <eng-data cg="70." f="112.632" m="25.2053" t="0.558"/>
+  <eng-data cg="70." f="112.75" m="21.4302" t="0.622"/>
+  <eng-data cg="70." f="112.129" m="17.84" t="0.683"/>
+  <eng-data cg="70." f="109.125" m="14.5972" t="0.739"/>
+  <eng-data cg="70." f="102.017" m="11.4474" t="0.796"/>
+  <eng-data cg="70." f="90.494" m="8.07165" t="0.863"/>
+  <eng-data cg="70." f="82.75" m="6.34868" t="0.901"/>
+  <eng-data cg="70." f="72.41" m="4.96799" t="0.935"/>
+  <eng-data cg="70." f="59.869" m="3.54857" t="0.976"/>
+  <eng-data cg="70." f="49.826" m="2.34277" t="1.018"/>
+  <eng-data cg="70." f="44.321" m="2.09637" t="1.028"/>
+  <eng-data cg="70." f="39.805" m="1.78812" t="1.042"/>
+  <eng-data cg="70." f="28.272" m="1.23579" t="1.073"/>
+  <eng-data cg="70." f="18.231" m="0.748962" t="1.113"/>
+  <eng-data cg="70." f="11.176" m="0.310266" t="1.17"/>
+  <eng-data cg="70." f="4.636" m="0.111627" t="1.218"/>
+  <eng-data cg="70." f="0." m="0." t="1.31"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="734.74" Itot="1138.44" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="413.979" burn-time="2.75" cgDiv="10" cgFix="1" cgStep="-1." code="J416" delays="1000" dia="54." exitDia="0." initWt="1700." len="914.4" mDiv="10" mFix="1" mStep="-1." massFrac="9.29" mfg="Contrail" peakThrust="787.386" propWt="158." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="457.2" f="0." m="158." t="0."/>
+<eng-data cg="457.2" f="787.386" m="158." t="0."/>
+<eng-data cg="457.2" f="777.161" m="149.719" t="0.0762712"/>
+<eng-data cg="457.2" f="572.645" m="137.019" t="0.211864"/>
+<eng-data cg="457.2" f="531.741" m="120.133" t="0.432203"/>
+<eng-data cg="457.2" f="511.29" m="88.8502" t="0.864407"/>
+<eng-data cg="457.2" f="480.612" m="61.4344" t="1.26271"/>
+<eng-data cg="457.2" f="470.387" m="24.5233" t="1.82203"/>
+<eng-data cg="457.2" f="347.677" m="13.9394" t="2.00847"/>
+<eng-data cg="457.2" f="276.097" m="8.43701" t="2.13559"/>
+<eng-data cg="457.2" f="184.064" m="4.91908" t="2.24576"/>
+<eng-data cg="457.2" f="81.8064" m="1.94839" t="2.40678"/>
+<eng-data cg="457.2" f="0." m="0." t="2.75"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

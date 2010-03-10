@@ -1,0 +1,45 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Animal Motor Works" code="L666SK" Type="reloadable" dia="75." len="497."
+initWt="3534.4" propWt="1887.7" delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="663.042" peakThrust="899.312" throatDia="0." exitDia="0."
+Itot="2630.95" burn-time="3.97" massFrac="53.41" Isp="142.12" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Animal Motor Works 75-3500</comments>
+<data>
+<eng-data  t="0." f="0." m="1887.7" cg="248.5"/>
+<eng-data  t="0.096" f="105.88" m="1884.05" cg="248.5"/>
+<eng-data  t="0.175" f="509.783" m="1866.6" cg="248.5"/>
+<eng-data  t="0.312" f="549.481" m="1814.54" cg="248.5"/>
+<eng-data  t="0.449" f="577.319" m="1759.16" cg="248.5"/>
+<eng-data  t="0.586" f="602.9" m="1701.16" cg="248.5"/>
+<eng-data  t="0.722" f="615.605" m="1641.71" cg="248.5"/>
+<eng-data  t="0.859" f="632.54" m="1580.36" cg="248.5"/>
+<eng-data  t="0.996" f="652.072" m="1517.23" cg="248.5"/>
+<eng-data  t="1.133" f="671.418" m="1452.18" cg="248.5"/>
+<eng-data  t="1.27" f="685.671" m="1385.48" cg="248.5"/>
+<eng-data  t="1.407" f="701.286" m="1317.31" cg="248.5"/>
+<eng-data  t="1.543" f="718.069" m="1248.06" cg="248.5"/>
+<eng-data  t="1.68" f="734.116" m="1176.69" cg="248.5"/>
+<eng-data  t="1.817" f="753.292" m="1103.58" cg="248.5"/>
+<eng-data  t="1.954" f="771.589" m="1028.64" cg="248.5"/>
+<eng-data  t="2.091" f="790.453" m="951.867" cg="248.5"/>
+<eng-data  t="2.228" f="819.222" m="872.754" cg="248.5"/>
+<eng-data  t="2.364" f="846.663" m="791.476" cg="248.5"/>
+<eng-data  t="2.501" f="874.629" m="706.877" cg="248.5"/>
+<eng-data  t="2.638" f="890.083" m="620.144" cg="248.5"/>
+<eng-data  t="2.775" f="898.271" m="532.249" cg="248.5"/>
+<eng-data  t="2.912" f="899.312" m="443.9" cg="248.5"/>
+<eng-data  t="3.049" f="881.683" m="356.367" cg="248.5"/>
+<eng-data  t="3.185" f="845.157" m="272.115" cg="248.5"/>
+<eng-data  t="3.322" f="768.451" m="192.808" cg="248.5"/>
+<eng-data  t="3.459" f="672.771" m="121.974" cg="248.5"/>
+<eng-data  t="3.596" f="525.466" m="63.0826" cg="248.5"/>
+<eng-data  t="3.733" f="304.694" m="22.2815" cg="248.5"/>
+<eng-data  t="3.87" f="86.663" m="3.04684" cg="248.5"/>
+<eng-data  t="3.968" f="0." m="0." cg="248.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

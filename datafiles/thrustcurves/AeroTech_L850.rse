@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="182.44" Itot="3694.98" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="786.668" burn-time="4.7" cgDiv="10" cgFix="1" cgStep="-1." code="L850W" delays="1000" dia="75." exitDia="0." initWt="3673.15" len="531." mDiv="10" mFix="1" mStep="-1." massFrac="56.23" mfg="Aerotech" peakThrust="1184.8" propWt="2065.28" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="265.5" f="0." m="2065.28" t="0."/>
+<eng-data cg="265.5" f="1015.93" m="2039.44" t="0.091"/>
+<eng-data cg="265.5" f="1064.94" m="1933.02" t="0.274"/>
+<eng-data cg="265.5" f="1101.37" m="1821.62" t="0.458"/>
+<eng-data cg="265.5" f="1143.36" m="1705.57" t="0.643"/>
+<eng-data cg="265.5" f="1170.93" m="1586.56" t="0.827"/>
+<eng-data cg="265.5" f="1184.8" m="1465.42" t="1.011"/>
+<eng-data cg="265.5" f="1178.04" m="1343.26" t="1.196"/>
+<eng-data cg="265.5" f="1177.6" m="1222.12" t="1.38"/>
+<eng-data cg="265.5" f="1174.91" m="1101.15" t="1.564"/>
+<eng-data cg="265.5" f="1170.02" m="980.569" t="1.748"/>
+<eng-data cg="265.5" f="1113.72" m="863.133" t="1.932"/>
+<eng-data cg="265.5" f="1042.59" m="751.647" t="2.117"/>
+<eng-data cg="265.5" f="972.795" m="648.01" t="2.301"/>
+<eng-data cg="265.5" f="908.071" m="551.291" t="2.485"/>
+<eng-data cg="265.5" f="844.471" m="460.681" t="2.67"/>
+<eng-data cg="265.5" f="773.595" m="377.476" t="2.854"/>
+<eng-data cg="265.5" f="714.046" m="300.562" t="3.039"/>
+<eng-data cg="265.5" f="649.095" m="230.846" t="3.222"/>
+<eng-data cg="265.5" f="597.341" m="166.751" t="3.406"/>
+<eng-data cg="265.5" f="557.444" m="107.046" t="3.591"/>
+<eng-data cg="265.5" f="422.233" m="56.6687" t="3.775"/>
+<eng-data cg="265.5" f="200.739" m="24.6338" t="3.959"/>
+<eng-data cg="265.5" f="79.411" m="10.1494" t="4.144"/>
+<eng-data cg="265.5" f="43.959" m="3.80542" t="4.328"/>
+<eng-data cg="265.5" f="14.862" m="0.764244" t="4.513"/>
+<eng-data cg="265.5" f="0." m="0." t="4.697"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

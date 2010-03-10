@@ -1,0 +1,42 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="196.24" Itot="5710.57" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1350.02" burn-time="4.23" cgDiv="10" cgFix="1" cgStep="-1." code="M1350WW" delays="1000" dia="75." exitDia="0." initWt="5632.2" len="785." mDiv="10" mFix="1" mStep="-1." massFrac="52.68" mfg="Animal Motor Works" peakThrust="1662.71" propWt="2967.3" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Animal Motor Works M1350 RASP.ENG file made from NAR data
+File produced Nov 3, 2002
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="392.5" f="0." m="2967.3" t="0."/>
+<eng-data cg="392.5" f="728.705" m="2962.38" t="0.026"/>
+<eng-data cg="392.5" f="1381.7" m="2951.41" t="0.046"/>
+<eng-data cg="392.5" f="1609.64" m="2935.87" t="0.066"/>
+<eng-data cg="392.5" f="1662.71" m="2913.76" t="0.092"/>
+<eng-data cg="392.5" f="1609.64" m="2863.6" t="0.151"/>
+<eng-data cg="392.5" f="1592.57" m="2787.89" t="0.242"/>
+<eng-data cg="392.5" f="1592.57" m="2592.6" t="0.478"/>
+<eng-data cg="392.5" f="1592.57" m="2126.7" t="1.041"/>
+<eng-data cg="392.5" f="1635.75" m="1565.58" t="1.71"/>
+<eng-data cg="392.5" f="1643.78" m="1063.73" t="2.299"/>
+<eng-data cg="392.5" f="1601.61" m="749.223" t="2.672"/>
+<eng-data cg="392.5" f="1508.22" m="409.881" t="3.092"/>
+<eng-data cg="392.5" f="1500.19" m="327.812" t="3.197"/>
+<eng-data cg="392.5" f="1423.87" m="288.308" t="3.249"/>
+<eng-data cg="392.5" f="1338.52" m="250.988" t="3.301"/>
+<eng-data cg="392.5" f="1067.4" m="197.856" t="3.386"/>
+<eng-data cg="392.5" f="788.05" m="131.332" t="3.524"/>
+<eng-data cg="392.5" f="440.617" m="68.4463" t="3.721"/>
+<eng-data cg="392.5" f="389.807" m="55.9328" t="3.779"/>
+<eng-data cg="392.5" f="381.272" m="44.1132" t="3.838"/>
+<eng-data cg="392.5" f="364.402" m="31.3269" t="3.904"/>
+<eng-data cg="392.5" f="305.058" m="18.8039" t="3.976"/>
+<eng-data cg="392.5" f="194.903" m="8.54227" t="4.055"/>
+<eng-data cg="392.5" f="93.214" m="2.17959" t="4.14"/>
+<eng-data cg="392.5" f="0." m="0." t="4.23"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,40 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-AeroTech" code="K400S" Type="reloadable" dia="54." len="403."
+initWt="1509.31" propWt="713.216" delays="6,10,14" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="354.68" peakThrust="465.928" throatDia="0."
+exitDia="0." Itot="1373.67" burn-time="3.87" massFrac="47.25" Isp="196.4"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="713.216" cg="201.5"/>
+<eng-data  t="0.074" f="465.928" m="704.265" cg="201.5"/>
+<eng-data  t="0.225" f="441.922" m="668.678" cg="201.5"/>
+<eng-data  t="0.377" f="442.414" m="633.782" cg="201.5"/>
+<eng-data  t="0.529" f="445.492" m="598.746" cg="201.5"/>
+<eng-data  t="0.681" f="449.048" m="563.448" cg="201.5"/>
+<eng-data  t="0.833" f="451.88" m="527.898" cg="201.5"/>
+<eng-data  t="0.985" f="454.481" m="492.133" cg="201.5"/>
+<eng-data  t="1.138" f="456.929" m="455.933" cg="201.5"/>
+<eng-data  t="1.29" f="458.237" m="419.821" cg="201.5"/>
+<eng-data  t="1.442" f="457.021" m="383.706" cg="201.5"/>
+<eng-data  t="1.594" f="455.62" m="347.693" cg="201.5"/>
+<eng-data  t="1.746" f="451.772" m="311.888" cg="201.5"/>
+<eng-data  t="1.897" f="446.421" m="276.679" cg="201.5"/>
+<eng-data  t="2.048" f="438.843" m="241.977" cg="201.5"/>
+<eng-data  t="2.2" f="429.377" m="207.718" cg="201.5"/>
+<eng-data  t="2.352" f="419.003" m="174.241" cg="201.5"/>
+<eng-data  t="2.504" f="408.274" m="141.597" cg="201.5"/>
+<eng-data  t="2.656" f="397.608" m="109.797" cg="201.5"/>
+<eng-data  t="2.808" f="388.018" m="78.7971" cg="201.5"/>
+<eng-data  t="2.96" f="367.07" m="49.0017" cg="201.5"/>
+<eng-data  t="3.113" f="263.666" m="23.9495" cg="201.5"/>
+<eng-data  t="3.265" f="114.378" m="9.0321" cg="201.5"/>
+<eng-data  t="3.417" f="46.238" m="2.69429" cg="201.5"/>
+<eng-data  t="3.569" f="8.62" m="0.529624" cg="201.5"/>
+<eng-data  t="3.721" f="2.401" m="0.0947421" cg="201.5"/>
+<eng-data  t="3.873" f="0." m="0." cg="201.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

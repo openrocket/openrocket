@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="97.22" Itot="150.645" Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="125.538" burn-time="1.2" cgDiv="10" cgFix="1" cgStep="-1." code="G125" delays="1000" dia="38." exitDia="0." initWt="537." len="408." mDiv="10" mFix="1" mStep="-1." massFrac="29.42" mfg="Sky Ripper Systems" peakThrust="415.57" propWt="158." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+  <eng-data cg="204." f="0." m="158." t="0."/>
+  <eng-data cg="204." f="346.87" m="156.181" t="0.01"/>
+  <eng-data cg="204." f="325.72" m="145.6" t="0.04"/>
+  <eng-data cg="204." f="324.57" m="135.369" t="0.07"/>
+  <eng-data cg="204." f="415.57" m="131.488" t="0.08"/>
+  <eng-data cg="204." f="219.61" m="128.157" t="0.09"/>
+  <eng-data cg="204." f="194.84" m="119.463" t="0.13"/>
+  <eng-data cg="204." f="177.77" m="105.785" t="0.2"/>
+  <eng-data cg="204." f="157.13" m="70.6599" t="0.4"/>
+  <eng-data cg="204." f="131.89" m="40.3469" t="0.6"/>
+  <eng-data cg="204." f="88.31" m="17.2519" t="0.8"/>
+  <eng-data cg="204." f="42.44" m="3.53851" t="1."/>
+  <eng-data cg="204." f="14.64" m="0.844511" t="1.09"/>
+  <eng-data cg="204." f="0." m="0." t="1.2"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

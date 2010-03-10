@@ -1,0 +1,50 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Kosdon-by-Aerotech" code="M3500R" Type="reloadable" dia="75." len="1039."
+initWt="7173." propWt="3755." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="3111.64" peakThrust="4059.41" throatDia="0." exitDia="0."
+Itot="7312.05" burn-time="2.35" massFrac="52.35" Isp="198.57" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>@File: M3500.txt, @Pts-I: 1176, @Pts-O: 32, @Sm: 3, @CO: 5%
+@TI: 7311.23, @TIa: 7305.44, @TIe: 0.0%, @ThMax: 4059.41, @ThAvg: 3454.11, @Tb: 2.115
+Exported using ThrustCurveTool, www.ThrustGear.com
+</comments>
+<data>
+<eng-data  t="0." f="0." m="3755." cg="519.5"/>
+<eng-data  t="0." f="0.371006" m="3755." cg="519.5"/>
+<eng-data  t="0.106" f="8.86696" m="3754.75" cg="519.5"/>
+<eng-data  t="0.122" f="135.597" m="3754.16" cg="519.5"/>
+<eng-data  t="0.13" f="670.948" m="3752.5" cg="519.5"/>
+<eng-data  t="0.14" f="1587.83" m="3746.7" cg="519.5"/>
+<eng-data  t="0.156" f="2299.92" m="3730.73" cg="519.5"/>
+<eng-data  t="0.178" f="2751.17" m="3702.19" cg="519.5"/>
+<eng-data  t="0.188" f="2731.01" m="3688.12" cg="519.5"/>
+<eng-data  t="0.196" f="2914.16" m="3676.52" cg="519.5"/>
+<eng-data  t="0.2" f="2842.83" m="3670.61" cg="519.5"/>
+<eng-data  t="0.208" f="2985.3" m="3658.64" cg="519.5"/>
+<eng-data  t="0.21" f="2903.6" m="3655.61" cg="519.5"/>
+<eng-data  t="0.248" f="3027.96" m="3597.74" cg="519.5"/>
+<eng-data  t="0.932" f="3723.01" m="2412.07" cg="519.5"/>
+<eng-data  t="1.5879" f="4059.41" m="1101.4" cg="519.5"/>
+<eng-data  t="1.9859" f="3900.58" m="287.939" cg="519.5"/>
+<eng-data  t="2.0279" f="3759.75" m="205.328" cg="519.5"/>
+<eng-data  t="2.0399" f="3495.75" m="182.972" cg="519.5"/>
+<eng-data  t="2.0539" f="3522.63" m="157.743" cg="519.5"/>
+<eng-data  t="2.0739" f="3313.47" m="122.637" cg="519.5"/>
+<eng-data  t="2.0819" f="2962.24" m="109.746" cg="519.5"/>
+<eng-data  t="2.0899" f="2964.52" m="97.5714" cg="519.5"/>
+<eng-data  t="2.1039" f="2484.66" m="77.983" cg="519.5"/>
+<eng-data  t="2.1639" f="1015.77" m="24.0551" cg="519.5"/>
+<eng-data  t="2.1879" f="602.438" m="14.083" cg="519.5"/>
+<eng-data  t="2.1979" f="218.762" m="11.9745" cg="519.5"/>
+<eng-data  t="2.2059" f="440.947" m="10.6193" cg="519.5"/>
+<eng-data  t="2.2119" f="274.648" m="9.51686" cg="519.5"/>
+<eng-data  t="2.2199" f="474.133" m="7.97876" cg="519.5"/>
+<eng-data  t="2.2219" f="353.742" m="7.55361" cg="519.5"/>
+<eng-data  t="2.2399" f="180.084" m="5.08637" cg="519.5"/>
+<eng-data  t="2.3499" f="0." m="0." cg="519.5"/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,41 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="195.17" Itot="2576.19" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1096.25" burn-time="2.35" cgDiv="10" cgFix="1" cgStep="-1." code="L1100SM" delays="1000" dia="54." exitDia="0." initWt="2588.1" len="728." mDiv="10" mFix="1" mStep="-1." massFrac="52.01" mfg="Animal Motor Works" peakThrust="1340.23" propWt="1346." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AMW L1100 RASP.ENG file made from NAR published data
+File produced April 19, 2004
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="364." f="0." m="1346." t="0."/>
+<eng-data cg="364." f="681.489" m="1343.69" t="0.013"/>
+<eng-data cg="364." f="1116.88" m="1336.17" t="0.029"/>
+<eng-data cg="364." f="1196.3" m="1328.92" t="0.041"/>
+<eng-data cg="364." f="1210.38" m="1305.03" t="0.079"/>
+<eng-data cg="364." f="1203.34" m="1262.15" t="0.147"/>
+<eng-data cg="364." f="1218.42" m="1192.56" t="0.257"/>
+<eng-data cg="364." f="1225.45" m="1122.97" t="0.366"/>
+<eng-data cg="364." f="1254.61" m="992.742" t="0.567"/>
+<eng-data cg="364." f="1282.76" m="822.387" t="0.824"/>
+<eng-data cg="364." f="1311.91" m="663.098" t="1.059"/>
+<eng-data cg="364." f="1340.23" m="518.987" t="1.267"/>
+<eng-data cg="364." f="1311.91" m="385.962" t="1.459"/>
+<eng-data cg="364." f="1297.84" m="274.834" t="1.622"/>
+<eng-data cg="364." f="1290.8" m="213.295" t="1.713"/>
+<eng-data cg="364." f="1268.68" m="165.153" t="1.785"/>
+<eng-data cg="364." f="1218.42" m="135.915" t="1.83"/>
+<eng-data cg="364." f="1080.69" m="102.281" t="1.886"/>
+<eng-data cg="364." f="819.214" m="61.0857" t="1.969"/>
+<eng-data cg="364." f="558.24" m="32.6581" t="2.048"/>
+<eng-data cg="364." f="376.985" m="17.9991" t="2.108"/>
+<eng-data cg="364." f="246.498" m="10.1809" t="2.156"/>
+<eng-data cg="364." f="144.963" m="5.16998" t="2.205"/>
+<eng-data cg="364." f="72.501" m="1.53414" t="2.269"/>
+<eng-data cg="364." f="0." m="0." t="2.35"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

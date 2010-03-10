@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="1934.74" Itot="1423." Type="hybrid" auto-calc-cg="1" auto-calc-mass="1" avgThrust="646.817" burn-time="2.2" cgDiv="10" cgFix="1" cgStep="-1." code="K630" delays="1000" dia="75." exitDia="0." initWt="3550." len="1041.4" mDiv="10" mFix="1" mStep="-1." massFrac="2.11" mfg="Contrail" peakThrust="889.644" propWt="75." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>K-630-Sparky Reload
+75mm/41 Inch Hardare
+1400cc
+Medium Nozzle
+</comments>
+<data>
+<eng-data cg="520.7" f="0." m="75." t="0."/>
+<eng-data cg="520.7" f="307.954" m="74.9546" t="0.00559284"/>
+<eng-data cg="520.7" f="573.136" m="72.8119" t="0.0978747"/>
+<eng-data cg="520.7" f="889.644" m="57.2891" t="0.500559"/>
+<eng-data cg="520.7" f="667.233" m="5.88897" t="1.75336"/>
+<eng-data cg="520.7" f="410.605" m="3.02953" t="1.85403"/>
+<eng-data cg="520.7" f="239.52" m="1.59227" t="1.93792"/>
+<eng-data cg="520.7" f="128.314" m="0.50796" t="2.04978"/>
+<eng-data cg="520.7" f="0." m="0." t="2.2"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

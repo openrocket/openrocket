@@ -1,0 +1,14 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="202.87" Itot="1279.8" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="124.98" burn-time="10.24" cgDiv="10" cgFix="1" cgStep="-1." code="J125W" delays="100" dia="54." exitDia="0." initWt="1115." len="368." mDiv="10" mFix="1" mStep="-1." massFrac="57.7" mfg="Aerotech" peakThrust="214." propWt="643.3" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="184." f="0." m="643.3" t="0."/>
+<eng-data cg="184." f="214." m="589.516" t="1."/>
+<eng-data cg="184." f="200." m="381.416" t="3."/>
+<eng-data cg="184." f="142." m="294.602" t="4.01"/>
+<eng-data cg="184." f="120." m="97.7165" t="7."/>
+<eng-data cg="184." f="0." m="0." t="10.24"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

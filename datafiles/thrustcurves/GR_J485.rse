@@ -1,0 +1,24 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Rocket_Motors" code="J485WC" Type="reloadable" dia="54." len="326."
+initWt="1164.8" propWt="549." delays="1000" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="492.077" peakThrust="573.821" throatDia="0." exitDia="0."
+Itot="1077.65" burn-time="2.19" massFrac="47.13" Isp="200.16" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="549." cg="163."/>
+      <eng-data  t="0.05" f="263.913" m="545.639" cg="163."/>
+      <eng-data  t="0.095" f="401.808" m="538.008" cg="163."/>
+      <eng-data  t="0.15" f="444.822" m="526.147" cg="163."/>
+      <eng-data  t="0.503226" f="544.253" m="437.156" cg="163."/>
+      <eng-data  t="0.8" f="573.821" m="352.635" cg="163."/>
+      <eng-data  t="1.075" f="569.372" m="272.557" cg="163."/>
+      <eng-data  t="1.5" f="542.683" m="152.169" cg="163."/>
+      <eng-data  t="2." f="444.822" m="26.4002" cg="163."/>
+      <eng-data  t="2.1" f="311.376" m="7.13827" cg="163."/>
+      <eng-data  t="2.19" f="0." m="0." cg="163."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

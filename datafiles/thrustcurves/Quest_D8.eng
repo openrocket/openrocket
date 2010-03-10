@@ -1,0 +1,38 @@
+; QUEST D8 RASP.ENG FILE
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+D8 24 70 0-3-5 0.0220 0.454 QUEST
+0.002 1.014
+0.010 1.565
+0.130 5.178
+0.217 8.911
+0.298 14.812
+0.351 20.231
+0.414 25.289
+0.442 28.882
+0.470 23.844
+0.487 17.461
+0.508 13.367
+0.537 10.958
+0.600 9.152
+0.673 8.791
+0.828 8.309
+0.933 8.068
+1.136 7.105
+1.350 6.743
+1.480 6.623
+1.602 6.502
+1.648 7.105
+1.683 6.382
+1.743 6.262
+1.865 6.141
+1.974 6.141
+2.104 6.262
+2.132 5.419
+2.170 3.492
+2.191 1.926
+2.200 0.000
+;

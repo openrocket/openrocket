@@ -1,0 +1,22 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="185.52" Itot="1201.33" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="343.236" burn-time="3.5" cgDiv="10" cgFix="1" cgStep="-1." code="J415W" delays="6,10,14" dia="54." exitDia="0." initWt="1198.9" len="326." mDiv="10" mFix="1" mStep="-1." massFrac="55.08" mfg="Aerotech" peakThrust="552." propWt="660.3" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="163." f="0." m="660.3" t="0."/>
+<eng-data cg="163." f="552." m="660.3" t="0."/>
+<eng-data cg="163." f="441.51" m="632.996" t="0.1"/>
+<eng-data cg="163." f="463.57" m="583.249" t="0.3"/>
+<eng-data cg="163." f="441.51" m="533.502" t="0.5"/>
+<eng-data cg="163." f="441.51" m="363.631" t="1.2"/>
+<eng-data cg="163." f="450.27" m="314.615" t="1.4"/>
+<eng-data cg="163." f="432.66" m="241.821" t="1.7"/>
+<eng-data cg="163." f="353.22" m="133.833" t="2.2"/>
+<eng-data cg="163." f="264.88" m="48.8992" t="2.7"/>
+<eng-data cg="163." f="220.75" m="35.5531" t="2.8"/>
+<eng-data cg="163." f="136.91" m="15.8946" t="3."/>
+<eng-data cg="163." f="88.29" m="9.70559" t="3.1"/>
+<eng-data cg="163." f="0." m="0." t="3.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

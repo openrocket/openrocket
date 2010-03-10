@@ -1,0 +1,39 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="169.98" Itot="1378.58" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="178.688" burn-time="7.71" cgDiv="10" cgFix="1" cgStep="-1." code="K185W" delays="1000" dia="54." exitDia="0." initWt="1434.05" len="437." mDiv="10" mFix="1" mStep="-1." massFrac="57.67" mfg="Aerotech" peakThrust="339.677" propWt="827.008" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AeroTech K185W
+Copyright Tripoli Motor Testing 1998 (www.tripoli.org)
+provided by ThrustCurve.org (www.thrustcurve.org)
+</comments>
+<data>
+<eng-data cg="218.5" f="0." m="827.008" t="0."/>
+<eng-data cg="218.5" f="279.128" m="814.449" t="0.15"/>
+<eng-data cg="218.5" f="308.22" m="761.245" t="0.452"/>
+<eng-data cg="218.5" f="328.435" m="703.573" t="0.754"/>
+<eng-data cg="218.5" f="338.929" m="643.12" t="1.056"/>
+<eng-data cg="218.5" f="339.677" m="581.445" t="1.359"/>
+<eng-data cg="218.5" f="333.166" m="520.093" t="1.663"/>
+<eng-data cg="218.5" f="321.891" m="460.754" t="1.965"/>
+<eng-data cg="218.5" f="309.687" m="403.543" t="2.267"/>
+<eng-data cg="218.5" f="293.26" m="348.744" t="2.57"/>
+<eng-data cg="218.5" f="271.536" m="297.413" t="2.873"/>
+<eng-data cg="218.5" f="247.174" m="250.426" t="3.175"/>
+<eng-data cg="218.5" f="216.883" m="208.389" t="3.477"/>
+<eng-data cg="218.5" f="186.951" m="171.687" t="3.78"/>
+<eng-data cg="218.5" f="161.096" m="140.055" t="4.083"/>
+<eng-data cg="218.5" f="138.113" m="112.951" t="4.385"/>
+<eng-data cg="218.5" f="117.749" m="89.6972" t="4.688"/>
+<eng-data cg="218.5" f="99.372" m="69.9643" t="4.991"/>
+<eng-data cg="218.5" f="82.759" m="53.4113" t="5.294"/>
+<eng-data cg="218.5" f="68.426" m="39.7163" t="5.596"/>
+<eng-data cg="218.5" f="55.126" m="28.5244" t="5.898"/>
+<eng-data cg="218.5" f="44.162" m="19.5006" t="6.201"/>
+<eng-data cg="218.5" f="34.209" m="12.3779" t="6.504"/>
+<eng-data cg="218.5" f="25.064" m="7.00866" t="6.806"/>
+<eng-data cg="218.5" f="16.88" m="3.20917" t="7.108"/>
+<eng-data cg="218.5" f="9.2" m="0.838899" t="7.411"/>
+<eng-data cg="218.5" f="0." m="0." t="7.715"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,25 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="148.29" Itot="86.818" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="32.886" burn-time="2.64" cgDiv="10" cgFix="1" cgStep="-1." code="G38FJ" delays="4,7" dia="29." exitDia="0." initWt="126.4" len="124." mDiv="10" mFix="1" mStep="-1." massFrac="47.23" mfg="Aerotech" peakThrust="52.928" propWt="59.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Aerotech G38FJ RASP.ENG file made by Tim Van Milligan
+For RockSim www.RockSim.com
+File Created March 2, 2005
+Thrust curve supplied by Aerotech for the molded case G38FJ motors.
+</comments>
+<data>
+<eng-data cg="62." f="0." m="59.7" t="0."/>
+<eng-data cg="62." f="52.928" m="59.2633" t="0.024"/>
+<eng-data cg="62." f="48.424" m="54.1407" t="0.171"/>
+<eng-data cg="62." f="45.045" m="43.6641" t="0.497"/>
+<eng-data cg="62." f="42.23" m="28.5705" t="1."/>
+<eng-data cg="62." f="39.978" m="20.6845" t="1.279"/>
+<eng-data cg="62." f="36.599" m="14.9185" t="1.498"/>
+<eng-data cg="62." f="30.406" m="8.35267" t="1.783"/>
+<eng-data cg="62." f="23.086" m="4.15934" t="2.011"/>
+<eng-data cg="62." f="10.135" m="1.17815" t="2.272"/>
+<eng-data cg="62." f="3.941" m="0.234417" t="2.467"/>
+<eng-data cg="62." f="0." m="0." t="2.64"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

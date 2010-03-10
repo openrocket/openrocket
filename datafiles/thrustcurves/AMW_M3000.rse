@@ -1,0 +1,47 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="195.12" Itot="7307.5" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="2923." burn-time="2.5" cgDiv="10" cgFix="1" cgStep="-1." code="M3000ST" delays="1000" dia="75." exitDia="0." initWt="7551.5" len="1038." mDiv="10" mFix="1" mStep="-1." massFrac="50.57" mfg="Animal Motor Works" peakThrust="4115." propWt="3819." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AMW M3000ST RASP.ENG file made from Tripoli published data
+File produced May 15, 2004
+This file my be used or given away. All I ask is that this header
+is maintained to give credit to the people who produced the data.
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="519." f="0." m="3819." t="0."/>
+<eng-data cg="519." f="2721.02" m="3809.05" t="0.014"/>
+<eng-data cg="519." f="2553.37" m="3784.24" t="0.032"/>
+<eng-data cg="519." f="2601.84" m="3698.02" t="0.096"/>
+<eng-data cg="519." f="2722.8" m="3525.49" t="0.22"/>
+<eng-data cg="519." f="2807.73" m="3333.29" t="0.353"/>
+<eng-data cg="519." f="2928.24" m="3148.93" t="0.476"/>
+<eng-data cg="519." f="3048.75" m="3083.33" t="0.518"/>
+<eng-data cg="519." f="3061.2" m="2989.13" t="0.577"/>
+<eng-data cg="519." f="3314.22" m="2684.27" t="0.76"/>
+<eng-data cg="519." f="3519.67" m="2355.69" t="0.944"/>
+<eng-data cg="519." f="3772.69" m="1982.2" t="1.14"/>
+<eng-data cg="519." f="3942.12" m="1629.42" t="1.315"/>
+<eng-data cg="519." f="4039.5" m="1220.63" t="1.511"/>
+<eng-data cg="519." f="4088.42" m="995.496" t="1.617"/>
+<eng-data cg="519." f="4115." m="800.427" t="1.708"/>
+<eng-data cg="519." f="4089.75" m="622.479" t="1.791"/>
+<eng-data cg="519." f="4006.15" m="525.165" t="1.837"/>
+<eng-data cg="519." f="3814.49" m="451.596" t="1.873"/>
+<eng-data cg="519." f="3359.58" m="305.374" t="1.951"/>
+<eng-data cg="519." f="2784.61" m="223.493" t="2.002"/>
+<eng-data cg="519." f="2257.66" m="157.614" t="2.052"/>
+<eng-data cg="519." f="1587.08" m="98.3391" t="2.111"/>
+<eng-data cg="519." f="1108.15" m="62.4207" t="2.162"/>
+<eng-data cg="519." f="629.227" m="35.6354" t="2.221"/>
+<eng-data cg="519." f="318.126" m="14.0985" t="2.308"/>
+<eng-data cg="519." f="139.052" m="3.70519" t="2.395"/>
+<eng-data cg="519." f="67.503" m="0.952506" t="2.446"/>
+<eng-data cg="519." f="0." m="0." t="2.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

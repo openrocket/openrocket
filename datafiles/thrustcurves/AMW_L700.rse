@@ -1,0 +1,35 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="221.63" Itot="2593.14" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="697.081" burn-time="3.72" cgDiv="10" cgFix="1" cgStep="-1." code="L700BB" delays="1000" dia="75." exitDia="0." initWt="2732." len="368." mDiv="10" mFix="1" mStep="-1." massFrac="43.67" mfg="Animal Motor Works" peakThrust="821.14" propWt="1193.1" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="184." f="0." m="1193.1" t="0."/>
+<eng-data cg="184." f="221.87" m="1192.08" t="0.02"/>
+<eng-data cg="184." f="399.33" m="1190.65" t="0.03"/>
+<eng-data cg="184." f="467.56" m="1186.66" t="0.05"/>
+<eng-data cg="184." f="494.89" m="1180.02" t="0.08"/>
+<eng-data cg="184." f="498.41" m="1168.59" t="0.13"/>
+<eng-data cg="184." f="535.99" m="1142.42" t="0.24"/>
+<eng-data cg="184." f="614.67" m="1078.89" t="0.48"/>
+<eng-data cg="184." f="683.2" m="992.302" t="0.77"/>
+<eng-data cg="184." f="755.25" m="840.081" t="1.23"/>
+<eng-data cg="184." f="789.72" m="701.468" t="1.62"/>
+<eng-data cg="184." f="810.42" m="591.034" t="1.92"/>
+<eng-data cg="184." f="821.14" m="463.419" t="2.26"/>
+<eng-data cg="184." f="817.85" m="342.764" t="2.58"/>
+<eng-data cg="184." f="801.07" m="219.861" t="2.91"/>
+<eng-data cg="184." f="773.94" m="136.525" t="3.14"/>
+<eng-data cg="184." f="750.13" m="97.9582" t="3.25"/>
+<eng-data cg="184." f="743.39" m="73.9074" t="3.32"/>
+<eng-data cg="184." f="729.83" m="56.9618" t="3.37"/>
+<eng-data cg="184." f="688.83" m="40.6437" t="3.42"/>
+<eng-data cg="184." f="593.37" m="28.8449" t="3.46"/>
+<eng-data cg="184." f="484.14" m="18.9297" t="3.5"/>
+<eng-data cg="184." f="368.18" m="13.0475" t="3.53"/>
+<eng-data cg="184." f="248.8" m="7.37004" t="3.57"/>
+<eng-data cg="184." f="149.82" m="2.78493" t="3.62"/>
+<eng-data cg="184." f="61.13" m="0.843774" t="3.66"/>
+<eng-data cg="184." f="0." m="0." t="3.72"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>
