@@ -1,0 +1,59 @@
+<file template="body.htt">
+<set title="OpenRocket &mdash; Support and contact information">
+<set page="contact">
+
+<block name="body">
+  <h1>Support and contact information for OpenRocket</h1>
+
+  <div class="content">
+
+    <h2>Mailing lists</h2>
+
+    <p>If you would like to be notified when new versions of
+    OpenRocket are released, you can join the
+    <a href="https://lists.sourceforge.net/lists/listinfo/openrocket-announce"><tt>OpenRocket-announce</tt> mailing list</a>.  The
+    list is moderated and meant only for OpenRocket related
+    announcements.</p>
+
+    <p>When more developers join the project, a development mailing
+    list will be created as well.</p>
+
+    <p><strong>Unsubscribing</strong> from the lists can be performed
+    in the above links as well.  <em>Please do not send unsubscription
+    requests to the list.</em></p>
+
+
+    <h2>Support forums</h2>
+
+    <p>The main support channel for the usage of OpenRocket is the
+    support forums.  This way everybody can benefit from the answers
+    provided.</p>
+
+    <p><em><a href="http://apps.sourceforge.net/phpbb/openrocket/">Go
+    to the support forums &rarr;</a></em></p>
+
+
+    <h2 id="contact">Contact information</h2>
+
+    <p>OpenRocket is primarily developed by Sampo Niskanen.  His contact
+    information can be found below.</p>
+
+    <p><em>If you would like to contribute something to OpenRocket, please
+    contact me!</em></p>
+
+    <p><strong><em>Support requests</em></strong> should be sent to
+    the <a href="http://apps.sourceforge.net/phpbb/openrocket/">support 
+    forums</a>.<br/>
+    <strong><em>Bug reports and feature requests</em></strong> should
+    be <a href="report.html">reported separately</a>.</p>
+
+    <p><strong>Email:</strong>  &nbsp;&nbsp;
+    <em>sam<span>po</span>.<span>niskanen</span><span>@i</span>ki.fi</em></p>
+
+    <p><strong>WWW:</strong>  &nbsp;&nbsp;
+    <a href="http://www.iki.fi/sampo.niskanen/" 
+    title="Home page of Sampo Niskanen"><em>http://www.iki.fi/sampo.niskanen/</em></a></p>
+
+    <contentbox>
+  </div>
+</block>
