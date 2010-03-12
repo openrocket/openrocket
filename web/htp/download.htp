@@ -1,0 +1,57 @@
+<file template="body.htt">
+<set title="OpenRocket &mdash; Download">
+<set page="download">
+
+<block name="body">
+  <h1>Download OpenRocket</h1>
+
+  <div class="content">
+
+    <set newstitle="Recent news:">
+    <set onlyrecent="true">
+    <file include="news.htp">
+
+    <div class="contentholder">
+      <h2>Binary download</h2>
+
+      <p>The binary download below is the recommended package for general
+	use.  It is pre-packaged with motor thrust curves from
+	<a href="http://www.thrustcurve.org/">thrustcurve.org</a>.</p>
+
+      <p><em>OpenRocket requires <strong>Java version 6</strong> or
+	  later.  The Sun Java Runtime is recommended.</em></p>
+      
+      <downloadbox>
+      
+      <p>You can also join the 
+	<a href="https://lists.sourceforge.net/lists/listinfo/openrocket-announce"><tt>OpenRocket-announce</tt> mailing list</a>
+	to receive notification on new versions.</p>
+      
+      <p>OpenRocket can be started in most graphical environments (including
+	Windows) by double-clicking the package icon.  No installation is
+	required.</p>
+
+      <p>From the command line OpenRocket can be started by</p>
+      <pre class="quote">$ java -jar OpenRocket-<use version>.jar</pre>
+	
+      <p>Older packages and source code are available from the
+	<a href="https://sourceforge.net/projects/openrocket/files/openrocket/">SourceForge repository</a>.</p>
+    </div>
+    <div class="clear"></div>
+
+    <h2>Source code</h2>
+
+    <p><strong>Source packages</strong> for OpenRocket are available in the
+      <a href="https://sourceforge.net/projects/openrocket/files/openrocket/">SourceForge repository</a>.</p>
+    
+    <p>Alternatively, the most recent development version can be 
+      obtained from the
+      <a href="http://openrocket.svn.sourceforge.net/viewvc/openrocket/">SVN 
+	repository</a>.  It can be retrieved simply using the command</p>
+    <pre class="quote">$ svn co https://openrocket.svn.sourceforge.net/svnroot/openrocket/trunk OpenRocket</pre>
+    <p>The above URL may be used to connect to the repository with
+      other Subversion clients as well.</p>
+
+    <contentbox>
+  </div>
+</block>

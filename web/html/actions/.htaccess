@@ -1,0 +1,14 @@
+
+#RewriteEngine On
+#RewriteBase /actions/
+#RewriteRule ^reportbug$ reportbug.php
+
+
+# Redirect bug reports to a server that allows sending mail
+
+Redirect 307 /actions/reportbug http://sampo.kapsi.fi/openrocket/reportbug.php
+
+RewriteEngine On
+RewriteBase /actions/
+RewriteRule ^updates$ updates.php
+
