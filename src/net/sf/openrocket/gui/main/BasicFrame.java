@@ -105,24 +105,19 @@ public class BasicFrame extends JFrame {
 	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
 
 	
-	/**
-	 * File filter for filtering only rocket designs.
-	 */
-	private static final FileFilter ROCKET_DESIGN_FILTER = new FileFilter() {
-		@Override
-		public String getDescription() {
-			return "OpenRocket designs (*.ork)";
-		}
-		@Override
-		public boolean accept(File f) {
-			if (f.isDirectory())
-				return true;
-			String name = f.getName().toLowerCase();
-			return name.endsWith(".ork") || name.endsWith(".ork.gz");
-		}
-    };
-    
-    
+	// FileFilters for different types of rocket design files
+	private static final FileFilter ALL_DESIGNS_FILTER =
+		new SimpleFileFilter("All rocket designs (*.ork; *.rkt)", 
+				".ork", ".ork.gz", ".rkt", ".rkt.gz");
+	
+	private static final FileFilter OPENROCKET_DESIGN_FILTER = 
+		new SimpleFileFilter("OpenRocket designs (*.ork)", ".ork", ".ork.gz");
+	
+	private static final FileFilter ROCKSIM_DESIGN_FILTER = 
+		new SimpleFileFilter("RockSim designs (*.rkt)", ".rkt", ".rkt.gz");
+		
+	
+	
     
     public static final int COMPONENT_TAB = 0;
     public static final int SIMULATION_TAB = 1;
@@ -757,7 +752,13 @@ public class BasicFrame extends JFrame {
 	
 	private void openAction() {
 	    JFileChooser chooser = new JFileChooser();
-	    chooser.setFileFilter(ROCKET_DESIGN_FILTER);
+	    
+	    chooser.addChoosableFileFilter(ALL_DESIGNS_FILTER);
+	    chooser.addChoosableFileFilter(OPENROCKET_DESIGN_FILTER);
+	    chooser.addChoosableFileFilter(ROCKSIM_DESIGN_FILTER);
+	    chooser.setFileFilter(ALL_DESIGNS_FILTER);
+
+	    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    chooser.setMultiSelectionEnabled(true);
 	    chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
 	    if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
@@ -779,7 +780,6 @@ public class BasicFrame extends JFrame {
 	    	}
 	    }
 	}
-	
 	
 	
 	
@@ -953,19 +953,35 @@ public class BasicFrame extends JFrame {
 		File file = document.getFile();
 		if (file==null) {
 			return saveAsAction();
-		} else {
-			return saveAs(file);
 		}
+		
+		// Saving RockSim designs is not supported
+		if (ROCKSIM_DESIGN_FILTER.accept(file)) {
+			file = new File(file.getAbsolutePath().replaceAll(".[rR][kK][tT](.[gG][zZ])?$", 
+					".ork"));
+
+			int option = JOptionPane.showConfirmDialog(this, new Object[] {
+					"Saving designs in RockSim format is not supported.",
+					"Save in OpenRocket format instead ("+file.getName()+")?"
+				}, "Save "+file.getName(), JOptionPane.YES_NO_OPTION, 
+				JOptionPane.QUESTION_MESSAGE, null);
+			if (option != JOptionPane.YES_OPTION)
+				return false;
+			
+			document.setFile(file);
+        }
+		return saveAs(file);
 	}
 	
 	
 	private boolean saveAsAction() {
 		File file = null;
 		while (file == null) {
+			// TODO: HIGH: what if *.rkt chosen?
 			StorageOptionChooser storageChooser = 
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 			JFileChooser chooser = new JFileChooser();
-			chooser.setFileFilter(ROCKET_DESIGN_FILTER);
+			chooser.setFileFilter(OPENROCKET_DESIGN_FILTER);
 			chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
 			chooser.setAccessory(storageChooser);
 			if (document.getFile() != null)

@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
+import java.util.Arrays;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.openrocket.OpenRocketLoader;
+import net.sf.openrocket.file.rocksim.RocksimLoader;
 
 
 /**
@@ -24,8 +26,12 @@ public class GeneralRocketLoader extends RocketLoader {
 	private static final byte[] GZIP_SIGNATURE = { 31, -117 };  // 0x1f, 0x8b
 	private static final byte[] OPENROCKET_SIGNATURE = 
 		"<openrocket".getBytes(Charset.forName("US-ASCII"));
+    private static final byte[] ROCKSIM_SIGNATURE = 
+        "<RockSimDoc".getBytes(Charset.forName("US-ASCII"));
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
+    
+    private final RocksimLoader rocksimLoader = new RocksimLoader();
 	
 	@Override
 	protected OpenRocketDocument loadFromStream(InputStream source) throws IOException,
@@ -68,7 +74,11 @@ public class GeneralRocketLoader extends RocketLoader {
 				match = 0;
 			}
 		}
-		
+
+        byte[] typeIdentifier = Arrays.copyOf(buffer, ROCKSIM_SIGNATURE.length);
+        if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
+            return loadUsing(source, rocksimLoader);            
+        }
 		throw new RocketLoadException("Unsupported or corrupt file.");
 	}
 	

@@ -1,12 +1,15 @@
 
-Feature roadmap for OpenRocket 1.0
+Feature roadmap for OpenRocket 2.0
 ----------------------------------
 
 
-Must-have:
+- Logging system into use
+- Reduce memory footprint
+- Reduce memory leakage
+- Load thrust curves from external directory
+- Support duplicate motor definitions
 
 
-Maybe:
 
 
 
@@ -135,48 +138,5 @@ Refactoring tasks:
 
 Done:
 -----
-- Search field in motor selection dialog
-- Motor selection/editing from Edit configurations dialog
-- Change FreeformFinSet to throw checked exceptions
-- Fix engine block icons
-- Exporting flight data
-- Split cluster into separate components
-- Create application icon and take into use
-- Error dialog for uncaught exceptions
-- Check where plot data ends (all rest NaN)
-- Example rocket designs (hybrid w/ dual deployment, staged rocket)
-- Better error/warning dialogs when reading/writing files
-- Store custom materials
-- Read more thrust curve formats
-- Showing events in plots
-- Table boolean selecting by clicking label
-- Test automatic exception reporting (for 0.9.3)
-- Draw remaining event icons (for 0.9.3)
-- Update "About" dialog with icon and source info
-In 0.9.4:
-- Through-the-wall fins
-- Make ThicknessRingComponent implement RadialParent and allow
-  attaching components to a TubeCoupler  (for 0.9.4)
-- Save file as oldest OpenRocket format possible  (for 0.9.4)
-- Non-exception bug handling
-- JTree text is cropped unnecessarily
-- Allow editing user-defined materials
-- [BUG] All configuration dialogs too high
-- Simulation plot dialog forces dialog one button row too high (All/None)
-- Add styrofoam and depron materials
-- Inform user about software updates
-In 0.9.5:
-- Add label to motor panel to tell current number of stages
-In 0.9.6:
-- Take into account all fins in interference effects
-- Two-fin rocket stable at large number of roll angles?!
-- Add slight randomness to yaw moment
-- Update simulation time step filtering from exponential MA to
-  exponential growth until time step is reached (t1 = 1.5*t0)
-- Limit time step during while on launch rod
-- Re-investigate 15% reduction of three-fin CNa
-In 1.0.0:
-- BUG: Simulation table max. acceleration takes into account parachute deceleration
-- Go through thrust curves and select best ones
-- Updated splash screen
-- BUG: Invalid fin points possible when removing points
+
+- Reading .RKT format
