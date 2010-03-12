@@ -2,6 +2,7 @@
 Feature roadmap for OpenRocket 2.0
 ----------------------------------
 
+Must have:
 
 - Logging system into use
 - Reduce memory footprint
@@ -10,12 +11,14 @@ Feature roadmap for OpenRocket 2.0
 - Support duplicate motor definitions
 
 
+Maybe:
+
+- Water rocket modeling
 
 
 
-
-Postponed:
-----------
+More ideas:
+-----------
 
 
 Memory usage:
