@@ -28,7 +28,7 @@ class ParachuteHandler extends PositionDependentHandler<Parachute> {
      * The shroud line density.
      */
     private double shroudLineDensity = 0.0d;
-    
+
     /**
      * Constructor.
      *
@@ -82,7 +82,7 @@ class ParachuteHandler extends PositionDependentHandler<Parachute> {
                 warnings.add("Parachute spill holes are not supported. Ignoring.");
             }
             if ("ShroudLineMassPerMM".equals(element)) {
-                shroudLineDensity = Double.parseDouble(content) * 10d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_DENSITY;
+                shroudLineDensity = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LINE_DENSITY;
             }
             if ("ShroudLineMaterial".equals(element)) {
                 chute.setLineMaterial(BaseHandler.createCustomMaterial(Material.Type.LINE, content, shroudLineDensity));

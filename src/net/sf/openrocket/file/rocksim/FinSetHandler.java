@@ -134,13 +134,13 @@ class FinSetHandler extends ElementHandler {
      * The Rocksim calculated cg.
      */
     private Double calcCg = 0d;
-    
+
 
     /**
      * Constructor.
      *
      * @param c the parent
-     * 
+     *
      * @throws IllegalArgumentException  thrown if <code>c</code> is null
      */
     public FinSetHandler(RocketComponent c) throws IllegalArgumentException {
@@ -220,7 +220,7 @@ class FinSetHandler extends ElementHandler {
                 mass = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
             }
             if ("Density".equals(element)) {
-                density = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_DENSITY);
+                density = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             }
             if ("KnownCG".equals(element)) {
                 cg = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
@@ -314,7 +314,7 @@ class FinSetHandler extends ElementHandler {
      * @param pointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
      *                  <pre>x0,y0|x1,y1|x2,y2|... </pre>
      * @param warnings the warning set to convey incompatibilities to the user
-     * 
+     *
      * @return an array of OpenRocket Coordinates
      */
     private Coordinate[] toCoordinates(String pointList, WarningSet warnings) {
@@ -339,7 +339,7 @@ class FinSetHandler extends ElementHandler {
                 }
             }
             if (!result.isEmpty()) {
-                //OpenRocket requires fin plan points be ordered from leading root chord to trailing root chord in the 
+                //OpenRocket requires fin plan points be ordered from leading root chord to trailing root chord in the
                 //Coordinate array.
                 Coordinate last = result.get(result.size() - 1);
                 if (last.x == 0 && last.y == 0) {
@@ -370,6 +370,6 @@ class FinSetHandler extends ElementHandler {
                 return FinSet.CrossSection.SQUARE;
         }
     }
-    
+
 }
 

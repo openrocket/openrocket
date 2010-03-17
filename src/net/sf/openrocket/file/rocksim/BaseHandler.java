@@ -34,17 +34,17 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
      * The material name.
      */
     private String materialName = "";
-    
+
     /**
      * The SAX method called when the closing element tag is reached.
-     * 
+     *
      * @param element        the element name.
      * @param attributes    attributes of the element.
      * @param content        the textual content of the element.
      * @param warnings        the warning set to store warnings in.
      * @throws SAXException
      */
-    
+
     @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
@@ -57,7 +57,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
                 mass = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
             }
             if ("Density".equals(element)) {
-                density = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_DENSITY);
+                density = Math.max(0d, Double.parseDouble(content) / getDensityConversion());
             }
             if ("KnownCG".equals(element)) {
                 cg = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -102,7 +102,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
 
     /**
      * Override the mass and Cg of the component.
-     * 
+     *
      * @param component  the component
      * @param override   true if any override should happen
      * @param mass       the override mass
@@ -134,33 +134,50 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
 
     /**
      * Some CG positions in Rocksim do not correspond to the CG position reference in OpenRocket.
-     * 
+     *
      * @param theCG  the CG value to really use when overriding CG on the OpenRocket component
      */
     protected void setCG(double theCG) {
         cg = theCG;
     }
-    
+
     /**
      * Set the material name as specified in the Rocksim design file.
-     * 
+     *
      * @param content  the material name
      */
     protected void setMaterialName(String content) {
         materialName = content;
     }
-    
+
     /**
      * Create a custom material based on the density.
      *
      * @param type    the type of the material
      * @param name    the name of the component
      * @param density the density in g/cm^3
-     * 
+     *
      * @return a Material instance
      */
     public static Material createCustomMaterial(Material.Type type, String name, double density) {
         return Material.newMaterial(type, "RS: " + name, density, true);
+    }
+
+    /**
+     * Get the appropriate density conversion for different types of materials.
+     *
+     * @return a conversion value that is assumed to be in Rocksim Units / OpenRocket Units
+     */
+    private double getDensityConversion() {
+        switch (getMaterialType()) {
+            case LINE:
+                return RocksimHandler.ROCKSIM_TO_OPENROCKET_LINE_DENSITY;
+            case SURFACE:
+                return RocksimHandler.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY;
+            case BULK:
+            default:
+                return RocksimHandler.ROCKSIM_TO_OPENROCKET_BULK_DENSITY;
+        }
     }
 
     /**
@@ -189,7 +206,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
      * @param component  the component who's material is to be seta
      * @param name the method name
      * @param args the class types of the parameters
-     * 
+     *
      * @return the Method instance, or null
      */
     private static Method getMethod(RocketComponent component, String name, Class[] args) {

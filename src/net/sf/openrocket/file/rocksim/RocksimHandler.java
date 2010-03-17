@@ -36,9 +36,19 @@ public class RocksimHandler extends ElementHandler {
     public static final int ROCKSIM_TO_OPENROCKET_MASS = 1000;
 
     /**
-     * Density conversion.  Rocksim is in milligrams/cubic centimeter, OpenRocket in grams/cubic centimeter.
+     * Bulk Density conversion.  Rocksim is in kilograms/cubic meter, OpenRocket in kilograms/cubic meter.
      */
-    public static final int ROCKSIM_TO_OPENROCKET_DENSITY = 1;
+    public static final int ROCKSIM_TO_OPENROCKET_BULK_DENSITY = 1;
+
+    /**
+     * Surface Density conversion.  Rocksim is in grams/sq centimeter, OpenRocket in kilograms/sq meter.  1000/(100*100) = 1/10
+     */
+    public static final double ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY = 1/10d;
+
+    /**
+     * Line Density conversion.  Rocksim is in kilograms/meter, OpenRocket in kilograms/meter. 
+     */
+    public static final int ROCKSIM_TO_OPENROCKET_LINE_DENSITY = 1;
 
     /**
      * Radius conversion.  Rocksim is always in diameters, OpenRocket mostly in radius.
@@ -210,7 +220,7 @@ class RocketDesignHandler extends ElementHandler {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         /**
-         * In Rocksim stages are from the top down, so a single stage rocket is actually stage '3'.  A 2-stage 
+         * In Rocksim stages are from the top down, so a single stage rocket is actually stage '3'.  A 2-stage
          * rocket defines stage '2' as the initial booster with stage '3' sitting atop it.  And so on.
          */
         if ("Stage3Parts".equals(element)) {
