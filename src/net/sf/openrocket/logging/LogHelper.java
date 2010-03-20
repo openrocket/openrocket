@@ -34,6 +34,12 @@ public abstract class LogHelper {
 	
 	
 
+	/**
+	 * Log a LogLine object.  This method needs to be able to cope with multiple threads
+	 * accessing it concurrently (for example being synchronized).
+	 * 
+	 * @param line	the LogLine to log.
+	 */
 	public abstract void log(LogLine line);
 	
 	

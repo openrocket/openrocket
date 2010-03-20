@@ -126,6 +126,8 @@ File support:
 
 Refactoring tasks:
 
+- Change databases and icon loading to bean instances, implement stubs
+  for unit tests
 - Move startup class to src14 directory, remove reflection
 - Remove database etc. initialization from class initialization,
   create separate set of test motors

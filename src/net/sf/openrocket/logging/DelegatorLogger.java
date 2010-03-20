@@ -12,23 +12,42 @@ import java.util.List;
  */
 public class DelegatorLogger extends LogHelper {
 
-	private List<LogHelper> loggers = new ArrayList<LogHelper>();
+	/**
+	 * List of loggers.  This list must not be modified, instead it should be
+	 * replaced every time the list is changed.
+	 */
+	private volatile ArrayList<LogHelper> loggers = new ArrayList<LogHelper>();
 	
 	@Override
 	public void log(LogLine line) {
-		LogHelper[] array = loggers.toArray(new LogHelper[0]);
-		for (LogHelper l: array) {
+		// Must create local reference for thread safety
+		List<LogHelper> list = loggers;
+		for (LogHelper l: list) {
 			l.log(line);
 		}
 	}
 	
 	
-	public void addLogger(LogHelper logger) {
-		this.loggers.add(logger);
+	/**
+	 * Add a logger from the delegation list.
+	 * @param logger	the logger to add.
+	 */
+	@SuppressWarnings("unchecked")
+	public synchronized void addLogger(LogHelper logger) {
+		ArrayList<LogHelper> newList = (ArrayList<LogHelper>) loggers.clone();
+		newList.add(logger);
+		this.loggers = newList;
 	}
 	
-	public void removeLogger(LogHelper logger) {
-		this.loggers.remove(logger);
+	/**
+	 * Remove a logger from the delegation list.
+	 * @param logger	the logger to be removed.
+	 */
+	@SuppressWarnings("unchecked")
+	public synchronized void removeLogger(LogHelper logger) {
+		ArrayList<LogHelper> newList = (ArrayList<LogHelper>) loggers.clone();
+		newList.remove(logger);
+		this.loggers = newList;
 	}
 
 }

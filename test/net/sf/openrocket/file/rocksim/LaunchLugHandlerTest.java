@@ -20,7 +20,7 @@ import java.util.HashMap;
  * LaunchLugHandler Tester.
  *
  */
-public class LaunchLugHandlerTest extends BaseRocksimTest {
+public class LaunchLugHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

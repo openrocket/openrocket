@@ -36,6 +36,7 @@
 		<pathelement location="${basedir}"/>
 		<pathelement location="${build-test.dir}"/>
 		<pathelement location="${classes.dir}"/>
+		<pathelement location="${src-test.dir}"/>
 <!--		<pathelement location="${ant.library.dir}/junit4.jar"/> -->
 		<pathelement location="lib-test/junit-4.7.jar"/>
 	</path>
@@ -189,14 +190,15 @@ ${nonascii}</fail>
 		
 		<echo>Running unit tests</echo>
 		<mkdir dir="tmp/rawtestoutput"/>
-		<junit fork="yes" forkmode="once" printsummary="true" failureproperty="junit.failure">
+		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
 			<classpath>
 				<path refid="test-classpath"/>
 				<path location="${basedir}"/>
 			</classpath>
 			<batchtest todir="tmp/rawtestoutput">
 				<fileset dir="${build-test.dir}">
-					<include name="**/*Test*.class" />
+					<include name="**/Test*.class" />
+					<include name="**/*Test.class" />
 					<exclude name="**/*$*.class" />
 					<exclude name="Test.class" />
 				</fileset>

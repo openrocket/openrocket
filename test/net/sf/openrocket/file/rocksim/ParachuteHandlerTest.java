@@ -18,7 +18,7 @@ import java.util.HashMap;
 /**
  * ParachuteHandler Tester.
  */
-public class ParachuteHandlerTest extends BaseRocksimTest {
+public class ParachuteHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

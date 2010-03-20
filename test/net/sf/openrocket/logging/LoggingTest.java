@@ -51,7 +51,7 @@ public class LoggingTest {
 	}
 	
 	public static void main(String[] args) {
-		StandardOutputLogger logger = new StandardOutputLogger();
+		PrintStreamLogger logger = new PrintStreamLogger();
 		
 		logger.debug("a debug message");
 		logger.info("an info message");

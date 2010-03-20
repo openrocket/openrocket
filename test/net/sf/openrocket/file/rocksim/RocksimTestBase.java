@@ -12,14 +12,14 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 /**
  * A base class for the Rocksim tests.  Includes code from the junitx.addons project.
  */
-public abstract class BaseRocksimTest extends TestCase {
+public abstract class RocksimTestBase extends TestCase {
 
     /**
      * Test constructor.
      *
      * @param name the name of the test to run.
      */
-    public BaseRocksimTest(String name) {
+    public RocksimTestBase(String name) {
         super(name);
     }
     

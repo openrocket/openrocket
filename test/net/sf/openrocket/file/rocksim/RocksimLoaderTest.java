@@ -4,15 +4,15 @@
  */
 package net.sf.openrocket.file.rocksim;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
-
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 
 /**
  * RocksimLoader Tester.
@@ -72,6 +72,7 @@ public class RocksimLoaderTest extends TestCase {
         RocksimLoader loader = new RocksimLoader();
         //Stupid single stage rocket
         InputStream stream = this.getClass().getResourceAsStream("rocksimTestRocket1.rkt");
+        assertNotNull("Could not open rocksimTestRocket1.rkt", stream);
         OpenRocketDocument doc = loader.loadFromStream(new BufferedInputStream(stream));
         
         assertNotNull(doc);
@@ -81,6 +82,7 @@ public class RocksimLoaderTest extends TestCase {
         assertTrue(loader.getWarnings().isEmpty());
 
         stream = this.getClass().getResourceAsStream("rocksimTestRocket2.rkt");
+        assertNotNull("Could not open rocksimTestRocket2.rkt", stream);
         doc = loader.loadFromStream(new BufferedInputStream(stream));
         
         assertNotNull(doc);
@@ -103,6 +105,7 @@ public class RocksimLoaderTest extends TestCase {
         assertFalse(stage3.isCGOverridden());
 
         stream = this.getClass().getResourceAsStream("rocksimTestRocket3.rkt");
+        assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
         doc = loader.loadFromStream(new BufferedInputStream(stream));
         
         assertNotNull(doc);

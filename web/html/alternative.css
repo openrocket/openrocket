@@ -330,6 +330,7 @@ div.downloadbox {
     width: 175px;
     height: 80px;
     background: transparent url('greenbox.png') no-repeat;
+    text-align: left;
 }
 
 div.downloadbox a.main {
@@ -384,10 +385,38 @@ div.downloadbox .alternative a+a {
 div.downloadbox .alternative a:hover {
     color: black;
 }
-
+/*
 .page_index div.downloadbox {
     width: 195px;
     margin: 0.5em 0 1em 50px;
+}
+*/
+.rightpane {
+    width: 210px;
+    float: right;
+    clear: both;
+    margin: 0 0 0 30px;
+    text-align: center;
+}
+.rightpane div {
+    margin: 2em auto;
+}
+
+.rightpane div.downloadbox {
+    margin: 0 auto 2em 0;
+}
+.rightpane div.screenshot {
+    font-size: smaller;
+    font-style: italic;
+    text-align: center;
+}
+.rightpane div.support {
+    margin-bottom: 0;
+    text-align: center;
+}
+
+.page_download div.support {
+    margin: 20px 0;
 }
 
 .rightimg {
@@ -466,4 +495,25 @@ pre.license {
 
 .note {
     font-size: 80%;
+}
+
+.spacing {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+dl {
+    margin: 0 2em;
+}
+
+span.command {
+    white-space: nowrap;
+    font-family: monospace;
+    border: solid 1px #ddd;
+    background-color: #eee;
+    padding: 1px 3px;
+}
+
+.center {
+    text-align: center;
 }

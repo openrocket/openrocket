@@ -20,7 +20,7 @@ import java.util.HashMap;
  * NoseConeHandler Tester.
  *
  */
-public class NoseConeHandlerTest extends BaseRocksimTest {
+public class NoseConeHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

@@ -18,7 +18,7 @@ import java.util.HashMap;
 /**
  * TransitionHandler Tester.
  */
-public class TransitionHandlerTest extends BaseRocksimTest {
+public class TransitionHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

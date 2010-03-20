@@ -18,7 +18,7 @@ import java.util.HashMap;
 /**
  * StreamerHandler Tester.
  */
-public class StreamerHandlerTest extends BaseRocksimTest {
+public class StreamerHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

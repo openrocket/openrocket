@@ -103,14 +103,14 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * @param exception		the exception that occurred.
 	 */
 	public static void handleErrorCondition(final Exception exception) {
-		final ExceptionHandler handler;
+		final ExceptionHandler handler = instance;
 
 		try {
 
-			if (instance == null) {
-				handler = new ExceptionHandler();
-			} else {
-				handler = instance;
+			if (handler == null) {
+				// Not initialized, simply print the exception
+				exception.printStackTrace();
+				return;
 			}
 
 			final Thread thread = Thread.currentThread();

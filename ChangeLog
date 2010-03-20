@@ -1,3 +1,8 @@
+2010-03-20  Sampo Niskanen
+
+	* Minor enhancements to the logging system
+	* Updated unit tests of Rocksim file loading
+
 2010-03-13  Doug Pedrick / Sampo Niskanen
 
 	* Initial RockSim design loading support

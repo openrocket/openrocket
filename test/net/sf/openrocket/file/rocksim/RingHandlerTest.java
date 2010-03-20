@@ -18,7 +18,7 @@ import java.util.HashMap;
 /**
  * RingHandler Tester.
  */
-public class RingHandlerTest extends BaseRocksimTest {
+public class RingHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

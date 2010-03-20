@@ -21,7 +21,7 @@ import java.util.HashMap;
  * MassObjectHandler Tester.
  *
  */
-public class MassObjectHandlerTest extends BaseRocksimTest {
+public class MassObjectHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

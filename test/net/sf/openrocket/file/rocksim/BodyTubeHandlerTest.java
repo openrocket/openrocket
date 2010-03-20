@@ -19,7 +19,7 @@ import java.util.HashMap;
  * BodyTubeHandler Tester.
  *
  */
-public class BodyTubeHandlerTest extends BaseRocksimTest {
+public class BodyTubeHandlerTest extends RocksimTestBase {
 
     /**
      * The class under test.

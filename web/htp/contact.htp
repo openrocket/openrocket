@@ -9,14 +9,33 @@
 
     <h2>Mailing lists</h2>
 
-    <p>If you would like to be notified when new versions of
-    OpenRocket are released, you can join the
-    <a href="https://lists.sourceforge.net/lists/listinfo/openrocket-announce"><tt>OpenRocket-announce</tt> mailing list</a>.  The
-    list is moderated and meant only for OpenRocket related
-    announcements.</p>
+    <p>OpenRocket currently has two mailing lists for
+      intrested users:</p>
 
-    <p>When more developers join the project, a development mailing
-    list will be created as well.</p>
+    <dl>
+      <dt>
+	<a href="https://lists.sourceforge.net/lists/listinfo/openrocket-announce"><tt>OpenRocket-announce</tt></a>
+	&nbsp;
+	<span class="note">(<a href="XXX">archives</a>)</span>
+      </dt>
+      <dd>Announcements of new OpenRocket versions and
+	developments.  This list is moderated.</dd>
+
+      <dt>
+	<a href="https://lists.sourceforge.net/lists/listinfo/openrocket-devel"><tt>OpenRocket-devel</tt></a>
+	&nbsp;
+	<span class="note">(<a href="XXX">archives</a>)</span>
+      </dt>
+      <dd>Discussion related to OpenRocket development, documentation
+	and upcoming features.</dd>
+    </dl>
+
+    <p>You are welcome to join the development mailing list if you are
+      interested in contributing something to OpenRocket or simply want
+      hear about and discuss future development.  Note that support
+      requests should be sent to the 
+      <a href="http://apps.sourceforge.net/phpbb/openrocket/">support
+      forums</a> instead!</p>
 
     <p><strong>Unsubscribing</strong> from the lists can be performed
     in the above links as well.  <em>Please do not send unsubscription
