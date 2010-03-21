@@ -17,9 +17,8 @@ import java.util.HashMap;
 
 /**
  * A SAX handler for Rocksim's Parachute XML type.
- * <p/>
  */
-class ParachuteHandler extends PositionDependentHandler<Parachute> {
+class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
     /**
      * The OpenRocket Parachute instance
      */
@@ -43,11 +42,17 @@ class ParachuteHandler extends PositionDependentHandler<Parachute> {
         c.addChild(chute);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         return PlainTextHandler.INSTANCE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
@@ -73,8 +78,7 @@ class ParachuteHandler extends PositionDependentHandler<Parachute> {
                 chute.setLineCount(Math.max(0, Integer.parseInt(content)));
             }
             if ("ShroudLineLen".equals(element)) {
-                chute.setLineLength(Math.max(0, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+                chute.setLineLength(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
             if ("SpillHoleDia".equals(element)) {
                 //Not supported in OpenRocket
@@ -106,26 +110,6 @@ class ParachuteHandler extends PositionDependentHandler<Parachute> {
      */
     public Parachute getComponent() {
         return chute;
-    }
-
-    /**
-     * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not
-     * public in all components.
-     *
-     * @param position the OpenRocket position
-     */
-    public void setRelativePosition(RocketComponent.Position position) {
-        chute.setRelativePosition(position);
-    }
-
-    /**
-     * Get the required type of material for this component.
-     *
-     * @return BULK
-     */
-    @Override
-    public Material.Type getMaterialType() {
-        return Material.Type.SURFACE;
     }
 
 }

@@ -10,17 +10,22 @@ import org.xml.sax.SAXException;
 import java.util.HashMap;
 
 /**
- * An abstract base class that handles position dependencies for all lower level components that 
+ * An abstract base class that handles position dependencies for all lower level components that
  * are position aware.
+ *
+ * @param <C>   the specific position dependent RocketComponent subtype for which the concrete handler can create
  */
 public abstract class PositionDependentHandler<C extends RocketComponent> extends BaseHandler<C> {
 
     /** Temporary position value. */
     private Double positionValue;
-    
+
     /** Temporary position. */
     private RocketComponent.Position position;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
@@ -33,12 +38,12 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
                     content)).asOpenRocket();
         }
     }
-    
+
     /**
      * This method sets the position information onto the component.  Rocksim splits the location/position
      * information into two disparate data elements.  Both pieces of data are necessary to map into OpenRocket's
      * position model.
-     * 
+     *
      * @param element     the element name
      * @param attributes  the attributes
      * @param content     the content of the element
@@ -54,16 +59,16 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
     }
 
     /**
-     * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not 
+     * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not
      * public in all components.
-     * 
+     *
      * @param position  the OpenRocket position
      */
     protected abstract void setRelativePosition(RocketComponent.Position position);
-    
+
     /**
      * Set the position of a component.
-     * 
+     *
      * @param component  the component
      * @param position   the relative position
      * @param location   the actual position value
@@ -76,5 +81,5 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
             component.setPositionValue(location);
         }
     }
-    
+
 }

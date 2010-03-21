@@ -6,7 +6,6 @@ package net.sf.openrocket.file.rocksim;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import org.xml.sax.SAXException;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 /**
  * A SAX handler for Streamer components.
  */
-class StreamerHandler extends PositionDependentHandler<Streamer> {
+class StreamerHandler extends RecoveryDeviceHandler<Streamer> {
 
     /**
      * The OpenRocket Streamer.
@@ -37,11 +36,17 @@ class StreamerHandler extends PositionDependentHandler<Streamer> {
         c.addChild(streamer);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         return PlainTextHandler.INSTANCE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
@@ -66,30 +71,13 @@ class StreamerHandler extends PositionDependentHandler<Streamer> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Streamer getComponent() {
         return streamer;
     }
 
-    /**
-     * Set the relative position onto the component.  This cannot be done directly because setRelativePosition is not
-     * public in all components.
-     *
-     * @param position the OpenRocket position
-     */
-    @Override
-    public void setRelativePosition(RocketComponent.Position position) {
-        streamer.setRelativePosition(position);
-    }
-
-    /**
-     * Get the required type of material for this component.
-     *
-     * @return BULK
-     */
-    @Override
-    public Material.Type getMaterialType() {
-        return Material.Type.SURFACE;
-    }
 }
 

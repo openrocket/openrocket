@@ -15,6 +15,8 @@ import java.util.HashMap;
 
 /**
  * An abstract base class that handles common parsing.  All Rocksim component handlers are subclassed from here.
+ *
+ * @param <C>   the specific RocketComponent subtype for which the concrete handler can create
  */
 public abstract class BaseHandler<C extends RocketComponent> extends ElementHandler {
 
@@ -30,6 +32,11 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
      * The density of the material in the component.
      */
     private Double density = 0d;
+    /**
+     * The internal Rocksim density type.
+     */
+    private RocksimDensityType densityType = RocksimDensityType.ROCKSIM_BULK;
+
     /**
      * The material name.
      */
@@ -57,14 +64,17 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
                 mass = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
             }
             if ("Density".equals(element)) {
-                density = Math.max(0d, Double.parseDouble(content) / getDensityConversion());
+                density = Math.max(0d, Double.parseDouble(content) );
             }
             if ("KnownCG".equals(element)) {
                 cg = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
-            if ("UseKnownCG".equals(element)) {
+            if ("UseKnownCG".equals(element)) {  //Rocksim sets UseKnownCG to true to control the override of both cg and mass
                 boolean override = "1".equals(content);
                 setOverride(component, override, mass, cg);
+            }
+            if ("DensityType".equals(element)) {
+                densityType = RocksimDensityType.fromCode(Integer.parseInt(content));
             }
         }
         catch (NumberFormatException nfe) {
@@ -72,14 +82,34 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         /* Because of the order of XML elements in Rocksim, not all information is known at the time it really needs
            to be acted upon.  So we keep temporary instance variables to be used here at the end of the parsing.
          */
+        density = computeDensity(densityType, density);
         RocketComponent component = getComponent();
         updateComponentMaterial(component, materialName, getMaterialType(), density);
+    }
+
+    /**
+     * Compute the density.  Rocksim does strange things with densities.  For some streamer material it's in cubic,
+     * rather than square, units.  In those cases it needs to be converted to an appropriate SURFACE material density.
+     * Some G10 fiberglass materials are in cubic units, other G10 fiberglass is in square units.  And due to a
+     * Rocksim bug, some densities are 0 when they clearly should not be.
+     *
+     * This may be overridden for specific component density computations.
+     *
+     * @param type       the rocksim density
+     * @param rawDensity the density as specified in the Rocksim design file
+     * @return a value in OpenRocket SURFACE density units
+     */
+    protected double computeDensity(RocksimDensityType type, double rawDensity) {
+        return rawDensity / type.asOpenRocket();
     }
 
     /**
@@ -161,23 +191,6 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
      */
     public static Material createCustomMaterial(Material.Type type, String name, double density) {
         return Material.newMaterial(type, "RS: " + name, density, true);
-    }
-
-    /**
-     * Get the appropriate density conversion for different types of materials.
-     *
-     * @return a conversion value that is assumed to be in Rocksim Units / OpenRocket Units
-     */
-    private double getDensityConversion() {
-        switch (getMaterialType()) {
-            case LINE:
-                return RocksimHandler.ROCKSIM_TO_OPENROCKET_LINE_DENSITY;
-            case SURFACE:
-                return RocksimHandler.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY;
-            case BULK:
-            default:
-                return RocksimHandler.ROCKSIM_TO_OPENROCKET_BULK_DENSITY;
-        }
     }
 
     /**
