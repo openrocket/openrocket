@@ -29,6 +29,10 @@
 	Currently the development version is the recommended
 	download.</p>
       
+      <div class="right support">
+        <a href="http://sourceforge.net/donate/index.php?group_id=260357"><img src="project-support.jpg" width="88" height="32" alt="Support This Project" /></a>
+      </div>
+
       <set sourcelink="true">
       <downloadbox>
 

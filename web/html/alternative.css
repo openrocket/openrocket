@@ -403,7 +403,7 @@ div.downloadbox .alternative a:hover {
 }
 
 .rightpane div.downloadbox {
-    margin: 0 auto 2em 0;
+    margin: 0 auto 2em auto;
 }
 .rightpane div.screenshot {
     font-size: smaller;

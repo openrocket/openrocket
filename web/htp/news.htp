@@ -9,6 +9,14 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">21.3.2010:</span> Version 1.1.0 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>This release includes the first support for loading RockSim
+    rocket design files (.RKT), thanks to contributions by Doug
+    Pedrick.  It's also the kick-off of the 1.1 development branch of
+    OpenRocket.</p>
+
   <p><span class="date">10.3.2010:</span> Version 1.0.0 is 
     <a href="download.html">released</a>!</p>
 
@@ -25,6 +33,10 @@
     more in line with the Barrowman method and enhances the simulation
     time step selection, in addition to fixing numerous bugs.</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">28.11.2009:</span> Version 0.9.5 is
     <a href="download.html">released</a>!</p>
 
@@ -32,10 +44,6 @@
     prevented adding a tube coupler and centering ring to the same
     body tube, in addition to a few smaller additions.  Users of
     0.9.4 should upgrade immediately!</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">24.11.2009:</span> Version 0.9.4 is
     <a href="download.html">released</a>!</p>
