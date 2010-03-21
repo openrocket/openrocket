@@ -18,3 +18,12 @@ To start the software run the class
 or from the JAR file run
 
     $ java -jar OpenRocket-<VERSION>.jar
+
+
+
+Contributions have been made by:
+--------------------------------
+
+Sampo Niskanen, main developer
+Doug Pedrick, support for reading RockSim designs
+

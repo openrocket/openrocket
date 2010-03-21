@@ -1,3 +1,10 @@
+OpenRocket 1.1.0  (2010-03-21):
+-------------------------------
+
+Support for loading RockSim rocket design files (.rkt) thanks to
+Doug Pedrick.
+
+
 OpenRocket 1.0.0  (2010-03-10):
 -------------------------------
 
