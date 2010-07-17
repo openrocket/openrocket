@@ -10,9 +10,8 @@ import java.util.EnumMap;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class PrintStreamLogger extends LogHelper {
-
-	private static final EnumMap<LogLevel, PrintStream> output = 
-		new EnumMap<LogLevel, PrintStream>(LogLevel.class);
+	
+	private final EnumMap<LogLevel, PrintStream> output = new EnumMap<LogLevel, PrintStream>(LogLevel.class);
 	
 	
 	@Override
@@ -22,11 +21,14 @@ public class PrintStreamLogger extends LogHelper {
 			stream.println(line.toString());
 		}
 	}
-
+	
+	public PrintStream getOutput(LogLevel level) {
+		return output.get(level);
+	}
 	
 	public void setOutput(LogLevel level, PrintStream stream) {
 		if (level == null) {
-			throw new IllegalArgumentException("level="+level+" stream="+stream);
+			throw new IllegalArgumentException("level=" + level + " stream=" + stream);
 		}
 		output.put(level, stream);
 	}

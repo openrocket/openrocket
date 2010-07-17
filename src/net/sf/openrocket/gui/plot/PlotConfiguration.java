@@ -7,7 +7,7 @@ import java.util.Set;
 
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.FlightDataBranch.Type;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
@@ -22,9 +22,9 @@ public class PlotConfiguration implements Cloneable {
 		PlotConfiguration config;
 		
 		config = new PlotConfiguration("Vertical motion vs. time");
-		config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_VELOCITY_Z);
-		config.addPlotDataType(FlightDataBranch.TYPE_ACCELERATION_Z);
+		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 0);
+		config.addPlotDataType(FlightDataType.TYPE_VELOCITY_Z);
+		config.addPlotDataType(FlightDataType.TYPE_ACCELERATION_Z);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
 		config.setEvent(FlightEvent.Type.APOGEE, true);
@@ -34,9 +34,9 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		config = new PlotConfiguration("Total motion vs. time");
-		config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_VELOCITY_TOTAL);
-		config.addPlotDataType(FlightDataBranch.TYPE_ACCELERATION_TOTAL);
+		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 0);
+		config.addPlotDataType(FlightDataType.TYPE_VELOCITY_TOTAL);
+		config.addPlotDataType(FlightDataType.TYPE_ACCELERATION_TOTAL);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
 		config.setEvent(FlightEvent.Type.APOGEE, true);
@@ -45,8 +45,8 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
-		config = new PlotConfiguration("Flight side profile", FlightDataBranch.TYPE_POSITION_X);
-		config.addPlotDataType(FlightDataBranch.TYPE_ALTITUDE);
+		config = new PlotConfiguration("Flight side profile", FlightDataType.TYPE_POSITION_X);
+		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
 		config.setEvent(FlightEvent.Type.APOGEE, true);
@@ -56,9 +56,9 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 
 		config = new PlotConfiguration("Stability vs. time");
-		config.addPlotDataType(FlightDataBranch.TYPE_STABILITY, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_CP_LOCATION, 1);
-		config.addPlotDataType(FlightDataBranch.TYPE_CG_LOCATION, 1);
+		config.addPlotDataType(FlightDataType.TYPE_STABILITY, 0);
+		config.addPlotDataType(FlightDataType.TYPE_CP_LOCATION, 1);
+		config.addPlotDataType(FlightDataType.TYPE_CG_LOCATION, 1);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
 		config.setEvent(FlightEvent.Type.APOGEE, true);
@@ -68,18 +68,18 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		config = new PlotConfiguration("Drag coefficients vs. Mach number", 
-				FlightDataBranch.TYPE_MACH_NUMBER);
-		config.addPlotDataType(FlightDataBranch.TYPE_DRAG_COEFF, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_FRICTION_DRAG_COEFF, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_BASE_DRAG_COEFF, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_PRESSURE_DRAG_COEFF, 0);
+				FlightDataType.TYPE_MACH_NUMBER);
+		config.addPlotDataType(FlightDataType.TYPE_DRAG_COEFF, 0);
+		config.addPlotDataType(FlightDataType.TYPE_FRICTION_DRAG_COEFF, 0);
+		config.addPlotDataType(FlightDataType.TYPE_BASE_DRAG_COEFF, 0);
+		config.addPlotDataType(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, 0);
 		configs.add(config);
 
 		config = new PlotConfiguration("Roll characteristics");
-		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_RATE, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_MOMENT_COEFF, 1);
-		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_FORCING_COEFF, 1);
-		config.addPlotDataType(FlightDataBranch.TYPE_ROLL_DAMPING_COEFF, 1);
+		config.addPlotDataType(FlightDataType.TYPE_ROLL_RATE, 0);
+		config.addPlotDataType(FlightDataType.TYPE_ROLL_MOMENT_COEFF, 1);
+		config.addPlotDataType(FlightDataType.TYPE_ROLL_FORCING_COEFF, 1);
+		config.addPlotDataType(FlightDataType.TYPE_ROLL_DAMPING_COEFF, 1);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.LAUNCHROD, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
@@ -90,9 +90,9 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 
 		config = new PlotConfiguration("Angle of attack and orientation vs. time");
-		config.addPlotDataType(FlightDataBranch.TYPE_AOA, 0);
-		config.addPlotDataType(FlightDataBranch.TYPE_ORIENTATION_PHI);
-		config.addPlotDataType(FlightDataBranch.TYPE_ORIENTATION_THETA);
+		config.addPlotDataType(FlightDataType.TYPE_AOA, 0);
+		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_PHI);
+		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_THETA);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
 		config.setEvent(FlightEvent.Type.APOGEE, true);
@@ -102,8 +102,8 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 
 		config = new PlotConfiguration("Simulation time step and computation time");
-		config.addPlotDataType(FlightDataBranch.TYPE_TIME_STEP);
-		config.addPlotDataType(FlightDataBranch.TYPE_COMPUTATION_TIME);
+		config.addPlotDataType(FlightDataType.TYPE_TIME_STEP);
+		config.addPlotDataType(FlightDataType.TYPE_COMPUTATION_TIME);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
 		config.setEvent(FlightEvent.Type.APOGEE, true);
@@ -138,7 +138,7 @@ public class PlotConfiguration implements Cloneable {
 	
 
 	/** The data types to be plotted. */
-	private ArrayList<FlightDataBranch.Type> plotDataTypes = new ArrayList<FlightDataBranch.Type>();
+	private ArrayList<FlightDataType> plotDataTypes = new ArrayList<FlightDataType>();
 	
 	private ArrayList<Unit> plotDataUnits = new ArrayList<Unit>();
 	
@@ -148,7 +148,7 @@ public class PlotConfiguration implements Cloneable {
 	private EnumSet<FlightEvent.Type> events = EnumSet.noneOf(FlightEvent.Type.class);
 	
 	/** The domain (x) axis. */
-	private FlightDataBranch.Type domainAxisType = null;
+	private FlightDataType domainAxisType = null;
 	private Unit domainAxisUnit = null;
 	
 	
@@ -163,14 +163,14 @@ public class PlotConfiguration implements Cloneable {
 	
 	
 	public PlotConfiguration() {
-		this(null, FlightDataBranch.TYPE_TIME);
+		this(null, FlightDataType.TYPE_TIME);
 	}
 	
 	public PlotConfiguration(String name) {
-		this(name, FlightDataBranch.TYPE_TIME);
+		this(name, FlightDataType.TYPE_TIME);
 	}
 	
-	public PlotConfiguration(String name, FlightDataBranch.Type domainType) {
+	public PlotConfiguration(String name, FlightDataType domainType) {
 		this.name = name;
 		// Two axes
 		allAxes.add(new Axis());
@@ -184,11 +184,11 @@ public class PlotConfiguration implements Cloneable {
 	
 	
 	
-	public FlightDataBranch.Type getDomainAxisType() {
+	public FlightDataType getDomainAxisType() {
 		return domainAxisType;
 	}
 	
-	public void setDomainAxisType(FlightDataBranch.Type type) {
+	public void setDomainAxisType(FlightDataType type) {
 		boolean setUnit;
 		
 		if (domainAxisType != null  &&  domainAxisType.getUnitGroup() == type.getUnitGroup())
@@ -214,13 +214,13 @@ public class PlotConfiguration implements Cloneable {
 	
 	
 	
-	public void addPlotDataType(FlightDataBranch.Type type) {
+	public void addPlotDataType(FlightDataType type) {
 		plotDataTypes.add(type);
 		plotDataUnits.add(type.getUnitGroup().getDefaultUnit());
 		plotDataAxes.add(-1);
 	}
 
-	public void addPlotDataType(FlightDataBranch.Type type, int axis) {
+	public void addPlotDataType(FlightDataType type, int axis) {
 		if (axis >= axesCount) {
 			throw new IllegalArgumentException("Axis index too large");
 		}
@@ -232,8 +232,8 @@ public class PlotConfiguration implements Cloneable {
 
 	
 	
-	public void setPlotDataType(int index, FlightDataBranch.Type type) {
-		FlightDataBranch.Type origType = plotDataTypes.get(index);
+	public void setPlotDataType(int index, FlightDataType type) {
+		FlightDataType origType = plotDataTypes.get(index);
 		plotDataTypes.set(index, type);
 		
 		if (origType.getUnitGroup() != type.getUnitGroup()) {
@@ -257,7 +257,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-	public void setPlotDataType(int index, FlightDataBranch.Type type, Unit unit, int axis) {
+	public void setPlotDataType(int index, FlightDataType type, Unit unit, int axis) {
 		if (axis >= axesCount) {
 			throw new IllegalArgumentException("Axis index too large");
 		}
@@ -274,7 +274,7 @@ public class PlotConfiguration implements Cloneable {
 	
 	
 	
-	public FlightDataBranch.Type getType (int index) {
+	public FlightDataType getType (int index) {
 		return plotDataTypes.get(index);
 	}
 	public Unit getUnit(int index) {
@@ -412,7 +412,7 @@ public class PlotConfiguration implements Cloneable {
 		// Add full range to the axes
 		int length = plotDataTypes.size();
 		for (int i=0; i<length; i++) {
-			FlightDataBranch.Type type = plotDataTypes.get(i);
+			FlightDataType type = plotDataTypes.get(i);
 			Unit unit = plotDataUnits.get(i);
 			int index = plotDataAxes.get(i);
 			if (index < 0) {
@@ -646,7 +646,7 @@ public class PlotConfiguration implements Cloneable {
 		 * entire range, 0 if they fill none of it.
 		 */
 		for (int i = 0; i < length; i++) {
-			FlightDataBranch.Type type = plotDataTypes.get(i);
+			FlightDataType type = plotDataTypes.get(i);
 			Unit unit = plotDataUnits.get(i);
 			int index = plotDataAxes.get(i);
 			if (index < 0) {
@@ -719,7 +719,7 @@ public class PlotConfiguration implements Cloneable {
 			PlotConfiguration copy = (PlotConfiguration) super.clone();
 			
 			// Shallow-clone all immutable lists
-			copy.plotDataTypes = (ArrayList<Type>) this.plotDataTypes.clone();
+			copy.plotDataTypes = (ArrayList<FlightDataType>) this.plotDataTypes.clone();
 			copy.plotDataAxes = (ArrayList<Integer>) this.plotDataAxes.clone();
 			copy.plotDataUnits = (ArrayList<Unit>) this.plotDataUnits.clone();
 			copy.events = this.events.clone();

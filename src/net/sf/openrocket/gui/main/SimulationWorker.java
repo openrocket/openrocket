@@ -1,17 +1,15 @@
 package net.sf.openrocket.gui.main;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.SimulationListener;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationCancelledException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
 
 
 
@@ -24,15 +22,15 @@ import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class SimulationWorker extends SwingWorker<FlightData, SimulationStatus> {
-
+	
 	protected final Simulation simulation;
 	private Throwable throwable = null;
-
+	
 	public SimulationWorker(Simulation sim) {
 		this.simulation = sim;
 	}
-
-
+	
+	
 	/**
 	 * Runs the simulation.
 	 */
@@ -46,18 +44,18 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 		SimulationListener[] listeners = getExtraListeners();
 		
 		if (listeners != null) {
-			listeners = Arrays.copyOf(listeners, listeners.length+1);
+			listeners = Arrays.copyOf(listeners, listeners.length + 1);
 		} else {
 			listeners = new SimulationListener[1];
 		}
 		
-		listeners[listeners.length-1] = new CancelListener();
+		listeners[listeners.length - 1] = new CancelListener();
 		
 		try {
 			simulation.simulate(listeners);
 		} catch (Throwable e) {
-//			System.out.println("Simulation interrupted:");
-//			e.printStackTrace();
+			//			System.out.println("Simulation interrupted:");
+			//			e.printStackTrace();
 			throwable = e;
 			return null;
 		}
@@ -74,7 +72,7 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	protected SimulationListener[] getExtraListeners() {
 		return new SimulationListener[0];
 	}
-
+	
 	
 	/**
 	 * Called after a simulation is successfully simulated.  This method is not
@@ -90,9 +88,9 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	 * @param t		the Throwable that caused the interruption
 	 */
 	protected abstract void simulationInterrupted(Throwable t);
+	
+	
 
-	
-	
 	/**
 	 * Marks this simulation as done and calls the progress update.
 	 */
@@ -100,11 +98,11 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	protected final void done() {
 		if (throwable == null)
 			simulationDone();
-		else 
+		else
 			simulationInterrupted(throwable);
 	}
 	
-
+	
 
 	/**
 	 * A simulation listener that throws a {@link SimulationCancelledException} if
@@ -114,16 +112,14 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	private class CancelListener extends AbstractSimulationListener {
-
+		
 		@Override
-		public Collection<FlightEvent> stepTaken(SimulationStatus status) 
-		throws SimulationCancelledException {
-
+		public void postStep(SimulationStatus status) throws SimulationCancelledException {
+			
 			if (isCancelled()) {
 				throw new SimulationCancelledException("The simulation was interrupted.");
 			}
-
-			return null;
+			
 		}
 	}
 }

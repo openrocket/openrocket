@@ -15,7 +15,7 @@ import net.sf.openrocket.file.CSVExport;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.simulation.FlightDataBranch;
-import net.sf.openrocket.simulation.FlightDataBranch.Type;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.unit.Unit;
 
 
@@ -26,7 +26,7 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 	private final File file;
 	private final Simulation simulation;
 	private final FlightDataBranch branch;
-	private final FlightDataBranch.Type[] fields;
+	private final FlightDataType[] fields;
 	private final Unit[] units;
 	private final String fieldSeparator;
 	private final String commentStarter;
@@ -36,7 +36,7 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 	
 	
 	public SaveCSVWorker(File file, Simulation simulation, FlightDataBranch branch,
-			Type[] fields, Unit[] units, String fieldSeparator, String commentStarter,
+			FlightDataType[] fields, Unit[] units, String fieldSeparator, String commentStarter,
 			boolean simulationComments, boolean fieldComments, boolean eventComments) {
 		this.file = file;
 		this.simulation = simulation;
@@ -90,7 +90,7 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 	 * @return	<code>true</code> if the save was successful, <code>false</code> otherwise.
 	 */
 	public static boolean export(File file, Simulation simulation, FlightDataBranch branch,
-			Type[] fields, Unit[] units, String fieldSeparator, String commentStarter,
+			FlightDataType[] fields, Unit[] units, String fieldSeparator, String commentStarter,
 			boolean simulationComments, boolean fieldComments, boolean eventComments,
 			Window parent) {
 		

@@ -6,27 +6,34 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Monitorable;
+import net.sf.openrocket.util.UniqueID;
 
-
-public class FlightConditions implements Cloneable, ChangeSource {
-
+/**
+ * A class defining the momentary flight conditions of a rocket, including
+ * the angle of attack, lateral wind angle, atmospheric conditions etc.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
+public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
+	
 	private List<ChangeListener> listenerList = new ArrayList<ChangeListener>();
 	private ChangeEvent event = new ChangeEvent(this);
 	
-	/** Modification count */
-	private int modCount = 0;
-	
+
 	/** Reference length used in calculations. */
 	private double refLength = 1.0;
 	
 	/** Reference area used in calculations. */
 	private double refArea = Math.PI * 0.25;
-
 	
+
 	/** Angle of attack. */
 	private double aoa = 0;
 	
@@ -50,18 +57,23 @@ public class FlightConditions implements Cloneable, ChangeSource {
 	 * Sqrt(1 - M^2)  for M<1
 	 * Sqrt(M^2 - 1)  for M>1
 	 */
-	private double beta = Math.sqrt(1 - mach*mach);
-
+	private double beta = Math.sqrt(1 - mach * mach);
 	
+
 	/** Current roll rate. */
 	private double rollRate = 0;
 	
 	private double pitchRate = 0;
 	private double yawRate = 0;
 	
+	private Coordinate pitchCenter = Coordinate.NUL;
 	
+
 	private AtmosphericConditions atmosphericConditions = new AtmosphericConditions();
 	
+
+	private int modID;
+	private int modIDadd = 0;
 	
 	
 	/**
@@ -75,6 +87,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 	public FlightConditions(Configuration config) {
 		if (config != null)
 			setRefLength(config.getReferenceLength());
+		this.modID = UniqueID.next();
 	}
 	
 	
@@ -92,24 +105,24 @@ public class FlightConditions implements Cloneable, ChangeSource {
 	 */
 	public void setRefLength(double length) {
 		refLength = length;
-
-		refArea = Math.PI * MathUtil.pow2(length/2);
+		
+		refArea = Math.PI * MathUtil.pow2(length / 2);
 		fireChangeEvent();
 	}
-
+	
 	/**
 	 * Return the reference length.
 	 */
 	public double getRefLength() {
 		return refLength;
 	}
-
+	
 	/**
 	 * Set the reference area and length.
 	 */
 	public void setRefArea(double area) {
 		refArea = area;
-		refLength = Math.sqrt(area / Math.PI)*2;
+		refLength = Math.sqrt(area / Math.PI) * 2;
 		fireChangeEvent();
 	}
 	
@@ -119,7 +132,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 	public double getRefArea() {
 		return refArea;
 	}
-
+	
 	
 	/**
 	 * Sets the angle of attack.  It calculates values also for the methods 
@@ -142,7 +155,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		}
 		fireChangeEvent();
 	}
-
+	
 	
 	/**
 	 * Sets the angle of attack with the sine.  The value <code>sinAOA</code> is assumed
@@ -159,8 +172,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		if (MathUtil.equals(this.aoa, aoa))
 			return;
 		
-		assert(Math.abs(Math.sin(aoa) - sinAOA) < 0.0001) : 
-			"Illegal sine: aoa="+aoa+" sinAOA="+sinAOA;
+		assert (Math.abs(Math.sin(aoa) - sinAOA) < 0.0001) : "Illegal sine: aoa=" + aoa + " sinAOA=" + sinAOA;
 		
 		this.aoa = aoa;
 		this.sinAOA = sinAOA;
@@ -171,22 +183,22 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		}
 		fireChangeEvent();
 	}
-
-
+	
+	
 	/**
 	 * Return the angle of attack.
 	 */
 	public double getAOA() {
 		return aoa;
 	}
-
+	
 	/**
 	 * Return the sine of the angle of attack.
 	 */
 	public double getSinAOA() {
 		return sinAOA;
 	}
-
+	
 	/**
 	 * Return the sinc of the angle of attack (sin(AOA) / AOA).  This method returns
 	 * one if the angle of attack is zero.
@@ -205,7 +217,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		this.theta = theta;
 		fireChangeEvent();
 	}
-
+	
 	/**
 	 * Return the direction of the lateral airflow.
 	 */
@@ -213,7 +225,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		return theta;
 	}
 	
-
+	
 	/**
 	 * Set the current Mach speed.  This should be (but is not required to be) in 
 	 * reference to the speed of sound of the atmospheric conditions.
@@ -225,9 +237,9 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		
 		this.mach = mach;
 		if (mach < 1)
-			this.beta = Math.sqrt(1 - mach*mach);
+			this.beta = Math.sqrt(1 - mach * mach);
 		else
-			this.beta = Math.sqrt(mach*mach - 1);
+			this.beta = Math.sqrt(mach * mach - 1);
 		fireChangeEvent();
 	}
 	
@@ -258,7 +270,7 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		setMach(velocity / atmosphericConditions.getMachSpeed());
 	}
 	
-
+	
 	/**
 	 * Return sqrt(abs(1 - Mach^2)).  This is calculated in the setting call and is
 	 * therefore fast.
@@ -286,34 +298,55 @@ public class FlightConditions implements Cloneable, ChangeSource {
 		this.rollRate = rate;
 		fireChangeEvent();
 	}
-
+	
 	
 	public double getPitchRate() {
 		return pitchRate;
 	}
-
-
+	
+	
 	public void setPitchRate(double pitchRate) {
 		if (MathUtil.equals(this.pitchRate, pitchRate))
 			return;
 		this.pitchRate = pitchRate;
 		fireChangeEvent();
 	}
-
-
+	
+	
 	public double getYawRate() {
 		return yawRate;
 	}
-
-
+	
+	
 	public void setYawRate(double yawRate) {
 		if (MathUtil.equals(this.yawRate, yawRate))
 			return;
 		this.yawRate = yawRate;
 		fireChangeEvent();
 	}
+	
+	
 
 
+	/**
+	 * @return the pitchCenter
+	 */
+	public Coordinate getPitchCenter() {
+		return pitchCenter;
+	}
+	
+	
+	/**
+	 * @param pitchCenter the pitchCenter to set
+	 */
+	public void setPitchCenter(Coordinate pitchCenter) {
+		if (this.pitchCenter.equals(pitchCenter))
+			return;
+		this.pitchCenter = pitchCenter;
+		fireChangeEvent();
+	}
+	
+	
 	/**
 	 * Return the current atmospheric conditions.  Note that this method returns a
 	 * reference to the {@link AtmosphericConditions} object used by this object.
@@ -325,14 +358,15 @@ public class FlightConditions implements Cloneable, ChangeSource {
 	public AtmosphericConditions getAtmosphericConditions() {
 		return atmosphericConditions;
 	}
-
+	
 	/**
 	 * Set the current atmospheric conditions.  This method will fire a change event
 	 * if a change occurs.
 	 */
 	public void setAtmosphericConditions(AtmosphericConditions cond) {
-		if (atmosphericConditions == cond)
+		if (atmosphericConditions.equals(cond))
 			return;
+		modIDadd += atmosphericConditions.getModID();
 		atmosphericConditions = cond;
 		fireChangeEvent();
 	}
@@ -344,16 +378,25 @@ public class FlightConditions implements Cloneable, ChangeSource {
 	 * 
 	 * @return	the number of times this object has been modified since instantiation.
 	 */
-	public int getModCount() {
-		return modCount;
+	public int getModID() {
+		return modID + modIDadd + this.atmosphericConditions.getModID();
 	}
 	
 	
 	@Override
 	public String toString() {
-		return String.format("FlightConditions[aoa=%.2f\u00b0,theta=%.2f\u00b0,"+
-				"mach=%.2f,rollRate=%.2f]", 
-				aoa*180/Math.PI, theta*180/Math.PI, mach, rollRate);
+		return String.format("FlightConditions[" +
+				"aoa=%.2f\u00b0," +
+				"theta=%.2f\u00b0," +
+				"mach=%.3f," +
+				"rollRate=%.2f," +
+				"pitchRate=%.2f," +
+				"yawRate=%.2f," +
+				"refLength=%.3f," +
+				"pitchCenter=" + pitchCenter.toString() + "," +
+				"atmosphericConditions=" + atmosphericConditions.toString() +
+				"]",
+				aoa * 180 / Math.PI, theta * 180 / Math.PI, mach, rollRate, pitchRate, yawRate, refLength);
 	}
 	
 	
@@ -370,26 +413,50 @@ public class FlightConditions implements Cloneable, ChangeSource {
 			cond.atmosphericConditions = atmosphericConditions.clone();
 			return cond;
 		} catch (CloneNotSupportedException e) {
-			throw new BugException("BUG: clone not supported!",e);
+			throw new BugException("BUG: clone not supported!", e);
 		}
 	}
-
+	
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof FlightConditions))
+			return false;
+		
+		FlightConditions other = (FlightConditions) obj;
+		
+		return (MathUtil.equals(this.refLength, other.refLength) &&
+				MathUtil.equals(this.aoa, other.aoa) &&
+				MathUtil.equals(this.theta, other.theta) &&
+				MathUtil.equals(this.mach, other.mach) &&
+				MathUtil.equals(this.rollRate, other.rollRate) &&
+				MathUtil.equals(this.pitchRate, other.pitchRate) &&
+				MathUtil.equals(this.yawRate, other.yawRate) &&
+				this.pitchCenter.equals(other.pitchCenter) && this.atmosphericConditions.equals(other.atmosphericConditions));
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int) (1000 * (refLength + aoa + theta + mach + rollRate + pitchRate + yawRate));
+	}
 	
 	
 	@Override
 	public void addChangeListener(ChangeListener listener) {
-		listenerList.add(0,listener);
+		listenerList.add(0, listener);
 	}
-
+	
 	@Override
 	public void removeChangeListener(ChangeListener listener) {
 		listenerList.remove(listener);
 	}
 	
 	protected void fireChangeEvent() {
-		modCount++;
+		modID = UniqueID.next();
 		ChangeListener[] listeners = listenerList.toArray(new ChangeListener[0]);
-		for (ChangeListener l: listeners) {
+		for (ChangeListener l : listeners) {
 			l.stateChanged(event);
 		}
 	}

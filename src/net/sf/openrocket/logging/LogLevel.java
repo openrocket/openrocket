@@ -13,17 +13,19 @@ package net.sf.openrocket.logging;
 public enum LogLevel {
 	/**
 	 * Level for indicating a bug or error condition noticed in the software or JRE.
-	 * No ERROR level events _should_ occur while running the program. 
+	 * No ERROR level events _should_ occur while running the program.
 	 */
 	ERROR,
 	/** 
-	 * Level for indicating error conditions or untypical events that can occur during
+	 * Level for indicating error conditions or atypical events that can occur during
 	 * normal operation (errors while loading files, weird computation results etc).
 	 */
 	WARN,
 	/** 
 	 * Level for logging user actions (adding and modifying components, running
-	 * simulations etc).
+	 * simulations etc).  A user action should be logged as soon as possible on this
+	 * level.  The level is separate so that additional INFO messages won't purge
+	 * user actions from a bounded log buffer.
 	 */
 	USER,
 	/**
@@ -63,6 +65,38 @@ public enum LogLevel {
 	 */
 	public boolean moreThan(LogLevel level) {
 		return this.compareTo(level) < 0;
+	}
+	
+	
+	/**
+	 * Return a log level corresponding to a string.  The string is case-insensitive.  If the
+	 * string is case-insensitively equal to "all", then the lowest logging level is returned.
+	 * 
+	 * @param value			the string name of a log level, or "all"
+	 * @param defaultLevel	the value to return if the string doesn't correspond to any log level or is null
+	 * @return				the corresponding log level, of defaultLevel.
+	 */
+	public static LogLevel fromString(String value, LogLevel defaultLevel) {
+
+		// Normalize the string
+		if (value == null) {
+			return defaultLevel;
+		}
+		value = value.toUpperCase().trim();
+		
+		// Find the correct level
+		LogLevel level = defaultLevel;
+		if (value.equals("ALL")) {
+			LogLevel[] values = LogLevel.values();
+			level = values[values.length-1];
+		} else {
+			try {
+				level = LogLevel.valueOf(value);
+			} catch (Exception e) {
+				// Ignore
+			}
+		}
+		return level;
 	}
 	
 }

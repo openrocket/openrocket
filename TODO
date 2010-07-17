@@ -16,6 +16,13 @@ Maybe:
 - Water rocket modeling
 
 
+Done:
+
+- Reading .RKT
+- Central logging system
+- Simulation refactoring
+
+
 
 More ideas:
 -----------
@@ -30,20 +37,6 @@ Memory usage:
 - Warn user when 90% of memory is used, offer to send info to server
 
 
-Logging:
-
-- Implement a central logging system
-  - takes messages with different priorities
-  - converts them into LogLine's that are passed to log handlers
-  - printing log handler and storing log handler
-  - bug reports to contain last ~50 log lines
-- LogLine
-  - contains TraceException for log position information
-  - contains sequential number
-- log storing handler stores separately debug and info/warn levels
-- remove all System.out/err writing, replace with logging
-
-
 Motor support:
 
 - Combine duplicates into one display in the selection dialog
@@ -56,7 +49,7 @@ Motor support:
 - Integration with thrustcurve.org (syncing?)
 - Reading thrust curves from external directory
 - Plot motor thrust curve
-- Water rocket modelling
+- Water rocket modeling
 
 
 Optimization:
@@ -70,8 +63,8 @@ Optimization:
 
 Running:
 
-- Windows executable wrapper (launch4j)
-- Allow only one instance of OpenRocket running (RMI communication)
+- Windows executable wrapper (launch4j?)
+- Allow only one instance of OpenRocket running (RMI communication?)
 - Running/simulating from command line
 
 
@@ -88,7 +81,6 @@ UI issues:
 - Drag and drop of components / other table items
 - Ctrl+scroll wheel to zoom in/out
 - Move components by dragging on the figure
-- Progress bar during startup
 
 
 Simulation:
@@ -121,27 +113,17 @@ Component support:
 
 File support:
 
-- Reading (and writing) .RKT format
+- Reading (and writing) SpaceCad format
+- Writing .RKT format ?
 
 
 Refactoring tasks:
 
 - Change databases and icon loading to bean instances, implement stubs
   for unit tests
-- Move startup class to src14 directory, remove reflection
 - Remove database etc. initialization from class initialization,
   create separate set of test motors
 - Extract event rules and data saving from Simulator into listeners
-- How to handle different simulation situations elegantly
-  (launch rod, free flight, recovery)
 - Change SimulationStatus to include methods for obtaining basic
   position (maybe even change to an interface, implements Cloneable)
-- Modularize calculators, simulators, atmospheric conditions, etc.
-- Change Motor (immutable) to be a factory of MotorInstance (stateful)
 
-
-
-Done:
------
-
-- Reading .RKT format

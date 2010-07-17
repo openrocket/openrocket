@@ -1,0 +1,59 @@
+
+
+\chapter{Conclusion}
+\label{chap-conclusion}
+
+
+Model rocketry is an intriguing sport which combines various fields
+ranging from aerodynamic design to model construction to
+pyrotechnics.  At its best, it works as an inspiration for youngsters
+to study engineering and sciences.
+
+This thesis work provides one of the computer-age tools for everybody
+intrested in model rocket design.  Providing everybody free access to
+a full-fledged rocket simulator allows many more hobbyists to
+experiment with different kinds of rocket designs and become more
+involved in the sport.  The most enthusiastic rocketeers may dive
+even deeper and get to examine not only the simulation results, but
+also how those simulations are actually performed.
+
+The software produced contains an easy-to-use interface, which allows
+new users to start experimenting with the minimum effort.  The
+back-end is designed to be easily extensible, in anticipation of
+future enhancements.  This thesis also includes a step-by-step process
+for computing the aerodynamical characteristics of a rocket and for
+simulating its flight.  These are the current default implementations
+used by the software.
+
+Comparison to experimental data shows that the most important
+aerodynamical parameters for flight simulation---the center of
+pressure location and drag coefficient---are simulated with an
+accuracy of approximately 10\% at subsonic velocities.  In this
+velocity regime the accuracy of the simulated altitude is on par with
+the commercial simulation software RockSim.  While comparison with
+supersonic rockets was not possible, it is expected that the
+simulation is reasonably accurate to at least Mach~1.5.
+
+The six degree of freedom simulator also allows simulating rocket roll
+in order to study the effect of roll stabilization, a feature
+not available in other hobby-level rocket simulators.  While the
+comparison with experimental data of a rolling rocket was
+inconclusive as to its accuracy, it is still expected to give valuable
+insight into the effects of roll during flight.
+
+The external listener classes that can be attached to the simulator
+allow huge potential for custom extensions.  For example testing the
+active roll reduction controller that will be included in the
+successor project of Haisun‰‰t‰ would have been exceedingly difficult
+without such support.  By interfacing the actual controller with a
+simulated flight environment it was possible to discover various bugs
+in the controller software that would otherwise have gone undetected.
+
+Finally, it must be emphasized that the release of the OpenRocket
+software is not the end of this project.  In line with the Open Source
+philosophy, it is just the beginning of its development cycle,
+where anybody with the know-how can contribute to making OpenRocket an
+even better simulation environment.
+
+
+

@@ -389,7 +389,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			}
 			
 			if (constructor == null) {
-				System.err.println("ERROR:  Construction of type not supported yet.");
+				ExceptionHandler.handleErrorCondition("ERROR:  Construction of type not supported yet.");
 				return;
 			}
 			

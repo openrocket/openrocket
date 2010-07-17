@@ -25,12 +25,11 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.FlightDataBranch.Type;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
-import net.sf.openrocket.util.Pair;
 
 public class SimulationPlotPanel extends JPanel {
 	
@@ -54,20 +53,20 @@ public class SimulationPlotPanel extends JPanel {
 	/** The array of presets for the combo box. */
 	private static final PlotConfiguration[] PRESET_ARRAY;
 	static {
-		PRESET_ARRAY = Arrays.copyOf(PlotConfiguration.DEFAULT_CONFIGURATIONS, 
+		PRESET_ARRAY = Arrays.copyOf(PlotConfiguration.DEFAULT_CONFIGURATIONS,
 				PlotConfiguration.DEFAULT_CONFIGURATIONS.length + 1);
-		PRESET_ARRAY[PRESET_ARRAY.length-1] = CUSTOM_CONFIGURATION;
+		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
 	}
 	
-	
-	
+
+
 	/** The current default configuration, set each time a plot is made. */
 	private static PlotConfiguration defaultConfiguration =
-		PlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
+			PlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
 	
-	
+
 	private final Simulation simulation;
-	private final FlightDataBranch.Type[] types;
+	private final FlightDataType[] types;
 	private PlotConfiguration configuration;
 	
 
@@ -79,16 +78,16 @@ public class SimulationPlotPanel extends JPanel {
 	private JPanel typeSelectorPanel;
 	private FlightEventTableModel eventTableModel;
 	
-	
+
 	private int modifying = 0;
 	
-
+	
 	public SimulationPlotPanel(final Simulation simulation) {
 		super(new MigLayout("fill"));
 		
 		this.simulation = simulation;
-		if (simulation.getSimulatedData() == null  ||
-				simulation.getSimulatedData().getBranchCount()==0) {
+		if (simulation.getSimulatedData() == null ||
+				simulation.getSimulatedData().getBranchCount() == 0) {
 			throw new IllegalArgumentException("Simulation contains no data.");
 		}
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
@@ -97,12 +96,12 @@ public class SimulationPlotPanel extends JPanel {
 		// TODO: LOW: Revert to custom if data type is not available.
 		configuration = defaultConfiguration.clone();
 		
-		
+
 		////  Configuration selector
 		
 		// Setup the combo box
 		configurationSelector = new JComboBox(PRESET_ARRAY);
-		for (PlotConfiguration config: PRESET_ARRAY) {
+		for (PlotConfiguration config : PRESET_ARRAY) {
 			if (config.getName().equals(configuration.getName())) {
 				configurationSelector.setSelectedItem(config);
 			}
@@ -112,7 +111,7 @@ public class SimulationPlotPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (modifying > 0)
 					return;
-				PlotConfiguration conf = (PlotConfiguration)configurationSelector.getSelectedItem();
+				PlotConfiguration conf = (PlotConfiguration) configurationSelector.getSelectedItem();
 				if (conf == CUSTOM_CONFIGURATION)
 					return;
 				modifying++;
@@ -122,13 +121,13 @@ public class SimulationPlotPanel extends JPanel {
 			}
 		});
 		this.add(new JLabel("Preset plot configurations: "), "spanx, split");
-		this.add(configurationSelector,"growx, wrap 20lp");
+		this.add(configurationSelector, "growx, wrap 20lp");
+		
 
-		
-		
+
 		//// X axis
 		
-		
+
 		this.add(new JLabel("X axis type:"), "spanx, split");
 		domainTypeSelector = new JComboBox(types);
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
@@ -137,7 +136,7 @@ public class SimulationPlotPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (modifying > 0)
 					return;
-				FlightDataBranch.Type type = (Type) domainTypeSelector.getSelectedItem();
+				FlightDataType type = (FlightDataType) domainTypeSelector.getSelectedItem();
 				configuration.setDomainAxisType(type);
 				domainUnitSelector.setUnitGroup(type.getUnitGroup());
 				domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
@@ -145,8 +144,8 @@ public class SimulationPlotPanel extends JPanel {
 			}
 		});
 		this.add(domainTypeSelector, "gapright para");
-
 		
+
 		this.add(new JLabel("Unit:"));
 		domainUnitSelector = new UnitSelector(configuration.getDomainAxisType().getUnitGroup());
 		domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
@@ -160,14 +159,14 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
-		
+
 		DescriptionArea desc = new DescriptionArea("The data will be plotted in time order " +
 				"even if the X axis type is not time.", 2, -2f);
 		desc.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.add(desc, "width 1px, growx 1, wrap unrel");
 		
-		
-		
+
+
 		//// Y axis selector panel
 		
 		this.add(new JLabel("Y axis types:"));
@@ -178,7 +177,7 @@ public class SimulationPlotPanel extends JPanel {
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
 		this.add(scroll, "spany 2, height 10px, grow 100, gapright para");
 		
-		
+
 		//// Flight events
 		eventTableModel = new FlightEventTableModel();
 		JTable table = new JTable(eventTableModel);
@@ -196,13 +195,13 @@ public class SimulationPlotPanel extends JPanel {
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
 		this.add(new JScrollPane(table), "height 10px, width 200lp, grow 1, wrap rel");
 		
-		
+
 		////  All + None buttons
 		JButton button = new JButton("All");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (FlightEvent.Type t: FlightEvent.Type.values())
+				for (FlightEvent.Type t : FlightEvent.Type.values())
 					configuration.setEvent(t, true);
 				eventTableModel.fireTableDataChanged();
 			}
@@ -213,62 +212,62 @@ public class SimulationPlotPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (FlightEvent.Type t: FlightEvent.Type.values())
+				for (FlightEvent.Type t : FlightEvent.Type.values())
 					configuration.setEvent(t, false);
 				eventTableModel.fireTableDataChanged();
 			}
 		});
 		this.add(button, "gapleft para, gapright para, growx, sizegroup buttons, wrap para");
 		
-		
-		
-		
+
+
+
 		button = new JButton("New Y axis plot type");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (configuration.getTypeCount() >= 15) {
-					JOptionPane.showMessageDialog(SimulationPlotPanel.this, 
-							"A maximum of 15 plots is allowed.", "Cannot add plot", 
+					JOptionPane.showMessageDialog(SimulationPlotPanel.this,
+							"A maximum of 15 plots is allowed.", "Cannot add plot",
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-
+				
 				// Select new type smartly
-				FlightDataBranch.Type type = null;
-				for (FlightDataBranch.Type t: 
+				FlightDataType type = null;
+				for (FlightDataType t :
 					simulation.getSimulatedData().getBranch(0).getTypes()) {
-					
-					boolean used = false;
-					if (configuration.getDomainAxisType().equals(t)) {
-						used = true;
-					} else {
-						for (int i=0; i < configuration.getTypeCount(); i++) {
-							if (configuration.getType(i).equals(t)) {
-								used = true;
-								break;
+						
+						boolean used = false;
+						if (configuration.getDomainAxisType().equals(t)) {
+							used = true;
+						} else {
+							for (int i = 0; i < configuration.getTypeCount(); i++) {
+								if (configuration.getType(i).equals(t)) {
+									used = true;
+									break;
+								}
 							}
 						}
+						
+						if (!used) {
+							type = t;
+							break;
+						}
+					}
+					if (type == null) {
+						type = simulation.getSimulatedData().getBranch(0).getTypes()[0];
 					}
 					
-					if (!used) {
-						type = t;
-						break;
-					}
+					// Add new type
+					configuration.addPlotDataType(type);
+					setToCustom();
+					updatePlots();
 				}
-				if (type == null) {
-					type = simulation.getSimulatedData().getBranch(0).getTypes()[0];
-				}
-				
-				// Add new type
-				configuration.addPlotDataType(type);
-				setToCustom();
-				updatePlots();
-			}
 		});
 		this.add(button, "spanx, split");
 		
-		
+
 		this.add(new JPanel(), "growx");
 		
 		button = new JButton("Plot flight");
@@ -276,13 +275,13 @@ public class SimulationPlotPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				defaultConfiguration = configuration.clone();
-				PlotDialog.showPlot(SwingUtilities.getWindowAncestor(SimulationPlotPanel.this), 
+				PlotDialog.showPlot(SwingUtilities.getWindowAncestor(SimulationPlotPanel.this),
 						simulation, configuration);
 			}
 		});
 		this.add(button, "right");
-
 		
+
 		updatePlots();
 	}
 	
@@ -301,8 +300,8 @@ public class SimulationPlotPanel extends JPanel {
 		domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
 		
 		typeSelectorPanel.removeAll();
-		for (int i=0; i < configuration.getTypeCount(); i++) {
-			FlightDataBranch.Type type = configuration.getType(i);
+		for (int i = 0; i < configuration.getTypeCount(); i++) {
+			FlightDataType type = configuration.getType(i);
 			Unit unit = configuration.getUnit(i);
 			int axis = configuration.getAxis(i);
 			
@@ -315,8 +314,8 @@ public class SimulationPlotPanel extends JPanel {
 	}
 	
 	
-	
-	
+
+
 	/**
 	 * A JPanel which configures a single plot of a PlotConfiguration.
 	 */
@@ -329,11 +328,11 @@ public class SimulationPlotPanel extends JPanel {
 		private JComboBox axisSelector;
 		
 		
-		public PlotTypeSelector(int index, FlightDataBranch.Type type) {
-			this (index, type, null, -1);
+		public PlotTypeSelector(int index, FlightDataType type) {
+			this(index, type, null, -1);
 		}
 		
-		public PlotTypeSelector(int plotIndex, FlightDataBranch.Type type, Unit unit, int position) {
+		public PlotTypeSelector(int plotIndex, FlightDataType type, Unit unit, int position) {
 			super(new MigLayout("ins 0"));
 			
 			this.index = plotIndex;
@@ -345,7 +344,7 @@ public class SimulationPlotPanel extends JPanel {
 				public void itemStateChanged(ItemEvent e) {
 					if (modifying > 0)
 						return;
-					FlightDataBranch.Type type = (Type) typeSelector.getSelectedItem();
+					FlightDataType type = (FlightDataType) typeSelector.getSelectedItem();
 					configuration.setPlotDataType(index, type);
 					unitSelector.setUnitGroup(type.getUnitGroup());
 					unitSelector.setSelectedUnit(configuration.getUnit(index));
@@ -388,7 +387,7 @@ public class SimulationPlotPanel extends JPanel {
 			});
 			this.add(axisSelector);
 			
-			
+
 			JButton button = new JButton(Icons.DELETE);
 			button.setToolTipText("Remove this plot");
 			button.setBorderPainted(false);
@@ -405,16 +404,15 @@ public class SimulationPlotPanel extends JPanel {
 	}
 	
 	
-	
+
 	private class FlightEventTableModel extends AbstractTableModel {
 		private final FlightEvent.Type[] eventTypes;
 		
 		public FlightEventTableModel() {
 			EnumSet<FlightEvent.Type> set = EnumSet.noneOf(FlightEvent.Type.class);
-			for (int i=0; i < simulation.getSimulatedData().getBranchCount(); i++) {
-				for (Pair<Double,FlightEvent> e:
-					simulation.getSimulatedData().getBranch(i).getEvents()) {
-					set.add(e.getV().getType());
+			for (int i = 0; i < simulation.getSimulatedData().getBranchCount(); i++) {
+				for (FlightEvent e : simulation.getSimulatedData().getBranch(i).getEvents()) {
+					set.add(e.getType());
 				}
 			}
 			set.remove(FlightEvent.Type.ALTITUDE);
@@ -422,7 +420,7 @@ public class SimulationPlotPanel extends JPanel {
 			
 			eventTypes = new FlightEvent.Type[count];
 			int pos = 0;
-			for (FlightEvent.Type t: FlightEvent.Type.values()) {
+			for (FlightEvent.Type t : FlightEvent.Type.values()) {
 				if (set.contains(t)) {
 					eventTypes[pos] = t;
 					pos++;
@@ -434,7 +432,7 @@ public class SimulationPlotPanel extends JPanel {
 		public int getColumnCount() {
 			return 2;
 		}
-
+		
 		@Override
 		public int getRowCount() {
 			return eventTypes.length;
@@ -450,10 +448,10 @@ public class SimulationPlotPanel extends JPanel {
 				return String.class;
 				
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 		}
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
@@ -464,7 +462,7 @@ public class SimulationPlotPanel extends JPanel {
 				return eventTypes[row].toString();
 				
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 		}
 		
@@ -476,10 +474,10 @@ public class SimulationPlotPanel extends JPanel {
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			if (column != 0 || !(value instanceof Boolean)) {
-				throw new IllegalArgumentException("column="+column+", value="+value);
+				throw new IllegalArgumentException("column=" + column + ", value=" + value);
 			}
 			
-			configuration.setEvent(eventTypes[row], (Boolean)value);
+			configuration.setEvent(eventTypes[row], (Boolean) value);
 			this.fireTableCellUpdated(row, column);
 		}
 	}

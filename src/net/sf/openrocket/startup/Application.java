@@ -1,33 +1,83 @@
 package net.sf.openrocket.startup;
 
-import net.sf.openrocket.logging.DelegatorLogger;
+import net.sf.openrocket.database.MotorSetDatabase;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.LogLevel;
+import net.sf.openrocket.logging.LogLevelBufferLogger;
+import net.sf.openrocket.logging.PrintStreamLogger;
 
 /**
- * A class that provides singleton instances / beans for other
- * classes to utilize.
+ * A class that provides singleton instances / beans for other classes to utilize.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class Application {
 	
-	private static DelegatorLogger logger = null;
-
-	public static LogHelper getLogHelper() {
-		if (logger == null) {
-			initializeLogging();
+	private static LogHelper logger;
+	private static LogLevelBufferLogger logBuffer;
+	
+	private static MotorSetDatabase motorSetDatabase;
+	
+	// Initialize the logger to something sane for testing without executing Startup
+	static {
+		logger = new PrintStreamLogger();
+		for (LogLevel l : LogLevel.values()) {
+			((PrintStreamLogger) logger).setOutput(l, System.out);
 		}
-		return logger;
 	}
 	
 	
 	/**
-	 * Initializes the logging system and populates logHelper.
+	 * Retrieve the logger to be used in logging.  By default this returns
+	 * a logger that outputs to stdout/stderr even if not separately initialized,
+	 * useful for development and debugging.
 	 */
-	private static void initializeLogging() {
-		logger = new DelegatorLogger();
-		
-		
+	public static LogHelper getLogger() {
+		return logger;
 	}
 	
+	/**
+	 * Set the logger to be used in logging.  Note that calling this will only have effect
+	 * on not-yet loaded classes, as the instance is stored in a static variable.
+	 */
+	public static void setLogger(LogHelper logger) {
+		Application.logger = logger;
+	}
+	
+	
+
+	/**
+	 * Return the log buffer.
+	 * 
+	 * @return the logBuffer or null if not initialized
+	 */
+	public static LogLevelBufferLogger getLogBuffer() {
+		return logBuffer;
+	}
+	
+	/**
+	 * Set the log buffer logger.  The logger must be separately configured
+	 * to receive the logging.
+	 */
+	public static void setLogBuffer(LogLevelBufferLogger logBuffer) {
+		Application.logBuffer = logBuffer;
+	}
+	
+	
+
+	/**
+	 * Return the database of all thrust curves loaded into the system.
+	 */
+	public static MotorSetDatabase getMotorSetDatabase() {
+		return motorSetDatabase;
+	}
+	
+	/**
+	 * Set the database of thrust curves loaded into the system.
+	 */
+	public static void setMotorSetDatabase(MotorSetDatabase motorSetDatabase) {
+		Application.motorSetDatabase = motorSetDatabase;
+	}
+	
+
 }

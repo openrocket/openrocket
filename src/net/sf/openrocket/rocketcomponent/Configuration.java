@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,13 +16,18 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Monitorable;
 
 
+/**
+ * A class defining a rocket configuration, including motors and which stages are active.
+ * 
+ * TODO: HIGH: Remove motor ignition times from this class.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class Configuration implements Cloneable, ChangeSource, ComponentChangeListener, 
-		Iterable<RocketComponent> {
-	
-	public static final double DEFAULT_IGNITION_TIME = Double.MAX_VALUE;
-	
+		Iterable<RocketComponent>, Monitorable {
 
 	private Rocket rocket;
 	private BitSet stages = new BitSet();
@@ -31,9 +35,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	private String motorConfiguration = null;
 	
 	private EventListenerList listenerList = new EventListenerList();
-	
-	private final HashMap<MotorMount, Double> ignitionTimes =
-		new HashMap<MotorMount, Double>();
 	
 
 	/* Cached data */
@@ -44,6 +45,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	private int refLengthModID = -1;
 	private double cachedRefLength = -1;
 	
+	
+	private int modID = 0;
+	private int modIDadd = 0;
 	
 	
 	/**
@@ -58,22 +62,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		rocket.addComponentChangeListener(this);
 	}
 
-	
-	/**
-	 * Create a new configuration with the specified <code>Rocket</code> and motor
-	 * configuration.
-	 * 
-	 * @param rocket	the rocket.
-	 * @param motorID	the motor configuration ID to use.
-	 */
-	public Configuration(Rocket rocket, String motorID) {
-		this.rocket = rocket;
-		this.motorConfiguration = motorID;
-		setAllStages();
-		rocket.addComponentChangeListener(this);
-	}
-	
-	
 	
 	
 	public Rocket getRocket() {
@@ -199,44 +187,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	
 	
-	/**
-	 * Clear all motor ignition times.  All values are reset to their default of
-	 * {@link #DEFAULT_IGNITION_TIME}.
-	 */
-	public void resetIgnitionTimes() {
-		ignitionTimes.clear();
-	}
-	
-	/**
-	 * Set the ignition time of the motor in the specified motor mount.  Negative or NaN
-	 * time values will cause an <code>IllegalArgumentException</code>.
-	 * 
-	 * @param mount	the motor mount to specify.
-	 * @param time	the time at which to ignite the motors.
-	 * @throws IllegalArgumentException   if <code>time</code> is negative of NaN.
-	 */
-	public void setIgnitionTime(MotorMount mount, double time) {
-		if (time < 0) {
-			throw new IllegalArgumentException("time is negative: "+time);
-		}
-		ignitionTimes.put(mount, time);
-		// TODO: MEDIUM: Should this fire events?
-	}
-	
-	/**
-	 * Return the ignition time of the motor in the specified motor mount.  If no time
-	 * has been specified, returns {@link #DEFAULT_IGNITION_TIME} as the default.
-	 * 
-	 * @param mount   the motor mount.
-	 * @return		  ignition time of the motors in the mount.
-	 */
-	public double getIgnitionTime(MotorMount mount) {
-		Double d = ignitionTimes.get(mount);
-		if (d == null)
-			return DEFAULT_IGNITION_TIME;
-		return d;
-	}
-	
 	
 
 	
@@ -267,6 +217,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		Object[] listeners = listenerList.getListenerList();
 		ChangeEvent e = new ChangeEvent(this);
 		
+		this.modID++;
 		boundsModID = -1;
 		refLengthModID = -1;
 		
@@ -398,6 +349,11 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		}
 	}
 
+
+	@Override
+	public int getModID() {
+		return modID + rocket.getModID();
+	}
 	
 
 	/**
@@ -507,4 +463,5 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			}
 		}
 	}
+
 }

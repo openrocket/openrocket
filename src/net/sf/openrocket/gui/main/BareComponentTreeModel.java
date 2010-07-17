@@ -10,9 +10,11 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 
 
 /**
@@ -24,7 +26,9 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  */
 
 public class BareComponentTreeModel implements TreeModel, ComponentChangeListener {
-	ArrayList<TreeModelListener> listeners = new ArrayList<TreeModelListener>();
+	private static final LogHelper log = Application.getLogger();
+	
+	private ArrayList<TreeModelListener> listeners = new ArrayList<TreeModelListener>();
 
 	private final RocketComponent root;
 	private final JTree tree;
@@ -134,7 +138,7 @@ public class BareComponentTreeModel implements TreeModel, ComponentChangeListene
 	}
 	
 	public void valueForPathChanged(TreePath path, Object newValue) {
-		System.err.println("ERROR: valueForPathChanged called?!");
+		log.error("ERROR: valueForPathChanged called?!");
 	}
 
 

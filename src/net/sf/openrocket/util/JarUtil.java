@@ -26,7 +26,11 @@ public class JarUtil {
 		if (jarUrl == null) {
 			return null;
 		}
-		return urlToFile(jarUrl);
+		
+		File file = urlToFile(jarUrl);
+		if (file.isFile())
+			return file;
+		return null;
 	}
 	
 	

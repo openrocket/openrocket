@@ -23,7 +23,6 @@
 	
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
-	<property name="main-dir" value="net/sf/openrocket/startup"/>
 
 	
 	<!-- Classpath definitions -->
@@ -53,10 +52,9 @@
 	<!-- BUILD -->
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
-		<echo>Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" excludes="${main-dir}/*" classpathref="classpath"/>
-		<echo>Compiling startup classes</echo>
-		<javac debug="true" srcdir="${src.dir}/${main-dir}" destdir="${classes.dir}" source="1.4" classpathref="classpath"/>
+		<echo level="info">Compiling main classes</echo>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+		<echo level="info">Copying build.properties</echo>
 		<copy file="build.properties" todir="${dist.dir}"/>
 	</target>
 	

@@ -76,15 +76,15 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 		
 		if (span < 0.001) {
-			forces.Cm = 0;
-			forces.CN = 0;
-			forces.CNa = 0;
-			forces.cp = Coordinate.NUL;
-			forces.Croll = 0;
-			forces.CrollDamp = 0;
-			forces.CrollForce = 0;
-			forces.Cside = 0;
-			forces.Cyaw = 0;
+			forces.setCm(0);
+			forces.setCN(0);
+			forces.setCNa(0);
+			forces.setCP(Coordinate.NUL);
+			forces.setCroll(0);
+			forces.setCrollDamp(0);
+			forces.setCrollForce(0);
+			forces.setCside(0);
+			forces.setCyaw(0);
 			return;
 		}
 
@@ -238,19 +238,19 @@ public class FinSetCalc extends RocketComponentCalc {
 //		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 //			conditions.getRefLength();
 		// With body-fin interference effect:
-		forces.CrollForce = fins * (macSpan+r) * cna1 * (1+tau) * component.getCantAngle() / 
-			conditions.getRefLength();
+		forces.setCrollForce(fins * (macSpan+r) * cna1 * (1+tau) * component.getCantAngle() / 
+			conditions.getRefLength());
 
 
 		
 		
 		if (conditions.getAOA() > STALL_ANGLE) {
 //			System.out.println("Fin stalling in roll");
-			forces.CrollForce *= MathUtil.clamp(
-					1-(conditions.getAOA() - STALL_ANGLE)/(STALL_ANGLE/2), 0, 1);
+			forces.setCrollForce(forces.getCrollForce() * MathUtil.clamp(
+					1-(conditions.getAOA() - STALL_ANGLE)/(STALL_ANGLE/2), 0, 1));
 		}
-		forces.CrollDamp = calculateDampingMoment(conditions);
-		forces.Croll = forces.CrollForce - forces.CrollDamp;
+		forces.setCrollDamp(calculateDampingMoment(conditions));
+		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
 		
 				
 		
@@ -258,10 +258,10 @@ public class FinSetCalc extends RocketComponentCalc {
 //				"total:%.3f\n",
 //				conditions.getRollRate(), forces.CrollForce, forces.CrollDamp, forces.Croll);
 		
-		forces.CNa = cna;
-		forces.CN = cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE);
-		forces.cp = new Coordinate(x, 0, 0, cna);
-		forces.Cm = forces.CN * x / conditions.getRefLength();
+		forces.setCNa(cna);
+		forces.setCN(cna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
+		forces.setCP(new Coordinate(x, 0, 0, cna));
+		forces.setCm(forces.getCN() * x / conditions.getRefLength());
 
 		/*
 		 * TODO: HIGH:  Compute actual side force and yaw moment.
@@ -277,8 +277,8 @@ public class FinSetCalc extends RocketComponentCalc {
 //			forces.Cside = 0;
 //			forces.Cyaw = 0;
 //		}
-		forces.Cside = 0;
-		forces.Cyaw = 0;
+		forces.setCside(0);
+		forces.setCyaw(0);
 		
 		
 	}

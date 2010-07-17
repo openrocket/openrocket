@@ -9,15 +9,20 @@ import javax.swing.event.ChangeListener;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.FlightSimulator;
-import net.sf.openrocket.simulation.RK4Simulator;
+import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationConditions;
-import net.sf.openrocket.simulation.SimulationListener;
+import net.sf.openrocket.simulation.SimulationEngine;
+import net.sf.openrocket.simulation.SimulationStepper;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationListenerException;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 
@@ -27,43 +32,46 @@ public class Simulation implements ChangeSource, Cloneable {
 	public static enum Status {
 		/** Up-to-date */
 		UPTODATE,
-		
+
 		/** Loaded from file, status probably up-to-date */
 		LOADED,
-		
+
 		/** Data outdated */
 		OUTDATED,
-		
+
 		/** Imported external data */
 		EXTERNAL,
-		
+
 		/** Not yet simulated */
 		NOT_SIMULATED
 	}
 	
-
+	
 	private final Rocket rocket;
 	
 	private String name = "";
-
+	
 	private Status status = Status.NOT_SIMULATED;
 	
 	/** The conditions to use */
-	private SimulationConditions conditions;
+	// TODO: HIGH: Change to use actual conditions class??
+	private GUISimulationConditions conditions;
 	
 	private ArrayList<String> simulationListeners = new ArrayList<String>();
 	
-	private Class<? extends FlightSimulator> simulatorClass = RK4Simulator.class;
-	private Class<? extends AerodynamicCalculator> calculatorClass = BarrowmanCalculator.class;
+	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
+	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
+	private Class<? extends AerodynamicCalculator> aerodynamicCalculatorClass = BarrowmanCalculator.class;
+	private Class<? extends MassCalculator> massCalculatorClass = BasicMassCalculator.class;
+	
 
-	
-	
+
 	/** Listeners for this object */
 	private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
 	
-	
+
 	/** The conditions actually used in the previous simulation, or null */
-	private SimulationConditions simulatedConditions = null;
+	private GUISimulationConditions simulatedConditions = null;
 	private String simulatedMotors = null;
 	private FlightData simulatedData = null;
 	private int simulatedRocketID = -1;
@@ -79,23 +87,23 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.rocket = rocket;
 		this.status = Status.NOT_SIMULATED;
 		
-		conditions = new SimulationConditions(rocket);
+		conditions = new GUISimulationConditions(rocket);
 		conditions.setMotorConfigurationID(
 				rocket.getDefaultConfiguration().getMotorConfigurationID());
 		conditions.addChangeListener(new ConditionListener());
 	}
 	
 	
-	public Simulation(Rocket rocket, Status status, String name, SimulationConditions conditions,
+	public Simulation(Rocket rocket, Status status, String name, GUISimulationConditions conditions,
 			List<String> listeners, FlightData data) {
 		
-		if (rocket == null) 
+		if (rocket == null)
 			throw new IllegalArgumentException("rocket cannot be null");
-		if (status == null) 
+		if (status == null)
 			throw new IllegalArgumentException("status cannot be null");
-		if (name == null) 
+		if (name == null)
 			throw new IllegalArgumentException("name cannot be null");
-		if (conditions == null) 
+		if (conditions == null)
 			throw new IllegalArgumentException("conditions cannot be null");
 		
 		this.rocket = rocket;
@@ -117,7 +125,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			this.simulationListeners.addAll(listeners);
 		}
 		
-		
+
 		if (data != null && this.status != Status.NOT_SIMULATED) {
 			simulatedData = data;
 			if (this.status == Status.LOADED) {
@@ -129,7 +137,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 	
 	
-	
+
 
 	/**
 	 * Return a newly created Configuration for this simulation.  The configuration
@@ -151,10 +159,10 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * 
 	 * @return the simulation conditions.
 	 */
-	public SimulationConditions getConditions() {
+	public GUISimulationConditions getConditions() {
 		return conditions;
 	}
-
+	
 	
 	/**
 	 * Get the list of simulation listeners.  The returned list is the one used by
@@ -193,8 +201,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		
 		fireChangeEvent();
 	}
-
-
+	
+	
 	/**
 	 * Returns the status of this simulation.  This method examines whether the
 	 * simulation has been outdated and returns {@link Status#OUTDATED} accordingly.
@@ -204,75 +212,76 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public Status getStatus() {
 		if (status == Status.UPTODATE || status == Status.LOADED) {
-			if (rocket.getFunctionalModID() != simulatedRocketID || 
+			if (rocket.getFunctionalModID() != simulatedRocketID ||
 					!conditions.equals(simulatedConditions))
 				return Status.OUTDATED;
 		}
 		
 		return status;
 	}
+	
+	
 
-	
-	
-	
-	public void simulate(SimulationListener ... additionalListeners) 
+
+	public void simulate(SimulationListener... additionalListeners)
 						throws SimulationException {
 		
 		if (this.status == Status.EXTERNAL) {
 			throw new SimulationException("Cannot simulate imported simulation.");
 		}
-		Configuration configuration;
-		AerodynamicCalculator calculator;
-		FlightSimulator simulator;
-	
+		
+		AerodynamicCalculator aerodynamicCalculator;
+		SimulationEngine simulator;
+		SimulationStepper stepper;
+		MassCalculator massCalculator;
+		
 		try {
-			calculator = calculatorClass.newInstance();
-			simulator = simulatorClass.newInstance();
+			aerodynamicCalculator = aerodynamicCalculatorClass.newInstance();
+			simulator = simulationEngineClass.newInstance();
+			stepper = simulationStepperClass.newInstance();
+			massCalculator = massCalculatorClass.newInstance();
 		} catch (InstantiationException e) {
-			throw new IllegalStateException("Cannot instantiate calculator/simulator.",e);
+			throw new IllegalStateException("Cannot instantiate calculator/simulator.", e);
 		} catch (IllegalAccessException e) {
-			throw new IllegalStateException("Cannot access calc/sim instance?! BUG!",e);
+			throw new IllegalStateException("Cannot access calc/sim instance?! BUG!", e);
 		} catch (NullPointerException e) {
-			throw new IllegalStateException("Calculator or simulator null",e);
-		}
-
-		configuration = this.getConfiguration();
-		calculator.setConfiguration(configuration);
-		simulator.setCalculator(calculator);
-		
-		for (SimulationListener l: additionalListeners) {
-			simulator.addSimulationListener(l);
+			throw new IllegalStateException("Calculator or simulator null", e);
 		}
 		
-		for (String className: simulationListeners) {
+		SimulationConditions simulationConditions = conditions.toSimulationConditions();
+		for (SimulationListener l : additionalListeners) {
+			simulationConditions.getSimulationListenerList().add(l);
+		}
+		
+		for (String className : simulationListeners) {
 			SimulationListener l = null;
 			try {
 				Class<?> c = Class.forName(className);
-				l = (SimulationListener)c.newInstance();
+				l = (SimulationListener) c.newInstance();
 			} catch (Exception e) {
 				throw new SimulationListenerException("Could not instantiate listener of " +
 						"class: " + className, e);
 			}
-			simulator.addSimulationListener(l);
+			simulationConditions.getSimulationListenerList().add(l);
 		}
 		
 		long t1, t2;
 		System.out.println("Simulation: calling simulator");
 		t1 = System.currentTimeMillis();
-		simulatedData = simulator.simulate(conditions);
+		simulatedData = simulator.simulate(simulationConditions);
 		t2 = System.currentTimeMillis();
 		System.out.println("Simulation: returning from simulator, " +
-				"simulation took "+(t2-t1)+"ms");
+				"simulation took " + (t2 - t1) + "ms");
 		
 		// Set simulated info after simulation, will not be set in case of exception
 		simulatedConditions = conditions.clone();
-		simulatedMotors = configuration.getMotorConfigurationDescription();
+		simulatedMotors = getConfiguration().getMotorConfigurationDescription();
 		simulatedRocketID = rocket.getFunctionalModID();
-
+		
 		status = Status.UPTODATE;
 		fireChangeEvent();
 	}
-
+	
 	
 	/**
 	 * Return the conditions used in the previous simulation, or <code>null</code>
@@ -280,7 +289,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * 
 	 * @return	the conditions used in the previous simulation, or <code>null</code>.
 	 */
-	public SimulationConditions getSimulatedConditions() {
+	public GUISimulationConditions getSimulatedConditions() {
 		return simulatedConditions;
 	}
 	
@@ -322,7 +331,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 	
 	
-	
+
 	/**
 	 * Returns a copy of this simulation suitable for cut/copy/paste operations.  
 	 * This excludes any simulated data.
@@ -332,9 +341,9 @@ public class Simulation implements ChangeSource, Cloneable {
 	@SuppressWarnings("unchecked")
 	public Simulation copy() {
 		try {
-
-			Simulation copy = (Simulation)super.clone();
-
+			
+			Simulation copy = (Simulation) super.clone();
+			
 			copy.status = Status.NOT_SIMULATED;
 			copy.conditions = this.conditions.clone();
 			copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
@@ -343,10 +352,10 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.simulatedMotors = null;
 			copy.simulatedData = null;
 			copy.simulatedRocketID = -1;
-
+			
 			return copy;
+			
 
-		
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("Clone not supported, BUG", e);
 		}
@@ -367,9 +376,9 @@ public class Simulation implements ChangeSource, Cloneable {
 		copy.name = this.name;
 		copy.conditions.copyFrom(this.conditions);
 		copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
-		copy.simulatorClass = this.simulatorClass;
-		copy.calculatorClass = this.calculatorClass;
-
+		copy.simulationStepperClass = this.simulationStepperClass;
+		copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+		
 		return copy;
 	}
 	
@@ -379,7 +388,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	public void addChangeListener(ChangeListener listener) {
 		listeners.add(listener);
 	}
-
+	
 	@Override
 	public void removeChangeListener(ChangeListener listener) {
 		listeners.remove(listener);
@@ -388,16 +397,16 @@ public class Simulation implements ChangeSource, Cloneable {
 	protected void fireChangeEvent() {
 		ChangeListener[] ls = listeners.toArray(new ChangeListener[0]);
 		ChangeEvent e = new ChangeEvent(this);
-		for (ChangeListener l: ls) {
+		for (ChangeListener l : ls) {
 			l.stateChanged(e);
 		}
 	}
 	
-
-
 	
-	private class ConditionListener implements ChangeListener {
 
+
+	private class ConditionListener implements ChangeListener {
+		
 		private Status oldStatus = null;
 		
 		@Override

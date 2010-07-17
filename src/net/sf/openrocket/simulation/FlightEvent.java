@@ -9,7 +9,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class FlightEvent implements Comparable<FlightEvent> {
-
+	
 	/**
 	 * The type of the flight event.
 	 * 
@@ -21,7 +21,8 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		 */
 		LAUNCH("Launch"),
 		/** 
-		 * Ignition of a motor.  Source is the motor mount the motor of which has ignited. 
+		 * Ignition of a motor.  Source is the motor mount the motor of which has ignited,
+		 * and the data is the MotorId of the motor instance.
 		 */
 		IGNITION("Motor ignition"),
 		/**
@@ -33,12 +34,13 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		 */
 		LAUNCHROD("Launch rod clearance"),
 		/** 
-		 * Burnout of a motor.  Source is the motor mount the motor of which has burnt out. 
+		 * Burnout of a motor.  Source is the motor mount the motor of which has burnt out,
+		 * and the data is the MotorId of the motor instance.
 		 */
 		BURNOUT("Motor burnout"),
 		/** 
 		 * Ejection charge of a motor fired.  Source is the motor mount the motor of
-		 * which has exploded its ejection charge. 
+		 * which has exploded its ejection charge, and data is the MotorId of the motor instance.
 		 */
 		EJECTION_CHARGE("Ejection charge"),
 		/** 
@@ -57,42 +59,44 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		 * Ground has been hit after flight.
 		 */
 		GROUND_HIT("Ground hit"),
-		
+
 		/**
 		 * End of simulation.  Placing this to the queue will end the simulation.
 		 */
 		SIMULATION_END("Simulation end"),
-		
+
 		/**
 		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
 		 * which contains the old and new altitudes.
 		 */
 		ALTITUDE("Altitude change");
-
+		
 		private final String name;
+		
 		private Type(String name) {
 			this.name = name;
 		}
+		
 		@Override
 		public String toString() {
 			return name;
 		}
 	}
-
+	
 	private final Type type;
 	private final double time;
 	private final RocketComponent source;
 	private final Object data;
-
+	
 	
 	public FlightEvent(Type type, double time) {
 		this(type, time, null);
 	}
 	
 	public FlightEvent(Type type, double time, RocketComponent source) {
-		this(type,time,source,null);
+		this(type, time, source, null);
 	}
-
+	
 	public FlightEvent(Type type, double time, RocketComponent source, Object data) {
 		this.type = type;
 		this.time = time;
@@ -100,8 +104,8 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		this.data = data;
 	}
 	
-
 	
+
 	public Type getType() {
 		return type;
 	}
@@ -119,10 +123,18 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	}
 	
 	
-	public FlightEvent resetSource() {
-		return new FlightEvent(type, time, null, data);
+	/**
+	 * Return a new FlightEvent with the same information as the current event
+	 * but with <code>null</code> source.  This is used to avoid memory leakage by
+	 * retaining references to obsolete components.
+	 * 
+	 * @return	a new FlightEvent with same type, time and data.
+	 */
+	public FlightEvent resetSourceAndData() {
+		return new FlightEvent(type, time, null, null);
 	}
-
+	
+	
 	/**
 	 * Compares this event to another event depending on the event time.  Secondary
 	 * sorting is performed based on the event type ordinal.
@@ -139,6 +151,6 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	
 	@Override
 	public String toString() {
-		return "FlightEvent[type="+type.name()+",time="+time+",source="+source+"]";
+		return "FlightEvent[type=" + type.name() + ",time=" + time + ",source=" + source + "]";
 	}
 }

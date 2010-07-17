@@ -20,8 +20,15 @@ import net.sf.openrocket.util.BugException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class LogHelper {
+	/**
+	 * Level from which upward a TraceException is added to the log lines.
+	 */
+	private static final LogLevel TRACING_LOG_LEVEL = 
+		LogLevel.fromString(System.getProperty("openrocket.log.tracelevel"), LogLevel.INFO);
 	
 	private static final DelegatorLogger delegator = new DelegatorLogger();
+	
+	
 	
 	/**
 	 * Get the logger to be used in logging.
@@ -344,7 +351,12 @@ public abstract class LogHelper {
 	 */
 	private LogLine createLogLine(int additionalLevels, LogLevel level, String message, 
 			Throwable cause) {
-		TraceException trace = new TraceException(2, 2 + additionalLevels);
+		TraceException trace;
+		if (level.atLeast(TRACING_LOG_LEVEL)) {
+			trace = new TraceException(2, 2 + additionalLevels);
+		} else {
+			trace = null;
+		}
 		return new LogLine(level, trace, message, cause);
 	}
 }

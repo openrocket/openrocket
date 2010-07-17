@@ -28,6 +28,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -39,16 +40,16 @@ public class EditMotorConfigurationDialog extends JDialog {
 	private final Rocket rocket;
 	
 	private final MotorMount[] mounts;
-
+	
 	private final JTable configurationTable;
 	private final MotorConfigurationTableModel configurationTableModel;
-
 	
+
 	private final JButton newConfButton, removeConfButton;
 	private final JButton selectMotorButton, removeMotorButton;
 	private final JTextField configurationNameField;
 	
-	
+
 	private String currentID = null;
 	private MotorMount currentMount = null;
 	
@@ -70,25 +71,25 @@ public class EditMotorConfigurationDialog extends JDialog {
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			if (c instanceof MotorMount) {
-				mountList.add((MotorMount)c);
+				mountList.add((MotorMount) c);
 			}
 		}
 		mounts = mountList.toArray(new MotorMount[0]);
 		
-		
-		
+
+
 		JPanel panel = new JPanel(new MigLayout("fill, flowy"));
 		
-		
+
 		////  Motor mount selection
 		
 		JLabel label = new JLabel("<html><b>Motor mounts:</b>");
 		panel.add(label, "gapbottom para");
 		
 		label = new JLabel("<html>Select which components function as motor mounts:");
-		panel.add(label,"ay 100%, w 1px, growx");
+		panel.add(label, "ay 100%, w 1px, growx");
 		
-		
+
 		JTable table = new JTable(new MotorMountTableModel());
 		table.setTableHeader(null);
 		table.setShowVerticalLines(false);
@@ -108,15 +109,15 @@ public class EditMotorConfigurationDialog extends JDialog {
 		panel.add(scroll, "w 200lp, h 150lp, grow, wrap 20lp");
 		
 
-		
-		
-		
+
+
+
 		//// Motor selection
 		
 		label = new JLabel("<html><b>Motor configurations:</b>");
 		panel.add(label, "spanx, gapbottom para");
 		
-		
+
 		label = new JLabel("Configuration name:");
 		String tip = "Leave name empty for default.";
 		label.setToolTipText(tip);
@@ -129,18 +130,21 @@ public class EditMotorConfigurationDialog extends JDialog {
 			public void changedUpdate(DocumentEvent e) {
 				update();
 			}
+			
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				update();
 			}
+			
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				update();
 			}
+			
 			private void update() {
 				if (configurationNameModification != 0)
 					return;
-
+				
 				String text = configurationNameField.getText();
 				if (currentID != null) {
 					configurationNameModification++;
@@ -180,9 +184,9 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(removeConfButton, "cell 4 1");
 		
-		
 
-		
+
+
 		configurationTableModel = new MotorConfigurationTableModel();
 		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -211,7 +215,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 		scroll = new JScrollPane(configurationTable);
 		panel.add(scroll, "cell 1 2, spanx, w 500lp, h 150lp, grow");
 		
-		
+
 		selectMotorButton = new JButton("Select motor");
 		selectMotorButton.addActionListener(new ActionListener() {
 			@Override
@@ -221,7 +225,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(selectMotorButton, "spanx, flowx, split 2, ax 50%");
 		
-		
+
 		removeMotorButton = new JButton("Remove motor");
 		removeMotorButton.addActionListener(new ActionListener() {
 			@Override
@@ -231,8 +235,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(removeMotorButton, "ax 50%");
 		
-		
-		
+
+
 		//// Close button
 		
 		JButton close = new JButton("Close");
@@ -265,10 +269,10 @@ public class EditMotorConfigurationDialog extends JDialog {
 			});
 		}
 	}
+	
+	
 
-	
-	
-	
+
 	private void updateEnabled() {
 		int column = configurationTable.getSelectedColumn();
 		int row = configurationTable.getSelectedRow();
@@ -287,7 +291,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 			rocket.getDefaultConfiguration().setMotorConfigurationID(currentID);
 			
 		}
-
+		
 		if (configurationNameModification == 0) {
 			// Don't update name field when user is modifying it
 			configurationNameModification++;
@@ -306,14 +310,15 @@ public class EditMotorConfigurationDialog extends JDialog {
 		removeMotorButton.setEnabled(currentMount != null && currentID != null);
 	}
 	
+	
 
-	
-	
+
 	private void selectMotor() {
 		if (currentID == null || currentMount == null)
 			return;
 		
-		MotorChooserDialog dialog = new MotorChooserDialog(currentMount.getMotor(currentID),
+		// TODO: HIGH: Assumes only ThrustCurveMotors exist
+		MotorChooserDialog dialog = new MotorChooserDialog((ThrustCurveMotor) currentMount.getMotor(currentID),
 				currentMount.getMotorDelay(currentID), currentMount.getMotorMountDiameter(),
 				this);
 		dialog.setVisible(true);
@@ -324,7 +329,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 			currentMount.setMotor(currentID, m);
 			currentMount.setMotorDelay(currentID, d);
 		}
-
+		
 		int row = configurationTable.getSelectedRow();
 		configurationTableModel.fireTableRowsUpdated(row, row);
 		updateEnabled();
@@ -344,15 +349,15 @@ public class EditMotorConfigurationDialog extends JDialog {
 	
 	
 	private String findID(int row) {
-		return rocket.getMotorConfigurationIDs()[row+1];
+		return rocket.getMotorConfigurationIDs()[row + 1];
 	}
-
+	
 	
 	private MotorMount findMount(int column) {
 		MotorMount mount = null;
-
+		
 		int count = column;
-		for (MotorMount m: mounts) {
+		for (MotorMount m : mounts) {
 			if (m.isMotorMount())
 				count--;
 			if (count <= 0) {
@@ -362,22 +367,22 @@ public class EditMotorConfigurationDialog extends JDialog {
 		}
 		
 		if (mount == null) {
-			throw new IndexOutOfBoundsException("motor mount not found, column="+column);
+			throw new IndexOutOfBoundsException("motor mount not found, column=" + column);
 		}
 		return mount;
 	}
-
+	
 	
 	/**
 	 * The table model for selecting whether components are motor mounts or not.
 	 */
 	private class MotorMountTableModel extends AbstractTableModel {
-
+		
 		@Override
 		public int getColumnCount() {
 			return 2;
 		}
-
+		
 		@Override
 		public int getRowCount() {
 			return mounts.length;
@@ -393,10 +398,10 @@ public class EditMotorConfigurationDialog extends JDialog {
 				return String.class;
 				
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 		}
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
@@ -407,7 +412,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 				return mounts[row].toString();
 				
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 		}
 		
@@ -419,17 +424,17 @@ public class EditMotorConfigurationDialog extends JDialog {
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			if (column != 0 || !(value instanceof Boolean)) {
-				throw new IllegalArgumentException("column="+column+", value="+value);
+				throw new IllegalArgumentException("column=" + column + ", value=" + value);
 			}
 			
-			mounts[row].setMotorMount((Boolean)value);
+			mounts[row].setMotorMount((Boolean) value);
 			configurationTableModel.fireTableStructureChanged();
 			updateEnabled();
 		}
 	}
 	
 	
-	
+
 	/**
 	 * The table model for selecting and editing the motor configurations.
 	 */
@@ -438,23 +443,23 @@ public class EditMotorConfigurationDialog extends JDialog {
 		@Override
 		public int getColumnCount() {
 			int count = 1;
-			for (MotorMount m: mounts) {
+			for (MotorMount m : mounts) {
 				if (m.isMotorMount())
 					count++;
 			}
 			return count;
 		}
-
+		
 		@Override
 		public int getRowCount() {
-			return rocket.getMotorConfigurationIDs().length-1;
+			return rocket.getMotorConfigurationIDs().length - 1;
 		}
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			
 			String id = findID(row);
-
+			
 			if (column == 0) {
 				return rocket.getMotorConfigurationNameOrDescription(id);
 			}
@@ -464,15 +469,15 @@ public class EditMotorConfigurationDialog extends JDialog {
 			if (motor == null)
 				return "None";
 			
-			String str = motor.getDesignation(mount.getMotorDelay(id)); 
+			String str = motor.getDesignation(mount.getMotorDelay(id));
 			int count = mount.getMotorCount();
 			if (count > 1) {
 				str = "" + count + Chars.TIMES + " " + str;
 			}
 			return str;
 		}
-
-
+		
+		
 		@Override
 		public String getColumnName(int column) {
 			if (column == 0) {

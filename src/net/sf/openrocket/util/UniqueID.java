@@ -8,9 +8,14 @@ public class UniqueID {
 	private static AtomicInteger nextId = new AtomicInteger(1);
 	
 	/**
-	 * Return a positive integer ID unique during this program execution.  
-	 * The values are taken as sequential numbers, and will re-occur in 
-	 * later executions of the program.
+	 * Return a positive integer ID unique during this program execution.
+	 * <p>
+	 * The following is guaranteed of the returned ID values:
+	 * <ul>
+	 * 	<li>The value is unique during this program execution
+	 * 	<li>The value is positive
+	 * 	<li>The values are monotonically increasing
+	 * </ul>
 	 * <p>
 	 * This method is thread-safe and fast.
 	 * 

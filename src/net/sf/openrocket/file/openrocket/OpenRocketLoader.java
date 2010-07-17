@@ -63,8 +63,9 @@ import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.SimulationConditions;
+import net.sf.openrocket.simulation.GUISimulationConditions;
 import net.sf.openrocket.simulation.FlightEvent.Type;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -94,21 +95,21 @@ public class OpenRocketLoader extends RocketLoader {
 			IOException {
 		InputSource xmlSource = new InputSource(source);
 		OpenRocketHandler handler = new OpenRocketHandler();
-
 		
+
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);
 		} catch (SAXException e) {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
-
 		
+
 		OpenRocketDocument doc = handler.getDocument();
 		doc.getDefaultConfiguration().setAllStages();
 		
 		// Deduce suitable time skip
 		double timeSkip = StorageOptions.SIMULATION_DATA_NONE;
-		for (Simulation s: doc.getSimulations()) {
+		for (Simulation s : doc.getSimulations()) {
 			if (s.getStatus() == Simulation.Status.EXTERNAL ||
 					s.getStatus() == Simulation.Status.NOT_SIMULATED)
 				continue;
@@ -119,20 +120,20 @@ public class OpenRocketLoader extends RocketLoader {
 			FlightDataBranch branch = s.getSimulatedData().getBranch(0);
 			if (branch == null)
 				continue;
-			List<Double> list = branch.get(FlightDataBranch.TYPE_TIME);
+			List<Double> list = branch.get(FlightDataType.TYPE_TIME);
 			if (list == null)
 				continue;
 			
 			double previousTime = Double.NaN;
-			for (double time: list) {
+			for (double time : list) {
 				if (time - previousTime < timeSkip)
-					timeSkip = time-previousTime;
+					timeSkip = time - previousTime;
 				previousTime = time;
 			}
 		}
 		// Round value
-		timeSkip = Math.rint(timeSkip*100)/100;
-
+		timeSkip = Math.rint(timeSkip * 100) / 100;
+		
 		doc.getDefaultStorageOptions().setSimulationTimeSkip(timeSkip);
 		doc.getDefaultStorageOptions().setCompressionEnabled(false); // Set by caller if compressed
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
@@ -140,16 +141,16 @@ public class OpenRocketLoader extends RocketLoader {
 		doc.clearUndo();
 		return doc;
 	}
-
+	
 }
 
 
 
 class DocumentConfig {
-
+	
 	/* Remember to update OpenRocketSaver as well! */
 	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1" };
-
+	
 
 	////////  Component constructors
 	static final HashMap<String, Constructor<? extends RocketComponent>> constructors = new HashMap<String, Constructor<? extends RocketComponent>>();
@@ -163,7 +164,7 @@ class DocumentConfig {
 			constructors.put("ellipticalfinset", EllipticalFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("freeformfinset", FreeformFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("launchlug", LaunchLug.class.getConstructor(new Class<?>[0]));
-
+			
 			// Internal components
 			constructors.put("engineblock", EngineBlock.class.getConstructor(new Class<?>[0]));
 			constructors.put("innertube", InnerTube.class.getConstructor(new Class<?>[0]));
@@ -184,7 +185,7 @@ class DocumentConfig {
 					"Error in constructing the 'constructors' HashMap.");
 		}
 	}
-
+	
 
 	////////  Parameter setters
 	/*
@@ -221,23 +222,23 @@ class DocumentConfig {
 		setters.put("ExternalComponent:material", new MaterialSetter(
 				Reflection.findMethodStatic(ExternalComponent.class, "setMaterial", Material.class),
 				Material.Type.BULK));
-				
+		
 		// BodyComponent
 		setters.put("BodyComponent:length", new DoubleSetter(
 				Reflection.findMethodStatic(BodyComponent.class, "setLength", double.class)));
 		
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
-				Reflection.findMethodStatic(SymmetricComponent.class,"setThickness", double.class), 
-				"filled", 
-				Reflection.findMethodStatic(SymmetricComponent.class,"setFilled", boolean.class)));
+				Reflection.findMethodStatic(SymmetricComponent.class, "setThickness", double.class),
+				"filled",
+				Reflection.findMethodStatic(SymmetricComponent.class, "setFilled", boolean.class)));
 		
 		// BodyTube
 		setters.put("BodyTube:radius", new DoubleSetter(
-				Reflection.findMethodStatic(BodyTube.class, "setRadius", double.class), 
+				Reflection.findMethodStatic(BodyTube.class, "setRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(BodyTube.class,"setRadiusAutomatic", boolean.class)));
-				
+				Reflection.findMethodStatic(BodyTube.class, "setRadiusAutomatic", boolean.class)));
+		
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
 				Reflection.findMethodStatic(Transition.class, "setType", Transition.Shape.class),
@@ -246,7 +247,7 @@ class DocumentConfig {
 				Reflection.findMethodStatic(Transition.class, "setClipped", boolean.class)));
 		setters.put("Transition:shapeparameter", new DoubleSetter(
 				Reflection.findMethodStatic(Transition.class, "setShapeParameter", double.class)));
-				
+		
 		setters.put("Transition:foreradius", new DoubleSetter(
 				Reflection.findMethodStatic(Transition.class, "setForeRadius", double.class),
 				"auto",
@@ -255,7 +256,7 @@ class DocumentConfig {
 				Reflection.findMethodStatic(Transition.class, "setAftRadius", double.class),
 				"auto",
 				Reflection.findMethodStatic(Transition.class, "setAftRadiusAutomatic", boolean.class)));
-
+		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
 				Reflection.findMethodStatic(Transition.class, "setForeShoulderRadius", double.class)));
 		setters.put("Transition:foreshoulderlength", new DoubleSetter(
@@ -285,14 +286,14 @@ class DocumentConfig {
 		setters.put("FinSet:fincount", new IntSetter(
 				Reflection.findMethodStatic(FinSet.class, "setFinCount", int.class)));
 		setters.put("FinSet:rotation", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setBaseRotation", double.class), Math.PI/180.0));
+				Reflection.findMethodStatic(FinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
 		setters.put("FinSet:thickness", new DoubleSetter(
 				Reflection.findMethodStatic(FinSet.class, "setThickness", double.class)));
 		setters.put("FinSet:crosssection", new EnumSetter<FinSet.CrossSection>(
 				Reflection.findMethodStatic(FinSet.class, "setCrossSection", FinSet.CrossSection.class),
 				FinSet.CrossSection.class));
 		setters.put("FinSet:cant", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setCantAngle", double.class), Math.PI/180.0));
+				Reflection.findMethodStatic(FinSet.class, "setCantAngle", double.class), Math.PI / 180.0));
 		setters.put("FinSet:tabheight", new DoubleSetter(
 				Reflection.findMethodStatic(FinSet.class, "setTabHeight", double.class)));
 		setters.put("FinSet:tablength", new DoubleSetter(
@@ -308,7 +309,7 @@ class DocumentConfig {
 				Reflection.findMethodStatic(TrapezoidFinSet.class, "setSweep", double.class)));
 		setters.put("TrapezoidFinSet:height", new DoubleSetter(
 				Reflection.findMethodStatic(TrapezoidFinSet.class, "setHeight", double.class)));
-
+		
 		// EllipticalFinSet
 		setters.put("EllipticalFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethodStatic(EllipticalFinSet.class, "setLength", double.class)));
@@ -326,7 +327,7 @@ class DocumentConfig {
 				Reflection.findMethodStatic(LaunchLug.class, "setThickness", double.class)));
 		setters.put("LaunchLug:radialdirection", new DoubleSetter(
 				Reflection.findMethodStatic(LaunchLug.class, "setRadialDirection", double.class),
-				Math.PI/180.0));
+				Math.PI / 180.0));
 		
 		// InternalComponent - nothing
 		
@@ -347,13 +348,13 @@ class DocumentConfig {
 		// ThicknessRingComponent - radius on separate components due to differing automatics
 		setters.put("ThicknessRingComponent:thickness", new DoubleSetter(
 				Reflection.findMethodStatic(ThicknessRingComponent.class, "setThickness", double.class)));
-
+		
 		// EngineBlock
 		setters.put("EngineBlock:outerradius", new DoubleSetter(
 				Reflection.findMethodStatic(EngineBlock.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethodStatic(EngineBlock.class, "setOuterRadiusAutomatic", boolean.class)));
-
+		
 		// TubeCoupler
 		setters.put("TubeCoupler:outerradius", new DoubleSetter(
 				Reflection.findMethodStatic(TubeCoupler.class, "setOuterRadius", double.class),
@@ -390,7 +391,7 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethodStatic(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
 		
-		
+
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
 				Reflection.findMethodStatic(MassObject.class, "setLength", double.class)));
@@ -439,7 +440,7 @@ class DocumentConfig {
 		setters.put("Parachute:linematerial", new MaterialSetter(
 				Reflection.findMethodStatic(Parachute.class, "setLineMaterial", Material.class),
 				Material.Type.LINE));
-
+		
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
 				Reflection.findMethodStatic(Streamer.class, "setStripLength", double.class)));
@@ -471,13 +472,13 @@ class DocumentConfig {
 	 * @param enumClass		the class of the enum.
 	 * @return				the found enum value, or <code>null</code>.
 	 */
-	public static <T extends Enum<T>> Enum<T> findEnum(String name, 
+	public static <T extends Enum<T>> Enum<T> findEnum(String name,
 			Class<? extends Enum<T>> enumClass) {
 		
 		if (name == null)
 			return null;
 		name = name.trim();
-		for (Enum<T> e: enumClass.getEnumConstants()) {
+		for (Enum<T> e : enumClass.getEnumConstants()) {
 			if (e.name().toLowerCase().replace("_", "").equals(name)) {
 				return e;
 			}
@@ -518,7 +519,7 @@ class DocumentConfig {
  */
 class OpenRocketHandler extends ElementHandler {
 	private OpenRocketContentHandler handler = null;
-
+	
 	/**
 	 * Return the OpenRocketDocument read from the file, or <code>null</code> if a document
 	 * has not been read yet.
@@ -528,24 +529,24 @@ class OpenRocketHandler extends ElementHandler {
 	public OpenRocketDocument getDocument() {
 		return handler.getDocument();
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		// Check for unknown elements
 		if (!element.equals("openrocket")) {
 			warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
 			return null;
 		}
-
+		
 		// Check for first call
 		if (handler != null) {
 			warnings.add(Warning.fromString("Multiple document elements found, ignoring later "
 							+ "ones."));
 			return null;
 		}
-
+		
 		// Check version number
 		String version = null;
 		String creator = attributes.remove("creator");
@@ -565,11 +566,11 @@ class OpenRocketHandler extends ElementHandler {
 			str += ", attempting to read file anyway.";
 			warnings.add(str);
 		}
-
+		
 		handler = new OpenRocketContentHandler();
 		return handler;
 	}
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -578,7 +579,7 @@ class OpenRocketHandler extends ElementHandler {
 		super.closeElement(element, attributes, content, warnings);
 	}
 	
-	
+
 }
 
 
@@ -588,26 +589,26 @@ class OpenRocketHandler extends ElementHandler {
 class OpenRocketContentHandler extends ElementHandler {
 	private final OpenRocketDocument doc;
 	private final Rocket rocket;
-
+	
 	private boolean rocketDefined = false;
 	private boolean simulationsDefined = false;
-
+	
 	public OpenRocketContentHandler() {
 		this.rocket = new Rocket();
 		this.doc = new OpenRocketDocument(rocket);
 	}
-
-
+	
+	
 	public OpenRocketDocument getDocument() {
 		if (!rocketDefined)
 			return null;
 		return doc;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		if (element.equals("rocket")) {
 			if (rocketDefined) {
 				warnings.add(Warning
@@ -629,9 +630,9 @@ class OpenRocketContentHandler extends ElementHandler {
 			simulationsDefined = true;
 			return new SimulationsHandler(doc);
 		}
-
+		
 		warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
-
+		
 		return null;
 	}
 }
@@ -645,15 +646,15 @@ class OpenRocketContentHandler extends ElementHandler {
  */
 class ComponentHandler extends ElementHandler {
 	private final RocketComponent parent;
-
+	
 	public ComponentHandler(RocketComponent parent) {
 		this.parent = parent;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		// Attempt to construct new component
 		Constructor<? extends RocketComponent> constructor = DocumentConfig.constructors
 				.get(element);
@@ -661,7 +662,7 @@ class ComponentHandler extends ElementHandler {
 			warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
 			return null;
 		}
-
+		
 		RocketComponent c;
 		try {
 			c = constructor.newInstance();
@@ -672,9 +673,9 @@ class ComponentHandler extends ElementHandler {
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
 		}
-
+		
 		parent.addChild(c);
-
+		
 		return new ComponentParameterHandler(c);
 	}
 }
@@ -687,11 +688,11 @@ class ComponentHandler extends ElementHandler {
  */
 class ComponentParameterHandler extends ElementHandler {
 	private final RocketComponent component;
-
+	
 	public ComponentParameterHandler(RocketComponent c) {
 		this.component = c;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
@@ -705,45 +706,45 @@ class ComponentParameterHandler extends ElementHandler {
 				warnings.add(Warning.fromString("Illegal component defined as motor mount."));
 				return null;
 			}
-			return new MotorMountHandler((MotorMount)component);
+			return new MotorMountHandler((MotorMount) component);
 		}
 		if (element.equals("finpoints")) {
 			if (!(component instanceof FreeformFinSet)) {
 				warnings.add(Warning.fromString("Illegal component defined for fin points."));
 				return null;
 			}
-			return new FinSetPointHandler((FreeformFinSet)component);
+			return new FinSetPointHandler((FreeformFinSet) component);
 		}
 		if (element.equals("motorconfiguration")) {
 			if (!(component instanceof Rocket)) {
 				warnings.add(Warning.fromString("Illegal component defined for motor configuration."));
 				return null;
 			}
-			return new MotorConfigurationHandler((Rocket)component);
+			return new MotorConfigurationHandler((Rocket) component);
 		}
 		
-		
+
 		return PlainTextHandler.INSTANCE;
 	}
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-
+		
 		if (element.equals("subcomponents") || element.equals("motormount") ||
 				element.equals("finpoints") || element.equals("motorconfiguration")) {
 			return;
 		}
 		
 		// Search for the correct setter class
-
+		
 		Class<?> c;
 		for (c = component.getClass(); c != null; c = c.getSuperclass()) {
 			String setterKey = c.getSimpleName() + ":" + element;
 			Setter s = DocumentConfig.setters.get(setterKey);
 			if (s != null) {
 				// Setter found
-				System.out.println("Calling with key "+setterKey);
+				System.out.println("Calling with key " + setterKey);
 				s.set(component, content, attributes, warnings);
 				break;
 			}
@@ -779,11 +780,11 @@ class FinSetPointHandler extends ElementHandler {
 		return PlainTextHandler.INSTANCE;
 	}
 	
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
-
+		
 		String strx = attributes.remove("x");
 		String stry = attributes.remove("y");
 		if (strx == null || stry == null) {
@@ -793,7 +794,7 @@ class FinSetPointHandler extends ElementHandler {
 		try {
 			double x = Double.parseDouble(strx);
 			double y = Double.parseDouble(stry);
-			coordinates.add(new Coordinate(x,y));
+			coordinates.add(new Coordinate(x, y));
 		} catch (NumberFormatException e) {
 			warnings.add(Warning.fromString("Illegal fin points specification, ignoring."));
 			return;
@@ -822,11 +823,11 @@ class MotorMountHandler extends ElementHandler {
 		this.mount = mount;
 		mount.setMotorMount(true);
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		if (element.equals("motor")) {
 			motorHandler = new MotorHandler();
 			return motorHandler;
@@ -838,7 +839,7 @@ class MotorMountHandler extends ElementHandler {
 			return PlainTextHandler.INSTANCE;
 		}
 		
-		warnings.add(Warning.fromString("Unknown element '"+element+"' encountered, ignoring."));
+		warnings.add(Warning.fromString("Unknown element '" + element + "' encountered, ignoring."));
 		return null;
 	}
 	
@@ -847,21 +848,21 @@ class MotorMountHandler extends ElementHandler {
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
-
+		
 		if (element.equals("motor")) {
 			String id = attributes.get("configid");
 			if (id == null || id.equals("")) {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
-
+			
 			Motor motor = motorHandler.getMotor(warnings);
 			mount.setMotor(id, motor);
 			mount.setMotorDelay(id, motorHandler.getDelay(warnings));
 			return;
 		}
-
-		if (element.equals("ignitionevent")) { 
+		
+		if (element.equals("ignitionevent")) {
 			MotorMount.IgnitionEvent event = null;
 			for (MotorMount.IgnitionEvent e : MotorMount.IgnitionEvent.values()) {
 				if (e.name().toLowerCase().replaceAll("_", "").equals(content)) {
@@ -870,13 +871,13 @@ class MotorMountHandler extends ElementHandler {
 				}
 			}
 			if (event == null) {
-				warnings.add(Warning.fromString("Unknown ignition event type '"+content+"', ignoring."));
+				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
 				return;
 			}
 			mount.setIgnitionEvent(event);
 			return;
 		}
-
+		
 		if (element.equals("ignitiondelay")) {
 			double d;
 			try {
@@ -916,11 +917,11 @@ class MotorConfigurationHandler extends ElementHandler {
 	public MotorConfigurationHandler(Rocket rocket) {
 		this.rocket = rocket;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		if (inNameElement || !element.equals("name")) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return null;
@@ -929,17 +930,17 @@ class MotorConfigurationHandler extends ElementHandler {
 		
 		return PlainTextHandler.INSTANCE;
 	}
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
 		name = content;
 	}
-
+	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
-
+		
 		String configid = attributes.remove("configid");
 		if (configid == null || configid.equals("")) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
@@ -989,14 +990,14 @@ class MotorHandler extends ElementHandler {
 		}
 		Motor[] motors = Databases.findMotors(type, manufacturer, designation, diameter, length);
 		if (motors.length == 0) {
-			String str = "No motor with designation '"+designation+"'";
+			String str = "No motor with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
 			warnings.add(Warning.fromString(str + " found."));
 			return null;
 		}
 		if (motors.length > 1) {
-			String str = "Multiple motors with designation '"+designation+"'";
+			String str = "Multiple motors with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
 			warnings.add(Warning.fromString(str + " found, one chosen arbitrarily."));
@@ -1016,7 +1017,7 @@ class MotorHandler extends ElementHandler {
 		return delay;
 	}
 	
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -1027,28 +1028,28 @@ class MotorHandler extends ElementHandler {
 			
 			// Motor type
 			type = null;
-			for (Motor.Type t: Motor.Type.values()) {
+			for (Motor.Type t : Motor.Type.values()) {
 				if (t.name().toLowerCase().equals(content)) {
 					type = t;
 					break;
 				}
 			}
 			if (type == null) {
-				warnings.add(Warning.fromString("Unknown motor type '"+content+"', ignoring."));
+				warnings.add(Warning.fromString("Unknown motor type '" + content + "', ignoring."));
 			}
 			
 		} else if (element.equals("manufacturer")) {
 			
 			// Manufacturer
 			manufacturer = content;
-
+			
 		} else if (element.equals("designation")) {
 			
 			// Designation
 			designation = content;
-
+			
 		} else if (element.equals("diameter")) {
-		
+			
 			// Diameter
 			diameter = Double.NaN;
 			try {
@@ -1061,12 +1062,13 @@ class MotorHandler extends ElementHandler {
 			}
 			
 		} else if (element.equals("length")) {
-
+			
 			// Length
 			length = Double.NaN;
 			try {
 				length = Double.parseDouble(content);
-			} catch (NumberFormatException ignore) { }
+			} catch (NumberFormatException ignore) {
+			}
 			
 			if (Double.isNaN(length)) {
 				warnings.add(Warning.fromString("Illegal motor diameter specified, ignoring."));
@@ -1081,14 +1083,15 @@ class MotorHandler extends ElementHandler {
 			} else {
 				try {
 					delay = Double.parseDouble(content);
-				} catch (NumberFormatException ignore) { }
+				} catch (NumberFormatException ignore) {
+				}
 				
 				if (Double.isNaN(delay)) {
 					warnings.add(Warning.fromString("Illegal motor delay specified, ignoring."));
 				}
 				
 			}
-
+			
 		} else {
 			super.closeElement(element, attributes, content, warnings);
 		}
@@ -1105,20 +1108,20 @@ class SimulationsHandler extends ElementHandler {
 	public SimulationsHandler(OpenRocketDocument doc) {
 		this.doc = doc;
 	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
 		if (!element.equals("simulation")) {
-			warnings.add("Unknown element '"+element+"', ignoring.");
+			warnings.add("Unknown element '" + element + "', ignoring.");
 			return null;
 		}
 		
 		handler = new SingleSimulationHandler(doc);
 		return handler;
 	}
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -1126,11 +1129,11 @@ class SimulationsHandler extends ElementHandler {
 		super.closeElement(element, attributes, content, warnings);
 	}
 	
-	
+
 }
 
 class SingleSimulationHandler extends ElementHandler {
-
+	
 	private final OpenRocketDocument doc;
 	
 	private String name;
@@ -1145,12 +1148,12 @@ class SingleSimulationHandler extends ElementHandler {
 	}
 	
 	
-	
+
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
-		if (element.equals("name") || element.equals("simulator") || 
+		if (element.equals("name") || element.equals("simulator") ||
 				element.equals("calculator") || element.equals("listener")) {
 			return PlainTextHandler.INSTANCE;
 		} else if (element.equals("conditions")) {
@@ -1160,7 +1163,7 @@ class SingleSimulationHandler extends ElementHandler {
 			dataHandler = new FlightDataHandler();
 			return dataHandler;
 		} else {
-			warnings.add("Unknown element '"+element+"', ignoring.");
+			warnings.add("Unknown element '" + element + "', ignoring.");
 			return null;
 		}
 	}
@@ -1182,13 +1185,13 @@ class SingleSimulationHandler extends ElementHandler {
 		} else if (element.equals("listener") && content.trim().length() > 0) {
 			listeners.add(content.trim());
 		}
-
+		
 	}
-
+	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-
+		
 		String s = attributes.get("status");
 		Simulation.Status status = (Status) DocumentConfig.findEnum(s, Simulation.Status.class);
 		if (status == null) {
@@ -1196,12 +1199,12 @@ class SingleSimulationHandler extends ElementHandler {
 			status = Simulation.Status.OUTDATED;
 		}
 		
-		SimulationConditions conditions;
+		GUISimulationConditions conditions;
 		if (conditionHandler != null) {
 			conditions = conditionHandler.getConditions();
 		} else {
 			warnings.add("Simulation conditions not defined, using defaults.");
-			conditions = new SimulationConditions(doc.getRocket());
+			conditions = new GUISimulationConditions(doc.getRocket());
 		}
 		
 		if (name == null)
@@ -1212,7 +1215,7 @@ class SingleSimulationHandler extends ElementHandler {
 			data = null;
 		else
 			data = dataHandler.getFlightData();
-
+		
 		Simulation simulation = new Simulation(doc.getRocket(), status, name,
 				conditions, listeners, data);
 		
@@ -1223,14 +1226,14 @@ class SingleSimulationHandler extends ElementHandler {
 
 
 class SimulationConditionsHandler extends ElementHandler {
-	private SimulationConditions conditions;
+	private GUISimulationConditions conditions;
 	private AtmosphereHandler atmosphereHandler;
 	
 	public SimulationConditionsHandler(Rocket rocket) {
-		conditions = new SimulationConditions(rocket);
+		conditions = new GUISimulationConditions(rocket);
 	}
 	
-	public SimulationConditions getConditions() {
+	public GUISimulationConditions getConditions() {
 		return conditions;
 	}
 	
@@ -1242,8 +1245,8 @@ class SimulationConditionsHandler extends ElementHandler {
 			return atmosphereHandler;
 		}
 		return PlainTextHandler.INSTANCE;
-	}	
-
+	}
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
@@ -1251,7 +1254,8 @@ class SimulationConditionsHandler extends ElementHandler {
 		double d = Double.NaN;
 		try {
 			d = Double.parseDouble(content);
-		} catch (NumberFormatException ignore) { }
+		} catch (NumberFormatException ignore) {
+		}
 		
 
 		if (element.equals("configid")) {
@@ -1270,13 +1274,13 @@ class SimulationConditionsHandler extends ElementHandler {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod angle defined, ignoring.");
 			} else {
-				conditions.setLaunchRodAngle(d*Math.PI/180);
+				conditions.setLaunchRodAngle(d * Math.PI / 180);
 			}
 		} else if (element.equals("launchroddirection")) {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod direction defined, ignoring.");
 			} else {
-				conditions.setLaunchRodDirection(d*Math.PI/180);
+				conditions.setLaunchRodDirection(d * Math.PI / 180);
 			}
 		} else if (element.equals("windaverage")) {
 			if (Double.isNaN(d)) {
@@ -1329,15 +1333,16 @@ class AtmosphereHandler extends ElementHandler {
 			WarningSet warnings) {
 		return PlainTextHandler.INSTANCE;
 	}
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
-
+		
 		double d = Double.NaN;
 		try {
 			d = Double.parseDouble(content);
-		} catch (NumberFormatException ignore) { }
+		} catch (NumberFormatException ignore) {
+		}
 		
 		if (element.equals("basetemperature")) {
 			if (Double.isNaN(d)) {
@@ -1353,9 +1358,9 @@ class AtmosphereHandler extends ElementHandler {
 			super.closeElement(element, attributes, content, warnings);
 		}
 	}
-
 	
-	public void storeSettings(SimulationConditions cond, WarningSet warnings) {
+	
+	public void storeSettings(GUISimulationConditions cond, WarningSet warnings) {
 		if (!Double.isNaN(pressure)) {
 			cond.setLaunchPressure(pressure);
 		}
@@ -1365,7 +1370,7 @@ class AtmosphereHandler extends ElementHandler {
 		
 		if ("isa".equals(model)) {
 			cond.setISAAtmosphere(true);
-		} else if ("extendedisa".equals(model)){
+		} else if ("extendedisa".equals(model)) {
 			cond.setISAAtmosphere(false);
 		} else {
 			cond.setISAAtmosphere(true);
@@ -1381,7 +1386,7 @@ class FlightDataHandler extends ElementHandler {
 	private FlightDataBranchHandler dataHandler;
 	private WarningSet warningSet = new WarningSet();
 	private List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
-
+	
 	private FlightData data;
 	
 	public FlightData getFlightData() {
@@ -1391,24 +1396,24 @@ class FlightDataHandler extends ElementHandler {
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		if (element.equals("warning")) {
 			return PlainTextHandler.INSTANCE;
 		}
 		if (element.equals("databranch")) {
-			if (attributes.get("name") == null || attributes.get("types")==null) {
+			if (attributes.get("name") == null || attributes.get("types") == null) {
 				warnings.add("Illegal flight data definition, ignoring.");
 				return null;
 			}
-			dataHandler =  new FlightDataBranchHandler(attributes.get("name"),
+			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
 					attributes.get("types"));
 			return dataHandler;
 		}
 		
-		warnings.add("Unknown element '"+element+"' encountered, ignoring.");
+		warnings.add("Unknown element '" + element + "' encountered, ignoring.");
 		return null;
 	}
-
+	
 	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
@@ -1423,12 +1428,12 @@ class FlightDataHandler extends ElementHandler {
 			warningSet.add(Warning.fromString(content));
 		}
 	}
-
-
+	
+	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
-
+		
 		if (branches.size() > 0) {
 			data = new FlightData(branches.toArray(new FlightDataBranch[0]));
 		} else {
@@ -1440,55 +1445,63 @@ class FlightDataHandler extends ElementHandler {
 			double flightTime = Double.NaN;
 			double groundHitVelocity = Double.NaN;
 			
-			try { 
+			try {
 				maxAltitude = DocumentConfig.stringToDouble(attributes.get("maxaltitude"));
-			} catch (NumberFormatException ignore) { }
-			try { 
+			} catch (NumberFormatException ignore) {
+			}
+			try {
 				maxVelocity = DocumentConfig.stringToDouble(attributes.get("maxvelocity"));
-			} catch (NumberFormatException ignore) { }
-			try { 
+			} catch (NumberFormatException ignore) {
+			}
+			try {
 				maxAcceleration = DocumentConfig.stringToDouble(attributes.get("maxacceleration"));
-			} catch (NumberFormatException ignore) { }
-			try { 
+			} catch (NumberFormatException ignore) {
+			}
+			try {
 				maxMach = DocumentConfig.stringToDouble(attributes.get("maxmach"));
-			} catch (NumberFormatException ignore) { }
-			try { 
+			} catch (NumberFormatException ignore) {
+			}
+			try {
 				timeToApogee = DocumentConfig.stringToDouble(attributes.get("timetoapogee"));
-			} catch (NumberFormatException ignore) { }
-			try { 
+			} catch (NumberFormatException ignore) {
+			}
+			try {
 				flightTime = DocumentConfig.stringToDouble(attributes.get("flighttime"));
-			} catch (NumberFormatException ignore) { }
-			try { 
-				groundHitVelocity = 
-					DocumentConfig.stringToDouble(attributes.get("groundhitvelocity"));
-			} catch (NumberFormatException ignore) { }
+			} catch (NumberFormatException ignore) {
+			}
+			try {
+				groundHitVelocity =
+						DocumentConfig.stringToDouble(attributes.get("groundhitvelocity"));
+			} catch (NumberFormatException ignore) {
+			}
 			
 			data = new FlightData(maxAltitude, maxVelocity, maxAcceleration, maxMach,
 					timeToApogee, flightTime, groundHitVelocity);
 		}
 		
 		data.getWarningSet().addAll(warningSet);
+		data.immute();
 	}
 	
-	
+
 }
 
 
 class FlightDataBranchHandler extends ElementHandler {
-	private final FlightDataBranch.Type[] types;
+	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
 	
 	public FlightDataBranchHandler(String name, String typeList) {
 		String[] split = typeList.split(",");
-		types = new FlightDataBranch.Type[split.length];
-		for (int i=0; i < split.length; i++) {
-			types[i] = FlightDataBranch.getType(split[i], UnitGroup.UNITS_NONE);
+		types = new FlightDataType[split.length];
+		for (int i = 0; i < split.length; i++) {
+			types[i] = FlightDataType.getType(split[i], UnitGroup.UNITS_NONE);
 		}
 		
 		// TODO: LOW: May throw an IllegalArgumentException
 		branch = new FlightDataBranch(name, types);
 	}
-
+	
 	public FlightDataBranch getBranch() {
 		branch.immute();
 		return branch;
@@ -1497,17 +1510,17 @@ class FlightDataBranchHandler extends ElementHandler {
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		if (element.equals("datapoint"))
 			return PlainTextHandler.INSTANCE;
 		if (element.equals("event"))
 			return PlainTextHandler.INSTANCE;
 		
-		warnings.add("Unknown element '"+element+"' encountered, ignoring.");
+		warnings.add("Unknown element '" + element + "' encountered, ignoring.");
 		return null;
 	}
 	
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
@@ -1528,19 +1541,19 @@ class FlightDataBranchHandler extends ElementHandler {
 				warnings.add("Illegal event specification, ignoring.");
 				return;
 			}
-
-			branch.addEvent(time, new FlightEvent(type, time));
+			
+			branch.addEvent(new FlightEvent(type, time));
 			return;
 		}
 		
 		if (!element.equals("datapoint")) {
-			warnings.add("Unknown element '"+element+"' encountered, ignoring.");
+			warnings.add("Unknown element '" + element + "' encountered, ignoring.");
 			return;
 		}
-
+		
 		// element == "datapoint"
 		
-		
+
 		// Check line format
 		String[] split = content.split(",");
 		if (split.length != types.length) {
@@ -1550,7 +1563,7 @@ class FlightDataBranchHandler extends ElementHandler {
 		
 		// Parse the doubles
 		double[] values = new double[split.length];
-		for (int i=0; i < values.length; i++) {
+		for (int i = 0; i < values.length; i++) {
 			try {
 				values[i] = DocumentConfig.stringToDouble(split[i]);
 			} catch (NumberFormatException e) {
@@ -1561,12 +1574,11 @@ class FlightDataBranchHandler extends ElementHandler {
 		
 		// Add point to branch
 		branch.addPoint();
-		for (int i=0; i < types.length; i++) {
+		for (int i = 0; i < types.length; i++) {
 			branch.setValue(types[i], values[i]);
 		}
 	}
 }
-
 
 
 
@@ -1593,11 +1605,11 @@ interface Setter {
 ////  StringSetter - sets the value to the contained String
 class StringSetter implements Setter {
 	private final Reflection.Method setMethod;
-
+	
 	public StringSetter(Reflection.Method set) {
 		setMethod = set;
 	}
-
+	
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		setMethod.invoke(c, s);
@@ -1607,11 +1619,11 @@ class StringSetter implements Setter {
 ////  IntSetter - set an integer value
 class IntSetter implements Setter {
 	private final Reflection.Method setMethod;
-
+	
 	public IntSetter(Reflection.Method set) {
 		setMethod = set;
 	}
-
+	
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		try {
@@ -1627,11 +1639,11 @@ class IntSetter implements Setter {
 //// BooleanSetter - set a boolean value
 class BooleanSetter implements Setter {
 	private final Reflection.Method setMethod;
-
+	
 	public BooleanSetter(Reflection.Method set) {
 		setMethod = set;
 	}
-
+	
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1655,7 +1667,7 @@ class DoubleSetter implements Setter {
 	private final String specialString;
 	private final Reflection.Method specialMethod;
 	private final double multiplier;
-
+	
 	/**
 	 * Set only the double value.
 	 * @param set	set method for the double value. 
@@ -1666,7 +1678,7 @@ class DoubleSetter implements Setter {
 		this.specialMethod = null;
 		this.multiplier = 1.0;
 	}
-
+	
 	/**
 	 * Multiply with the given multiplier and set the double value.
 	 * @param set	set method for the double value.
@@ -1678,7 +1690,7 @@ class DoubleSetter implements Setter {
 		this.specialMethod = null;
 		this.multiplier = mul;
 	}
-
+	
 	/**
 	 * Set the double value, or if the value equals the special string, use the
 	 * special setter and set it to true.
@@ -1694,19 +1706,19 @@ class DoubleSetter implements Setter {
 		this.specialMethod = specialMethod;
 		this.multiplier = 1.0;
 	}
-
-
+	
+	
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		s = s.trim();
-
+		
 		// Check for special case
 		if (specialMethod != null && s.equalsIgnoreCase(specialString)) {
 			specialMethod.invoke(c, true);
 			return;
 		}
-
+		
 		// Normal case
 		try {
 			double d = Double.parseDouble(s);
@@ -1721,15 +1733,15 @@ class DoubleSetter implements Setter {
 class OverrideSetter implements Setter {
 	private final Reflection.Method setMethod;
 	private final Reflection.Method enabledMethod;
-
+	
 	public OverrideSetter(Reflection.Method set, Reflection.Method enabledMethod) {
 		this.setMethod = set;
 		this.enabledMethod = enabledMethod;
 	}
-
+	
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		try {
 			double d = Double.parseDouble(s);
 			setMethod.invoke(c, d);
@@ -1744,22 +1756,22 @@ class OverrideSetter implements Setter {
 class EnumSetter<T extends Enum<T>> implements Setter {
 	private final Reflection.Method setter;
 	private final Class<T> enumClass;
-
+	
 	public EnumSetter(Reflection.Method set, Class<T> enumClass) {
 		this.setter = set;
 		this.enumClass = enumClass;
 	}
-
+	
 	@Override
 	public void set(RocketComponent c, String name, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		Enum<?> setEnum = DocumentConfig.findEnum(name, enumClass);
 		if (setEnum == null) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return;
 		}
-
+		
 		setter.invoke(c, setEnum);
 	}
 }
@@ -1768,18 +1780,18 @@ class EnumSetter<T extends Enum<T>> implements Setter {
 ////  ColorSetter  -  sets a Color value
 class ColorSetter implements Setter {
 	private final Reflection.Method setMethod;
-
+	
 	public ColorSetter(Reflection.Method set) {
 		setMethod = set;
 	}
-
+	
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
-
+		
 		String red = attributes.get("red");
 		String green = attributes.get("green");
 		String blue = attributes.get("blue");
-
+		
 		if (red == null || green == null || blue == null) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return;
@@ -1799,7 +1811,7 @@ class ColorSetter implements Setter {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 			return;
 		}
-
+		
 		Color color = new Color(r, g, b);
 		setMethod.invoke(c, color);
 		
@@ -1814,12 +1826,12 @@ class ColorSetter implements Setter {
 class MaterialSetter implements Setter {
 	private final Reflection.Method setMethod;
 	private final Material.Type type;
-
+	
 	public MaterialSetter(Reflection.Method set, Material.Type type) {
 		this.setMethod = set;
 		this.type = type;
 	}
-
+	
 	public void set(RocketComponent c, String name, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1846,25 +1858,25 @@ class MaterialSetter implements Setter {
 			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
 			return;
 		}
-
+		
 		// Parse thickness
-//		double thickness = 0;
-//		str = attributes.remove("thickness");
-//		try {
-//			if (str != null)
-//				thickness = Double.parseDouble(str);
-//		} catch (NumberFormatException e){
-//			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
-//			return;
-//		}
-
+		//		double thickness = 0;
+		//		str = attributes.remove("thickness");
+		//		try {
+		//			if (str != null)
+		//				thickness = Double.parseDouble(str);
+		//		} catch (NumberFormatException e){
+		//			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
+		//			return;
+		//		}
+		
 		// Check type if specified
 		str = attributes.remove("type");
-		if (str != null  &&  !type.name().toLowerCase().equals(str)) {
+		if (str != null && !type.name().toLowerCase().equals(str)) {
 			warnings.add(Warning.fromString("Illegal material type specified, ignoring."));
 			return;
 		}
-
+		
 		mat = Databases.findMaterial(type, name, density, false);
 		
 		setMethod.invoke(c, mat);
@@ -1875,11 +1887,11 @@ class MaterialSetter implements Setter {
 
 
 class PositionSetter implements Setter {
-
+	
 	public void set(RocketComponent c, String value, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
-		RocketComponent.Position type = (Position) DocumentConfig.findEnum(attributes.get("type"), 
+		RocketComponent.Position type = (Position) DocumentConfig.findEnum(attributes.get("type"),
 				RocketComponent.Position.class);
 		if (type == null) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
@@ -1895,13 +1907,13 @@ class PositionSetter implements Setter {
 		}
 		
 		if (c instanceof FinSet) {
-			((FinSet)c).setRelativePosition(type);
+			((FinSet) c).setRelativePosition(type);
 			c.setPositionValue(pos);
 		} else if (c instanceof LaunchLug) {
-			((LaunchLug)c).setRelativePosition(type);
+			((LaunchLug) c).setRelativePosition(type);
 			c.setPositionValue(pos);
 		} else if (c instanceof InternalComponent) {
-			((InternalComponent)c).setRelativePosition(type);
+			((InternalComponent) c).setRelativePosition(type);
 			c.setPositionValue(pos);
 		} else {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
@@ -1912,11 +1924,11 @@ class PositionSetter implements Setter {
 
 
 class FinTabPositionSetter extends DoubleSetter {
-
+	
 	public FinTabPositionSetter() {
 		super(Reflection.findMethodStatic(FinSet.class, "setTabShift", double.class));
 	}
-
+	
 	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
@@ -1924,15 +1936,15 @@ class FinTabPositionSetter extends DoubleSetter {
 		if (!(c instanceof FinSet)) {
 			throw new IllegalStateException("FinTabPositionSetter called for component " + c);
 		}
-
+		
 		String relative = attributes.get("relativeto");
-		FinSet.TabRelativePosition position = 
-			(TabRelativePosition) DocumentConfig.findEnum(relative,
-					FinSet.TabRelativePosition.class);
+		FinSet.TabRelativePosition position =
+				(TabRelativePosition) DocumentConfig.findEnum(relative,
+						FinSet.TabRelativePosition.class);
 		
 		if (position != null) {
 			
-			((FinSet)c).setTabRelativePosition(position);
+			((FinSet) c).setTabRelativePosition(position);
 			
 		} else {
 			if (relative == null) {
@@ -1944,13 +1956,13 @@ class FinTabPositionSetter extends DoubleSetter {
 		
 		super.set(c, s, attributes, warnings);
 	}
-
 	
+
 }
 
 
 class ClusterConfigurationSetter implements Setter {
-
+	
 	public void set(RocketComponent component, String value, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1960,7 +1972,7 @@ class ClusterConfigurationSetter implements Setter {
 		}
 		
 		ClusterConfiguration config = null;
-		for (ClusterConfiguration c: ClusterConfiguration.CONFIGURATIONS) {
+		for (ClusterConfiguration c : ClusterConfiguration.CONFIGURATIONS) {
 			if (c.getXMLName().equals(value)) {
 				config = c;
 				break;
@@ -1972,8 +1984,6 @@ class ClusterConfigurationSetter implements Setter {
 			return;
 		}
 		
-		((Clusterable)component).setClusterConfiguration(config);
+		((Clusterable) component).setClusterConfiguration(config);
 	}
 }
-
-

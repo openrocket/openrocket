@@ -16,13 +16,17 @@ import java.util.List;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class LogLevelBufferLogger extends LogHelper {
-
+	
 	private final EnumMap<LogLevel, BufferLogger> loggers =
-		new EnumMap<LogLevel, BufferLogger>(LogLevel.class);
+			new EnumMap<LogLevel, BufferLogger>(LogLevel.class);
 	
 	
+	/**
+	 * Sole constructor.
+	 * @param count		the number of log lines from each level to buffer.
+	 */
 	public LogLevelBufferLogger(int count) {
-		for (LogLevel level: LogLevel.values()) {
+		for (LogLevel level : LogLevel.values()) {
 			loggers.put(level, new BufferLogger(count));
 		}
 	}
@@ -34,22 +38,28 @@ public class LogLevelBufferLogger extends LogHelper {
 	}
 	
 	
+	/**
+	 * Retrieve all buffered log lines in order.  A log line is also added to indicate the number of
+	 * log lines that have been purged for that log level.
+	 * 
+	 * @return	a list of log lines in order.
+	 */
 	public List<LogLine> getLogs() {
 		List<LogLine> result = new ArrayList<LogLine>();
 		
-		for (LogLevel level: LogLevel.values()) {
+		for (LogLevel level : LogLevel.values()) {
 			BufferLogger logger = loggers.get(level);
 			List<LogLine> logs = logger.getLogs();
 			int misses = logger.getOverwriteCount();
 			
 			if (misses > 0) {
 				if (logs.isEmpty()) {
-					result.add(new LogLine(level, 0, new TraceException(),
-							"--- "+misses+" " + level + " lines removed but log is empty! ---",
+					result.add(new LogLine(level, 0, 0, new TraceException(),
+							"--- " + misses + " " + level + " lines removed but log is empty! ---",
 							null));
 				} else {
-					result.add(new LogLine(level, logs.get(0).getLogCount(), new TraceException(),
-							"--- "+misses+" " + level + " lines removed ---", null));
+					result.add(new LogLine(level, logs.get(0).getLogCount(), 0, new TraceException(),
+							"--- " + misses + " " + level + " lines removed ---", null));
 				}
 			}
 			result.addAll(logs);

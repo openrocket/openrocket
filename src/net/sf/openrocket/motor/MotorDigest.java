@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.TextUtil;
 
 public class MotorDigest {
@@ -117,7 +118,33 @@ public class MotorDigest {
 	}
 
 	
-	
+	/**
+	 * Digest the contents of a thrust curve motor.  The result is a string uniquely
+	 * defining the functional aspects of the motor.
+	 * 
+	 * @param m		the motor to digest
+	 * @return		the digest
+	 */
+	public static String digestMotor(ThrustCurveMotor m) {
+
+		// Create the motor digest from data available in RASP files
+		MotorDigest motorDigest = new MotorDigest();
+		motorDigest.update(DataType.TIME_ARRAY, m.getTimePoints());
+		
+		Coordinate[] cg = m.getCGPoints();
+		double[] cgx = new double[cg.length];
+		double[] mass = new double[cg.length];
+		for (int i=0; i<cg.length; i++) {
+			cgx[i] = cg[i].x;
+			mass[i] = cg[i].weight;
+		}
+		
+		motorDigest.update(DataType.MASS_PER_TIME, mass);
+		motorDigest.update(DataType.CG_PER_TIME, cgx);
+		motorDigest.update(DataType.FORCE_PER_TIME, m.getThrustPoints());
+		return motorDigest.getDigest();
+		
+	}
 	
 	public static String digestComment(String comment) {
 		comment = comment.replaceAll("\\s+", " ").trim();

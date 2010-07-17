@@ -10,33 +10,35 @@ import java.util.Map;
 
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.Pair;
 
 public class GraphicalMotorSelector {
 	
 	public static void main(String[] args) throws IOException {
-
+		
 		if (args.length == 0) {
 			System.err.println("MotorPlot <files>");
 			System.exit(1);
 		}
 		
 		// Load files
-		Map<String, List<Pair<String, Motor>>> map = 
-			new LinkedHashMap<String, List<Pair<String, Motor>>>(); 
+		Map<String, List<Pair<String, ThrustCurveMotor>>> map =
+				new LinkedHashMap<String, List<Pair<String, ThrustCurveMotor>>>();
 		
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		for (String file: args) {
-
-			for (Motor m: loader.load(new FileInputStream(file), file)) {
-				System.out.println("Loaded " + m + " from file "+file);
+		for (String file : args) {
+			
+			for (Motor motor : loader.load(new FileInputStream(file), file)) {
+				ThrustCurveMotor m = (ThrustCurveMotor) motor;
+				System.out.println("Loaded " + m + " from file " + file);
 				
-				Pair<String, Motor> pair = new Pair<String, Motor>(file, m);
+				Pair<String, ThrustCurveMotor> pair = new Pair<String, ThrustCurveMotor>(file, m);
 				String key = m.getManufacturer() + ":" + m.getDesignation();
 				
-				List<Pair<String, Motor>> list = map.get(key);
+				List<Pair<String, ThrustCurveMotor>> list = map.get(key);
 				if (list == null) {
-					list = new ArrayList<Pair<String, Motor>>();
+					list = new ArrayList<Pair<String, ThrustCurveMotor>>();
 					map.put(key, list);
 				}
 				
@@ -44,29 +46,29 @@ public class GraphicalMotorSelector {
 			}
 		}
 		
-		
+
 		// Go through different motors
 		int count = 0;
-		for (String key: map.keySet()) {
+		for (String key : map.keySet()) {
 			count++;
-			List<Pair<String, Motor>> list = map.get(key);
+			List<Pair<String, ThrustCurveMotor>> list = map.get(key);
 			
-			
+
 			// Select best one of identical motors
 			List<String> filenames = new ArrayList<String>();
-			List<Motor> motors = new ArrayList<Motor>();
-			for (Pair<String, Motor> pair: list) {
+			List<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
+			for (Pair<String, ThrustCurveMotor> pair : list) {
 				String file = pair.getU();
-				Motor m = pair.getV();
+				ThrustCurveMotor m = pair.getV();
 				
 				int index = indexOf(motors, m);
 				if (index >= 0) {
 					// Replace previous if this has more delays, a known type or longer comment
-					Motor m2 = motors.get(index);
+					ThrustCurveMotor m2 = motors.get(index);
 					if (m.getStandardDelays().length > m2.getStandardDelays().length ||
 							(m2.getMotorType() == Motor.Type.UNKNOWN &&
 							m.getMotorType() != Motor.Type.UNKNOWN) ||
-							(m.getDescription().trim().length() > 
+							(m.getDescription().trim().length() >
 							m2.getDescription().trim().length())) {
 						
 						filenames.set(index, file);
@@ -90,7 +92,7 @@ public class GraphicalMotorSelector {
 				
 			} else {
 				
-				System.out.println("Choosing from " + filenames + 
+				System.out.println("Choosing from " + filenames +
 						" (" + count + "/" + map.size() + ")");
 				MotorPlot plot = new MotorPlot(filenames, motors);
 				plot.setVisible(true);
@@ -101,14 +103,14 @@ public class GraphicalMotorSelector {
 				} else {
 					select(filenames.get(n), list, true);
 				}
-
+				
 			}
 			
 		}
-
+		
 	}
 	
-	private static void select(String selected, List<Pair<String, Motor>> list, boolean manual) {
+	private static void select(String selected, List<Pair<String, ThrustCurveMotor>> list, boolean manual) {
 		System.out.print("SELECT " + selected + " ");
 		if (manual) {
 			System.out.println("(manual)");
@@ -118,20 +120,20 @@ public class GraphicalMotorSelector {
 			System.out.println("(identical)");
 		}
 		
-		boolean started = false;
-		for (Pair<String, Motor> pair: list) {
+		for (Pair<String, ThrustCurveMotor> pair : list) {
 			String file = pair.getU();
 			if (!file.equals(selected)) {
 				System.out.println("IGNORE " + file);
 			}
 		}
 	}
-
 	
-	private static int indexOf(List<Motor> motors, Motor motor) {
-		for (int i=0; i<motors.size(); i++) {
-			Motor m = motors.get(i);
-			if (m.similar(motor)) {
+	
+	private static int indexOf(List<ThrustCurveMotor> motors, ThrustCurveMotor motor) {
+		for (int i = 0; i < motors.size(); i++) {
+			ThrustCurveMotor m = motors.get(i);
+			// TODO: Similar?
+			if (m.equals(motor)) {
 				if (m.getStandardDelays().length == 0 || motor.getStandardDelays().length == 0 ||
 						Arrays.equals(m.getStandardDelays(), motor.getStandardDelays())) {
 					return i;

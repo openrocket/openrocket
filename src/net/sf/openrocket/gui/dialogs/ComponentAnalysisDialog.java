@@ -50,27 +50,32 @@ import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 
 public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
-
-	private static ComponentAnalysisDialog singletonDialog = null;
-
 	
+	private static ComponentAnalysisDialog singletonDialog = null;
+	
+
 	private final FlightConditions conditions;
 	private final Configuration configuration;
 	private final DoubleModel theta, aoa, mach, roll;
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
-	private AerodynamicCalculator calculator;
+	private AerodynamicCalculator aerodynamicCalculator;
+	private final MassCalculator massCalculator = new BasicMassCalculator();
 	
 	private final ColumnTableModel cpTableModel;
 	private final ColumnTableModel dragTableModel;
@@ -78,8 +83,9 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	
 	private final JList warningList;
 	
-	
+
 	private final List<AerodynamicForces> cpData = new ArrayList<AerodynamicForces>();
+	private final List<Coordinate> cgData = new ArrayList<Coordinate>();
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
 	private double totalCD = 0;
 	private final List<AerodynamicForces> rollData = new ArrayList<AerodynamicForces>();
@@ -87,17 +93,16 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
 		super(SwingUtilities.getWindowAncestor(rocketPanel), "Component analysis");
-
+		
 		JTable table;
-
-		JPanel panel = new JPanel(new MigLayout("fill","[][35lp::][fill][fill]"));
+		
+		JPanel panel = new JPanel(new MigLayout("fill", "[][35lp::][fill][fill]"));
 		add(panel);
 		
 		this.configuration = rocketPanel.getConfiguration();
-		this.calculator = rocketPanel.getCalculator().newInstance();
-		this.calculator.setConfiguration(configuration);
-
+		this.aerodynamicCalculator = rocketPanel.getAerodynamicCalculator().newInstance();
 		
+
 		conditions = new FlightConditions(configuration);
 		
 		rocketPanel.setCPAOA(0);
@@ -105,15 +110,15 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		rocketPanel.setCPMach(Prefs.getDefaultMach());
 		mach = new DoubleModel(rocketPanel, "CPMach", UnitGroup.UNITS_COEFFICIENT, 0);
 		rocketPanel.setCPTheta(rocketPanel.getFigure().getRotation());
-		theta = new DoubleModel(rocketPanel, "CPTheta", UnitGroup.UNITS_ANGLE, 0, 2*Math.PI);
+		theta = new DoubleModel(rocketPanel, "CPTheta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);
 		rocketPanel.setCPRoll(0);
 		roll = new DoubleModel(rocketPanel, "CPRoll", UnitGroup.UNITS_ROLL);
 		
-		
-		panel.add(new JLabel("Wind direction:"),"width 100lp!");
-		panel.add(new UnitSelector(theta,true),"width 50lp!");
-		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2*Math.PI));
-		panel.add(slider,"growx, split 2");
+
+		panel.add(new JLabel("Wind direction:"), "width 100lp!");
+		panel.add(new UnitSelector(theta, true), "width 50lp!");
+		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
+		panel.add(slider, "growx, split 2");
 		worstToggle = new JToggleButton("Worst");
 		worstToggle.setSelected(true);
 		worstToggle.addActionListener(new ActionListener() {
@@ -129,89 +134,99 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 					worstToggle.setSelected(false);
 			}
 		});
-		panel.add(worstToggle,"");
+		panel.add(worstToggle, "");
 		
-		
+
 		warningList = new JList();
 		JScrollPane scrollPane = new JScrollPane(warningList);
 		scrollPane.setBorder(BorderFactory.createTitledBorder("Warnings:"));
-		panel.add(scrollPane,"gap paragraph, spany 4, width 300lp!, growy 1, height :100lp:, wrap");
+		panel.add(scrollPane, "gap paragraph, spany 4, width 300lp!, growy 1, height :100lp:, wrap");
 		
+
+		panel.add(new JLabel("Angle of attack:"), "width 100lp!");
+		panel.add(new UnitSelector(aoa, true), "width 50lp!");
+		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
 		
-		panel.add(new JLabel("Angle of attack:"),"width 100lp!");
-		panel.add(new UnitSelector(aoa,true),"width 50lp!");
-		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)),"growx, wrap");
-		
-		panel.add(new JLabel("Mach number:"),"width 100lp!");
-		panel.add(new UnitSelector(mach,true),"width 50lp!");
-		panel.add(new BasicSlider(mach.getSliderModel(0, 3)),"growx, wrap");
+		panel.add(new JLabel("Mach number:"), "width 100lp!");
+		panel.add(new UnitSelector(mach, true), "width 50lp!");
+		panel.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
 		
 		panel.add(new JLabel("Roll rate:"), "width 100lp!");
-		panel.add(new UnitSelector(roll,true),"width 50lp!");
-		panel.add(new BasicSlider(roll.getSliderModel(-20*2*Math.PI, 20*2*Math.PI)),
+		panel.add(new UnitSelector(roll, true), "width 50lp!");
+		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap paragraph");
 		
-		
+
 		// Stage and motor selection:
 		
-		panel.add(new JLabel("Active stages:"),"spanx, split, gapafter rel");
-		panel.add(new StageSelector(configuration),"gapafter paragraph");
-				
+		panel.add(new JLabel("Active stages:"), "spanx, split, gapafter rel");
+		panel.add(new StageSelector(configuration), "gapafter paragraph");
+		
 		JLabel label = new JLabel("Motor configuration:");
 		label.setHorizontalAlignment(JLabel.RIGHT);
-		panel.add(label,"growx, right");
-		panel.add(new JComboBox(new MotorConfigurationModel(configuration)),"wrap");
+		panel.add(label, "growx, right");
+		panel.add(new JComboBox(new MotorConfigurationModel(configuration)), "wrap");
+		
 
-		
-		
+
 		// Tabbed pane
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "spanx, growx, growy");
 		
-		
+
 		// Create the CP data table
 		cpTableModel = new ColumnTableModel(
-				
-				new Column("Component") {
-					@Override public Object getValueAt(int row) {
-						RocketComponent c = cpData.get(row).component;
-						if (c instanceof Rocket) {
-							return "Total";
-						}
-						return c.toString();
-					}
-					@Override public int getDefaultWidth() {
-						return 200;
-					}
-				},
+
+		new Column("Component") {
+			@Override
+			public Object getValueAt(int row) {
+				RocketComponent c = cpData.get(row).getComponent();
+				if (c instanceof Rocket) {
+					return "Total";
+				}
+				return c.toString();
+			}
+			
+			@Override
+			public int getDefaultWidth() {
+				return 200;
+			}
+		},
 				new Column("CG / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-					@Override public Object getValueAt(int row) {
-						return unit.toString(cpData.get(row).cg.x);
+					
+					@Override
+					public Object getValueAt(int row) {
+						return unit.toString(cgData.get(row).x);
 					}
 				},
 				new Column("Mass / " + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
+					
 					@Override
 					public Object getValueAt(int row) {
-						return unit.toString(cpData.get(row).cg.weight);
+						return unit.toString(cgData.get(row).weight);
 					}
 				},
 				new Column("CP / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-					@Override public Object getValueAt(int row) {
-						return unit.toString(cpData.get(row).cp.x);
+					
+					@Override
+					public Object getValueAt(int row) {
+						return unit.toString(cpData.get(row).getCP().x);
 					}
 				},
-				new Column("<html>C<sub>N<sub>"+ALPHA+"</sub></sub>") {
-					@Override public Object getValueAt(int row) {
-						return NOUNIT2.toString(cpData.get(row).cp.weight);
+				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
+					@Override
+					public Object getValueAt(int row) {
+						return NOUNIT2.toString(cpData.get(row).getCP().weight);
 					}
 				}
-				
+
 		) {
-			@Override public int getRowCount() {
+			@Override
+			public int getRowCount() {
 				return cpData.size();
 			}
 		};
@@ -223,55 +238,63 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		cpTableModel.setColumnWidths(table.getColumnModel());
 		
 		table.setDefaultRenderer(Object.class, new CustomCellRenderer());
-//		table.setShowHorizontalLines(false);
-//		table.setShowVerticalLines(true);
+		//		table.setShowHorizontalLines(false);
+		//		table.setShowVerticalLines(true);
 		
 		JScrollPane scrollpane = new JScrollPane(table);
-		scrollpane.setPreferredSize(new Dimension(600,200));
+		scrollpane.setPreferredSize(new Dimension(600, 200));
 		
 		tabbedPane.addTab("Stability", null, scrollpane, "Stability information");
 		
-		
-		
+
+
 		// Create the drag data table
 		dragTableModel = new ColumnTableModel(
 				new Column("Component") {
-					@Override public Object getValueAt(int row) {
-						RocketComponent c = dragData.get(row).component;
+					@Override
+					public Object getValueAt(int row) {
+						RocketComponent c = dragData.get(row).getComponent();
 						if (c instanceof Rocket) {
 							return "Total";
 						}
 						return c.toString();
 					}
-					@Override public int getDefaultWidth() {
+					
+					@Override
+					public int getDefaultWidth() {
 						return 200;
 					}
 				},
 				new Column("<html>Pressure C<sub>D</sub>") {
-					@Override public Object getValueAt(int row) {
-						return dragData.get(row).pressureCD;
+					@Override
+					public Object getValueAt(int row) {
+						return dragData.get(row).getPressureCD();
 					}
 				},
 				new Column("<html>Base C<sub>D</sub>") {
-					@Override public Object getValueAt(int row) {
-						return dragData.get(row).baseCD;
+					@Override
+					public Object getValueAt(int row) {
+						return dragData.get(row).getBaseCD();
 					}
 				},
 				new Column("<html>Friction C<sub>D</sub>") {
-					@Override public Object getValueAt(int row) {
-						return dragData.get(row).frictionCD;
+					@Override
+					public Object getValueAt(int row) {
+						return dragData.get(row).getFrictionCD();
 					}
 				},
 				new Column("<html>Total C<sub>D</sub>") {
-					@Override public Object getValueAt(int row) {
-						return dragData.get(row).CD;
+					@Override
+					public Object getValueAt(int row) {
+						return dragData.get(row).getCD();
 					}
 				}
-		) {
-			@Override public int getRowCount() {
-				return dragData.size();
-			}			
-		};
+				) {
+					@Override
+					public int getRowCount() {
+						return dragData.size();
+					}
+				};
 		
 
 		table = new JTable(dragTableModel);
@@ -280,23 +303,24 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		table.setSelectionForeground(Color.BLACK);
 		dragTableModel.setColumnWidths(table.getColumnModel());
 		
-		table.setDefaultRenderer(Object.class, new DragCellRenderer(new Color(0.5f,1.0f,0.5f)));
-//		table.setShowHorizontalLines(false);
-//		table.setShowVerticalLines(true);
+		table.setDefaultRenderer(Object.class, new DragCellRenderer(new Color(0.5f, 1.0f, 0.5f)));
+		//		table.setShowHorizontalLines(false);
+		//		table.setShowVerticalLines(true);
 		
 		scrollpane = new JScrollPane(table);
-		scrollpane.setPreferredSize(new Dimension(600,200));
+		scrollpane.setPreferredSize(new Dimension(600, 200));
 		
 		tabbedPane.addTab("Drag characteristics", null, scrollpane, "Drag characteristics");
 		
-		
-		
-		
+
+
+
 		// Create the roll data table
 		rollTableModel = new ColumnTableModel(
 				new Column("Component") {
-					@Override public Object getValueAt(int row) {
-						RocketComponent c = rollData.get(row).component;
+					@Override
+					public Object getValueAt(int row) {
+						RocketComponent c = rollData.get(row).getComponent();
 						if (c instanceof Rocket) {
 							return "Total";
 						}
@@ -304,25 +328,29 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 					}
 				},
 				new Column("Roll forcing coefficient") {
-					@Override public Object getValueAt(int row) {
-						return rollData.get(row).CrollForce;
+					@Override
+					public Object getValueAt(int row) {
+						return rollData.get(row).getCrollForce();
 					}
 				},
 				new Column("Roll damping coefficient") {
-					@Override public Object getValueAt(int row) {
-						return rollData.get(row).CrollDamp;
+					@Override
+					public Object getValueAt(int row) {
+						return rollData.get(row).getCrollDamp();
 					}
 				},
 				new Column("<html>Total C<sub>l</sub>") {
-					@Override public Object getValueAt(int row) {
-						return rollData.get(row).Croll;
+					@Override
+					public Object getValueAt(int row) {
+						return rollData.get(row).getCroll();
 					}
 				}
-		) {
-			@Override public int getRowCount() {
-				return rollData.size();
-			}			
-		};
+				) {
+					@Override
+					public int getRowCount() {
+						return rollData.size();
+					}
+				};
 		
 
 		table = new JTable(rollTableModel);
@@ -332,15 +360,14 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		rollTableModel.setColumnWidths(table.getColumnModel());
 		
 		scrollpane = new JScrollPane(table);
-		scrollpane.setPreferredSize(new Dimension(600,200));
+		scrollpane.setPreferredSize(new Dimension(600, 200));
 		
 		tabbedPane.addTab("Roll dynamics", null, scrollpane, "Roll dynamics");
 		
-		
-		
-		
-		
-		
+
+
+
+
 		// Add the data updater to listen to changes in aoa and theta
 		mach.addChangeListener(this);
 		theta.addChangeListener(this);
@@ -349,13 +376,13 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		configuration.addChangeListener(this);
 		this.stateChanged(null);
 		
-		
-		
+
+
 		// Remove listeners when closing window
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				System.out.println("Closing method called: "+this);
+				System.out.println("Closing method called: " + this);
 				theta.removeChangeListener(ComponentAnalysisDialog.this);
 				aoa.removeChangeListener(ComponentAnalysisDialog.this);
 				mach.removeChangeListener(ComponentAnalysisDialog.this);
@@ -371,7 +398,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		});
 		
 
-		panel.add(new StyledLabel("Reference length: ", -1), 
+		panel.add(new StyledLabel("Reference length: ", -1),
 				"span, split, gapleft para, gapright rel");
 		DoubleModel dm = new DoubleModel(conditions, "RefLength", UnitGroup.UNITS_LENGTH);
 		UnitSelector sel = new UnitSelector(dm, true);
@@ -384,25 +411,25 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		sel.resizeFont(-1);
 		panel.add(sel, "wrap");
 		
-		
+
 
 		// Buttons
 		JButton button;
 		
 		// TODO: LOW: printing
-//		button = new JButton("Print");
-//		button.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				try {
-//					table.print();
-//				} catch (PrinterException e1) {
-//					JOptionPane.showMessageDialog(ComponentAnalysisDialog.this, 
-//							"An error occurred while printing.", "Print error",
-//							JOptionPane.ERROR_MESSAGE);
-//				}
-//			}
-//		});
-//		panel.add(button,"tag ok");
+		//		button = new JButton("Print");
+		//		button.addActionListener(new ActionListener() {
+		//			public void actionPerformed(ActionEvent e) {
+		//				try {
+		//					table.print();
+		//				} catch (PrinterException e1) {
+		//					JOptionPane.showMessageDialog(ComponentAnalysisDialog.this, 
+		//							"An error occurred while printing.", "Print error",
+		//							JOptionPane.ERROR_MESSAGE);
+		//				}
+		//			}
+		//		});
+		//		panel.add(button,"tag ok");
 		
 		button = new JButton("Close");
 		button.addActionListener(new ActionListener() {
@@ -410,7 +437,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 				ComponentAnalysisDialog.this.dispose();
 			}
 		});
-		panel.add(button,"span, split, tag cancel");
+		panel.add(button, "span, split, tag cancel");
 		
 
 		this.setLocationByPlatform(true);
@@ -421,7 +448,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	}
 	
 	
-	
+
 	/**
 	 * Updates the data in the table and fires a table data change event.
 	 */
@@ -436,40 +463,49 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		conditions.setReference(configuration);
 		
 		if (worstToggle.isSelected()) {
-			calculator.getWorstCP(conditions, null);
+			aerodynamicCalculator.getWorstCP(configuration, conditions, null);
 			if (!MathUtil.equals(conditions.getTheta(), theta.getValue())) {
 				fakeChange = true;
-				theta.setValue(conditions.getTheta());  // Fires a stateChanged event
+				theta.setValue(conditions.getTheta()); // Fires a stateChanged event
 				fakeChange = false;
 				return;
 			}
 		}
 		
-		Map<RocketComponent, AerodynamicForces> data = calculator.getForceAnalysis(conditions, set);
+		Map<RocketComponent, AerodynamicForces> aeroData =
+				aerodynamicCalculator.getForceAnalysis(configuration, conditions, set);
+		Map<RocketComponent, Coordinate> massData =
+				massCalculator.getCGAnalysis(configuration, MassCalcType.LAUNCH_MASS);
 		
+
 		cpData.clear();
+		cgData.clear();
 		dragData.clear();
 		rollData.clear();
-		for (RocketComponent c: configuration) {
-			forces = data.get(c);
+		for (RocketComponent c : configuration) {
+			forces = aeroData.get(c);
+			Coordinate cg = massData.get(c);
+			
 			if (forces == null)
 				continue;
-			if (forces.cp != null) {
+			if (forces.getCP() != null) {
 				cpData.add(forces);
+				cgData.add(cg);
 			}
-			if (!Double.isNaN(forces.CD)) {
+			if (!Double.isNaN(forces.getCD())) {
 				dragData.add(forces);
 			}
 			if (c instanceof FinSet) {
 				rollData.add(forces);
 			}
 		}
-		forces = data.get(configuration.getRocket());
+		forces = aeroData.get(configuration.getRocket());
 		if (forces != null) {
 			cpData.add(forces);
+			cgData.add(massData.get(configuration.getRocket()));
 			dragData.add(forces);
 			rollData.add(forces);
-			totalCD = forces.CD;
+			totalCD = forces.getCD();
 		} else {
 			totalCD = 0;
 		}
@@ -498,16 +534,17 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 			normalFont = getFont();
 			boldFont = normalFont.deriveFont(Font.BOLD);
 		}
+		
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, 
+		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
 			
 			this.setText(value.toString());
 			
 			if ((row < 0) || (row >= cpData.size()))
-					return this;
+				return this;
 			
-			if (cpData.get(row).component instanceof Rocket) {
+			if (cpData.get(row).getComponent() instanceof Rocket) {
 				this.setFont(boldFont);
 			} else {
 				this.setFont(normalFont);
@@ -516,14 +553,11 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		}
 	}
 	
-
 	
+
 	private class DragCellRenderer extends JLabel implements TableCellRenderer {
 		private final Font normalFont;
 		private final Font boldFont;
-		
-		private final float[] start = { 0.3333f, 0.2f, 1.0f };
-		private final float[] end = { 0.0f, 0.8f, 1.0f };
 		
 		
 		public DragCellRenderer(Color baseColor) {
@@ -531,20 +565,21 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 			normalFont = getFont();
 			boldFont = normalFont.deriveFont(Font.BOLD);
 		}
+		
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, 
+		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
 			
 			if (value instanceof Double) {
 				
 				// A drag coefficient
-				double cd = (Double)value;
-				this.setText(String.format("%.2f (%.0f%%)", cd, 100*cd/totalCD));
-
-				float r = (float)(cd/1.5);
+				double cd = (Double) value;
+				this.setText(String.format("%.2f (%.0f%%)", cd, 100 * cd / totalCD));
 				
-				float hue = MathUtil.clamp(0.3333f * (1-2.0f*r), 0, 0.3333f);
-				float sat = MathUtil.clamp(0.8f*r + 0.1f*(1-r), 0, 1);
+				float r = (float) (cd / 1.5);
+				
+				float hue = MathUtil.clamp(0.3333f * (1 - 2.0f * r), 0, 0.3333f);
+				float sat = MathUtil.clamp(0.8f * r + 0.1f * (1 - r), 0, 1);
 				float val = 1.0f;
 				
 				this.setBackground(Color.getHSBColor(hue, sat, val));
@@ -561,9 +596,9 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 			}
 			
 			if ((row < 0) || (row >= dragData.size()))
-					return this;
+				return this;
 			
-			if ((dragData.get(row).component instanceof Rocket) || (column == 4)){
+			if ((dragData.get(row).getComponent() instanceof Rocket) || (column == 4)) {
 				this.setFont(boldFont);
 			} else {
 				this.setFont(normalFont);

@@ -30,7 +30,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.aerodynamics.ExtendedISAModel;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -43,13 +42,15 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotPanel;
+import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
-import net.sf.openrocket.simulation.RK4Simulator;
-import net.sf.openrocket.simulation.SimulationConditions;
-import net.sf.openrocket.simulation.SimulationListener;
-import net.sf.openrocket.simulation.listeners.CSVSaveListener;
+import net.sf.openrocket.simulation.RK4SimulationStepper;
+import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
+import net.sf.openrocket.simulation.listeners.example.CSVSaveListener;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
@@ -78,7 +79,7 @@ public class SimulationEditDialog extends JDialog {
 	
 	private final Window parentWindow;
 	private final Simulation simulation;
-	private final SimulationConditions conditions;
+	private final GUISimulationConditions conditions;
 	private final Configuration configuration;
 	
 	
@@ -464,7 +465,7 @@ public class SimulationEditDialog extends JDialog {
 		sub.add(label);
 		
 		m = new DoubleModel(conditions,"LaunchRodAngle", UnitGroup.UNITS_ANGLE,
-				0, SimulationConditions.MAX_LAUNCH_ROD_ANGLE);
+				0, GUISimulationConditions.MAX_LAUNCH_ROD_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -475,7 +476,7 @@ public class SimulationEditDialog extends JDialog {
 		unit.setToolTipText(tip);
 		sub.add(unit,"growx");
 		slider = new BasicSlider(m.getSliderModel(0, Math.PI/9, 
-				SimulationConditions.MAX_LAUNCH_ROD_ANGLE));
+				GUISimulationConditions.MAX_LAUNCH_ROD_ANGLE));
 		slider.setToolTipText(tip);
 		sub.add(slider,"w 75lp, wrap");
 		
@@ -582,7 +583,7 @@ public class SimulationEditDialog extends JDialog {
 		"A smaller time step results in a more accurate but slower simulation.<br>" +
 				"The 4<sup>th</sup> order simulation method is quite accurate with a time " +
 				"step of " +
-				UnitGroup.UNITS_TIME_STEP.toStringUnit(RK4Simulator.RECOMMENDED_TIME_STEP) +
+				UnitGroup.UNITS_TIME_STEP.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP) +
 				".";
 		label.setToolTipText(tip);
 		sub.add(label);
@@ -632,12 +633,12 @@ public class SimulationEditDialog extends JDialog {
 
 		JButton button = new JButton("Reset to default");
 		button.setToolTipText("Reset the time step to its default value (" +
-				UnitGroup.UNITS_SHORT_TIME.toStringUnit(RK4Simulator.RECOMMENDED_TIME_STEP) +
+				UnitGroup.UNITS_SHORT_TIME.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP) +
 				").");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				conditions.setTimeStep(RK4Simulator.RECOMMENDED_TIME_STEP);
+				conditions.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 			}
 		});
 				
@@ -805,7 +806,7 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		// Get the domain axis type
-		final FlightDataBranch.Type domainType = filled.getDomainAxisType();
+		final FlightDataType domainType = filled.getDomainAxisType();
 		final Unit domainUnit = filled.getDomainAxisUnit();
 		if (domainType == null) {
 			throw new IllegalArgumentException("Domain axis type not specified.");
@@ -818,7 +819,7 @@ public class SimulationEditDialog extends JDialog {
 		String[] axisLabel = new String[2];
 		for (int i = 0; i < length; i++) {
 			// Get info
-			FlightDataBranch.Type type = filled.getType(i);
+			FlightDataType type = filled.getType(i);
 			Unit unit = filled.getUnit(i);
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
@@ -935,7 +936,7 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	
-	private String getLabel(FlightDataBranch.Type type, Unit unit) {
+	private String getLabel(FlightDataType type, Unit unit) {
 		String name = type.getName();
 		if (unit != null  &&  !UnitGroup.UNITS_NONE.contains(unit)  &&
 				!UnitGroup.UNITS_COEFFICIENT.contains(unit) && unit.getUnit().length() > 0)

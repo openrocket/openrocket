@@ -7,7 +7,6 @@ import java.awt.RenderingHints;
 import java.awt.SplashScreen;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 
 import net.sf.openrocket.util.Prefs;
 
@@ -45,11 +44,11 @@ public class Splash {
 		
 		// Create graphics context and set antialiasing on
 		Graphics2D g2 = s.createGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, 
+		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 				RenderingHints.VALUE_STROKE_NORMALIZE);
-		g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
+		g2.setRenderingHint(RenderingHints.KEY_RENDERING,
 				RenderingHints.VALUE_RENDER_QUALITY);
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		// Draw the version number
@@ -61,7 +60,7 @@ public class Splash {
 	}
 	
 	
-	
+
 	private static void drawVersionNumber(Graphics2D g2) {
 		String text = "Version " + Prefs.getVersion();
 		GlyphVector gv = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text);
@@ -70,7 +69,7 @@ public class Splash {
 		double width = rect.getWidth();
 		
 		g2.setColor(VERSION_COLOR);
-		g2.drawGlyphVector(gv, (float)(VERSION_POSITION_X - width), (float)VERSION_POSITION_Y);
+		g2.drawGlyphVector(gv, (float) (VERSION_POSITION_X - width), (float) VERSION_POSITION_Y);
 		
 	}
 	
@@ -90,14 +89,5 @@ public class Splash {
 	}
 	
 
-	
-	
-	public static void main(String[] args) throws InterruptedException, IOException {
-		System.out.println("Calling init...");
-		System.out.println("Init returned " + Splash.init());
-		System.out.println("Press enter...");
-		System.in.read();
-		System.out.println("Exiting...");
-	}
 
 }

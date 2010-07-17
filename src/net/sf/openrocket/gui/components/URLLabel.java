@@ -12,6 +12,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
 /**
@@ -21,6 +23,7 @@ import net.sf.openrocket.util.BugException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class URLLabel extends SelectableLabel {
+	private static final LogHelper log = Application.getLogger();
 	
 	/**
 	 * Create a label showing the url it will direct to.
@@ -62,8 +65,7 @@ public class URLLabel extends SelectableLabel {
 					} catch (URISyntaxException e1) {
 						throw new BugException("BUG: Illegal URL: " + url, e1);
 					} catch (IOException e1) {
-						System.err.println("Unable to launch browser:");
-						e1.printStackTrace();
+						log.error("Unable to launch browser: " + e1.getMessage(), e1);
 					}
 				}
 			});

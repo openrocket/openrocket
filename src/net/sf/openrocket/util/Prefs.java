@@ -19,6 +19,7 @@ import java.util.prefs.Preferences;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -28,14 +29,16 @@ import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.simulation.FlightDataBranch;
-import net.sf.openrocket.simulation.RK4Simulator;
-import net.sf.openrocket.simulation.SimulationConditions;
+import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.RK4SimulationStepper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 
 public class Prefs {
-
+	private static final LogHelper log = Application.getLogger();
+	
 	/**
 	 * Whether to use the debug-node instead of the normal node.
 	 */
@@ -50,35 +53,35 @@ public class Prefs {
 	/**
 	 * The node name to use in the Java preferences storage.
 	 */
-	public static final String NODENAME = (DEBUG?"OpenRocket-debug":"OpenRocket");
+	public static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
 
 	public static final String DEFAULT_BUILD_SOURCE = "default";
-
+	
 	
 	/*
 	 * Load property file only when necessary.
 	 */
 	private static class BuildPropertyHolder {
-
+		
 		public static final String BUILD_VERSION;
 		public static final String BUILD_SOURCE;
 		public static final boolean DEFAULT_CHECK_UPDATES;
-
+		
 		static {
 			try {
 				InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
 				if (is == null) {
 					throw new MissingResourceException(
-							"build.properties not found, distribution built wrong" + 
-							"   classpath:"+System.getProperty("java.class.path"),
+							"build.properties not found, distribution built wrong" +
+									"   classpath:" + System.getProperty("java.class.path"),
 							"build.properties", "build.version");
 				}
-
+				
 				Properties props = new Properties();
 				props.load(is);
 				is.close();
-
+				
 				String version = props.getProperty("build.version");
 				if (version == null) {
 					throw new MissingResourceException(
@@ -86,20 +89,20 @@ public class Prefs {
 							"build.properties", "build.version");
 				}
 				BUILD_VERSION = version.trim();
-
+				
 				BUILD_SOURCE = props.getProperty("build.source");
 				if (BUILD_SOURCE == null) {
 					throw new MissingResourceException(
 							"build.source not found in property file",
 							"build.properties", "build.source");
 				}
-
+				
 				String value = props.getProperty("build.checkupdates");
 				if (value != null)
 					DEFAULT_CHECK_UPDATES = Boolean.parseBoolean(value);
 				else
 					DEFAULT_CHECK_UPDATES = true;
-
+				
 			} catch (IOException e) {
 				throw new MissingResourceException(
 						"Error reading build.properties",
@@ -110,9 +113,9 @@ public class Prefs {
 	
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	
-	
-	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 
+	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
+	
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
@@ -133,7 +136,7 @@ public class Prefs {
 	public static final Preferences NODE;
 	private static final Preferences PREFNODE;
 	
-	
+
 	static {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
@@ -142,20 +145,20 @@ public class Prefs {
 					root.node(NODENAME).removeNode();
 				}
 			} catch (BackingStoreException e) {
-				throw new BugException("Unable to clear preference node",e);
+				throw new BugException("Unable to clear preference node", e);
 			}
 		}
 		PREFNODE = root.node(NODENAME);
 		NODE = PREFNODE;
 	}
 	
-	
-	
-	
+
+
+
 	/////////  Default component attributes
 	
-	private static final HashMap<Class<?>,String> DEFAULT_COLORS = 
-		new HashMap<Class<?>,String>();
+	private static final HashMap<Class<?>, String> DEFAULT_COLORS =
+			new HashMap<Class<?>, String>();
 	static {
 		DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
 		DEFAULT_COLORS.put(FinSet.class, "0,0,200");
@@ -165,9 +168,9 @@ public class Prefs {
 		DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
 	}
 	
-	
-	private static final HashMap<Class<?>,String> DEFAULT_LINE_STYLES = 
-		new HashMap<Class<?>,String>();
+
+	private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES =
+			new HashMap<Class<?>, String>();
 	static {
 		DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 		DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
@@ -178,18 +181,18 @@ public class Prefs {
 	 * Within a holder class so they will load only when needed.
 	 */
 	private static class DefaultMaterialHolder {
-		private static final Material DEFAULT_LINE_MATERIAL = 
-			Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)", 
-					0.0018, false);
-		private static final Material DEFAULT_SURFACE_MATERIAL = 
-			Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067, false);
-		private static final Material DEFAULT_BULK_MATERIAL = 
-			Databases.findMaterial(Material.Type.BULK, "Cardboard", 680, false);
+		private static final Material DEFAULT_LINE_MATERIAL =
+				Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)",
+						0.0018, false);
+		private static final Material DEFAULT_SURFACE_MATERIAL =
+				Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067, false);
+		private static final Material DEFAULT_BULK_MATERIAL =
+				Databases.findMaterial(Material.Type.BULK, "Cardboard", 680, false);
 	}
 	
 	//////////////////////
 	
-	
+
 	public static String getVersion() {
 		return BuildPropertyHolder.BUILD_VERSION;
 	}
@@ -210,7 +213,7 @@ public class Prefs {
 	}
 	
 	
-	
+
 	public static void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", getVersion());
 	}
@@ -228,7 +231,7 @@ public class Prefs {
 	 */
 	public static int getChoise(String key, int max, int def) {
 		int v = PREFNODE.getInt(key, def);
-		if ((v<0) || (v>max))
+		if ((v < 0) || (v > max))
 			return def;
 		return v;
 	}
@@ -246,7 +249,7 @@ public class Prefs {
 	}
 	
 	
-	
+
 	public static String getString(String key, String def) {
 		return PREFNODE.get(key, def);
 	}
@@ -265,9 +268,9 @@ public class Prefs {
 		PREFNODE.putBoolean(key, value);
 		storeVersion();
 	}
+	
+	
 
-	
-	
 	public static boolean getCheckUpdates() {
 		return PREFNODE.getBoolean(CHECK_UPDATES, BuildPropertyHolder.DEFAULT_CHECK_UPDATES);
 	}
@@ -299,27 +302,28 @@ public class Prefs {
 	}
 	
 	
-	
+
 	public static Color getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, DEFAULT_COLORS);
 		if (color == null)
 			return Color.BLACK;
-
+		
 		String[] rgb = color.split(",");
-		if (rgb.length==3) {
+		if (rgb.length == 3) {
 			try {
-				int red = MathUtil.clamp(Integer.parseInt(rgb[0]),0,255);
-				int green = MathUtil.clamp(Integer.parseInt(rgb[1]),0,255);
-				int blue = MathUtil.clamp(Integer.parseInt(rgb[2]),0,255);
-				return new Color(red,green,blue);
-			} catch (NumberFormatException ignore) { }
+				int red = MathUtil.clamp(Integer.parseInt(rgb[0]), 0, 255);
+				int green = MathUtil.clamp(Integer.parseInt(rgb[1]), 0, 255);
+				int blue = MathUtil.clamp(Integer.parseInt(rgb[2]), 0, 255);
+				return new Color(red, green, blue);
+			} catch (NumberFormatException ignore) {
+			}
 		}
-
+		
 		return Color.BLACK;
 	}
 	
 	public static void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
-		if (color==null)
+		if (color == null)
 			return;
 		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 		set("componentColors", c, string);
@@ -327,13 +331,13 @@ public class Prefs {
 	
 	public static Color getMotorBorderColor() {
 		// TODO: MEDIUM:  Motor color (settable?)
-		return new Color(0,0,0,200);
+		return new Color(0, 0, 0, 200);
 	}
-
+	
 	
 	public static Color getMotorFillColor() {
 		// TODO: MEDIUM:  Motor fill color (settable?)
-		return new Color(0,0,0,100);
+		return new Color(0, 0, 0, 100);
 	}
 	
 	
@@ -353,7 +357,7 @@ public class Prefs {
 		set("componentStyle", c, style.name());
 	}
 	
-
+	
 	/**
 	 * Return the DPI setting of the monitor.  This is either the setting provided
 	 * by the system or a user-specified DPI setting.
@@ -361,15 +365,15 @@ public class Prefs {
 	 * @return    the DPI setting to use.
 	 */
 	public static double getDPI() {
-		int dpi = PREFNODE.getInt("DPI", 0);  // Tenths of a dpi
+		int dpi = PREFNODE.getInt("DPI", 0); // Tenths of a dpi
 		
 		if (dpi < 10) {
-			dpi = Toolkit.getDefaultToolkit().getScreenResolution()*10;
+			dpi = Toolkit.getDefaultToolkit().getScreenResolution() * 10;
 		}
 		if (dpi < 10)
 			dpi = 960;
 		
-		return ((double)dpi)/10.0;
+		return ((double) dpi) / 10.0;
 	}
 	
 	
@@ -379,8 +383,8 @@ public class Prefs {
 	}
 	
 	
-	
-	
+
+
 	public static Material getDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass,
 			Material.Type type) {
@@ -391,7 +395,8 @@ public class Prefs {
 				Material m = Material.fromStorableString(material, false);
 				if (m.getType() == type)
 					return m;
-			} catch (IllegalArgumentException ignore) { }
+			} catch (IllegalArgumentException ignore) {
+			}
 		}
 		
 		switch (type) {
@@ -402,14 +407,14 @@ public class Prefs {
 		case BULK:
 			return DefaultMaterialHolder.DEFAULT_BULK_MATERIAL;
 		}
-		throw new IllegalArgumentException("Unknown material type: "+type);
+		throw new IllegalArgumentException("Unknown material type: " + type);
 	}
 	
 	public static void setDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass, Material material) {
 		
-		set("componentMaterials", componentClass, 
-				material==null ? null : material.toStorableString());
+		set("componentMaterials", componentClass,
+				material == null ? null : material.toStorableString());
 	}
 	
 	
@@ -418,7 +423,7 @@ public class Prefs {
 	}
 	
 	
-	
+
 	public static Point getWindowPosition(Class<?> c) {
 		int x, y;
 		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);
@@ -426,16 +431,16 @@ public class Prefs {
 		if (pref == null)
 			return null;
 		
-		if (pref.indexOf(',')<0)
+		if (pref.indexOf(',') < 0)
 			return null;
 		
 		try {
-			x = Integer.parseInt(pref.substring(0,pref.indexOf(',')));
-			y = Integer.parseInt(pref.substring(pref.indexOf(',')+1));
+			x = Integer.parseInt(pref.substring(0, pref.indexOf(',')));
+			y = Integer.parseInt(pref.substring(pref.indexOf(',') + 1));
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		return new Point(x,y);
+		return new Point(x, y);
 	}
 	
 	public static void setWindowPosition(Class<?> c, Point p) {
@@ -444,7 +449,7 @@ public class Prefs {
 	}
 	
 	
-	
+
 
 	public static Dimension getWindowSize(Class<?> c) {
 		int x, y;
@@ -453,16 +458,16 @@ public class Prefs {
 		if (pref == null)
 			return null;
 		
-		if (pref.indexOf(',')<0)
+		if (pref.indexOf(',') < 0)
 			return null;
 		
 		try {
-			x = Integer.parseInt(pref.substring(0,pref.indexOf(',')));
-			y = Integer.parseInt(pref.substring(pref.indexOf(',')+1));
+			x = Integer.parseInt(pref.substring(0, pref.indexOf(',')));
+			y = Integer.parseInt(pref.substring(pref.indexOf(',') + 1));
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		return new Dimension(x,y);
+		return new Dimension(x, y);
 	}
 	
 	public static void setWindowSize(Class<?> c, Dimension d) {
@@ -474,14 +479,16 @@ public class Prefs {
 	////  Background flight data computation
 	
 	public static boolean computeFlightInBackground() {
-		return PREFNODE.getBoolean("backgroundFlight", true);
+		// TODO: CRITICAL: Revert 
+		return false;
+		//		return PREFNODE.getBoolean("backgroundFlight", true);
 	}
 	
 	public static Simulation getBackgroundSimulation(Rocket rocket) {
 		Simulation s = new Simulation(rocket);
-		SimulationConditions cond = s.getConditions();
+		GUISimulationConditions cond = s.getConditions();
 		
-		cond.setTimeStep(RK4Simulator.RECOMMENDED_TIME_STEP*2);
+		cond.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP * 2);
 		cond.setWindSpeedAverage(1.0);
 		cond.setWindSpeedDeviation(0.1);
 		cond.setLaunchRodLength(5);
@@ -489,35 +496,36 @@ public class Prefs {
 	}
 	
 	
-	
+
 	/////////  Export variables
 	
-	public static boolean isExportSelected(FlightDataBranch.Type type) {
+	public static boolean isExportSelected(FlightDataType type) {
 		Preferences prefs = PREFNODE.node("exports");
 		return prefs.getBoolean(type.getName(), false);
 	}
 	
-	public static void setExportSelected(FlightDataBranch.Type type, boolean selected) {
+	public static void setExportSelected(FlightDataType type, boolean selected) {
 		Preferences prefs = PREFNODE.node("exports");
 		prefs.putBoolean(type.getName(), selected);
 	}
 	
 	
-	
+
 	/////////  Default unit storage
 	
 	public static void loadDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		try {
 			
-			for (String key: prefs.keys()) {
+			for (String key : prefs.keys()) {
 				UnitGroup group = UnitGroup.UNITS.get(key);
 				if (group == null)
 					continue;
 				
 				try {
 					group.setDefaultUnit(prefs.get(key, null));
-				} catch (IllegalArgumentException ignore) { }
+				} catch (IllegalArgumentException ignore) {
+				}
 			}
 			
 		} catch (BackingStoreException e) {
@@ -528,7 +536,7 @@ public class Prefs {
 	public static void storeDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		
-		for (String key: UnitGroup.UNITS.keySet()) {
+		for (String key : UnitGroup.UNITS.keySet()) {
 			UnitGroup group = UnitGroup.UNITS.get(key);
 			if (group == null || group.getUnitCount() < 2)
 				continue;
@@ -538,10 +546,10 @@ public class Prefs {
 	}
 	
 	
-	
-	////  Material storage
 
+	////  Material storage
 	
+
 	/**
 	 * Add a user-defined material to the preferences.  The preferences are
 	 * first checked for an existing material matching the provided one using
@@ -552,15 +560,15 @@ public class Prefs {
 	public static void addUserMaterial(Material m) {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
-		
+
 		// Check whether material already exists
 		if (getUserMaterials().contains(m)) {
 			return;
 		}
-
+		
 		// Add material using next free key (key is not used when loading)
 		String mat = m.toStorableString();
-		for (int i = 0; ; i++) {
+		for (int i = 0;; i++) {
 			String key = "material" + i;
 			if (prefs.get(key, null) == null) {
 				prefs.put(key, mat);
@@ -568,7 +576,7 @@ public class Prefs {
 			}
 		}
 	}
-
+	
 	
 	/**
 	 * Remove a user-defined material from the preferences.  The matching is performed
@@ -582,7 +590,7 @@ public class Prefs {
 		try {
 			
 			// Iterate through materials and remove all keys with a matching material
-			for (String key: prefs.keys()) {
+			for (String key : prefs.keys()) {
 				String value = prefs.get(key, null);
 				try {
 					
@@ -591,7 +599,8 @@ public class Prefs {
 						prefs.remove(key);
 					}
 					
-				} catch (IllegalArgumentException ignore) { }
+				} catch (IllegalArgumentException ignore) {
+				}
 				
 			}
 			
@@ -613,15 +622,15 @@ public class Prefs {
 		HashSet<Material> materials = new HashSet<Material>();
 		try {
 			
-			for (String key: prefs.keys()) {
+			for (String key : prefs.keys()) {
 				String value = prefs.get(key, null);
 				try {
 					
 					Material m = Material.fromStorableString(value, true);
 					materials.add(m);
 					
-				} catch (IllegalArgumentException e) { 
-					System.err.println("Illegal material string " + value);
+				} catch (IllegalArgumentException e) {
+					log.warn("Illegal material string " + value);
 				}
 				
 			}
@@ -636,14 +645,14 @@ public class Prefs {
 	
 	////  Helper methods
 	
-	private static String get(String directory, 
+	private static String get(String directory,
 			Class<? extends RocketComponent> componentClass,
 			Map<Class<?>, String> defaultMap) {
-
+		
 		// Search preferences
 		Class<?> c = componentClass;
 		Preferences prefs = PREFNODE.node(directory);
-		while (c!=null && RocketComponent.class.isAssignableFrom(c)) {
+		while (c != null && RocketComponent.class.isAssignableFrom(c)) {
 			String value = prefs.get(c.getSimpleName(), null);
 			if (value != null)
 				return value;
@@ -652,7 +661,7 @@ public class Prefs {
 		
 		if (defaultMap == null)
 			return null;
-
+		
 		// Search defaults
 		c = componentClass;
 		while (RocketComponent.class.isAssignableFrom(c)) {
@@ -664,8 +673,8 @@ public class Prefs {
 		
 		return null;
 	}
-
-
+	
+	
 	private static void set(String directory, Class<? extends RocketComponent> componentClass,
 			String value) {
 		Preferences prefs = PREFNODE.node(directory);
@@ -675,5 +684,5 @@ public class Prefs {
 			prefs.put(componentClass.getSimpleName(), value);
 		storeVersion();
 	}
-
+	
 }

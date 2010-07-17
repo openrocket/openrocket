@@ -27,6 +27,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
@@ -62,7 +63,7 @@ public class SimulationExportPanel extends JPanel {
 	private final FlightDataBranch branch;
 	
 	private final boolean[] selected;
-	private final FlightDataBranch.Type[] types;
+	private final FlightDataType[] types;
 	private final Unit[] units;
 	
 	private final JComboBox fieldSeparator;
@@ -304,7 +305,7 @@ public class SimulationExportPanel extends JPanel {
 		Prefs.putBoolean(Prefs.EXPORT_SIMULATION_COMMENT, simulationComment);
 		
 		
-		FlightDataBranch.Type[] fieldTypes = new FlightDataBranch.Type[n];
+		FlightDataType[] fieldTypes = new FlightDataType[n];
 		Unit[] fieldUnits = new Unit[n];
 		int pos = 0;
 		for (int i=0; i < selected.length; i++) {
@@ -421,7 +422,7 @@ public class SimulationExportPanel extends JPanel {
 			case SELECTED:
 				return Boolean.class;
 			case NAME:
-				return FlightDataBranch.Type.class;
+				return FlightDataType.class;
 			case UNIT:
 				return Unit.class;
 			default:

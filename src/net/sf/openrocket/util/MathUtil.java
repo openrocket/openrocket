@@ -80,6 +80,32 @@ public class MathUtil {
 		return (value - fromMin)/(fromMax-fromMin) * (toMax - toMin) + toMin;
 	}
 	
+	
+	/**
+	 * Maps a coordinate from one value range to another.
+	 * 
+	 * @param value		the value to map.
+	 * @param fromMin	the minimum of the starting range.
+	 * @param fromMax	the maximum of the starting range.
+	 * @param toMin		the minimum coordinate of the destination;
+	 * @param toMax		the maximum coordinate of the destination;
+	 * @return			the mapped value.
+	 * @throws	IllegalArgumentException  if fromMin == fromMax, but toMin != toMax.
+	 */
+	public static Coordinate map(double value, double fromMin, double fromMax,
+			Coordinate toMin, Coordinate toMax) {
+		if (toMin.equals(toMax))
+			return toMin;
+		if (equals(fromMin, fromMax)) {
+			throw new IllegalArgumentException("from range is singular and to range is not: "+
+					"value=" + value + " fromMin=" + fromMin + " fromMax=" + fromMax +
+					"toMin=" + toMin + " toMax=" + toMax);
+		}
+		double a = (value - fromMin)/(fromMax-fromMin);
+		return toMax.multiply(a).add(toMin.multiply(1-a));
+	}
+
+	
 	/**
 	 * Compute the minimum of two values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is

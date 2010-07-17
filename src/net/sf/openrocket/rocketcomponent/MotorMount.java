@@ -3,6 +3,7 @@ package net.sf.openrocket.rocketcomponent;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Coordinate;
 
 public interface MotorMount extends ChangeSource {
 	
@@ -190,5 +191,15 @@ public interface MotorMount extends ChangeSource {
 	 * @return  the inner diameter of the motor mount.
 	 */
 	public double getMotorMountDiameter();
+	
+	
+	/**
+	 * Return the position of the motor relative to this component.  The coordinate
+	 * is that of the front cap of the motor.
+	 * 
+	 * @return	the position of the motor relative to this component.
+	 * @throws  IllegalArgumentException if a motor with the specified ID does not exist.
+	 */
+	public Coordinate getMotorPosition(String id);
 	
 }

@@ -15,6 +15,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.sf.openrocket.file.Loader;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.JarUtil;
 
 
@@ -27,10 +29,11 @@ import net.sf.openrocket.util.JarUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Database<T extends Comparable<T>> extends AbstractSet<T> {
-
+	private static final LogHelper log = Application.getLogger();
+	
 	private final List<T> list = new ArrayList<T>();
-	private final ArrayList<DatabaseListener<T>> listeners = 
-		new ArrayList<DatabaseListener<T>>();
+	private final ArrayList<DatabaseListener<T>> listeners =
+			new ArrayList<DatabaseListener<T>>();
 	private final Loader<T> loader;
 	
 	
@@ -43,12 +46,12 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 	}
 	
 	
-		
+
 	@Override
 	public Iterator<T> iterator() {
 		return new DBIterator();
 	}
-
+	
 	@Override
 	public int size() {
 		return list.size();
@@ -65,13 +68,13 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 				return false;
 			}
 		} else {
-			index = -(index+1);
+			index = -(index + 1);
 		}
-		list.add(index,element);
+		list.add(index, element);
 		fireAddEvent(element);
 		return true;
 	}
-
+	
 	
 	/**
 	 * Get the element with the specified index.
@@ -81,7 +84,7 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 	public T get(int index) {
 		return list.get(index);
 	}
-
+	
 	/**
 	 * Return the index of the given <code>Motor</code>, or -1 if not in the database.
 	 * 
@@ -92,39 +95,39 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		return list.indexOf(m);
 	}
 	
-
+	
 	public void addDatabaseListener(DatabaseListener<T> listener) {
 		listeners.add(listener);
 	}
-
+	
 	public void removeChangeListener(DatabaseListener<T> listener) {
 		listeners.remove(listener);
 	}
+	
+	
 
-	
-	
 	@SuppressWarnings("unchecked")
 	protected void fireAddEvent(T element) {
 		Object[] array = listeners.toArray();
-		for (Object l: array) {
-			((DatabaseListener<T>)l).elementAdded(element, this);
+		for (Object l : array) {
+			((DatabaseListener<T>) l).elementAdded(element, this);
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	protected void fireRemoveEvent(T element) {
 		Object[] array = listeners.toArray();
-		for (Object l: array) {
-			((DatabaseListener<T>)l).elementRemoved(element, this);
+		for (Object l : array) {
+			((DatabaseListener<T>) l).elementRemoved(element, this);
 		}
 	}
 	
-
 	
+
 	////////  Directory loading
 	
-	
-	
+
+
 	/**
 	 * Load all files in a directory to the motor database.  Only files with file
 	 * names matching the given pattern (as matched by <code>String.matches(String)</code>)
@@ -142,18 +145,18 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		
 		File[] files = dir.listFiles(new FilenameFilter() {
 			@Override
-			public boolean accept(File dir, String name) {
+			public boolean accept(File directory, String name) {
 				return name.matches(pattern);
 			}
 		});
 		if (files == null) {
-			throw new IOException("not a directory: "+dir);
+			throw new IOException("not a directory: " + dir);
 		}
-		for (File file: files) {
+		for (File file : files) {
 			try {
 				this.addAll(loader.load(new FileInputStream(file), file.getName()));
 			} catch (IOException e) {
-				System.err.println("Error loading file "+file+": " + e.getMessage());
+				log.warn("Error loading file " + file + ": " + e.getMessage(), e);
 			}
 		}
 	}
@@ -181,7 +184,7 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		JarFile jarFile = new JarFile(file);
 		
 		try {
-
+			
 			// Loop through JAR entries searching for files to load
 			Enumeration<JarEntry> entries = jarFile.entries();
 			while (entries.hasMoreElements()) {
@@ -192,28 +195,27 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 						InputStream stream = jarFile.getInputStream(entry);
 						this.addAll(loader.load(stream, name));
 					} catch (IOException e) {
-						System.err.println("Error loading file " + file + ": "
-								+ e.getMessage());
+						log.warn("Error loading file " + file + ": " + e.getMessage(), e);
 					}
 				}
 			}
-
+			
 		} finally {
 			jarFile.close();
 		}
 	}
 	
 	
-	
+
 	public void load(File file) throws IOException {
 		if (loader == null) {
 			throw new IllegalStateException("no file loader set");
 		}
 		this.addAll(loader.load(new FileInputStream(file), file.getName()));
 	}
+	
+	
 
-	
-	
 	/**
 	 * Iterator class implementation that fires changes if remove() is called.
 	 */
@@ -225,13 +227,13 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 		public boolean hasNext() {
 			return iterator.hasNext();
 		}
-
+		
 		@Override
 		public T next() {
 			current = iterator.next();
 			return current;
 		}
-
+		
 		@Override
 		public void remove() {
 			iterator.remove();

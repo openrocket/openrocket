@@ -17,19 +17,19 @@ import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.util.Coordinate;
 
 public class RASPMotorLoader extends MotorLoader {
-
+	
 	public static final String CHARSET_NAME = "ISO-8859-1";
 	
 	public static final Charset CHARSET = Charset.forName(CHARSET_NAME);
 	
 	
-	
-	
+
+
 	@Override
 	protected Charset getDefaultCharset() {
 		return CHARSET;
 	}
-
+	
 	
 	/**
 	 * Load a <code>Motor</code> from a RASP file specified by the <code>Reader</code>.
@@ -46,7 +46,7 @@ public class RASPMotorLoader extends MotorLoader {
 	public List<Motor> load(Reader reader, String filename) throws IOException {
 		List<Motor> motors = new ArrayList<Motor>();
 		BufferedReader in = new BufferedReader(reader);
-
+		
 		String manufacturer = "";
 		String designation = "";
 		String comment = "";
@@ -64,10 +64,10 @@ public class RASPMotorLoader extends MotorLoader {
 		try {
 			String line;
 			String[] pieces, buf;
-
+			
 			line = in.readLine();
-			main: while (line != null) {   // Until EOF
-
+			main: while (line != null) { // Until EOF
+			
 				manufacturer = "";
 				designation = "";
 				comment = "";
@@ -77,10 +77,10 @@ public class RASPMotorLoader extends MotorLoader {
 				propW = 0;
 				totalW = 0;
 				time.clear();
-				thrust .clear();
-			
+				thrust.clear();
+				
 				// Read comment
-				while (line.length()==0 || line.charAt(0)==';') {
+				while (line.length() == 0 || line.charAt(0) == ';') {
 					if (line.length() > 0) {
 						comment += line.substring(1).trim() + "\n";
 					}
@@ -103,11 +103,11 @@ public class RASPMotorLoader extends MotorLoader {
 				length = Double.parseDouble(pieces[2]) / 1000.0;
 				
 				if (pieces[3].equalsIgnoreCase("None")) {
-
+					
 				} else {
-					buf = split(pieces[3],"[-,]+");
-					for (int i=0; i < buf.length; i++) {
-						if (buf[i].equalsIgnoreCase("P") || 
+					buf = split(pieces[3], "[-,]+");
+					for (int i = 0; i < buf.length; i++) {
+						if (buf[i].equalsIgnoreCase("P") ||
 								buf[i].equalsIgnoreCase("plugged")) {
 							delays.add(Motor.PLUGGED);
 						} else {
@@ -130,9 +130,7 @@ public class RASPMotorLoader extends MotorLoader {
 				}
 				
 				// Read the data
-				for (line = in.readLine(); 
-					 (line != null) && (line.length()==0 || line.charAt(0) != ';');
-					 line = in.readLine()) {
+				for (line = in.readLine(); (line != null) && (line.length() == 0 || line.charAt(0) != ';'); line = in.readLine()) {
 					
 					buf = split(line);
 					if (buf.length == 0) {
@@ -140,7 +138,7 @@ public class RASPMotorLoader extends MotorLoader {
 					} else if (buf.length == 2) {
 						
 						time.add(Double.parseDouble(buf[0]));
-						thrust .add(Double.parseDouble(buf[1]));
+						thrust.add(Double.parseDouble(buf[1]));
 						
 					} else {
 						throw new IOException("Illegal file format.");
@@ -152,7 +150,7 @@ public class RASPMotorLoader extends MotorLoader {
 					throw new IOException("Illegal file format, too short thrust-curve.");
 				}
 				double[] delayArray = new double[delays.size()];
-				for (int i=0; i<delays.size(); i++) {
+				for (int i = 0; i < delays.size(); i++) {
 					delayArray[i] = delays.get(i);
 				}
 				motors.add(createRASPMotor(manufacturer, designation, comment,
@@ -179,21 +177,21 @@ public class RASPMotorLoader extends MotorLoader {
 	 */
 	private static Motor createRASPMotor(String manufacturer, String designation,
 			String comment, double length, double diameter, double[] delays,
-			double propW, double totalW, List<Double> time, List<Double> thrust) 
+			double propW, double totalW, List<Double> time, List<Double> thrust)
 			throws IOException {
 		
 		// Add zero time/thrust if necessary
 		sortLists(time, thrust);
 		finalizeThrustCurve(time, thrust);
-		List<Double> mass = calculateMass(time,thrust,totalW,propW);
+		List<Double> mass = calculateMass(time, thrust, totalW, propW);
 		
 		double[] timeArray = new double[time.size()];
 		double[] thrustArray = new double[time.size()];
 		Coordinate[] cgArray = new Coordinate[time.size()];
-		for (int i=0; i < time.size(); i++) {
+		for (int i = 0; i < time.size(); i++) {
 			timeArray[i] = time.get(i);
 			thrustArray[i] = thrust.get(i);
-			cgArray[i] = new Coordinate(length/2,0,0,mass.get(i));
+			cgArray[i] = new Coordinate(length / 2, 0, 0, mass.get(i));
 		}
 		
 		designation = removeDelay(designation);
@@ -201,16 +199,17 @@ public class RASPMotorLoader extends MotorLoader {
 		// Create the motor digest from data available in RASP files
 		MotorDigest motorDigest = new MotorDigest();
 		motorDigest.update(DataType.TIME_ARRAY, timeArray);
-		motorDigest.update(DataType.MASS_SPECIFIC, totalW, totalW-propW);
+		motorDigest.update(DataType.MASS_SPECIFIC, totalW, totalW - propW);
 		motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
-		final String digest = motorDigest.getDigest();
+		// TODO: HIGH: Motor digest?
+		//		final String digest = motorDigest.getDigest();
 		
-		
+
 		try {
 			
-			return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer), 
+			return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer),
 					designation, comment, Motor.Type.UNKNOWN,
-					delays, diameter, length, timeArray, thrustArray, cgArray, digest);
+					delays, diameter, length, timeArray, thrustArray, cgArray);
 			
 		} catch (IllegalArgumentException e) {
 			

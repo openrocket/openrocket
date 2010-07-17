@@ -28,18 +28,18 @@ public class RockSimMotorLoader extends MotorLoader {
 	public static final String CHARSET_NAME = "UTF-8";
 	
 	public static final Charset CHARSET = Charset.forName(CHARSET_NAME);
-
 	
+
 	/** Any delay longed than this will be interpreted as a plugged motor. */
 	private static final int DELAY_LIMIT = 90;
 	
-
 	
+
 	@Override
 	protected Charset getDefaultCharset() {
 		return CHARSET;
 	}
-
+	
 	
 
 	/**
@@ -70,7 +70,7 @@ public class RockSimMotorLoader extends MotorLoader {
 	}
 	
 	
-	
+
 	/**
 	 * Initial handler for the RockSim engine files.
 	 */
@@ -86,7 +86,7 @@ public class RockSimMotorLoader extends MotorLoader {
 		@Override
 		public ElementHandler openElement(String element,
 				HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-
+			
 			if (element.equals("engine-database") ||
 					element.equals("engine-list")) {
 				// Ignore <engine-database> and <engine-list> elements
@@ -105,11 +105,11 @@ public class RockSimMotorLoader extends MotorLoader {
 			
 			return null;
 		}
-
+		
 		@Override
 		public void closeElement(String element, HashMap<String, String> attributes,
 				String content, WarningSet warnings) throws SAXException {
-
+			
 			if (element.equals("engine")) {
 				Motor motor = motorHandler.getMotor();
 				motors.add(motor);
@@ -122,7 +122,7 @@ public class RockSimMotorLoader extends MotorLoader {
 	 * Handler for a RockSim engine file <motor> element.
 	 */
 	private static class RSEMotorHandler extends ElementHandler {
-
+		
 		private final String manufacturer;
 		private final String designation;
 		private final double[] delays;
@@ -142,7 +142,7 @@ public class RockSimMotorLoader extends MotorLoader {
 		private List<Double> cg;
 		
 		private RSEMotorDataHandler dataHandler = null;
-
+		
 		
 		public RSEMotorHandler(HashMap<String, String> attributes) throws SAXException {
 			String str;
@@ -164,7 +164,7 @@ public class RockSimMotorLoader extends MotorLoader {
 			str = attributes.get("delays");
 			if (str != null) {
 				String[] split = str.split(",");
-				for (String delay: split) {
+				for (String delay : split) {
 					try {
 						
 						double d = Double.parseDouble(delay);
@@ -180,7 +180,7 @@ public class RockSimMotorLoader extends MotorLoader {
 				}
 			}
 			delays = new double[delayList.size()];
-			for (int i=0; i<delayList.size(); i++) {
+			for (int i = 0; i < delayList.size(); i++) {
 				delays[i] = delayList.get(i);
 			}
 			
@@ -261,7 +261,7 @@ public class RockSimMotorLoader extends MotorLoader {
 		@Override
 		public ElementHandler openElement(String element,
 				HashMap<String, String> attributes, WarningSet warnings) throws SAXException {
-
+			
 			if (element.equals("comments")) {
 				return PlainTextHandler.INSTANCE;
 			}
@@ -274,15 +274,15 @@ public class RockSimMotorLoader extends MotorLoader {
 				dataHandler = new RSEMotorDataHandler();
 				return dataHandler;
 			}
-
+			
 			warnings.add("Unknown element '" + element + "' encountered, ignoring.");
 			return null;
 		}
-
+		
 		@Override
 		public void closeElement(String element, HashMap<String, String> attributes,
 				String content, WarningSet warnings) {
-
+			
 			if (element.equals("comments")) {
 				if (description.length() > 0) {
 					description = description + "\n\n" + content.trim();
@@ -300,13 +300,13 @@ public class RockSimMotorLoader extends MotorLoader {
 				
 				sortLists(time, force, mass, cg);
 				
-				for (double d: mass) {
+				for (double d : mass) {
 					if (Double.isNaN(d)) {
 						calculateMass = true;
 						break;
 					}
 				}
-				for (double d: cg) {
+				for (double d : cg) {
 					if (Double.isNaN(d)) {
 						calculateCG = true;
 						break;
@@ -319,8 +319,8 @@ public class RockSimMotorLoader extends MotorLoader {
 		public Motor getMotor() throws SAXException {
 			if (time == null || time.size() == 0)
 				throw new SAXException("Illegal motor data");
-
 			
+
 			finalizeThrustCurve(time, force, mass, cg);
 			final int n = time.size();
 			
@@ -333,16 +333,16 @@ public class RockSimMotorLoader extends MotorLoader {
 				mass = calculateMass(time, force, initMass, propMass);
 			}
 			if (calculateCG) {
-				for (int i=0; i < n; i++) {
-					cg.set(i, length/2);
+				for (int i = 0; i < n; i++) {
+					cg.set(i, length / 2);
 				}
 			}
 			
 			double[] timeArray = toArray(time);
 			double[] thrustArray = toArray(force);
 			Coordinate[] cgArray = new Coordinate[n];
-			for (int i=0; i < n; i++) {
-				cgArray[i] = new Coordinate(cg.get(i),0,0,mass.get(i));
+			for (int i = 0; i < n; i++) {
+				cgArray[i] = new Coordinate(cg.get(i), 0, 0, mass.get(i));
 			}
 			
 
@@ -352,19 +352,20 @@ public class RockSimMotorLoader extends MotorLoader {
 			if (!calculateMass) {
 				motorDigest.update(DataType.MASS_PER_TIME, toArray(mass));
 			} else {
-				motorDigest.update(DataType.MASS_SPECIFIC, initMass, initMass-propMass);
+				motorDigest.update(DataType.MASS_SPECIFIC, initMass, initMass - propMass);
 			}
 			if (!calculateCG) {
 				motorDigest.update(DataType.CG_PER_TIME, toArray(cg));
 			}
 			motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
-			final String digest = motorDigest.getDigest();
+			// TODO: HIGH: Motor digest?
+			//			final String digest = motorDigest.getDigest();
 			
-			
+
 			try {
-				return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer), 
+				return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer),
 						designation, description, type,
-						delays, diameter, length, timeArray, thrustArray, cgArray, digest);
+						delays, diameter, length, timeArray, thrustArray, cgArray);
 			} catch (IllegalArgumentException e) {
 				throw new SAXException("Illegal motor data", e);
 			}
@@ -386,12 +387,15 @@ public class RockSimMotorLoader extends MotorLoader {
 		public List<Double> getTime() {
 			return time;
 		}
+		
 		public List<Double> getForce() {
 			return force;
 		}
+		
 		public List<Double> getMass() {
 			return mass;
 		}
+		
 		public List<Double> getCG() {
 			return cg;
 		}
@@ -400,7 +404,7 @@ public class RockSimMotorLoader extends MotorLoader {
 		@Override
 		public ElementHandler openElement(String element,
 				HashMap<String, String> attributes, WarningSet warnings) {
-
+			
 			if (element.equals("eng-data")) {
 				return NullElementHandler.INSTANCE;
 			}
@@ -408,11 +412,11 @@ public class RockSimMotorLoader extends MotorLoader {
 			warnings.add("Unknown element '" + element + "' encountered, ignoring.");
 			return null;
 		}
-
+		
 		@Override
 		public void closeElement(String element, HashMap<String, String> attributes,
 				String content, WarningSet warnings) throws SAXException {
-
+			
 			double t = parseDouble(attributes.get("t"));
 			double f = parseDouble(attributes.get("f"));
 			double m = parseDouble(attributes.get("m")) / 1000.0;
@@ -441,9 +445,9 @@ public class RockSimMotorLoader extends MotorLoader {
 	}
 	
 	
-	
+
 	private static boolean hasIllegalValue(List<Double> list) {
-		for (Double d: list) {
+		for (Double d : list) {
 			if (d == null || d.isNaN() || d.isInfinite()) {
 				return true;
 			}
@@ -454,7 +458,7 @@ public class RockSimMotorLoader extends MotorLoader {
 	private static double[] toArray(List<Double> list) {
 		final int n = list.size();
 		double[] array = new double[n];
-		for (int i=0; i < n; i++) {
+		for (int i = 0; i < n; i++) {
 			array[i] = list.get(i);
 		}
 		return array;

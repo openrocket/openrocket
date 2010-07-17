@@ -13,6 +13,8 @@ import javax.swing.SwingWorker;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 
 
 /**
@@ -21,7 +23,8 @@ import net.sf.openrocket.gui.main.ExceptionHandler;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
-
+	private static final LogHelper log = Application.getLogger();
+	
 	private final File file;
 	private final InputStream stream;
 	private final RocketLoader loader;
@@ -72,12 +75,12 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			}
 		}
 	}
+	
+	
 
-	
-	
 
 	private class ProgressInputStream extends FilterInputStream {
-
+		
 		private final int size;
 		private int readBytes = 0;
 		private int progress = -1;
@@ -88,14 +91,14 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			try {
 				s = in.available();
 			} catch (IOException e) {
-				System.err.println("ERROR estimating available bytes!");
+				log.info("Exception while estimating available bytes!", e);
 				s = 0;
 			}
 			size = Math.max(s, 1);
 		}
+		
+		
 
-		
-		
 		@Override
 		public int read() throws IOException {
 			int c = in.read();
@@ -108,7 +111,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			}
 			return c;
 		}
-
+		
 		@Override
 		public int read(byte[] b, int off, int len) throws IOException {
 			int n = in.read(b, off, len);
@@ -121,7 +124,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			}
 			return n;
 		}
-
+		
 		@Override
 		public int read(byte[] b) throws IOException {
 			int n = in.read(b);
@@ -134,7 +137,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			}
 			return n;
 		}
-
+		
 		@Override
 		public long skip(long n) throws IOException {
 			long nr = in.skip(n);
@@ -157,9 +160,9 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 				throw new InterruptedIOException("OpenFileWorker was cancelled");
 			}
 		}
+		
+		
 
-		
-		
 		private void setProgress() {
 			int p = MathUtil.clamp(readBytes * 100 / size, 0, 100);
 			if (progress != p) {

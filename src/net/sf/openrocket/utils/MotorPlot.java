@@ -33,14 +33,14 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class MotorPlot extends JDialog {
-
+	
 	private int selected = -1;
 	
-	public MotorPlot(List<String> filenames, List<Motor> motors) {
-		super((JFrame)null, "Motor plot", true);
+	public MotorPlot(List<String> filenames, List<ThrustCurveMotor> motors) {
+		super((JFrame) null, "Motor plot", true);
 		
 		JTabbedPane tabs = new JTabbedPane();
-		for (int i=0; i<filenames.size(); i++) {
+		for (int i = 0; i < filenames.size(); i++) {
 			JPanel pane = createPlotPanel((ThrustCurveMotor) motors.get(i));
 			
 			JButton button = new JButton("Select");
@@ -70,33 +70,33 @@ public class MotorPlot extends JDialog {
 		JPanel panel = new JPanel(new MigLayout());
 		
 
-        XYSeries series = new XYSeries("", false, true);
-        double[] time = motor.getTimePoints();
-        double[] thrust = motor.getThrustPoints();
+		XYSeries series = new XYSeries("", false, true);
+		double[] time = motor.getTimePoints();
+		double[] thrust = motor.getThrustPoints();
 		
-        for (int i=0; i<time.length; i++) {
-        	series.add(time[i], thrust[i]);
-        }
-        
+		for (int i = 0; i < time.length; i++) {
+			series.add(time[i], thrust[i]);
+		}
+		
 		// Create the chart using the factory to get all default settings
-        JFreeChart chart = ChartFactory.createXYLineChart(
-            "Motor thrust curve",
-            "Time / s", 
-            "Thrust / N", 
-            new XYSeriesCollection(series),
-            PlotOrientation.VERTICAL,
-            true,
-            true,
-            false
-        );
-        
-        ((XYLineAndShapeRenderer)chart.getXYPlot().getRenderer()).setShapesVisible(true);
-        
+		JFreeChart chart = ChartFactory.createXYLineChart(
+				"Motor thrust curve",
+				"Time / s",
+				"Thrust / N",
+				new XYSeriesCollection(series),
+				PlotOrientation.VERTICAL,
+				true,
+				true,
+				false
+				);
+		
+		((XYLineAndShapeRenderer) chart.getXYPlot().getRenderer()).setShapesVisible(true);
+		
 		ChartPanel chartPanel = new ChartPanel(chart,
 				false, // properties
-				true,  // save
+				true, // save
 				false, // print
-				true,  // zoom
+				true, // zoom
 				true); // tooltips
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.setEnforceFileExtensions(true);
@@ -105,8 +105,8 @@ public class MotorPlot extends JDialog {
 		chartPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 		
 		panel.add(chartPanel, "grow, wrap para");
-        
 		
+
 		JTextArea area = new JTextArea(5, 40);
 		StringBuilder sb = new StringBuilder();
 		sb.append("Designation:  ").append(motor.getDesignation()).append("        ");
@@ -117,17 +117,17 @@ public class MotorPlot extends JDialog {
 		area.setText(sb.toString());
 		panel.add(area, "grow, wrap");
 		
-		
+
 		return panel;
 	}
 	
 	
-	
+
 	public int getSelected() {
 		return selected;
 	}
-
-
+	
+	
 	public static void main(String[] args) throws IOException {
 		if (args.length == 0) {
 			System.err.println("MotorPlot <files>");
@@ -135,18 +135,18 @@ public class MotorPlot extends JDialog {
 		}
 		
 		final List<String> filenames = new ArrayList<String>();
-		final List<Motor> motors = new ArrayList<Motor>();
+		final List<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
 		
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		for (String file: args) {
-			for (Motor m: loader.load(new FileInputStream(file), file)) {
+		for (String file : args) {
+			for (Motor m : loader.load(new FileInputStream(file), file)) {
 				filenames.add(file);
-				motors.add(m);
+				motors.add((ThrustCurveMotor) m);
 			}
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
-
+			
 			@Override
 			public void run() {
 				GUIUtil.setBestLAF();
@@ -159,7 +159,7 @@ public class MotorPlot extends JDialog {
 		
 	}
 	
-	
-	
-	
+
+
+
 }

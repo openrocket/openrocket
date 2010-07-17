@@ -1,0 +1,10 @@
+figure;
+load('D12-interpolated');
+plot(D12_interpolated(:,1),D12_interpolated(:,2));
+axis([0 1.7 0 30]);
+hold on;
+xlabel('Time / s');
+ylabel('Thrust / N');
+plot([0 1.65 1.65],[10.2 10.2 0],'--');
+legend('Estes D12','Average thrust');
+print('D12.eps');

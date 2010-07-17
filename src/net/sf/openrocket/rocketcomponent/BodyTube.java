@@ -383,6 +383,17 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
+
+	@Override
+	public Coordinate getMotorPosition(String id) {
+		Motor motor = motors.get(id);
+		if (motor == null) {
+			throw new IllegalArgumentException("No motor with id " + id + " defined.");
+		}
+		
+		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
+	}
+
 	
 
 	
@@ -400,5 +411,4 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		((BodyTube)c).ejectionDelays = (HashMap<String,Double>) ejectionDelays.clone();
 		return c;
 	}
-
 }

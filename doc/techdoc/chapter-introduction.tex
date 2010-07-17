@@ -1,0 +1,168 @@
+
+\chapter{Introduction}
+
+Model rocketry is a sport that involves designing, constructing and
+launching self-made rockets.  Model rockets vary greatly in size,
+shape, weight and construction from detailed scale models of
+professional rockets to lightweight and highly finished competition
+models.  The sport is relatively popular and is often cited as a
+source of inspiration for children to become engineers and
+scientists.
+
+The hobby started as amateur rocketry in the 1950's when hobbyists
+wanted to experiment their skill with building rockets.  Designing,
+building and firing self-made {\it motors} was, however, extremely dangerous,
+and the American Rocket Society (now the American Institute of
+Aeronautics and Astronautics, AIAA) has estimated that about one in seven
+amateur rocketeers during the time were injured in their hobby.  This
+changed in 1958 when the first commercially-built model rocket
+motors became available.  Having industrially-made, reasonably-priced
+and safe motors available removed the most dangerous aspect of amateur
+rocketry.  This along with strict guidelines to the design and
+launching of model rockets formed the foundation for a safe and
+widespread hobby.~\cite[pp.~1--3]{stine}
+
+Since then model rocketry has spread around the globe and among all
+age groups.  Thousands of rockets ranging from 10~cm high miniatures
+to large models reaching altitudes in excess of 10~km are launched
+annually.  Model rocket motors with thrusts from a few Newtons up to
+several kilo-Newtons are readily available.  Since its forming in
+1957, over 90\s000 people have joined the National Association of
+Rocketry (NAR) in the U.S. alone.
+%  Model rocketry is used as an
+%educational device in numerous of schools and by many youth
+%organizations.
+
+In designing rockets, the {\it stability} of a rocket is of central
+priority.  A stable rocket corrects its course if some outside
+force disturbs it slightly.  A disturbance of an unstable rocket
+instead  increases until the rocket starts spinning in the
+air erratically.  As shall be discussed in
+Section~\ref{sec-stability}, a rocket is deemed 
+{\it statically stable} if its center of pressure (CP) is aft of its
+center of gravity (CG)\footnote{An alternative term would be 
+  {\it center of mass}, but in the context of model rocketry, we are
+  interested in the effect of gravity on the rocket.  Thus, the term
+  center of gravity is widely used in model rocketry texts, and this
+  convention will be followed in this thesis.}.
+The center of gravity of a rocket can be easily calculated in advance
+or determined experimentally.  The center of pressure, on the other
+hand, has been quite hard to determine either analytically or
+experimentally.  In 1966 James and Judith Barrowman developed an
+analytical method for determining the CP of a slender-bodied rocket at
+subsonic speeds and presented their results as a research and
+development project at the 8th National Association of Rocketry Annual
+Meeting (NARAM-8)~\cite{barrowman-rd}, and later as a part of James
+Barrowman's Master's thesis~\cite{barrowman-thesis}.  This method has
+become known as the {\it Barrowman method} of determining the CP of a
+rocket within the model rocketry community, and has a major role in
+determining the aerodynamic characteristics of model rockets.
+
+Another important aerodynamic quantity of interest is the 
+{\it aerodynamic drag} of a rocket.  Drag is caused by the flow of air
+around the rocket and it can easily reduce the maximum altitude of a
+rocket by 50--80\% of the otherwise theoretical maximum.  Estimating
+the drag of a model rocket is a rather complex task, and the effects
+of different design choices are not always very evident to a
+hobbyist.
+
+Knowing the fundamental aerodynamic properties of a rocket allows one
+to simulate its free flight.  This involves numerically integrating
+the flight forces and determining the velocity, rotation and position
+of the rocket as a function of time.  This is best performed by
+software designed for the purpose of model rocket design.
+
+RockSim~\cite{rocksim} is one such piece of software.  It is a
+commercial, proprietary program that allows one to define the geometry
+and configuration of a model rocket, estimate its aerodynamic
+properties and simulate a launch with different rocket motors.  It has
+become the {\it de facto} standard software for model rocket
+performance estimation.  However, as a proprietary program, it is
+essentially a ``black-box'' solution.  Someone wishing to study or
+validate the methods will not be able to do so.  Similarly extending
+or customizing the functionality or refining the calculations methods
+to fit ones needs is impossible.  The software is also only available
+on select operating systems.  Finally, the cost of the software may be
+prohibitive especially for younger hobbyists, voluntary organizations,
+clubs and schools.
+
+Open Source software, on the other hand, has become an increasingly
+competitive alternative to proprietary software.  Open Source allows
+free access to the source code of the programs and encourages
+users with the know-how to enhance the software and share their
+changes~\cite{oss-principles}.  Success stories such as the Linux
+operating system, the OpenOffice.org office suite, the Firefox web
+browser and countless others have shown that Open Source software can
+often achieve and even exceed the quality of expensive proprietary
+software.
+
+
+\section{Objectives of the thesis}
+
+The objectives of this thesis work are to:
+%
+\begin{enumerate}
+\item Develop and document relatively easy, yet reasonably accurate
+  methods for the calculation of the fundamental aerodynamic
+  properties of model rockets and their numerical simulation;
+
+\item Test the methods developed and compare the results with other
+  estimates and actual experimental data; and
+
+\item Implement a cross-platform, Open Source model rocket design and
+  simulation software that uses the aforementioned methods, is at the
+  same time easy to use and yet versatile, and which is easily
+  extensible and customizable for user requirements, new types of rocket
+  components and new estimation methods.
+\end{enumerate}
+
+The methods presented will largely follow the methods developed by
+Barrowman~\cite{barrowman-rd,barrowman-thesis}, since these are
+already familiar to the rocketry community.  Several extensions to the
+methods will be added to allow for more accurate calculation at larger
+angles of attack and for fin shapes not accounted for in the original
+paper.  The emphasis will be on subsonic flight, but extensions will
+be made for reasonable estimation at transonic and low supersonic
+velocities.
+
+The software developed as part of the thesis is the OpenRocket
+project~\cite{openrocket}.  It is an Open Source rocket development
+and simulation environment written totally in Java.  The program
+structure has been designed to make full use of object oriented
+programming, allowing one to easily extend its features.  The software
+also includes a framework for creating user-made 
+{\it listener components} (discussed in Section~\ref{sec-listeners})
+that can listen to and interact with the simulation while it is
+running.  This allows a powerful and easy way of interacting with the
+simulation and allows simulating for example guidance systems.
+
+One possible future enhancement that has also specifically been
+considered throughout the development is calculating the aerodynamic
+properties using computational fluid dynamics (CFD).  CFD calculates
+the exact airflow in a discretized mesh around the rocket.  This would
+allow for even more accurate calculation of the aerodynamic forces for
+odd-shaped rockets, for which the methods explained herein do not
+fully apply.
+
+It is anticipated that the software will allow more hobbyists the
+possibility of simulating their rocket designs prior to building them
+and experimenting with different configuration, thus giving them a
+deeper understanding of the aerodynamics of rocket flight.  It will
+also provide a more versatile educational tool since the simulation
+methods are open and everyone will be able to ``look under the hood''
+and see how the software performs the calculations.
+
+In Chapter~\ref{chap-basics} a brief overview of model rocketry and
+its different aspects will be given.  Then in
+Chapter~\ref{chap-aerodynamics} methods for calculating the
+aerodynamic properties of a general model rocket will be presented.
+In Chapter~\ref{chap-simulation} the aspects of simulating a rocket's
+flight are considered.  Chapter~\ref{chap-software} then explains how
+the aerodynamic calculations and simulation are implemented in the
+OpenRocket software and presents some of its features.  In
+Chapter~\ref{chap-experimental} the results of the software simulation
+are compared with the performance of constructed and launched rockets.
+Chapter~\ref{chap-conclusion} then presents a summary of the
+achievements and identifies areas of further work.
+
+

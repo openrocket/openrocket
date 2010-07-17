@@ -114,6 +114,13 @@ public class MathUtilTest {
 	
 	
 	@Test
+	public void mapCoordinateTest() {
+		assertEquals(new Coordinate(0.8, 2.0, 1.6, 4.0), 
+				MathUtil.map(1.0, 0.0, 5.0, new Coordinate(0, 1, 2, 3), new Coordinate(4, 6, 0, 8)));
+	}
+	
+	
+	@Test
 	public void equalsTest() {
 		assertTrue(MathUtil.equals(1.0, 1.0 + MathUtil.EPSILON/3));
 		assertFalse(MathUtil.equals(1.0, 1.0 + MathUtil.EPSILON*2));

@@ -11,33 +11,33 @@ import java.util.Map;
 
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.file.MotorLoader;
-import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.Pair;
 
 public class MotorCompareAll {
-
+	
 	/*
 	 * Usage:
 	 * 
 	 * java MotorCompareAll  *.eng *.rse
 	 */
 	public static void main(String[] args) throws IOException {
-
-		Map<String, Pair<List<Motor>, List<String>>> map =
-			new HashMap<String, Pair<List<Motor>, List<String>>>();
+		
+		Map<String, Pair<List<ThrustCurveMotor>, List<String>>> map =
+				new HashMap<String, Pair<List<ThrustCurveMotor>, List<String>>>();
 		
 		MotorLoader loader = new GeneralMotorLoader();
 		
-		for (String filename: args) {
+		for (String filename : args) {
 			
-			List<Motor> motors = loader.load(new FileInputStream(filename), filename);
+			List<ThrustCurveMotor> motors = (List) loader.load(new FileInputStream(filename), filename);
 			
-			for (Motor m: motors) {
+			for (ThrustCurveMotor m : motors) {
 				String key = m.getManufacturer() + ":" + m.getDesignation();
-				Pair<List<Motor>, List<String>> pair = map.get(key);
+				Pair<List<ThrustCurveMotor>, List<String>> pair = map.get(key);
 				if (pair == null) {
-					pair = new Pair<List<Motor>, List<String>>
-						(new ArrayList<Motor>(), new ArrayList<String>());
+					pair = new Pair<List<ThrustCurveMotor>, List<String>>
+							(new ArrayList<ThrustCurveMotor>(), new ArrayList<String>());
 					map.put(key, pair);
 				}
 				pair.getU().add(m);
@@ -49,11 +49,11 @@ public class MotorCompareAll {
 		
 		List<String> keys = new ArrayList<String>(map.keySet());
 		Collections.sort(keys, collator);
-		for (String basename: keys) {
-			Pair<List<Motor>, List<String>> pair = map.get(basename);
+		for (String basename : keys) {
+			Pair<List<ThrustCurveMotor>, List<String>> pair = map.get(basename);
 			System.err.println(basename + ": " + pair.getV());
 			MotorCompare.compare(pair.getU(), pair.getV());
 		}
 	}
-
+	
 }

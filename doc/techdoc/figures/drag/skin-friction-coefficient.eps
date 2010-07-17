@@ -1,0 +1,1087 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: MATLAB, The Mathworks, Inc. Version 7.6.0.324 (R2008a). Operating System: Linux 2.6.28-11-server #37-Ubuntu SMP Mon Mar 23 17:33:24 UTC 2009 x86_64.
+%%Title: /m/fs/user3/a/38/spniskan/thesis/skin-friction-coefficient.eps
+%%CreationDate: 05/10/2009  18:47:16
+%%DocumentNeededFonts: Helvetica
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%LanguageLevel: 2
+%%Pages: 1
+%%BoundingBox:    33   252   577   540
+%%EndComments
+
+%%BeginProlog
+% MathWorks dictionary
+/MathWorks 160 dict begin
+% definition operators
+/bdef {bind def} bind def
+/ldef {load def} bind def
+/xdef {exch def} bdef
+/xstore {exch store} bdef
+% operator abbreviations
+/c  /clip ldef
+/cc /concat ldef
+/cp /closepath ldef
+/gr /grestore ldef
+/gs /gsave ldef
+/mt /moveto ldef
+/np /newpath ldef
+/cm /currentmatrix ldef
+/sm /setmatrix ldef
+/rm /rmoveto ldef
+/rl /rlineto ldef
+/s {show newpath} bdef
+/sc {setcmykcolor} bdef
+/sr /setrgbcolor ldef
+/sg /setgray ldef
+/w /setlinewidth ldef
+/j /setlinejoin ldef
+/cap /setlinecap ldef
+/rc {rectclip} bdef
+/rf {rectfill} bdef
+% page state control
+/pgsv () def
+/bpage {/pgsv save def} bdef
+/epage {pgsv restore} bdef
+/bplot /gsave ldef
+/eplot {stroke grestore} bdef
+% orientation switch
+/portraitMode 0 def /landscapeMode 1 def /rotateMode 2 def
+% coordinate system mappings
+/dpi2point 0 def
+% font control
+/FontSize 0 def
+/FMS {/FontSize xstore findfont [FontSize 0 0 FontSize neg 0 0]
+  makefont setfont} bdef
+/reencode {exch dup where {pop load} {pop StandardEncoding} ifelse
+  exch dup 3 1 roll findfont dup length dict begin
+  { 1 index /FID ne {def}{pop pop} ifelse } forall
+  /Encoding exch def currentdict end definefont pop} bdef
+/isroman {findfont /CharStrings get /Agrave known} bdef
+/FMSR {3 1 roll 1 index dup isroman {reencode} {pop pop} ifelse
+  exch FMS} bdef
+/csm {1 dpi2point div -1 dpi2point div scale neg translate
+ dup landscapeMode eq {pop -90 rotate}
+  {rotateMode eq {90 rotate} if} ifelse} bdef
+% line types: solid, dotted, dashed, dotdash
+/SO { [] 0 setdash } bdef
+/DO { [.5 dpi2point mul 4 dpi2point mul] 0 setdash } bdef
+/DA { [6 dpi2point mul] 0 setdash } bdef
+/DD { [.5 dpi2point mul 4 dpi2point mul 6 dpi2point mul 4
+  dpi2point mul] 0 setdash } bdef
+% macros for lines and objects
+/L {lineto stroke} bdef
+/MP {3 1 roll moveto 1 sub {rlineto} repeat} bdef
+/AP {{rlineto} repeat} bdef
+/PDlw -1 def
+/W {/PDlw currentlinewidth def setlinewidth} def
+/PP {closepath eofill} bdef
+/DP {closepath stroke} bdef
+/MR {4 -2 roll moveto dup  0 exch rlineto exch 0 rlineto
+  neg 0 exch rlineto closepath} bdef
+/FR {MR stroke} bdef
+/PR {MR fill} bdef
+/L1i {{currentfile picstr readhexstring pop} image} bdef
+/tMatrix matrix def
+/MakeOval {newpath tMatrix currentmatrix pop translate scale
+0 0 1 0 360 arc tMatrix setmatrix} bdef
+/FO {MakeOval stroke} bdef
+/PO {MakeOval fill} bdef
+/PD {currentlinewidth 2 div 0 360 arc fill
+   PDlw -1 eq not {PDlw w /PDlw -1 def} if} def
+/FA {newpath tMatrix currentmatrix pop translate scale
+  0 0 1 5 -2 roll arc tMatrix setmatrix stroke} bdef
+/PA {newpath tMatrix currentmatrix pop	translate 0 0 moveto scale
+  0 0 1 5 -2 roll arc closepath tMatrix setmatrix fill} bdef
+/FAn {newpath tMatrix currentmatrix pop translate scale
+  0 0 1 5 -2 roll arcn tMatrix setmatrix stroke} bdef
+/PAn {newpath tMatrix currentmatrix pop translate 0 0 moveto scale
+  0 0 1 5 -2 roll arcn closepath tMatrix setmatrix fill} bdef
+/vradius 0 def /hradius 0 def /lry 0 def
+/lrx 0 def /uly 0 def /ulx 0 def /rad 0 def
+/MRR {/vradius xdef /hradius xdef /lry xdef /lrx xdef /uly xdef
+  /ulx xdef newpath tMatrix currentmatrix pop ulx hradius add uly
+  vradius add translate hradius vradius scale 0 0 1 180 270 arc 
+  tMatrix setmatrix lrx hradius sub uly vradius add translate
+  hradius vradius scale 0 0 1 270 360 arc tMatrix setmatrix
+  lrx hradius sub lry vradius sub translate hradius vradius scale
+  0 0 1 0 90 arc tMatrix setmatrix ulx hradius add lry vradius sub
+  translate hradius vradius scale 0 0 1 90 180 arc tMatrix setmatrix
+  closepath} bdef
+/FRR {MRR stroke } bdef
+/PRR {MRR fill } bdef
+/MlrRR {/lry xdef /lrx xdef /uly xdef /ulx xdef /rad lry uly sub 2 div def
+  newpath tMatrix currentmatrix pop ulx rad add uly rad add translate
+  rad rad scale 0 0 1 90 270 arc tMatrix setmatrix lrx rad sub lry rad
+  sub translate rad rad scale 0 0 1 270 90 arc tMatrix setmatrix
+  closepath} bdef
+/FlrRR {MlrRR stroke } bdef
+/PlrRR {MlrRR fill } bdef
+/MtbRR {/lry xdef /lrx xdef /uly xdef /ulx xdef /rad lrx ulx sub 2 div def
+  newpath tMatrix currentmatrix pop ulx rad add uly rad add translate
+  rad rad scale 0 0 1 180 360 arc tMatrix setmatrix lrx rad sub lry rad
+  sub translate rad rad scale 0 0 1 0 180 arc tMatrix setmatrix
+  closepath} bdef
+/FtbRR {MtbRR stroke } bdef
+/PtbRR {MtbRR fill } bdef
+/stri 6 array def /dtri 6 array def
+/smat 6 array def /dmat 6 array def
+/tmat1 6 array def /tmat2 6 array def /dif 3 array def
+/asub {/ind2 exch def /ind1 exch def dup dup
+  ind1 get exch ind2 get sub exch } bdef
+/tri_to_matrix {
+  2 0 asub 3 1 asub 4 0 asub 5 1 asub
+  dup 0 get exch 1 get 7 -1 roll astore } bdef
+/compute_transform {
+  dmat dtri tri_to_matrix tmat1 invertmatrix 
+  smat stri tri_to_matrix tmat2 concatmatrix } bdef
+/ds {stri astore pop} bdef
+/dt {dtri astore pop} bdef
+/db {2 copy /cols xdef /rows xdef mul dup 3 mul string
+  currentfile 
+  3 index 0 eq {/ASCIIHexDecode filter}
+  {/ASCII85Decode filter 3 index 2 eq {/RunLengthDecode filter} if }
+  ifelse exch readstring pop
+  dup 0 3 index getinterval /rbmap xdef
+  dup 2 index dup getinterval /gbmap xdef
+  1 index dup 2 mul exch getinterval /bbmap xdef pop pop}bdef
+/it {gs np dtri aload pop moveto lineto lineto cp c
+  cols rows 8 compute_transform 
+  rbmap gbmap bbmap true 3 colorimage gr}bdef
+/il {newpath moveto lineto stroke}bdef
+currentdict end def
+%%EndProlog
+
+%%BeginSetup
+MathWorks begin
+
+0 cap
+
+end
+%%EndSetup
+
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox:    33   252   577   540
+MathWorks begin
+bpage
+%%EndPageSetup
+
+%%BeginObject: obj1
+bplot
+
+/dpi2point 12 def
+portraitMode 0396 6480 csm
+
+    0     0  6528  3456 rc
+85 dict begin %Colortable dictionary
+/c0 { 0.000000 0.000000 0.000000 sr} bdef
+/c1 { 1.000000 1.000000 1.000000 sr} bdef
+/c2 { 0.900000 0.000000 0.000000 sr} bdef
+/c3 { 0.000000 0.820000 0.000000 sr} bdef
+/c4 { 0.000000 0.000000 0.800000 sr} bdef
+/c5 { 0.910000 0.820000 0.320000 sr} bdef
+/c6 { 1.000000 0.260000 0.820000 sr} bdef
+/c7 { 0.000000 0.820000 0.820000 sr} bdef
+c0
+1 j
+1 sg
+   0    0 6529 3457 rf
+6 w
+0 2817 5059 0 0 -2817 849 3076 4 MP
+PP
+-5059 0 0 2817 5059 0 0 -2817 849 3076 5 MP stroke
+4 w
+DO
+SO
+6 w
+0 sg
+ 849 3076 mt 5908 3076 L
+ 849  259 mt 5908  259 L
+ 849 3076 mt  849  259 L
+5908 3076 mt 5908  259 L
+ 849 3076 mt 5908 3076 L
+ 849 3076 mt  849  259 L
+ 849 3076 mt  849 3050 L
+ 849  259 mt  849  284 L
+ 849 3076 mt  849 3025 L
+ 849  259 mt  849  309 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+ 761 3258 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+ 894 3184 mt 
+(4) s
+1229 3076 mt 1229 3050 L
+1229  259 mt 1229  284 L
+1452 3076 mt 1452 3050 L
+1452  259 mt 1452  284 L
+1610 3076 mt 1610 3050 L
+1610  259 mt 1610  284 L
+1733 3076 mt 1733 3050 L
+1733  259 mt 1733  284 L
+1833 3076 mt 1833 3050 L
+1833  259 mt 1833  284 L
+1917 3076 mt 1917 3050 L
+1917  259 mt 1917  284 L
+1991 3076 mt 1991 3050 L
+1991  259 mt 1991  284 L
+2055 3076 mt 2055 3050 L
+2055  259 mt 2055  284 L
+2113 3076 mt 2113 3050 L
+2113  259 mt 2113  284 L
+2113 3076 mt 2113 3025 L
+2113  259 mt 2113  309 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+2025 3258 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+2158 3184 mt 
+(5) s
+2494 3076 mt 2494 3050 L
+2494  259 mt 2494  284 L
+2717 3076 mt 2717 3050 L
+2717  259 mt 2717  284 L
+2875 3076 mt 2875 3050 L
+2875  259 mt 2875  284 L
+2997 3076 mt 2997 3050 L
+2997  259 mt 2997  284 L
+3097 3076 mt 3097 3050 L
+3097  259 mt 3097  284 L
+3182 3076 mt 3182 3050 L
+3182  259 mt 3182  284 L
+3255 3076 mt 3255 3050 L
+3255  259 mt 3255  284 L
+3320 3076 mt 3320 3050 L
+3320  259 mt 3320  284 L
+3378 3076 mt 3378 3050 L
+3378  259 mt 3378  284 L
+3378 3076 mt 3378 3025 L
+3378  259 mt 3378  309 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+3290 3258 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+3423 3184 mt 
+(6) s
+3759 3076 mt 3759 3050 L
+3759  259 mt 3759  284 L
+3981 3076 mt 3981 3050 L
+3981  259 mt 3981  284 L
+4139 3076 mt 4139 3050 L
+4139  259 mt 4139  284 L
+4262 3076 mt 4262 3050 L
+4262  259 mt 4262  284 L
+4362 3076 mt 4362 3050 L
+4362  259 mt 4362  284 L
+4447 3076 mt 4447 3050 L
+4447  259 mt 4447  284 L
+4520 3076 mt 4520 3050 L
+4520  259 mt 4520  284 L
+4585 3076 mt 4585 3050 L
+4585  259 mt 4585  284 L
+4643 3076 mt 4643 3050 L
+4643  259 mt 4643  284 L
+4643 3076 mt 4643 3025 L
+4643  259 mt 4643  309 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+4555 3258 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+4688 3184 mt 
+(7) s
+5023 3076 mt 5023 3050 L
+5023  259 mt 5023  284 L
+5246 3076 mt 5246 3050 L
+5246  259 mt 5246  284 L
+5404 3076 mt 5404 3050 L
+5404  259 mt 5404  284 L
+5527 3076 mt 5527 3050 L
+5527  259 mt 5527  284 L
+5627 3076 mt 5627 3050 L
+5627  259 mt 5627  284 L
+5712 3076 mt 5712 3050 L
+5712  259 mt 5712  284 L
+5785 3076 mt 5785 3050 L
+5785  259 mt 5785  284 L
+5850 3076 mt 5850 3050 L
+5850  259 mt 5850  284 L
+5908 3076 mt 5908 3050 L
+5908  259 mt 5908  284 L
+5908 3076 mt 5908 3025 L
+5908  259 mt 5908  309 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+5820 3258 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+5953 3184 mt 
+(8) s
+ 849 3076 mt  874 3076 L
+5908 3076 mt 5882 3076 L
+ 849 3076 mt  899 3076 L
+5908 3076 mt 5857 3076 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+ 590 3120 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+ 723 3046 mt 
+(-3) s
+ 849 2501 mt  874 2501 L
+5908 2501 mt 5882 2501 L
+ 849 2166 mt  874 2166 L
+5908 2166 mt 5882 2166 L
+ 849 1927 mt  874 1927 L
+5908 1927 mt 5882 1927 L
+ 849 1743 mt  874 1743 L
+5908 1743 mt 5882 1743 L
+ 849 1591 mt  874 1591 L
+5908 1591 mt 5882 1591 L
+ 849 1464 mt  874 1464 L
+5908 1464 mt 5882 1464 L
+ 849 1353 mt  874 1353 L
+5908 1353 mt 5882 1353 L
+ 849 1256 mt  874 1256 L
+5908 1256 mt 5882 1256 L
+ 849 1168 mt  874 1168 L
+5908 1168 mt 5882 1168 L
+ 849 1168 mt  899 1168 L
+5908 1168 mt 5857 1168 L
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+ 590 1212 mt 
+(10) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 80 FMSR
+
+ 723 1138 mt 
+(-2) s
+ 849  594 mt  874  594 L
+5908  594 mt 5882  594 L
+ 849  259 mt  874  259 L
+5908  259 mt 5882  259 L
+ 849 3076 mt 5908 3076 L
+ 849  259 mt 5908  259 L
+ 849 3076 mt  849  259 L
+5908 3076 mt 5908  259 L
+gs 849 259 5060 2818 rc
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 5609 2414 300 MP stroke
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 5310 2349 300 MP stroke
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 5011 2282 300 MP stroke
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 4712 2211 300 MP stroke
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 4413 2137 300 MP stroke
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 
+1 1 1 0 2 0 1 0 1 1 1 0 1 0 1 0 
+1 1 1 0 1 0 1 1 1 0 1 0 1 0 2 1 
+1 0 1 0 1 0 1 1 1 0 1 0 1 1 1 0 
+1 0 1 0 2 1 1 0 1 0 1 1 1 0 1 0 
+1 1 1 0 2 0 1 0 1 1 1 0 1 0 1 1 
+1 0 2 0 1 0 1 1 1 0 1 0 1 1 1 0 
+2 0 1 1 1 0 1 0 1 0 1 1 2 0 1 0 
+1 1 1 0 1 0 2 1 1 0 1 0 1 1 1 0 
+2 0 1 0 1 1 1 0 1 0 2 1 1 0 1 0 
+1 1 2 0 1 0 1 1 1 0 1 0 2 1 1 0 
+1 0 1 1 2 0 1 0 1 1 1 0 2 0 1 1 
+1 0 2 0 1 1 1 0 1 0 2 1 1 0 1 0 
+2 1 1 0 1 0 1 1 2 0 1 0 1 1 2 0 
+1 0 1 1 2 0 1 0 1 1 2 0 1 0 1 1 
+2 0 1 0 1 1 2 0 1 1 1 0 2 0 1 1 
+2 0 1 0 1 1 2 0 1 0 1 1 2 0 1 1 
+2 0 1 0 1 1 2 0 1 0 2 1 1 0 2 1 
+1 0 1 0 2 1 1 0 2 0 1 1 2 0 1 1 
+2 0 1 0 1 1 2 0 1 0 2 1 1 0 2 1 
+1 0 2 0 1 1 2 0 1 1 2 0 1 0 2 1 
+1 0 2 1 1 0 2 0 2 1 1 0 2 1 1 0 
+2 1 1 0 2 0 4066 2048 300 MP stroke
+1 1 2 0 2 1 1 0 2 0 1 1 2 0 2 1 
+1 0 2 1 1 0 2 0 2 1 1 0 2 1 2 0 
+1 1 2 0 2 1 1 0 2 0 2 1 1 0 2 1 
+2 0 1 1 2 0 2 1 1 0 2 1 2 0 2 0 
+1 1 2 0 2 1 2 0 1 1 2 0 2 1 2 0 
+1 1 2 0 2 1 2 0 1 1 2 0 2 1 2 0 
+2 1 2 0 1 1 2 0 2 1 2 0 2 1 2 0 
+2 1 1 0 2 1 2 0 2 1 2 0 2 1 2 0 
+2 1 2 0 2 1 2 0 1 1 2 0 2 1 2 0 
+2 1 2 0 2 1 2 1 2 0 2 1 2 0 2 1 
+2 0 3 1 2 0 2 1 2 1 2 0 2 1 2 0 
+2 1 2 0 2 1 2 1 3 0 2 1 2 0 2 1 
+2 1 2 0 3 1 2 0 2 1 2 1 2 0 3 1 
+2 0 2 1 2 1 3 0 2 1 2 0 2 1 3 1 
+2 0 2 1 3 1 2 0 2 1 3 1 2 0 3 1 
+2 1 2 0 3 1 2 1 3 0 2 1 2 1 3 0 
+2 1 3 1 2 0 3 1 2 1 3 0 3 1 2 1 
+3 1 2 0 3 1 2 1 3 0 3 1 2 1 3 1 
+3 0 2 1 3 1 3 1 3 0 2 1 3 1 3 1 
+3 1 2 0 3 1 3 1 3 1 3 1 3 0 2 1 
+3 1 3 1 3 1 3 0 3 1 3 1 3 1 3 1 
+3 1 3 1 3 0 3 1 3 1 3 1 4 1 3 1 
+3 1 3 1 3 1 4 0 3 1 3 1 3 1 4 1 
+3 1 3 1 4 1 3 1 3 1 4 1 3 1 4 1 
+3 1 4 1 3 1 4 1 3 1 4 1 4 1 3 1 
+4 1 4 1 3 1 4 1 4 1 4 2 4 1 3 1 
+4 1 4 1 4 1 4 1 4 1 4 2 4 1 4 1 
+4 1 5 1 4 2 4 1 4 1 4 1 5 2 4 1 
+4 1 5 1 4 2 5 1 4 1 5 2 4 1 5 1 
+5 2 4 1 5 2 5 1 5 1 5 2 5 1 5 2 
+5 1 5 2 5 1 5 2 5 1 5 2 6 2 5 1 
+6 2 5 1 6 2 5 2 6 1 5 2 6 2 6 2 
+6 1 6 2 6 2 6 2 6 2 6 2 6 1 7 2 
+6 2 7 2 6 2 7 2 7 2 7 2 6 3 7 2 
+8 2 7 2 7 2 7 3 8 2 7 2 8 3 8 2 
+8 3 8 2 8 3 8 2 9 3 8 2 9 3 9 3 
+9 3 9 3 9 2 9 3 10 3 9 3 10 4 10 3 
+11 3 10 3 11 4 3008 1739 300 MP stroke
+11 3 11 4 11 4 12 3 12 4 12 4 12 4 13 4 
+12 4 14 5 13 4 14 5 14 5 15 4 15 5 16 6 
+16 5 16 5 17 6 17 6 18 6 19 6 19 7 20 7 
+21 7 21 7 23 8 23 8 25 9 25 9 27 9 28 11 
+30 10 31 12 34 12 35 13 38 14 41 15 44 16 47 19 
+53 20 58 22 64 26 74 30 84 34 100 42 123 53 158 71 
+223 106 380 197 849 843 51 MP stroke
+DA
+843 0 5065 2294 2 MP stroke
+DO
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 5609 2425 300 MP stroke
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 5310 2367 300 MP stroke
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 5011 2310 300 MP stroke
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 4712 2256 300 MP stroke
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 1 0 1 0 1 0 1 0 1 0 
+1 1 1 0 1 0 1 0 1 0 1 0 1 0 1 1 
+1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 1 1 0 4413 2209 300 MP stroke
+1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 0 1 0 1 1 1 0 
+1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 0 1 0 1 1 1 0 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 
+1 0 1 0 2 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 2 0 
+1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 2 0 1 0 1 1 1 0 1 0 1 0 
+1 0 1 0 2 0 1 0 1 1 1 0 1 0 1 0 
+1 0 2 0 1 0 1 0 1 1 1 0 1 0 1 0 
+2 0 1 0 1 0 1 0 1 1 1 0 2 0 1 0 
+1 0 1 0 1 0 2 0 1 0 1 1 1 0 1 0 
+2 0 1 0 1 0 1 0 1 0 2 1 1 0 1 0 
+1 0 2 0 1 0 1 0 1 0 1 1 2 0 1 0 
+1 0 1 0 2 0 1 0 1 0 1 1 2 0 1 0 
+1 0 2 0 1 0 1 0 1 0 2 0 1 1 1 0 
+2 0 1 0 1 0 1 0 2 0 1 0 1 1 2 0 
+1 0 1 0 2 0 1 0 1 0 2 0 1 0 1 1 
+2 0 1 0 1 0 2 0 1 0 1 0 2 0 1 1 
+2 0 1 0 1 0 2 0 1 0 1 0 2 0 1 0 
+2 1 1 0 1 0 2 0 1 0 2 0 1 0 2 0 
+1 0 1 1 2 0 1 0 2 0 1 0 2 0 1 0 
+2 0 1 0 1 1 2 0 1 0 2 0 1 0 2 0 
+1 0 2 0 1 0 2 1 1 0 2 0 1 0 2 0 
+1 0 2 0 1 0 2 0 2 0 1 1 2 0 1 0 
+2 0 1 0 2 0 4066 2173 300 MP stroke
+1 0 2 0 2 0 1 0 2 1 1 0 2 0 2 0 
+1 0 2 0 1 0 2 0 2 0 1 0 2 0 2 1 
+1 0 2 0 2 0 1 0 2 0 2 0 1 0 2 0 
+2 0 1 0 2 1 2 0 1 0 2 0 2 0 2 0 
+1 0 2 0 2 0 2 0 1 0 2 0 2 0 2 1 
+1 0 2 0 2 0 2 0 1 0 2 0 2 0 2 0 
+2 0 2 0 1 0 2 0 2 0 2 1 2 0 2 0 
+2 0 1 0 2 0 2 0 2 0 2 0 2 0 2 0 
+2 0 2 0 2 0 2 0 1 0 2 0 2 0 2 0 
+2 0 2 0 2 0 2 1 2 0 2 0 2 0 2 0 
+2 0 3 0 2 0 2 0 2 0 2 0 2 0 2 0 
+2 0 2 0 2 0 2 0 3 0 2 0 2 0 2 0 
+2 0 2 0 3 0 2 0 2 0 2 0 2 0 3 0 
+2 0 2 0 2 0 3 0 2 0 2 0 2 -1 3 0 
+2 0 2 0 3 0 2 0 2 0 3 0 2 0 3 0 
+2 0 2 0 3 0 2 0 3 0 2 0 2 -1 3 0 
+2 0 3 0 2 0 3 0 2 0 3 0 3 0 2 -1 
+3 0 2 0 3 0 2 0 3 0 3 0 2 0 3 -1 
+3 0 2 0 3 0 3 0 3 -1 2 0 3 0 3 0 
+3 0 2 -1 3 0 3 0 3 0 3 0 3 -1 2 0 
+3 0 3 0 3 -1 3 0 3 0 3 -1 3 0 3 0 
+3 -1 3 0 3 0 3 -1 3 0 3 0 4 -1 3 0 
+3 0 3 -1 3 0 4 -1 3 0 3 -1 3 0 4 0 
+3 -1 3 0 4 -1 3 0 3 -1 4 0 3 -1 4 -1 
+3 0 4 -1 3 0 4 -1 3 -1 4 0 4 -1 3 -1 
+4 0 4 -1 3 -1 4 0 4 -1 4 -1 4 -1 3 -1 
+4 0 4 -1 4 -1 4 -1 4 -1 4 -1 4 -1 4 -1 
+4 -1 5 -1 4 -1 4 -1 4 -1 4 -2 5 -1 4 -1 
+4 -1 5 -2 4 -1 5 -1 4 -2 5 -1 4 -2 5 -1 
+5 -2 4 -1 5 -2 5 -2 5 -2 5 -1 5 -2 5 -2 
+5 -2 5 -2 5 -2 5 -2 5 -2 5 -3 6 -2 5 -2 
+6 -3 5 -2 6 -3 5 -3 6 -3 5 -2 6 -3 6 -3 
+6 -4 6 -3 6 -3 6 -4 6 -3 6 -4 6 -4 7 -4 
+6 -4 7 -4 6 -5 7 -4 7 -5 7 -5 6 -5 7 -6 
+8 -5 7 -6 7 -6 7 -6 8 -7 7 -7 8 -7 8 -7 
+8 -8 8 -8 8 -9 8 -9 9 -9 8 -10 9 -10 9 -11 
+9 -12 9 -12 9 -13 9 -13 10 -15 9 -15 10 -16 10 -17 
+11 5 10 8 11 8 3008 2562 300 MP stroke
+11 8 11 9 11 8 12 9 12 9 12 9 12 9 13 10 
+12 10 14 10 13 10 14 10 14 11 15 11 15 12 16 11 
+16 12 16 13 17 12 17 13 18 14 19 14 19 15 20 15 
+21 15 21 17 23 16 23 18 25 18 25 20 27 20 28 21 
+30 23 31 23 34 25 35 27 38 29 41 30 44 33 47 37 
+53 39 58 44 64 48 74 56 84 64 100 75 123 92 158 120 
+223 167 380 288 849 933 51 MP stroke
+DA
+2326 0 3582 1913 2 MP stroke
+2922 0 2986 1731 2 MP stroke
+3362 0 2546 1579 2 MP stroke
+3853 0 2055 1380 2 MP stroke
+gr
+
+DA
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 120 FMSR
+
+2909 3401 mt 
+(Reynolds number) s
+ 508 2266 mt  -90 rotate
+(Skin friction coefficient) s
+90 rotate
+ 832 3119 mt 
+( ) s
+5892  301 mt 
+( ) s
+SO
+1 sg
+0 480 1839 0 0 -480 4009 799 4 MP
+PP
+-1839 0 0 480 1839 0 0 -480 4009 799 5 MP stroke
+4 w
+DO
+SO
+6 w
+0 sg
+4009  799 mt 5848  799 L
+4009  319 mt 5848  319 L
+4009  799 mt 4009  319 L
+5848  799 mt 5848  319 L
+4009  799 mt 5848  799 L
+4009  799 mt 4009  319 L
+4009  799 mt 5848  799 L
+4009  319 mt 5848  319 L
+4009  799 mt 4009  319 L
+5848  799 mt 5848  319 L
+4470  453 mt 
+(Turbulent layer) s
+gs 4009 319 1840 481 rc
+355 0 4079 411 2 MP stroke
+gr
+
+4470  602 mt 
+(Roughness-limited) s
+gs 4009 319 1840 481 rc
+DA
+355 0 4079 559 2 MP stroke
+SO
+gr
+
+4470  750 mt 
+(Laminar/transitional layer) s
+gs 4009 319 1840 481 rc
+DO
+355 0 4079 706 2 MP stroke
+SO
+gr
+
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5244 1308 mt 
+(R) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 72 FMSR
+
+5313 1356 mt 
+(s) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5349 1308 mt 
+( = 500 ) s
+%%IncludeResource: font Symbol
+/Symbol /ISOLatin1Encoding 96 FMSR
+
+5645 1308 mt 
+(m) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5700 1308 mt 
+(m) s
+5461 1538 mt 
+(150 ) s
+%%IncludeResource: font Symbol
+/Symbol /ISOLatin1Encoding 96 FMSR
+
+5647 1538 mt 
+(m) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5702 1538 mt 
+(m) s
+5525 1688 mt 
+(60 ) s
+%%IncludeResource: font Symbol
+/Symbol /ISOLatin1Encoding 96 FMSR
+
+5658 1688 mt 
+(m) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5713 1688 mt 
+(m) s
+5525 1876 mt 
+(20 ) s
+%%IncludeResource: font Symbol
+/Symbol /ISOLatin1Encoding 96 FMSR
+
+5658 1876 mt 
+(m) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5713 1876 mt 
+(m) s
+5582 2243 mt 
+(2 ) s
+%%IncludeResource: font Symbol
+/Symbol /ISOLatin1Encoding 96 FMSR
+
+5662 2243 mt 
+(m) s
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 96 FMSR
+
+5717 2243 mt 
+(m) s
+
+end %%Color Dict
+
+eplot
+%%EndObject
+
+epage
+end
+
+showpage
+
+%%Trailer
+%%EOF

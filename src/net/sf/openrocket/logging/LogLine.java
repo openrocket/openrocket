@@ -3,6 +3,20 @@ package net.sf.openrocket.logging;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Container object for a log line.  A log line consists of the following elements:
+ * <ul>
+ * 	<li>a LogLevel
+ * 	<li>a TraceException
+ * 	<li>a message
+ * 	<li>a cause Throwable
+ * 	<li>an incremental log line counter (provided by LogLine)
+ * 	<li>a millisecond timestamp (provided by LogLine)
+ * </ul>
+ * Any one of the provided input values may be null.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class LogLine implements Comparable<LogLine> {
 	
 	private static final AtomicInteger logCount = new AtomicInteger(1);
@@ -15,18 +29,13 @@ public class LogLine implements Comparable<LogLine> {
 	private final String message;
 	private final Throwable cause;
 	
-	private String formattedMessage = null;
+	private volatile String formattedMessage = null;
 	
 
 	public LogLine(LogLevel level, TraceException trace, String message, Throwable cause) {
-		this(level, logCount.getAndIncrement(), System.currentTimeMillis() - startTime,
-				trace, message, cause);
+		this(level, logCount.getAndIncrement(), System.currentTimeMillis() - startTime, trace, message, cause);
 	}
 	
-	public LogLine(LogLevel level, int count, TraceException trace, String message, 
-			Throwable cause) {
-		this(level, count, System.currentTimeMillis() - startTime, trace, message, cause);
-	}
 	
 	public LogLine(LogLevel level, int count, long timestamp, 
 			TraceException trace, String message, Throwable cause) {
@@ -98,16 +107,19 @@ public class LogLine implements Comparable<LogLine> {
 	@Override
 	public String toString() {
 		if (formattedMessage == null) {
-			formattedMessage = String.format("%4d %10.3f %-" + LogLevel.LENGTH + "s %s %s",
-					count, timestamp/1000.0, level.toString(),
-					trace.getMessage(), message);
+			String str;
+			str = String.format("%4d %10.3f %-" + LogLevel.LENGTH + "s %s %s",
+					count, timestamp/1000.0, (level != null) ? level.toString() : "NULL",
+					(trace != null) ? trace.getMessage() : "(-)",
+					message);
 			if (cause != null) {
 				StackTraceWriter stw = new StackTraceWriter();
 				PrintWriter pw = new PrintWriter(stw);
 				cause.printStackTrace(pw);
 				pw.flush();
-				formattedMessage = formattedMessage + "\n" + stw.toString();
+				str = str + "\n" + stw.toString();
 			}
+			formattedMessage = str;
 		}
 		return formattedMessage;
 	}

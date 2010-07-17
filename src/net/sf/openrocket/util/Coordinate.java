@@ -2,6 +2,9 @@ package net.sf.openrocket.util;
 
 import java.io.Serializable;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
+
 /**
  * An immutable class of weighted coordinates.  The weights are non-negative.
  * 
@@ -10,6 +13,7 @@ import java.io.Serializable;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class Coordinate implements Serializable {
+	private static final LogHelper log = Application.getLogger();
 	
 	////////  Debug section
 	/*
@@ -19,7 +23,7 @@ public final class Coordinate implements Serializable {
 	private static final boolean COUNT_DEBUG;
 	private static final int COUNT_DIFF;
 	static {
-		String str = System.getProperty("openrocket.debug.coordinatecount", null);
+		String str = System.getProperty("openrocket.debug.coordinatecount");
 		int diff = 0;
 		if (str == null) {
 			COUNT_DEBUG = false;
@@ -28,7 +32,8 @@ public final class Coordinate implements Serializable {
 			COUNT_DEBUG = true;
 			try {
 				diff = Integer.parseInt(str);
-			} catch (NumberFormatException ignore) { }
+			} catch (NumberFormatException ignore) {
+			}
 			if (diff < 1000)
 				diff = 1000000;
 			COUNT_DIFF = diff;
@@ -39,72 +44,80 @@ public final class Coordinate implements Serializable {
 	{
 		// Debug count
 		if (COUNT_DEBUG) {
-			count++;
-			if ((count % COUNT_DIFF) == 0) {
-				System.out.println("Coordinate instantiated " + count + " times.");
+			synchronized (Coordinate.class) {
+				count++;
+				if ((count % COUNT_DIFF) == 0) {
+					log.debug("Coordinate instantiated " + count + " times.");
+				}
 			}
 		}
 	}
 	
 	////////  End debug section
 	
-	
-	
-	public static final Coordinate NUL = new Coordinate(0,0,0,0);
-	public static final Coordinate NaN = new Coordinate(Double.NaN,Double.NaN,
-			Double.NaN,Double.NaN);
 
-	public final double x,y,z;
+
+	public static final Coordinate NUL = new Coordinate(0, 0, 0, 0);
+	public static final Coordinate NaN = new Coordinate(Double.NaN, Double.NaN,
+			Double.NaN, Double.NaN);
+	
+	public final double x, y, z;
 	public final double weight;
 	
-	
-	private double length = -1;  /* Cached when calculated */
-	
+
+	private double length = -1; /* Cached when calculated */
 	
 	
 
+
 	public Coordinate() {
-		this(0,0,0,0);
+		this(0, 0, 0, 0);
 	}
 	
 	public Coordinate(double x) {
-		this(x,0,0,0);
+		this(x, 0, 0, 0);
 	}
 	
 	public Coordinate(double x, double y) {
-		this(x,y,0,0);
+		this(x, y, 0, 0);
 	}
 	
 	public Coordinate(double x, double y, double z) {
-		this(x,y,z,0);
+		this(x, y, z, 0);
 	}
+	
 	public Coordinate(double x, double y, double z, double w) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.weight=w;
+		this.weight = w;
 		
 	}
-
+	
 	
 	public boolean isWeighted() {
 		return (weight != 0);
 	}
 	
+	/**
+	 * Check whether any of the coordinate values is NaN.
+	 * 
+	 * @return	true if the x, y, z or weight is NaN
+	 */
 	public boolean isNaN() {
 		return Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z) || Double.isNaN(weight);
 	}
 	
 	public Coordinate setX(double x) {
-		return new Coordinate(x,this.y,this.z,this.weight);
+		return new Coordinate(x, this.y, this.z, this.weight);
 	}
 	
 	public Coordinate setY(double y) {
-		return new Coordinate(this.x,y,this.z,this.weight);
+		return new Coordinate(this.x, y, this.z, this.weight);
 	}
 	
 	public Coordinate setZ(double z) {
-		return new Coordinate(this.x,this.y,z,this.weight);
+		return new Coordinate(this.x, this.y, z, this.weight);
 	}
 	
 	public Coordinate setWeight(double weight) {
@@ -114,7 +127,7 @@ public final class Coordinate implements Serializable {
 	public Coordinate setXYZ(Coordinate c) {
 		return new Coordinate(c.x, c.y, c.z, this.weight);
 	}
-
+	
 	
 	/**
 	 * Add the coordinate and weight of two coordinates.
@@ -123,18 +136,18 @@ public final class Coordinate implements Serializable {
 	 * @return		 the sum of the coordinates
 	 */
 	public Coordinate add(Coordinate other) {
-		return new Coordinate(this.x+other.x, this.y+other.y, this.z+other.z, 
-				this.weight+other.weight);
+		return new Coordinate(this.x + other.x, this.y + other.y, this.z + other.z,
+				this.weight + other.weight);
 	}
 	
 	public Coordinate add(double x, double y, double z) {
-		return new Coordinate(this.x+x, this.y+y, this.z+z, this.weight);
+		return new Coordinate(this.x + x, this.y + y, this.z + z, this.weight);
 	}
-
+	
 	public Coordinate add(double x, double y, double z, double weight) {
-		return new Coordinate(this.x+x, this.y+y, this.z+z, this.weight+weight);
+		return new Coordinate(this.x + x, this.y + y, this.z + z, this.weight + weight);
 	}
-
+	
 	/**
 	 * Subtract a Coordinate from this Coordinate.  The weight of the resulting Coordinate
 	 * is the same as of this Coordinate, the weight of the argument is ignored.
@@ -143,9 +156,9 @@ public final class Coordinate implements Serializable {
 	 * @return  The result
 	 */
 	public Coordinate sub(Coordinate other) {
-		return new Coordinate(this.x-other.x, this.y-other.y, this.z-other.z, this.weight);
+		return new Coordinate(this.x - other.x, this.y - other.y, this.z - other.z, this.weight);
 	}
-
+	
 	/**
 	 * Subtract the specified values from this Coordinate.  The weight of the result
 	 * is the same as the weight of this Coordinate.
@@ -168,9 +181,9 @@ public final class Coordinate implements Serializable {
 	 * @return   The product. 
 	 */
 	public Coordinate multiply(double m) {
-		return new Coordinate(this.x*m, this.y*m, this.z*m, this.weight*m);
+		return new Coordinate(this.x * m, this.y * m, this.z * m, this.weight * m);
 	}
-
+	
 	/**
 	 * Dot product of two Coordinates, taken as vectors.  Equal to
 	 * x1*x2+y1*y2+z1*z2
@@ -178,21 +191,22 @@ public final class Coordinate implements Serializable {
 	 * @return   The dot product.
 	 */
 	public double dot(Coordinate other) {
-		return this.x*other.x + this.y*other.y + this.z*other.z;
+		return this.x * other.x + this.y * other.y + this.z * other.z;
 	}
+	
 	/**
 	 * Dot product of two Coordinates.
 	 */
 	public static double dot(Coordinate v1, Coordinate v2) {
-		return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
-
+	
 	/**
 	 * Distance from the origin to the Coordinate.
 	 */
 	public double length() {
 		if (length < 0) {
-			length = Math.sqrt(x*x+y*y+z*z); 
+			length = Math.sqrt(x * x + y * y + z * z);
 		}
 		return length;
 	}
@@ -201,7 +215,7 @@ public final class Coordinate implements Serializable {
 	 * Square of the distance from the origin to the Coordinate.
 	 */
 	public double length2() {
-		return x*x+y*y+z*z;
+		return x * x + y * y + z * z;
 	}
 	
 	
@@ -231,12 +245,12 @@ public final class Coordinate implements Serializable {
 		if (l < 0.0000001) {
 			throw new IllegalStateException("Cannot normalize zero coordinate");
 		}
-		return new Coordinate(x/l, y/l, z/l, weight);
+		return new Coordinate(x / l, y / l, z / l, weight);
 	}
 	
 	
-	
-	
+
+
 	/**
 	 * Weighted average of two coordinates.  If either of the weights are positive,
 	 * the result is the weighted average of the coordinates and the weight is the sum
@@ -248,44 +262,41 @@ public final class Coordinate implements Serializable {
 	 * returned.
 	 */
 	public Coordinate average(Coordinate other) {
-		double x,y,z,w;
+		double x, y, z, w;
 		
 		if (other == null)
 			return this;
 		
 		w = this.weight + other.weight;
 		if (Math.abs(w) < MathUtil.pow2(MathUtil.EPSILON)) {
-			x = (this.x+other.x)/2;
-			y = (this.y+other.y)/2;
-			z = (this.z+other.z)/2;
+			x = (this.x + other.x) / 2;
+			y = (this.y + other.y) / 2;
+			z = (this.z + other.z) / 2;
 			w = 0;
 		} else {
-			x = (this.x*this.weight + other.x*other.weight)/w;
-			y = (this.y*this.weight + other.y*other.weight)/w;
-			z = (this.z*this.weight + other.z*other.weight)/w;
+			x = (this.x * this.weight + other.x * other.weight) / w;
+			y = (this.y * this.weight + other.y * other.weight) / w;
+			z = (this.z * this.weight + other.z * other.weight) / w;
 		}
-		return new Coordinate(x,y,z,w);
+		return new Coordinate(x, y, z, w);
 	}
 	
 	
 	/**
-	 * Tests whether the coordinates (not weight!) are the same.
-	 * 
-	 * Compares only the (x,y,z) coordinates, NOT the weight.  Coordinate comparison is
-	 * done to the precision of COMPARISON_DELTA.
+	 * Tests whether the coordinates are the equal.
 	 * 
 	 * @param other  Coordinate to compare to.
-	 * @return  true if the coordinates are equal
+	 * @return  true if the coordinates are equal (x, y, z and weight)
 	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Coordinate))
 			return false;
 		
-		final Coordinate c = (Coordinate)other;
+		final Coordinate c = (Coordinate) other;
 		return (MathUtil.equals(this.x, c.x) &&
 				MathUtil.equals(this.y, c.y) &&
-				MathUtil.equals(this.z, c.z));
+				MathUtil.equals(this.z, c.z) && MathUtil.equals(this.weight, c.weight));
 	}
 	
 	/**
@@ -293,17 +304,17 @@ public final class Coordinate implements Serializable {
 	 */
 	@Override
 	public int hashCode() {
-		return (int)((x+y+z)*100000);
+		return (int) ((x + y + z) * 100000);
 	}
 	
 	
 	@Override
 	public String toString() {
 		if (isWeighted())
-			return String.format("(%.3f,%.3f,%.3f,w=%.3f)", x,y,z,weight);
+			return String.format("(%.3f,%.3f,%.3f,w=%.3f)", x, y, z, weight);
 		else
-			return String.format("(%.3f,%.3f,%.3f)", x,y,z);
+			return String.format("(%.3f,%.3f,%.3f)", x, y, z);
 	}
 	
-	
+
 }

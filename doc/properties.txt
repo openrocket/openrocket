@@ -1,0 +1,44 @@
+
+System properties used by OpenRocket:
+=====================================
+
+
+Logging options
+---------------
+
+Possible values are ERROR, WARN, USER, INFO, DEBUG and ALL.
+
+
+openrocket.log.stderr
+	Defines from which log level upwards log events are written to STDERR.  Defaults to no output.
+
+openrocket.log.stdout
+	Defines from which log level upwards log events are written to STDOUT.  Defaults to no output.
+
+openrocket.log.tracelevel
+	Defines from which log level upwards the logging position is stored along with the log line.
+	Defaults to INFO.
+
+
+
+
+Debugging options
+-----------------
+
+openrocket.debug.menu
+	If defined the "Debug" menu will be displayed in the main application window.
+
+openrocket.debug.bugurl
+	URL used for sending bug reports.
+
+openrocket.debug.updateurl
+	URL used for retrieving update notifications.
+
+openrocket.debug.coordinatecount
+	If defined, the number of instantiations of the Coordinate class are counted and reported
+	every 1M instantiations, or as often as defined by this parameter.
+
+openrocket.debug.quaternioncount
+	If defined, the number of instantiations of the Quaternion class are counted and reported
+	every 1M instantiations, or as often as defined by this parameter.
+

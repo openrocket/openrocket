@@ -1,23 +1,74 @@
 package net.sf.openrocket.simulation;
 
+import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Quaternion;
 
 public class RK4SimulationStatus extends SimulationStatus {
-	public Quaternion orientation;
-	public Coordinate rotation;
+	private Coordinate launchRodDirection;
 	
-	public Coordinate launchRodDirection;
+	private double previousAcceleration = 0;
+	private AtmosphericConditions previousAtmosphericConditions;
+	
+	// Used for determining when to store aerodynamic computation warnings:
+	private double maxZVelocity = 0;
+	private double startWarningTime = -1;
 	
 	
-	/**
-	 * Provides a copy of the simulation status.  The orientation quaternion is
-	 * cloned as well, so changing it does not affect other simulation status objects.
-	 */
+	public void setLaunchRodDirection(Coordinate launchRodDirection) {
+		this.launchRodDirection = launchRodDirection;
+	}
+	
+	
+	public Coordinate getLaunchRodDirection() {
+		return launchRodDirection;
+	}
+	
+	
+
+	public double getPreviousAcceleration() {
+		return previousAcceleration;
+	}
+	
+	
+	public void setPreviousAcceleration(double previousAcceleration) {
+		this.previousAcceleration = previousAcceleration;
+	}
+	
+	
+	public AtmosphericConditions getPreviousAtmosphericConditions() {
+		return previousAtmosphericConditions;
+	}
+	
+	
+	public void setPreviousAtmosphericConditions(
+			AtmosphericConditions previousAtmosphericConditions) {
+		this.previousAtmosphericConditions = previousAtmosphericConditions;
+	}
+	
+	
+	public double getMaxZVelocity() {
+		return maxZVelocity;
+	}
+	
+	
+	public void setMaxZVelocity(double maxZVelocity) {
+		this.maxZVelocity = maxZVelocity;
+	}
+	
+	
+	public double getStartWarningTime() {
+		return startWarningTime;
+	}
+	
+	
+	public void setStartWarningTime(double startWarningTime) {
+		this.startWarningTime = startWarningTime;
+	}
+	
+	
 	@Override
 	public RK4SimulationStatus clone() {
-		RK4SimulationStatus copy = (RK4SimulationStatus) super.clone();
-		copy.orientation = this.orientation.clone();
-		return copy;
+		return (RK4SimulationStatus) super.clone();
 	}
+	
 }

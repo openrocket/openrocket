@@ -1,100 +1,247 @@
 package net.sf.openrocket.startup;
 
 import java.awt.GraphicsEnvironment;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.ToolTipManager;
+
+import net.sf.openrocket.communication.UpdateInfo;
+import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.database.MotorSetDatabase;
+import net.sf.openrocket.file.DirectoryIterator;
+import net.sf.openrocket.file.GeneralMotorLoader;
+import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
+import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.gui.main.SimpleFileFilter;
+import net.sf.openrocket.gui.main.Splash;
+import net.sf.openrocket.logging.DelegatorLogger;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.LogLevel;
+import net.sf.openrocket.logging.LogLevelBufferLogger;
+import net.sf.openrocket.logging.PrintStreamLogger;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.util.Pair;
+import net.sf.openrocket.util.Prefs;
 
 
 /**
  * A startup class that checks that a suitable JRE environment is being run.
  * If the environment is too old the execution is canceled, and if OpenJDK is being
  * used warns the user of problems and confirms whether to continue.
- * <p>
- * Note:  This class must be Java 1.4 compatible and calls the next class using
- * only reflection.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Startup {
 	
-	public static final String START_CLASS = "net.sf.openrocket.gui.main.BasicFrame";
+	private static LogHelper log;
 	
-	public static final int REQUIRED_MAJOR_VERSION = 1;
-	public static final int REQUIRED_MINOR_VERSION = 6;
+	private static final String LOG_STDERR_PROPERTY = "openrocket.log.stderr";
+	private static final String LOG_STDOUT_PROPERTY = "openrocket.log.stdout";
+	
+	private static final int LOG_BUFFER_LENGTH = 50;
+	
+	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
+	
+	
 
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) throws Exception {
 		
-		checkVersion();
+		// Initialize logging first so we can use it
+		initializeLogging();
+		
+		// Check that we have a head
 		checkHead();
-		checkOpenJDK();
 		
-		// Load and execute START_CLASS
-		try {
-			
-			Class cls = Class.forName(START_CLASS);
-			Method m = cls.getMethod("main", new Class[] {String[].class});
-			m.invoke(null, new Object[] { args });
-			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			error(new String[] {"Error starting main class!", "Please report a bug."});
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-			error(new String[] {"Error starting main class!", "Please report a bug."});
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-			error(new String[] {"Error starting main class!", "Please report a bug."});
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			error(new String[] {"Error starting main class!", "Please report a bug."});
-		}
+		// Check that we're running a good version of a JRE
+		VersionHelper.checkVersion();
+		VersionHelper.checkOpenJDK();
+		
+		// Run the actual startup method in the EDT since it can use progress dialogs etc.
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				runMain(args);
+			}
+		});
+		
+	}
+	
+	
 
+
+	private static void runMain(String[] args) {
+		
+		// Initialize the splash screen with version info
+		Splash.init();
+		
+		// Setup the uncaught exception handler
+		ExceptionHandler.registerExceptionHandler();
+		
+		// Start update info fetching
+		final UpdateInfoRetriever updateInfo;
+		if (Prefs.getCheckUpdates()) {
+			updateInfo = new UpdateInfoRetriever();
+			updateInfo.start();
+		} else {
+			updateInfo = null;
+		}
+		
+		// Set the best available look-and-feel
+		GUIUtil.setBestLAF();
+		
+		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
+		ToolTipManager.sharedInstance().setDismissDelay(30000);
+		
+		// Load defaults
+		Prefs.loadDefaultUnits();
+		
+		// Load motors etc.
+		// TODO: HIGH: Use new motor loading
+		//		loadMotor();
+		Databases.fakeMethod();
+		
+		// Starting action (load files or open new document)
+		if (!handleCommandLine(args)) {
+			BasicFrame.newAction();
+		}
+		
+		// Check whether update info has been fetched or whether it needs more time
+		checkUpdateStatus(updateInfo);
+	}
+	
+	
+
+	private static void loadMotor() {
+		
+		log.info("Starting motor loading from " + THRUSTCURVE_DIRECTORY +
+				" in background thread.");
+		MotorSetDatabase db = new MotorSetDatabase(true) {
+			
+			@Override
+			protected void loadMotors() {
+				GeneralMotorLoader loader = new GeneralMotorLoader();
+				DirectoryIterator iterator =
+						DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
+								new SimpleFileFilter("", false, "eng", "rkt"));
+				if (iterator == null) {
+					throw new IllegalStateException("No thrust curves found, " +
+							"distribution built wrong");
+				}
+				while (iterator.hasNext()) {
+					final Pair<String, InputStream> input = iterator.next();
+					try {
+						List<Motor> motors = loader.load(input.getV(), input.getU());
+						for (Motor m : motors) {
+							this.addMotor((ThrustCurveMotor) m);
+						}
+					} catch (IOException e) {
+						log.warn("IOException when loading motor file " + input.getU(), e);
+					} finally {
+						try {
+							input.getV().close();
+						} catch (IOException e) {
+							log.error("IOException when closing InputStream", e);
+						}
+					}
+				}
+			}
+			
+		};
+		db.startLoading();
+		Application.setMotorSetDatabase(db);
+	}
+	
+	
+
+	private static void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
+		if (updateInfo == null)
+			return;
+		
+		int delay = 1000;
+		if (!updateInfo.isRunning())
+			delay = 100;
+		
+		final Timer timer = new Timer(delay, null);
+		
+		ActionListener listener = new ActionListener() {
+			private int count = 5;
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!updateInfo.isRunning()) {
+					timer.stop();
+					
+					String current = Prefs.getVersion();
+					String last = Prefs.getString(Prefs.LAST_UPDATE, "");
+					
+					UpdateInfo info = updateInfo.getUpdateInfo();
+					if (info != null && info.getLatestVersion() != null &&
+							!current.equals(info.getLatestVersion()) &&
+							!last.equals(info.getLatestVersion())) {
+						
+						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
+						infoDialog.setVisible(true);
+						if (infoDialog.isReminderSelected()) {
+							Prefs.putString(Prefs.LAST_UPDATE, "");
+						} else {
+							Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+						}
+					}
+				}
+				count--;
+				if (count <= 0)
+					timer.stop();
+			}
+		};
+		timer.addActionListener(listener);
+		timer.start();
 	}
 	
 	
 	/**
-	 * Check that the JRE version is high enough.
+	 * Handles arguments passed from the command line.  This may be used either
+	 * when starting the first instance of OpenRocket or later when OpenRocket is
+	 * executed again while running.
+	 * 
+	 * @param args	the command-line arguments.
+	 * @return		whether a new frame was opened or similar user desired action was
+	 * 				performed as a result.
 	 */
-	private static void checkVersion() {
-		String[] version = System.getProperty("java.specification.version", "").split("\\.");
+	public static boolean handleCommandLine(String[] args) {
 		
-		String jreName = System.getProperty("java.vm.name", "(unknown)");
-		String jreVersion = System.getProperty("java.runtime.version", "(unknown)");
-		String jreVendor = System.getProperty("java.vendor", "(unknown)");
-		
-		int major, minor;
-
-		try {
-			major = Integer.parseInt(version[0]);
-			minor = Integer.parseInt(version[1]);
-			
-			if (major < REQUIRED_MAJOR_VERSION || 
-					(major == REQUIRED_MAJOR_VERSION && minor < REQUIRED_MINOR_VERSION)) {
-				error(new String[] {"Java SE version 6 is required to run OpenRocket.",
-						"You are currently running " + jreName + " version " +
-						jreVersion + " by " + jreVendor});
+		// Check command-line for files
+		boolean opened = false;
+		for (String file : args) {
+			if (BasicFrame.open(new File(file), null)) {
+				opened = true;
 			}
-			
-		} catch (RuntimeException e) {
-			
-			confirm(new String[] {"The Java version in use could not be detected.",
-					"OpenRocket requires at least Java SE 6.",
-					"Continue anyway?"});
-			
 		}
-		
+		return opened;
 	}
-
 	
+	
+
 	/**
 	 * Check that the JRE is not running headless.
 	 */
 	private static void checkHead() {
 		
 		if (GraphicsEnvironment.isHeadless()) {
+			log.error("Application is headless.");
 			System.err.println();
 			System.err.println("OpenRocket cannot currently be run without the graphical " +
 					"user interface.");
@@ -105,49 +252,82 @@ public class Startup {
 	}
 	
 	
-	/**
-	 * Check whether OpenJDK is being used, and if it is warn the user about
-	 * problems and confirm whether to continue.
-	 */
-	private static void checkOpenJDK() {
+	///////////  Logging  ///////////
+	
+	private static void initializeLogging() {
+		DelegatorLogger delegator = new DelegatorLogger();
 		
-		if (System.getProperty("java.runtime.name", "").toLowerCase().indexOf("icedtea")>=0 ||
-				System.getProperty("java.vm.name", "").toLowerCase().indexOf("openjdk")>=0) {
-
-			String jreName = System.getProperty("java.vm.name", "(unknown)");
-			String jreVersion = System.getProperty("java.runtime.version", "(unknown)");
-			String jreVendor = System.getProperty("java.vendor", "(unknown)");
-
-			confirm(new String[] {"OpenJDK is known to have problems running OpenRocket.",
-					" ",
-					"You are currently running " + jreName + " version " +
-					jreVersion + " by " + jreVendor,
-					"Do you want to continue?"});
-			
+		// Log buffer
+		LogLevelBufferLogger buffer = new LogLevelBufferLogger(LOG_BUFFER_LENGTH);
+		delegator.addLogger(buffer);
+		
+		// Check whether to log to stdout/stderr
+		PrintStreamLogger printer = new PrintStreamLogger();
+		boolean logout = setLogOutput(printer, System.out, System.getProperty(LOG_STDOUT_PROPERTY), null);
+		boolean logerr = setLogOutput(printer, System.err, System.getProperty(LOG_STDERR_PROPERTY), LogLevel.WARN);
+		if (logout || logerr) {
+			delegator.addLogger(printer);
 		}
+		
+		// Set the loggers
+		Application.setLogger(delegator);
+		Application.setLogBuffer(buffer);
+		
+		// Initialize the log for this class
+		log = Application.getLogger();
+		log.info("Logging subsystem initialized for OpenRocket " + Prefs.getVersion());
+		String str = "Console logging output:";
+		for (LogLevel l : LogLevel.values()) {
+			PrintStream ps = printer.getOutput(l);
+			str += " " + l.name() + ":";
+			if (ps == System.err) {
+				str += "stderr";
+			} else if (ps == System.out) {
+				str += "stdout";
+			} else {
+				str += "none";
+			}
+		}
+		str += " (" + LOG_STDOUT_PROPERTY + "=" + System.getProperty(LOG_STDOUT_PROPERTY) +
+				" " + LOG_STDERR_PROPERTY + "=" + System.getProperty(LOG_STDERR_PROPERTY) + ")";
+		log.info(str);
 	}
-
+	
+	private static boolean setLogOutput(PrintStreamLogger logger, PrintStream stream, String level, LogLevel defaultLevel) {
+		LogLevel minLevel = LogLevel.fromString(level, defaultLevel);
+		if (minLevel == null) {
+			return false;
+		}
+		
+		for (LogLevel l : LogLevel.values()) {
+			if (l.atLeast(minLevel)) {
+				logger.setOutput(l, stream);
+			}
+		}
+		return true;
+	}
 	
 	
+	///////////  Helper methods  //////////
 	
 	/**
 	 * Presents an error message to the user and exits the application.
 	 * 
 	 * @param message	an array of messages to present.
 	 */
-	private static void error(String[] message) {
-
+	static void error(String[] message) {
+		
 		System.err.println();
 		System.err.println("Error starting OpenRocket:");
 		System.err.println();
-		for (int i=0; i < message.length; i++) {
+		for (int i = 0; i < message.length; i++) {
 			System.err.println(message[i]);
 		}
 		System.err.println();
-
 		
-		if (!GraphicsEnvironment.isHeadless()) {
 
+		if (!GraphicsEnvironment.isHeadless()) {
+			
 			JOptionPane.showMessageDialog(null, message, "Error starting OpenRocket",
 					JOptionPane.ERROR_MESSAGE);
 			
@@ -163,8 +343,8 @@ public class Startup {
 	 * 
 	 * @param message	the message Strings to show.
 	 */
-	private static void confirm(String[] message) {
-
+	static void confirm(String[] message) {
+		
 		if (!GraphicsEnvironment.isHeadless()) {
 			
 			if (JOptionPane.showConfirmDialog(null, message, "Error starting OpenRocket",

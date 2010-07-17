@@ -1,0 +1,531 @@
+\documentclass[a4paper,12pt,oneside]{book}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+%\usepackage[T1]{fontenc}
+
+
+% invisible hyperlinks:
+\usepackage{hyperref}  
+
+\hypersetup{
+  pdftitle={OpenRocket technical documentation},
+  pdfauthor={Sampo Niskanen},
+  pdfsubject={Technical documentation of the OpenRocket simulation software},
+  pdfkeywords={OpenRocket, model rocket, rocketry, simulation, technical documentation},
+  pdfpagemode=UseNone,
+  colorlinks,
+  linkcolor=black,
+  filecolor=black,
+  urlcolor=black,
+  citecolor=black,
+  breaklinks=true
+}
+
+\usepackage{breakurl}
+
+\usepackage{epsfig}
+\usepackage{commath}
+\usepackage{ar}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage{rotating}
+\usepackage{setspace}
+
+\usepackage{array}
+
+
+
+
+
+\setlength{\parindent}{0mm}
+\setlength{\parskip}{\baselineskip}
+
+\newcommand{\ie}{{\it i.e.}\ }
+\newcommand{\eg}{{\it e.g.}\ }
+
+\newcommand{\half}{\ensuremath{^1\!/\!_2}}
+\newcommand{\quarter}{\ensuremath{^1\!/\!_4}}
+
+\newcommand{\CNa}{\ensuremath{{C_{N_\alpha}}}}
+\newcommand{\CNap}{\ensuremath{{C_{N_{\alpha'}}}}}
+\newcommand{\Cma}{\ensuremath{C_{m_\alpha}}}
+\newcommand{\Aref}{\ensuremath{A_{\rm ref}}}
+\newcommand{\Afin}{\ensuremath{A_{\rm fin}}}
+\newcommand{\Abase}{\ensuremath{A_{\rm base}}}
+\newcommand{\um}{\textmu m}
+
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+\newcommand{\vi}{\mathbf{i}}
+\newcommand{\vj}{\mathbf{j}}
+\newcommand{\vk}{\mathbf{k}}
+
+% A space suitable delimiting numbers as  100\s000 for '100 000'
+\newcommand{\s}{\nolinebreak\hspace{0.5mm}\nolinebreak}  
+
+\newlength{\numwidth}
+\settowidth{\numwidth}{0}
+\newcommand{\num}{\hspace{\numwidth}}
+
+\newcommand{\code}[1]{{\tt #1}}
+
+
+
+
+
+%\setlength{\oddsidemargin}{0in}
+%\setlength{\evensidemargin}{0in}
+%\setlength{\textwidth}{6.25in}
+%\setlength{\topmargin}{-10mm}
+%\setlength{\textheight}{9.5in}
+
+\begin{document}
+
+\pagenumbering{roman}
+
+
+%%%%%%%%  Title page
+
+\thispagestyle{empty}
+
+\mbox{}
+\vfill
+\begin{center}
+{\LARGE\bf OpenRocket technical documentation}
+
+{\large For OpenRocket version 1.0.0}
+
+\vspace{-3mm}
+2010-04-06
+
+\vspace{10mm}
+{\Large Sampo Niskanen}
+
+
+\vspace{80mm}
+Based on the Master's thesis \cite{thesis}
+
+\vspace{-1mm}
+\mbox{\hspace{-6pt}
+\large\it Development of an Open Source model rocket simulation software}
+
+\end{center}
+
+\vfill
+
+
+\clearpage
+\thispagestyle{empty}
+
+\mbox{}
+\vfill
+
+\begin{center}
+{\Large\bf Thesis or technical documentation?}
+\end{center}
+
+The OpenRocket simulation software was originally developed as the
+Master's thesis project of Sampo Niskanen, including its written
+part
+{\it ``Development of an Open Source model rocket simulation software''}
+\cite{thesis}.  The thesis is used as the basis of this technical
+documentation, which is updated to account for later development in the
+software.  This document often still refers to itself as a thesis, as
+no systematic updating of this fact has yet been performed.
+
+While the original thesis is available online under a Creative Commons
+no-derivatives license, this document is available under a freer
+share-alike license.
+
+\vspace{10mm}
+
+\begin{center}
+{\Large\bf Version history}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{120mm}}
+2010-04-06 & Initial revision.  Updates the roll angle effect on three- and
+four-fin configurations in Section~\ref{update-roll-angle}.
+(OpenRocket software 1.0.0)
+\end{tabular}
+\end{center}
+
+\vfill
+
+
+
+%%%%%  Quotation
+
+
+\clearpage
+\thispagestyle{empty}
+
+\mbox{}
+\vfill
+{\it ``No. Coal mining may be your life, but it's not mine. I'm never
+  going down there again. I wanna go into space.''}
+\vspace{5mm}
+
+\hspace{10mm}\parbox{130mm}{
+Amateur rocketeer Homer Hickam, Jr. in the movie October Sky (1999), based
+on a true story.\\
+
+Hickam later became an engineer at NASA, working in spacecraft design
+and crew training.}
+\vfill
+
+
+
+%%%%%%%%
+
+
+\tableofcontents
+
+%\listoffigures
+%
+%\listoftables
+
+\newpage
+\section*{List of symbols and abbreviations}
+
+{\bf Symbols}
+\nopagebreak
+
+\begin{tabular}{p{20mm}p{105mm}}
+
+$A$           & Area \\
+\Afin         & Area of one fin \\
+$A_{\rm plan}$& Planform area \\
+\Aref         & Reference area \\
+$A_{\rm wet}$ & Wetted area \\
+$\AR$         & Aspect ratio of a fin, $2s^2/\Afin$ \\
+$c$           & Speed of sound \\
+$\bar c$      & Mean aerodynamic chord length of a fin \\
+$c(y)$        & Chord length of a fin at spanwise position $y$ \\
+
+$C_A$         & Axial drag force coefficient \\
+$C_D$         & Drag force coefficient \\
+$C_f$         & Skin friction drag coefficient \\
+$C_l$         & Roll moment coefficient \\
+$C_{ld}$      & Roll damping moment coefficient \\
+$C_{lf}$      & Roll forcing moment coefficient \\
+
+$C_m$         & Pitch moment coefficient \\
+\Cma          & Pitch moment coefficient derivative, 
+                $\frac{\partial C_m}{\partial \alpha}$ \\
+
+$C_N$         & Normal force coefficient \\
+\CNa          & Normal force coefficient derivative,
+                $\frac{\partial C_N}{\partial \alpha}$ \\
+
+$d$           & Reference length, the rocket diameter \\
+$D$           & Drag force \\
+$f_B$         & Rocket fineness ratio, $L/d$ \\
+$L$           & The rocket length \\
+$m$           & Pitch moment \\
+$M$           & Mach number \\
+$N$           & Normal force; Number of fins \\
+$p$           & Air pressure \\
+$r(x)$        & Body or component radius at position $x$ \\
+$R$           & Reynolds number \\
+$s$           & Spanwise length of one fin \\
+$T$           & Air temperature \\
+$V$           & Volume \\
+$v_0$         & Free-stream velocity \\
+$x$, $X$      & Position along the rocket centerline \\
+$y$           & Spanwise position \\
+\end{tabular}
+
+\begin{tabular}{p{20mm}p{105mm}}
+$\alpha$      & Angle of attack \\
+$\beta$       & $\sqrt{|M^2-1|}$ \\
+$\gamma$      & Specific heat ratio, for air $\gamma=1.4$ \\
+$\Gamma_c$    & Fin midchord sweep angle \\
+$\delta$      & Fin cant angle \\
+$\eta$        & Airflow inclination angle over a fin \\
+$\theta$      & Roll angle \\
+$\Lambda$     & Dihedral angle between a fin and the direction of airflow \\
+$\nu$         & Kinematic viscosity of air \\
+$\xi$         & Distance from rotation axis \\
+$\rho$        & Density of air \\
+$\omega$      & Angular velocity \\
+
+\end{tabular}
+
+\vspace{10mm}
+{\bf Abbreviations}
+\nopagebreak
+
+\begin{tabular}{p{20mm}p{105mm}}
+CFD & Computational fluid dynamics \\
+CG  & Center of gravity \\
+CP  & Center of pressure \\
+LE  & Leading edge \\
+MAC & Mean aerodynamic chord \\
+RK4 & Runge-Kutta 4 integration method \\
+UI  & User interface \\
+\end{tabular}
+
+
+
+
+\pagebreak
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\include{chapter-introduction}
+\include{chapter-basics-of-model-rockets}
+\include{chapter-aerodynamic-properties}
+\include{chapter-flight-simulation}
+\include{chapter-software}
+\include{chapter-experimental}
+\include{chapter-conclusion}
+
+
+\clearpage
+\vspace*{1cm}
+\section*{Acknowledgments}
+
+I would like to express my deepest gratitude to M.Sc.~Timo Sailaranta
+for his invaluable advice and consultation on the aerodynamic
+simulation of rockets.  Without his input the creation of this thesis
+would have been exceedingly laborious.  I would also like to thank
+Prof.~Rolf Stenberg for supervising the writing of this thesis, and
+Juhani Talvela for proofreading and commenting early versions of this
+text.
+
+I am also deeply grateful for my parents Jouni and Riitta, my entire
+family, friends and teachers, who have always encouraged me onwards in
+my life and studies.  Above all I would like to thank my brother,
+Antti~J. Niskanen, for being an inspiration throughout my life and
+also for
+building the magnetometer logger used in the experimental flights; and
+my fiancée Merli Lahtinen, for her patience and loving understanding
+for my passion towards rocketry.
+
+
+
+
+\begin{thebibliography}{99}
+
+\bibitem{thesis} Niskanen, S., {\it Development of an Open Source
+  model rocket simulation software}, M.Sc. thesis, Helsinki University
+  of Technology, 2009.  Available at
+  \url{http://openrocket.sourceforge.net/documentation.html}.
+
+\bibitem{stine} Stine, H., Stine, B., {\it Handbook of Model
+  Rocketry}, 7th edition, Wiley, 2004.
+
+\bibitem{barrowman-rd} Barrowman, J., Barrowman, J., The
+  theoretical prediction of the center of pressure, {\it National
+  Association of Rocketry Annual Meet 8}, 1966.  Available at
+\url{http://www.apogeerockets.com/Education/downloads/barrowman_report.pdf},
+  retrieved 14.5.2009.
+
+\bibitem{barrowman-thesis} Barrowman, J., {\it The practical
+  calculation of the aerodynamic characteristics of slender finned
+  vehicles}, M.Sc. thesis, The Catholic University of America, 1967.
+
+\bibitem{rocksim} van Milligan, T., RockSim Model Rocket Design and
+  Simulation Software, \url{http://www.apogeerockets.com/RockSim.asp},
+  retrieved 14.5.2009.
+
+\bibitem{oss-principles} Coar, K., The Open Source Definition
+  (Annotated), \url{http://www.opensource.org/docs/definition.php},
+  retrieved 14.5.2009.
+
+\bibitem{openrocket} Niskanen, S., The OpenRocket web-site,
+  \url{http://openrocket.sourceforge.net/}, retrieved 25.5.2009.
+
+\bibitem{nar-safety-code} Anon., Model Rocket Safety Code,
+  \url{http://www.nar.org/NARmrsc.html}, retrieved 14.5.2009.
+
+\bibitem{all-certified-motors} Anon., Combined CAR/NAR/TRA Certified
+  Rocket Motors List,
+  \url{http://www.nar.org/SandT/pdf/CombinedList.pdf}, retrieved 14.5.2009.
+
+\bibitem{thrust-curve-database} Coker, J., ThrustCurve Hobby Rocket
+  Motor Data, \url{http://www.thrustcurve.org/}, retrieved 14.5.2009.
+
+\bibitem{D12-curve} Kane, J., Estes D12,
+  \url{http://www.nar.org/SandT/pdf/Estes/D12.pdf}, retrieved 14.5.2009.
+
+\bibitem{haisunaata-launch} Puhakka, A., Haisunäätä---suomalainen
+  hybridirakettiprojekti (in Finnish),
+  \url{http://haisunaata.avaruuteen.fi/}, retrieved 14.5.2009.
+
+\bibitem{galejs} Galejs, R., Wind instability---What Barrowman left
+  out,
+  \url{http://projetosulfos.if.sc.usp.br/artigos/sentinel39-galejs.pdf},
+  retrieved 14.5.2009.
+
+\bibitem{advanced-model-rocketry} Mandell, G., Caporaso, G., Bengen,
+  W., {\it Topics in Advanced Model Rocketry}, MIT Press, 1973.
+
+\bibitem{hoerner} Hoerner, S., {\it Fluid-dynamic drag}, published by
+  the author, 1965.
+% FLUID-DYNAMIC DRAG
+% Practical Information on AERODYNAMICDRAG and HYDRODYNAMIC RESISTANCE
+% Sighard F. Hoerner (Dr.-Ing.)
+% Published by the Author 1958
+%
+% Chap II - Skin-friction drag
+%   laminaarinen, turbulentti, ym.
+% Chap III - Pressure drag
+%   forebudy pressure drag for different shapes
+%   Base drag C_DB = 0.029/sqrt(C_fB)  forebody-drag coefficient C_fB
+% Chap V - Drag of surface imperfections
+%   Drag due to surface roughtness
+%   Critical roughness
+%   Page 5-8, Drag of Individual Protuberances
+%     neliskanttinen pala, pituus < korkeus -> CD=1.20
+%                          pituus > 2*kork  -> CD=0.74
+%                     suhteutettu etupinta-alaan
+%     From ref. Tillmann, Rpt KW Inst. Göttingen, Dec 1944
+% Chap VII - Drag due to lift
+% Chap VIII - Interference drag
+%   Pairs of bodies
+% Chap X - Hydrodynamic drag
+%   sivu 10-3, siivekkeiden profiilimuotoja!!!
+% Chap XIII - Drag of airplane components and accessories
+%   Drag of external loads
+%   Parachutes
+% Chap XV-XVII - subsonic, transsonic, supersonic
+
+\bibitem{barrowman-elliptical-fins} Barrowman, J., Elliptical Fin
+  C.P. Equations, {\it Model Rocketry} (Nov 1970).  Available at
+  \url{http://www.argoshpr.ch/articles/pdf/EllipticalCP.jpg},
+  retrieved 14.5.2009.
+
+\bibitem{appl-comp-aero-fins} Mason, W., Applied Computational
+  Aerodynamics,
+  \url{http://www.aoe.vt.edu/~mason/Mason_f/CAtxtTop.html}, 
+  {\bf pp. A-27--A-28}, retrieved 14.5.2009.
+
+\bibitem{fleeman} Fleeman, E., {\it Tactical missile design}, 2nd
+  edition, p.~33, AIAA, 2006.
+
+\bibitem{diederich} Diederich, F., {\it A plan-form parameter for
+ correlating certain aerodynamic characteristics of swept ings},
+ NACA-TN-2335, 1951.
+
+\bibitem{barrowman-fin} Barrowman, J., {\it FIN A computer program for
+  calculating the aerodynamic characteristics of fins at supersonic
+  speeds}, {\it NASA-TM X-55523}, 1966.
+
+\bibitem{pettis} Pettis, W., {\it Aerodynamic Characteristics of
+  Multiple Fins of Rectangular Planform on a Body of Revolution at
+  Mach Numbers of 1.48 to 2.22}, RD-TM-67-5, US Army Missile
+  Command, 1967.
+
+\bibitem{experimental-transonic} Ferris, J., {\it Static stability
+  investigation of a single- stage sounding rocket at Mach numbers
+  from 0.60 to 1.20}, NASA-TN-D-4013, 1967.
+
+\bibitem{triform-fin-data} Monta, W., {\it Aerodynamic
+  characteristics at mach numbers from 1.60 to 2.16 of a blunt-nose
+  missile model having a triangular cross section and fixed triform
+  fins}, NASA-TM-X-2340, 1971.
+
+\bibitem{MIL-HDBK} Anon., {\it Design of aerodynamically stabilized
+  free rockets}, MIL-HDBK-762, US Army Missile Command, 1990.
+
+\bibitem{handbook-supersonic-aerodynamics} Anon., {\it Handbook of
+  supersonic aerodynamics, Section 8, Bodies of revolution}, 
+  NAVWEPS REPORT 1488, 1961.
+
+\bibitem{second-order-shock-expansion-method} Syverston, C., Dennis,
+  D., {\it A second-order shock-expansion method applicable to bodies
+  of revolution near zero lift}, NACA-TR-1328, 1957.
+
+\bibitem{international-standard-atmosphere} Anon., {\it Standard
+  Atmosphere}, ISO~2533:1975, International Organization for
+  Standardization, 1975.
+
+\bibitem{US-standard-atmosphere} Anon., {\it U.S. Standard Atmosphere
+  1976}, NASA-TM-X-74335; NOAA-S/T-76-1562, 1976.
+
+\bibitem{wiki-ISA-layers}  Anon., International Standard Atmosphere,
+  \url{http://en.wikipedia.org/wiki/International_Standard_Atmosphere},
+  retrieved 14.5.2009.
+
+\bibitem{wind-energy-handbook} Burton, T., Sharpe, D., Jenkins, N.,
+  Bossanyi, E., {\it Wind Energy Handbook}, Wiley, 2001.
+
+\bibitem{pink-filter}  Kasdin, J., Discrete Simulation of Colored
+  Noise and Stochastic Processes and $1/f^\alpha$ Power Law Noise
+  Generation, {\it Proceedings of the IEEE}, {\bf 83}, No.~5 (1995),
+  p. 822.
+
+\bibitem{wiki-euler-angles} Anon., Euler angles,
+  \url{http://en.wikipedia.org/wiki/Euler_angles}, retrieved 14.5.2009.
+
+\bibitem{wiki-euler-rotation-theorem} Anon., Euler's rotation theorem,
+  \url{http://en.wikipedia.org/wiki/Euler's_rotation_theorem},
+  retrieved 14.5.2009.
+
+\bibitem{wiki-quaternion-rotations} Anon., Quaternions and spatial
+  rotation,
+  \url{http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation},
+  retrieved 14.5.2009.
+
+\bibitem{wiki-moments-of-inertia} Anon., List of moments of inertia,
+  \url{http://en.wikipedia.org/wiki/List_of_moments_of_inertia},
+  retrieved 14.5.2009.
+
+\bibitem{pollux-wind-tunnel} Niskanen, S., Polluxin tuulitunneli (in
+  Finnish), \url{http://pollux.tky.fi/tuulitunneli.html}, retrieved 14.5.2009.
+
+\bibitem{gnu-gpl} Anon., GNU General Public License, Version 3,
+  \url{http://www.gnu.org/copyleft/gpl.html}, retrieved 14.5.2009.
+
+\bibitem{java-packages} Anon., Java Language Specification, Chaper 7,
+  Packages,
+ \url{http://java.sun.com/docs/books/jls/third_edition/html/packages.html#7.7},
+  retrieved 14.5.2009.
+
+\bibitem{GZIP} Deutsch, P., {\it GZIP file format specification
+  version 4.3}, RFC~1952, \url{http://www.ietf.org/rfc/rfc1952.txt},
+  1996.  Retrieved on 14.5.2009.
+
+\bibitem{perfectflite} Anon., Affordable instrumentation for (sm)all
+  rockets, \url{http://www.perfectflite.com/}, retrieved 14.5.2009.
+
+\bibitem{weco-feuerwerk} Anon., WECO Feuerwerk,
+  \url{http://www.weco-feuerwerk.de/}, retrieved 14.5.2009.
+
+\bibitem{estes} Anon., Estesrockets.com,
+  \url{http://www.estesrockets.com/}, retrieved 14.5.2009.
+
+\bibitem{sf-thrustcurves} Anon., Schubdiagramme SF,
+  \url{http://www.raketenmodellbautechnik.de/produkte/Motoren/SF-Motoren.pdf},
+  14.5.2009.
+
+\bibitem{experimental-supersonic} Babb, C., Fuller, D., {\it Static
+  stability investigation of a sounding-rocket vehicle at Mach numbers
+  from 1.50 to 4.63}, NASA-TN-D-4014, 1967.
+
+\bibitem{nosecone-cd-data} Stoney, W., {\it Collection of Zero-Lift
+  Drag Data on Bodies of Revolution from Free-Flight Investigations}, 
+  NASA-TR-R-100, 1961.
+
+\bibitem{streamer-optimization} Kidwell, C., Streamer Duration
+  Optimization: Material and Length-to-Width Ratio, {\it National
+  Association of Rocketry Annual Meet 43}, 2001.  Available at
+  \url{http://www.narhams.org/library/rnd/StreamerDuration.pdf},
+  retrieved 14.5.2009.
+
+\end{thebibliography}
+
+
+
+
+\appendix
+
+\include{chapter-appendices}
+
+
+
+
+\end{document}

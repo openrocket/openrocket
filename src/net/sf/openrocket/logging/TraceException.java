@@ -5,8 +5,8 @@ package net.sf.openrocket.logging;
 /**
  * An exception that is used to store a stack trace.  On modern computers
  * instantiation of an exception takes on the order of one microsecond, while
- * examining the trace typically takes longer.  Therefore the exception should
- * be stored and the stack trace examined only when necessary.
+ * examining the trace typically takes several times longer.  Therefore the
+ * exception should be stored and the stack trace examined only when necessary.
  * <p>
  * The {@link #getMessage()} method returns a description of the position
  * where this exception has been instantiated.  The position is provided
@@ -21,7 +21,7 @@ public class TraceException extends Exception {
 
 	private final int minLevel;
 	private final int maxLevel;
-	private String message = null;
+	private volatile String message = null;
 	
 	
 	/**
