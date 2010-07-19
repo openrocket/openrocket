@@ -479,9 +479,7 @@ public class Prefs {
 	////  Background flight data computation
 	
 	public static boolean computeFlightInBackground() {
-		// TODO: CRITICAL: Revert 
-		return false;
-		//		return PREFNODE.getBoolean("backgroundFlight", true);
+		return PREFNODE.getBoolean("backgroundFlight", true);
 	}
 	
 	public static Simulation getBackgroundSimulation(Rocket rocket) {

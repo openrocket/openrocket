@@ -1,3 +1,11 @@
+2010-07-19  Sampo Niskanen
+
+	* Small bug fixes
+
+2010-07-18  Sampo Niskanen
+
+	* Major refactoring of simulation code
+
 2010-03-21  Sampo Niskanen
 
 	* Released version 1.1.0

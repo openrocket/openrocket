@@ -25,6 +25,7 @@ import javax.swing.JProgressBar;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
@@ -35,6 +36,7 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
@@ -43,6 +45,8 @@ import net.sf.openrocket.util.Prefs;
 
 
 public class SimulationRunDialog extends JDialog {
+	private static final LogHelper log = Application.getLogger();
+	
 	/** Update the dialog status every this many ms */
 	private static final long UPDATE_MS = 200;
 	
@@ -174,7 +178,6 @@ public class SimulationRunDialog extends JDialog {
 
 
 	private void updateProgress() {
-		System.out.println("updateProgress() called");
 		int index;
 		for (index = 0; index < simulations.length; index++) {
 			if (!simulationDone[index])
@@ -183,7 +186,7 @@ public class SimulationRunDialog extends JDialog {
 		
 		if (index >= simulations.length) {
 			// Everything is done, close the dialog
-			System.out.println("Everything done.");
+			log.debug("Everything done.");
 			this.dispose();
 			return;
 		}
@@ -195,15 +198,15 @@ public class SimulationRunDialog extends JDialog {
 		}
 		progress /= simulationWorkers.length;
 		progressBar.setValue(progress);
-		System.out.println("Progressbar value " + progress);
+		log.debug("Progressbar value " + progress);
 		
 		// Update the simulation fields
 		simLabel.setText("Running " + simulations[index].getName());
 		if (simulationStatuses[index] == null) {
+			log.debug("No simulation status data available, setting empty labels");
 			timeLabel.setText("");
 			altLabel.setText("");
 			velLabel.setText("");
-			System.out.println("Empty labels, how sad.");
 			return;
 		}
 		
@@ -217,7 +220,6 @@ public class SimulationRunDialog extends JDialog {
 		u = UnitGroup.UNITS_VELOCITY.getDefaultUnit();
 		velLabel.setText(u.toStringUnit(simulationStatuses[index].getRocketVelocity().z) + " (max. " +
 				u.toStringUnit(simulationMaxVelocity[index]) + ")");
-		System.out.println("Set interesting labels.");
 	}
 	
 	
@@ -299,7 +301,7 @@ public class SimulationRunDialog extends JDialog {
 			
 			// 1. time = 0 ... burnoutTimeEstimate
 			if (simulationStage == -2 && status.getSimulationTime() < burnoutTimeEstimate) {
-				System.out.println("Method 1:  t=" + status.getSimulationTime() + "  est=" + burnoutTimeEstimate);
+				log.debug("Method 1:  t=" + status.getSimulationTime() + "  est=" + burnoutTimeEstimate);
 				setSimulationProgress(MathUtil.map(status.getSimulationTime(), 0, burnoutTimeEstimate,
 						0.0, BURNOUT_PROGRESS));
 				updateProgress();
@@ -309,13 +311,12 @@ public class SimulationRunDialog extends JDialog {
 			if (simulationStage == -2) {
 				simulationStage++;
 				burnoutVelocity = MathUtil.max(status.getRocketVelocity().z, 0.1);
-				System.out.println("CHANGING to Method 2, vel=" + burnoutVelocity);
+				log.debug("CHANGING to Method 2, vel=" + burnoutVelocity);
 			}
 			
 			// 2. z-velocity from burnout velocity to zero
 			if (simulationStage == -1 && status.getRocketVelocity().z >= 0) {
-				System.out.println("Method 2:  vel=" + status.getRocketVelocity().z + " burnout=" +
-						burnoutVelocity);
+				log.debug("Method 2:  vel=" + status.getRocketVelocity().z + " burnout=" + burnoutVelocity);
 				setSimulationProgress(MathUtil.map(status.getRocketVelocity().z, burnoutVelocity, 0,
 						BURNOUT_PROGRESS, APOGEE_PROGRESS));
 				updateProgress();
@@ -325,11 +326,12 @@ public class SimulationRunDialog extends JDialog {
 			if (simulationStage == -1 && status.getRocketVelocity().z < 0) {
 				simulationStage++;
 				apogeeAltitude = MathUtil.max(status.getRocketPosition().z, 1);
+				log.debug("CHANGING to Method 3, apogee=" + apogeeAltitude);
 			}
 			
 			// 3. z-position from apogee to zero
 			// TODO: MEDIUM: several stages
-			System.out.println("Method 3:  alt=" + status.getRocketPosition().z + "  apogee=" + apogeeAltitude);
+			log.debug("Method 3:  alt=" + status.getRocketPosition().z + "  apogee=" + apogeeAltitude);
 			setSimulationProgress(MathUtil.map(status.getRocketPosition().z,
 					apogeeAltitude, 0, APOGEE_PROGRESS, 1.0));
 			updateProgress();
@@ -341,7 +343,7 @@ public class SimulationRunDialog extends JDialog {
 		@Override
 		protected void simulationDone() {
 			simulationDone[index] = true;
-			System.out.println("DONE, setting progress");
+			log.debug("Simulation done");
 			setSimulationProgress(1.0);
 			updateProgress();
 		}
@@ -425,10 +427,9 @@ public class SimulationRunDialog extends JDialog {
 		
 
 		private void setSimulationProgress(double p) {
-			progress = Math.max(progress, (int) (100 * p + 0.5));
-			progress = MathUtil.clamp(progress, 0, 100);
-			System.out.println("Setting progress to " + progress + " (real " +
-					((int) (100 * p + 0.5)) + ")");
+			int exact = Math.max(progress, (int) (100 * p + 0.5));
+			progress = MathUtil.clamp(exact, 0, 100);
+			log.debug("Setting progress to " + progress + " (real " + exact + ")");
 			super.setProgress(progress);
 		}
 		
@@ -448,7 +449,7 @@ public class SimulationRunDialog extends JDialog {
 				case APOGEE:
 					simulationStage = 0;
 					apogeeAltitude = status.getRocketPosition().z;
-					System.out.println("APOGEE, setting progress");
+					log.debug("APOGEE, setting progress");
 					setSimulationProgress(APOGEE_PROGRESS);
 					publish(status);
 					break;
@@ -458,7 +459,7 @@ public class SimulationRunDialog extends JDialog {
 					break;
 				
 				case SIMULATION_END:
-					System.out.println("END, setting progress");
+					log.debug("END, setting progress");
 					setSimulationProgress(1.0);
 					break;
 				}

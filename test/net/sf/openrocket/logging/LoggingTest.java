@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class LoggingTest {
-
+	
 	@Test
 	public void testLoggers() {
 		// Ensure a sane stack trace
@@ -31,7 +31,7 @@ public class LoggingTest {
 		List<LogLine> logs = log4.getLogs();
 		assertEquals(4, logs.size());
 		assertTrue(logs.get(0).toString(), logs.get(0).toString().matches(
-				" *[0-9]+ +[0-9]+\\.[0-9]+ +DEBUG \\(LoggingTest.java:[0-9]+\\) two"));
+				" *[0-9]+ +[0-9]+\\.[0-9]+ +DEBUG \\(-\\) two"));
 		assertTrue(logs.get(1).toString(), logs.get(1).toString().matches(
 				" *[0-9]+ +[0-9]+\\.[0-9]+ +INFO  \\(LoggingTest.java:[0-9]+\\) three"));
 		assertTrue(logs.get(2).toString(), logs.get(2).toString().matches(

@@ -62,11 +62,11 @@ import net.sf.openrocket.util.Reflection;
  */
 
 public class ComponentAddButtons extends JPanel implements Scrollable {
-
+	
 	private static final int ROWS = 3;
 	private static final int MAXCOLS = 6;
 	private static final String BUTTONPARAM = "grow, sizegroup buttons";
-
+	
 	private static final int GAP = 5;
 	private static final int EXTRASPACE = 0;
 	
@@ -80,15 +80,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	private final int width, height;
 	
 	
-	public ComponentAddButtons(OpenRocketDocument document, TreeSelectionModel model, 
+	public ComponentAddButtons(OpenRocketDocument document, TreeSelectionModel model,
 			JViewport viewport) {
 		
 		super();
 		String constaint = "[min!]";
-		for (int i=1; i<MAXCOLS; i++)
+		for (int i = 1; i < MAXCOLS; i++)
 			constaint = constaint + GAP + "[min!]";
 		
-		layout = new MigLayout("fill",constaint);
+		layout = new MigLayout("fill", constaint);
 		setLayout(layout);
 		this.document = document;
 		this.selectionModel = model;
@@ -99,48 +99,46 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 		////////////////////////////////////////////
 		
-		
-		addButtonRow("Body components and fin sets",row,
-				new BodyComponentButton(NoseCone.class,"Nose cone"),
-				new BodyComponentButton(BodyTube.class,"Body tube"),
-				new BodyComponentButton(Transition.class,"Transition"),
-				new FinButton(TrapezoidFinSet.class,"Trapezoidal"),  // TODO: MEDIUM: freer fin placing
-				new FinButton(EllipticalFinSet.class,"Elliptical"),
-				new FinButton(FreeformFinSet.class,"Freeform"),
-				new FinButton(LaunchLug.class,"Launch lug")
-		);
+
+		addButtonRow("Body components and fin sets", row,
+				new BodyComponentButton(NoseCone.class, "Nose cone"),
+				new BodyComponentButton(BodyTube.class, "Body tube"),
+				new BodyComponentButton(Transition.class, "Transition"),
+				new FinButton(TrapezoidFinSet.class, "Trapezoidal"), // TODO: MEDIUM: freer fin placing
+				new FinButton(EllipticalFinSet.class, "Elliptical"),
+				new FinButton(FreeformFinSet.class, "Freeform"),
+				new FinButton(LaunchLug.class, "Launch lug"));
 		
 		row++;
 		
-		
+
 		/////////////////////////////////////////////
 		
-		addButtonRow("Inner component",row,
+		addButtonRow("Inner component", row,
 				new ComponentButton(InnerTube.class, "Inner tube"),
 				new ComponentButton(TubeCoupler.class, "Coupler"),
 				new ComponentButton(CenteringRing.class, "Centering\nring"),
 				new ComponentButton(Bulkhead.class, "Bulkhead"),
 				new ComponentButton(EngineBlock.class, "Engine\nblock"));
-
+		
 		row++;
 		
 		////////////////////////////////////////////
 		
-		addButtonRow("Mass objects",row,
+		addButtonRow("Mass objects", row,
 				new ComponentButton(Parachute.class, "Parachute"),
 				new ComponentButton(Streamer.class, "Streamer"),
 				new ComponentButton(ShockCord.class, "Shock cord"),
-//				new ComponentButton("Motor clip"),
-//				new ComponentButton("Payload"),
-				new ComponentButton(MassComponent.class,"Mass\ncomponent")
-		);
+				//				new ComponentButton("Motor clip"),
+				//				new ComponentButton("Payload"),
+				new ComponentButton(MassComponent.class, "Mass\ncomponent"));
 		
-		
+
 		// Get maximum button size
-		int w=0, h=0;
+		int w = 0, h = 0;
 		
-		for (row=0; row < buttons.length; row++) {
-			for (int col=0; col < buttons[row].length; col++) {
+		for (row = 0; row < buttons.length; row++) {
+			for (int col = 0; col < buttons[row].length; col++) {
 				Dimension d = buttons[row][col].getPreferredSize();
 				if (d.width > w)
 					w = d.width;
@@ -150,12 +148,12 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		}
 		
 		// Set all buttons to maximum size
-		System.out.println("Setting w="+w+" h="+h);
-		width=w;
-		height=h;
-		Dimension d = new Dimension(width,height);
-		for (row=0; row < buttons.length; row++) {
-			for (int col=0; col < buttons[row].length; col++) {
+		System.out.println("Setting w=" + w + " h=" + h);
+		width = w;
+		height = h;
+		Dimension d = new Dimension(width, height);
+		for (row = 0; row < buttons.length; row++) {
+			for (int col = 0; col < buttons[row].length; col++) {
 				buttons[row][col].setMinimumSize(d);
 				buttons[row][col].setPreferredSize(d);
 				buttons[row][col].getComponent(0).validate();
@@ -166,6 +164,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		if (viewport != null) {
 			viewport.addChangeListener(new ChangeListener() {
 				private int oldWidth = -1;
+				
 				public void stateChanged(ChangeEvent e) {
 					Dimension d = ComponentAddButtons.this.viewport.getExtentSize();
 					if (d.width != oldWidth) {
@@ -176,7 +175,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			});
 		}
 		
-		add(new JPanel(),"grow");
+		add(new JPanel(), "grow");
 	}
 	
 	
@@ -186,50 +185,50 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	 * @param row    Row number
 	 * @param b      List of ComponentButtons to place on the row
 	 */
-	private void addButtonRow(String label, int row, ComponentButton ... b) {
-		if (row>0)
-			add(new JLabel(label),"span, gaptop unrel, wrap");
-		else 
-			add(new JLabel(label),"span, gaptop 0, wrap");
+	private void addButtonRow(String label, int row, ComponentButton... b) {
+		if (row > 0)
+			add(new JLabel(label), "span, gaptop unrel, wrap");
+		else
+			add(new JLabel(label), "span, gaptop 0, wrap");
 		
-		int col=0;
+		int col = 0;
 		buttons[row] = new ComponentButton[b.length];
-
-		for (int i=0; i<b.length; i++) {
+		
+		for (int i = 0; i < b.length; i++) {
 			buttons[row][col] = b[i];
-			if (i < b.length-1)
-				add(b[i],BUTTONPARAM);
+			if (i < b.length - 1)
+				add(b[i], BUTTONPARAM);
 			else
-				add(b[i],BUTTONPARAM+", wrap");
+				add(b[i], BUTTONPARAM + ", wrap");
 			col++;
 		}
 	}
 	
-
+	
 	/**
 	 * Flows the buttons in all rows of the panel.  If a button would come too close
 	 * to the right edge of the viewport, "newline" is added to its constraints flowing 
 	 * it to the next line.
 	 */
 	private void flowButtons() {
-		if (viewport==null)
+		if (viewport == null)
 			return;
 		
 		int w;
 		
 		Dimension d = viewport.getExtentSize();
-
-		for (int row=0; row < buttons.length; row++) {
-			w=0;
-			for (int col=0; col < buttons[row].length; col++) {
-				w += GAP+width;
-				String param = BUTTONPARAM+",width "+width+"!,height "+height+"!";
-
-				if (w+EXTRASPACE > d.width) {
+		
+		for (int row = 0; row < buttons.length; row++) {
+			w = 0;
+			for (int col = 0; col < buttons[row].length; col++) {
+				w += GAP + width;
+				String param = BUTTONPARAM + ",width " + width + "!,height " + height + "!";
+				
+				if (w + EXTRASPACE > d.width) {
 					param = param + ",newline";
-					w = GAP+width;
+					w = GAP + width;
 				}
-				if (col == buttons[row].length-1)
+				if (col == buttons[row].length - 1)
 					param = param + ",wrap";
 				layout.setComponentConstraints(buttons[row][col], param);
 			}
@@ -238,7 +237,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	}
 	
 	
-	
+
 	/**
 	 * Class for a component button.
 	 */
@@ -248,7 +247,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 		/** Only label, no icon. */
 		public ComponentButton(String text) {
-			this(text,null,null);
+			this(text, null, null);
 		}
 		
 		/**
@@ -257,48 +256,48 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 */
 		public ComponentButton(String text, Icon enabled, Icon disabled) {
 			super();
-			setLayout(new MigLayout("fill, flowy, insets 0, gap 0","",""));
+			setLayout(new MigLayout("fill, flowy, insets 0, gap 0", "", ""));
 			
-			add(new JLabel(),"push, sizegroup spacing");
+			add(new JLabel(), "push, sizegroup spacing");
 			
 			// Add Icon
 			if (enabled != null) {
 				JLabel label = new JLabel(enabled);
 				if (disabled != null)
 					label.setDisabledIcon(disabled);
-				add(label,"growx");
+				add(label, "growx");
 			}
-				
+			
 			// Add labels
 			String[] l = text.split("\n");
-			for (int i=0; i<l.length; i++) {
-				add(new StyledLabel(l[i],SwingConstants.CENTER,-3.0f),"growx");
+			for (int i = 0; i < l.length; i++) {
+				add(new StyledLabel(l[i], SwingConstants.CENTER, -3.0f), "growx");
 			}
 			
-			add(new JLabel(),"push, sizegroup spacing");
+			add(new JLabel(), "push, sizegroup spacing");
 			
-			valueChanged(null);  // Update enabled status
+			valueChanged(null); // Update enabled status
 			selectionModel.addTreeSelectionListener(this);
 		}
-
+		
 		
 		/**
 		 * Main constructor that should be used.  The generated component type is specified
 		 * and the text.  The icons are fetched based on the component type.
 		 */
 		public ComponentButton(Class<? extends RocketComponent> c, String text) {
-			this(text,ComponentIcons.getLargeIcon(c),ComponentIcons.getLargeDisabledIcon(c));
+			this(text, ComponentIcons.getLargeIcon(c), ComponentIcons.getLargeDisabledIcon(c));
 			
-			if (c==null)
+			if (c == null)
 				return;
 			
-			componentClass = c; 
-
+			componentClass = c;
+			
 			try {
 				constructor = c.getConstructor();
 			} catch (NoSuchMethodException e) {
-				throw new IllegalArgumentException("Unable to get default "+
-						"constructor for class "+c,e);
+				throw new IllegalArgumentException("Unable to get default " +
+						"constructor for class " + c, e);
 			}
 		}
 		
@@ -308,9 +307,9 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * c is null if there is no selection.  The default is to use c.isCompatible(class).
 		 */
 		public boolean isAddable(RocketComponent c) {
-			if (c==null)
+			if (c == null)
 				return false;
-			if (componentClass==null)
+			if (componentClass == null)
 				return false;
 			return c.isCompatible(componentClass);
 		}
@@ -345,22 +344,22 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
 			Component[] c = getComponents();
-			for (int i=0; i<c.length; i++)
+			for (int i = 0; i < c.length; i++)
 				c[i].setEnabled(enabled);
 		}
 		
-
+		
 		/**
 		 * Update the enabled status of the button.
 		 */
 		private void updateEnabled() {
-			RocketComponent c=null;
+			RocketComponent c = null;
 			TreePath p = selectionModel.getSelectionPath();
-			if (p!=null)
-				c = (RocketComponent)p.getLastPathComponent();
+			if (p != null)
+				c = (RocketComponent) p.getLastPathComponent();
 			setEnabled(isAddable(c));
 		}
-
+		
 		
 		@Override
 		protected void fireActionPerformed(ActionEvent event) {
@@ -369,18 +368,18 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			Integer position = null;
 			
 			TreePath p = selectionModel.getSelectionPath();
-			if (p!= null)
-				c = (RocketComponent)p.getLastPathComponent();
-
+			if (p != null)
+				c = (RocketComponent) p.getLastPathComponent();
+			
 			Pair<RocketComponent, Integer> pos = getAdditionPosition(c);
-			if (pos==null) {
+			if (pos == null) {
 				// Cancel addition
 				return;
 			}
 			c = pos.getU();
 			position = pos.getV();
-
 			
+
 			if (c == null) {
 				// Should not occur
 				ExceptionHandler.handleErrorCondition("ERROR:  Could not place new component.");
@@ -395,13 +394,13 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			RocketComponent component;
 			try {
-				component = (RocketComponent)constructor.newInstance();
+				component = (RocketComponent) constructor.newInstance();
 			} catch (InstantiationException e) {
-				throw new BugException("Could not construct new instance of class "+
-						constructor,e);
+				throw new BugException("Could not construct new instance of class " +
+						constructor, e);
 			} catch (IllegalAccessException e) {
-				throw new BugException("Could not construct new instance of class "+
-						constructor,e);
+				throw new BugException("Could not construct new instance of class " +
+						constructor, e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
 			}
@@ -409,7 +408,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			// Next undo position is set by opening the configuration dialog
 			document.addUndoPosition("Add " + component.getComponentName());
 			
-			
+
 			if (position == null)
 				c.addChild(component);
 			else
@@ -419,14 +418,13 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			selectionModel.setSelectionPath(ComponentTreeModel.makeTreePath(component));
 			
 			JFrame parent = null;
-			for (Component comp = ComponentAddButtons.this; comp != null; 
-				 comp = comp.getParent()) {
+			for (Component comp = ComponentAddButtons.this; comp != null; comp = comp.getParent()) {
 				if (comp instanceof JFrame) {
 					parent = (JFrame) comp;
 					break;
 				}
 			}
-				
+			
 			ComponentConfigDialog.showDialog(parent, document, component);
 		}
 	}
@@ -439,15 +437,15 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public BodyComponentButton(Class<? extends RocketComponent> c, String text) {
 			super(c, text);
 		}
-
+		
 		public BodyComponentButton(String text, Icon enabled, Icon disabled) {
 			super(text, enabled, disabled);
 		}
-
+		
 		public BodyComponentButton(String text) {
 			super(text);
 		}
-
+		
 		@Override
 		public boolean isAddable(RocketComponent c) {
 			if (super.isAddable(c))
@@ -462,28 +460,31 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 		@Override
 		public Pair<RocketComponent, Integer> getAdditionPosition(RocketComponent c) {
-			if (super.isAddable(c))     // Handled automatically
+			if (super.isAddable(c)) // Handled automatically
 				return super.getAdditionPosition(c);
 			
-			
+
 			if (c == null || c instanceof Rocket) {
 				// Add as last body component of the last stage
 				Rocket rocket = document.getRocket();
-				return new Pair<RocketComponent,Integer>(rocket.getChild(rocket.getStageCount()-1),
+				return new Pair<RocketComponent, Integer>(rocket.getChild(rocket.getStageCount() - 1),
 						null);
 			}
 			
 			if (!(c instanceof BodyComponent))
 				return null;
 			RocketComponent parent = c.getParent();
-			assert(parent != null);
+			if (parent == null) {
+				throw new BugException("Component " + c.getComponentName() + " is the root component, " +
+						"componentClass=" + componentClass);
+			}
 			
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
 			int pos = Prefs.getChoise(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
-			if (pos==0) {
-				if (parent.getChildPosition(c) == parent.getChildCount()-1)
-					pos = 2;  // Selected component is the last component
+			if (pos == 0) {
+				if (parent.getChildPosition(c) == parent.getChildCount() - 1)
+					pos = 2; // Selected component is the last component
 				else
 					pos = askPosition();
 			}
@@ -494,12 +495,12 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				return null;
 			case 1:
 				// Insert after current position
-				return new Pair<RocketComponent,Integer>(parent, parent.getChildPosition(c)+1);
+				return new Pair<RocketComponent, Integer>(parent, parent.getChildPosition(c) + 1);
 			case 2:
 				// Insert at the end of the parent
-				return new Pair<RocketComponent,Integer>(parent, null);
+				return new Pair<RocketComponent, Integer>(parent, null);
 			default:
-				ExceptionHandler.handleErrorCondition("ERROR:  Bad position type: "+pos);
+				ExceptionHandler.handleErrorCondition("ERROR:  Bad position type: " + pos);
 				return null;
 			}
 		}
@@ -509,22 +510,22 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			JPanel panel = new JPanel(new MigLayout());
 			JCheckBox check = new JCheckBox("Do not ask me again");
-			panel.add(check,"wrap");
+			panel.add(check, "wrap");
 			panel.add(new StyledLabel("You can change the default operation in the " +
-					"preferences.",-2));
+					"preferences.", -2));
 			
-			int sel = JOptionPane.showOptionDialog(null,  // parent component 
+			int sel = JOptionPane.showOptionDialog(null, // parent component 
 					new Object[] {
-					"Insert the component after the current component or as the last " +
-					"component?",
-					panel },
-					"Select component position",   // title
-					JOptionPane.DEFAULT_OPTION,    // default selections
-					JOptionPane.QUESTION_MESSAGE,  // dialog type
-					null,         // icon
-					options,      // options
-					options[0]);  // initial value
-
+							"Insert the component after the current component or as the last " +
+									"component?",
+							panel },
+					"Select component position", // title
+					JOptionPane.DEFAULT_OPTION, // default selections
+					JOptionPane.QUESTION_MESSAGE, // dialog type
+					null, // icon
+					options, // options
+					options[0]); // initial value
+			
 			switch (sel) {
 			case JOptionPane.CLOSED_OPTION:
 			case 2:
@@ -539,7 +540,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				sel = 2;
 				break;
 			default:
-				ExceptionHandler.handleErrorCondition("ERROR:  JOptionPane returned "+sel);
+				ExceptionHandler.handleErrorCondition("ERROR:  JOptionPane returned " + sel);
 				return 0;
 			}
 			
@@ -552,7 +553,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 	}
 	
-
+	
 
 	/**
 	 * Class for fin sets, that attach only to BodyTubes.
@@ -561,33 +562,33 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		public FinButton(Class<? extends RocketComponent> c, String text) {
 			super(c, text);
 		}
-
+		
 		public FinButton(String text, Icon enabled, Icon disabled) {
 			super(text, enabled, disabled);
 		}
-
+		
 		public FinButton(String text) {
 			super(text);
 		}
-
+		
 		@Override
 		public boolean isAddable(RocketComponent c) {
-			if (c==null)
+			if (c == null)
 				return false;
 			return (c.getClass().equals(BodyTube.class));
 		}
 	}
-
-
 	
-	/////////  Scrolling functionality
+	
 
+	/////////  Scrolling functionality
+	
 	@Override
 	public Dimension getPreferredScrollableViewportSize() {
 		return getPreferredSize();
 	}
-
-
+	
+	
 	@Override
 	public int getScrollableBlockIncrement(Rectangle visibleRect,
 			int orientation, int direction) {
@@ -595,20 +596,20 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			return visibleRect.height * 8 / 10;
 		return 10;
 	}
-
-
+	
+	
 	@Override
 	public boolean getScrollableTracksViewportHeight() {
 		return false;
 	}
-
-
+	
+	
 	@Override
 	public boolean getScrollableTracksViewportWidth() {
 		return true;
 	}
-
-
+	
+	
 	@Override
 	public int getScrollableUnitIncrement(Rectangle visibleRect,
 			int orientation, int direction) {
@@ -616,4 +617,3 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 	}
 	
 }
-
