@@ -6,7 +6,6 @@ package net.sf.openrocket.file.rocksim;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -68,7 +67,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new ParachuteHandler(new BodyTube()).openElement(null, null, null));
+        assertEquals(PlainTextHandler.INSTANCE, new ParachuteHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -79,7 +78,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube);
+        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -129,7 +128,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new ParachuteHandler(null);
+            new ParachuteHandler(null, new WarningSet());
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -137,7 +136,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube);
+        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         assertContains(component, tube.getChildren());
     }
@@ -149,7 +148,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      */
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube);
+        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -161,7 +160,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetComponent() throws Exception {
-        assertTrue(new ParachuteHandler(new BodyTube()).getComponent() instanceof Parachute);
+        assertTrue(new ParachuteHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
     }
 
     /**
@@ -170,7 +169,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.SURFACE, new ParachuteHandler(new BodyTube()).getMaterialType());
+        assertEquals(Material.Type.SURFACE, new ParachuteHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
     /**
@@ -180,7 +179,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      */
     public void testEndHandler() throws Exception {
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube);
+        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();

@@ -27,14 +27,17 @@ class InnerBodyTubeHandler extends PositionDependentHandler<InnerTube> {
      * Constructor.
      *
      * @param c the parent component
+     * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public InnerBodyTubeHandler(RocketComponent c) throws IllegalArgumentException {
+    public InnerBodyTubeHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of an inner tube may not be null.");
         }
         bodyTube = new InnerTube();
-        c.addChild(bodyTube);
+        if (isCompatible(c, InnerTube.class, warnings)) {
+            c.addChild(bodyTube);
+        }
     }
 
     @Override

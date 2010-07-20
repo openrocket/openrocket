@@ -27,14 +27,18 @@ class LaunchLugHandler extends PositionDependentHandler<LaunchLug> {
      * Constructor.
      *
      * @param c the parent
+     * @param warnings  the warning set
+     * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public LaunchLugHandler(RocketComponent c) throws IllegalArgumentException {
+    public LaunchLugHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a launch lug may not be null.");
         }
         lug = new LaunchLug();
-        c.addChild(lug);
+        if (isCompatible(c, LaunchLug.class, warnings)) {
+            c.addChild(lug);
+        }
     }
 
     @Override

@@ -27,14 +27,17 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
      * Constructor.
      *
      * @param c the parent component
+     * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public RingHandler(RocketComponent c) throws IllegalArgumentException {
+    public RingHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent of a ring may not be null.");
         }
         ring = new CenteringRing();
-        c.addChild(ring);
+        if (isCompatible(c, CenteringRing.class, warnings)) {
+            c.addChild(ring);
+        }
     }
 
     @Override

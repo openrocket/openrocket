@@ -6,7 +6,6 @@ package net.sf.openrocket.file.rocksim;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -68,7 +67,7 @@ public class RingHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new RingHandler(new BodyTube()).openElement(null, null, null));
+        assertEquals(PlainTextHandler.INSTANCE, new RingHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -79,7 +78,7 @@ public class RingHandlerTest extends RocksimTestBase {
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
-        RingHandler handler = new RingHandler(tube);
+        RingHandler handler = new RingHandler(tube, new WarningSet());
         CenteringRing component = (CenteringRing) getField(handler, "ring");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -123,7 +122,7 @@ public class RingHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new RingHandler(null);
+            new RingHandler(null, new WarningSet());
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -131,7 +130,7 @@ public class RingHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        RingHandler handler = new RingHandler(tube);
+        RingHandler handler = new RingHandler(tube, new WarningSet());
         CenteringRing component = (CenteringRing) getField(handler, "ring");
         assertContains(component, tube.getChildren());
     }
@@ -143,7 +142,7 @@ public class RingHandlerTest extends RocksimTestBase {
      */
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        RingHandler handler = new RingHandler(tube);
+        RingHandler handler = new RingHandler(tube, new WarningSet());
         CenteringRing component = (CenteringRing) getField(handler, "ring");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -155,7 +154,7 @@ public class RingHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetComponent() throws Exception {
-        assertTrue(new RingHandler(new BodyTube()).getComponent() instanceof CenteringRing);
+        assertTrue(new RingHandler(new BodyTube(), new WarningSet()).getComponent() instanceof CenteringRing);
     }
 
     /**
@@ -164,7 +163,7 @@ public class RingHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.BULK, new RingHandler(new BodyTube()).getMaterialType());
+        assertEquals(Material.Type.BULK, new RingHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
 

@@ -39,25 +39,25 @@ class AttachedPartsHandler extends ElementHandler {
             return new FinSetHandler(component);
         }
         if ("LaunchLug".equals(element)) {
-            return new LaunchLugHandler(component);
+            return new LaunchLugHandler(component, warnings);
         }
         if ("Parachute".equals(element)) {
-            return new ParachuteHandler(component);
+            return new ParachuteHandler(component, warnings);
         }
         if ("Streamer".equals(element)) {
-            return new StreamerHandler(component);
+            return new StreamerHandler(component, warnings);
         }
         if ("MassObject".equals(element)) {
-            return new MassObjectHandler(component);
+            return new MassObjectHandler(component, warnings);
         }
         if ("Ring".equals(element)) {
-            return new RingHandler(component);
+            return new RingHandler(component, warnings);
         }
         if ("BodyTube".equals(element)) {
-            return new InnerBodyTubeHandler(component);
+            return new InnerBodyTubeHandler(component, warnings);
         }
         if ("Transition".equals(element)) {
-            return new TransitionHandler(component);
+            return new TransitionHandler(component, warnings);
         }
         if ("TubeFinSet".equals(element)) {
             warnings.add("Tube fins are not currently supported. Ignoring.");

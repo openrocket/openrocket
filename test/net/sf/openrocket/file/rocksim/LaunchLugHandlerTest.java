@@ -6,7 +6,6 @@ package net.sf.openrocket.file.rocksim;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -72,7 +71,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new LaunchLugHandler(null);
+            new LaunchLugHandler(null, new WarningSet());
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -80,7 +79,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        LaunchLugHandler handler = new LaunchLugHandler(tube);
+        LaunchLugHandler handler = new LaunchLugHandler(tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
         assertContains(component, tube.getChildren());
     }
@@ -91,7 +90,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new LaunchLugHandler(new BodyTube()).openElement(null, null, null));
+        assertEquals(PlainTextHandler.INSTANCE, new LaunchLugHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -102,7 +101,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      */
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
-        LaunchLugHandler handler = new LaunchLugHandler(tube);
+        LaunchLugHandler handler = new LaunchLugHandler(tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -156,7 +155,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      */
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        LaunchLugHandler handler = new LaunchLugHandler(tube);
+        LaunchLugHandler handler = new LaunchLugHandler(tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -168,7 +167,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetComponent() throws Exception {
-        assertTrue(new LaunchLugHandler(new BodyTube()).getComponent() instanceof LaunchLug);
+        assertTrue(new LaunchLugHandler(new BodyTube(), new WarningSet()).getComponent() instanceof LaunchLug);
     }
 
     /**
@@ -177,7 +176,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.BULK, new LaunchLugHandler(new BodyTube()).getMaterialType());
+        assertEquals(Material.Type.BULK, new LaunchLugHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
 

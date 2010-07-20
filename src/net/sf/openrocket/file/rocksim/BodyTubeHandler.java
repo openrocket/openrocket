@@ -26,14 +26,17 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
      * Constructor.
      *
      * @param c parent component
+     * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public BodyTubeHandler(RocketComponent c) throws IllegalArgumentException {
+    public BodyTubeHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a body tube may not be null.");
         }
         bodyTube = new BodyTube();
-        c.addChild(bodyTube);
+        if (isCompatible(c, BodyTube.class, warnings)) {
+            c.addChild(bodyTube);
+        }
     }
 
     @Override

@@ -33,14 +33,18 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
      * Constructor.
      *
      * @param c the parent component to the nosecone
+     * @param warnings  the warning set
+     * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public NoseConeHandler(RocketComponent c) throws IllegalArgumentException {
+    public NoseConeHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a nose cone may not be null.");
         }
-        c.addChild(noseCone);
-        noseCone.setAftRadiusAutomatic(false);
+        if (isCompatible(c, NoseCone.class, warnings)) {
+            c.addChild(noseCone);
+            noseCone.setAftRadiusAutomatic(false);
+        }
     }
 
     @Override

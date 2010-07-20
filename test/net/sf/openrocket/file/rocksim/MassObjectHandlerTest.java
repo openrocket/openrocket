@@ -5,15 +5,12 @@ package net.sf.openrocket.file.rocksim;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.Transition;
-import net.sf.openrocket.aerodynamics.WarningSet;
 
 import java.util.HashMap;
 
@@ -73,7 +70,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new MassObjectHandler(null);
+            new MassObjectHandler(null, new WarningSet());
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -81,7 +78,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        MassObjectHandler handler = new MassObjectHandler(tube);
+        MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
         MassComponent component = (MassComponent) getField(handler, "mass");
         assertContains(component, tube.getChildren());
     }
@@ -92,7 +89,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new MassObjectHandler(new BodyTube()).openElement(null, null, null));
+        assertEquals(PlainTextHandler.INSTANCE, new MassObjectHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -106,7 +103,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
-        MassObjectHandler handler = new MassObjectHandler(tube);
+        MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
         MassComponent component = (MassComponent) getField(handler, "mass");
 
         handler.closeElement("Len", attributes, "-1", warnings);
@@ -138,7 +135,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      */
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        MassObjectHandler handler = new MassObjectHandler(tube);
+        MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
         MassComponent component = (MassComponent) getField(handler, "mass");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -150,7 +147,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetComponent() throws Exception {
-        assertTrue(new MassObjectHandler(new BodyTube()).getComponent() instanceof MassComponent);
+        assertTrue(new MassObjectHandler(new BodyTube(), new WarningSet()).getComponent() instanceof MassComponent);
     }
 
     /**
@@ -159,7 +156,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.BULK, new MassObjectHandler(new BodyTube()).getMaterialType());
+        assertEquals(Material.Type.BULK, new MassObjectHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
 

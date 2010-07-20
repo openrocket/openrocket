@@ -360,13 +360,13 @@ class StageHandler extends ElementHandler {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         if ("NoseCone".equals(element)) {
-            return new NoseConeHandler(component);
+            return new NoseConeHandler(component, warnings);
         }
         if ("BodyTube".equals(element)) {
-            return new BodyTubeHandler(component);
+            return new BodyTubeHandler(component, warnings);
         }
         if ("Transition".equals(element)) {
-            return new TransitionHandler(component);
+            return new TransitionHandler(component, warnings);
         }
         return null;
     }

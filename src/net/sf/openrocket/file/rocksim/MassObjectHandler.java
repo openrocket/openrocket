@@ -36,15 +36,18 @@ class MassObjectHandler extends PositionDependentHandler<MassComponent> {
      * Constructor.
      *l
      * @param c the parent component
+     * @param warnings  the warning set
      * 
      * @throws IllegalArgumentException  thrown if <code>c</code> is null
      */
-    public MassObjectHandler(RocketComponent c) throws IllegalArgumentException {
+    public MassObjectHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a mass component may not be null.");
         }
         mass = new MassComponent();
-        c.addChild(mass);
+        if (isCompatible(c, MassComponent.class, warnings)) {
+            c.addChild(mass);
+        }
     }
 
     @Override

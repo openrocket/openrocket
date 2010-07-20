@@ -6,13 +6,11 @@ package net.sf.openrocket.file.rocksim;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
 
 import java.util.HashMap;
 
@@ -73,7 +71,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new InnerBodyTubeHandler(null);
+            new InnerBodyTubeHandler(null, new WarningSet());
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -81,7 +79,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube);
+        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
         assertContains(component, tube.getChildren());
     }
@@ -92,8 +90,8 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new InnerBodyTubeHandler(new BodyTube()).openElement(null, null, null));
-        assertNotNull(new InnerBodyTubeHandler(new BodyTube()).openElement("AttachedParts", null, null));
+        assertEquals(PlainTextHandler.INSTANCE, new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        assertNotNull(new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).openElement("AttachedParts", null, null));
     }
 
     /**
@@ -104,7 +102,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      */
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
-        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube);
+        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -167,7 +165,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      */
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube);
+        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -179,7 +177,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetComponent() throws Exception {
-        assertTrue(new InnerBodyTubeHandler(new BodyTube()).getComponent() instanceof InnerTube);
+        assertTrue(new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).getComponent() instanceof InnerTube);
     }
 
     /**
@@ -188,7 +186,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      * @throws Exception thrown if something goes awry
      */
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.BULK, new InnerBodyTubeHandler(new BodyTube()).getMaterialType());
+        assertEquals(Material.Type.BULK, new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
 

@@ -7,26 +7,26 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.ExternalComponent;
-import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
 import org.xml.sax.SAXException;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 /**
- * A SAX handler for Rocksim fin sets.  Because the type of
- * fin may not be known first (in Rocksim file format, the fin shape type is in the middle of the XML structure),
- * and because we're using SAX not DOM, all of the fin characteristics are kept here until the closing FinSet tag.
- * At that point, <code>asOpenRocket</code> method is called to construct the corresponding OpenRocket FinSet.
+ * A SAX handler for Rocksim fin sets.  Because the type of fin may not be known first (in Rocksim file format, the fin
+ * shape type is in the middle of the XML structure), and because we're using SAX not DOM, all of the fin
+ * characteristics are kept here until the closing FinSet tag. At that point, <code>asOpenRocket</code> method is called
+ * to construct the corresponding OpenRocket FinSet.
  */
 class FinSetHandler extends ElementHandler {
     /**
@@ -47,7 +47,7 @@ class FinSetHandler extends ElementHandler {
      */
     private double location = 0.0d;
     /**
-     * The OpenRocket Position which gives the absolute/relative positiong for location.
+     * The OpenRocket Position which gives the absolute/relative positioning for location.
      */
     private RocketComponent.Position position;
     /**
@@ -141,9 +141,9 @@ class FinSetHandler extends ElementHandler {
      *
      * @param c the parent
      *
-     * @throws IllegalArgumentException  thrown if <code>c</code> is null
+     * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public FinSetHandler(RocketComponent c) throws IllegalArgumentException {
+    public FinSetHandler (RocketComponent c) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a fin set may not be null.");
         }
@@ -151,12 +151,12 @@ class FinSetHandler extends ElementHandler {
     }
 
     @Override
-    public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
+    public ElementHandler openElement (String element, HashMap<String, String> attributes, WarningSet warnings) {
         return PlainTextHandler.INSTANCE;
     }
 
     @Override
-    public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
+    public void closeElement (String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         try {
             if ("Name".equals(element)) {
@@ -241,20 +241,26 @@ class FinSetHandler extends ElementHandler {
     }
 
     @Override
-    public void endHandler(String element, HashMap<String, String> attributes,
-                           String content, WarningSet warnings) throws SAXException {
+    public void endHandler (String element, HashMap<String, String> attributes,
+            String content, WarningSet warnings) throws SAXException {
         //Create the fin set and correct for overrides and actual material densities
         final FinSet finSet = asOpenRocket(warnings);
-        BaseHandler.setOverride(finSet, override, mass, cg);
-        if (!override && finSet.getCrossSection().equals(FinSet.CrossSection.AIRFOIL)) {
-            //Override mass anyway.  This is done only for AIRFOIL because Rocksim does not compute different
-            //mass/cg for different cross sections, but OpenRocket does.  This can lead to drastic differences
-            //in mass.  To counteract that, the cross section value is retained but the mass/cg is overridden
-            //with the calculated values from Rocksim.  This will best approximate the Rocksim design in OpenRocket.
-            BaseHandler.setOverride(finSet, true, calcMass, calcCg);
+        if (component.isCompatible(finSet)) {
+            BaseHandler.setOverride(finSet, override, mass, cg);
+            if (!override && finSet.getCrossSection().equals(FinSet.CrossSection.AIRFOIL)) {
+                //Override mass anyway.  This is done only for AIRFOIL because Rocksim does not compute different
+                //mass/cg for different cross sections, but OpenRocket does.  This can lead to drastic differences
+                //in mass.  To counteract that, the cross section value is retained but the mass/cg is overridden
+                //with the calculated values from Rocksim.  This will best approximate the Rocksim design in OpenRocket.
+                BaseHandler.setOverride(finSet, true, calcMass, calcCg);
+            }
+            BaseHandler.updateComponentMaterial(finSet, materialName, Material.Type.BULK, density);
+            component.addChild(finSet);
         }
-        BaseHandler.updateComponentMaterial(finSet, materialName, Material.Type.BULK, density);
-        component.addChild(finSet);
+        else {
+            warnings.add(finSet.getComponentName() + " can not be attached to "
+                         + component.getComponentName() + ", ignoring component.");
+        }
     }
 
 
@@ -262,9 +268,10 @@ class FinSetHandler extends ElementHandler {
      * Convert the parsed Rocksim data values in this object to an instance of OpenRocket's FinSet.
      *
      * @param warnings the warning set to convey incompatibilities to the user
+     *
      * @return a FinSet instance
      */
-    public FinSet asOpenRocket(WarningSet warnings) {
+    public FinSet asOpenRocket (WarningSet warnings) {
         FinSet result;
 
         if (shapeCode == 0) {
@@ -313,26 +320,26 @@ class FinSetHandler extends ElementHandler {
      *
      * @param pointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
      *                  <pre>x0,y0|x1,y1|x2,y2|... </pre>
-     * @param warnings the warning set to convey incompatibilities to the user
+     * @param warnings  the warning set to convey incompatibilities to the user
      *
      * @return an array of OpenRocket Coordinates
      */
-    private Coordinate[] toCoordinates(String pointList, WarningSet warnings) {
+    private Coordinate[] toCoordinates (String pointList, WarningSet warnings) {
         List<Coordinate> result = new ArrayList<Coordinate>();
         if (pointList != null && !pointList.isEmpty()) {
             String[] points = pointList.split("\\Q|\\E");
             for (String point : points) {
                 String[] aPoint = point.split(",");
                 try {
-                if (aPoint.length > 1) {
-                    Coordinate c = new Coordinate(
-                            Double.parseDouble(aPoint[0]) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH,
-                            Double.parseDouble(aPoint[1]) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
-                    result.add(c);
-                }
-                else {
-                    warnings.add("Invalid fin point pair.");
-                }
+                    if (aPoint.length > 1) {
+                        Coordinate c = new Coordinate(
+                                Double.parseDouble(aPoint[0]) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH,
+                                Double.parseDouble(aPoint[1]) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+                        result.add(c);
+                    }
+                    else {
+                        warnings.add("Invalid fin point pair.");
+                    }
                 }
                 catch (NumberFormatException nfe) {
                     warnings.add("Fin point not in numeric format.");
@@ -356,9 +363,10 @@ class FinSetHandler extends ElementHandler {
      * Convert a Rocksim tip shape to an OpenRocket CrossSection.
      *
      * @param tipShape the tip shape code from Rocksim
+     *
      * @return a CrossSection instance
      */
-    private FinSet.CrossSection convertTipShapeCode(int tipShape) {
+    private FinSet.CrossSection convertTipShapeCode (int tipShape) {
         switch (tipShape) {
             case 0:
                 return FinSet.CrossSection.SQUARE;

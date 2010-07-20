@@ -31,13 +31,16 @@ class TransitionHandler extends BaseHandler<Transition> {
      * Constructor.
      *
      * @param c the parent component
+     * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public TransitionHandler(RocketComponent c) throws IllegalArgumentException {
+    public TransitionHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent of a transition may not be null.");
         }
-        c.addChild(transition);
+        if (isCompatible(c, Transition.class, warnings)) {
+            c.addChild(transition);
+        }
     }
 
     @Override

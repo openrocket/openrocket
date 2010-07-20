@@ -32,14 +32,18 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
      * Constructor.
      *
      * @param c the parent component
+     * @param warnings  the warning set
+     * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public ParachuteHandler(RocketComponent c) throws IllegalArgumentException {
+    public ParachuteHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent of a parachute may not be null.");
         }
         chute = new Parachute();
-        c.addChild(chute);
+        if (isCompatible(c, Parachute.class, warnings)) {
+            c.addChild(chute);
+        }
     }
 
     /**

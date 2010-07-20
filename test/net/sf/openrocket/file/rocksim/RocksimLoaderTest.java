@@ -4,15 +4,15 @@
  */
 package net.sf.openrocket.file.rocksim;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
+
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 /**
  * RocksimLoader Tester.
@@ -60,6 +60,27 @@ public class RocksimLoaderTest extends TestCase {
      */
     public void tearDown() throws Exception {
         super.tearDown();
+    }
+
+    /**
+     * Test a bug reported via automated bug report.  I have been unable to reproduce this bug
+     * (hanging finset off of an inner body tube) when creating a Rocksim file using Rocksim.  The bug
+     * is reproducible when manually modifying the Rocksim file, which is what is tested here.
+     */
+    public void testFinsOnInnerTube() throws Exception {
+        RocksimLoader loader = new RocksimLoader();
+        InputStream stream = this.getClass().getResourceAsStream("PodFins.rkt");
+        assertNotNull("Could not open PodFins.rkt", stream);
+        try {
+            OpenRocketDocument doc = loader.loadFromStream(new BufferedInputStream(stream));
+            assertNotNull(doc);
+            Rocket rocket = doc.getRocket();
+            assertNotNull(rocket);
+        }
+        catch (IllegalStateException ise) {
+            fail(ise.getMessage());            
+        }
+        assertTrue(loader.getWarnings().size() == 2);
     }
 
     /**

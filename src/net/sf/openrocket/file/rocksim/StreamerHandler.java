@@ -26,14 +26,18 @@ class StreamerHandler extends RecoveryDeviceHandler<Streamer> {
      * Constructor.
      *
      * @param c the parent component
+     * @param warnings  the warning set
+     * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public StreamerHandler(RocketComponent c) throws IllegalArgumentException {
+    public StreamerHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent of a streamer may not be null.");
         }
         streamer = new Streamer();
-        c.addChild(streamer);
+        if (isCompatible(c, Streamer.class, warnings)) {
+            c.addChild(streamer);
+        }
     }
 
     /**

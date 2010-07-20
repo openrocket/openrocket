@@ -181,6 +181,26 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
     }
 
     /**
+     * Add child to parent only if the child is compatible.  Otherwise add to warning set.
+     * 
+     * @param parent  the parent component
+     * @param child   the child component
+     * @param warnings the warning set
+     * 
+     * @return true if the child is compatible with parent
+     */
+    protected static boolean isCompatible(RocketComponent parent, Class<? extends RocketComponent> child, WarningSet warnings) {
+        if (!parent.isCompatible(child)) {
+            warnings.add(child.getName() + " can not be attached to "
+                         + parent.getComponentName() + ", ignoring component.");
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    
+    /**
      * Create a custom material based on the density.
      *
      * @param type    the type of the material
