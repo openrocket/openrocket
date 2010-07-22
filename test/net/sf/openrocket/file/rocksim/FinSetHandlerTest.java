@@ -104,6 +104,9 @@ public class FinSetHandlerTest extends TestCase {
         assertTrue(fins instanceof TrapezoidFinSet);
         assertEquals(4, fins.getFinCount());
 
+        assertEquals(0.012d, ((TrapezoidFinSet) fins).getHeight());
+        assertEquals(0.012d, fins.getSpan());
+        
         assertEquals(0.2d, fins.getThickness());
         assertEquals(0.4d, fins.getTabLength());
         assertEquals(0.5d, fins.getTabHeight());

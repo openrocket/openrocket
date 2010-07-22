@@ -277,7 +277,7 @@ class FinSetHandler extends ElementHandler {
         if (shapeCode == 0) {
             //Trapezoidal
             result = new TrapezoidFinSet();
-            ((TrapezoidFinSet) result).setFinShape(rootChord, tipChord, sweepDistance, midChordLen, thickness);
+            ((TrapezoidFinSet) result).setFinShape(rootChord, tipChord, sweepDistance, semiSpan, thickness);
         }
         else if (shapeCode == 1) {
             //Elliptical
