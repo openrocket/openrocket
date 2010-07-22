@@ -2,6 +2,7 @@ package net.sf.openrocket.util;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
@@ -96,8 +97,9 @@ public class GUIUtil {
 
 	/**
 	 * Set suitable options for a single-use disposable dialog.  This includes
-	 * setting ESC to close the dialog and adding the appropriate window icons.
-	 * If defaultButton is provided, it is set to the default button action.
+	 * setting ESC to close the dialog, adding the appropriate window icons and
+	 * setting the location based on the platform.  If defaultButton is provided, 
+	 * it is set to the default button action.
 	 * <p>
 	 * The default button must be already attached to the dialog.
 	 * 
@@ -108,6 +110,7 @@ public class GUIUtil {
 		installEscapeCloseOperation(dialog);
 		setWindowIcons(dialog);
 		addModelNullingListener(dialog);
+		dialog.setLocationByPlatform(true);
 		if (defaultButton != null) {
 			setDefaultButton(defaultButton);
 		}
@@ -235,6 +238,19 @@ public class GUIUtil {
 		} catch (Exception e) {
 			log.warn("Error setting LAF: " + e);
 		}
+	}
+	
+	
+	/**
+	 * Changes the size of the font of the specified component by the given amount.
+	 * 
+	 * @param component		the component for which to change the font
+	 * @param size			the change in the font size
+	 */
+	public static void changeFontSize(JComponent component, float size) {
+		Font font = component.getFont();
+		font = font.deriveFont(font.getSize2D() + size);
+		component.setFont(font);
 	}
 	
 	

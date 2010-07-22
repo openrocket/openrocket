@@ -6,20 +6,17 @@ package net.sf.openrocket.util;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class BugException extends FatalException {
-
-	public BugException() {
-	}
-
+	
 	public BugException(String message) {
 		super(message);
 	}
-
+	
 	public BugException(Throwable cause) {
 		super(cause);
 	}
-
+	
 	public BugException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
+	
 }

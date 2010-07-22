@@ -1,6 +1,6 @@
 package net.sf.openrocket.startup;
 
-import net.sf.openrocket.database.MotorSetDatabase;
+import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
@@ -16,7 +16,7 @@ public final class Application {
 	private static LogHelper logger;
 	private static LogLevelBufferLogger logBuffer;
 	
-	private static MotorSetDatabase motorSetDatabase;
+	private static ThrustCurveMotorSetDatabase motorSetDatabase;
 	
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
@@ -68,14 +68,14 @@ public final class Application {
 	/**
 	 * Return the database of all thrust curves loaded into the system.
 	 */
-	public static MotorSetDatabase getMotorSetDatabase() {
+	public static ThrustCurveMotorSetDatabase getMotorSetDatabase() {
 		return motorSetDatabase;
 	}
 	
 	/**
 	 * Set the database of thrust curves loaded into the system.
 	 */
-	public static void setMotorSetDatabase(MotorSetDatabase motorSetDatabase) {
+	public static void setMotorSetDatabase(ThrustCurveMotorSetDatabase motorSetDatabase) {
 		Application.motorSetDatabase = motorSetDatabase;
 	}
 	

@@ -412,14 +412,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (status.getSimulationTime() < status.getStartWarningTime())
 			warnings = null;
 		
-		System.out.println("flightConditions=" + store.flightConditions);
-		
+
 		// Calculate aerodynamic forces
 		store.forces = status.getSimulationConditions().getAerodynamicCalculator()
 				.getAerodynamicForces(status.getConfiguration(), store.flightConditions, warnings);
 		
-		System.out.println("CP=" + store.forces.getCP());
-		
+
 		// Add very small randomization to yaw & pitch moments to prevent over-perfect flight
 		// TODO: HIGH: This should rather be performed as a listener
 		store.forces.setCm(store.forces.getCm() + (PITCH_YAW_RANDOM * 2 * (random.nextDouble() - 0.5)));

@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.plot;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
@@ -61,6 +62,8 @@ import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
 public class PlotDialog extends JDialog {
+	
+	private static final float PLOT_STROKE_WIDTH = 1.5f;
 	
 	private static final Color DEFAULT_EVENT_COLOR = new Color(0, 0, 0);
 	private static final Map<FlightEvent.Type, Color> EVENT_COLORS =
@@ -221,6 +224,9 @@ public class PlotDialog extends JDialog {
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer();
 				r.setBaseShapesVisible(initialShowPoints);
 				r.setBaseShapesFilled(true);
+				for (int j = 0; j < data[i].getSeriesCount(); j++) {
+					r.setSeriesStroke(j, new BasicStroke(PLOT_STROKE_WIDTH));
+				}
 				renderers.add(r);
 				plot.setRenderer(axisno, r);
 				plot.mapDatasetToRangeAxis(axisno, axisno);

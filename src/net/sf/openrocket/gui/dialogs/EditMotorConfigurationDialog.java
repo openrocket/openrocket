@@ -26,9 +26,9 @@ import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -317,10 +317,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		if (currentID == null || currentMount == null)
 			return;
 		
-		// TODO: HIGH: Assumes only ThrustCurveMotors exist
-		MotorChooserDialog dialog = new MotorChooserDialog((ThrustCurveMotor) currentMount.getMotor(currentID),
-				currentMount.getMotorDelay(currentID), currentMount.getMotorMountDiameter(),
-				this);
+		MotorChooserDialog dialog = new MotorChooserDialog(currentMount.getMotor(currentID),
+				currentMount.getMotorDelay(currentID), currentMount.getMotorMountDiameter(), this);
 		dialog.setVisible(true);
 		Motor m = dialog.getSelectedMotor();
 		double d = dialog.getSelectedDelay();

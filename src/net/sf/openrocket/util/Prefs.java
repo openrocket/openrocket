@@ -42,21 +42,21 @@ public class Prefs {
 	/**
 	 * Whether to use the debug-node instead of the normal node.
 	 */
-	public static final boolean DEBUG = false;
+	private static final boolean DEBUG;
+	static {
+		DEBUG = (System.getProperty("openrocket.debug.prefs") != null);
+	}
 	
 	/**
 	 * Whether to clear all preferences at application startup.  This has an effect only
 	 * if DEBUG is true.
 	 */
-	public static final boolean CLEARPREFS = true;
+	private static final boolean CLEARPREFS = true;
 	
 	/**
 	 * The node name to use in the Java preferences storage.
 	 */
-	public static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
-	
-
-	public static final String DEFAULT_BUILD_SOURCE = "default";
+	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
 	
 	/*
@@ -128,6 +128,11 @@ public class Prefs {
 	private static final String CHECK_UPDATES = "CheckUpdates";
 	public static final String LAST_UPDATE = "LastUpdateVersion";
 	
+
+	// Node names
+	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
+	
+
 	/**
 	 * Node to this application's preferences.
 	 * @deprecated  Use the static methods instead.
@@ -137,6 +142,7 @@ public class Prefs {
 	private static final Preferences PREFNODE;
 	
 
+	// Clear the preferences if debug mode and clearprefs is defined
 	static {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
@@ -193,16 +199,27 @@ public class Prefs {
 	//////////////////////
 	
 
+	/**
+	 * Return the OpenRocket version number.
+	 */
 	public static String getVersion() {
 		return BuildPropertyHolder.BUILD_VERSION;
 	}
 	
 	
+	/**
+	 * Return the OpenRocket build source (e.g. "default" or "Debian")
+	 */
 	public static String getBuildSource() {
 		return BuildPropertyHolder.BUILD_SOURCE;
 	}
 	
 	
+	/**
+	 * Return the OpenRocket unique ID.
+	 * 
+	 * @return	a random ID string that stays constant between OpenRocket executions
+	 */
 	public static String getUniqueID() {
 		String id = PREFNODE.get("id", null);
 		if (id == null) {
@@ -214,7 +231,10 @@ public class Prefs {
 	
 	
 
-	public static void storeVersion() {
+	/**
+	 * Store the current OpenRocket version into the preferences to allow for preferences migration.
+	 */
+	private static void storeVersion() {
 		PREFNODE.put("OpenRocketVersion", getVersion());
 	}
 	
@@ -249,27 +269,66 @@ public class Prefs {
 	}
 	
 	
-
+	/**
+	 * Return a string preference.
+	 * 
+	 * @param key	the preference key.
+	 * @param def	the default if no preference is stored
+	 * @return		the preference value
+	 */
 	public static String getString(String key, String def) {
 		return PREFNODE.get(key, def);
 	}
 	
+	/**
+	 * Set a string preference.
+	 * 
+	 * @param key		the preference key
+	 * @param value		the value to set
+	 */
 	public static void putString(String key, String value) {
 		PREFNODE.put(key, value);
 		storeVersion();
 	}
 	
-	
+	/**
+	 * Return a boolean preference.
+	 * 
+	 * @param key	the preference key
+	 * @param def	the default if no preference is stored
+	 * @return		the preference value
+	 */
 	public static boolean getBoolean(String key, boolean def) {
 		return PREFNODE.getBoolean(key, def);
 	}
 	
+	/**
+	 * Set a boolean preference.
+	 * 
+	 * @param key		the preference key
+	 * @param value		the value to set
+	 */
 	public static void putBoolean(String key, boolean value) {
 		PREFNODE.putBoolean(key, value);
 		storeVersion();
 	}
 	
 	
+	/**
+	 * Return a preferences object for the specified node name.
+	 * 
+	 * @param nodeName	the node name
+	 * @return			the preferences object for that node
+	 */
+	public static Preferences getNode(String nodeName) {
+		return PREFNODE.node(nodeName);
+	}
+	
+	
+	//////////////////
+	
+
+
 
 	public static boolean getCheckUpdates() {
 		return PREFNODE.getBoolean(CHECK_UPDATES, BuildPropertyHolder.DEFAULT_CHECK_UPDATES);
@@ -279,9 +338,6 @@ public class Prefs {
 		PREFNODE.putBoolean(CHECK_UPDATES, check);
 		storeVersion();
 	}
-	
-	
-	//////////////////
 	
 	public static File getDefaultDirectory() {
 		String file = PREFNODE.get("defaultDirectory", null);

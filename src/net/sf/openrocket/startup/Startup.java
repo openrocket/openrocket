@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -17,7 +18,8 @@ import javax.swing.ToolTipManager;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.database.MotorSetDatabase;
+import net.sf.openrocket.database.ThrustCurveMotorSet;
+import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.file.DirectoryIterator;
 import net.sf.openrocket.file.GeneralMotorLoader;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
@@ -55,9 +57,11 @@ public class Startup {
 	
 	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
 	
+
+	/** Block motor loading for this many milliseconds */
+	private static AtomicInteger blockLoading = new AtomicInteger(Integer.MAX_VALUE);
 	
-
-
+	
 	public static void main(final String[] args) throws Exception {
 		
 		// Initialize logging first so we can use it
@@ -67,10 +71,12 @@ public class Startup {
 		checkHead();
 		
 		// Check that we're running a good version of a JRE
+		log.info("Checking JRE compatibility");
 		VersionHelper.checkVersion();
 		VersionHelper.checkOpenJDK();
 		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
+		log.info("Running main");
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
@@ -78,6 +84,10 @@ public class Startup {
 			}
 		});
 		
+		log.info("Startup complete");
+		
+		// Block motor loading for 2 seconds to allow window painting
+		blockLoading.set(2000);
 	}
 	
 	
@@ -86,21 +96,26 @@ public class Startup {
 	private static void runMain(String[] args) {
 		
 		// Initialize the splash screen with version info
+		log.info("Initializing the splash screen");
 		Splash.init();
 		
 		// Setup the uncaught exception handler
+		log.info("Registering exception handler");
 		ExceptionHandler.registerExceptionHandler();
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;
 		if (Prefs.getCheckUpdates()) {
+			log.info("Starting update check");
 			updateInfo = new UpdateInfoRetriever();
 			updateInfo.start();
 		} else {
+			log.info("Update check disabled");
 			updateInfo = null;
 		}
 		
 		// Set the best available look-and-feel
+		log.info("Setting best LAF");
 		GUIUtil.setBestLAF();
 		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
@@ -111,15 +126,18 @@ public class Startup {
 		
 		// Load motors etc.
 		// TODO: HIGH: Use new motor loading
-		//		loadMotor();
+		log.info("Loading databases");
+		loadMotor();
 		Databases.fakeMethod();
 		
 		// Starting action (load files or open new document)
+		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
 			BasicFrame.newAction();
 		}
 		
 		// Check whether update info has been fetched or whether it needs more time
+		log.info("Checking update status");
 		checkUpdateStatus(updateInfo);
 	}
 	
@@ -129,23 +147,48 @@ public class Startup {
 		
 		log.info("Starting motor loading from " + THRUSTCURVE_DIRECTORY +
 				" in background thread.");
-		MotorSetDatabase db = new MotorSetDatabase(true) {
+		ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(true) {
 			
 			@Override
 			protected void loadMotors() {
+				
+				log.info("Blocking motor loading while starting up");
+				
+				// Block for 100ms a time until timeout or database in use
+				while (!inUse && blockLoading.addAndGet(-100) > 0) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+					}
+				}
+				
+				log.info("Blocking ended, inUse=" + inUse + " slowLoadingCount=" + blockLoading.get());
+				
+				log.info("Started to load motors from " + THRUSTCURVE_DIRECTORY);
+				long t0 = System.currentTimeMillis();
+				
+				int fileCount = 0;
+				int thrustCurveCount = 0;
+				int distinctMotorCount = 0;
+				int distinctThrustCurveCount = 0;
+				
 				GeneralMotorLoader loader = new GeneralMotorLoader();
-				DirectoryIterator iterator =
-						DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
-								new SimpleFileFilter("", false, "eng", "rkt"));
+				DirectoryIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
+								new SimpleFileFilter("", false, "eng", "rse"));
 				if (iterator == null) {
-					throw new IllegalStateException("No thrust curves found, " +
-							"distribution built wrong");
+					throw new IllegalStateException("No thrust curves found, distribution built wrong");
 				}
 				while (iterator.hasNext()) {
 					final Pair<String, InputStream> input = iterator.next();
+					log.debug("Loading motors from file " + input.getU());
+					fileCount++;
 					try {
 						List<Motor> motors = loader.load(input.getV(), input.getU());
+						if (motors.size() == 0) {
+							log.warn("No motors found in file " + input.getU());
+						}
 						for (Motor m : motors) {
+							thrustCurveCount++;
 							this.addMotor((ThrustCurveMotor) m);
 						}
 					} catch (IOException e) {
@@ -157,7 +200,19 @@ public class Startup {
 							log.error("IOException when closing InputStream", e);
 						}
 					}
+					
 				}
+				
+				long t1 = System.currentTimeMillis();
+				
+				// Count statistics
+				distinctMotorCount = motorSets.size();
+				for (ThrustCurveMotorSet set : motorSets) {
+					distinctThrustCurveCount += set.getMotorCount();
+				}
+				log.info("Motor loading done, took " + (t1 - t0) + " ms to load "
+						+ fileCount + " files containing " + thrustCurveCount + " thrust curves which contained "
+						+ distinctMotorCount + " distinct motors with " + distinctThrustCurveCount + " thrust curves.");
 			}
 			
 		};
@@ -239,6 +294,8 @@ public class Startup {
 	 * Check that the JRE is not running headless.
 	 */
 	private static void checkHead() {
+		
+		log.info("Checking for graphics head");
 		
 		if (GraphicsEnvironment.isHeadless()) {
 			log.error("Application is headless.");

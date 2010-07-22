@@ -17,7 +17,7 @@ public class MotorSetDatabaseTest {
 	@Test
 	public void testMotorLoading() {
 		
-		MotorSetDatabase db = new MotorSetDatabase(true) {
+		ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(true) {
 			@Override
 			protected void loadMotors() {
 				try {

@@ -32,42 +32,43 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private static final String CONFIGDIALOGPACKAGE = "net.sf.openrocket.gui.configdialog";
 	private static final String CONFIGDIALOGPOSTFIX = "Config";
 	
-	
-	private static ComponentConfigDialog dialog = null;
 
+	private static ComponentConfigDialog dialog = null;
 	
+
 	private OpenRocketDocument document = null;
 	private RocketComponent component = null;
 	private RocketComponentConfig configurator = null;
 	
 	private final Window parent;
 	
-	private ComponentConfigDialog(Window parent, OpenRocketDocument document, 
+	private ComponentConfigDialog(Window parent, OpenRocketDocument document,
 			RocketComponent component) {
 		super(parent);
 		this.parent = parent;
 		
 		setComponent(document, component);
 		
+		GUIUtil.setDisposableDialogOptions(this, null);
+		
 		// Set window position according to preferences, and set prefs when moving
 		Point position = Prefs.getWindowPosition(this.getClass());
-		if (position == null)
-			this.setLocationByPlatform(true);
-		else
+		if (position != null) {
+			this.setLocationByPlatform(false);
 			this.setLocation(position);
-
+		}
+		
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent e) {
-				Prefs.setWindowPosition(ComponentConfigDialog.this.getClass(), 
+				Prefs.setWindowPosition(ComponentConfigDialog.this.getClass(),
 						ComponentConfigDialog.this.getLocation());
 			}
 		});
 		
-		GUIUtil.setDisposableDialogOptions(this, null);
 	}
 	
-
+	
 	/**
 	 * Set the component being configured.  The listening connections of the old configurator
 	 * will be removed and the new ones created.
@@ -78,10 +79,10 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		if (this.document != null) {
 			this.document.getRocket().removeComponentChangeListener(this);
 		}
-
+		
 		if (configurator != null) {
 			// Remove listeners by setting all applicable models to null
-			GUIUtil.setNullModels(configurator);  // null-safe
+			GUIUtil.setNullModels(configurator); // null-safe
 		}
 		
 		this.document = document;
@@ -92,11 +93,11 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		this.setContentPane(configurator);
 		configurator.updateFields();
 		
-		setTitle(component.getComponentName()+" configuration");
-
-//		Dimension pref = getPreferredSize();
-//		Dimension real = getSize();
-//		if (pref.width > real.width || pref.height > real.height)
+		setTitle(component.getComponentName() + " configuration");
+		
+		//		Dimension pref = getPreferredSize();
+		//		Dimension real = getSize();
+		//		if (pref.width > real.width || pref.height > real.height)
 		this.pack();
 	}
 	
@@ -104,15 +105,15 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * Return the configurator panel of the current component.
 	 */
 	private RocketComponentConfig getDialogContents() {
-		Constructor<? extends RocketComponentConfig> c = 
-			findDialogContentsConstructor(component);
+		Constructor<? extends RocketComponentConfig> c =
+				findDialogContentsConstructor(component);
 		if (c != null) {
 			try {
 				return (RocketComponentConfig) c.newInstance(component);
 			} catch (InstantiationException e) {
-				throw new BugException("BUG in constructor reflection",e);
+				throw new BugException("BUG in constructor reflection", e);
 			} catch (IllegalAccessException e) {
-				throw new BugException("BUG in constructor reflection",e);
+				throw new BugException("BUG in constructor reflection", e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
 			}
@@ -120,16 +121,15 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		
 		// Should never be reached, since RocketComponentConfig should catch all
 		// components without their own configurator.
-		throw new BugException("Unable to find any configurator for "+component);
+		throw new BugException("Unable to find any configurator for " + component);
 	}
-
+	
 	/**
 	 * Finds the Constructor of the given component's config dialog panel in 
 	 * CONFIGDIALOGPACKAGE.
 	 */
 	@SuppressWarnings("unchecked")
-	private static Constructor<? extends RocketComponentConfig> 
-			findDialogContentsConstructor(RocketComponent component) {
+	private static Constructor<? extends RocketComponentConfig> findDialogContentsConstructor(RocketComponent component) {
 		Class<?> currentclass;
 		String currentclassname;
 		String configclassname;
@@ -143,23 +143,24 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			int index = currentclassname.lastIndexOf('.');
 			if (index >= 0)
 				currentclassname = currentclassname.substring(index + 1);
-			configclassname = CONFIGDIALOGPACKAGE + "." + currentclassname + 
-				CONFIGDIALOGPOSTFIX;
+			configclassname = CONFIGDIALOGPACKAGE + "." + currentclassname +
+					CONFIGDIALOGPOSTFIX;
 			
 			try {
 				configclass = Class.forName(configclassname);
 				c = (Constructor<? extends RocketComponentConfig>)
-					configclass.getConstructor(RocketComponent.class);
+						configclass.getConstructor(RocketComponent.class);
 				return c;
-			} catch (Exception ignore) { }
-
+			} catch (Exception ignore) {
+			}
+			
 			currentclass = currentclass.getSuperclass();
 		}
 		return null;
 	}
 	
 	
-	
+
 
 	//////////  Static dialog  /////////
 	
@@ -170,7 +171,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * @param document		the document to configure.
 	 * @param component		the component to configure.
 	 */
-	public static void showDialog(Window parent, OpenRocketDocument document, 
+	public static void showDialog(Window parent, OpenRocketDocument document,
 			RocketComponent component) {
 		if (dialog != null)
 			dialog.dispose();
@@ -178,11 +179,11 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
 		
-		document.addUndoPosition("Modify "+component.getComponentName());
+		document.addUndoPosition("Modify " + component.getComponentName());
 	}
 	
 	
-	/* package */ 
+	/* package */
 	static void showDialog(RocketComponent component) {
 		showDialog(dialog.parent, dialog.document, component);
 	}
@@ -194,7 +195,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		if (dialog != null)
 			dialog.setVisible(false);
 	}
-
+	
 	
 	/**
 	 * Add an undo position for the current document.  This is intended for use only
@@ -202,7 +203,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * 
 	 * @param description  Description of the undoable action
 	 */
-	/*package*/ static void addUndoPosition(String description) {
+	/*package*/static void addUndoPosition(String description) {
 		if (dialog == null) {
 			throw new IllegalStateException("Dialog not open, report bug!");
 		}
@@ -221,16 +222,16 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * Returns whether the singleton configuration dialog is currently visible or not.
 	 */
 	public static boolean isDialogVisible() {
-		return (dialog!=null) && (dialog.isVisible());
+		return (dialog != null) && (dialog.isVisible());
 	}
-
-
+	
+	
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isTreeChange() || e.isUndoChange()) {
 			
 			// Hide dialog in case of tree or undo change
 			dialog.setVisible(false);
-
+			
 		} else {
 			/*
 			 * TODO: HIGH:  The line below has caused a NullPointerException (without null check)

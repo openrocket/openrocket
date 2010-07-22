@@ -10,10 +10,17 @@ import javax.swing.ImageIcon;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 
 
 public class Icons {
-
+	private static final LogHelper log = Application.getLogger();
+	
+	static {
+		log.debug("Starting to load icons");
+	}
+	
 	/**
 	 * Icons used for showing the status of a simulation (up to date, out of date, etc).
 	 */
@@ -34,7 +41,7 @@ public class Icons {
 		SIMULATION_LISTENER_OK = SIMULATION_STATUS_ICON_MAP.get(Simulation.Status.UPTODATE);
 		SIMULATION_LISTENER_ERROR = SIMULATION_STATUS_ICON_MAP.get(Simulation.Status.OUTDATED);
 	}
-
+	
 
 	public static final Icon FILE_NEW = loadImageIcon("pix/icons/document-new.png", "New document");
 	public static final Icon FILE_OPEN = loadImageIcon("pix/icons/document-open.png", "Open document");
@@ -50,15 +57,17 @@ public class Icons {
 	public static final Icon EDIT_COPY = loadImageIcon("pix/icons/edit-copy.png", "Copy");
 	public static final Icon EDIT_PASTE = loadImageIcon("pix/icons/edit-paste.png", "Paste");
 	public static final Icon EDIT_DELETE = loadImageIcon("pix/icons/edit-delete.png", "Delete");
-
+	
 	public static final Icon ZOOM_IN = loadImageIcon("pix/icons/zoom-in.png", "Zoom in");
 	public static final Icon ZOOM_OUT = loadImageIcon("pix/icons/zoom-out.png", "Zoom out");
-
+	
 	public static final Icon PREFERENCES = loadImageIcon("pix/icons/preferences.png", "Preferences");
-
+	
 	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
 	
-	
+	static {
+		log.debug("Icons loaded");
+	}
 	
 	/**
 	 * Load an ImageIcon from the specified file.  The file is obtained as a system

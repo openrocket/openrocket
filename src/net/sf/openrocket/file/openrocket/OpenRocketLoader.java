@@ -23,6 +23,7 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
@@ -67,6 +68,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.GUISimulationConditions;
 import net.sf.openrocket.simulation.FlightEvent.Type;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -988,21 +990,22 @@ class MotorHandler extends ElementHandler {
 			warnings.add(Warning.fromString("No motor specified, ignoring."));
 			return null;
 		}
-		Motor[] motors = Databases.findMotors(type, manufacturer, designation, diameter, length);
-		if (motors.length == 0) {
+		List<ThrustCurveMotor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer,
+				designation, diameter, length);
+		if (motors.size() == 0) {
 			String str = "No motor with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
 			warnings.add(Warning.fromString(str + " found."));
 			return null;
 		}
-		if (motors.length > 1) {
+		if (motors.size() > 1) {
 			String str = "Multiple motors with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
 			warnings.add(Warning.fromString(str + " found, one chosen arbitrarily."));
 		}
-		return motors[0];
+		return motors.get(0);
 	}
 	
 	

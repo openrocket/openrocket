@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 
@@ -14,27 +15,29 @@ import net.sf.openrocket.startup.Application;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class MotorSetDatabase {
+public abstract class ThrustCurveMotorSetDatabase {
 	
 	private static final LogHelper logger = Application.getLogger();
-
-	private List<ThrustCurveMotorSet> motorSets;
+	
+	protected List<ThrustCurveMotorSet> motorSets;
 	
 	private volatile boolean startedLoading = false;
 	private volatile boolean endedLoading = false;
 	private final boolean asynchronous;
 	
+	/** Set to true the first time {@link #blockUntilLoaded()} is called. */
+	protected volatile boolean inUse = false;
 	
 	/**
 	 * Sole constructor.
 	 * 
 	 * @param asynchronous	whether to load motors asynchronously in a background thread.
 	 */
-	public MotorSetDatabase(boolean asynchronous) {
+	public ThrustCurveMotorSetDatabase(boolean asynchronous) {
 		this.asynchronous = asynchronous;
 	}
 	
-
+	
 	/**
 	 * Return a list of the ThrustCurveMotorSet objects.  The list is in sorted order and
 	 * is unmodifiable.
@@ -46,9 +49,46 @@ public abstract class MotorSetDatabase {
 		return motorSets;
 	}
 	
-
 	
 
+	/**
+	 * Return all motors in the database matching a search criteria.  Any search criteria that
+	 * is null or NaN is ignored.
+	 * 
+	 * @param type			the motor type, or null.
+	 * @param manufacturer	the manufacturer, or null.
+	 * @param designation	the designation, or null.
+	 * @param diameter		the diameter, or NaN.
+	 * @param length		the length, or NaN.
+	 * @return				a list of all the matching motors.
+	 */
+	public List<ThrustCurveMotor> findMotors(Motor.Type type, String manufacturer, String designation,
+			double diameter, double length) {
+		blockUntilLoaded();
+		ArrayList<ThrustCurveMotor> results = new ArrayList<ThrustCurveMotor>();
+		
+		for (ThrustCurveMotorSet set : motorSets) {
+			for (ThrustCurveMotor m : set.getMotors()) {
+				boolean match = true;
+				if (type != null && type != set.getType())
+					match = false;
+				else if (manufacturer != null && !m.getManufacturer().matches(manufacturer))
+					match = false;
+				else if (designation != null && !designation.equalsIgnoreCase(m.getDesignation()))
+					match = false;
+				else if (!Double.isNaN(diameter) && (Math.abs(diameter - m.getDiameter()) > 0.0015))
+					match = false;
+				else if (!Double.isNaN(length) && (Math.abs(length - m.getLength()) > 0.0015))
+					match = false;
+				
+				if (match)
+					results.add(m);
+			}
+		}
+		
+		return results;
+	}
+	
 	
 	/**
 	 * Add a motor to the database.  If a matching ThrustCurveMototSet is found, 
@@ -59,7 +99,7 @@ public abstract class MotorSetDatabase {
 	 */
 	protected void addMotor(ThrustCurveMotor motor) {
 		// Iterate from last to first, as this is most likely to hit early when loading files
-		for (int i = motorSets.size()-1; i>= 0; i--) {
+		for (int i = motorSets.size() - 1; i >= 0; i--) {
 			ThrustCurveMotorSet set = motorSets.get(i);
 			if (set.matches(motor)) {
 				set.addMotor(motor);
@@ -73,9 +113,9 @@ public abstract class MotorSetDatabase {
 	}
 	
 	
-	
-	
-	
+
+
+
 	/**
 	 * Start loading the motors.  If asynchronous 
 	 * 
@@ -102,7 +142,17 @@ public abstract class MotorSetDatabase {
 	public boolean isLoaded() {
 		return endedLoading;
 	}
-
+	
+	
+	/**
+	 * Mark that this database is in use or a place is waiting for the database to 
+	 * become loaded.  This can be used in conjunction with {@link #isLoaded()} to load
+	 * the database without blocking.
+	 */
+	public void setInUse() {
+		inUse = true;
+	}
+	
 	
 	/**
 	 * Block the current thread until loading of the motors has been completed.
@@ -110,6 +160,7 @@ public abstract class MotorSetDatabase {
 	 * @throws IllegalStateException	if startLoading() has not been called.
 	 */
 	public void blockUntilLoaded() {
+		inUse = true;
 		if (!startedLoading) {
 			throw new IllegalStateException("startLoading() has not been called");
 		}
@@ -125,7 +176,7 @@ public abstract class MotorSetDatabase {
 			}
 		}
 	}
-
+	
 	
 	/**
 	 * Used for loading the motor database.  This method will be called in a background
@@ -135,7 +186,7 @@ public abstract class MotorSetDatabase {
 	protected abstract void loadMotors();
 	
 	
-	
+
 	/**
 	 * Creates the motor list, calls {@link #loadMotors()}, sorts the list and marks
 	 * the motors as loaded.  This method is called either synchronously or from the
@@ -150,9 +201,9 @@ public abstract class MotorSetDatabase {
 		}
 		Collections.sort(motorSets);
 		motorSets = Collections.unmodifiableList(motorSets);
-		synchronized (MotorSetDatabase.this) {
+		synchronized (ThrustCurveMotorSetDatabase.this) {
 			endedLoading = true;
-			MotorSetDatabase.this.notifyAll();
+			ThrustCurveMotorSetDatabase.this.notifyAll();
 		}
 	}
 	
@@ -168,5 +219,5 @@ public abstract class MotorSetDatabase {
 			performMotorLoading();
 		}
 	}
-
+	
 }

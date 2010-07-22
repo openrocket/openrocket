@@ -13,14 +13,14 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.Manufacturer;
-import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.motor.Motor.Type;
 import net.sf.openrocket.util.MathUtil;
 
 public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
-
+	
 	//  Comparators:
 	private static final Collator COLLATOR = Collator.getInstance(Locale.US);
 	static {
@@ -28,12 +28,12 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	}
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	private static final ThrustCurveMotorComparator comparator = new ThrustCurveMotorComparator();
+	
 
-	
-	
+
 	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
 	private final Map<ThrustCurveMotor, String> digestMap =
-		new IdentityHashMap<ThrustCurveMotor, String>();
+			new IdentityHashMap<ThrustCurveMotor, String>();
 	
 	private final List<Double> delays = new ArrayList<Double>();
 	
@@ -45,7 +45,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private Motor.Type type = Motor.Type.UNKNOWN;
 	
 	
-	
+
 	public void addMotor(ThrustCurveMotor motor) {
 		
 		// Check for first insertion
@@ -60,8 +60,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		// Verify that the motor can be added
 		if (!matches(motor)) {
 			throw new IllegalArgumentException("Motor does not match the set:" +
-					" manufacturer="+manufacturer +
-					" designation="+designation +
+					" manufacturer=" + manufacturer +
+					" designation=" + designation +
 					" diameter=" + diameter +
 					" length=" + length +
 					" set_size=" + motors.size() +
@@ -71,6 +71,12 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		// Update the type if now known
 		if (type == Motor.Type.UNKNOWN) {
 			type = motor.getMotorType();
+			// Add "Plugged" option if hybrid
+			if (type == Motor.Type.HYBRID) {
+				if (!delays.contains(Motor.PLUGGED)) {
+					delays.add(Motor.PLUGGED);
+				}
+			}
 		}
 		
 		// Change the simplified designation if necessary
@@ -79,23 +85,25 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		}
 		
 		// Add the standard delays
-		for (double d: motor.getStandardDelays()) {
+		for (double d : motor.getStandardDelays()) {
 			d = Math.rint(d);
-			delays.add(d);
+			if (!delays.contains(d)) {
+				delays.add(d);
+			}
 		}
 		Collections.sort(delays);
 		
-		
+
 		// Check whether to add as new motor or overwrite existing
 		final String digest = MotorDigest.digestMotor(motor);
 		for (int index = 0; index < motors.size(); index++) {
 			Motor m = motors.get(index);
-
+			
 			if (digest.equals(digestMap.get(m)) &&
 					motor.getDesignation().equals(m.getDesignation())) {
-
+				
 				// Match found, check which one to keep (or both) based on comment
-				String newCmt = motor.getDescription().replaceAll("\\s+"," ").trim();
+				String newCmt = motor.getDescription().replaceAll("\\s+", " ").trim();
 				String oldCmt = m.getDescription().replaceAll("\\s+", " ").trim();
 				
 				if (newCmt.length() == 0 || newCmt.equals(oldCmt)) {
@@ -123,7 +131,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public boolean matches(ThrustCurveMotor m) {
 		if (motors.isEmpty())
 			return true;
-
+		
 		if (manufacturer != m.getManufacturer())
 			return false;
 		
@@ -133,7 +141,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (!MathUtil.equals(length, m.getLength()))
 			return false;
 		
-		if ((type != Type.UNKNOWN) && (m.getMotorType()!= Type.UNKNOWN) && 
+		if ((type != Type.UNKNOWN) && (m.getMotorType() != Type.UNKNOWN) &&
 				(type != m.getMotorType())) {
 			return false;
 		}
@@ -143,13 +151,17 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		
 		return true;
 	}
-
+	
 	
 	@SuppressWarnings("unchecked")
 	public List<ThrustCurveMotor> getMotors() {
 		return (List<ThrustCurveMotor>) motors.clone();
 	}
 	
+	
+	public int getMotorCount() {
+		return motors.size();
+	}
 	
 	
 	/**
@@ -160,8 +172,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public List<Double> getDelays() {
 		return Collections.unmodifiableList(delays);
 	}
-
-
+	
+	
 	/**
 	 * Return the manufacturer of this motor type.
 	 * @return the manufacturer
@@ -169,8 +181,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public Manufacturer getManufacturer() {
 		return manufacturer;
 	}
-
-
+	
+	
 	/**
 	 * Return the designation of this motor type.  This is either the exact or simplified
 	 * designation, depending on what motors have been added.
@@ -179,8 +191,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public String getDesignation() {
 		return designation;
 	}
-
-
+	
+	
 	/**
 	 * Return the diameter of this motor type.
 	 * @return the diameter
@@ -188,8 +200,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public double getDiameter() {
 		return diameter;
 	}
-
-
+	
+	
 	/**
 	 * Return the length of this motor type.
 	 * @return the length
@@ -197,8 +209,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public double getLength() {
 		return length;
 	}
-
-
+	
+	
 	/**
 	 * Return the type of this motor type.  If any of the added motors has a type different
 	 * from UNKNOWN, then that type will be returned.
@@ -207,12 +219,21 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	public Motor.Type getType() {
 		return type;
 	}
+	
+	
 
 
-
+	@Override
+	public String toString() {
+		return "ThrustCurveMotorSet[" + manufacturer + " " + designation +
+				", type=" + type + ", count=" + motors.size() + "]";
+	}
+	
+	
 
 
 	private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
+	
 	/**
 	 * Simplify a motor designation, if possible.  This attempts to reduce the designation
 	 * into a simple letter + number notation for the impulse class and average thrust.
@@ -235,7 +256,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	 * Comparator for deciding in which order to display matching motors.
 	 */
 	private static class ThrustCurveMotorComparator implements Comparator<ThrustCurveMotor> {
-
+		
 		@Override
 		public int compare(ThrustCurveMotor o1, ThrustCurveMotor o2) {
 			// 1. Designation
@@ -253,15 +274,15 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		}
 		
 	}
-
-
+	
+	
 	@Override
 	public int compareTo(ThrustCurveMotorSet other) {
-
+		
 		int value;
 		
 		// 1. Manufacturer
-		value = COLLATOR.compare(this.manufacturer.getDisplayName(), 
+		value = COLLATOR.compare(this.manufacturer.getDisplayName(),
 				other.manufacturer.getDisplayName());
 		if (value != 0)
 			return value;
@@ -272,12 +293,12 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			return value;
 		
 		// 3. Diameter
-		value = (int)((this.diameter - other.diameter)*1000000);
+		value = (int) ((this.diameter - other.diameter) * 1000000);
 		if (value != 0)
 			return value;
-				
+		
 		// 4. Length
-		value = (int)((this.length - other.length)*1000000);
+		value = (int) ((this.length - other.length) * 1000000);
 		return value;
 		
 	}

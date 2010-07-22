@@ -28,6 +28,9 @@ Debugging options
 openrocket.debug.menu
 	If defined the "Debug" menu will be displayed in the main application window.
 
+openrocket.debug.prefs
+	If defined a new, clean set of preferences will be used (does not overwrite the existing preferences).
+
 openrocket.debug.bugurl
 	URL used for sending bug reports.
 

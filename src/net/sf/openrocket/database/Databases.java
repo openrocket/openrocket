@@ -1,20 +1,9 @@
 package net.sf.openrocket.database;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
-import net.sf.openrocket.file.GeneralMotorLoader;
-import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.MaterialStorage;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ConfigurationException;
-import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 
@@ -28,12 +17,7 @@ public class Databases {
 	private static final LogHelper log = Application.getLogger();
 	
 	/* Static implementations of specific databases: */
-	/**
-	 * The motor database.
-	 * TODO: HIGH:  Must cast to (Loader) to works, very ugly.  In practice returns only ThrustCurveMotors currently.
-	 */
-	public static final Database<ThrustCurveMotor> MOTOR = new Database<ThrustCurveMotor>((Loader) new GeneralMotorLoader());
-	
+
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
@@ -49,34 +33,6 @@ public class Databases {
 	
 
 
-	// TODO: HIGH: loading the thrust curves and other databases
-	static {
-		final String filePattern = ".*\\.([eE][nN][gG]|[rR][sS][eE])$";
-		try {
-			MOTOR.loadJarDirectory("datafiles/thrustcurves/", filePattern);
-		} catch (Exception e) {
-			System.out.println("Could not read thrust curves from JAR: " + e.getMessage());
-			
-			// Try to find directory as a system resource
-			File dir;
-			URL url = ClassLoader.getSystemResource("datafiles/thrustcurves/");
-			
-			try {
-				dir = JarUtil.urlToFile(url);
-			} catch (Exception e1) {
-				dir = new File("datafiles/thrustcurves/");
-			}
-			
-			try {
-				MOTOR.loadDirectory(dir, filePattern);
-			} catch (IOException e1) {
-				System.out.println("Could not read thrust curves from directory either.");
-				throw new ConfigurationException("Couldn't read thrust curves from either " +
-						"JAR file or system resource directory", e1);
-			}
-		}
-	}
-	
 	static {
 		
 		// Add default materials
@@ -228,40 +184,5 @@ public class Databases {
 		return Material.newMaterial(type, name, density, userDefined);
 	}
 	
-	
 
-	/**
-	 * Return all motor in the database matching a search criteria.  Any search criteria that
-	 * is null or NaN is ignored.
-	 * 
-	 * @param type			the motor type, or null.
-	 * @param manufacturer	the manufacturer, or null.
-	 * @param designation	the designation, or null.
-	 * @param diameter		the diameter, or NaN.
-	 * @param length		the length, or NaN.
-	 * @return				an array of all the matching motors.
-	 */
-	public static Motor[] findMotors(Motor.Type type, String manufacturer, String designation, double diameter, double length) {
-		ArrayList<Motor> results = new ArrayList<Motor>();
-		
-		for (ThrustCurveMotor m : MOTOR) {
-			boolean match = true;
-			if (type != null && type != m.getMotorType())
-				match = false;
-			else if (manufacturer != null && !m.getManufacturer().matches(manufacturer))
-				match = false;
-			else if (designation != null && !designation.equalsIgnoreCase(m.getDesignation()))
-				match = false;
-			else if (!Double.isNaN(diameter) && (Math.abs(diameter - m.getDiameter()) > 0.0015))
-				match = false;
-			else if (!Double.isNaN(length) && (Math.abs(length - m.getLength()) > 0.0015))
-				match = false;
-			
-			if (match)
-				results.add(m);
-		}
-		
-		return results.toArray(new Motor[0]);
-	}
-	
 }

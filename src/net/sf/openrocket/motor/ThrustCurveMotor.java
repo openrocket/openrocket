@@ -4,7 +4,9 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
 
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
@@ -12,6 +14,7 @@ import net.sf.openrocket.util.MathUtil;
 
 
 public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
+	private static final LogHelper log = Application.getLogger();
 	
 	public static final double MAX_THRUST = 10e6;
 	
@@ -171,7 +174,12 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 	}
 	
 	
-
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * NOTE: In most cases you want to examine the motor type of the ThrustCurveMotorSet,
+	 * not the ThrustCurveMotor itself.
+	 */
 	@Override
 	public Type getMotorType() {
 		return type;
@@ -391,6 +399,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		private int modID = 0;
 		
 		public ThrustCurveMotorInstance() {
+			log.debug("ThrustCurveMotor:  Creating motor instance of " + ThrustCurveMotor.this);
 			position = 0;
 			prevTime = 0;
 			instThrust = 0;
@@ -434,22 +443,18 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		@Override
 		public void step(double nextTime, double acceleration, AtmosphericConditions cond) {
 			
-			System.out.println("MOTOR: Stepping instance " + this + " to time " + nextTime);
-			
 			if (!(nextTime >= prevTime)) {
 				// Also catches NaN
 				throw new IllegalArgumentException("Stepping backwards in time, current=" +
 						prevTime + " new=" + nextTime);
 			}
 			if (MathUtil.equals(prevTime, nextTime)) {
-				System.out.println("Same time as earlier");
 				return;
 			}
 			
 			modID++;
 			
 			if (position >= time.length - 1) {
-				System.out.println("Thrust has ended");
 				// Thrust has ended
 				prevTime = nextTime;
 				stepThrust = 0;
@@ -501,19 +506,10 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 			if (position < time.length - 1) {
 				nextCG = MathUtil.map(nextTime, time[position], time[position + 1],
 						cg[position], cg[position + 1]);
-				
-				System.out.println("nextTime=" + nextTime +
-						" time[position]=" + time[position] +
-						" time[position+1]=" + time[position + 1] +
-						" mass[position]=" + cg[position].weight * 1000 +
-						" mass[position+1]=" + cg[position + 1].weight * 1000 +
-						" result=" + nextCG.weight * 1000 +
-						" position=" + position);
 			} else {
 				nextCG = cg[cg.length - 1];
 			}
 			stepCG = instCG.add(nextCG).multiply(0.5);
-			System.out.println("instMass=" + instCG.weight + " nextMass=" + nextCG.weight + " stepMass=" + stepCG.weight);
 			instCG = nextCG;
 			
 			// Update time

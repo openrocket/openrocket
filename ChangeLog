@@ -1,6 +1,15 @@
+2010-07-21  Sampo Niskanen
+
+	* Implemented enhanced motor selection dialog
+	* Background motor loading & startup time optimization
+
+2010-07-20  Doug Pedrick
+
+	* [BUG] Exception when loading Rocksim files
+
 2010-07-19  Sampo Niskanen
 
-	* Small bug fixes
+	* [BUG] Various small bug fixes
 
 2010-07-18  Sampo Niskanen
 

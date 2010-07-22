@@ -13,6 +13,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -25,7 +26,7 @@ import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.dialogs.MotorChooserDialog;
+import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -150,9 +151,9 @@ public class MotorConfig extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				String id = configuration.getMotorConfigurationID();
 				
-				// TODO: HIGH: Assumes only ThrustCurveMotors exist
-				MotorChooserDialog dialog = new MotorChooserDialog((ThrustCurveMotor) mount.getMotor(id),
-						mount.getMotorDelay(id), mount.getMotorMountDiameter());
+				MotorChooserDialog dialog = new MotorChooserDialog(mount.getMotor(id),
+						mount.getMotorDelay(id), mount.getMotorMountDiameter(),
+						SwingUtilities.getWindowAncestor(MotorConfig.this));
 				dialog.setVisible(true);
 				Motor m = dialog.getSelectedMotor();
 				double d = dialog.getSelectedDelay();
@@ -204,7 +205,7 @@ public class MotorConfig extends JPanel {
 		} else {
 			String str = "";
 			if (m instanceof ThrustCurveMotor)
-				str = ((ThrustCurveMotor) m).getManufacturer() + "";
+				str = ((ThrustCurveMotor) m).getManufacturer() + " ";
 			str += m.getDesignation(mount.getMotorDelay(id));
 			motorLabel.setText(str);
 		}
