@@ -128,6 +128,9 @@ public class Prefs {
 	private static final String CHECK_UPDATES = "CheckUpdates";
 	public static final String LAST_UPDATE = "LastUpdateVersion";
 	
+	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
+	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
+	
 
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";

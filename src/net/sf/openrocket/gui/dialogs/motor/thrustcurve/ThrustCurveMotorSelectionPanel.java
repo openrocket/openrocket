@@ -18,6 +18,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -56,6 +57,7 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.utils.MotorCorrelation;
 
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
@@ -70,6 +72,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
 	private static final LogHelper log = Application.getLogger();
+	
+	private static final double MOTOR_SIMILARITY_THRESHOLD = 0.95;
 	
 	private static final int SHOW_ALL = 0;
 	private static final int SHOW_SMALLER = 1;
@@ -89,6 +93,10 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private static final Color NO_COMMENT_COLOR = Color.GRAY;
 	private static final Color WITH_COMMENT_COLOR = Color.BLACK;
 	
+	private static final ThrustCurveMotorComparator MOTOR_COMPARATOR = new ThrustCurveMotorComparator();
+	
+
+
 	private final List<ThrustCurveMotorSet> database;
 	
 	private final double diameter;
@@ -98,6 +106,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final ThrustCurveMotorDatabaseModel model;
 	private final JTable table;
 	private final TableRowSorter<TableModel> sorter;
+	
+	private final JCheckBox hideSimilarBox;
 	
 	private final JTextField searchField;
 	private String[] searchTerms = new String[0];
@@ -114,6 +124,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final JLabel launchMassLabel;
 	private final JLabel emptyMassLabel;
 	private final JLabel dataPointsLabel;
+	private final JLabel digestLabel;
 	
 	private final JTextArea comment;
 	private final Font noCommentFont;
@@ -212,9 +223,21 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 						scrollSelectionVisible();
 					}
 		});
-		panel.add(filterComboBox, "spanx, growx, wrap para");
+		panel.add(filterComboBox, "spanx, growx, wrap rel");
 		
 
+		hideSimilarBox = new JCheckBox("Hide very similar thrust curves");
+		GUIUtil.changeFontSize(hideSimilarBox, -1);
+		hideSimilarBox.setSelected(Prefs.getBoolean(Prefs.MOTOR_HIDE_SIMILAR, true));
+		hideSimilarBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Prefs.putBoolean(Prefs.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+				updateData();
+			}
+		});
+		panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap para");
+		
 
 		// Motor selection table
 		model = new ThrustCurveMotorDatabaseModel(database);
@@ -402,6 +425,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		dataPointsLabel = new JLabel();
 		panel.add(dataPointsLabel, "wrap para");
 		
+		if (System.getProperty("openrocket.debug.motordigest") != null) {
+			panel.add(new JLabel("Digest:"));
+			digestLabel = new JLabel();
+			panel.add(digestLabel, "w :300:, wrap para");
+		} else {
+			digestLabel = null;
+		}
+		
 
 		comment = new JTextArea(5, 5);
 		GUIUtil.changeFontSize(comment, -2);
@@ -461,7 +492,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					return;
 				if (e.getButton() == MouseEvent.BUTTON1) {
 					// Open plot dialog
-					ThrustCurveMotorPlotDialog plotDialog = new ThrustCurveMotorPlotDialog(selectedMotorSet, selectedMotor,
+					List<ThrustCurveMotor> motors = getFilteredCurves();
+					ThrustCurveMotorPlotDialog plotDialog = new ThrustCurveMotorPlotDialog(motors,
+							motors.indexOf(selectedMotor),
 							SwingUtilities.getWindowAncestor(ThrustCurveMotorSelectionPanel.this));
 					plotDialog.setVisible(true);
 				}
@@ -488,7 +521,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 
 		// Sets the filter:
-		int showMode = Prefs.getChoise("MotorDiameterMatch", SHOW_MAX, SHOW_EXACT);
+		int showMode = Prefs.getChoise(Prefs.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
 		filterComboBox.setSelectedIndex(showMode);
 		
 
@@ -500,7 +533,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 	
 	
-
 	@Override
 	public Motor getSelectedMotor() {
 		return selectedMotor;
@@ -590,15 +622,21 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			launchMassLabel.setText("");
 			emptyMassLabel.setText("");
 			dataPointsLabel.setText("");
+			if (digestLabel != null) {
+				digestLabel.setText("");
+			}
 			setComment("");
 			chart.getXYPlot().setDataset(new XYSeriesCollection());
 			return;
 		}
 		
 
-		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
+		// Check which thrust curves to display
+		List<ThrustCurveMotor> motors = getFilteredCurves();
 		final int index = motors.indexOf(selectedMotor);
 		
+
+		// Update the thrust curve selection box
 		curveSelectionModel.removeAllElements();
 		for (int i = 0; i < motors.size(); i++) {
 			curveSelectionModel.addElement(new MotorHolder(motors.get(i), i));
@@ -613,6 +651,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel.setEnabled(false);
 		}
 		
+
+		// Update thrust curve data
 		totalImpulseLabel.setText(UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(
 				selectedMotor.getTotalImpulseEstimate()));
 		avgThrustLabel.setText(UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(
@@ -626,6 +666,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		emptyMassLabel.setText(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 				selectedMotor.getEmptyCG().weight));
 		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
+		if (digestLabel != null) {
+			digestLabel.setText(MotorDigest.digestMotor(selectedMotor));
+		}
 		
 		setComment(selectedMotor.getDescription());
 		
@@ -653,6 +696,32 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		
 		plot.setDataset(dataset);
+	}
+	
+	
+	private List<ThrustCurveMotor> getFilteredCurves() {
+		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
+		if (hideSimilarBox.isSelected()) {
+			List<ThrustCurveMotor> filtered = new ArrayList<ThrustCurveMotor>(motors.size());
+			for (int i = 0; i < motors.size(); i++) {
+				ThrustCurveMotor m = motors.get(i);
+				if (m.equals(selectedMotor)) {
+					filtered.add(m);
+					continue;
+				}
+				
+				double similarity = MotorCorrelation.similarity(selectedMotor, m);
+				log.debug("Motor similarity: " + similarity);
+				if (similarity < MOTOR_SIMILARITY_THRESHOLD) {
+					filtered.add(m);
+				}
+			}
+			motors = filtered;
+		}
+		
+		Collections.sort(motors, MOTOR_COMPARATOR);
+		
+		return motors;
 	}
 	
 	
@@ -721,18 +790,20 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			return set.getMotors().get(0);
 		}
 		
+
 		// Find which motor has been used the most recently
+		List<ThrustCurveMotor> list = set.getMotors();
 		Preferences prefs = Prefs.getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
-		for (ThrustCurveMotor m : set.getMotors()) {
+		for (ThrustCurveMotor m : list) {
 			String digest = MotorDigest.digestMotor(m);
 			if (prefs.getBoolean(digest, false)) {
 				return m;
 			}
 		}
 		
-		// No motor has been used, use heuristics to select motor
-		// TODO: CRITICAL: Heuristics
-		return set.getMotors().get(0);
+		// No motor has been used
+		Collections.sort(list, MOTOR_COMPARATOR);
+		return list.get(0);
 	}
 	
 	

@@ -15,7 +15,9 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
@@ -24,6 +26,7 @@ import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
@@ -31,7 +34,9 @@ import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
 
 public class OpenRocketSaver extends RocketSaver {
+	private static final LogHelper log = Application.getLogger();
 	
+
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
 	 * The integer version divided by this value is the major version and the remainder is
@@ -63,21 +68,25 @@ public class OpenRocketSaver extends RocketSaver {
 	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options)
 			throws IOException {
 		
+		log.info("Saving .ork file");
+		
 		if (options.isCompressionEnabled()) {
+			log.debug("Enabling compression");
 			output = new GZIPOutputStream(output);
 		}
 		
 		dest = new BufferedWriter(new OutputStreamWriter(output, OPENROCKET_CHARSET));
 		
+		// Select file version number
 		final int fileVersion = calculateNecessaryFileVersion(document, options);
 		final String fileVersionString =
 				(fileVersion / FILE_VERSION_DIVISOR) + "." + (fileVersion % FILE_VERSION_DIVISOR);
+		log.debug("Storing file version " + fileVersionString);
 		
 
 		this.indent = 0;
 		
-		System.out.println("Writing...");
-		
+
 		writeln("<?xml version='1.0' encoding='utf-8'?>");
 		writeln("<openrocket version=\"" + fileVersionString + "\" creator=\"OpenRocket "
 				+ Prefs.getVersion() + "\">");
@@ -104,6 +113,7 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</openrocket>");
 		
+		log.debug("Writing complete, flushing buffers");
 		dest.flush();
 		if (options.isCompressionEnabled()) {
 			((GZIPOutputStream) output).finish();
@@ -173,6 +183,9 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
+		 * File version 1.2 is required for:
+		 *  - saving motor data
+		 * 
 		 * File version 1.1 is required for:
 		 *  - fin tabs
 		 *  - components attached to tube coupler
@@ -180,8 +193,23 @@ public class OpenRocketSaver extends RocketSaver {
 		 * Otherwise use version 1.0.
 		 */
 
-		// Check for fin tabs (version 1.1)
+		// Check for motor definitions (version 1.2)
 		Iterator<RocketComponent> iterator = document.getRocket().deepIterator();
+		while (iterator.hasNext()) {
+			RocketComponent c = iterator.next();
+			if (!(c instanceof MotorMount))
+				continue;
+			
+			MotorMount mount = (MotorMount) c;
+			for (String id : document.getRocket().getMotorConfigurationIDs()) {
+				if (mount.getMotor(id) != null) {
+					return FILE_VERSION_DIVISOR + 2;
+				}
+			}
+		}
+		
+		// Check for fin tabs (version 1.1)
+		iterator = document.getRocket().deepIterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			
@@ -210,6 +238,8 @@ public class OpenRocketSaver extends RocketSaver {
 
 	@SuppressWarnings("unchecked")
 	private void saveComponent(RocketComponent component) throws IOException {
+		
+		log.debug("Saving component " + component.getComponentName());
 		
 		Reflection.Method m = Reflection.findMethod(METHOD_PACKAGE, component, METHOD_SUFFIX,
 				"getElements", RocketComponent.class);
@@ -502,22 +532,8 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-	public static void main(String[] arg) {
-		double d = -0.000000123456789123;
-		
 
-		for (int i = 0; i < 20; i++) {
-			String str = TextUtil.doubleToString(d);
-			System.out.println(str + "   ->   " + Double.parseDouble(str));
-			d *= 10;
-		}
-		
 
-		System.out.println("Value: " + Double.parseDouble("1.2345e9"));
-		
-	}
-	
-	
 	/**
 	 * Return the XML equivalent of an enum name.
 	 * 

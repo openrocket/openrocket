@@ -8,6 +8,7 @@ import java.util.List;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -124,7 +125,10 @@ public class RocketComponentSaver {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase() + "</type>");
 			}
 			if (motor instanceof ThrustCurveMotor) {
-				elements.add("    <manufacturer>" + RocketSaver.escapeXML(((ThrustCurveMotor) motor).getManufacturer().getSimpleName()) + "</manufacturer>");
+				ThrustCurveMotor m = (ThrustCurveMotor) motor;
+				elements.add("    <manufacturer>" + RocketSaver.escapeXML(m.getManufacturer().getSimpleName()) +
+						"</manufacturer>");
+				elements.add("    <digest>" + MotorDigest.digestMotor(m) + "</digest>");
 			}
 			elements.add("    <designation>" + RocketSaver.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");

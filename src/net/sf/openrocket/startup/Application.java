@@ -18,12 +18,10 @@ public final class Application {
 	
 	private static ThrustCurveMotorSetDatabase motorSetDatabase;
 	
+
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
-		logger = new PrintStreamLogger();
-		for (LogLevel l : LogLevel.values()) {
-			((PrintStreamLogger) logger).setOutput(l, System.out);
-		}
+		setLogOutputLevel(LogLevel.DEBUG);
 	}
 	
 	
@@ -64,7 +62,22 @@ public final class Application {
 	}
 	
 	
-
+	/**
+	 * Set the logging to output the specified log level and upwards to standard output.
+	 * 
+	 * @param level		the minimum logging level to output.
+	 */
+	public static void setLogOutputLevel(LogLevel level) {
+		logger = new PrintStreamLogger();
+		for (LogLevel l : LogLevel.values()) {
+			if (l.atLeast(level)) {
+				((PrintStreamLogger) logger).setOutput(l, System.out);
+			}
+		}
+		
+	}
+	
+	
 	/**
 	 * Return the database of all thrust curves loaded into the system.
 	 */

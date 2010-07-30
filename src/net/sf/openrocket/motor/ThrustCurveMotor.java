@@ -280,12 +280,11 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 			throw new BugException("Could not compute burn start time, maxThrust=" + maxThrust +
 					" limit=" + thrustLimit + " thrust=" + Arrays.toString(thrust));
 		}
-		if (MathUtil.equals(thrust[pos], thrust[pos + 1])) {
+		if (MathUtil.equals(thrust[pos - 1], thrust[pos])) {
 			// For safety
-			burnStart = (time[pos] + time[pos + 1]) / 2;
+			burnStart = (time[pos - 1] + time[pos]) / 2;
 		} else {
-			burnStart = MathUtil.map(thrustLimit, thrust[pos], thrust[pos + 1],
-					time[pos], time[pos + 1]);
+			burnStart = MathUtil.map(thrustLimit, thrust[pos - 1], thrust[pos], time[pos - 1], time[pos]);
 		}
 		
 
@@ -319,9 +318,9 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 			double t0 = time[pos];
 			double t1 = time[pos + 1];
 			double f0 = thrust[pos];
-			double f1 = thrust[pos];
+			double f1 = thrust[pos + 1];
 			
-			totalImpulse += (f0 + f1) / 2 * (t1 - t0);
+			totalImpulse += (t1 - t0) * (f0 + f1) / 2;
 			
 			if (t0 < burnStart && t1 > burnStart) {
 				double fStart = MathUtil.map(burnStart, t0, t1, f0, f1);

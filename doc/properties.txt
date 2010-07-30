@@ -37,6 +37,9 @@ openrocket.debug.bugurl
 openrocket.debug.updateurl
 	URL used for retrieving update notifications.
 
+openrocket.debug.motordigest
+	If defined the motor digest will be displayed in the selection dialog.
+
 openrocket.debug.coordinatecount
 	If defined, the number of instantiations of the Coordinate class are counted and reported
 	every 1M instantiations, or as often as defined by this parameter.

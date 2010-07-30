@@ -1,3 +1,12 @@
+2010-07-30  Sampo Niskanen
+
+	* [BUG] Fixed motor statistic computation
+	* Finalized enhanced motor selection dialog
+
+2010-07-22  Doug Pedrick
+
+	* [BUG] Fixed RockSim fin loading
+
 2010-07-21  Sampo Niskanen
 
 	* Implemented enhanced motor selection dialog

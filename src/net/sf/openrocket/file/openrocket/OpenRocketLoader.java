@@ -21,8 +21,10 @@ import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -89,12 +91,15 @@ import org.xml.sax.SAXException;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-
 public class OpenRocketLoader extends RocketLoader {
+	private static final LogHelper log = Application.getLogger();
+	
 	
 	@Override
 	public OpenRocketDocument loadFromStream(InputStream source) throws RocketLoadException,
 			IOException {
+		log.info("Loading .ork file");
+		
 		InputSource xmlSource = new InputSource(source);
 		OpenRocketHandler handler = new OpenRocketHandler();
 		
@@ -102,6 +107,7 @@ public class OpenRocketLoader extends RocketLoader {
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);
 		} catch (SAXException e) {
+			log.warn("Malformed XML in input");
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
@@ -141,6 +147,7 @@ public class OpenRocketLoader extends RocketLoader {
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
 		
 		doc.clearUndo();
+		log.info("Loading done");
 		return doc;
 	}
 	
@@ -151,7 +158,7 @@ public class OpenRocketLoader extends RocketLoader {
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1" };
+	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1", "1.2" };
 	
 
 	////////  Component constructors
@@ -971,6 +978,7 @@ class MotorHandler extends ElementHandler {
 	private Motor.Type type = null;
 	private String manufacturer = null;
 	private String designation = null;
+	private String digest = null;
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
@@ -990,24 +998,67 @@ class MotorHandler extends ElementHandler {
 			warnings.add(Warning.fromString("No motor specified, ignoring."));
 			return null;
 		}
+		
 		List<ThrustCurveMotor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer,
 				designation, diameter, length);
+		
+		// No motors
 		if (motors.size() == 0) {
 			String str = "No motor with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
-			warnings.add(Warning.fromString(str + " found."));
+			str += " found.";
+			warnings.add(str);
 			return null;
 		}
-		if (motors.size() > 1) {
+		
+		// One motor
+		if (motors.size() == 1) {
+			ThrustCurveMotor m = motors.get(0);
+			if (digest != null && !MotorDigest.digestMotor(m).equals(digest)) {
+				String str = "Motor with designation '" + designation + "'";
+				if (manufacturer != null)
+					str += " for manufacturer '" + manufacturer + "'";
+				str += " has differing thrust curve than the original.";
+				warnings.add(str);
+			}
+			return m;
+		}
+		
+		// Multiple motors, check digest for which one to use
+		if (digest != null) {
+			
+			// Check for motor with correct digest
+			for (ThrustCurveMotor m : motors) {
+				if (MotorDigest.digestMotor(m).equals(digest)) {
+					return m;
+				}
+			}
+			String str = "Motor with designation '" + designation + "'";
+			if (manufacturer != null)
+				str += " for manufacturer '" + manufacturer + "'";
+			str += " has differing thrust curve than the original.";
+			warnings.add(str);
+			
+		} else {
+			
+			// No digest, check for preferred digest (OpenRocket <= 1.1.0)
+			// TODO: MEDIUM: This should only be done for document versions 1.1 and below
+			for (ThrustCurveMotor m : motors) {
+				if (PreferredMotorDigests.DIGESTS.contains(MotorDigest.digestMotor(m))) {
+					return m;
+				}
+			}
+			
 			String str = "Multiple motors with designation '" + designation + "'";
 			if (manufacturer != null)
 				str += " for manufacturer '" + manufacturer + "'";
-			warnings.add(Warning.fromString(str + " found, one chosen arbitrarily."));
+			str += " found, one chosen arbitrarily.";
+			warnings.add(str);
+			
 		}
 		return motors.get(0);
 	}
-	
 	
 	/**
 	 * Return the delay to use for the motor.
@@ -1032,7 +1083,7 @@ class MotorHandler extends ElementHandler {
 			// Motor type
 			type = null;
 			for (Motor.Type t : Motor.Type.values()) {
-				if (t.name().toLowerCase().equals(content)) {
+				if (t.name().toLowerCase().equals(content.trim())) {
 					type = t;
 					break;
 				}
@@ -1044,19 +1095,24 @@ class MotorHandler extends ElementHandler {
 		} else if (element.equals("manufacturer")) {
 			
 			// Manufacturer
-			manufacturer = content;
+			manufacturer = content.trim();
 			
 		} else if (element.equals("designation")) {
 			
 			// Designation
-			designation = content;
+			designation = content.trim();
+			
+		} else if (element.equals("digest")) {
+			
+			// Digest
+			digest = content.trim();
 			
 		} else if (element.equals("diameter")) {
 			
 			// Diameter
 			diameter = Double.NaN;
 			try {
-				diameter = Double.parseDouble(content);
+				diameter = Double.parseDouble(content.trim());
 			} catch (NumberFormatException e) {
 				// Ignore
 			}
@@ -1069,7 +1125,7 @@ class MotorHandler extends ElementHandler {
 			// Length
 			length = Double.NaN;
 			try {
-				length = Double.parseDouble(content);
+				length = Double.parseDouble(content.trim());
 			} catch (NumberFormatException ignore) {
 			}
 			
@@ -1085,7 +1141,7 @@ class MotorHandler extends ElementHandler {
 				delay = Motor.PLUGGED;
 			} else {
 				try {
-					delay = Double.parseDouble(content);
+					delay = Double.parseDouble(content.trim());
 				} catch (NumberFormatException ignore) {
 				}
 				
