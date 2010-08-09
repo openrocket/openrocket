@@ -13,7 +13,7 @@ For more information see http://openrocket.sourceforge.net/
 
 To start the software run the class 
 
-    net.sf.openrocket.gui.main.BasicFrame
+    net.sf.openrocket.startup.Startup
 
 or from the JAR file run
 
