@@ -1,0 +1,35 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="168-H54-WH_LB-10A" Type="reloadable" dia="29." len="187."
+initWt="209." propWt="96.6" delays="3,5,7,8,9" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="48.056" peakThrust="103.061" throatDia="0."
+exitDia="0." Itot="168.197" burn-time="3.5" massFrac="46.22" Isp="177.55"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro-29-3G White Long Burn</comments>
+    <data>
+      <eng-data  t="0." f="0." m="96.6" cg="93.5"/>
+      <eng-data  t="0.017" f="103.061" m="96.0969" cg="93.5"/>
+      <eng-data  t="0.047" f="83.272" m="94.4916" cg="93.5"/>
+      <eng-data  t="0.088" f="91.821" m="92.4301" cg="93.5"/>
+      <eng-data  t="0.155" f="97.836" m="88.7812" cg="93.5"/>
+      <eng-data  t="0.199" f="89.288" m="86.4168" cg="93.5"/>
+      <eng-data  t="0.271" f="80.264" m="82.9112" cg="93.5"/>
+      <eng-data  t="0.406" f="76.623" m="76.8291" cg="93.5"/>
+      <eng-data  t="0.599" f="73.773" m="68.4938" cg="93.5"/>
+      <eng-data  t="0.898" f="69.024" m="56.233" cg="93.5"/>
+      <eng-data  t="1.182" f="66.016" m="45.2199" cg="93.5"/>
+      <eng-data  t="1.475" f="60.475" m="34.577" cg="93.5"/>
+      <eng-data  t="1.785" f="53.826" m="24.4019" cg="93.5"/>
+      <eng-data  t="2.099" f="44.802" m="15.5087" cg="93.5"/>
+      <eng-data  t="2.296" f="38.945" m="10.771" cg="93.5"/>
+      <eng-data  t="2.577" f="27.546" m="5.40564" cg="93.5"/>
+      <eng-data  t="2.845" f="16.148" m="2.04296" cg="93.5"/>
+      <eng-data  t="3.097" f="6.491" m="0.404685" cg="93.5"/>
+      <eng-data  t="3.199" f="2.058" m="0.154279" cg="93.5"/>
+      <eng-data  t="3.298" f="1.108" m="0.0642718" cg="93.5"/>
+      <eng-data  t="3.5" f="0." m="0." cg="93.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

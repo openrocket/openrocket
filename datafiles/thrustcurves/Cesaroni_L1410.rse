@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="L1410-SK" Type="reloadable" dia="75." len="757." initWt="5115."
+propWt="2875." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1387.36"
+peakThrust="1630." throatDia="0." exitDia="0." Itot="4828.02" burn-time="3.48"
+massFrac="56.21" Isp="171.24" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="2875." cg="378.5"/>
+      <eng-data  t="0.04" f="133." m="2873.42" cg="378.5"/>
+      <eng-data  t="0.065" f="1200." m="2863.49" cg="378.5"/>
+      <eng-data  t="0.077" f="1510." m="2853.81" cg="378.5"/>
+      <eng-data  t="0.13" f="1250." m="2810.26" cg="378.5"/>
+      <eng-data  t="0.35" f="1400." m="2636.67" cg="378.5"/>
+      <eng-data  t="1." f="1530." m="2069.63" cg="378.5"/>
+      <eng-data  t="1.5" f="1595." m="1604.41" cg="378.5"/>
+      <eng-data  t="2." f="1630." m="1124.3" cg="378.5"/>
+      <eng-data  t="2.3" f="1600." m="835.789" cg="378.5"/>
+      <eng-data  t="2.6" f="1510." m="557.996" cg="378.5"/>
+      <eng-data  t="2.9" f="1350." m="302.535" cg="378.5"/>
+      <eng-data  t="3.25" f="1032." m="54.3079" cg="378.5"/>
+      <eng-data  t="3.4" f="120." m="2.85831" cg="378.5"/>
+      <eng-data  t="3.48" f="0." m="0." cg="378.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

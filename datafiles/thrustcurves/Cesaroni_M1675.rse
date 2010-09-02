@@ -1,0 +1,33 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M1675-PK" Type="unspecified" dia="75." len="757." initWt="5223."
+propWt="3159." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1634.86"
+peakThrust="2073." throatDia="0." exitDia="0." Itot="6205.94" burn-time="3.8"
+massFrac="60.48" Isp="200.33" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro75-5G 6162M1675-PK P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="3159." cg="378.5"/>
+      <eng-data  t="0.04" f="1350.52" m="3145.25" cg="378.5"/>
+      <eng-data  t="0.077" f="1718.85" m="3116.35" cg="378.5"/>
+      <eng-data  t="0.166" f="1877.04" m="3034.89" cg="378.5"/>
+      <eng-data  t="0.307" f="2011.62" m="2895.34" cg="378.5"/>
+      <eng-data  t="0.49" f="2028.14" m="2707.19" cg="378.5"/>
+      <eng-data  t="0.616" f="2028.14" m="2577.11" cg="378.5"/>
+      <eng-data  t="1.018" f="2073." m="2157.5" cg="378.5"/>
+      <eng-data  t="1.594" f="1992.73" m="1561.46" cg="378.5"/>
+      <eng-data  t="2.246" f="1860.51" m="922.043" cg="378.5"/>
+      <eng-data  t="2.762" f="1754.26" m="447.318" cg="378.5"/>
+      <eng-data  t="2.908" f="1737.73" m="317.558" cg="378.5"/>
+      <eng-data  t="3.023" f="1563.02" m="220.948" cg="378.5"/>
+      <eng-data  t="3.206" f="909.005" m="105.811" cg="378.5"/>
+      <eng-data  t="3.409" f="377.768" m="39.3279" cg="378.5"/>
+      <eng-data  t="3.493" f="278.604" m="25.2952" cg="378.5"/>
+      <eng-data  t="3.577" f="259.716" m="13.7863" cg="378.5"/>
+      <eng-data  t="3.69" f="113.33" m="3.05748" cg="378.5"/>
+      <eng-data  t="3.796" f="0." m="0." cg="378.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

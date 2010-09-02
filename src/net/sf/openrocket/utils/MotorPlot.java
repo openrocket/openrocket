@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.file.GeneralMotorLoader;
+import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.GUIUtil;

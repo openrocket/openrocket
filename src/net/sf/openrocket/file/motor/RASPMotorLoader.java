@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.openrocket.file.MotorLoader;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
@@ -16,7 +15,7 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.util.Coordinate;
 
-public class RASPMotorLoader extends MotorLoader {
+public class RASPMotorLoader extends AbstractMotorLoader {
 	
 	public static final String CHARSET_NAME = "ISO-8859-1";
 	
@@ -160,10 +159,6 @@ public class RASPMotorLoader extends MotorLoader {
 		} catch (NumberFormatException e) {
 			
 			throw new IOException("Illegal file format.");
-			
-		} finally {
-			
-			in.close();
 			
 		}
 		

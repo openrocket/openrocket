@@ -1,0 +1,44 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="AT" code="K540M" Type="unspecified" dia="54." len="401." initWt="1275."
+propWt="876.7" delays="2,4,6,8,10,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="484.267" peakThrust="855.514" throatDia="0." exitDia="0."
+Itot="1592.75" burn-time="3.29" massFrac="68.76" Isp="185.26" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>AT K540 Metalstorm 54-1706</comments>
+    <data>
+      <eng-data  t="0." f="0." m="876.7" cg="200.5"/>
+      <eng-data  t="0.013" f="625.709" m="874.461" cg="200.5"/>
+      <eng-data  t="0.014" f="791.806" m="874.071" cg="200.5"/>
+      <eng-data  t="0.03" f="855.514" m="866.817" cg="200.5"/>
+      <eng-data  t="0.073" f="764.502" m="847.646" cg="200.5"/>
+      <eng-data  t="0.146" f="718.996" m="817.841" cg="200.5"/>
+      <eng-data  t="0.33" f="712.17" m="745.367" cg="200.5"/>
+      <eng-data  t="0.394" f="734.923" m="719.879" cg="200.5"/>
+      <eng-data  t="0.622" f="705.344" m="629.503" cg="200.5"/>
+      <eng-data  t="0.866" f="678.041" m="536.605" cg="200.5"/>
+      <eng-data  t="1.059" f="655.288" m="465.784" cg="200.5"/>
+      <eng-data  t="1.406" f="648.462" m="341.276" cg="200.5"/>
+      <eng-data  t="1.445" f="596.13" m="327.917" cg="200.5"/>
+      <eng-data  t="1.544" f="605.231" m="295.184" cg="200.5"/>
+      <eng-data  t="1.668" f="582.478" m="254.652" cg="200.5"/>
+      <eng-data  t="1.689" f="625.709" m="247.669" cg="200.5"/>
+      <eng-data  t="1.741" f="566.551" m="230.606" cg="200.5"/>
+      <eng-data  t="2.032" f="498.292" m="145.326" cg="200.5"/>
+      <eng-data  t="2.088" f="480.089" m="130.247" cg="200.5"/>
+      <eng-data  t="2.118" f="511.943" m="122.056" cg="200.5"/>
+      <eng-data  t="2.174" f="436.858" m="107.433" cg="200.5"/>
+      <eng-data  t="2.324" f="395.903" m="73.0549" cg="200.5"/>
+      <eng-data  t="2.435" f="357.223" m="50.0477" cg="200.5"/>
+      <eng-data  t="2.525" f="304.891" m="33.6475" cg="200.5"/>
+      <eng-data  t="2.542" f="329.919" m="30.6775" cg="200.5"/>
+      <eng-data  t="2.65" f="175.198" m="15.6638" cg="200.5"/>
+      <eng-data  t="2.774" f="88.737" m="6.65652" cg="200.5"/>
+      <eng-data  t="2.89" f="36.405" m="2.66137" cg="200.5"/>
+      <eng-data  t="3.006" f="13.652" m="1.0633" cg="200.5"/>
+      <eng-data  t="3.289" f="0." m="0." cg="200.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

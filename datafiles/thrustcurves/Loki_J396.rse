@@ -1,0 +1,24 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="J396-SP" Type="unspecified" dia="38." len="406." initWt="752."
+propWt="372." delays="5,8,10,13,17" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="407.28" peakThrust="543.103" throatDia="0." exitDia="0."
+Itot="651.648" burn-time="1.6" massFrac="49.4681" Isp="178.628" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="372." cg="203."/>
+      <eng-data  t="0.00621118" f="396.552" m="371.297" cg="203."/>
+      <eng-data  t="0.201863" f="413.793" m="326.043" cg="203."/>
+      <eng-data  t="0.400621" f="439.655" m="277.626" cg="203."/>
+      <eng-data  t="0.593168" f="491.379" m="226.458" cg="203."/>
+      <eng-data  t="0.717391" f="543.103" m="189.778" cg="203."/>
+      <eng-data  t="0.801242" f="508.621" m="164.606" cg="203."/>
+      <eng-data  t="0.993789" f="491.379" m="109.648" cg="203."/>
+      <eng-data  t="1.20186" f="448.276" m="53.8419" cg="203."/>
+      <eng-data  t="1.40062" f="250." m="14.2273" cg="203."/>
+      <eng-data  t="1.6" f="0." m="0." cg="203."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="G126-WT" Type="unspecified" dia="29." len="142." initWt="145."
+propWt="59." delays="4,6,8,10,13" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="121.716" peakThrust="168." throatDia="0." exitDia="0." Itot="115.63"
+burn-time="0.95" massFrac="40.69" Isp="199.85" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="59." cg="71."/>
+      <eng-data  t="0.01" f="55." m="58.8597" cg="71."/>
+      <eng-data  t="0.02" f="168." m="58.2908" cg="71."/>
+      <eng-data  t="0.03" f="157." m="57.4616" cg="71."/>
+      <eng-data  t="0.04" f="148." m="56.6835" cg="71."/>
+      <eng-data  t="0.05" f="125." m="55.987" cg="71."/>
+      <eng-data  t="0.1" f="135." m="52.6704" cg="71."/>
+      <eng-data  t="0.2" f="141." m="45.6289" cg="71."/>
+      <eng-data  t="0.3" f="142." m="38.4089" cg="71."/>
+      <eng-data  t="0.4" f="141." m="31.1889" cg="71."/>
+      <eng-data  t="0.6" f="133." m="17.2081" cg="71."/>
+      <eng-data  t="0.75" f="127." m="7.25828" cg="71."/>
+      <eng-data  t="0.81" f="128." m="3.35488" cg="71."/>
+      <eng-data  t="0.86" f="60." m="0.956715" cg="71."/>
+      <eng-data  t="0.9" f="15." m="0.191343" cg="71."/>
+      <eng-data  t="0.95" f="0." m="0." cg="71."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

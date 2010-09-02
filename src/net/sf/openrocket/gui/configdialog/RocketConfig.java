@@ -16,27 +16,26 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.GUIUtil;
 
 public class RocketConfig extends RocketComponentConfig {
-
+	
 	private TextFieldListener textFieldListener;
 	
 	private JTextArea designerTextArea;
 	private JTextArea revisionTextArea;
-
+	
 	private final Rocket rocket;
 	
 	public RocketConfig(RocketComponent c) {
 		super(c);
 		
-		rocket = (Rocket)c;
+		rocket = (Rocket) c;
 		
 		this.removeAll();
 		setLayout(new MigLayout("fill"));
-
+		
 		this.add(new JLabel("Design name:"), "top, pad 4lp, gapright 10lp");
 		this.add(componentNameField, "growx, wrap para");
 		
-		
-		
+
 		this.add(new JLabel("Designer:"), "top, pad 4lp, gapright 10lp");
 		
 		textFieldListener = new TextFieldListener();
@@ -46,13 +45,13 @@ public class RocketConfig extends RocketComponentConfig {
 		designerTextArea.setEditable(true);
 		GUIUtil.setTabToFocusing(designerTextArea);
 		designerTextArea.addFocusListener(textFieldListener);
-		this.add(new JScrollPane(designerTextArea), "wmin 300lp, hmin 45lp, grow 30, wrap para");
+		this.add(new JScrollPane(designerTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
 		
-		
+
 		this.add(new JLabel("Comments:"), "top, pad 4lp, gapright 10lp");
-		this.add(new JScrollPane(commentTextArea), "wmin 300lp, hmin 105lp, grow 100, wrap para");
+		this.add(new JScrollPane(commentTextArea), "wmin 400lp, height 155lp:155lp:, grow 100, wrap para");
 		
-		
+
 		this.add(new JLabel("Revision history:"), "top, pad 4lp, gapright 10lp");
 		revisionTextArea = new JTextArea(rocket.getRevision());
 		revisionTextArea.setLineWrap(true);
@@ -61,9 +60,9 @@ public class RocketConfig extends RocketComponentConfig {
 		GUIUtil.setTabToFocusing(revisionTextArea);
 		revisionTextArea.addFocusListener(textFieldListener);
 		
-		this.add(new JScrollPane(revisionTextArea), "wmin 300lp, hmin 45lp, grow 30, wrap para");
-
+		this.add(new JScrollPane(revisionTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
 		
+
 		addButtons();
 	}
 	
@@ -73,10 +72,14 @@ public class RocketConfig extends RocketComponentConfig {
 		public void actionPerformed(ActionEvent e) {
 			setName();
 		}
-		public void focusGained(FocusEvent e) { }
+		
+		public void focusGained(FocusEvent e) {
+		}
+		
 		public void focusLost(FocusEvent e) {
 			setName();
 		}
+		
 		private void setName() {
 			if (!rocket.getDesigner().equals(designerTextArea.getText())) {
 				rocket.setDesigner(designerTextArea.getText());
@@ -87,6 +90,6 @@ public class RocketConfig extends RocketComponentConfig {
 		}
 	}
 	
-	
-	
+
+
 }

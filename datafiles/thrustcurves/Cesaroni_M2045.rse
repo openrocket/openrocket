@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M2045-BS" Type="unspecified" dia="75." len="893." initWt="6071."
+propWt="3739." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="2042.82"
+peakThrust="2570.08" throatDia="0." exitDia="0." Itot="7327.58" burn-time="3.59"
+massFrac="61.59" Isp="199.84" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro75-6G 7388-M2045-BS P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="3739." cg="446.5"/>
+      <eng-data  t="0.004" f="556.851" m="3738.43" cg="446.5"/>
+      <eng-data  t="0.019" f="1690.32" m="3729.83" cg="446.5"/>
+      <eng-data  t="0.063" f="2359.2" m="3684.37" cg="446.5"/>
+      <eng-data  t="0.153" f="2339.43" m="3576.48" cg="446.5"/>
+      <eng-data  t="0.182" f="2570.08" m="3540.16" cg="446.5"/>
+      <eng-data  t="0.247" f="2471.23" m="3456.56" cg="446.5"/>
+      <eng-data  t="0.616" f="2497.59" m="2988.77" cg="446.5"/>
+      <eng-data  t="1.028" f="2547.02" m="2458.51" cg="446.5"/>
+      <eng-data  t="2.111" f="2316.37" m="1114.72" cg="446.5"/>
+      <eng-data  t="2.551" f="2273.53" m="599.466" cg="446.5"/>
+      <eng-data  t="2.635" f="2253.76" m="502.441" cg="446.5"/>
+      <eng-data  t="2.796" f="1696.91" m="340.162" cg="446.5"/>
+      <eng-data  t="3.009" f="1472.86" m="167.907" cg="446.5"/>
+      <eng-data  t="3.349" f="247.123" m="18.7079" cg="446.5"/>
+      <eng-data  t="3.541" f="108.734" m="1.27611" cg="446.5"/>
+      <eng-data  t="3.587" f="0." m="0." cg="446.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

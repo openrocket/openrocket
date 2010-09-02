@@ -1,0 +1,37 @@
+; ROADRUNNER F35 RASP.ENG FILE
+; File produced April 5, 2006
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+F35 29 112 6-10 0.040 0.111 RR
+0.023 33.700
+0.040 44.462
+0.081 47.206
+0.121 48.579
+0.166 49.270
+0.242 49.550
+0.315 51.010
+0.411 50.111
+0.528 49.710
+0.664 48.208
+0.791 47.256
+0.896 46.986
+1.000 45.484
+1.097 44.943
+1.194 42.338
+1.277 40.400
+1.323 40.706
+1.356 37.691
+1.402 35.637
+1.451 32.753
+1.505 29.467
+1.578 25.491
+1.675 20.833
+1.750 17.137
+1.828 13.021
+1.907 8.638
+1.984 5.075
+2.049 2.610
+2.130 0.000

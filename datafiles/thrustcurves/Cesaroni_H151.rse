@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="H151-RL" Type="unspecified" dia="29." len="231." initWt="238."
+propWt="118." delays="15,12,10,8,6" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="147.994" peakThrust="209.602" throatDia="0." exitDia="0."
+Itot="207.191" burn-time="1.4" massFrac="49.58" Isp="179.05" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro29-4G 207H151-RL 15A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="118." cg="115.5"/>
+      <eng-data  t="0.008" f="125.295" m="117.715" cg="115.5"/>
+      <eng-data  t="0.021" f="209.602" m="116.475" cg="115.5"/>
+      <eng-data  t="0.052" f="160.928" m="113.204" cg="115.5"/>
+      <eng-data  t="0.118" f="186.779" m="106.669" cg="115.5"/>
+      <eng-data  t="0.293" f="190.738" m="87.8562" cg="115.5"/>
+      <eng-data  t="0.465" f="183.518" m="69.5255" cg="115.5"/>
+      <eng-data  t="0.683" f="171.641" m="47.478" cg="115.5"/>
+      <eng-data  t="0.988" f="145.557" m="19.9286" cg="115.5"/>
+      <eng-data  t="1.133" f="134.145" m="8.37962" cg="115.5"/>
+      <eng-data  t="1.221" f="74.292" m="3.1564" cg="115.5"/>
+      <eng-data  t="1.293" f="29.81" m="1.02202" cg="115.5"/>
+      <eng-data  t="1.372" f="10.014" m="0.126136" cg="115.5"/>
+      <eng-data  t="1.398" f="6.521" m="0.00371386" cg="115.5"/>
+      <eng-data  t="1.4" f="0." m="0." cg="115.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

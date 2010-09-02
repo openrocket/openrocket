@@ -1,0 +1,45 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="8429-M2020-IM-P" Type="reloadable" dia="75." len="757."
+initWt="7031.8" propWt="4349." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1959.7" peakThrust="2649.45" throatDia="0." exitDia="0."
+Itot="8428.66" burn-time="4.3" massFrac="61.85" Isp="197.63" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro-75-6G IMax Plugged</comments>
+    <data>
+      <eng-data  t="0." f="0." m="4349." cg="378.5"/>
+      <eng-data  t="0.023" f="2070.11" m="4336.72" cg="378.5"/>
+      <eng-data  t="0.036" f="1929.89" m="4323.3" cg="378.5"/>
+      <eng-data  t="0.053" f="2147.6" m="4305.42" cg="378.5"/>
+      <eng-data  t="0.073" f="2369." m="4282.11" cg="378.5"/>
+      <eng-data  t="0.089" f="2505.53" m="4261.99" cg="378.5"/>
+      <eng-data  t="0.136" f="2649.45" m="4199.49" cg="378.5"/>
+      <eng-data  t="0.182" f="2627.31" m="4136.86" cg="378.5"/>
+      <eng-data  t="0.262" f="2608.86" m="4028.79" cg="378.5"/>
+      <eng-data  t="0.364" f="2616.24" m="3891.3" cg="378.5"/>
+      <eng-data  t="0.566" f="2623.62" m="3618.23" cg="378.5"/>
+      <eng-data  t="1.387" f="2575.65" m="2516.98" cg="378.5"/>
+      <eng-data  t="1.639" f="2538.74" m="2184.48" cg="378.5"/>
+      <eng-data  t="1.986" f="2450.18" m="1737.86" cg="378.5"/>
+      <eng-data  t="2.198" f="2394.83" m="1472.87" cg="378.5"/>
+      <eng-data  t="2.457" f="2295.2" m="1159.48" cg="378.5"/>
+      <eng-data  t="2.708" f="2206.64" m="867.964" cg="378.5"/>
+      <eng-data  t="2.831" f="2162.36" m="729.324" cg="378.5"/>
+      <eng-data  t="2.933" f="2088.56" m="617.461" cg="378.5"/>
+      <eng-data  t="3.036" f="1988.93" m="509.111" cg="378.5"/>
+      <eng-data  t="3.109" f="1800.74" m="437.739" cg="378.5"/>
+      <eng-data  t="3.175" f="1594.1" m="379.935" cg="378.5"/>
+      <eng-data  t="3.307" f="1335.79" m="280.159" cg="378.5"/>
+      <eng-data  t="3.45" f="1014.76" m="193.441" cg="378.5"/>
+      <eng-data  t="3.589" f="708.487" m="131.645" cg="378.5"/>
+      <eng-data  t="3.698" f="601.476" m="94.8075" cg="378.5"/>
+      <eng-data  t="3.814" f="461.255" m="63.0035" cg="378.5"/>
+      <eng-data  t="3.996" f="339.483" m="25.4057" cg="378.5"/>
+      <eng-data  t="4.115" f="202.952" m="8.75258" cg="378.5"/>
+      <eng-data  t="4.201" f="88.561" m="2.28477" cg="378.5"/>
+      <eng-data  t="4.301" f="0." m="0." cg="378.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

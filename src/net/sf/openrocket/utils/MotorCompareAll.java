@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.openrocket.file.GeneralMotorLoader;
-import net.sf.openrocket.file.MotorLoader;
+import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.Pair;
 

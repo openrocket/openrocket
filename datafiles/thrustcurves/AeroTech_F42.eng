@@ -1,0 +1,17 @@
+;
+;F42T Motor Thrust Curve created by Tim Van Milligan
+;for RockSim Users - www.rocksim.com
+;Based on data supplied by Aerotech prior to NAR certification.
+F42T 29 83 4-8 0.027 0.076 Aerotech
+0.01 68.694
+0.029 65.879
+0.202 62.5
+0.511 51.802
+0.739 43.356
+0.993 31.532
+1.02 29.279
+1.072 23.086
+1.199 9.572
+1.262 4.505
+1.319 2.815
+1.47 0

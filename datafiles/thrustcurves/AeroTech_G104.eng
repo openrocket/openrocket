@@ -1,0 +1,45 @@
+;
+; Aerotech G104T (Blue Thunder)
+;
+; AeroTech RMS-29/100 EZ Access Reloadable Motors.
+;
+; File produced 28 Feb 2005.
+;
+; The file was produced by scaling data points off the
+; thrust curve in the manufacturers catalog sheet.
+;
+; The motor is not yet on www.thrustcurve.org.
+; Hence the amateur file production.
+; The file was created by Stan Hemphill.
+; Contact at stanley_hemphill@hotmail.com.
+;
+; Motor Dia  Len  Delay Prop Gross Mfg
+G104T 29 124 6-8-9-10-11-13-14-16-18 0.0408 0.136 AT
+0.0067 125.3426
+0.0471 123.5424
+0.0856 121.9671
+0.1019 121.4046
+0.1462 121.1795
+0.1837 120.8420
+0.2029 120.5044
+0.2385 118.8167
+0.2644 117.2415
+0.2798 116.9039
+0.3279 116.6789
+0.3923 116.6789
+0.4298 116.1163
+0.4615 114.0910
+0.5067 110.1530
+0.5404 104.6397
+0.5760 096.2010
+0.6067 089.5626
+0.6817 078.8736
+0.7692 067.9595
+0.7865 064.9216
+0.7990 062.5588
+0.8058 058.0582
+0.8192 050.5196
+0.8385 039.0430
+0.8625 027.5664
+0.8769 016.6523
+0.9019 000.0000

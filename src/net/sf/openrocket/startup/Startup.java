@@ -4,8 +4,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,8 +18,9 @@ import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.database.ThrustCurveMotorSet;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.file.DirectoryIterator;
-import net.sf.openrocket.file.GeneralMotorLoader;
+import net.sf.openrocket.file.iterator.DirectoryIterator;
+import net.sf.openrocket.file.iterator.FileIterator;
+import net.sf.openrocket.file.motor.MotorLoaderHelper;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.ExceptionHandler;
@@ -35,7 +34,6 @@ import net.sf.openrocket.logging.PrintStreamLogger;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
 
 
@@ -86,8 +84,8 @@ public class Startup {
 		
 		log.info("Startup complete");
 		
-		// Block motor loading for 2 seconds to allow window painting
-		blockLoading.set(2000);
+		// Block motor loading for 1.5 seconds to allow window painting
+		blockLoading.set(1500);
 	}
 	
 	
@@ -125,7 +123,6 @@ public class Startup {
 		Prefs.loadDefaultUnits();
 		
 		// Load motors etc.
-		// TODO: HIGH: Use new motor loading
 		log.info("Loading databases");
 		loadMotor();
 		Databases.fakeMethod();
@@ -145,74 +142,70 @@ public class Startup {
 
 	private static void loadMotor() {
 		
-		log.info("Starting motor loading from " + THRUSTCURVE_DIRECTORY +
-				" in background thread.");
+		log.info("Starting motor loading from " + THRUSTCURVE_DIRECTORY + " in background thread.");
 		ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(true) {
 			
 			@Override
 			protected void loadMotors() {
 				
+				// Block loading until timeout occurs or database is taken into use
 				log.info("Blocking motor loading while starting up");
-				
-				// Block for 100ms a time until timeout or database in use
 				while (!inUse && blockLoading.addAndGet(-100) > 0) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
 					}
 				}
-				
 				log.info("Blocking ended, inUse=" + inUse + " slowLoadingCount=" + blockLoading.get());
 				
-				log.info("Started to load motors from " + THRUSTCURVE_DIRECTORY);
+				// Start loading
+				log.info("Loading motors from " + THRUSTCURVE_DIRECTORY);
 				long t0 = System.currentTimeMillis();
+				int fileCount;
+				int thrustCurveCount;
 				
-				int fileCount = 0;
-				int thrustCurveCount = 0;
-				int distinctMotorCount = 0;
-				int distinctThrustCurveCount = 0;
-				
-				GeneralMotorLoader loader = new GeneralMotorLoader();
-				DirectoryIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
+				// Load the packaged thrust curves
+				List<Motor> list;
+				FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
 								new SimpleFileFilter("", false, "eng", "rse"));
 				if (iterator == null) {
-					throw new IllegalStateException("No thrust curves found, distribution built wrong");
+					throw new IllegalStateException("Thrust curve directory " + THRUSTCURVE_DIRECTORY +
+							"not found, distribution built wrong");
 				}
-				while (iterator.hasNext()) {
-					final Pair<String, InputStream> input = iterator.next();
-					log.debug("Loading motors from file " + input.getU());
-					fileCount++;
-					try {
-						List<Motor> motors = loader.load(input.getV(), input.getU());
-						if (motors.size() == 0) {
-							log.warn("No motors found in file " + input.getU());
-						}
-						for (Motor m : motors) {
-							thrustCurveCount++;
-							this.addMotor((ThrustCurveMotor) m);
-						}
-					} catch (IOException e) {
-						log.warn("IOException when loading motor file " + input.getU(), e);
-					} finally {
-						try {
-							input.getV().close();
-						} catch (IOException e) {
-							log.error("IOException when closing InputStream", e);
-						}
+				list = MotorLoaderHelper.load(iterator);
+				for (Motor m : list) {
+					this.addMotor((ThrustCurveMotor) m);
+				}
+				fileCount = iterator.getFileCount();
+				
+				thrustCurveCount = list.size();
+				
+				// Load the user-defined thrust curves
+				for (File file : Prefs.getUserThrustCurveFiles()) {
+					// TODO: LOW: This counts a directory as one file
+					log.info("Loading motors from " + file);
+					list = MotorLoaderHelper.load(file);
+					for (Motor m : list) {
+						this.addMotor((ThrustCurveMotor) m);
 					}
-					
+					fileCount++;
+					thrustCurveCount += list.size();
 				}
 				
 				long t1 = System.currentTimeMillis();
 				
 				// Count statistics
+				int distinctMotorCount = 0;
+				int distinctThrustCurveCount = 0;
 				distinctMotorCount = motorSets.size();
 				for (ThrustCurveMotorSet set : motorSets) {
 					distinctThrustCurveCount += set.getMotorCount();
 				}
 				log.info("Motor loading done, took " + (t1 - t0) + " ms to load "
-						+ fileCount + " files containing " + thrustCurveCount + " thrust curves which contained "
-						+ distinctMotorCount + " distinct motors with " + distinctThrustCurveCount + " thrust curves.");
+						+ fileCount + " files/directories containing "
+						+ thrustCurveCount + " thrust curves which contained "
+						+ distinctMotorCount + " distinct motors with "
+						+ distinctThrustCurveCount + " distinct thrust curves.");
 			}
 			
 		};

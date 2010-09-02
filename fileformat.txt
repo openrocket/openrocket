@@ -32,4 +32,7 @@ The following file format versions exist:
       allows attaching subcomponents to a tube coupler (previously
       forbidden).
 
+1.2:  Introduced with OpenRocket 1.1.1.  Adds the <digest> tag to
+      motor definitions.  The digest uniquely identifies the
+      functional characteristics of a particular thrust curve motor.
 

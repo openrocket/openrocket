@@ -1,0 +1,38 @@
+; Animal Motor Works 54-1750
+; AMW K650RR RASP.ENG file made from NAR published data
+; File produced April 19, 2004
+; This file my be used or given away.  All I ask is that this header 
+; is maintained to give credit to NAR S&T.  Thank you, Jack Kane
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file.  The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited 
+; number of points (32) allowed with wRASP up to v1.6.
+K650RR    54   492   0   0.931   1.8087   AMW
+0.022    308.257
+0.045    566.480
+0.058    620.440
+0.081    639.668
+0.135    639.668
+0.229    643.494
+0.351    662.823
+0.594    701.380
+0.810    724.434
+0.999    743.763
+1.151    751.220
+1.381    747.588
+1.610    736.001
+1.835    709.031
+2.073    685.876
+2.244    674.400
+2.334    682.051
+2.429    685.876
+2.469    666.648
+2.528    597.285
+2.573    481.714
+2.609    358.391
+2.631    250.471
+2.681    146.477
+2.721    65.507
+2.748    23.124
+2.770    0.000

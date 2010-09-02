@@ -1,0 +1,19 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="155.88" Itot="161.429" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="73.377" burn-time="2.2" cgDiv="10" cgFix="1" cgStep="-1." code="G75J" delays="6,10" dia="29." exitDia="0." initWt="227.9" len="195." mDiv="10" mFix="1" mStep="-1." massFrac="46.34" mfg="Aerotech" peakThrust="87.27" propWt="105.6" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="97.5" f="0." m="105.6" t="0."/>
+<eng-data cg="97.5" f="0.04" m="105.6" t="0."/>
+<eng-data cg="97.5" f="82.64" m="102.896" t="0.1"/>
+<eng-data cg="97.5" f="78.06" m="97.6396" t="0.2"/>
+<eng-data cg="97.5" f="78.06" m="92.5332" t="0.3"/>
+<eng-data cg="97.5" f="87.27" m="81.718" t="0.5"/>
+<eng-data cg="97.5" f="87.27" m="24.6297" t="1.5"/>
+<eng-data cg="97.5" f="82.64" m="13.5149" t="1.7"/>
+<eng-data cg="97.5" f="64.27" m="3.90467" t="1.9"/>
+<eng-data cg="97.5" f="18.37" m="1.20169" t="2."/>
+<eng-data cg="97.5" f="0." m="0." t="2.2"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

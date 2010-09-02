@@ -1,0 +1,35 @@
+;
+;AMW L1080 RASP.ENG file made from NAR published data
+;File produced April 19, 2004
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+L1080BB 75 497 100 1.717 3.5922 Animal_Motor_Works 
+0.024 406.295
+0.043 812.489
+0.052 895.202
+0.088 929.641
+0.314 991.55
+0.626 1087.69
+0.988 1163.44
+1.346 1218.99
+1.638 1246.25
+1.864 1257.91
+2.247 1254.84
+2.6 1218.99
+2.766 1211.92
+2.851 1197.78
+2.942 1204.85
+3.002 1226.06
+3.033 1204.85
+3.089 1040.23
+3.124 874.499
+3.15 660.999
+3.191 461.336
+3.232 275.408
+3.268 144.622
+3.303 75.744
+3.339 41.316
+3.39 0

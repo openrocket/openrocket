@@ -1,0 +1,20 @@
+;
+;F26FJ Motor Thrust Curve created by Tim Van Milligan
+;for RockSim Users - www.rocksim.com
+;File created March 2, 2005
+;Based on data supplied by Aerotech prior to NAR certification.
+F26FJ 29 98 6-9 0.0431 0.1007 Aerotech
+0.041 38.289
+0.114 36.318
+0.293 34.347
+0.497 32.939
+0.774 32.376
+1 31.25
+1.254 28.716
+1.498 25.338
+1.743 22.241
+2.003 17.737
+2.077 15.484
+2.304 5.349
+2.484 1.689
+2.61 0

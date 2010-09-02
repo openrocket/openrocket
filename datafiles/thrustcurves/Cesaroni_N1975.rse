@@ -1,0 +1,36 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="N1975-GR" Type="unspecified" dia="98." len="1010."
+initWt="13247.5" propWt="8584." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1967.74" peakThrust="2299.03" throatDia="0." exitDia="0."
+Itot="14274." burn-time="7.25" massFrac="64.8" Isp="169.56" tDiv="10" tStep="-1."
+tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Pro98 6G 14272 N1975-GR P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="8584." cg="505."/>
+      <eng-data  t="0.04" f="1382.46" m="8567.37" cg="505."/>
+      <eng-data  t="0.08" f="1699.15" m="8530.31" cg="505."/>
+      <eng-data  t="0.201" f="1781.36" m="8403.68" cg="505."/>
+      <eng-data  t="0.447" f="1793.54" m="8139.24" cg="505."/>
+      <eng-data  t="0.678" f="1820.95" m="7888.19" cg="505."/>
+      <eng-data  t="0.758" f="1927.53" m="7798.02" cg="505."/>
+      <eng-data  t="0.853" f="1842.27" m="7690.33" cg="505."/>
+      <eng-data  t="2.425" f="2088.92" m="5832.14" cg="505."/>
+      <eng-data  t="2.52" f="2180.27" m="5710.19" cg="505."/>
+      <eng-data  t="2.761" f="2198.54" m="5392.88" cg="505."/>
+      <eng-data  t="3.434" f="2213.76" m="4499.99" cg="505."/>
+      <eng-data  t="3.715" f="2268.57" m="4121.27" cg="505."/>
+      <eng-data  t="4.077" f="2299.03" m="3624.09" cg="505."/>
+      <eng-data  t="4.96" f="2238.12" m="2419.45" cg="505."/>
+      <eng-data  t="5.492" f="2162." m="1715.58" cg="505."/>
+      <eng-data  t="6.105" f="2024.97" m="943.831" cg="505."/>
+      <eng-data  t="6.446" f="1878.81" m="543.56" cg="505."/>
+      <eng-data  t="6.647" f="1668.7" m="329.155" cg="505."/>
+      <eng-data  t="7.074" f="602.923" m="37.4943" cg="505."/>
+      <eng-data  t="7.239" f="140.073" m="0.631772" cg="505."/>
+      <eng-data  t="7.254" f="0." m="0." cg="505."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

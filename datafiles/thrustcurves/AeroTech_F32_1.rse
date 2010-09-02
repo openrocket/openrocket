@@ -1,0 +1,48 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="214.23" Itot="79.202" Type="single-use" auto-calc-cg="1" auto-calc-mass="1" avgThrust="29.118" burn-time="2.72" cgDiv="10" cgFix="1" cgStep="-1." code="F32" delays="5,10,15" dia="24." exitDia="0." initWt="81.4" len="124." mDiv="10" mFix="1" mStep="-1." massFrac="46.31" mfg="Aerotech" peakThrust="55.64" propWt="37.7" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>Aerotech F32 RASP.ENG file made from NAR published data
+File produced July 4, 2000
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="62." f="0." m="37.7" t="0."/>
+<eng-data cg="62." f="46.699" m="37.4221" t="0.025"/>
+<eng-data cg="62." f="51.846" m="37.2814" t="0.031"/>
+<eng-data cg="62." f="55.64" m="36.514" t="0.061"/>
+<eng-data cg="62." f="52.868" m="35.8942" t="0.085"/>
+<eng-data cg="62." f="47.37" m="34.9161" t="0.126"/>
+<eng-data cg="62." f="45.637" m="32.2819" t="0.245"/>
+<eng-data cg="62." f="44.946" m="30.2339" t="0.34"/>
+<eng-data cg="62." f="42.873" m="29.1052" t="0.394"/>
+<eng-data cg="62." f="42.873" m="28.0236" t="0.447"/>
+<eng-data cg="62." f="41.14" m="25.5243" t="0.572"/>
+<eng-data cg="62." f="39.408" m="22.6871" t="0.72"/>
+<eng-data cg="62." f="40.78" m="22.229" t="0.744"/>
+<eng-data cg="62." f="38.026" m="21.4413" t="0.786"/>
+<eng-data cg="62." f="35.592" m="16.9735" t="1.041"/>
+<eng-data cg="62." f="33.179" m="15.4186" t="1.136"/>
+<eng-data cg="62." f="34.541" m="14.7578" t="1.177"/>
+<eng-data cg="62." f="32.818" m="13.9882" t="1.225"/>
+<eng-data cg="62." f="31.436" m="11.6332" t="1.379"/>
+<eng-data cg="62." f="30.394" m="10.2353" t="1.474"/>
+<eng-data cg="62." f="28.311" m="7.98582" t="1.635"/>
+<eng-data cg="62." f="27.28" m="7.44337" t="1.676"/>
+<eng-data cg="62." f="29.683" m="7.19934" t="1.694"/>
+<eng-data cg="62." f="26.929" m="6.95681" t="1.712"/>
+<eng-data cg="62." f="25.537" m="5.18369" t="1.854"/>
+<eng-data cg="62." f="23.815" m="4.13832" t="1.943"/>
+<eng-data cg="62." f="21.051" m="2.54729" t="2.092"/>
+<eng-data cg="62." f="18.287" m="1.65787" t="2.187"/>
+<eng-data cg="62." f="13.82" m="0.977781" t="2.276"/>
+<eng-data cg="62." f="7.281" m="0.445449" t="2.382"/>
+<eng-data cg="62." f="2.457" m="0.114029" t="2.525"/>
+<eng-data cg="62." f="0." m="0." t="2.72"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

@@ -1,0 +1,34 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Aerotech" code="J340M" Type="reloadable" dia="38." len="337."
+initWt="577.3" propWt="365." delays="2,4,6,8,10,14" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="298.067" peakThrust="606.518" throatDia="0."
+exitDia="0." Itot="652.767" burn-time="2.19" massFrac="63.23" Isp="182.37"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>AT J340 Metalstorm for 38-720</comments>
+    <data>
+      <eng-data  t="0." f="0." m="365." cg="168.5"/>
+      <eng-data  t="0.005" f="361.55" m="364.495" cg="168.5"/>
+      <eng-data  t="0.008" f="501.742" m="363.771" cg="168.5"/>
+      <eng-data  t="0.026" f="606.518" m="358.193" cg="168.5"/>
+      <eng-data  t="0.096" f="491.412" m="336.706" cg="168.5"/>
+      <eng-data  t="0.214" f="453.044" m="305.548" cg="168.5"/>
+      <eng-data  t="0.485" f="439.762" m="237.904" cg="168.5"/>
+      <eng-data  t="0.772" f="435.335" m="167.687" cg="168.5"/>
+      <eng-data  t="0.826" f="426.481" m="154.676" cg="168.5"/>
+      <eng-data  t="0.891" f="423.53" m="139.229" cg="168.5"/>
+      <eng-data  t="1.048" f="383.685" m="103.797" cg="168.5"/>
+      <eng-data  t="1.389" f="311.375" m="37.5323" cg="168.5"/>
+      <eng-data  t="1.425" f="308.424" m="31.2941" cg="168.5"/>
+      <eng-data  t="1.459" f="309.9" m="25.4165" cg="168.5"/>
+      <eng-data  t="1.554" f="182.988" m="12.3254" cg="168.5"/>
+      <eng-data  t="1.611" f="103.3" m="7.76309" cg="168.5"/>
+      <eng-data  t="1.699" f="57.553" m="3.80562" cg="168.5"/>
+      <eng-data  t="1.841" f="11.806" m="1.05205" cg="168.5"/>
+      <eng-data  t="1.898" f="8.854" m="0.722815" cg="168.5"/>
+      <eng-data  t="2.19" f="0." m="0." cg="168.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

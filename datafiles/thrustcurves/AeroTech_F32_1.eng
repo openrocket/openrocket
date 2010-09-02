@@ -1,0 +1,40 @@
+;
+;Aerotech F32 RASP.ENG file made from NAR published data
+;File produced July 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+F32 24 124 5-10-15 0.0377 0.0814 AeroTech
+0.025 46.699
+0.031 51.846
+0.061 55.64
+0.085 52.868
+0.126 47.37
+0.245 45.637
+0.34 44.946
+0.394 42.873
+0.447 42.873
+0.572 41.14
+0.72 39.408
+0.744 40.78
+0.786 38.026
+1.041 35.592
+1.136 33.179
+1.177 34.541
+1.225 32.818
+1.379 31.436
+1.474 30.394
+1.635 28.311
+1.676 27.28
+1.694 29.683
+1.712 26.929
+1.854 25.537
+1.943 23.815
+2.092 21.051
+2.187 18.287
+2.276 13.82
+2.382 7.281
+2.525 2.457
+2.72 0

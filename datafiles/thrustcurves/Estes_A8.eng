@@ -1,0 +1,32 @@
+;
+;Estes A8 RASP.ENG file made from NAR published data
+;File produced October 3, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+A8 18 70 3-5 0.0033 0.01635 Estes 
+0.041 0.512
+0.084 2.115
+0.127 4.358
+0.166 6.794
+0.192 8.588
+0.206 9.294
+0.226 9.73
+0.236 8.845
+0.247 7.179
+0.261 5.063
+0.277 3.717
+0.306 3.205
+0.351 2.884
+0.405 2.499
+0.467 2.371
+0.532 2.307
+0.589 2.371
+0.632 2.371
+0.652 2.243
+0.668 1.794
+0.684 1.153
+0.703 0.448
+0.73 0

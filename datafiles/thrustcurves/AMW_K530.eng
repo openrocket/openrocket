@@ -1,0 +1,43 @@
+;
+;Animal Motor Works 54-1400
+;AMW K530GG RASP.ENG file made from NAR data
+;File produced Feb 25, 2003
+;This file my be used or given away. All I ask is that this header
+;is maintained to give credit to NAR S&T. Thank you, Jack Kane
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+K530GG 54 403 1000 0.7967 1.616 Animal_Motor_Works 
+0.013 129.764
+0.054 171.852
+0.096 284.122
+0.138 392.892
+0.171 455.975
+0.217 501.662
+0.238 498.063
+0.326 508.66
+0.542 564.745
+0.755 613.831
+1.01 645.423
+1.17 657.23
+1.273 648.922
+1.51 638.425
+1.656 634.925
+1.702 606.833
+1.803 606.833
+1.857 585.839
+1.936 589.338
+1.974 575.242
+2.015 589.338
+2.04 564.745
+2.132 536.652
+2.207 540.251
+2.291 522.656
+2.357 487.566
+2.42 375.297
+2.478 242.033
+2.529 140.361
+2.583 66.651
+2.66 0

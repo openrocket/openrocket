@@ -7,8 +7,10 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
@@ -16,6 +18,7 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
@@ -39,6 +42,9 @@ import net.sf.openrocket.unit.UnitGroup;
 public class Prefs {
 	private static final LogHelper log = Application.getLogger();
 	
+	private static final String SPLIT_CHARACTER = "|";
+	
+
 	/**
 	 * Whether to use the debug-node instead of the normal node.
 	 */
@@ -64,6 +70,7 @@ public class Prefs {
 	 */
 	private static class BuildPropertyHolder {
 		
+		public static final Properties PROPERTIES;
 		public static final String BUILD_VERSION;
 		public static final String BUILD_SOURCE;
 		public static final boolean DEFAULT_CHECK_UPDATES;
@@ -78,11 +85,11 @@ public class Prefs {
 							"build.properties", "build.version");
 				}
 				
-				Properties props = new Properties();
-				props.load(is);
+				PROPERTIES = new Properties();
+				PROPERTIES.load(is);
 				is.close();
 				
-				String version = props.getProperty("build.version");
+				String version = PROPERTIES.getProperty("build.version");
 				if (version == null) {
 					throw new MissingResourceException(
 							"build.version not found in property file",
@@ -90,14 +97,14 @@ public class Prefs {
 				}
 				BUILD_VERSION = version.trim();
 				
-				BUILD_SOURCE = props.getProperty("build.source");
+				BUILD_SOURCE = PROPERTIES.getProperty("build.source");
 				if (BUILD_SOURCE == null) {
 					throw new MissingResourceException(
 							"build.source not found in property file",
 							"build.properties", "build.source");
 				}
 				
-				String value = props.getProperty("build.checkupdates");
+				String value = PROPERTIES.getProperty("build.checkupdates");
 				if (value != null)
 					DEFAULT_CHECK_UPDATES = Boolean.parseBoolean(value);
 				else
@@ -113,7 +120,8 @@ public class Prefs {
 	
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	
-
+	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
+	
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 	
 	// Preferences related to data export
@@ -287,9 +295,13 @@ public class Prefs {
 	 * Set a string preference.
 	 * 
 	 * @param key		the preference key
-	 * @param value		the value to set
+	 * @param value		the value to set, or <code>null</code> to remove the key
 	 */
 	public static void putString(String key, String value) {
+		if (value == null) {
+			PREFNODE.remove(key);
+			return;
+		}
 		PREFNODE.put(key, value);
 		storeVersion();
 	}
@@ -361,6 +373,70 @@ public class Prefs {
 	}
 	
 	
+	/**
+	 * Return a list of files/directories to be loaded as custom thrust curves.
+	 * <p>
+	 * If this property has not been set, the directory "ThrustCurves" in the user
+	 * application directory will be used.  The directory will be created if it does not
+	 * exist.
+	 * 
+	 * @return	a list of files to load as thrust curves.
+	 */
+	public static List<File> getUserThrustCurveFiles() {
+		List<File> list = new ArrayList<File>();
+		
+		String files = getString(USER_THRUST_CURVES_KEY, null);
+		if (files == null) {
+			// Default to application directory
+			File tcdir = getDefaultUserThrustCurveFile();
+			if (!tcdir.isDirectory()) {
+				tcdir.mkdirs();
+			}
+			list.add(tcdir);
+		} else {
+			for (String file : files.split("\\" + SPLIT_CHARACTER)) {
+				file = file.trim();
+				if (file.length() > 0) {
+					list.add(new File(file));
+				}
+			}
+		}
+		
+		return list;
+	}
+	
+	public static File getDefaultUserThrustCurveFile() {
+		File appdir = SystemInfo.getUserApplicationDirectory();
+		File tcdir = new File(appdir, "ThrustCurves");
+		return tcdir;
+	}
+	
+	
+	/**
+	 * Set the list of files/directories to be loaded as custom thrust curves.
+	 * 
+	 * @param files		the files to load, or <code>null</code> to reset to default value.
+	 */
+	public static void setUserThrustCurveFiles(List<File> files) {
+		if (files == null) {
+			putString(USER_THRUST_CURVES_KEY, null);
+			return;
+		}
+		
+		String str = "";
+		
+		for (File file : files) {
+			if (str.length() > 0) {
+				str += SPLIT_CHARACTER;
+			}
+			str += file.getAbsolutePath();
+		}
+		putString(USER_THRUST_CURVES_KEY, str);
+	}
+	
+	
+
+
 
 	public static Color getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, DEFAULT_COLORS);

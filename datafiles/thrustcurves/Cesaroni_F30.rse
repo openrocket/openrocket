@@ -1,0 +1,34 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="73-F30-WH_LB-6A" Type="reloadable" dia="24." len="133."
+initWt="102.2" propWt="40." delays="2,3,5,6" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="28.313" peakThrust="54.222" throatDia="0." exitDia="0." Itot="73.557"
+burn-time="2.6" massFrac="39.14" Isp="187.52" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Pro-24-3G White Long Burn</comments>
+    <data>
+      <eng-data  t="0." f="0." m="40." cg="66.5"/>
+      <eng-data  t="0.014" f="54.222" m="39.7936" cg="66.5"/>
+      <eng-data  t="0.056" f="43.456" m="38.6782" cg="66.5"/>
+      <eng-data  t="0.092" f="50.185" m="37.7616" cg="66.5"/>
+      <eng-data  t="0.16" f="54.063" m="35.8341" cg="66.5"/>
+      <eng-data  t="0.232" f="48.364" m="33.829" cg="66.5"/>
+      <eng-data  t="0.363" f="45.752" m="30.4767" cg="66.5"/>
+      <eng-data  t="0.499" f="43.14" m="27.1897" cg="66.5"/>
+      <eng-data  t="0.655" f="40.29" m="23.6509" cg="66.5"/>
+      <eng-data  t="0.843" f="37.836" m="19.6574" cg="66.5"/>
+      <eng-data  t="1.216" f="32.612" m="12.5127" cg="66.5"/>
+      <eng-data  t="1.368" f="30.317" m="9.91196" cg="66.5"/>
+      <eng-data  t="1.54" f="26.359" m="7.26144" cg="66.5"/>
+      <eng-data  t="1.675" f="23.509" m="5.43099" cg="66.5"/>
+      <eng-data  t="1.861" f="19.077" m="3.27729" cg="66.5"/>
+      <eng-data  t="2.013" f="14.565" m="1.88693" cg="66.5"/>
+      <eng-data  t="2.159" f="10.053" m="0.90967" cg="66.5"/>
+      <eng-data  t="2.302" f="4.828" m="0.331079" cg="66.5"/>
+      <eng-data  t="2.462" f="1.504" m="0.0556148" cg="66.5"/>
+      <eng-data  t="2.598" f="0." m="0." cg="66.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -148,7 +148,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		}
 		
 		// Set all buttons to maximum size
-		System.out.println("Setting w=" + w + " h=" + h);
 		width = w;
 		height = h;
 		Dimension d = new Dimension(width, height);

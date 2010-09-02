@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="AMW-ProX" code="J440-BB" Type="unspecified" dia="54." len="326."
+initWt="1229." propWt="536." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="531.026" peakThrust="800." throatDia="0." exitDia="0." Itot="1115.15"
+burn-time="2.1" massFrac="43.61" Isp="212.15" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="536." cg="163."/>
+      <eng-data  t="0.01" f="30." m="535.928" cg="163."/>
+      <eng-data  t="0.02" f="700." m="534.174" cg="163."/>
+      <eng-data  t="0.06" f="790." m="519.85" cg="163."/>
+      <eng-data  t="0.1" f="800." m="504.565" cg="163."/>
+      <eng-data  t="0.2" f="760." m="467.075" cg="163."/>
+      <eng-data  t="0.4" f="725." m="395.698" cg="163."/>
+      <eng-data  t="0.6" f="695." m="327.446" cg="163."/>
+      <eng-data  t="0.8" f="680." m="261.356" cg="163."/>
+      <eng-data  t="1." f="658." m="197.045" cg="163."/>
+      <eng-data  t="1.32" f="600." m="100.3" cg="163."/>
+      <eng-data  t="1.55" f="400." m="45.025" cg="163."/>
+      <eng-data  t="1.7" f="180." m="24.1166" cg="163."/>
+      <eng-data  t="1.87" f="175." m="9.61301" cg="163."/>
+      <eng-data  t="2." f="75." m="1.80244" cg="163."/>
+      <eng-data  t="2.1" f="0." m="0." cg="163."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

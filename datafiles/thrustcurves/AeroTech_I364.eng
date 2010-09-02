@@ -1,0 +1,25 @@
+; AeroTech I364FJ
+; Curvefit to instruction sheet on Aerotech website (12/27/06)
+; by Chris Kobel
+; burn time: 1.7 seconds
+; total impulse: 551.2 newton-seconds
+; average thrust: 72.9 pounds
+I364FJ 38 345 6-10-14 0.3625 0.678 AT
+  0.02    356.0
+  0.10    373.8
+  0.20    387.2
+  0.30    400.5
+  0.40    400.5
+  0.50    409.4
+  0.60    413.9
+  0.70    409.4
+  0.80    382.7
+  0.90    373.8
+  1.00    351.6
+  1.10    333.8
+  1.20    320.4
+  1.30    311.5
+  1.40    244.8
+  1.50    178.0
+  1.60     80.1
+  1.70	0.0

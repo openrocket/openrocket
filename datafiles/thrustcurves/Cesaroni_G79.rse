@@ -1,0 +1,38 @@
+<engine-database>
+  <engine-list>
+  <engine  mfg="Cesaroni Technology Inc." code="G79SS" Type="reloadable" dia="38."
+len="127." initWt="226." propWt="85." delays="13" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="79.866" peakThrust="95.81" throatDia="0."
+exitDia="0." Itot="130.182" burn-time="1.63" massFrac="37.61" Isp="156.17"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+  <data>
+    <eng-data  t="0." f="0." m="85." cg="63.5"/>
+    <eng-data  t="0." f="9.07" m="85." cg="63.5"/>
+    <eng-data  t="0.03" f="54.45" m="84.3779" cg="63.5"/>
+    <eng-data  t="0.07" f="76.33" m="82.6701" cg="63.5"/>
+    <eng-data  t="0.09" f="70.95" m="81.7084" cg="63.5"/>
+    <eng-data  t="0.11" f="65.92" m="80.8148" cg="63.5"/>
+    <eng-data  t="0.17" f="68.59" m="78.18" cg="63.5"/>
+    <eng-data  t="0.2" f="70.64" m="76.8164" cg="63.5"/>
+    <eng-data  t="0.3" f="74.89" m="72.0653" cg="63.5"/>
+    <eng-data  t="0.4" f="80.39" m="66.9959" cg="63.5"/>
+    <eng-data  t="0.5" f="83.76" m="61.637" cg="63.5"/>
+    <eng-data  t="0.6" f="86.45" m="56.0802" cg="63.5"/>
+    <eng-data  t="0.7" f="88.65" m="50.3638" cg="63.5"/>
+    <eng-data  t="0.81" f="91.4" m="43.8979" cg="63.5"/>
+    <eng-data  t="0.9" f="93.06" m="38.4781" cg="63.5"/>
+    <eng-data  t="1." f="93.99" m="32.3716" cg="63.5"/>
+    <eng-data  t="1.1" f="95.81" m="26.1753" cg="63.5"/>
+    <eng-data  t="1.2" f="90.7" m="20.0863" cg="63.5"/>
+    <eng-data  t="1.3" f="86.92" m="14.2876" cg="63.5"/>
+    <eng-data  t="1.4" f="81.98" m="8.77362" cg="63.5"/>
+    <eng-data  t="1.5" f="76.54" m="3.59848" cg="63.5"/>
+    <eng-data  t="1.55" f="58.92" m="1.38732" cg="63.5"/>
+    <eng-data  t="1.6" f="16.41" m="0.157683" cg="63.5"/>
+    <eng-data  t="1.62" f="5.16" m="0.0168457" cg="63.5"/>
+    <eng-data  t="1.63" f="0." m="0." cg="63.5"/>
+  </data>
+</engine>
+</engine-list>
+</engine-database>

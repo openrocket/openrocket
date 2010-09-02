@@ -7,8 +7,6 @@ Must have:
 - Logging system into use
 - Reduce memory footprint
 - Reduce memory leakage
-- Load thrust curves from external directory
-- Support duplicate motor definitions
 
 
 Maybe:
@@ -18,9 +16,25 @@ Maybe:
 
 Done:
 
+In 1.1.0:
 - Reading .RKT
 - Central logging system
 - Simulation refactoring
+In 1.1.1:
+- Load thrust curves from external directory
+- Support duplicate motor definitions
+- Combine duplicates into one display in the selection dialog
+  - A single manufacturer/designation can contain multiple thrust curves
+  - Delays are combined
+  - Type is selected based on any not-unknown type
+  - Hybrid type always includes P delay
+  - Default delay selected based on heuristics
+  - Store recently used motors, use in default selection
+- Plot motor thrust curve
+- Change databases and icon loading to bean instances, implement stubs
+  for unit tests
+- Remove database etc. initialization from class initialization,
+  create separate set of test motors
 
 
 
@@ -39,16 +53,7 @@ Memory usage:
 
 Motor support:
 
-- Combine duplicates into one display in the selection dialog
-  - A single manufacturer/designation can contain multiple thrust curves
-  - Delays are combined
-  - Type is selected based on any not-unknown type
-  - Hybrid type always includes P delay
-  - Default delay selected based on heuristics
-  - Store recently used motors, use in default selection
 - Integration with thrustcurve.org (syncing?)
-- Reading thrust curves from external directory
-- Plot motor thrust curve
 - Water rocket modeling
 
 
@@ -81,6 +86,8 @@ UI issues:
 - Drag and drop of components / other table items
 - Ctrl+scroll wheel to zoom in/out
 - Move components by dragging on the figure
+- Add tool tips to component tree and figure, display component comment
+- Make simulation table columns configurable
 
 
 Simulation:
@@ -113,17 +120,14 @@ Component support:
 
 File support:
 
-- Reading (and writing) SpaceCad format
+- Reading (and writing?) SpaceCad format
 - Writing .RKT format ?
 
 
 Refactoring tasks:
 
-- Change databases and icon loading to bean instances, implement stubs
-  for unit tests
-- Remove database etc. initialization from class initialization,
-  create separate set of test motors
-- Extract event rules and data saving from Simulator into listeners
+- Extract event rules and data saving from Simulator into listeners?
 - Change SimulationStatus to include methods for obtaining basic
   position (maybe even change to an interface, implements Cloneable)
+
 

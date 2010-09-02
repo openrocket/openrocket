@@ -1,0 +1,35 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="J293BS" Type="unspecified" dia="54." len="237." initWt="840."
+propWt="416." delays="13,12,11,10,9,8,7,6,5,4,3" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="287.142" peakThrust="386.32" throatDia="0."
+exitDia="0." Itot="831.564" burn-time="2.9" massFrac="49.52" Isp="203.84"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI Pro54-2G 838 J293BS 13A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="416." cg="118.5"/>
+      <eng-data  t="0.019" f="22.847" m="415.891" cg="118.5"/>
+      <eng-data  t="0.032" f="250.277" m="415.003" cg="118.5"/>
+      <eng-data  t="0.044" f="386.32" m="413.093" cg="118.5"/>
+      <eng-data  t="0.06" f="302.202" m="410.337" cg="118.5"/>
+      <eng-data  t="0.073" f="256.508" m="408.52" cg="118.5"/>
+      <eng-data  t="0.13" f="285.586" m="400.791" cg="118.5"/>
+      <eng-data  t="0.266" f="309.471" m="380.549" cg="118.5"/>
+      <eng-data  t="0.487" f="318.818" m="345.818" cg="118.5"/>
+      <eng-data  t="0.734" f="325.049" m="306.038" cg="118.5"/>
+      <eng-data  t="1.432" f="324.01" m="192.718" cg="118.5"/>
+      <eng-data  t="1.786" f="309.471" m="136.625" cg="118.5"/>
+      <eng-data  t="2.074" f="294.933" m="93.0855" cg="118.5"/>
+      <eng-data  t="2.33" f="280.394" m="56.2453" cg="118.5"/>
+      <eng-data  t="2.488" f="273.124" m="34.3699" cg="118.5"/>
+      <eng-data  t="2.58" f="272.086" m="21.8235" cg="118.5"/>
+      <eng-data  t="2.634" f="258.585" m="14.6557" cg="118.5"/>
+      <eng-data  t="2.713" f="163.044" m="6.32413" cg="118.5"/>
+      <eng-data  t="2.795" f="70.618" m="1.53155" cg="118.5"/>
+      <eng-data  t="2.852" f="20.77" m="0.22859" cg="118.5"/>
+      <eng-data  t="2.896" f="0." m="0." cg="118.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

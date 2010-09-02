@@ -1,3 +1,15 @@
+2010-09-01  Sampo Niskanen
+
+	* [BUG] Fixed rocket config dialog being too large
+
+2010-08-31  Sampo Niskanen
+
+	* Updated all thrust curves from thrustcurve.org
+
+2010-08-30  Sampo Niskanen
+
+	* Implemented user-defined thrust curve loading
+
 2010-07-30  Sampo Niskanen
 
 	* [BUG] Fixed motor statistic computation

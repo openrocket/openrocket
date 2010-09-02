@@ -1,0 +1,33 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="K675-SK" Type="unspecified" dia="54." len="572." initWt="1940."
+propWt="1200." delays="8,9,10,11,12,13,14,15,16,17,18" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="650.57" peakThrust="930." throatDia="0." exitDia="0."
+Itot="2010.26" burn-time="3.09" massFrac="61.86" Isp="170.82" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="1200." cg="286."/>
+      <eng-data  t="0.01" f="10." m="1199.97" cg="286."/>
+      <eng-data  t="0.02" f="154." m="1199.48" cg="286."/>
+      <eng-data  t="0.025" f="930." m="1197.86" cg="286."/>
+      <eng-data  t="0.04" f="850." m="1189.89" cg="286."/>
+      <eng-data  t="0.05" f="800." m="1184.97" cg="286."/>
+      <eng-data  t="0.07" f="680." m="1176.13" cg="286."/>
+      <eng-data  t="0.1" f="700." m="1163.78" cg="286."/>
+      <eng-data  t="0.2" f="750." m="1120.5" cg="286."/>
+      <eng-data  t="0.3" f="780." m="1074.83" cg="286."/>
+      <eng-data  t="0.5" f="795." m="980.816" cg="286."/>
+      <eng-data  t="1." f="808." m="741.594" cg="286."/>
+      <eng-data  t="1.5" f="795." m="502.371" cg="286."/>
+      <eng-data  t="1.9" f="751." m="317.798" cg="286."/>
+      <eng-data  t="2.26" f="700." m="161.89" cg="286."/>
+      <eng-data  t="2.43" f="450." m="103.539" cg="286."/>
+      <eng-data  t="2.6" f="440." m="58.3805" cg="286."/>
+      <eng-data  t="2.68" f="400." m="38.3234" cg="286."/>
+      <eng-data  t="2.96" f="40." m="1.55204" cg="286."/>
+      <eng-data  t="3.09" f="0." m="0." cg="286."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

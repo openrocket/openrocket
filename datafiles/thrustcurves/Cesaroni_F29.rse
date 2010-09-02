@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="F29-IM" Type="unspecified" dia="29." len="98." initWt="105.8"
+propWt="37.6" delays="12,9,7,5,3" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="27.116" peakThrust="33.159" throatDia="0." exitDia="0." Itot="54.231"
+burn-time="2." massFrac="35.54" Isp="147.08" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Pro29-1G 55F29-IM 12A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="37.6" cg="49."/>
+      <eng-data  t="0.006" f="5.661" m="37.5882" cg="49."/>
+      <eng-data  t="0.038" f="23.312" m="37.2668" cg="49."/>
+      <eng-data  t="0.05" f="26.309" m="37.0604" cg="49."/>
+      <eng-data  t="0.229" f="30.257" m="33.5503" cg="49."/>
+      <eng-data  t="0.327" f="32.208" m="31.4282" cg="49."/>
+      <eng-data  t="0.485" f="33.159" m="27.8479" cg="49."/>
+      <eng-data  t="1.031" f="31.78" m="15.5563" cg="49."/>
+      <eng-data  t="1.516" f="27.07" m="5.66176" cg="49."/>
+      <eng-data  t="1.688" f="24.834" m="2.56692" cg="49."/>
+      <eng-data  t="1.765" f="20.172" m="1.36557" cg="49."/>
+      <eng-data  t="1.852" f="9.467" m="0.471671" cg="49."/>
+      <eng-data  t="1.963" f="2.093" m="0.026846" cg="49."/>
+      <eng-data  t="2." f="0." m="0." cg="49."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

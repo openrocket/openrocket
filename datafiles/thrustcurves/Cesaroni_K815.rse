@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="K815-SK" Type="unspecified" dia="54." len="649." initWt="2197."
+propWt="1371." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="808.482"
+peakThrust="1200." throatDia="0." exitDia="0." Itot="2304.18" burn-time="2.85"
+massFrac="62.4" Isp="171.38" tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1."
+FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="1371." cg="324.5"/>
+      <eng-data  t="0.01" f="400." m="1369.81" cg="324.5"/>
+      <eng-data  t="0.015" f="600." m="1368.32" cg="324.5"/>
+      <eng-data  t="0.02" f="1200." m="1365.64" cg="324.5"/>
+      <eng-data  t="0.05" f="620." m="1349.4" cg="324.5"/>
+      <eng-data  t="0.07" f="720." m="1341.43" cg="324.5"/>
+      <eng-data  t="0.1" f="825." m="1327.64" cg="324.5"/>
+      <eng-data  t="0.3" f="910." m="1224.41" cg="324.5"/>
+      <eng-data  t="1." f="945." m="838.097" cg="324.5"/>
+      <eng-data  t="1.5" f="970." m="553.237" cg="324.5"/>
+      <eng-data  t="1.8" f="970." m="380.09" cg="324.5"/>
+      <eng-data  t="2.12" f="930." m="199.208" cg="324.5"/>
+      <eng-data  t="2.3" f="650." m="114.598" cg="324.5"/>
+      <eng-data  t="2.43" f="640." m="64.707" cg="324.5"/>
+      <eng-data  t="2.58" f="300." m="22.759" cg="324.5"/>
+      <eng-data  t="2.7" f="150." m="6.69383" cg="324.5"/>
+      <eng-data  t="2.85" f="0." m="0." cg="324.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

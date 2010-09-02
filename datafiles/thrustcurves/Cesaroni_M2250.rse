@@ -1,0 +1,32 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M2250-CS" Type="unspecified" dia="75." len="621." initWt="4415."
+propWt="2628." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="2189.42"
+peakThrust="2663.17" throatDia="0." exitDia="0." Itot="5466.98" burn-time="2.5"
+massFrac="59.52" Isp="212.13" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro75-4G 5472M2250-CS P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="2628." cg="310.5"/>
+      <eng-data  t="0.016" f="2542.11" m="2618.22" cg="310.5"/>
+      <eng-data  t="0.051" f="2390.8" m="2576.73" cg="310.5"/>
+      <eng-data  t="0.139" f="2582.47" m="2471.54" cg="310.5"/>
+      <eng-data  t="0.259" f="2599.28" m="2322.08" cg="310.5"/>
+      <eng-data  t="0.877" f="2663.17" m="1540.41" cg="310.5"/>
+      <eng-data  t="1.388" f="2555.57" m="899.448" cg="310.5"/>
+      <eng-data  t="1.823" f="2458.05" m="375.258" cg="310.5"/>
+      <eng-data  t="1.86" f="2303.37" m="332.915" cg="310.5"/>
+      <eng-data  t="1.891" f="1926.76" m="301.397" cg="310.5"/>
+      <eng-data  t="1.997" f="1452.64" m="215.298" cg="310.5"/>
+      <eng-data  t="2.195" f="1452.64" m="77.0373" cg="310.5"/>
+      <eng-data  t="2.244" f="1207.17" m="45.712" cg="310.5"/>
+      <eng-data  t="2.276" f="645.616" m="31.4618" cg="310.5"/>
+      <eng-data  t="2.336" f="517.838" m="14.6835" cg="310.5"/>
+      <eng-data  t="2.414" f="144.591" m="2.26459" cg="310.5"/>
+      <eng-data  t="2.456" f="40.351" m="0.397637" cg="310.5"/>
+      <eng-data  t="2.497" f="0." m="0." cg="310.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,21 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="172.31" Itot="155.795" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="103.863" burn-time="1.5" cgDiv="10" cgFix="1" cgStep="-1." code="H128W" delays="6,10,14" dia="29." exitDia="0." initWt="214.5" len="195." mDiv="10" mFix="1" mStep="-1." massFrac="42.98" mfg="Aerotech" peakThrust="157.28" propWt="92.2" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<data>
+<eng-data cg="97.5" f="0." m="92.2" t="0."/>
+<eng-data cg="97.5" f="0.62" m="92.2" t="0."/>
+<eng-data cg="97.5" f="157.28" m="87.5277" t="0.1"/>
+<eng-data cg="97.5" f="129.75" m="79.0344" t="0.2"/>
+<eng-data cg="97.5" f="129.75" m="71.3558" t="0.3"/>
+<eng-data cg="97.5" f="125.26" m="63.81" t="0.4"/>
+<eng-data cg="97.5" f="125.26" m="56.3971" t="0.5"/>
+<eng-data cg="97.5" f="125.26" m="26.7454" t="0.9"/>
+<eng-data cg="97.5" f="120.81" m="19.4641" t="1."/>
+<eng-data cg="97.5" f="102.93" m="6.22311" t="1.2"/>
+<eng-data cg="97.5" f="44.75" m="1.85323" t="1.3"/>
+<eng-data cg="97.5" f="8.94" m="0.264536" t="1.4"/>
+<eng-data cg="97.5" f="0." m="0." t="1.5"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

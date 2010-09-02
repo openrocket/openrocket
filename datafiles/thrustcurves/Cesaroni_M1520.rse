@@ -1,0 +1,26 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M1520-BS" Type="unspecified" dia="98." len="548." initWt="6718."
+propWt="3737." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1547.7"
+peakThrust="1827.11" throatDia="0." exitDia="0." Itot="7579.08" burn-time="4.9"
+massFrac="55.63" Isp="206.81" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro98-3G 7579M1520-BS P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="3737." cg="274."/>
+      <eng-data  t="0.04" f="1427.8" m="3722.92" cg="274."/>
+      <eng-data  t="0.082" f="1706.39" m="3690.47" cg="274."/>
+      <eng-data  t="0.176" f="1620.49" m="3613.37" cg="274."/>
+      <eng-data  t="0.748" f="1734.25" m="3140.29" cg="274."/>
+      <eng-data  t="1.652" f="1827.11" m="2346.58" cg="274."/>
+      <eng-data  t="2.676" f="1715.68" m="1452.21" cg="274."/>
+      <eng-data  t="3.89" f="1423.15" m="512.779" cg="274."/>
+      <eng-data  t="4.399" f="1404.58" m="157.939" cg="274."/>
+      <eng-data  t="4.616" f="661.661" m="47.3998" cg="274."/>
+      <eng-data  t="4.877" f="69.649" m="0.343417" cg="274."/>
+      <eng-data  t="4.897" f="0." m="0." cg="274."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

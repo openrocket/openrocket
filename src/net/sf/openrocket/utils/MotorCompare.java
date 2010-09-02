@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.openrocket.file.GeneralMotorLoader;
-import net.sf.openrocket.file.MotorLoader;
+import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;

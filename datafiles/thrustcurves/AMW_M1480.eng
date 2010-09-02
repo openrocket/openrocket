@@ -1,0 +1,37 @@
+;
+;AMW M1480 RASP.ENG file made from NAR published data
+;File produced April 19, 2004
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+M1480RR 75 785 100 3 5.5248 Animal_Motor_Works 
+0.022 713.002
+0.032 1254.68
+0.055 1473.37
+0.078 1569.11
+0.156 1569.11
+0.352 1559.03
+0.642 1597.33
+0.974 1644.69
+1.289 1702.13
+1.52 1739.42
+1.918 1796.87
+2.279 1814.83
+2.481 1796.87
+2.707 1739.42
+2.968 1644.69
+3.058 1616.47
+3.135 1520.73
+3.218 1378.64
+3.284 1217.39
+3.332 1065.22
+3.344 1140.8
+3.368 1016.85
+3.41 741.522
+3.5 522.935
+3.613 275.727
+3.691 171.12
+3.768 66.553
+3.85 0

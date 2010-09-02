@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.file.MotorLoader;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.NullElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -23,7 +22,7 @@ import net.sf.openrocket.util.Coordinate;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class RockSimMotorLoader extends MotorLoader {
+public class RockSimMotorLoader extends AbstractMotorLoader {
 	
 	public static final String CHARSET_NAME = "UTF-8";
 	

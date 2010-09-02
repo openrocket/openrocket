@@ -1,0 +1,39 @@
+;
+;Apogee 1/2A2 RASP.ENG file made from NAR published data
+;File produced September 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+1/2A2 11 57 2-4-6 0.0015 0.0044 Apogee 
+0.007 0.19
+0.045 1.494
+0.078 3.152
+0.088 3.805
+0.093 3.805
+0.1 3.97
+0.105 3.696
+0.11 3.071
+0.117 2.554
+0.123 2.582
+0.132 2.31
+0.163 2.146
+0.2 1.984
+0.242 1.902
+0.253 2.01
+0.275 1.929
+0.342 1.929
+0.403 1.929
+0.41 1.848
+0.42 1.902
+0.467 1.902
+0.528 1.929
+0.565 1.929
+0.58 1.902
+0.593 1.848
+0.603 1.657
+0.61 1.141
+0.615 0.597
+0.622 0.244
+0.63 0

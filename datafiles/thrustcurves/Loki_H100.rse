@@ -1,0 +1,23 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Loki" code="H100-SP" Type="unspecified" dia="38." len="178." initWt="335."
+propWt="120." delays="5,8,10,13,17" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="100.437" peakThrust="150." throatDia="0." exitDia="0." Itot="200.875"
+burn-time="2." massFrac="35.8209" Isp="170.696" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="120." cg="89."/>
+      <eng-data  t="0.015528" f="127.586" m="119.408" cg="89."/>
+      <eng-data  t="0.151398" f="127.586" m="109.052" cg="89."/>
+      <eng-data  t="0.477484" f="139.655" m="83.0232" cg="89."/>
+      <eng-data  t="0.74146" f="146.552" m="60.4564" cg="89."/>
+      <eng-data  t="1.00543" f="150." m="37.0744" cg="89."/>
+      <eng-data  t="1.13742" f="122.414" m="26.3346" cg="89."/>
+      <eng-data  t="1.30823" f="86.2069" m="15.6908" cg="89."/>
+      <eng-data  t="1.59938" f="39.6552" m="4.74525" cg="89."/>
+      <eng-data  t="2." f="0." m="0." cg="89."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M3400-WT" Type="unspecified" dia="98." len="702." initWt="8108."
+propWt="4766." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="3341.04"
+peakThrust="3897.6" throatDia="0." exitDia="0." Itot="9989.7" burn-time="2.99"
+massFrac="58.78" Isp="213.74" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro98-4G 9994M3400-WT P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="4766." cg="351."/>
+      <eng-data  t="0.021" f="3639.45" m="4747.77" cg="351."/>
+      <eng-data  t="0.049" f="3360.15" m="4701.02" cg="351."/>
+      <eng-data  t="0.111" f="3300.9" m="4602.5" cg="351."/>
+      <eng-data  t="0.374" f="3478.64" m="4177.17" cg="351."/>
+      <eng-data  t="0.909" f="3774.87" m="3251.46" cg="351."/>
+      <eng-data  t="1.059" f="3897.6" m="2976.93" cg="351."/>
+      <eng-data  t="1.208" f="3884.9" m="2700.31" cg="351."/>
+      <eng-data  t="1.571" f="3787.57" m="2035.94" cg="351."/>
+      <eng-data  t="2.168" f="3402.47" m="1011.99" cg="351."/>
+      <eng-data  t="2.467" f="3245.88" m="537.796" cg="351."/>
+      <eng-data  t="2.709" f="3292.43" m="160.352" cg="351."/>
+      <eng-data  t="2.734" f="3254.35" m="121.309" cg="351."/>
+      <eng-data  t="2.821" f="1032.59" m="32.3405" cg="351."/>
+      <eng-data  t="2.876" f="550.15" m="11.575" cg="351."/>
+      <eng-data  t="2.93" f="165.045" m="2.36225" cg="351."/>
+      <eng-data  t="2.99" f="0." m="0." cg="351."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,32 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M1300-IM" Type="unspecified" dia="75." len="757." initWt="5657."
+propWt="3595." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1310.13"
+peakThrust="2827.13" throatDia="0." exitDia="0." Itot="6420.95" burn-time="4.9"
+massFrac="63.55" Isp="182.13" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro75-5G 6438M1300-IM/DT P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="3595." cg="378.5"/>
+      <eng-data  t="0.009" f="394.105" m="3594.01" cg="378.5"/>
+      <eng-data  t="0.057" f="934.778" m="3576.15" cg="378.5"/>
+      <eng-data  t="0.086" f="2146.41" m="3551.14" cg="378.5"/>
+      <eng-data  t="0.154" f="2615.42" m="3460.49" cg="378.5"/>
+      <eng-data  t="0.314" f="2827.13" m="3216.71" cg="378.5"/>
+      <eng-data  t="0.671" f="2758.73" m="2658.46" cg="378.5"/>
+      <eng-data  t="0.97" f="2752.22" m="2197.18" cg="378.5"/>
+      <eng-data  t="1.082" f="1172.54" m="2074.13" cg="378.5"/>
+      <eng-data  t="1.187" f="1120.43" m="2006.73" cg="378.5"/>
+      <eng-data  t="2.14" f="1172.54" m="1394.99" cg="378.5"/>
+      <eng-data  t="2.7" f="1139.97" m="1032.46" cg="378.5"/>
+      <eng-data  t="3.884" f="915.235" m="351.261" cg="378.5"/>
+      <eng-data  t="4.372" f="771.924" m="120.775" cg="378.5"/>
+      <eng-data  t="4.6" f="400.619" m="45.9352" cg="378.5"/>
+      <eng-data  t="4.697" f="335.478" m="25.9469" cg="378.5"/>
+      <eng-data  t="4.9" f="120.511" m="0.0337362" cg="378.5"/>
+      <eng-data  t="4.901" f="0." m="0." cg="378.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

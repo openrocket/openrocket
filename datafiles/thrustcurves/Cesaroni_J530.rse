@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="J530-IM" Type="unspecified" dia="38." len="500." initWt="977."
+propWt="625." delays="6,8,10,12,15" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="531.026" peakThrust="800." throatDia="0." exitDia="0." Itot="1115.15"
+burn-time="2.1" massFrac="63.97" Isp="181.94" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="625." cg="250."/>
+      <eng-data  t="0.01" f="30." m="624.916" cg="250."/>
+      <eng-data  t="0.02" f="700." m="622.87" cg="250."/>
+      <eng-data  t="0.06" f="790." m="606.169" cg="250."/>
+      <eng-data  t="0.1" f="800." m="588.346" cg="250."/>
+      <eng-data  t="0.2" f="760." m="544.63" cg="250."/>
+      <eng-data  t="0.4" f="725." m="461.402" cg="250."/>
+      <eng-data  t="0.6" f="695." m="381.816" cg="250."/>
+      <eng-data  t="0.8" f="680." m="304.753" cg="250."/>
+      <eng-data  t="1." f="658." m="229.763" cg="250."/>
+      <eng-data  t="1.32" f="600." m="116.954" cg="250."/>
+      <eng-data  t="1.55" f="400." m="52.5011" cg="250."/>
+      <eng-data  t="1.7" f="180." m="28.1211" cg="250."/>
+      <eng-data  t="1.87" f="175." m="11.2092" cg="250."/>
+      <eng-data  t="2." f="75." m="2.10173" cg="250."/>
+      <eng-data  t="2.1" f="0." m="0." cg="250."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -349,9 +349,9 @@ public class TestRockets {
 		String id = rocket.newMotorConfigurationID();
 		bodytube.setMotorMount(true);
 		
-		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "F12J", Double.NaN, Double.NaN).get(0);
-		bodytube.setMotor(id, m);
-		bodytube.setMotorOverhang(0.005);
+		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "F12J", Double.NaN, Double.NaN).get(0);
+		//		bodytube.setMotor(id, m);
+		//		bodytube.setMotorOverhang(0.005);
 		rocket.getDefaultConfiguration().setMotorConfigurationID(id);
 		
 		rocket.getDefaultConfiguration().setAllStages();
@@ -552,9 +552,9 @@ public class TestRockets {
 		String id = rocket.newMotorConfigurationID();
 		tube3.setMotorMount(true);
 		
-		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
-		tube3.setMotor(id, m);
-		tube3.setMotorOverhang(0.02);
+		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
+		//		tube3.setMotor(id, m);
+		//		tube3.setMotorOverhang(0.02);
 		rocket.getDefaultConfiguration().setMotorConfigurationID(id);
 		
 		//		tube3.setIgnitionEvent(MotorMount.IgnitionEvent.NEVER);

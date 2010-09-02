@@ -1,0 +1,37 @@
+;
+;Apogee C4 RASP.ENG file made from NAR published data
+;File produced September 4, 2000
+;The total impulse, peak thrust, average thrust and burn time are
+;the same as the averaged static test data on the NAR web site in
+;the certification file. The curve drawn with these data points is as
+;close to the certification curve as can be with such a limited
+;number of points (32) allowed with wRASP up to v1.6.
+C4 18 50 3-5-7 0.0045 0.017 Apogee 
+0.018 3.23
+0.041 6.874
+0.147 8.779
+0.294 10.683
+0.365 11.31
+0.388 10.521
+0.412 8.779
+0.441 7.04
+0.465 4.555
+0.529 3.479
+0.629 2.981
+0.653 3.23
+0.718 2.816
+0.853 2.733
+1.065 2.65
+1.253 2.567
+1.453 2.401
+1.694 2.484
+1.794 2.484
+1.812 2.733
+1.841 2.401
+1.947 2.401
+2.112 2.401
+2.235 2.401
+2.282 2.236
+2.312 1.656
+2.329 0.662
+2.35 0

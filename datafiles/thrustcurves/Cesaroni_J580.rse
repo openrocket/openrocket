@@ -1,0 +1,38 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="J580SS" Type="unspecified" dia="38." len="510." initWt="1044."
+propWt="688." delays="17,14,12,10,8" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="554.758" peakThrust="692.925" throatDia="0." exitDia="0."
+Itot="894.825" burn-time="1.61" massFrac="65.9" Isp="132.63" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI Pro38-6GXL 896 J580SS - 17A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="688." cg="255."/>
+      <eng-data  t="0.006" f="82.313" m="687.81" cg="255."/>
+      <eng-data  t="0.013" f="460.952" m="686.348" cg="255."/>
+      <eng-data  t="0.016" f="692.925" m="685.017" cg="255."/>
+      <eng-data  t="0.031" f="600.136" m="677.561" cg="255."/>
+      <eng-data  t="0.041" f="634.557" m="672.814" cg="255."/>
+      <eng-data  t="0.058" f="624.081" m="664.589" cg="255."/>
+      <eng-data  t="0.243" f="621.088" m="576.032" cg="255."/>
+      <eng-data  t="0.405" f="621.088" m="498.672" cg="255."/>
+      <eng-data  t="0.511" f="631.564" m="447.627" cg="255."/>
+      <eng-data  t="0.632" f="646.53" m="388.174" cg="255."/>
+      <eng-data  t="0.898" f="671.972" m="253.346" cg="255."/>
+      <eng-data  t="1.019" f="686.938" m="190.134" cg="255."/>
+      <eng-data  t="1.098" f="691.428" m="148.273" cg="255."/>
+      <eng-data  t="1.163" f="674.965" m="114.129" cg="255."/>
+      <eng-data  t="1.229" f="514.829" m="83.9411" cg="255."/>
+      <eng-data  t="1.325" f="496.87" m="46.6038" cg="255."/>
+      <eng-data  t="1.36" f="445.986" m="33.9175" cg="255."/>
+      <eng-data  t="1.405" f="332.245" m="20.4545" cg="255."/>
+      <eng-data  t="1.461" f="221.496" m="8.53346" cg="255."/>
+      <eng-data  t="1.518" f="71.837" m="2.10575" cg="255."/>
+      <eng-data  t="1.559" f="28.435" m="0.525291" cg="255."/>
+      <eng-data  t="1.59" f="8.98" m="0.0794007" cg="255."/>
+      <eng-data  t="1.613" f="0." m="0." cg="255."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

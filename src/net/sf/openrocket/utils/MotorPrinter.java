@@ -6,9 +6,10 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.openrocket.file.GeneralMotorLoader;
-import net.sf.openrocket.file.MotorLoader;
+import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class MotorPrinter {
@@ -38,11 +39,16 @@ public class MotorPrinter {
 				System.out.printf("  Total impulse: %.2f Ns\n", m.getTotalImpulseEstimate());
 				System.out.println("  Diameter:      " + m.getDiameter() * 1000 + " mm");
 				System.out.println("  Length:        " + m.getLength() * 1000 + " mm");
-				//				System.out.println("  Digest:        " + m.getDigestString());
+				System.out.println("  Digest:        " + MotorDigest.digestMotor(m));
 				
 				if (m instanceof ThrustCurveMotor) {
 					ThrustCurveMotor tc = (ThrustCurveMotor) m;
 					System.out.println("  Data points:   " + tc.getTimePoints().length);
+					for (int i = 0; i < m.getTimePoints().length; i++) {
+						double time = m.getTimePoints()[i];
+						double thrust = m.getThrustPoints()[i];
+						System.out.printf("    t=%.3f   F=%.3f\n", time, thrust);
+					}
 				}
 				
 				System.out.println("  Comment:");

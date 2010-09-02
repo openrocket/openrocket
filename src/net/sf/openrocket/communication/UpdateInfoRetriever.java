@@ -8,12 +8,15 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ComparablePair;
 import net.sf.openrocket.util.LimitedInputStream;
 import net.sf.openrocket.util.Prefs;
 
 public class UpdateInfoRetriever {
-
+	private static final LogHelper log = Application.getLogger();
+	
 	private UpdateInfoFetcher fetcher = null;
 	
 	
@@ -63,7 +66,7 @@ public class UpdateInfoRetriever {
 	}
 	
 	
-	
+
 	/**
 	 * Parse the data received from the server.
 	 * 
@@ -75,15 +78,15 @@ public class UpdateInfoRetriever {
 	static UpdateInfo parseUpdateInput(Reader r) throws IOException {
 		BufferedReader reader;
 		if (r instanceof BufferedReader) {
-			reader = (BufferedReader)r;
+			reader = (BufferedReader) r;
 		} else {
 			reader = new BufferedReader(r);
 		}
 		
-		
+
 		String version = null;
-		ArrayList<ComparablePair<Integer,String>> updates = 
-			new ArrayList<ComparablePair<Integer,String>>();
+		ArrayList<ComparablePair<Integer, String>> updates =
+				new ArrayList<ComparablePair<Integer, String>>();
 		
 		String str = reader.readLine();
 		while (str != null) {
@@ -92,9 +95,9 @@ public class UpdateInfoRetriever {
 			} else if (str.matches("^[0-9]+:\\p{Print}+$")) {
 				int index = str.indexOf(':');
 				int value = Integer.parseInt(str.substring(0, index));
-				String desc = str.substring(index+1).trim();
+				String desc = str.substring(index + 1).trim();
 				if (!desc.equals("")) {
-					updates.add(new ComparablePair<Integer,String>(value, desc));
+					updates.add(new ComparablePair<Integer, String>(value, desc));
 				}
 			}
 			// Ignore anything else
@@ -109,14 +112,14 @@ public class UpdateInfoRetriever {
 	}
 	
 	
-	
+
 	/**
 	 * An asynchronous task that fetches and parses the update info.
 	 * 
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	private class UpdateInfoFetcher extends Thread {
-
+		
 		private volatile UpdateInfo info = null;
 		
 		@Override
@@ -124,14 +127,14 @@ public class UpdateInfoRetriever {
 			try {
 				doConnection();
 			} catch (IOException e) {
-				System.out.println("fetching update failed: " + e);
+				log.info("Fetching update failed: " + e);
 				return;
 			}
 		}
 		
 		
 		private void doConnection() throws IOException {
-			String url = Communicator.UPDATE_INFO_URL + "?" + Communicator.VERSION_PARAM + "=" 
+			String url = Communicator.UPDATE_INFO_URL + "?" + Communicator.VERSION_PARAM + "="
 					+ Communicator.encode(Prefs.getVersion());
 			
 			HttpURLConnection connection = Communicator.connectionSource.getConnection(url);
@@ -141,47 +144,47 @@ public class UpdateInfoRetriever {
 			connection.setRequestMethod("GET");
 			connection.setUseCaches(false);
 			connection.setDoInput(true);
-			connection.setRequestProperty("X-OpenRocket-Version", 
+			connection.setRequestProperty("X-OpenRocket-Version",
 					Communicator.encode(Prefs.getVersion() + " " + Prefs.getBuildSource()));
-			connection.setRequestProperty("X-OpenRocket-ID", 
+			connection.setRequestProperty("X-OpenRocket-ID",
 					Communicator.encode(Prefs.getUniqueID()));
-			connection.setRequestProperty("X-OpenRocket-OS", 
-					Communicator.encode(System.getProperty("os.name") + " " + 
+			connection.setRequestProperty("X-OpenRocket-OS",
+					Communicator.encode(System.getProperty("os.name") + " " +
 							System.getProperty("os.arch")));
-			connection.setRequestProperty("X-OpenRocket-Java", 
-					Communicator.encode(System.getProperty("java.vendor") + " " + 
+			connection.setRequestProperty("X-OpenRocket-Java",
+					Communicator.encode(System.getProperty("java.vendor") + " " +
 							System.getProperty("java.version")));
-			connection.setRequestProperty("X-OpenRocket-Country", 
+			connection.setRequestProperty("X-OpenRocket-Country",
 					Communicator.encode(System.getProperty("user.country") + " " +
 							System.getProperty("user.timezone")));
+			connection.setRequestProperty("X-OpenRocket-CPUs", "" + Runtime.getRuntime().availableProcessors());
 			
 			InputStream is = null;
 			try {
 				connection.connect();
 				
-				System.out.println("response code: " + connection.getResponseCode());
+				log.debug("Update response code: " + connection.getResponseCode());
 				
 				if (connection.getResponseCode() == Communicator.UPDATE_INFO_NO_UPDATE_CODE) {
 					// No updates are available
+					log.info("No updates available");
 					info = new UpdateInfo();
 					return;
 				}
 				
 				if (connection.getResponseCode() != Communicator.UPDATE_INFO_UPDATE_AVAILABLE) {
 					// Error communicating with server
-					System.out.println("Unknown response code: " + connection.getResponseCode());
+					log.warn("Unknown server response code: " + connection.getResponseCode());
 					return;
 				}
 				
 				String contentType = connection.getContentType();
-				if (contentType == null || 
+				if (contentType == null ||
 						contentType.toLowerCase().indexOf(Communicator.UPDATE_INFO_CONTENT_TYPE) < 0) {
 					// Unknown response type
-					System.out.println("Unknown Content-type received:"+contentType);
+					log.warn("Unknown Content-type received:" + contentType);
 					return;
 				}
-				
-				System.out.println("Update is available");
 				
 				// Update is available, parse input
 				is = connection.getInputStream();
@@ -192,8 +195,8 @@ public class UpdateInfoRetriever {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is, encoding));
 				
 				String version = null;
-				ArrayList<ComparablePair<Integer, String>> updates = 
-					new ArrayList<ComparablePair<Integer, String>>();
+				ArrayList<ComparablePair<Integer, String>> updates =
+						new ArrayList<ComparablePair<Integer, String>>();
 				
 				String line = reader.readLine();
 				while (line != null) {
@@ -203,23 +206,23 @@ public class UpdateInfoRetriever {
 					} else if (line.matches("^[0-9]{1,9}:\\P{Cntrl}{1,300}$")) {
 						String[] split = line.split(":", 2);
 						int n = Integer.parseInt(split[0]);
-						updates.add(new ComparablePair<Integer,String>(n, split[1].trim()));
+						updates.add(new ComparablePair<Integer, String>(n, split[1].trim()));
 					}
 					// Ignore line otherwise
 					line = reader.readLine();
 				}
 				
 				// Check version input
-				if (version == null || version.length() == 0 || 
+				if (version == null || version.length() == 0 ||
 						version.equalsIgnoreCase(Prefs.getVersion())) {
 					// Invalid response
-					System.out.println("Invalid version received, ignoring.");
+					log.warn("Invalid version received, ignoring.");
 					return;
 				}
 				
-				
+
 				info = new UpdateInfo(version, updates);
-				System.out.println("Found update: " + info);
+				log.info("Found update: " + info);
 			} finally {
 				try {
 					if (is != null)

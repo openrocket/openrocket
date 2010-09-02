@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M1800-BS" Type="unspecified" dia="98." len="702." initWt="8342."
+propWt="4959." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1762.97"
+peakThrust="2177.21" throatDia="0." exitDia="0." Itot="9872.64" burn-time="5.6"
+massFrac="59.45" Isp="203.01" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>Pro98-4G 9870M1800-BS P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="4959." cg="351."/>
+      <eng-data  t="0.02" f="1873.08" m="4949.59" cg="351."/>
+      <eng-data  t="0.059" f="2177.21" m="4909.92" cg="351."/>
+      <eng-data  t="0.265" f="1932.77" m="4697.28" cg="351."/>
+      <eng-data  t="1.312" f="2077.73" m="3642.71" cg="351."/>
+      <eng-data  t="1.826" f="2109." m="3102.24" cg="351."/>
+      <eng-data  t="3.07" f="2009.52" m="1815.5" cg="351."/>
+      <eng-data  t="4.468" f="1750.87" m="495.21" cg="351."/>
+      <eng-data  t="4.674" f="1736.65" m="314.778" cg="351."/>
+      <eng-data  t="4.89" f="1023.23" m="165.059" cg="351."/>
+      <eng-data  t="5.178" f="451.928" m="58.3595" cg="351."/>
+      <eng-data  t="5.384" f="318.339" m="18.5085" cg="351."/>
+      <eng-data  t="5.548" f="99.481" m="1.2992" cg="351."/>
+      <eng-data  t="5.6" f="0." m="0." cg="351."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

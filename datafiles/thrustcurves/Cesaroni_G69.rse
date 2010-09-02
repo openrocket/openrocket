@@ -1,0 +1,34 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="G69SK" Type="unspecified" dia="38." len="126." initWt="198."
+propWt="67." delays="14,11,9,7,5" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="59.043" peakThrust="91.872" throatDia="0." exitDia="0." Itot="116.255"
+burn-time="1.97" massFrac="33.84" Isp="176.94" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>CTI Pro38-1G 117 G69SK - 14A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="67." cg="63."/>
+      <eng-data  t="0.015" f="49.371" m="66.7866" cg="63."/>
+      <eng-data  t="0.023" f="79.41" m="66.4897" cg="63."/>
+      <eng-data  t="0.035" f="91.872" m="65.8974" cg="63."/>
+      <eng-data  t="0.064" f="82.605" m="64.4394" cg="63."/>
+      <eng-data  t="0.099" f="52.407" m="63.0777" cg="63."/>
+      <eng-data  t="0.166" f="57.041" m="60.9647" cg="63."/>
+      <eng-data  t="0.228" f="59.278" m="58.8865" cg="63."/>
+      <eng-data  t="0.375" f="64.231" m="53.6548" cg="63."/>
+      <eng-data  t="1.297" f="69.024" m="18.2513" cg="63."/>
+      <eng-data  t="1.453" f="68.864" m="12.0528" cg="63."/>
+      <eng-data  t="1.533" f="67.746" m="8.90358" cg="63."/>
+      <eng-data  t="1.589" f="65.189" m="6.75842" cg="63."/>
+      <eng-data  t="1.686" f="58.639" m="3.29726" cg="63."/>
+      <eng-data  t="1.735" f="42.821" m="1.86466" cg="63."/>
+      <eng-data  t="1.781" f="26.363" m="0.947608" cg="63."/>
+      <eng-data  t="1.816" f="13.901" m="0.541523" cg="63."/>
+      <eng-data  t="1.89" f="5.432" m="0.129271" cg="63."/>
+      <eng-data  t="1.954" f="1.278" m="0.005524" cg="63."/>
+      <eng-data  t="1.969" f="0." m="0." cg="63."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>
