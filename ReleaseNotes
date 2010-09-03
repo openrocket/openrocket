@@ -1,3 +1,12 @@
+OpenRocket 1.1.1  (2010-09-03):
+-------------------------------
+
+Major rewrite of the simulation code, enhanced support for thrust
+curve loading and selection, faster startup time and bug fixes.
+
+Old simulation listeners are incompatible with this release.
+
+
 OpenRocket 1.1.0  (2010-03-21):
 -------------------------------
 

@@ -20,13 +20,14 @@ Steps for making a release:
      - select ReleaseNotes properties, set as release notes
      - select JAR properties, set release note file and default downloads
      - select ZIP properties, set release note file
-11. Update HTML: index.html (release notes) download.html (version number)
-12. Update HTML to web server:
+11. Update HTML: htp/htp.def (version number) htp/news.htp (release info)
+12. Run "htp @" and check the web pages locally
+13. Update HTML to web server:
     scp * plaa,openrocket@web.sourceforge.net:htdocs/
-13. Test downloading from Sourceforge and web site
-14. Update update.php to web server:
+14. Test downloading from Sourceforge and web site
+15. Update update.php to web server:
     scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/
-15. Test update checking without specific options
-16. Update build.properties to "pre" version + commit
-17. Send email about new release to openrocket-announce@lists.sourceforge.net
+16. Test update checking without specific options
+17. Update build.properties to "pre" version + commit
+18. Send email about new release to openrocket-announce@lists.sourceforge.net
 

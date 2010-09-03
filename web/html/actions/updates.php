@@ -79,7 +79,7 @@ $updates = "";
 if (preg_match("/^1\.1\.0/", $version)) {
   $updates = "Version: 1.1.1\n" .
     "6: Enhanced motor selection\n" .
-    "5: Rewritten simulation code" .
+    "5: Rewritten simulation code\n" .
     "4: Bug fixes";
 } else if (preg_match("/^0\.9\.6/", $version)) {
   $updates = "Version: 1.0.0\n" .

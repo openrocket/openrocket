@@ -9,6 +9,18 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">3.9.2010:</span> Version 1.1.1 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>For this release a major part of the simulator code has been
+    rewritten for better flexibility in future development.  It also
+    includes a vastly improved thrust curve selection dialog, the
+    possibility to loading user-defined thrust curves and better
+    startup times than previous releases.</p>
+
+  <p>Simulation listeners written for older versions of OpenRocket
+    are not compatible with this release.</p>
+
   <p><span class="date">21.3.2010:</span> Version 1.1.0 is 
     <a href="download.html">released</a>!</p>
 
@@ -26,16 +38,16 @@
     on larger features will be started in a 1.1 branch.  Look out
     for it!  :-)</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">17.2.2010:</span> Version 0.9.6 is
     <a href="download.html">released</a>!</p>
 
   <p>This release updates the aerodynamic calculation methods to be
     more in line with the Barrowman method and enhances the simulation
     time step selection, in addition to fixing numerous bugs.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">28.11.2009:</span> Version 0.9.5 is
     <a href="download.html">released</a>!</p>
