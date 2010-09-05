@@ -26,9 +26,9 @@ import net.sf.openrocket.util.Monitorable;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Configuration implements Cloneable, ChangeSource, ComponentChangeListener, 
+public class Configuration implements Cloneable, ChangeSource, ComponentChangeListener,
 		Iterable<RocketComponent>, Monitorable {
-
+	
 	private Rocket rocket;
 	private BitSet stages = new BitSet();
 	
@@ -41,13 +41,12 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	private int boundsModID = -1;
 	private ArrayList<Coordinate> cachedBounds = new ArrayList<Coordinate>();
 	private double cachedLength = -1;
-
+	
 	private int refLengthModID = -1;
 	private double cachedRefLength = -1;
 	
-	
+
 	private int modID = 0;
-	private int modIDadd = 0;
 	
 	
 	/**
@@ -61,9 +60,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		setAllStages();
 		rocket.addComponentChangeListener(this);
 	}
+	
+	
 
-	
-	
 	public Rocket getRocket() {
 		return rocket;
 	}
@@ -71,7 +70,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	public void setAllStages() {
 		stages.clear();
-		stages.set(0,rocket.getStageCount());
+		stages.set(0, rocket.getStageCount());
 		fireChangeEvent();
 	}
 	
@@ -84,8 +83,8 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 */
 	public void setToStage(int stage) {
 		stages.clear();
-		stages.set(0, stage+1, true);
-//		stages.set(stage+1, rocket.getStageCount(), false);
+		stages.set(0, stage + 1, true);
+		//		stages.set(stage+1, rocket.getStageCount(), false);
 		fireChangeEvent();
 	}
 	
@@ -101,7 +100,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	public boolean isStageActive(RocketComponent stage) {
 		if (!(stage instanceof Stage)) {
-			throw new IllegalArgumentException("called with component "+stage);
+			throw new IllegalArgumentException("called with component " + stage);
 		}
 		return stages.get(stage.getParent().getChildPosition(stage));
 	}
@@ -116,31 +115,31 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	public int getStageCount() {
 		return rocket.getStageCount();
 	}
-
+	
 	public int getActiveStageCount() {
 		int count = 0;
 		int s = rocket.getStageCount();
 		
-		for (int i=0; i < s; i++) {
+		for (int i = 0; i < s; i++) {
 			if (stages.get(i))
 				count++;
 		}
 		return count;
 	}
-
+	
 	public int[] getActiveStages() {
 		int stageCount = rocket.getStageCount();
 		List<Integer> active = new ArrayList<Integer>();
 		int[] ret;
-
-		for (int i=0; i < stageCount; i++) {
+		
+		for (int i = 0; i < stageCount; i++) {
 			if (stages.get(i)) {
 				active.add(i);
 			}
 		}
 		
 		ret = new int[active.size()];
-		for (int i=0; i < ret.length; i++) {
+		for (int i = 0; i < ret.length; i++) {
 			ret[i] = active.get(i);
 		}
 		
@@ -164,7 +163,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	
 	public double getReferenceArea() {
-		return Math.PI * MathUtil.pow2(getReferenceLength()/2);
+		return Math.PI * MathUtil.pow2(getReferenceLength() / 2);
 	}
 	
 	
@@ -173,7 +172,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	public void setMotorConfigurationID(String id) {
-		if ((motorConfiguration == null  &&  id == null) ||
+		if ((motorConfiguration == null && id == null) ||
 				(id != null && id.equals(motorConfiguration)))
 			return;
 		
@@ -186,10 +185,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	
-	
-	
 
-	
+
+
 	/**
 	 * Removes the listener connection to the rocket and listeners of this object.
 	 * This configuration may not be used after a call to this method!
@@ -207,7 +205,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	public void addChangeListener(ChangeListener listener) {
 		listenerList.add(ChangeListener.class, listener);
 	}
-
+	
 	@Override
 	public void removeChangeListener(ChangeListener listener) {
 		listenerList.remove(ChangeListener.class, listener);
@@ -221,13 +219,13 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		boundsModID = -1;
 		refLengthModID = -1;
 		
-		for (int i = listeners.length-2; i>=0; i-=2) {
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
 			if (listeners[i] == ChangeListener.class) {
-				((ChangeListener) listeners[i+1]).stateChanged(e);
+				((ChangeListener) listeners[i + 1]).stateChanged(e);
 			}
 		}
 	}
-
+	
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -243,7 +241,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * @return  true if this configuration has active motor mounts with motors defined to them.
 	 */
 	public boolean hasMotors() {
-		for (RocketComponent c: this) {
+		for (RocketComponent c : this) {
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
@@ -269,9 +267,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			cachedBounds.clear();
 			
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
-			for (RocketComponent component: this) {
-				for (Coordinate c: component.getComponentBounds()) {
-					for (Coordinate coord: component.toAbsolute(c)) {
+			for (RocketComponent component : this) {
+				for (Coordinate c : component.getComponentBounds()) {
+					for (Coordinate coord : component.toAbsolute(c)) {
 						cachedBounds.add(coord);
 						if (coord.x < minX)
 							minX = coord.x;
@@ -299,13 +297,13 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 */
 	public double getLength() {
 		if (rocket.getModID() != boundsModID)
-			getBounds();  // Calculates the length
-		
+			getBounds(); // Calculates the length
+			
 		return cachedLength;
 	}
 	
 	
-	
+
 
 	/**
 	 * Return an iterator that iterates over the currently active components.
@@ -345,17 +343,17 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			rocket.addComponentChangeListener(config);
 			return config;
 		} catch (CloneNotSupportedException e) {
-			throw new BugException("BUG: clone not supported!",e);
+			throw new BugException("BUG: clone not supported!", e);
 		}
 	}
-
-
+	
+	
 	@Override
 	public int getModID() {
 		return modID + rocket.getModID();
 	}
 	
-
+	
 	/**
 	 * A class that iterates over all currently active components.
 	 * 
@@ -368,7 +366,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		public ConfigurationIterator() {
 			List<Iterator<RocketComponent>> list = new ArrayList<Iterator<RocketComponent>>();
 			
-			for (RocketComponent stage: rocket.getChildren()) {
+			for (RocketComponent stage : rocket.getChildren()) {
 				if (isStageActive(stage)) {
 					list.add(stage.deepIterator());
 				}
@@ -392,7 +390,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			
 			return current.hasNext();
 		}
-
+		
 		@Override
 		public RocketComponent next() {
 			if (!current.hasNext())
@@ -400,7 +398,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			
 			return current.next();
 		}
-
+		
 		/**
 		 * Get the next iterator that has items.  If such an iterator does
 		 * not exist, current is left to an empty iterator.
@@ -424,13 +422,13 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		public MotorIterator() {
 			this.iterator = iterator();
 		}
-
+		
 		@Override
 		public boolean hasNext() {
 			getNext();
 			return (next != null);
 		}
-
+		
 		@Override
 		public MotorMount next() {
 			getNext();
@@ -442,7 +440,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			next = null;
 			return ret;
 		}
-
+		
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("remove unsupported");
@@ -463,5 +461,5 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			}
 		}
 	}
-
+	
 }

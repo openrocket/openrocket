@@ -10,6 +10,7 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 public abstract class AbstractMassCalculator implements MassCalculator {
 	
 	private int rocketMassModID = -1;
+	private int stageCount = -1;
 	
 	
 	/**
@@ -24,8 +25,10 @@ public abstract class AbstractMassCalculator implements MassCalculator {
 	 * @param	configuration	the configuration of the current call
 	 */
 	protected final void checkCache(Configuration configuration) {
-		if (rocketMassModID != configuration.getRocket().getMassModID()) {
+		if (rocketMassModID != configuration.getRocket().getMassModID() ||
+				stageCount != configuration.getStageCount()) {
 			rocketMassModID = configuration.getRocket().getMassModID();
+			stageCount = configuration.getStageCount();
 			voidMassCache();
 		}
 	}

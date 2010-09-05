@@ -1,3 +1,7 @@
+2010-09-05  Sampo Niskanen
+
+	* [BUG] Fixed bug that prevents adding stages to a rocket
+
 2010-09-04  Sampo Niskanen
 
 	* Added launch rod velocity to FlightData

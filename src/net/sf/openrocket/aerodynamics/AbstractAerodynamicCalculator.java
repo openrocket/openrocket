@@ -3,19 +3,13 @@ package net.sf.openrocket.aerodynamics;
 import java.util.Map;
 
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 
 
 /**
- * A class that is the base of all aerodynamical calculations.
- * <p>
- * A rocket must be assigned to this class before any operations are allowed.
- * This can be done using the constructor or using the
- * {@link #setRocket(Rocket)} method.  The default is a
- * <code>null</code> configuration, in which case the calculation
- * methods throw {@link NullPointerException}.
+ * An abstract aerodynamic calculator implementation, that offers basic implementation
+ * of some methods and methods for cache validation and purging.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -33,9 +27,9 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	
 	/** The aerodynamic modification ID of the latest rocket */
 	private int rocketAeroModID = -1;
+	private int stageCount = -1;
 	
 	
-
 
 
 	////////////////  Aerodynamic calculators  ////////////////
@@ -89,8 +83,10 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	 * @param	configuration	the configuration of the current call
 	 */
 	protected final void checkCache(Configuration configuration) {
-		if (rocketAeroModID != configuration.getRocket().getAerodynamicModID()) {
+		if (rocketAeroModID != configuration.getRocket().getAerodynamicModID() ||
+				stageCount != configuration.getStageCount()) {
 			rocketAeroModID = configuration.getRocket().getAerodynamicModID();
+			stageCount = configuration.getStageCount();
 			voidAerodynamicCache();
 		}
 	}
