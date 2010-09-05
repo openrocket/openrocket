@@ -1,3 +1,8 @@
+2010-09-04  Sampo Niskanen
+
+	* Added launch rod velocity to FlightData
+	* [BUG] Total velocity was measured from airspeed
+
 2010-09-03  Sampo Niskanen
 
 	* Released version 1.1.1

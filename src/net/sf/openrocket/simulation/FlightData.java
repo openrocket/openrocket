@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Mutable;
 
@@ -21,6 +23,7 @@ import net.sf.openrocket.util.Mutable;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class FlightData {
+	private static final LogHelper log = Application.getLogger();
 	
 	/**
 	 * An immutable FlightData object with NaN data.
@@ -45,6 +48,7 @@ public class FlightData {
 	private double timeToApogee = Double.NaN;
 	private double flightTime = Double.NaN;
 	private double groundHitVelocity = Double.NaN;
+	private double launchRodVelocity = Double.NaN;
 	
 	
 	/**
@@ -66,10 +70,11 @@ public class FlightData {
 	 * @param timeToApogee			time to apogee.
 	 * @param flightTime			total flight time.
 	 * @param groundHitVelocity		ground hit velocity.
+	 * @param launchRodVelocity TODO
 	 */
 	public FlightData(double maxAltitude, double maxVelocity, double maxAcceleration,
 			double maxMachNumber, double timeToApogee, double flightTime,
-			double groundHitVelocity) {
+			double groundHitVelocity, double launchRodVelocity) {
 		this.maxAltitude = maxAltitude;
 		this.maxVelocity = maxVelocity;
 		this.maxAcceleration = maxAcceleration;
@@ -77,6 +82,7 @@ public class FlightData {
 		this.timeToApogee = timeToApogee;
 		this.flightTime = flightTime;
 		this.groundHitVelocity = groundHitVelocity;
+		this.launchRodVelocity = launchRodVelocity;
 	}
 	
 	
@@ -161,6 +167,10 @@ public class FlightData {
 		return groundHitVelocity;
 	}
 	
+	public double getLaunchRodVelocity() {
+		return launchRodVelocity;
+	}
+	
 	
 
 	/**
@@ -183,6 +193,7 @@ public class FlightData {
 			groundHitVelocity = Double.NaN;
 		}
 		
+
 		// Time to apogee
 		List<Double> time = branch.get(FlightDataType.TYPE_TIME);
 		List<Double> altitude = branch.get(FlightDataType.TYPE_ALTITUDE);
@@ -206,12 +217,40 @@ public class FlightData {
 		else
 			timeToApogee = Double.NaN;
 		
+
+		// Launch rod velocity
+		eventloop: for (FlightEvent event : branch.getEvents()) {
+			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
+				double t = event.getTime();
+				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
+				if (velocity == null) {
+					break;
+				}
+				for (int i = 0; i < velocity.size(); i++) {
+					if (time.get(i) >= t) {
+						launchRodVelocity = velocity.get(i);
+						break eventloop;
+					}
+				}
+			}
+		}
+		
 		// Max. acceleration (must be after apogee time)
 		if (branch.get(FlightDataType.TYPE_ACCELERATION_TOTAL) != null) {
 			maxAcceleration = calculateMaxAcceleration();
 		} else {
 			maxAcceleration = Double.NaN;
 		}
+		
+		log.info("Computed flight values:" +
+				" maxAltitude=" + maxAltitude +
+				" maxVelocity=" + maxVelocity +
+				" maxAcceleration=" + maxAcceleration +
+				" maxMachNumber=" + maxMachNumber +
+				" timeToApogee=" + timeToApogee +
+				" flightTime=" + flightTime +
+				" groundHitVelocity=" + groundHitVelocity +
+				" launchRodVelocity=" + launchRodVelocity);
 	}
 	
 	

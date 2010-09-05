@@ -557,7 +557,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
 		
 		if (store.flightConditions != null) {
-			data.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, store.flightConditions.getVelocity());
+			data.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, status.getRocketVelocity().length());
 			data.setValue(FlightDataType.TYPE_MACH_NUMBER, store.flightConditions.getMach());
 		}
 		
