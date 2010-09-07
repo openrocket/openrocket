@@ -9,6 +9,12 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">7.9.2010:</span> A bug-fix version 1.1.2 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>This release fixes a severe bug in 1.1.1 that prevented adding stages
+    to rocket designs.  Users are recommended to upgrade.</p>
+
   <p><span class="date">3.9.2010:</span> Version 1.1.1 is 
     <a href="download.html">released</a>!</p>
 
@@ -29,6 +35,10 @@
     Pedrick.  It's also the kick-off of the 1.1 development branch of
     OpenRocket.</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">10.3.2010:</span> Version 1.0.0 is 
     <a href="download.html">released</a>!</p>
 
@@ -37,10 +47,6 @@
     bug fixes.  It is also a stable milestone, after which development
     on larger features will be started in a 1.1 branch.  Look out
     for it!  :-)</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">17.2.2010:</span> Version 0.9.6 is
     <a href="download.html">released</a>!</p>

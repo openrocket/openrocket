@@ -76,17 +76,23 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-if (preg_match("/^1\.1\.0/", $version)) {
-  $updates = "Version: 1.1.1\n" .
+$unstable = "1.1.2";
+$stable = "1.0.0";
+
+if (preg_match("/^1\.1\.1/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "4: Fixed bug preventing addition of stages\n";
+} else if (preg_match("/^1\.1\.0/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
     "6: Enhanced motor selection\n" .
     "5: Rewritten simulation code\n" .
     "4: Bug fixes";
 } else if (preg_match("/^0\.9\.6/", $version)) {
-  $updates = "Version: 1.0.0\n" .
+  $updates = "Version: " . $stable . "\n" .
     "6: Hundreds of new thrustcurves\n" .
     "5: Bug fixes";
 } else if (preg_match("/^0\.9\.[45]/", $version)) {
-  $updates = "Version: 1.0.0\n" .
+  $updates = "Version: " . $stable . "\n" .
     "7: Hundreds of new thrustcurves\n" .
     "6: Aerodynamic computation updates\n" .
     "5: Numerous bug fixes";

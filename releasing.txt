@@ -6,22 +6,22 @@ Steps for making a release:
 3.  Update ChangeLog
 4.  ant dist
 5.  Test new features (not in project directory)
-6.  Copy distribution files into dists/
-7.  Update Eclipse project and commit files to SVN
-8.  Tag the version in SVN, URL:
-    https://openrocket.svn.sourceforge.net/svnroot/openrocket/tags/Release_1.1.x
-9.  Update updates.php and test various versions using a different name:
+6.  Copy distribution files into OpenRocket-dists project
+7.  Update updates.php and test various versions using a different name:
     scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/testupdates.php
     java -Dopenrocket.debug.updateurl=http://openrocket.sourceforge.net/actions/testupdates.php -jar OpenRocket-1.1.0.jar
-10. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
+8.  Update HTML: htp/htp.def (version number) htp/news.htp (release info)
+9.  Run "htp @" and check the web pages locally
+10. Update Eclipse project and commit files to SVN (OpenRocket and OpenRocket-dists)
+11. Tag the version in SVN, URL:
+    https://openrocket.svn.sourceforge.net/svnroot/openrocket/tags/Release_1.1.x
+12. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
      - Project Admin -> File Manager
      - create new version directory under /openrocket
      - upload JAR, ZIP and ReleaseNotes
      - select ReleaseNotes properties, set as release notes
      - select JAR properties, set release note file and default downloads
      - select ZIP properties, set release note file
-11. Update HTML: htp/htp.def (version number) htp/news.htp (release info)
-12. Run "htp @" and check the web pages locally
 13. Update HTML to web server:
     scp * plaa,openrocket@web.sourceforge.net:htdocs/
 14. Test downloading from Sourceforge and web site
