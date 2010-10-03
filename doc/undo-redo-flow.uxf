@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><umlet_diagram><help_text>// Uncomment the following line to change the fontsize:
+// fontsize=14
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Welcome to UMLet!
+//
+// Double-click on UML elements to add them to the diagram, or to copy them
+// Edit elements by modifying the text in this panel
+// Hold Ctrl to select multiple elements
+// Use Ctrl+mouse to select via lasso
+//
+// Use ± or Ctrl+mouse wheel to zoom
+// Drag a whole relation at its central square icon
+//
+// Press Ctrl+C to copy the whole diagram to the system clipboard (then just paste it to, eg, Word)
+// Edit the files in the "palettes" directory to create your own element palettes
+//
+// Select "Custom Elements &gt; New..." to create new element types
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.custom.State</type><coordinates><x>670</x><y>540</y><w>280</w><h>140</h></coordinates><panel_attributes>Clean, at end of history
+--
+undoHistory.size = n
+undoPosition = n-1
+clean
+-.
+redo() not available</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.custom.InitialState</type><coordinates><x>340</x><y>140</y><w>20</w><h>20</h></coordinates><panel_attributes/><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>320</x><y>120</y><w>50</w><h>160</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>30;140;30;30</additional_attributes></element><element><type>com.umlet.element.custom.State</type><coordinates><x>200</x><y>540</y><w>280</w><h>140</h></coordinates><panel_attributes>Dirty, at end of history
+--
+undoHistory.size = n
+undoPosition = n-1
+dirty
+-.
+redo() not available</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>230</x><y>370</y><w>214</w><h>190</h></coordinates><panel_attributes>lt=&lt;-
+Modify rocket:
+nextDescription stored
+in undoDescription</panel_attributes><additional_attributes>110;170;110;30</additional_attributes></element><element><type>com.umlet.element.custom.State</type><coordinates><x>200</x><y>260</y><w>280</w><h>140</h></coordinates><panel_attributes>Clean, no history
+--
+undoHistory.size = 1
+undoPosition = 0
+clean
+-.
+undo(), redo() not available</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>60</x><y>350</y><w>210</w><h>124</h></coordinates><panel_attributes>lt=&lt;-
+addUndoPosition:
+nextDescription set</panel_attributes><additional_attributes>140;30;100;30;100;80;190;80;190;50</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>450</x><y>560</y><w>240</w><h>146</h></coordinates><panel_attributes>lt=&lt;-
+addUndoPosition():
+rocket copied to
+end of history,
+nextDescription set,
+undoPosition increased</panel_attributes><additional_attributes>220;50;30;50</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>310</x><y>410</y><w>510</w><h>150</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>30;130;30;30;490;30;490;130</additional_attributes></element><element><type>com.umlet.element.custom.State</type><coordinates><x>190</x><y>850</y><w>280</w><h>140</h></coordinates><panel_attributes>Clean, at midpoint of history
+--
+undoHistory.size = n
+undoPosition = m &lt; n-1
+clean
+-.
+</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>190</x><y>650</y><w>282</w><h>220</h></coordinates><panel_attributes>lt=&lt;-
+undo():
+rocket copied to end of history,
+rocket loaded from undoPosition
+</panel_attributes><additional_attributes>150;200;150;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>0</x><y>590</y><w>238</w><h>350</h></coordinates><panel_attributes>lt=&lt;-
+Modify rocket:
+redo information removed,
+nextDescription stored
+in undoDescription</panel_attributes><additional_attributes>200;30;120;30;120;330;190;330</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>0</x><y>940</y><w>286</w><h>190</h></coordinates><panel_attributes>lt=&lt;-
+undo():
+undoPosition decreased,
+Rocket loaded from undoPosition
+-
+addUndoPosition():
+nextDescription set</panel_attributes><additional_attributes>190;30;150;30;150;80;240;80;240;50</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>390</x><y>910</y><w>282</w><h>178</h></coordinates><panel_attributes>lt=&lt;-
+redo():
+undoPosition increased,
+rocket loaded from undoPosition</panel_attributes><additional_attributes>30;80;30;120;150;120;150;30;80;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>510</x><y>650</y><w>412</w><h>348</h></coordinates><panel_attributes>lt=&lt;-
+redo():
+undoPosition increased to n-1,
+rocket loaded from undoPosition</panel_attributes><additional_attributes>280;30;280;290;30;290</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>440</x><y>650</y><w>422</w><h>288</h></coordinates><panel_attributes>lt=&lt;-
+undo():
+undoPosition decreased,
+rocket loaded from undoPosition</panel_attributes><additional_attributes>30;230;290;230;290;30</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>70</x><y>450</y><w>200</w><h>160</h></coordinates><panel_attributes>lt=&lt;-
+Modify rocket
+</panel_attributes><additional_attributes>180;90;180;50;80;50;80;140;130;140</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>860</x><y>460</y><w>216</w><h>160</h></coordinates><panel_attributes>lt=&lt;-
+addUndoPosition()</panel_attributes><additional_attributes>30;80;30;50;130;50;130;140;90;140</additional_attributes></element><element><type>com.umlet.element.custom.State</type><coordinates><x>540</x><y>50</y><w>400</w><h>350</h></coordinates><panel_attributes>Variable description
+--
+undoHistory: a list of the undo positions.  Each position
+is a full copy of the rocket structure. Always contains at 
+least one entry.
+-.
+undoPosition: current location within the undoHistory.
+If at the last entry, the rocket can be "clean" (in the
+state of undoHistory.get(undoPosition)) or "dirty" (in 
+a modified state). 
+-.
+undoDescription:  the value at undoDescription.get(
+undoPosition) describes the action that would be
+undone if undo() was called at that moment.  The value
+at undoDescription.get(undoPosition+1) describes the
+action that would be redone if redo() were be called.
+-.
+nextDescription: the description of the actions that
+will be done next (or are already being done).
+-.
+storedDescription: temporary storage for
+nextDescription during a startUndo() ... stopUndo()
+action.
+fg=blue</panel_attributes><additional_attributes/></element></umlet_diagram>

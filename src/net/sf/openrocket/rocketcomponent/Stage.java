@@ -1,12 +1,17 @@
 package net.sf.openrocket.rocketcomponent;
 
 public class Stage extends ComponentAssembly {
-
+	
 	@Override
 	public String getComponentName() {
 		return "Stage";
 	}
-
+	
+	
+	@Override
+	public boolean allowsChildren() {
+		return true;
+	}
 	
 	/**
 	 * Check whether the given type can be added to this component.  A Stage allows 
@@ -19,5 +24,5 @@ public class Stage extends ComponentAssembly {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return BodyComponent.class.isAssignableFrom(type);
 	}
-
+	
 }

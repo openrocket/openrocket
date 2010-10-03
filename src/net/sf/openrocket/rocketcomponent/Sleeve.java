@@ -12,10 +12,10 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Sleeve extends RingComponent {
-
+	
 	protected double innerRadius = 0;
 	protected double thickness = 0;
-
+	
 	
 	public Sleeve() {
 		super();
@@ -51,8 +51,8 @@ public class Sleeve extends RingComponent {
 			double pos2 = this.toRelative(new Coordinate(getLength()), parent)[0].x;
 			pos1 = MathUtil.clamp(pos1, 0, parent.getLength());
 			pos2 = MathUtil.clamp(pos2, 0, parent.getLength());
-			innerRadius = Math.max(((RadialParent)parent).getOuterRadius(pos1),
-					((RadialParent)parent).getOuterRadius(pos2));
+			innerRadius = Math.max(((RadialParent) parent).getOuterRadius(pos1),
+					((RadialParent) parent).getOuterRadius(pos2));
 		}
 		
 		return innerRadius;
@@ -60,7 +60,7 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public void setInnerRadius(double r) {
-		r = Math.max(r,0);
+		r = Math.max(r, 0);
 		if (MathUtil.equals(innerRadius, r))
 			return;
 		innerRadius = r;
@@ -83,7 +83,7 @@ public class Sleeve extends RingComponent {
 	
 	
 
-	
+
 	@Override
 	public void setInnerRadiusAutomatic(boolean auto) {
 		super.setOuterRadiusAutomatic(auto);
@@ -93,7 +93,12 @@ public class Sleeve extends RingComponent {
 	public String getComponentName() {
 		return "Sleeve";
 	}
-
+	
+	@Override
+	public boolean allowsChildren() {
+		return false;
+	}
+	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;

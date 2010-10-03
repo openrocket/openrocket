@@ -19,12 +19,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Action;
@@ -47,8 +47,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.ToolTipManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -59,9 +57,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.communication.UpdateInfo;
-import net.sf.openrocket.communication.UpdateInfoRetriever;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
@@ -73,13 +68,14 @@ import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
+import net.sf.openrocket.gui.dialogs.DebugLogDialog;
 import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
-import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
+import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -283,7 +279,7 @@ public class BasicFrame extends JFrame {
 		
 		JPanel panel = new JPanel(new MigLayout("fill, flowy", "", "[grow]"));
 		
-		tree = new ComponentTree(rocket);
+		tree = new ComponentTree(document);
 		tree.setSelectionModel(componentSelectionModel);
 		
 		// Remove JTree key events that interfere with menu accelerators
@@ -404,9 +400,12 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_NEW);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("New... selected");
 				newAction();
-				if (replaceable)
+				if (replaceable) {
+					log.info("Closing previous window");
 					closeAction();
+				}
 			}
 		});
 		menu.add(item);
@@ -417,6 +416,7 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_OPEN);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Open... selected");
 				openAction();
 			}
 		});
@@ -429,9 +429,11 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Open example... selected");
 				URL[] urls = ExampleDesignDialog.selectExampleDesigns(BasicFrame.this);
 				if (urls != null) {
 					for (URL u : urls) {
+						log.user("Opening example " + u);
 						open(u, BasicFrame.this);
 					}
 				}
@@ -447,6 +449,7 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_SAVE);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Save selected");
 				saveAction();
 			}
 		});
@@ -460,6 +463,7 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_SAVE_AS);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Save as... selected");
 				saveAsAction();
 			}
 		});
@@ -474,6 +478,7 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_CLOSE);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Close selected");
 				closeAction();
 			}
 		});
@@ -487,6 +492,7 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_QUIT);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Quit selected");
 				quitAction();
 			}
 		});
@@ -540,6 +546,7 @@ public class BasicFrame extends JFrame {
 				"preferences");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Preferences selected");
 				PreferencesDialog.showPreferences();
 			}
 		});
@@ -559,6 +566,7 @@ public class BasicFrame extends JFrame {
 				"separately");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Component analysis selected");
 				ComponentAnalysisDialog.showDialog(rocketpanel);
 			}
 		});
@@ -586,26 +594,42 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("OpenRocket license information");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("License selected");
 				new LicenseDialog(BasicFrame.this).setVisible(true);
 			}
 		});
 		menu.add(item);
+		
+		menu.addSeparator();
 		
 		item = new JMenuItem("Bug report", KeyEvent.VK_B);
 		item.getAccessibleContext().setAccessibleDescription("Information about reporting " +
 				"bugs in OpenRocket");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//				new BugDialog(BasicFrame.this).setVisible(true);
+				log.user("Bug report selected");
 				BugReportDialog.showBugReportDialog(BasicFrame.this);
 			}
 		});
 		menu.add(item);
 		
+		item = new JMenuItem("Debug log");
+		item.getAccessibleContext().setAccessibleDescription("View the OpenRocket debug log");
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				log.user("Debug log selected");
+				new DebugLogDialog(BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		menu.addSeparator();
+		
 		item = new JMenuItem("About", KeyEvent.VK_A);
 		item.getAccessibleContext().setAccessibleDescription("About OpenRocket");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("About selected");
 				new AboutDialog(BasicFrame.this).setVisible(true);
 			}
 		});
@@ -627,6 +651,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem("What is this menu?");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("What is this menu? selected");
 				JOptionPane.showMessageDialog(BasicFrame.this,
 						new Object[] {
 								"The 'Debug' menu includes actions for testing and debugging " +
@@ -645,6 +670,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("Create test rocket selected");
 				JTextField field = new JTextField();
 				int sel = JOptionPane.showOptionDialog(BasicFrame.this, new Object[] {
 						"Input text key to generate random rocket:",
@@ -677,6 +703,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("Create Iso-Haisu selected");
 				Rocket r = TestRockets.makeIsoHaisu();
 				OpenRocketDocument doc = new OpenRocketDocument(r);
 				doc.setSaved(true);
@@ -691,6 +718,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("Create Big Blue selected");
 				Rocket r = TestRockets.makeBigBlue();
 				OpenRocketDocument doc = new OpenRocketDocument(r);
 				doc.setSaved(true);
@@ -700,13 +728,12 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-
-
 		menu.addSeparator();
 		
 		item = new JMenuItem("Exception here");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Exception here selected");
 				throw new RuntimeException("Testing exception from menu action listener");
 			}
 		});
@@ -715,6 +742,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem("Exception from EDT");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Exception from EDT selected");
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -729,6 +757,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem("Exception from other thread");
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				log.user("Exception from other thread selected");
 				new Thread() {
 					@Override
 					public void run() {
@@ -769,19 +798,24 @@ public class BasicFrame extends JFrame {
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
-		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+		int option = chooser.showOpenDialog(this);
+		if (option != JFileChooser.APPROVE_OPTION) {
+			log.user("Decided not to open files, option=" + option);
 			return;
+		}
 		
 		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
 		
 		File[] files = chooser.getSelectedFiles();
+		log.user("Opening files " + Arrays.toString(files));
 		
 		for (File file : files) {
-			System.out.println("Opening file: " + file);
+			log.info("Opening file: " + file);
 			if (open(file, this)) {
 				
 				// Close previous window if replacing
 				if (replaceable && document.isSaved()) {
+					log.info("Closing window because it is replaceable");
 					closeAction();
 					replaceable = false;
 				}
@@ -790,9 +824,16 @@ public class BasicFrame extends JFrame {
 	}
 	
 	
-
+	/**
+	 * Open a file based on a URL.
+	 * @param url		the file to open.
+	 * @param parent	the parent window for dialogs.
+	 * @return			<code>true</code> if opened successfully.
+	 */
 	private static boolean open(URL url, BasicFrame parent) {
 		String filename = null;
+		
+		// First figure out the file name from the URL
 		
 		// Try using URI.getPath();
 		try {
@@ -819,6 +860,9 @@ public class BasicFrame extends JFrame {
 			filename = filename.substring(filename.lastIndexOf('/') + 1);
 		}
 		
+
+		// Open the file
+		log.info("Opening file from url=" + url + " filename=" + filename);
 		try {
 			InputStream is = url.openStream();
 			if (open(is, filename, parent)) {
@@ -829,6 +873,7 @@ public class BasicFrame extends JFrame {
 				}
 			}
 		} catch (IOException e) {
+			log.warn("Error opening file" + e);
 			JOptionPane.showMessageDialog(parent,
 					"An error occurred while opening the file " + filename,
 					"Error loading file", JOptionPane.ERROR_MESSAGE);
@@ -876,16 +921,15 @@ public class BasicFrame extends JFrame {
 	 * @param parent
 	 * @return
 	 */
-	private static boolean open(OpenFileWorker worker, String filename, File file,
-			Window parent) {
+	private static boolean open(OpenFileWorker worker, String filename, File file, Window parent) {
 		
-		MotorDatabaseLoadingDialog.check(null);
+		MotorDatabaseLoadingDialog.check(parent);
 		
 		// Open the file in a Swing worker thread
-		if (!SwingWorkerDialog.runWorker(parent, "Opening file",
-				"Reading " + filename + "...", worker)) {
-			
+		log.info("Starting OpenFileWorker");
+		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + filename + "...", worker)) {
 			// User cancelled the operation
+			log.info("User cancelled the OpenFileWorker");
 			return false;
 		}
 		
@@ -902,6 +946,7 @@ public class BasicFrame extends JFrame {
 			
 			if (cause instanceof FileNotFoundException) {
 				
+				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
 						"File not found: " + filename,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
@@ -909,6 +954,7 @@ public class BasicFrame extends JFrame {
 				
 			} else if (cause instanceof RocketLoadException) {
 				
+				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
 						"Unable to open file '" + filename + "': "
 								+ cause.getMessage(),
@@ -926,13 +972,14 @@ public class BasicFrame extends JFrame {
 		}
 		
 		if (doc == null) {
-			throw new BugException("BUG: Document loader returned null");
+			throw new BugException("Document loader returned null");
 		}
 		
 
 		// Show warnings
 		WarningSet warnings = worker.getRocketLoader().getWarnings();
 		if (!warnings.isEmpty()) {
+			log.info("Warnings while reading file: " + warnings);
 			WarningDialog.showWarnings(parent,
 					new Object[] {
 							"The following problems were encountered while opening " + filename + ".",
@@ -947,6 +994,7 @@ public class BasicFrame extends JFrame {
 		doc.setSaved(true);
 		
 		// Open the frame
+		log.debug("Opening new frame with the document");
 		BasicFrame frame = new BasicFrame(doc);
 		frame.setVisible(true);
 		
@@ -960,21 +1008,26 @@ public class BasicFrame extends JFrame {
 	private boolean saveAction() {
 		File file = document.getFile();
 		if (file == null) {
+			log.info("Document does not contain file, opening save as dialog instead");
 			return saveAsAction();
 		}
+		log.info("Saving document to " + file);
 		
 		// Saving RockSim designs is not supported
 		if (ROCKSIM_DESIGN_FILTER.accept(file)) {
 			file = new File(file.getAbsolutePath().replaceAll(".[rR][kK][tT](.[gG][zZ])?$",
 					".ork"));
 			
+			log.info("Attempting to save in RockSim format, renaming to " + file);
 			int option = JOptionPane.showConfirmDialog(this, new Object[] {
 					"Saving designs in RockSim format is not supported.",
 					"Save in OpenRocket format instead (" + file.getName() + ")?"
 				}, "Save " + file.getName(), JOptionPane.YES_NO_OPTION,
 					JOptionPane.QUESTION_MESSAGE, null);
-			if (option != JOptionPane.YES_OPTION)
+			if (option != JOptionPane.YES_OPTION) {
+				log.user("User chose not to save");
 				return false;
+			}
 			
 			document.setFile(file);
 		}
@@ -984,52 +1037,60 @@ public class BasicFrame extends JFrame {
 	
 	private boolean saveAsAction() {
 		File file = null;
-		while (file == null) {
-			// TODO: HIGH: what if *.rkt chosen?
-			StorageOptionChooser storageChooser =
-					new StorageOptionChooser(document, document.getDefaultStorageOptions());
-			JFileChooser chooser = new JFileChooser();
-			chooser.setFileFilter(OPENROCKET_DESIGN_FILTER);
-			chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
-			chooser.setAccessory(storageChooser);
-			if (document.getFile() != null)
-				chooser.setSelectedFile(document.getFile());
-			
-			if (chooser.showSaveDialog(BasicFrame.this) != JFileChooser.APPROVE_OPTION)
+		
+		// TODO: HIGH: what if *.rkt chosen?
+		StorageOptionChooser storageChooser =
+				new StorageOptionChooser(document, document.getDefaultStorageOptions());
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileFilter(OPENROCKET_DESIGN_FILTER);
+		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
+		chooser.setAccessory(storageChooser);
+		if (document.getFile() != null)
+			chooser.setSelectedFile(document.getFile());
+		
+		int option = chooser.showSaveDialog(BasicFrame.this);
+		if (option != JFileChooser.APPROVE_OPTION) {
+			log.user("User decided not to save, option=" + option);
+			return false;
+		}
+		
+		file = chooser.getSelectedFile();
+		if (file == null) {
+			log.user("User did not select a file");
+			return false;
+		}
+		
+		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
+		storageChooser.storeOptions(document.getDefaultStorageOptions());
+		
+		if (file.getName().indexOf('.') < 0) {
+			log.debug("File name does not contain extension, adding .ork");
+			String name = file.getAbsolutePath();
+			name = name + ".ork";
+			file = new File(name);
+		}
+		
+		if (file.exists()) {
+			log.info("File " + file + " exists, confirming overwrite from user");
+			int result = JOptionPane.showConfirmDialog(this,
+					"File '" + file.getName() + "' exists.  Do you want to overwrite it?",
+					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if (result != JOptionPane.YES_OPTION) {
+				log.user("User decided not to overwrite the file");
 				return false;
-			
-			file = chooser.getSelectedFile();
-			if (file == null)
-				return false;
-			
-			Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
-			storageChooser.storeOptions(document.getDefaultStorageOptions());
-			
-			if (file.getName().indexOf('.') < 0) {
-				String name = file.getAbsolutePath();
-				name = name + ".ork";
-				file = new File(name);
-			}
-			
-			if (file.exists()) {
-				int result = JOptionPane.showConfirmDialog(this,
-						"File '" + file.getName() + "' exists.  Do you want to overwrite it?",
-						"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-				if (result != JOptionPane.YES_OPTION)
-					return false;
 			}
 		}
-		saveAs(file);
-		return true;
+		
+		return saveAs(file);
 	}
 	
-	
 	private boolean saveAs(File file) {
-		System.out.println("Saving to file: " + file.getName());
+		log.info("Saving document as " + file);
 		boolean saved = false;
 		
 		if (!StorageOptionChooser.verifyStorageOptions(document, this)) {
 			// User cancelled the dialog
+			log.user("User cancelled saving in storage options dialog");
 			return false;
 		}
 		
@@ -1040,6 +1101,7 @@ public class BasicFrame extends JFrame {
 				"Writing " + file.getName() + "...", worker)) {
 			
 			// User cancelled the save
+			log.user("User cancelled the save, deleting the file");
 			file.delete();
 			return false;
 		}
@@ -1055,6 +1117,7 @@ public class BasicFrame extends JFrame {
 			Throwable cause = e.getCause();
 			
 			if (cause instanceof IOException) {
+				log.warn("An I/O error occurred while saving " + file, cause);
 				JOptionPane.showMessageDialog(this, new String[] {
 						"An I/O error occurred while saving:",
 						e.getMessage() }, "Saving failed", JOptionPane.ERROR_MESSAGE);
@@ -1073,6 +1136,7 @@ public class BasicFrame extends JFrame {
 	
 	private boolean closeAction() {
 		if (!document.isSaved()) {
+			log.info("Confirming whether to save the design");
 			ComponentConfigDialog.hideDialog();
 			int result = JOptionPane.showConfirmDialog(this,
 					"Design '" + rocket.getName() + "' has not been saved.  " +
@@ -1081,44 +1145,44 @@ public class BasicFrame extends JFrame {
 					JOptionPane.QUESTION_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
 				// Save
-				if (!saveAction())
-					return false; // If save was interrupted
+				log.user("User requested file save");
+				if (!saveAction()) {
+					log.info("File save was interrupted, not closing");
+					return false;
+				}
 			} else if (result == JOptionPane.NO_OPTION) {
 				// Don't save: No-op
+				log.user("User requested to discard design");
 			} else {
 				// Cancel or close
+				log.user("User cancelled closing, result=" + result);
 				return false;
 			}
 		}
 		
 		// Rocket has been saved or discarded
+		log.debug("Disposing window");
 		this.dispose();
 		
-		// TODO: LOW: Close only dialogs that have this frame as their parent
 		ComponentConfigDialog.hideDialog();
 		ComponentAnalysisDialog.hideDialog();
 		
 		frames.remove(this);
-		if (frames.isEmpty())
+		if (frames.isEmpty()) {
+			log.info("Last frame closed, exiting");
 			System.exit(0);
+		}
 		return true;
 	}
 	
 	
-	/**
-	 * Closes this frame if it is replaceable.
-	 */
-	public void closeIfReplaceable() {
-		if (this.replaceable && document.isSaved()) {
-			closeAction();
-		}
-	}
-	
+
 	/**
 	 * Open a new design window with a basic rocket+stage.
 	 */
 	public static void newAction() {
-		log.debug("New action initiated");
+		log.info("New action initiated");
+		
 		Rocket rocket = new Rocket();
 		Stage stage = new Stage();
 		stage.setName("Sustainer");
@@ -1136,13 +1200,17 @@ public class BasicFrame extends JFrame {
 	 * Quit the application.  Confirms saving unsaved designs.  The action of File->Quit.
 	 */
 	public static void quitAction() {
+		log.info("Quit action initiated");
 		for (int i = frames.size() - 1; i >= 0; i--) {
+			log.debug("Closing frame " + frames.get(i));
 			if (!frames.get(i).closeAction()) {
 				// Close canceled
+				log.info("Quit was cancelled");
 				return;
 			}
 		}
 		// Should not be reached, but just in case
+		log.error("Should already have exited application");
 		System.exit(0);
 	}
 	
@@ -1177,9 +1245,12 @@ public class BasicFrame extends JFrame {
 	 */
 	public static BasicFrame findFrame(Rocket rocket) {
 		for (BasicFrame f : frames) {
-			if (f.rocket == rocket)
+			if (f.rocket == rocket) {
+				log.debug("Found frame " + f + " for rocket " + rocket);
 				return f;
+			}
 		}
+		log.debug("Could not find frame for rocket " + rocket);
 		return null;
 	}
 	
@@ -1191,142 +1262,11 @@ public class BasicFrame extends JFrame {
 	 * @return		 the corresponding OpenRocketDocument, or <code>null</code> if not found.
 	 */
 	public static OpenRocketDocument findDocument(Rocket rocket) {
-		for (BasicFrame f : frames) {
-			if (f.rocket == rocket)
-				return f.document;
-		}
-		return null;
-	}
-	
-	
-	public static void main(final String[] args) {
-		
-		// Run the actual startup method in the EDT since it can use progress dialogs etc.
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					runMain(args);
-				}
-			});
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
-	private static void runMain(String[] args) {
-		
-		// Initialize the splash screen with version info
-		Splash.init();
-		
-
-		// Start update info fetching
-		final UpdateInfoRetriever updateInfo;
-		if (Prefs.getCheckUpdates()) {
-			updateInfo = new UpdateInfoRetriever();
-			updateInfo.start();
+		BasicFrame frame = findFrame(rocket);
+		if (frame != null) {
+			return frame.document;
 		} else {
-			updateInfo = null;
+			return null;
 		}
-		
-
-		// Set the best available look-and-feel
-		GUIUtil.setBestLAF();
-		
-		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
-		ToolTipManager.sharedInstance().setDismissDelay(30000);
-		
-
-		// Setup the uncaught exception handler
-		ExceptionHandler.registerExceptionHandler();
-		
-
-		// Load defaults
-		Prefs.loadDefaultUnits();
-		
-
-		// Load motors etc.
-		Databases.fakeMethod();
-		
-		// Starting action (load files or open new document)
-		if (!handleCommandLine(args)) {
-			newAction();
-		}
-		
-
-		// Check whether update info has been fetched or whether it needs more time
-		checkUpdateStatus(updateInfo);
 	}
-	
-	
-	private static void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
-		if (updateInfo == null)
-			return;
-		
-		int delay = 1000;
-		if (!updateInfo.isRunning())
-			delay = 100;
-		
-		final Timer timer = new Timer(delay, null);
-		
-		ActionListener listener = new ActionListener() {
-			private int count = 5;
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!updateInfo.isRunning()) {
-					timer.stop();
-					
-					String current = Prefs.getVersion();
-					String last = Prefs.getString(Prefs.LAST_UPDATE, "");
-					
-					UpdateInfo info = updateInfo.getUpdateInfo();
-					if (info != null && info.getLatestVersion() != null &&
-							!current.equals(info.getLatestVersion()) &&
-							!last.equals(info.getLatestVersion())) {
-						
-						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
-						infoDialog.setVisible(true);
-						if (infoDialog.isReminderSelected()) {
-							Prefs.putString(Prefs.LAST_UPDATE, "");
-						} else {
-							Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
-						}
-					}
-				}
-				count--;
-				if (count <= 0)
-					timer.stop();
-			}
-		};
-		timer.addActionListener(listener);
-		timer.start();
-	}
-	
-	
-	/**
-	 * Handles arguments passed from the command line.  This may be used either
-	 * when starting the first instance of OpenRocket or later when OpenRocket is
-	 * executed again while running.
-	 * 
-	 * @param args	the command-line arguments.
-	 * @return		whether a new frame was opened or similar user desired action was
-	 * 				performed as a result.
-	 */
-	public static boolean handleCommandLine(String[] args) {
-		
-		// Check command-line for files
-		boolean opened = false;
-		for (String file : args) {
-			if (open(new File(file), null)) {
-				opened = true;
-			}
-		}
-		return opened;
-	}
-	
 }

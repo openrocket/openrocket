@@ -7,12 +7,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.openrocket.optimization.Function;
-import net.sf.openrocket.optimization.FunctionOptimizer;
-import net.sf.openrocket.optimization.MultidirectionalSearchOptimizer;
-import net.sf.openrocket.optimization.OptimizationController;
-import net.sf.openrocket.optimization.ParallelExecutorCache;
-import net.sf.openrocket.optimization.Point;
+import net.sf.openrocket.optimization.general.Function;
+import net.sf.openrocket.optimization.general.FunctionOptimizer;
+import net.sf.openrocket.optimization.general.OptimizationController;
+import net.sf.openrocket.optimization.general.ParallelExecutorCache;
+import net.sf.openrocket.optimization.general.Point;
+import net.sf.openrocket.optimization.general.multidim.MultidirectionalSearchOptimizer;
 import net.sf.openrocket.util.MathUtil;
 
 

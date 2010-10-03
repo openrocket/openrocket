@@ -4,7 +4,7 @@ import net.sf.openrocket.util.Coordinate;
 
 
 public class CenteringRing extends RadiusRingComponent {
-
+	
 	public CenteringRing() {
 		setOuterRadiusAutomatic(true);
 		setInnerRadiusAutomatic(true);
@@ -19,12 +19,12 @@ public class CenteringRing extends RadiusRingComponent {
 			innerRadius = 0;
 			// Component can be parentless if disattached from rocket
 			if (this.getParent() != null) {
-				for (RocketComponent sibling: this.getParent().getChildren()) {
+				for (RocketComponent sibling : this.getParent().getChildren()) {
 					/*
 					 * Only InnerTubes are considered when determining the automatic
 					 * inner radius (for now).
 					 */
-					if (!(sibling instanceof InnerTube))  // Excludes itself
+					if (!(sibling instanceof InnerTube)) // Excludes itself
 						continue;
 					
 					double pos1 = this.toRelative(Coordinate.NUL, sibling)[0].x;
@@ -32,7 +32,7 @@ public class CenteringRing extends RadiusRingComponent {
 					if (pos2 < 0 || pos1 > sibling.getLength())
 						continue;
 					
-					innerRadius = Math.max(innerRadius, ((InnerTube)sibling).getOuterRadius());
+					innerRadius = Math.max(innerRadius, ((InnerTube) sibling).getOuterRadius());
 				}
 				innerRadius = Math.min(innerRadius, getOuterRadius());
 			}
@@ -40,7 +40,7 @@ public class CenteringRing extends RadiusRingComponent {
 		
 		return super.getInnerRadius();
 	}
-
+	
 	
 	@Override
 	public void setOuterRadiusAutomatic(boolean auto) {
@@ -56,10 +56,15 @@ public class CenteringRing extends RadiusRingComponent {
 	public String getComponentName() {
 		return "Centering ring";
 	}
-
+	
+	@Override
+	public boolean allowsChildren() {
+		return false;
+	}
+	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-
+	
 }

@@ -9,7 +9,7 @@ public class RocketTest {
 		Rocket r1 = net.sf.openrocket.util.TestRockets.makeIsoHaisu();
 		Rocket r2 = net.sf.openrocket.util.TestRockets.makeBigBlue();
 		
-		Rocket copy = r2.copy();
+		Rocket copy = (Rocket) r2.copy();
 		
 		ComponentCompare.assertDeepEquality(r2, copy);
 		
@@ -17,5 +17,5 @@ public class RocketTest {
 		
 		ComponentCompare.assertDeepEquality(r1, r2);
 	}
-
+	
 }

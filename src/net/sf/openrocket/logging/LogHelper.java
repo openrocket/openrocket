@@ -23,13 +23,13 @@ public abstract class LogHelper {
 	/**
 	 * Level from which upward a TraceException is added to the log lines.
 	 */
-	private static final LogLevel TRACING_LOG_LEVEL = 
-		LogLevel.fromString(System.getProperty("openrocket.log.tracelevel"), LogLevel.INFO);
+	private static final LogLevel TRACING_LOG_LEVEL =
+			LogLevel.fromString(System.getProperty("openrocket.log.tracelevel"), LogLevel.INFO);
 	
 	private static final DelegatorLogger delegator = new DelegatorLogger();
 	
 	
-	
+
 	/**
 	 * Get the logger to be used in logging.
 	 * 
@@ -43,12 +43,52 @@ public abstract class LogHelper {
 
 	/**
 	 * Log a LogLine object.  This method needs to be able to cope with multiple threads
-	 * accessing it concurrently (for example being synchronized).
+	 * accessing it concurrently (for example by being synchronized).
 	 * 
 	 * @param line	the LogLine to log.
 	 */
 	public abstract void log(LogLine line);
 	
+	
+	/**
+	 * Log using VBOSE level.
+	 * 
+	 * @param message	the logged message (may be null).
+	 */
+	public void verbose(String message) {
+		log(createLogLine(0, LogLevel.VBOSE, message, null));
+	}
+	
+	/**
+	 * Log using VBOSE level.
+	 * 
+	 * @param message	the logged message (may be null).
+	 * @param cause		the causing exception (may be null).
+	 */
+	public void verbose(String message, Throwable cause) {
+		log(createLogLine(0, LogLevel.VBOSE, message, cause));
+	}
+	
+	/**
+	 * Log using VBOSE level.
+	 * 
+	 * @param levels	number of additional levels of stack trace to include.
+	 * @param message	the logged message (may be null).
+	 */
+	public void verbose(int levels, String message) {
+		log(createLogLine(levels, LogLevel.VBOSE, message, null));
+	}
+	
+	/**
+	 * Log using VBOSE level.
+	 * 
+	 * @param levels	number of additional levels of stack trace to include.
+	 * @param message	the logged message (may be null).
+	 * @param cause		the causing exception (may be null).
+	 */
+	public void verbose(int levels, String message, Throwable cause) {
+		log(createLogLine(levels, LogLevel.VBOSE, message, cause));
+	}
 	
 	
 	/**
@@ -256,7 +296,7 @@ public abstract class LogHelper {
 	}
 	
 	
-	
+
 	/**
 	 * Log using the provided log level.
 	 * 
@@ -302,7 +342,7 @@ public abstract class LogHelper {
 	}
 	
 	
-	
+
 	/**
 	 * Instantiates, logs and throws a BugException.  The message is logged at
 	 * ERROR level.
@@ -336,7 +376,7 @@ public abstract class LogHelper {
 	
 	
 
-	
+
 	/**
 	 * Create a LogLine object from the provided information.  This method must be
 	 * called directly from the called method in order for the trace position
@@ -349,7 +389,7 @@ public abstract class LogHelper {
 	 * 
 	 * @return					a LogLine populated with all necessary fields.
 	 */
-	private LogLine createLogLine(int additionalLevels, LogLevel level, String message, 
+	private LogLine createLogLine(int additionalLevels, LogLevel level, String message,
 			Throwable cause) {
 		TraceException trace;
 		if (level.atLeast(TRACING_LOG_LEVEL)) {

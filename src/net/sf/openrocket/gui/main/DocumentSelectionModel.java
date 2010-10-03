@@ -14,6 +14,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class DocumentSelectionModel {

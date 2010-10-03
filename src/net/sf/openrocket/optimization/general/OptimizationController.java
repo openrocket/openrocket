@@ -1,4 +1,4 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general;
 
 public interface OptimizationController {
 	
@@ -10,7 +10,7 @@ public interface OptimizationController {
 	 * @param oldValue	the value of the function at the old position.
 	 * @param newPoint	the new position.
 	 * @param newValue	the value of the function at the new position.
-	 * @param stepSize	the step length that is used to search for smaller function values (when applicable).
+	 * @param stepSize	the step length that is used to search for smaller function values when applicable, or NaN.
 	 * @return			<code>true</code> to continue optimization, <code>false</code> to stop.
 	 */
 	public boolean stepTaken(Point oldPoint, double oldValue, Point newPoint, double newValue,

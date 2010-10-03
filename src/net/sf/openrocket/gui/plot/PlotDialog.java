@@ -342,13 +342,12 @@ public class PlotDialog extends JDialog {
 					tindex = 0;
 					a = 0;
 				} else {
-					assert (tindex > 0);
 					tindex--;
 					double t1 = time.get(tindex);
 					double t2 = time.get(tindex + 1);
 					
 					if ((t1 > t) || (t2 < t)) {
-						throw new BugException("BUG: t1=" + t1 + " t2=" + t2 + " t=" + t);
+						throw new BugException("t1=" + t1 + " t2=" + t2 + " t=" + t);
 					}
 					
 					if (MathUtil.equals(t1, t2)) {

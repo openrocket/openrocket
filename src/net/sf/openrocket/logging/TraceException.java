@@ -18,7 +18,7 @@ package net.sf.openrocket.logging;
 public class TraceException extends Exception {
 	
 	private static final String STANDARD_PACKAGE_PREFIX = "net.sf.openrocket.";
-
+	
 	private final int minLevel;
 	private final int maxLevel;
 	private volatile String message = null;
@@ -55,13 +55,13 @@ public class TraceException extends Exception {
 	 */
 	public TraceException(int minLevel, int maxLevel) {
 		if (minLevel > maxLevel || minLevel < 0) {
-			throw new IllegalArgumentException("minLevel="+minLevel+" maxLevel="+maxLevel);
+			throw new IllegalArgumentException("minLevel=" + minLevel + " maxLevel=" + maxLevel);
 		}
 		this.minLevel = minLevel;
 		this.maxLevel = maxLevel;
 	}
-
-
+	
+	
 	/**
 	 * Get the description of the code position as provided in the constructor.
 	 */
@@ -69,13 +69,13 @@ public class TraceException extends Exception {
 	public String getMessage() {
 		if (message == null) {
 			StackTraceElement[] elements = this.getStackTrace();
-
+			
 			StringBuilder sb = new StringBuilder();
 			if (minLevel < elements.length) {
 				
 				sb.append("(");
 				sb.append(toString(elements[minLevel]));
-				for (int i=minLevel+1; i <= maxLevel; i++) {
+				for (int i = minLevel + 1; i <= maxLevel; i++) {
 					if (i < elements.length) {
 						sb.append(' ').append(toString(elements[i]));
 					}
@@ -87,10 +87,10 @@ public class TraceException extends Exception {
 				sb.append("(no stack trace)");
 				
 			} else {
-
+				
 				sb.append('(');
 				sb.append(toString(elements[0]));
-				for (int i=1; i < elements.length; i++) {
+				for (int i = 1; i < elements.length; i++) {
 					sb.append(' ').append(toString(elements[i]));
 				}
 				sb.append(" level=").append(minLevel).append(')');

@@ -242,7 +242,7 @@ public class FlightData {
 			maxAcceleration = Double.NaN;
 		}
 		
-		log.info("Computed flight values:" +
+		log.debug("Computed flight values:" +
 				" maxAltitude=" + maxAltitude +
 				" maxVelocity=" + maxVelocity +
 				" maxAcceleration=" + maxAcceleration +

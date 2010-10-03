@@ -1,4 +1,4 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general.multidim;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,6 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.optimization.general.FunctionCache;
+import net.sf.openrocket.optimization.general.FunctionOptimizer;
+import net.sf.openrocket.optimization.general.OptimizationController;
+import net.sf.openrocket.optimization.general.ParallelFunctionCache;
+import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Statistics;
 
@@ -248,6 +253,9 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 
 	@Override
 	public Point getOptimumPoint() {
+		if (simplex.size() == 0) {
+			throw new IllegalStateException("Optimization has not been called, simplex is empty");
+		}
 		return simplex.get(0);
 	}
 	

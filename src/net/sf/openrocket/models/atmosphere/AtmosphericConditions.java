@@ -119,7 +119,7 @@ public class AtmosphericConditions implements Cloneable, Monitorable {
 		try {
 			return (AtmosphericConditions) super.clone();
 		} catch (CloneNotSupportedException e) {
-			throw new BugException("BUG:  CloneNotSupportedException encountered!");
+			throw new BugException("CloneNotSupportedException encountered!");
 		}
 	}
 	

@@ -14,7 +14,7 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 	}
 	
 	public void setColumnWidths(TableColumnModel model) {
-		for (int i=0; i < columns.length; i++) {
+		for (int i = 0; i < columns.length; i++) {
 			if (columns[i].getExactWidth() > 0) {
 				TableColumn col = model.getColumn(i);
 				int w = columns[i].getExactWidth();
@@ -27,7 +27,7 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 			}
 		}
 	}
-
+	
 	@Override
 	public int getColumnCount() {
 		return columns.length;
@@ -42,16 +42,15 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 	public Class<?> getColumnClass(int col) {
 		return columns[col].getColumnClass();
 	}
-
+	
 	@Override
 	public Object getValueAt(int row, int col) {
 		if ((row < 0) || (row >= getRowCount()) ||
 				(col < 0) || (col >= columns.length)) {
-			ExceptionHandler.handleErrorCondition("Error:  Requested illegal column/row, " +
-					"col="+col+" row="+row);
-			assert(false);
+			ExceptionHandler.handleErrorCondition("Error:  Requested illegal column/row, col=" + col + " row=" + row);
 			return null;
 		}
 		return columns[col].getValueAt(row);
 	}
+	
 }

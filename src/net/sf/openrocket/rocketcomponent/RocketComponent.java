@@ -9,20 +9,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Stack;
-import java.util.UUID;
 
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.UniqueID;
 
 
-public abstract class RocketComponent implements ChangeSource, Cloneable, 
+public abstract class RocketComponent implements ChangeSource, Cloneable,
 		Iterable<RocketComponent> {
-
+	
 	/*
 	 * Text is suitable to the form
 	 *    Position relative to:  <title>
@@ -40,6 +41,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		ABSOLUTE("Tip of the nose cone");
 		
 		private String title;
+		
 		Position(String title) {
 			this.title = title;
 		}
@@ -60,8 +62,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * List of child components of this component.
 	 */
 	private List<RocketComponent> children = new ArrayList<RocketComponent>();
-
 	
+
 	////////  Parameters common to all components:
 	
 	/**
@@ -71,7 +73,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * By default it is zero, i.e. no translation.
 	 */
 	protected double length = 0;
-
+	
 	/**
 	 * Positioning of this component relative to the parent component.
 	 */
@@ -83,12 +85,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 */
 	protected double position = 0;
 	
-	
+
 	// Color of the component, null means to use the default color
 	private Color color = null;
 	private LineStyle lineStyle = null;
 	
-	
+
 	// Override mass/CG
 	private double overrideMass = 0;
 	private boolean massOverriden = false;
@@ -103,14 +105,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	
 	// User-specified comment
 	private String comment = "";
-
+	
 	// Unique ID of the component
+	// TODO: CRITICAL: Sort out usage of ID and undo defect
 	private String id = null;
+	
+	/**
+	 * When invalidated is non-null this component cannot be used anymore.
+	 * This is a safety mechanism to prevent accidental use after calling {@link #copyFrom(RocketComponent)}.
+	 */
+	private TraceException invalidated = null;
 	
 	////  NOTE !!!  All fields must be copied in the method copyFrom()!  ////
 	
-	
-	
+
+
 	/**
 	 * Default constructor.  Sets the name of the component to the component's static name
 	 * and the relative position of the component.
@@ -119,32 +128,32 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		// These must not fire any events, due to Rocket undo system initialization
 		this.name = getComponentName();
 		this.relativePosition = relativePosition;
-		this.id = UUID.randomUUID().toString();
+		newID();
 	}
 	
 	
-	
-	
-	
-	////////////  Methods that must be implemented  ////////////
 
+
+
+	////////////  Methods that must be implemented  ////////////
+	
 
 	/**
 	 * Static component name.  The name may not vary of the parameters, it must be static.
 	 */
-	public abstract String getComponentName();  // Static component type name
-
+	public abstract String getComponentName(); // Static component type name
+	
 	/**
 	 * Return the component mass (regardless of mass overriding).
 	 */
-	public abstract double getComponentMass();  // Mass of non-overridden component
-
+	public abstract double getComponentMass(); // Mass of non-overridden component
+	
 	/**
 	 * Return the component CG and mass (regardless of CG or mass overriding).
 	 */
-	public abstract Coordinate getComponentCG();    // CG of non-overridden component
+	public abstract Coordinate getComponentCG(); // CG of non-overridden component
 	
-	
+
 	/**
 	 * Return the longitudal (around the y- or z-axis) unitary moment of inertia.  
 	 * The unitary moment of inertia is the moment of inertia with the assumption that
@@ -167,7 +176,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	public abstract double getRotationalUnitInertia();
 	
 	
-	
+	/**
+	 * Test whether this component allows any children components.  This method must
+	 * return true if and only if {@link #isCompatible(Class)} returns true for any
+	 * rocket component class.
+	 * 
+	 * @return	<code>true</code> if children can be attached to this component, <code>false</code> otherwise.
+	 */
+	public abstract boolean allowsChildren();
 	
 	/**
 	 * Test whether the given component type can be added to this component.  This type safety
@@ -191,11 +207,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @see #isCompatible(Class)
 	 */
 	public final boolean isCompatible(RocketComponent c) {
+		checkState();
 		return isCompatible(c.getClass());
 	}
 	
 	
-	
+
 	/**
 	 * Return a collection of bounding coordinates.  The coordinates must be such that
 	 * the component is fully enclosed in their convex hull.
@@ -203,24 +220,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return	a collection of coordinates that bound the component.
 	 */
 	public abstract Collection<Coordinate> getComponentBounds();
-
+	
 	/**
 	 * Return true if the component may have an aerodynamic effect on the rocket.
 	 */
 	public abstract boolean isAerodynamic();
-
+	
 	/**
 	 * Return true if the component may have an effect on the rocket's mass.
 	 */
 	public abstract boolean isMassive();
 	
 	
-	
-	
+
+
 
 	////////////  Methods that may be overridden  ////////////
-
 	
+
 	/**
 	 * Shift the coordinates in the array corresponding to radial movement.  A component
 	 * that has a radial position must shift the coordinates in this array suitably.
@@ -234,6 +251,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * 			  of the passed array and return the array itself.
 	 */
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
+		checkState();
 		return c;
 	}
 	
@@ -248,11 +266,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 */
 	protected void componentChanged(ComponentChangeEvent e) {
 		// No-op
+		checkState();
 	}
 	
+	
 
-	
-	
+
 	/**
 	 * Return a descriptive name of the component.
 	 * 
@@ -268,69 +287,92 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		else
 			return name;
 	}
-
+	
 	
 	public final void printStructure() {
-		System.out.println("Rocket structure from '"+this.toString()+"':");
+		System.out.println("Rocket structure from '" + this.toString() + "':");
 		printStructure(0);
 	}
 	
 	private void printStructure(int level) {
 		String s = "";
 		
-		for (int i=0; i < level; i++) {
+		for (int i = 0; i < level; i++) {
 			s += "  ";
 		}
-		s += this.toString() + " (" + this.getComponentName()+")";
+		s += this.toString() + " (" + this.getComponentName() + ")";
 		System.out.println(s);
 		
-		for (RocketComponent c: children) {
-			c.printStructure(level+1);
+		for (RocketComponent c : children) {
+			c.printStructure(level + 1);
 		}
 	}
 	
 	
 	/**
 	 * Make a deep copy of the rocket component tree structure from this component
-	 * downwards.  This method does not fire any events.
+	 * downwards for copying purposes.  Each component in the copy will be assigned
+	 * a new component ID, making it a safe copy.  This method does not fire any events.
+	 * 
+	 * @return A deep copy of the structure.
+	 */
+	public final RocketComponent copy() {
+		RocketComponent clone = copyWithOriginalID();
+		
+		Iterator<RocketComponent> iterator = clone.deepIterator(true);
+		while (iterator.hasNext()) {
+			iterator.next().newID();
+		}
+		return clone;
+	}
+	
+	
+
+	/**
+	 * Make a deep copy of the rocket component tree structure from this component
+	 * downwards while maintaining the component ID's.  The purpose of this method is
+	 * to allow copies to be created with the original ID's for the purpose of the
+	 * undo/redo mechanism.  This method should not be used for other purposes,
+	 * such as copy/paste.  This method does not fire any events.
 	 * <p>
 	 * This method must be overridden by any component that refers to mutable objects, 
 	 * or if some fields should not be copied.  This should be performed by
-	 * <code>RocketComponent c = super.copy();</code> and then cloning/modifying the
-	 * appropriate fields.
+	 * <code>RocketComponent c = super.copyWithOriginalID();</code> and then cloning/modifying
+	 * the appropriate fields.
 	 * <p>
 	 * This is not performed as serializing/deserializing for performance reasons.
 	 * 
 	 * @return A deep copy of the structure.
 	 */
-	public RocketComponent copy() {
+	protected RocketComponent copyWithOriginalID() {
+		checkState();
 		RocketComponent clone;
 		try {
-			clone = (RocketComponent)this.clone();
+			clone = (RocketComponent) this.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("CloneNotSupportedException encountered, " +
-					"report a bug!",e);
+					"report a bug!", e);
 		}
-
+		
 		// Reset all parent/child information
 		clone.parent = null;
 		clone.children = new ArrayList<RocketComponent>();
-
+		
 		// Add copied children to the structure without firing events.
-		for (RocketComponent child: this.children) {
-			RocketComponent childCopy = child.copy();
+		for (RocketComponent child : this.children) {
+			RocketComponent childCopy = child.copyWithOriginalID();
 			// Don't use add method since it fires events
 			clone.children.add(childCopy);
 			childCopy.parent = clone;
 		}
-
+		
 		return clone;
 	}
-
-
+	
+	
 	//////////////  Methods that may not be overridden  ////////////
 	
-	
+
 
 	////////// Common parameter setting/getting //////////
 	
@@ -339,6 +381,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * to use the default color.
 	 */
 	public final Color getColor() {
+		checkState();
 		return color;
 	}
 	
@@ -346,6 +389,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * Set the color of the object to use in 2D figures.  
 	 */
 	public final void setColor(Color c) {
+		checkState();
 		if ((color == null && c == null) ||
 				(color != null && color.equals(c)))
 			return;
@@ -356,19 +400,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	
 	
 	public final LineStyle getLineStyle() {
+		checkState();
 		return lineStyle;
 	}
 	
 	public final void setLineStyle(LineStyle style) {
+		checkState();
 		if (this.lineStyle == style)
 			return;
 		this.lineStyle = style;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
+	
+	
 
-	
-	
-	
+
 	/**
 	 * Get the current override mass.  The mass is not necessarily in use
 	 * at the moment.
@@ -376,6 +422,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the override mass
 	 */
 	public final double getOverrideMass() {
+		checkState();
 		return overrideMass;
 	}
 	
@@ -386,7 +433,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param m  the override mass
 	 */
 	public final void setOverrideMass(double m) {
-		overrideMass = Math.max(m,0);
+		checkState();
+		overrideMass = Math.max(m, 0);
 		if (massOverriden)
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
@@ -398,6 +446,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  whether the mass is overridden
 	 */
 	public final boolean isMassOverridden() {
+		checkState();
 		return massOverriden;
 	}
 	
@@ -407,31 +456,34 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param o  whether the mass is overridden
 	 */
 	public final void setMassOverridden(boolean o) {
+		checkState();
 		if (massOverriden != o) {
 			massOverriden = o;
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		}
 	}
+	
+	
 
-	
-	
-	
-	
+
+
 	/**
 	 * Return the current override CG.  The CG is not necessarily overridden.
 	 * 
 	 * @return  the override CG
 	 */
 	public final Coordinate getOverrideCG() {
+		checkState();
 		return getComponentCG().setX(overrideCGX);
 	}
-
+	
 	/**
 	 * Return the x-coordinate of the current override CG.
 	 * 
 	 * @return	the x-coordinate of the override CG.
 	 */
 	public final double getOverrideCGX() {
+		checkState();
 		return overrideCGX;
 	}
 	
@@ -441,6 +493,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param x  the x-coordinate of the override CG to set.
 	 */
 	public final void setOverrideCGX(double x) {
+		checkState();
 		if (MathUtil.equals(overrideCGX, x))
 			return;
 		this.overrideCGX = x;
@@ -456,6 +509,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  whether the CG is overridden
 	 */
 	public final boolean isCGOverridden() {
+		checkState();
 		return cgOverriden;
 	}
 	
@@ -465,14 +519,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param o  whether the CG is overridden
 	 */
 	public final void setCGOverridden(boolean o) {
+		checkState();
 		if (cgOverriden != o) {
 			cgOverriden = o;
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 		}
 	}
+	
+	
 
-	
-	
 	/**
 	 * Return whether the mass and/or CG override overrides all subcomponent values
 	 * as well.  The default implementation is a normal getter/setter implementation,
@@ -484,6 +539,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return	whether the current mass and/or CG override overrides subcomponents as well.
 	 */
 	public boolean getOverrideSubcomponents() {
+		checkState();
 		return overrideSubcomponents;
 	}
 	
@@ -495,6 +551,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param override	whether the mass and/or CG override overrides all subcomponent.
 	 */
 	public void setOverrideSubcomponents(boolean override) {
+		checkState();
 		if (overrideSubcomponents != override) {
 			overrideSubcomponents = override;
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
@@ -512,12 +569,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return	whether the option to override subcomponents is currently enabled.
 	 */
 	public boolean isOverrideSubcomponentsEnabled() {
+		checkState();
 		return isCGOverridden() || isMassOverridden();
 	}
 	
 	
-	
-	
+
+
 	/**
 	 * Get the user-defined name of the component.
 	 */
@@ -530,8 +588,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * the default name, currently the component name.
 	 */
 	public final void setName(String name) {
-//		System.out.println("Set name called:"+name+" orig:"+this.name);
-		if (name==null || name.matches("^\\s*$"))
+		checkState();
+		if (name == null || name.matches("^\\s*$"))
 			this.name = getComponentName();
 		else
 			this.name = name;
@@ -546,6 +604,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the comment of the component.
 	 */
 	public final String getComment() {
+		checkState();
 		return comment;
 	}
 	
@@ -555,6 +614,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param comment  the comment of the component.
 	 */
 	public final void setComment(String comment) {
+		checkState();
 		if (this.comment.equals(comment))
 			return;
 		if (comment == null)
@@ -564,8 +624,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
-
 	
+
 	/**
 	 * Returns the unique ID of the component.
 	 * 
@@ -575,28 +635,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		return id;
 	}
 	
-	
 	/**
-	 * Set the unique ID of the component.  If <code>id</code> in <code>null</code> then
-	 * this method generates a new unique ID for the component.
-	 * <p>
-	 * This method should be used only in special cases, such as when creating database
-	 * entries with empty IDs.
-	 * 
-	 * @param id	the ID to set.
+	 * Generate a new ID for this component.
 	 */
-	public final void setID(String id) {
-		if (id == null) {
-			this.id = UUID.randomUUID().toString();
-		} else {
-			this.id = id;
-		}
-		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);	 
+	private final void newID() {
+		this.id = UniqueID.uuid();
 	}
 	
 	
-	
-	
+
+
 	/**
 	 * Get the characteristic length of the component, for example the length of a body tube
 	 * of the length of the root chord of a fin.  This is used in positioning the component
@@ -606,15 +654,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * itself.
 	 */
 	public final double getLength() {
+		checkState();
 		return length;
 	}
-
+	
 	/**
 	 * Get the positioning of the component relative to its parent component.
 	 * This is one of the enums of {@link Position}.  A setter method is not provided,
 	 * but can be provided by a subclass.
 	 */
 	public final Position getRelativePosition() {
+		checkState();
 		return relativePosition;
 	}
 	
@@ -631,42 +681,43 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param position	the relative positioning.
 	 */
 	protected void setRelativePosition(RocketComponent.Position position) {
+		checkState();
 		if (this.relativePosition == position)
 			return;
 		
 		// Update position so as not to move the component
 		if (this.parent != null) {
-			double thisPos = this.toRelative(Coordinate.NUL,this.parent)[0].x;
-
+			double thisPos = this.toRelative(Coordinate.NUL, this.parent)[0].x;
+			
 			switch (position) {
 			case ABSOLUTE:
 				this.position = this.toAbsolute(Coordinate.NUL)[0].x;
 				break;
-				
+			
 			case TOP:
 				this.position = thisPos;
 				break;
-				
+			
 			case MIDDLE:
-				this.position = thisPos - (this.parent.length - this.length)/2;
+				this.position = thisPos - (this.parent.length - this.length) / 2;
 				break;
-				
+			
 			case BOTTOM:
 				this.position = thisPos - (this.parent.length - this.length);
 				break;
-				
+			
 			default:
-				assert(false): "Should not occur";
+				throw new BugException("Unknown position type: " + position);
 			}
 		}
 		
 		this.relativePosition = position;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-
 	
 	
+
+
 	/**
 	 * Get the position value of the component.  The exact meaning of the value is
 	 * dependent on the current relative positioning.
@@ -674,10 +725,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the positional value.
 	 */
 	public final double getPositionValue() {
+		checkState();
 		return position;
 	}
 	
-
+	
 	/**
 	 * Set the position value of the component.  The exact meaning of the value
 	 * depends on the current relative positioning.
@@ -690,23 +742,25 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param value		the position value of the component.
 	 */
 	public void setPositionValue(double value) {
+		checkState();
 		if (MathUtil.equals(this.position, value))
 			return;
 		this.position = value;
 	}
+	
+	
 
-	
-	
 	///////////  Coordinate changes  ///////////
-
+	
 	/**
 	 * Returns coordinate c in absolute coordinates.  Equivalent to toComponent(c,null).
 	 */
 	public Coordinate[] toAbsolute(Coordinate c) {
-		return toRelative(c,null);
+		checkState();
+		return toRelative(c, null);
 	}
 	
-
+	
 	/**
 	 * Return coordinate <code>c</code> described in the coordinate system of 
 	 * <code>dest</code>.  If <code>dest</code> is <code>null</code> returns
@@ -724,6 +778,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * 			   relative to <code>dest</code>.
 	 */
 	public final Coordinate[] toRelative(Coordinate c, RocketComponent dest) {
+		checkState();
 		double absoluteX = Double.NaN;
 		RocketComponent search = dest;
 		Coordinate[] array = new Coordinate[1];
@@ -731,72 +786,72 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		
 		RocketComponent component = this;
 		while ((component != search) && (component.parent != null)) {
-
+			
 			array = component.shiftCoordinates(array);
 			
 			switch (component.relativePosition) {
 			case TOP:
-				for (int i=0; i < array.length; i++) {
-					array[i] = array[i].add(component.position,0,0);
+				for (int i = 0; i < array.length; i++) {
+					array[i] = array[i].add(component.position, 0, 0);
 				}
 				break;
-				
+			
 			case MIDDLE:
-				for (int i=0; i < array.length; i++) {
-					array[i] = array[i].add(component.position + 
-							(component.parent.length-component.length)/2,0,0);
+				for (int i = 0; i < array.length; i++) {
+					array[i] = array[i].add(component.position +
+							(component.parent.length - component.length) / 2, 0, 0);
 				}
 				break;
-				
+			
 			case BOTTOM:
-				for (int i=0; i < array.length; i++) {
-					array[i] = array[i].add(component.position + 
-							(component.parent.length-component.length),0,0);
+				for (int i = 0; i < array.length; i++) {
+					array[i] = array[i].add(component.position +
+							(component.parent.length - component.length), 0, 0);
 				}
 				break;
-				
+			
 			case AFTER:
 				// Add length of all previous brother-components with POSITION_RELATIVE_AFTER
 				int index = component.parent.children.indexOf(component);
-				assert(index >= 0);
+				assert (index >= 0);
 				for (index--; index >= 0; index--) {
 					RocketComponent comp = component.parent.children.get(index);
 					double length = comp.getTotalLength();
-					for (int i=0; i < array.length; i++) {
-						array[i] = array[i].add(length,0,0);
+					for (int i = 0; i < array.length; i++) {
+						array[i] = array[i].add(length, 0, 0);
 					}
 				}
-				for (int i=0; i < array.length; i++) {
-					array[i] = array[i].add(component.position + component.parent.length,0,0);
+				for (int i = 0; i < array.length; i++) {
+					array[i] = array[i].add(component.position + component.parent.length, 0, 0);
 				}
 				break;
-				
+			
 			case ABSOLUTE:
-				search = null;  // Requires back-search if dest!=null
+				search = null; // Requires back-search if dest!=null
 				if (Double.isNaN(absoluteX)) {
 					absoluteX = component.position;
 				}
 				break;
-				
+			
 			default:
-				throw new BugException("Unknown relative positioning type of component"+
-						component+": "+component.relativePosition);
+				throw new BugException("Unknown relative positioning type of component" +
+						component + ": " + component.relativePosition);
 			}
-
-			component = component.parent;  // parent != null
+			
+			component = component.parent; // parent != null
 		}
-
+		
 		if (!Double.isNaN(absoluteX)) {
-			for (int i=0; i < array.length; i++) {
+			for (int i = 0; i < array.length; i++) {
 				array[i] = array[i].setX(absoluteX + c.x);
 			}
 		}
-
+		
 		// Check whether destination has been found or whether to backtrack
 		// TODO: LOW: Backtracking into clustered components uses only one component 
 		if ((dest != null) && (component != dest)) {
 			Coordinate[] origin = dest.toAbsolute(Coordinate.NUL);
-			for (int i=0; i < array.length; i++) {
+			for (int i = 0; i < array.length; i++) {
 				array[i] = array[i].sub(origin[0]);
 			}
 		}
@@ -812,24 +867,26 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  Sum of the lengths.
 	 */
 	private final double getTotalLength() {
-		double l=0;
+		checkState();
+		double l = 0;
 		if (relativePosition == Position.AFTER)
 			l = length;
-		for (int i=0; i<children.size(); i++)
+		for (int i = 0; i < children.size(); i++)
 			l += children.get(i).getTotalLength();
 		return l;
 	}
 	
-
 	
-	/////////// Total mass and CG calculation ////////////
 
+	/////////// Total mass and CG calculation ////////////
+	
 	/**
 	 * Return the (possibly overridden) mass of component.
 	 * 
 	 * @return The mass of the component or the given override mass.
 	 */
 	public final double getMass() {
+		checkState();
 		if (massOverriden)
 			return overrideMass;
 		return getComponentMass();
@@ -844,16 +901,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return The CG of the component or the given override CG.
 	 */
 	public final Coordinate getCG() {
+		checkState();
 		if (cgOverriden)
 			return getOverrideCG().setWeight(getMass());
-
+		
 		if (massOverriden)
 			return getComponentCG().setWeight(getMass());
 		
 		return getComponentCG();
 	}
 	
-
+	
 	/**
 	 * Return the longitudal (around the y- or z-axis) moment of inertia of this component.
 	 * The moment of inertia is scaled in reference to the (possibly overridden) mass
@@ -862,6 +920,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return    the longitudal moment of inertia of this component.
 	 */
 	public final double getLongitudalInertia() {
+		checkState();
 		return getLongitudalUnitInertia() * getMass();
 	}
 	
@@ -873,11 +932,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return    the rotational moment of inertia of this component.
 	 */
 	public final double getRotationalInertia() {
+		checkState();
 		return getRotationalUnitInertia() * getMass();
 	}
 	
 	
-	
+
 	///////////  Children handling  ///////////
 	
 
@@ -892,9 +952,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @see #addChild(RocketComponent,int)
 	 */
 	public final void addChild(RocketComponent component) {
-		addChild(component,children.size());
+		checkState();
+		addChild(component, children.size());
 	}
-
+	
 	
 	/**
 	 * Adds a child to the rocket component tree.  The component is added to 
@@ -909,16 +970,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * 									 some component tree.
 	 */
 	public void addChild(RocketComponent component, int position) {
+		checkState();
 		if (component.parent != null) {
-			throw new IllegalArgumentException("component "+component.getComponentName()+
+			throw new IllegalArgumentException("component " + component.getComponentName() +
 					" is already in a tree");
 		}
 		if (!isCompatible(component)) {
-			throw new IllegalStateException("Component "+component.getComponentName()+
-					" not currently compatible with component "+getComponentName());
+			throw new IllegalStateException("Component " + component.getComponentName() +
+					" not currently compatible with component " + getComponentName());
 		}
 		
-		children.add(position,component);
+		children.add(position, component);
 		component.parent = this;
 		
 		fireAddRemoveEvent(component);
@@ -932,6 +994,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @throws IndexOutOfBoundsException  if n is out of bounds
 	 */
 	public final void removeChild(int n) {
+		checkState();
 		RocketComponent component = children.remove(n);
 		component.parent = null;
 		fireAddRemoveEvent(component);
@@ -941,19 +1004,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * Removes a child from the rocket component tree.  Does nothing if the component
 	 * is not present as a child.
 	 * 
-	 * @param component  the component to remove
+	 * @param component		the component to remove
+	 * @return				whether the component was a child
 	 */
-	public final void removeChild(RocketComponent component) {
+	public final boolean removeChild(RocketComponent component) {
+		checkState();
 		if (children.remove(component)) {
 			component.parent = null;
-			
 			fireAddRemoveEvent(component);
+			return true;
 		}
+		return false;
 	}
-
+	
 	
 
-	
+
 	/**
 	 * Move a child to another position.
 	 * 
@@ -962,6 +1028,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @throws IllegalArgumentException If an illegal placement was attempted.
 	 */
 	public final void moveChild(RocketComponent component, int position) {
+		checkState();
 		if (children.remove(component)) {
 			children.add(position, component);
 			fireAddRemoveEvent(component);
@@ -989,14 +1056,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	
 	
 	public final int getChildCount() {
+		checkState();
 		return children.size();
 	}
 	
 	public final RocketComponent getChild(int n) {
+		checkState();
 		return children.get(n);
 	}
 	
 	public final RocketComponent[] getChildren() {
+		checkState();
 		return children.toArray(new RocketComponent[0]);
 	}
 	
@@ -1009,6 +1079,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  Position in the list or -1 if not found.
 	 */
 	public final int getChildPosition(RocketComponent child) {
+		checkState();
 		return children.indexOf(child);
 	}
 	
@@ -1019,6 +1090,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  The parent of this component or <code>null</code>.
 	 */
 	public final RocketComponent getParent() {
+		checkState();
 		return parent;
 	}
 	
@@ -1028,6 +1100,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  The root component of the component tree.
 	 */
 	public final RocketComponent getRoot() {
+		checkState();
 		RocketComponent gp = this;
 		while (gp.parent != null)
 			gp = gp.parent;
@@ -1042,11 +1115,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @throws  IllegalStateException  If the root component is not a Rocket.
 	 */
 	public final Rocket getRocket() {
+		checkState();
 		RocketComponent r = getRoot();
 		if (r instanceof Rocket)
-			return (Rocket)r;
+			return (Rocket) r;
 		throw new IllegalStateException("getRocket() called with root component "
-				+r.getComponentName());
+				+ r.getComponentName());
 	}
 	
 	
@@ -1058,10 +1132,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @throws	IllegalStateException   if a Stage component is not in the parentage.
 	 */
 	public final Stage getStage() {
+		checkState();
 		RocketComponent c = this;
 		while (c != null) {
 			if (c instanceof Stage)
-				return (Stage)c;
+				return (Stage) c;
 			c = c.getParent();
 		}
 		throw new IllegalStateException("getStage() called without Stage as a parent.");
@@ -1074,6 +1149,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return   the stage number this component belongs to.
 	 */
 	public final int getStageNumber() {
+		checkState();
 		if (parent == null) {
 			throw new IllegalArgumentException("getStageNumber() called for root component");
 		}
@@ -1095,21 +1171,23 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * down (including this component) for the ID and the corresponding component is returned,
 	 * or null if not found.
 	 * 
-	 * @param id  ID to search for.
+	 * @param idToFind  ID to search for.
 	 * @return    The component with the ID, or null if not found.
 	 */
-	public final RocketComponent findComponent(String id) {
+	public final RocketComponent findComponent(String idToFind) {
+		checkState();
 		Iterator<RocketComponent> iter = this.deepIterator(true);
 		while (iter.hasNext()) {
 			RocketComponent c = iter.next();
-			if (c.id.equals(id))
+			if (c.getID().equals(idToFind))
 				return c;
 		}
 		return null;
 	}
-
+	
 	
 	public final RocketComponent getPreviousComponent() {
+		checkState();
 		if (parent == null)
 			return null;
 		int pos = parent.getChildPosition(this);
@@ -1117,27 +1195,28 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 			StringBuffer sb = new StringBuffer();
 			sb.append("Inconsistent internal state: ");
 			sb.append("this=").append(this).append('[')
-				.append(System.identityHashCode(this)).append(']');
+					.append(System.identityHashCode(this)).append(']');
 			sb.append(" parent.children=[");
-			for (int i=0; i < parent.children.size(); i++) {
+			for (int i = 0; i < parent.children.size(); i++) {
 				RocketComponent c = parent.children.get(i);
 				sb.append(c).append('[').append(System.identityHashCode(c)).append(']');
-				if (i < parent.children.size()-1)
+				if (i < parent.children.size() - 1)
 					sb.append(", ");
 			}
 			sb.append(']');
 			throw new IllegalStateException(sb.toString());
 		}
-		assert(pos >= 0);
+		assert (pos >= 0);
 		if (pos == 0)
 			return parent;
-		RocketComponent c = parent.getChild(pos-1);
+		RocketComponent c = parent.getChild(pos - 1);
 		while (c.getChildCount() > 0)
-			c = c.getChild(c.getChildCount()-1);
+			c = c.getChild(c.getChildCount() - 1);
 		return c;
 	}
 	
 	public final RocketComponent getNextComponent() {
+		checkState();
 		if (getChildCount() > 0)
 			return getChild(0);
 		
@@ -1146,9 +1225,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		
 		while (parent != null) {
 			int pos = parent.getChildPosition(current);
-			if (pos < parent.getChildCount()-1)
-				return parent.getChild(pos+1);
-				
+			if (pos < parent.getChildCount() - 1)
+				return parent.getChild(pos + 1);
+			
 			current = parent;
 			parent = current.parent;
 		}
@@ -1170,6 +1249,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @throws IllegalStateException - if the root component is not a Rocket
 	 */
 	public void addComponentChangeListener(ComponentChangeListener l) {
+		checkState();
 		getRocket().addComponentChangeListener(l);
 	}
 	
@@ -1187,7 +1267,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		}
 	}
 	
-
+	
 	/**
 	 * Adds a <code>ChangeListener</code> to the rocket tree.  This is identical to 
 	 * <code>addComponentChangeListener()</code> except that it uses a 
@@ -1198,6 +1278,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @throws IllegalStateException - if the root component is not a <code>Rocket</code>
 	 */
 	public void addChangeListener(ChangeListener l) {
+		checkState();
 		getRocket().addChangeListener(l);
 	}
 	
@@ -1228,13 +1309,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param e  Event to send
 	 */
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
-		if (parent==null) {
+		checkState();
+		if (parent == null) {
 			/* Ignore if root invalid. */
 			return;
 		}
 		getRoot().fireComponentChangeEvent(e);
 	}
-
+	
 	
 	/**
 	 * Fires a ComponentChangeEvent of the given type.  The source of the event is set to
@@ -1244,10 +1326,25 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @see #fireComponentChangeEvent(ComponentChangeEvent)
 	 */
 	protected void fireComponentChangeEvent(int type) {
-		fireComponentChangeEvent(new ComponentChangeEvent(this,type));
+		fireComponentChangeEvent(new ComponentChangeEvent(this, type));
 	}
 	
-
+	
+	/**
+	 * Checks whether this component has been invalidated and should no longer be used.
+	 * This is a safety check that in-place replaced components are no longer used.
+	 * All non-trivial methods should call this method as the first thing, unless the
+	 * method may be used in debugging cases.
+	 * 
+	 * @throws	BugException	if this component has been invalidated by {@link #copyFrom(RocketComponent)}.
+	 */
+	protected void checkState() {
+		if (invalidated != null) {
+			throw new BugException("This component has been invalidated.  Cause is the point of invalidation.",
+					invalidated);
+		}
+	}
+	
 	
 	///////////  Iterator implementation  //////////
 	
@@ -1263,16 +1360,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		
 		private final Rocket root;
 		private final int treeModID;
-
+		
 		private final RocketComponent original;
-		private boolean returnSelf=false;
+		private boolean returnSelf = false;
 		
 		// Construct iterator with component's child's iterator, if it has elements
 		public RocketComponentIterator(RocketComponent c, boolean returnSelf) {
 			
 			RocketComponent gp = c.getRoot();
 			if (gp instanceof Rocket) {
-				root = (Rocket)gp;
+				root = (Rocket) gp;
 				treeModID = root.getTreeModID();
 			} else {
 				root = null;
@@ -1288,20 +1385,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		}
 		
 		public boolean hasNext() {
+			checkState();
 			checkID();
 			if (returnSelf)
 				return true;
-			return !iteratorstack.empty();  // Elements remain if stack is not empty
+			return !iteratorstack.empty(); // Elements remain if stack is not empty
 		}
-
+		
 		public RocketComponent next() {
 			Iterator<RocketComponent> i;
-
+			
+			checkState();
 			checkID();
 			
 			// Return original component first
 			if (returnSelf) {
-				returnSelf=false;
+				returnSelf = false;
 				return original;
 			}
 			
@@ -1325,7 +1424,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 			
 			return c;
 		}
-
+		
 		private void checkID() {
 			if (root != null) {
 				if (root.getTreeModID() != treeModID) {
@@ -1339,7 +1438,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 					"RocketComponent iterator");
 		}
 	}
-
+	
 	/**
 	 * Returns an iterator that iterates over all children and sub-children.
 	 * 
@@ -1355,7 +1454,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return An iterator for the children and sub-children.
 	 */
 	public final Iterator<RocketComponent> deepIterator(boolean returnSelf) {
-		return new RocketComponentIterator(this,returnSelf);
+		checkState();
+		return new RocketComponentIterator(this, returnSelf);
 	}
 	
 	/**
@@ -1368,7 +1468,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return An iterator for the children and sub-children.
 	 */
 	public final Iterator<RocketComponent> deepIterator() {
-		return new RocketComponentIterator(this,false);
+		checkState();
+		return new RocketComponentIterator(this, false);
 	}
 	
 	
@@ -1379,54 +1480,85 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return An iterator for the children.
 	 */
 	public final Iterator<RocketComponent> iterator() {
+		checkState();
 		return Collections.unmodifiableList(children).iterator();
 	}
 	
+	
+
+
+	/**
+	 * Compare component equality based on the ID of this component.  Only the
+	 * ID and class type is used for a basis of comparison.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (this.getClass() != obj.getClass())
+			return false;
+		RocketComponent other = (RocketComponent) obj;
+		return this.id.equals(other.id);
+	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+	
+	
+
 	////////////  Helper methods for subclasses
 	
+
+
+
 	/**
 	 * Helper method to add rotationally symmetric bounds at the specified coordinates.
 	 * The X-axis value is <code>x</code> and the radius at the specified position is
 	 * <code>r</code>. 
 	 */
 	protected static final void addBound(Collection<Coordinate> bounds, double x, double r) {
-		bounds.add(new Coordinate(x,-r,-r));
-		bounds.add(new Coordinate(x, r,-r));
+		bounds.add(new Coordinate(x, -r, -r));
+		bounds.add(new Coordinate(x, r, -r));
 		bounds.add(new Coordinate(x, r, r));
-		bounds.add(new Coordinate(x,-r, r));
+		bounds.add(new Coordinate(x, -r, r));
 	}
 	
 	
-	protected static final Coordinate ringCG(double outerRadius, double innerRadius, 
+	protected static final Coordinate ringCG(double outerRadius, double innerRadius,
 			double x1, double x2, double density) {
-		return new Coordinate((x1+x2)/2, 0, 0, 
-				ringMass(outerRadius, innerRadius, x2-x1, density));
+		return new Coordinate((x1 + x2) / 2, 0, 0,
+				ringMass(outerRadius, innerRadius, x2 - x1, density));
 	}
 	
 	protected static final double ringMass(double outerRadius, double innerRadius,
 			double length, double density) {
-		return Math.PI*(MathUtil.pow2(outerRadius) - MathUtil.pow2(innerRadius)) *
+		return Math.PI * (MathUtil.pow2(outerRadius) - MathUtil.pow2(innerRadius)) *
 					length * density;
 	}
-
-	protected static final double ringLongitudalUnitInertia(double outerRadius, 
+	
+	protected static final double ringLongitudalUnitInertia(double outerRadius,
 			double innerRadius, double length) {
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
-		return (3 * (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius)) +
-				MathUtil.pow2(length)) / 12;
+		return (3 * (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius)) + MathUtil.pow2(length)) / 12;
 	}
-
-	protected static final double ringRotationalUnitInertia(double outerRadius, 
+	
+	protected static final double ringRotationalUnitInertia(double outerRadius,
 			double innerRadius) {
 		// 1/2 * (r1^2 + r2^2)
-		return (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius))/2;
+		return (MathUtil.pow2(innerRadius) + MathUtil.pow2(outerRadius)) / 2;
 	}
-
-
 	
+	
+
 	////////////  OTHER
-
 	
+
 	/**
 	 * Loads the RocketComponent fields from the given component.  This method is meant
 	 * for in-place replacement of a component.  It is used with the undo/redo
@@ -1434,14 +1566,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * This component must not have a parent, otherwise this method will fail.
 	 * <p>
 	 * The fields are copied by reference, and the supplied component must not be used
-	 * after the call, as it is in an undefined state.
+	 * after the call, as it is in an undefined state.  This is enforced by invalidating
+	 * the source component.
 	 * 
 	 * TODO: MEDIUM: Make general to copy all private/protected fields...
 	 */
 	protected void copyFrom(RocketComponent src) {
+		checkState();
 		
 		if (this.parent != null) {
-			throw new UnsupportedOperationException("copyFrom called for non-root component " 
+			throw new UnsupportedOperationException("copyFrom called for non-root component "
 					+ this);
 		}
 		
@@ -1449,10 +1583,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		this.children = src.children;
 		src.children = new ArrayList<RocketComponent>();
 		
-		for (RocketComponent c: this.children) {
+		for (RocketComponent c : this.children) {
 			c.parent = this;
 		}
-
+		
 		// Set all parameters
 		this.length = src.length;
 		this.relativePosition = src.relativePosition;
@@ -1467,6 +1601,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		this.name = src.name;
 		this.comment = src.comment;
 		this.id = src.id;
+		
+		src.invalidated = new TraceException();
 	}
 	
 }

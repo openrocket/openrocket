@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -15,29 +16,29 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class InnerTube extends ThicknessRingComponent 
-implements Clusterable, RadialParent, MotorMount {
-
+public class InnerTube extends ThicknessRingComponent
+		implements Clusterable, RadialParent, MotorMount {
+	
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
 	
-	
+
 	private boolean motorMount = false;
 	private HashMap<String, Double> ejectionDelays = new HashMap<String, Double>();
 	private HashMap<String, Motor> motors = new HashMap<String, Motor>();
 	private IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
 	private double ignitionDelay = 0;
 	private double overhang = 0;
-
+	
 	
 	/**
 	 * Main constructor.
 	 */
 	public InnerTube() {
 		// A-C motor size:
-		this.setOuterRadius(0.019/2);
-		this.setInnerRadius(0.018/2);
+		this.setOuterRadius(0.019 / 2);
+		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 	}
 	
@@ -46,19 +47,24 @@ implements Clusterable, RadialParent, MotorMount {
 	public double getInnerRadius(double x) {
 		return getInnerRadius();
 	}
-
-
+	
+	
 	@Override
 	public double getOuterRadius(double x) {
 		return getOuterRadius();
 	}
 	
-
+	
 	@Override
 	public String getComponentName() {
 		return "Inner Tube";
 	}
-
+	
+	@Override
+	public boolean allowsChildren() {
+		return true;
+	}
+	
 	/**
 	 * Allow all InternalComponents to be added to this component.
 	 */
@@ -66,9 +72,9 @@ implements Clusterable, RadialParent, MotorMount {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return InternalComponent.class.isAssignableFrom(type);
 	}
+	
+	
 
-	
-	
 	/////////////  Cluster methods  //////////////
 	
 	/**
@@ -87,7 +93,7 @@ implements Clusterable, RadialParent, MotorMount {
 		this.cluster = cluster;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	/**
 	 * Return the number of tubes in the cluster.
 	 * @return Number of tubes in the current cluster.
@@ -105,17 +111,17 @@ implements Clusterable, RadialParent, MotorMount {
 	public double getClusterScale() {
 		return clusterScale;
 	}
-
+	
 	/**
 	 * Set the cluster scaling.
 	 * @see #getClusterScale()
 	 */
 	public void setClusterScale(double scale) {
-		scale = Math.max(scale,0);
+		scale = Math.max(scale, 0);
 		if (MathUtil.equals(clusterScale, scale))
 			return;
 		clusterScale = scale;
-		fireComponentChangeEvent(new ComponentChangeEvent(this,ComponentChangeEvent.MASS_CHANGE));
+		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
 	}
 	
 	
@@ -126,8 +132,8 @@ implements Clusterable, RadialParent, MotorMount {
 	public double getClusterRotation() {
 		return clusterRotation;
 	}
-
-
+	
+	
 	/**
 	 * @param rotation the clusterRotation to set
 	 */
@@ -138,15 +144,15 @@ implements Clusterable, RadialParent, MotorMount {
 		this.clusterRotation = rotation;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
-
+	
+	
 	/**
 	 * Return the distance between the closest two cluster inner tube center points.
 	 * This is equivalent to the cluster scale multiplied by the tube diameter.
 	 */
 	@Override
 	public double getClusterSeparation() {
-		return 2*getOuterRadius()*clusterScale;
+		return 2 * getOuterRadius() * clusterScale;
 	}
 	
 	
@@ -154,8 +160,8 @@ implements Clusterable, RadialParent, MotorMount {
 		List<Coordinate> list = new ArrayList<Coordinate>(getClusterCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
 		double separation = getClusterSeparation();
-		for (int i=0; i < points.size()/2; i++) {
-			list.add(new Coordinate(0,points.get(2*i)*separation,points.get(2*i+1)*separation));
+		for (int i = 0; i < points.size() / 2; i++) {
+			list.add(new Coordinate(0, points.get(2 * i) * separation, points.get(2 * i + 1) * separation));
 		}
 		return list;
 	}
@@ -168,20 +174,23 @@ implements Clusterable, RadialParent, MotorMount {
 		int count = getClusterCount();
 		if (count == 1)
 			return array;
-
+		
 		List<Coordinate> points = getClusterPoints();
-		assert(points.size() == count);
+		if (points.size() != count) {
+			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
+					" point count=" + points.size());
+		}
 		Coordinate[] newArray = new Coordinate[array.length * count];
-		for (int i=0; i < array.length; i++) {
-			for (int j=0; j < count; j++) {
-				newArray[i*count + j] = array[i].add(points.get(j));
+		for (int i = 0; i < array.length; i++) {
+			for (int j = 0; j < count; j++) {
+				newArray[i * count + j] = array[i].add(points.get(j));
 			}
 		}
 		
 		return newArray;
 	}
 	
-
+	
 
 
 	////////////////  Motor mount  /////////////////
@@ -190,7 +199,7 @@ implements Clusterable, RadialParent, MotorMount {
 	public boolean isMotorMount() {
 		return motorMount;
 	}
-
+	
 	@Override
 	public void setMotorMount(boolean mount) {
 		if (motorMount == mount)
@@ -213,7 +222,7 @@ implements Clusterable, RadialParent, MotorMount {
 		
 		return motors.get(id);
 	}
-
+	
 	@Override
 	public void setMotor(String id, Motor motor) {
 		if (id == null) {
@@ -228,7 +237,7 @@ implements Clusterable, RadialParent, MotorMount {
 		motors.put(id, motor);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-
+	
 	@Override
 	public double getMotorDelay(String id) {
 		Double delay = ejectionDelays.get(id);
@@ -236,7 +245,7 @@ implements Clusterable, RadialParent, MotorMount {
 			return Motor.PLUGGED;
 		return delay;
 	}
-
+	
 	@Override
 	public void setMotorDelay(String id, double delay) {
 		ejectionDelays.put(id, delay);
@@ -251,14 +260,14 @@ implements Clusterable, RadialParent, MotorMount {
 	
 	@Override
 	public double getMotorMountDiameter() {
-		return getInnerRadius()*2;
+		return getInnerRadius() * 2;
 	}
-
+	
 	@Override
 	public IgnitionEvent getIgnitionEvent() {
 		return ignitionEvent;
 	}
-
+	
 	@Override
 	public void setIgnitionEvent(IgnitionEvent event) {
 		if (ignitionEvent == event)
@@ -266,13 +275,13 @@ implements Clusterable, RadialParent, MotorMount {
 		ignitionEvent = event;
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-
+	
 	
 	@Override
 	public double getIgnitionDelay() {
 		return ignitionDelay;
 	}
-
+	
 	@Override
 	public void setIgnitionDelay(double delay) {
 		if (MathUtil.equals(delay, ignitionDelay))
@@ -280,7 +289,7 @@ implements Clusterable, RadialParent, MotorMount {
 		ignitionDelay = delay;
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-
+	
 	
 	@Override
 	public double getMotorOverhang() {
@@ -295,7 +304,7 @@ implements Clusterable, RadialParent, MotorMount {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-
+	
 	@Override
 	public Coordinate getMotorPosition(String id) {
 		Motor motor = motors.get(id);
@@ -305,10 +314,10 @@ implements Clusterable, RadialParent, MotorMount {
 		
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
+	
+	
 
-	
-	
-	
+
 	/*
 	 * (non-Javadoc)
 	 * Copy the motor and ejection delay HashMaps.
@@ -317,11 +326,11 @@ implements Clusterable, RadialParent, MotorMount {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public RocketComponent copy() {
-		RocketComponent c = super.copy();
-		((InnerTube)c).motors = (HashMap<String,Motor>) motors.clone();
-		((InnerTube)c).ejectionDelays = (HashMap<String,Double>) ejectionDelays.clone();
+	protected RocketComponent copyWithOriginalID() {
+		RocketComponent c = super.copyWithOriginalID();
+		((InnerTube) c).motors = (HashMap<String, Motor>) motors.clone();
+		((InnerTube) c).ejectionDelays = (HashMap<String, Double>) ejectionDelays.clone();
 		return c;
 	}
-
+	
 }

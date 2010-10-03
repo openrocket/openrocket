@@ -13,7 +13,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 
 public abstract class RocketLoader {
 	protected final WarningSet warnings = new WarningSet();
-
+	
 	
 	/**
 	 * Loads a rocket from the specified File object.
@@ -21,7 +21,7 @@ public abstract class RocketLoader {
 	public final OpenRocketDocument load(File source) throws RocketLoadException {
 		warnings.clear();
 		InputStream stream = null;
-
+		
 		try {
 			
 			stream = new BufferedInputStream(new FileInputStream(source));
@@ -39,24 +39,24 @@ public abstract class RocketLoader {
 			}
 		}
 	}
-
+	
 	/**
 	 * Loads a rocket from the specified InputStream.
 	 */
 	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
 		warnings.clear();
-
+		
 		try {
 			return loadFromStream(source);
 		} catch (RocketLoadException e) {
 			throw e;
 		} catch (IOException e) {
-			throw new RocketLoadException("I/O error: " + e.getMessage());
+			throw new RocketLoadException("I/O error: " + e.getMessage(), e);
 		}
 	}
+	
+	
 
-	
-	
 	/**
 	 * This method is called by the default implementations of {@link #load(File)} 
 	 * and {@link #load(InputStream)} to load the rocket.
@@ -65,8 +65,8 @@ public abstract class RocketLoader {
 	 */
 	protected abstract OpenRocketDocument loadFromStream(InputStream source) throws IOException,
 			RocketLoadException;
-
-
+	
+	
 
 	public final WarningSet getWarnings() {
 		return warnings;

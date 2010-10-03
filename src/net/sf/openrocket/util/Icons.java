@@ -79,6 +79,10 @@ public class Icons {
 	 * @return		the ImageIcon, or null if could not be loaded (after the user closes the dialog)
 	 */
 	public static ImageIcon loadImageIcon(String file, String name) {
+		if (System.getProperty("openrocket.unittest") != null) {
+			return new ImageIcon();
+		}
+		
 		URL url = ClassLoader.getSystemResource(file);
 		if (url == null) {
 			ExceptionHandler.handleErrorCondition("Image file " + file + " not found, ignoring.");

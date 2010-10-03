@@ -47,8 +47,8 @@ import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.Caret;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
-import net.sf.openrocket.gui.main.ComponentTreeModel;
 import net.sf.openrocket.gui.main.SimulationWorker;
+import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -560,7 +560,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		// Start calculation process
 		extraText.setCalculatingData(true);
 		
-		Rocket duplicate = configuration.getRocket().copy();
+		Rocket duplicate = (Rocket) configuration.getRocket().copy();
 		Simulation simulation = Prefs.getBackgroundSimulation(duplicate);
 		simulation.getConditions().setMotorConfigurationID(
 				configuration.getMotorConfigurationID());

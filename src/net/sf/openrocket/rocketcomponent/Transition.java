@@ -172,7 +172,7 @@ public class Transition extends SymmetricComponent {
 	
 	public void setType(Shape type) {
 		if (type == null) {
-			throw new IllegalArgumentException("BUG:  setType called with null argument");
+			throw new IllegalArgumentException("setType called with null argument");
 		}
 		if (this.type == type)
 			return;

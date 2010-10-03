@@ -16,11 +16,13 @@ public enum LogLevel {
 	 * No ERROR level events _should_ occur while running the program.
 	 */
 	ERROR,
+
 	/** 
 	 * Level for indicating error conditions or atypical events that can occur during
 	 * normal operation (errors while loading files, weird computation results etc).
 	 */
 	WARN,
+
 	/** 
 	 * Level for logging user actions (adding and modifying components, running
 	 * simulations etc).  A user action should be logged as soon as possible on this
@@ -28,24 +30,35 @@ public enum LogLevel {
 	 * user actions from a bounded log buffer.
 	 */
 	USER,
+
 	/**
 	 * Level for indicating general level actions the software is performing and
 	 * other notable events during execution (dialogs shown, simulations run etc).
 	 */
 	INFO,
-	/**
-	 * Level for indicating mid-results and other debugging information.  No debug
-	 * logging should be performed in performance-intensive places to avoid slowing
-	 * the system.  On the other hand for example cached results should be logged.
-	 */
-	DEBUG;
 
+	/**
+	 * Level for indicating mid-results, outcomes of methods and other debugging 
+	 * information.  The data logged should be of value when analyzing error
+	 * conditions and what has caused them.  Places that are called repeatedly
+	 * during e.g. flight simulation should use the VBOSE level instead.
+	 */
+	DEBUG,
+
+	/**
+	 * Level of verbose debug logging to be used in areas which are called repeatedly,
+	 * such as computational methods used in simulations.  This level is separated to
+	 * allow filtering out the verbose logs generated during simulations, DnD etc.
+	 * from the normal debug logs.
+	 */
+	VBOSE;
 	
+
 	/** The maximum length of a level textual description */
 	public static final int LENGTH;
 	static {
 		int length = 0;
-		for (LogLevel l: LogLevel.values()) {
+		for (LogLevel l : LogLevel.values()) {
 			length = Math.max(length, l.toString().length());
 		}
 		LENGTH = length;
@@ -58,7 +71,7 @@ public enum LogLevel {
 	public boolean atLeast(LogLevel level) {
 		return this.compareTo(level) <= 0;
 	}
-
+	
 	/**
 	 * Return true if this log level is of a priority greater than that of
 	 * <code>level</code>.
@@ -77,7 +90,7 @@ public enum LogLevel {
 	 * @return				the corresponding log level, of defaultLevel.
 	 */
 	public static LogLevel fromString(String value, LogLevel defaultLevel) {
-
+		
 		// Normalize the string
 		if (value == null) {
 			return defaultLevel;
@@ -88,7 +101,7 @@ public enum LogLevel {
 		LogLevel level = defaultLevel;
 		if (value.equals("ALL")) {
 			LogLevel[] values = LogLevel.values();
-			level = values[values.length-1];
+			level = values[values.length - 1];
 		} else {
 			try {
 				level = LogLevel.valueOf(value);

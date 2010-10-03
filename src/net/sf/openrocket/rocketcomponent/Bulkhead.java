@@ -2,12 +2,12 @@ package net.sf.openrocket.rocketcomponent;
 
 
 public class Bulkhead extends RadiusRingComponent {
-
+	
 	public Bulkhead() {
 		setOuterRadiusAutomatic(true);
 		setLength(0.002);
 	}
-
+	
 	@Override
 	public double getInnerRadius() {
 		return 0;
@@ -27,10 +27,15 @@ public class Bulkhead extends RadiusRingComponent {
 	public String getComponentName() {
 		return "Bulkhead";
 	}
-
+	
+	@Override
+	public boolean allowsChildren() {
+		return false;
+	}
+	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-
+	
 }

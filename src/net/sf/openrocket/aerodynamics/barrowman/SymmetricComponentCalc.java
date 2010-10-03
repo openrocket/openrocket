@@ -203,9 +203,6 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		}
 		
 
-		assert (r1 < r2); // Tube and boattail have been checked already
-		
-
 		// All nose cones and shoulders from pre-calculated and interpolating 
 		if (interpolator == null) {
 			calculateNoseInterpolator();
@@ -355,8 +352,9 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			throw new UnsupportedOperationException("Unknown transition shape: " + shape);
 		}
 		
-		assert (p >= 0);
-		assert (p <= 1.001);
+		if (p < 0 || p > 1.00001) {
+			throw new BugException("Inconsistent parameter value p=" + p + " shape=" + shape);
+		}
 		
 
 		// Check for parameterized shape and interpolate if necessary

@@ -1,8 +1,15 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general;
 
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * A FunctionCache that allows queuing points to be computed in the background,
+ * waiting for specific points to become computed or aborting the computation of
+ * points.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public interface ParallelFunctionCache extends FunctionCache {
 	
 	/**

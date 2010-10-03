@@ -3,13 +3,13 @@
  */
 package net.sf.openrocket.file.rocksim;
 
-import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.simplesax.SimpleSAX;
-import net.sf.openrocket.document.OpenRocketDocument;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.RocketLoader;
+import net.sf.openrocket.file.simplesax.SimpleSAX;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -30,28 +30,29 @@ import org.xml.sax.SAXException;
  *          getMaterial
  */
 public class RocksimLoader extends RocketLoader {
-    /**
-     * This method is called by the default implementations of {@link #load(java.io.File)}
-     * and {@link #load(java.io.InputStream)} to load the rocket.
-     *
-     * @throws net.sf.openrocket.file.RocketLoadException
-     *          if an error occurs during loading.
-     */
-    @Override 
-    protected OpenRocketDocument loadFromStream(InputStream source) throws IOException, RocketLoadException {
-
-        InputSource xmlSource = new InputSource(source);
-
-        RocksimHandler handler = new RocksimHandler();
+	/**
+	 * This method is called by the default implementations of {@link #load(java.io.File)}
+	 * and {@link #load(java.io.InputStream)} to load the rocket.
+	 *
+	 * @throws net.sf.openrocket.file.RocketLoadException
+	 *          if an error occurs during loading.
+	 */
+	@Override
+	protected OpenRocketDocument loadFromStream(InputStream source) throws IOException, RocketLoadException {
 		
-        try {
-            SimpleSAX.readXML(xmlSource, handler, warnings);
-        } catch (SAXException e) {
-            throw new RocketLoadException("Malformed XML in input.", e);
-        }
-
-        final OpenRocketDocument document = handler.getDocument();
-        document.setFile(null);
-        return document;
-    }
+		InputSource xmlSource = new InputSource(source);
+		
+		RocksimHandler handler = new RocksimHandler();
+		
+		try {
+			SimpleSAX.readXML(xmlSource, handler, warnings);
+		} catch (SAXException e) {
+			throw new RocketLoadException("Malformed XML in input.", e);
+		}
+		
+		final OpenRocketDocument document = handler.getDocument();
+		document.setFile(null);
+		document.clearUndo();
+		return document;
+	}
 }

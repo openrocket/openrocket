@@ -6,17 +6,19 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import net.sf.openrocket.util.BugException;
+
 public class ComponentCompare {
 	
 	private static final Pattern GETTER_PATTERN = Pattern.compile("^(is|get)[A-Z].*+");
 	
 	private static final String[] IGNORED_METHODS = {
-		"getClass", "getChildCount", "getChildren", "getNextComponent", "getID", 
-		"getPreviousComponent", "getParent", "getRocket", "getRoot", "getStage", 
-		"getStageNumber", "getComponentName",
-		// Rocket specific methods:
-		"getModID", "getMassModID",	"getAerodynamicModID", "getTreeModID", "getFunctionalModID",
-		"getMotorConfigurationIDs", "getDefaultConfiguration"
+			"getClass", "getChildCount", "getChildren", "getNextComponent", "getID",
+			"getPreviousComponent", "getParent", "getRocket", "getRoot", "getStage",
+			"getStageNumber", "getComponentName",
+			// Rocket specific methods:
+			"getModID", "getMassModID", "getAerodynamicModID", "getTreeModID", "getFunctionalModID",
+			"getMotorConfigurationIDs", "getDefaultConfiguration"
 	};
 	
 	
@@ -36,7 +38,7 @@ public class ComponentCompare {
 	}
 	
 	
-	
+
 	public static void assertDeepEquality(RocketComponent c1, RocketComponent c2) {
 		assertEquality(c1, c2);
 		
@@ -51,7 +53,7 @@ public class ComponentCompare {
 		assertFalse("iterator end", i2.hasNext());
 	}
 	
-
+	
 
 	public static void assertDeepSimilarity(RocketComponent c1, RocketComponent c2,
 			boolean allowNameDifference) {
@@ -68,7 +70,7 @@ public class ComponentCompare {
 		assertFalse("iterator end", i2.hasNext());
 	}
 	
-
+	
 
 	/**
 	 * Check whether the two components are <em>similar</em>.  Two components are similar
@@ -89,31 +91,30 @@ public class ComponentCompare {
 	 * @param c2	the second component.
 	 * @param allowNameDifference	whether to allow the components to have different names.
 	 */
-	public static void assertSimilarity(RocketComponent c1, RocketComponent c2, 
+	public static void assertSimilarity(RocketComponent c1, RocketComponent c2,
 			boolean allowNameDifference) {
 		Class<? extends RocketComponent> class1 = c1.getClass();
 		Class<? extends RocketComponent> class2 = c2.getClass();
 		
-		mainloop:
-		for (Method m1: class1.getMethods()) {
+		mainloop: for (Method m1 : class1.getMethods()) {
 			// Check for getter method
 			String name = m1.getName();
 			if (!GETTER_PATTERN.matcher(name).matches())
 				continue;
-
+			
 			// Ignore methods that take parameters
 			if (m1.getParameterTypes().length != 0)
 				continue;
 			
 			// Ignore specific getters
-			for (String ignore: IGNORED_METHODS) {
+			for (String ignore : IGNORED_METHODS) {
 				if (name.equals(ignore))
 					continue mainloop;
 			}
 			if (allowNameDifference && name.equals("getName"))
 				continue;
-				
 			
+
 			// Check for method in other class
 			Method m2;
 			try {
@@ -122,7 +123,7 @@ public class ComponentCompare {
 				continue;
 			}
 			
-//			System.out.println("Testing results of method " + name);
+			//			System.out.println("Testing results of method " + name);
 			
 			// Run the methods
 			Object result1, result2;
@@ -130,17 +131,17 @@ public class ComponentCompare {
 				result1 = m1.invoke(c1);
 				result2 = m2.invoke(c2);
 			} catch (Exception e) {
-				throw new RuntimeException("Error executing method " + name, e);
+				throw new BugException("Error executing method " + name, e);
 			}
 			
-			if (result1 != null && result2 != null && 
+			if (result1 != null && result2 != null &&
 					result1.getClass().isArray() && result2.getClass().isArray()) {
 				assertArrayEquals("Comparing result of method " + name,
-						(Object[])result1, (Object[])result2);
+						(Object[]) result1, (Object[]) result2);
 			} else {
 				assertEquals("Comparing result of method " + name, result1, result2);
 			}
 		}
 	}
-
+	
 }

@@ -155,11 +155,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		double minTimeStep = status.getSimulationConditions().getTimeStep() / 20;
 		if (store.timestep < minTimeStep) {
-			log.debug("Too small time step " + store.timestep + " (limiting factor " + limitingValue + "), using " +
+			log.verbose("Too small time step " + store.timestep + " (limiting factor " + limitingValue + "), using " +
 					minTimeStep + " instead.");
 			store.timestep = minTimeStep;
 		} else {
-			log.debug("Selected time step " + store.timestep + " (limiting factor " + limitingValue + ")");
+			log.verbose("Selected time step " + store.timestep + " (limiting factor " + limitingValue + ")");
 		}
 		checkNaN(store.timestep);
 		
@@ -175,7 +175,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		// Log if difference over 1%, recompute if over 10%
 		if (thrustDiff > 0.01 * thrustEstimate) {
 			if (thrustDiff > 0.1 * thrustEstimate + 0.001) {
-				log.info("Thrust estimate differs from correct value by " +
+				log.debug("Thrust estimate differs from correct value by " +
 						(Math.rint(1000 * (thrustDiff + 0.000001) / thrustEstimate) / 10.0) + "%," +
 						" estimate=" + thrustEstimate +
 						" correct=" + store.thrustForce +
@@ -183,7 +183,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 						", recomputing k1 parameters");
 				k1 = computeParameters(status, store);
 			} else {
-				log.debug("Thrust estimate differs from correct value by " +
+				log.verbose("Thrust estimate differs from correct value by " +
 						(Math.rint(1000 * (thrustDiff + 0.000001) / thrustEstimate) / 10.0) + "%," +
 						" estimate=" + thrustEstimate +
 						" correct=" + store.thrustForce +

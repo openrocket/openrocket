@@ -1,4 +1,4 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general;
 
 /**
  * An interface defining an optimizable function.

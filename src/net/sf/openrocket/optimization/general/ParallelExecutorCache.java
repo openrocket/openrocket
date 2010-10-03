@@ -1,10 +1,11 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -14,10 +15,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A class that evaluates function values in parallel and caches them.
- * This allows pre-calculating possibly required function values beforehand.
- * If values are not required after all, the computation can be aborted assuming
- * the function evaluation supports it.
+ * An implementation of a ParallelFunctionCache that evaluates function values
+ * in parallel and caches them.  This allows pre-calculating possibly required
+ * function values beforehand.  If values are not required after all, the
+ * computation can be aborted assuming the function evaluation supports it.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -221,6 +222,26 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	
 	public ExecutorService getExecutor() {
 		return executor;
+	}
+	
+	
+
+	/**
+	 * A Callable that evaluates a function at a specific point and returns the result.
+	 */
+	private class FunctionCallable implements Callable<Double> {
+		private final Function calledFunction;
+		private final Point point;
+		
+		public FunctionCallable(Function function, Point point) {
+			this.calledFunction = function;
+			this.point = point;
+		}
+		
+		@Override
+		public Double call() throws InterruptedException {
+			return calledFunction.evaluate(point);
+		}
 	}
 	
 }

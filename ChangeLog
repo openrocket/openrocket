@@ -1,3 +1,16 @@
+2010-10-03  Sampo Niskanen
+
+	* Added VBOSE logging level
+
+2010-10-02  Sampo Niskanen
+
+	* [BUG] Exception when undoing changes
+
+2010-09-27  Sampo Niskanen
+
+	* Implemented DnD for component tree
+	* Documented undo/redo functionality
+
 2010-09-07  Sampo Niskanen
 
 	* Released version 1.1.2

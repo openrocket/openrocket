@@ -137,8 +137,16 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 	
 	
-
-
+	/**
+	 * Return the rocket associated with this simulation.
+	 * 
+	 * @return	the rocket.
+	 */
+	public Rocket getRocket() {
+		return rocket;
+	}
+	
+	
 	/**
 	 * Return a newly created Configuration for this simulation.  The configuration
 	 * has the motor ID set and all stages active.

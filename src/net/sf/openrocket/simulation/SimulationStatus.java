@@ -322,7 +322,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 			SimulationStatus clone = (SimulationStatus) super.clone();
 			return clone;
 		} catch (CloneNotSupportedException e) {
-			throw new BugException("BUG:  CloneNotSupportedException?!?", e);
+			throw new BugException("CloneNotSupportedException?!?", e);
 		}
 	}
 	

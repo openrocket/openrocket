@@ -15,6 +15,8 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
 
@@ -27,7 +29,8 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SwingWorkerDialog extends JDialog implements PropertyChangeListener {
-
+	private static final LogHelper log = Application.getLogger();
+	
 	/** Number of milliseconds to wait at a time between checking worker status */
 	private static final int DELAY = 100;
 	
@@ -39,21 +42,20 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 	
 	/** Open the dialog if estimated total time is longed than this */
 	private static final int TOTAL_TIME_FOR_DIALOG = 2000;
-
 	
-	private final SwingWorker<?,?> worker;
+
+	private final SwingWorker<?, ?> worker;
 	private final JProgressBar progressBar;
 	
 	private boolean cancelled = false;
 	
 	
-	private SwingWorkerDialog(Window parent, String title, String label, 
-			SwingWorker<?,?> w) {
+	private SwingWorkerDialog(Window parent, String title, String label, SwingWorker<?, ?> w) {
 		super(parent, title, ModalityType.APPLICATION_MODAL);
 		
 		this.worker = w;
 		w.addPropertyChangeListener(this);
-
+		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		if (label != null) {
@@ -67,18 +69,19 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("User cancelled SwingWorker operation");
 				cancel();
 			}
 		});
 		panel.add(cancel, "right");
 		
 		this.add(panel);
-		this.setMinimumSize(new Dimension(250,100));
+		this.setMinimumSize(new Dimension(250, 100));
 		this.pack();
 		this.setLocationRelativeTo(parent);
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
-
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (worker.getState() == SwingWorker.StateValue.DONE) {
@@ -118,12 +121,14 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 	 * 					<code>false</code> if the user cancelled the operation
 	 */
 	public static boolean runWorker(Window parent, String title, String label,
-			SwingWorker<?,?> worker) {
+			SwingWorker<?, ?> worker) {
+		
+		log.info("Running SwingWorker " + worker);
 		
 		// Start timing the worker
 		final long startTime = System.currentTimeMillis();
 		worker.execute();
-
+		
 		// Monitor worker thread before opening the dialog
 		while (true) {
 			
@@ -131,11 +136,12 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 				Thread.sleep(DELAY);
 			} catch (InterruptedException e) {
 				// Should never occur
-				e.printStackTrace();
+				log.error("EDT was interrupted", e);
 			}
 			
 			if (worker.isDone()) {
 				// Worker has completed within time limits
+				log.info("Worker completed before opening dialog");
 				return true;
 			}
 			
@@ -144,11 +150,13 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 			if (elapsed < ESTIMATION_DELAY)
 				continue;
 			
-			
+
 			// Calculate and check estimated remaining time
 			int progress = MathUtil.clamp(worker.getProgress(), 1, 100); // Avoid div-by-zero
 			long estimate = elapsed * 100 / progress;
 			long remaining = estimate - elapsed;
+			
+			log.debug("Estimated run time, estimate=" + estimate + " remaining=" + remaining);
 			
 			if (estimate >= TOTAL_TIME_FOR_DIALOG)
 				break;
@@ -156,12 +164,14 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 			if (remaining >= REMAINING_TIME_FOR_DIALOG)
 				break;
 		}
-
 		
+
 		// Dialog is required
 		
+		log.info("Opening dialog for SwingWorker " + worker);
 		SwingWorkerDialog dialog = new SwingWorkerDialog(parent, title, label, worker);
 		dialog.setVisible(true);
+		log.info("Worker done, cancelled=" + dialog.cancelled);
 		
 		return !dialog.cancelled;
 	}

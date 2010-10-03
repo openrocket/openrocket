@@ -13,7 +13,7 @@ package net.sf.openrocket.rocketcomponent;
  */
 
 public abstract class BodyComponent extends ExternalComponent {
-
+	
 	/**
 	 * Default constructor.  Sets the relative position to POSITION_RELATIVE_AFTER,
 	 * i.e. body components come after one another.
@@ -23,7 +23,7 @@ public abstract class BodyComponent extends ExternalComponent {
 	}
 	
 	
-	
+
 	/**
 	 * Get the outer radius of the component at cylindrical coordinate (x,theta).
 	 * 
@@ -34,7 +34,7 @@ public abstract class BodyComponent extends ExternalComponent {
 	 * @return  Distance to the outer edge of the object
 	 */
 	public abstract double getRadius(double x, double theta);
-
+	
 	
 	/**
 	 * Get the inner radius of the component at cylindrical coordinate (x,theta).
@@ -46,7 +46,7 @@ public abstract class BodyComponent extends ExternalComponent {
 	 * @return  Distance to the inner edge of the object
 	 */
 	public abstract double getInnerRadius(double x, double theta);
-
+	
 	
 
 	/**
@@ -55,10 +55,14 @@ public abstract class BodyComponent extends ExternalComponent {
 	public void setLength(double length) {
 		if (this.length == length)
 			return;
-		this.length = Math.max(length,0);
+		this.length = Math.max(length, 0);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
+	@Override
+	public boolean allowsChildren() {
+		return true;
+	}
 	
 	/**
 	 * Check whether the given type can be added to this component.  BodyComponents allow any
@@ -72,7 +76,7 @@ public abstract class BodyComponent extends ExternalComponent {
 		if (InternalComponent.class.isAssignableFrom(type))
 			return true;
 		if (ExternalComponent.class.isAssignableFrom(type) &&
-			!BodyComponent.class.isAssignableFrom(type))
+				!BodyComponent.class.isAssignableFrom(type))
 			return true;
 		return false;
 	}

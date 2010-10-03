@@ -1,10 +1,16 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general.multidim;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.util.MathUtil;
 
+/**
+ * A helper class to create search patterns.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class SearchPattern {
 	
 	/**

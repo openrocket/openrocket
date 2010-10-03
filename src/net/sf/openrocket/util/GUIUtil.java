@@ -111,6 +111,8 @@ public class GUIUtil {
 		setWindowIcons(dialog);
 		addModelNullingListener(dialog);
 		dialog.setLocationByPlatform(true);
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.pack();
 		if (defaultButton != null) {
 			setDefaultButton(defaultButton);
 		}
@@ -127,6 +129,7 @@ public class GUIUtil {
 	public static void installEscapeCloseOperation(final JDialog dialog) {
 		Action dispatchClosing = new AbstractAction() {
 			public void actionPerformed(ActionEvent event) {
+				log.user("Closing dialog " + dialog);
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
 			}
 		};

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -157,6 +158,8 @@ public class UpdateInfoRetriever {
 			connection.setRequestProperty("X-OpenRocket-Country",
 					Communicator.encode(System.getProperty("user.country") + " " +
 							System.getProperty("user.timezone")));
+			connection.setRequestProperty("X-OpenRocket-Locale",
+					Communicator.encode(Locale.getDefault().toString()));
 			connection.setRequestProperty("X-OpenRocket-CPUs", "" + Runtime.getRuntime().availableProcessors());
 			
 			InputStream is = null;

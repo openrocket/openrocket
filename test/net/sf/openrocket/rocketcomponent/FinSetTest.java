@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class FinSetTest {
 	
-	
+
 	@Test
 	public void testFreeformConvert() {
 		testFreeformConvert(new TrapezoidFinSet());
@@ -50,14 +50,15 @@ public class FinSetTest {
 		fin.setTabRelativePosition(TabRelativePosition.END);
 		fin.setTabShift(0.015);
 		fin.setThickness(0.005);
+		
 
-		converted = FreeformFinSet.convertFinSet(fin);
+		converted = FreeformFinSet.convertFinSet((FinSet) fin.copy());
 		
 		ComponentCompare.assertSimilarity(fin, converted, true);
 		
 		assertEquals(converted.getComponentName(), converted.getName());
 		
-		
+
 		// Create test rocket
 		Rocket rocket = new Rocket();
 		Stage stage = new Stage();
@@ -74,7 +75,7 @@ public class FinSetTest {
 		assertTrue(l1.changed);
 		assertEquals(ComponentChangeEvent.NONFUNCTIONAL_CHANGE, l1.changetype);
 		
-		
+
 		// Create copy
 		RocketComponent rocketcopy = rocket.copy();
 		
@@ -85,7 +86,7 @@ public class FinSetTest {
 		FreeformFinSet.convertFinSet(fincopy);
 		
 		assertTrue(l2.changed);
-		assertEquals(ComponentChangeEvent.TREE_CHANGE, 
+		assertEquals(ComponentChangeEvent.TREE_CHANGE,
 				l2.changetype & ComponentChangeEvent.TREE_CHANGE);
 		
 	}
@@ -102,10 +103,10 @@ public class FinSetTest {
 		
 		@Override
 		public void componentChanged(ComponentChangeEvent e) {
-			assertFalse("Ensuring listener "+name+" has not been called.", changed);
+			assertFalse("Ensuring listener " + name + " has not been called.", changed);
 			changed = true;
 			changetype = e.getType();
 		}
 	}
-
+	
 }

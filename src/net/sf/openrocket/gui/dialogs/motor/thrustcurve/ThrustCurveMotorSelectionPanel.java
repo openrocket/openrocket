@@ -205,23 +205,23 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					sel = SHOW_ALL;
 				switch (sel) {
 				case SHOW_ALL:
-							sorter.setRowFilter(new MotorRowFilterAll());
-							break;
-						
-						case SHOW_SMALLER:
-							sorter.setRowFilter(new MotorRowFilterSmaller());
-							break;
-						
-						case SHOW_EXACT:
-							sorter.setRowFilter(new MotorRowFilterExact());
-							break;
-						
-						default:
-							assert (false) : "Should not occur.";
-						}
-						Prefs.putChoise("MotorDiameterMatch", sel);
-						scrollSelectionVisible();
-					}
+					sorter.setRowFilter(new MotorRowFilterAll());
+					break;
+				
+				case SHOW_SMALLER:
+					sorter.setRowFilter(new MotorRowFilterSmaller());
+					break;
+				
+				case SHOW_EXACT:
+					sorter.setRowFilter(new MotorRowFilterExact());
+					break;
+				
+				default:
+					throw new BugException("Invalid selection mode sel=" + sel);
+				}
+				Prefs.putChoise("MotorDiameterMatch", sel);
+				scrollSelectionVisible();
+			}
 		});
 		panel.add(filterComboBox, "spanx, growx, wrap rel");
 		

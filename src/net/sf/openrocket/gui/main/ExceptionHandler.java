@@ -6,6 +6,7 @@ import javax.swing.SwingUtilities;
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
 
 
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
@@ -36,7 +37,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		if (isOutOfMemoryError(throwable)) {
 			memoryReserve = null;
 			handling = false;
-			log.warn("Out of memory error detected", throwable);
+			log.error("Out of memory error detected", throwable);
 		}
 		
 		if (isNonFatalJREBug(throwable)) {
@@ -44,7 +45,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			return;
 		}
 		
-		log.warn("Handling uncaught exception on thread=" + thread, throwable);
+		log.error("Handling uncaught exception on thread=" + thread, throwable);
 		throwable.printStackTrace();
 		
 		if (handling) {
@@ -121,18 +122,15 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		if (!(exception instanceof InternalException)) {
 			log.error(1, "Error occurred", exception);
 		}
-		final ExceptionHandler handler = instance;
 		final Thread thread = Thread.currentThread();
+		final ExceptionHandler handler = instance;
+		
+		if (handler == null) {
+			// Not initialized, throw the exception
+			throw new BugException("Error condition before exception handling has been initialized", exception);
+		}
 		
 		try {
-			
-			if (handler == null) {
-				// Not initialized, simply print the exception
-				log.error("Exception handler not initialized");
-				exception.printStackTrace();
-				return;
-			}
-			
 			if (SwingUtilities.isEventDispatchThread()) {
 				log.info("Running in EDT, showing dialog");
 				handler.showDialog(thread, exception);

@@ -343,7 +343,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			rocket.addComponentChangeListener(config);
 			return config;
 		} catch (CloneNotSupportedException e) {
-			throw new BugException("BUG: clone not supported!", e);
+			throw new BugException("clone not supported!", e);
 		}
 	}
 	

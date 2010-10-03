@@ -4,6 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import net.sf.openrocket.optimization.general.Point;
+import net.sf.openrocket.optimization.general.multidim.SearchPattern;
+
 import org.junit.Test;
 
 public class TestSearchPattern {

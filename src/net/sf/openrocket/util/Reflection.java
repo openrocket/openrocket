@@ -69,7 +69,7 @@ public class Reflection {
 	public static Error handleWrappedException(Exception e) {
 		Throwable cause = e.getCause();
 		if (cause == null) {
-			throw new BugException("BUG: wrapped exception without cause", e);
+			throw new BugException("wrapped exception without cause", e);
 		}
 		if (cause instanceof RuntimeException) {
 			throw (RuntimeException)cause;

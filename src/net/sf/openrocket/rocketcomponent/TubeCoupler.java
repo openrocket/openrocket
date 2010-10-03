@@ -2,7 +2,7 @@ package net.sf.openrocket.rocketcomponent;
 
 
 public class TubeCoupler extends ThicknessRingComponent implements RadialParent {
-
+	
 	public TubeCoupler() {
 		setOuterRadiusAutomatic(true);
 		setThickness(0.002);
@@ -15,13 +15,18 @@ public class TubeCoupler extends ThicknessRingComponent implements RadialParent 
 	public void setOuterRadiusAutomatic(boolean auto) {
 		super.setOuterRadiusAutomatic(auto);
 	}
-
+	
 	
 	@Override
 	public String getComponentName() {
 		return "Tube coupler";
 	}
-
+	
+	@Override
+	public boolean allowsChildren() {
+		return true;
+	}
+	
 	/**
 	 * Allow all InternalComponents to be added to this component.
 	 */
@@ -29,17 +34,16 @@ public class TubeCoupler extends ThicknessRingComponent implements RadialParent 
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return InternalComponent.class.isAssignableFrom(type);
 	}
-
-
+	
+	
 	@Override
 	public double getInnerRadius(double x) {
 		return getInnerRadius();
 	}
-
-
+	
+	
 	@Override
 	public double getOuterRadius(double x) {
 		return getOuterRadius();
 	}
 }
-

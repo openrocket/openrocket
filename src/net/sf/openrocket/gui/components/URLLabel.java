@@ -63,7 +63,7 @@ public class URLLabel extends SelectableLabel {
 					try {
 						d.browse(new URI(url));
 					} catch (URISyntaxException e1) {
-						throw new BugException("BUG: Illegal URL: " + url, e1);
+						throw new BugException("Illegal URL: " + url, e1);
 					} catch (IOException e1) {
 						log.error("Unable to launch browser: " + e1.getMessage(), e1);
 					}

@@ -1,4 +1,4 @@
-package net.sf.openrocket.optimization;
+package net.sf.openrocket.optimization.general;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,21 +10,36 @@ import java.util.List;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class MultipleOptimizationController implements OptimizationController {
+public class OptimizationControllerDelegator implements OptimizationController {
 	
 	private final List<OptimizationController> controllers = new ArrayList<OptimizationController>();
 	
-	public MultipleOptimizationController(OptimizationController... controllers) {
+	/**
+	 * Construct the controlled based on an array of controllers.
+	 * 
+	 * @param controllers	the controllers to use.
+	 */
+	public OptimizationControllerDelegator(OptimizationController... controllers) {
 		for (OptimizationController c : controllers) {
 			this.controllers.add(c);
 		}
 	}
 	
-	public MultipleOptimizationController(Collection<OptimizationController> controllers) {
+	/**
+	 * Construct the controller based on a collection of controllers.
+	 * 
+	 * @param controllers	the controllers to use.
+	 */
+	public OptimizationControllerDelegator(Collection<OptimizationController> controllers) {
 		this.controllers.addAll(controllers);
 	}
 	
 	
+	/**
+	 * Control whether to continue optimization.  This method returns false if any of the
+	 * used controllers returns false.  However, all controllers will be called even if
+	 * an earlier one stops the optimization.
+	 */
 	@Override
 	public boolean stepTaken(Point oldPoint, double oldValue, Point newPoint, double newValue, double stepSize) {
 		boolean ret = true;

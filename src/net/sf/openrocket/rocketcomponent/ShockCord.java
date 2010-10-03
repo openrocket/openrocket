@@ -6,17 +6,17 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 
 public class ShockCord extends MassObject {
-
+	
 	private Material material;
 	private double cordLength;
-
+	
 	public ShockCord() {
 		material = Prefs.getDefaultComponentMaterial(ShockCord.class, Material.Type.LINE);
 		cordLength = 0.4;
 	}
 	
 	
-	
+
 	public Material getMaterial() {
 		return material;
 	}
@@ -44,20 +44,25 @@ public class ShockCord extends MassObject {
 	}
 	
 	
-	
+
 	@Override
 	public double getComponentMass() {
 		return material.getDensity() * cordLength;
 	}
-
+	
 	@Override
 	public String getComponentName() {
 		return "Shock cord";
 	}
-
+	
+	@Override
+	public boolean allowsChildren() {
+		return false;
+	}
+	
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-
+	
 }

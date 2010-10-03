@@ -16,9 +16,9 @@ import net.sf.openrocket.util.MathUtil;
  */
 
 public class BodyTube extends SymmetricComponent implements MotorMount {
-
-	private double radius=0;
-	private boolean autoRadius = false;  // Radius chosen automatically based on parent component
+	
+	private double radius = 0;
+	private boolean autoRadius = false; // Radius chosen automatically based on parent component
 	
 	// When changing the inner radius, thickness is modified
 	
@@ -29,36 +29,36 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	private double ignitionDelay = 0;
 	private double overhang = 0;
 	
-
 	
+
 	public BodyTube() {
 		super();
-		this.length = 8*DEFAULT_RADIUS;
+		this.length = 8 * DEFAULT_RADIUS;
 		this.radius = DEFAULT_RADIUS;
 		this.autoRadius = true;
 	}
 	
 	public BodyTube(double length, double radius) {
 		super();
-		this.radius = Math.max(radius,0);
-		this.length = Math.max(length,0);
+		this.radius = Math.max(radius, 0);
+		this.length = Math.max(length, 0);
 	}
 	
 	
 	public BodyTube(double length, double radius, boolean filled) {
-		this(length,radius);
+		this(length, radius);
 		this.filled = filled;
 	}
 	
 	public BodyTube(double length, double radius, double thickness) {
-		this(length,radius);
+		this(length, radius);
 		this.filled = false;
 		this.thickness = thickness;
 	}
 	
-
+	
 	/************  Get/set component parameter methods ************/
-
+	
 	/**
 	 * Return the outer radius of the body tube.
 	 */
@@ -90,18 +90,18 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	 * This method sets the automatic radius off.
 	 */
 	public void setRadius(double radius) {
-		if ((this.radius == radius) && (autoRadius==false))
+		if ((this.radius == radius) && (autoRadius == false))
 			return;
 		
 		this.autoRadius = false;
-		this.radius = Math.max(radius,0);
-
+		this.radius = Math.max(radius, 0);
+		
 		if (this.thickness > this.radius)
 			this.thickness = this.radius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-
+	
+	
 	/**
 	 * Returns whether the radius is selected automatically or not.
 	 * Returns false also in case automatic radius selection is not possible.
@@ -109,7 +109,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	public boolean isRadiusAutomatic() {
 		return autoRadius;
 	}
-
+	
 	/**
 	 * Sets whether the radius is selected automatically or not.  
 	 */
@@ -123,16 +123,27 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	
 	
 	@Override
-	public double getAftRadius() {  return getRadius(); }
+	public double getAftRadius() {
+		return getRadius();
+	}
+	
 	@Override
-	public double getForeRadius() { return getRadius(); }
+	public double getForeRadius() {
+		return getRadius();
+	}
+	
 	@Override
-	public boolean isAftRadiusAutomatic() { return isRadiusAutomatic();	}
+	public boolean isAftRadiusAutomatic() {
+		return isRadiusAutomatic();
+	}
+	
 	@Override
-	public boolean isForeRadiusAutomatic() { return isRadiusAutomatic(); }
+	public boolean isForeRadiusAutomatic() {
+		return isRadiusAutomatic();
+	}
 	
 	
-	
+
 	@Override
 	protected double getFrontAutoRadius() {
 		if (isRadiusAutomatic()) {
@@ -146,7 +157,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		}
 		return getRadius();
 	}
-
+	
 	@Override
 	protected double getRearAutoRadius() {
 		if (isRadiusAutomatic()) {
@@ -160,26 +171,24 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		}
 		return getRadius();
 	}
+	
+	
 
 
-	
-	
-	
-	
-	
+
 	public double getInnerRadius() {
 		if (filled)
 			return 0;
-		return Math.max(getRadius()-thickness, 0);
+		return Math.max(getRadius() - thickness, 0);
 	}
 	
 	public void setInnerRadius(double r) {
-		setThickness(getRadius()-r);
+		setThickness(getRadius() - r);
 	}
 	
 	
-	
-	
+
+
 	/**
 	 * Return the component name.
 	 */
@@ -187,8 +196,8 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	public String getComponentName() {
 		return "Body tube";
 	}
-
-
+	
+	
 	/************ Component calculations ***********/
 	
 	// From SymmetricComponent
@@ -199,7 +208,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	public double getRadius(double x) {
 		return getRadius();
 	}
-
+	
 	/**
 	 * Returns the inner radius at the position x.  If the tube is filled, returns always zero.
 	 */
@@ -208,16 +217,16 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		if (filled)
 			return 0.0;
 		else
-			return Math.max(getRadius()-thickness,0);
+			return Math.max(getRadius() - thickness, 0);
 	}
 	
-
+	
 	/**
 	 * Returns the body tube's center of gravity.
 	 */
 	@Override
 	public Coordinate getComponentCG() {
-		return new Coordinate(length/2,0,0,getComponentMass());
+		return new Coordinate(length / 2, 0, 0, getComponentMass());
 	}
 	
 	/**
@@ -227,35 +236,34 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	public double getComponentVolume() {
 		double r = getRadius();
 		if (filled)
-			return getFilledVolume(r,length);
+			return getFilledVolume(r, length);
 		else
-			return getFilledVolume(r,length) - getFilledVolume(getInnerRadius(0),length);
+			return getFilledVolume(r, length) - getFilledVolume(getInnerRadius(0), length);
 	}
 	
 	
 	@Override
 	public double getLongitudalUnitInertia() {
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
-		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getRadius()) +
-				MathUtil.pow2(getLength())) / 12;
+		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getRadius()) + MathUtil.pow2(getLength())) / 12;
 	}
-
+	
 	@Override
 	public double getRotationalUnitInertia() {
 		// 1/2 * (r1^2 + r2^2)
-		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getRadius()))/2;
+		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getRadius())) / 2;
 	}
-
-
 	
+	
+
 
 	/**
 	 * Helper function for cylinder volume.
 	 */
 	private static double getFilledVolume(double r, double l) {
-		return Math.PI * r*r * l;
+		return Math.PI * r * r * l;
 	}
-
+	
 	
 	/**
 	 * Adds bounding coordinates to the given set.  The body tube will fit within the
@@ -267,19 +275,19 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
 		double r = getRadius();
-		addBound(bounds,0,r);
-		addBound(bounds,length,r);
+		addBound(bounds, 0, r);
+		addBound(bounds, length, r);
 		return bounds;
 	}
-
-
+	
+	
 	////////////////  Motor mount  /////////////////
 	
 	@Override
 	public boolean isMotorMount() {
 		return motorMount;
 	}
-
+	
 	@Override
 	public void setMotorMount(boolean mount) {
 		if (motorMount == mount)
@@ -302,7 +310,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		
 		return motors.get(id);
 	}
-
+	
 	@Override
 	public void setMotor(String id, Motor motor) {
 		if (id == null) {
@@ -317,7 +325,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		motors.put(id, motor);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-
+	
 	@Override
 	public double getMotorDelay(String id) {
 		Double delay = ejectionDelays.get(id);
@@ -325,7 +333,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 			return Motor.PLUGGED;
 		return delay;
 	}
-
+	
 	@Override
 	public void setMotorDelay(String id, double delay) {
 		ejectionDelays.put(id, delay);
@@ -339,14 +347,14 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	
 	@Override
 	public double getMotorMountDiameter() {
-		return getInnerRadius()*2;
+		return getInnerRadius() * 2;
 	}
-
+	
 	@Override
 	public IgnitionEvent getIgnitionEvent() {
 		return ignitionEvent;
 	}
-
+	
 	@Override
 	public void setIgnitionEvent(IgnitionEvent event) {
 		if (ignitionEvent == event)
@@ -354,13 +362,13 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		ignitionEvent = event;
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-
+	
 	
 	@Override
 	public double getIgnitionDelay() {
 		return ignitionDelay;
 	}
-
+	
 	@Override
 	public void setIgnitionDelay(double delay) {
 		if (MathUtil.equals(delay, ignitionDelay))
@@ -368,7 +376,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		ignitionDelay = delay;
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-
+	
 	
 	@Override
 	public double getMotorOverhang() {
@@ -382,8 +390,8 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		this.overhang = overhang;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-
+	
+	
 	@Override
 	public Coordinate getMotorPosition(String id) {
 		Motor motor = motors.get(id);
@@ -393,10 +401,10 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
-
+	
 	
 
-	
+
 	/*
 	 * (non-Javadoc)
 	 * Copy the motor and ejection delay HashMaps.
@@ -405,10 +413,10 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public RocketComponent copy() {
-		RocketComponent c = super.copy();
-		((BodyTube)c).motors = (HashMap<String,Motor>) motors.clone();
-		((BodyTube)c).ejectionDelays = (HashMap<String,Double>) ejectionDelays.clone();
+	protected RocketComponent copyWithOriginalID() {
+		RocketComponent c = super.copyWithOriginalID();
+		((BodyTube) c).motors = (HashMap<String, Motor>) motors.clone();
+		((BodyTube) c).ejectionDelays = (HashMap<String, Double>) ejectionDelays.clone();
 		return c;
 	}
 }

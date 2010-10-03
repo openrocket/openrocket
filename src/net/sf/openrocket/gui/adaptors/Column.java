@@ -14,7 +14,7 @@ public abstract class Column {
 	public Column(String name) {
 		this.name = name;
 	}
-
+	
 	/**
 	 * Return the caption of the column.
 	 */
@@ -55,7 +55,7 @@ public abstract class Column {
 	public Class<?> getColumnClass() {
 		return Object.class;
 	}
-
+	
 	/**
 	 * Return the value in this column at the specified row.
 	 * 
@@ -63,4 +63,5 @@ public abstract class Column {
 	 * @return		the value at the specified position.
 	 */
 	public abstract Object getValueAt(int row);
+	
 }

@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.main.componenttree;
 
 
 
@@ -6,6 +6,8 @@ import java.awt.Component;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
+import net.sf.openrocket.gui.main.ComponentIcons;
 
 public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 

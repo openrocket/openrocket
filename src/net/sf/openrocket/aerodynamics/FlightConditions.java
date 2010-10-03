@@ -413,7 +413,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 			cond.atmosphericConditions = atmosphericConditions.clone();
 			return cond;
 		} catch (CloneNotSupportedException e) {
-			throw new BugException("BUG: clone not supported!", e);
+			throw new BugException("clone not supported!", e);
 		}
 	}
 	

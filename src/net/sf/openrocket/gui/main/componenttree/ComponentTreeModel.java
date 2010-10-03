@@ -1,8 +1,9 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.main.componenttree;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JTree;
@@ -14,6 +15,7 @@ import javax.swing.tree.TreePath;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
 
 
 /**
@@ -33,10 +35,10 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	ArrayList<TreeModelListener> listeners = new ArrayList<TreeModelListener>();
-
+	
 	private final RocketComponent root;
 	private final JTree tree;
-
+	
 	public ComponentTreeModel(RocketComponent root, JTree tree) {
 		this.root = root;
 		this.tree = tree;
@@ -45,7 +47,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	
 	
 	public Object getChild(Object parent, int index) {
-		RocketComponent component = (RocketComponent)parent;
+		RocketComponent component = (RocketComponent) parent;
 		
 		try {
 			return component.getChild(index);
@@ -54,38 +56,36 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		}
 	}
 	
-
+	
 	public int getChildCount(Object parent) {
-		RocketComponent c = (RocketComponent)parent;
-
+		RocketComponent c = (RocketComponent) parent;
+		
 		return c.getChildCount();
 	}
-
+	
 	
 	public int getIndexOfChild(Object parent, Object child) {
-		if (parent==null || child==null)
+		if (parent == null || child == null)
 			return -1;
 		
-		RocketComponent p = (RocketComponent)parent;
-		RocketComponent c = (RocketComponent)child;
+		RocketComponent p = (RocketComponent) parent;
+		RocketComponent c = (RocketComponent) child;
 		
 		return p.getChildPosition(c);
 	}
-
+	
 	public Object getRoot() {
 		return root;
 	}
-
+	
 	public boolean isLeaf(Object node) {
-		RocketComponent c = (RocketComponent)node;
-
-		return (c.getChildCount() == 0);
+		return !((RocketComponent) node).allowsChildren();
 	}
-
+	
 	public void addTreeModelListener(TreeModelListener l) {
 		listeners.add(l);
 	}
-
+	
 	public void removeTreeModelListener(TreeModelListener l) {
 		listeners.remove(l);
 	}
@@ -93,33 +93,33 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	private void fireTreeNodeChanged(RocketComponent node) {
 		TreeModelEvent e = new TreeModelEvent(this, makeTreePath(node), null, null);
 		Object[] l = listeners.toArray();
-		for (int i=0; i<l.length; i++)
-			((TreeModelListener)l[i]).treeNodesChanged(e);
+		for (int i = 0; i < l.length; i++)
+			((TreeModelListener) l[i]).treeNodesChanged(e);
 	}
 	
 	private void fireTreeNodesChanged() {
 		Object[] path = { root };
-		TreeModelEvent e = new TreeModelEvent(this,path);
+		TreeModelEvent e = new TreeModelEvent(this, path);
 		Object[] l = listeners.toArray();
-		for (int i=0; i<l.length; i++)
-			((TreeModelListener)l[i]).treeNodesChanged(e);
+		for (int i = 0; i < l.length; i++)
+			((TreeModelListener) l[i]).treeNodesChanged(e);
 	}
 	
 	
 	@SuppressWarnings("unused")
 	private void printStructure(TreePath p, int level) {
-		String indent="";
-		for (int i=0; i<level; i++)
+		String indent = "";
+		for (int i = 0; i < level; i++)
 			indent += "  ";
-		System.out.println(indent+p+
-				": isVisible:"+tree.isVisible(p)+
-				" isCollapsed:"+tree.isCollapsed(p)+
-				" isExpanded:"+tree.isExpanded(p));
+		System.out.println(indent + p +
+				": isVisible:" + tree.isVisible(p) +
+				" isCollapsed:" + tree.isCollapsed(p) +
+				" isExpanded:" + tree.isExpanded(p));
 		Object parent = p.getLastPathComponent();
-		for (int i=0; i<getChildCount(parent); i++) {
-			Object child = getChild(parent,i);
-			TreePath path = makeTreePath((RocketComponent)child);
-			printStructure(path,level+1);
+		for (int i = 0; i < getChildCount(parent); i++) {
+			Object child = getChild(parent, i);
+			TreePath path = makeTreePath((RocketComponent) child);
+			printStructure(path, level + 1);
 		}
 	}
 	
@@ -127,27 +127,27 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	private void fireTreeStructureChanged(RocketComponent source) {
 		Object[] path = { root };
 		
-		
+
 		// Get currently expanded path IDs
 		Enumeration<TreePath> enumer = tree.getExpandedDescendants(new TreePath(path));
 		ArrayList<String> expanded = new ArrayList<String>();
 		if (enumer != null) {
 			while (enumer.hasMoreElements()) {
 				TreePath p = enumer.nextElement();
-				expanded.add(((RocketComponent)p.getLastPathComponent()).getID());
+				expanded.add(((RocketComponent) p.getLastPathComponent()).getID());
 			}
 		}
 		
 		// Send structure change event
-		TreeModelEvent e = new TreeModelEvent(this,path);
+		TreeModelEvent e = new TreeModelEvent(this, path);
 		Object[] l = listeners.toArray();
-		for (int i=0; i<l.length; i++)
-			((TreeModelListener)l[i]).treeStructureChanged(e);
+		for (int i = 0; i < l.length; i++)
+			((TreeModelListener) l[i]).treeStructureChanged(e);
 		
 		// Re-expand the paths
-		for (String id: expanded) {
+		for (String id : expanded) {
 			RocketComponent c = root.findComponent(id);
-			if (c==null)
+			if (c == null)
 				continue;
 			tree.expandPath(makeTreePath(c));
 		}
@@ -161,12 +161,12 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	public void valueForPathChanged(TreePath path, Object newValue) {
 		System.err.println("ERROR: valueForPathChanged called?!");
 	}
-
-
+	
+	
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isTreeChange() || e.isUndoChange()) {
 			// Tree must be fully updated also in case of an undo change 
-			fireTreeStructureChanged((RocketComponent)e.getSource());
+			fireTreeStructureChanged((RocketComponent) e.getSource());
 			if (e.isTreeChange() && e.isUndoChange()) {
 				// If the undo has changed the tree structure, some elements may be hidden
 				// unnecessarily
@@ -177,26 +177,76 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 			fireTreeNodeChanged(e.getSource());
 		}
 	}
-
+	
 	public void expandAll() {
 		Iterator<RocketComponent> iterator = root.deepIterator();
 		while (iterator.hasNext()) {
 			tree.makeVisible(makeTreePath(iterator.next()));
 		}
 	}
-
 	
+	
+	/**
+	 * Return the rocket component that a TreePath object is referring to.
+	 * 
+	 * @param path	the TreePath
+	 * @return		the RocketComponent the path is referring to.
+	 * @throws NullPointerException		if path is null
+	 * @throws BugException				if the path does not refer to a RocketComponent
+	 */
+	public static RocketComponent componentFromPath(TreePath path) {
+		Object last = path.getLastPathComponent();
+		if (!(last instanceof RocketComponent)) {
+			throw new BugException("Tree path does not refer to a RocketComponent: " + path.toString());
+		}
+		return (RocketComponent) last;
+	}
+	
+	
+	/**
+	 * Return a TreePath corresponding to the specified rocket component.
+	 * 
+	 * @param component		the rocket component
+	 * @return				a TreePath corresponding to this RocketComponent
+	 */
 	public static TreePath makeTreePath(RocketComponent component) {
+		if (component == null) {
+			throw new NullPointerException();
+		}
+		
 		RocketComponent c = component;
-	
-		List<RocketComponent> list = new ArrayList<RocketComponent>();
+		
+		List<RocketComponent> list = new LinkedList<RocketComponent>();
 		
 		while (c != null) {
-			list.add(0,c);
+			list.add(0, c);
 			c = c.getParent();
 		}
 		
 		return new TreePath(list.toArray());
 	}
 	
+	
+	/**
+	 * Return a string describing the path, using component normal names.
+	 * 
+	 * @param treePath	the tree path
+	 * @return			a string representation
+	 */
+	public static String pathToString(TreePath treePath) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("[");
+		for (Object o : treePath.getPath()) {
+			if (sb.length() > 1) {
+				sb.append("; ");
+			}
+			if (o instanceof RocketComponent) {
+				sb.append(((RocketComponent) o).getComponentName());
+			} else {
+				sb.append(o.toString());
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }

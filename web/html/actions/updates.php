@@ -22,6 +22,7 @@ $oros = "";
 $orjava = "";
 $orcountry = "";
 $orcores = "";
+$orlocale = "";
 foreach (getallheaders() as $header => $value) {
     if (preg_match("/^[a-zA-Z0-9 !$%&()*+,.\\/:=?@_~-]{1,40}$/", $value)) {
 	$h = strtolower($header);
@@ -37,6 +38,8 @@ foreach (getallheaders() as $header => $value) {
 	    $orcountry = $value;
 	} else if ($h == 'x-openrocket-cpus') {
 	    $orcores = $value;
+	} else if ($h == 'x-openrocket-locale') {
+	    $orlocale = $value;
 	}
     }
 }
@@ -44,14 +47,15 @@ foreach (getallheaders() as $header => $value) {
 // Log the request
 if ((strlen($orversion) > 0 || strlen($orid) > 0 || strlen($oros) > 0
      || strlen($orjava) > 0 || strlen($orcountry) > 0 
-     || strlen($orcores) > 0) &&
+     || strlen($orcores) > 0 || strlen($orlocale) > 0) &&
     (strlen($orversion) < 20 && strlen($orid) < 50 && strlen($oros) < 50
      && strlen($orjava) < 50 && strlen($orcountry) < 50) 
-     && strlen($orcores) < 10) {
+     && strlen($orcores) < 10 && strlen($orlocale) < 20) {
 
     $file = $logfiles . gmdate("Y-m");
     $line = gmdate("Y-m-d H:i:s") . ";" . $orid . ";" . $orversion .
-	";" . $oros . ";" . $orjava . ";" . $orcountry . ";" . $orcores . "\n";
+	";" . $oros . ";" . $orjava . ";" . $orcountry . ";" . $orcores . 
+	";" . $orlocale . "\n";
 
     $fp = fopen($file, 'a');
     if ($fp != FALSE) {

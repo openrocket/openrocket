@@ -8,15 +8,15 @@ package net.sf.openrocket.util;
 public class BugException extends FatalException {
 	
 	public BugException(String message) {
-		super(message);
+		super("BUG: " + message);
 	}
 	
 	public BugException(Throwable cause) {
-		super(cause);
+		super("BUG: " + cause.getMessage(), cause);
 	}
 	
 	public BugException(String message, Throwable cause) {
-		super(message, cause);
+		super("BUG: " + message, cause);
 	}
 	
 }
