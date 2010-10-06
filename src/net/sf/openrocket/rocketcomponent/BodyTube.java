@@ -281,6 +281,24 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	}
 	
 	
+
+	/**
+	 * Check whether the given type can be added to this component.  BodyTubes allow any
+	 * InternalComponents or ExternalComponents, excluding BodyComponents, to be added.
+	 * 
+	 * @param type  The RocketComponent class type to add.
+	 * @return      Whether such a component can be added.
+	 */
+	@Override
+	public boolean isCompatible(Class<? extends RocketComponent> type) {
+		if (InternalComponent.class.isAssignableFrom(type))
+			return true;
+		if (ExternalComponent.class.isAssignableFrom(type) &&
+				!BodyComponent.class.isAssignableFrom(type))
+			return true;
+		return false;
+	}
+	
 	////////////////  Motor mount  /////////////////
 	
 	@Override

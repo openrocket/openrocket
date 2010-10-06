@@ -13,15 +13,15 @@ import net.sf.openrocket.util.MathUtil;
 public class Transition extends SymmetricComponent {
 	private static final double CLIP_PRECISION = 0.0001;
 	
-	
+
 	private Shape type;
 	private double shapeParameter;
-	private boolean clipped;    // Not to be read - use isClipped(), which may be overriden
+	private boolean clipped; // Not to be read - use isClipped(), which may be overriden
 	
 	private double radius1, radius2;
-	private boolean autoRadius1, autoRadius2;   // Whether the start radius is automatic
-	
-	
+	private boolean autoRadius1, autoRadius2; // Whether the start radius is automatic
+			
+
 	private double foreShoulderRadius;
 	private double foreShoulderThickness;
 	private double foreShoulderLength;
@@ -31,9 +31,9 @@ public class Transition extends SymmetricComponent {
 	private double aftShoulderLength;
 	private boolean aftShoulderCapped;
 	
-	
+
 	// Used to cache the clip length
-	private double clipLength=-1;
+	private double clipLength = -1;
 	
 	public Transition() {
 		super();
@@ -50,11 +50,11 @@ public class Transition extends SymmetricComponent {
 	}
 	
 	
-	
-	
+
+
 	////////  Fore radius  ////////
 	
-	
+
 	@Override
 	public double getForeRadius() {
 		if (isForeRadiusAutomatic()) {
@@ -76,8 +76,8 @@ public class Transition extends SymmetricComponent {
 			return;
 		
 		this.autoRadius1 = false;
-		this.radius1 = Math.max(radius,0);
-
+		this.radius1 = Math.max(radius, 0);
+		
 		if (this.thickness > this.radius1 && this.thickness > this.radius2)
 			this.thickness = Math.max(this.radius1, this.radius2);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
@@ -96,7 +96,7 @@ public class Transition extends SymmetricComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-
+	
 	////////  Aft radius  /////////
 	
 	@Override
@@ -116,19 +116,19 @@ public class Transition extends SymmetricComponent {
 	}
 	
 	
-	
+
 	public void setAftRadius(double radius) {
 		if ((this.radius2 == radius) && (autoRadius2 == false))
 			return;
 		
 		this.autoRadius2 = false;
-		this.radius2 = Math.max(radius,0);
-
+		this.radius2 = Math.max(radius, 0);
+		
 		if (this.thickness > this.radius1 && this.thickness > this.radius2)
 			this.thickness = Math.max(this.radius1, this.radius2);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
 	@Override
 	public boolean isAftRadiusAutomatic() {
 		return autoRadius2;
@@ -143,7 +143,7 @@ public class Transition extends SymmetricComponent {
 	}
 	
 	
-	
+
 	//// Radius automatics
 	
 	@Override
@@ -152,18 +152,18 @@ public class Transition extends SymmetricComponent {
 			return -1;
 		return getAftRadius();
 	}
-
-
+	
+	
 	@Override
 	protected double getRearAutoRadius() {
 		if (isForeRadiusAutomatic())
 			return -1;
 		return getForeRadius();
 	}
-
-
 	
 	
+
+
 	////////  Type & shape  /////////
 	
 	public Shape getType() {
@@ -192,7 +192,7 @@ public class Transition extends SymmetricComponent {
 		this.shapeParameter = MathUtil.clamp(n, type.minParameter(), type.maxParameter());
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
+	
 	public boolean isClipped() {
 		if (!type.isClippable())
 			return false;
@@ -209,7 +209,7 @@ public class Transition extends SymmetricComponent {
 	public boolean isClippedEnabled() {
 		return type.isClippable();
 	}
-
+	
 	public double getShapeParameterMin() {
 		return type.minParameter();
 	}
@@ -224,29 +224,29 @@ public class Transition extends SymmetricComponent {
 	public double getForeShoulderRadius() {
 		return foreShoulderRadius;
 	}
-
+	
 	public void setForeShoulderRadius(double foreShoulderRadius) {
 		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
 			return;
 		this.foreShoulderRadius = foreShoulderRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	public double getForeShoulderThickness() {
 		return foreShoulderThickness;
 	}
-
+	
 	public void setForeShoulderThickness(double foreShoulderThickness) {
 		if (MathUtil.equals(this.foreShoulderThickness, foreShoulderThickness))
 			return;
 		this.foreShoulderThickness = foreShoulderThickness;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	public double getForeShoulderLength() {
 		return foreShoulderLength;
 	}
-
+	
 	public void setForeShoulderLength(double foreShoulderLength) {
 		if (MathUtil.equals(this.foreShoulderLength, foreShoulderLength))
 			return;
@@ -264,36 +264,36 @@ public class Transition extends SymmetricComponent {
 		this.foreShoulderCapped = capped;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
-
 	
 	
+
+
 	public double getAftShoulderRadius() {
 		return aftShoulderRadius;
 	}
-
+	
 	public void setAftShoulderRadius(double aftShoulderRadius) {
 		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
 			return;
 		this.aftShoulderRadius = aftShoulderRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	public double getAftShoulderThickness() {
 		return aftShoulderThickness;
 	}
-
+	
 	public void setAftShoulderThickness(double aftShoulderThickness) {
 		if (MathUtil.equals(this.aftShoulderThickness, aftShoulderThickness))
 			return;
 		this.aftShoulderThickness = aftShoulderThickness;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	public double getAftShoulderLength() {
 		return aftShoulderLength;
 	}
-
+	
 	public void setAftShoulderLength(double aftShoulderLength) {
 		if (MathUtil.equals(this.aftShoulderLength, aftShoulderLength))
 			return;
@@ -311,10 +311,10 @@ public class Transition extends SymmetricComponent {
 		this.aftShoulderCapped = capped;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
-
 	
 	
+
+
 	///////////   Shape implementations   ////////////
 	
 
@@ -324,17 +324,17 @@ public class Transition extends SymmetricComponent {
 	 */
 	@Override
 	public double getRadius(double x) {
-		if (x<0 || x>length)
+		if (x < 0 || x > length)
 			return 0;
 		
-		double r1=getForeRadius();
-		double r2=getAftRadius();
-
+		double r1 = getForeRadius();
+		double r2 = getAftRadius();
+		
 		if (r1 == r2)
 			return r1;
 		
 		if (r1 > r2) {
-			x = length-x;
+			x = length - x;
 			double tmp = r1;
 			r1 = r2;
 			r2 = tmp;
@@ -343,29 +343,29 @@ public class Transition extends SymmetricComponent {
 		if (isClipped()) {
 			// Check clip calculation
 			if (clipLength < 0)
-				calculateClip(r1,r2);
-			return type.getRadius(clipLength+x, r2, clipLength+length, shapeParameter);
+				calculateClip(r1, r2);
+			return type.getRadius(clipLength + x, r2, clipLength + length, shapeParameter);
 		} else {
 			// Not clipped
-			return r1 + type.getRadius(x, r2-r1, length, shapeParameter);
+			return r1 + type.getRadius(x, r2 - r1, length, shapeParameter);
 		}
 	}
-
+	
 	/**
 	 * Numerically solve clipLength from the equation
 	 *     r1 == type.getRadius(clipLength,r2,clipLength+length)
 	 * using a binary search.  It assumes getRadius() to be monotonically increasing.
 	 */
 	private void calculateClip(double r1, double r2) {
-		double min=0, max=length;
+		double min = 0, max = length;
 		
 		if (r1 >= r2) {
-			double tmp=r1;
+			double tmp = r1;
 			r1 = r2;
 			r2 = tmp;
 		}
 		
-		if (r1==0) {
+		if (r1 == 0) {
 			clipLength = 0;
 			return;
 		}
@@ -378,22 +378,22 @@ public class Transition extends SymmetricComponent {
 		// Required:
 		//    getR(min,min+length,r2) - r1 < 0
 		//    getR(max,max+length,r2) - r1 > 0
-
-		int n=0;
-		while (type.getRadius(max, r2, max+length, shapeParameter) - r1 < 0) {
+		
+		int n = 0;
+		while (type.getRadius(max, r2, max + length, shapeParameter) - r1 < 0) {
 			min = max;
 			max *= 2;
 			n++;
-			if (n>10)
+			if (n > 10)
 				break;
 		}
-
+		
 		while (true) {
-			clipLength = (min+max)/2;
-			if ((max-min)<CLIP_PRECISION)
+			clipLength = (min + max) / 2;
+			if ((max - min) < CLIP_PRECISION)
 				return;
-			double val = type.getRadius(clipLength, r2, clipLength+length, shapeParameter);
-			if (val-r1 > 0) {
+			double val = type.getRadius(clipLength, r2, clipLength + length, shapeParameter);
+			if (val - r1 > 0) {
 				max = clipLength;
 			} else {
 				min = clipLength;
@@ -404,9 +404,9 @@ public class Transition extends SymmetricComponent {
 	
 	@Override
 	public double getInnerRadius(double x) {
-		return Math.max(getRadius(x)-thickness,0);
+		return Math.max(getRadius(x) - thickness, 0);
 	}
-		
+	
 	
 
 	@Override
@@ -444,7 +444,7 @@ public class Transition extends SymmetricComponent {
 		
 		return mass;
 	}
-
+	
 	@Override
 	public Coordinate getComponentCG() {
 		Coordinate cg = super.getComponentCG();
@@ -455,25 +455,25 @@ public class Transition extends SymmetricComponent {
 		}
 		if (isForeShoulderCapped()) {
 			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
-			cg = cg.average(ringCG(ir, 0, -getForeShoulderLength(), 
-					getForeShoulderThickness()-getForeShoulderLength(),
+			cg = cg.average(ringCG(ir, 0, -getForeShoulderLength(),
+					getForeShoulderThickness() - getForeShoulderLength(),
 					getMaterial().getDensity()));
 		}
 		
 		if (getAftShoulderLength() > 0.001) {
 			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
-			cg = cg.average(ringCG(getAftShoulderRadius(), ir, getLength(), 
-					getLength()+getAftShoulderLength(), getMaterial().getDensity()));
+			cg = cg.average(ringCG(getAftShoulderRadius(), ir, getLength(),
+					getLength() + getAftShoulderLength(), getMaterial().getDensity()));
 		}
 		if (isAftShoulderCapped()) {
 			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
-			cg = cg.average(ringCG(ir, 0, 
-					getLength()+getAftShoulderLength()-getAftShoulderThickness(), 
-					getLength()+getAftShoulderLength(), getMaterial().getDensity()));
+			cg = cg.average(ringCG(ir, 0,
+					getLength() + getAftShoulderLength() - getAftShoulderThickness(),
+					getLength() + getAftShoulderLength(), getMaterial().getDensity()));
 		}
 		return cg;
 	}
-
+	
 	
 	/*
 	 * The moments of inertia are not explicitly corrected for the shoulders.
@@ -498,14 +498,29 @@ public class Transition extends SymmetricComponent {
 	}
 	
 	
+	/**
+	 * Check whether the given type can be added to this component.  Transitions allow any
+	 * InternalComponents to be added.
+	 * 
+	 * @param type  The RocketComponent class type to add.
+	 * @return      Whether such a component can be added.
+	 */
+	@Override
+	public boolean isCompatible(Class<? extends RocketComponent> type) {
+		if (InternalComponent.class.isAssignableFrom(type))
+			return true;
+		return false;
+	}
 	
+	
+
 	/**
 	 * An enumeration listing the possible shapes of transitions.
 	 * 
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public static enum Shape {
-
+		
 		/**
 		 * Conical shape.
 		 */
@@ -517,10 +532,10 @@ public class Transition extends SymmetricComponent {
 				assert x >= 0;
 				assert x <= length;
 				assert radius >= 0;
-				return radius*x/length;
+				return radius * x / length;
 			}
 		},
-
+		
 		/**
 		 * Ogive shape.  The shape parameter is the portion of an extended tangent ogive
 		 * that will be used.  That is, for param==1 a tangent ogive will be produced, and
@@ -528,21 +543,23 @@ public class Transition extends SymmetricComponent {
 		 */
 		OGIVE("Ogive",
 				"An ogive nose cone has a profile that is a segment of a circle.  " +
-				"The shape parameter value 1 produces a <b>tangent ogive</b>, which has " +
-				"a smooth transition to the body tube, values less than 1 produce "+
-				"<b>secant ogives</b>.",
+						"The shape parameter value 1 produces a <b>tangent ogive</b>, which has " +
+						"a smooth transition to the body tube, values less than 1 produce " +
+						"<b>secant ogives</b>.",
 				"An ogive transition has a profile that is a segment of a circle.  " +
-				"The shape parameter value 1 produces a <b>tangent ogive</b>, which has " +
-				"a smooth transition to the body tube at the aft end, values less than 1 " +
-				"produce <b>secant ogives</b>.") {
+						"The shape parameter value 1 produces a <b>tangent ogive</b>, which has " +
+						"a smooth transition to the body tube at the aft end, values less than 1 " +
+						"produce <b>secant ogives</b>.") {
 			@Override
 			public boolean usesParameter() {
-				return true;   // Range 0...1 is default
+				return true; // Range 0...1 is default
 			}
+			
 			@Override
 			public double defaultParameter() {
-				return 1.0;    // Tangent ogive by default
+				return 1.0; // Tangent ogive by default
 			}
+			
 			@Override
 			public double getRadius(double x, double radius, double length, double param) {
 				assert x >= 0;
@@ -562,56 +579,58 @@ public class Transition extends SymmetricComponent {
 					return CONICAL.getRadius(x, radius, length, param);
 				
 				// Radius of circle is:
-				double R = sqrt((pow2(length)+pow2(radius)) *
-						(pow2((2-param)*length) + pow2(param*radius))/(4*pow2(param*radius)));
-				double L = length/param;
-//				double R = (radius + length*length/(radius*param*param))/2;
-				double y0 = sqrt(R*R - L*L);
-				return sqrt(R*R - (L-x)*(L-x)) - y0;
+				double R = sqrt((pow2(length) + pow2(radius)) *
+						(pow2((2 - param) * length) + pow2(param * radius)) / (4 * pow2(param * radius)));
+				double L = length / param;
+				//				double R = (radius + length*length/(radius*param*param))/2;
+				double y0 = sqrt(R * R - L * L);
+				return sqrt(R * R - (L - x) * (L - x)) - y0;
 			}
 		},
-
+		
 		/**
 		 * Ellipsoidal shape.
 		 */
 		ELLIPSOID("Ellipsoid",
-				"An ellipsoidal nose cone has a profile of a half-ellipse "+
-				"with major axes of lengths 2&times;<i>Length</i> and <i>Diameter</i>.",
-				"An ellipsoidal transition has a profile of a half-ellipse "+
-				"with major axes of lengths 2&times;<i>Length</i> and <i>Diameter</i>.  If the "+
-				"transition is not clipped, then the profile is extended at the center by the "+
-				"corresponding radius.",true) {
+				"An ellipsoidal nose cone has a profile of a half-ellipse " +
+						"with major axes of lengths 2&times;<i>Length</i> and <i>Diameter</i>.",
+				"An ellipsoidal transition has a profile of a half-ellipse " +
+						"with major axes of lengths 2&times;<i>Length</i> and <i>Diameter</i>.  If the " +
+						"transition is not clipped, then the profile is extended at the center by the " +
+						"corresponding radius.", true) {
 			@Override
 			public double getRadius(double x, double radius, double length, double param) {
 				assert x >= 0;
 				assert x <= length;
 				assert radius >= 0;
-				x = x*radius/length;
-				return sqrt(2*radius*x-x*x);  // radius/length * sphere
+				x = x * radius / length;
+				return sqrt(2 * radius * x - x * x); // radius/length * sphere
 			}
 		},
-
+		
 		POWER("Power series",
-				"A power series nose cone has a profile of "+
-				"<i>Radius</i>&nbsp;&times;&nbsp;(<i>x</i>&nbsp;/&nbsp;<i>Length</i>)" +
-				"<sup><i>k</i></sup> "+
-				"where <i>k</i> is the shape parameter.  For <i>k</i>=0.5 this is a "+
-				"<b>" + FRAC12 +"-power</b> or <b>parabolic</b> nose cone, for <i>k</i>=0.75 a "+
-				"<b>" + FRAC34 +"-power</b>, and for <i>k</i>=1 a <b>conical</b> nose cone.",
-				"A power series transition has a profile of "+
-				"<i>Radius</i>&nbsp;&times;&nbsp;(<i>x</i>&nbsp;/&nbsp;<i>Length</i>)" +
-				"<sup><i>k</i></sup> "+
-				"where <i>k</i> is the shape parameter.  For <i>k</i>=0.5 the transition is "+
-				"<b>" + FRAC12 + "-power</b> or <b>parabolic</b>, for <i>k</i>=0.75 a " +
-				"<b>" + FRAC34 + "-power</b>, and for <i>k</i>=1 <b>conical</b>.",true) {
+				"A power series nose cone has a profile of " +
+						"<i>Radius</i>&nbsp;&times;&nbsp;(<i>x</i>&nbsp;/&nbsp;<i>Length</i>)" +
+						"<sup><i>k</i></sup> " +
+						"where <i>k</i> is the shape parameter.  For <i>k</i>=0.5 this is a " +
+						"<b>" + FRAC12 + "-power</b> or <b>parabolic</b> nose cone, for <i>k</i>=0.75 a " +
+						"<b>" + FRAC34 + "-power</b>, and for <i>k</i>=1 a <b>conical</b> nose cone.",
+				"A power series transition has a profile of " +
+						"<i>Radius</i>&nbsp;&times;&nbsp;(<i>x</i>&nbsp;/&nbsp;<i>Length</i>)" +
+						"<sup><i>k</i></sup> " +
+						"where <i>k</i> is the shape parameter.  For <i>k</i>=0.5 the transition is " +
+						"<b>" + FRAC12 + "-power</b> or <b>parabolic</b>, for <i>k</i>=0.75 a " +
+						"<b>" + FRAC34 + "-power</b>, and for <i>k</i>=1 <b>conical</b>.", true) {
 			@Override
-			public boolean usesParameter() {  // Range 0...1
+			public boolean usesParameter() { // Range 0...1
 				return true;
 			}
+			
 			@Override
 			public double defaultParameter() {
 				return 0.5;
 			}
+			
 			@Override
 			public double getRadius(double x, double radius, double length, double param) {
 				assert x >= 0;
@@ -619,40 +638,42 @@ public class Transition extends SymmetricComponent {
 				assert radius >= 0;
 				assert param >= 0;
 				assert param <= 1;
-				if (param<=0.00001) {
-					if (x<=0.00001)
+				if (param <= 0.00001) {
+					if (x <= 0.00001)
 						return 0;
 					else
 						return radius;
 				}
-				return radius*Math.pow(x/length, param);
+				return radius * Math.pow(x / length, param);
 			}
 			
 		},
 		
 		PARABOLIC("Parabolic series",
-				"A parabolic series nose cone has a profile of a parabola.  The shape "+
-				"parameter defines the segment of the parabola to utilize.  The shape " +
-				"parameter 1.0 produces a <b>full parabola</b> which is tangent to the body " +
-				"tube, 0.75 produces a <b>3/4 parabola</b>, 0.5 procudes a " +
-				"<b>1/2 parabola</b> and 0 produces a <b>conical</b> nose cone.",
-				"A parabolic series transition has a profile of a parabola.  The shape "+
-				"parameter defines the segment of the parabola to utilize.  The shape " +
-				"parameter 1.0 produces a <b>full parabola</b> which is tangent to the body " +
-				"tube at the aft end, 0.75 produces a <b>3/4 parabola</b>, 0.5 procudes a " +
-				"<b>1/2 parabola</b> and 0 produces a <b>conical</b> transition.") {
+				"A parabolic series nose cone has a profile of a parabola.  The shape " +
+						"parameter defines the segment of the parabola to utilize.  The shape " +
+						"parameter 1.0 produces a <b>full parabola</b> which is tangent to the body " +
+						"tube, 0.75 produces a <b>3/4 parabola</b>, 0.5 procudes a " +
+						"<b>1/2 parabola</b> and 0 produces a <b>conical</b> nose cone.",
+				"A parabolic series transition has a profile of a parabola.  The shape " +
+						"parameter defines the segment of the parabola to utilize.  The shape " +
+						"parameter 1.0 produces a <b>full parabola</b> which is tangent to the body " +
+						"tube at the aft end, 0.75 produces a <b>3/4 parabola</b>, 0.5 procudes a " +
+						"<b>1/2 parabola</b> and 0 produces a <b>conical</b> transition.") {
 			
 			// In principle a parabolic transition is clippable, but the difference is
 			// negligible.
 			
 			@Override
-			public boolean usesParameter() {  // Range 0...1
+			public boolean usesParameter() { // Range 0...1
 				return true;
 			}
+			
 			@Override
 			public double defaultParameter() {
 				return 1.0;
 			}
+			
 			@Override
 			public double getRadius(double x, double radius, double length, double param) {
 				assert x >= 0;
@@ -660,31 +681,33 @@ public class Transition extends SymmetricComponent {
 				assert radius >= 0;
 				assert param >= 0;
 				assert param <= 1;
-
-				return radius * ((2*x/length - param*pow2(x/length))/(2-param));
+				
+				return radius * ((2 * x / length - param * pow2(x / length)) / (2 - param));
 			}
 		},
 		
-		
-		
+
+
 		HAACK("Haack series",
 				"The Haack series nose cones are designed to minimize drag.  The shape parameter " +
-				"0 produces an <b>LD-Haack</b> or <b>Von Karman</b> nose cone, which minimizes " +
-				"drag for fixed length and diameter, while a value of 0.333 produces an " +
-				"<b>LV-Haack</b> nose cone, which minimizes drag for fixed length and volume.",
+						"0 produces an <b>LD-Haack</b> or <b>Von Karman</b> nose cone, which minimizes " +
+						"drag for fixed length and diameter, while a value of 0.333 produces an " +
+						"<b>LV-Haack</b> nose cone, which minimizes drag for fixed length and volume.",
 				"The Haack series <i>nose cones</i> are designed to minimize drag.  " +
-				"These transition shapes are their equivalents, but do not necessarily produce " +
-				"optimal drag for transitions.  " +
-				"The shape parameter 0 produces an <b>LD-Haack</b> or <b>Von Karman</b> shape, " +
-				"while a value of 0.333 produces an <b>LV-Haack</b> shape.",true) {
+						"These transition shapes are their equivalents, but do not necessarily produce " +
+						"optimal drag for transitions.  " +
+						"The shape parameter 0 produces an <b>LD-Haack</b> or <b>Von Karman</b> shape, " +
+						"while a value of 0.333 produces an <b>LV-Haack</b> shape.", true) {
 			@Override
 			public boolean usesParameter() {
 				return true;
 			}
-			@Override 
+			
+			@Override
 			public double maxParameter() {
-				return 1.0/3.0;  // Range 0...1/3
+				return 1.0 / 3.0; // Range 0...1/3
 			}
+			
 			@Override
 			public double getRadius(double x, double radius, double length, double param) {
 				assert x >= 0;
@@ -692,58 +715,58 @@ public class Transition extends SymmetricComponent {
 				assert radius >= 0;
 				assert param >= 0;
 				assert param <= 2;
-
-				double theta = Math.acos(1-2*x/length); 
-				if (param==0) {
-					return radius*sqrt((theta-sin(2*theta)/2)/Math.PI);
+				
+				double theta = Math.acos(1 - 2 * x / length);
+				if (param == 0) {
+					return radius * sqrt((theta - sin(2 * theta) / 2) / Math.PI);
 				}
-				return radius*sqrt((theta-sin(2*theta)/2+param*pow3(sin(theta)))/Math.PI);
+				return radius * sqrt((theta - sin(2 * theta) / 2 + param * pow3(sin(theta))) / Math.PI);
 			}
 		},
 		
-//		POLYNOMIAL("Smooth polynomial",
-//				"A polynomial is fitted such that the nose cone profile is horizontal "+
-//				"at the aft end of the transition.  The angle at the tip is defined by "+
-//				"the shape parameter.",
-//				"A polynomial is fitted such that the transition profile is horizontal "+
-//				"at the aft end of the transition.  The angle at the fore end is defined "+
-//				"by the shape parameter.") {
-//			@Override
-//			public boolean usesParameter() {
-//				return true;
-//			}
-//			@Override
-//			public double maxParameter() {
-//				return 3.0;   //  Range 0...3
-//			}
-//			@Override
-//			public double defaultParameter() {
-//				return 0.0;
-//			}
-//			public double getRadius(double x, double radius, double length, double param) {
-//				assert x >= 0;
-//				assert x <= length;
-//				assert radius >= 0;
-//				assert param >= 0;
-//				assert param <= 3;
-//				// p(x) = (k-2)x^3 + (3-2k)x^2 + k*x
-//				x = x/length;
-//				return radius*((((param-2)*x + (3-2*param))*x + param)*x);
-//			}
-//		}
+		//		POLYNOMIAL("Smooth polynomial",
+		//				"A polynomial is fitted such that the nose cone profile is horizontal "+
+		//				"at the aft end of the transition.  The angle at the tip is defined by "+
+		//				"the shape parameter.",
+		//				"A polynomial is fitted such that the transition profile is horizontal "+
+		//				"at the aft end of the transition.  The angle at the fore end is defined "+
+		//				"by the shape parameter.") {
+		//			@Override
+		//			public boolean usesParameter() {
+		//				return true;
+		//			}
+		//			@Override
+		//			public double maxParameter() {
+		//				return 3.0;   //  Range 0...3
+		//			}
+		//			@Override
+		//			public double defaultParameter() {
+		//				return 0.0;
+		//			}
+		//			public double getRadius(double x, double radius, double length, double param) {
+		//				assert x >= 0;
+		//				assert x <= length;
+		//				assert radius >= 0;
+		//				assert param >= 0;
+		//				assert param <= 3;
+		//				// p(x) = (k-2)x^3 + (3-2k)x^2 + k*x
+		//				x = x/length;
+		//				return radius*((((param-2)*x + (3-2*param))*x + param)*x);
+		//			}
+		//		}
 		;
-						
+		
 		// Privete fields of the shapes
 		private final String name;
 		private final String transitionDesc;
 		private final String noseconeDesc;
 		private final boolean canClip;
-
+		
 		// Non-clippable constructor
 		Shape(String name, String noseconeDesc, String transitionDesc) {
-			this(name,noseconeDesc,transitionDesc,false);
+			this(name, noseconeDesc, transitionDesc, false);
 		}
-
+		
 		// Clippable constructor
 		Shape(String name, String noseconeDesc, String transitionDesc, boolean canClip) {
 			this.name = name;
@@ -773,7 +796,7 @@ public class Transition extends SymmetricComponent {
 		public String getNoseConeDescription() {
 			return noseconeDesc;
 		}
-
+		
 		/**
 		 * Check whether the shape differs in clipped mode.  The clipping should be
 		 * enabled by default if possible.
@@ -788,7 +811,7 @@ public class Transition extends SymmetricComponent {
 		public boolean usesParameter() {
 			return false;
 		}
-
+		
 		/**
 		 * Return the minimum value of the shape parameter.  (Default 0.)
 		 */
@@ -809,7 +832,7 @@ public class Transition extends SymmetricComponent {
 		public double defaultParameter() {
 			return 0.0;
 		}
-
+		
 		/**
 		 * Calculate the basic radius of a transition with the given radius, length and
 		 * shape parameter at the point x from the tip of the component.  It is assumed
@@ -823,7 +846,7 @@ public class Transition extends SymmetricComponent {
 		 * @return       The basic radius at the given position.
 		 */
 		public abstract double getRadius(double x, double radius, double length, double param);
-
+		
 		
 		/**
 		 * Returns the name of the shape (same as getName()).

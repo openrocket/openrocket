@@ -2,11 +2,11 @@ package net.sf.openrocket.util;
 
 
 public class TextUtil {
-	private static final char[] HEX = { 
-		'0','1','2','3','4','5','6','7',
-		'8','9','a','b','c','d','e','f' 
+	private static final char[] HEX = {
+			'0', '1', '2', '3', '4', '5', '6', '7',
+			'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 	};
-
+	
 	
 	/**
 	 * Return the bytes formatted as a hexadecimal string.  The length of the
@@ -18,13 +18,13 @@ public class TextUtil {
 	 */
 	public static final String hexString(byte[] bytes) {
 		StringBuilder sb = new StringBuilder(bytes.length * 2);
-		for (byte b: bytes) {
+		for (byte b : bytes) {
 			sb.append(HEX[(b >>> 4) & 0xF]);
 			sb.append(HEX[b & 0xF]);
 		}
 		return sb.toString();
 	}
-
+	
 	/**
 	 * Return a string of the double value with suitable precision (5 digits).
 	 * The string is the shortest representation of the value including the
@@ -49,7 +49,7 @@ public class TextUtil {
 				return "Inf";
 		}
 		
-		
+
 		final String sign = (d < 0) ? "-" : "";
 		double abs = Math.abs(d);
 		
@@ -95,7 +95,7 @@ public class TextUtil {
 	 */
 	private static String decimalFormat(double value) {
 		if (value >= 10000)
-			return "" + (int)(value + 0.5);
+			return "" + (int) (value + 0.5);
 		
 		int decimals = 1;
 		double v = value;
@@ -108,8 +108,8 @@ public class TextUtil {
 	}
 	
 	
-	
-	
+
+
 	/*
 	 * value must be positive!
 	 */
@@ -118,42 +118,50 @@ public class TextUtil {
 		// Calculate rounding and limit values (rounding slightly smaller)
 		int rounding = 1;
 		double limit = 0.5;
-		for (int i=0; i<decimals; i++) {
+		for (int i = 0; i < decimals; i++) {
 			rounding *= 10;
 			limit /= 10;
 		}
-
+		
 		// Round value
-		value = (Math.rint(value * rounding)+0.1) / rounding;
+		value = (Math.rint(value * rounding) + 0.1) / rounding;
 		
-		
-		int whole = (int)value;
+
+		int whole = (int) value;
 		value -= whole;
 		
-		
-		if (value < limit)
-			return "" + whole; 
-		limit *= 10;
 
+		if (value < limit)
+			return "" + whole;
+		limit *= 10;
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("" + whole);
 		sb.append('.');
-
 		
-		for (int i = 0; i<decimals; i++) {
+
+		for (int i = 0; i < decimals; i++) {
 			
 			value *= 10;
-			whole = (int)value;
+			whole = (int) value;
 			value -= whole;
-			sb.append((char)('0' + whole));
+			sb.append((char) ('0' + whole));
 			
 			if (value < limit)
 				return sb.toString();
 			limit *= 10;
-
+			
 		}
-
+		
 		return sb.toString();
 	}
-
+	
+	
+	public static String htmlEncode(String s) {
+		s = s.replace("&", "&amp;");
+		s = s.replace("\"", "&quot;");
+		s = s.replace("<", "&lt;");
+		s = s.replace(">", "&gt;");
+		return s;
+	}
 }

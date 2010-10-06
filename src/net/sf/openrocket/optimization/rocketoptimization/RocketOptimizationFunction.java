@@ -98,7 +98,7 @@ public class RocketOptimizationFunction implements Function {
 			return value;
 		}
 		
-		// TODO: CRITICAL: is in domain?
+		// TODO: : is in domain?
 		return 0;
 	}
 	

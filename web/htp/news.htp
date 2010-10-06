@@ -9,6 +9,14 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">6.10.2010:</span> Version 1.1.3 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>This release includes support for moving and copying components
+    in the component tree using drag-and-drop.  Use normal DnD for
+    moving, and control-drag for copy.  This release also fixes a
+    severe bug in the undo system.</p>
+
   <p><span class="date">7.9.2010:</span> A bug-fix version 1.1.2 is 
     <a href="download.html">released</a>!</p>
 

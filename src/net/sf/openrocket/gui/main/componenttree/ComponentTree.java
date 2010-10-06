@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 
@@ -41,7 +42,12 @@ public class ComponentTree extends JTree {
 		
 		// Expand whole tree by default
 		expandTree();
+		
+		// Enable tooltips for this component
+		ToolTipManager.sharedInstance().registerComponent(this);
+		
 	}
+	
 	
 	public void expandTree() {
 		for (int i = 0; i < getRowCount(); i++)

@@ -107,7 +107,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	private String comment = "";
 	
 	// Unique ID of the component
-	// TODO: CRITICAL: Sort out usage of ID and undo defect
 	private String id = null;
 	
 	/**

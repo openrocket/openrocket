@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -23,11 +24,13 @@ import net.sf.openrocket.simulation.SimulationStepper;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationListenerException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 
 
 public class Simulation implements ChangeSource, Cloneable {
+	private static final LogHelper log = Application.getLogger();
 	
 	public static enum Status {
 		/** Up-to-date */
@@ -238,22 +241,16 @@ public class Simulation implements ChangeSource, Cloneable {
 			throw new SimulationException("Cannot simulate imported simulation.");
 		}
 		
-		AerodynamicCalculator aerodynamicCalculator;
 		SimulationEngine simulator;
-		SimulationStepper stepper;
-		MassCalculator massCalculator;
 		
 		try {
-			aerodynamicCalculator = aerodynamicCalculatorClass.newInstance();
 			simulator = simulationEngineClass.newInstance();
-			stepper = simulationStepperClass.newInstance();
-			massCalculator = massCalculatorClass.newInstance();
 		} catch (InstantiationException e) {
-			throw new IllegalStateException("Cannot instantiate calculator/simulator.", e);
+			throw new IllegalStateException("Cannot instantiate simulator.", e);
 		} catch (IllegalAccessException e) {
-			throw new IllegalStateException("Cannot access calc/sim instance?! BUG!", e);
+			throw new IllegalStateException("Cannot access simulator instance?! BUG!", e);
 		} catch (NullPointerException e) {
-			throw new IllegalStateException("Calculator or simulator null", e);
+			throw new IllegalStateException("Simulator null", e);
 		}
 		
 		SimulationConditions simulationConditions = conditions.toSimulationConditions();
@@ -274,12 +271,11 @@ public class Simulation implements ChangeSource, Cloneable {
 		}
 		
 		long t1, t2;
-		System.out.println("Simulation: calling simulator");
+		log.debug("Simulation: calling simulator");
 		t1 = System.currentTimeMillis();
 		simulatedData = simulator.simulate(simulationConditions);
 		t2 = System.currentTimeMillis();
-		System.out.println("Simulation: returning from simulator, " +
-				"simulation took " + (t2 - t1) + "ms");
+		log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
 		
 		// Set simulated info after simulation, will not be set in case of exception
 		simulatedConditions = conditions.clone();

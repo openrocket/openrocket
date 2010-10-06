@@ -80,16 +80,18 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "1.1.2";
+$unstable = "1.1.3";
 $stable = "1.0.0";
 
-if (preg_match("/^1\.1\.1/", $version)) {
+if (preg_match("/^1\.1\.[12]/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
-    "4: Fixed bug preventing addition of stages\n";
+    "5: Initial drag-and-drop support\n" .
+    "4: Bug fixes\n";
 } else if (preg_match("/^1\.1\.0/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "6: Enhanced motor selection\n" .
     "5: Rewritten simulation code\n" .
+    "5: Drag-and-drop support\n" .
     "4: Bug fixes";
 } else if (preg_match("/^0\.9\.6/", $version)) {
   $updates = "Version: " . $stable . "\n" .
