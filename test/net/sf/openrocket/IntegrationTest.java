@@ -259,6 +259,8 @@ public class IntegrationTest {
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(32.7);
+		
+
 	}
 	
 	private String massComponentID = null;

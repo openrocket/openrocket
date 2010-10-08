@@ -11,6 +11,8 @@ import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
@@ -33,7 +35,8 @@ import net.sf.openrocket.util.Reflection;
  */
 
 public class BooleanModel extends AbstractAction implements ChangeListener {
-
+	private static final LogHelper log = Application.getLogger();
+	
 	private final ChangeSource source;
 	private final String valueName;
 	
@@ -44,6 +47,8 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	private final List<Component> components = new ArrayList<Component>();
 	private final List<Boolean> componentEnableState = new ArrayList<Boolean>();
 	
+	private String toString = null;
+	
 	private int firing = 0;
 	
 	private boolean oldValue;
@@ -53,34 +58,38 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		this.source = source;
 		this.valueName = valueName;
 		
-		Method getter=null, setter=null;
+		Method getter = null, setter = null;
 		
-		
+
 		// Try get/is and set
 		try {
 			getter = source.getClass().getMethod("is" + valueName);
-		} catch (NoSuchMethodException ignore) { }
+		} catch (NoSuchMethodException ignore) {
+		}
 		if (getter == null) {
 			try {
 				getter = source.getClass().getMethod("get" + valueName);
-			} catch (NoSuchMethodException ignore) { }
+			} catch (NoSuchMethodException ignore) {
+			}
 		}
 		try {
-			setter = source.getClass().getMethod("set" + valueName,boolean.class);
-		} catch (NoSuchMethodException ignore) { }
-		
-		if (getter==null || setter==null) {
-			throw new IllegalArgumentException("get/is methods for boolean '"+valueName+
-					"' not present in class "+source.getClass().getCanonicalName());
+			setter = source.getClass().getMethod("set" + valueName, boolean.class);
+		} catch (NoSuchMethodException ignore) {
 		}
-
+		
+		if (getter == null || setter == null) {
+			throw new IllegalArgumentException("get/is methods for boolean '" + valueName +
+					"' not present in class " + source.getClass().getCanonicalName());
+		}
+		
 		getMethod = getter;
 		setMethod = setter;
 		
 		Method e = null;
 		try {
 			e = source.getClass().getMethod("is" + valueName + "Enabled");
-		} catch (NoSuchMethodException ignore) { }
+		} catch (NoSuchMethodException ignore) {
+		}
 		getEnabled = e;
 		
 		oldValue = getValue();
@@ -94,19 +103,20 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	
 	public boolean getValue() {
 		try {
-			return (Boolean)getMethod.invoke(source);
+			return (Boolean) getMethod.invoke(source);
 		} catch (IllegalAccessException e) {
-			throw new BugException("getMethod execution error for source "+source,e);
+			throw new BugException("getMethod execution error for source " + source, e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
 	public void setValue(boolean b) {
+		log.debug("Setting value of " + this + " to " + b);
 		try {
-			setMethod.invoke(source, new Object[] { (Boolean)b });
+			setMethod.invoke(source, new Object[] { (Boolean) b });
 		} catch (IllegalAccessException e) {
-			throw new BugException("setMethod execution error for source "+source,e);
+			throw new BugException("setMethod execution error for source " + source, e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
 		}
@@ -141,7 +151,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	private void updateEnableStatus() {
 		boolean state = getValue();
 		
-		for (int i=0; i < components.size(); i++) {
+		for (int i = 0; i < components.size(); i++) {
 			Component c = components.get(i);
 			boolean b = componentEnableState.get(i);
 			c.setEnabled(state == b);
@@ -149,81 +159,54 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	}
 	
 	
-//	@Override
-//	public boolean isEnabled() {
-//		if (getEnabled == null)
-//			return true;
-//		try {
-//			return (Boolean)getEnabled.invoke(source);
-//		} catch (IllegalAccessException e) {
-//			throw new RuntimeException("getEnabled execution error for source "+source,e);
-//		} catch (InvocationTargetException e) {
-//			throw new RuntimeException("getEnabled execution error for source "+source,e);
-//		}
-//	}
-
 
 	private boolean getIsEnabled() {
 		if (getEnabled == null)
 			return true;
 		try {
-			return (Boolean)getEnabled.invoke(source);
+			return (Boolean) getEnabled.invoke(source);
 		} catch (IllegalAccessException e) {
-			throw new BugException("getEnabled execution error for source "+source,e);
+			throw new BugException("getEnabled execution error for source " + source, e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
 		}
 	}
 	
-//	@Override
-//	public Object getValue(String key) {
-//		if (key.equals(SELECTED_KEY)) {
-//			return getValue();
-//		}
-//		return super.getValue(key);
-//	}
-//
-//	@Override
-//	public void putValue(String key, Object value) {
-//		if (firing > 0)  // Ignore if currently firing event
-//			return;
-//		if (key.equals(SELECTED_KEY) && (value instanceof Boolean)) {
-//			setValue((Boolean)value);
-//		} else {
-//			super.putValue(key, value);
-//		}
-//		updateEnableStatus();
-//	}
-	
-	
 	@Override
 	public void stateChanged(ChangeEvent event) {
-		if (firing > 0)
+		if (firing > 0) {
+			log.debug("Ignoring stateChanged of " + this + ", currently firing events");
 			return;
+		}
 		
 		boolean v = getValue();
 		boolean e = getIsEnabled();
 		if (oldValue != v) {
+			log.debug("Value of " + this + " has changed to " + v + " oldValue=" + oldValue);
 			oldValue = v;
 			firing++;
 			this.putValue(SELECTED_KEY, getValue());
-//			this.firePropertyChange(SELECTED_KEY, !v, v);
+			//			this.firePropertyChange(SELECTED_KEY, !v, v);
 			updateEnableStatus();
 			firing--;
 		}
 		if (oldEnabled != e) {
+			log.debug("Enabled status of " + this + " has changed to " + e + " oldEnabled=" + oldEnabled);
 			oldEnabled = e;
 			setEnabled(e);
 		}
 	}
-
-
+	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (firing > 0)
+		if (firing > 0) {
+			log.debug("Ignoring actionPerformed of " + this + ", currently firing events");
 			return;
+		}
 		
-		boolean v = (Boolean)this.getValue(SELECTED_KEY);
+		boolean v = (Boolean) this.getValue(SELECTED_KEY);
+		log.user("Value of " + this + " changed to " + v + " oldValue=" + oldValue);
 		if (v != oldValue) {
 			firing++;
 			setValue(v);
@@ -238,6 +221,9 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	
 	@Override
 	public String toString() {
-		return "BooleanModel["+source.getClass().getCanonicalName()+":"+valueName+"]";
+		if (toString == null) {
+			toString = "BooleanModel[" + source.getClass().getSimpleName() + ":" + valueName + "]";
+		}
+		return toString;
 	}
 }

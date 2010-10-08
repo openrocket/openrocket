@@ -10,31 +10,30 @@ import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 
 
 public class ComponentTree extends JTree {
-	private static final long serialVersionUID = 1L;
 	
 	public ComponentTree(OpenRocketDocument document) {
 		super();
 		this.setModel(new ComponentTreeModel(document.getRocket(), this));
 		this.setToggleClickCount(0);
 		
-		javax.swing.plaf.basic.BasicTreeUI ui = new javax.swing.plaf.basic.BasicTreeUI();
-		this.setUI(ui);
-		
-		ui.setExpandedIcon(TreeIcon.MINUS);
-		ui.setCollapsedIcon(TreeIcon.PLUS);
-		
-		ui.setLeftChildIndent(15);
+		javax.swing.plaf.basic.BasicTreeUI plainUI = new javax.swing.plaf.basic.BasicTreeUI();
+		this.setUI(plainUI);
+		plainUI.setExpandedIcon(TreeIcon.MINUS);
+		plainUI.setCollapsedIcon(TreeIcon.PLUS);
+		plainUI.setLeftChildIndent(15);
 		
 
-		setBackground(Color.WHITE);
-		setShowsRootHandles(false);
+		this.setBackground(Color.WHITE);
+		this.setShowsRootHandles(false);
 		
-		setCellRenderer(new ComponentTreeRenderer());
+		this.setCellRenderer(new ComponentTreeRenderer());
 		
 		this.setDragEnabled(true);
 		this.setDropMode(DropMode.INSERT);
@@ -52,9 +51,43 @@ public class ComponentTree extends JTree {
 	public void expandTree() {
 		for (int i = 0; i < getRowCount(); i++)
 			expandRow(i);
-		
 	}
 	
+	@Override
+	public void treeDidChange() {
+		super.treeDidChange();
+		expandChildlessNodes();
+	}
+	
+	/**
+	 * Expand all nodes in the tree that are visible and have no children.  This can be used
+	 * to avoid the situation where a non-leaf node is marked as being expandable, but when
+	 * expanding it it has no children.
+	 */
+	private void expandChildlessNodes() {
+		TreeModel model = this.getModel();
+		if (model == null) {
+			return;
+		}
+		Object root = model.getRoot();
+		expandChildlessNodes(model, new TreePath(root));
+	}
+	
+	private void expandChildlessNodes(TreeModel model, TreePath path) {
+		Object object = path.getLastPathComponent();
+		if (this.isVisible(path)) {
+			int count = model.getChildCount(object);
+			if (count == 0) {
+				this.expandPath(path);
+			}
+			for (int i = 0; i < count; i++) {
+				expandChildlessNodes(model, path.pathByAddingChild(model.getChild(object, i)));
+			}
+		}
+	}
+	
+	
+
 	private static class TreeIcon implements Icon {
 		public static final Icon PLUS = new TreeIcon(true);
 		public static final Icon MINUS = new TreeIcon(false);

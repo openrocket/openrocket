@@ -15,6 +15,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -38,10 +40,11 @@ import net.sf.openrocket.util.Reflection;
  */
 
 public class DoubleModel implements ChangeListener, ChangeSource {
-	private static final boolean DEBUG_LISTENERS = false;
+	private static final LogHelper log = Application.getLogger();
 	
-	public static final DoubleModel ZERO = new DoubleModel(0);
 
+	public static final DoubleModel ZERO = new DoubleModel(0);
+	
 	//////////// JSpinner Model ////////////
 	
 	/**
@@ -53,56 +56,50 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		@Override
 		public Object getValue() {
 			return currentUnit.toUnit(DoubleModel.this.getValue());
-//			return makeString(currentUnit.toUnit(DoubleModel.this.getValue()));
 		}
-
+		
 		@Override
 		public void setValue(Object value) {
-			
-			System.out.println("setValue("+value+") called, valueName="+valueName+
-					" firing="+firing);
-			
-			if (firing > 0)   // Ignore, if called when model is sending events
+			if (firing > 0) {
+				// Ignore, if called when model is sending events
+				log.verbose("Ignoring call to SpinnerModel setValue for " + DoubleModel.this.toString() +
+						" value=" + value + ", currently firing events");
 				return;
-			Number num = (Number)value;
+			}
+			Number num = (Number) value;
 			double newValue = num.doubleValue();
-			DoubleModel.this.setValue(currentUnit.fromUnit(newValue));
+			double converted = currentUnit.fromUnit(newValue);
 			
+			log.user("SpinnerModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
+					" converted=" + converted);
+			DoubleModel.this.setValue(converted);
 			
-//			try {
-//				double newValue = Double.parseDouble((String)value);
-//				DoubleModel.this.setValue(currentUnit.fromUnit(newValue));
-//			} catch (NumberFormatException e) { 
-//				DoubleModel.this.fireStateChanged();
-//			};
 		}
 		
 		@Override
 		public Object getNextValue() {
 			double d = currentUnit.toUnit(DoubleModel.this.getValue());
 			double max = currentUnit.toUnit(maxValue);
-			if (MathUtil.equals(d,max))
+			if (MathUtil.equals(d, max))
 				return null;
 			d = currentUnit.getNextValue(d);
 			if (d > max)
 				d = max;
 			return d;
-//			return makeString(d);
 		}
-
+		
 		@Override
 		public Object getPreviousValue() {
 			double d = currentUnit.toUnit(DoubleModel.this.getValue());
 			double min = currentUnit.toUnit(minValue);
-			if (MathUtil.equals(d,min))
+			if (MathUtil.equals(d, min))
 				return null;
 			d = currentUnit.getPreviousValue(d);
 			if (d < min)
 				d = min;
 			return d;
-//			return makeString(d);
 		}
-
+		
 		
 		@Override
 		public Comparable<Double> getMinimum() {
@@ -119,7 +116,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		public void addChangeListener(ChangeListener l) {
 			DoubleModel.this.addChangeListener(l);
 		}
-
+		
 		@Override
 		public void removeChangeListener(ChangeListener l) {
 			DoubleModel.this.removeChangeListener(l);
@@ -137,9 +134,9 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	}
 	
 	
-	
-	
-	
+
+
+
 	////////////  JSlider model  ////////////
 	
 	private class ValueSliderModel implements BoundedRangeModel, ChangeListener {
@@ -149,7 +146,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		 * Use linear scale  value = linear1 * x + linear0  when x < linearPosition
 		 * Use quadratic scale  value = quad2 * x^2 + quad1 * x + quad0  otherwise
 		 */
-		
+
 		// Linear in range x <= linearPosition
 		private final double linearPosition;
 		
@@ -161,40 +158,40 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		//private final double linear0;
 		
 		// Non-linear multiplier, exponent and constant
-		private final double quad2,quad1,quad0;
+		private final double quad2, quad1, quad0;
 		
 		
-		
+
 		public ValueSliderModel(DoubleModel min, DoubleModel max) {
 			linearPosition = 1.0;
-
+			
 			this.min = min;
-			this.mid = max;  // Never use exponential scale
+			this.mid = max; // Never use exponential scale
 			this.max = max;
 			
 			min.addChangeListener(this);
 			max.addChangeListener(this);
-
-			quad2 = quad1 = quad0 = 0;  // Not used
+			
+			quad2 = quad1 = quad0 = 0; // Not used
 		}
 		
 		
-		
+
 		/**
 		 * Generate a linear model from min to max.
 		 */
 		public ValueSliderModel(double min, double max) {
 			linearPosition = 1.0;
-
+			
 			this.min = new DoubleModel(min);
-			this.mid = new DoubleModel(max);  // Never use exponential scale
+			this.mid = new DoubleModel(max); // Never use exponential scale
 			this.max = new DoubleModel(max);
-
-			quad2 = quad1 = quad0 = 0;  // Not used
+			
+			quad2 = quad1 = quad0 = 0; // Not used
 		}
 		
 		public ValueSliderModel(double min, double mid, double max) {
-			this(min,0.5,mid,max);
+			this(min, 0.5, mid, max);
 		}
 		
 		/*
@@ -208,15 +205,15 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			this.min = new DoubleModel(min);
 			this.mid = new DoubleModel(mid);
 			this.max = new DoubleModel(max);
-
 			
+
 			linearPosition = pos;
 			//linear0 = min;
 			//linear1 = (mid-min)/pos;
 			
 			if (!(min < mid && mid <= max && 0 < pos && pos < 1)) {
-				throw new IllegalArgumentException("Bad arguments for ValueSliderModel "+
-						"min="+min+" mid="+mid+" max="+max+" pos="+pos);
+				throw new IllegalArgumentException("Bad arguments for ValueSliderModel " +
+						"min=" + min + " mid=" + mid + " max=" + max + " pos=" + pos);
 			}
 			
 			/*
@@ -225,16 +222,16 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			 *   f(1)    = max      - end point
 			 *   f'(pos) = linear1  - continuity of derivative
 			 */
-			
-			double delta = (mid-min)/pos;
-			quad2 = (max - mid - delta + delta*pos) / pow2(pos-1);
-			quad1 = (delta + 2*(mid-max)*pos - delta*pos*pos) / pow2(pos-1);
-			quad0 = (mid - (2*mid+delta)*pos + (max+delta)*pos*pos) / pow2(pos-1);
+
+			double delta = (mid - min) / pos;
+			quad2 = (max - mid - delta + delta * pos) / pow2(pos - 1);
+			quad1 = (delta + 2 * (mid - max) * pos - delta * pos * pos) / pow2(pos - 1);
+			quad0 = (mid - (2 * mid + delta) * pos + (max + delta) * pos * pos) / pow2(pos - 1);
 			
 		}
 		
 		private double pow2(double x) {
-			return x*x;
+			return x * x;
 		}
 		
 		public int getValue() {
@@ -250,68 +247,94 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 				//linear0 = min;
 				//linear1 = (mid-min)/pos;
 				
-				x = (value - min.getValue())*linearPosition/(mid.getValue()-min.getValue());
+				x = (value - min.getValue()) * linearPosition / (mid.getValue() - min.getValue());
 			} else {
 				// Use quadratic scale
 				// Further solution of the quadratic equation
 				//   a*x^2 + b*x + c-value == 0
-				x = (Math.sqrt(quad1*quad1 - 4*quad2*(quad0-value)) - quad1) / (2*quad2);
+				x = (Math.sqrt(quad1 * quad1 - 4 * quad2 * (quad0 - value)) - quad1) / (2 * quad2);
 			}
-			return (int)(x*MAX);
+			return (int) (x * MAX);
 		}
-
-
+		
+		
 		public void setValue(int newValue) {
-			if (firing > 0)   // Ignore loops
+			if (firing > 0) {
+				// Ignore loops
+				log.verbose("Ignoring call to SliderModel setValue for " + DoubleModel.this.toString() +
+						" value=" + newValue + ", currently firing events");
 				return;
+			}
 			
-			double x = (double)newValue/MAX;
-			double value;
+			double x = (double) newValue / MAX;
+			double scaledValue;
 			
 			if (x <= linearPosition) {
 				// Use linear scale
 				//linear0 = min;
 				//linear1 = (mid-min)/pos;
-
-				value = (mid.getValue()-min.getValue())/linearPosition*x + min.getValue();
+				
+				scaledValue = (mid.getValue() - min.getValue()) / linearPosition * x + min.getValue();
 			} else {
 				// Use quadratic scale
-				value = quad2*x*x + quad1*x + quad0;
+				scaledValue = quad2 * x * x + quad1 * x + quad0;
 			}
 			
-			DoubleModel.this.setValue(currentUnit.fromUnit(
-					currentUnit.round(currentUnit.toUnit(value))));
+			double converted = currentUnit.fromUnit(currentUnit.round(currentUnit.toUnit(scaledValue)));
+			log.user("SliderModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
+					" scaledValue=" + scaledValue + " converted=" + converted);
+			DoubleModel.this.setValue(converted);
 		}
-
+		
 		
 		// Static get-methods
 		private boolean isAdjusting;
-		public int getExtent() { return 0; }
-		public int getMaximum() { return MAX; }
-		public int getMinimum() { return 0; }
-		public boolean getValueIsAdjusting() { return isAdjusting; }
+		
+		public int getExtent() {
+			return 0;
+		}
+		
+		public int getMaximum() {
+			return MAX;
+		}
+		
+		public int getMinimum() {
+			return 0;
+		}
+		
+		public boolean getValueIsAdjusting() {
+			return isAdjusting;
+		}
 		
 		// Ignore set-values
-		public void setExtent(int newExtent) { }
-		public void setMaximum(int newMaximum) { }
-		public void setMinimum(int newMinimum) { }
-		public void setValueIsAdjusting(boolean b) { isAdjusting = b; }
-
+		public void setExtent(int newExtent) {
+		}
+		
+		public void setMaximum(int newMaximum) {
+		}
+		
+		public void setMinimum(int newMinimum) {
+		}
+		
+		public void setValueIsAdjusting(boolean b) {
+			isAdjusting = b;
+		}
+		
 		public void setRangeProperties(int value, int extent, int min, int max, boolean adjusting) {
 			setValueIsAdjusting(adjusting);
 			setValue(value);
 		}
-
+		
 		// Pass change listeners to the underlying model
 		public void addChangeListener(ChangeListener l) {
 			DoubleModel.this.addChangeListener(l);
 		}
-
+		
 		public void removeChangeListener(ChangeListener l) {
 			DoubleModel.this.removeChangeListener(l);
 		}
-
-
+		
+		
 
 		public void stateChanged(ChangeEvent e) {
 			// Min or max range has changed.
@@ -323,24 +346,24 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	
 	
 	public BoundedRangeModel getSliderModel(DoubleModel min, DoubleModel max) {
-		return new ValueSliderModel(min,max);
+		return new ValueSliderModel(min, max);
 	}
 	
 	public BoundedRangeModel getSliderModel(double min, double max) {
-		return new ValueSliderModel(min,max);
+		return new ValueSliderModel(min, max);
 	}
 	
 	public BoundedRangeModel getSliderModel(double min, double mid, double max) {
-		return new ValueSliderModel(min,mid,max);
+		return new ValueSliderModel(min, mid, max);
 	}
 	
 	public BoundedRangeModel getSliderModel(double min, double pos, double mid, double max) {
-		return new ValueSliderModel(min,pos,mid,max);
+		return new ValueSliderModel(min, pos, mid, max);
 	}
 	
 	
-	
-	
+
+
 
 	////////////  Action model  ////////////
 	
@@ -352,10 +375,9 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			addChangeListener(this);
 		}
 		
-
+		
 		@Override
 		public boolean isEnabled() {
-			// TODO: LOW: does not reflect if component is currently able to support automatic setting
 			return isAutomaticAvailable();
 		}
 		
@@ -367,51 +389,61 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			}
 			return super.getValue(key);
 		}
-
+		
 		@Override
 		public void putValue(String key, Object value) {
-			if (firing > 0)
+			if (firing > 0) {
+				log.verbose("Ignoring call to ActionModel putValue for " + DoubleModel.this.toString() +
+						" key=" + key + " value=" + value + ", currently firing events");
 				return;
+			}
 			if (key.equals(Action.SELECTED_KEY) && (value instanceof Boolean)) {
-				oldValue = (Boolean)value;
-				setAutomatic((Boolean)value);
+				log.user("ActionModel putValue called for " + DoubleModel.this.toString() +
+						" key=" + key + " value=" + value);
+				oldValue = (Boolean) value;
+				setAutomatic((Boolean) value);
 			} else {
+				log.debug("Passing ActionModel putValue call to supermethod for " + DoubleModel.this.toString() +
+						" key=" + key + " value=" + value);
 				super.putValue(key, value);
 			}
 		}
-
+		
 		// Implement a wrapper to the ChangeListeners
-		ArrayList<PropertyChangeListener> propertyChangeListeners = 
-			new ArrayList<PropertyChangeListener>();
+		ArrayList<PropertyChangeListener> propertyChangeListeners =
+				new ArrayList<PropertyChangeListener>();
+		
 		@Override
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
 			propertyChangeListeners.add(listener);
 			DoubleModel.this.addChangeListener(this);
 		}
+		
 		@Override
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
 			propertyChangeListeners.remove(listener);
 			if (propertyChangeListeners.isEmpty())
 				DoubleModel.this.removeChangeListener(this);
 		}
+		
 		// If the value has changed, generate an event to the listeners
 		public void stateChanged(ChangeEvent e) {
 			boolean newValue = isAutomatic();
 			if (oldValue == newValue)
 				return;
-			PropertyChangeEvent event = new PropertyChangeEvent(this,Action.SELECTED_KEY,
-					oldValue,newValue);
+			PropertyChangeEvent event = new PropertyChangeEvent(this, Action.SELECTED_KEY,
+					oldValue, newValue);
 			oldValue = newValue;
 			Object[] l = propertyChangeListeners.toArray();
-			for (int i=0; i<l.length; i++) {
-				((PropertyChangeListener)l[i]).propertyChange(event);
+			for (int i = 0; i < l.length; i++) {
+				((PropertyChangeListener) l[i]).propertyChange(event);
 			}
 		}
-
+		
 		public void actionPerformed(ActionEvent e) {
 			// Setting performed in putValue
 		}
-
+		
 	}
 	
 	/**
@@ -425,16 +457,15 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	}
 	
 	
-	
-	
+
 
 
 	////////////  Main model  /////////////
-
+	
 	/*
 	 * The main model handles all values in SI units, i.e. no conversion is made within the model.
 	 */
-	
+
 	private final ChangeSource source;
 	private final String valueName;
 	private final double multiplier;
@@ -449,36 +480,38 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	
 	private final UnitGroup units;
 	private Unit currentUnit;
-
+	
 	private final double minValue;
 	private final double maxValue;
+	
+	private String toString = null;
+	
 
+	private int firing = 0; //  >0 when model itself is sending events
 	
-	private int firing = 0;  //  >0 when model itself is sending events
-	
-	
+
 	// Used to differentiate changes in valueName and other changes in the component:
 	private double lastValue = 0;
 	private boolean lastAutomatic = false;
-		
+	
 	
 	public DoubleModel(double value) {
-		this(value, UnitGroup.UNITS_NONE,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+		this(value, UnitGroup.UNITS_NONE, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 	
 	public DoubleModel(double value, UnitGroup unit) {
-		this(value,unit,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+		this(value, unit, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 	
 	public DoubleModel(double value, UnitGroup unit, double min) {
-		this(value,unit,min,Double.POSITIVE_INFINITY);
+		this(value, unit, min, Double.POSITIVE_INFINITY);
 	}
 	
 	public DoubleModel(double value, UnitGroup unit, double min, double max) {
 		this.lastValue = value;
 		this.minValue = min;
 		this.maxValue = max;
-
+		
 		source = null;
 		valueName = "Constant value";
 		multiplier = 1;
@@ -488,7 +521,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		units = unit;
 		currentUnit = units.getDefaultUnit();
 	}
-
+	
 	
 	/**
 	 * Generates a new DoubleModel that changes the values of the specified component.
@@ -505,7 +538,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		this.source = source;
 		this.valueName = valueName;
 		this.multiplier = multiplier;
-
+		
 		this.units = unit;
 		currentUnit = units.getDefaultUnit();
 		
@@ -515,26 +548,28 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		try {
 			getMethod = source.getClass().getMethod("get" + valueName);
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("get method for value '"+valueName+
-					"' not present in class "+source.getClass().getCanonicalName());
+			throw new IllegalArgumentException("get method for value '" + valueName +
+					"' not present in class " + source.getClass().getCanonicalName());
 		}
-
-		Method s=null;
+		
+		Method s = null;
 		try {
-			s = source.getClass().getMethod("set" + valueName,double.class);
-		} catch (NoSuchMethodException e1) { }  // Ignore
+			s = source.getClass().getMethod("set" + valueName, double.class);
+		} catch (NoSuchMethodException e1) {
+		} // Ignore
 		setMethod = s;
 		
 		// Automatic selection methods
 		
-		Method set=null,get=null;
+		Method set = null, get = null;
 		
 		try {
 			get = source.getClass().getMethod("is" + valueName + "Automatic");
-			set = source.getClass().getMethod("set" + valueName + "Automatic",boolean.class);
-		} catch (NoSuchMethodException e) { } // ignore
+			set = source.getClass().getMethod("set" + valueName + "Automatic", boolean.class);
+		} catch (NoSuchMethodException e) {
+		} // ignore
 		
-		if (set!=null && get!=null) {
+		if (set != null && get != null) {
 			getAutoMethod = get;
 			setAutoMethod = set;
 		} else {
@@ -543,57 +578,57 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		}
 		
 	}
-
+	
 	public DoubleModel(ChangeSource source, String valueName, double multiplier, UnitGroup unit,
 			double min) {
-		this(source,valueName,multiplier,unit,min,Double.POSITIVE_INFINITY);
+		this(source, valueName, multiplier, unit, min, Double.POSITIVE_INFINITY);
 	}
 	
 	public DoubleModel(ChangeSource source, String valueName, double multiplier, UnitGroup unit) {
-		this(source,valueName,multiplier,unit,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+		this(source, valueName, multiplier, unit, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 	
-	public DoubleModel(ChangeSource source, String valueName, UnitGroup unit, 
+	public DoubleModel(ChangeSource source, String valueName, UnitGroup unit,
 			double min, double max) {
-		this(source,valueName,1.0,unit,min,max);
+		this(source, valueName, 1.0, unit, min, max);
 	}
 	
 	public DoubleModel(ChangeSource source, String valueName, UnitGroup unit, double min) {
-		this(source,valueName,1.0,unit,min,Double.POSITIVE_INFINITY);
+		this(source, valueName, 1.0, unit, min, Double.POSITIVE_INFINITY);
 	}
 	
 	public DoubleModel(ChangeSource source, String valueName, UnitGroup unit) {
-		this(source,valueName,1.0,unit,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+		this(source, valueName, 1.0, unit, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
-
+	
 	public DoubleModel(ChangeSource source, String valueName) {
-		this(source,valueName,1.0,UnitGroup.UNITS_NONE,
-				Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+		this(source, valueName, 1.0, UnitGroup.UNITS_NONE,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
-
+	
 	public DoubleModel(ChangeSource source, String valueName, double min) {
-		this(source,valueName,1.0,UnitGroup.UNITS_NONE,min,Double.POSITIVE_INFINITY);
+		this(source, valueName, 1.0, UnitGroup.UNITS_NONE, min, Double.POSITIVE_INFINITY);
 	}
 	
 	public DoubleModel(ChangeSource source, String valueName, double min, double max) {
-		this(source,valueName,1.0,UnitGroup.UNITS_NONE,min,max);
+		this(source, valueName, 1.0, UnitGroup.UNITS_NONE, min, max);
 	}
 	
 	
-	
+
 	/**
 	 * Returns the value of the variable (in SI units).
 	 */
 	public double getValue() {
-		if (getMethod==null)  // Constant value
+		if (getMethod == null) // Constant value
 			return lastValue;
-
+		
 		try {
-			return (Double)getMethod.invoke(source)*multiplier;
+			return (Double) getMethod.invoke(source) * multiplier;
 		} catch (IllegalArgumentException e) {
-			throw new BugException("Unable to invoke getMethod of "+this, e);
+			throw new BugException("Unable to invoke getMethod of " + this, e);
 		} catch (IllegalAccessException e) {
-			throw new BugException("Unable to invoke getMethod of "+this, e);
+			throw new BugException("Unable to invoke getMethod of " + this, e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
 		}
@@ -604,27 +639,28 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * @param v New value for parameter in SI units.
 	 */
 	public void setValue(double v) {
-		if (setMethod==null) {
+		log.debug("Setting value " + v + " for " + this);
+		if (setMethod == null) {
 			if (getMethod != null) {
-				throw new RuntimeException("setMethod not available for variable '"+valueName+
-						"' in class "+source.getClass().getCanonicalName());
+				throw new BugException("setMethod not available for variable '" + valueName +
+						"' in class " + source.getClass().getCanonicalName());
 			}
 			lastValue = v;
 			fireStateChanged();
 			return;
 		}
-
+		
 		try {
-			setMethod.invoke(source, v/multiplier);
+			setMethod.invoke(source, v / multiplier);
 		} catch (IllegalArgumentException e) {
-			throw new BugException("Unable to invoke setMethod of "+this, e);
+			throw new BugException("Unable to invoke setMethod of " + this, e);
 		} catch (IllegalAccessException e) {
-			throw new BugException("Unable to invoke setMethod of "+this, e);
+			throw new BugException("Unable to invoke setMethod of " + this, e);
 		} catch (InvocationTargetException e) {
 			throw Reflection.handleWrappedException(e);
 		}
 	}
-
+	
 	
 	/**
 	 * Returns whether setting the value automatically is available.
@@ -632,7 +668,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	public boolean isAutomaticAvailable() {
 		return (getAutoMethod != null) && (setAutoMethod != null);
 	}
-
+	
 	/**
 	 * Returns whether the value is currently being set automatically.
 	 * Returns false if automatic setting is not available at all.
@@ -642,7 +678,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			return false;
 		
 		try {
-			return (Boolean)getAutoMethod.invoke(source);
+			return (Boolean) getAutoMethod.invoke(source);
 		} catch (IllegalArgumentException e) {
 			throw new BugException("Method call failed", e);
 		} catch (IllegalAccessException e) {
@@ -658,10 +694,12 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 */
 	public void setAutomatic(boolean auto) {
 		if (setAutoMethod == null) {
-			fireStateChanged();  // in case something is out-of-sync
+			log.debug("Setting automatic to " + auto + " for " + this + ", automatic not available");
+			fireStateChanged(); // in case something is out-of-sync
 			return;
 		}
 		
+		log.debug("Setting automatic to " + auto + " for " + this);
 		lastAutomatic = auto;
 		try {
 			setAutoMethod.invoke(source, auto);
@@ -674,7 +712,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		}
 	}
 	
-
+	
 	/**
 	 * Returns the current Unit.  At the beginning it is the default unit of the UnitGroup.
 	 * @return The most recently set unit.
@@ -690,6 +728,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	public void setCurrentUnit(Unit u) {
 		if (currentUnit == u)
 			return;
+		log.debug("Setting unit for " + this + " to '" + u + "'");
 		currentUnit = u;
 		fireStateChanged();
 	}
@@ -705,7 +744,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	}
 	
 	
-	
+
 	/**
 	 * Add a listener to the model.  Adds the model as a listener to the value source if this
 	 * is the first listener.
@@ -719,12 +758,11 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 				lastAutomatic = isAutomatic();
 			}
 		}
-
+		
 		listeners.add(l);
-		if (DEBUG_LISTENERS)
-			System.out.println(this+" adding listener (total "+listeners.size()+"): "+l);
+		log.verbose(this + " adding listener (total " + listeners.size() + "): " + l);
 	}
-
+	
 	/**
 	 * Remove a listener from the model.  Removes the model from being a listener to the Component
 	 * if this was the last listener of the model.
@@ -735,9 +773,18 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		if (listeners.isEmpty() && source != null) {
 			source.removeChangeListener(this);
 		}
-		if (DEBUG_LISTENERS)
-			System.out.println(this+" removing listener (total "+listeners.size()+"): "+l);
+		log.verbose(this + " removing listener (total " + listeners.size() + "): " + l);
 	}
+	
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if (!listeners.isEmpty()) {
+			log.warn(this + " being garbage-collected while having listeners " + listeners);
+		}
+	};
+	
 	
 	/**
 	 * Fire a ChangeEvent to all listeners.
@@ -746,11 +793,11 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		Object[] l = listeners.toArray();
 		ChangeEvent event = new ChangeEvent(this);
 		firing++;
-		for (int i=0; i<l.length; i++)
-			((ChangeListener)l[i]).stateChanged(event);
+		for (int i = 0; i < l.length; i++)
+			((ChangeListener) l[i]).stateChanged(event);
 		firing--;
 	}
-
+	
 	/**
 	 * Called when the component changes.  Checks whether the modeled value has changed, and if
 	 * it has, updates lastValue and generates ChangeEvents for all listeners of the model.
@@ -764,14 +811,20 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		lastAutomatic = b;
 		fireStateChanged();
 	}
-
+	
+	
 	/**
 	 * Explain the DoubleModel as a String.
 	 */
 	@Override
 	public String toString() {
-		if (source == null)
-			return "DoubleModel[constant="+lastValue+"]";
-		return "DoubleModel["+source.getClass().getCanonicalName()+":"+valueName+"]";
+		if (toString == null) {
+			if (source == null) {
+				toString = "DoubleModel[constant=" + lastValue + "]";
+			} else {
+				toString = "DoubleModel[" + source.getClass().getSimpleName() + ":" + valueName + "]";
+			}
+		}
+		return toString;
 	}
 }

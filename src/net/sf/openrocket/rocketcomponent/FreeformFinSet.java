@@ -3,11 +3,14 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
 public class FreeformFinSet extends FinSet {
+	private static final LogHelper log = Application.getLogger();
 	
 	private ArrayList<Coordinate> points = new ArrayList<Coordinate>();
 	
@@ -50,6 +53,7 @@ public class FreeformFinSet extends FinSet {
 	 * @return			the new freeform fin set.
 	 */
 	public static FreeformFinSet convertFinSet(FinSet finset) {
+		log.info("Converting " + finset.getComponentName() + " into freeform fin set");
 		final RocketComponent root = finset.getRoot();
 		FreeformFinSet freeform;
 		

@@ -30,6 +30,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
@@ -49,6 +50,7 @@ import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
@@ -63,6 +65,7 @@ import net.sf.openrocket.util.Reflection;
  */
 
 public class ComponentAddButtons extends JPanel implements Scrollable {
+	private static final LogHelper log = Application.getLogger();
 	
 	private static final int ROWS = 3;
 	private static final int MAXCOLS = 6;
@@ -364,6 +367,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		@Override
 		protected void fireActionPerformed(ActionEvent event) {
 			super.fireActionPerformed(event);
+			log.user("Adding component of type " + componentClass.getSimpleName());
 			RocketComponent c = null;
 			Integer position = null;
 			
@@ -374,6 +378,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			Pair<RocketComponent, Integer> pos = getAdditionPosition(c);
 			if (pos == null) {
 				// Cancel addition
+				log.info("No position to add component");
 				return;
 			}
 			c = pos.getU();
@@ -396,11 +401,9 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			try {
 				component = (RocketComponent) constructor.newInstance();
 			} catch (InstantiationException e) {
-				throw new BugException("Could not construct new instance of class " +
-						constructor, e);
+				throw new BugException("Could not construct new instance of class " + constructor, e);
 			} catch (IllegalAccessException e) {
-				throw new BugException("Could not construct new instance of class " +
-						constructor, e);
+				throw new BugException("Could not construct new instance of class " + constructor, e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
 			}
@@ -408,7 +411,9 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			// Next undo position is set by opening the configuration dialog
 			document.addUndoPosition("Add " + component.getComponentName());
 			
-
+			log.info("Adding component " + component.getComponentName() + " to component " + c.getComponentName() +
+					" position=" + position);
+			
 			if (position == null)
 				c.addChild(component);
 			else

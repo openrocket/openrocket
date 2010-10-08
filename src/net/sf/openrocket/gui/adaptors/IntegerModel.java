@@ -9,14 +9,17 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
 
 
 public class IntegerModel implements ChangeListener {
-
-
+	private static final LogHelper log = Application.getLogger();
+	
+	
 	//////////// JSpinner Model ////////////
 	
 	private class IntegerSpinnerModel extends SpinnerNumberModel {
@@ -24,44 +27,43 @@ public class IntegerModel implements ChangeListener {
 		public Object getValue() {
 			return IntegerModel.this.getValue();
 		}
-
+		
 		@Override
 		public void setValue(Object value) {
-			if (firing > 0)   // Ignore, if called when model is sending events
+			if (firing > 0) {
+				// Ignore, if called when model is sending events
+				log.verbose("Ignoring call to SpinnerModel setValue for " + IntegerModel.this.toString() +
+						" value=" + value + ", currently firing events");
 				return;
-			Number num = (Number)value;
+				
+			}
+			Number num = (Number) value;
 			int newValue = num.intValue();
+			log.user("SpinnerModel setValue called for " + IntegerModel.this.toString() + " newValue=" + newValue);
 			IntegerModel.this.setValue(newValue);
-			
-//			try {
-//				int newValue = Integer.parseInt((String)value);
-//				IntegerModel.this.setValue(newValue);
-//			} catch (NumberFormatException e) { 
-//				IntegerModel.this.fireStateChanged();
-//			};
 		}
-			
+		
 		@Override
 		public Object getNextValue() {
 			int d = IntegerModel.this.getValue();
 			if (d >= maxValue)
 				return null;
-			return (d+1);
+			return (d + 1);
 		}
-
+		
 		@Override
 		public Object getPreviousValue() {
 			int d = IntegerModel.this.getValue();
 			if (d <= minValue)
 				return null;
-			return (d-1);
+			return (d - 1);
 		}
 		
 		@Override
 		public void addChangeListener(ChangeListener l) {
 			IntegerModel.this.addChangeListener(l);
 		}
-
+		
 		@Override
 		public void removeChangeListener(ChangeListener l) {
 			IntegerModel.this.removeChangeListener(l);
@@ -82,11 +84,11 @@ public class IntegerModel implements ChangeListener {
 
 
 	////////////  Main model  /////////////
-
+	
 	/*
 	 * The main model handles all values in SI units, i.e. no conversion is made within the model.
 	 */
-	
+
 	private final ChangeSource source;
 	private final String valueName;
 	
@@ -94,26 +96,27 @@ public class IntegerModel implements ChangeListener {
 	private final Method setMethod;
 	
 	private final ArrayList<ChangeListener> listeners = new ArrayList<ChangeListener>();
-
+	
 	private final int minValue;
 	private final int maxValue;
+	
+	private String toString = null;
+	
 
+	private int firing = 0; //  >0 when model itself is sending events
 	
-	private int firing = 0;  //  >0 when model itself is sending events
-	
-	
+
 	// Used to differentiate changes in valueName and other changes in the source:
 	private int lastValue = 0;
-		
-
 	
+	
+
 	/**
 	 * Generates a new DoubleModel that changes the values of the specified source.
 	 * The double value is read and written using the methods "get"/"set" + valueName.
 	 *  
 	 * @param source Component whose parameter to use.
-	 * @param valueName Name of metods used to get/set the parameter.
-	 * @param multiplier Value shown by the model is the value from source.getXXX * multiplier
+	 * @param valueName Name of methods used to get/set the parameter.
 	 * @param min Minimum value allowed (in SI units)
 	 * @param max Maximum value allowed (in SI units)
 	 */
@@ -126,30 +129,30 @@ public class IntegerModel implements ChangeListener {
 		
 		try {
 			getMethod = source.getClass().getMethod("get" + valueName);
-			setMethod = source.getClass().getMethod("set" + valueName,int.class);
+			setMethod = source.getClass().getMethod("set" + valueName, int.class);
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("get/set methods for value '"+valueName+
-					"' not present in class "+source.getClass().getCanonicalName());
+			throw new IllegalArgumentException("get/set methods for value '" + valueName +
+					"' not present in class " + source.getClass().getCanonicalName());
 		}
 	}
-
+	
 	public IntegerModel(ChangeSource source, String valueName, int min) {
-		this(source,valueName,min,Integer.MAX_VALUE);
+		this(source, valueName, min, Integer.MAX_VALUE);
 	}
 	
 	public IntegerModel(ChangeSource source, String valueName) {
-		this(source,valueName,Integer.MIN_VALUE,Integer.MAX_VALUE);
+		this(source, valueName, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 	
+	
 
-	
-	
+
 	/**
 	 * Returns the value of the variable.
 	 */
 	public int getValue() {
 		try {
-			return (Integer)getMethod.invoke(source);
+			return (Integer) getMethod.invoke(source);
 		} catch (IllegalArgumentException e) {
 			throw new BugException(e);
 		} catch (IllegalAccessException e) {
@@ -163,6 +166,7 @@ public class IntegerModel implements ChangeListener {
 	 * Sets the value of the variable.
 	 */
 	public void setValue(int v) {
+		log.debug("Setting value " + v + " for " + this);
 		try {
 			setMethod.invoke(source, v);
 		} catch (IllegalArgumentException e) {
@@ -173,7 +177,7 @@ public class IntegerModel implements ChangeListener {
 			throw Reflection.handleWrappedException(e);
 		}
 	}
-
+	
 	
 	/**
 	 * Add a listener to the model.  Adds the model as a listener to the Component if this
@@ -185,10 +189,11 @@ public class IntegerModel implements ChangeListener {
 			source.addChangeListener(this);
 			lastValue = getValue();
 		}
-
+		
 		listeners.add(l);
+		log.verbose(this + " adding listener (total " + listeners.size() + "): " + l);
 	}
-
+	
 	/**
 	 * Remove a listener from the model.  Removes the model from being a listener to the Component
 	 * if this was the last listener of the model.
@@ -199,17 +204,28 @@ public class IntegerModel implements ChangeListener {
 		if (listeners.isEmpty()) {
 			source.removeChangeListener(this);
 		}
+		log.verbose(this + " removing listener (total " + listeners.size() + "): " + l);
 	}
+	
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if (!listeners.isEmpty()) {
+			log.warn(this + " being garbage-collected while having listeners " + listeners);
+		}
+	};
+	
 	
 	public void fireStateChanged() {
 		Object[] l = listeners.toArray();
 		ChangeEvent event = new ChangeEvent(this);
 		firing++;
-		for (int i=0; i<l.length; i++)
-			((ChangeListener)l[i]).stateChanged(event);
+		for (int i = 0; i < l.length; i++)
+			((ChangeListener) l[i]).stateChanged(event);
 		firing--;
 	}
-
+	
 	/**
 	 * Called when the source changes.  Checks whether the modeled value has changed, and if
 	 * it has, updates lastValue and generates ChangeEvents for all listeners of the model.
@@ -221,13 +237,16 @@ public class IntegerModel implements ChangeListener {
 		lastValue = v;
 		fireStateChanged();
 	}
-
+	
 	/**
 	 * Explain the DoubleModel as a String.
 	 */
 	@Override
 	public String toString() {
-		return "IntegerModel["+source.getClass().getCanonicalName()+":"+valueName+"]";
+		if (toString == null) {
+			toString = "IntegerModel[" + source.getClass().getSimpleName() + ":" + valueName + "]";
+		}
+		return toString;
 	}
 	
 }

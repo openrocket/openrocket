@@ -206,7 +206,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @see #isCompatible(Class)
 	 */
 	public final boolean isCompatible(RocketComponent c) {
-		checkState();
 		return isCompatible(c.getClass());
 	}
 	
@@ -380,7 +379,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * to use the default color.
 	 */
 	public final Color getColor() {
-		checkState();
 		return color;
 	}
 	
@@ -388,25 +386,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * Set the color of the object to use in 2D figures.  
 	 */
 	public final void setColor(Color c) {
-		checkState();
 		if ((color == null && c == null) ||
 				(color != null && color.equals(c)))
 			return;
 		
+		checkState();
 		this.color = c;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	
 	public final LineStyle getLineStyle() {
-		checkState();
 		return lineStyle;
 	}
 	
 	public final void setLineStyle(LineStyle style) {
-		checkState();
 		if (this.lineStyle == style)
 			return;
+		checkState();
 		this.lineStyle = style;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
@@ -421,7 +418,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the override mass
 	 */
 	public final double getOverrideMass() {
-		checkState();
 		return overrideMass;
 	}
 	
@@ -432,6 +428,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param m  the override mass
 	 */
 	public final void setOverrideMass(double m) {
+		if (MathUtil.equals(m, overrideMass))
+			return;
 		checkState();
 		overrideMass = Math.max(m, 0);
 		if (massOverriden)
@@ -445,7 +443,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  whether the mass is overridden
 	 */
 	public final boolean isMassOverridden() {
-		checkState();
 		return massOverriden;
 	}
 	
@@ -455,11 +452,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param o  whether the mass is overridden
 	 */
 	public final void setMassOverridden(boolean o) {
-		checkState();
-		if (massOverriden != o) {
-			massOverriden = o;
-			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		if (massOverriden == o) {
+			return;
 		}
+		checkState();
+		massOverriden = o;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
@@ -472,7 +470,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the override CG
 	 */
 	public final Coordinate getOverrideCG() {
-		checkState();
 		return getComponentCG().setX(overrideCGX);
 	}
 	
@@ -482,7 +479,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return	the x-coordinate of the override CG.
 	 */
 	public final double getOverrideCGX() {
-		checkState();
 		return overrideCGX;
 	}
 	
@@ -492,9 +488,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param x  the x-coordinate of the override CG to set.
 	 */
 	public final void setOverrideCGX(double x) {
-		checkState();
 		if (MathUtil.equals(overrideCGX, x))
 			return;
+		checkState();
 		this.overrideCGX = x;
 		if (isCGOverridden())
 			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
@@ -508,7 +504,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  whether the CG is overridden
 	 */
 	public final boolean isCGOverridden() {
-		checkState();
 		return cgOverriden;
 	}
 	
@@ -518,11 +513,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param o  whether the CG is overridden
 	 */
 	public final void setCGOverridden(boolean o) {
-		checkState();
-		if (cgOverriden != o) {
-			cgOverriden = o;
-			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		if (cgOverriden == o) {
+			return;
 		}
+		checkState();
+		cgOverriden = o;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	
@@ -538,7 +534,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return	whether the current mass and/or CG override overrides subcomponents as well.
 	 */
 	public boolean getOverrideSubcomponents() {
-		checkState();
 		return overrideSubcomponents;
 	}
 	
@@ -550,11 +545,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param override	whether the mass and/or CG override overrides all subcomponent.
 	 */
 	public void setOverrideSubcomponents(boolean override) {
-		checkState();
-		if (overrideSubcomponents != override) {
-			overrideSubcomponents = override;
-			fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		if (overrideSubcomponents == override) {
+			return;
 		}
+		checkState();
+		overrideSubcomponents = override;
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
 	/**
@@ -568,7 +564,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return	whether the option to override subcomponents is currently enabled.
 	 */
 	public boolean isOverrideSubcomponentsEnabled() {
-		checkState();
 		return isCGOverridden() || isMassOverridden();
 	}
 	
@@ -587,6 +582,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * the default name, currently the component name.
 	 */
 	public final void setName(String name) {
+		if (this.name.equals(name)) {
+			return;
+		}
 		checkState();
 		if (name == null || name.matches("^\\s*$"))
 			this.name = getComponentName();
@@ -603,7 +601,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the comment of the component.
 	 */
 	public final String getComment() {
-		checkState();
 		return comment;
 	}
 	
@@ -613,9 +610,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param comment  the comment of the component.
 	 */
 	public final void setComment(String comment) {
-		checkState();
 		if (this.comment.equals(comment))
 			return;
+		checkState();
 		if (comment == null)
 			this.comment = "";
 		else
@@ -653,7 +650,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * itself.
 	 */
 	public final double getLength() {
-		checkState();
 		return length;
 	}
 	
@@ -663,7 +659,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * but can be provided by a subclass.
 	 */
 	public final Position getRelativePosition() {
-		checkState();
 		return relativePosition;
 	}
 	
@@ -680,9 +675,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param position	the relative positioning.
 	 */
 	protected void setRelativePosition(RocketComponent.Position position) {
-		checkState();
 		if (this.relativePosition == position)
 			return;
+		checkState();
 		
 		// Update position so as not to move the component
 		if (this.parent != null) {
@@ -724,7 +719,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return  the positional value.
 	 */
 	public final double getPositionValue() {
-		checkState();
 		return position;
 	}
 	
@@ -741,9 +735,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @param value		the position value of the component.
 	 */
 	public void setPositionValue(double value) {
-		checkState();
 		if (MathUtil.equals(this.position, value))
 			return;
+		checkState();
 		this.position = value;
 	}
 	
@@ -885,7 +879,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	 * @return The mass of the component or the given override mass.
 	 */
 	public final double getMass() {
-		checkState();
 		if (massOverriden)
 			return overrideMass;
 		return getComponentMass();
@@ -1332,8 +1325,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	/**
 	 * Checks whether this component has been invalidated and should no longer be used.
 	 * This is a safety check that in-place replaced components are no longer used.
-	 * All non-trivial methods should call this method as the first thing, unless the
-	 * method may be used in debugging cases.
+	 * All non-trivial methods (with the exception of methods simply getting a property)
+	 * should call this method before changing or computing anything.
 	 * 
 	 * @throws	BugException	if this component has been invalidated by {@link #copyFrom(RocketComponent)}.
 	 */

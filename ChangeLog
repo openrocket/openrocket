@@ -1,3 +1,12 @@
+2010-10-09  Sampo Niskanen
+
+	* [BUG] Fixed conversion to freeform fin set
+	* Enhanced logging
+
+2010-10-08  Sampo Niskanen
+
+	* New components no longer look expandable in the component tree
+
 2010-10-06  Sampo Niskanen
 
 	* Released version 1.1.3
