@@ -8,6 +8,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
 
@@ -155,6 +157,10 @@ public class RocksimLoaderTest extends TestCase {
         assertEquals(0.21d, stage2.getOverrideMass());
         assertTrue(stage2.isCGOverridden());
         assertEquals(0.4d, stage2.getOverrideCG().x);
+        
+        BodyTube bt = (BodyTube)stage2.getChild(0);
+        LaunchLug ll = (LaunchLug)bt.getChild(6);
+        assertEquals(1.22d, ll.getRadialDirection());
         
         assertEquals(2, stage3.getChildCount());
         assertEquals("Transition", stage3.getChild(0).getName());

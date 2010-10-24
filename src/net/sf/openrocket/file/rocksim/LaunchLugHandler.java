@@ -64,6 +64,9 @@ class LaunchLugHandler extends PositionDependentHandler<LaunchLug> {
             if ("Material".equals(element)) {
                 setMaterialName(content);
             }
+            if ("RadialAngle".equals(element)) {
+                lug.setRadialDirection(Double.parseDouble(content));
+            }
             if ("FinishCode".equals(element)) {
                 lug.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
             }

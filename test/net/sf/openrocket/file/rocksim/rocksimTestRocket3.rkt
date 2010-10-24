@@ -722,7 +722,7 @@
 <PartNo>13056</PartNo>
 <PartDesc><![CDATA[1/4" X 3]]></PartDesc>
 <RadialLoc>37.185</RadialLoc>
-<RadialAngle>0.</RadialAngle>
+<RadialAngle>3.14</RadialAngle>
 <Texture>file=()|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(1,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(1)</Texture>
 <Opacity>1.</Opacity>
 <Specular>0.</Specular>
@@ -1312,7 +1312,7 @@
 <PartNo>13056</PartNo>
 <PartDesc><![CDATA[1/4" X 3]]></PartDesc>
 <RadialLoc>37.185</RadialLoc>
-<RadialAngle>0.</RadialAngle>
+<RadialAngle>1.22</RadialAngle>
 <Texture>file=()|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(1,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(1)</Texture>
 <Opacity>1.</Opacity>
 <Specular>0.</Specular>
