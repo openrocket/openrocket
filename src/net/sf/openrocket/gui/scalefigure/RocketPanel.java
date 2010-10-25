@@ -608,7 +608,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		@Override
 		protected void simulationDone() {
 			// Do nothing if cancelled
-			if (isCancelled() || backgroundSimulationWorker != this) // Double-check
+			if (isCancelled() || backgroundSimulationWorker != this)
 				return;
 			
 			backgroundSimulationWorker = null;
@@ -658,6 +658,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * Updates the selection in the FigureParameters and repaints the figure.  
 	 * Ignores the event itself.
 	 */
+	@Override
 	public void valueChanged(TreeSelectionEvent e) {
 		TreePath[] paths = selectionModel.getSelectionPaths();
 		if (paths == null) {
@@ -688,6 +689,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			figure.addChangeListener(this);
 		}
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			boolean state = (Boolean) getValue(Action.SELECTED_KEY);
 			if (state == true) {
@@ -698,6 +700,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			stateChanged(null);
 		}
 		
+		@Override
 		public void stateChanged(ChangeEvent e) {
 			putValue(Action.SELECTED_KEY, figure.getType() == type);
 		}

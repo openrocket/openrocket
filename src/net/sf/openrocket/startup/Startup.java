@@ -62,6 +62,9 @@ public class Startup {
 	
 	public static void main(final String[] args) throws Exception {
 		
+		// Check for "openrocket.debug" property before anything else
+		checkDebugStatus();
+		
 		// Initialize logging first so we can use it
 		initializeLogging();
 		
@@ -86,6 +89,18 @@ public class Startup {
 		
 		// Block motor loading for 1.5 seconds to allow window painting
 		blockLoading.set(1500);
+	}
+	
+	
+
+
+	private static void checkDebugStatus() {
+		if (System.getProperty("openrocket.debug") != null) {
+			System.setProperty("openrocket.log.stdout", "VBOSE");
+			System.setProperty("openrocket.log.tracelevel", "VBOSE");
+			System.setProperty("openrocket.debug.menu", "true");
+			System.setProperty("openrocket.debug.motordigest", "true");
+		}
 	}
 	
 	

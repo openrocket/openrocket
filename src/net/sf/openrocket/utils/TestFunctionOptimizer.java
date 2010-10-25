@@ -3,6 +3,7 @@ package net.sf.openrocket.utils;
 import net.sf.openrocket.optimization.general.Function;
 import net.sf.openrocket.optimization.general.FunctionOptimizer;
 import net.sf.openrocket.optimization.general.OptimizationController;
+import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.ParallelExecutorCache;
 import net.sf.openrocket.optimization.general.ParallelFunctionCache;
 import net.sf.openrocket.optimization.general.Point;
@@ -22,7 +23,7 @@ public class TestFunctionOptimizer {
 	
 
 	private void go(final ParallelFunctionCache functionCache,
-			final FunctionOptimizer optimizer, final Point optimum, final int maxSteps) {
+			final FunctionOptimizer optimizer, final Point optimum, final int maxSteps) throws OptimizationException {
 		
 		Function function = new Function() {
 			@Override
@@ -34,15 +35,6 @@ public class TestFunctionOptimizer {
 					aborted++;
 					return Double.NaN;
 				}
-			}
-			
-			@Override
-			public double preComputed(Point p) {
-				for (double d : p.asArray()) {
-					if (d < 0 || d > 1)
-						return Double.MAX_VALUE;
-				}
-				return Double.NaN;
 			}
 		};
 		
@@ -83,7 +75,7 @@ public class TestFunctionOptimizer {
 	}
 	
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, OptimizationException {
 		
 		System.err.println("Number of processors: " + Runtime.getRuntime().availableProcessors());
 		

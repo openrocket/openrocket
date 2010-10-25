@@ -69,7 +69,13 @@ public class SimulationRunDialog extends JDialog {
 	private final JProgressBar progressBar;
 	
 
+	/*
+	 * NOTE:  Care must be used when accessing the simulation parameters, since they
+	 * are being run in another thread.  Mutexes are used to avoid concurrent usage, which
+	 * will result in an exception being thrown!
+	 */
 	private final Simulation[] simulations;
+	private final String[] simulationNames;
 	private final SimulationWorker[] simulationWorkers;
 	private final SimulationStatus[] simulationStatuses;
 	private final double[] simulationMaxAltitude;
@@ -87,6 +93,7 @@ public class SimulationRunDialog extends JDialog {
 		
 		// Initialize the simulations
 		int n = simulations.length;
+		simulationNames = new String[n];
 		simulationWorkers = new SimulationWorker[n];
 		simulationStatuses = new SimulationStatus[n];
 		simulationMaxAltitude = new double[n];
@@ -94,6 +101,7 @@ public class SimulationRunDialog extends JDialog {
 		simulationDone = new boolean[n];
 		
 		for (int i = 0; i < n; i++) {
+			simulationNames[i] = simulations[i].getName();
 			simulationWorkers[i] = new InteractiveSimulationWorker(simulations[i], i);
 			executor.execute(simulationWorkers[i]);
 		}
@@ -201,7 +209,7 @@ public class SimulationRunDialog extends JDialog {
 		log.debug("Progressbar value " + progress);
 		
 		// Update the simulation fields
-		simLabel.setText("Running " + simulations[index].getName());
+		simLabel.setText("Running " + simulationNames[index]);
 		if (simulationStatuses[index] == null) {
 			log.debug("No simulation status data available, setting empty labels");
 			timeLabel.setText("");

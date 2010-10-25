@@ -54,8 +54,6 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 		try {
 			simulation.simulate(listeners);
 		} catch (Throwable e) {
-			//			System.out.println("Simulation interrupted:");
-			//			e.printStackTrace();
 			throwable = e;
 			return null;
 		}
@@ -77,8 +75,6 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	/**
 	 * Called after a simulation is successfully simulated.  This method is not
 	 * called if the simulation ends in an exception.
-	 * 
-	 * @param sim	the simulation including the flight data
 	 */
 	protected abstract void simulationDone();
 	

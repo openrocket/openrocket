@@ -9,7 +9,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public interface RocketOptimizationParameterService {
+public interface OptimizableParameterService {
 	
 	/**
 	 * Return all available rocket optimization parameters for this document.
@@ -18,6 +18,6 @@ public interface RocketOptimizationParameterService {
 	 * @param document	the design document
 	 * @return			a collection of the rocket optimization parameters.
 	 */
-	public Collection<RocketOptimizationParameter> getParameters(OpenRocketDocument document);
+	public Collection<OptimizableParameter> getParameters(OpenRocketDocument document);
 	
 }

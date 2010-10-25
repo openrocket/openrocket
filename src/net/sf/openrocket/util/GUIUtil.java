@@ -128,6 +128,7 @@ public class GUIUtil {
 	 */
 	public static void installEscapeCloseOperation(final JDialog dialog) {
 		Action dispatchClosing = new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				log.user("Closing dialog " + dialog);
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
@@ -194,6 +195,7 @@ public class GUIUtil {
 			@Override
 			public void windowClosed(WindowEvent e) {
 				setNullModels(window);
+				MemoryManagement.collectable(window);
 			}
 		});
 	}
@@ -341,7 +343,7 @@ public class GUIUtil {
 			
 			JTree tree = (JTree) c;
 			tree.setModel(new DefaultTreeModel(new TreeNode() {
-				@SuppressWarnings("unchecked")
+				@SuppressWarnings("rawtypes")
 				@Override
 				public Enumeration children() {
 					return new Vector().elements();

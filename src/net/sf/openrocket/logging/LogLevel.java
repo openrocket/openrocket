@@ -53,15 +53,23 @@ public enum LogLevel {
 	 */
 	VBOSE;
 	
-
+	/** The log level with highest priority */
+	public static final LogLevel HIGHEST;
+	/** The log level with lowest priority */
+	public static final LogLevel LOWEST;
 	/** The maximum length of a level textual description */
 	public static final int LENGTH;
+	
 	static {
 		int length = 0;
 		for (LogLevel l : LogLevel.values()) {
 			length = Math.max(length, l.toString().length());
 		}
 		LENGTH = length;
+		
+		LogLevel[] values = LogLevel.values();
+		HIGHEST = values[0];
+		LOWEST = values[values.length - 1];
 	}
 	
 	/**

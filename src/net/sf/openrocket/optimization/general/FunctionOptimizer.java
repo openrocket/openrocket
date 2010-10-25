@@ -14,8 +14,9 @@ public interface FunctionOptimizer {
 	 * 
 	 * @param initial	the initial start point of the optimization.
 	 * @param control	the optimization control.
+	 * @throws OptimizationException	if an error occurs that prevents optimization
 	 */
-	public void optimize(Point initial, OptimizationController control);
+	public void optimize(Point initial, OptimizationController control) throws OptimizationException;
 	
 	
 	/**

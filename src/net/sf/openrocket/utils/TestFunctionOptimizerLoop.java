@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import net.sf.openrocket.optimization.general.Function;
 import net.sf.openrocket.optimization.general.FunctionOptimizer;
 import net.sf.openrocket.optimization.general.OptimizationController;
+import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.ParallelExecutorCache;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.optimization.general.multidim.MultidirectionalSearchOptimizer;
@@ -26,22 +27,13 @@ public class TestFunctionOptimizerLoop {
 	
 	
 
-	private void go(final FunctionOptimizer optimizer, final Point optimum, final int maxSteps, ExecutorService executor) {
+	private void go(final FunctionOptimizer optimizer, final Point optimum, final int maxSteps, ExecutorService executor) throws OptimizationException {
 		
 		Function function = new Function() {
 			@Override
 			public double evaluate(Point p) throws InterruptedException {
 				evaluations++;
 				return p.sub(optimum).length2();
-			}
-			
-			@Override
-			public double preComputed(Point p) {
-				for (double d : p.asArray()) {
-					if (d < 0 || d > 1)
-						return Double.MAX_VALUE;
-				}
-				return Double.NaN;
 			}
 		};
 		
@@ -67,7 +59,7 @@ public class TestFunctionOptimizerLoop {
 	}
 	
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws OptimizationException {
 		
 		System.err.println("PRECISION = " + PRECISION);
 		

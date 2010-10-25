@@ -72,7 +72,7 @@ public interface SimulationModifier extends ChangeSource {
 	/**
 	 * Return the current scaled value.  This is normally within the range [0...1], but
 	 * can be outside the range if the current value is outside of the min and max values.
-	 * @return
+	 * @return	the current value of this parameter (normally between [0 ... 1])
 	 */
 	public double getCurrentScaledValue();
 	

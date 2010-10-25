@@ -12,7 +12,10 @@ import java.util.UUID;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -30,9 +33,9 @@ import net.sf.openrocket.util.UniqueID;
  */
 
 public class Rocket extends RocketComponent {
-	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
+	private static final LogHelper log = Application.getLogger();
 	
-	private static final boolean DEBUG_LISTENERS = false;
+	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
 	
 
 	/**
@@ -343,17 +346,15 @@ public class Rocket extends RocketComponent {
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
 		listenerList.add(ComponentChangeListener.class, l);
-		if (DEBUG_LISTENERS)
-			System.out.println(this + ": Added listner (now " + listenerList.getListenerCount() +
-					" listeners): " + l);
+		log.verbose("Added ComponentChangeListener " + l + ", current number of listeners is " +
+				listenerList.getListenerCount());
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
 		listenerList.remove(ComponentChangeListener.class, l);
-		if (DEBUG_LISTENERS)
-			System.out.println(this + ": Removed listner (now " + listenerList.getListenerCount() +
-					" listeners): " + l);
+		log.verbose("Removed ComponentChangeListener " + l + ", current number of listeners is " +
+				listenerList.getListenerCount());
 	}
 	
 	
@@ -361,17 +362,15 @@ public class Rocket extends RocketComponent {
 	public void addChangeListener(ChangeListener l) {
 		checkState();
 		listenerList.add(ChangeListener.class, l);
-		if (DEBUG_LISTENERS)
-			System.out.println(this + ": Added listner (now " + listenerList.getListenerCount() +
-					" listeners): " + l);
+		log.verbose("Added ChangeListener " + l + ", current number of listeners is " +
+				listenerList.getListenerCount());
 	}
 	
 	@Override
 	public void removeChangeListener(ChangeListener l) {
 		listenerList.remove(ChangeListener.class, l);
-		if (DEBUG_LISTENERS)
-			System.out.println(this + ": Removed listner (now " + listenerList.getListenerCount() +
-					" listeners): " + l);
+		log.verbose("Removed ChangeListener " + l + ", current number of listeners is " +
+				listenerList.getListenerCount());
 	}
 	
 	
@@ -392,14 +391,14 @@ public class Rocket extends RocketComponent {
 				functionalModID = modID;
 		}
 		
-		if (DEBUG_LISTENERS)
-			System.out.println("FIRING " + e);
-		
 		// Check whether frozen
 		if (freezeList != null) {
+			log.debug("Rocket is in frozen state, adding event " + e + " info freeze list");
 			freezeList.add(e);
 			return;
 		}
+		
+		log.debug("Firing rocket change event " + e);
 		
 		// Notify all components first
 		Iterator<RocketComponent> iterator = this.deepIterator(true);
@@ -441,6 +440,10 @@ public class Rocket extends RocketComponent {
 		checkState();
 		if (freezeList == null) {
 			freezeList = new LinkedList<ComponentChangeEvent>();
+			log.debug("Freezing Rocket");
+		} else {
+			ExceptionHandler.handleErrorCondition("Attempting to freeze Rocket when it is already frozen, " +
+					"freezeList=" + freezeList);
 		}
 	}
 	
@@ -453,12 +456,17 @@ public class Rocket extends RocketComponent {
 	 */
 	public void thaw() {
 		checkState();
-		if (freezeList == null)
+		if (freezeList == null) {
+			ExceptionHandler.handleErrorCondition("Attempting to thaw Rocket when it is not frozen");
 			return;
+		}
 		if (freezeList.size() == 0) {
+			log.warn("Thawing rocket with no changes made");
 			freezeList = null;
 			return;
 		}
+		
+		log.debug("Thawing rocket, freezeList=" + freezeList);
 		
 		int type = 0;
 		Object c = null;

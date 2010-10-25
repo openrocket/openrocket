@@ -226,7 +226,6 @@ public class SimulationPanel extends JPanel {
 						
 						// Set simulation status icon
 						Simulation.Status status = document.getSimulation(row).getStatus();
-						System.out.println("status=" + status);
 						label.setIcon(Icons.SIMULATION_STATUS_ICON_MAP.get(status));
 						
 

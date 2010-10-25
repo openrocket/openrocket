@@ -41,6 +41,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private SimulationStatus status;
 	
 	
+	@Override
 	public FlightData simulate(SimulationConditions simulationConditions) throws SimulationException {
 		Set<MotorId> motorBurntOut = new HashSet<MotorId>();
 		
@@ -409,7 +410,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 			case STAGE_SEPARATION: {
 				// TODO: HIGH: Store lower stages to be simulated later
-				RocketComponent stage = (RocketComponent) event.getSource();
+				RocketComponent stage = event.getSource();
 				int n = stage.getStageNumber();
 				status.getConfiguration().setToStage(n);
 				status.getFlightData().addEvent(event);
@@ -542,6 +543,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		d += status.getEffectiveLaunchRodLength();
 		
 		if (Double.isNaN(d) || b) {
+			log.error("Simulation resulted in NaN value:" +
+					" simulationTime=" + status.getSimulationTime() +
+					" previousTimeStep=" + status.getPreviousTimeStep() +
+					" rocketPosition=" + status.getRocketPosition() +
+					" rocketVelocity=" + status.getRocketVelocity() +
+					" rocketOrientationQuaternion=" + status.getRocketOrientationQuaternion() +
+					" rocketRotationVelocity=" + status.getRocketRotationVelocity() +
+					" effectiveLaunchRodLength=" + status.getEffectiveLaunchRodLength());
 			throw new SimulationException("Simulation resulted in not-a-number (NaN) value, please report a bug.");
 		}
 	}

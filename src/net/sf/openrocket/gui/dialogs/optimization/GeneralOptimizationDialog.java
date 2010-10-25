@@ -12,15 +12,15 @@ import java.util.ServiceLoader;
 import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.optimization.rocketoptimization.RocketOptimizationParameter;
-import net.sf.openrocket.optimization.rocketoptimization.RocketOptimizationParameterService;
+import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
+import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameterService;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifierService;
 import net.sf.openrocket.util.BugException;
 
 public class GeneralOptimizationDialog extends JDialog {
 	
-	private final List<RocketOptimizationParameter> optimizationParameters = new ArrayList<RocketOptimizationParameter>();
+	private final List<OptimizableParameter> optimizationParameters = new ArrayList<OptimizableParameter>();
 	private final Map<Object, List<SimulationModifier>> simulationModifiers =
 			new HashMap<Object, List<SimulationModifier>>();
 	
@@ -36,10 +36,10 @@ public class GeneralOptimizationDialog extends JDialog {
 	
 	
 	private void loadOptimizationParameters() {
-		ServiceLoader<RocketOptimizationParameterService> loader =
-				ServiceLoader.load(RocketOptimizationParameterService.class);
+		ServiceLoader<OptimizableParameterService> loader =
+				ServiceLoader.load(OptimizableParameterService.class);
 		
-		for (RocketOptimizationParameterService g : loader) {
+		for (OptimizableParameterService g : loader) {
 			optimizationParameters.addAll(g.getParameters(document));
 		}
 		
@@ -47,9 +47,9 @@ public class GeneralOptimizationDialog extends JDialog {
 			throw new BugException("No rocket optimization parameters found, distribution built wrong.");
 		}
 		
-		Collections.sort(optimizationParameters, new Comparator<RocketOptimizationParameter>() {
+		Collections.sort(optimizationParameters, new Comparator<OptimizableParameter>() {
 			@Override
-			public int compare(RocketOptimizationParameter o1, RocketOptimizationParameter o2) {
+			public int compare(OptimizableParameter o1, OptimizableParameter o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});

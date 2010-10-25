@@ -18,23 +18,8 @@ public interface Function {
 	 * @param point		the point at which to evaluate the function.
 	 * @return			the function value.
 	 * @throws InterruptedException		if the thread was interrupted before function evaluation was completed.
+	 * @throws OptimizationException	if an error occurs that prevents the optimization
 	 */
-	public double evaluate(Point point) throws InterruptedException;
-	
-	
-	/**
-	 * Return a cached value of the function at the specified point.  This allows efficient
-	 * caching of old values even between calls to optimization methods.  This method should
-	 * NOT evaluate the function except in special cases (e.g. the point is outside of the
-	 * function domain).
-	 * <p>
-	 * Note that it is allowed to always allowed to return <code>Double.NaN</code>, especially
-	 * for functions that are fast to evaluate.
-	 * 
-	 * @param point		the point of function evaluation.
-	 * @return			the function value, or <code>Double.NaN</code> if the function value has not been
-	 * 					evaluated at this point.
-	 */
-	public double preComputed(Point point);
+	public double evaluate(Point point) throws InterruptedException, OptimizationException;
 	
 }

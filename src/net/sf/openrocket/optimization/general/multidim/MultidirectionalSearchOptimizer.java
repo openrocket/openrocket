@@ -9,6 +9,7 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.FunctionCache;
 import net.sf.openrocket.optimization.general.FunctionOptimizer;
 import net.sf.openrocket.optimization.general.OptimizationController;
+import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.ParallelFunctionCache;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.startup.Application;
@@ -48,7 +49,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 	
 
 	@Override
-	public void optimize(Point initial, OptimizationController control) {
+	public void optimize(Point initial, OptimizationController control) throws OptimizationException {
 		FunctionCacheComparator comparator = new FunctionCacheComparator(functionExecutor);
 		
 		final List<Point> pattern = SearchPattern.square(initial.dim());

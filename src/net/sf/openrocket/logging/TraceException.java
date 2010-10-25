@@ -63,6 +63,17 @@ public class TraceException extends Exception {
 	
 	
 	/**
+	 * Construct an exception with the specified message.
+	 * 
+	 * @param message	the message for the exception.
+	 */
+	public TraceException(String message) {
+		this(0, 0);
+		this.message = message;
+	}
+	
+	
+	/**
 	 * Get the description of the code position as provided in the constructor.
 	 */
 	@Override

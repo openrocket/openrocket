@@ -14,11 +14,17 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import net.sf.openrocket.util.BugException;
+
 /**
  * An implementation of a ParallelFunctionCache that evaluates function values
  * in parallel and caches them.  This allows pre-calculating possibly required
  * function values beforehand.  If values are not required after all, the
  * computation can be aborted assuming the function evaluation supports it.
+ * <p>
+ * Note that while this class handles threads and abstracts background execution,
+ * the public methods themselves are NOT thread-safe and should be called from
+ * only one thread at a time.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -32,13 +38,22 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	private Function function;
 	
 	
-
+	/**
+	 * Construct a cache that uses the same number of computational threads as there are
+	 * processors available.
+	 */
 	public ParallelExecutorCache() {
 		this(Runtime.getRuntime().availableProcessors());
 	}
 	
+	/**
+	 * Construct a cache that uses the specified number of computational threads for background
+	 * computation.  The threads that are created are marked as daemon threads.
+	 * 
+	 * @param threadCount	the number of threads to use in the executor.
+	 */
 	public ParallelExecutorCache(int threadCount) {
-		executor = new ThreadPoolExecutor(threadCount, threadCount, 60, TimeUnit.SECONDS,
+		this(new ThreadPoolExecutor(threadCount, threadCount, 60, TimeUnit.SECONDS,
 				new LinkedBlockingQueue<Runnable>(),
 				new ThreadFactory() {
 					@Override
@@ -47,20 +62,22 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 						t.setDaemon(true);
 						return t;
 					}
-				});
+				}));
 	}
 	
+	/**
+	 * Construct a cache that uses the specified ExecutorService for managing
+	 * computational threads.
+	 * 
+	 * @param executor	the executor to use for function evaluations.
+	 */
 	public ParallelExecutorCache(ExecutorService executor) {
 		this.executor = executor;
 	}
 	
 	
 
-	/**
-	 * Queue a list of function evaluations at the specified points.
-	 * 
-	 * @param points	the points at which to evaluate the function.
-	 */
+	@Override
 	public void compute(Collection<Point> points) {
 		for (Point p : points) {
 			compute(p);
@@ -68,11 +85,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	}
 	
 	
-	/**
-	 * Queue function evaluation for the specified point.
-	 * 
-	 * @param point		the point at which to evaluate the function.
-	 */
+	@Override
 	public void compute(Point point) {
 		if (functionCache.containsKey(point)) {
 			// Function has already been evaluated at the point
@@ -84,13 +97,6 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 			return;
 		}
 		
-		double value = function.preComputed(point);
-		if (!Double.isNaN(value)) {
-			// Function value was in function cache
-			functionCache.put(point, value);
-			return;
-		}
-		
 		// Submit point for evaluation
 		FunctionCallable callable = new FunctionCallable(function, point);
 		Future<Double> future = executor.submit(callable);
@@ -98,27 +104,16 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	}
 	
 	
-	/**
-	 * Wait for a collection of points to be computed.  After calling this method
-	 * the function values are available by calling XXX
-	 * 
-	 * @param points	the points to wait for.
-	 * @throws InterruptedException		if this thread was interrupted while waiting.
-	 */
-	public void waitFor(Collection<Point> points) throws InterruptedException {
+	@Override
+	public void waitFor(Collection<Point> points) throws InterruptedException, OptimizationException {
 		for (Point p : points) {
 			waitFor(p);
 		}
 	}
 	
-	/**
-	 * Wait for a point to be computed.  After calling this method
-	 * the function values are available by calling XXX
-	 * 
-	 * @param point		the point to wait for.
-	 * @throws InterruptedException		if this thread was interrupted while waiting.
-	 */
-	public void waitFor(Point point) throws InterruptedException {
+	
+	@Override
+	public void waitFor(Point point) throws InterruptedException, OptimizationException {
 		if (functionCache.containsKey(point)) {
 			return;
 		}
@@ -132,18 +127,24 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 			double value = future.get();
 			functionCache.put(point, value);
 		} catch (ExecutionException e) {
-			throw new IllegalStateException("Function threw exception while processing", e.getCause());
+			Throwable cause = e.getCause();
+			if (cause instanceof InterruptedException) {
+				throw (InterruptedException) cause;
+			}
+			if (cause instanceof OptimizationException) {
+				throw (OptimizationException) cause;
+			}
+			if (cause instanceof RuntimeException) {
+				throw (RuntimeException) cause;
+			}
+			
+			throw new BugException("Function threw unknown exception while processing", e);
 		}
 	}
 	
 	
-	/**
-	 * Abort the computation of the specified point.  If computation has ended,
-	 * the result is stored in the function cache anyway.
-	 * 
-	 * @param points	the points to abort.
-	 * @return			a list of the points that have been computed anyway
-	 */
+
+	@Override
 	public List<Point> abort(Collection<Point> points) {
 		List<Point> computed = new ArrayList<Point>(Math.min(points.size(), 10));
 		
@@ -157,13 +158,8 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	}
 	
 	
-	/**
-	 * Abort the computation of the specified point.  If computation has ended,
-	 * the result is stored in the function cache anyway.
-	 * 
-	 * @param point		the point to abort.
-	 * @return			<code>true</code> if the point has been computed anyway, <code>false</code> if not.
-	 */
+
+	@Override
 	public boolean abort(Point point) {
 		if (functionCache.containsKey(point)) {
 			return true;
@@ -191,17 +187,17 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	}
 	
 	
+	@Override
 	public double getValue(Point point) {
 		Double d = functionCache.get(point);
 		if (d == null) {
-			throw new IllegalStateException(point.toString() + " is not in function cache.  " +
+			throw new IllegalStateException(point + " is not in function cache.  " +
 					"functionCache=" + functionCache + "  futureMap=" + futureMap);
 		}
 		return d;
 	}
 	
 	
-
 	@Override
 	public Function getFunction() {
 		return function;
@@ -219,6 +215,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 		abort(list);
 		functionCache.clear();
 	}
+	
 	
 	public ExecutorService getExecutor() {
 		return executor;
@@ -239,7 +236,7 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 		}
 		
 		@Override
-		public Double call() throws InterruptedException {
+		public Double call() throws InterruptedException, OptimizationException {
 			return calledFunction.evaluate(point);
 		}
 	}

@@ -1,6 +1,7 @@
 package net.sf.openrocket.optimization.rocketoptimization;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.optimization.general.OptimizationException;
 
 /**
  * A parameter of a rocket or simulation that can be optimized
@@ -8,7 +9,7 @@ import net.sf.openrocket.document.Simulation;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public interface RocketOptimizationParameter {
+public interface OptimizableParameter {
 	
 	/**
 	 * Return the label name for this optimization parameter.
@@ -20,10 +21,13 @@ public interface RocketOptimizationParameter {
 	/**
 	 * Compute the value for this optimization parameter for the simulation.
 	 * The return value can be any double value.
+	 * <p>
+	 * This method can return NaN in case of a problem computing
 	 * 
 	 * @param simulation	the simulation
 	 * @return				the parameter value (any double value)
+	 * @throws OptimizationException	if an error occurs preventing the optimization from continuing
 	 */
-	public double computeValue(Simulation simulation);
+	public double computeValue(Simulation simulation) throws OptimizationException;
 	
 }

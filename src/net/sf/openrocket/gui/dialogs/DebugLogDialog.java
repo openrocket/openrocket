@@ -141,7 +141,8 @@ public class DebugLogDialog extends JDialog {
 		panel.add(new JLabel("Display log lines:"), "gapright para, split");
 		for (LogLevel l : LogLevel.values()) {
 			JCheckBox box = new JCheckBox(l.toString());
-			box.setSelected(true);
+			// By default display DEBUG and above
+			box.setSelected(l.atLeast(LogLevel.DEBUG));
 			box.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -279,6 +280,7 @@ public class DebugLogDialog extends JDialog {
 		sorter.setComparator(1, NumericComparator.INSTANCE);
 		sorter.setComparator(4, new LocationComparator());
 		table.setRowSorter(sorter);
+		sorter.setRowFilter(new LogFilter());
 		
 
 		panel.add(new JScrollPane(table), "span, grow, width " +

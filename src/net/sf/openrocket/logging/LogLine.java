@@ -31,13 +31,32 @@ public class LogLine implements Comparable<LogLine> {
 	
 	private volatile String formattedMessage = null;
 	
-
+	
+	/**
+	 * Construct a LogLine at the current moment.  The next log line count number is selected
+	 * and the current run time set to the timestamp.
+	 * 
+	 * @param level		the logging level
+	 * @param trace		the trace exception for the log line, <code>null</code> permitted
+	 * @param message	the log message
+	 * @param cause		the causing throwable, <code>null</code> permitted
+	 */
 	public LogLine(LogLevel level, TraceException trace, String message, Throwable cause) {
 		this(level, logCount.getAndIncrement(), System.currentTimeMillis() - startTime, trace, message, cause);
 	}
 	
-	
-	public LogLine(LogLevel level, int count, long timestamp, 
+	/**
+	 * Construct a LogLine with all parameters.  This should only be used in special conditions,
+	 * for example to insert a log line at a specific point within normal logs.
+	 * 
+	 * @param level		the logging level
+	 * @param count		the log line count number
+	 * @param timestamp	the log line timestamp
+	 * @param trace		the trace exception for the log line, <code>null</code> permitted
+	 * @param message	the log message
+	 * @param cause		the causing throwable, <code>null</code> permitted
+	 */
+	public LogLine(LogLevel level, int count, long timestamp,
 			TraceException trace, String message, Throwable cause) {
 		this.level = level;
 		this.count = count;
@@ -46,57 +65,57 @@ public class LogLine implements Comparable<LogLine> {
 		this.message = message;
 		this.cause = cause;
 	}
+	
+	
 
-	
-	
 	/**
 	 * @return the level
 	 */
 	public LogLevel getLevel() {
 		return level;
 	}
-
-
+	
+	
 	/**
 	 * @return the count
 	 */
 	public int getLogCount() {
 		return count;
 	}
-
-
+	
+	
 	/**
 	 * @return the timestamp
 	 */
 	public long getTimestamp() {
 		return timestamp;
 	}
-
-
+	
+	
 	/**
 	 * @return the trace
 	 */
 	public TraceException getTrace() {
 		return trace;
 	}
-
-
+	
+	
 	/**
 	 * @return the message
 	 */
 	public String getMessage() {
 		return message;
 	}
-
-
+	
+	
 	/**
 	 * @return the error
 	 */
 	public Throwable getCause() {
 		return cause;
 	}
-
-
+	
+	
 
 
 	/**
@@ -109,7 +128,7 @@ public class LogLine implements Comparable<LogLine> {
 		if (formattedMessage == null) {
 			String str;
 			str = String.format("%4d %10.3f %-" + LogLevel.LENGTH + "s %s %s",
-					count, timestamp/1000.0, (level != null) ? level.toString() : "NULL",
+					count, timestamp / 1000.0, (level != null) ? level.toString() : "NULL",
 					(trace != null) ? trace.getMessage() : "(-)",
 					message);
 			if (cause != null) {
@@ -123,8 +142,8 @@ public class LogLine implements Comparable<LogLine> {
 		}
 		return formattedMessage;
 	}
-
-
+	
+	
 	/**
 	 * Compare against another log line based on the log line count number.
 	 */

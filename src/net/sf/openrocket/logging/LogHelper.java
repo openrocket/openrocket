@@ -16,6 +16,9 @@ import net.sf.openrocket.util.BugException;
  *  <li><code>message</code>	the String message (may be null).
  *  <li><code>cause</code>		the exception that caused this log (may be null).
  * </ul>
+ * <p>
+ * The logging methods are guaranteed never to throw an exception, and can thus be safely
+ * used in finally blocks.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -56,7 +59,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void verbose(String message) {
-		log(createLogLine(0, LogLevel.VBOSE, message, null));
+		try {
+			log(createLogLine(0, LogLevel.VBOSE, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -66,7 +73,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void verbose(String message, Throwable cause) {
-		log(createLogLine(0, LogLevel.VBOSE, message, cause));
+		try {
+			log(createLogLine(0, LogLevel.VBOSE, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -76,7 +87,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void verbose(int levels, String message) {
-		log(createLogLine(levels, LogLevel.VBOSE, message, null));
+		try {
+			log(createLogLine(levels, LogLevel.VBOSE, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -87,7 +102,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void verbose(int levels, String message, Throwable cause) {
-		log(createLogLine(levels, LogLevel.VBOSE, message, cause));
+		try {
+			log(createLogLine(levels, LogLevel.VBOSE, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -97,7 +116,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void debug(String message) {
-		log(createLogLine(0, LogLevel.DEBUG, message, null));
+		try {
+			log(createLogLine(0, LogLevel.DEBUG, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -107,7 +130,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void debug(String message, Throwable cause) {
-		log(createLogLine(0, LogLevel.DEBUG, message, cause));
+		try {
+			log(createLogLine(0, LogLevel.DEBUG, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -117,7 +144,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void debug(int levels, String message) {
-		log(createLogLine(levels, LogLevel.DEBUG, message, null));
+		try {
+			log(createLogLine(levels, LogLevel.DEBUG, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -128,7 +159,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void debug(int levels, String message, Throwable cause) {
-		log(createLogLine(levels, LogLevel.DEBUG, message, cause));
+		try {
+			log(createLogLine(levels, LogLevel.DEBUG, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -138,7 +173,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void info(String message) {
-		log(createLogLine(0, LogLevel.INFO, message, null));
+		try {
+			log(createLogLine(0, LogLevel.INFO, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -148,7 +187,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void info(String message, Throwable cause) {
-		log(createLogLine(0, LogLevel.INFO, message, cause));
+		try {
+			log(createLogLine(0, LogLevel.INFO, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -158,7 +201,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void info(int levels, String message) {
-		log(createLogLine(levels, LogLevel.INFO, message, null));
+		try {
+			log(createLogLine(levels, LogLevel.INFO, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -169,7 +216,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void info(int levels, String message, Throwable cause) {
-		log(createLogLine(levels, LogLevel.INFO, message, cause));
+		try {
+			log(createLogLine(levels, LogLevel.INFO, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -179,7 +230,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void user(String message) {
-		log(createLogLine(0, LogLevel.USER, message, null));
+		try {
+			log(createLogLine(0, LogLevel.USER, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -189,7 +244,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void user(String message, Throwable cause) {
-		log(createLogLine(0, LogLevel.USER, message, cause));
+		try {
+			log(createLogLine(0, LogLevel.USER, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -199,7 +258,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void user(int levels, String message) {
-		log(createLogLine(levels, LogLevel.USER, message, null));
+		try {
+			log(createLogLine(levels, LogLevel.USER, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -210,7 +273,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void user(int levels, String message, Throwable cause) {
-		log(createLogLine(levels, LogLevel.USER, message, cause));
+		try {
+			log(createLogLine(levels, LogLevel.USER, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -220,7 +287,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void warn(String message) {
-		log(createLogLine(0, LogLevel.WARN, message, null));
+		try {
+			log(createLogLine(0, LogLevel.WARN, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -230,7 +301,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void warn(String message, Throwable cause) {
-		log(createLogLine(0, LogLevel.WARN, message, cause));
+		try {
+			log(createLogLine(0, LogLevel.WARN, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -240,7 +315,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void warn(int levels, String message) {
-		log(createLogLine(levels, LogLevel.WARN, message, null));
+		try {
+			log(createLogLine(levels, LogLevel.WARN, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -251,7 +330,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void warn(int levels, String message, Throwable cause) {
-		log(createLogLine(levels, LogLevel.WARN, message, cause));
+		try {
+			log(createLogLine(levels, LogLevel.WARN, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -261,7 +344,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void error(String message) {
-		log(createLogLine(0, LogLevel.ERROR, message, null));
+		try {
+			log(createLogLine(0, LogLevel.ERROR, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -271,7 +358,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void error(String message, Throwable cause) {
-		log(createLogLine(0, LogLevel.ERROR, message, cause));
+		try {
+			log(createLogLine(0, LogLevel.ERROR, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -281,7 +372,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void error(int levels, String message) {
-		log(createLogLine(levels, LogLevel.ERROR, message, null));
+		try {
+			log(createLogLine(levels, LogLevel.ERROR, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -292,7 +387,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void error(int levels, String message, Throwable cause) {
-		log(createLogLine(levels, LogLevel.ERROR, message, cause));
+		try {
+			log(createLogLine(levels, LogLevel.ERROR, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -304,7 +403,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void log(LogLevel level, String message) {
-		log(createLogLine(0, level, message, null));
+		try {
+			log(createLogLine(0, level, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -315,7 +418,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void log(LogLevel level, String message, Throwable cause) {
-		log(createLogLine(0, level, message, cause));
+		try {
+			log(createLogLine(0, level, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -326,7 +433,11 @@ public abstract class LogHelper {
 	 * @param message	the logged message (may be null).
 	 */
 	public void log(int levels, LogLevel level, String message) {
-		log(createLogLine(levels, level, message, null));
+		try {
+			log(createLogLine(levels, level, message, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -338,7 +449,11 @@ public abstract class LogHelper {
 	 * @param cause		the causing exception (may be null).
 	 */
 	public void log(int levels, LogLevel level, String message, Throwable cause) {
-		log(createLogLine(levels, level, message, cause));
+		try {
+			log(createLogLine(levels, level, message, cause));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

@@ -1,3 +1,15 @@
+2010-10-25  Doug Pedrick
+
+	* [BUG] Take launch lug radial angle into account when loading rkt file
+
+2010-10-24  Sampo Niskane
+
+	* Added SafetyMutex and took into use in Simulation
+
+2010-10-18  Sampo Niskanen
+
+	* Ignore Sun JRE bug in D3D
+
 2010-10-09  Sampo Niskanen
 
 	* [BUG] Fixed conversion to freeform fin set

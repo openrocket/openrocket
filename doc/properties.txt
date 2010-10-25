@@ -25,6 +25,14 @@ openrocket.log.tracelevel
 Debugging options
 -----------------
 
+openrocket.debug
+	Turns on various options useful for debugging purposes.  The parameters defined are:
+		openrocket.log.stdout=VBOSE
+		openrocket.log.tracelevel=VBOSE
+		openrocket.debug.menu=true
+		openrocket.debug.motordigest=true
+
+
 openrocket.debug.menu
 	If defined the "Debug" menu will be displayed in the main application window.
 

@@ -54,12 +54,12 @@ public class LogLevelBufferLogger extends LogHelper {
 			
 			if (misses > 0) {
 				if (logs.isEmpty()) {
-					result.add(new LogLine(level, 0, 0, new TraceException(),
-							"--- " + misses + " " + level + " lines removed but log is empty! ---",
+					result.add(new LogLine(level, 0, 0, null,
+							"===== " + misses + " " + level + " lines removed but log is empty! =====",
 							null));
 				} else {
-					result.add(new LogLine(level, logs.get(0).getLogCount(), 0, new TraceException(),
-							"--- " + misses + " " + level + " lines removed ---", null));
+					result.add(new LogLine(level, logs.get(0).getLogCount(), 0, null,
+							"===== " + misses + " " + level + " lines removed =====", null));
 				}
 			}
 			result.addAll(logs);

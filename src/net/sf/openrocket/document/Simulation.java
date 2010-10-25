@@ -27,8 +27,16 @@ import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.SafetyMutex;
 
-
+/**
+ * A class defining a simulation, its conditions and simulated data.
+ * <p>
+ * This class is not thread-safe and enforces single-threaded access with a
+ * SafetyMutex.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class Simulation implements ChangeSource, Cloneable {
 	private static final LogHelper log = Application.getLogger();
 	
@@ -49,6 +57,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		NOT_SIMULATED
 	}
 	
+	private final SafetyMutex mutex = new SafetyMutex();
 	
 	private final Rocket rocket;
 	
@@ -146,6 +155,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	the rocket.
 	 */
 	public Rocket getRocket() {
+		mutex.verify();
 		return rocket;
 	}
 	
@@ -157,6 +167,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	a newly created Configuration of the launch conditions.
 	 */
 	public Configuration getConfiguration() {
+		mutex.verify();
 		Configuration c = new Configuration(rocket);
 		c.setMotorConfigurationID(conditions.getMotorConfigurationID());
 		c.setAllStages();
@@ -171,6 +182,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return the simulation conditions.
 	 */
 	public GUISimulationConditions getConditions() {
+		mutex.verify();
 		return conditions;
 	}
 	
@@ -182,6 +194,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	the actual list of simulation listeners.
 	 */
 	public List<String> getSimulationListeners() {
+		mutex.verify();
 		return simulationListeners;
 	}
 	
@@ -192,6 +205,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	the name for the simulation.
 	 */
 	public String getName() {
+		mutex.verify();
 		return name;
 	}
 	
@@ -202,15 +216,20 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @param name	the name of the simulation.
 	 */
 	public void setName(String name) {
-		if (this.name.equals(name))
-			return;
-		
-		if (name == null)
-			this.name = "";
-		else
-			this.name = name;
-		
-		fireChangeEvent();
+		mutex.lock("setName");
+		try {
+			if (this.name.equals(name))
+				return;
+			
+			if (name == null)
+				this.name = "";
+			else
+				this.name = name;
+			
+			fireChangeEvent();
+		} finally {
+			mutex.unlock("setName");
+		}
 	}
 	
 	
@@ -222,6 +241,8 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @see Status
 	 */
 	public Status getStatus() {
+		mutex.verify();
+		
 		if (status == Status.UPTODATE || status == Status.LOADED) {
 			if (rocket.getFunctionalModID() != simulatedRocketID ||
 					!conditions.equals(simulatedConditions))
@@ -236,54 +257,59 @@ public class Simulation implements ChangeSource, Cloneable {
 
 	public void simulate(SimulationListener... additionalListeners)
 						throws SimulationException {
-		
-		if (this.status == Status.EXTERNAL) {
-			throw new SimulationException("Cannot simulate imported simulation.");
-		}
-		
-		SimulationEngine simulator;
-		
+		mutex.lock("simulate");
 		try {
-			simulator = simulationEngineClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new IllegalStateException("Cannot instantiate simulator.", e);
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException("Cannot access simulator instance?! BUG!", e);
-		} catch (NullPointerException e) {
-			throw new IllegalStateException("Simulator null", e);
-		}
-		
-		SimulationConditions simulationConditions = conditions.toSimulationConditions();
-		for (SimulationListener l : additionalListeners) {
-			simulationConditions.getSimulationListenerList().add(l);
-		}
-		
-		for (String className : simulationListeners) {
-			SimulationListener l = null;
-			try {
-				Class<?> c = Class.forName(className);
-				l = (SimulationListener) c.newInstance();
-			} catch (Exception e) {
-				throw new SimulationListenerException("Could not instantiate listener of " +
-						"class: " + className, e);
+			
+			if (this.status == Status.EXTERNAL) {
+				throw new SimulationException("Cannot simulate imported simulation.");
 			}
-			simulationConditions.getSimulationListenerList().add(l);
+			
+			SimulationEngine simulator;
+			
+			try {
+				simulator = simulationEngineClass.newInstance();
+			} catch (InstantiationException e) {
+				throw new IllegalStateException("Cannot instantiate simulator.", e);
+			} catch (IllegalAccessException e) {
+				throw new IllegalStateException("Cannot access simulator instance?! BUG!", e);
+			} catch (NullPointerException e) {
+				throw new IllegalStateException("Simulator null", e);
+			}
+			
+			SimulationConditions simulationConditions = conditions.toSimulationConditions();
+			for (SimulationListener l : additionalListeners) {
+				simulationConditions.getSimulationListenerList().add(l);
+			}
+			
+			for (String className : simulationListeners) {
+				SimulationListener l = null;
+				try {
+					Class<?> c = Class.forName(className);
+					l = (SimulationListener) c.newInstance();
+				} catch (Exception e) {
+					throw new SimulationListenerException("Could not instantiate listener of " +
+							"class: " + className, e);
+				}
+				simulationConditions.getSimulationListenerList().add(l);
+			}
+			
+			long t1, t2;
+			log.debug("Simulation: calling simulator");
+			t1 = System.currentTimeMillis();
+			simulatedData = simulator.simulate(simulationConditions);
+			t2 = System.currentTimeMillis();
+			log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
+			
+			// Set simulated info after simulation, will not be set in case of exception
+			simulatedConditions = conditions.clone();
+			simulatedMotors = getConfiguration().getMotorConfigurationDescription();
+			simulatedRocketID = rocket.getFunctionalModID();
+			
+			status = Status.UPTODATE;
+			fireChangeEvent();
+		} finally {
+			mutex.unlock("simulate");
 		}
-		
-		long t1, t2;
-		log.debug("Simulation: calling simulator");
-		t1 = System.currentTimeMillis();
-		simulatedData = simulator.simulate(simulationConditions);
-		t2 = System.currentTimeMillis();
-		log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
-		
-		// Set simulated info after simulation, will not be set in case of exception
-		simulatedConditions = conditions.clone();
-		simulatedMotors = getConfiguration().getMotorConfigurationDescription();
-		simulatedRocketID = rocket.getFunctionalModID();
-		
-		status = Status.UPTODATE;
-		fireChangeEvent();
 	}
 	
 	
@@ -294,6 +320,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	the conditions used in the previous simulation, or <code>null</code>.
 	 */
 	public GUISimulationConditions getSimulatedConditions() {
+		mutex.verify();
 		return simulatedConditions;
 	}
 	
@@ -306,6 +333,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @see		FlightData#getWarningSet()
 	 */
 	public WarningSet getSimulatedWarnings() {
+		mutex.verify();
 		if (simulatedData == null)
 			return null;
 		return simulatedData.getWarningSet();
@@ -321,6 +349,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @see		Rocket#getMotorConfigurationNameOrDescription(String)
 	 */
 	public String getSimulatedMotorDescription() {
+		mutex.verify();
 		return simulatedMotors;
 	}
 	
@@ -331,6 +360,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	the flight data of the previous simulation, or <code>null</code>.
 	 */
 	public FlightData getSimulatedData() {
+		mutex.verify();
 		return simulatedData;
 	}
 	
@@ -344,6 +374,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	@SuppressWarnings("unchecked")
 	public Simulation copy() {
+		mutex.lock("copy");
 		try {
 			
 			Simulation copy = (Simulation) super.clone();
@@ -359,9 +390,10 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			return copy;
 			
-
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("Clone not supported, BUG", e);
+		} finally {
+			mutex.unlock("copy");
 		}
 	}
 	
@@ -375,26 +407,33 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	@SuppressWarnings("unchecked")
 	public Simulation duplicateSimulation(Rocket newRocket) {
-		Simulation copy = new Simulation(newRocket);
-		
-		copy.name = this.name;
-		copy.conditions.copyFrom(this.conditions);
-		copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
-		copy.simulationStepperClass = this.simulationStepperClass;
-		copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
-		
-		return copy;
+		mutex.lock("duplicateSimulation");
+		try {
+			Simulation copy = new Simulation(newRocket);
+			
+			copy.name = this.name;
+			copy.conditions.copyFrom(this.conditions);
+			copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
+			copy.simulationStepperClass = this.simulationStepperClass;
+			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
+			
+			return copy;
+		} finally {
+			mutex.unlock("duplicateSimulation");
+		}
 	}
 	
 	
 
 	@Override
 	public void addChangeListener(ChangeListener listener) {
+		mutex.verify();
 		listeners.add(listener);
 	}
 	
 	@Override
 	public void removeChangeListener(ChangeListener listener) {
+		mutex.verify();
 		listeners.remove(listener);
 	}
 	

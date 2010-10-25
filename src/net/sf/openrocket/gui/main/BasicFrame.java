@@ -25,6 +25,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Action;
@@ -69,6 +71,7 @@ import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.DebugLogDialog;
+import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
@@ -87,6 +90,8 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
+import net.sf.openrocket.util.MemoryManagement;
+import net.sf.openrocket.util.MemoryManagement.MemoryData;
 import net.sf.openrocket.util.OpenFileWorker;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
@@ -730,8 +735,84 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
+
+		item = new JMenuItem("Memory statistics");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("Memory statistics selected");
+				
+				// Get discarded but remaining objects (this also runs System.gc multiple times)
+				List<MemoryData> objects = MemoryManagement.getRemainingObjects();
+				StringBuilder sb = new StringBuilder();
+				sb.append("Objects that should have been garbage-collected but have not been:\n");
+				int count = 0;
+				for (MemoryData data : objects) {
+					Object o = data.getReference().get();
+					if (o == null)
+						continue;
+					sb.append("Age ").append(System.currentTimeMillis() - data.getRegistrationTime())
+							.append(" ms:  ").append(o).append('\n');
+					count++;
+					// Explicitly null the strong reference to avoid possibility of invisible references
+					o = null;
+				}
+				sb.append("Total: " + count);
+				
+				// Get basic memory stats
+				System.gc();
+				long max = Runtime.getRuntime().maxMemory();
+				long free = Runtime.getRuntime().freeMemory();
+				long used = max - free;
+				String[] stats = new String[4];
+				stats[0] = "Memory usage:";
+				stats[1] = String.format("   Max memory:  %.1f MB", max / 1024.0 / 1024.0);
+				stats[2] = String.format("   Used memory: %.1f MB (%.0f%%)", used / 1024.0 / 1024.0, 100.0 * used / max);
+				stats[3] = String.format("   Free memory: %.1f MB (%.0f%%)", free / 1024.0 / 1024.0, 100.0 * free / max);
+				
+
+				DetailDialog.showDetailedMessageDialog(BasicFrame.this, stats, sb.toString(),
+						"Memory statistics", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		menu.add(item);
+		
+
+		item = new JMenuItem("Exhaust memory");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("Exhaust memory selected");
+				LinkedList<byte[]> data = new LinkedList<byte[]>();
+				int count = 0;
+				final int bytesPerArray = 10240;
+				try {
+					while (true) {
+						byte[] array = new byte[bytesPerArray];
+						for (int i = 0; i < bytesPerArray; i++) {
+							array[i] = (byte) i;
+						}
+						data.add(array);
+						count++;
+					}
+				} catch (OutOfMemoryError error) {
+					data = null;
+					long size = bytesPerArray * (long) count;
+					String s = String.format("OutOfMemory occurred after %d iterations (approx. %.1f MB consumed)",
+							count, size / 1024.0 / 1024.0);
+					log.debug(s, error);
+					JOptionPane.showMessageDialog(BasicFrame.this, s);
+				}
+			}
+		});
+		menu.add(item);
+		
+
+		menu.addSeparator();
+		
 		item = new JMenuItem("Exception here");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Exception here selected");
 				throw new RuntimeException("Testing exception from menu action listener");
@@ -769,13 +850,22 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
+		item = new JMenuItem("OutOfMemoryError here");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("OutOfMemoryError here selected");
+				throw new OutOfMemoryError("Testing OutOfMemoryError from menu action listener");
+			}
+		});
+		menu.add(item);
+		
 
 
 		return menu;
 	}
 	
 	
-
 	/**
 	 * Select the tab on the main pane.
 	 * 

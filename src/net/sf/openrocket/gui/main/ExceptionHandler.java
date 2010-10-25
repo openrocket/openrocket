@@ -5,8 +5,8 @@ import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 
 
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
@@ -63,6 +63,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			} else {
 				log.info("Exception handler not on EDT, invoking dialog on EDT");
 				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
 					public void run() {
 						showDialog(thread, throwable);
 					}
@@ -76,7 +77,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 				log.error("Caught exception while handling exception", ex);
 				System.err.println("Exception in exception handler, dumping exception:");
 				ex.printStackTrace();
-			} catch (Throwable ignore) {
+			} catch (Exception ignore) {
 			}
 			
 		} finally {
@@ -90,11 +91,14 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	/**
 	 * Handle an error condition programmatically without throwing an exception.
 	 * This can be used in cases where recovery of the error is desirable.
+	 * <p>
+	 * This method is guaranteed never to throw an exception, and can thus be safely
+	 * used in finally blocks.
 	 * 
 	 * @param message	the error message.
 	 */
 	public static void handleErrorCondition(String message) {
-		log.error(1, message);
+		log.error(1, message, new TraceException());
 		handleErrorCondition(new InternalException(message));
 	}
 	
@@ -102,6 +106,9 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	/**
 	 * Handle an error condition programmatically without throwing an exception.
 	 * This can be used in cases where recovery of the error is desirable.
+	 * <p>
+	 * This method is guaranteed never to throw an exception, and can thus be safely
+	 * used in finally blocks.
 	 * 
 	 * @param message	the error message.
 	 * @param exception	the exception that occurred.
@@ -115,36 +122,39 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	/**
 	 * Handle an error condition programmatically without throwing an exception.
 	 * This can be used in cases where recovery of the error is desirable.
+	 * <p>
+	 * This method is guaranteed never to throw an exception, and can thus be safely
+	 * used in finally blocks.
 	 * 
 	 * @param exception		the exception that occurred.
 	 */
 	public static void handleErrorCondition(final Exception exception) {
-		if (!(exception instanceof InternalException)) {
-			log.error(1, "Error occurred", exception);
-		}
-		final Thread thread = Thread.currentThread();
-		final ExceptionHandler handler = instance;
-		
-		if (handler == null) {
-			// Not initialized, throw the exception
-			throw new BugException("Error condition before exception handling has been initialized", exception);
-		}
-		
 		try {
+			if (!(exception instanceof InternalException)) {
+				log.error(1, "Error occurred", exception);
+			}
+			final Thread thread = Thread.currentThread();
+			final ExceptionHandler handler = instance;
+			
+			if (handler == null) {
+				log.error("Error condition occurred before exception handling has been initialized", exception);
+				return;
+			}
+			
 			if (SwingUtilities.isEventDispatchThread()) {
 				log.info("Running in EDT, showing dialog");
 				handler.showDialog(thread, exception);
 			} else {
 				log.info("Not in EDT, invoking and waiting for dialog");
 				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
 					public void run() {
 						handler.showDialog(thread, exception);
 					}
 				});
 			}
 		} catch (Exception e) {
-			log.error("Exception occurred while showing error dialog", e);
-			e.printStackTrace();
+			log.error("Exception occurred in error handler", e);
 		}
 	}
 	
@@ -289,6 +299,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 */
 	private static boolean isNonFatalJREBug(Throwable t) {
 		
+		// NOTE:  Calling method logs the entire throwable, so log only message here
+		
 		/*
 		 * Detect and ignore bug 6828938 in Sun JRE 1.6.0_14 - 1.6.0_16.
 		 */
@@ -346,6 +358,18 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 				return true;
 			}
 		}
+		
+		/*
+		 * Detect Sun JRE bug in D3D
+		 */
+		if (t instanceof ClassCastException) {
+			if (t.getMessage().equals("sun.awt.Win32GraphicsConfig cannot be cast to sun.java2d.d3d.D3DGraphicsConfig")) {
+				log.warn("Ignoring Sun JRE bug " +
+						"(see http://forums.sun.com/thread.jspa?threadID=5440525): " + t);
+				return true;
+			}
+		}
+		
 		return false;
 	}
 	

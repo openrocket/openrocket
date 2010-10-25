@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A FunctionCache that allows queuing points to be computed in the background,
+ * A FunctionCache that allows scheduling points to be computed in the background,
  * waiting for specific points to become computed or aborting the computation of
  * points.
  * 
@@ -13,14 +13,17 @@ import java.util.List;
 public interface ParallelFunctionCache extends FunctionCache {
 	
 	/**
-	 * Queue a list of function evaluations at the specified points.
+	 * Schedule a list of function evaluations at the specified points.
+	 * The points are added to the end of the computation queue in the order
+	 * they are returned by the iterator.
 	 * 
 	 * @param points	the points at which to evaluate the function.
 	 */
 	public void compute(Collection<Point> points);
 	
 	/**
-	 * Queue function evaluation for the specified point.
+	 * Schedule function evaluation for the specified point.  The point is
+	 * added to the end of the computation queue.
 	 * 
 	 * @param point		the point at which to evaluate the function.
 	 */
@@ -28,25 +31,26 @@ public interface ParallelFunctionCache extends FunctionCache {
 	
 	/**
 	 * Wait for a collection of points to be computed.  After calling this method
-	 * the function values are available by calling XXX
+	 * the function values are available by calling {@link #getValue(Point)}.
 	 * 
 	 * @param points	the points to wait for.
-	 * @throws InterruptedException		if this thread was interrupted while waiting.
+	 * @throws InterruptedException		if this thread or the computing thread was interrupted while waiting.
 	 */
-	public void waitFor(Collection<Point> points) throws InterruptedException;
+	public void waitFor(Collection<Point> points) throws InterruptedException, OptimizationException;
 	
 	/**
 	 * Wait for a point to be computed.  After calling this method
-	 * the function values are available by calling XXX
+	 * the function value is available by calling {@link #getValue(Point)}.
 	 * 
 	 * @param point		the point to wait for.
-	 * @throws InterruptedException		if this thread was interrupted while waiting.
+	 * @throws InterruptedException		if this thread or the computing thread was interrupted while waiting.
+	 * @throws OptimizationException 
 	 */
-	public void waitFor(Point point) throws InterruptedException;
+	public void waitFor(Point point) throws InterruptedException, OptimizationException;
 	
 	
 	/**
-	 * Abort the computation of the specified point.  If computation has ended,
+	 * Abort the computation of the specified points.  If computation has ended,
 	 * the result is stored in the function cache anyway.
 	 * 
 	 * @param points	the points to abort.

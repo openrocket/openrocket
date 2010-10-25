@@ -12,7 +12,9 @@ import java.util.Stack;
 
 import javax.swing.event.ChangeListener;
 
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
@@ -23,6 +25,7 @@ import net.sf.openrocket.util.UniqueID;
 
 public abstract class RocketComponent implements ChangeSource, Cloneable,
 		Iterable<RocketComponent> {
+	private static final LogHelper log = Application.getLogger();
 	
 	/*
 	 * Text is suitable to the form
@@ -1304,6 +1307,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		checkState();
 		if (parent == null) {
 			/* Ignore if root invalid. */
+			log.debug("Attempted firing event " + e + " with root " + this.getComponentName() + ", ignoring event");
 			return;
 		}
 		getRoot().fireComponentChangeEvent(e);
