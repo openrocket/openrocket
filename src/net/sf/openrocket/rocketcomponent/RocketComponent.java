@@ -1,17 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EmptyStackException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-
-import javax.swing.event.ChangeListener;
-
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
@@ -22,9 +10,20 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.UniqueID;
 
+import javax.swing.event.ChangeListener;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EmptyStackException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Stack;
+
 
 public abstract class RocketComponent implements ChangeSource, Cloneable,
-		Iterable<RocketComponent> {
+		Iterable<RocketComponent> , Visitable<ComponentVisitor, RocketComponent> {
 	private static final LogHelper log = Application.getLogger();
 	
 	/*
@@ -132,13 +131,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 		this.relativePosition = relativePosition;
 		newID();
 	}
-	
-	
 
+    ////////////  Methods that must be implemented  ////////////
 
-
-	////////////  Methods that must be implemented  ////////////
-	
 
 	/**
 	 * Static component name.  The name may not vary of the parameters, it must be static.
@@ -371,6 +366,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable,
 	}
 	
 	
+    /**
+     * Accept a visitor to this RocketComponent in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this RocketComponent
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+
 	//////////////  Methods that may not be overridden  ////////////
 	
 

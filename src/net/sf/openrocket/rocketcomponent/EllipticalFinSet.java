@@ -67,4 +67,15 @@ public class EllipticalFinSet extends FinSet {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
+    
+    /**
+     * Accept a visitor to this EllipticalFinSet in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this EllipticalFinSet
+     */
+    @Override
+    public void accept(ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+    
 }

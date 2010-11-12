@@ -16,10 +16,10 @@ public class LaunchLugCalc extends RocketComponentCalc {
 		super(component);
 		
 		LaunchLug lug = (LaunchLug)component;
-		double ld = lug.getLength() / (2*lug.getRadius());
+		double ld = lug.getLength() / (2*lug.getOuterRadius());
 		
 		CDmul = Math.max(1.3 - ld, 1);
-		refArea = Math.PI * MathUtil.pow2(lug.getRadius()) - 
+		refArea = Math.PI * MathUtil.pow2(lug.getOuterRadius()) - 
 				  Math.PI * MathUtil.pow2(lug.getInnerRadius()) * Math.max(1 - ld, 0);
 	}
 

@@ -54,7 +54,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 
         try {
             if ("OD".equals(element)) {
-                bodyTube.setRadius(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+                bodyTube.setOuterRadius(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
             }
             if ("ID".equals(element)) {
                 final double r = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS;

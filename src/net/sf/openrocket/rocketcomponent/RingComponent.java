@@ -1,11 +1,11 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
 
 
 /**
@@ -16,7 +16,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RingComponent extends StructuralComponent {
+public abstract class RingComponent extends StructuralComponent implements Coaxial {
 
 	protected boolean outerRadiusAutomatic = false;
 	protected boolean innerRadiusAutomatic = false;
@@ -30,13 +30,17 @@ public abstract class RingComponent extends StructuralComponent {
 	
 
 	
-
+    @Override
 	public abstract double getOuterRadius();
+    @Override
 	public abstract void setOuterRadius(double r);
 	
+    @Override
 	public abstract double getInnerRadius();	
+    @Override
 	public abstract void setInnerRadius(double r);
 	
+    @Override
 	public abstract double getThickness();
 	public abstract void setThickness(double thickness);
 	
@@ -208,5 +212,15 @@ public abstract class RingComponent extends StructuralComponent {
 	public double getRotationalUnitInertia() {
 		return ringRotationalUnitInertia(getOuterRadius(), getInnerRadius());
 	}
+
+    /**
+     * Accept a visitor to this RingComponent in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this RingComponent
+     */    
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
 
 }

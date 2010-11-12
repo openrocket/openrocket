@@ -1,21 +1,12 @@
 package net.sf.openrocket.file.openrocket;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.Simulation.Status;
+import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -35,7 +26,9 @@ import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
@@ -52,6 +45,7 @@ import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.Streamer;
@@ -61,24 +55,29 @@ import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.GUISimulationConditions;
 import net.sf.openrocket.simulation.FlightEvent.Type;
+import net.sf.openrocket.simulation.GUISimulationConditions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.awt.Color;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -244,7 +243,7 @@ class DocumentConfig {
 		
 		// BodyTube
 		setters.put("BodyTube:radius", new DoubleSetter(
-				Reflection.findMethodStatic(BodyTube.class, "setRadius", double.class),
+				Reflection.findMethodStatic(BodyTube.class, "setOuterRadius", double.class),
 				"auto",
 				Reflection.findMethodStatic(BodyTube.class, "setRadiusAutomatic", boolean.class)));
 		
@@ -329,7 +328,7 @@ class DocumentConfig {
 		
 		// LaunchLug
 		setters.put("LaunchLug:radius", new DoubleSetter(
-				Reflection.findMethodStatic(LaunchLug.class, "setRadius", double.class)));
+				Reflection.findMethodStatic(LaunchLug.class, "setOuterRadius", double.class)));
 		setters.put("LaunchLug:length", new DoubleSetter(
 				Reflection.findMethodStatic(LaunchLug.class, "setLength", double.class)));
 		setters.put("LaunchLug:thickness", new DoubleSetter(

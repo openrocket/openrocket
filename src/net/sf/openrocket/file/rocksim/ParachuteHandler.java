@@ -68,7 +68,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
                 double packed;
                 RocketComponent parent = chute.getParent();
                 if (parent instanceof BodyTube) {
-                    packed = ((BodyTube) parent).getRadius() * 0.9;
+                    packed = ((BodyTube) parent).getOuterRadius() * 0.9;
                 }
                 else if (parent instanceof InnerTube) {
                     packed = ((InnerTube) parent).getInnerRadius() * 0.9;

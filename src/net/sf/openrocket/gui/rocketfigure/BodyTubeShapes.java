@@ -1,11 +1,11 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Transformation;
+
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Transformation;
 
 
 public class BodyTubeShapes extends RocketComponentShapes {
@@ -15,7 +15,7 @@ public class BodyTubeShapes extends RocketComponentShapes {
 		net.sf.openrocket.rocketcomponent.BodyTube tube = (net.sf.openrocket.rocketcomponent.BodyTube)component;
 
 		double length = tube.getLength();
-		double radius = tube.getRadius();
+		double radius = tube.getOuterRadius();
 		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
 
 		Shape[] s = new Shape[start.length];
@@ -31,7 +31,7 @@ public class BodyTubeShapes extends RocketComponentShapes {
 			Transformation transformation) {
 		net.sf.openrocket.rocketcomponent.BodyTube tube = (net.sf.openrocket.rocketcomponent.BodyTube)component;
 		
-		double or = tube.getRadius();
+		double or = tube.getOuterRadius();
 		
 		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
 

@@ -11,7 +11,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RadiusRingComponent extends RingComponent {
+public abstract class RadiusRingComponent extends RingComponent implements Coaxial {
 
 	protected double outerRadius = 0;
 	protected double innerRadius = 0;
@@ -80,4 +80,15 @@ public abstract class RadiusRingComponent extends RingComponent {
 		thickness = MathUtil.clamp(thickness, 0, outer);
 		setInnerRadius(outer - thickness);
 	}
+
+    /**
+     * Accept a visitor to this RadiusRingComponent in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this RadiusRingComponent
+     */    
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+    
 }

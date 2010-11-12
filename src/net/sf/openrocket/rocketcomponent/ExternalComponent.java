@@ -126,4 +126,14 @@ public abstract class ExternalComponent extends RocketComponent {
 		this.material = src.material;
 	}
 	
+    /**
+     * Accept a visitor to this ExternalComponent in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this ExternalComponent
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+    
 }

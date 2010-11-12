@@ -1,6 +1,13 @@
 package net.sf.openrocket.gui.figureelements;
 
-import static net.sf.openrocket.util.Chars.*;
+import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Prefs;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -9,13 +16,8 @@ import java.awt.Rectangle;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
-import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
+import static net.sf.openrocket.util.Chars.ALPHA;
+import static net.sf.openrocket.util.Chars.THETA;
 
 
 /**
@@ -174,11 +176,11 @@ public class RocketInfo implements FigureElement {
 		}
 		
 		GlyphVector cgValue = createText(
-				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(cg));
+                getCg());
 		GlyphVector cpValue = createText(
-				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(cp));
+                getCp());
 		GlyphVector stabValue = createText(
-				stabilityUnits.getDefaultUnit().toStringUnit(cp-cg));
+                getStability());
 				
 		GlyphVector cgText = createText("CG:  ");
 		GlyphVector cpText = createText("CP:  ");
@@ -226,8 +228,84 @@ public class RocketInfo implements FigureElement {
 
 	}
 
-	
-	private void drawWarnings() {
+    /**
+     * Get the mass, in default mass units.
+     * 
+     * @return the mass
+     */
+    public double getMass() {
+        return mass;
+    }
+
+    /**
+     * Get the mass in specified mass units.
+     * 
+     * @param u UnitGroup.MASS
+     * 
+     * @return the mass
+     */
+    public String getMass(Unit u) {
+        return u.toStringUnit(mass);
+    }
+    
+    /**
+     * Get the stability, in calibers.
+     * 
+     * @return  the current stability margin
+     */
+    public String getStability () {
+        return stabilityUnits.getDefaultUnit().toStringUnit(cp-cg);
+    }
+
+    /**
+     * Get the center of pressure in default length units.
+     * 
+     * @return  the distance from the tip to the center of pressure, in default length units
+     */
+    public String getCp () {
+        return getCp(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+    }
+
+    /**
+     * Get the center of pressure in default length units.
+     * 
+     * @param u UnitGroup.LENGTH 
+     * 
+     * @return  the distance from the tip to the center of pressure, in default length units
+     */
+    public String getCp (Unit u) {
+        return u.toStringUnit(cp);
+    }
+
+    /**
+     * Get the center of gravity in default length units.
+     * 
+     * @return  the distance from the tip to the center of gravity, in default length units
+     */
+    public String getCg () {
+        return getCg(UnitGroup.UNITS_LENGTH.getDefaultUnit());
+    }
+
+    /**
+     * Get the center of gravity in specified length units.
+     * 
+     * @param u UnitGroup.LENGTH 
+     * @return  the distance from the tip to the center of gravity, in specified units
+     */
+    public String getCg (Unit u) {
+        return u.toStringUnit(cg);
+    }
+
+    /**
+     * Get the flight data for the current motor configuration.
+     * 
+     * @return flight data, or null
+     */
+    public FlightData getFlightData () {
+        return flightData;
+    }
+    
+    private void drawWarnings() {
 		if (warnings == null || warnings.isEmpty())
 			return;
 		

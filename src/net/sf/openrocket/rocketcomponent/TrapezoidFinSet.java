@@ -166,4 +166,13 @@ public class TrapezoidFinSet extends FinSet {
 		return "Trapezoidal fin set";
 	}
 
+    /**
+     * Accept a visitor to this TrapezoidFinSet in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this TrapezoidFinSet
+     */    
+    @Override
+    public void accept(ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
 }

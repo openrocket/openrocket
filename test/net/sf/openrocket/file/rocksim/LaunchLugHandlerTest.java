@@ -107,11 +107,11 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("OD", attributes, "-1", warnings);
-        assertEquals(0d, component.getRadius());
+        assertEquals(0d, component.getOuterRadius());
         handler.closeElement("OD", attributes, "0", warnings);
-        assertEquals(0d, component.getRadius());
+        assertEquals(0d, component.getOuterRadius());
         handler.closeElement("OD", attributes, "75", warnings);
-        assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, component.getRadius());
+        assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, component.getOuterRadius());
         handler.closeElement("OD", attributes, "foo", warnings);
         assertEquals(1, warnings.size());
         warnings.clear();

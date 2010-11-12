@@ -1,12 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 
 /**
@@ -15,7 +15,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class BodyTube extends SymmetricComponent implements MotorMount {
+public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial {
 	
 	private double radius = 0;
 	private boolean autoRadius = false; // Radius chosen automatically based on parent component
@@ -61,8 +61,11 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	
 	/**
 	 * Return the outer radius of the body tube.
+     * 
+     * @return  the outside radius of the tube
 	 */
-	public double getRadius() {
+    @Override
+	public double getOuterRadius () {
 		if (autoRadius) {
 			// Return auto radius from front or rear
 			double r = -1;
@@ -88,8 +91,11 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	 * Set the outer radius of the body tube.  If the radius is less than the wall thickness,
 	 * the wall thickness is decreased accordingly of the value of the radius.
 	 * This method sets the automatic radius off.
+     * 
+     * @param radius  the outside radius in standard units
 	 */
-	public void setRadius(double radius) {
+    @Override
+	public void setOuterRadius (double radius) {
 		if ((this.radius == radius) && (autoRadius == false))
 			return;
 		
@@ -123,15 +129,9 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	
 	
 	@Override
-	public double getAftRadius() {
-		return getRadius();
-	}
-	
+	public double getAftRadius() {  return getOuterRadius(); }
 	@Override
-	public double getForeRadius() {
-		return getRadius();
-	}
-	
+	public double getForeRadius() { return getOuterRadius(); }
 	@Override
 	public boolean isAftRadiusAutomatic() {
 		return isRadiusAutomatic();
@@ -155,7 +155,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 				return -1;
 			}
 		}
-		return getRadius();
+		return getOuterRadius();
 	}
 	
 	@Override
@@ -169,21 +169,26 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 				return -1;
 			}
 		}
-		return getRadius();
+		return getOuterRadius();
 	}
 	
 	
 
 
-
+	
+	
+	
+	
+    @Override	
 	public double getInnerRadius() {
 		if (filled)
 			return 0;
-		return Math.max(getRadius() - thickness, 0);
+		return Math.max(getOuterRadius()-thickness, 0);
 	}
 	
+    @Override
 	public void setInnerRadius(double r) {
-		setThickness(getRadius() - r);
+		setThickness(getOuterRadius()-r);
 	}
 	
 	
@@ -196,17 +201,27 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	public String getComponentName() {
 		return "Body tube";
 	}
-	
-	
+
+    /**
+     * Accept a visitor to this BodyTube in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this BodyTube
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+
+
 	/************ Component calculations ***********/
 	
 	// From SymmetricComponent
 	/**
-	 * Returns the outer radius at the position x.  This returns the same value as getRadius().
+	 * Returns the outer radius at the position x.  This returns the same value as getOuterRadius().
 	 */
 	@Override
 	public double getRadius(double x) {
-		return getRadius();
+		return getOuterRadius();
 	}
 	
 	/**
@@ -217,7 +232,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 		if (filled)
 			return 0.0;
 		else
-			return Math.max(getRadius() - thickness, 0);
+			return Math.max(getOuterRadius()-thickness,0);
 	}
 	
 	
@@ -234,7 +249,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	 */
 	@Override
 	public double getComponentVolume() {
-		double r = getRadius();
+		double r = getOuterRadius();
 		if (filled)
 			return getFilledVolume(r, length);
 		else
@@ -245,13 +260,14 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	@Override
 	public double getLongitudalUnitInertia() {
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
-		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getRadius()) + MathUtil.pow2(getLength())) / 12;
+		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getOuterRadius()) +
+				MathUtil.pow2(getLength())) / 12;
 	}
 	
 	@Override
 	public double getRotationalUnitInertia() {
 		// 1/2 * (r1^2 + r2^2)
-		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getRadius())) / 2;
+		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius()))/2;
 	}
 	
 	
@@ -274,7 +290,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount {
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		double r = getRadius();
+		double r = getOuterRadius();
 		addBound(bounds, 0, r);
 		addBound(bounds, length, r);
 		return bounds;

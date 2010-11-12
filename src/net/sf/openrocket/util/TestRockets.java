@@ -1,8 +1,5 @@
 package net.sf.openrocket.util;
 
-import java.awt.Color;
-import java.util.Random;
-
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Motor;
@@ -10,26 +7,29 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
+import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
-import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.startup.Application;
+
+import java.awt.Color;
+import java.util.Random;
 
 public class TestRockets {
 	
@@ -139,7 +139,7 @@ public class TestRockets {
 		body.setLength(rnd(0.3));
 		body.setMotorMount(rnd.nextBoolean());
 		body.setMotorOverhang(rnd.nextGaussian() * 0.03);
-		body.setRadius(rnd(0.06));
+		body.setOuterRadius(rnd(0.06));
 		body.setRadiusAutomatic(rnd.nextBoolean());
 		stage.addChild(body);
 		

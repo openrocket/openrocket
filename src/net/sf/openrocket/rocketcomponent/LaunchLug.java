@@ -1,14 +1,15 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
+import java.util.ArrayList;
+import java.util.Collection;
 
-public class LaunchLug extends ExternalComponent {
-	
+
+
+public class LaunchLug extends ExternalComponent implements Coaxial {
+
 	private double radius;
 	private double thickness;
 	
@@ -27,11 +28,11 @@ public class LaunchLug extends ExternalComponent {
 	}
 	
 	
-	public double getRadius() {
+	public double getOuterRadius () {
 		return radius;
 	}
 	
-	public void setRadius(double radius) {
+	public void setOuterRadius (double radius) {
 		if (MathUtil.equals(this.radius, radius))
 			return;
 		this.radius = radius;
@@ -44,7 +45,7 @@ public class LaunchLug extends ExternalComponent {
 	}
 	
 	public void setInnerRadius(double innerRadius) {
-		setRadius(innerRadius + thickness);
+		setOuterRadius(innerRadius + thickness);
 	}
 	
 	public double getThickness() {
@@ -174,13 +175,14 @@ public class LaunchLug extends ExternalComponent {
 	@Override
 	public double getLongitudalUnitInertia() {
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
-		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getRadius()) + MathUtil.pow2(getLength())) / 12;
+		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getOuterRadius()) +
+				MathUtil.pow2(getLength())) / 12;
 	}
 	
 	@Override
 	public double getRotationalUnitInertia() {
 		// 1/2 * (r1^2 + r2^2)
-		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getRadius())) / 2;
+		return (MathUtil.pow2(getInnerRadius()) + MathUtil.pow2(getOuterRadius()))/2;
 	}
 	
 	@Override
@@ -194,4 +196,14 @@ public class LaunchLug extends ExternalComponent {
 		return false;
 	}
 	
+    /**
+     * Accept a visitor to this LaunchLug in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this LaunchLug
+     */    
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+    
 }

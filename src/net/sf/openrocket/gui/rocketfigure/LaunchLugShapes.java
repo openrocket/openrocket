@@ -1,11 +1,11 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Transformation;
+
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Transformation;
 
 
 public class LaunchLugShapes extends RocketComponentShapes {
@@ -15,7 +15,7 @@ public class LaunchLugShapes extends RocketComponentShapes {
 		net.sf.openrocket.rocketcomponent.LaunchLug lug = (net.sf.openrocket.rocketcomponent.LaunchLug)component;
 
 		double length = lug.getLength();
-		double radius = lug.getRadius();
+		double radius = lug.getOuterRadius();
 		Coordinate[] start = transformation.transform(lug.toAbsolute(new Coordinate(0,0,0)));
 
 		Shape[] s = new Shape[start.length];
@@ -31,7 +31,7 @@ public class LaunchLugShapes extends RocketComponentShapes {
 			Transformation transformation) {
 		net.sf.openrocket.rocketcomponent.LaunchLug lug = (net.sf.openrocket.rocketcomponent.LaunchLug)component;
 		
-		double or = lug.getRadius();
+		double or = lug.getOuterRadius();
 		
 		Coordinate[] start = transformation.transform(lug.toAbsolute(new Coordinate(0,0,0)));
 

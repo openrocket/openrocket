@@ -23,7 +23,6 @@ public abstract class BodyComponent extends ExternalComponent {
 	}
 	
 	
-
 	/**
 	 * Get the outer radius of the component at cylindrical coordinate (x,theta).
 	 * 
@@ -63,5 +62,16 @@ public abstract class BodyComponent extends ExternalComponent {
 	public boolean allowsChildren() {
 		return true;
 	}
-	
+    
+    /**
+     * Accept a visitor to this BodyComponent in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this BodyComponent
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+    
+    
 }

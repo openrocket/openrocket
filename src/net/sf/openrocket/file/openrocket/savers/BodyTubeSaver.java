@@ -25,7 +25,7 @@ public class BodyTubeSaver extends SymmetricComponentSaver {
 		if (tube.isRadiusAutomatic())
 			elements.add("<radius>auto</radius>");
 		else
-			elements.add("<radius>" + tube.getRadius() + "</radius>");
+			elements.add("<radius>" + tube.getOuterRadius() + "</radius>");
 
 		if (tube.isMotorMount()) {
 			elements.addAll(motorMountParams(tube));

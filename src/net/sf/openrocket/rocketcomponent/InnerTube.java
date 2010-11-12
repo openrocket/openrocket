@@ -1,13 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -315,6 +315,15 @@ public class InnerTube extends ThicknessRingComponent
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 	
+    /**
+     * Accept a visitor to an InnerTube object in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this InnerTube
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
 	
 
 

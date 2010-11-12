@@ -53,7 +53,7 @@ class LaunchLugHandler extends PositionDependentHandler<LaunchLug> {
 
         try {
             if ("OD".equals(element)) {
-                lug.setRadius(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+                lug.setOuterRadius(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
             if ("ID".equals(element)) {
                 lug.setInnerRadius(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));

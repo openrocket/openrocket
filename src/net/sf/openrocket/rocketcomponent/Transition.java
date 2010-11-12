@@ -1,13 +1,16 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static java.lang.Math.*;
-import static net.sf.openrocket.util.Chars.*;
-import static net.sf.openrocket.util.MathUtil.*;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
 import java.util.Collection;
 
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+import static net.sf.openrocket.util.Chars.FRAC12;
+import static net.sf.openrocket.util.Chars.FRAC34;
+import static net.sf.openrocket.util.MathUtil.pow2;
+import static net.sf.openrocket.util.MathUtil.pow3;
 
 
 public class Transition extends SymmetricComponent {
@@ -354,7 +357,7 @@ public class Transition extends SymmetricComponent {
 	/**
 	 * Numerically solve clipLength from the equation
 	 *     r1 == type.getRadius(clipLength,r2,clipLength+length)
-	 * using a binary search.  It assumes getRadius() to be monotonically increasing.
+	 * using a binary search.  It assumes getOuterRadius() to be monotonically increasing.
 	 */
 	private void calculateClip(double r1, double r2) {
 		double min = 0, max = length;
@@ -497,6 +500,15 @@ public class Transition extends SymmetricComponent {
 		clipLength = -1;
 	}
 	
+    /**
+     * Accept a visitor to this Transition in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this Transition
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
 	
 	/**
 	 * Check whether the given type can be added to this component.  Transitions allow any

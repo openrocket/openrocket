@@ -1,11 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -15,6 +10,11 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
+
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
 
 public class LaunchLugConfig extends RocketComponentConfig {
 
@@ -44,7 +44,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		//// Body tube diameter
 		panel.add(new JLabel("Outer diameter:"));
 
-		DoubleModel od  = new DoubleModel(component,"Radius",2,UnitGroup.UNITS_LENGTH,0);
+		DoubleModel od  = new DoubleModel(component,"OuterRadius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
 
 		spin = new JSpinner(od.getSpinnerModel());

@@ -1,12 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class FreeformFinSet extends FinSet {
@@ -309,6 +309,15 @@ public class FreeformFinSet extends FinSet {
 		return c;
 	}
 	
+    /**
+     * Accept a visitor to this FreeformFinSet in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this FreeformFinSet
+     */    
+    @Override
+    public void accept(ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
 	
 	private void validate(ArrayList<Coordinate> points) throws IllegalFinPointException {
 		final int n = points.size();

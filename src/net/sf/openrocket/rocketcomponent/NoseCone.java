@@ -114,4 +114,14 @@ public class NoseCone extends Transition {
 	public String getComponentName() {
 		return "Nose cone";
 	}
+    
+    /**
+     * Accept a visitor to this NoseCone in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this NoseCone
+     */
+    @Override
+    public void accept(ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
 }

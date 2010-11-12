@@ -1,35 +1,6 @@
 package net.sf.openrocket.gui.scalefigure;
 
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JToggleButton;
-import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
@@ -66,6 +37,34 @@ import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JToggleButton;
+import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * A JPanel that contains a RocketFigure and buttons to manipulate the figure. 
@@ -260,8 +259,35 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	public Configuration getConfiguration() {
 		return configuration;
 	}
-	
-	public void setSelectionModel(TreeSelectionModel m) {
+
+    /**
+     * Get the center of pressure figure element.
+     * 
+     * @return center of pressure info
+     */
+    public Caret getExtraCP () {
+        return extraCP;
+    }
+
+    /**
+     * Get the center of gravity figure element.
+     * 
+     * @return center of gravity info
+     */
+    public Caret getExtraCG () {
+        return extraCG;
+    }
+
+    /**
+     * Get the extra text figure element.
+     * 
+     * @return extra text that contains info about the rocket design
+     */
+    public RocketInfo getExtraText () {
+        return extraText;
+    }
+
+    public void setSelectionModel(TreeSelectionModel m) {
 		if (selectionModel != null) {
 			selectionModel.removeTreeSelectionListener(this);
 		}

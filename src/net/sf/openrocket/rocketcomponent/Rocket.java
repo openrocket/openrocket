@@ -1,17 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
@@ -20,6 +8,17 @@ import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.UniqueID;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -135,7 +134,6 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
 	/**
 	 * Return the non-negative modification ID of this rocket.  The ID is changed
 	 * every time any change occurs in the rocket.  This can be used to check 
@@ -815,4 +813,14 @@ public class Rocket extends RocketComponent {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return (Stage.class.isAssignableFrom(type));
 	}
+
+    /**
+     * Accept a visitor to this Rocket in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this Rocket
+     */    
+	@Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }    
 }

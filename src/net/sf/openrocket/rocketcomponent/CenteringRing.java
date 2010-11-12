@@ -66,5 +66,15 @@ public class CenteringRing extends RadiusRingComponent {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-	
+    
+    /**
+     * Accept a visitor to this CenteringRing in the component hierarchy.
+     * 
+     * @param theVisitor  the visitor that will be called back with a reference to this CenteringRing
+     */
+    @Override 
+    public void accept (final ComponentVisitor theVisitor) {
+        theVisitor.visit(this);
+    }
+
 }

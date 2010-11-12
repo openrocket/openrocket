@@ -1,6 +1,20 @@
 package net.sf.openrocket.gui.scalefigure;
 
 
+import net.sf.openrocket.gui.figureelements.FigureElement;
+import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.LineStyle;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.Transformation;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,20 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-
-import net.sf.openrocket.gui.figureelements.FigureElement;
-import net.sf.openrocket.gui.main.ExceptionHandler;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.LineStyle;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
-import net.sf.openrocket.util.Reflection;
-import net.sf.openrocket.util.Transformation;
 
 /**
  * A <code>ScaleFigure</code> that draws a complete rocket.  Extra information can
@@ -256,14 +256,10 @@ public class RocketFigure extends AbstractScaleFigure {
 				tx = BORDER_PIXELS_WIDTH - minX*scale;
 			
 		}
-		
-		if (figureHeightPx + 2*BORDER_PIXELS_HEIGHT < getHeight()) {
-			 ty = getHeight()/2;
-		} else {
-			 ty = BORDER_PIXELS_HEIGHT + figureHeightPx/2;
-		}
-		
-		if (Math.abs(translateX - tx)>1 || Math.abs(translateY - ty)>1) {
+
+        ty = computeTy(figureHeightPx);
+
+        if (Math.abs(translateX - tx)>1 || Math.abs(translateY - ty)>1) {
 			// Origin has changed, fire event
 			translateX = tx;
 			translateY = ty;
@@ -394,9 +390,19 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 
 	}
-	
-	
-	public RocketComponent[] getComponentsByPoint(double x, double y) {
+
+    protected double computeTy (int heightPx) {
+        final double ty;
+        if (heightPx + 2*BORDER_PIXELS_HEIGHT < getHeight()) {
+             ty = getHeight()/2;
+        } else {
+             ty = BORDER_PIXELS_HEIGHT + heightPx/2;
+        }
+        return ty;
+    }
+
+
+    public RocketComponent[] getComponentsByPoint(double x, double y) {
 		// Calculate point in shapes' coordinates
 		Point2D.Double p = new Point2D.Double(x,y);
 		try {

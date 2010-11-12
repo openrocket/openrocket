@@ -1,33 +1,46 @@
 package net.sf.openrocket.gui.main;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.RocketLoader;
+import net.sf.openrocket.file.RocketSaver;
+import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.gui.StorageOptionChooser;
+import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.dialogs.AboutDialog;
+import net.sf.openrocket.gui.dialogs.BugReportDialog;
+import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
+import net.sf.openrocket.gui.dialogs.DebugLogDialog;
+import net.sf.openrocket.gui.dialogs.DetailDialog;
+import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
+import net.sf.openrocket.gui.dialogs.LicenseDialog;
+import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
+import net.sf.openrocket.gui.dialogs.PrintDialog;
+import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
+import net.sf.openrocket.gui.dialogs.WarningDialog;
+import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
+import net.sf.openrocket.gui.main.componenttree.ComponentTree;
+import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.util.Icons;
+import net.sf.openrocket.util.MemoryManagement;
+import net.sf.openrocket.util.MemoryManagement.MemoryData;
+import net.sf.openrocket.util.OpenFileWorker;
+import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.SaveFileWorker;
+import net.sf.openrocket.util.TestRockets;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -56,47 +69,34 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
-import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.GeneralRocketLoader;
-import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.gui.StorageOptionChooser;
-import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
-import net.sf.openrocket.gui.dialogs.AboutDialog;
-import net.sf.openrocket.gui.dialogs.BugReportDialog;
-import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
-import net.sf.openrocket.gui.dialogs.DebugLogDialog;
-import net.sf.openrocket.gui.dialogs.DetailDialog;
-import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
-import net.sf.openrocket.gui.dialogs.LicenseDialog;
-import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
-import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
-import net.sf.openrocket.gui.dialogs.WarningDialog;
-import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
-import net.sf.openrocket.gui.main.componenttree.ComponentTree;
-import net.sf.openrocket.gui.scalefigure.RocketPanel;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Icons;
-import net.sf.openrocket.util.MemoryManagement;
-import net.sf.openrocket.util.MemoryManagement.MemoryData;
-import net.sf.openrocket.util.OpenFileWorker;
-import net.sf.openrocket.util.Prefs;
-import net.sf.openrocket.util.Reflection;
-import net.sf.openrocket.util.SaveFileWorker;
-import net.sf.openrocket.util.TestRockets;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class BasicFrame extends JFrame {
 	private static final LogHelper log = Application.getLogger();
@@ -490,7 +490,18 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 		menu.addSeparator();
-		
+
+
+        item = new JMenuItem("Print...", KeyEvent.VK_P);
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
+        item.getAccessibleContext().setAccessibleDescription("Print parts list and fin template");
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                printAction();
+            }
+        });
+        menu.add(item);
+        
 		item = new JMenuItem("Quit", KeyEvent.VK_Q);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
 		item.getAccessibleContext().setAccessibleDescription("Quit the program");
@@ -1267,6 +1278,13 @@ public class BasicFrame extends JFrame {
 	
 	
 
+    /**
+     * 
+     */
+    public void printAction() {
+        new PrintDialog(document);
+    }
+    
 	/**
 	 * Open a new design window with a basic rocket+stage.
 	 */
