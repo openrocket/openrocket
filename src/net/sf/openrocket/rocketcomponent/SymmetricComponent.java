@@ -33,7 +33,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	private double planCenter = -1;
 	private double volume = -1;
 	private double fullVolume = -1;
-	private double longitudalInertia = -1;
+	private double longitudinalInertia = -1;
 	private double rotationalInertia = -1;
 	private Coordinate cg = null;
 	
@@ -229,14 +229,14 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	
 	
 	@Override
-	public double getLongitudalUnitInertia() {
-		if (longitudalInertia < 0) {
+	public double getLongitudinalUnitInertia() {
+		if (longitudinalInertia < 0) {
 			if (getComponentVolume() > 0.0000001)  // == 0.1cm^3
 				integrateInertiaVolume();
 			else
 				integrateInertiaSurface();
 		}
-		return longitudalInertia;
+		return longitudinalInertia;
 	}
 	
 	
@@ -347,7 +347,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	
 	
 	/**
-	 * Integrate the longitudal and rotational inertia based on component volume.
+	 * Integrate the longitudinal and rotational inertia based on component volume.
 	 * This method may be used only if the total volume is zero.
 	 */
 	private void integrateInertiaVolume() {
@@ -359,7 +359,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 
 		r1 = getRadius(0);
 		x = 0;
-		longitudalInertia = 0;
+		longitudinalInertia = 0;
 		rotationalInertia = 0;
 		
 		double volume = 0;
@@ -390,7 +390,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			}
 			
 			rotationalInertia += dV * (pow2(outer) + pow2(inner))/2;
-			longitudalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l))/12 
+			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l))/12 
 					+ pow2(x+l/2));
 			
 			volume += dV;
@@ -406,16 +406,16 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		}
 		
 		rotationalInertia /= volume;
-		longitudalInertia /= volume;
+		longitudinalInertia /= volume;
 
-		// Shift longitudal inertia to CG
-		longitudalInertia = Math.max(longitudalInertia - pow2(getComponentCG().x), 0);
+		// Shift longitudinal inertia to CG
+		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
 	}
 	
 	
 
 	/**
-	 * Integrate the longitudal and rotational inertia based on component surface area.
+	 * Integrate the longitudinal and rotational inertia based on component surface area.
 	 * This method may be used only if the total volume is zero.
 	 */
 	private void integrateInertiaSurface() {
@@ -425,7 +425,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 
 		r1 = getRadius(0);
 		x = 0;
-		longitudalInertia = 0;
+		longitudinalInertia = 0;
 		rotationalInertia = 0;
 		
 		double surface = 0;
@@ -444,7 +444,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			final double dS = hyp * (r1+r2) * Math.PI;
 
 			rotationalInertia += dS * pow2(outer);
-			longitudalInertia += dS * ((6 * pow2(outer) + pow2(l))/12 + pow2(x+l/2));
+			longitudinalInertia += dS * ((6 * pow2(outer) + pow2(l))/12 + pow2(x+l/2));
 			
 			surface += dS;
 			
@@ -454,16 +454,16 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		}
 
 		if (MathUtil.equals(surface, 0)) {
-			longitudalInertia = 0;
+			longitudinalInertia = 0;
 			rotationalInertia = 0;
 			return;
 		}
 		
-		longitudalInertia /= surface;
+		longitudinalInertia /= surface;
 		rotationalInertia /= surface;
 		
-		// Shift longitudal inertia to CG
-		longitudalInertia = Math.max(longitudalInertia - pow2(getComponentCG().x), 0);
+		// Shift longitudinal inertia to CG
+		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
 	}
 	
 	
@@ -481,7 +481,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			planCenter = -1;
 			volume = -1;
 			fullVolume = -1;
-			longitudalInertia = -1;
+			longitudinalInertia = -1;
 			rotationalInertia = -1;
 			cg = null;
 		}

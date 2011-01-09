@@ -1,3 +1,7 @@
+2010-10-30  Sampo Niskanen
+
+	* [BUG] Invalid refereces to components used in caches
+
 2010-10-25  Doug Pedrick
 
 	* [BUG] Take launch lug radial angle into account when loading rkt file

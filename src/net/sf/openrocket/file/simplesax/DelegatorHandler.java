@@ -1,7 +1,8 @@
 package net.sf.openrocket.file.simplesax;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.Stack;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -16,36 +17,35 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 class DelegatorHandler extends DefaultHandler {
 	private final WarningSet warnings;
-
-	private final Stack<ElementHandler> handlerStack = new Stack<ElementHandler>();
-	private final Stack<StringBuilder> elementData = new Stack<StringBuilder>();
-	private final Stack<HashMap<String, String>> elementAttributes = 
-		new Stack<HashMap<String, String>>();
-
+	
+	private final Deque<ElementHandler> handlerStack = new ArrayDeque<ElementHandler>();
+	private final Deque<StringBuilder> elementData = new ArrayDeque<StringBuilder>();
+	private final Deque<HashMap<String, String>> elementAttributes = new ArrayDeque<HashMap<String, String>>();
+	
 
 	// Ignore all elements as long as ignore > 0
 	private int ignore = 0;
-
-
+	
+	
 	public DelegatorHandler(ElementHandler initialHandler, WarningSet warnings) {
 		this.warnings = warnings;
 		handlerStack.add(initialHandler);
 		elementData.add(new StringBuilder()); // Just in case
 	}
-
-
+	
+	
 	/////////  SAX handlers
-
+	
 	@Override
 	public void startElement(String uri, String localName, String name,
 			Attributes attributes) throws SAXException {
-
+		
 		// Check for ignore
 		if (ignore > 0) {
 			ignore++;
 			return;
 		}
-
+		
 		// Check for unknown namespace
 		if (!uri.equals("")) {
 			warnings.add(Warning.fromString("Unknown namespace element '" + uri
@@ -53,11 +53,11 @@ class DelegatorHandler extends DefaultHandler {
 			ignore++;
 			return;
 		}
-
+		
 		// Add layer to data stacks
 		elementData.push(new StringBuilder());
 		elementAttributes.push(copyAttributes(attributes));
-
+		
 		// Call the handler
 		ElementHandler h = handlerStack.peek();
 		h = h.openElement(localName, elementAttributes.peek(), warnings);
@@ -68,8 +68,8 @@ class DelegatorHandler extends DefaultHandler {
 			ignore++;
 		}
 	}
-
-
+	
+	
 	/**
 	 * Stores encountered characters in the elementData stack.
 	 */
@@ -78,28 +78,28 @@ class DelegatorHandler extends DefaultHandler {
 		// Check for ignore
 		if (ignore > 0)
 			return;
-
+		
 		StringBuilder sb = elementData.peek();
 		sb.append(chars, start, length);
 	}
-
-
+	
+	
 	/**
 	 * Removes the last layer from the stack.
 	 */
 	@Override
 	public void endElement(String uri, String localName, String name) throws SAXException {
-
+		
 		// Check for ignore
 		if (ignore > 0) {
 			ignore--;
 			return;
 		}
-
+		
 		// Remove data from stack
 		String data = elementData.pop().toString(); // throws on error
 		HashMap<String, String> attr = elementAttributes.pop();
-
+		
 		// Remove last handler and call the next one
 		ElementHandler h;
 		
@@ -109,8 +109,8 @@ class DelegatorHandler extends DefaultHandler {
 		h = handlerStack.peek();
 		h.closeElement(localName, attr, data, warnings);
 	}
-
-
+	
+	
 	private static HashMap<String, String> copyAttributes(Attributes atts) {
 		HashMap<String, String> ret = new HashMap<String, String>();
 		for (int i = 0; i < atts.getLength(); i++) {
@@ -119,4 +119,3 @@ class DelegatorHandler extends DefaultHandler {
 		return ret;
 	}
 }
-

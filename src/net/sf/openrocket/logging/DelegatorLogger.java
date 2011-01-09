@@ -1,7 +1,8 @@
 package net.sf.openrocket.logging;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import net.sf.openrocket.util.ArrayList;
 
 /**
  * A logger implementation that delegates logging to other logger implementations.
@@ -11,7 +12,7 @@ import java.util.List;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class DelegatorLogger extends LogHelper {
-
+	
 	/**
 	 * List of loggers.  This list must not be modified, instead it should be
 	 * replaced every time the list is changed.
@@ -22,7 +23,7 @@ public class DelegatorLogger extends LogHelper {
 	public void log(LogLine line) {
 		// Must create local reference for thread safety
 		List<LogHelper> list = loggers;
-		for (LogHelper l: list) {
+		for (LogHelper l : list) {
 			l.log(line);
 		}
 	}
@@ -32,9 +33,8 @@ public class DelegatorLogger extends LogHelper {
 	 * Add a logger from the delegation list.
 	 * @param logger	the logger to add.
 	 */
-	@SuppressWarnings("unchecked")
 	public synchronized void addLogger(LogHelper logger) {
-		ArrayList<LogHelper> newList = (ArrayList<LogHelper>) loggers.clone();
+		ArrayList<LogHelper> newList = loggers.clone();
 		newList.add(logger);
 		this.loggers = newList;
 	}
@@ -43,11 +43,10 @@ public class DelegatorLogger extends LogHelper {
 	 * Remove a logger from the delegation list.
 	 * @param logger	the logger to be removed.
 	 */
-	@SuppressWarnings("unchecked")
 	public synchronized void removeLogger(LogHelper logger) {
-		ArrayList<LogHelper> newList = (ArrayList<LogHelper>) loggers.clone();
+		ArrayList<LogHelper> newList = loggers.clone();
 		newList.remove(logger);
 		this.loggers = newList;
 	}
-
+	
 }

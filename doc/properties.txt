@@ -31,6 +31,7 @@ openrocket.debug
 		openrocket.log.tracelevel=VBOSE
 		openrocket.debug.menu=true
 		openrocket.debug.motordigest=true
+		openrocket.debug.mutexlocation=true
 
 
 openrocket.debug.menu
@@ -38,6 +39,10 @@ openrocket.debug.menu
 
 openrocket.debug.prefs
 	If defined a new, clean set of preferences will be used (does not overwrite the existing preferences).
+
+openrocket.debug.mutexlocation
+	Store a stack trace of the location where safety mutexes are locked.  This slows down usage of the
+	mutexes a bit.
 
 openrocket.debug.bugurl
 	URL used for sending bug reports.
@@ -55,4 +60,10 @@ openrocket.debug.coordinatecount
 openrocket.debug.quaternioncount
 	If defined, the number of instantiations of the Quaternion class are counted and reported
 	every 1M instantiations, or as often as defined by this parameter.
+
+openrocket.debug.safetycheck
+	If defined (and not "false" or "off") then additional safety checks will be performed
+	in the code to prevent e.g. unsafe concurrent access to objects.  Currently disabled by
+	default, this will later be enabled by default.
+
 

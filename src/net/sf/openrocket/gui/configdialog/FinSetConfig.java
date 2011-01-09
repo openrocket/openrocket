@@ -16,8 +16,8 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
-import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
+import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
@@ -130,6 +130,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
 		length2 = new DoubleModel(component, "Length", 0.5, UnitGroup.UNITS_LENGTH, 0);
 		length_2 = new DoubleModel(component, "Length", -0.5, UnitGroup.UNITS_LENGTH, 0);
+		
+		register(length);
+		register(length2);
+		register(length_2);
 		
 		////  Tab length
 		label = new JLabel("Tab length:");

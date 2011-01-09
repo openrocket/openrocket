@@ -1,6 +1,8 @@
 package net.sf.openrocket.masscalc;
 
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.startup.Application;
 
 /**
  * Abstract base for mass calculators.  Provides functionality for cacheing mass data.
@@ -8,9 +10,10 @@ import net.sf.openrocket.rocketcomponent.Configuration;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class AbstractMassCalculator implements MassCalculator {
+	private static final LogHelper log = Application.getLogger();
 	
 	private int rocketMassModID = -1;
-	private int stageCount = -1;
+	private int rocketTreeModID = -1;
 	
 	
 	/**
@@ -26,9 +29,10 @@ public abstract class AbstractMassCalculator implements MassCalculator {
 	 */
 	protected final void checkCache(Configuration configuration) {
 		if (rocketMassModID != configuration.getRocket().getMassModID() ||
-				stageCount != configuration.getStageCount()) {
+				rocketTreeModID != configuration.getRocket().getTreeModID()) {
 			rocketMassModID = configuration.getRocket().getMassModID();
-			stageCount = configuration.getStageCount();
+			rocketTreeModID = configuration.getRocket().getTreeModID();
+			log.debug("Voiding the mass cache");
 			voidMassCache();
 		}
 	}

@@ -99,6 +99,7 @@ public class Startup {
 			System.setProperty("openrocket.log.stdout", "VBOSE");
 			System.setProperty("openrocket.log.tracelevel", "VBOSE");
 			System.setProperty("openrocket.debug.menu", "true");
+			System.setProperty("openrocket.debug.mutexlocation", "true");
 			System.setProperty("openrocket.debug.motordigest", "true");
 		}
 	}
@@ -329,7 +330,7 @@ public class Startup {
 		// Check whether to log to stdout/stderr
 		PrintStreamLogger printer = new PrintStreamLogger();
 		boolean logout = setLogOutput(printer, System.out, System.getProperty(LOG_STDOUT_PROPERTY), null);
-		boolean logerr = setLogOutput(printer, System.err, System.getProperty(LOG_STDERR_PROPERTY), LogLevel.WARN);
+		boolean logerr = setLogOutput(printer, System.err, System.getProperty(LOG_STDERR_PROPERTY), LogLevel.ERROR);
 		if (logout || logerr) {
 			delegator.addLogger(printer);
 		}

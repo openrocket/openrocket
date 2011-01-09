@@ -11,16 +11,16 @@ import net.sf.openrocket.util.MathUtil;
 public class MassData {
 
 	private final Coordinate cg;
-	private final double longitudalInertia;
+	private final double longitudinalInertia;
 	private final double rotationalInertia;
 	
 	
-	public MassData(Coordinate cg, double longitudalInertia, double rotationalInertia) {
+	public MassData(Coordinate cg, double longitudinalInertia, double rotationalInertia) {
 		if (cg == null) {
 			throw new IllegalArgumentException("cg is null");
 		}
 		this.cg = cg;
-		this.longitudalInertia = longitudalInertia;
+		this.longitudinalInertia = longitudinalInertia;
 		this.rotationalInertia = rotationalInertia;
 	}
 
@@ -31,8 +31,8 @@ public class MassData {
 		return cg;
 	}
 	
-	public double getLongitudalInertia() {
-		return longitudalInertia;
+	public double getLongitudinalInertia() {
+		return longitudinalInertia;
 	}
 	
 	public double getRotationalInertia() {
@@ -49,20 +49,20 @@ public class MassData {
 			return false;
 		
 		MassData other = (MassData) obj;
-		return (this.cg.equals(other.cg) && MathUtil.equals(this.longitudalInertia, other.longitudalInertia) &&
+		return (this.cg.equals(other.cg) && MathUtil.equals(this.longitudinalInertia, other.longitudinalInertia) &&
 				MathUtil.equals(this.rotationalInertia, other.rotationalInertia));
 	}
 
 	
 	@Override
 	public int hashCode() {
-		return (int) (cg.hashCode() ^ Double.doubleToLongBits(longitudalInertia) ^ Double.doubleToLongBits(rotationalInertia));
+		return (int) (cg.hashCode() ^ Double.doubleToLongBits(longitudinalInertia) ^ Double.doubleToLongBits(rotationalInertia));
 	}
 
 
 	@Override
 	public String toString() {
-		return "MassData [cg=" + cg + ", longitudalInertia=" + longitudalInertia
+		return "MassData [cg=" + cg + ", longitudinalInertia=" + longitudinalInertia
 				+ ", rotationalInertia=" + rotationalInertia + "]";
 	}
 	

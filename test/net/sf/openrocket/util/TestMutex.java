@@ -2,13 +2,19 @@ package net.sf.openrocket.util;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestMutex {
 	
+	@Before
+	public void setup() {
+		System.setProperty("openrocket.debug.safetycheck", "true");
+	}
+	
 	@Test
 	public void testSingleLocking() {
-		SafetyMutex m = new SafetyMutex();
+		SafetyMutex.ConcreteSafetyMutex m = new SafetyMutex.ConcreteSafetyMutex();
 		
 		// Test single locking
 		assertNull(m.lockingThread);
@@ -21,7 +27,7 @@ public class TestMutex {
 	
 	@Test
 	public void testDoubleLocking() {
-		SafetyMutex m = new SafetyMutex();
+		SafetyMutex.ConcreteSafetyMutex m = new SafetyMutex.ConcreteSafetyMutex();
 		
 		// Test double locking
 		m.verify();
@@ -37,9 +43,9 @@ public class TestMutex {
 	
 	@Test
 	public void testDoubleUnlocking() {
-		SafetyMutex m = new SafetyMutex();
+		SafetyMutex.ConcreteSafetyMutex m = new SafetyMutex.ConcreteSafetyMutex();
 		// Mark error reported to not init exception handler
-		SafetyMutex.errorReported = true;
+		SafetyMutex.ConcreteSafetyMutex.errorReported = true;
 		
 		m.lock("here");
 		assertTrue(m.unlock("here"));
@@ -53,7 +59,7 @@ public class TestMutex {
 	
 	@Test(timeout = 1000)
 	public void testThreadingErrors() {
-		final SafetyMutex m = new SafetyMutex();
+		final SafetyMutex.ConcreteSafetyMutex m = new SafetyMutex.ConcreteSafetyMutex();
 		
 		// Initialize and start the thread
 		Thread thread = new Thread() {
@@ -151,6 +157,19 @@ public class TestMutex {
 			} catch (InterruptedException e) {
 			}
 		}
+	}
+	
+	
+	public void testBogusMutex() {
+		SafetyMutex m = new SafetyMutex.BogusSafetyMutex();
+		m.lock("foo");
+		m.lock("bar");
+		m.lock("baz");
+		m.verify();
+		m.unlock("a");
+		m.unlock(null);
+		m.unlock("");
+		m.unlock("c");
 	}
 	
 }

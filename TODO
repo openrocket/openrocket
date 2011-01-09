@@ -76,6 +76,7 @@ Running:
 UI issues:
 
 - Easy/intuitive zooming of plots
+- Open recent designs
 - Only schedule rocket figure update instead of each time updating it
 - Importing flight data (file/altimeter)
 - Saving as SVG
@@ -116,6 +117,7 @@ Component support:
 - Screw weights for nose cones / transitions
 - Support for external pods
 - Support for tube fins
+- Allow ejecting mass components (or all components?) at specific flight events
 
 
 File support:

@@ -21,7 +21,10 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Invalidatable;
+import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.Reflection;
 
 
@@ -39,7 +42,7 @@ import net.sf.openrocket.util.Reflection;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class DoubleModel implements ChangeListener, ChangeSource {
+public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable {
 	private static final LogHelper log = Application.getLogger();
 	
 
@@ -51,7 +54,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * Model suitable for JSpinner using JSpinner.NumberEditor.  It extends SpinnerNumberModel
 	 * to be compatible with the NumberEditor, but only has the necessary methods defined.
 	 */
-	private class ValueSpinnerModel extends SpinnerNumberModel {
+	private class ValueSpinnerModel extends SpinnerNumberModel implements Invalidatable {
 		
 		@Override
 		public Object getValue() {
@@ -121,6 +124,11 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		public void removeChangeListener(ChangeListener l) {
 			DoubleModel.this.removeChangeListener(l);
 		}
+		
+		@Override
+		public void invalidate() {
+			DoubleModel.this.invalidate();
+		}
 	}
 	
 	/**
@@ -139,7 +147,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 
 	////////////  JSlider model  ////////////
 	
-	private class ValueSliderModel implements BoundedRangeModel, ChangeListener {
+	private class ValueSliderModel implements BoundedRangeModel, ChangeListener, Invalidatable {
 		private static final int MAX = 1000;
 		
 		/*
@@ -234,6 +242,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			return x * x;
 		}
 		
+		@Override
 		public int getValue() {
 			double value = DoubleModel.this.getValue();
 			if (value <= min.getValue())
@@ -258,6 +267,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		}
 		
 		
+		@Override
 		public void setValue(int newValue) {
 			if (firing > 0) {
 				// Ignore loops
@@ -290,52 +300,67 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		// Static get-methods
 		private boolean isAdjusting;
 		
+		@Override
 		public int getExtent() {
 			return 0;
 		}
 		
+		@Override
 		public int getMaximum() {
 			return MAX;
 		}
 		
+		@Override
 		public int getMinimum() {
 			return 0;
 		}
 		
+		@Override
 		public boolean getValueIsAdjusting() {
 			return isAdjusting;
 		}
 		
 		// Ignore set-values
+		@Override
 		public void setExtent(int newExtent) {
 		}
 		
+		@Override
 		public void setMaximum(int newMaximum) {
 		}
 		
+		@Override
 		public void setMinimum(int newMinimum) {
 		}
 		
+		@Override
 		public void setValueIsAdjusting(boolean b) {
 			isAdjusting = b;
 		}
 		
+		@Override
 		public void setRangeProperties(int value, int extent, int min, int max, boolean adjusting) {
 			setValueIsAdjusting(adjusting);
 			setValue(value);
 		}
 		
 		// Pass change listeners to the underlying model
+		@Override
 		public void addChangeListener(ChangeListener l) {
 			DoubleModel.this.addChangeListener(l);
 		}
 		
+		@Override
 		public void removeChangeListener(ChangeListener l) {
 			DoubleModel.this.removeChangeListener(l);
 		}
 		
+		@Override
+		public void invalidate() {
+			DoubleModel.this.invalidate();
+		}
 		
-
+		@Override
 		public void stateChanged(ChangeEvent e) {
 			// Min or max range has changed.
 			// Fire if not already firing
@@ -367,7 +392,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 
 	////////////  Action model  ////////////
 	
-	private class AutomaticActionModel extends AbstractAction implements ChangeListener {
+	private class AutomaticActionModel extends AbstractAction implements ChangeListener, Invalidatable {
 		private boolean oldValue = false;
 		
 		public AutomaticActionModel() {
@@ -427,6 +452,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 		}
 		
 		// If the value has changed, generate an event to the listeners
+		@Override
 		public void stateChanged(ChangeEvent e) {
 			boolean newValue = isAutomatic();
 			if (oldValue == newValue)
@@ -440,10 +466,15 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 			}
 		}
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Setting performed in putValue
 		}
 		
+		@Override
+		public void invalidate() {
+			DoubleModel.this.invalidate();
+		}
 	}
 	
 	/**
@@ -493,6 +524,8 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	// Used to differentiate changes in valueName and other changes in the component:
 	private double lastValue = 0;
 	private boolean lastAutomatic = false;
+	
+	private Invalidator invalidator = new Invalidator(this);
 	
 	
 	public DoubleModel(double value) {
@@ -639,6 +672,8 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * @param v New value for parameter in SI units.
 	 */
 	public void setValue(double v) {
+		checkState(true);
+		
 		log.debug("Setting value " + v + " for " + this);
 		if (setMethod == null) {
 			if (getMethod != null) {
@@ -693,6 +728,8 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * state change event if automatic setting is not available.
 	 */
 	public void setAutomatic(boolean auto) {
+		checkState(true);
+		
 		if (setAutoMethod == null) {
 			log.debug("Setting automatic to " + auto + " for " + this + ", automatic not available");
 			fireStateChanged(); // in case something is out-of-sync
@@ -726,6 +763,7 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * @param u  The unit to set active.
 	 */
 	public void setCurrentUnit(Unit u) {
+		checkState(true);
 		if (currentUnit == u)
 			return;
 		log.debug("Setting unit for " + this + " to '" + u + "'");
@@ -750,7 +788,10 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * is the first listener.
 	 * @param l Listener to add.
 	 */
+	@Override
 	public void addChangeListener(ChangeListener l) {
+		checkState(true);
+		
 		if (listeners.isEmpty()) {
 			if (source != null) {
 				source.addChangeListener(this);
@@ -768,12 +809,41 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * if this was the last listener of the model.
 	 * @param l Listener to remove.
 	 */
+	@Override
 	public void removeChangeListener(ChangeListener l) {
+		checkState(false);
+		
 		listeners.remove(l);
 		if (listeners.isEmpty() && source != null) {
 			source.removeChangeListener(this);
 		}
 		log.verbose(this + " removing listener (total " + listeners.size() + "): " + l);
+	}
+	
+	
+	/**
+	 * Invalidates this model by removing all listeners and removing this from
+	 * listening to the source.  After invalidation no listeners can be added to this
+	 * model and the value cannot be set.
+	 */
+	@Override
+	public void invalidate() {
+		log.verbose("Invalidating " + this);
+		invalidator.invalidate();
+		
+		if (!listeners.isEmpty()) {
+			log.warn("Invalidating " + this + " while still having listeners " + listeners);
+		}
+		listeners.clear();
+		if (source != null) {
+			source.removeChangeListener(this);
+		}
+		MemoryManagement.collectable(this);
+	}
+	
+	
+	private void checkState(boolean error) {
+		invalidator.check(error);
 	}
 	
 	
@@ -790,6 +860,8 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * Fire a ChangeEvent to all listeners.
 	 */
 	protected void fireStateChanged() {
+		checkState(true);
+		
 		Object[] l = listeners.toArray();
 		ChangeEvent event = new ChangeEvent(this);
 		firing++;
@@ -802,7 +874,10 @@ public class DoubleModel implements ChangeListener, ChangeSource {
 	 * Called when the component changes.  Checks whether the modeled value has changed, and if
 	 * it has, updates lastValue and generates ChangeEvents for all listeners of the model.
 	 */
+	@Override
 	public void stateChanged(ChangeEvent e) {
+		checkState(true);
+		
 		double v = getValue();
 		boolean b = isAutomatic();
 		if (lastValue == v && lastAutomatic == b)

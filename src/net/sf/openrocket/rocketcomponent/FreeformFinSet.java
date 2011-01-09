@@ -1,12 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class FreeformFinSet extends FinSet {
@@ -56,6 +58,7 @@ public class FreeformFinSet extends FinSet {
 		log.info("Converting " + finset.getComponentName() + " into freeform fin set");
 		final RocketComponent root = finset.getRoot();
 		FreeformFinSet freeform;
+		List<RocketComponent> toInvalidate = Collections.emptyList();
 		
 		try {
 			if (root instanceof Rocket) {
@@ -84,7 +87,7 @@ public class FreeformFinSet extends FinSet {
 			}
 			
 			// Copy component attributes
-			freeform.copyFrom(finset);
+			toInvalidate = freeform.copyFrom(finset);
 			
 			// Set name
 			final String componentTypeName = finset.getComponentName();
@@ -103,6 +106,10 @@ public class FreeformFinSet extends FinSet {
 		} finally {
 			if (root instanceof Rocket) {
 				((Rocket) root).thaw();
+			}
+			// Invalidate components after events have been fired
+			for (RocketComponent c : toInvalidate) {
+				c.invalidate();
 			}
 		}
 		return freeform;
@@ -138,13 +145,12 @@ public class FreeformFinSet extends FinSet {
 	 * @param index   the fin point index to remove
 	 * @throws IllegalFinPointException if removing would result in invalid fin planform
 	 */
-	@SuppressWarnings("unchecked")
 	public void removePoint(int index) throws IllegalFinPointException {
 		if (index == 0 || index == points.size() - 1) {
 			throw new IllegalFinPointException("cannot remove first or last point");
 		}
 		
-		ArrayList<Coordinate> copy = (ArrayList<Coordinate>) this.points.clone();
+		ArrayList<Coordinate> copy = this.points.clone();
 		copy.remove(index);
 		validate(copy);
 		this.points = copy;
@@ -301,23 +307,22 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();
-		((FreeformFinSet) c).points = (ArrayList<Coordinate>) this.points.clone();
+		((FreeformFinSet) c).points = this.points.clone();
 		return c;
 	}
 	
-    /**
-     * Accept a visitor to this FreeformFinSet in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this FreeformFinSet
-     */    
-    @Override
-    public void accept(ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
+	/**
+	 * Accept a visitor to this FreeformFinSet in the component hierarchy.
+	 * 
+	 * @param theVisitor  the visitor that will be called back with a reference to this FreeformFinSet
+	 */
+	@Override
+	public void accept(ComponentVisitor theVisitor) {
+		theVisitor.visit(this);
+	}
 	
 	private void validate(ArrayList<Coordinate> points) throws IllegalFinPointException {
 		final int n = points.size();

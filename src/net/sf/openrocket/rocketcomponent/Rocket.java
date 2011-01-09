@@ -1,17 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.gui.main.ExceptionHandler;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Chars;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.UniqueID;
-
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +7,19 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
+
+import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.UniqueID;
 
 
 /**
@@ -264,11 +265,11 @@ public class Rocket extends RocketComponent {
 	 * Make a deep copy of the Rocket structure.  This method is exposed as public to allow
 	 * for undo/redo system functionality.
 	 */
-	@Override
 	@SuppressWarnings("unchecked")
+	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.motorConfigurationIDs = (ArrayList<String>) this.motorConfigurationIDs.clone();
+		copy.motorConfigurationIDs = this.motorConfigurationIDs.clone();
 		copy.motorConfigurationNames =
 				(HashMap<String, String>) this.motorConfigurationNames.clone();
 		copy.resetListeners();
@@ -288,15 +289,17 @@ public class Rocket extends RocketComponent {
 	 */
 	@SuppressWarnings("unchecked")
 	public void loadFrom(Rocket r) {
-		super.copyFrom(r);
+		
+		// Store list of components to invalidate after event has been fired
+		List<RocketComponent> toInvalidate = this.copyFrom(r);
 		
 		int type = ComponentChangeEvent.UNDO_CHANGE | ComponentChangeEvent.NONFUNCTIONAL_CHANGE;
 		if (this.massModID != r.massModID)
 			type |= ComponentChangeEvent.MASS_CHANGE;
 		if (this.aeroModID != r.aeroModID)
 			type |= ComponentChangeEvent.AERODYNAMIC_CHANGE;
-		if (this.treeModID != r.treeModID)
-			type |= ComponentChangeEvent.TREE_CHANGE;
+		// Loading a rocket is always a tree change since the component objects change
+		type |= ComponentChangeEvent.TREE_CHANGE;
 		
 		this.modID = r.modID;
 		this.massModID = r.massModID;
@@ -306,7 +309,7 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.motorConfigurationIDs = (ArrayList<String>) r.motorConfigurationIDs.clone();
+		this.motorConfigurationIDs = r.motorConfigurationIDs.clone();
 		this.motorConfigurationNames =
 				(HashMap<String, String>) r.motorConfigurationNames.clone();
 		this.perfectFinish = r.perfectFinish;
@@ -315,7 +318,14 @@ public class Rocket extends RocketComponent {
 		if (!this.motorConfigurationIDs.contains(id))
 			defaultConfiguration.setMotorConfigurationID(null);
 		
+		this.checkComponentStructure();
+		
 		fireComponentChangeEvent(type);
+		
+		// Invalidate obsolete components after event
+		for (RocketComponent c : toInvalidate) {
+			c.invalidate();
+		}
 	}
 	
 	
@@ -374,44 +384,49 @@ public class Rocket extends RocketComponent {
 	
 	@Override
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
-		checkState();
-		
-		// Update modification ID's only for normal (not undo/redo) events
-		if (!e.isUndoChange()) {
-			modID = UniqueID.next();
-			if (e.isMassChange())
-				massModID = modID;
-			if (e.isAerodynamicChange())
-				aeroModID = modID;
-			if (e.isTreeChange())
-				treeModID = modID;
-			if (e.getType() != ComponentChangeEvent.NONFUNCTIONAL_CHANGE)
-				functionalModID = modID;
-		}
-		
-		// Check whether frozen
-		if (freezeList != null) {
-			log.debug("Rocket is in frozen state, adding event " + e + " info freeze list");
-			freezeList.add(e);
-			return;
-		}
-		
-		log.debug("Firing rocket change event " + e);
-		
-		// Notify all components first
-		Iterator<RocketComponent> iterator = this.deepIterator(true);
-		while (iterator.hasNext()) {
-			iterator.next().componentChanged(e);
-		}
-		
-		// Notify all listeners
-		Object[] listeners = listenerList.getListenerList();
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == ComponentChangeListener.class) {
-				((ComponentChangeListener) listeners[i + 1]).componentChanged(e);
-			} else if (listeners[i] == ChangeListener.class) {
-				((ChangeListener) listeners[i + 1]).stateChanged(e);
+		mutex.lock("fireComponentChangeEvent");
+		try {
+			checkState();
+			
+			// Update modification ID's only for normal (not undo/redo) events
+			if (!e.isUndoChange()) {
+				modID = UniqueID.next();
+				if (e.isMassChange())
+					massModID = modID;
+				if (e.isAerodynamicChange())
+					aeroModID = modID;
+				if (e.isTreeChange())
+					treeModID = modID;
+				if (e.getType() != ComponentChangeEvent.NONFUNCTIONAL_CHANGE)
+					functionalModID = modID;
 			}
+			
+			// Check whether frozen
+			if (freezeList != null) {
+				log.debug("Rocket is in frozen state, adding event " + e + " info freeze list");
+				freezeList.add(e);
+				return;
+			}
+			
+			log.debug("Firing rocket change event " + e);
+			
+			// Notify all components first
+			Iterator<RocketComponent> iterator = this.iterator(true);
+			while (iterator.hasNext()) {
+				iterator.next().componentChanged(e);
+			}
+			
+			// Notify all listeners
+			Object[] listeners = listenerList.getListenerList();
+			for (int i = listeners.length - 2; i >= 0; i -= 2) {
+				if (listeners[i] == ComponentChangeListener.class) {
+					((ComponentChangeListener) listeners[i + 1]).componentChanged(e);
+				} else if (listeners[i] == ChangeListener.class) {
+					((ChangeListener) listeners[i + 1]).stateChanged(e);
+				}
+			}
+		} finally {
+			mutex.unlock("fireComponentChangeEvent");
 		}
 	}
 	
@@ -575,7 +590,7 @@ public class Rocket extends RocketComponent {
 		if (id == null)
 			return false;
 		
-		Iterator<RocketComponent> iterator = this.deepIterator();
+		Iterator<RocketComponent> iterator = this.iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			
@@ -660,7 +675,7 @@ public class Rocket extends RocketComponent {
 		List<List<String>> list = new ArrayList<List<String>>();
 		List<String> currentList = null;
 		
-		Iterator<RocketComponent> iterator = this.deepIterator();
+		Iterator<RocketComponent> iterator = this.iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			
@@ -777,7 +792,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	@Override
-	public double getLongitudalUnitInertia() {
+	public double getLongitudinalUnitInertia() {
 		return 0;
 	}
 	
@@ -813,14 +828,14 @@ public class Rocket extends RocketComponent {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return (Stage.class.isAssignableFrom(type));
 	}
-
-    /**
-     * Accept a visitor to this Rocket in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this Rocket
-     */    
-	@Override 
-    public void accept (final ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }    
+	
+	/**
+	 * Accept a visitor to this Rocket in the component hierarchy.
+	 * 
+	 * @param theVisitor  the visitor that will be called back with a reference to this Rocket
+	 */
+	@Override
+	public void accept(final ComponentVisitor theVisitor) {
+		theVisitor.visit(this);
+	}
 }

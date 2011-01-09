@@ -18,9 +18,14 @@ public class Reflection {
 	 */
 	public static class Method {
 		private final java.lang.reflect.Method method;
+		
 		public Method(java.lang.reflect.Method m) {
+			if (m == null) {
+				throw new IllegalArgumentException("method is null");
+			}
 			method = m;
 		}
+		
 		/**
 		 * Same as Method.invoke(), but the possible exceptions are wrapped into 
 		 * RuntimeExceptions.
@@ -29,21 +34,23 @@ public class Reflection {
 			try {
 				return method.invoke(obj, args);
 			} catch (IllegalArgumentException e) {
-				throw new BugException("Error while invoking method '"+method+"'. "+
-						"Please report this as a bug.",e);
+				throw new BugException("Error while invoking method '" + method + "'. " +
+						"Please report this as a bug.", e);
 			} catch (IllegalAccessException e) {
-				throw new BugException("Error while invoking method '"+method+"'. "+
-						"Please report this as a bug.",e);
+				throw new BugException("Error while invoking method '" + method + "'. " +
+						"Please report this as a bug.", e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
 			}
 		}
+		
 		/**
 		 * Invoke static method.  Equivalent to invoke(null, args...).
 		 */
 		public Object invokeStatic(Object... args) {
-			return invoke(null,args);
+			return invoke(null, args);
 		}
+		
 		/**
 		 * Same as Method.toString().
 		 */
@@ -72,47 +79,47 @@ public class Reflection {
 			throw new BugException("wrapped exception without cause", e);
 		}
 		if (cause instanceof RuntimeException) {
-			throw (RuntimeException)cause;
+			throw (RuntimeException) cause;
 		}
 		if (cause instanceof Error) {
-			throw (Error)cause;
+			throw (Error) cause;
 		}
 		throw new BugException("wrapped exception occurred", cause);
 	}
 	
 	
-	
+
 	/**
 	 * Throws an exception if method not found.
 	 */
 	public static Reflection.Method findMethodStatic(
 			Class<? extends RocketComponent> componentClass,
 			String method, Class<?>... params) {
-		Reflection.Method m = findMethod(ROCKETCOMPONENT_PACKAGE, componentClass, 
+		Reflection.Method m = findMethod(ROCKETCOMPONENT_PACKAGE, componentClass,
 				"", method, params);
 		if (m == null) {
 			throw new BugException("Could not find method for componentClass="
-					+componentClass+" method="+method);
+					+ componentClass + " method=" + method);
 		}
 		return m;
 	}
 	
 	
-	
-	public static Reflection.Method findMethod(String pack, RocketComponent component, 
-			String method, Class<?>...params) {
-		return findMethod(pack,component.getClass(),"",method,params);
+
+	public static Reflection.Method findMethod(String pack, RocketComponent component,
+			String method, Class<?>... params) {
+		return findMethod(pack, component.getClass(), "", method, params);
 	}
 	
 	
-	public static Reflection.Method findMethod(String pack, RocketComponent component, 
+	public static Reflection.Method findMethod(String pack, RocketComponent component,
 			String suffix, String method, Class<?>... params) {
 		return findMethod(pack, component.getClass(), suffix, method, params);
 	}
-
 	
-	public static Reflection.Method findMethod(String pack, 
-			Class<? extends RocketComponent> componentClass, 
+	
+	public static Reflection.Method findMethod(String pack,
+			Class<? extends RocketComponent> componentClass,
 			String suffix, String method, Class<?>... params) {
 		Class<?> currentclass;
 		String name;
@@ -120,18 +127,18 @@ public class Reflection {
 		currentclass = componentClass;
 		while ((currentclass != null) && (currentclass != Object.class)) {
 			name = currentclass.getCanonicalName();
-			if (name.lastIndexOf('.')>=0)
-				name = name.substring(name.lastIndexOf(".")+1);
+			if (name.lastIndexOf('.') >= 0)
+				name = name.substring(name.lastIndexOf(".") + 1);
 			name = pack + "." + name + suffix;
 			
 			try {
 				Class<?> c = Class.forName(name);
-				java.lang.reflect.Method m = c.getMethod(method,params);
+				java.lang.reflect.Method m = c.getMethod(method, params);
 				return new Reflection.Method(m);
 			} catch (ClassNotFoundException ignore) {
 			} catch (NoSuchMethodException ignore) {
 			}
-
+			
 			currentclass = currentclass.getSuperclass();
 		}
 		return null;
@@ -147,24 +154,24 @@ public class Reflection {
 		currentclass = component.getClass();
 		while ((currentclass != null) && (currentclass != Object.class)) {
 			name = currentclass.getCanonicalName();
-			if (name.lastIndexOf('.')>=0)
-				name = name.substring(name.lastIndexOf(".")+1);
+			if (name.lastIndexOf('.') >= 0)
+				name = name.substring(name.lastIndexOf(".") + 1);
 			name = pack + "." + name + suffix;
 			
 			try {
 				Class<?> c = Class.forName(name);
 				Class<?>[] paramClasses = new Class<?>[params.length];
-				for (int i=0; i < params.length; i++) {
+				for (int i = 0; i < params.length; i++) {
 					paramClasses[i] = params[i].getClass();
 				}
 				
 				// Constructors must be searched manually.  Why?!
-				main: for (Constructor<?> constructor: c.getConstructors()) {
+				main: for (Constructor<?> constructor : c.getConstructors()) {
 					Class<?>[] parameterTypes = constructor.getParameterTypes();
 					if (params.length != parameterTypes.length)
 						continue;
-					for (int i=0; i < params.length; i++) {
-						if (!parameterTypes[i].isInstance(params[i])) 
+					for (int i = 0; i < params.length; i++) {
+						if (!parameterTypes[i].isInstance(params[i]))
 							continue main;
 					}
 					// Matching constructor found
@@ -172,18 +179,18 @@ public class Reflection {
 				}
 			} catch (ClassNotFoundException ignore) {
 			} catch (IllegalArgumentException e) {
-				throw new BugException("Construction of "+name+" failed",e);
+				throw new BugException("Construction of " + name + " failed", e);
 			} catch (InstantiationException e) {
-				throw new BugException("Construction of "+name+" failed",e);
+				throw new BugException("Construction of " + name + " failed", e);
 			} catch (IllegalAccessException e) {
-				throw new BugException("Construction of "+name+" failed",e);
+				throw new BugException("Construction of " + name + " failed", e);
 			} catch (InvocationTargetException e) {
 				throw Reflection.handleWrappedException(e);
 			}
-
+			
 			currentclass = currentclass.getSuperclass();
 		}
-		throw new BugException("Suitable constructor for component "+component+ 
+		throw new BugException("Suitable constructor for component " + component +
 				" not found");
 	}
 }

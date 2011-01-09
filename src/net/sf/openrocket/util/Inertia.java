@@ -17,13 +17,13 @@ public final class Inertia {
 	}
 	
 	/**
-	 * Return the longitudal unit moment of inertia of a solid cylinder,
+	 * Return the longitudinal unit moment of inertia of a solid cylinder,
 	 * relative to the midpoint lengthwise.
 	 * 
 	 * @param radius	the radius of the cylinder.
 	 * @param length	the total length of the cylinder (reference at midpoint)
 	 */
-	public static double filledCylinderLongitudal(double radius, double length) {
+	public static double filledCylinderLongitudinal(double radius, double length) {
 		return (3*pow2(radius) + pow2(length))/12;
 	}
 	

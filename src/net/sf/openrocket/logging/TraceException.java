@@ -74,6 +74,19 @@ public class TraceException extends Exception {
 	
 	
 	/**
+	 * Construct an exception with the specified message and cause.
+	 * 
+	 * @param message	the message for the exception.
+	 * @param cause		the cause for this exception.
+	 */
+	public TraceException(String message, Throwable cause) {
+		this(0, 0);
+		this.message = message;
+		this.initCause(cause);
+	}
+	
+	
+	/**
 	 * Get the description of the code position as provided in the constructor.
 	 */
 	@Override

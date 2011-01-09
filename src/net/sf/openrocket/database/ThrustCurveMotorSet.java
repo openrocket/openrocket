@@ -1,7 +1,6 @@
 package net.sf.openrocket.database;
 
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
@@ -14,9 +13,10 @@ import java.util.regex.Pattern;
 import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.Motor.Type;
 import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.motor.Motor.Type;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
 
 public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
@@ -153,9 +153,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public List<ThrustCurveMotor> getMotors() {
-		return (List<ThrustCurveMotor>) motors.clone();
+		return motors.clone();
 	}
 	
 	

@@ -393,7 +393,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		private Coordinate instCG;
 		
 		private final double unitRotationalInertia;
-		private final double unitLongitudalInertia;
+		private final double unitLongitudinalInertia;
 		
 		private int modID = 0;
 		
@@ -406,7 +406,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 			instCG = cg[0];
 			stepCG = cg[0];
 			unitRotationalInertia = Inertia.filledCylinderRotational(getDiameter() / 2);
-			unitLongitudalInertia = Inertia.filledCylinderLongitudal(getDiameter() / 2, getLength());
+			unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(getDiameter() / 2, getLength());
 		}
 		
 		@Override
@@ -420,8 +420,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		}
 		
 		@Override
-		public double getLongitudalInertia() {
-			return unitLongitudalInertia * stepCG.weight;
+		public double getLongitudinalInertia() {
+			return unitLongitudinalInertia * stepCG.weight;
 		}
 		
 		@Override

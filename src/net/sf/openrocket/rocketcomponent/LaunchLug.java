@@ -173,7 +173,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	}
 	
 	@Override
-	public double getLongitudalUnitInertia() {
+	public double getLongitudinalUnitInertia() {
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
 		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getOuterRadius()) +
 				MathUtil.pow2(getLength())) / 12;

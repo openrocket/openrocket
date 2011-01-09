@@ -105,8 +105,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	
 
 	private SimulationWorker backgroundSimulationWorker = null;
+	private boolean dirty = false;
 	
-
 	private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
 	
 

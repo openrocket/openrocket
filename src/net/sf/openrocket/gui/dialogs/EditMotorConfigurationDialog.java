@@ -67,7 +67,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 		this.rocket = rocket;
 		
 		ArrayList<MotorMount> mountList = new ArrayList<MotorMount>();
-		Iterator<RocketComponent> iterator = rocket.deepIterator();
+		Iterator<RocketComponent> iterator = rocket.iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			if (c instanceof MotorMount) {

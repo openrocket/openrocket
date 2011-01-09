@@ -1,6 +1,8 @@
 package net.sf.openrocket.startup;
 
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.l10n.DebugTranslator;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
@@ -15,6 +17,8 @@ public final class Application {
 	
 	private static LogHelper logger;
 	private static LogLevelBufferLogger logBuffer;
+	
+	private static Translator translator = new DebugTranslator();
 	
 	private static ThrustCurveMotorSetDatabase motorSetDatabase;
 	
@@ -78,6 +82,24 @@ public final class Application {
 	}
 	
 	
+	/**
+	 * Return the translator to use for obtaining translated strings.
+	 * @return	a translator.
+	 */
+	public static Translator getTranslator() {
+		return translator;
+	}
+	
+	/**
+	 * Set the translator used in obtaining translated strings.
+	 * @param translator	the translator to set.
+	 */
+	public static void setTranslator(Translator translator) {
+		Application.translator = translator;
+	}
+	
+	
+
 	/**
 	 * Return the database of all thrust curves loaded into the system.
 	 */

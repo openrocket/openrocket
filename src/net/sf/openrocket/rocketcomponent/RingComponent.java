@@ -204,8 +204,8 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	
 
 	@Override
-	public double getLongitudalUnitInertia() {
-		return ringLongitudalUnitInertia(getOuterRadius(), getInnerRadius(), getLength());
+	public double getLongitudinalUnitInertia() {
+		return ringLongitudinalUnitInertia(getOuterRadius(), getInnerRadius(), getLength());
 	}
 
 	@Override

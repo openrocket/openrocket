@@ -1,7 +1,15 @@
 package net.sf.openrocket.util;
 
+/**
+ * Interface describing objects whose state changes can be monitored based on
+ * a modification ID number.  If a specific object has the same modification ID
+ * at two different points in time, the object state is guaranteed to be the same.
+ * This does not necessarily hold between two different instances of an object type.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public interface Monitorable {
-
+	
 	/**
 	 * Return a modification ID unique to the current state of this object and contained objects.
 	 * The general contract is that if a specific object has the same modification ID at two moments
@@ -17,7 +25,7 @@ public interface Monitorable {
 	 * increasing a modification counter or retrieving a new unique ID every time a value is set.
 	 * <p>
 	 * Objects that contain other objects with a mutable state may for example return the sum of the
-	 * object's own modification ID, a modification ID counter (initially zero) and the modification ID
+	 * object's own modification ID, a modification ID counter (initially zero) and the modification IDs
 	 * of the contained objects.  When a mutable object is set, the modification counter is increased by
 	 * the modification ID of the current object in order to preserve monotonicity.
 	 * <p>

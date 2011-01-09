@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.adaptors;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Invalidatable;
+import net.sf.openrocket.util.Invalidator;
+import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.Reflection;
 
 
@@ -34,7 +38,7 @@ import net.sf.openrocket.util.Reflection;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class BooleanModel extends AbstractAction implements ChangeListener {
+public class BooleanModel extends AbstractAction implements ChangeListener, Invalidatable {
 	private static final LogHelper log = Application.getLogger();
 	
 	private final ChangeSource source;
@@ -53,6 +57,9 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	
 	private boolean oldValue;
 	private boolean oldEnabled;
+	
+	private Invalidator invalidator = new Invalidator(this);
+	
 	
 	public BooleanModel(ChangeSource source, String valueName) {
 		this.source = source;
@@ -112,9 +119,10 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	}
 	
 	public void setValue(boolean b) {
+		checkState(true);
 		log.debug("Setting value of " + this + " to " + b);
 		try {
-			setMethod.invoke(source, new Object[] { (Boolean) b });
+			setMethod.invoke(source, new Object[] { b });
 		} catch (IllegalAccessException e) {
 			throw new BugException("setMethod execution error for source " + source, e);
 		} catch (InvocationTargetException e) {
@@ -132,6 +140,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	 * @param enableState	the state in which the component should be enabled.
 	 */
 	public void addEnableComponent(Component component, boolean enableState) {
+		checkState(true);
 		components.add(component);
 		componentEnableState.add(enableState);
 		updateEnableStatus();
@@ -145,6 +154,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	 * @see #addEnableComponent(Component, boolean)
 	 */
 	public void addEnableComponent(Component component) {
+		checkState(true);
 		addEnableComponent(component, true);
 	}
 	
@@ -174,6 +184,8 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 	
 	@Override
 	public void stateChanged(ChangeEvent event) {
+		checkState(true);
+		
 		if (firing > 0) {
 			log.debug("Ignoring stateChanged of " + this + ", currently firing events");
 			return;
@@ -219,6 +231,43 @@ public class BooleanModel extends AbstractAction implements ChangeListener {
 		}
 	}
 	
+	
+	@Override
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		checkState(true);
+		super.addPropertyChangeListener(listener);
+	}
+	
+	
+	/**
+	 * Invalidates this model by removing all listeners and removing this from
+	 * listening to the source.  After invalidation no listeners can be added to this
+	 * model and the value cannot be set.
+	 */
+	@Override
+	public void invalidate() {
+		invalidator.invalidate();
+		
+		PropertyChangeListener[] listeners = this.getPropertyChangeListeners();
+		if (listeners.length > 0) {
+			log.warn("Invalidating " + this + " while still having listeners " + listeners);
+			for (PropertyChangeListener l : listeners) {
+				this.removePropertyChangeListener(l);
+			}
+		}
+		if (source != null) {
+			source.removeChangeListener(this);
+		}
+		MemoryManagement.collectable(this);
+	}
+	
+	
+	private void checkState(boolean error) {
+		invalidator.check(error);
+	}
+	
+	
+
 	@Override
 	public String toString() {
 		if (toString == null) {

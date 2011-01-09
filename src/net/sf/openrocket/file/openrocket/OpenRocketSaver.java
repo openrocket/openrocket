@@ -130,7 +130,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Size per component
 		int componentCount = 0;
 		Rocket rocket = doc.getRocket();
-		Iterator<RocketComponent> iterator = rocket.deepIterator(true);
+		Iterator<RocketComponent> iterator = rocket.iterator(true);
 		while (iterator.hasNext()) {
 			iterator.next();
 			componentCount++;
@@ -194,7 +194,7 @@ public class OpenRocketSaver extends RocketSaver {
 		 */
 
 		// Check for motor definitions (version 1.2)
-		Iterator<RocketComponent> iterator = document.getRocket().deepIterator();
+		Iterator<RocketComponent> iterator = document.getRocket().iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			if (!(c instanceof MotorMount))
@@ -209,7 +209,7 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		
 		// Check for fin tabs (version 1.1)
-		iterator = document.getRocket().deepIterator();
+		iterator = document.getRocket().iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			
@@ -274,7 +274,7 @@ public class OpenRocketSaver extends RocketSaver {
 			writeln("<subcomponents>");
 			indent++;
 			boolean emptyline = false;
-			for (RocketComponent subcomponent : component) {
+			for (RocketComponent subcomponent : component.getChildren()) {
 				if (emptyline)
 					writeln("");
 				emptyline = true;
@@ -290,7 +290,6 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
 	private void saveSimulation(Simulation simulation, double timeSkip) throws IOException {
 		GUISimulationConditions cond = simulation.getConditions();
 		

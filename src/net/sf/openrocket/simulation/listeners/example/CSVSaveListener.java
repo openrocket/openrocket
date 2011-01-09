@@ -185,7 +185,7 @@ public class CSVSaveListener extends AbstractSimulationListener {
 			@Override
 			public double getValue(SimulationStatus status) {
 				Iterator<RocketComponent> iterator =
-						status.getConfiguration().getRocket().deepIterator();
+						status.getConfiguration().getRocket().iterator();
 				FinSet fin = null;
 				
 				while (iterator.hasNext()) {

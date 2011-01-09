@@ -22,7 +22,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
  */
 
 public class UnitGroup {
-
+	
 	public static final UnitGroup UNITS_NONE;
 	
 	public static final UnitGroup UNITS_MOTOR_DIMENSIONS;
@@ -34,6 +34,7 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_VELOCITY;
 	public static final UnitGroup UNITS_ACCELERATION;
 	public static final UnitGroup UNITS_MASS;
+	public static final UnitGroup UNITS_INERTIA;
 	public static final UnitGroup UNITS_ANGLE;
 	public static final UnitGroup UNITS_DENSITY_BULK;
 	public static final UnitGroup UNITS_DENSITY_SURFACE;
@@ -57,59 +58,62 @@ public class UnitGroup {
 	
 	public static final UnitGroup UNITS_COEFFICIENT;
 	
-//	public static final UnitGroup UNITS_FREQUENCY;
+	//	public static final UnitGroup UNITS_FREQUENCY;
 	
-	
+
 	public static final Map<String, UnitGroup> UNITS;
 	
-	
+
 	/*
 	 * Note:  Units may not use HTML tags.
+	 * 
+	 * The scaling value "X" is obtained by "one of this unit is X of SI units"
+	 * Type into Google for example:  "1 in^2 in m^2"
 	 */
 	static {
 		UNITS_NONE = new UnitGroup();
 		UNITS_NONE.addUnit(Unit.NOUNIT2);
 		
 		UNITS_LENGTH = new UnitGroup();
-		UNITS_LENGTH.addUnit(new GeneralUnit(0.001,"mm"));
-		UNITS_LENGTH.addUnit(new GeneralUnit(0.01,"cm"));
-		UNITS_LENGTH.addUnit(new GeneralUnit(1,"m"));
-		UNITS_LENGTH.addUnit(new GeneralUnit(0.0254,"in"));
-		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048,"ft"));
+		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
+		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
+		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
+		UNITS_LENGTH.addUnit(new GeneralUnit(0.0254, "in"));
+		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		UNITS_LENGTH.setDefaultUnit(1);
 		
 		UNITS_MOTOR_DIMENSIONS = new UnitGroup();
-		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.001,"mm"));
-		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.01,"cm"));
-		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.0254,"in"));
+		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.001, "mm"));
+		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.01, "cm"));
+		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.0254, "in"));
 		UNITS_MOTOR_DIMENSIONS.setDefaultUnit(0);
 		
 		UNITS_DISTANCE = new UnitGroup();
-		UNITS_DISTANCE.addUnit(new GeneralUnit(1,"m"));
-		UNITS_DISTANCE.addUnit(new GeneralUnit(1000,"km"));
-		UNITS_DISTANCE.addUnit(new GeneralUnit(0.3048,"ft"));
-		UNITS_DISTANCE.addUnit(new GeneralUnit(0.9144,"yd"));
-		UNITS_DISTANCE.addUnit(new GeneralUnit(1609.344,"mi"));
+		UNITS_DISTANCE.addUnit(new GeneralUnit(1, "m"));
+		UNITS_DISTANCE.addUnit(new GeneralUnit(1000, "km"));
+		UNITS_DISTANCE.addUnit(new GeneralUnit(0.3048, "ft"));
+		UNITS_DISTANCE.addUnit(new GeneralUnit(0.9144, "yd"));
+		UNITS_DISTANCE.addUnit(new GeneralUnit(1609.344, "mi"));
 		
 		UNITS_AREA = new UnitGroup();
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.001),"mm" + SQUARED));
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.01),"cm" + SQUARED));
-		UNITS_AREA.addUnit(new GeneralUnit(1,"m" + SQUARED));
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254),"in" + SQUARED));
-		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048),"ft" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.001), "mm" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.01), "cm" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(1, "m" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.0254), "in" + SQUARED));
+		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048), "ft" + SQUARED));
 		UNITS_AREA.setDefaultUnit(1);
 		
-		
+
 		UNITS_STABILITY = new UnitGroup();
-		UNITS_STABILITY.addUnit(new GeneralUnit(0.001,"mm"));
-		UNITS_STABILITY.addUnit(new GeneralUnit(0.01,"cm"));
-		UNITS_STABILITY.addUnit(new GeneralUnit(0.0254,"in"));
-		UNITS_STABILITY.addUnit(new CaliberUnit((Rocket)null));
+		UNITS_STABILITY.addUnit(new GeneralUnit(0.001, "mm"));
+		UNITS_STABILITY.addUnit(new GeneralUnit(0.01, "cm"));
+		UNITS_STABILITY.addUnit(new GeneralUnit(0.0254, "in"));
+		UNITS_STABILITY.addUnit(new CaliberUnit((Rocket) null));
 		UNITS_STABILITY.setDefaultUnit(3);
 		
 		UNITS_VELOCITY = new UnitGroup();
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1, "m/s"));
-		UNITS_VELOCITY.addUnit(new GeneralUnit(1/3.6, "km/h"));
+		UNITS_VELOCITY.addUnit(new GeneralUnit(1 / 3.6, "km/h"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(0.3048, "ft/s"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(0.44704, "mph"));
 		
@@ -117,106 +121,114 @@ public class UnitGroup {
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s" + SQUARED));
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s" + SQUARED));
 		
-
 		UNITS_MASS = new UnitGroup();
-		UNITS_MASS.addUnit(new GeneralUnit(0.001,"g"));
-		UNITS_MASS.addUnit(new GeneralUnit(1,"kg"));
-		UNITS_MASS.addUnit(new GeneralUnit(0.0283495231,"oz"));
-		UNITS_MASS.addUnit(new GeneralUnit(0.45359237,"lb"));
+		UNITS_MASS.addUnit(new GeneralUnit(0.001, "g"));
+		UNITS_MASS.addUnit(new GeneralUnit(1, "kg"));
+		UNITS_MASS.addUnit(new GeneralUnit(0.0283495231, "oz"));
+		UNITS_MASS.addUnit(new GeneralUnit(0.45359237, "lb"));
+		
+		UNITS_INERTIA = new UnitGroup();
+		UNITS_INERTIA.addUnit(new GeneralUnit(0.0001, "kg" + DOT + "cm" + SQUARED));
+		UNITS_INERTIA.addUnit(new GeneralUnit(1, "kg" + DOT + "m" + SQUARED));
+		UNITS_INERTIA.addUnit(new GeneralUnit(1.82899783e-5, "oz" + DOT + "in" + SQUARED));
+		UNITS_INERTIA.addUnit(new GeneralUnit(0.000292639653, "lb" + DOT + "in" + SQUARED));
+		UNITS_INERTIA.addUnit(new GeneralUnit(0.0421401101, "lb" + DOT + "ft" + SQUARED));
+		UNITS_INERTIA.addUnit(new GeneralUnit(1.35581795, "lbf" + DOT + "ft" + DOT + "s" + SQUARED));
+		UNITS_INERTIA.setDefaultUnit(1);
 		
 		UNITS_ANGLE = new UnitGroup();
 		UNITS_ANGLE.addUnit(new DegreeUnit());
-		UNITS_ANGLE.addUnit(new FixedPrecisionUnit("rad",0.01));
+		UNITS_ANGLE.addUnit(new FixedPrecisionUnit("rad", 0.01));
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000,"g/cm" + CUBED));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1,"kg/m" + CUBED));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404,"oz/in" + CUBED));
-		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.0184634,"lb/ft" + CUBED));
-
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "g/cm" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1, "kg/m" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404, "oz/in" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.0184634, "lb/ft" + CUBED));
+		
 		UNITS_DENSITY_SURFACE = new UnitGroup();
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10,"g/cm" + SQUARED));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001,"g/m" + SQUARED));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1,"kg/m" + SQUARED));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487,"oz/in" + SQUARED));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727,"oz/ft" + SQUARED));
-		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764,"lb/ft" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(10, "g/cm" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.001, "g/m" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(1, "kg/m" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(43.9418487, "oz/in" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(0.305151727, "oz/ft" + SQUARED));
+		UNITS_DENSITY_SURFACE.addUnit(new GeneralUnit(4.88242764, "lb/ft" + SQUARED));
 		UNITS_DENSITY_SURFACE.setDefaultUnit(1);
-
+		
 		UNITS_DENSITY_LINE = new UnitGroup();
-		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.001,"g/m"));
-		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(1,"kg/m"));
-		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.0930102465,"oz/ft"));
-
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.001, "g/m"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(1, "kg/m"));
+		UNITS_DENSITY_LINE.addUnit(new GeneralUnit(0.0930102465, "oz/ft"));
+		
 		UNITS_FORCE = new UnitGroup();
-		UNITS_FORCE.addUnit(new GeneralUnit(1,"N"));
-		UNITS_FORCE.addUnit(new GeneralUnit(4.44822162,"lbf"));
-		UNITS_FORCE.addUnit(new GeneralUnit(9.80665,"kgf"));
-
+		UNITS_FORCE.addUnit(new GeneralUnit(1, "N"));
+		UNITS_FORCE.addUnit(new GeneralUnit(4.44822162, "lbf"));
+		UNITS_FORCE.addUnit(new GeneralUnit(9.80665, "kgf"));
+		
 		UNITS_IMPULSE = new UnitGroup();
-		UNITS_IMPULSE.addUnit(new GeneralUnit(1,"Ns"));
-		UNITS_IMPULSE.addUnit(new GeneralUnit(4.44822162, "lbf"+DOT+"s"));
-
+		UNITS_IMPULSE.addUnit(new GeneralUnit(1, "Ns"));
+		UNITS_IMPULSE.addUnit(new GeneralUnit(4.44822162, "lbf" + DOT + "s"));
+		
 		UNITS_TIME_STEP = new UnitGroup();
 		UNITS_TIME_STEP.addUnit(new FixedPrecisionUnit("ms", 1, 0.001));
 		UNITS_TIME_STEP.addUnit(new FixedPrecisionUnit("s", 0.01));
 		UNITS_TIME_STEP.setDefaultUnit(1);
-
+		
 		UNITS_SHORT_TIME = new UnitGroup();
-		UNITS_SHORT_TIME.addUnit(new GeneralUnit(1,"s"));
-
+		UNITS_SHORT_TIME.addUnit(new GeneralUnit(1, "s"));
+		
 		UNITS_FLIGHT_TIME = new UnitGroup();
-		UNITS_FLIGHT_TIME.addUnit(new GeneralUnit(1,"s"));
-		UNITS_FLIGHT_TIME.addUnit(new GeneralUnit(60,"min"));
+		UNITS_FLIGHT_TIME.addUnit(new GeneralUnit(1, "s"));
+		UNITS_FLIGHT_TIME.addUnit(new GeneralUnit(60, "min"));
 		
 		UNITS_ROLL = new UnitGroup();
 		UNITS_ROLL.addUnit(new GeneralUnit(1, "rad/s"));
-		UNITS_ROLL.addUnit(new GeneralUnit(2*Math.PI, "r/s"));
-		UNITS_ROLL.addUnit(new GeneralUnit(2*Math.PI/60, "rpm"));
+		UNITS_ROLL.addUnit(new GeneralUnit(2 * Math.PI, "r/s"));
+		UNITS_ROLL.addUnit(new GeneralUnit(2 * Math.PI / 60, "rpm"));
 		UNITS_ROLL.setDefaultUnit(1);
-
+		
 		UNITS_TEMPERATURE = new UnitGroup();
 		UNITS_TEMPERATURE.addUnit(new FixedPrecisionUnit("K", 1));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, DEGREE+"C"));
-		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0/9.0, 459.67, DEGREE+"F"));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(1, 273.15, DEGREE + "C"));
+		UNITS_TEMPERATURE.addUnit(new TemperatureUnit(5.0 / 9.0, 459.67, DEGREE + "F"));
 		UNITS_TEMPERATURE.setDefaultUnit(1);
 		
 		UNITS_PRESSURE = new UnitGroup();
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("mbar", 1, 1.0e2));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("bar", 0.001, 1.0e5));
 		UNITS_PRESSURE.addUnit(new FixedPrecisionUnit("atm", 0.001, 1.01325e5));
-		UNITS_PRESSURE.addUnit(new GeneralUnit(101325.0/760.0, "mmHg"));
+		UNITS_PRESSURE.addUnit(new GeneralUnit(101325.0 / 760.0, "mmHg"));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(3386.389, "inHg"));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(6894.75729, "psi"));
 		UNITS_PRESSURE.addUnit(new GeneralUnit(1, "Pa"));
-
-		UNITS_RELATIVE = new UnitGroup();
-		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit(""+ZWSP, 0.01, 1.0));
-		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("%", 1, 0.01));
-		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit(""+PERMILLE, 1, 0.001));
-		UNITS_RELATIVE.setDefaultUnit(1);
-
 		
+		UNITS_RELATIVE = new UnitGroup();
+		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01, 1.0));
+		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("%", 1, 0.01));
+		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + PERMILLE, 1, 0.001));
+		UNITS_RELATIVE.setDefaultUnit(1);
+		
+
 		UNITS_ROUGHNESS = new UnitGroup();
-		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, MICRO+"m"));
+		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, MICRO + "m"));
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.0000254, "mil"));
 		
-		
+
 		UNITS_COEFFICIENT = new UnitGroup();
-		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit(""+ZWSP, 0.01));  // zero-width space
-		
-		
-		// This is not used by OpenRocket, and not extensively tested:
-//		UNITS_FREQUENCY = new UnitGroup();
-//		UNITS_FREQUENCY.addUnit(new GeneralUnit(1, "s"));
-//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.001, "ms"));
-//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.000001, MICRO + "s"));
-//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1, "Hz"));
-//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
-//		UNITS_FREQUENCY.setDefaultUnit(3);
+		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01)); // zero-width space
 		
 
-		HashMap<String,UnitGroup> map = new HashMap<String,UnitGroup>();
+		// This is not used by OpenRocket, and not extensively tested:
+		//		UNITS_FREQUENCY = new UnitGroup();
+		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(1, "s"));
+		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.001, "ms"));
+		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.000001, MICRO + "s"));
+		//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1, "Hz"));
+		//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
+		//		UNITS_FREQUENCY.setDefaultUnit(3);
+		
+
+		HashMap<String, UnitGroup> map = new HashMap<String, UnitGroup>();
 		map.put("NONE", UNITS_NONE);
 		map.put("LENGTH", UNITS_LENGTH);
 		map.put("MOTOR_DIMENSIONS", UNITS_MOTOR_DIMENSIONS);
@@ -226,6 +238,7 @@ public class UnitGroup {
 		map.put("AREA", UNITS_AREA);
 		map.put("STABILITY", UNITS_STABILITY);
 		map.put("MASS", UNITS_MASS);
+		map.put("INERTIA", UNITS_INERTIA);
 		map.put("ANGLE", UNITS_ANGLE);
 		map.put("DENSITY_BULK", UNITS_DENSITY_BULK);
 		map.put("DENSITY_SURFACE", UNITS_DENSITY_SURFACE);
@@ -241,7 +254,7 @@ public class UnitGroup {
 		map.put("RELATIVE", UNITS_RELATIVE);
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
-
+		
 		UNITS = Collections.unmodifiableMap(map);
 	}
 	
@@ -249,52 +262,54 @@ public class UnitGroup {
 		UNITS_LENGTH.setDefaultUnit("cm");
 		UNITS_MOTOR_DIMENSIONS.setDefaultUnit("mm");
 		UNITS_DISTANCE.setDefaultUnit("m");
-		UNITS_AREA.setDefaultUnit("cm"+SQUARED);
+		UNITS_AREA.setDefaultUnit("cm" + SQUARED);
 		UNITS_STABILITY.setDefaultUnit("cal");
 		UNITS_VELOCITY.setDefaultUnit("m/s");
-		UNITS_ACCELERATION.setDefaultUnit("m/s"+SQUARED);
+		UNITS_ACCELERATION.setDefaultUnit("m/s" + SQUARED);
 		UNITS_MASS.setDefaultUnit("g");
-		UNITS_ANGLE.setDefaultUnit(""+DEGREE);
-		UNITS_DENSITY_BULK.setDefaultUnit("g/cm"+CUBED);
-		UNITS_DENSITY_SURFACE.setDefaultUnit("g/m"+SQUARED);
+		UNITS_INERTIA.setDefaultUnit("kg" + DOT + "m" + SQUARED);
+		UNITS_ANGLE.setDefaultUnit("" + DEGREE);
+		UNITS_DENSITY_BULK.setDefaultUnit("g/cm" + CUBED);
+		UNITS_DENSITY_SURFACE.setDefaultUnit("g/m" + SQUARED);
 		UNITS_DENSITY_LINE.setDefaultUnit("g/m");
 		UNITS_FORCE.setDefaultUnit("N");
 		UNITS_IMPULSE.setDefaultUnit("Ns");
 		UNITS_TIME_STEP.setDefaultUnit("s");
 		UNITS_FLIGHT_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
-		UNITS_TEMPERATURE.setDefaultUnit(DEGREE+"C");
+		UNITS_TEMPERATURE.setDefaultUnit(DEGREE + "C");
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
-		UNITS_ROUGHNESS.setDefaultUnit(MICRO+"m");
+		UNITS_ROUGHNESS.setDefaultUnit(MICRO + "m");
 	}
 	
 	public static void setDefaultImperialUnits() {
 		UNITS_LENGTH.setDefaultUnit("in");
 		UNITS_MOTOR_DIMENSIONS.setDefaultUnit("in");
 		UNITS_DISTANCE.setDefaultUnit("ft");
-		UNITS_AREA.setDefaultUnit("in"+SQUARED);
+		UNITS_AREA.setDefaultUnit("in" + SQUARED);
 		UNITS_STABILITY.setDefaultUnit("cal");
 		UNITS_VELOCITY.setDefaultUnit("ft/s");
-		UNITS_ACCELERATION.setDefaultUnit("ft/s"+SQUARED);
+		UNITS_ACCELERATION.setDefaultUnit("ft/s" + SQUARED);
 		UNITS_MASS.setDefaultUnit("oz");
-		UNITS_ANGLE.setDefaultUnit(""+DEGREE);
-		UNITS_DENSITY_BULK.setDefaultUnit("oz/in"+CUBED);
-		UNITS_DENSITY_SURFACE.setDefaultUnit("oz/ft"+SQUARED);
+		UNITS_INERTIA.setDefaultUnit("lb" + DOT + "ft" + SQUARED);
+		UNITS_ANGLE.setDefaultUnit("" + DEGREE);
+		UNITS_DENSITY_BULK.setDefaultUnit("oz/in" + CUBED);
+		UNITS_DENSITY_SURFACE.setDefaultUnit("oz/ft" + SQUARED);
 		UNITS_DENSITY_LINE.setDefaultUnit("oz/ft");
 		UNITS_FORCE.setDefaultUnit("N");
 		UNITS_IMPULSE.setDefaultUnit("Ns");
 		UNITS_TIME_STEP.setDefaultUnit("s");
 		UNITS_FLIGHT_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
-		UNITS_TEMPERATURE.setDefaultUnit(DEGREE+"F");
+		UNITS_TEMPERATURE.setDefaultUnit(DEGREE + "F");
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit("mil");
 	}
 	
 	
-	
+
 	public static UnitGroup stabilityUnits(Rocket rocket) {
 		return new StabilityUnitGroup(rocket);
 	}
@@ -304,17 +319,17 @@ public class UnitGroup {
 		return new StabilityUnitGroup(config);
 	}
 	
-
-	//////////////////////////////////////////////////////
-
 	
+	//////////////////////////////////////////////////////
+	
+
 	private ArrayList<Unit> units = new ArrayList<Unit>();
 	private int defaultUnit = 0;
 	
 	public int getUnitCount() {
 		return units.size();
 	}
-
+	
 	public Unit getDefaultUnit() {
 		return units.get(defaultUnit);
 	}
@@ -324,14 +339,14 @@ public class UnitGroup {
 	}
 	
 	public void setDefaultUnit(int n) {
-		if (n<0 || n>=units.size()) {
-			throw new IllegalArgumentException("index out of range: "+n);
+		if (n < 0 || n >= units.size()) {
+			throw new IllegalArgumentException("index out of range: " + n);
 		}
 		defaultUnit = n;
 	}
 	
 	
-	
+
 	/**
 	 * Find a unit by approximate unit name.  Only letters and (ordinary) numbers are
 	 * considered in the matching.  This method is mainly means for testing, allowing
@@ -342,7 +357,7 @@ public class UnitGroup {
 	 */
 	public Unit findApproximate(String str) {
 		str = str.replaceAll("\\W", "").trim();
-		for (Unit u: units) {
+		for (Unit u : units) {
 			String name = u.getUnit().replaceAll("\\W", "").trim();
 			if (str.equalsIgnoreCase(name))
 				return u;
@@ -358,15 +373,15 @@ public class UnitGroup {
 	 * @throws  IllegalArgumentException	if the corresponding unit is not found in the group.
 	 */
 	public void setDefaultUnit(String name) throws IllegalArgumentException {
-		for (int i=0; i < units.size(); i++) {
+		for (int i = 0; i < units.size(); i++) {
 			if (units.get(i).getUnit().equals(name)) {
 				setDefaultUnit(i);
 				return;
 			}
 		}
-		throw new IllegalArgumentException("name="+name);
+		throw new IllegalArgumentException("name=" + name);
 	}
-
+	
 	
 	public Unit getUnit(int n) {
 		return units.get(n);
@@ -381,7 +396,7 @@ public class UnitGroup {
 	}
 	
 	public void addUnit(int n, Unit u) {
-		units.add(n,u);
+		units.add(n, u);
 	}
 	
 	public void removeUnit(int n) {
@@ -424,8 +439,8 @@ public class UnitGroup {
 	
 	
 
-	
-	
+
+
 	/**
 	 * Creates a new Value object with the specified value and the default unit of this group.
 	 * 
@@ -437,9 +452,10 @@ public class UnitGroup {
 	}
 	
 	
-	
-	
+
+
 	private static final Pattern STRING_PATTERN = Pattern.compile("^\\s*([0-9.,-]+)(.*?)$");
+	
 	/**
 	 * Converts a string into an SI value.  If the string has one of the units in this
 	 * group appended to it, that unit will be used in conversion.  Otherwise the default
@@ -467,7 +483,7 @@ public class UnitGroup {
 			value = this.getDefaultUnit().fromUnit(value);
 		} else {
 			int i;
-			for (i=0; i < units.size(); i++) {
+			for (i = 0; i < units.size(); i++) {
 				Unit u = units.get(i);
 				if (unit.equalsIgnoreCase(u.getUnit())) {
 					value = u.fromUnit(value);
@@ -475,7 +491,7 @@ public class UnitGroup {
 				}
 			}
 			if (i >= units.size()) {
-				throw new NumberFormatException("unknown unit "+unit);
+				throw new NumberFormatException("unknown unit " + unit);
 			}
 		}
 		
@@ -485,7 +501,7 @@ public class UnitGroup {
 	
 	///////////////////////////
 	
-	
+
 	/**
 	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.
@@ -503,14 +519,14 @@ public class UnitGroup {
 			caliberUnit = new CaliberUnit(config);
 		}
 		
-
+		
 		////  Modify CaliberUnit to use local variable
 		
 		@Override
 		public Unit getDefaultUnit() {
 			return getUnit(UNITS_STABILITY.getDefaultUnitIndex());
 		}
-
+		
 		@Override
 		public Unit getUnit(int n) {
 			Unit u = UNITS_STABILITY.getUnit(n);
@@ -519,18 +535,18 @@ public class UnitGroup {
 			}
 			return u;
 		}
-
+		
 		@Override
 		public int getUnitIndex(Unit u) {
 			if (u instanceof CaliberUnit) {
-				for (int i=0; i < UNITS_STABILITY.getUnitCount(); i++) {
+				for (int i = 0; i < UNITS_STABILITY.getUnitCount(); i++) {
 					if (UNITS_STABILITY.getUnit(i) instanceof CaliberUnit)
 						return i;
 				}
 			}
 			return UNITS_STABILITY.getUnitIndex(u);
 		}
-
+		
 		
 
 		////  Pass on to UNITS_STABILITY
@@ -539,30 +555,30 @@ public class UnitGroup {
 		public int getDefaultUnitIndex() {
 			return UNITS_STABILITY.getDefaultUnitIndex();
 		}
-
+		
 		@Override
 		public void setDefaultUnit(int n) {
 			UNITS_STABILITY.setDefaultUnit(n);
 		}
-
+		
 		@Override
 		public int getUnitCount() {
 			return UNITS_STABILITY.getUnitCount();
 		}
-
-
+		
+		
 		////  Unsupported methods
 		
 		@Override
 		public void addUnit(int n, Unit u) {
 			throw new UnsupportedOperationException("StabilityUnitGroup must not be modified");
 		}
-
+		
 		@Override
 		public void addUnit(Unit u) {
 			throw new UnsupportedOperationException("StabilityUnitGroup must not be modified");
 		}
-
+		
 		@Override
 		public void removeUnit(int n) {
 			throw new UnsupportedOperationException("StabilityUnitGroup must not be modified");

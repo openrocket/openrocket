@@ -26,7 +26,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	 * are relative to their respective CG.
 	 */
 	private Coordinate[] cgCache = null;
-	private double longitudalInertiaCache[] = null;
+	private double longitudinalInertiaCache[] = null;
 	private double rotationalInertiaCache[] = null;
 	
 	
@@ -105,13 +105,13 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	
 	
 	/**
-	 * Return the longitudal inertia of the rocket with the specified motor instance
+	 * Return the longitudinal inertia of the rocket with the specified motor instance
 	 * configuration.
 	 * 
 	 * @param configuration		the current motor instance configuration
-	 * @return					the longitudal inertia of the rocket
+	 * @return					the longitudinal inertia of the rocket
 	 */
-	public double getLongitudalInertia(Configuration configuration, MotorInstanceConfiguration motors) {
+	public double getLongitudinalInertia(Configuration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
@@ -122,7 +122,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 		for (int stage : configuration.getActiveStages()) {
 			Coordinate stageCG = cgCache[stage];
 			
-			totalInertia += (longitudalInertiaCache[stage] +
+			totalInertia += (longitudinalInertiaCache[stage] +
 					stageCG.weight * MathUtil.pow2(stageCG.x - totalCG.x));
 		}
 		
@@ -136,7 +136,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 					Coordinate position = motors.getMotorPosition(id);
 					Coordinate cg = motor.getCG().add(position);
 					
-					double inertia = motor.getLongitudalInertia();
+					double inertia = motor.getLongitudinalInertia();
 					totalInertia += inertia + cg.weight * MathUtil.pow2(cg.x - totalCG.x);
 				}
 			}
@@ -221,14 +221,14 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 			int stages = config.getRocket().getStageCount();
 			
 			cgCache = new Coordinate[stages];
-			longitudalInertiaCache = new double[stages];
+			longitudinalInertiaCache = new double[stages];
 			rotationalInertiaCache = new double[stages];
 			
 			for (int i = 0; i < stages; i++) {
 				RocketComponent stage = config.getRocket().getChild(i);
 				MassData data = calculateAssemblyMassData(stage);
 				cgCache[i] = stage.toAbsolute(data.cg)[0];
-				longitudalInertiaCache[i] = data.longitudalInertia;
+				longitudinalInertiaCache[i] = data.longitudinalInertia;
 				rotationalInertiaCache[i] = data.rotationalInetria;
 			}
 			
@@ -259,7 +259,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 				parentData.cg = parentData.cg.setXYZ(parent.getOverrideCG());
 		}
 		
-		parentData.longitudalInertia = parent.getLongitudalUnitInertia() * parentData.cg.weight;
+		parentData.longitudinalInertia = parent.getLongitudinalUnitInertia() * parentData.cg.weight;
 		parentData.rotationalInetria = parent.getRotationalUnitInertia() * parentData.cg.weight;
 		
 
@@ -279,19 +279,19 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 				
 				// Add effect of this CG change to parent inertia
 				dx2 = pow2(parentData.cg.x - combinedCG.x);
-				parentData.longitudalInertia += parentData.cg.weight * dx2;
+				parentData.longitudinalInertia += parentData.cg.weight * dx2;
 				
 				dr2 = pow2(parentData.cg.y - combinedCG.y) + pow2(parentData.cg.z - combinedCG.z);
 				parentData.rotationalInetria += parentData.cg.weight * dr2;
 				
 
 				// Add inertia of sibling
-				parentData.longitudalInertia += siblingData.longitudalInertia;
+				parentData.longitudinalInertia += siblingData.longitudinalInertia;
 				parentData.rotationalInetria += siblingData.rotationalInetria;
 				
 				// Add effect of sibling CG change
 				dx2 = pow2(siblingData.cg.x - combinedCG.x);
-				parentData.longitudalInertia += siblingData.cg.weight * dx2;
+				parentData.longitudinalInertia += siblingData.cg.weight * dx2;
 				
 				dr2 = pow2(siblingData.cg.y - combinedCG.y) + pow2(siblingData.cg.z - combinedCG.z);
 				parentData.rotationalInetria += siblingData.cg.weight * dr2;
@@ -306,14 +306,14 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 			if (parent.isMassOverridden()) {
 				double oldMass = parentData.cg.weight;
 				double newMass = MathUtil.max(parent.getOverrideMass(), MIN_MASS);
-				parentData.longitudalInertia = parentData.longitudalInertia * newMass / oldMass;
+				parentData.longitudinalInertia = parentData.longitudinalInertia * newMass / oldMass;
 				parentData.rotationalInetria = parentData.rotationalInetria * newMass / oldMass;
 				parentData.cg = parentData.cg.setWeight(newMass);
 			}
 			if (parent.isCGOverridden()) {
 				double oldx = parentData.cg.x;
 				double newx = parent.getOverrideCGX();
-				parentData.longitudalInertia += parentData.cg.weight * pow2(oldx - newx);
+				parentData.longitudinalInertia += parentData.cg.weight * pow2(oldx - newx);
 				parentData.cg = parentData.cg.setX(newx);
 			}
 		}
@@ -324,7 +324,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	
 	private static class MassData {
 		public Coordinate cg = Coordinate.NUL;
-		public double longitudalInertia = 0;
+		public double longitudinalInertia = 0;
 		public double rotationalInetria = 0;
 	}
 	
@@ -333,7 +333,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	protected void voidMassCache() {
 		super.voidMassCache();
 		this.cgCache = null;
-		this.longitudalInertiaCache = null;
+		this.longitudinalInertiaCache = null;
 		this.rotationalInertiaCache = null;
 	}
 	

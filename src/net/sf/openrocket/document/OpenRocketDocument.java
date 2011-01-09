@@ -2,7 +2,6 @@ package net.sf.openrocket.document;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +19,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Icons;
 
@@ -155,9 +155,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 
 
 
-	@SuppressWarnings("unchecked")
 	public List<Simulation> getSimulations() {
-		return (ArrayList<Simulation>) simulations.clone();
+		return simulations.clone();
 	}
 	
 	public int getSimulationCount() {
@@ -444,7 +443,11 @@ public class OpenRocketDocument implements ComponentChangeListener {
 			undoDescription.add(null);
 		}
 		
+		rocket.checkComponentStructure();
+		undoHistory.get(undoPosition).checkComponentStructure();
+		undoHistory.get(undoPosition).copyWithOriginalID().checkComponentStructure();
 		rocket.loadFrom(undoHistory.get(undoPosition).copyWithOriginalID());
+		rocket.checkComponentStructure();
 	}
 	
 	
@@ -531,6 +534,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		
 		
 		// Actual action to make
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			switch (type) {
 			case UNDO:

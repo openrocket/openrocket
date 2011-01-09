@@ -1,7 +1,7 @@
 package net.sf.openrocket.simulation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -11,7 +11,10 @@ import net.sf.openrocket.unit.UnitGroup;
  * a name, you should use {@link #getType(String, UnitGroup)} to return the default unit type,
  * or a new type if the name does not currently exist.
  * <p>
- * Each type has a type name (description) and a unit group.  The type is identified purely by its name.
+ * Each type has a type name (description), a unit group and a priority.  The type is identified
+ * purely by its name case-insensitively.  The unit group provides the units for the type.
+ * The priority is used to order the types.  The pre-existing types are defined specific priority
+ * numbers, and other types have a default priority number that is after all other types.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -21,46 +24,34 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	private static final int DEFAULT_PRIORITY = 999;
 	
 	/** List of existing types.  MUST BE DEFINED BEFORE ANY TYPES!! */
-	private static final List<FlightDataType> EXISTING_TYPES = new ArrayList<FlightDataType>();
+	private static final Map<String, FlightDataType> EXISTING_TYPES = new HashMap<String, FlightDataType>();
 	
 
 
 	//// Time
-	public static final FlightDataType TYPE_TIME =
-			newType("Time", UnitGroup.UNITS_FLIGHT_TIME, 1);
+	public static final FlightDataType TYPE_TIME = newType("Time", UnitGroup.UNITS_FLIGHT_TIME, 1);
 	
 
 	//// Vertical position and motion
-	public static final FlightDataType TYPE_ALTITUDE =
-			newType("Altitude", UnitGroup.UNITS_DISTANCE, 10);
-	public static final FlightDataType TYPE_VELOCITY_Z =
-			newType("Vertical velocity", UnitGroup.UNITS_VELOCITY, 11);
-	public static final FlightDataType TYPE_ACCELERATION_Z =
-			newType("Vertical acceleration", UnitGroup.UNITS_ACCELERATION, 12);
+	public static final FlightDataType TYPE_ALTITUDE = newType("Altitude", UnitGroup.UNITS_DISTANCE, 10);
+	public static final FlightDataType TYPE_VELOCITY_Z = newType("Vertical velocity", UnitGroup.UNITS_VELOCITY, 11);
+	public static final FlightDataType TYPE_ACCELERATION_Z = newType("Vertical acceleration", UnitGroup.UNITS_ACCELERATION, 12);
 	
 
 	//// Total motion
-	public static final FlightDataType TYPE_VELOCITY_TOTAL =
-			newType("Total velocity", UnitGroup.UNITS_VELOCITY, 20);
-	public static final FlightDataType TYPE_ACCELERATION_TOTAL =
-			newType("Total acceleration", UnitGroup.UNITS_ACCELERATION, 21);
+	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType("Total velocity", UnitGroup.UNITS_VELOCITY, 20);
+	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType("Total acceleration", UnitGroup.UNITS_ACCELERATION, 21);
 	
 
 	//// Lateral position and motion
 	
-	public static final FlightDataType TYPE_POSITION_X =
-			newType("Position upwind", UnitGroup.UNITS_DISTANCE, 30);
-	public static final FlightDataType TYPE_POSITION_Y =
-			newType("Position parallel to wind", UnitGroup.UNITS_DISTANCE, 31);
-	public static final FlightDataType TYPE_POSITION_XY =
-			newType("Lateral distance", UnitGroup.UNITS_DISTANCE, 32);
-	public static final FlightDataType TYPE_POSITION_DIRECTION =
-			newType("Lateral direction", UnitGroup.UNITS_ANGLE, 33);
+	public static final FlightDataType TYPE_POSITION_X = newType("Position upwind", UnitGroup.UNITS_DISTANCE, 30);
+	public static final FlightDataType TYPE_POSITION_Y = newType("Position parallel to wind", UnitGroup.UNITS_DISTANCE, 31);
+	public static final FlightDataType TYPE_POSITION_XY = newType("Lateral distance", UnitGroup.UNITS_DISTANCE, 32);
+	public static final FlightDataType TYPE_POSITION_DIRECTION = newType("Lateral direction", UnitGroup.UNITS_ANGLE, 33);
 	
-	public static final FlightDataType TYPE_VELOCITY_XY =
-			newType("Lateral velocity", UnitGroup.UNITS_VELOCITY, 34);
-	public static final FlightDataType TYPE_ACCELERATION_XY =
-			newType("Lateral acceleration", UnitGroup.UNITS_ACCELERATION, 35);
+	public static final FlightDataType TYPE_VELOCITY_XY = newType("Lateral velocity", UnitGroup.UNITS_VELOCITY, 34);
+	public static final FlightDataType TYPE_ACCELERATION_XY = newType("Lateral acceleration", UnitGroup.UNITS_ACCELERATION, 35);
 	
 
 	//// Angular motion
@@ -71,97 +62,65 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 
 	//// Stability information
-	public static final FlightDataType TYPE_MASS =
-			newType("Mass", UnitGroup.UNITS_MASS, 50);
-	public static final FlightDataType TYPE_CP_LOCATION =
-			newType("CP location", UnitGroup.UNITS_LENGTH, 51);
-	public static final FlightDataType TYPE_CG_LOCATION =
-			newType("CG location", UnitGroup.UNITS_LENGTH, 52);
-	public static final FlightDataType TYPE_STABILITY =
-			newType("Stability margin calibers", UnitGroup.UNITS_COEFFICIENT, 53);
-	// TODO: HIGH: Add moment of inertia
+	public static final FlightDataType TYPE_MASS = newType("Mass", UnitGroup.UNITS_MASS, 50);
+	public static final FlightDataType TYPE_LONGITUDINAL_INERTIA = newType("Longitudinal moment of inertia", UnitGroup.UNITS_INERTIA, 51);
+	public static final FlightDataType TYPE_ROTATIONAL_INERTIA = newType("Rotational moment of inertia", UnitGroup.UNITS_INERTIA, 52);
+	public static final FlightDataType TYPE_CP_LOCATION = newType("CP location", UnitGroup.UNITS_LENGTH, 53);
+	public static final FlightDataType TYPE_CG_LOCATION = newType("CG location", UnitGroup.UNITS_LENGTH, 54);
+	public static final FlightDataType TYPE_STABILITY = newType("Stability margin calibers", UnitGroup.UNITS_COEFFICIENT, 55);
 	
 
 	//// Characteristic numbers
-	public static final FlightDataType TYPE_MACH_NUMBER =
-			newType("Mach number", UnitGroup.UNITS_COEFFICIENT, 60);
-	public static final FlightDataType TYPE_REYNOLDS_NUMBER =
-			newType("Reynolds number", UnitGroup.UNITS_COEFFICIENT, 61);
+	public static final FlightDataType TYPE_MACH_NUMBER = newType("Mach number", UnitGroup.UNITS_COEFFICIENT, 60);
+	public static final FlightDataType TYPE_REYNOLDS_NUMBER = newType("Reynolds number", UnitGroup.UNITS_COEFFICIENT, 61);
 	
 
 	//// Thrust and drag
-	public static final FlightDataType TYPE_THRUST_FORCE =
-			newType("Thrust", UnitGroup.UNITS_FORCE, 70);
-	public static final FlightDataType TYPE_DRAG_FORCE =
-			newType("Drag force", UnitGroup.UNITS_FORCE, 71);
-	
-	public static final FlightDataType TYPE_DRAG_COEFF =
-			newType("Drag coefficient", UnitGroup.UNITS_COEFFICIENT, 72);
-	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF =
-			newType("Axial drag coefficient", UnitGroup.UNITS_COEFFICIENT, 73);
+	public static final FlightDataType TYPE_THRUST_FORCE = newType("Thrust", UnitGroup.UNITS_FORCE, 70);
+	public static final FlightDataType TYPE_DRAG_FORCE = newType("Drag force", UnitGroup.UNITS_FORCE, 71);
+	public static final FlightDataType TYPE_DRAG_COEFF = newType("Drag coefficient", UnitGroup.UNITS_COEFFICIENT, 72);
+	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF = newType("Axial drag coefficient", UnitGroup.UNITS_COEFFICIENT, 73);
 	
 
 	////  Component drag coefficients
-	public static final FlightDataType TYPE_FRICTION_DRAG_COEFF =
-			newType("Friction drag coefficient", UnitGroup.UNITS_COEFFICIENT, 80);
-	public static final FlightDataType TYPE_PRESSURE_DRAG_COEFF =
-			newType("Pressure drag coefficient", UnitGroup.UNITS_COEFFICIENT, 81);
-	public static final FlightDataType TYPE_BASE_DRAG_COEFF =
-			newType("Base drag coefficient", UnitGroup.UNITS_COEFFICIENT, 82);
+	public static final FlightDataType TYPE_FRICTION_DRAG_COEFF = newType("Friction drag coefficient", UnitGroup.UNITS_COEFFICIENT, 80);
+	public static final FlightDataType TYPE_PRESSURE_DRAG_COEFF = newType("Pressure drag coefficient", UnitGroup.UNITS_COEFFICIENT, 81);
+	public static final FlightDataType TYPE_BASE_DRAG_COEFF = newType("Base drag coefficient", UnitGroup.UNITS_COEFFICIENT, 82);
 	
 
 	////  Other coefficients
-	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF =
-			newType("Normal force coefficient", UnitGroup.UNITS_COEFFICIENT, 90);
-	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF =
-			newType("Pitch moment coefficient", UnitGroup.UNITS_COEFFICIENT, 91);
-	public static final FlightDataType TYPE_YAW_MOMENT_COEFF =
-			newType("Yaw moment coefficient", UnitGroup.UNITS_COEFFICIENT, 92);
-	public static final FlightDataType TYPE_SIDE_FORCE_COEFF =
-			newType("Side force coefficient", UnitGroup.UNITS_COEFFICIENT, 93);
-	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF =
-			newType("Roll moment coefficient", UnitGroup.UNITS_COEFFICIENT, 94);
-	public static final FlightDataType TYPE_ROLL_FORCING_COEFF =
-			newType("Roll forcing coefficient", UnitGroup.UNITS_COEFFICIENT, 95);
-	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF =
-			newType("Roll damping coefficient", UnitGroup.UNITS_COEFFICIENT, 96);
+	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF = newType("Normal force coefficient", UnitGroup.UNITS_COEFFICIENT, 90);
+	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF = newType("Pitch moment coefficient", UnitGroup.UNITS_COEFFICIENT, 91);
+	public static final FlightDataType TYPE_YAW_MOMENT_COEFF = newType("Yaw moment coefficient", UnitGroup.UNITS_COEFFICIENT, 92);
+	public static final FlightDataType TYPE_SIDE_FORCE_COEFF = newType("Side force coefficient", UnitGroup.UNITS_COEFFICIENT, 93);
+	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF = newType("Roll moment coefficient", UnitGroup.UNITS_COEFFICIENT, 94);
+	public static final FlightDataType TYPE_ROLL_FORCING_COEFF = newType("Roll forcing coefficient", UnitGroup.UNITS_COEFFICIENT, 95);
+	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF = newType("Roll damping coefficient", UnitGroup.UNITS_COEFFICIENT, 96);
 	
-	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF =
-			newType("Pitch damping coefficient", UnitGroup.UNITS_COEFFICIENT, 97);
-	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF =
-			newType("Yaw damping coefficient", UnitGroup.UNITS_COEFFICIENT, 98);
+	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF = newType("Pitch damping coefficient", UnitGroup.UNITS_COEFFICIENT, 97);
+	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType("Yaw damping coefficient", UnitGroup.UNITS_COEFFICIENT, 98);
 	
 
 	////  Reference length + area
-	public static final FlightDataType TYPE_REFERENCE_LENGTH =
-			newType("Reference length", UnitGroup.UNITS_LENGTH, 100);
-	public static final FlightDataType TYPE_REFERENCE_AREA =
-			newType("Reference area", UnitGroup.UNITS_AREA, 101);
+	public static final FlightDataType TYPE_REFERENCE_LENGTH = newType("Reference length", UnitGroup.UNITS_LENGTH, 100);
+	public static final FlightDataType TYPE_REFERENCE_AREA = newType("Reference area", UnitGroup.UNITS_AREA, 101);
 	
 
 	////  Orientation
-	public static final FlightDataType TYPE_ORIENTATION_THETA =
-			newType("Vertical orientation (zenith)", UnitGroup.UNITS_ANGLE, 106);
-	public static final FlightDataType TYPE_ORIENTATION_PHI =
-			newType("Lateral orientation (azimuth)", UnitGroup.UNITS_ANGLE, 107);
+	public static final FlightDataType TYPE_ORIENTATION_THETA = newType("Vertical orientation (zenith)", UnitGroup.UNITS_ANGLE, 106);
+	public static final FlightDataType TYPE_ORIENTATION_PHI = newType("Lateral orientation (azimuth)", UnitGroup.UNITS_ANGLE, 107);
 	
 
 	////  Atmospheric conditions
-	public static final FlightDataType TYPE_WIND_VELOCITY = newType("Wind velocity",
-			UnitGroup.UNITS_VELOCITY, 110);
-	public static final FlightDataType TYPE_AIR_TEMPERATURE = newType("Air temperature",
-			UnitGroup.UNITS_TEMPERATURE, 111);
-	public static final FlightDataType TYPE_AIR_PRESSURE = newType("Air pressure",
-			UnitGroup.UNITS_PRESSURE, 112);
-	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType("Speed of sound",
-			UnitGroup.UNITS_VELOCITY, 113);
+	public static final FlightDataType TYPE_WIND_VELOCITY = newType("Wind velocity", UnitGroup.UNITS_VELOCITY, 110);
+	public static final FlightDataType TYPE_AIR_TEMPERATURE = newType("Air temperature", UnitGroup.UNITS_TEMPERATURE, 111);
+	public static final FlightDataType TYPE_AIR_PRESSURE = newType("Air pressure", UnitGroup.UNITS_PRESSURE, 112);
+	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType("Speed of sound", UnitGroup.UNITS_VELOCITY, 113);
 	
 
 	////  Simulation information
-	public static final FlightDataType TYPE_TIME_STEP = newType("Simulation time step",
-			UnitGroup.UNITS_TIME_STEP, 200);
-	public static final FlightDataType TYPE_COMPUTATION_TIME = newType("Computation time",
-			UnitGroup.UNITS_SHORT_TIME, 201);
+	public static final FlightDataType TYPE_TIME_STEP = newType("Simulation time step", UnitGroup.UNITS_TIME_STEP, 200);
+	public static final FlightDataType TYPE_COMPUTATION_TIME = newType("Computation time", UnitGroup.UNITS_SHORT_TIME, 201);
 	
 	
 
@@ -174,12 +133,11 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 * @return		a data type.
 	 */
 	public static synchronized FlightDataType getType(String s, UnitGroup u) {
-		for (FlightDataType t : EXISTING_TYPES) {
-			if (t.getName().equalsIgnoreCase(s))
-				return t;
+		FlightDataType type = EXISTING_TYPES.get(s.toLowerCase());
+		if (type != null) {
+			return type;
 		}
-		FlightDataType type = new FlightDataType(s, u, DEFAULT_PRIORITY);
-		EXISTING_TYPES.add(type);
+		type = newType(s, u, DEFAULT_PRIORITY);
 		return type;
 	}
 	
@@ -188,7 +146,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 */
 	private static synchronized FlightDataType newType(String s, UnitGroup u, int priority) {
 		FlightDataType type = new FlightDataType(s, u, priority);
-		EXISTING_TYPES.add(type);
+		EXISTING_TYPES.put(s.toLowerCase(), type);
 		return type;
 	}
 	
@@ -242,6 +200,6 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public int compareTo(FlightDataType o) {
 		if (this.priority != o.priority)
 			return this.priority - o.priority;
-		return this.name.compareTo(o.name);
+		return this.name.compareToIgnoreCase(o.name);
 	}
 }

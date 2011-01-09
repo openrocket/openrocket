@@ -2,8 +2,10 @@ package net.sf.openrocket.aerodynamics;
 
 import java.util.Map;
 
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -15,6 +17,7 @@ import net.sf.openrocket.util.Coordinate;
  */
 
 public abstract class AbstractAerodynamicCalculator implements AerodynamicCalculator {
+	private static final LogHelper log = Application.getLogger();
 	
 	/** Number of divisions used when calculating worst CP. */
 	public static final int DIVISIONS = 360;
@@ -27,19 +30,22 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	
 	/** The aerodynamic modification ID of the latest rocket */
 	private int rocketAeroModID = -1;
-	private int stageCount = -1;
+	private int rocketTreeModID = -1;
 	
 	
 
 
 	////////////////  Aerodynamic calculators  ////////////////
 	
+	@Override
 	public abstract Coordinate getCP(Configuration configuration, FlightConditions conditions,
 			WarningSet warnings);
 	
+	@Override
 	public abstract Map<RocketComponent, AerodynamicForces> getForceAnalysis(Configuration configuration, FlightConditions conditions,
 				WarningSet warnings);
 	
+	@Override
 	public abstract AerodynamicForces getAerodynamicForces(Configuration configuration,
 			FlightConditions conditions, WarningSet warnings);
 	
@@ -48,6 +54,7 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	/*
 	 * The worst theta angle is stored in conditions.
 	 */
+	@Override
 	public Coordinate getWorstCP(Configuration configuration, FlightConditions conditions,
 			WarningSet warnings) {
 		FlightConditions cond = conditions.clone();
@@ -84,9 +91,10 @@ public abstract class AbstractAerodynamicCalculator implements AerodynamicCalcul
 	 */
 	protected final void checkCache(Configuration configuration) {
 		if (rocketAeroModID != configuration.getRocket().getAerodynamicModID() ||
-				stageCount != configuration.getStageCount()) {
+				rocketTreeModID != configuration.getRocket().getTreeModID()) {
 			rocketAeroModID = configuration.getRocket().getAerodynamicModID();
-			stageCount = configuration.getStageCount();
+			rocketTreeModID = configuration.getRocket().getTreeModID();
+			log.debug("Voiding the aerodynamic cache");
 			voidAerodynamicCache();
 		}
 	}

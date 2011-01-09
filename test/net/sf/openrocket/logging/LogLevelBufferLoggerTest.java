@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class LogLevelBufferLoggerTest {
-
+	
 	@Test
 	public void testLogger() {
 		LogLevelBufferLogger logger = new LogLevelBufferLogger(4);
@@ -39,10 +39,10 @@ public class LogLevelBufferLoggerTest {
 		assertEquals("user 1", list.get(0).getMessage());
 		assertEquals("warn 1", list.get(1).getMessage());
 		assertEquals("user 2", list.get(2).getMessage());
-		assertEquals("--- 2 INFO lines removed ---", list.get(3).getMessage());
+		assertEquals("===== 2 INFO lines removed =====", list.get(3).getMessage());
 		assertEquals("info 3", list.get(4).getMessage());
 		assertEquals("error 1", list.get(5).getMessage());
-		assertEquals("--- 4 DEBUG lines removed ---", list.get(6).getMessage());
+		assertEquals("===== 4 DEBUG lines removed =====", list.get(6).getMessage());
 		assertEquals("debug 5", list.get(7).getMessage());
 		assertEquals("warn 2", list.get(8).getMessage());
 		assertEquals("debug 6", list.get(9).getMessage());

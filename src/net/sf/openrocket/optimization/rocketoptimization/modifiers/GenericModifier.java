@@ -1,39 +1,42 @@
 package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
-import javax.swing.event.ChangeListener;
-
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
+import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Reflection.Method;
 
-public class GenericModifier implements SimulationModifier {
+/**
+ * A generic SimulationModifier that uses reflection to get and set a double value.
+ * Implementations need to implement the {@link #getModifiedObject(Simulation)} method
+ * to return which object is modified.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
+public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	
-	private final String name;
-	private final Object relatedObject;
-	private final UnitGroup unitGroup;
 	private final double multiplier;
-	private final Object modifiable;
 	
 	private final Method getter;
 	private final Method setter;
 	
-	private double minValue;
-	private double maxValue;
 	
-	
-
-
-
+	/**
+	 * Sole constructor.
+	 * 
+	 * @param modifierName		the name of this modifier (returned by {@link #getName()})
+	 * @param relatedObject		the related object (returned by {@link #getRelatedObject()})
+	 * @param unitGroup			the unit group (returned by {@link #getUnitGroup()})
+	 * @param multiplier		the multiplier by which the value returned by the getter is multiplied
+	 * 							to obtain the desired value
+	 * @param modifiedClass		the class type that {@link #getModifiedObject(Simulation)} returns
+	 * @param methodName		the base name of the getter/setter methods (without "get"/"set")
+	 */
 	public GenericModifier(String modifierName, Object relatedObject, UnitGroup unitGroup, double multiplier,
-			Object modifiable, String methodName) {
-		this.name = modifierName;
-		this.relatedObject = relatedObject;
-		this.unitGroup = unitGroup;
+			Class<T> modifiedClass, String methodName) {
+		super(modifierName, relatedObject, unitGroup);
 		this.multiplier = multiplier;
-		this.modifiable = modifiable;
 		
 		if (MathUtil.equals(multiplier, 0)) {
 			throw new IllegalArgumentException("multiplier is zero");
@@ -41,122 +44,45 @@ public class GenericModifier implements SimulationModifier {
 		
 		try {
 			methodName = methodName.substring(0, 1).toUpperCase() + methodName.substring(1);
-			getter = new Method(modifiable.getClass().getMethod("get" + methodName));
-			setter = new Method(modifiable.getClass().getMethod("set" + methodName, double.class));
+			getter = new Method(modifiedClass.getMethod("get" + methodName));
+			setter = new Method(modifiedClass.getMethod("set" + methodName, double.class));
 		} catch (SecurityException e) {
-			throw new BugException("Trying to find method get/set" + methodName + " in class " + modifiable.getClass(), e);
+			throw new BugException("Trying to find method get/set" + methodName + " in class " + modifiedClass, e);
 		} catch (NoSuchMethodException e) {
-			throw new BugException("Trying to find method get/set" + methodName + " in class " + modifiable.getClass(), e);
+			throw new BugException("Trying to find method get/set" + methodName + " in class " + modifiedClass, e);
 		}
 	}
 	
 	
+
 	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public Object getRelatedObject() {
-		return relatedObject;
-	}
-	
-	@Override
-	public double getCurrentValue() {
+	public double getCurrentValue(Simulation simulation) throws OptimizationException {
+		T modifiable = getModifiedObject(simulation);
+		if (modifiable == null) {
+			throw new OptimizationException("BUG: getModifiedObject() returned null");
+		}
 		return ((Double) getter.invoke(modifiable)) * multiplier;
 	}
 	
 	
 	@Override
-	public double getCurrentScaledValue() {
-		double value = getCurrentValue();
-		return toScaledValue(value);
-	}
-	
-	@Override
-	public void modify(Simulation simulation, double scaledValue) {
+	public void modify(Simulation simulation, double scaledValue) throws OptimizationException {
+		T modifiable = getModifiedObject(simulation);
+		if (modifiable == null) {
+			throw new OptimizationException("BUG: getModifiedObject() returned null");
+		}
 		double siValue = toBaseValue(scaledValue) / multiplier;
 		setter.invoke(modifiable, siValue);
 	}
 	
 	
 	/**
-	 * Returns the scaled value (normally within [0...1]).
+	 * Return the object from the simulation that will be modified.
+	 * @param simulation	the simulation
+	 * @return				the object to modify
+	 * 
+	 * @throws OptimizationException 	if the object cannot be found
 	 */
-	private double toScaledValue(double value) {
-		if (MathUtil.equals(minValue, maxValue)) {
-			if (value > maxValue)
-				return 1.0;
-			if (value < minValue)
-				return 0.0;
-			return 0.5;
-		}
-		
-		return MathUtil.map(value, minValue, maxValue, 0.0, 1.0);
-	}
-	
-	
-	/**
-	 * Returns the base value (in SI units).
-	 */
-	private double toBaseValue(double value) {
-		return MathUtil.map(value, 0.0, 1.0, minValue, maxValue);
-	}
-	
-	
-
-	@Override
-	public double getMinValue() {
-		return minValue;
-	}
-	
-	@Override
-	public void setMinValue(double value) {
-		if (MathUtil.equals(minValue, value))
-			return;
-		this.minValue = value;
-		if (maxValue < minValue)
-			maxValue = minValue;
-		fireChangeEvent();
-	}
-	
-	@Override
-	public double getMaxValue() {
-		return maxValue;
-	}
-	
-	@Override
-	public void setMaxValue(double value) {
-		if (MathUtil.equals(maxValue, value))
-			return;
-		this.maxValue = value;
-		if (minValue > maxValue)
-			minValue = maxValue;
-		fireChangeEvent();
-	}
-	
-	@Override
-	public UnitGroup getUnitGroup() {
-		return unitGroup;
-	}
-	
-	
-	@Override
-	public void addChangeListener(ChangeListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void removeChangeListener(ChangeListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
-	private void fireChangeEvent() {
-		// TODO Auto-generated method stub
-		
-	}
+	protected abstract T getModifiedObject(Simulation simulation) throws OptimizationException;
 	
 }

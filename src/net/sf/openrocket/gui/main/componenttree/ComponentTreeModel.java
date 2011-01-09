@@ -46,6 +46,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	}
 	
 	
+	@Override
 	public Object getChild(Object parent, int index) {
 		RocketComponent component = (RocketComponent) parent;
 		
@@ -57,6 +58,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	}
 	
 	
+	@Override
 	public int getChildCount(Object parent) {
 		RocketComponent c = (RocketComponent) parent;
 		
@@ -64,6 +66,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	}
 	
 	
+	@Override
 	public int getIndexOfChild(Object parent, Object child) {
 		if (parent == null || child == null)
 			return -1;
@@ -74,18 +77,22 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		return p.getChildPosition(c);
 	}
 	
+	@Override
 	public Object getRoot() {
 		return root;
 	}
 	
+	@Override
 	public boolean isLeaf(Object node) {
 		return !((RocketComponent) node).allowsChildren();
 	}
 	
+	@Override
 	public void addTreeModelListener(TreeModelListener l) {
 		listeners.add(l);
 	}
 	
+	@Override
 	public void removeTreeModelListener(TreeModelListener l) {
 		listeners.remove(l);
 	}
@@ -158,15 +165,17 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		}
 	}
 	
+	@Override
 	public void valueForPathChanged(TreePath path, Object newValue) {
 		System.err.println("ERROR: valueForPathChanged called?!");
 	}
 	
 	
+	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isTreeChange() || e.isUndoChange()) {
 			// Tree must be fully updated also in case of an undo change 
-			fireTreeStructureChanged((RocketComponent) e.getSource());
+			fireTreeStructureChanged(e.getSource());
 			if (e.isTreeChange() && e.isUndoChange()) {
 				// If the undo has changed the tree structure, some elements may be hidden
 				// unnecessarily
@@ -179,7 +188,7 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 	}
 	
 	public void expandAll() {
-		Iterator<RocketComponent> iterator = root.deepIterator();
+		Iterator<RocketComponent> iterator = root.iterator(false);
 		while (iterator.hasNext()) {
 			tree.makeVisible(makeTreePath(iterator.next()));
 		}

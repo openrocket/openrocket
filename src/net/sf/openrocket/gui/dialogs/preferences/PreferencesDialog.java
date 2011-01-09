@@ -308,14 +308,20 @@ public class PreferencesDialog extends JDialog {
 		
 
 
-		panel.add(new JLabel("Stability:"));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
+		panel.add(new JLabel("Moment of inertia:"));
+		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
 		panel.add(combo, "sizegroup boxes");
 		
 		panel.add(new JLabel("Pressure:"));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_PRESSURE));
+		panel.add(combo, "sizegroup boxes, wrap");
+		
+
+		panel.add(new JLabel("Stability:"));
+		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
 		panel.add(combo, "sizegroup boxes, wrap para");
 		
+
 
 
 		JButton button = new JButton("Default metric");

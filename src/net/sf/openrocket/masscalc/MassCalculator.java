@@ -53,13 +53,13 @@ public interface MassCalculator extends Monitorable {
 	public Coordinate getCG(Configuration configuration, MotorInstanceConfiguration motors);
 	
 	/**
-	 * Compute the longitudal inertia of the provided configuration with specified motors.
+	 * Compute the longitudinal inertia of the provided configuration with specified motors.
 	 * 
 	 * @param configuration		the rocket configuration
 	 * @param motors			the motor configuration
-	 * @return					the longitudal inertia of the configuration
+	 * @return					the longitudinal inertia of the configuration
 	 */
-	public double getLongitudalInertia(Configuration configuration, MotorInstanceConfiguration motors);
+	public double getLongitudinalInertia(Configuration configuration, MotorInstanceConfiguration motors);
 	
 	/**
 	 * Compute the rotational inertia of the provided configuration with specified motors.

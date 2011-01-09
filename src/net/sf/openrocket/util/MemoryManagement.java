@@ -23,7 +23,7 @@ public final class MemoryManagement {
 	private static final LogHelper log = Application.getLogger();
 	
 	/** Purge cleared references every this many calls to {@link #collectable(Object)} */
-	private static final int PURGE_CALL_COUNT = 100;
+	private static final int PURGE_CALL_COUNT = 1000;
 	
 
 	/**
@@ -31,7 +31,11 @@ public final class MemoryManagement {
 	 * to 
 	 */
 	private static List<MemoryData> objects = new LinkedList<MemoryData>();
-	private static int callCount = 0;
+	private static int collectableCallCount = 0;
+	
+
+	private static List<WeakReference<ListenerList<?>>> listenerLists = new LinkedList<WeakReference<ListenerList<?>>>();
+	private static int listenerCallCount = 0;
 	
 	
 	private MemoryManagement() {
@@ -51,19 +55,10 @@ public final class MemoryManagement {
 		}
 		log.debug("Adding object into collectable list: " + o);
 		objects.add(new MemoryData(o));
-		callCount++;
-		if (callCount % PURGE_CALL_COUNT == 0) {
-			purge();
+		collectableCallCount++;
+		if (collectableCallCount % PURGE_CALL_COUNT == 0) {
+			purgeCollectables();
 		}
-	}
-	
-	
-	/**
-	 * Return the number of times {@link #collectable(Object)} has been called.
-	 * @return	the number of times {@link #collectable(Object)} has been called.
-	 */
-	public static synchronized int getCallCount() {
-		return callCount;
 	}
 	
 	
@@ -75,7 +70,7 @@ public final class MemoryManagement {
 	 * 
 	 * @return	a list of MemoryData objects for objects that have not yet been garbage-collected.
 	 */
-	public static synchronized ArrayList<MemoryData> getRemainingObjects() {
+	public static synchronized List<MemoryData> getRemainingCollectableObjects() {
 		for (int i = 0; i < 5; i++) {
 			System.runFinalization();
 			System.gc();
@@ -84,8 +79,55 @@ public final class MemoryManagement {
 			} catch (InterruptedException e) {
 			}
 		}
-		purge();
+		purgeCollectables();
 		return new ArrayList<MemoryData>(objects);
+	}
+	
+	
+
+
+	/**
+	 * Register a new ListenerList object.  This can be used to monitor freeing of listeners
+	 * and find memory leaks.  The objects are held by a weak reference, allowing them to be
+	 * garbage-collected.
+	 * 
+	 * @param list	the listener list to register
+	 */
+	public static synchronized void registerListenerList(ListenerList<?> list) {
+		listenerLists.add(new WeakReference<ListenerList<?>>(list));
+		listenerCallCount++;
+		if (listenerCallCount % PURGE_CALL_COUNT == 0) {
+			purgeListeners();
+		}
+		
+	}
+	
+	/**
+	 * Return a list of listener list objects corresponding to the objects that have been
+	 * registered by {@link #registerListenerList(ListenerList)} and have not been garbage-collected yet.
+	 * This method first calls <code>System.gc()</code> multiple times to attempt to
+	 * force any remaining garbage collection.
+	 * 
+	 * @return	a list of listener list objects that have not yet been garbage-collected.
+	 */
+	public static synchronized List<ListenerList<?>> getRemainingListenerLists() {
+		for (int i = 0; i < 5; i++) {
+			System.runFinalization();
+			System.gc();
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+			}
+		}
+		purgeListeners();
+		List<ListenerList<?>> list = new ArrayList<ListenerList<?>>();
+		for (WeakReference<ListenerList<?>> ref : listenerLists) {
+			ListenerList<?> l = ref.get();
+			if (l != null) {
+				list.add(l);
+			}
+		}
+		return list;
 	}
 	
 	
@@ -93,7 +135,7 @@ public final class MemoryManagement {
 	/**
 	 * Purge all cleared references from the object list.
 	 */
-	private static void purge() {
+	private static void purgeCollectables() {
 		int origCount = objects.size();
 		Iterator<MemoryData> iterator = objects.iterator();
 		while (iterator.hasNext()) {
@@ -105,6 +147,21 @@ public final class MemoryManagement {
 		log.debug(objects.size() + " of " + origCount + " objects remaining in discarded objects list after purge.");
 	}
 	
+	
+	/**
+	 * Purge all cleared references from the object list.
+	 */
+	private static void purgeListeners() {
+		int origCount = listenerLists.size();
+		Iterator<WeakReference<ListenerList<?>>> iterator = listenerLists.iterator();
+		while (iterator.hasNext()) {
+			WeakReference<ListenerList<?>> ref = iterator.next();
+			if (ref.get() == null) {
+				iterator.remove();
+			}
+		}
+		log.debug(listenerLists.size() + " of " + origCount + " listener lists remaining after purge.");
+	}
 	
 	/**
 	 * A value object class containing data of a discarded object reference.

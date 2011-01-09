@@ -16,6 +16,7 @@ public class BasicGravityModel implements GravityModel {
 	 * @param latitude	the latitude in degrees (-90 ... 90)
 	 */
 	public BasicGravityModel(double latitude) {
+		// TODO: HIGH: This model is wrong!!  Increases monotonically from -90 to 90
 		double sin = Math.sin(latitude * Math.PI / 180);
 		double sin2 = Math.sin(2 * latitude * Math.PI / 180);
 		g = 9.780327 * (1 + 0.0053024 * sin - 0.0000058 * sin2);

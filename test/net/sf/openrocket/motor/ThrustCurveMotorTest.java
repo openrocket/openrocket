@@ -12,7 +12,7 @@ public class ThrustCurveMotorTest {
 
 	private final double radius = 0.025;
 	private final double length = 0.10;
-	private final double longitudal = Inertia.filledCylinderLongitudal(radius, length);
+	private final double longitudinal = Inertia.filledCylinderLongitudinal(radius, length);
 	private final double rotational = Inertia.filledCylinderRotational(radius);
 	
 	private final ThrustCurveMotor motor = 
@@ -66,7 +66,7 @@ public class ThrustCurveMotorTest {
 		assertEquals("Testing thrust", thrust, instance.getThrust(), EPS);
 		assertEquals("Testing mass", mass, instance.getCG().weight, EPS);
 		assertEquals("Testing cg x", cgx, instance.getCG().x, EPS);
-		assertEquals("Testing longitudal inertia", mass*longitudal, instance.getLongitudalInertia(), EPS);
+		assertEquals("Testing longitudinal inertia", mass*longitudinal, instance.getLongitudinalInertia(), EPS);
 		assertEquals("Testing rotational inertia", mass*rotational, instance.getRotationalInertia(), EPS);
 	}
 			

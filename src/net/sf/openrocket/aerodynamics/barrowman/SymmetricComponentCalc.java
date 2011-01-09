@@ -32,37 +32,45 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	
 	public static final double BODY_LIFT_K = 1.1;
 	
-	private final SymmetricComponent component;
-	
 	private final double length;
-	private final double r1, r2;
+	private final double foreRadius, aftRadius;
 	private final double fineness;
 	private final Transition.Shape shape;
 	private final double param;
-	private final double area;
+	private final double frontalArea;
+	private final double fullVolume;
+	private final double planformArea, planformCenter;
+	private final double sinphi;
 	
 	public SymmetricComponentCalc(RocketComponent c) {
 		super(c);
 		if (!(c instanceof SymmetricComponent)) {
 			throw new IllegalArgumentException("Illegal component type " + c);
 		}
-		this.component = (SymmetricComponent) c;
+		SymmetricComponent component = (SymmetricComponent) c;
 		
 
 		length = component.getLength();
-		r1 = component.getForeRadius();
-		r2 = component.getAftRadius();
+		foreRadius = component.getForeRadius();
+		aftRadius = component.getAftRadius();
 		
-		fineness = length / (2 * Math.abs(r2 - r1));
+		fineness = length / (2 * Math.abs(aftRadius - foreRadius));
+		fullVolume = component.getFullVolume();
+		planformArea = component.getComponentPlanformArea();
+		planformCenter = component.getComponentPlanformCenter();
 		
 		if (component instanceof BodyTube) {
 			shape = null;
 			param = 0;
-			area = 0;
+			frontalArea = 0;
+			sinphi = 0;
 		} else if (component instanceof Transition) {
 			shape = ((Transition) component).getType();
 			param = ((Transition) component).getShapeParameter();
-			area = Math.abs(Math.PI * (r1 * r1 - r2 * r2));
+			frontalArea = Math.abs(Math.PI * (foreRadius * foreRadius - aftRadius * aftRadius));
+			
+			double r = component.getRadius(0.99 * length);
+			sinphi = (aftRadius - r) / MathUtil.hypot(aftRadius - r, 0.01 * length);
 		} else {
 			throw new UnsupportedOperationException("Unknown component type " +
 					component.getComponentName());
@@ -91,8 +99,8 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		
 		// Pre-calculate and store the results
 		if (Double.isNaN(cnaCache)) {
-			final double r0 = component.getForeRadius();
-			final double r1 = component.getAftRadius();
+			final double r0 = foreRadius;
+			final double r1 = aftRadius;
 			
 			if (MathUtil.equals(r0, r1)) {
 				isTube = true;
@@ -105,7 +113,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				
 				cnaCache = 2 * (A1 - A0);
 				System.out.println("cnaCache = " + cnaCache);
-				cpCache = (component.getLength() * A1 - component.getFullVolume()) / (A1 - A0);
+				cpCache = (length * A1 - fullVolume) / (A1 - A0);
 			}
 		}
 		
@@ -143,8 +151,6 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	 * Calculate the body lift effect according to Galejs.
 	 */
 	protected Coordinate getLiftCP(FlightConditions conditions, WarningSet warnings) {
-		double area = component.getComponentPlanformArea();
-		double center = component.getComponentPlanformCenter();
 		
 		/*
 		 * Without this extra multiplier the rocket may become unstable at apogee
@@ -159,7 +165,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			mul = pow2(conditions.getMach() / 0.05);
 		}
 		
-		return new Coordinate(center, 0, 0, mul * BODY_LIFT_K * area / conditions.getRefArea() *
+		return new Coordinate(planformCenter, 0, 0, mul * BODY_LIFT_K * planformArea / conditions.getRefArea() *
 				conditions.getSinAOA() * conditions.getSincAOA()); // sin(aoa)^2 / aoa
 	}
 	
@@ -171,32 +177,24 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	public double calculatePressureDragForce(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
 		
-		if (component instanceof BodyTube)
-			return 0;
-		
-		if (!(component instanceof Transition)) {
-			throw new BugException("Pressure calculation of unknown type: " +
-					component.getComponentName());
-		}
-		
 		// Check for simple cases first
-		if (r1 == r2)
+		if (MathUtil.equals(foreRadius, aftRadius))
 			return 0;
 		
 		if (length < 0.001) {
-			if (r1 < r2) {
-				return stagnationCD * area / conditions.getRefArea();
+			if (foreRadius < aftRadius) {
+				return stagnationCD * frontalArea / conditions.getRefArea();
 			} else {
-				return baseCD * area / conditions.getRefArea();
+				return baseCD * frontalArea / conditions.getRefArea();
 			}
 		}
 		
 
 		// Boattail drag computed directly from base drag
-		if (r2 < r1) {
+		if (aftRadius < foreRadius) {
 			if (fineness >= 3)
 				return 0;
-			double cd = baseCD * area / conditions.getRefArea();
+			double cd = baseCD * frontalArea / conditions.getRefArea();
 			if (fineness <= 1)
 				return cd;
 			return cd * (3 - fineness) / 2;
@@ -208,7 +206,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			calculateNoseInterpolator();
 		}
 		
-		return interpolator.getValue(conditions.getMach()) * area / conditions.getRefArea();
+		return interpolator.getValue(conditions.getMach()) * frontalArea / conditions.getRefArea();
 	}
 	
 	
@@ -284,9 +282,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		
 		interpolator = new LinearInterpolator();
 		
-		double r = component.getRadius(0.99 * length);
-		double sinphi = (r2 - r) / MathUtil.hypot(r2 - r, 0.01 * length);
-		
+
 		/*
 		 * Take into account nose cone shape.  Conical and ogive generate the interpolator
 		 * directly.  Others store a interpolator for fineness ratio 3 into int1, or

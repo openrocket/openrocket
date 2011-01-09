@@ -145,8 +145,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 				log.info("Running in EDT, showing dialog");
 				handler.showDialog(thread, exception);
 			} else {
-				log.info("Not in EDT, invoking and waiting for dialog");
-				SwingUtilities.invokeAndWait(new Runnable() {
+				log.info("Not in EDT, invoking dialog later");
+				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						handler.showDialog(thread, exception);

@@ -53,7 +53,7 @@ public abstract class ComponentAssembly extends RocketComponent {
 	 * Null method (ComponentAssembly has no mass of itself).
 	 */
 	@Override
-	public double getLongitudalUnitInertia() {
+	public double getLongitudinalUnitInertia() {
 		return 0;
 	}
 	

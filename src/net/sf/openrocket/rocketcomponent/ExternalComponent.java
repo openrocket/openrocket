@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.List;
+
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Prefs;
@@ -39,16 +41,16 @@ public abstract class ExternalComponent extends RocketComponent {
 		}
 	}
 	
-
+	
 	/**
 	 * The material of the component.
 	 */
-	protected Material material=null;
+	protected Material material = null;
 	
 	protected Finish finish = Finish.NORMAL;
 	
 	
-	
+
 	/**
 	 * Constructor that sets the relative position of the component.
 	 */
@@ -56,13 +58,13 @@ public abstract class ExternalComponent extends RocketComponent {
 		super(relativePosition);
 		this.material = Prefs.getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
-
+	
 	/**
 	 * Returns the volume of the component.  This value is used in calculating the mass
 	 * of the object.
 	 */
 	public abstract double getComponentVolume();
-
+	
 	/**
 	 * Calculates the mass of the component as the product of the volume and interior density.
 	 */
@@ -70,7 +72,7 @@ public abstract class ExternalComponent extends RocketComponent {
 	public double getComponentMass() {
 		return material.getDensity() * getComponentVolume();
 	}
-
+	
 	/**
 	 * ExternalComponent has aerodynamic effect, so return true.
 	 */
@@ -95,9 +97,9 @@ public abstract class ExternalComponent extends RocketComponent {
 	public void setMaterial(Material mat) {
 		if (mat.getType() != Material.Type.BULK) {
 			throw new IllegalArgumentException("ExternalComponent requires a bulk material" +
-					" type="+mat.getType());
+					" type=" + mat.getType());
 		}
-
+		
 		if (material.equals(mat))
 			return;
 		material = mat;
@@ -114,16 +116,15 @@ public abstract class ExternalComponent extends RocketComponent {
 		this.finish = finish;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
+	
+	
 
-	
-	
 	@Override
-	protected void copyFrom(RocketComponent c) {
-		super.copyFrom(c);
-		
-		ExternalComponent src = (ExternalComponent)c;
+	protected List<RocketComponent> copyFrom(RocketComponent c) {
+		ExternalComponent src = (ExternalComponent) c;
 		this.finish = src.finish;
 		this.material = src.material;
+		return super.copyFrom(c);
 	}
 	
     /**

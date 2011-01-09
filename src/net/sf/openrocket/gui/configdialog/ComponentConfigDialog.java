@@ -109,7 +109,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				findDialogContentsConstructor(component);
 		if (c != null) {
 			try {
-				return (RocketComponentConfig) c.newInstance(component);
+				return c.newInstance(component);
 			} catch (InstantiationException e) {
 				throw new BugException("BUG in constructor reflection", e);
 			} catch (IllegalAccessException e) {
@@ -123,6 +123,34 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		// components without their own configurator.
 		throw new BugException("Unable to find any configurator for " + component);
 	}
+	
+	
+	private void closeDialog() {
+		this.setVisible(false);
+		this.dispose();
+		this.configurator.invalidateModels();
+	}
+	
+	
+	@Override
+	public void componentChanged(ComponentChangeEvent e) {
+		if (e.isTreeChange() || e.isUndoChange()) {
+			
+			// Hide dialog in case of tree or undo change
+			dialog.closeDialog();
+			
+		} else {
+			/*
+			 * TODO: HIGH:  The line below has caused a NullPointerException (without null check)
+			 * How is this possible?  The null check was added to avoid this, but the
+			 * root cause should be analyzed.
+			 * [Openrocket-bugs] 2009-12-12 19:23:22 Automatic bug report for OpenRocket 0.9.5
+			 */
+			if (configurator != null)
+				configurator.updateFields();
+		}
+	}
+	
 	
 	/**
 	 * Finds the Constructor of the given component's config dialog panel in 
@@ -192,8 +220,9 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 * Hides the configuration dialog.  May be used even if not currently visible.
 	 */
 	public static void hideDialog() {
-		if (dialog != null)
-			dialog.setVisible(false);
+		if (dialog != null) {
+			dialog.closeDialog();
+		}
 	}
 	
 	
@@ -223,25 +252,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	 */
 	public static boolean isDialogVisible() {
 		return (dialog != null) && (dialog.isVisible());
-	}
-	
-	
-	public void componentChanged(ComponentChangeEvent e) {
-		if (e.isTreeChange() || e.isUndoChange()) {
-			
-			// Hide dialog in case of tree or undo change
-			dialog.setVisible(false);
-			
-		} else {
-			/*
-			 * TODO: HIGH:  The line below has caused a NullPointerException (without null check)
-			 * How is this possible?  The null check was added to avoid this, but the
-			 * root cause should be analyzed.
-			 * [Openrocket-bugs] 2009-12-12 19:23:22 Automatic bug report for OpenRocket 0.9.5
-			 */
-			if (configurator != null)
-				configurator.updateFields();
-		}
 	}
 	
 }

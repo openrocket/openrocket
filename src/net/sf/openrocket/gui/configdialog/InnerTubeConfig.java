@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -39,20 +38,21 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
 public class InnerTubeConfig extends ThicknessRingComponentConfig {
-
+	
 
 	public InnerTubeConfig(RocketComponent c) {
 		super(c);
 		
 		JPanel tab;
 		
-		tab = new MotorConfig((MotorMount)c);
+		tab = new MotorConfig((MotorMount) c);
 		tabbedPane.insertTab("Motor", null, tab, "Motor mount configuration", 1);
-
+		
 		tab = clusterTab();
 		tabbedPane.insertTab("Cluster", null, tab, "Cluster configuration", 2);
 		
@@ -69,51 +69,51 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		JPanel subPanel = new JPanel(new MigLayout());
 		
 		// Cluster type selection
-		subPanel.add(new JLabel("Select cluster configuration:"),"spanx, wrap");
-		subPanel.add(new ClusterSelectionPanel((InnerTube)component),"spanx, wrap");
-//		JPanel clusterSelection = new ClusterSelectionPanel((InnerTube)component);
-//		clusterSelection.setBackground(Color.blue);
-//		subPanel.add(clusterSelection);
+		subPanel.add(new JLabel("Select cluster configuration:"), "spanx, wrap");
+		subPanel.add(new ClusterSelectionPanel((InnerTube) component), "spanx, wrap");
+		//		JPanel clusterSelection = new ClusterSelectionPanel((InnerTube)component);
+		//		clusterSelection.setBackground(Color.blue);
+		//		subPanel.add(clusterSelection);
 		
 		panel.add(subPanel);
 		
-		
-		subPanel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::]"));
 
+		subPanel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]"));
+		
 		// Tube separation scale
 		JLabel l = new JLabel("Tube separation:");
 		l.setToolTipText("The separation of the tubes, 1.0 = touching each other");
 		subPanel.add(l);
-		DoubleModel dm  = new DoubleModel(component,"ClusterScale",1,UnitGroup.UNITS_NONE,0);
-
+		DoubleModel dm = new DoubleModel(component, "ClusterScale", 1, UnitGroup.UNITS_NONE, 0);
+		
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText("The separation of the tubes, 1.0 = touching each other");
-		subPanel.add(spin,"growx");
+		subPanel.add(spin, "growx");
 		
 		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 1, 4));
 		bs.setToolTipText("The separation of the tubes, 1.0 = touching each other");
-		subPanel.add(bs,"skip,w 100lp, wrap");
-
+		subPanel.add(bs, "skip,w 100lp, wrap");
+		
 		// Rotation
 		l = new JLabel("Rotation:");
 		l.setToolTipText("Rotation angle of the cluster configuration");
 		subPanel.add(l);
-		dm  = new DoubleModel(component,"ClusterRotation",1,UnitGroup.UNITS_ANGLE,
-				-Math.PI,Math.PI);
-
+		dm = new DoubleModel(component, "ClusterRotation", 1, UnitGroup.UNITS_ANGLE,
+				-Math.PI, Math.PI);
+		
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText("Rotation angle of the cluster configuration");
-		subPanel.add(spin,"growx");
+		subPanel.add(spin, "growx");
 		
-		subPanel.add(new UnitSelector(dm),"growx");
+		subPanel.add(new UnitSelector(dm), "growx");
 		bs = new BasicSlider(dm.getSliderModel(-Math.PI, 0, Math.PI));
 		bs.setToolTipText("Rotation angle of the cluster configuration");
-		subPanel.add(bs,"w 100lp, wrap para");
+		subPanel.add(bs, "w 100lp, wrap para");
+		
 
-		
-		
+
 		// Split button
 		JButton split = new JButton("Split cluster");
 		split.setToolTipText("<html>Split the cluster into separate components.<br>" +
@@ -128,29 +128,28 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 						RocketComponent parent = component.getParent();
 						int index = parent.getChildPosition(component);
 						if (index < 0) {
-							throw new IllegalStateException("component="+component+
-									" parent="+parent+" parent.children=" + 
-									Arrays.toString(parent.getChildren()));
+							throw new BugException("Inconsistent state: component=" + component +
+									" parent=" + parent + " parent.children=" + parent.getChildren());
 						}
-
-						InnerTube tube = (InnerTube)component;
+						
+						InnerTube tube = (InnerTube) component;
 						if (tube.getClusterCount() <= 1)
 							return;
-
+						
 						ComponentConfigDialog.addUndoPosition("Split cluster");
-
+						
 						Coordinate[] coords = { Coordinate.NUL };
 						coords = component.shiftCoordinates(coords);
 						parent.removeChild(index);
-						for (int i=0; i<coords.length; i++) {
-							InnerTube copy = (InnerTube)component.copy();
+						for (int i = 0; i < coords.length; i++) {
+							InnerTube copy = (InnerTube) component.copy();
 							copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
 							copy.setClusterRotation(0.0);
 							copy.setClusterScale(1.0);
 							copy.setRadialShift(coords[i].y, coords[i].z);
-							copy.setName(copy.getName() + " #" + (i+1));
+							copy.setName(copy.getName() + " #" + (i + 1));
 							
-							parent.addChild(copy, index+i);
+							parent.addChild(copy, index + i);
 						}
 					}
 				});
@@ -158,22 +157,22 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		});
 		subPanel.add(split, "spanx, split 2, gapright para, sizegroup buttons, right");
 		
-		
+
 		// Reset button
 		JButton reset = new JButton("Reset settings");
 		reset.setToolTipText("Reset the separation and rotation to the default values");
 		reset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				((InnerTube)component).setClusterScale(1.0);
-				((InnerTube)component).setClusterRotation(0.0);
+				((InnerTube) component).setClusterScale(1.0);
+				((InnerTube) component).setClusterRotation(0.0);
 			}
 		});
-		subPanel.add(reset,"sizegroup buttons, right");
+		subPanel.add(reset, "sizegroup buttons, right");
 		
-		panel.add(subPanel,"grow");
+		panel.add(subPanel, "grow");
 		
-		
+
 		return panel;
 	}
 }
@@ -190,44 +189,44 @@ class ClusterSelectionPanel extends JPanel {
 	
 	public ClusterSelectionPanel(Clusterable component) {
 		super(new MigLayout("gap 0 0",
-				"["+BUTTON_SIZE+"!]["+BUTTON_SIZE+"!]["+BUTTON_SIZE+"!]["+BUTTON_SIZE+"!]",
-				"["+BUTTON_SIZE+"!]["+BUTTON_SIZE+"!]["+BUTTON_SIZE+"!]"));
+				"[" + BUTTON_SIZE + "!][" + BUTTON_SIZE + "!][" + BUTTON_SIZE + "!][" + BUTTON_SIZE + "!]",
+				"[" + BUTTON_SIZE + "!][" + BUTTON_SIZE + "!][" + BUTTON_SIZE + "!]"));
 		
-		for (int i=0; i<ClusterConfiguration.CONFIGURATIONS.length; i++) {
+		for (int i = 0; i < ClusterConfiguration.CONFIGURATIONS.length; i++) {
 			ClusterConfiguration config = ClusterConfiguration.CONFIGURATIONS[i];
 			
-			JComponent button = new ClusterButton(component,config);
-			if (i%4 == 3) 
-				add(button,"wrap");
+			JComponent button = new ClusterButton(component, config);
+			if (i % 4 == 3)
+				add(button, "wrap");
 			else
 				add(button);
 		}
-
+		
 	}
 	
 	
 	private class ClusterButton extends JPanel implements ChangeListener, MouseListener,
-														  Resettable {
+															Resettable {
 		private Clusterable component;
 		private ClusterConfiguration config;
 		
 		public ClusterButton(Clusterable c, ClusterConfiguration config) {
 			component = c;
 			this.config = config;
-			setMinimumSize(new Dimension(BUTTON_SIZE,BUTTON_SIZE));
-			setPreferredSize(new Dimension(BUTTON_SIZE,BUTTON_SIZE));
-			setMaximumSize(new Dimension(BUTTON_SIZE,BUTTON_SIZE));
+			setMinimumSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+			setPreferredSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+			setMaximumSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-//			setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+			//			setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 			component.addChangeListener(this);
 			addMouseListener(this);
 		}
 		
-
+		
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D)g;
+			Graphics2D g2 = (Graphics2D) g;
 			Rectangle area = g2.getClipBounds();
 			
 			if (component.getClusterConfiguration() == config)
@@ -237,22 +236,22 @@ class ClusterSelectionPanel extends JPanel {
 			
 			g2.fillRect(area.x, area.y, area.width, area.height);
 			
-			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, 
+			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 					RenderingHints.VALUE_STROKE_NORMALIZE);
-			g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
+			g2.setRenderingHint(RenderingHints.KEY_RENDERING,
 					RenderingHints.VALUE_RENDER_QUALITY);
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			
 			List<Double> points = config.getPoints();
 			Ellipse2D.Float circle = new Ellipse2D.Float();
-			for (int i=0; i < points.size()/2; i++) {
-				double x = points.get(i*2);
-				double y = points.get(i*2+1);
+			for (int i = 0; i < points.size() / 2; i++) {
+				double x = points.get(i * 2);
+				double y = points.get(i * 2 + 1);
 				
-				double px = BUTTON_SIZE/2 + x*MOTOR_DIAMETER;
-				double py = BUTTON_SIZE/2 - y*MOTOR_DIAMETER;
-				circle.setFrameFromCenter(px,py,px+MOTOR_DIAMETER/2,py+MOTOR_DIAMETER/2);
+				double px = BUTTON_SIZE / 2 + x * MOTOR_DIAMETER;
+				double py = BUTTON_SIZE / 2 - y * MOTOR_DIAMETER;
+				circle.setFrameFromCenter(px, py, px + MOTOR_DIAMETER / 2, py + MOTOR_DIAMETER / 2);
 				
 				g2.setColor(MOTOR_FILL_COLOR);
 				g2.fill(circle);
@@ -260,25 +259,39 @@ class ClusterSelectionPanel extends JPanel {
 				g2.draw(circle);
 			}
 		}
-
-
+		
+		
+		@Override
 		public void stateChanged(ChangeEvent e) {
 			repaint();
 		}
-
-
+		
+		
+		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1) {
 				component.setClusterConfiguration(config);
 			}
 		}
 		
-		public void mouseEntered(MouseEvent e) { }
-		public void mouseExited(MouseEvent e) {	}
-		public void mousePressed(MouseEvent e) { }
-		public void mouseReleased(MouseEvent e) { }
-
-
+		@Override
+		public void mouseEntered(MouseEvent e) {
+		}
+		
+		@Override
+		public void mouseExited(MouseEvent e) {
+		}
+		
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+		
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+		
+		
+		@Override
 		public void resetModel() {
 			component.removeChangeListener(this);
 			removeMouseListener(this);

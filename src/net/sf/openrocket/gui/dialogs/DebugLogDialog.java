@@ -258,7 +258,7 @@ public class DebugLogDialog extends JDialog {
 		};
 		
 		table = new JTable(model);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);
 		model.setColumnWidths(table.getColumnModel());

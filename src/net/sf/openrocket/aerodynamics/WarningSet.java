@@ -1,9 +1,9 @@
 package net.sf.openrocket.aerodynamics;
 
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.Iterator;
 
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Monitorable;
 import net.sf.openrocket.util.Mutable;
@@ -102,13 +102,12 @@ public class WarningSet extends AbstractSet<Warning> implements Cloneable, Monit
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public WarningSet clone() {
 		try {
 			
 			WarningSet newSet = (WarningSet) super.clone();
-			newSet.warnings = (ArrayList<Warning>) this.warnings.clone();
+			newSet.warnings = this.warnings.clone();
 			newSet.mutable = this.mutable.clone();
 			return newSet;
 			

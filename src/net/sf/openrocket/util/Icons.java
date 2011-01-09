@@ -48,6 +48,7 @@ public class Icons {
 	public static final Icon FILE_OPEN_EXAMPLE = loadImageIcon("pix/icons/document-open-example.png", "Open example document");
 	public static final Icon FILE_SAVE = loadImageIcon("pix/icons/document-save.png", "Save document");
 	public static final Icon FILE_SAVE_AS = loadImageIcon("pix/icons/document-save-as.png", "Save document as");
+	public static final Icon FILE_PRINT = loadImageIcon("pix/icons/document-print.png", "Print document");
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");
 	

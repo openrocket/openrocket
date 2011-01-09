@@ -22,16 +22,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.BoundedRangeModel;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListSelectionModel;
@@ -45,8 +45,10 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
 import javax.swing.RootPaneContainer;
+import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -54,10 +56,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.LogHelper;
@@ -194,6 +199,7 @@ public class GUIUtil {
 		window.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
+				log.debug("Clearing all models of window " + window);
 				setNullModels(window);
 				MemoryManagement.collectable(window);
 			}
@@ -302,7 +308,11 @@ public class GUIUtil {
 			for (ChangeListener l : spinner.getChangeListeners()) {
 				spinner.removeChangeListener(l);
 			}
+			SpinnerModel model = spinner.getModel();
 			spinner.setModel(new SpinnerNumberModel());
+			if (model instanceof Invalidatable) {
+				((Invalidatable) model).invalidate();
+			}
 			
 		} else if (c instanceof JSlider) {
 			
@@ -310,7 +320,11 @@ public class GUIUtil {
 			for (ChangeListener l : slider.getChangeListeners()) {
 				slider.removeChangeListener(l);
 			}
+			BoundedRangeModel model = slider.getModel();
 			slider.setModel(new DefaultBoundedRangeModel());
+			if (model instanceof Invalidatable) {
+				((Invalidatable) model).invalidate();
+			}
 			
 		} else if (c instanceof JComboBox) {
 			
@@ -318,7 +332,11 @@ public class GUIUtil {
 			for (ActionListener l : combo.getActionListeners()) {
 				combo.removeActionListener(l);
 			}
+			ComboBoxModel model = combo.getModel();
 			combo.setModel(new DefaultComboBoxModel());
+			if (model instanceof Invalidatable) {
+				((Invalidatable) model).invalidate();
+			}
 			
 		} else if (c instanceof AbstractButton) {
 			
@@ -326,60 +344,51 @@ public class GUIUtil {
 			for (ActionListener l : button.getActionListeners()) {
 				button.removeActionListener(l);
 			}
+			Action model = button.getAction();
 			button.setAction(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 				}
 			});
+			if (model instanceof Invalidatable) {
+				((Invalidatable) model).invalidate();
+			}
 			
 		} else if (c instanceof JTable) {
 			
 			JTable table = (JTable) c;
+			TableModel model1 = table.getModel();
 			table.setModel(new DefaultTableModel());
+			if (model1 instanceof Invalidatable) {
+				((Invalidatable) model1).invalidate();
+			}
+			
+			TableColumnModel model2 = table.getColumnModel();
 			table.setColumnModel(new DefaultTableColumnModel());
+			if (model2 instanceof Invalidatable) {
+				((Invalidatable) model2).invalidate();
+			}
+			
+			ListSelectionModel model3 = table.getSelectionModel();
 			table.setSelectionModel(new DefaultListSelectionModel());
+			if (model3 instanceof Invalidatable) {
+				((Invalidatable) model3).invalidate();
+			}
 			
 		} else if (c instanceof JTree) {
 			
 			JTree tree = (JTree) c;
-			tree.setModel(new DefaultTreeModel(new TreeNode() {
-				@SuppressWarnings("rawtypes")
-				@Override
-				public Enumeration children() {
-					return new Vector().elements();
-				}
-				
-				@Override
-				public boolean getAllowsChildren() {
-					return false;
-				}
-				
-				@Override
-				public TreeNode getChildAt(int childIndex) {
-					return null;
-				}
-				
-				@Override
-				public int getChildCount() {
-					return 0;
-				}
-				
-				@Override
-				public int getIndex(TreeNode node) {
-					return 0;
-				}
-				
-				@Override
-				public TreeNode getParent() {
-					return null;
-				}
-				
-				@Override
-				public boolean isLeaf() {
-					return true;
-				}
-			}));
+			TreeModel model1 = tree.getModel();
+			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode()));
+			if (model1 instanceof Invalidatable) {
+				((Invalidatable) model1).invalidate();
+			}
+			
+			TreeSelectionModel model2 = tree.getSelectionModel();
 			tree.setSelectionModel(new DefaultTreeSelectionModel());
+			if (model2 instanceof Invalidatable) {
+				((Invalidatable) model2).invalidate();
+			}
 			
 		} else if (c instanceof Resettable) {
 			
@@ -397,7 +406,6 @@ public class GUIUtil {
 	}
 	
 	
-
 
 	/**
 	 * A mouse listener that toggles the state of a boolean value in a table model

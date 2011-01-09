@@ -33,10 +33,10 @@ public interface MotorInstance extends Cloneable, Monitorable {
 	public Coordinate getCG();
 	
 	/**
-	 * Return the average longitudal moment of inertia during the last step.
+	 * Return the average longitudinal moment of inertia during the last step.
 	 * This is the actual inertia, not the unit inertia!
 	 */
-	public double getLongitudalInertia();
+	public double getLongitudinalInertia();
 	
 	/**
 	 * Return the average rotational moment of inertia during the last step.

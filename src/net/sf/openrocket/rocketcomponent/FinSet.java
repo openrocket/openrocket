@@ -465,7 +465,7 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	/*
-	 * Return an approximation of the longitudal unitary inertia of the fin set.
+	 * Return an approximation of the longitudinal unitary inertia of the fin set.
 	 * The process is the following:
 	 * 
 	 * 1. Approximate the fin with a rectangular fin
@@ -478,7 +478,7 @@ public abstract class FinSet extends ExternalComponent {
 	 *    set and multiplied by the number of fins.
 	 */
 	@Override
-	public double getLongitudalUnitInertia() {
+	public double getLongitudinalUnitInertia() {
 		double area = getFinArea();
 		if (MathUtil.equals(area, 0))
 			return 0;
@@ -684,9 +684,7 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	@Override
-	protected void copyFrom(RocketComponent c) {
-		super.copyFrom(c);
-		
+	protected List<RocketComponent> copyFrom(RocketComponent c) {
 		FinSet src = (FinSet) c;
 		this.fins = src.fins;
 		this.finRotation = src.finRotation;
@@ -700,5 +698,7 @@ public abstract class FinSet extends ExternalComponent {
 		this.tabLength = src.tabLength;
 		this.tabRelativePosition = src.tabRelativePosition;
 		this.tabShift = src.tabShift;
+		
+		return super.copyFrom(c);
 	}
 }

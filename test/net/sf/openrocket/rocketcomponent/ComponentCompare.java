@@ -42,8 +42,8 @@ public class ComponentCompare {
 	public static void assertDeepEquality(RocketComponent c1, RocketComponent c2) {
 		assertEquality(c1, c2);
 		
-		Iterator<RocketComponent> i1 = c1.iterator();
-		Iterator<RocketComponent> i2 = c2.iterator();
+		Iterator<RocketComponent> i1 = c1.getChildren().iterator();
+		Iterator<RocketComponent> i2 = c2.getChildren().iterator();
 		while (i1.hasNext()) {
 			assertTrue("iterator continues", i2.hasNext());
 			RocketComponent comp1 = i1.next();
@@ -59,8 +59,8 @@ public class ComponentCompare {
 			boolean allowNameDifference) {
 		assertSimilarity(c1, c2, allowNameDifference);
 		
-		Iterator<RocketComponent> i1 = c1.iterator();
-		Iterator<RocketComponent> i2 = c2.iterator();
+		Iterator<RocketComponent> i1 = c1.getChildren().iterator();
+		Iterator<RocketComponent> i2 = c2.getChildren().iterator();
 		while (i1.hasNext()) {
 			assertTrue("iterator continues", i2.hasNext());
 			RocketComponent comp1 = i1.next();

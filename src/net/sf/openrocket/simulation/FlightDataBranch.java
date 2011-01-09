@@ -1,12 +1,12 @@
 package net.sf.openrocket.simulation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Monitorable;
 import net.sf.openrocket.util.Mutable;
 
@@ -157,12 +157,11 @@ public class FlightDataBranch implements Monitorable {
 	 * @return		a list of the variable values, or <code>null</code> if
 	 * 				the variable type hasn't been added to this branch.
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Double> get(FlightDataType type) {
 		ArrayList<Double> list = values.get(type);
 		if (list == null)
 			return null;
-		return (List<Double>) list.clone();
+		return list.clone();
 	}
 	
 	/**
@@ -226,9 +225,8 @@ public class FlightDataBranch implements Monitorable {
 	 * 
 	 * @return	the list of events during the flight.
 	 */
-	@SuppressWarnings("unchecked")
 	public List<FlightEvent> getEvents() {
-		return (List<FlightEvent>) events.clone();
+		return events.clone();
 	}
 	
 	

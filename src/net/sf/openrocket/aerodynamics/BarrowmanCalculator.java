@@ -725,7 +725,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		calcMap = new HashMap<RocketComponent, RocketComponentCalc>();
 		
-		iterator = configuration.getRocket().deepIterator();
+		iterator = configuration.getRocket().iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			

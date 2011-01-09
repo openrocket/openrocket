@@ -1,6 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +11,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
@@ -260,7 +260,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * 
 	 * @return	a <code>Collection</code> containing coordinates bouding the rocket.
 	 */
-	@SuppressWarnings("unchecked")
 	public Collection<Coordinate> getBounds() {
 		if (rocket.getModID() != boundsModID) {
 			boundsModID = rocket.getModID();
@@ -285,7 +284,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 				cachedLength = maxX - minX;
 			}
 		}
-		return (ArrayList<Coordinate>) cachedBounds.clone();
+		return cachedBounds.clone();
 	}
 	
 	
@@ -368,7 +367,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			
 			for (RocketComponent stage : rocket.getChildren()) {
 				if (isStageActive(stage)) {
-					list.add(stage.deepIterator());
+					list.add(stage.iterator(false));
 				}
 			}
 			

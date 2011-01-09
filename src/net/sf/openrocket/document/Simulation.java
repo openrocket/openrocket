@@ -1,6 +1,5 @@
 package net.sf.openrocket.document;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.ChangeEvent;
@@ -25,6 +24,7 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationListenerException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.SafetyMutex;
@@ -57,7 +57,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		NOT_SIMULATED
 	}
 	
-	private final SafetyMutex mutex = new SafetyMutex();
+	private SafetyMutex mutex = SafetyMutex.newInstance();
 	
 	private final Rocket rocket;
 	
@@ -372,16 +372,16 @@ public class Simulation implements ChangeSource, Cloneable {
 	 *  
 	 * @return	a copy of this simulation and its conditions.
 	 */
-	@SuppressWarnings("unchecked")
 	public Simulation copy() {
 		mutex.lock("copy");
 		try {
 			
 			Simulation copy = (Simulation) super.clone();
 			
+			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
 			copy.conditions = this.conditions.clone();
-			copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
+			copy.simulationListeners = this.simulationListeners.clone();
 			copy.listeners = new ArrayList<ChangeListener>();
 			copy.simulatedConditions = null;
 			copy.simulatedMotors = null;
@@ -405,7 +405,6 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @param newRocket		the rocket for the new simulation.
 	 * @return				a new simulation with the same conditions and properties.
 	 */
-	@SuppressWarnings("unchecked")
 	public Simulation duplicateSimulation(Rocket newRocket) {
 		mutex.lock("duplicateSimulation");
 		try {
@@ -413,7 +412,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			copy.name = this.name;
 			copy.conditions.copyFrom(this.conditions);
-			copy.simulationListeners = (ArrayList<String>) this.simulationListeners.clone();
+			copy.simulationListeners = this.simulationListeners.clone();
 			copy.simulationStepperClass = this.simulationStepperClass;
 			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 			

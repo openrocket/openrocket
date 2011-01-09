@@ -15,7 +15,7 @@ import net.sf.openrocket.util.MathUtil;
 
 
 public class CaliberUnit extends GeneralUnit {
-
+	
 	public static final double DEFAULT_CALIBER = 0.01;
 	
 	private final Configuration configuration;
@@ -23,7 +23,7 @@ public class CaliberUnit extends GeneralUnit {
 	
 	private double caliber = -1;
 	
-	
+
 	/* Listener for rocket and configuration, resets the caliber to -1. */
 	private final ChangeListener listener = new ChangeListener() {
 		@Override
@@ -33,7 +33,7 @@ public class CaliberUnit extends GeneralUnit {
 	};
 	
 	
-	
+
 	public CaliberUnit(Configuration configuration) {
 		super(1.0, "cal");
 		this.configuration = configuration;
@@ -63,7 +63,7 @@ public class CaliberUnit extends GeneralUnit {
 		
 		return value * caliber;
 	}
-
+	
 	@Override
 	public double toUnit(double value) {
 		if (caliber < 0)
@@ -71,7 +71,7 @@ public class CaliberUnit extends GeneralUnit {
 		
 		return value / caliber;
 	}
-
+	
 	
 	// TODO: HIGH:  Check caliber calculation method...
 	private void calculateCaliber() {
@@ -81,7 +81,7 @@ public class CaliberUnit extends GeneralUnit {
 		if (configuration != null) {
 			iterator = configuration.iterator();
 		} else if (rocket != null) {
-			iterator = rocket.deepIterator();
+			iterator = rocket.iterator(false);
 		} else {
 			Collection<RocketComponent> set = Collections.emptyList();
 			iterator = set.iterator();
@@ -90,8 +90,8 @@ public class CaliberUnit extends GeneralUnit {
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			if (c instanceof SymmetricComponent) {
-				double r1 = ((SymmetricComponent)c).getForeRadius() * 2;
-				double r2 = ((SymmetricComponent)c).getAftRadius() * 2;
+				double r1 = ((SymmetricComponent) c).getForeRadius() * 2;
+				double r2 = ((SymmetricComponent) c).getAftRadius() * 2;
 				caliber = MathUtil.max(caliber, r1, r2);
 			}
 		}

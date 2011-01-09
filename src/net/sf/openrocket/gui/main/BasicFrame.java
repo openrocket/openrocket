@@ -1,5 +1,62 @@
 package net.sf.openrocket.gui.main;
 
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -41,62 +98,6 @@ import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.SaveFileWorker;
 import net.sf.openrocket.util.TestRockets;
-
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class BasicFrame extends JFrame {
 	private static final LogHelper log = Application.getLogger();
@@ -177,6 +178,7 @@ public class BasicFrame extends JFrame {
 
 		// Set replaceable flag to false at first modification
 		rocket.addComponentChangeListener(new ComponentChangeListener() {
+			@Override
 			public void componentChanged(ComponentChangeEvent e) {
 				replaceable = false;
 				BasicFrame.this.rocket.removeComponentChangeListener(this);
@@ -230,6 +232,7 @@ public class BasicFrame extends JFrame {
 		
 
 		rocket.addComponentChangeListener(new ComponentChangeListener() {
+			@Override
 			public void componentChanged(ComponentChangeEvent e) {
 				setTitle();
 			}
@@ -319,6 +322,7 @@ public class BasicFrame extends JFrame {
 		
 		// Update dialog when selection is changed
 		componentSelectionModel.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				// Scroll tree to the selected item
 				TreePath path = componentSelectionModel.getSelectionPath();
@@ -404,6 +408,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("Create a new rocket design");
 		item.setIcon(Icons.FILE_NEW);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("New... selected");
 				newAction();
@@ -420,6 +425,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("Open a rocket design");
 		item.setIcon(Icons.FILE_OPEN);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Open... selected");
 				openAction();
@@ -433,6 +439,7 @@ public class BasicFrame extends JFrame {
 				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
 		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Open example... selected");
 				URL[] urls = ExampleDesignDialog.selectExampleDesigns(BasicFrame.this);
@@ -453,6 +460,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("Save the current rocket design");
 		item.setIcon(Icons.FILE_SAVE);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Save selected");
 				saveAction();
@@ -467,6 +475,7 @@ public class BasicFrame extends JFrame {
 				"to a new file");
 		item.setIcon(Icons.FILE_SAVE_AS);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Save as... selected");
 				saveAsAction();
@@ -474,14 +483,28 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-		//		menu.addSeparator();
-		menu.add(new JSeparator());
+
+		item = new JMenuItem("Print...", KeyEvent.VK_P);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
+		item.getAccessibleContext().setAccessibleDescription("Print parts list and fin template");
+		item.setIcon(Icons.FILE_PRINT);
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				printAction();
+			}
+		});
+		menu.add(item);
+		
+
+		menu.addSeparator();
 		
 		item = new JMenuItem("Close", KeyEvent.VK_C);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
 		item.getAccessibleContext().setAccessibleDescription("Close the current rocket design");
 		item.setIcon(Icons.FILE_CLOSE);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Close selected");
 				closeAction();
@@ -490,23 +513,13 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 		menu.addSeparator();
-
-
-        item = new JMenuItem("Print...", KeyEvent.VK_P);
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
-        item.getAccessibleContext().setAccessibleDescription("Print parts list and fin template");
-        item.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                printAction();
-            }
-        });
-        menu.add(item);
-        
+		
 		item = new JMenuItem("Quit", KeyEvent.VK_Q);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
 		item.getAccessibleContext().setAccessibleDescription("Quit the program");
 		item.setIcon(Icons.FILE_QUIT);
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Quit selected");
 				quitAction();
@@ -561,6 +574,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("Setup the application " +
 				"preferences");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Preferences selected");
 				PreferencesDialog.showPreferences();
@@ -581,6 +595,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("Analyze the rocket components " +
 				"separately");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Component analysis selected");
 				ComponentAnalysisDialog.showDialog(rocketpanel);
@@ -609,6 +624,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem("License", KeyEvent.VK_L);
 		item.getAccessibleContext().setAccessibleDescription("OpenRocket license information");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("License selected");
 				new LicenseDialog(BasicFrame.this).setVisible(true);
@@ -622,6 +638,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription("Information about reporting " +
 				"bugs in OpenRocket");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Bug report selected");
 				BugReportDialog.showBugReportDialog(BasicFrame.this);
@@ -632,6 +649,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem("Debug log");
 		item.getAccessibleContext().setAccessibleDescription("View the OpenRocket debug log");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Debug log selected");
 				new DebugLogDialog(BasicFrame.this).setVisible(true);
@@ -644,6 +662,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem("About", KeyEvent.VK_A);
 		item.getAccessibleContext().setAccessibleDescription("About OpenRocket");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("About selected");
 				new AboutDialog(BasicFrame.this).setVisible(true);
@@ -666,6 +685,7 @@ public class BasicFrame extends JFrame {
 		
 		item = new JMenuItem("What is this menu?");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("What is this menu? selected");
 				JOptionPane.showMessageDialog(BasicFrame.this,
@@ -754,7 +774,7 @@ public class BasicFrame extends JFrame {
 				log.user("Memory statistics selected");
 				
 				// Get discarded but remaining objects (this also runs System.gc multiple times)
-				List<MemoryData> objects = MemoryManagement.getRemainingObjects();
+				List<MemoryData> objects = MemoryManagement.getRemainingCollectableObjects();
 				StringBuilder sb = new StringBuilder();
 				sb.append("Objects that should have been garbage-collected but have not been:\n");
 				int count = 0;
@@ -833,6 +853,7 @@ public class BasicFrame extends JFrame {
 		
 		item = new JMenuItem("Exception from EDT");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Exception from EDT selected");
 				SwingUtilities.invokeLater(new Runnable() {
@@ -848,13 +869,13 @@ public class BasicFrame extends JFrame {
 		
 		item = new JMenuItem("Exception from other thread");
 		item.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Exception from other thread selected");
 				new Thread() {
 					@Override
 					public void run() {
-						throw new RuntimeException("Testing exception from " +
-								"newly created thread");
+						throw new RuntimeException("Testing exception from newly created thread");
 					}
 				}.start();
 			}
@@ -1278,13 +1299,13 @@ public class BasicFrame extends JFrame {
 	
 	
 
-    /**
-     * 
-     */
-    public void printAction() {
-        new PrintDialog(document);
-    }
-    
+	/**
+	 * 
+	 */
+	public void printAction() {
+		new PrintDialog(document);
+	}
+	
 	/**
 	 * Open a new design window with a basic rocket+stage.
 	 */

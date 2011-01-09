@@ -169,7 +169,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 * diminished by it affecting only 1/6th of the total, so it's an acceptable error.
 		 */
 		double thrustEstimate = store.thrustForce;
-		store.thrustForce = calculateThrust(status, store.timestep, store.longitudalAcceleration,
+		store.thrustForce = calculateThrust(status, store.timestep, store.longitudinalAcceleration,
 				store.atmosphericConditions, true);
 		double thrustDiff = Math.abs(store.thrustForce - thrustEstimate);
 		// Log if difference over 1%, recompute if over 10%
@@ -357,8 +357,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			double momZ = store.forces.getCroll() * dynP * refArea * refLength;
 			
 			// Compute acceleration in rocket coordinates
-			store.angularAcceleration = new Coordinate(momX / store.massData.getLongitudalInertia(),
-						momY / store.massData.getLongitudalInertia(), momZ / store.massData.getRotationalInertia());
+			store.angularAcceleration = new Coordinate(momX / store.massData.getLongitudinalInertia(),
+						momY / store.massData.getLongitudinalInertia(), momZ / store.massData.getRotationalInertia());
 			
 			store.rollAcceleration = store.angularAcceleration.z;
 			// TODO: LOW: This should be hypot, but does it matter?
@@ -576,6 +576,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
 		if (store.massData != null) {
 			data.setValue(FlightDataType.TYPE_MASS, store.massData.getCG().weight);
+			data.setValue(FlightDataType.TYPE_LONGITUDINAL_INERTIA, store.massData.getLongitudinalInertia());
+			data.setValue(FlightDataType.TYPE_ROTATIONAL_INERTIA, store.massData.getRotationalInertia());
 		}
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, store.thrustForce);
@@ -667,7 +669,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		public FlightConditions flightConditions;
 		
-		public double longitudalAcceleration = Double.NaN;
+		public double longitudinalAcceleration = Double.NaN;
 		
 		public MassData massData;
 		

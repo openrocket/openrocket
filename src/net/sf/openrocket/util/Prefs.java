@@ -508,7 +508,7 @@ public class Prefs {
 		if (dpi < 10)
 			dpi = 960;
 		
-		return ((double) dpi) / 10.0;
+		return (dpi) / 10.0;
 	}
 	
 	
@@ -558,7 +558,19 @@ public class Prefs {
 	}
 	
 	
-
+	/**
+	 * Return whether to use additional safety code checks.
+	 */
+	public static boolean useSafetyChecks() {
+		// Currently default to false unless openrocket.debug.safetycheck is defined
+		String s = System.getProperty("openrocket.debug.safetycheck");
+		if (s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"))) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 	public static Point getWindowPosition(Class<?> c) {
 		int x, y;
 		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);

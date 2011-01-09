@@ -19,8 +19,8 @@ public class ComponentCompareTest {
 		Rocket r1 = net.sf.openrocket.util.TestRockets.makeBigBlue();
 		Rocket r2 = net.sf.openrocket.util.TestRockets.makeBigBlue();
 
-		Iterator<RocketComponent> i1 = r1.deepIterator(true);
-		Iterator<RocketComponent> i2 = r2.deepIterator(true);
+		Iterator<RocketComponent> i1 = r1.iterator(true);
+		Iterator<RocketComponent> i2 = r2.iterator(true);
 		while (i1.hasNext()) {
 			assertTrue(i2.hasNext());
 			
@@ -46,8 +46,8 @@ public class ComponentCompareTest {
 		}
 		
 		
-		i1 = r1.deepIterator(true);
-		i2 = r2.deepIterator(true);
+		i1 = r1.iterator(true);
+		i2 = r2.iterator(true);
 		boolean finsetfound = false;
 		while (i1.hasNext()) {
 			RocketComponent c1 = i1.next();

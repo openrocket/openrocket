@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -16,18 +17,26 @@ import net.sf.openrocket.startup.Application;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SafetyMutex {
+public abstract class SafetyMutex {
 	private static final LogHelper log = Application.getLogger();
 	
-	// Package-private for unit testing
-	static volatile boolean errorReported = false;
 	
-	// lockingThread is set when this mutex is locked.
-	Thread lockingThread = null;
-	// Stack of places that have locked this mutex
-	final LinkedList<String> locations = new LinkedList<String>();
+	/**
+	 * Return a new instance of a safety mutex.  This returns an actual implementation
+	 * or a bogus implementation depending on whether safety checks are enabled or disabled.
+	 * 
+	 * @return	a new instance of a safety mutex
+	 */
+	public static SafetyMutex newInstance() {
+		if (Prefs.useSafetyChecks()) {
+			return new ConcreteSafetyMutex();
+		} else {
+			return new BogusSafetyMutex();
+		}
+	}
 	
 	
+
 	/**
 	 * Verify that this mutex is unlocked, but don't lock it.  This has the same effect
 	 * as <code>mutex.lock(); mutex.unlock();</code> and is useful for methods that return
@@ -35,12 +44,7 @@ public class SafetyMutex {
 	 * 
 	 * @throws ConcurrencyException	if this mutex is already locked.
 	 */
-	public synchronized void verify() {
-		checkState(true);
-		if (lockingThread != null && lockingThread != Thread.currentThread()) {
-			error("Mutex is already locked", true);
-		}
-	}
+	public abstract void verify();
 	
 	
 	/**
@@ -52,23 +56,9 @@ public class SafetyMutex {
 	 * 
 	 * @throws ConcurrencyException		if this mutex is already locked.
 	 */
-	public synchronized void lock(String location) {
-		if (location == null) {
-			throw new IllegalArgumentException("location is null");
-		}
-		checkState(true);
-		
-		Thread currentThread = Thread.currentThread();
-		if (lockingThread != null && lockingThread != currentThread) {
-			error("Mutex is already locked", true);
-		}
-		
-		lockingThread = currentThread;
-		locations.push(location);
-	}
+	public abstract void lock(String location);
 	
 	
-
 	/**
 	 * Unlock this mutex.  If this mutex is not locked at the position of the parameter
 	 * or was locked by another thread than the current thread an error is raised,
@@ -79,93 +69,170 @@ public class SafetyMutex {
 	 * @param location	a location string matching that which locked the mutex
 	 * @return 			whether the unlocking was successful (this normally doesn't need to be checked)
 	 */
-	public synchronized boolean unlock(String location) {
-		try {
-			
-			if (location == null) {
-				ExceptionHandler.handleErrorCondition("location is null");
-				location = "";
-			}
-			checkState(false);
-			
+	public abstract boolean unlock(String location);
+	
+	
 
-			// Check that the mutex is locked
-			if (lockingThread == null) {
-				error("Mutex was not locked", false);
-				return false;
-			}
-			
-			// Check that the mutex is locked by the current thread
-			if (lockingThread != Thread.currentThread()) {
-				error("Mutex is being unlocked from differerent thread than where it was locked", false);
-				return false;
-			}
-			
-			// Check that the unlock location is correct
-			String lastLocation = locations.pop();
-			if (!location.equals(lastLocation)) {
-				locations.push(lastLocation);
-				error("Mutex unlocking location does not match locking location, location=" + location, false);
-				return false;
-			}
-			
-			// Unlock the mutex if the last one
-			if (locations.isEmpty()) {
-				lockingThread = null;
-			}
+	/**
+	 * Bogus implementation of a safety mutex (used when safety checking is not performed).
+	 */
+	static class BogusSafetyMutex extends SafetyMutex {
+		
+		@Override
+		public void verify() {
+		}
+		
+		@Override
+		public void lock(String location) {
+		}
+		
+		@Override
+		public boolean unlock(String location) {
 			return true;
-		} catch (Exception e) {
-			ExceptionHandler.handleErrorCondition("An exception occurred while unlocking a mutex, " +
-					"locking thread=" + lockingThread + " locations=" + locations, e);
-			return false;
 		}
+		
 	}
 	
-	
-
 	/**
-	 * Check that the internal state of the mutex (lockingThread vs. locations) is correct.
+	 * A concrete, working implementation of a safety mutex.
 	 */
-	private void checkState(boolean throwException) {
-		/*
-		 * Disallowed states:
-		 *   lockingThread == null  &&  !locations.isEmpty()
-		 *   lockingThread != null  &&  locations.isEmpty()
-		 */
-		if ((lockingThread == null) ^ (locations.isEmpty())) {
-			// Clear the mutex only after error() has executed (and possibly thrown an exception)
+	static class ConcreteSafetyMutex extends SafetyMutex {
+		private static final boolean STORE_LOCKING_LOCATION = (System.getProperty("openrocket.debug.mutexlocation") != null);
+		
+		// Package-private for unit testing
+		static volatile boolean errorReported = false;
+		
+		// lockingThread is set when this mutex is locked.
+		Thread lockingThread = null;
+		// longingLocation is set when lockingThread is, if STORE_LOCKING_LOCATION is true
+		TraceException lockingLocation = null;
+		// Stack of places that have locked this mutex
+		final LinkedList<String> locations = new LinkedList<String>();
+		
+		
+
+		@Override
+		public synchronized void verify() {
+			checkState(true);
+			if (lockingThread != null && lockingThread != Thread.currentThread()) {
+				error("Mutex is already locked", true);
+			}
+		}
+		
+		
+
+		@Override
+		public synchronized void lock(String location) {
+			if (location == null) {
+				throw new IllegalArgumentException("location is null");
+			}
+			checkState(true);
+			
+			Thread currentThread = Thread.currentThread();
+			if (lockingThread != null && lockingThread != currentThread) {
+				error("Mutex is already locked", true);
+			}
+			
+			lockingThread = currentThread;
+			if (STORE_LOCKING_LOCATION) {
+				lockingLocation = new TraceException("Location where mutex was locked '" + location + "'");
+			}
+			locations.push(location);
+		}
+		
+		
+
+
+		@Override
+		public synchronized boolean unlock(String location) {
 			try {
-				error("Mutex data inconsistency occurred - unlocking mutex", throwException);
-			} finally {
-				lockingThread = null;
-				locations.clear();
+				
+				if (location == null) {
+					ExceptionHandler.handleErrorCondition("location is null");
+					location = "";
+				}
+				checkState(false);
+				
+
+				// Check that the mutex is locked
+				if (lockingThread == null) {
+					error("Mutex was not locked", false);
+					return false;
+				}
+				
+				// Check that the mutex is locked by the current thread
+				if (lockingThread != Thread.currentThread()) {
+					error("Mutex is being unlocked from differerent thread than where it was locked", false);
+					return false;
+				}
+				
+				// Check that the unlock location is correct
+				String lastLocation = locations.pop();
+				if (!location.equals(lastLocation)) {
+					locations.push(lastLocation);
+					error("Mutex unlocking location does not match locking location, location=" + location, false);
+					return false;
+				}
+				
+				// Unlock the mutex if the last one
+				if (locations.isEmpty()) {
+					lockingThread = null;
+					lockingLocation = null;
+				}
+				return true;
+			} catch (Exception e) {
+				ExceptionHandler.handleErrorCondition("An exception occurred while unlocking a mutex, " +
+						"locking thread=" + lockingThread + " locations=" + locations, e);
+				return false;
+			}
+		}
+		
+		
+
+		/**
+		 * Check that the internal state of the mutex (lockingThread vs. locations) is correct.
+		 */
+		private void checkState(boolean throwException) {
+			/*
+			 * Disallowed states:
+			 *   lockingThread == null  &&  !locations.isEmpty()
+			 *   lockingThread != null  &&  locations.isEmpty()
+			 */
+			if ((lockingThread == null) ^ (locations.isEmpty())) {
+				// Clear the mutex only after error() has executed (and possibly thrown an exception)
+				try {
+					error("Mutex data inconsistency occurred - unlocking mutex", throwException);
+				} finally {
+					lockingThread = null;
+					lockingLocation = null;
+					locations.clear();
+				}
+			}
+		}
+		
+		
+		/**
+		 * Raise an error.  The first occurrence is passed directly to the exception handler,
+		 * later errors are simply logged.
+		 */
+		private void error(String message, boolean throwException) {
+			message = message +
+					", current thread = " + Thread.currentThread() +
+					", locking thread=" + lockingThread +
+					", locking locations=" + locations;
+			
+			ConcurrencyException ex = new ConcurrencyException(message, lockingLocation);
+			
+			if (!errorReported) {
+				errorReported = true;
+				ExceptionHandler.handleErrorCondition(ex);
+			} else {
+				log.error(message, ex);
+			}
+			
+			if (throwException) {
+				throw ex;
 			}
 		}
 	}
-	
-	
-	/**
-	 * Raise an error.  The first occurrence is passed directly to the exception handler,
-	 * later errors are simply logged.
-	 */
-	private void error(String message, boolean throwException) {
-		message = message +
-				", current thread = " + Thread.currentThread() +
-				", locking thread=" + lockingThread +
-				", locking locations=" + locations;
-		
-		ConcurrencyException ex = new ConcurrencyException(message);
-		
-		if (!errorReported) {
-			errorReported = true;
-			ExceptionHandler.handleErrorCondition(ex);
-		} else {
-			log.error(message, ex);
-		}
-		
-		if (throwException) {
-			throw ex;
-		}
-	}
-	
 }

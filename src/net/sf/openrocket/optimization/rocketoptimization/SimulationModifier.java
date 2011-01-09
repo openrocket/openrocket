@@ -1,12 +1,16 @@
 package net.sf.openrocket.optimization.rocketoptimization;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ChangeSource;
 
 /**
  * An interface what modifies a single parameter in a rocket simulation
  * based on a double value in the range [0...1].
+ * <p>
+ * The implementation must fire change events when the minimum and maximum ranges
+ * are modified, NOT when the actual modified value changes.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -32,8 +36,9 @@ public interface SimulationModifier extends ChangeSource {
 	/**
 	 * Return the current value of the modifier in SI units.
 	 * @return	the current value of this parameter in SI units.
+	 * @throws OptimizationException	if fetching the current value fails
 	 */
-	public double getCurrentValue();
+	public double getCurrentValue(Simulation simulation) throws OptimizationException;
 	
 	
 	/**
@@ -63,7 +68,7 @@ public interface SimulationModifier extends ChangeSource {
 	
 	
 	/**
-	 * Return the unit group used for the values returned by {@link #getCurrentValue()} etc.
+	 * Return the unit group used for the values returned by {@link #getCurrentValue(Simulation)} etc.
 	 * @return	the unit group
 	 */
 	public UnitGroup getUnitGroup();
@@ -72,9 +77,11 @@ public interface SimulationModifier extends ChangeSource {
 	/**
 	 * Return the current scaled value.  This is normally within the range [0...1], but
 	 * can be outside the range if the current value is outside of the min and max values.
+	 * 
 	 * @return	the current value of this parameter (normally between [0 ... 1])
+	 * @throws OptimizationException 	if fetching the current value fails
 	 */
-	public double getCurrentScaledValue();
+	public double getCurrentScaledValue(Simulation simulation) throws OptimizationException;
 	
 	
 
@@ -83,7 +90,8 @@ public interface SimulationModifier extends ChangeSource {
 	 * 
 	 * @param simulation	the simulation to modify
 	 * @param scaledValue	the scaled value in the range [0...1]
+	 * @throws OptimizationException 	if the modification fails
 	 */
-	public void modify(Simulation simulation, double scaledValue);
+	public void modify(Simulation simulation, double scaledValue) throws OptimizationException;
 	
 }
