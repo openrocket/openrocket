@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -257,6 +258,7 @@ public class BugReportDialog extends JDialog {
 		sb.append("OpenRocket version: " + Prefs.getVersion() + "\n");
 		sb.append("OpenRocket source: " + Prefs.getBuildSource() + "\n");
 		sb.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
+		sb.append("Current default locale: " + Locale.getDefault() + "\n");
 		sb.append("System properties:\n");
 		
 		// Sort the keys

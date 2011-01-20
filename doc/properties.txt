@@ -2,6 +2,14 @@
 System properties used by OpenRocket:
 =====================================
 
+General options
+---------------
+
+openrocket.locale
+	Select the default locale to be used, for example "en_US".
+	If set to "xx", the logical keys will be displayed instead of the translated strings.
+
+
 
 Logging options
 ---------------

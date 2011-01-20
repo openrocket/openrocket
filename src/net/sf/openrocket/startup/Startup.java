@@ -104,11 +104,17 @@ public class Startup {
 
 	private static void checkDebugStatus() {
 		if (System.getProperty("openrocket.debug") != null) {
-			System.setProperty("openrocket.log.stdout", "VBOSE");
-			System.setProperty("openrocket.log.tracelevel", "VBOSE");
-			System.setProperty("openrocket.debug.menu", "true");
-			System.setProperty("openrocket.debug.mutexlocation", "true");
-			System.setProperty("openrocket.debug.motordigest", "true");
+			setPropertyIfNotSet("openrocket.log.stdout", "VBOSE");
+			setPropertyIfNotSet("openrocket.log.tracelevel", "VBOSE");
+			setPropertyIfNotSet("openrocket.debug.menu", "true");
+			setPropertyIfNotSet("openrocket.debug.mutexlocation", "true");
+			setPropertyIfNotSet("openrocket.debug.motordigest", "true");
+		}
+	}
+	
+	private static void setPropertyIfNotSet(String key, String value) {
+		if (System.getProperty(key) == null) {
+			System.setProperty(key, value);
 		}
 	}
 	
