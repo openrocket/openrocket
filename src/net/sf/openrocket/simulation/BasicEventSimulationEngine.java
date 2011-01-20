@@ -6,7 +6,6 @@ import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorId;
@@ -57,7 +56,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// Initialize the simulation
 		currentStepper = flightStepper;
-		status = initialStatus(configuration, motorConfiguration, simulationConditions);
+		status = initialStatus(configuration, motorConfiguration, simulationConditions, flightData);
 		status = currentStepper.initialize(status);
 		
 
@@ -161,7 +160,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 	private SimulationStatus initialStatus(Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
-			SimulationConditions simulationConditions) {
+			SimulationConditions simulationConditions, FlightData flightData) {
 		
 		SimulationStatus init = new SimulationStatus();
 		init.setSimulationConditions(simulationConditions);
@@ -227,7 +226,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		init.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
 		
 		init.setFlightData(new FlightDataBranch("MAIN", FlightDataType.TYPE_TIME));
-		init.setWarnings(new WarningSet());
+		init.setWarnings(flightData.getWarningSet());
 		
 		return init;
 	}

@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JOptionPane;
@@ -26,6 +27,9 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.main.SimpleFileFilter;
 import net.sf.openrocket.gui.main.Splash;
+import net.sf.openrocket.l10n.DebugTranslator;
+import net.sf.openrocket.l10n.ResourceBundleTranslator;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.DelegatorLogger;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
@@ -68,6 +72,9 @@ public class Startup {
 		// Initialize logging first so we can use it
 		initializeLogging();
 		
+		// Setup the translations
+		initializeL10n();
+		
 		// Check that we have a head
 		checkHead();
 		
@@ -94,6 +101,7 @@ public class Startup {
 	
 
 
+
 	private static void checkDebugStatus() {
 		if (System.getProperty("openrocket.debug") != null) {
 			System.setProperty("openrocket.log.stdout", "VBOSE");
@@ -105,7 +113,38 @@ public class Startup {
 	}
 	
 	
-
+	/**
+	 * Initializes the localization system.
+	 */
+	private static void initializeL10n() {
+		String locale = System.getProperty("openrocket.locale");
+		if (locale != null) {
+			Locale l;
+			String[] split = locale.split("[_-]", 3);
+			if (split.length == 1) {
+				l = new Locale(split[0]);
+			} else if (split.length == 2) {
+				l = new Locale(split[0], split[1]);
+			} else {
+				l = new Locale(split[0], split[1], split[2]);
+			}
+			Locale.setDefault(l);
+		}
+		
+		Translator t;
+		if (Locale.getDefault().getLanguage().equals("xx")) {
+			t = new DebugTranslator();
+		} else {
+			t = new ResourceBundleTranslator("l10n.messages");
+		}
+		
+		log.info("Set up translation for locale " + Locale.getDefault() +
+				", debug.currentFile=" + t.get("debug.currentFile"));
+		
+		Application.setTranslator(t);
+	}
+	
+	
 
 	private static void runMain(String[] args) {
 		

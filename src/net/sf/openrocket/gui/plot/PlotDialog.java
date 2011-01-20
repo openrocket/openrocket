@@ -27,10 +27,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
@@ -417,6 +419,11 @@ public class PlotDialog extends JDialog {
 		});
 		panel.add(check, "split, left");
 		
+
+		JLabel label = new StyledLabel("Click+drag down+right to zoom in, up+left to zoom out", -2);
+		panel.add(label, "gapleft para");
+		
+
 		panel.add(new JPanel(), "growx");
 		
 		JButton button = new JButton("Close");

@@ -254,7 +254,7 @@ public class SimulationPanel extends JPanel {
 					
 					@Override
 					public int getExactWidth() {
-						return 32;
+						return 36;
 					}
 					
 					@Override

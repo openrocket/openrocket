@@ -1,3 +1,17 @@
+2011-01-20  Sampo Niskanen
+
+	* Initial i18n support
+
+2011-01-18  Sampo Niskanen
+
+	* [BUG] Simulation warnings were not being stored
+	* [BUG] Exclamation mark did not fit in simulation table
+	* Added instructions for zooming in plot dialog
+
+2010-12-01  Doug Pedrick
+
+	* Merging printing support
+
 2010-10-30  Sampo Niskanen
 
 	* [BUG] Invalid refereces to components used in caches
@@ -6,7 +20,7 @@
 
 	* [BUG] Take launch lug radial angle into account when loading rkt file
 
-2010-10-24  Sampo Niskane
+2010-10-24  Sampo Niskanen
 
 	* Added SafetyMutex and took into use in Simulation
 
