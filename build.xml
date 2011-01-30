@@ -62,7 +62,7 @@
 	<target name="jar" depends="build">
 		<copy todir="${dist.dir}/">
 			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes build.properties fileformat.txt" />
-			<fileset dir="." includes="datafiles/ pix/" />
+			<fileset dir="." includes="datafiles/ pix/ l10n/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
 		<jar destfile="${jar.file}" basedir="${dist.dir}">
