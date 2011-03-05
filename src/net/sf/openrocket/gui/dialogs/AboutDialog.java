@@ -21,7 +21,7 @@ public class AboutDialog extends JDialog {
 	
 	public static final String OPENROCKET_URL = "http://openrocket.sourceforge.net/";
 	
-
+	
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
 		
@@ -29,21 +29,21 @@ public class AboutDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")), 
+		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")),
 				"spany 5, top");
 		
 		panel.add(new StyledLabel("OpenRocket", 20), "ax 50%, growy, wrap para");
 		panel.add(new StyledLabel("Version " + version, 3), "ax 50%, growy, wrap rel");
 		
-//		String source = Prefs.getBuildSource();
-//		if (!Prefs.DEFAULT_BUILD_SOURCE.equalsIgnoreCase(source)) {
-//			panel.add(new StyledLabel("Distributed by " + source, -1), 
-//					"ax 50%, growy, wrap para");
-//		} else {
-//			panel.add(new StyledLabel(" ", -1), "ax 50%, growy, wrap para");
-//		}
+		//		String source = Prefs.getBuildSource();
+		//		if (!Prefs.DEFAULT_BUILD_SOURCE.equalsIgnoreCase(source)) {
+		//			panel.add(new StyledLabel("Distributed by " + source, -1), 
+		//					"ax 50%, growy, wrap para");
+		//		} else {
+		//			panel.add(new StyledLabel(" ", -1), "ax 50%, growy, wrap para");
+		//		}
 		
-		panel.add(new StyledLabel("Copyright " + Chars.COPY +" 2007-2010 Sampo Niskanen"), 
+		panel.add(new StyledLabel("Copyright " + Chars.COPY + " 2007-2011 Sampo Niskanen"),
 				"ax 50%, growy, wrap para");
 		
 		panel.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");
@@ -67,5 +67,5 @@ public class AboutDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, close);
 	}
 	
-	
+
 }

@@ -41,7 +41,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -491,6 +490,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("Print action selected");
 				printAction();
 			}
 		});
@@ -1303,6 +1303,13 @@ public class BasicFrame extends JFrame {
 	 * 
 	 */
 	public void printAction() {
+		if (!Prefs.getBoolean("printing.experimental.communicated", false)) {
+			log.info("Showing printing is experimental warning to the user");
+			JOptionPane.showMessageDialog(this, "Printing is an currently an experimental feature " +
+					"and might not fully work on all platforms",
+					"Experimental feature", JOptionPane.WARNING_MESSAGE);
+			Prefs.putBoolean("printing.experimental.communicated", true);
+		}
 		new PrintDialog(document);
 	}
 	
