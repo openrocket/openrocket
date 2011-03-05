@@ -3,37 +3,29 @@
  */
 package net.sf.openrocket.gui.print;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.DefaultFontMapper;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.*;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
-import net.sf.openrocket.gui.print.visitor.BaseVisitorStrategy;
-import net.sf.openrocket.gui.print.visitor.MotorMountVisitorStrategy;
-import net.sf.openrocket.gui.print.visitor.StageVisitorStrategy;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.ComponentVisitor;
-import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Prefs;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.List;
 
 /**
@@ -67,7 +59,12 @@ import java.util.List;
  * <p/>
  * </pre>
  */
-public class DesignReport extends BaseVisitorStrategy {
+public class DesignReport {
+
+    /**
+     * The logger.
+     */
+    private static final LogHelper log = Application.getLogger();
 
     /**
      * The OR Document.
@@ -80,9 +77,34 @@ public class DesignReport extends BaseVisitorStrategy {
     final RocketPanel panel;
 
     /**
-     * A stage visitor.
+     * The iText document.
      */
-    private StageVisitorStrategy svs = new StageVisitorStrategy();
+    protected Document document;
+
+    /** The displayed strings. */
+    private static final String STAGES = "Stages: ";
+    private static final String MASS_WITH_MOTORS = "Mass (with motors): ";
+    private static final String MASS_WITH_MOTOR = "Mass (with motor): ";
+    private static final String MASS_EMPTY = "Mass (Empty): ";
+    private static final String STABILITY = "Stability: ";
+    private static final String CG = "Cg: ";
+    private static final String CP = "Cp: ";
+    private static final String MOTOR = "Motor";
+    private static final String AVG_THRUST = "Avg Thrust";
+    private static final String BURN_TIME = "Burn Time";
+    private static final String MAX_THRUST = "Max Thrust";
+    private static final String TOTAL_IMPULSE = "Total Impulse";
+    private static final String THRUST_TO_WT = "Thrust to Wt";
+    private static final String PROPELLANT_WT = "Propellant Wt";
+    private static final String SIZE = "Size";
+    private static final String ALTITUDE = "Altitude";
+    private static final String FLIGHT_TIME = "Flight Time";
+    private static final String TIME_TO_APOGEE = "Time to Apogee";
+    private static final String VELOCITY_OFF_PAD = "Velocity off Pad";
+    private static final String MAX_VELOCITY = "Max Velocity";
+    private static final String LANDING_VELOCITY = "Landing Velocity";
+    private static final String ROCKET_DESIGN = "Rocket Design";
+    private static final double GRAVITY_CONSTANT = 9.80665d;
 
     /**
      * Constructor.
@@ -91,7 +113,7 @@ public class DesignReport extends BaseVisitorStrategy {
      * @param theIDoc   the iText document
      */
     public DesignReport (OpenRocketDocument theRocDoc, Document theIDoc) {
-        super(theIDoc, null);
+        document = theIDoc;
         rocketDocument = theRocDoc;
         panel = new RocketPanel(rocketDocument);
     }
@@ -101,7 +123,7 @@ public class DesignReport extends BaseVisitorStrategy {
      *
      * @param writer a direct byte writer
      */
-    public void print (PdfWriter writer) {
+    public void writeToDocument (PdfWriter writer) {
         if (writer == null) {
             return;
         }
@@ -109,7 +131,7 @@ public class DesignReport extends BaseVisitorStrategy {
         int pageImageableWidth = (int) pageSize.getWidth() - (int) pageSize.getBorderWidth() * 2;
         int pageImageableHeight = (int) pageSize.getHeight() / 2 - (int) pageSize.getBorderWidthTop();
 
-        PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, "Rocket Design");
+        PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
 
         Rocket rocket = rocketDocument.getRocket();
         final Configuration configuration = rocket.getDefaultConfiguration();
@@ -130,10 +152,10 @@ public class DesignReport extends BaseVisitorStrategy {
                                                       BaseFont.EMBEDDED), PrintUtilities.NORMAL_FONT_SIZE);
         }
         catch (DocumentException e) {
-            e.printStackTrace();
+            log.error("Could not set font.", e);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log.error("Could not create font.", e);
         }
         int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure.getFigureHeight()) * 0.4 * (scale / PrintUnit.METERS
                 .toPoints(1)));
@@ -145,25 +167,30 @@ public class DesignReport extends BaseVisitorStrategy {
 
         canvas.showText(rocketDocument.getRocket().getName());
 
-        canvas.newlineShowText("Stages: ");
+        canvas.newlineShowText(STAGES);
         canvas.showText("" + rocket.getStageCount());
 
 
         if (configuration.hasMotors()) {
-            canvas.newlineShowText("Mass (with motor" + ((configuration.getStageCount() > 1) ? "s): " : "): "));
+            if (configuration.getStageCount() > 1) {
+                canvas.newlineShowText(MASS_WITH_MOTORS);
+            }
+            else {
+                canvas.newlineShowText(MASS_WITH_MOTOR);
+            }
         }
         else {
-            canvas.newlineShowText("Mass (Empty): ");
+            canvas.newlineShowText(MASS_EMPTY);
         }
         canvas.showText(text.getMass(UnitGroup.UNITS_MASS.getDefaultUnit()));
 
-        canvas.newlineShowText("Stability: ");
+        canvas.newlineShowText(STABILITY);
         canvas.showText(text.getStability());
 
-        canvas.newlineShowText("Cg: ");
+        canvas.newlineShowText(CG);
         canvas.showText(text.getCg());
 
-        canvas.newlineShowText("Cp: ");
+        canvas.newlineShowText(CP);
         canvas.showText(text.getCp());
         canvas.endText();
 
@@ -180,12 +207,11 @@ public class DesignReport extends BaseVisitorStrategy {
 
             List<Double> stages = getStageWeights(rocket);
 
-
             for (int j = 0; j < mids.length; j++) {
                 String mid = mids[j];
                 if (mid != null) {
-                    MotorMountVisitorStrategy mmvs = new MotorMountVisitorStrategy(document, mid);
-                    rocket.accept(new ComponentVisitor(mmvs));
+                    final List<Motor> motorList = getMotorList(rocket, mid);
+
                     PdfPTable parent = new PdfPTable(2);
                     parent.setWidthPercentage(100);
                     parent.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -197,14 +223,38 @@ public class DesignReport extends BaseVisitorStrategy {
                         leading = 25;
                     }
                     addFlightData(rocket, mid, parent, leading);
-                    addMotorData(mmvs.getMotors(), parent, stages);
+                    addMotorData(motorList, parent, stages);
                     document.add(parent);
                 }
             }
         }
         catch (DocumentException e) {
-            e.printStackTrace();
+            log.error("Could not modify document.", e);
         }
+    }
+
+    /**
+     * Get the motor list for all motor mounts.
+     *
+     * @param theRocket the rocket object
+     * @param theMid    the motor id
+     *
+     * @return a list of Motor
+     */
+    private List<Motor> getMotorList (final Rocket theRocket, final String theMid) {
+        Iterator<RocketComponent> components = theRocket.deepIterator();
+        final List<Motor> motorList = new ArrayList<Motor>();
+        while (components.hasNext()) {
+            RocketComponent rocketComponent = components.next();
+            if (rocketComponent instanceof MotorMount) {
+                MotorMount mm = (MotorMount) rocketComponent;
+                final Motor motor = mm.getMotor(theMid);
+                if (motor != null) {
+                    motorList.add(motor);
+                }
+            }
+        }
+        return motorList;
     }
 
     /**
@@ -262,17 +312,17 @@ public class DesignReport extends BaseVisitorStrategy {
         motorTable.setWidthPercentage(68);
         motorTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 
-        final PdfPCell motorCell = ITextHelper.createCell("Motor", PdfPCell.BOTTOM);
+        final PdfPCell motorCell = ITextHelper.createCell(MOTOR, PdfPCell.BOTTOM);
         final int mPad = 10;
         motorCell.setPaddingLeft(mPad);
         motorTable.addCell(motorCell);
-        motorTable.addCell(ITextHelper.createCell("Avg Thrust", PdfPCell.BOTTOM));
-        motorTable.addCell(ITextHelper.createCell("Burn Time", PdfPCell.BOTTOM));
-        motorTable.addCell(ITextHelper.createCell("Max Thrust", PdfPCell.BOTTOM));
-        motorTable.addCell(ITextHelper.createCell("Total Impulse", PdfPCell.BOTTOM));
-        motorTable.addCell(ITextHelper.createCell("Thrust to Wt", PdfPCell.BOTTOM));
-        motorTable.addCell(ITextHelper.createCell("Propellant Wt", PdfPCell.BOTTOM));
-        motorTable.addCell(ITextHelper.createCell("Size", PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(AVG_THRUST, PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(BURN_TIME, PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(MAX_THRUST, PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(TOTAL_IMPULSE, PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(THRUST_TO_WT, PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(PROPELLANT_WT, PdfPCell.BOTTOM));
+        motorTable.addCell(ITextHelper.createCell(SIZE, PdfPCell.BOTTOM));
 
         DecimalFormat df = new DecimalFormat("#,##0.0#");
         for (int i = 0; i < motors.size(); i++) {
@@ -299,7 +349,7 @@ public class DesignReport extends BaseVisitorStrategy {
                     .UNITS_IMPULSE
                     .getDefaultUnit().toString(), border));
             double ttw = motor.getAverageThrustEstimate() / (getStageWeight(stageWeights, i) + (motor
-                    .getLaunchCG().weight * 9.80665));
+                    .getLaunchCG().weight * GRAVITY_CONSTANT));
             motorTable.addCell(ITextHelper.createCell(df.format(ttw) + ":1", border));
 
             motorTable.addCell(ITextHelper.createCell(df.format(motorWeight) + " " + UnitGroup.UNITS_MASS
@@ -330,7 +380,7 @@ public class DesignReport extends BaseVisitorStrategy {
     private void addFlightData (final Rocket theRocket, final String mid, final PdfPTable parent, int leading) {
         FlightData flight = null;
         if (theRocket.getMotorConfigurationIDs().length > 1) {
-            Rocket duplicate= theRocket.copyWithOriginalID();
+            Rocket duplicate = theRocket.copyWithOriginalID();
             Simulation simulation = Prefs.getBackgroundSimulation(duplicate);
             simulation.getConditions().setMotorConfigurationID(mid);
 
@@ -353,30 +403,30 @@ public class DesignReport extends BaseVisitorStrategy {
 
                     DecimalFormat df = new DecimalFormat("#,##0.0#");
 
-                    final PdfPCell cell = ITextHelper.createCell("Altitude", 2, 2);
+                    final PdfPCell cell = ITextHelper.createCell(ALTITUDE, 2, 2);
                     cell.setUseBorderPadding(false);
                     cell.setBorderWidthTop(0f);
                     labelTable.addCell(cell);
                     labelTable.addCell(ITextHelper.createCell(df.format(flight.getMaxAltitude()) + " " + distanceUnit,
                                                               2, 2));
 
-                    labelTable.addCell(ITextHelper.createCell("Flight Time", 2, 2));
+                    labelTable.addCell(ITextHelper.createCell(FLIGHT_TIME, 2, 2));
                     labelTable.addCell(ITextHelper.createCell(df.format(flight.getFlightTime()) + " " + flightUnit, 2,
                                                               2));
 
-                    labelTable.addCell(ITextHelper.createCell("Time to Apogee", 2, 2));
+                    labelTable.addCell(ITextHelper.createCell(TIME_TO_APOGEE, 2, 2));
                     labelTable.addCell(ITextHelper.createCell(df.format(flight.getTimeToApogee()) + " " + flightUnit, 2,
                                                               2));
 
-                    labelTable.addCell(ITextHelper.createCell("Velocity off Pad", 2, 2));
+                    labelTable.addCell(ITextHelper.createCell(VELOCITY_OFF_PAD, 2, 2));
                     labelTable.addCell(ITextHelper.createCell(df.format(
                             flight.getLaunchRodVelocity()) + " " + velocityUnit, 2, 2));
 
-                    labelTable.addCell(ITextHelper.createCell("Max Velocity", 2, 2));
+                    labelTable.addCell(ITextHelper.createCell(MAX_VELOCITY, 2, 2));
                     labelTable.addCell(ITextHelper.createCell(df.format(flight.getMaxVelocity()) + " " + velocityUnit,
                                                               2, 2));
 
-                    labelTable.addCell(ITextHelper.createCell("Landing Velocity", 2, 2));
+                    labelTable.addCell(ITextHelper.createCell(LANDING_VELOCITY, 2, 2));
                     labelTable.addCell(ITextHelper.createCell(df.format(
                             flight.getGroundHitVelocity()) + " " + velocityUnit, 2, 2));
 
@@ -388,7 +438,7 @@ public class DesignReport extends BaseVisitorStrategy {
                     parent.addCell(c);
                 }
                 catch (DocumentException e) {
-                    e.printStackTrace();
+                    log.error("Could not add flight data to document.", e);
                 }
             }
         }
@@ -428,20 +478,48 @@ public class DesignReport extends BaseVisitorStrategy {
     }
 
     /**
-     * Use a visitor to get the sorted list of Stage references, then from those get the stage masses and convert to
-     * weight.
+     * From a list of Stages get the stage masses and convert to weight.
      *
      * @param rocket the rocket
      *
      * @return a sorted list of Stage weights (mass * gravity), in Newtons
      */
     private List<Double> getStageWeights (Rocket rocket) {
-        rocket.accept(new ComponentVisitor(svs));
-        svs.close();
-        List<Double> stages = svs.getStages();
+        List<Double> stages = getStageMasses(rocket);
+
         for (int i = 0; i < stages.size(); i++) {
             Double stage = stages.get(i);
-            stages.set(i, stage * 9.80665);
+            stages.set(i, stage * GRAVITY_CONSTANT);
+        }
+        return stages;
+    }
+
+    /**
+     * From a list of Stages get the stage masses.
+     *
+     * @param rocket  the rocket
+     *
+     * @return a sorted list of Stage masses
+     */
+    private List<Double> getStageMasses (final Rocket rocket) {
+        Double mass = 0d;
+
+        List<Double> stages = new ArrayList<Double>();
+        Iterator<RocketComponent> iter = rocket.deepIterator();
+        while (iter.hasNext()) {
+            RocketComponent rocketComponent = iter.next();
+            if (rocketComponent instanceof Stage) {
+                if (mass > 0d) {
+                    stages.add(mass);
+                    mass = 0d;
+                }
+            }
+            else {
+                mass += rocketComponent.getMass();
+            }
+        }
+        if (mass > 0d) {
+            stages.add(mass);
         }
         return stages;
     }

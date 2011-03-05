@@ -4,11 +4,10 @@
 package net.sf.openrocket.gui.print;
 
 
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.*;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.Paragraph;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -17,17 +16,23 @@ import javax.print.ServiceUI;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.MediaSize;
-import javax.swing.RepaintManager;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Locale;
 
+/**
+ * Utilities methods and fonts used for printing.
+ */
 public class PrintUtilities implements Printable {
+
+    /**
+     * The logger.
+     */
+    private static final LogHelper log = Application.getLogger();
 
     public static final int NORMAL_FONT_SIZE = Font.DEFAULTSIZE - 3;
     public static final int SMALL_FONT_SIZE = NORMAL_FONT_SIZE - 3;
@@ -127,6 +132,13 @@ public class PrintUtilities implements Printable {
         g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
     }
 
+    /**
+     * Add text as a new paragraph in a given font to the document.
+     *
+     * @param document  the document
+     * @param font      the font
+     * @param title     the title
+     */
     public static void addText (Document document, com.itextpdf.text.Font font, String title) {
         Chunk sectionHeader = new Chunk(title);
         sectionHeader.setFont(font);
@@ -136,7 +148,7 @@ public class PrintUtilities implements Printable {
             document.add(p);
         }
         catch (DocumentException e) {
-            e.printStackTrace();
+            log.error("Could not add paragraph.", e);
         }
     }
 }

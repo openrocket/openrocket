@@ -18,23 +18,13 @@ import net.sf.openrocket.startup.Application;
 
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.MediaSizeName;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.Color;
-import java.awt.Desktop;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
@@ -45,11 +35,17 @@ import java.util.Enumeration;
 import java.util.Iterator;
 
 /**
- * This class isolates the Swing components used to create a panel that is added to the standard Java print dialog.
+ * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
  */
 public class PrintPanel extends JPanel implements TreeSelectionListener {
 
     private static final LogHelper log = Application.getLogger();
+
+    private static final String TAB_TITLE = "Rocket";
+    private static final String SETTINGS_BUTTON_TEXT = "Settings";
+    private static final String PREVIEW_BUTTON_TEXT = "Preview";
+    private static final String SAVE_AS_PDF_BUTTON_TEXT = "Save as PDF";
+    private static final String SHOW_BY_STAGE = "Show By Stage";
 
     private final RocketPrintTree stagedTree;
     private final RocketPrintTree noStagedTree;
@@ -61,7 +57,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
 
     JButton previewButton;
     JButton saveAsPDF;
-    
+
     /**
      * Constructor.
      *
@@ -102,9 +98,9 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
         currentTree = stagedTree;
 
         final JScrollPane scrollPane = new JScrollPane(stagedTree);
-        add(scrollPane, "width 475!, wrap");
+        add(scrollPane, "width 416!, wrap");
 
-        final JCheckBox sortByStage = new JCheckBox("Show By Stage");
+        final JCheckBox sortByStage = new JCheckBox(SHOW_BY_STAGE);
         sortByStage.setEnabled(stages > 1);
         sortByStage.setSelected(stages > 1);
         sortByStage.addActionListener(new ActionListener() {
@@ -125,7 +121,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
         });
         add(sortByStage, "wrap");
 
-        saveAsPDF = new JButton("Save as PDF");
+        saveAsPDF = new JButton(SAVE_AS_PDF_BUTTON_TEXT);
         saveAsPDF.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed (ActionEvent e) {
@@ -134,7 +130,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
         });
         add(saveAsPDF, "span 2, tag save");
 
-        previewButton = new JButton("Preview");
+        previewButton = new JButton(PREVIEW_BUTTON_TEXT);
         previewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed (ActionEvent e) {
@@ -143,7 +139,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
         });
         add(previewButton, "x 150");
 
-        JButton settingsButton = new JButton("Settings");
+        JButton settingsButton = new JButton(SETTINGS_BUTTON_TEXT);
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed (ActionEvent e) {
@@ -151,7 +147,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
                 settingsDialog.setVisible(true);
             }
         });
-        add(settingsButton, "x 400");
+        add(settingsButton, "x 340");
 
         expandAll(currentTree, true);
         if (currentTree != noStagedTree) {
@@ -166,10 +162,10 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
      * @return a title
      */
     public String getTitle () {
-        return "Rocket";
+        return TAB_TITLE;
     }
 
-    @Override 
+    @Override
     public void valueChanged (final TreeSelectionEvent e) {
         final TreePath path = e.getNewLeadSelectionPath();
         if (path != null){
@@ -190,7 +186,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
      */
     public void expandAll (RocketPrintTree theTree, boolean expand) {
         TreeNode root = (TreeNode) theTree.getModel().getRoot();
-        // Traverse theTree from root 
+        // Traverse theTree from root
         expandAll(theTree, new TreePath(root), expand);
     }
 
@@ -204,7 +200,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
      */
     private void expandAll (RocketPrintTree theTree, TreePath parent, boolean expand) {
         theTree.addSelectionPath(parent);
-        // Traverse children 
+        // Traverse children
         TreeNode node = (TreeNode) parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
             for (Enumeration e = node.children(); e.hasMoreElements();) {
@@ -213,7 +209,7 @@ public class PrintPanel extends JPanel implements TreeSelectionListener {
                 expandAll(theTree, path, expand);
             }
         }
-        // Expansion or collapse must be done bottom-up 
+        // Expansion or collapse must be done bottom-up
         if (expand) {
             theTree.expandPath(parent);
         }

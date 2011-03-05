@@ -4,11 +4,7 @@
  */
 package net.sf.openrocket.gui.print;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Instances of this class are meant to keep track of what the user has selected to be printed.
@@ -25,9 +21,14 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
      */
     private OpenRocketPrintable printable;
 
+    /**
+     * Sort of a reverse map that tracks each type of printable item and the stages for which that item is to be printed.
+     */
     private final Map<OpenRocketPrintable, Set<Integer>> previous = new TreeMap<OpenRocketPrintable, Set<Integer>>();
 
-    
+    /**
+     * Constructor.
+     */
     public PrintableContext () {
     }
 
@@ -48,8 +49,13 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
         printable = thePrintable;
     }
 
-    public void add (final Integer theStageNumber, final OpenRocketPrintable thePrintable)
-            throws IllegalArgumentException {
+    /**
+     * Add a type of printable to a stage (number).
+     *
+     * @param theStageNumber  the stage number
+     * @param thePrintable    the printable to associate with the stage
+     */
+    public void add (final Integer theStageNumber, final OpenRocketPrintable thePrintable) {
         Set<Integer> stages = previous.get(thePrintable);
         if (stages == null) {
             stages = new TreeSet<Integer>();
@@ -60,7 +66,7 @@ public class PrintableContext implements Comparable<PrintableContext>, Iterable<
         }
     }
 
-
+    /** PrintableContext iterator. */
     public Iterator<PrintableContext> iterator () {
         return new Iterator<PrintableContext>() {
 

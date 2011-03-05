@@ -4,14 +4,14 @@ import net.sf.openrocket.util.Coordinate;
 
 
 public class CenteringRing extends RadiusRingComponent {
-	
+
 	public CenteringRing() {
 		setOuterRadiusAutomatic(true);
 		setInnerRadiusAutomatic(true);
 		setLength(0.002);
 	}
-	
-	
+
+
 	@Override
 	public double getInnerRadius() {
 		// Implement sibling inner radius automation
@@ -26,55 +26,45 @@ public class CenteringRing extends RadiusRingComponent {
 					 */
 					if (!(sibling instanceof InnerTube)) // Excludes itself
 						continue;
-					
+
 					double pos1 = this.toRelative(Coordinate.NUL, sibling)[0].x;
 					double pos2 = this.toRelative(new Coordinate(getLength()), sibling)[0].x;
 					if (pos2 < 0 || pos1 > sibling.getLength())
 						continue;
-					
+
 					innerRadius = Math.max(innerRadius, ((InnerTube) sibling).getOuterRadius());
 				}
 				innerRadius = Math.min(innerRadius, getOuterRadius());
 			}
 		}
-		
+
 		return super.getInnerRadius();
 	}
-	
-	
+
+
 	@Override
 	public void setOuterRadiusAutomatic(boolean auto) {
 		super.setOuterRadiusAutomatic(auto);
 	}
-	
+
 	@Override
 	public void setInnerRadiusAutomatic(boolean auto) {
 		super.setInnerRadiusAutomatic(auto);
 	}
-	
+
 	@Override
 	public String getComponentName() {
 		return "Centering ring";
 	}
-	
+
 	@Override
 	public boolean allowsChildren() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
 	}
-    
-    /**
-     * Accept a visitor to this CenteringRing in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this CenteringRing
-     */
-    @Override 
-    public void accept (final ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
 
 }

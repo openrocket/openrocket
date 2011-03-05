@@ -5,31 +5,18 @@ package net.sf.openrocket.gui.dialogs;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.print.PDFPrintStreamDoc;
+import net.sf.openrocket.gui.print.PrintServiceDialog;
 import net.sf.openrocket.gui.print.PrintUtilities;
-import sun.print.ServiceDialog;
 
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintException;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
+import javax.print.*;
 import javax.print.attribute.Attribute;
 import javax.print.attribute.AttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Destination;
 import javax.print.attribute.standard.Fidelity;
-import javax.swing.JDialog;
-import javax.swing.JMenu;
-import javax.swing.JTabbedPane;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 
 /**
@@ -41,7 +28,7 @@ public class PrintDialog {
     /**
      * The service UI dialog.
      */
-    private ServiceDialog dialog;
+    private PrintServiceDialog dialog;
 
     /**
      * A javax doc flavor specific for printing PDF documents.
@@ -65,12 +52,12 @@ public class PrintDialog {
         if (ps != null) {
             DocPrintJob dpj = ps.createPrintJob();
             try {
-                System.err.println(attrs.size());
                 ByteArrayOutputStream baos = panel.generateReport();
                 dpj.print(new PDFPrintStreamDoc(baos, null), attrs);
             }
             catch (PrintException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                e.printStackTrace();
+                //dgp
             }
         }
     }
@@ -155,7 +142,7 @@ public class PrintDialog {
                 getLocalGraphicsEnvironment().getDefaultScreenDevice().
                 getDefaultConfiguration().getBounds() : gc.getBounds();
 
-        dialog = new ServiceDialog(gc,
+        dialog = new PrintServiceDialog(gc,
                                    x + gcBounds.x,
                                    y + gcBounds.y,
                                    services, defaultIndex,
@@ -183,7 +170,7 @@ public class PrintDialog {
 
         dialog.setVisible(true);
 
-        if (dialog.getStatus() == ServiceDialog.APPROVE) {
+        if (dialog.getStatus() == PrintServiceDialog.APPROVE) {
             PrintRequestAttributeSet newas = dialog.getAttributes();
             Class dstCategory = Destination.class;
             Class fdCategory = Fidelity.class;
@@ -232,7 +219,7 @@ public class PrintDialog {
     /**
      * Removes any attributes from the given AttributeSet that are unsupported by the given PrintService/DocFlavor
      * combination.
-     * 
+     *
      * @param ps      the print service for which unsupported attributes will be determined
      * @param flavor  the document flavor; PDF in our case
      * @param aset    the set of attributes requested

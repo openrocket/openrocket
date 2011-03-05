@@ -5,7 +5,7 @@ import net.sf.openrocket.util.Coordinate;
 /**
  * A set of trapezoidal fins.  The root and tip chords are perpendicular to the rocket
  * base line, while the leading and aft edges may be slanted.
- * 
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
@@ -16,37 +16,37 @@ public class TrapezoidFinSet extends FinSet {
 	 *           sweep   tipChord
 	 *           |    |___________
 	 *           |   /            |
-	 *           |  /             | 
+	 *           |  /             |
 	 *           | /              |  height
 	 *            /               |
 	 * __________/________________|_____________
 	 *                length
 	 *              == rootChord
 	 */
-	
+
 	// rootChord == length
 	private double tipChord = 0;
 	private double height = 0;
 	private double sweep = 0;
-	
-	
+
+
 	public TrapezoidFinSet() {
 		this (3, 0.05, 0.05, 0.025, 0.05);
 	}
-	
+
 	// TODO: HIGH:  height=0 -> CP = NaN
-	public TrapezoidFinSet(int fins, double rootChord, double tipChord, double sweep, 
+	public TrapezoidFinSet(int fins, double rootChord, double tipChord, double sweep,
 			double height) {
 		super();
-		
+
 		this.setFinCount(fins);
 		this.length = rootChord;
 		this.tipChord = tipChord;
 		this.sweep = sweep;
 		this.height = height;
 	}
-	
-	
+
+
 	public void setFinShape(double rootChord, double tipChord, double sweep, double height,
 			double thickness) {
 		if (this.length==rootChord && this.tipChord==tipChord && this.sweep==sweep &&
@@ -69,7 +69,7 @@ public class TrapezoidFinSet extends FinSet {
 		length = Math.max(r,0);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
+
 	public double getTipChord() {
 		return tipChord;
 	}
@@ -95,7 +95,7 @@ public class TrapezoidFinSet extends FinSet {
 		sweep = r;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
+
 	/**
 	 * Get the sweep angle.  This is calculated from the true sweep and height, and is not
 	 * stored separetely.
@@ -135,7 +135,7 @@ public class TrapezoidFinSet extends FinSet {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
-	
+
 
 	/**
 	 * Returns the geometry of a trapezoidal fin.
@@ -143,15 +143,15 @@ public class TrapezoidFinSet extends FinSet {
 	@Override
 	public Coordinate[] getFinPoints() {
 		Coordinate[] c = new Coordinate[4];
-		
+
 		c[0] = Coordinate.NUL;
 		c[1] = new Coordinate(sweep,height);
 		c[2] = new Coordinate(sweep+tipChord,height);
 		c[3] = new Coordinate(length,0);
-		
+
 		return c;
 	}
-	
+
 	/**
 	 * Returns the span of a trapezoidal fin.
 	 */
@@ -159,20 +159,11 @@ public class TrapezoidFinSet extends FinSet {
 	public double getSpan() {
 		return height;
 	}
-	
+
 
 	@Override
 	public String getComponentName() {
 		return "Trapezoidal fin set";
 	}
 
-    /**
-     * Accept a visitor to this TrapezoidFinSet in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this TrapezoidFinSet
-     */    
-    @Override
-    public void accept(ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
 }

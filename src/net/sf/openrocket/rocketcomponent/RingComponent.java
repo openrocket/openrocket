@@ -11,90 +11,90 @@ import java.util.List;
 /**
  * An inner component that consists of a hollow cylindrical component.  This can be
  * an inner tube, tube coupler, centering ring, bulkhead etc.
- * 
+ *
  * The properties include the inner and outer radii, length and radial position.
- * 
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class RingComponent extends StructuralComponent implements Coaxial {
 
 	protected boolean outerRadiusAutomatic = false;
 	protected boolean innerRadiusAutomatic = false;
-	
-	
+
+
 	private double radialDirection = 0;
 	private double radialPosition = 0;
-	
+
 	private double shiftY = 0;
 	private double shiftZ = 0;
-	
 
-	
+
+
     @Override
 	public abstract double getOuterRadius();
     @Override
 	public abstract void setOuterRadius(double r);
-	
+
     @Override
-	public abstract double getInnerRadius();	
+	public abstract double getInnerRadius();
     @Override
 	public abstract void setInnerRadius(double r);
-	
+
     @Override
 	public abstract double getThickness();
 	public abstract void setThickness(double thickness);
-	
-	
+
+
 	public final boolean isOuterRadiusAutomatic() {
 		return outerRadiusAutomatic;
 	}
-	
+
 	protected void setOuterRadiusAutomatic(boolean auto) {
 		if (auto == outerRadiusAutomatic)
 			return;
 		outerRadiusAutomatic = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 	public final boolean isInnerRadiusAutomatic() {
 		return innerRadiusAutomatic;
 	}
-	
+
 	protected void setInnerRadiusAutomatic(boolean auto) {
 		if (auto == innerRadiusAutomatic)
 			return;
 		innerRadiusAutomatic = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
-	
-	
+
+
+
+
 	public final void setLength(double length) {
 		double l = Math.max(length,0);
 		if (this.length == l)
 			return;
-		
+
 		this.length = l;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	
+
 	/**
 	 * Return the radial direction of displacement of the component.  Direction 0
 	 * is equivalent to the Y-direction.
-	 * 
+	 *
 	 * @return  the radial direction.
 	 */
 	public double getRadialDirection() {
 		return radialDirection;
 	}
-	
+
 	/**
 	 * Set the radial direction of displacement of the component.  Direction 0
 	 * is equivalent to the Y-direction.
-	 * 
+	 *
 	 * @param dir  the radial direction.
 	 */
 	public void setRadialDirection(double dir) {
@@ -107,23 +107,23 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	
-	
-	
+
+
+
 	/**
 	 * Return the radial position of the component.  The position is the distance
 	 * of the center of the component from the center of the parent component.
-	 * 
+	 *
 	 * @return  the radial position.
 	 */
 	public double getRadialPosition() {
 		return radialPosition;
 	}
-	
+
 	/**
 	 * Set the radial position of the component.  The position is the distance
 	 * of the center of the component from the center of the parent component.
-	 * 
+	 *
 	 * @param pos  the radial position.
 	 */
 	public void setRadialPosition(double pos) {
@@ -136,25 +136,25 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
-	
+
 	public double getRadialShiftY() {
 		return shiftY;
 	}
-	
+
 	public double getRadialShiftZ() {
 		return shiftZ;
 	}
-	
+
 	public void setRadialShift(double y, double z) {
 		radialPosition = Math.hypot(y, z);
 		radialDirection = Math.atan2(z, y);
-		
-		// Re-calculate to ensure consistency 
+
+		// Re-calculate to ensure consistency
 		shiftY = radialPosition * Math.cos(radialDirection);
 		shiftZ = radialPosition * Math.sin(radialDirection);
 		assert(MathUtil.equals(y, shiftY));
 		assert(MathUtil.equals(z, shiftZ));
-		
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
@@ -167,8 +167,8 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 			return ((Clusterable)this).getClusterConfiguration().getClusterCount();
 		return 1;
 	}
-	
-	
+
+
 	/**
 	 * Shift the coordinates according to the radial position and direction.
 	 */
@@ -179,8 +179,8 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		}
 		return array;
 	}
-	
-	
+
+
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		List<Coordinate> bounds = new ArrayList<Coordinate>();
@@ -188,9 +188,9 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		addBound(bounds,length,getOuterRadius());
 		return bounds;
 	}
-	
 
-	
+
+
 	@Override
 	public Coordinate getComponentCG() {
 		return new Coordinate(length/2, 0, 0, getComponentMass());
@@ -201,7 +201,7 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 		return ringMass(getOuterRadius(), getInnerRadius(), getLength(),
 				getMaterial().getDensity()) * getClusterCount();
 	}
-	
+
 
 	@Override
 	public double getLongitudinalUnitInertia() {
@@ -212,15 +212,5 @@ public abstract class RingComponent extends StructuralComponent implements Coaxi
 	public double getRotationalUnitInertia() {
 		return ringRotationalUnitInertia(getOuterRadius(), getInnerRadius());
 	}
-
-    /**
-     * Accept a visitor to this RingComponent in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this RingComponent
-     */    
-    @Override 
-    public void accept (final ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
 
 }

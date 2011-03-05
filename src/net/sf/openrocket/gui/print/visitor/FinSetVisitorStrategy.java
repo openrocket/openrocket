@@ -10,19 +10,40 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintableFinSet;
-import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Set;
 
 /**
- * A visitor strategy for drawing fin templates.
+ * A strategy for drawing fin templates.
  */
-public class FinSetVisitorStrategy extends BaseVisitorStrategy {
+public class FinSetVisitorStrategy {
+
+    /**
+     * The logger.
+     */
+    private static final LogHelper log = Application.getLogger();
+
+    /**
+     * The iText document.
+     */
+    protected Document document;
+
+    /**
+     * The direct iText writer.
+     */
+    protected PdfWriter writer;
+
+    /**
+     * The stages selected.
+     */
+    protected Set<Integer> stages;
 
     /**
      * Constructor.
@@ -32,31 +53,36 @@ public class FinSetVisitorStrategy extends BaseVisitorStrategy {
      * @param theStagesToVisit The stages to be visited by this strategy
      */
     public FinSetVisitorStrategy (Document doc, PdfWriter theWriter, Set<Integer> theStagesToVisit) {
-        super(doc, theWriter, theStagesToVisit);
+        document = doc;
+        writer = theWriter;
+        stages = theStagesToVisit;
     }
 
     /**
-     * {@inheritDoc}
+     * Recurse through the given rocket component.
+     *
+     * @param root the root component; all children will be visited recursively
      */
-    @Override
-    public void visit (final TrapezoidFinSet visitable) {
-        doVisit(visitable);
+    public void writeToDocument (final RocketComponent root) {
+        List<RocketComponent> rc = root.getChildren();
+        goDeep(rc);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit (final EllipticalFinSet visitable) {
-        doVisit(visitable);
-    }
 
     /**
-     * {@inheritDoc}
+     * Recurse through the given rocket component.
+     *
+     * @param theRc an array of rocket components; all children will be visited recursively
      */
-    @Override
-    public void visit (final FreeformFinSet visitable) {
-        doVisit(visitable);
+    protected void goDeep (final List<RocketComponent> theRc) {
+        for (RocketComponent rocketComponent : theRc) {
+            if (rocketComponent instanceof FinSet) {
+                doVisit((FinSet)rocketComponent);
+            }
+            else if (rocketComponent.getChildCount() > 0) {
+                goDeep(rocketComponent.getChildren());
+            }
+        }
     }
 
     /**
@@ -81,9 +107,30 @@ public class FinSetVisitorStrategy extends BaseVisitorStrategy {
                 }
             }
             catch (DocumentException e) {
-                e.printStackTrace();
+                log.error("Could not render fin.", e);
             }
         }
+    }
+
+    /**
+     * Determine if the visitor strategy's set of stage numbers (to print) contains the specified stage.
+     *
+     * @param stageNumber a stage number
+     *
+     * @return true if the visitor strategy contains the stage number provided
+     */
+    public boolean shouldVisitStage (int stageNumber) {
+        if (stages == null || stages.isEmpty()) {
+            return false;
+        }
+
+        for (final Integer stage : stages) {
+            if (stage == stageNumber) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -118,5 +165,52 @@ public class FinSetVisitorStrategy extends BaseVisitorStrategy {
         g2.dispose();
         document.newPage();
     }
-}
 
+    /**
+     * Get the dimensions of the paper page.
+     *
+     * @return an internal Dimension
+     */
+    protected Dimension getPageSize () {
+        return new Dimension(document.getPageSize().getWidth(),
+                             document.getPageSize().getHeight());
+    }
+
+    /**
+     * Convenience class to model a dimension.
+     */
+    class Dimension {
+        /** Width, in points. */
+        public float width;
+        /** Height, in points. */
+        public float height;
+
+        /**
+         * Constructor.
+         * @param w width
+         * @param h height
+         */
+        public Dimension (float w, float h) {
+            width = w;
+            height = h;
+        }
+
+        /**
+         * Get the width.
+         *
+         * @return  the width
+         */
+        public float getWidth () {
+            return width;
+        }
+
+        /**
+         * Get the height.
+         *
+         * @return the height
+         */
+        public float getHeight () {
+            return height;
+        }
+    }
+}

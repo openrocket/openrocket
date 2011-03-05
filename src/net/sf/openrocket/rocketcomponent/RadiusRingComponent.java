@@ -6,16 +6,16 @@ import net.sf.openrocket.util.MathUtil;
 /**
  * An inner component that consists of a hollow cylindrical component.  This can be
  * an inner tube, tube coupler, centering ring, bulkhead etc.
- * 
+ *
  * The properties include the inner and outer radii, length and radial position.
- * 
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class RadiusRingComponent extends RingComponent implements Coaxial {
 
 	protected double outerRadius = 0;
 	protected double innerRadius = 0;
-	
+
 	@Override
 	public double getOuterRadius() {
 		if (outerRadiusAutomatic && getParent() instanceof RadialParent) {
@@ -27,7 +27,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 			outerRadius = Math.min(((RadialParent)parent).getInnerRadius(pos1),
 					((RadialParent)parent).getInnerRadius(pos2));
 		}
-				
+
 		return outerRadius;
 	}
 
@@ -36,7 +36,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 		r = Math.max(r,0);
 		if (MathUtil.equals(outerRadius, r) && !isOuterRadiusAutomatic())
 			return;
-		
+
 		outerRadius = r;
 		outerRadiusAutomatic = false;
 		if (getInnerRadius() > r) {
@@ -46,8 +46,8 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 	@Override
 	public double getInnerRadius() {
 		return innerRadius;
@@ -57,18 +57,18 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 		r = Math.max(r,0);
 		if (MathUtil.equals(innerRadius, r))
 			return;
-		
+
 		innerRadius = r;
 		innerRadiusAutomatic = false;
 		if (getOuterRadius() < r) {
 			outerRadius = r;
 			outerRadiusAutomatic = false;
 		}
-		
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 	@Override
 	public double getThickness() {
 		return Math.max(getOuterRadius() - getInnerRadius(), 0);
@@ -76,19 +76,9 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 	@Override
 	public void setThickness(double thickness) {
 		double outer = getOuterRadius();
-		
+
 		thickness = MathUtil.clamp(thickness, 0, outer);
 		setInnerRadius(outer - thickness);
 	}
 
-    /**
-     * Accept a visitor to this RadiusRingComponent in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this RadiusRingComponent
-     */    
-    @Override 
-    public void accept (final ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
-    
 }

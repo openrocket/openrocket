@@ -5,7 +5,7 @@ import net.sf.openrocket.util.MathUtil;
 
 public class EllipticalFinSet extends FinSet {
 	public static final int POINTS = 21;
-	
+
 	private static final double[] POINT_X = new double[POINTS];
 	private static final double[] POINT_Y = new double[POINTS];
 	static {
@@ -19,15 +19,15 @@ public class EllipticalFinSet extends FinSet {
 		POINT_X[POINTS-1] = 1;
 		POINT_Y[POINTS-1] = 0;
 	}
-	
-	
+
+
 	private double height = 0.05;
-	
+
 	public EllipticalFinSet() {
 		this.length = 0.05;
 	}
 
-	
+
 	@Override
 	public Coordinate[] getFinPoints() {
 		Coordinate[] points = new Coordinate[POINTS];
@@ -46,20 +46,20 @@ public class EllipticalFinSet extends FinSet {
 	public String getComponentName() {
 		return "Elliptical fin set";
 	}
-	
-	
+
+
 	public double getHeight() {
 		return height;
 	}
-	
+
 	public void setHeight(double height) {
 		if (MathUtil.equals(this.height, height))
 			return;
 		this.height = height;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
+
 	public void setLength(double length) {
 		if (MathUtil.equals(this.length, length))
 			return;
@@ -67,15 +67,5 @@ public class EllipticalFinSet extends FinSet {
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
-    
-    /**
-     * Accept a visitor to this EllipticalFinSet in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this EllipticalFinSet
-     */
-    @Override
-    public void accept(ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
-    
+
 }

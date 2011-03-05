@@ -1,12 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static net.sf.openrocket.util.MathUtil.pow2;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
+import static net.sf.openrocket.util.MathUtil.pow2;
 
 
 /**
@@ -19,31 +19,31 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class MassObject extends InternalComponent {
-	
+
 	private double radius;
-	
+
 	private double radialPosition;
 	private double radialDirection;
-	
+
 	private double shiftY = 0;
 	private double shiftZ = 0;
-	
-	
+
+
 	public MassObject() {
 		this(0.03, 0.015);
 	}
-	
+
 	public MassObject(double length, double radius) {
 		super();
-		
+
 		this.length = length;
 		this.radius = radius;
-		
+
 		this.setRelativePosition(Position.TOP);
 		this.setPositionValue(0.0);
 	}
-	
-	
+
+
 	public void setLength(double length) {
 		length = Math.max(length, 0);
 		if (MathUtil.equals(this.length, length)) {
@@ -52,13 +52,13 @@ public abstract class MassObject extends InternalComponent {
 		this.length = length;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 	public final double getRadius() {
 		return radius;
 	}
-	
-	
+
+
 	public final void setRadius(double radius) {
 		radius = Math.max(radius, 0);
 		if (MathUtil.equals(this.radius, radius)) {
@@ -67,13 +67,13 @@ public abstract class MassObject extends InternalComponent {
 		this.radius = radius;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 
 	public final double getRadialPosition() {
 		return radialPosition;
 	}
-	
+
 	public final void setRadialPosition(double radialPosition) {
 		radialPosition = Math.max(radialPosition, 0);
 		if (MathUtil.equals(this.radialPosition, radialPosition)) {
@@ -84,11 +84,11 @@ public abstract class MassObject extends InternalComponent {
 		shiftZ = radialPosition * Math.sin(radialDirection);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
+
 	public final double getRadialDirection() {
 		return radialDirection;
 	}
-	
+
 	public final void setRadialDirection(double radialDirection) {
 		radialDirection = MathUtil.reduce180(radialDirection);
 		if (MathUtil.equals(this.radialDirection, radialDirection)) {
@@ -99,8 +99,8 @@ public abstract class MassObject extends InternalComponent {
 		shiftZ = radialPosition * Math.sin(radialDirection);
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-	
-	
+
+
 	/**
 	 * Shift the coordinates according to the radial position and direction.
 	 */
@@ -111,22 +111,22 @@ public abstract class MassObject extends InternalComponent {
 		}
 		return array;
 	}
-	
+
 	@Override
 	public final Coordinate getComponentCG() {
 		return new Coordinate(length / 2, shiftY, shiftZ, getComponentMass());
 	}
-	
+
 	@Override
 	public final double getLongitudinalUnitInertia() {
 		return (3 * pow2(radius) + pow2(length)) / 12;
 	}
-	
+
 	@Override
 	public final double getRotationalUnitInertia() {
 		return pow2(radius) / 2;
 	}
-	
+
 	@Override
 	public final Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> c = new ArrayList<Coordinate>();
@@ -134,15 +134,5 @@ public abstract class MassObject extends InternalComponent {
 		addBound(c, length, radius);
 		return c;
 	}
-	
-	/**
-	 * Accept a visitor to this MassObject in the component hierarchy.
-	 *
-	 * @param theVisitor the visitor that will be called back with a reference to this MassObject
-	 */
-	@Override
-	public void accept(final ComponentVisitor theVisitor) {
-		theVisitor.visit(this);
-	}
-	
+
 }

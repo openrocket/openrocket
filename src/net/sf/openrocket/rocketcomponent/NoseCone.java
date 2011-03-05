@@ -3,18 +3,18 @@ package net.sf.openrocket.rocketcomponent;
 /**
  * Rocket nose cones of various types.  Implemented as a transition with the
  * fore radius == 0.
- * 
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
 public class NoseCone extends Transition {
-	
-	
+
+
 	/********* Constructors **********/
 	public NoseCone() {
 		this(Transition.Shape.OGIVE, 6*DEFAULT_RADIUS, DEFAULT_RADIUS);
 	}
-	
+
 	public NoseCone(Transition.Shape type, double length, double radius) {
 		super();
 		super.setType(type);
@@ -27,9 +27,9 @@ public class NoseCone extends Transition {
 		super.setThickness(0.002);
 		super.setLength(length);
 		super.setClipped(false);
-		
+
 	}
-	
+
 
 	/********** Get/set methods for component parameters **********/
 
@@ -37,7 +37,7 @@ public class NoseCone extends Transition {
 	public double getForeRadius() {
 		return 0;
 	}
-	
+
 	@Override
 	public void setForeRadius(double r) {
 		// No-op
@@ -47,7 +47,7 @@ public class NoseCone extends Transition {
 	public boolean isForeRadiusAutomatic() {
 		return false;
 	}
-	
+
 	@Override
 	public void setForeRadiusAutomatic(boolean b) {
 		// No-op
@@ -97,14 +97,14 @@ public class NoseCone extends Transition {
 	public boolean isClipped() {
 		return false;
 	}
-	
+
 	@Override
 	public void setClipped(boolean b) {
 		// No-op
 	}
-	
 
-	
+
+
 	/********** RocketComponent methods **********/
 
 	/**
@@ -114,14 +114,5 @@ public class NoseCone extends Transition {
 	public String getComponentName() {
 		return "Nose cone";
 	}
-    
-    /**
-     * Accept a visitor to this NoseCone in the component hierarchy.
-     * 
-     * @param theVisitor  the visitor that will be called back with a reference to this NoseCone
-     */
-    @Override
-    public void accept(ComponentVisitor theVisitor) {
-        theVisitor.visit(this);
-    }
+
 }

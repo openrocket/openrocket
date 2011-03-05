@@ -1,40 +1,40 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 
 public class FreeformFinSet extends FinSet {
 	private static final LogHelper log = Application.getLogger();
-	
+
 	private ArrayList<Coordinate> points = new ArrayList<Coordinate>();
-	
+
 	public FreeformFinSet() {
 		points.add(Coordinate.NUL);
 		points.add(new Coordinate(0.025, 0.05));
 		points.add(new Coordinate(0.075, 0.05));
 		points.add(new Coordinate(0.05, 0));
-		
+
 		this.length = 0.05;
 	}
-	
-	
+
+
 	public FreeformFinSet(Coordinate[] finpoints) throws IllegalFinPointException {
 		setPoints(finpoints);
 	}
-	
+
 	/*
 	public FreeformFinSet(FinSet finset) {
 		Coordinate[] finpoints = finset.getFinPoints();
 		this.copyFrom(finset);
-		
+
 		points.clear();
 		for (Coordinate c: finpoints) {
 			points.add(c);
@@ -50,7 +50,7 @@ public class FreeformFinSet extends FinSet {
 	 * inserted in its stead.
 	 * <p>
 	 * The specified fin set should not be used after the call!
-	 * 
+	 *
 	 * @param finset	the fin set to convert.
 	 * @return			the new freeform fin set.
 	 */
@@ -59,12 +59,12 @@ public class FreeformFinSet extends FinSet {
 		final RocketComponent root = finset.getRoot();
 		FreeformFinSet freeform;
 		List<RocketComponent> toInvalidate = Collections.emptyList();
-		
+
 		try {
 			if (root instanceof Rocket) {
 				((Rocket) root).freeze();
 			}
-			
+
 			// Get fin set position and remove fin set
 			final RocketComponent parent = finset.getParent();
 			final int position;
@@ -74,7 +74,7 @@ public class FreeformFinSet extends FinSet {
 			} else {
 				position = -1;
 			}
-			
+
 
 			// Create the freeform fin set
 			Coordinate[] finpoints = finset.getFinPoints();
@@ -85,24 +85,24 @@ public class FreeformFinSet extends FinSet {
 						"freeform fin, fin=" + finset + " points=" + Arrays.toString(finpoints),
 						e);
 			}
-			
+
 			// Copy component attributes
 			toInvalidate = freeform.copyFrom(finset);
-			
+
 			// Set name
 			final String componentTypeName = finset.getComponentName();
 			final String name = freeform.getName();
-			
+
 			if (name.startsWith(componentTypeName)) {
 				freeform.setName(freeform.getComponentName() +
 						name.substring(componentTypeName.length()));
 			}
-			
+
 			// Add freeform fin set to parent
 			if (parent != null) {
 				parent.addChild(freeform, position);
 			}
-			
+
 		} finally {
 			if (root instanceof Rocket) {
 				((Rocket) root).thaw();
@@ -114,34 +114,34 @@ public class FreeformFinSet extends FinSet {
 		}
 		return freeform;
 	}
-	
-	
+
+
 
 	/**
 	 * Add a fin point between indices <code>index-1</code> and <code>index</code>.
 	 * The point is placed at the midpoint of the current segment.
-	 * 
+	 *
 	 * @param index   the fin point before which to add the new point.
 	 */
 	public void addPoint(int index) {
 		double x0, y0, x1, y1;
-		
+
 		x0 = points.get(index - 1).x;
 		y0 = points.get(index - 1).y;
 		x1 = points.get(index).x;
 		y1 = points.get(index).y;
-		
+
 		points.add(index, new Coordinate((x0 + x1) / 2, (y0 + y1) / 2));
 		// adding a point within the segment affects neither mass nor aerodynamics
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-	
-	
+
+
 	/**
 	 * Remove the fin point with the given index.  The first and last fin points
 	 * cannot be removed, and will cause an <code>IllegalFinPointException</code>
 	 * if attempted.
-	 * 
+	 *
 	 * @param index   the fin point index to remove
 	 * @throws IllegalFinPointException if removing would result in invalid fin planform
 	 */
@@ -149,20 +149,20 @@ public class FreeformFinSet extends FinSet {
 		if (index == 0 || index == points.size() - 1) {
 			throw new IllegalFinPointException("cannot remove first or last point");
 		}
-		
+
 		ArrayList<Coordinate> copy = this.points.clone();
 		copy.remove(index);
 		validate(copy);
 		this.points = copy;
-		
+
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
+
 	public int getPointCount() {
 		return points.size();
 	}
-	
+
 	public void setPoints(Coordinate[] points) throws IllegalFinPointException {
 		ArrayList<Coordinate> list = new ArrayList<Coordinate>(points.length);
 		for (Coordinate p : points) {
@@ -170,23 +170,23 @@ public class FreeformFinSet extends FinSet {
 		}
 		validate(list);
 		this.points = list;
-		
+
 		this.length = points[points.length - 1].x;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
+
 	/**
 	 * Set the point at position <code>i</code> to coordinates (x,y).
 	 * <p>
 	 * Note that this method enforces basic fin shape restrictions (non-negative y,
-	 * first and last point locations) silently, but throws an 
+	 * first and last point locations) silently, but throws an
 	 * <code>IllegalFinPointException</code> if the point causes fin segments to
 	 * intersect.
 	 * <p>
 	 * Moving of the first point in the X-axis is allowed, but this actually moves
 	 * all of the other points the corresponding distance back.
-	 * 
+	 *
 	 * @param index	the point index to modify.
 	 * @param x		the x-coordinate.
 	 * @param y		the y-coordinate.
@@ -196,11 +196,11 @@ public class FreeformFinSet extends FinSet {
 	public void setPoint(int index, double x, double y) throws IllegalFinPointException {
 		if (y < 0)
 			y = 0;
-		
+
 		double x0, y0, x1, y1;
-		
+
 		if (index == 0) {
-			
+
 			// Restrict point
 			x = Math.min(x, points.get(points.size() - 1).x);
 			y = 0;
@@ -208,9 +208,9 @@ public class FreeformFinSet extends FinSet {
 			y0 = Double.NaN;
 			x1 = points.get(1).x;
 			y1 = points.get(1).y;
-			
+
 		} else if (index == points.size() - 1) {
-			
+
 			// Restrict point
 			x = Math.max(x, 0);
 			y = 0;
@@ -218,16 +218,16 @@ public class FreeformFinSet extends FinSet {
 			y0 = points.get(index - 1).y;
 			x1 = Double.NaN;
 			y1 = Double.NaN;
-			
+
 		} else {
-			
+
 			x0 = points.get(index - 1).x;
 			y0 = points.get(index - 1).y;
 			x1 = points.get(index + 1).x;
 			y1 = points.get(index + 1).y;
-			
+
 		}
-		
+
 
 
 		// Check for intersecting
@@ -237,7 +237,7 @@ public class FreeformFinSet extends FinSet {
 		for (int i = 1; i < points.size(); i++) {
 			px1 = points.get(i).x;
 			py1 = points.get(i).y;
-			
+
 			if (i != index - 1 && i != index && i != index + 1) {
 				if (intersects(x0, y0, x, y, px0, py0, px1, py1)) {
 					throw new IllegalFinPointException("segments intersect");
@@ -248,49 +248,49 @@ public class FreeformFinSet extends FinSet {
 					throw new IllegalFinPointException("segments intersect");
 				}
 			}
-			
+
 			px0 = px1;
 			py0 = py1;
 		}
-		
+
 		if (index == 0) {
-			
+
 			System.out.println("Set point zero to x:" + x);
 			for (int i = 1; i < points.size(); i++) {
 				Coordinate c = points.get(i);
 				points.set(i, c.setX(c.x - x));
 			}
-			
+
 		} else {
-			
+
 			points.set(index, new Coordinate(x, y));
-			
+
 		}
 		if (index == 0 || index == points.size() - 1) {
 			this.length = points.get(points.size() - 1).x;
 		}
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
+
+
 
 	private boolean intersects(double ax0, double ay0, double ax1, double ay1,
 			double bx0, double by0, double bx1, double by1) {
-		
+
 		double d = ((by1 - by0) * (ax1 - ax0) - (bx1 - bx0) * (ay1 - ay0));
-		
+
 		double ua = ((bx1 - bx0) * (ay0 - by0) - (by1 - by0) * (ax0 - bx0)) / d;
 		double ub = ((ax1 - ax0) * (ay0 - by0) - (ay1 - ay0) * (ax0 - bx0)) / d;
-		
+
 		return (ua >= 0) && (ua <= 1) && (ub >= 0) && (ub <= 1);
 	}
-	
-	
+
+
 	@Override
 	public Coordinate[] getFinPoints() {
 		return points.toArray(new Coordinate[0]);
 	}
-	
+
 	@Override
 	public double getSpan() {
 		double max = 0;
@@ -300,30 +300,20 @@ public class FreeformFinSet extends FinSet {
 		}
 		return max;
 	}
-	
+
 	@Override
 	public String getComponentName() {
 		return "Freeform fin set";
 	}
-	
-	
+
+
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();
 		((FreeformFinSet) c).points = this.points.clone();
 		return c;
 	}
-	
-	/**
-	 * Accept a visitor to this FreeformFinSet in the component hierarchy.
-	 * 
-	 * @param theVisitor  the visitor that will be called back with a reference to this FreeformFinSet
-	 */
-	@Override
-	public void accept(ComponentVisitor theVisitor) {
-		theVisitor.visit(this);
-	}
-	
+
 	private void validate(ArrayList<Coordinate> points) throws IllegalFinPointException {
 		final int n = points.size();
 		if (points.get(0).x != 0 || points.get(0).y != 0 ||
@@ -342,5 +332,5 @@ public class FreeformFinSet extends FinSet {
 			}
 		}
 	}
-	
+
 }

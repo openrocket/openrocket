@@ -14,9 +14,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.print.visitor.FinSetVisitorStrategy;
 import net.sf.openrocket.gui.print.visitor.PartsDetailVisitorStrategy;
-import net.sf.openrocket.rocketcomponent.ComponentVisitor;
 
 import javax.print.attribute.standard.MediaSizeName;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Set;
@@ -59,33 +59,23 @@ public class PrintController {
                 switch (printableContext.getPrintable()) {
                     case DESIGN_REPORT:
                         DesignReport dp = new DesignReport(doc, idoc);
-                        dp.print(writer);
+                        dp.writeToDocument(writer);
                         idoc.newPage();
                         break;
                     case FIN_TEMPLATE:
-                        final ComponentVisitor finVisitor = new ComponentVisitor(new FinSetVisitorStrategy(idoc,
-                                                                                                           writer,
-                                                                                                           stages));
-                        finVisitor.visit(doc.getRocket());
-                        finVisitor.close();
+                        final FinSetVisitorStrategy finWriter = new FinSetVisitorStrategy(idoc,
+                                                                                           writer,
+                                                                                           stages);
+                        finWriter.writeToDocument(doc.getRocket());
                         break;
                     case PARTS_DETAIL:
-                        final ComponentVisitor detailVisitor = new ComponentVisitor(new PartsDetailVisitorStrategy(idoc,
-                                                                                                                   writer,
-                                                                                                                   stages));
-                        detailVisitor.visit(doc.getRocket());
+                        final PartsDetailVisitorStrategy detailVisitor = new PartsDetailVisitorStrategy(idoc,
+                                                                                                        writer,
+                                                                                                        stages);
+                        detailVisitor.writeToDocument(doc.getRocket());
                         detailVisitor.close();
                         idoc.newPage();
                         break;
-                    /*     case PARTS_LIST:
-                            final ComponentVisitor partsVisitor = new ComponentVisitor(new PartsListVisitorStrategy(idoc,
-                                                                                                                    writer,
-                                                                                                                    stages));
-                            partsVisitor.visit(doc.getRocket());
-                            partsVisitor.close();
-                            idoc.newPage();
-                            break;
-                    */
                 }
             }
             //Stupid iText throws a really nasty exception if there is no data when close is called.
@@ -99,16 +89,16 @@ public class PrintController {
         }
         catch (ExceptionConverter ec) {
         }
-/*        finally {
-            if (fileOutputStream != null) {
+        finally {
+            if (outputFile != null) {
                 try {
-                    fileOutputStream.close();
+                    outputFile.close();
                 }
                 catch (IOException e) {
                 }
             }
         }
-  */
+
     }
 
     private Rectangle convertWithDefault (final MediaSizeName msn) {
