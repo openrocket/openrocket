@@ -9,6 +9,13 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">5.3.2011:</span> Version 1.1.4 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>This release includes initial printing support, thanks to Doug
+    Pedrick.  Printing still has a few issues on some platforms.
+    Various bugs have also been fixed.</p>
+
   <p><span class="date">6.10.2010:</span> Version 1.1.3 is 
     <a href="download.html">released</a>!</p>
 
@@ -35,6 +42,10 @@
   <p>Simulation listeners written for older versions of OpenRocket
     are not compatible with this release.</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">21.3.2010:</span> Version 1.1.0 is 
     <a href="download.html">released</a>!</p>
 
@@ -42,10 +53,6 @@
     rocket design files (.RKT), thanks to contributions by Doug
     Pedrick.  It's also the kick-off of the 1.1 development branch of
     OpenRocket.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">10.3.2010:</span> Version 1.0.0 is 
     <a href="download.html">released</a>!</p>
