@@ -16,12 +16,7 @@ Steps for making a release:
 11. Tag the version in SVN, URL:
     https://openrocket.svn.sourceforge.net/svnroot/openrocket/tags/Release_1.1.x
 12. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
-     - Project Admin -> File Manager
-     - create new version directory under /openrocket
-     - upload JAR, ZIP and ReleaseNotes
-     - select ReleaseNotes properties, set as release notes
-     - select JAR properties, set release note file and default downloads
-     - select ZIP properties, set release note file
+     - Files -> Add Folder -> Add File
 13. Update HTML to web server:
     scp * plaa,openrocket@web.sourceforge.net:htdocs/
 14. Test downloading from Sourceforge and web site
