@@ -12,6 +12,7 @@ import com.itextpdf.text.pdf.PdfBoolean;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.print.visitor.FinSetVisitorStrategy;
 import net.sf.openrocket.gui.print.visitor.PartsDetailVisitorStrategy;
 
@@ -35,7 +36,8 @@ public class PrintController {
      * @param outputFile  the file being written to
      * @param msn         the paper size
      */
-    public void print (OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile, MediaSizeName msn) {
+    public void print(OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile,
+                      MediaSizeName msn) {
 
         Document idoc = new Document(convertWithDefault(msn));
         PdfWriter writer = null;
@@ -64,8 +66,8 @@ public class PrintController {
                         break;
                     case FIN_TEMPLATE:
                         final FinSetVisitorStrategy finWriter = new FinSetVisitorStrategy(idoc,
-                                                                                           writer,
-                                                                                           stages);
+                                                                                          writer,
+                                                                                          stages);
                         finWriter.writeToDocument(doc.getRocket());
                         break;
                     case PARTS_DETAIL:
@@ -86,8 +88,10 @@ public class PrintController {
             idoc.close();
         }
         catch (DocumentException e) {
+            ExceptionHandler.handleErrorCondition("Could not create document.", e);
         }
         catch (ExceptionConverter ec) {
+            ExceptionHandler.handleErrorCondition("Could not create document.", ec);
         }
         finally {
             if (outputFile != null) {
@@ -98,15 +102,19 @@ public class PrintController {
                 }
             }
         }
-
     }
 
-    private Rectangle convertWithDefault (final MediaSizeName msn) {
+    /**
+     * Convert a media size name to a rectangle that defines the bounds of the corresponding paper size.
+     *
+     * @param msn the MediaSizeName to convert
+     * @return the corresponding Rectangle
+     */
+    private Rectangle convertWithDefault(final MediaSizeName msn) {
         Rectangle result = PaperSize.convert(msn);
         if (result == null) {
             result = PaperSize.convert(PrintUtilities.getDefaultMedia().getMediaSizeName());
         }
         return result;
     }
-
 }

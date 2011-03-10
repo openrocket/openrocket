@@ -8,15 +8,20 @@ import net.sf.openrocket.gui.print.PDFPrintStreamDoc;
 import net.sf.openrocket.gui.print.PrintServiceDialog;
 import net.sf.openrocket.gui.print.PrintUtilities;
 
-import javax.print.*;
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 import javax.print.attribute.Attribute;
 import javax.print.attribute.AttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Destination;
 import javax.print.attribute.standard.Fidelity;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JDialog;
+import java.awt.Dialog;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.io.ByteArrayOutputStream;
 
 /**
@@ -41,24 +46,23 @@ public class PrintDialog {
      *
      * @param orDocument the rocket container
      */
-    public PrintDialog (OpenRocketDocument orDocument) {
+    public PrintDialog(OpenRocketDocument orDocument) {
         PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
         PrintService svc = PrintServiceLookup.lookupDefaultPrintService();
         PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
         attrs.add(PrintUtilities.getDefaultMedia().getMediaSizeName());
 
         final PrintPanel panel = new PrintPanel(orDocument, this);
-        PrintService ps = printDialog(null, 100, 100, services, svc, PDF, attrs, panel);
-        if (ps != null) {
-            DocPrintJob dpj = ps.createPrintJob();
-            try {
+        try {
+            PrintService ps = printDialog(100, 100, services, svc, PDF, attrs, panel);
+            if (ps != null) {
+                DocPrintJob dpj = ps.createPrintJob();
                 ByteArrayOutputStream baos = panel.generateReport();
                 dpj.print(new PDFPrintStreamDoc(baos, null), attrs);
             }
-            catch (PrintException e) {
-                e.printStackTrace();
-                //dgp
-            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -67,7 +71,7 @@ public class PrintDialog {
      *
      * @return a set of print attributes
      */
-    PrintRequestAttributeSet getAttributes () {
+    PrintRequestAttributeSet getAttributes() {
         return dialog.getAttributes();
     }
 
@@ -77,14 +81,13 @@ public class PrintDialog {
      *
      * @return the Java service ui print dialog
      */
-    JDialog getDialog () {
+    JDialog getDialog() {
         return dialog;
     }
 
     /**
      * Mimics the ServiceUI.printDialog method, but with enhancements for our own print settings tab.
      *
-     * @param gc             used to select screen. null means primary or default screen.
      * @param x              location of dialog including border in screen coordinates
      * @param y              location of dialog including border in screen coordinates
      * @param services       to be browsable, must be non-null.
@@ -93,35 +96,28 @@ public class PrintDialog {
      * @param attributes     on input is the initial application supplied preferences. This cannot be null but may be
      *                       empty. On output the attributes reflect changes made by the user.
      * @param addnl          a panel to be added, as a tab, to the internal tabbed pane of the resulting print dialog
-     *
      * @return print service selected by the user, or null if the user cancelled the dialog.
-     *
      * @throws HeadlessException        if GraphicsEnvironment.isHeadless() returns true.
      * @throws IllegalArgumentException if services is null or empty, or attributes is null, or the initial PrintService
      *                                  is not in the list of browsable services.
      */
-    private PrintService printDialog (GraphicsConfiguration gc,
-                                      int x, int y,
-                                      PrintService[] services,
-                                      PrintService defaultService,
-                                      DocFlavor flavor,
-                                      PrintRequestAttributeSet attributes,
-                                      PrintPanel addnl)
-            throws HeadlessException {
+    private PrintService printDialog(int x, int y,
+                                     PrintService[] services,
+                                     PrintService defaultService,
+                                     DocFlavor flavor,
+                                     PrintRequestAttributeSet attributes,
+                                     PrintPanel addnl)
+            throws HeadlessException, IllegalArgumentException {
         int defaultIndex = -1;
 
         if (GraphicsEnvironment.isHeadless()) {
             throw new HeadlessException();
         }
-        else if ((services == null) || (services.length == 0)) {
-            throw new IllegalArgumentException("services must be non-null " +
-                                               "and non-empty");
-        }
         else if (attributes == null) {
             throw new IllegalArgumentException("attributes must be non-null");
         }
 
-        if (defaultService != null) {
+        if (defaultService != null && services != null) {
             for (int i = 0; i < services.length; i++) {
                 if (services[i].equals(defaultService)) {
                     defaultIndex = i;
@@ -129,45 +125,21 @@ public class PrintDialog {
                 }
             }
 
+            //If the default service is not found just go with the first in the list
             if (defaultIndex < 0) {
-                throw new IllegalArgumentException("services must contain " +
-                                                   "defaultService");
+                defaultIndex = 0;
             }
         }
         else {
-            defaultIndex = 0;
+            defaultIndex = -1;
         }
 
-        Rectangle gcBounds = (gc == null) ? GraphicsEnvironment.
-                getLocalGraphicsEnvironment().getDefaultScreenDevice().
-                getDefaultConfiguration().getBounds() : gc.getBounds();
-
-        dialog = new PrintServiceDialog(gc,
-                                   x + gcBounds.x,
-                                   y + gcBounds.y,
-                                   services, defaultIndex,
-                                   flavor, attributes,
-                                   (Dialog) null);
-        Rectangle dlgBounds = dialog.getBounds();
-
-        // get union of all GC bounds
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-        for (GraphicsDevice g : gs) {
-            gcBounds = gcBounds.union(g.getDefaultConfiguration().getBounds());
-        }
-
-        // if portion of dialog is not within the gc boundary
-        if (!gcBounds.contains(dlgBounds)) {
-            // put in the center relative to parent frame/dialog
-            dialog.setLocationRelativeTo(null);
-        }
-        if (addnl != null && addnl.getTitle() != null) {
-            JTabbedPane tp = (JTabbedPane) getDescendantOfClass(JTabbedPane.class, dialog);
-            tp.add(addnl, addnl.getTitle(), 0);
-            tp.setSelectedIndex(0);
-        }
-
+        dialog = new PrintServiceDialog(
+                                        x,
+                                        y,
+                                        services, defaultIndex,
+                                        flavor, attributes,
+                                        (Dialog) null, addnl);
         dialog.setVisible(true);
 
         if (dialog.getStatus() == PrintServiceDialog.APPROVE) {
@@ -176,7 +148,7 @@ public class PrintDialog {
             Class fdCategory = Fidelity.class;
 
             if (attributes.containsKey(dstCategory) &&
-                !newas.containsKey(dstCategory)) {
+                    !newas.containsKey(dstCategory)) {
                 attributes.remove(dstCategory);
             }
 
@@ -196,37 +168,17 @@ public class PrintDialog {
         }
     }
 
-    private Component getDescendantOfClass (Class c, Container cont) {
-        if (c == null || cont == null) {
-            return null;
-        }
-        Component[] children = (cont instanceof JMenu)
-                               ? ((JMenu) cont).getMenuComponents()
-                               : cont.getComponents();
-        for (int i = 0, n = children.length; i < n; i++) {
-            Component comp = children[i];
-            if (c.isInstance(comp)) {
-                return comp;
-            }
-            comp = getDescendantOfClass(c, (Container) comp);
-            if (comp != null) {
-                return comp;
-            }
-        }
-        return null;
-    }
-
     /**
      * Removes any attributes from the given AttributeSet that are unsupported by the given PrintService/DocFlavor
      * combination.
      *
-     * @param ps      the print service for which unsupported attributes will be determined
-     * @param flavor  the document flavor; PDF in our case
-     * @param aset    the set of attributes requested
+     * @param ps     the print service for which unsupported attributes will be determined
+     * @param flavor the document flavor; PDF in our case
+     * @param aset   the set of attributes requested
      */
-    private static void removeUnsupportedAttributes (PrintService ps,
-                                                     DocFlavor flavor,
-                                                     AttributeSet aset) {
+    private static void removeUnsupportedAttributes(PrintService ps,
+                                                    DocFlavor flavor,
+                                                    AttributeSet aset) {
         AttributeSet asUnsupported = ps.getUnsupportedAttributes(flavor,
                                                                  aset);
 
