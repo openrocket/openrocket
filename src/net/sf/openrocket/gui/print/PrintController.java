@@ -12,7 +12,6 @@ import com.itextpdf.text.pdf.PdfBoolean;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.print.visitor.FinSetVisitorStrategy;
 import net.sf.openrocket.gui.print.visitor.PartsDetailVisitorStrategy;
 
@@ -88,10 +87,8 @@ public class PrintController {
             idoc.close();
         }
         catch (DocumentException e) {
-            ExceptionHandler.handleErrorCondition("Could not create document.", e);
         }
         catch (ExceptionConverter ec) {
-            ExceptionHandler.handleErrorCondition("Could not create document.", ec);
         }
         finally {
             if (outputFile != null) {
