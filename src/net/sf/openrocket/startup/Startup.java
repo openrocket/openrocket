@@ -134,6 +134,7 @@ public class Startup {
 			} else {
 				l = new Locale(split[0], split[1], split[2]);
 			}
+			log.info("Setting custom locale " + l);
 			Locale.setDefault(l);
 		}
 		
@@ -147,7 +148,7 @@ public class Startup {
 		log.info("Set up translation for locale " + Locale.getDefault() +
 				", debug.currentFile=" + t.get("debug.currentFile"));
 		
-		Application.setTranslator(t);
+		Application.setBaseTranslator(t);
 	}
 	
 	

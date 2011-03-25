@@ -1,7 +1,9 @@
 package net.sf.openrocket.startup;
 
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
+import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
@@ -18,7 +20,7 @@ public final class Application {
 	private static LogHelper logger;
 	private static LogLevelBufferLogger logBuffer;
 	
-	private static Translator translator = new DebugTranslator();
+	private static Translator baseTranslator = new DebugTranslator();
 	
 	private static ThrustCurveMotorSetDatabase motorSetDatabase;
 	
@@ -87,15 +89,18 @@ public final class Application {
 	 * @return	a translator.
 	 */
 	public static Translator getTranslator() {
-		return translator;
+		Translator t = baseTranslator;
+		t = new ClassBasedTranslator(t, 1);
+		t = new ExceptionSuppressingTranslator(t);
+		return t;
 	}
 	
 	/**
 	 * Set the translator used in obtaining translated strings.
 	 * @param translator	the translator to set.
 	 */
-	public static void setTranslator(Translator translator) {
-		Application.translator = translator;
+	public static void setBaseTranslator(Translator translator) {
+		Application.baseTranslator = translator;
 	}
 	
 	

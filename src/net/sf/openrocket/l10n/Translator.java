@@ -1,5 +1,7 @@
 package net.sf.openrocket.l10n;
 
+import java.util.MissingResourceException;
+
 /**
  * An interface for obtaining translations from logical keys.
  * <p>
@@ -15,6 +17,7 @@ public interface Translator {
 	 * 
 	 * @param key	the logical string key.
 	 * @return		the translated string.
+	 * @throws MissingResourceException if the translation corresponding to the key is not found.
 	 * @throws NullPointerException	if key is null.
 	 */
 	public String get(String key);
