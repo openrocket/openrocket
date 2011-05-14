@@ -483,7 +483,7 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 
-		item = new JMenuItem("Print...", KeyEvent.VK_P);
+		item = new JMenuItem("Print / Export PDF...", KeyEvent.VK_P);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 		item.getAccessibleContext().setAccessibleDescription("Print parts list and fin template");
 		item.setIcon(Icons.FILE_PRINT);
@@ -1310,7 +1310,7 @@ public class BasicFrame extends JFrame {
 					"Experimental feature", JOptionPane.WARNING_MESSAGE);
 			Prefs.putBoolean("printing.experimental.communicated", true);
 		}
-		new PrintDialog(document);
+		new PrintDialog(this, document).setVisible(true);
 	}
 	
 	/**

@@ -338,6 +338,22 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 			}
 		}
 		
+
+		/*
+		 * Detect and ignore bug 6933331 in Sun JRE 1.6.0_18 and others
+		 */
+		if (t instanceof IllegalStateException) {
+			StackTraceElement[] trace = t.getStackTrace();
+			
+			if (trace.length > 1 &&
+					trace[0].getClassName().equals("sun.awt.windows.WComponentPeer") &&
+					trace[0].getMethodName().equals("getBackBuffer")) {
+				log.warn("Ignoring Sun JRE bug 6933331 " +
+						"(see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6933331): " + t);
+				return true;
+			}
+		}
+		
 		/*
 		 * Detect and ignore bug in Sun JRE 1.6.0_19
 		 */

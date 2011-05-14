@@ -1,209 +1,370 @@
 /*
- * PrintDialog.java
+ * PrintPanel.java
  */
 package net.sf.openrocket.gui.dialogs;
 
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.print.PDFPrintStreamDoc;
-import net.sf.openrocket.gui.print.PrintServiceDialog;
-import net.sf.openrocket.gui.print.PrintUtilities;
+import java.awt.Desktop;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Iterator;
 
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.attribute.Attribute;
-import javax.print.attribute.AttributeSet;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.Destination;
-import javax.print.attribute.standard.Fidelity;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import java.awt.Dialog;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
-import java.io.ByteArrayOutputStream;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.gui.print.PrintController;
+import net.sf.openrocket.gui.print.PrintSettings;
+import net.sf.openrocket.gui.print.PrintableContext;
+import net.sf.openrocket.gui.print.TemplateProperties;
+import net.sf.openrocket.gui.print.components.CheckTreeManager;
+import net.sf.openrocket.gui.print.components.RocketPrintTree;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.util.Prefs;
 
 /**
- * This class is not a dialog by inheritance, but is by delegation.  It front-ends a java print dialog by
- * augmenting it with application specific (rocket) settings.
+ * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
  */
-public class PrintDialog {
+public class PrintDialog extends JDialog implements TreeSelectionListener {
+	
+	private static final LogHelper log = Application.getLogger();
+	
+	private static final String SETTINGS_BUTTON_TEXT = "Settings";
+	private static final String PREVIEW_BUTTON_TEXT = "Preview & Print";
+	private static final String SAVE_AS_PDF_BUTTON_TEXT = "Save as PDF";
+	private static final String SHOW_BY_STAGE = "Show By Stage";
+	
+	private final RocketPrintTree stagedTree;
+	private final RocketPrintTree noStagedTree;
+	private OpenRocketDocument document;
+	private RocketPrintTree currentTree;
+	private Desktop desktop = null;
+	
+	private JButton previewButton;
+	private JButton saveAsPDF;
+	private JButton cancel;
+	
+	/**
+	 * Constructor.
+	 *
+	 * @param orDocument the OR rocket container
+	 */
+	public PrintDialog(Window parent, OpenRocketDocument orDocument) {
+		super(parent, "Print or export", ModalityType.APPLICATION_MODAL);
+		
 
-    /**
-     * The service UI dialog.
-     */
-    private PrintServiceDialog dialog;
+		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel"));
+		this.add(panel);
+		
 
-    /**
-     * A javax doc flavor specific for printing PDF documents.
-     */
-    private static final DocFlavor.INPUT_STREAM PDF = DocFlavor.INPUT_STREAM.PDF;
+		// before any Desktop APIs are used, first check whether the API is
+		// supported by this particular VM on this particular host
+		if (Desktop.isDesktopSupported()) {
+			desktop = Desktop.getDesktop();
+		}
+		
+		document = orDocument;
+		Rocket rocket = orDocument.getRocket();
+		
+		noStagedTree = RocketPrintTree.create(rocket.getName());
+		noStagedTree.setShowsRootHandles(false);
+		CheckTreeManager ctm = new net.sf.openrocket.gui.print.components.CheckTreeManager(noStagedTree);
+		ctm.addTreeSelectionListener(this);
+		
+		final int stages = rocket.getStageCount();
+		
 
-    /**
-     * Construct a print dialog using an Open Rocket document - which contains the rocket data to ultimately be
-     * printed.
-     *
-     * @param orDocument the rocket container
-     */
-    public PrintDialog(OpenRocketDocument orDocument) {
-        PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-        PrintService svc = PrintServiceLookup.lookupDefaultPrintService();
-        PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
-        attrs.add(PrintUtilities.getDefaultMedia().getMediaSizeName());
+		JLabel label = new JLabel("Select elements to include:");
+		panel.add(label, "wrap unrel");
+		
+		// Create the tree
+		if (stages > 1) {
+			stagedTree = RocketPrintTree.create(rocket.getName(), rocket.getChildren());
+			ctm = new CheckTreeManager(stagedTree);
+			stagedTree.setShowsRootHandles(false);
+			ctm.addTreeSelectionListener(this);
+		} else {
+			stagedTree = noStagedTree;
+		}
+		currentTree = stagedTree;
+		
+		// Add the tree to the UI
+		final JScrollPane scrollPane = new JScrollPane(stagedTree);
+		panel.add(scrollPane, "width 400lp, height 200lp, grow, wrap para");
+		
 
-        final PrintPanel panel = new PrintPanel(orDocument, this);
-        try {
-            PrintService ps = printDialog(100, 100, services, svc, PDF, attrs, panel);
-            if (ps != null) {
-                DocPrintJob dpj = ps.createPrintJob();
-                ByteArrayOutputStream baos = panel.generateReport();
-                dpj.print(new PDFPrintStreamDoc(baos, null), attrs);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+		// Checkboxes and buttons
+		final JCheckBox sortByStage = new JCheckBox(SHOW_BY_STAGE);
+		sortByStage.setEnabled(stages > 1);
+		sortByStage.setSelected(stages > 1);
+		sortByStage.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (sortByStage.isEnabled()) {
+					if (((JCheckBox) e.getSource()).isSelected()) {
+						scrollPane.setViewportView(stagedTree);
+						stagedTree.setExpandsSelectedPaths(true);
+						currentTree = stagedTree;
+					}
+					else {
+						scrollPane.setViewportView(noStagedTree);
+						noStagedTree.setExpandsSelectedPaths(true);
+						currentTree = noStagedTree;
+					}
+				}
+			}
+		});
+		panel.add(sortByStage, "aligny top, split");
+		
 
-    /**
-     * Get the set of attributes from the service ui print dialog.
-     *
-     * @return a set of print attributes
-     */
-    PrintRequestAttributeSet getAttributes() {
-        return dialog.getAttributes();
-    }
+		panel.add(new JPanel(), "growx");
+		
 
-    /**
-     * Get the service ui dialog.  This is the actual dialog that gets displayed - we co-opt it for adding a rocket
-     * specific tab.
-     *
-     * @return the Java service ui print dialog
-     */
-    JDialog getDialog() {
-        return dialog;
-    }
+		JButton settingsButton = new JButton(SETTINGS_BUTTON_TEXT);
+		settingsButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PrintSettings settings = Prefs.getPrintSettings();
+				log.debug("settings=" + settings);
+				PrintSettingsDialog settingsDialog = new PrintSettingsDialog(PrintDialog.this, settings);
+				settingsDialog.setVisible(true);
+				Prefs.setPrintSettings(settings);
+			}
+		});
+		panel.add(settingsButton, "wrap para");
+		
 
-    /**
-     * Mimics the ServiceUI.printDialog method, but with enhancements for our own print settings tab.
-     *
-     * @param x              location of dialog including border in screen coordinates
-     * @param y              location of dialog including border in screen coordinates
-     * @param services       to be browsable, must be non-null.
-     * @param defaultService - initial PrintService to display.
-     * @param flavor         - the flavor to be printed, or null.
-     * @param attributes     on input is the initial application supplied preferences. This cannot be null but may be
-     *                       empty. On output the attributes reflect changes made by the user.
-     * @param addnl          a panel to be added, as a tab, to the internal tabbed pane of the resulting print dialog
-     * @return print service selected by the user, or null if the user cancelled the dialog.
-     * @throws HeadlessException        if GraphicsEnvironment.isHeadless() returns true.
-     * @throws IllegalArgumentException if services is null or empty, or attributes is null, or the initial PrintService
-     *                                  is not in the list of browsable services.
-     */
-    private PrintService printDialog(int x, int y,
-                                     PrintService[] services,
-                                     PrintService defaultService,
-                                     DocFlavor flavor,
-                                     PrintRequestAttributeSet attributes,
-                                     PrintPanel addnl)
-            throws HeadlessException, IllegalArgumentException {
-        int defaultIndex = -1;
+		previewButton = new JButton(PREVIEW_BUTTON_TEXT);
+		previewButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onPreview();
+				PrintDialog.this.setVisible(false);
+			}
+		});
+		panel.add(previewButton, "split, right, gap para");
+		
 
-        if (GraphicsEnvironment.isHeadless()) {
-            throw new HeadlessException();
-        }
-        else if (attributes == null) {
-            throw new IllegalArgumentException("attributes must be non-null");
-        }
+		saveAsPDF = new JButton(SAVE_AS_PDF_BUTTON_TEXT);
+		saveAsPDF.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (onSavePDF()) {
+					PrintDialog.this.setVisible(false);
+				}
+			}
+		});
+		panel.add(saveAsPDF, "right, gap para");
+		
 
-        if (defaultService != null && services != null) {
-            for (int i = 0; i < services.length; i++) {
-                if (services[i].equals(defaultService)) {
-                    defaultIndex = i;
-                    break;
-                }
-            }
+		cancel = new JButton("Cancel");
+		cancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PrintDialog.this.setVisible(false);
+			}
+		});
+		panel.add(cancel, "right, gap para");
+		
 
-            //If the default service is not found just go with the first in the list
-            if (defaultIndex < 0) {
-                defaultIndex = 0;
-            }
-        }
-        else {
-            defaultIndex = -1;
-        }
+		expandAll(currentTree, true);
+		if (currentTree != noStagedTree) {
+			expandAll(noStagedTree, true);
+		}
+		
 
-        dialog = new PrintServiceDialog(
-                                        x,
-                                        y,
-                                        services, defaultIndex,
-                                        flavor, attributes,
-                                        (Dialog) null, addnl);
-        dialog.setVisible(true);
+		GUIUtil.setDisposableDialogOptions(this, previewButton);
+		
+	}
+	
+	
+	@Override
+	public void valueChanged(final TreeSelectionEvent e) {
+		final TreePath path = e.getNewLeadSelectionPath();
+		if (path != null) {
+			previewButton.setEnabled(true);
+			saveAsPDF.setEnabled(true);
+		} else {
+			previewButton.setEnabled(false);
+			saveAsPDF.setEnabled(false);
+		}
+	}
+	
+	/**
+	 * If expand is true, expands all nodes in the tree. Otherwise, collapses all nodes in the theTree.
+	 *
+	 * @param theTree   the tree to expand/contract
+	 * @param expand expand if true, contract if not
+	 */
+	public void expandAll(RocketPrintTree theTree, boolean expand) {
+		TreeNode root = (TreeNode) theTree.getModel().getRoot();
+		// Traverse theTree from root
+		expandAll(theTree, new TreePath(root), expand);
+	}
+	
+	/**
+	 * Recursively walk a tree, and if expand is true, expands all nodes in the tree. Otherwise, collapses all nodes in
+	 * the theTree.
+	 *
+	 * @param theTree   the tree to expand/contract
+	 * @param parent the node to iterate/recurse over
+	 * @param expand expand if true, contract if not
+	 */
+	private void expandAll(RocketPrintTree theTree, TreePath parent, boolean expand) {
+		theTree.addSelectionPath(parent);
+		// Traverse children
+		TreeNode node = (TreeNode) parent.getLastPathComponent();
+		if (node.getChildCount() >= 0) {
+			for (Enumeration<?> e = node.children(); e.hasMoreElements();) {
+				TreeNode n = (TreeNode) e.nextElement();
+				TreePath path = parent.pathByAddingChild(n);
+				expandAll(theTree, path, expand);
+			}
+		}
+		// Expansion or collapse must be done bottom-up
+		if (expand) {
+			theTree.expandPath(parent);
+		} else {
+			theTree.collapsePath(parent);
+		}
+	}
+	
+	
 
-        if (dialog.getStatus() == PrintServiceDialog.APPROVE) {
-            PrintRequestAttributeSet newas = dialog.getAttributes();
-            Class dstCategory = Destination.class;
-            Class fdCategory = Fidelity.class;
-
-            if (attributes.containsKey(dstCategory) &&
-                    !newas.containsKey(dstCategory)) {
-                attributes.remove(dstCategory);
-            }
-
-            attributes.addAll(newas);
-
-            Fidelity fd = (Fidelity) attributes.get(fdCategory);
-            if (fd != null) {
-                if (fd == Fidelity.FIDELITY_TRUE) {
-                    removeUnsupportedAttributes(dialog.getPrintService(),
-                                                flavor, attributes);
-                }
-            }
-            return dialog.getPrintService();
-        }
-        else {
-            return null;
-        }
-    }
-
-    /**
-     * Removes any attributes from the given AttributeSet that are unsupported by the given PrintService/DocFlavor
-     * combination.
-     *
-     * @param ps     the print service for which unsupported attributes will be determined
-     * @param flavor the document flavor; PDF in our case
-     * @param aset   the set of attributes requested
-     */
-    private static void removeUnsupportedAttributes(PrintService ps,
-                                                    DocFlavor flavor,
-                                                    AttributeSet aset) {
-        AttributeSet asUnsupported = ps.getUnsupportedAttributes(flavor,
-                                                                 aset);
-
-        if (asUnsupported != null) {
-            Attribute[] usAttrs = asUnsupported.toArray();
-
-            for (Attribute usAttr : usAttrs) {
-                Class<? extends Attribute> category = usAttr.getCategory();
-
-                if (ps.isAttributeCategorySupported(category)) {
-                    Attribute attr =
-                            (Attribute) ps.getDefaultAttributeValue(category);
-
-                    if (attr != null) {
-                        aset.add(attr);
-                    }
-                    else {
-                        aset.remove(category);
-                    }
-                }
-                else {
-                    aset.remove(category);
-                }
-            }
-        }
-    }
-
+	/**
+	 * Generate a report using a temporary file.  The file will be deleted upon JVM exit.
+	 *
+	 * @param paper the name of the paper size
+	 *
+	 * @return a file, populated with the "printed" output (the rocket info)
+	 *
+	 * @throws IOException thrown if the file could not be generated
+	 */
+	private File generateReport(PrintSettings settings) throws IOException {
+		final File f = File.createTempFile("openrocket-", ".pdf");
+		f.deleteOnExit();
+		return generateReport(f, settings);
+	}
+	
+	/**
+	 * Generate a report to a specified file.
+	 *
+	 * @param f     the file to which rocket data will be written
+	 * @param paper the name of the paper size
+	 *
+	 * @return a file, populated with the "printed" output (the rocket info)
+	 *
+	 * @throws IOException thrown if the file could not be generated
+	 */
+	private File generateReport(File f, PrintSettings settings) throws IOException {
+		Iterator<PrintableContext> toBePrinted = currentTree.getToBePrinted();
+		new PrintController().print(document, toBePrinted, new FileOutputStream(f), settings);
+		return f;
+	}
+	
+	
+	/**
+	 * Handler for when the Preview button is clicked.
+	 */
+	private void onPreview() {
+		if (desktop != null) {
+			try {
+				PrintSettings settings = Prefs.getPrintSettings();
+				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
+				TemplateProperties.setColors(settings);
+				File f = generateReport(settings);
+				desktop.open(f);
+			} catch (IOException e) {
+				log.error("Could not create temporary file for previewing.", e);
+				JOptionPane.showMessageDialog(this, "Could not create a temporary file for previewing.",
+												"Error creating file", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			JOptionPane.showMessageDialog(this,
+											"Your environment does not support automatically opening the default PDF viewer.",
+											"Error creating file", JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
+	/**
+	 * Handler for when the "Save as PDF" button is clicked.
+	 *
+	 * @return	true if the PDF was saved
+	 */
+	private boolean onSavePDF() {
+		
+		JFileChooser chooser = new JFileChooser();
+		// Note: source for ExampleFileFilter can be found in FileChooserDemo,
+		// under the demo/jfc directory in the Java 2 SDK, Standard Edition.
+		FileFilter filter = new FileFilter() {
+			
+			//Accept all directories and all pdf files.
+			@Override
+			public boolean accept(File f) {
+				if (f.isDirectory())
+					return true;
+				return f.getName().toLowerCase().endsWith(".pdf");
+			}
+			
+			//The description of this filter
+			@Override
+			public String getDescription() {
+				return "PDF files";
+			}
+		};
+		chooser.setFileFilter(filter);
+		int returnVal = chooser.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			
+			try {
+				String fname = chooser.getSelectedFile().getCanonicalPath();
+				if (!getExtension(fname).equals("pdf")) {
+					fname = fname + ".pdf";
+				}
+				File f = new File(fname);
+				PrintSettings settings = Prefs.getPrintSettings();
+				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
+				TemplateProperties.setColors(settings);
+				generateReport(f, settings);
+			} catch (IOException e) {
+				ExceptionHandler.handleErrorCondition(e);
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Get the extension of a file.
+	 */
+	private static String getExtension(String s) {
+		String ext = null;
+		int i = s.lastIndexOf('.');
+		
+		if (i > 0 && i < s.length() - 1) {
+			ext = s.substring(i + 1).toLowerCase();
+		}
+		return ext != null ? ext : "";
+	}
 }

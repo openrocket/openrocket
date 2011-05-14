@@ -2,8 +2,6 @@ package net.sf.openrocket.gui.configdialog;
 
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -13,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -33,6 +30,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -136,7 +134,7 @@ public class RocketComponentConfig extends JPanel {
 		
 		// Component color and "Use default color" checkbox
 		if (colorButton != null && colorDefault != null) {
-			colorButton.setIcon(new ColorIcon(component.getColor()));
+			colorButton.setIcon(new ColorIcon(getColor()));
 			
 			if ((component.getColor() == null) != colorDefault.isSelected())
 				colorDefault.setSelected(component.getColor() == null);
@@ -347,7 +345,7 @@ public class RocketComponentConfig extends JPanel {
 
 		panel.add(new JLabel("Component color:"), "gapleft para, gapright 10lp");
 		
-		colorButton = new JButton(new ColorIcon(component.getColor()));
+		colorButton = new JButton(new ColorIcon(getColor()));
 		colorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -409,7 +407,15 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	
-
+	private Color getColor() {
+		Color c = component.getColor();
+		if (c == null) {
+			c = Prefs.getDefaultColor(component.getClass());
+		}
+		return c;
+	}
+	
+	
 
 	protected JPanel shoulderTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -577,35 +583,6 @@ public class RocketComponentConfig extends JPanel {
 		}
 	}
 	
-	
-	private class ColorIcon implements Icon {
-		private final Color color;
-		
-		public ColorIcon(Color c) {
-			this.color = c;
-		}
-		
-		@Override
-		public int getIconHeight() {
-			return 15;
-		}
-		
-		@Override
-		public int getIconWidth() {
-			return 25;
-		}
-		
-		@Override
-		public void paintIcon(Component c, Graphics g, int x, int y) {
-			if (color == null) {
-				g.setColor(Prefs.getDefaultColor(component.getClass()));
-			} else {
-				g.setColor(color);
-			}
-			g.fill3DRect(x, y, getIconWidth(), getIconHeight(), false);
-		}
-		
-	}
 	
 	protected void register(Invalidatable model) {
 		this.invalidatables.add(model);

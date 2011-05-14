@@ -22,6 +22,7 @@ import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.gui.print.PrintSettings;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
@@ -306,6 +307,47 @@ public class Prefs {
 		storeVersion();
 	}
 	
+	
+	/**
+	 * Retrieve an enum value from the user preferences.
+	 * 
+	 * @param <T>	the enum type
+	 * @param key	the key
+	 * @param def	the default value, cannot be null
+	 * @return		the value in the preferences, or the default value
+	 */
+	public static <T extends Enum<T>> T getEnum(String key, T def) {
+		if (def == null) {
+			throw new BugException("Default value cannot be null");
+		}
+		
+		String value = getString(key, null);
+		if (value == null) {
+			return def;
+		}
+		
+		try {
+			return Enum.valueOf(def.getDeclaringClass(), value);
+		} catch (IllegalArgumentException e) {
+			return def;
+		}
+	}
+	
+	/**
+	 * Store an enum value to the user preferences.
+	 * 
+	 * @param key		the key
+	 * @param value		the value to store, or null to remove the value
+	 */
+	public static void putEnum(String key, Enum<?> value) {
+		if (value == null) {
+			putString(key, null);
+		} else {
+			putString(key, value.name());
+		}
+	}
+	
+	
 	/**
 	 * Return a boolean preference.
 	 * 
@@ -443,6 +485,26 @@ public class Prefs {
 		if (color == null)
 			return Color.BLACK;
 		
+		Color clr = parseColor(color);
+		if (clr != null) {
+			return clr;
+		} else {
+			return Color.BLACK;
+		}
+	}
+	
+	public static void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
+		if (color == null)
+			return;
+		set("componentColors", c, stringifyColor(color));
+	}
+	
+	
+	private static Color parseColor(String color) {
+		if (color == null) {
+			return null;
+		}
+		
 		String[] rgb = color.split(",");
 		if (rgb.length == 3) {
 			try {
@@ -453,17 +515,17 @@ public class Prefs {
 			} catch (NumberFormatException ignore) {
 			}
 		}
-		
-		return Color.BLACK;
+		return null;
 	}
 	
-	public static void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
-		if (color == null)
-			return;
+	
+	private static String stringifyColor(Color color) {
 		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
-		set("componentColors", c, string);
+		return string;
 	}
 	
+	
+
 	public static Color getMotorBorderColor() {
 		// TODO: MEDIUM:  Motor color (settable?)
 		return new Color(0, 0, 0, 200);
@@ -622,6 +684,35 @@ public class Prefs {
 		storeVersion();
 	}
 	
+	
+	////  Printing
+	
+	public static PrintSettings getPrintSettings() {
+		PrintSettings settings = new PrintSettings();
+		Color c;
+		
+		c = parseColor(getString("print.template.fillColor", null));
+		if (c != null) {
+			settings.setTemplateFillColor(c);
+		}
+		
+		c = parseColor(getString("print.template.borderColor", null));
+		if (c != null) {
+			settings.setTemplateBorderColor(c);
+		}
+		
+		settings.setPaperSize(getEnum("print.paper.size", settings.getPaperSize()));
+		settings.setPaperOrientation(getEnum("print.paper.orientation", settings.getPaperOrientation()));
+		
+		return settings;
+	}
+	
+	public static void setPrintSettings(PrintSettings settings) {
+		putString("print.template.fillColor", stringifyColor(settings.getTemplateFillColor()));
+		putString("print.template.borderColor", stringifyColor(settings.getTemplateBorderColor()));
+		putEnum("print.paper.size", settings.getPaperSize());
+		putEnum("print.paper.orientation", settings.getPaperOrientation());
+	}
 	
 	////  Background flight data computation
 	

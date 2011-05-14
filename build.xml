@@ -132,7 +132,7 @@
 	<target name="todo" depends="checktodo"/>
 	<target name="checktodo">
 		<tempfile property="todo.file" prefix="checktodo-"/>
-		<echo>Checking project for critical TODOs.</echo>
+		<echo>Checking project for FIXMEs.</echo>
 		<concat destfile="${todo.file}">
 			<fileset dir="${src.dir}">
 			    <include name="**/*.java"/>
@@ -142,7 +142,7 @@
 			</fileset>
 			<filterchain>
 				<linecontainsregexp>
-					<regexp pattern="TODO:.*CRITICAL"/>
+					<regexp pattern="(FIXME|TODO:.*CRITICAL)"/>
 				</linecontainsregexp>
 			</filterchain>
 		</concat>
