@@ -89,6 +89,8 @@ public class PrintSettingsDialog extends JDialog {
 				log.user("Resetting print setting values to defaults");
 				PrintSettings defaults = new PrintSettings();
 				settings.loadFrom(defaults);
+				fillColorButton.setSelectedColor(settings.getTemplateFillColor());
+				borderColorButton.setSelectedColor(settings.getTemplateBorderColor());
 			}
 		});
 		panel.add(button, "spanx, split, right");

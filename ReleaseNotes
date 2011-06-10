@@ -1,3 +1,11 @@
+OpenRocket 1.1.5  (2011-06-10):
+-------------------------------
+
+Removed native printing support.  Printing is now handled via PDF
+viewer, which should make printing much more reliable and less
+bug-prone.
+
+
 OpenRocket 1.1.4  (2011-03-05):
 -------------------------------
 

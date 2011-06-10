@@ -56,7 +56,7 @@ public class TestExceptionSuppressingTranslator {
 		assertEquals(1, ExceptionSuppressingTranslator.failures);
 		
 		// Test failure with other key
-		assertEquals("fake.key2", est.get("fake.key"));
+		assertEquals("fake.key2", est.get("fake.key2"));
 		assertEquals(2, ExceptionSuppressingTranslator.failures);
 	}
 	
