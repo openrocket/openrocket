@@ -13,7 +13,9 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
 
@@ -27,6 +29,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class ThrustCurveMotorPlotDialog extends JDialog {
+	private static final Translator trans = Application.getTranslator();
 	
 	public ThrustCurveMotorPlotDialog(List<ThrustCurveMotor> motors, int selected, Window parent) {
 		super(parent, "Motor thrust curves", ModalityType.APPLICATION_MODAL);
@@ -101,7 +104,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 		
 
 		// Close button
-		JButton close = new JButton("Close");
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -25,9 +25,11 @@ import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
@@ -38,11 +40,13 @@ public class SimulationExportPanel extends JPanel {
 
 	private static final String SPACE = "SPACE";
 	private static final String TAB = "TAB";
+	private static final Translator trans = Application.getTranslator();
 	
 	private static final FileFilter CSV_FILE_FILTER = new FileFilter() {
 		@Override
 		public String getDescription() {
-			return "Comma Separated Files (*.csv)";
+			//// Comma Separated Files (*.csv)
+			return trans.get("SimExpPan.desc");
 		}
 		@Override
 		public boolean accept(File f) {
@@ -147,12 +151,12 @@ public class SimulationExportPanel extends JPanel {
 		
 		// Add table
 		panel = new JPanel(new MigLayout("fill"));
-		panel.setBorder(BorderFactory.createTitledBorder("Variables to export"));
+		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Vartoexport")));
 		
 		panel.add(new JScrollPane(table), "wmin 300lp, width 300lp, height 1, grow 100, wrap");
 		
 		// Select all/none buttons
-		button = new JButton("Select all");
+		button = new JButton(trans.get("SimExpPan.but.Selectall"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -161,7 +165,7 @@ public class SimulationExportPanel extends JPanel {
 		});
 		panel.add(button, "split 2, growx 1, sizegroup selectbutton");
 		
-		button = new JButton("Select none");
+		button = new JButton(trans.get("SimExpPan.but.Selectnone"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -181,11 +185,13 @@ public class SimulationExportPanel extends JPanel {
 		
 		// Field separator panel
 		panel = new JPanel(new MigLayout("fill"));
-		panel.setBorder(BorderFactory.createTitledBorder("Field separator"));
+		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Fieldsep")));
 		
-		label = new JLabel("Field separator string:");
-		tip = "<html>The string used to separate the fields in the exported file.<br>" +
-				"Use ',' for a Comma Separated Values (CSV) file.";
+		label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
+		//// <html>The string used to separate the fields in the exported file.<br>
+		//// Use ',' for a Comma Separated Values (CSV) file.
+		tip = trans.get("SimExpPan.lbl.longA1") +
+		trans.get("SimExpPan.lbl.longA2");
 		label.setToolTipText(tip);
 		panel.add(label);
 		
@@ -203,31 +209,33 @@ public class SimulationExportPanel extends JPanel {
 		
 		// Comments separator panel
 		panel = new JPanel(new MigLayout("fill"));
-		panel.setBorder(BorderFactory.createTitledBorder("Comments"));
+		//// Comments
+		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Comments")));
 		
-		simulationComments = new JCheckBox("Include simulation description");
-		simulationComments.setToolTipText("Include a comment at the beginning of the file " +
-				"describing the simulation.");
+		//// Include simulation description
+		simulationComments = new JCheckBox(trans.get("SimExpPan.checkbox.Includesimudesc"));
+		//// Include a comment at the beginning of the file describing the simulation.
+		simulationComments.setToolTipText(trans.get("SimExpPan.checkbox.ttip.Includesimudesc"));
 		simulationComments.setSelected(Prefs.getBoolean(Prefs.EXPORT_SIMULATION_COMMENT, 
 				true));
 		panel.add(simulationComments, "wrap");
 		
-		
-		fieldNameComments = new JCheckBox("Include field descriptions");
-		fieldNameComments.setToolTipText("Include a comment line with the descriptions of " +
-				"the exported variables.");
+		//// Include field descriptions
+		fieldNameComments = new JCheckBox(trans.get("SimExpPan.checkbox.Includefielddesc"));
+		//// Include a comment line with the descriptions of the exported variables.
+		fieldNameComments.setToolTipText(trans.get("SimExpPan.checkbox.ttip.Includefielddesc"));
 		fieldNameComments.setSelected(Prefs.getBoolean(Prefs.EXPORT_FIELD_NAME_COMMENT, true));
 		panel.add(fieldNameComments, "wrap");
 		
 		
-		eventComments = new JCheckBox("Include flight events");
-		eventComments.setToolTipText("Include a comment line for every flight event.");
+		eventComments = new JCheckBox(trans.get("SimExpPan.checkbox.Incflightevents"));
+		eventComments.setToolTipText(trans.get("SimExpPan.checkbox.ttip.Incflightevents"));
 		eventComments.setSelected(Prefs.getBoolean(Prefs.EXPORT_EVENT_COMMENTS, true));
 		panel.add(eventComments, "wrap");
 		
 		
-		label = new JLabel("Comment character:");
-		tip = "The character(s) that mark a comment line.";
+		label = new JLabel(trans.get("SimExpPan.lbl.Commentchar"));
+		tip = trans.get("SimExpPan.lbl.ttip.Commentchar");
 		label.setToolTipText(tip);
 		panel.add(label, "split 2");
 		
@@ -246,7 +254,7 @@ public class SimulationExportPanel extends JPanel {
 		
 		
 		// Export button
-		button = new JButton("Export to file...");
+		button = new JButton(trans.get("SimExpPan.but.Exporttofile"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -277,9 +285,13 @@ public class SimulationExportPanel extends JPanel {
 		}
 
 		if (file.exists()) {
-			int ret = JOptionPane.showConfirmDialog(this, 
-					"File \"" + file.getName() + "\" exists.  Overwrite?", 
-					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			int ret = JOptionPane.showConfirmDialog(this,
+					//// File 
+					trans.get("SimExpPan.Fileexists.desc1") + file.getName() + 
+					//// \" exists.  Overwrite?
+					trans.get("SimExpPan.Fileexists.desc2"), 
+					//// File exists
+					trans.get("SimExpPan.Fileexists.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (ret != JOptionPane.YES_OPTION)
 				return;
 		}
@@ -340,9 +352,13 @@ public class SimulationExportPanel extends JPanel {
 		}
 		
 		if (n == 1) {
-			str = "Exporting 1 variable out of " + total + ".";
+			//// Exporting 1 variable out of 
+			str = trans.get("SimExpPan.ExportingVar.desc1") + " " + total + ".";
 		} else {
-			str = "Exporting "+n+" variables out of " + total + ".";
+			//// Exporting 
+			//// variables out of
+			str = trans.get("SimExpPan.ExportingVar.desc2") + " "+n+" " + 
+			trans.get("SimExpPan.ExportingVar.desc3") + " " + total + ".";
 		}
 
 		selectedCountLabel.setText(str);
@@ -407,9 +423,11 @@ public class SimulationExportPanel extends JPanel {
 			case SELECTED:
 				return "";
 			case NAME:
-				return "Variable";
+				//// Variable
+				return trans.get("SimExpPan.Col.Variable");
 			case UNIT:
-				return "Unit";
+				//// Unit
+				return trans.get("SimExpPan.Col.Unit");
 			default:
 				throw new IndexOutOfBoundsException("column=" + column);
 			}

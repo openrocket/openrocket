@@ -1,8 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
 public class MassComponent extends MassObject {
+	private static final Translator trans = Application.getTranslator();
+
 	private double mass = 0;
 	
 	
@@ -32,7 +36,8 @@ public class MassComponent extends MassObject {
 	
 	@Override
 	public String getComponentName() {
-		return "Mass component";
+		//// Mass component
+		return trans.get("MassComponent.MassComponent");
 	}
 	
 	@Override

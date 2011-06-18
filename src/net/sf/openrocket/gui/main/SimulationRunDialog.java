@@ -25,6 +25,7 @@ import javax.swing.JProgressBar;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -46,6 +47,8 @@ import net.sf.openrocket.util.Prefs;
 
 public class SimulationRunDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
+
 	
 	/** Update the dialog status every this many ms */
 	private static final long UPDATE_MS = 200;
@@ -83,7 +86,8 @@ public class SimulationRunDialog extends JDialog {
 	private final boolean[] simulationDone;
 	
 	public SimulationRunDialog(Window window, Simulation... simulations) {
-		super(window, "Running simulations...", Dialog.ModalityType.DOCUMENT_MODAL);
+		//// Running simulations...
+		super(window, trans.get("SimuRunDlg.title.RunSim"), Dialog.ModalityType.DOCUMENT_MODAL);
 		
 		if (simulations.length == 0) {
 			throw new IllegalArgumentException("Called with no simulations to run");
@@ -109,18 +113,21 @@ public class SimulationRunDialog extends JDialog {
 		// Build the dialog
 		JPanel panel = new JPanel(new MigLayout("fill", "[][grow]"));
 		
-		simLabel = new JLabel("Running ...");
+		//// Running ...
+		simLabel = new JLabel(trans.get("SimuRunDlg.lbl.Running"));
 		panel.add(simLabel, "spanx, wrap para");
-		
-		panel.add(new JLabel("Simulation time: "), "gapright para");
+		//// Simulation time: 
+		panel.add(new JLabel(trans.get("SimuRunDlg.lbl.Simutime") + " "), "gapright para");
 		timeLabel = new JLabel("");
 		panel.add(timeLabel, "growx, wrap rel");
 		
-		panel.add(new JLabel("Altitude: "));
+		//// Altitude:
+		panel.add(new JLabel(trans.get("SimuRunDlg.lbl.Altitude") + " "));
 		altLabel = new JLabel("");
 		panel.add(altLabel, "growx, wrap rel");
 		
-		panel.add(new JLabel("Velocity: "));
+		//// Velocity:
+		panel.add(new JLabel(trans.get("SimuRunDlg.lbl.Velocity") +" "));
 		velLabel = new JLabel("");
 		panel.add(velLabel, "growx, wrap para");
 		
@@ -129,7 +136,7 @@ public class SimulationRunDialog extends JDialog {
 		
 
 		// Add cancel button
-		JButton cancel = new JButton("Cancel");
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -380,7 +387,8 @@ public class SimulationRunDialog extends JDialog {
 				
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
-								"Unable to simulate:",
+								//// Unable to simulate:
+								trans.get("SimuRunDlg.msg.Unabletosim"),
 								t.getMessage()
 						},
 						null, simulation.getName(), JOptionPane.ERROR_MESSAGE);
@@ -389,7 +397,8 @@ public class SimulationRunDialog extends JDialog {
 				
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
-								"A error occurred during the simulation:",
+								//// A error occurred during the simulation:
+								trans.get("SimuRunDlg.msg.errorOccurred"),
 								t.getMessage()
 						},
 						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
@@ -400,10 +409,11 @@ public class SimulationRunDialog extends JDialog {
 				t.printStackTrace();
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
-								"An exception occurred during the simulation:",
+								//// An exception occurred during the simulation:
+						trans.get("SimuRunDlg.msg.AnException1"),
 								t.getMessage(),
 								simulation.getSimulationListeners().isEmpty() ?
-										"Please report this as a bug along with the details below." : ""
+										trans.get("SimuRunDlg.msg.AnException2") : ""
 						},
 						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 				
@@ -412,8 +422,10 @@ public class SimulationRunDialog extends JDialog {
 				t.printStackTrace();
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
-								"A computation error occurred during the simulation.",
-								"Please report this as a bug along with the details below."
+						//// A computation error occurred during the simulation.
+						trans.get("SimuRunDlg.msg.AssertionError1"),
+						//// Please report this as a bug along with the details below.
+						trans.get("SimuRunDlg.msg.AssertionError2")
 						},
 						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 				
@@ -422,9 +434,10 @@ public class SimulationRunDialog extends JDialog {
 				// Probably an Error
 				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
 						new Object[] {
-								"An unknown error was encountered during the simulation.",
-								"The program may be unstable, you should save all your designs " +
-										"and restart OpenRocket now!"
+								//// An unknown error was encountered during the simulation.
+						trans.get("SimuRunDlg.msg.unknownerror1"),
+								//// The program may be unstable, you should save all your designs and restart OpenRocket now!
+						trans.get("SimuRunDlg.msg.unknownerror2")
 						},
 						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 				

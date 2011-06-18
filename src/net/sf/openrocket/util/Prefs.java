@@ -23,6 +23,7 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.print.PrintSettings;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
@@ -199,13 +200,18 @@ public class Prefs {
 	 * Within a holder class so they will load only when needed.
 	 */
 	private static class DefaultMaterialHolder {
+		private static final Translator trans = Application.getTranslator();
+		
+		//// Elastic cord (round 2mm, 1/16 in)
 		private static final Material DEFAULT_LINE_MATERIAL =
-				Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2mm, 1/16 in)",
+				Databases.findMaterial(Material.Type.LINE, trans.get("Databases.materials.Elasticcordround2mm"),
 						0.0018, false);
+		//// Ripstop nylon
 		private static final Material DEFAULT_SURFACE_MATERIAL =
-				Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon", 0.067, false);
+				Databases.findMaterial(Material.Type.SURFACE, trans.get("Databases.materials.Ripstopnylon"), 0.067, false);
+		//// Cardboard
 		private static final Material DEFAULT_BULK_MATERIAL =
-				Databases.findMaterial(Material.Type.BULK, "Cardboard", 680, false);
+				Databases.findMaterial(Material.Type.BULK, trans.get("Databases.materials.Cardboard"), 680, false);
 	}
 	
 	//////////////////////

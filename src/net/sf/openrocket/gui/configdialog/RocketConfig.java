@@ -11,11 +11,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 public class RocketConfig extends RocketComponentConfig {
+	private static final Translator trans = Application.getTranslator();
 	
 	private TextFieldListener textFieldListener;
 	
@@ -32,11 +35,12 @@ public class RocketConfig extends RocketComponentConfig {
 		this.removeAll();
 		setLayout(new MigLayout("fill"));
 		
-		this.add(new JLabel("Design name:"), "top, pad 4lp, gapright 10lp");
+		//// Design name:
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Designname")), "top, pad 4lp, gapright 10lp");
 		this.add(componentNameField, "growx, wrap para");
 		
-
-		this.add(new JLabel("Designer:"), "top, pad 4lp, gapright 10lp");
+		//// Designer:
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Designer")), "top, pad 4lp, gapright 10lp");
 		
 		textFieldListener = new TextFieldListener();
 		designerTextArea = new JTextArea(rocket.getDesigner());
@@ -47,12 +51,12 @@ public class RocketConfig extends RocketComponentConfig {
 		designerTextArea.addFocusListener(textFieldListener);
 		this.add(new JScrollPane(designerTextArea), "wmin 400lp, height 60lp:60lp:, grow 30, wrap para");
 		
-
-		this.add(new JLabel("Comments:"), "top, pad 4lp, gapright 10lp");
+		//// Comments:
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Comments")), "top, pad 4lp, gapright 10lp");
 		this.add(new JScrollPane(commentTextArea), "wmin 400lp, height 155lp:155lp:, grow 100, wrap para");
 		
-
-		this.add(new JLabel("Revision history:"), "top, pad 4lp, gapright 10lp");
+		//// Revision history:
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Material")), "top, pad 4lp, gapright 10lp");
 		revisionTextArea = new JTextArea(rocket.getRevision());
 		revisionTextArea.setLineWrap(true);
 		revisionTextArea.setWrapStyleWord(true);

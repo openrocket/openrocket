@@ -139,10 +139,9 @@ public class Startup {
 		}
 		
 		Translator t;
+		t = new ResourceBundleTranslator("l10n.messages");
 		if (Locale.getDefault().getLanguage().equals("xx")) {
-			t = new DebugTranslator();
-		} else {
-			t = new ResourceBundleTranslator("l10n.messages");
+			t = new DebugTranslator(t);
 		}
 		
 		log.info("Set up translation for locale " + Locale.getDefault() +

@@ -17,11 +17,13 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
@@ -59,7 +61,8 @@ public class RocketActions {
 	private final RocketAction newStageAction;
 	private final RocketAction moveUpAction;
 	private final RocketAction moveDownAction;
-	
+	private static final Translator trans = Application.getTranslator();
+
 
 	public RocketActions(OpenRocketDocument document, DocumentSelectionModel selectionModel,
 			BasicFrame parentFrame) {
@@ -207,19 +210,23 @@ public class RocketActions {
 		boolean verify = Prefs.NODE.getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
 		if (verify) {
 			JPanel panel = new JPanel(new MigLayout());
-			JCheckBox dontAsk = new JCheckBox("Do not ask me again");
+			//// Do not ask me again
+			JCheckBox dontAsk = new JCheckBox(trans.get("RocketActions.checkbox.Donotaskmeagain"));
 			panel.add(dontAsk,"wrap");
-			panel.add(new StyledLabel("You can change the default operation in the " +
-					"preferences.",-2));
+			//// You can change the default operation in the preferences. 
+			panel.add(new StyledLabel(trans.get("RocketActions.lbl.Youcanchangedefop"),-2));
 
 			int ret = JOptionPane.showConfirmDialog(
 					parentFrame,
 					new Object[] {
-					"Delete the selected simulations?",
-					"<html><i>This operation cannot be undone.</i>",
+					//// Delete the selected simulations?		
+					trans.get("RocketActions.showConfirmDialog.lbl1"),
+					//// <html><i>This operation cannot be undone.</i>
+					trans.get("RocketActions.showConfirmDialog.lbl2"),
 					"",
 					panel },
-					"Delete simulations",
+					//// Delete simulations
+					trans.get("RocketActions.showConfirmDialog.title"),
 					JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 			if (ret != JOptionPane.OK_OPTION)
@@ -278,8 +285,10 @@ public class RocketActions {
 	 */
 	private class DeleteComponentAction extends RocketAction {
 		public DeleteComponentAction() {
-			this.putValue(NAME, "Delete");
-			this.putValue(SHORT_DESCRIPTION, "Delete the selected component.");
+			//// Delete
+			this.putValue(NAME, trans.get("RocketActions.DelCompAct.Delete"));
+			//// Delete the selected component.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelCompAct.ttip.Delete"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
 //			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
@@ -311,8 +320,10 @@ public class RocketActions {
 	 */
 	private class DeleteSimulationAction extends RocketAction {
 		public DeleteSimulationAction() {
-			this.putValue(NAME, "Delete");
-			this.putValue(SHORT_DESCRIPTION, "Delete the selected simulation.");
+			//// Delete
+			this.putValue(NAME, trans.get("RocketActions.DelSimuAct.Delete"));
+			//// Delete the selected simulation.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelSimuAct.ttip.Delete"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
 //			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
@@ -344,8 +355,10 @@ public class RocketActions {
 	 */
 	private class DeleteAction extends RocketAction {
 		public DeleteAction() {
-			this.putValue(NAME, "Delete");
-			this.putValue(SHORT_DESCRIPTION, "Delete the selected component or simulation.");
+			//// Delete
+			this.putValue(NAME, trans.get("RocketActions.DelAct.Delete"));
+			//// Delete the selected component or simulation.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.DelAct.ttip.Delete"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_D);
 			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 			this.putValue(SMALL_ICON, Icons.EDIT_DELETE);
@@ -377,11 +390,12 @@ public class RocketActions {
 	 */
 	private class CutAction extends RocketAction {
 		public CutAction() {
-			this.putValue(NAME, "Cut");
+			//// Cut
+			this.putValue(NAME, trans.get("RocketActions.CutAction.Cut"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_T);
 			this.putValue(ACCELERATOR_KEY, CUT_KEY_STROKE);
-			this.putValue(SHORT_DESCRIPTION, "Cut this component or simulation to "
-					+ "the clipboard and remove from this design");
+			//// Cut this component or simulation to the clipboard and remove from this design
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CutAction.ttip.Cut"));
 			this.putValue(SMALL_ICON, Icons.EDIT_CUT);
 			clipboardChanged();
 		}
@@ -427,11 +441,12 @@ public class RocketActions {
 	 */
 	private class CopyAction extends RocketAction {
 		public CopyAction() {
-			this.putValue(NAME, "Copy");
+			//// Copy
+			this.putValue(NAME, trans.get("RocketActions.CopyAct.Copy"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_C);
 			this.putValue(ACCELERATOR_KEY, COPY_KEY_STROKE);
-			this.putValue(SHORT_DESCRIPTION, "Copy this component (and subcomponents) to "
-					+ "the clipboard.");
+			//// Copy this component (and subcomponents) to the clipboard.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.CopyAct.Copy"));
 			this.putValue(SMALL_ICON, Icons.EDIT_COPY);
 			clipboardChanged();
 		}
@@ -472,11 +487,12 @@ public class RocketActions {
 	 */
 	private class PasteAction extends RocketAction {
 		public PasteAction() {
-			this.putValue(NAME, "Paste");
+			//// Paste
+			this.putValue(NAME, trans.get("RocketActions.PasteAct.Paste"));
 			this.putValue(MNEMONIC_KEY, KeyEvent.VK_P);
 			this.putValue(ACCELERATOR_KEY, PASTE_KEY_STROKE);
-			this.putValue(SHORT_DESCRIPTION, "Paste the component or simulation on "
-					+ "the clipboard to the design.");
+			//// Paste the component or simulation on the clipboard to the design.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.PasteAct.ttip.Paste"));
 			this.putValue(SMALL_ICON, Icons.EDIT_PASTE);
 			clipboardChanged();
 		}
@@ -534,8 +550,10 @@ public class RocketActions {
 	 */
 	private class EditAction extends RocketAction {
 		public EditAction() {
-			this.putValue(NAME, "Edit");
-			this.putValue(SHORT_DESCRIPTION, "Edit the selected component.");
+			//// Edit
+			this.putValue(NAME, trans.get("RocketActions.EditAct.Edit"));
+			//// Edit the selected component.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.EditAct.ttip.Edit"));
 			clipboardChanged();
 		}
 
@@ -565,8 +583,10 @@ public class RocketActions {
 	 */
 	private class NewStageAction extends RocketAction {
 		public NewStageAction() {
-			this.putValue(NAME, "New stage");
-			this.putValue(SHORT_DESCRIPTION, "Add a new stage to the rocket design.");
+			//// New stage
+			this.putValue(NAME, trans.get("RocketActions.NewStageAct.Newstage"));
+			//// Add a new stage to the rocket design.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.NewStageAct.Newstage"));
 			clipboardChanged();
 		}
 
@@ -576,7 +596,9 @@ public class RocketActions {
 			ComponentConfigDialog.hideDialog();
 
 			RocketComponent stage = new Stage();
-			stage.setName("Booster stage");
+			//// Booster stage
+			stage.setName(trans.get("RocketActions.ActBoosterstage"));
+			//// Add stage
 			document.addUndoPosition("Add stage");
 			rocket.addChild(stage);
 			rocket.getDefaultConfiguration().setAllStages();
@@ -599,8 +621,10 @@ public class RocketActions {
 	 */
 	private class MoveUpAction extends RocketAction {
 		public MoveUpAction() {
-			this.putValue(NAME, "Move up");
-			this.putValue(SHORT_DESCRIPTION, "Move this component upwards.");
+			//// Move up
+			this.putValue(NAME, trans.get("RocketActions.MoveUpAct.Moveup"));
+			//// Move this component upwards.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.MoveUpAct.ttip.Moveup"));
 			clipboardChanged();
 		}
 
@@ -640,8 +664,10 @@ public class RocketActions {
 	 */
 	private class MoveDownAction extends RocketAction {
 		public MoveDownAction() {
-			this.putValue(NAME, "Move down");
-			this.putValue(SHORT_DESCRIPTION, "Move this component downwards.");
+			//// Move down
+			this.putValue(NAME, trans.get("RocketActions.MoveDownAct.Movedown"));
+			//// Move this component downwards.
+			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.MoveDownAct.ttip.Movedown"));
 			clipboardChanged();
 		}
 

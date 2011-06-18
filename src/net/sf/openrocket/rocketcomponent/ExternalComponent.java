@@ -1,6 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Prefs;
 
@@ -17,11 +19,16 @@ import java.util.List;
 public abstract class ExternalComponent extends RocketComponent {
 
 	public enum Finish {
-		ROUGH("Rough", 500e-6),
-		UNFINISHED("Unfinished", 150e-6),
-		NORMAL("Regular paint", 60e-6),
-		SMOOTH("Smooth paint", 20e-6),
-		POLISHED("Polished", 2e-6);
+		//// Rough
+		ROUGH("ExternalComponent.Rough", 500e-6),
+		//// Unfinished
+		UNFINISHED("ExternalComponent.Unfinished", 150e-6),
+		//// Regular paint
+		NORMAL("ExternalComponent.Regularpaint", 60e-6),
+		//// Smooth paint
+		SMOOTH("ExternalComponent.Smoothpaint", 20e-6),
+		//// Polished
+		POLISHED("ExternalComponent.Polished", 2e-6);
 
 		private final String name;
 		private final double roughnessSize;
@@ -37,7 +44,8 @@ public abstract class ExternalComponent extends RocketComponent {
 
 		@Override
 		public String toString() {
-			return name + " (" + UnitGroup.UNITS_ROUGHNESS.toStringUnit(roughnessSize) + ")";
+			final Translator trans = Application.getTranslator();
+			return trans.get(name) + " (" + UnitGroup.UNITS_ROUGHNESS.toStringUnit(roughnessSize) + ")";
 		}
 	}
 

@@ -1,6 +1,8 @@
 package net.sf.openrocket.simulation;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 
 
 /**
@@ -9,7 +11,8 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class FlightEvent implements Comparable<FlightEvent> {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	/**
 	 * The type of the flight event.
 	 * 
@@ -19,57 +22,69 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		/** 
 		 * Rocket launch.
 		 */
-		LAUNCH("Launch"),
+		//// Launch
+		LAUNCH(trans.get("FlightEvent.Type.LAUNCH")),
 		/** 
 		 * Ignition of a motor.  Source is the motor mount the motor of which has ignited,
 		 * and the data is the MotorId of the motor instance.
 		 */
-		IGNITION("Motor ignition"),
+		//// Motor ignition
+		IGNITION(trans.get("FlightEvent.Type.IGNITION")),
 		/**
 		 * When the motor has lifted off the ground.
 		 */
-		LIFTOFF("Lift-off"),
+		//// Lift-off
+		LIFTOFF(trans.get("FlightEvent.Type.LIFTOFF")),
 		/**
 		 * Launch rod has been cleared.
 		 */
-		LAUNCHROD("Launch rod clearance"),
+		//// Launch rod clearance
+		LAUNCHROD(trans.get("FlightEvent.Type.LAUNCHROD")),
 		/** 
 		 * Burnout of a motor.  Source is the motor mount the motor of which has burnt out,
 		 * and the data is the MotorId of the motor instance.
 		 */
-		BURNOUT("Motor burnout"),
+		//// Motor burnout
+		BURNOUT(trans.get("FlightEvent.Type.BURNOUT")),
 		/** 
 		 * Ejection charge of a motor fired.  Source is the motor mount the motor of
 		 * which has exploded its ejection charge, and data is the MotorId of the motor instance.
 		 */
-		EJECTION_CHARGE("Ejection charge"),
+		//// Ejection charge
+		EJECTION_CHARGE(trans.get("FlightEvent.Type.EJECTION_CHARGE")),
 		/** 
 		 * Separation of a stage.  Source is the stage which has separated all lower stages. 
 		 */
-		STAGE_SEPARATION("Stage separation"),
+		//// Stage separation
+		STAGE_SEPARATION(trans.get("FlightEvent.Type.STAGE_SEPARATION")),
 		/** 
 		 * Apogee has been reached.
 		 */
-		APOGEE("Apogee"),
+		//// Apogee
+		APOGEE(trans.get("FlightEvent.Type.APOGEE")),
 		/** 
 		 * Opening of a recovery device.  Source is the RecoveryComponent which has opened. 
 		 */
-		RECOVERY_DEVICE_DEPLOYMENT("Recovery device deployment"),
+		//// Recovery device deployment
+		RECOVERY_DEVICE_DEPLOYMENT(trans.get("FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT")),
 		/** 
 		 * Ground has been hit after flight.
 		 */
-		GROUND_HIT("Ground hit"),
+		//// Ground hit
+		GROUND_HIT(trans.get("FlightEvent.Type.GROUND_HIT")),
 
 		/**
 		 * End of simulation.  Placing this to the queue will end the simulation.
 		 */
-		SIMULATION_END("Simulation end"),
+		//// Simulation end
+		SIMULATION_END(trans.get("FlightEvent.Type.SIMULATION_END")),
 
 		/**
 		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
 		 * which contains the old and new altitudes.
 		 */
-		ALTITUDE("Altitude change");
+		//// Altitude change
+		ALTITUDE(trans.get("FlightEvent.Type.ALTITUDE"));
 		
 		private final String name;
 		

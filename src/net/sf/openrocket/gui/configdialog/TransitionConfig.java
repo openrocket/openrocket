@@ -17,13 +17,16 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class TransitionConfig extends RocketComponentConfig {
 
+	private static final Translator trans = Application.getTranslator();
 	private JComboBox typeBox;
 	//private JLabel description;
 	
@@ -49,8 +52,8 @@ public class TransitionConfig extends RocketComponentConfig {
 
 
 		////  Shape selection
-		
-		panel.add(new JLabel("Transition shape:"));
+		//// Transition shape:
+		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Transitionshape")));
 
 		Transition.Shape selected = ((Transition)component).getType();
 		Transition.Shape[] typeList = Transition.Shape.values();
@@ -68,14 +71,15 @@ public class TransitionConfig extends RocketComponentConfig {
 		});
 		panel.add(typeBox,"span, split 2");
 
-
+		//// Clipped
 		checkbox = new JCheckBox(new BooleanModel(component,"Clipped"));
-		checkbox.setText("Clipped");
+		//// Clipped
+		checkbox.setText(trans.get("TransitionCfg.checkbox.Clipped"));
 		panel.add(checkbox,"wrap");
 		
 		
-		////  Shape parameter
-		shapeLabel = new JLabel("Shape parameter:");
+		////  Shape parameter:
+		shapeLabel = new JLabel(trans.get("TransitionCfg.lbl.Shapeparam"));
 		panel.add(shapeLabel);
 		
 		m = new DoubleModel(component,"ShapeParameter");
@@ -93,7 +97,8 @@ public class TransitionConfig extends RocketComponentConfig {
 		
 		
 		////  Length
-		panel.add(new JLabel("Transition length:"));
+		//// Transition length:
+		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Transitionlength")));
 		
 		m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -106,7 +111,8 @@ public class TransitionConfig extends RocketComponentConfig {
 		
 		
 		//// Transition diameter 1
-		panel.add(new JLabel("Fore diameter:"));
+		//// Fore diameter:
+		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Forediam")));
 
 		DoubleModel od  = new DoubleModel(component,"ForeRadius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -119,12 +125,14 @@ public class TransitionConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)),"w 100lp, wrap 0px");
 
 		checkbox = new JCheckBox(od.getAutomaticAction());
-		checkbox.setText("Automatic");
+		//// Automatic
+		checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 		panel.add(checkbox,"skip, span 2, wrap");
 		
 		
 		//// Transition diameter 2
-		panel.add(new JLabel("Aft diameter:"));
+		//// Aft diameter:
+		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Aftdiam")));
 
 		od  = new DoubleModel(component,"AftRadius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -137,12 +145,13 @@ public class TransitionConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)),"w 100lp, wrap 0px");
 
 		checkbox = new JCheckBox(od.getAutomaticAction());
-		checkbox.setText("Automatic");
+		//// Automatic
+		checkbox.setText(trans.get("TransitionCfg.checkbox.Automatic"));
 		panel.add(checkbox,"skip, span 2, wrap");
 		
 		
-		////  Wall thickness
-		panel.add(new JLabel("Wall thickness:"));
+		////  Wall thickness:
+		panel.add(new JLabel(trans.get("TransitionCfg.lbl.Wallthickness")));
 		
 		m = new DoubleModel(component,"Thickness",UnitGroup.UNITS_LENGTH,0);
 		
@@ -153,9 +162,10 @@ public class TransitionConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(0,0.01)),"w 100lp, wrap 0px");
 		
-		
+		//// Filled
 		checkbox = new JCheckBox(new BooleanModel(component,"Filled"));
-		checkbox.setText("Filled");
+		//// Filled
+		checkbox.setText(trans.get("TransitionCfg.checkbox.Filled"));
 		panel.add(checkbox,"skip, span 2, wrap");
 
 		
@@ -176,9 +186,12 @@ public class TransitionConfig extends RocketComponentConfig {
 		materialPanel(panel2, Material.Type.BULK);
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 		
-
-		tabbedPane.insertTab("General", null, panel, "General properties", 0);
-		tabbedPane.insertTab("Shoulder", null, shoulderTab(), "Shoulder properties", 1);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("TransitionCfg.tab.General"), null, panel, 
+				trans.get("TransitionCfg.tab.Generalproperties"), 0);
+		//// Shoulder and Shoulder properties
+		tabbedPane.insertTab(trans.get("TransitionCfg.tab.Shoulder"), null, shoulderTab(), 
+				trans.get("TransitionCfg.tab.Shoulderproperties"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
 	

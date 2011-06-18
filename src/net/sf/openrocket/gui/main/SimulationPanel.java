@@ -34,6 +34,7 @@ import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -45,6 +46,8 @@ import net.sf.openrocket.util.Prefs;
 
 public class SimulationPanel extends JPanel {
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
+
 	
 	private static final Color WARNING_COLOR = Color.RED;
 	private static final String WARNING_TEXT = "\uFF01"; // Fullwidth exclamation mark
@@ -72,8 +75,10 @@ public class SimulationPanel extends JPanel {
 
 		////////  The simulation action buttons
 		
-		button = new JButton("New simulation");
-		button.setToolTipText("Add a new simulation");
+		//// New simulation button
+		button = new JButton(trans.get("simpanel.but.newsimulation"));
+		//// Add a new simulation
+		button.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -91,8 +96,10 @@ public class SimulationPanel extends JPanel {
 		});
 		this.add(button, "skip 1, gapright para");
 		
-		button = new JButton("Edit simulation");
-		button.setToolTipText("Edit the selected simulation");
+		//// Edit simulation button
+		button = new JButton(trans.get("simpanel.but.editsimulation"));
+		//// Edit the selected simulation
+		button.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -109,8 +116,10 @@ public class SimulationPanel extends JPanel {
 		});
 		this.add(button, "gapright para");
 		
-		button = new JButton("Run simulations");
-		button.setToolTipText("Re-run the selected simulations");
+		//// Run simulations
+		button = new JButton(trans.get("simpanel.but.runsimulations"));
+		//// Re-run the selected simulations
+		button.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -133,8 +142,10 @@ public class SimulationPanel extends JPanel {
 		});
 		this.add(button, "gapright para");
 		
-		button = new JButton("Delete simulations");
-		button.setToolTipText("Delete the selected simulations");
+		//// Delete simulations button
+		button = new JButton(trans.get("simpanel.but.deletesimulations"));
+		//// Delete the selected simulations
+		button.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -147,18 +158,22 @@ public class SimulationPanel extends JPanel {
 				if (verify) {
 					
 					JPanel panel = new JPanel(new MigLayout());
-					JCheckBox dontAsk = new JCheckBox("Do not ask me again");
+					//// Do not ask me again
+					JCheckBox dontAsk = new JCheckBox(trans.get("simpanel.checkbox.donotask"));
 					panel.add(dontAsk, "wrap");
-					panel.add(new StyledLabel("You can change the default operation in the " +
-								"preferences.", -2));
+					//// You can change the default operation in the preferences.
+					panel.add(new StyledLabel(trans.get("simpanel.lbl.defpref"), -2));
 					
 					int ret = JOptionPane.showConfirmDialog(SimulationPanel.this,
 								new Object[] {
-										"Delete the selected simulations?",
-										"<html><i>This operation cannot be undone.</i>",
+										//// Delete the selected simulations?
+										trans.get("simpanel.dlg.lbl.DeleteSim1"),
+										//// <html><i>This operation cannot be undone.</i>
+										trans.get("simpanel.dlg.lbl.DeleteSim2"),
 										"",
 										panel },
-								"Delete simulations",
+								//// Delete simulations
+										trans.get("simpanel.dlg.lbl.DeleteSim3"),
 								JOptionPane.OK_CANCEL_OPTION,
 								JOptionPane.WARNING_MESSAGE);
 					if (ret != JOptionPane.OK_OPTION)
@@ -182,8 +197,8 @@ public class SimulationPanel extends JPanel {
 		});
 		this.add(button, "gapright para");
 		
-
-		button = new JButton("Plot / export");
+		//// Plot / export button
+		button = new JButton(trans.get("simpanel.but.plotexport"));
 		//		button = new JButton("Plot flight");
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -264,7 +279,8 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Simulation name
-				new Column("Name") {
+				//// Name
+				new Column(trans.get("simpanel.col.Name")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -279,7 +295,8 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Simulation motors
-				new Column("Motors") {
+				//// Motors
+				new Column(trans.get("simpanel.col.Motors")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -295,7 +312,7 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Apogee
-				new Column("Apogee") {
+				new Column(trans.get("simpanel.col.Apogee")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -311,7 +328,7 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Maximum velocity
-				new Column("Max. velocity") {
+				new Column(trans.get("simpanel.col.Maxvelocity")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -327,7 +344,7 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Maximum acceleration
-				new Column("Max. acceleration") {
+				new Column(trans.get("simpanel.col.Maxacceleration")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -343,7 +360,7 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Time to apogee
-				new Column("Time to apogee") {
+				new Column(trans.get("simpanel.col.Timetoapogee")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -359,7 +376,7 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Flight time
-				new Column("Flight time") {
+				new Column(trans.get("simpanel.col.Flighttime")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -375,7 +392,7 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Ground hit velocity
-				new Column("Ground hit velocity") {
+				new Column(trans.get("simpanel.col.Groundhitvelocity")) {
 					@Override
 					public Object getValueAt(int row) {
 						if (row < 0 || row >= document.getSimulationCount())
@@ -522,10 +539,12 @@ public class SimulationPanel extends JPanel {
 			tip = "<html><b>" + sim.getName() + "</b><br>";
 			switch (sim.getStatus()) {
 			case UPTODATE:
+				//// <i>Up to date</i><br>
 				tip += "<i>Up to date</i><br>";
 				break;
 			
 			case LOADED:
+				//// <i>Data loaded from a file</i><br>
 				tip += "<i>Data loaded from a file</i><br>";
 				break;
 			

@@ -18,6 +18,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
@@ -28,13 +29,16 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class FinSetConfig extends RocketComponentConfig {
 	private static final LogHelper log = Application.getLogger();
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private JButton split = null;
 	
 	public FinSetConfig(RocketComponent component) {
 		super(component);
 		
-		tabbedPane.insertTab("Fin tabs", null, finTabPanel(), "Through-the-wall fin tabs", 0);
+		//// Fin tabs and Through-the-wall fin tabs
+		tabbedPane.insertTab(trans.get("FinSetConfig.tab.Fintabs"), null, finTabPanel(), 
+				trans.get("FinSetConfig.tab.Through-the-wall"), 0);
 	}
 	
 	
@@ -44,8 +48,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 		//// Convert buttons
 		if (!(component instanceof FreeformFinSet)) {
-			convert = new JButton("Convert to freeform");
-			convert.setToolTipText("Convert this fin set into a freeform fin set");
+			//// Convert to freeform
+			convert = new JButton(trans.get("FinSetConfig.but.Converttofreeform"));
+			//// Convert this fin set into a freeform fin set
+			convert.setToolTipText(trans.get("FinSetConfig.but.Converttofreeform.ttip"));
 			convert.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -55,7 +61,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							ComponentConfigDialog.addUndoPosition("Convert fin set");
+							//// Convert fin set
+							ComponentConfigDialog.addUndoPosition(trans.get("FinSetConfig.Convertfinset"));
 							RocketComponent freeform =
 									FreeformFinSet.convertFinSet((FinSet) component);
 							ComponentConfigDialog.showDialog(freeform);
@@ -67,8 +74,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			});
 		}
 		
-		split = new JButton("Split fins");
-		split.setToolTipText("Split the fin set into separate fins");
+		//// Split fins
+		split = new JButton(trans.get("FinSetConfig.but.Splitfins"));
+		//// Split the fin set into separate fins
+		split.setToolTipText(trans.get("FinSetConfig.but.Splitfins.ttip"));
 		split.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -117,7 +126,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 		//				"[40lp][80lp::][30lp::][100lp::]",""));
 		
-		panel.add(new StyledLabel("Through-the-wall fin tabs:", Style.BOLD),
+		//// Through-the-wall fin tabs:
+		panel.add(new StyledLabel(trans.get("FinSetConfig.lbl.Through-the-wall"), Style.BOLD),
 				"spanx, wrap 30lp");
 		
 		JLabel label;
@@ -136,8 +146,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		register(length_2);
 		
 		////  Tab length
-		label = new JLabel("Tab length:");
-		label.setToolTipText("The length of the fin tab.");
+		//// Tab length:
+		label = new JLabel(trans.get("FinSetConfig.lbl.Tablength"));
+		//// The length of the fin tab.
+		label.setToolTipText(trans.get("FinSetConfig.ttip.Tablength"));
 		panel.add(label, "gapleft para, gapright 40lp, growx 1");
 		
 		m = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
@@ -152,8 +164,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 
 		////  Tab length
-		label = new JLabel("Tab height:");
-		label.setToolTipText("The spanwise height of the fin tab.");
+		//// Tab height:
+		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
+		//// The spanwise height of the fin tab.
+		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
 		panel.add(label, "gapleft para");
 		
 		m = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0);
@@ -167,9 +181,10 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				"w 100lp, growx 5, wrap para");
 		
 
-		////  Tab position
-		label = new JLabel("Tab position:");
-		label.setToolTipText("The position of the fin tab.");
+		////  Tab position:
+		label = new JLabel(trans.get("FinSetConfig.lbl.Tabposition"));
+		//// The position of the fin tab.
+		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
 		panel.add(label, "gapleft para");
 		
 		m = new DoubleModel(component, "TabShift", UnitGroup.UNITS_LENGTH);
@@ -182,8 +197,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
 		
 
-
-		label = new JLabel("relative to");
+		//// relative to
+		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
 		panel.add(label, "right, gapright unrel");
 		
 		EnumModel<FinSet.TabRelativePosition> em =

@@ -25,7 +25,9 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 
@@ -37,7 +39,8 @@ public class MaterialEditPanel extends JPanel {
 	private final JButton editButton;
 	private final JButton deleteButton;
 	private final JButton revertButton;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	
 	public MaterialEditPanel() {
 		super(new MigLayout("fill"));
@@ -45,14 +48,15 @@ public class MaterialEditPanel extends JPanel {
 		
 		// TODO: LOW: Create sorter that keeps material types always in order
 		final ColumnTableModel model = new ColumnTableModel(
-				new Column("Material") {
+				//// Material
+				new Column(trans.get("matedtpan.col.Material")) {
 					@Override
 					public Object getValueAt(int row) {
 						return getMaterial(row).getName();
 					}
 				},
-				
-				new Column("Type") {
+				//// Type
+				new Column(trans.get("matedtpan.col.Type")) {
 					@Override
 					public Object getValueAt(int row) {
 						return getMaterial(row).getType().toString();
@@ -62,8 +66,8 @@ public class MaterialEditPanel extends JPanel {
 						return 15;
 					}
 				},
-				
-				new Column("Density") {
+				//// Density
+				new Column(trans.get("matedtpan.col.Density")) {
 					@Override
 					public Object getValueAt(int row) {
 						Material m = getMaterial(row);
@@ -106,15 +110,17 @@ public class MaterialEditPanel extends JPanel {
 		this.add(new JScrollPane(table), "w 200px, h 100px, grow 100");
 		
 		
-		
-		addButton = new JButton("New");
-		addButton.setToolTipText("Add a new material");
+		//// New button
+		addButton = new JButton(trans.get("matedtpan.but.new"));
+		//// Add a new material
+		addButton.setToolTipText(trans.get("matedtpan.col.but.ttip.New"));
 		addButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CustomMaterialDialog dialog = new CustomMaterialDialog(
 							SwingUtilities.getWindowAncestor(MaterialEditPanel.this),
-							null, false, "Add a custom material");
+							//// Add a custom material
+							null, false, trans.get("matedtpan.title.Addcustmaterial"));
 				dialog.setVisible(true);
 				if (dialog.getOkClicked()) {
 					Material mat = dialog.getMaterial();
@@ -126,9 +132,10 @@ public class MaterialEditPanel extends JPanel {
 		});
 		this.add(addButton, "gap rel rel para para, w 70lp, split 5, flowy, growx 1, top");
 		
-		
-		editButton = new JButton("Edit");
-		editButton.setToolTipText("Edit an existing material");
+		//// Edit button
+		editButton = new JButton(trans.get("matedtpan.but.edit"));
+		//// Edit an existing material
+		editButton.setToolTipText(trans.get("matedtpan.but.ttip.edit"));
 		editButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -142,12 +149,15 @@ public class MaterialEditPanel extends JPanel {
 				if (m.isUserDefined()) {
 					dialog = new CustomMaterialDialog(
 							SwingUtilities.getWindowAncestor(MaterialEditPanel.this),
-							m, false, "Edit material");
+							//// Edit material
+							m, false, trans.get("matedtpan.title.Editmaterial"));
 				} else {
 					dialog = new CustomMaterialDialog(
 							SwingUtilities.getWindowAncestor(MaterialEditPanel.this),
-							m, false, "Add a custom material", 
-							"The built-in materials cannot be modified.");
+							//// Add a custom material
+							m, false, trans.get("matedtpan.title.Addcustmaterial"), 
+							//// The built-in materials cannot be modified.
+							trans.get("matedtpan.title2.Editmaterial"));
 				}
 				
 				dialog.setVisible(true);
@@ -165,9 +175,10 @@ public class MaterialEditPanel extends JPanel {
 		});
 		this.add(editButton, "gap rel rel para para, growx 1, top");
 		
-		
-		deleteButton = new JButton("Delete");
-		deleteButton.setToolTipText("Delete a user-defined material");
+		//// Delete button
+		deleteButton = new JButton(trans.get("matedtpan.but.delete"));
+		//// Delete a user-defined material
+		deleteButton.setToolTipText(trans.get("matedtpan.but.ttip.delete"));
 		deleteButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -188,13 +199,18 @@ public class MaterialEditPanel extends JPanel {
 		
 		this.add(new JPanel(), "grow 1");
 		
-		revertButton = new JButton("Revert all");
-		revertButton.setToolTipText("Delete all user-defined materials");
+		//// Revert all button
+		revertButton = new JButton(trans.get("matedtpan.but.revertall"));
+		//// Delete all user-defined materials
+		revertButton.setToolTipText(trans.get("matedtpan.but.ttip.revertall"));
 		revertButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int sel = JOptionPane.showConfirmDialog(MaterialEditPanel.this, 
-						"Delete all user-defined materials?", "Revert all?", 
+						//// Delete all user-defined materials?
+						trans.get("matedtpan.title.Deletealluser-defined"), 
+						//// Revert all?
+						trans.get("matedtpan.title.Revertall"), 
 						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if (sel == JOptionPane.YES_OPTION) {
 					Iterator<Material> iterator;
@@ -239,9 +255,9 @@ public class MaterialEditPanel extends JPanel {
 			}
 		});
 		
-		
-		this.add(new JLabel("<html><i>Editing materials will not affect existing " +
-				"rocket designs.</i>"), "span");
+		//// <html><i>Editing materials will not affect existing
+		//// rocket designs.</i>
+		this.add(new JLabel(trans.get("matedtpan.lbl.edtmaterials")), "span");
 		
 		
 	}

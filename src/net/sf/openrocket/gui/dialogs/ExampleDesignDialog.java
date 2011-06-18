@@ -27,6 +27,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.JarUtil;
@@ -35,6 +37,8 @@ public class ExampleDesignDialog extends JDialog {
 	
 	private static final String DIRECTORY = "datafiles/examples/";
 	private static final String PATTERN = ".*\\.[oO][rR][kK]$";
+	private static final Translator trans = Application.getTranslator();
+
 	private static final FilenameFilter FILTER = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
@@ -47,11 +51,13 @@ public class ExampleDesignDialog extends JDialog {
 	private final JList designSelection;
 	
 	private ExampleDesignDialog(ExampleDesign[] designs, Window parent) {
-		super(parent, "Open example design", Dialog.ModalityType.APPLICATION_MODAL);
+		//// Open example design
+		super(parent, trans.get("exdesigndlg.lbl.Openexampledesign"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new JLabel("Select example designs to open:"), "wrap");
+		//// Select example designs to open:
+		panel.add(new JLabel(trans.get("exdesigndlg.lbl.Selectexample")), "wrap");
 		
 		designSelection = new JList(designs);
 		designSelection.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -66,7 +72,8 @@ public class ExampleDesignDialog extends JDialog {
 		});
 		panel.add(new JScrollPane(designSelection), "grow, wmin 300lp, wrap para");
 		
-		JButton openButton = new JButton("Open");
+		//// Open button
+		JButton openButton = new JButton(trans.get("exdesigndlg.but.open"));
 		openButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -76,7 +83,8 @@ public class ExampleDesignDialog extends JDialog {
 		});
 		panel.add(openButton, "split 2, sizegroup buttons, growx");
 		
-		JButton cancelButton = new JButton("Cancel");
+		//// Cancel button
+		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -110,8 +118,10 @@ public class ExampleDesignDialog extends JDialog {
 			designs = getDirFileNames();
 		}
 		if (designs == null || designs.length == 0) {
-			JOptionPane.showMessageDialog(parent, "Example designs could not be found.",
-					"Examples not found", JOptionPane.ERROR_MESSAGE);
+			//// Example designs could not be found.
+			JOptionPane.showMessageDialog(parent, trans.get("exdesigndlg.lbl.Exampledesignsnotfound"),
+					//// Examples not found
+					trans.get("exdesigndlg.lbl.Examplesnotfound"), JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 		

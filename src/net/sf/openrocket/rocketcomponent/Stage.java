@@ -1,10 +1,16 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
+
 public class Stage extends ComponentAssembly {
+
+	private static final Translator trans = Application.getTranslator();
 
     @Override
     public String getComponentName () {
-        return "Stage";
+    	//// Stage
+        return trans.get("Stage.Stage");
     }
 
 

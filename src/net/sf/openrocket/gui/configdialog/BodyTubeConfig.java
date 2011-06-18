@@ -7,9 +7,11 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 import javax.swing.JCheckBox;
@@ -20,6 +22,7 @@ import javax.swing.JSpinner;
 public class BodyTubeConfig extends RocketComponentConfig {
 
 	private MotorConfig motorConfigPane = null;
+	private static final Translator trans = Application.getTranslator();
 
 	public BodyTubeConfig(RocketComponent c) {
 		super(c);
@@ -27,7 +30,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::][]",""));
 		
 		////  Body tube length
-		panel.add(new JLabel("Body tube length:"));
+		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
 		
 		DoubleModel m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -40,7 +43,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		
 		
 		//// Body tube diameter
-		panel.add(new JLabel("Outer diameter:"));
+		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter")));
 
 		DoubleModel od  = new DoubleModel(component,"OuterRadius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -53,12 +56,13 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)),"w 100lp, wrap 0px");
 
 		JCheckBox check = new JCheckBox(od.getAutomaticAction());
-		check.setText("Automatic");
+		//// Automatic
+		check.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
 		panel.add(check,"skip, span 2, wrap");
 		
 		
 		////  Inner diameter
-		panel.add(new JLabel("Inner diameter:"));
+		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
 
 		// Diameter = 2*Radius
 		m = new DoubleModel(component,"InnerRadius",2,UnitGroup.UNITS_LENGTH,0);
@@ -73,7 +77,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 		
 		////  Wall thickness
-		panel.add(new JLabel("Wall thickness:"));
+		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Wallthickness")));
 		
 		m = new DoubleModel(component,"Thickness",UnitGroup.UNITS_LENGTH,0);
 		
@@ -84,9 +88,9 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(0,0.01)),"w 100lp, wrap 0px");
 		
-		
+		//// Filled
 		check = new JCheckBox(new BooleanModel(component,"Filled"));
-		check.setText("Filled");
+		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		panel.add(check,"skip, span 2, wrap");
 		
 		
@@ -94,10 +98,13 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
 				"cell 4 0, gapleft paragraph, aligny 0%, spany");
 		
-
-		tabbedPane.insertTab("General", null, panel, "General properties", 0);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.General"), null, panel, 
+				trans.get("BodyTubecfg.tab.Generalproperties"), 0);
 		motorConfigPane = new MotorConfig((BodyTube)c);
-		tabbedPane.insertTab("Motor", null, motorConfigPane, "Motor mount configuration", 1);
+		//// Motor and Motor mount configuration
+		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfigPane, 
+				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
 	

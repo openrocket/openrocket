@@ -24,25 +24,32 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 
 public class SimulationPlotPanel extends JPanel {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	// TODO: LOW: Should these be somewhere else?
 	public static final int AUTO = -1;
 	public static final int LEFT = 0;
 	public static final int RIGHT = 1;
 	
-	public static final String AUTO_NAME = "Auto";
-	public static final String LEFT_NAME = "Left";
-	public static final String RIGHT_NAME = "Right";
+	//// Auto
+	public static final String AUTO_NAME = trans.get("simplotpanel.AUTO_NAME");
+	//// Left
+	public static final String LEFT_NAME = trans.get("simplotpanel.LEFT_NAME");
+	//// Right
+	public static final String RIGHT_NAME = trans.get("simplotpanel.RIGHT_NAME");
 	
-	private static final String CUSTOM = "Custom";
+	//// Custom
+	private static final String CUSTOM = trans.get("simplotpanel.CUSTOM");
 	
 	/** The "Custom" configuration - not to be used for anything other than the title. */
 	private static final PlotConfiguration CUSTOM_CONFIGURATION;
@@ -120,15 +127,16 @@ public class SimulationPlotPanel extends JPanel {
 				modifying--;
 			}
 		});
-		this.add(new JLabel("Preset plot configurations: "), "spanx, split");
+		//// Preset plot configurations:
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Presetplotconf")), "spanx, split");
 		this.add(configurationSelector, "growx, wrap 20lp");
 		
 
 
 		//// X axis
 		
-
-		this.add(new JLabel("X axis type:"), "spanx, split");
+		//// X axis type:
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Xaxistype")), "spanx, split");
 		domainTypeSelector = new JComboBox(types);
 		domainTypeSelector.setSelectedItem(configuration.getDomainAxisType());
 		domainTypeSelector.addItemListener(new ItemListener() {
@@ -145,8 +153,8 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(domainTypeSelector, "gapright para");
 		
-
-		this.add(new JLabel("Unit:"));
+		//// Unit:
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")));
 		domainUnitSelector = new UnitSelector(configuration.getDomainAxisType().getUnitGroup());
 		domainUnitSelector.setSelectedUnit(configuration.getDomainAxisUnit());
 		domainUnitSelector.addItemListener(new ItemListener() {
@@ -159,19 +167,18 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(domainUnitSelector, "width 40lp, gapright para");
 		
-
-		DescriptionArea desc = new DescriptionArea("The data will be plotted in time order " +
-				"even if the X axis type is not time.", 2, -2f);
+		//// The data will be plotted in time order even if the X axis type is not time.
+		DescriptionArea desc = new DescriptionArea(trans.get("simplotpanel.Desc"), 2, -2f);
 		desc.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.add(desc, "width 1px, growx 1, wrap unrel");
 		
 
 
 		//// Y axis selector panel
-		
-		this.add(new JLabel("Y axis types:"));
-		
-		this.add(new JLabel("Flight events:"), "wrap rel");
+		//// Y axis types:
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Yaxistypes")));
+		//// Flight events:
+		this.add(new JLabel(trans.get("simplotpanel.lbl.Flightevents")), "wrap rel");
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
@@ -197,7 +204,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 
 		////  All + None buttons
-		JButton button = new JButton("All");
+		JButton button = new JButton(trans.get("simplotpanel.but.All"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -208,7 +215,8 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(button, "split 2, gapleft para, gapright para, growx, sizegroup buttons");
 		
-		button = new JButton("None");
+		//// None
+		button = new JButton(trans.get("simplotpanel.but.None"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -221,14 +229,17 @@ public class SimulationPlotPanel extends JPanel {
 		
 
 
-
-		button = new JButton("New Y axis plot type");
+		//// New Y axis plot type
+		button = new JButton(trans.get("simplotpanel.but.NewYaxisplottype"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (configuration.getTypeCount() >= 15) {
 					JOptionPane.showMessageDialog(SimulationPlotPanel.this,
-							"A maximum of 15 plots is allowed.", "Cannot add plot",
+							//// A maximum of 15 plots is allowed.
+							//// Cannot add plot
+							trans.get("simplotpanel.OptionPane.lbl1"), 
+							trans.get("simplotpanel.OptionPane.lbl2"),
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -270,7 +281,8 @@ public class SimulationPlotPanel extends JPanel {
 
 		this.add(new JPanel(), "growx");
 		
-		button = new JButton("Plot flight");
+		//// Plot flight
+		button = new JButton(trans.get("simplotpanel.but.Plotflight"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -353,7 +365,8 @@ public class SimulationPlotPanel extends JPanel {
 			});
 			this.add(typeSelector, "gapright para");
 			
-			this.add(new JLabel("Unit:"));
+			//// Unit:
+			this.add(new JLabel(trans.get("simplotpanel.lbl.Unit")));
 			unitSelector = new UnitSelector(type.getUnitGroup());
 			if (unit != null)
 				unitSelector.setSelectedUnit(unit);
@@ -368,7 +381,8 @@ public class SimulationPlotPanel extends JPanel {
 			});
 			this.add(unitSelector, "width 40lp, gapright para");
 			
-			this.add(new JLabel("Axis:"));
+			//// Axis:
+			this.add(new JLabel(trans.get("simplotpanel.lbl.Axis")));
 			axisSelector = new JComboBox(POSITIONS);
 			if (position == LEFT)
 				axisSelector.setSelectedIndex(1);
@@ -389,7 +403,8 @@ public class SimulationPlotPanel extends JPanel {
 			
 
 			JButton button = new JButton(Icons.DELETE);
-			button.setToolTipText("Remove this plot");
+			//// Remove this plot
+			button.setToolTipText(trans.get("simplotpanel.but.ttip.Removethisplot"));
 			button.setBorderPainted(false);
 			button.addActionListener(new ActionListener() {
 				@Override

@@ -20,6 +20,7 @@ import net.sf.openrocket.gui.figureelements.Caret;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.main.SimulationWorker;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -31,6 +32,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.system.ApogeeEndListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Chars;
@@ -73,6 +75,7 @@ import java.util.concurrent.ThreadFactory;
  */
 public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource {
 	
+	private static final Translator trans = Application.getTranslator();
 	private final RocketFigure figure;
 	private final ScaleScrollPane scrollPane;
 	
@@ -179,14 +182,18 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		// Side/back buttons
 		FigureTypeAction action = new FigureTypeAction(RocketFigure.TYPE_SIDE);
-		action.putValue(Action.NAME, "Side view");
-		action.putValue(Action.SHORT_DESCRIPTION, "Side view");
+		//// Side view
+		action.putValue(Action.NAME, trans.get("RocketPanel.FigTypeAct.Sideview"));
+		//// Side view
+		action.putValue(Action.SHORT_DESCRIPTION, trans.get("RocketPanel.FigTypeAct.ttip.Sideview"));
 		JToggleButton toggle = new JToggleButton(action);
 		add(toggle, "spanx, split");
 		
 		action = new FigureTypeAction(RocketFigure.TYPE_BACK);
-		action.putValue(Action.NAME, "Back view");
-		action.putValue(Action.SHORT_DESCRIPTION, "Rear view");
+		//// Back view
+		action.putValue(Action.NAME, trans.get("RocketPanel.FigTypeAct.Backview"));
+		//// Back view
+		action.putValue(Action.SHORT_DESCRIPTION, trans.get("RocketPanel.FigTypeAct.ttip.Backview"));
 		toggle = new JToggleButton(action);
 		add(toggle, "gap rel");
 		
@@ -204,8 +211,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 
 		// Motor configuration selector
-		
-		JLabel label = new JLabel("Motor configuration:");
+		//// Motor configuration:
+		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Motorcfg"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
 		add(new JComboBox(new MotorConfigurationModel(configuration)), "wrap");
@@ -234,12 +241,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(new BasicSlider(theta.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
 				"ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
 		
-
-		infoMessage = new JLabel("<html>" +
-				"Click to select &nbsp;&nbsp; " +
-				"Shift+click to select other &nbsp;&nbsp; " +
-				"Double-click to edit &nbsp;&nbsp; " +
-				"Click+drag to move");
+		
+		//// <html>Click to select &nbsp;&nbsp; Shift+click to select other &nbsp;&nbsp; Double-click to edit &nbsp;&nbsp; Click+drag to move
+		infoMessage = new JLabel(trans.get("RocketPanel.lbl.infoMessage"));
 		infoMessage.setFont(new Font("Sans Serif", Font.PLAIN, 9));
 		add(infoMessage, "skip, span, gapleft 25, wrap");
 		

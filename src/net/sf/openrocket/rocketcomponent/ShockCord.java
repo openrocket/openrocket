@@ -1,12 +1,15 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 
 public class ShockCord extends MassObject {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private Material material;
 	private double cordLength;
 	
@@ -52,7 +55,8 @@ public class ShockCord extends MassObject {
 	
 	@Override
 	public String getComponentName() {
-		return "Shock cord";
+		//// Shock cord
+		return trans.get("ShockCord.ShockCord");
 	}
 	
 	@Override

@@ -36,6 +36,7 @@ import net.sf.openrocket.gui.print.PrintableContext;
 import net.sf.openrocket.gui.print.TemplateProperties;
 import net.sf.openrocket.gui.print.components.CheckTreeManager;
 import net.sf.openrocket.gui.print.components.RocketPrintTree;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -48,17 +49,14 @@ import net.sf.openrocket.util.Prefs;
 public class PrintDialog extends JDialog implements TreeSelectionListener {
 	
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
 	
-	private static final String SETTINGS_BUTTON_TEXT = "Settings";
-	private static final String PREVIEW_BUTTON_TEXT = "Preview & Print";
-	private static final String SAVE_AS_PDF_BUTTON_TEXT = "Save as PDF";
-	private static final String SHOW_BY_STAGE = "Show By Stage";
+	private final Desktop desktop;
 	
 	private final RocketPrintTree stagedTree;
 	private final RocketPrintTree noStagedTree;
 	private OpenRocketDocument document;
 	private RocketPrintTree currentTree;
-	private Desktop desktop = null;
 	
 	private JButton previewButton;
 	private JButton saveAsPDF;
@@ -70,7 +68,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 * @param orDocument the OR rocket container
 	 */
 	public PrintDialog(Window parent, OpenRocketDocument orDocument) {
-		super(parent, "Print or export", ModalityType.APPLICATION_MODAL);
+		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
 		
 
 		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel"));
@@ -81,6 +79,8 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		// supported by this particular VM on this particular host
 		if (Desktop.isDesktopSupported()) {
 			desktop = Desktop.getDesktop();
+		} else {
+			desktop = null;
 		}
 		
 		document = orDocument;
@@ -94,7 +94,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		final int stages = rocket.getStageCount();
 		
 
-		JLabel label = new JLabel("Select elements to include:");
+		JLabel label = new JLabel(trans.get("lbl.selectElements"));
 		panel.add(label, "wrap unrel");
 		
 		// Create the tree
@@ -114,7 +114,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		
 
 		// Checkboxes and buttons
-		final JCheckBox sortByStage = new JCheckBox(SHOW_BY_STAGE);
+		final JCheckBox sortByStage = new JCheckBox(trans.get("checkbox.showByStage"));
 		sortByStage.setEnabled(stages > 1);
 		sortByStage.setSelected(stages > 1);
 		sortByStage.addActionListener(new ActionListener() {
@@ -140,7 +140,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(new JPanel(), "growx");
 		
 
-		JButton settingsButton = new JButton(SETTINGS_BUTTON_TEXT);
+		JButton settingsButton = new JButton(trans.get("printdlg.but.settings"));
 		settingsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -154,7 +154,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(settingsButton, "wrap para");
 		
 
-		previewButton = new JButton(PREVIEW_BUTTON_TEXT);
+		previewButton = new JButton(trans.get("but.previewAndPrint"));
 		previewButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -165,7 +165,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(previewButton, "split, right, gap para");
 		
 
-		saveAsPDF = new JButton(SAVE_AS_PDF_BUTTON_TEXT);
+		saveAsPDF = new JButton(trans.get("printdlg.but.saveaspdf"));
 		saveAsPDF.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -177,7 +177,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		panel.add(saveAsPDF, "right, gap para");
 		
 
-		cancel = new JButton("Cancel");
+		cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -295,14 +295,19 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 				File f = generateReport(settings);
 				desktop.open(f);
 			} catch (IOException e) {
-				log.error("Could not create temporary file for previewing.", e);
-				JOptionPane.showMessageDialog(this, "Could not create a temporary file for previewing.",
-												"Error creating file", JOptionPane.ERROR_MESSAGE);
+				log.error("Could not open preview.", e);
+				JOptionPane.showMessageDialog(this, new String[] {
+						trans.get("error.preview.desc1"),
+						trans.get("error.preview.desc2") },
+						trans.get("error.preview.title"),
+						JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
-			JOptionPane.showMessageDialog(this,
-											"Your environment does not support automatically opening the default PDF viewer.",
-											"Error creating file", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(this, new String[] {
+					trans.get("error.preview.desc1"),
+					trans.get("error.preview.desc2") },
+					trans.get("error.preview.title"),
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	
@@ -329,7 +334,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			//The description of this filter
 			@Override
 			public String getDescription() {
-				return "PDF files";
+				return trans.get("filetypes.pdf");
 			}
 		};
 		chooser.setFileFilter(filter);

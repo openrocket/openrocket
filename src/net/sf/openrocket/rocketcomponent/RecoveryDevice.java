@@ -1,7 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
@@ -20,15 +22,18 @@ import net.sf.openrocket.util.Prefs;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class RecoveryDevice extends MassObject {
+	private static final Translator trans = Application.getTranslator();
 
 	public static enum DeployEvent {
-		LAUNCH("Launch (plus NN seconds)") {
+		//// Launch (plus NN seconds)
+		LAUNCH(trans.get("RecoveryDevice.DeployEvent.LAUNCH")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return e.getType() == FlightEvent.Type.LAUNCH;
 			}
 		},
-		EJECTION("First ejection charge of this stage") {
+		//// First ejection charge of this stage
+		EJECTION(trans.get("RecoveryDevice.DeployEvent.EJECTION")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
@@ -37,13 +42,15 @@ public abstract class RecoveryDevice extends MassObject {
 				return charge.getStageNumber() == source.getStageNumber();
 			}
 		},
-		APOGEE("Apogee") {
+		//// Apogee
+		APOGEE(trans.get("RecoveryDevice.DeployEvent.APOGEE")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return e.getType() == FlightEvent.Type.APOGEE;
 			}
 		},
-		ALTITUDE("Specific altitude during descent") {
+		//// Specific altitude during descent
+		ALTITUDE(trans.get("RecoveryDevice.DeployEvent.ALTITUDE")) {
 			@SuppressWarnings("unchecked")
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
@@ -56,7 +63,8 @@ public abstract class RecoveryDevice extends MassObject {
 				return (altitude.getU() >= alt) && (altitude.getV() <= alt);
 			}
 		},
-		NEVER("Never") {
+		//// Never
+		NEVER(trans.get("RecoveryDevice.DeployEvent.NEVER")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return false;

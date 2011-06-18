@@ -22,8 +22,10 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.startup.Application;
 
 public class StorageOptionChooser extends JPanel {
 	
@@ -43,6 +45,7 @@ public class StorageOptionChooser extends JPanel {
 	
 	
 	private boolean artificialEvent = false;
+	private static final Translator trans = Application.getTranslator();
 	
 	public StorageOptionChooser(OpenRocketDocument doc, StorageOptions opts) {
 		super(new MigLayout());
@@ -67,19 +70,25 @@ public class StorageOptionChooser extends JPanel {
 		ButtonGroup buttonGroup = new ButtonGroup();
 		String tip;
 		
-		this.add(new JLabel("Simulated data to store:"), "spanx, wrap unrel");
+		//// Simulated data to store:
+		this.add(new JLabel(trans.get("StorageOptChooser.lbl.Simdatatostore")), "spanx, wrap unrel");
 
-		allButton = new JRadioButton("All simulated data");
-		allButton.setToolTipText("<html>Store all simulated data.<br>" +
-				"This can result in very large files!");
+		//// All simulated data
+		allButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Allsimdata"));
+		//// <html>Store all simulated data.<br>
+		//// This can result in very large files!
+		allButton.setToolTipText(trans.get("StorageOptChooser.lbl.longA1") +
+				trans.get("StorageOptChooser.lbl.longA2"));
 		buttonGroup.add(allButton);
 		allButton.addActionListener(actionUpdater);
 		this.add(allButton, "spanx, wrap rel");
 		
-		
-		someButton = new JRadioButton("Every");
-		tip = "<html>Store plottable values approximately this far apart.<br>" +
-				"Larger values result in smaller files.";
+		//// Every
+		someButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Every"));
+		//// <html>Store plottable values approximately this far apart.<br>"
+		//// Larger values result in smaller files.
+		tip = trans.get("StorageOptChooser.lbl.longB1") +
+		trans.get("StorageOptChooser.lbl.longB2");
 		someButton.setToolTipText(tip);
 		buttonGroup.add(someButton);
 		someButton.addActionListener(actionUpdater);
@@ -98,36 +107,42 @@ public class StorageOptionChooser extends JPanel {
 		this.add(timeSpinner, "wmin 55lp");
 		timeSpinner.addChangeListener(changeUpdater);
 		
-		JLabel label = new JLabel("seconds");
+		//// seconds
+		JLabel label = new JLabel(trans.get("StorageOptChooser.lbl.seconds"));
 		label.setToolTipText(tip);
 		this.add(label, "wrap rel");
 		
-		
-		noneButton = new JRadioButton("Only primary figures");
-		noneButton.setToolTipText("<html>Store only the values shown in the summary table.<br>" +
-				"This results in the smallest files.");
+		//// Only primary figures
+		noneButton = new JRadioButton(trans.get("StorageOptChooser.rdbut.Onlyprimfig"));
+		//// <html>Store only the values shown in the summary table.<br>
+		//// This results in the smallest files.
+		noneButton.setToolTipText(trans.get("StorageOptChooser.lbl.longC1") +
+				trans.get("StorageOptChooser.lbl.longC2"));
 		buttonGroup.add(noneButton);
 		noneButton.addActionListener(actionUpdater);
 		this.add(noneButton, "spanx, wrap 20lp");
 		
 		
-		
-		compressButton = new JCheckBox("Compress file");
-		compressButton.setToolTipText("Using compression reduces the file size significantly.");
+		//// Compress file
+		compressButton = new JCheckBox(trans.get("StorageOptChooser.checkbox.Compfile"));
+		//// Using compression reduces the file size significantly.
+		compressButton.setToolTipText(trans.get("StorageOptChooser.lbl.UsingComp"));
 		compressButton.addActionListener(actionUpdater);
 		this.add(compressButton, "spanx, wrap para");
 		
 		
 		// Estimate is updated in loadOptions(opts)
 		estimateLabel = new JLabel("");
-		estimateLabel.setToolTipText("An estimate on how large the resulting file would " +
-				"be with the present options.");
+		//// An estimate on how large the resulting file would
+		//// be with the present options.
+		estimateLabel.setToolTipText(trans.get("StorageOptChooser.lbl.longD1"));
 		this.add(estimateLabel, "spanx");
 		
 		
 		this.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEmptyBorder(0, 10, 0, 0),
-				BorderFactory.createTitledBorder("Save options")));
+				//// Save options
+				BorderFactory.createTitledBorder(trans.get("StorageOptChooser.ttip.Saveopt"))));
 		
 		loadOptions(opts);
 	}
@@ -202,7 +217,8 @@ public class StorageOptionChooser extends JPanel {
 			formatted = size + " kB";
 		}
 
-		estimateLabel.setText("Estimated file size: " + formatted);
+		//// Estimated file size:
+		estimateLabel.setText(trans.get("StorageOptChooser.lbl.Estfilesize") + " " + formatted);
 	}
 	
 	
@@ -256,7 +272,8 @@ public class StorageOptionChooser extends JPanel {
 		
 		StorageOptionChooser chooser = new StorageOptionChooser(document, options);
 		
-		if (JOptionPane.showConfirmDialog(parent, chooser, "Save options", 
+		//// Save options
+		if (JOptionPane.showConfirmDialog(parent, chooser, trans.get("StorageOptChooser.lbl.Saveopt"), 
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) !=
 					JOptionPane.OK_OPTION) {
 			// User cancelled

@@ -1,10 +1,13 @@
 package net.sf.openrocket.aerodynamics;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class Warning {
 	
-	
+	private static final Translator trans = Application.getTranslator();
+
 	/**
 	 * Return a Warning with the specific text.
 	 */
@@ -69,8 +72,10 @@ public abstract class Warning {
 		@Override
 		public String toString() {
 			if (Double.isNaN(aoa))
-				return "Large angle of attack encountered.";
-			return ("Large angle of attack encountered (" +
+				//// Large angle of attack encountered.
+				return trans.get("Warning.LargeAOA.str1");
+			//// Large angle of attack encountered (
+			return (trans.get("Warning.LargeAOA.str2") +
 					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
 		}
 
@@ -129,26 +134,31 @@ public abstract class Warning {
 	
 	
 	/** A <code>Warning</code> that the body diameter is discontinuous. */
+////Discontinuity in rocket body diameter.
 	public static final Warning DISCONTINUITY = 
-		new Other("Discontinuity in rocket body diameter.");
+		new Other(trans.get("Warning.DISCONTINUITY"));
 	
 	/** A <code>Warning</code> that the fins are thick compared to the rocket body. */
+////Thick fins may not be modeled accurately.
 	public static final Warning THICK_FIN =
-		new Other("Thick fins may not be modeled accurately.");
+		new Other(trans.get("Warning.THICK_FIN"));
 	
 	/** A <code>Warning</code> that the fins have jagged edges. */
+////Jagged-edged fin predictions may be inaccurate.
 	public static final Warning JAGGED_EDGED_FIN =
-		new Other("Jagged-edged fin predictions may be inaccurate.");
+		new Other(trans.get("Warning.JAGGED_EDGED_FIN"));
 	
 	/** A <code>Warning</code> that simulation listeners have affected the simulation */
+////Listeners modified the flight simulation
 	public static final Warning LISTENERS_AFFECTED =
-		new Other("Listeners modified the flight simulation");
+		new Other(trans.get("Warning.LISTENERS_AFFECTED"));
 	
+////Recovery device opened while motor still burning.
 	public static final Warning RECOVERY_DEPLOYMENT_WHILE_BURNING =
-		new Other("Recovery device opened while motor still burning.");
+		new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
 	
 	
-	
+	//// Invalid parameter encountered, ignoring.
 	public static final Warning FILE_INVALID_PARAMETER =
-		new Other("Invalid parameter encountered, ignoring.");
+		new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
 }

@@ -1,15 +1,26 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
+
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.*;
-
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-import java.util.*;
+import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.UniqueID;
 
 
 /**
@@ -24,40 +35,41 @@ import java.util.*;
 
 public class Rocket extends RocketComponent {
 	private static final LogHelper log = Application.getLogger();
-
+	private static final Translator trans = Application.getTranslator();
+	
 	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
-
+	
 
 	/**
 	 * List of component change listeners.
 	 */
 	private EventListenerList listenerList = new EventListenerList();
-
+	
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
 	 * When the structure is thawed, a single combined event will be fired.
 	 */
 	private List<ComponentChangeEvent> freezeList = null;
-
+	
 
 	private int modID;
 	private int massModID;
 	private int aeroModID;
 	private int treeModID;
 	private int functionalModID;
-
+	
 
 	private ReferenceType refType = ReferenceType.MAXIMUM; // Set in constructor
 	private double customReferenceLength = DEFAULT_REFERENCE_LENGTH;
-
+	
 
 	// The default configuration used in dialogs
 	private final Configuration defaultConfiguration;
-
+	
 
 	private String designer = "";
 	private String revision = "";
-
+	
 
 	// Motor configuration list
 	private ArrayList<String> motorConfigurationIDs = new ArrayList<String>();
@@ -65,15 +77,15 @@ public class Rocket extends RocketComponent {
 	{
 		motorConfigurationIDs.add(null);
 	}
-
+	
 
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
-
-
+	
+	
 
 	/////////////  Constructor  /////////////
-
+	
 	public Rocket() {
 		super(RocketComponent.Position.AFTER);
 		modID = UniqueID.next();
@@ -83,35 +95,35 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		defaultConfiguration = new Configuration(this);
 	}
-
-
+	
+	
 
 	public String getDesigner() {
 		checkState();
 		return designer;
 	}
-
+	
 	public void setDesigner(String s) {
 		if (s == null)
 			s = "";
 		designer = s;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-
-
+	
+	
 	public String getRevision() {
 		checkState();
 		return revision;
 	}
-
+	
 	public void setRevision(String s) {
 		if (s == null)
 			s = "";
 		revision = s;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-
-
+	
+	
 
 
 	/**
@@ -123,8 +135,8 @@ public class Rocket extends RocketComponent {
 		checkState();
 		return this.getChildCount();
 	}
-
-
+	
+	
 	/**
 	 * Return the non-negative modification ID of this rocket.  The ID is changed
 	 * every time any change occurs in the rocket.  This can be used to check
@@ -146,7 +158,7 @@ public class Rocket extends RocketComponent {
 	public int getModID() {
 		return modID;
 	}
-
+	
 	/**
 	 * Return the non-negative mass modification ID of this rocket.  See
 	 * {@link #getModID()} for details.
@@ -156,7 +168,7 @@ public class Rocket extends RocketComponent {
 	public int getMassModID() {
 		return massModID;
 	}
-
+	
 	/**
 	 * Return the non-negative aerodynamic modification ID of this rocket.  See
 	 * {@link #getModID()} for details.
@@ -166,7 +178,7 @@ public class Rocket extends RocketComponent {
 	public int getAerodynamicModID() {
 		return aeroModID;
 	}
-
+	
 	/**
 	 * Return the non-negative tree modification ID of this rocket.  See
 	 * {@link #getModID()} for details.
@@ -176,7 +188,7 @@ public class Rocket extends RocketComponent {
 	public int getTreeModID() {
 		return treeModID;
 	}
-
+	
 	/**
 	 * Return the non-negative functional modificationID of this rocket.
 	 * This changes every time a functional change occurs.
@@ -186,40 +198,40 @@ public class Rocket extends RocketComponent {
 	public int getFunctionalModID() {
 		return functionalModID;
 	}
-
-
+	
+	
 
 
 	public ReferenceType getReferenceType() {
 		checkState();
 		return refType;
 	}
-
+	
 	public void setReferenceType(ReferenceType type) {
 		if (refType == type)
 			return;
 		refType = type;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-
-
+	
+	
 	public double getCustomReferenceLength() {
 		checkState();
 		return customReferenceLength;
 	}
-
+	
 	public void setCustomReferenceLength(double length) {
 		if (MathUtil.equals(customReferenceLength, length))
 			return;
-
+		
 		this.customReferenceLength = Math.max(length, 0.001);
-
+		
 		if (refType == ReferenceType.CUSTOM) {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}
 	}
-
-
+	
+	
 
 
 
@@ -235,8 +247,8 @@ public class Rocket extends RocketComponent {
 		this.perfectFinish = perfectFinish;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-
-
+	
+	
 
 	/**
 	 * Get whether the rocket has a perfect finish.
@@ -246,8 +258,8 @@ public class Rocket extends RocketComponent {
 	public boolean isPerfectFinish() {
 		return perfectFinish;
 	}
-
-
+	
+	
 
 
 
@@ -263,10 +275,10 @@ public class Rocket extends RocketComponent {
 		copy.motorConfigurationNames =
 				(HashMap<String, String>) this.motorConfigurationNames.clone();
 		copy.resetListeners();
-
+		
 		return copy;
 	}
-
+	
 	/**
 	 * Load the rocket structure from the source.  The method loads the fields of this
 	 * Rocket object and copies the references to siblings from the <code>source</code>.
@@ -279,10 +291,10 @@ public class Rocket extends RocketComponent {
 	 */
 	@SuppressWarnings("unchecked")
 	public void loadFrom(Rocket r) {
-
+		
 		// Store list of components to invalidate after event has been fired
 		List<RocketComponent> toInvalidate = this.copyFrom(r);
-
+		
 		int type = ComponentChangeEvent.UNDO_CHANGE | ComponentChangeEvent.NONFUNCTIONAL_CHANGE;
 		if (this.massModID != r.massModID)
 			type |= ComponentChangeEvent.MASS_CHANGE;
@@ -290,7 +302,7 @@ public class Rocket extends RocketComponent {
 			type |= ComponentChangeEvent.AERODYNAMIC_CHANGE;
 		// Loading a rocket is always a tree change since the component objects change
 		type |= ComponentChangeEvent.TREE_CHANGE;
-
+		
 		this.modID = r.modID;
 		this.massModID = r.massModID;
 		this.aeroModID = r.aeroModID;
@@ -298,31 +310,31 @@ public class Rocket extends RocketComponent {
 		this.functionalModID = r.functionalModID;
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
-
+		
 		this.motorConfigurationIDs = r.motorConfigurationIDs.clone();
 		this.motorConfigurationNames =
 				(HashMap<String, String>) r.motorConfigurationNames.clone();
 		this.perfectFinish = r.perfectFinish;
-
+		
 		String id = defaultConfiguration.getMotorConfigurationID();
 		if (!this.motorConfigurationIDs.contains(id))
 			defaultConfiguration.setMotorConfigurationID(null);
-
+		
 		this.checkComponentStructure();
-
+		
 		fireComponentChangeEvent(type);
-
+		
 		// Invalidate obsolete components after event
 		for (RocketComponent c : toInvalidate) {
 			c.invalidate();
 		}
 	}
-
-
+	
+	
 
 
 	///////  Implement the ComponentChangeListener lists
-
+	
 	/**
 	 * Creates a new EventListenerList for this component.  This is necessary when cloning
 	 * the structure.
@@ -331,15 +343,15 @@ public class Rocket extends RocketComponent {
 		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
 		listenerList = new EventListenerList();
 	}
-
-
+	
+	
 	public void printListeners() {
 		System.out.println("" + this + " has " + listenerList.getListenerCount() + " listeners:");
 		Object[] list = listenerList.getListenerList();
 		for (int i = 1; i < list.length; i += 2)
 			System.out.println("  " + ((i + 1) / 2) + ": " + list[i]);
 	}
-
+	
 	@Override
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
@@ -347,15 +359,15 @@ public class Rocket extends RocketComponent {
 		log.verbose("Added ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.getListenerCount());
 	}
-
+	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
 		listenerList.remove(ComponentChangeListener.class, l);
 		log.verbose("Removed ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.getListenerCount());
 	}
-
-
+	
+	
 	@Override
 	public void addChangeListener(ChangeListener l) {
 		checkState();
@@ -363,21 +375,21 @@ public class Rocket extends RocketComponent {
 		log.verbose("Added ChangeListener " + l + ", current number of listeners is " +
 				listenerList.getListenerCount());
 	}
-
+	
 	@Override
 	public void removeChangeListener(ChangeListener l) {
 		listenerList.remove(ChangeListener.class, l);
 		log.verbose("Removed ChangeListener " + l + ", current number of listeners is " +
 				listenerList.getListenerCount());
 	}
-
-
+	
+	
 	@Override
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {
 		mutex.lock("fireComponentChangeEvent");
 		try {
 			checkState();
-
+			
 			// Update modification ID's only for normal (not undo/redo) events
 			if (!e.isUndoChange()) {
 				modID = UniqueID.next();
@@ -390,22 +402,22 @@ public class Rocket extends RocketComponent {
 				if (e.getType() != ComponentChangeEvent.NONFUNCTIONAL_CHANGE)
 					functionalModID = modID;
 			}
-
+			
 			// Check whether frozen
 			if (freezeList != null) {
 				log.debug("Rocket is in frozen state, adding event " + e + " info freeze list");
 				freezeList.add(e);
 				return;
 			}
-
+			
 			log.debug("Firing rocket change event " + e);
-
+			
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
 				iterator.next().componentChanged(e);
 			}
-
+			
 			// Notify all listeners
 			Object[] listeners = listenerList.getListenerList();
 			for (int i = listeners.length - 2; i >= 0; i -= 2) {
@@ -419,8 +431,8 @@ public class Rocket extends RocketComponent {
 			mutex.unlock("fireComponentChangeEvent");
 		}
 	}
-
-
+	
+	
 	/**
 	 * Freezes the rocket structure from firing any events.  This may be performed to
 	 * combine several actions on the structure into a single large action.
@@ -449,7 +461,7 @@ public class Rocket extends RocketComponent {
 					"freezeList=" + freezeList);
 		}
 	}
-
+	
 	/**
 	 * Thaws a frozen rocket structure and fires a combination of the events fired during
 	 * the freeze.  The event type is a combination of those fired and the source is the
@@ -468,9 +480,9 @@ public class Rocket extends RocketComponent {
 			freezeList = null;
 			return;
 		}
-
+		
 		log.debug("Thawing rocket, freezeList=" + freezeList);
-
+		
 		int type = 0;
 		Object c = null;
 		for (ComponentChangeEvent e : freezeList) {
@@ -478,15 +490,15 @@ public class Rocket extends RocketComponent {
 			c = e.getSource();
 		}
 		freezeList = null;
-
+		
 		fireComponentChangeEvent(new ComponentChangeEvent((RocketComponent) c, type));
 	}
-
-
+	
+	
 
 
 	////////  Motor configurations  ////////
-
+	
 
 	/**
 	 * Return the default configuration.  This should be used in the user interface
@@ -499,8 +511,8 @@ public class Rocket extends RocketComponent {
 		checkState();
 		return defaultConfiguration;
 	}
-
-
+	
+	
 	/**
 	 * Return an array of the motor configuration IDs.  This array is guaranteed
 	 * to contain the <code>null</code> ID as the first element.
@@ -511,7 +523,7 @@ public class Rocket extends RocketComponent {
 		checkState();
 		return motorConfigurationIDs.toArray(new String[0]);
 	}
-
+	
 	/**
 	 * Add a new motor configuration ID to the motor configurations.  The new ID
 	 * is returned.
@@ -525,7 +537,7 @@ public class Rocket extends RocketComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 		return id;
 	}
-
+	
 	/**
 	 * Add a specified motor configuration ID to the motor configurations.
 	 *
@@ -540,7 +552,7 @@ public class Rocket extends RocketComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 		return true;
 	}
-
+	
 	/**
 	 * Remove a motor configuration ID from the configuration IDs.  The <code>null</code>
 	 * ID cannot be removed, and an attempt to remove it will be silently ignored.
@@ -554,8 +566,8 @@ public class Rocket extends RocketComponent {
 		motorConfigurationIDs.remove(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-
-
+	
+	
 	/**
 	 * Check whether <code>id</code> is a valid motor configuration ID.
 	 *
@@ -566,8 +578,8 @@ public class Rocket extends RocketComponent {
 		checkState();
 		return motorConfigurationIDs.contains(id);
 	}
-
-
+	
+	
 
 	/**
 	 * Check whether the given motor configuration ID has motors defined for it.
@@ -579,11 +591,11 @@ public class Rocket extends RocketComponent {
 		checkState();
 		if (id == null)
 			return false;
-
+		
 		Iterator<RocketComponent> iterator = this.iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
-
+			
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
@@ -595,8 +607,8 @@ public class Rocket extends RocketComponent {
 		}
 		return false;
 	}
-
-
+	
+	
 	/**
 	 * Return the user-set name of the motor configuration.  If no name has been set,
 	 * returns an empty string (not null).
@@ -613,8 +625,8 @@ public class Rocket extends RocketComponent {
 			return "";
 		return s;
 	}
-
-
+	
+	
 	/**
 	 * Set the name of the motor configuration.  A name can be unset by passing
 	 * <code>null</code> or an empty string.
@@ -627,8 +639,8 @@ public class Rocket extends RocketComponent {
 		motorConfigurationNames.put(id, name);
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
-
-
+	
+	
 	/**
 	 * Return either the motor configuration name (if set) or its description.
 	 *
@@ -638,14 +650,14 @@ public class Rocket extends RocketComponent {
 	public String getMotorConfigurationNameOrDescription(String id) {
 		checkState();
 		String name;
-
+		
 		name = getMotorConfigurationName(id);
 		if (name != null && !name.equals(""))
 			return name;
-
+		
 		return getMotorConfigurationDescription(id);
 	}
-
+	
 	/**
 	 * Return a description for the motor configuration, generated from the motor
 	 * designations of the components.
@@ -658,59 +670,60 @@ public class Rocket extends RocketComponent {
 		checkState();
 		String name;
 		int motorCount = 0;
-
+		
 		// Generate the description
-
+		
 		// First iterate over each stage and store the designations of each motor
 		List<List<String>> list = new ArrayList<List<String>>();
 		List<String> currentList = null;
-
+		
 		Iterator<RocketComponent> iterator = this.iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
-
+			
 			if (c instanceof Stage) {
-
+				
 				currentList = new ArrayList<String>();
 				list.add(currentList);
-
+				
 			} else if (c instanceof MotorMount) {
-
+				
 				MotorMount mount = (MotorMount) c;
 				Motor motor = mount.getMotor(id);
-
+				
 				if (mount.isMotorMount() && motor != null) {
 					String designation = motor.getDesignation(mount.getMotorDelay(id));
-
+					
 					for (int i = 0; i < mount.getMotorCount(); i++) {
 						currentList.add(designation);
 						motorCount++;
 					}
 				}
-
+				
 			}
 		}
-
+		
 		if (motorCount == 0) {
-			return "[No motors]";
+			//// [No motors]
+			return trans.get("Rocket.motorCount.Nomotor");
 		}
-
+		
 		// Change multiple occurrences of a motor to n x motor
 		List<String> stages = new ArrayList<String>();
-
+		
 		for (List<String> stage : list) {
 			String stageName = "";
 			String previous = null;
 			int count = 0;
-
+			
 			Collections.sort(stage);
 			for (String current : stage) {
 				if (current.equals(previous)) {
-
+					
 					count++;
-
+					
 				} else {
-
+					
 					if (previous != null) {
 						String s = "";
 						if (count > 1) {
@@ -718,16 +731,16 @@ public class Rocket extends RocketComponent {
 						} else {
 							s = previous;
 						}
-
+						
 						if (stageName.equals(""))
 							stageName = s;
 						else
 							stageName = stageName + "," + s;
 					}
-
+					
 					previous = current;
 					count = 1;
-
+					
 				}
 			}
 			if (previous != null) {
@@ -737,16 +750,16 @@ public class Rocket extends RocketComponent {
 				} else {
 					s = previous;
 				}
-
+				
 				if (stageName.equals(""))
 					stageName = s;
 				else
 					stageName = stageName + "," + s;
 			}
-
+			
 			stages.add(stageName);
 		}
-
+		
 		name = "[";
 		for (int i = 0; i < stages.size(); i++) {
 			String s = stages.get(i);
@@ -760,57 +773,58 @@ public class Rocket extends RocketComponent {
 		name += "]";
 		return name;
 	}
-
-
+	
+	
 
 	////////  Obligatory component information
-
+	
 
 	@Override
 	public String getComponentName() {
-		return "Rocket";
+		//// Rocket
+		return trans.get("Rocket.compname.Rocket");
 	}
-
+	
 	@Override
 	public Coordinate getComponentCG() {
 		return new Coordinate(0, 0, 0, 0);
 	}
-
+	
 	@Override
 	public double getComponentMass() {
 		return 0;
 	}
-
+	
 	@Override
 	public double getLongitudinalUnitInertia() {
 		return 0;
 	}
-
+	
 	@Override
 	public double getRotationalUnitInertia() {
 		return 0;
 	}
-
+	
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		return Collections.emptyList();
 	}
-
+	
 	@Override
 	public boolean isAerodynamic() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isMassive() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean allowsChildren() {
 		return true;
 	}
-
+	
 	/**
 	 * Allows only <code>Stage</code> components to be added to the type Rocket.
 	 */
@@ -818,5 +832,5 @@ public class Rocket extends RocketComponent {
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return (Stage.class.isAssignableFrom(type));
 	}
-
+	
 }

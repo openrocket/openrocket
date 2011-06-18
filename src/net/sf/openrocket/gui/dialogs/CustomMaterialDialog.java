@@ -18,7 +18,9 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 public class CustomMaterialDialog extends JDialog {
@@ -32,7 +34,8 @@ public class CustomMaterialDialog extends JDialog {
 	private JSpinner densitySpinner;
 	private UnitSelector densityUnit;
 	private JCheckBox addBox;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	public CustomMaterialDialog(Window parent, Material material, boolean saveOption,
 			String title) {
 		this(parent, material, saveOption, title, null);
@@ -41,7 +44,8 @@ public class CustomMaterialDialog extends JDialog {
 		
 	public CustomMaterialDialog(Window parent, Material material, boolean saveOption,
 			String title, String note) {
-		super(parent, "Custom material", Dialog.ModalityType.APPLICATION_MODAL);
+		//// Custom material
+		super(parent, trans.get("custmatdlg.title.Custommaterial"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		this.originalMaterial = material;
 		
@@ -58,8 +62,8 @@ public class CustomMaterialDialog extends JDialog {
 		}
 		
 
-		// Material name
-		panel.add(new JLabel("Material name:"));
+		//// Material name
+		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialname")));
 		nameField = new JTextField(15);
 		if (material != null) {
 			nameField.setText(material.getName());
@@ -68,7 +72,7 @@ public class CustomMaterialDialog extends JDialog {
 		
 		
 		// Material type (if not known)
-		panel.add(new JLabel("Material type:"));
+		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialtype")));
 		if (material == null) {
 			typeBox = new JComboBox(Material.Type.values());
 			typeBox.setSelectedItem(Material.Type.BULK);
@@ -85,8 +89,8 @@ public class CustomMaterialDialog extends JDialog {
 		}
 		
 		
-		// Material density
-		panel.add(new JLabel("Material density:"));
+		// Material density:
+		panel.add(new JLabel(trans.get("custmatdlg.lbl.Materialdensity")));
 		densitySpinner = new JSpinner();
 		panel.add(densitySpinner, "w 70lp");
 		densityUnit = new UnitSelector((DoubleModel)null);
@@ -97,11 +101,14 @@ public class CustomMaterialDialog extends JDialog {
 		
 		// Save option
 		if (saveOption) {
-			addBox = new JCheckBox("Add material to database");
+			//// Add material to database
+			addBox = new JCheckBox(trans.get("custmatdlg.checkbox.Addmaterial"));
 			panel.add(addBox,"span, wrap");
 		}
 			
-		JButton okButton = new JButton("OK");
+		//// OK button
+		JButton okButton = new JButton(trans.get("dlg.but.ok"));
+		
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -111,7 +118,8 @@ public class CustomMaterialDialog extends JDialog {
 		});
 		panel.add(okButton,"span, split, tag ok");
 		
-		JButton closeButton = new JButton("Cancel");
+		////  Cancel
+		JButton closeButton = new JButton(trans.get("dlg.but.cancel"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

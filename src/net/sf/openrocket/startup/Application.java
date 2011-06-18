@@ -20,7 +20,7 @@ public final class Application {
 	private static LogHelper logger;
 	private static LogLevelBufferLogger logBuffer;
 	
-	private static Translator baseTranslator = new DebugTranslator();
+	private static Translator baseTranslator = new DebugTranslator(null);
 	
 	private static ThrustCurveMotorSetDatabase motorSetDatabase;
 	

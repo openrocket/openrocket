@@ -7,8 +7,10 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 import javax.swing.JComboBox;
@@ -19,6 +21,7 @@ import javax.swing.JSpinner;
 public class LaunchLugConfig extends RocketComponentConfig {
 
 	private MotorConfig motorConfigPane = null;
+	private static final Translator trans = Application.getTranslator();
 
 	public LaunchLugConfig(RocketComponent c) {
 		super(c);
@@ -29,7 +32,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::][]",""));
 		
 		////  Body tube length
-		panel.add(new JLabel("Length:"));
+		//// Length:
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Length")));
 		
 		DoubleModel m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -42,7 +46,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		
 		//// Body tube diameter
-		panel.add(new JLabel("Outer diameter:"));
+		//// Outer diameter:
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Outerdiam")));
 
 		DoubleModel od  = new DoubleModel(component,"OuterRadius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -55,8 +60,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)),"w 100lp, wrap rel");
 
 		
-		////  Inner diameter
-		panel.add(new JLabel("Inner diameter:"));
+		////  Inner diameter:
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Innerdiam")));
 
 		// Diameter = 2*Radius
 		m = new DoubleModel(component,"InnerRadius",2,UnitGroup.UNITS_LENGTH,0);
@@ -71,7 +76,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 
 		
 		////  Wall thickness
-		panel.add(new JLabel("Thickness:"));
+		//// Thickness:
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Thickness")));
 		
 		m = new DoubleModel(component,"Thickness",UnitGroup.UNITS_LENGTH,0);
 		
@@ -83,8 +89,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0,0.01)),"w 100lp, wrap 20lp");
 		
 
-		////  Radial direction
-		panel.add(new JLabel("Radial position:"));
+		////  Radial position:
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Radialpos")));
 		
 		m = new DoubleModel(component,"RadialDirection",UnitGroup.UNITS_ANGLE,
 				-Math.PI, Math.PI);
@@ -104,8 +110,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		
 		
-
-		panel.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));
 
 		JComboBox combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -117,7 +123,8 @@ public class LaunchLugConfig extends RocketComponentConfig {
 				}));
 		panel.add(combo,"spanx, growx, wrap");
 		
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.plus")),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -138,8 +145,9 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		primary.add(panel,"grow");
 		
-
-		tabbedPane.insertTab("General", null, primary, "General properties", 0);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("LaunchLugCfg.tab.General"), null, primary, 
+				trans.get("LaunchLugCfg.tab.Generalprop"), 0);
 		tabbedPane.setSelectedIndex(0);
 	}
 	

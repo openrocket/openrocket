@@ -11,9 +11,11 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
@@ -41,7 +43,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	private RocketComponentConfig configurator = null;
 	
 	private final Window parent;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private ComponentConfigDialog(Window parent, OpenRocketDocument document,
 			RocketComponent component) {
 		super(parent);
@@ -93,7 +96,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		this.setContentPane(configurator);
 		configurator.updateFields();
 		
-		setTitle(component.getComponentName() + " configuration");
+		//// configuration
+		setTitle(component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
 		
 		//		Dimension pref = getPreferredSize();
 		//		Dimension real = getSize();
@@ -207,7 +211,8 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		dialog = new ComponentConfigDialog(parent, document, component);
 		dialog.setVisible(true);
 		
-		document.addUndoPosition("Modify " + component.getComponentName());
+		////Modify
+		document.addUndoPosition(trans.get("ComponentCfgDlg.Modify") + " " + component.getComponentName());
 	}
 	
 	

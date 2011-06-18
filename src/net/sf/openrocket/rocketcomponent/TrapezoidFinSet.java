@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 /**
@@ -10,6 +12,8 @@ import net.sf.openrocket.util.Coordinate;
  */
 
 public class TrapezoidFinSet extends FinSet {
+	private static final Translator trans = Application.getTranslator();
+
 	public static final double MAX_SWEEP_ANGLE=(89*Math.PI/180.0);
 
 	/*
@@ -163,7 +167,8 @@ public class TrapezoidFinSet extends FinSet {
 
 	@Override
 	public String getComponentName() {
-		return "Trapezoidal fin set";
+		//// Trapezoidal fin set
+		return trans.get("TrapezoidFinSet.TrapezoidFinSet");
 	}
 
 }

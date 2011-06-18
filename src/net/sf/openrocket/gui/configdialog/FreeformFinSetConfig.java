@@ -27,11 +27,13 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.FinPointFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
 import net.sf.openrocket.gui.scalefigure.ScaleSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
 import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 
@@ -42,15 +44,19 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private FinPointTableModel tableModel = null;
 	
 	private FinPointFigure figure = null;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	
 	public FreeformFinSetConfig(RocketComponent component) {
 		super(component);
 		this.finset = (FreeformFinSet)component;
 
-
-		tabbedPane.insertTab("General", null, generalPane(), "General properties", 0);
-		tabbedPane.insertTab("Shape", null, shapePane(), "Fin shape", 1);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("FreeformFinSetCfg.tab.General"), null, generalPane(), 
+				trans.get("FreeformFinSetCfg.tab.ttip.General"), 0);
+		//// Shape and Fin shape
+		tabbedPane.insertTab(trans.get("FreeformFinSetCfg.tab.Shape"), null, shapePane(), 
+				trans.get("FreeformFinSetCfg.tab.ttip.Finshape"), 1);
 		tabbedPane.setSelectedIndex(0);
 		
 		addFinSetButtons();
@@ -70,8 +76,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		
 		
-		////  Number of fins
-		panel.add(new JLabel("Number of fins:"));
+		////  Number of fins:
+		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Numberoffins")));
 		
 		IntegerModel im = new IntegerModel(component,"FinCount",1,8);
 		
@@ -81,7 +87,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		
 		////  Base rotation
-		panel.add(new JLabel("Fin rotation:"));
+		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Finrotation")));
 		
 		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE,-Math.PI,Math.PI);
 		
@@ -95,9 +101,9 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 
 		////  Fin cant
-		JLabel label = new JLabel("Fin cant:");
-		label.setToolTipText("The angle that the fins are canted with respect to the rocket " +
-				"body.");
+		JLabel label = new JLabel(trans.get("FreeformFinSetCfg.lbl.Fincant"));
+		//// The angle that the fins are canted with respect to the rocket body.
+		label.setToolTipText(trans.get("FreeformFinSetCfg.lbl.ttip.Fincant"));
 		panel.add(label);
 		
 		m = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE,
@@ -114,7 +120,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		
 		////  Position
-		panel.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel.add(new JLabel("FreeformFinSetCfg.lbl.Posrelativeto"));
 
 		combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -125,8 +132,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 						RocketComponent.Position.ABSOLUTE
 				}));
 		panel.add(combo,"spanx 3, growx, wrap");
-				
-		panel.add(new JLabel("plus"),"right");
+				//// plus
+		panel.add(new JLabel("FreeformFinSetCfg.lbl.plus"),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -153,14 +160,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		
 		////  Cross section
-		panel.add(new JLabel("Fin cross section:"),"span, split");
+		//// Fin cross section:
+		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.FincrossSection")),"span, split");
 		combo = new JComboBox(
 				new EnumModel<FinSet.CrossSection>(component,"CrossSection"));
 		panel.add(combo,"growx, wrap unrel");
 		
 
-		////  Thickness
-		panel.add(new JLabel("Thickness:"));
+		////  Thickness:
+		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Thickness")));
 		
 		m = new DoubleModel(component,"Thickness",UnitGroup.UNITS_LENGTH,0);
 		

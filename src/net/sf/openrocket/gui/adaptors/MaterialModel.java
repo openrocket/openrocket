@@ -11,10 +11,12 @@ import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Reflection;
 
 public class MaterialModel extends AbstractListModel implements
@@ -31,9 +33,12 @@ public class MaterialModel extends AbstractListModel implements
 	
 	private final Reflection.Method getMethod;
 	private final Reflection.Method setMethod;
+	private static final Translator trans = Application.getTranslator();
 	
 	
 	public MaterialModel(Component parent, RocketComponent component, Material.Type type) {
+		//// Material
+		//this(parent, component, type, trans.get("MaterialModel.title.Material"));
 		this(parent, component, type, "Material");
 	}	
 
@@ -94,7 +99,8 @@ public class MaterialModel extends AbstractListModel implements
 					CustomMaterialDialog dialog = new CustomMaterialDialog(
 							SwingUtilities.getWindowAncestor(parentComponent), 
 							(Material) getSelectedItem(), true,
-							"Define custom material");
+							//// Define custom material
+							trans.get("MaterialModel.title.Defcustmat"));
 
 					dialog.setVisible(true);
 					

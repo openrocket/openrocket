@@ -33,9 +33,11 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -66,7 +68,8 @@ import org.jfree.ui.TextAnchor;
 public class PlotDialog extends JDialog {
 	
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private static final Color DEFAULT_EVENT_COLOR = new Color(0, 0, 0);
 	private static final Map<FlightEvent.Type, Color> EVENT_COLORS =
 			new HashMap<FlightEvent.Type, Color>();
@@ -126,7 +129,8 @@ public class PlotDialog extends JDialog {
 			new ArrayList<ModifiedXYItemRenderer>();
 	
 	private PlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
-		super(parent, "Flight data plot");
+		//// Flight data plot
+		super(parent, trans.get("PlotDialog.title.Flightdataplot"));
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
 		final boolean initialShowPoints = Prefs.getBoolean(Prefs.PLOT_SHOW_POINTS, false);
@@ -195,7 +199,8 @@ public class PlotDialog extends JDialog {
 
 		// Create the chart using the factory to get all default settings
 		JFreeChart chart = ChartFactory.createXYLineChart(
-				"Simulated flight",
+				//// Simulated flight
+				trans.get("PlotDialog.Chart.Simulatedflight"),
 				null,
 				null,
 				null,
@@ -405,7 +410,8 @@ public class PlotDialog extends JDialog {
 		
 		panel.add(chartPanel, "grow, wrap 20lp");
 		
-		final JCheckBox check = new JCheckBox("Show data points");
+		//// Show data points
+		final JCheckBox check = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
 		check.setSelected(initialShowPoints);
 		check.addActionListener(new ActionListener() {
 			@Override
@@ -420,13 +426,14 @@ public class PlotDialog extends JDialog {
 		panel.add(check, "split, left");
 		
 
-		JLabel label = new StyledLabel("Click+drag down+right to zoom in, up+left to zoom out", -2);
+		JLabel label = new StyledLabel(trans.get("PlotDialog.lbl.Chart"), -2);
 		panel.add(label, "gapleft para");
 		
 
 		panel.add(new JPanel(), "growx");
 		
-		JButton button = new JButton("Close");
+		//// Close button
+		JButton button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

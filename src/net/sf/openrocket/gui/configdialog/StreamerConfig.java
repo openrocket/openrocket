@@ -20,14 +20,17 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.HtmlLabel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class StreamerConfig extends RecoveryDeviceConfig {
-
+	private static final Translator trans = Application.getTranslator();
+	
 	public StreamerConfig(final RocketComponent component) {
 		super(component);
 
@@ -36,8 +39,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::][]",""));
 		
 		
-		
-		panel.add(new JLabel("Strip length:"));
+		//// Strip length:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striplength")));
 		
 		DoubleModel m = new DoubleModel(component,"StripLength",UnitGroup.UNITS_LENGTH,0);
 		
@@ -47,8 +50,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.6, 1.5)),"w 100lp, wrap");
 
-		
-		panel.add(new JLabel("Strip width:"));
+		//// Strip width:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Stripwidth")));
 		
 		m = new DoubleModel(component,"StripWidth",UnitGroup.UNITS_LENGTH,0);
 		
@@ -60,8 +63,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		
 		
-
-		panel.add(new JLabel("Strip area:"));
+		//// Strip area:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
 		
 		m = new DoubleModel(component,"Area",UnitGroup.UNITS_AREA,0);
 		
@@ -71,8 +74,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.25)),"w 100lp, wrap");
 
-		
-		panel.add(new JLabel("Aspect ratio:"));
+		//// Aspect ratio:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Aspectratio")));
 		
 		m = new DoubleModel(component,"AspectRatio",UnitGroup.UNITS_NONE,0);
 		
@@ -83,20 +86,24 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new BasicSlider(m.getSliderModel(2, 15)),"skip, w 100lp, wrap 20lp");
 
 		
-		
-		panel.add(new JLabel("Material:"));
+		//// Material:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
 		
 		JComboBox combo = new JComboBox(new MaterialModel(panel, component, 
 				Material.Type.SURFACE));
-		combo.setToolTipText("The component material affects the weight of the component.");
+		//// The component material affects the weight of the component.
+		combo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
 		panel.add(combo,"spanx 3, growx, wrap 20lp");
 
 		
 		
 		// CD
-		JLabel label = new HtmlLabel("<html>Drag coefficient C<sub>D</sub>:");
-		String tip = "<html>The drag coefficient relative to the total area of the streamer.<br>" +
-				"A larger drag coefficient yields a slowed descent rate.";
+		//// <html>Drag coefficient C<sub>D</sub>:
+		JLabel label = new HtmlLabel(trans.get("StreamerCfg.lbl.longA1"));
+		//// <html>The drag coefficient relative to the total area of the streamer.<br>
+		String tip = trans.get("StreamerCfg.lbl.longB1") +
+				//// "A larger drag coefficient yields a slowed descent rate.
+		trans.get("StreamerCfg.lbl.longB2");
 		label.setToolTipText(tip);
 		panel.add(label);
 		
@@ -108,10 +115,12 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(spin,"growx");
 		
 		JCheckBox check = new JCheckBox(m.getAutomaticAction());
-		check.setText("Automatic");
+		//// Automatic
+		check.setText(trans.get("StreamerCfg.lbl.Automatic"));
 		panel.add(check,"skip, span, wrap");
 		
-		panel.add(new StyledLabel("The drag coefficient is relative to the area of the streamer.",
+		//// The drag coefficient is relative to the area of the streamer.
+		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
 				-2), "span, wrap");
 		
 		
@@ -123,8 +132,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Position
-
-		panel.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Posrelativeto")));
 
 		combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -136,7 +145,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				}));
 		panel.add(combo,"spanx, growx, wrap");
 		
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plus")),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -150,8 +160,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				"w 100lp, wrap");
 
 
-		////  Spatial length
-		panel.add(new JLabel("Packed length:"));
+		////  Spatial length:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")));
 		
 		m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -164,7 +174,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Tube diameter
-		panel.add(new JLabel("Packed diameter:"));
+		//// Packed diameter:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Packeddiam")));
 
 		DoubleModel od  = new DoubleModel(component,"Radius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -178,24 +189,26 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Deployment
-
-		panel.add(new JLabel("Deploys at:"),"");
+		//// Deploys at:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat")),"");
 		
 		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DeployEvent"));
 		panel.add(combo,"spanx 3, growx, wrap");
 		
 		// ... and delay
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plus")),"right");
 		
 		m = new DoubleModel(component,"DeployDelay",0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin,"spanx, split");
 		
-		panel.add(new JLabel("seconds"),"wrap paragraph");
+		//// seconds
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.seconds")),"wrap paragraph");
 
-		// Altitude
-		label = new JLabel("Altitude:");
+		// Altitude:
+		label = new JLabel(trans.get("StreamerCfg.lbl.Altitude"));
 		altitudeComponents.add(label);
 		panel.add(label);
 		
@@ -216,10 +229,13 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		primary.add(panel, "grow");
 		
 		updateFields();
-
-		tabbedPane.insertTab("General", null, primary, "General properties", 0);
-		tabbedPane.insertTab("Radial position", null, positionTab(), 
-				"Radial position configuration", 1);
+		
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("StreamerCfg.tab.General"), null, primary, 
+				trans.get("StreamerCfg.tab.ttip.General"), 0);
+		//// Radial position and Radial position configuration
+		tabbedPane.insertTab(trans.get("StreamerCfg.tab.Radialpos"), null, positionTab(), 
+				trans.get("StreamerCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
 	
@@ -231,7 +247,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::]",""));
 		
 		////  Radial position
-		panel.add(new JLabel("Radial distance:"));
+		//// Radial distance:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdistance")));
 		
 		DoubleModel m = new DoubleModel(component,"RadialPosition",UnitGroup.UNITS_LENGTH,0);
 		
@@ -244,7 +261,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Radial direction
-		panel.add(new JLabel("Radial direction:"));
+		//// Radial direction:
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdirection")));
 		
 		m = new DoubleModel(component,"RadialDirection",UnitGroup.UNITS_ANGLE,0);
 		
@@ -257,7 +275,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 
 		
 		//// Reset button
-		JButton button = new JButton("Reset");
+		JButton button = new JButton(trans.get("StreamerCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -12,12 +12,14 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class ShockCordConfig extends RocketComponentConfig {
-
+	private static final Translator trans = Application.getTranslator();
 
 	public ShockCordConfig(RocketComponent component) {
 		super(component);
@@ -32,7 +34,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 		//////  Left side
 		
 		// Cord length
-		label = new JLabel("Shock cord length");
+		//// Shock cord length
+		label = new JLabel(trans.get("ShockCordCfg.lbl.Shockcordlength"));
 		panel.add(label);
 		
 		m = new DoubleModel(component,"CordLength",UnitGroup.UNITS_LENGTH,0);
@@ -46,7 +49,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 		
 
 		// Material
-		materialPanel(panel, Material.Type.LINE, "Shock cord material:", null);
+		//// Shock cord material:
+		materialPanel(panel, Material.Type.LINE, trans.get("ShockCordCfg.lbl.Shockcordmaterial"), null);
 		
 
 		
@@ -56,8 +60,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 		
 		
 		////  Position
-		
-		panel2.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Posrelativeto")));
 
 		JComboBox combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -69,7 +73,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 				}));
 		panel2.add(combo,"spanx, growx, wrap");
 		
-		panel2.add(new JLabel("plus"),"right");
+		//// plus
+		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.plus")),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -84,7 +89,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 
 		////  Spatial length
-		panel2.add(new JLabel("Packed length:"));
+		//// Packed length:
+		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Packedlength")));
 		
 		m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -97,7 +103,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 		
 		
 		//// Tube diameter
-		panel2.add(new JLabel("Packed diameter:"));
+		//// Packed diameter:
+		panel2.add(new JLabel(trans.get("ShockCordCfg.lbl.Packeddiam")));
 
 		DoubleModel od  = new DoubleModel(component,"Radius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -111,8 +118,8 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 		
 		
-		
-		tabbedPane.insertTab("General", null, panel, "General properties", 0);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("ShockCordCfg.tab.General"), null, panel, trans.get("ShockCordCfg.tab.ttip.General"), 0);
 //		tabbedPane.insertTab("Radial position", null, positionTab(), 
 //				"Radial position configuration", 1);
 		tabbedPane.setSelectedIndex(0);

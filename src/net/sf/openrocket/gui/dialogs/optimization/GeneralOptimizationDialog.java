@@ -12,10 +12,12 @@ import java.util.ServiceLoader;
 import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameterService;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifierService;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
 public class GeneralOptimizationDialog extends JDialog {
@@ -23,7 +25,8 @@ public class GeneralOptimizationDialog extends JDialog {
 	private final List<OptimizableParameter> optimizationParameters = new ArrayList<OptimizableParameter>();
 	private final Map<Object, List<SimulationModifier>> simulationModifiers =
 			new HashMap<Object, List<SimulationModifier>>();
-	
+	private static final Translator trans = Application.getTranslator();
+
 
 	private final OpenRocketDocument document;
 	

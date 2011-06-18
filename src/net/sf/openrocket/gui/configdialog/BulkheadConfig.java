@@ -3,19 +3,26 @@ package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.JPanel;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 
 
 
 public class BulkheadConfig extends RingComponentConfig {
+	private static final Translator trans = Application.getTranslator();
 
 	public BulkheadConfig(RocketComponent c) {
 		super(c);
 		
 		JPanel tab;
 		
-		tab = generalTab("Radius:", null, null, "Thickness:");
-		tabbedPane.insertTab("General", null, tab, "General properties", 0);
+		//// Radius: and "Thickness:
+		tab = generalTab(trans.get("BulkheadCfg.tab.Radius"), null, null, 
+				trans.get("BulkheadCfg.tab.Thickness"));
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("BulkheadCfg.tab.General"), null, tab, 
+				trans.get("BulkheadCfg.tab.Generalproperties"), 0);
 		tabbedPane.setSelectedIndex(0);
 	}
 	

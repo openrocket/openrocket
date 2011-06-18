@@ -32,17 +32,20 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
 public class InnerTubeConfig extends ThicknessRingComponentConfig {
+	private static final Translator trans = Application.getTranslator();
 	
 
 	public InnerTubeConfig(RocketComponent c) {
@@ -51,13 +54,19 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		JPanel tab;
 		
 		tab = new MotorConfig((MotorMount) c);
-		tabbedPane.insertTab("Motor", null, tab, "Motor mount configuration", 1);
+		//// Motor and Motor mount configuration
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Motor"), null, tab, 
+				trans.get("InnerTubeCfg.tab.ttip.Motor"), 1);
 		
 		tab = clusterTab();
-		tabbedPane.insertTab("Cluster", null, tab, "Cluster configuration", 2);
+		//// Cluster and Cluster configuration
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Cluster"), null, tab, 
+				trans.get("InnerTubeCfg.tab.ttip.Cluster"), 2);
 		
 		tab = positionTab();
-		tabbedPane.insertTab("Radial position", null, tab, "Radial position", 3);
+		//// Radial position
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Radialpos"), null, tab, 
+				trans.get("InnerTubeCfg.tab.ttip.Radialpos"), 3);
 		
 		tabbedPane.setSelectedIndex(0);
 	}
@@ -69,7 +78,8 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		JPanel subPanel = new JPanel(new MigLayout());
 		
 		// Cluster type selection
-		subPanel.add(new JLabel("Select cluster configuration:"), "spanx, wrap");
+		//// Select cluster configuration:
+		subPanel.add(new JLabel(trans.get("InnerTubeCfg.lbl.Selectclustercfg")), "spanx, wrap");
 		subPanel.add(new ClusterSelectionPanel((InnerTube) component), "spanx, wrap");
 		//		JPanel clusterSelection = new ClusterSelectionPanel((InnerTube)component);
 		//		clusterSelection.setBackground(Color.blue);
@@ -81,43 +91,53 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		subPanel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]"));
 		
 		// Tube separation scale
-		JLabel l = new JLabel("Tube separation:");
-		l.setToolTipText("The separation of the tubes, 1.0 = touching each other");
+		//// Tube separation:
+		JLabel l = new JLabel(trans.get("InnerTubeCfg.lbl.TubeSep"));
+		//// The separation of the tubes, 1.0 = touching each other
+		l.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(l);
 		DoubleModel dm = new DoubleModel(component, "ClusterScale", 1, UnitGroup.UNITS_NONE, 0);
 		
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText("The separation of the tubes, 1.0 = touching each other");
+		//// The separation of the tubes, 1.0 = touching each other
+		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(spin, "growx");
 		
 		BasicSlider bs = new BasicSlider(dm.getSliderModel(0, 1, 4));
-		bs.setToolTipText("The separation of the tubes, 1.0 = touching each other");
+		//// The separation of the tubes, 1.0 = touching each other
+		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.TubeSep"));
 		subPanel.add(bs, "skip,w 100lp, wrap");
 		
-		// Rotation
-		l = new JLabel("Rotation:");
-		l.setToolTipText("Rotation angle of the cluster configuration");
+		// Rotation:
+		l = new JLabel(trans.get("InnerTubeCfg.lbl.Rotation"));
+		//// Rotation angle of the cluster configuration
+		l.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(l);
 		dm = new DoubleModel(component, "ClusterRotation", 1, UnitGroup.UNITS_ANGLE,
 				-Math.PI, Math.PI);
 		
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText("Rotation angle of the cluster configuration");
+		//// Rotation angle of the cluster configuration
+		spin.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(spin, "growx");
 		
 		subPanel.add(new UnitSelector(dm), "growx");
 		bs = new BasicSlider(dm.getSliderModel(-Math.PI, 0, Math.PI));
-		bs.setToolTipText("Rotation angle of the cluster configuration");
+		//// Rotation angle of the cluster configuration
+		bs.setToolTipText(trans.get("InnerTubeCfg.lbl.ttip.Rotation"));
 		subPanel.add(bs, "w 100lp, wrap para");
 		
 
 
 		// Split button
-		JButton split = new JButton("Split cluster");
-		split.setToolTipText("<html>Split the cluster into separate components.<br>" +
-				"This also duplicates all components attached to this inner tube.");
+		//// Split cluster
+		JButton split = new JButton(trans.get("InnerTubeCfg.but.Splitcluster"));
+		//// <html>Split the cluster into separate components.<br>
+		//// This also duplicates all components attached to this inner tube.
+		split.setToolTipText(trans.get("InnerTubeCfg.lbl.longA1") +
+				trans.get("InnerTubeCfg.lbl.longA2"));
 		split.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -159,8 +179,10 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 		
 
 		// Reset button
-		JButton reset = new JButton("Reset settings");
-		reset.setToolTipText("Reset the separation and rotation to the default values");
+		///// Reset settings
+		JButton reset = new JButton(trans.get("InnerTubeCfg.but.Resetsettings"));
+		//// Reset the separation and rotation to the default values
+		reset.setToolTipText(trans.get("InnerTubeCfg.but.ttip.Resetsettings"));
 		reset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

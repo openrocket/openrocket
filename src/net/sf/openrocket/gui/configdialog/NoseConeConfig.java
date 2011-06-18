@@ -18,10 +18,12 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class NoseConeConfig extends RocketComponentConfig {
@@ -33,7 +35,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 	private JLabel shapeLabel;
 	private JSpinner shapeSpinner;
 	private JSlider shapeSlider;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	// Prepended to the description from NoseCone.DESCRIPTIONS
 	private static final String PREDESC = "<html>";
 	
@@ -47,8 +50,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 		
 
 		////  Shape selection
-		
-		panel.add(new JLabel("Nose cone shape:"));
+		//// Nose cone shape:
+		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape")));
 
 		Transition.Shape selected = ((NoseCone)component).getType();
 		Transition.Shape[] typeList = Transition.Shape.values();
@@ -70,7 +73,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 		
 
 		////  Shape parameter
-		shapeLabel = new JLabel("Shape parameter:");
+		////  Shape parameter:
+		shapeLabel = new JLabel(trans.get("NoseConeCfg.lbl.Shapeparam"));
 		panel.add(shapeLabel);
 		
 		m = new DoubleModel(component,"ShapeParameter");
@@ -88,8 +92,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 
 		
 		////  Length
-		
-		panel.add(new JLabel("Nose cone length:"));
+		//// Nose cone length:
+		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconelength")));
 
 		m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		JSpinner spin = new JSpinner(m.getSpinnerModel());
@@ -100,8 +104,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.7)),"w 100lp, wrap");
 		
 		////  Diameter
-		
-		panel.add(new JLabel("Base diameter:"));
+		//// Base diameter:
+		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Basediam")));
 
 		m = new DoubleModel(component,"AftRadius",2.0,UnitGroup.UNITS_LENGTH,0);  // Diameter = 2*Radius
 		spin = new JSpinner(m.getSpinnerModel());
@@ -112,12 +116,13 @@ public class NoseConeConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.04, 0.2)),"w 100lp, wrap 0px");
 		
 		JCheckBox check = new JCheckBox(m.getAutomaticAction());
-		check.setText("Automatic");
+		//// Automatic
+		check.setText(trans.get("NoseConeCfg.checkbox.Automatic"));
 		panel.add(check,"skip, span 2, wrap");
 		
 
-		////  Wall thickness
-		panel.add(new JLabel("Wall thickness:"));
+		////  Wall thickness:
+		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Wallthickness")));
 		
 		m = new DoubleModel(component,"Thickness",UnitGroup.UNITS_LENGTH,0);
 		
@@ -130,7 +135,8 @@ public class NoseConeConfig extends RocketComponentConfig {
 		
 
 		check = new JCheckBox(new BooleanModel(component,"Filled"));
-		check.setText("Filled");
+		//// Filled
+		check.setText(trans.get("NoseConeCfg.checkbox.Filled"));
 		panel.add(check,"skip, span 2, wrap");
 
 		
@@ -154,9 +160,12 @@ public class NoseConeConfig extends RocketComponentConfig {
 		panel.add(panel2, "cell 4 0, gapleft paragraph, aligny 0%, spany");
 		
 
-		
-		tabbedPane.insertTab("General", null, panel, "General properties", 0);
-		tabbedPane.insertTab("Shoulder", null, shoulderTab(), "Shoulder properties", 1);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("NoseConeCfg.tab.General"), null, panel, 
+				trans.get("NoseConeCfg.tab.ttip.General"), 0);
+		//// Shoulder and Shoulder properties
+		tabbedPane.insertTab(trans.get("NoseConeCfg.tab.Shoulder"), null, shoulderTab(), 
+				trans.get("NoseConeCfg.tab.ttip.Shoulder"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
 	

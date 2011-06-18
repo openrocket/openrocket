@@ -28,10 +28,12 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.GUIUtil;
 
@@ -55,9 +57,11 @@ public class EditMotorConfigurationDialog extends JDialog {
 	
 	// Positive when user is modifying configuration name
 	private int configurationNameModification = 0;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	public EditMotorConfigurationDialog(final Rocket rocket, Window parent) {
-		super(parent, "Edit motor configurations");
+		//// Edit motor configurations
+		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"));
 		
 		if (parent != null)
 			this.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -82,11 +86,12 @@ public class EditMotorConfigurationDialog extends JDialog {
 		
 
 		////  Motor mount selection
-		
-		JLabel label = new JLabel("<html><b>Motor mounts:</b>");
+		//// <html><b>Motor mounts:</b>
+		JLabel label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motormounts"));
 		panel.add(label, "gapbottom para");
 		
-		label = new JLabel("<html>Select which components function as motor mounts:");
+		//// <html>Select which components function as motor mounts:
+		label = new JLabel(trans.get("edtmotorconfdlg.selectcomp"));
 		panel.add(label, "ay 100%, w 1px, growx");
 		
 
@@ -113,13 +118,14 @@ public class EditMotorConfigurationDialog extends JDialog {
 
 
 		//// Motor selection
-		
-		label = new JLabel("<html><b>Motor configurations:</b>");
+		//// <html><b>Motor configurations:</b>
+		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motorconfig"));
 		panel.add(label, "spanx, gapbottom para");
 		
-
-		label = new JLabel("Configuration name:");
-		String tip = "Leave name empty for default.";
+		//// Configuration name:
+		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Configname"));
+		//// Leave name empty for default.
+		String tip = trans.get("edtmotorconfdlg.lbl.Leavenamedefault");
 		label.setToolTipText(tip);
 		panel.add(label, "");
 		
@@ -158,7 +164,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(configurationNameField, "cell 2 1, gapright para");
 		
-		newConfButton = new JButton("New configuration");
+		//// New configuration
+		newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
 		newConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -170,7 +177,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(newConfButton, "cell 3 1");
 		
-		removeConfButton = new JButton("Remove configuration");
+		//// Remove configuration
+		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
 		removeConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -215,8 +223,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		scroll = new JScrollPane(configurationTable);
 		panel.add(scroll, "cell 1 2, spanx, w 500lp, h 150lp, grow");
 		
-
-		selectMotorButton = new JButton("Select motor");
+		//// Select motor
+		selectMotorButton = new JButton(trans.get("edtmotorconfdlg.but.Selectmotor"));
 		selectMotorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -225,8 +233,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(selectMotorButton, "spanx, flowx, split 2, ax 50%");
 		
-
-		removeMotorButton = new JButton("Remove motor");
+		//// Remove motor button
+		removeMotorButton = new JButton(trans.get("edtmotorconfdlg.but.removemotor"));
 		removeMotorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -238,8 +246,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 
 
 		//// Close button
-		
-		JButton close = new JButton("Close");
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -260,7 +267,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		// Undo description
 		final OpenRocketDocument document = BasicFrame.findDocument(rocket);
 		if (document != null) {
-			document.startUndo("Edit motor configurations");
+			//// Edit motor configurations
+			document.startUndo(trans.get("edtmotorconfdlg.title.Editmotorconf"));
 			this.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosed(WindowEvent e) {
@@ -465,6 +473,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 			MotorMount mount = findMount(column);
 			Motor motor = mount.getMotor(id);
 			if (motor == null)
+				//// None
 				return "None";
 			
 			String str = motor.getDesignation(mount.getMotorDelay(id));
@@ -479,7 +488,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		@Override
 		public String getColumnName(int column) {
 			if (column == 0) {
-				return "Configuration name";
+				//// Configuration name
+				return trans.get("edtmotorconfdlg.lbl.Configname");
 			}
 			
 			MotorMount mount = findMount(column);

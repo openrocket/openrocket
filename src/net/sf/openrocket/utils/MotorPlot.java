@@ -20,8 +20,10 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 import org.jfree.chart.ChartFactory;
@@ -35,15 +37,18 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class MotorPlot extends JDialog {
 	
 	private int selected = -1;
+	private static final Translator trans = Application.getTranslator();
 	
 	public MotorPlot(List<String> filenames, List<ThrustCurveMotor> motors) {
-		super((JFrame) null, "Motor plot", true);
+		//// Motor plot
+		super((JFrame) null, trans.get("MotorPlot.title.Motorplot"), true);
 		
 		JTabbedPane tabs = new JTabbedPane();
 		for (int i = 0; i < filenames.size(); i++) {
 			JPanel pane = createPlotPanel((ThrustCurveMotor) motors.get(i));
 			
-			JButton button = new JButton("Select");
+			//// Select button
+			JButton button = new JButton(trans.get("MotorPlot.but.Select"));
 			final int number = i;
 			button.addActionListener(new ActionListener() {
 				@Override
@@ -80,9 +85,12 @@ public class MotorPlot extends JDialog {
 		
 		// Create the chart using the factory to get all default settings
 		JFreeChart chart = ChartFactory.createXYLineChart(
-				"Motor thrust curve",
-				"Time / s",
-				"Thrust / N",
+				//// Motor thrust curve
+				trans.get("MotorPlot.Chart.Motorthrustcurve"),
+				//// Time / s
+				trans.get("MotorPlot.Chart.Time"),
+				//// Thrust / N
+				trans.get("MotorPlot.Chart.Thrust"),
 				new XYSeriesCollection(series),
 				PlotOrientation.VERTICAL,
 				true,
@@ -109,11 +117,16 @@ public class MotorPlot extends JDialog {
 
 		JTextArea area = new JTextArea(5, 40);
 		StringBuilder sb = new StringBuilder();
-		sb.append("Designation:  ").append(motor.getDesignation()).append("        ");
-		sb.append("Manufacturer: ").append(motor.getManufacturer()).append("        ");
-		sb.append("Type: ").append(motor.getMotorType()).append('\n');
-		sb.append("Delays: ").append(Arrays.toString(motor.getStandardDelays())).append('\n');
-		sb.append("Comment:\n").append(motor.getDescription());
+		//// Designation:  
+		sb.append("MotorPlot.txt.Designation" + "  ").append(motor.getDesignation()).append("        ");
+		//// Manufacturer:
+		sb.append("MotorPlot.txt.Manufacturer" + " ").append(motor.getManufacturer()).append("        ");
+		//// Type:
+		sb.append("MotorPlot.txt.Type" + " ").append(motor.getMotorType()).append('\n');
+		//// Delays:
+		sb.append("MotorPlot.txt.Delays" +" ").append(Arrays.toString(motor.getStandardDelays())).append('\n');
+		//// Comment:\n
+		sb.append("MotorPlot.txt.Comment" + " ").append(motor.getDescription());
 		area.setText(sb.toString());
 		panel.add(area, "grow, wrap");
 		

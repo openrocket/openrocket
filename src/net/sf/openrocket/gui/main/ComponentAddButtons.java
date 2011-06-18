@@ -30,6 +30,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -66,6 +67,7 @@ import net.sf.openrocket.util.Reflection;
 
 public class ComponentAddButtons extends JPanel implements Scrollable {
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
 	
 	private static final int ROWS = 3;
 	private static final int MAXCOLS = 6;
@@ -103,39 +105,57 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		
 		////////////////////////////////////////////
 		
-
-		addButtonRow("Body components and fin sets", row,
-				new BodyComponentButton(NoseCone.class, "Nose cone"),
-				new BodyComponentButton(BodyTube.class, "Body tube"),
-				new BodyComponentButton(Transition.class, "Transition"),
-				new FinButton(TrapezoidFinSet.class, "Trapezoidal"), // TODO: MEDIUM: freer fin placing
-				new FinButton(EllipticalFinSet.class, "Elliptical"),
-				new FinButton(FreeformFinSet.class, "Freeform"),
-				new FinButton(LaunchLug.class, "Launch lug"));
+		//// Body components and fin sets
+		addButtonRow(trans.get("compaddbuttons.Bodycompandfinsets"), row,
+				//// Nose cone
+				new BodyComponentButton(NoseCone.class, trans.get("compaddbuttons.Nosecone")),
+				//// Body tube
+				new BodyComponentButton(BodyTube.class, trans.get("compaddbuttons.Bodytube")),
+				//// Transition
+				new BodyComponentButton(Transition.class, trans.get("compaddbuttons.Transition")),
+				//// Trapezoidal
+				new FinButton(TrapezoidFinSet.class, trans.get("compaddbuttons.Trapezoidal")), // TODO: MEDIUM: freer fin placing
+				//// Elliptical
+				new FinButton(EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
+				//// Freeform
+				new FinButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
+				//// Launch lug
+				new FinButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
 		
 		row++;
 		
 
 		/////////////////////////////////////////////
 		
-		addButtonRow("Inner component", row,
-				new ComponentButton(InnerTube.class, "Inner tube"),
-				new ComponentButton(TubeCoupler.class, "Coupler"),
-				new ComponentButton(CenteringRing.class, "Centering\nring"),
-				new ComponentButton(Bulkhead.class, "Bulkhead"),
-				new ComponentButton(EngineBlock.class, "Engine\nblock"));
+		//// Inner component
+		addButtonRow(trans.get("compaddbuttons.Innercomponent"), row,
+				//// Inner tube
+				new ComponentButton(InnerTube.class, trans.get("compaddbuttons.Innertube")),
+				//// Coupler
+				new ComponentButton(TubeCoupler.class, trans.get("compaddbuttons.Coupler")),
+				//// Centering\nring
+				new ComponentButton(CenteringRing.class, trans.get("compaddbuttons.Centeringring")),
+				//// Bulkhead
+				new ComponentButton(Bulkhead.class, trans.get("compaddbuttons.Bulkhead")),
+				//// Engine\nblock
+				new ComponentButton(EngineBlock.class, trans.get("compaddbuttons.Engineblock")));
 		
 		row++;
 		
 		////////////////////////////////////////////
 		
-		addButtonRow("Mass objects", row,
-				new ComponentButton(Parachute.class, "Parachute"),
-				new ComponentButton(Streamer.class, "Streamer"),
-				new ComponentButton(ShockCord.class, "Shock cord"),
+		//// Mass objects
+		addButtonRow(trans.get("compaddbuttons.Massobjects"), row,
+				//// Parachute
+				new ComponentButton(Parachute.class, trans.get("compaddbuttons.Parachute")),
+				//// Streamer
+				new ComponentButton(Streamer.class, trans.get("compaddbuttons.Streamer")),
+				//// Shock cord
+				new ComponentButton(ShockCord.class, trans.get("compaddbuttons.Shockcord")),
 				//				new ComponentButton("Motor clip"),
 				//				new ComponentButton("Payload"),
-				new ComponentButton(MassComponent.class, "Mass\ncomponent"));
+				//// Mass\ncomponent
+				new ComponentButton(MassComponent.class, trans.get("compaddbuttons.Masscomponent")));
 		
 
 		// Get maximum button size
@@ -511,20 +531,27 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		}
 		
 		private int askPosition() {
-			Object[] options = { "Insert here", "Add to the end", "Cancel" };
+			//// Insert here 
+			//// Add to the end
+			//// Cancel
+			Object[] options = { trans.get("compaddbuttons.askPosition.Inserthere"), 
+					trans.get("compaddbuttons.askPosition.Addtotheend"), 
+					trans.get("compaddbuttons.askPosition.Cancel") };
 			
 			JPanel panel = new JPanel(new MigLayout());
-			JCheckBox check = new JCheckBox("Do not ask me again");
+			//// Do not ask me again
+			JCheckBox check = new JCheckBox(trans.get("compaddbuttons.Donotaskmeagain"));
 			panel.add(check, "wrap");
-			panel.add(new StyledLabel("You can change the default operation in the " +
-					"preferences.", -2));
+			//// You can change the default operation in the preferences.
+			panel.add(new StyledLabel(trans.get("compaddbuttons.lbl.Youcanchange"), -2));
 			
 			int sel = JOptionPane.showOptionDialog(null, // parent component 
+					//// Insert the component after the current component or as the last component?
 					new Object[] {
-							"Insert the component after the current component or as the last " +
-									"component?",
+					trans.get("compaddbuttons.lbl.insertcomp"),
 							panel },
-					"Select component position", // title
+							//// Select component position
+							trans.get("compaddbuttons.Selectcomppos"), // title
 					JOptionPane.DEFAULT_OPTION, // default selections
 					JOptionPane.QUESTION_MESSAGE, // dialog type
 					null, // icon

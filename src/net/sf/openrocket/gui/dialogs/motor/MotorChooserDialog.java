@@ -14,8 +14,10 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
 import net.sf.openrocket.gui.dialogs.motor.thrustcurve.ThrustCurveMotorSelectionPanel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 public class MotorChooserDialog extends JDialog implements CloseableDialog {
@@ -23,7 +25,8 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	private final ThrustCurveMotorSelectionPanel selectionPanel;
 	
 	private boolean okClicked = false;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	
 	public MotorChooserDialog(Motor current, double delay, double diameter, Window owner) {
 		super(owner, "Select a rocket motor", Dialog.ModalityType.APPLICATION_MODAL);
@@ -40,8 +43,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		
 
 		// OK / Cancel buttons
-		
-		JButton okButton = new JButton("OK");
+		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -50,7 +52,8 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		});
 		panel.add(okButton, "tag ok, spanx, split");
 		
-		JButton cancelButton = new JButton("Cancel");
+		//// Cancel button
+		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

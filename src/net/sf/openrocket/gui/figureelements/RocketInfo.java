@@ -2,8 +2,10 @@ package net.sf.openrocket.gui.figureelements;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
@@ -28,6 +30,7 @@ import static net.sf.openrocket.util.Chars.THETA;
  */
 public class RocketInfo implements FigureElement {
 	
+	private static final Translator trans = Application.getTranslator();
 	// Margin around the figure edges, pixels
 	private static final int MARGIN = 8;
 
@@ -140,15 +143,19 @@ public class RocketInfo implements FigureElement {
 	private void drawMainInfo() {
 		GlyphVector name = createText(configuration.getRocket().getName());
 		GlyphVector lengthLine = createText(
-				"Length " + UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(length) +
-				", max. diameter " + 
+				//// Length
+				trans.get("RocketInfo.lengthLine.Length") +" " + UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(length) +
+				//// , max. diameter
+				trans.get("RocketInfo.lengthLine.maxdiameter") +" " + 
 				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(diameter));
 		
 		String massText;
 		if (configuration.hasMotors())
-			massText = "Mass with motors ";
+			//// Mass with motors 
+			massText = trans.get("RocketInfo.massText1") +" ";
 		else
-			massText = "Mass with no motors ";
+			//// Mass with no motors 
+			massText = trans.get("RocketInfo.massText2") +" ";
 		
 		massText += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(mass);
 		
@@ -166,8 +173,8 @@ public class RocketInfo implements FigureElement {
 	
 	private void drawStabilityInfo() {
 		String at;
-		
-		at = "at M="+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(mach);
+		//// at M=
+		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(mach);
 		if (!Double.isNaN(aoa)) {
 			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
 		}
@@ -181,10 +188,12 @@ public class RocketInfo implements FigureElement {
                 getCp());
 		GlyphVector stabValue = createText(
                 getStability());
-				
-		GlyphVector cgText = createText("CG:  ");
-		GlyphVector cpText = createText("CP:  ");
-		GlyphVector stabText = createText("Stability:  ");
+		//// CG:		
+		GlyphVector cgText = createText(trans.get("RocketInfo.cgText") +"  ");
+		//// CP:
+		GlyphVector cpText = createText(trans.get("RocketInfo.cpText") +"  ");
+		//// Stability:
+		GlyphVector stabText = createText(trans.get("RocketInfo.stabText") + "  ");
 		GlyphVector atText = createSmallText(at);
 
 		Rectangle2D cgRect = cgValue.getVisualBounds();
@@ -312,7 +321,8 @@ public class RocketInfo implements FigureElement {
 		GlyphVector[] texts = new GlyphVector[warnings.size()+1];
 		double max = 0;
 		
-		texts[0] = createText("Warning:");
+		//// Warning:
+		texts[0] = createText(trans.get("RocketInfo.Warning"));
 		int i=1;
 		for (Warning w: warnings) {
 			texts[i] = createText(w.toString());
@@ -341,7 +351,8 @@ public class RocketInfo implements FigureElement {
 		double height = drawFlightData();
 		
 		if (calculatingData) {
-			GlyphVector calculating = createText("Calculating...");
+			//// Calculating...
+			GlyphVector calculating = createText(trans.get("RocketInfo.Calculating"));
 			g2.setColor(Color.BLACK);
 			g2.drawGlyphVector(calculating, x1, (float)(y2-height));
 		}
@@ -354,30 +365,37 @@ public class RocketInfo implements FigureElement {
 		
 		double width=0;
 		
-		GlyphVector apogee = createText("Apogee: ");
-		GlyphVector maxVelocity = createText("Max. velocity: ");
-		GlyphVector maxAcceleration = createText("Max. acceleration: ");
+		//// Apogee: 
+		GlyphVector apogee = createText(trans.get("RocketInfo.Apogee")+" ");
+		//// Max. velocity:
+		GlyphVector maxVelocity = createText(trans.get("RocketInfo.Maxvelocity") +" ");
+		//// Max. acceleration: 
+		GlyphVector maxAcceleration = createText(trans.get("RocketInfo.Maxacceleration") + " ");
 
 		GlyphVector apogeeValue, velocityValue, accelerationValue;
 		if (!Double.isNaN(flightData.getMaxAltitude())) {
 			apogeeValue = createText(
 					UnitGroup.UNITS_DISTANCE.toStringUnit(flightData.getMaxAltitude()));
 		} else {
-			apogeeValue = createText("N/A");
+			//// N/A
+			apogeeValue = createText(trans.get("RocketInfo.apogeeValue"));
 		}
 		if (!Double.isNaN(flightData.getMaxVelocity())) {
 			velocityValue = createText(
 					UnitGroup.UNITS_VELOCITY.toStringUnit(flightData.getMaxVelocity()) +
-					"  (Mach " + 
+					//// (Mach
+					"  " +trans.get("RocketInfo.Mach") +" " + 
 					UnitGroup.UNITS_COEFFICIENT.toString(flightData.getMaxMachNumber()) + ")");
 		} else {
-			velocityValue = createText("N/A");
+			//// N/A
+			velocityValue = createText(trans.get("RocketInfo.velocityValue"));
 		}
 		if (!Double.isNaN(flightData.getMaxAcceleration())) {
 			accelerationValue = createText(
 					UnitGroup.UNITS_ACCELERATION.toStringUnit(flightData.getMaxAcceleration()));
 		} else {
-			accelerationValue = createText("N/A");
+			//// N/A
+			accelerationValue = createText(trans.get("RocketInfo.accelerationValue"));
 		}
 		
 		Rectangle2D rect;

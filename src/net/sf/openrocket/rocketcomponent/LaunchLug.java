@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -9,6 +11,8 @@ import java.util.Collection;
 
 
 public class LaunchLug extends ExternalComponent implements Coaxial {
+
+	private static final Translator trans = Application.getTranslator();
 
 	private double radius;
 	private double thickness;
@@ -169,7 +173,8 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 
 	@Override
 	public String getComponentName() {
-		return "Launch lug";
+		//// Launch lug
+		return trans.get("LaunchLug.Launchlug");
 	}
 
 	@Override

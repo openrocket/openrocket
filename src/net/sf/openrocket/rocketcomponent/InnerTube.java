@@ -1,13 +1,15 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
 
 
 /**
@@ -18,11 +20,12 @@ import java.util.List;
  */
 public class InnerTube extends ThicknessRingComponent
 		implements Clusterable, RadialParent, MotorMount {
-
+	private static final Translator trans = Application.getTranslator();
+	
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
-
+	
 
 	private boolean motorMount = false;
 	private HashMap<String, Double> ejectionDelays = new HashMap<String, Double>();
@@ -30,8 +33,8 @@ public class InnerTube extends ThicknessRingComponent
 	private IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
 	private double ignitionDelay = 0;
 	private double overhang = 0;
-
-
+	
+	
 	/**
 	 * Main constructor.
 	 */
@@ -41,30 +44,31 @@ public class InnerTube extends ThicknessRingComponent
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 	}
-
-
+	
+	
 	@Override
 	public double getInnerRadius(double x) {
 		return getInnerRadius();
 	}
-
-
+	
+	
 	@Override
 	public double getOuterRadius(double x) {
 		return getOuterRadius();
 	}
-
-
+	
+	
 	@Override
 	public String getComponentName() {
-		return "Inner Tube";
+		//// Inner Tube
+		return trans.get("InnerTube.InnerTube");
 	}
-
+	
 	@Override
 	public boolean allowsChildren() {
 		return true;
 	}
-
+	
 	/**
 	 * Allow all InternalComponents to be added to this component.
 	 */
@@ -72,28 +76,30 @@ public class InnerTube extends ThicknessRingComponent
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return InternalComponent.class.isAssignableFrom(type);
 	}
-
-
+	
+	
 
 	/////////////  Cluster methods  //////////////
-
+	
 	/**
 	 * Get the current cluster configuration.
 	 * @return  The current cluster configuration.
 	 */
+	@Override
 	public ClusterConfiguration getClusterConfiguration() {
 		return cluster;
 	}
-
+	
 	/**
 	 * Set the current cluster configuration.
 	 * @param cluster  The cluster configuration.
 	 */
+	@Override
 	public void setClusterConfiguration(ClusterConfiguration cluster) {
 		this.cluster = cluster;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	/**
 	 * Return the number of tubes in the cluster.
 	 * @return Number of tubes in the current cluster.
@@ -102,7 +108,7 @@ public class InnerTube extends ThicknessRingComponent
 	public int getClusterCount() {
 		return cluster.getClusterCount();
 	}
-
+	
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
 	 * touching each other, larger values separate the tubes and smaller values
@@ -111,7 +117,7 @@ public class InnerTube extends ThicknessRingComponent
 	public double getClusterScale() {
 		return clusterScale;
 	}
-
+	
 	/**
 	 * Set the cluster scaling.
 	 * @see #getClusterScale()
@@ -123,8 +129,8 @@ public class InnerTube extends ThicknessRingComponent
 		clusterScale = scale;
 		fireComponentChangeEvent(new ComponentChangeEvent(this, ComponentChangeEvent.MASS_CHANGE));
 	}
-
-
+	
+	
 
 	/**
 	 * @return the clusterRotation
@@ -132,8 +138,8 @@ public class InnerTube extends ThicknessRingComponent
 	public double getClusterRotation() {
 		return clusterRotation;
 	}
-
-
+	
+	
 	/**
 	 * @param rotation the clusterRotation to set
 	 */
@@ -144,8 +150,8 @@ public class InnerTube extends ThicknessRingComponent
 		this.clusterRotation = rotation;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
-
+	
+	
 	/**
 	 * Return the distance between the closest two cluster inner tube center points.
 	 * This is equivalent to the cluster scale multiplied by the tube diameter.
@@ -154,8 +160,8 @@ public class InnerTube extends ThicknessRingComponent
 	public double getClusterSeparation() {
 		return 2 * getOuterRadius() * clusterScale;
 	}
-
-
+	
+	
 	public List<Coordinate> getClusterPoints() {
 		List<Coordinate> list = new ArrayList<Coordinate>(getClusterCount());
 		List<Double> points = cluster.getPoints(clusterRotation - getRadialDirection());
@@ -165,16 +171,16 @@ public class InnerTube extends ThicknessRingComponent
 		}
 		return list;
 	}
-
-
+	
+	
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] array) {
 		array = super.shiftCoordinates(array);
-
+		
 		int count = getClusterCount();
 		if (count == 1)
 			return array;
-
+		
 		List<Coordinate> points = getClusterPoints();
 		if (points.size() != count) {
 			throw new BugException("Inconsistent cluster configuration, cluster count=" + count +
@@ -186,20 +192,20 @@ public class InnerTube extends ThicknessRingComponent
 				newArray[i * count + j] = array[i].add(points.get(j));
 			}
 		}
-
+		
 		return newArray;
 	}
-
-
+	
+	
 
 
 	////////////////  Motor mount  /////////////////
-
+	
 	@Override
 	public boolean isMotorMount() {
 		return motorMount;
 	}
-
+	
 	@Override
 	public void setMotorMount(boolean mount) {
 		if (motorMount == mount)
@@ -207,22 +213,22 @@ public class InnerTube extends ThicknessRingComponent
 		motorMount = mount;
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-
+	
 	@Override
 	public Motor getMotor(String id) {
 		if (id == null)
 			return null;
-
+		
 		// Check whether the id is valid for the current rocket
 		RocketComponent root = this.getRoot();
 		if (!(root instanceof Rocket))
 			return null;
 		if (!((Rocket) root).isMotorConfigurationID(id))
 			return null;
-
+		
 		return motors.get(id);
 	}
-
+	
 	@Override
 	public void setMotor(String id, Motor motor) {
 		if (id == null) {
@@ -237,7 +243,7 @@ public class InnerTube extends ThicknessRingComponent
 		motors.put(id, motor);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-
+	
 	@Override
 	public double getMotorDelay(String id) {
 		Double delay = ejectionDelays.get(id);
@@ -245,29 +251,29 @@ public class InnerTube extends ThicknessRingComponent
 			return Motor.PLUGGED;
 		return delay;
 	}
-
+	
 	@Override
 	public void setMotorDelay(String id, double delay) {
 		ejectionDelays.put(id, delay);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
-
+	
 	@Deprecated
 	@Override
 	public int getMotorCount() {
 		return getClusterCount();
 	}
-
+	
 	@Override
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
 	}
-
+	
 	@Override
 	public IgnitionEvent getIgnitionEvent() {
 		return ignitionEvent;
 	}
-
+	
 	@Override
 	public void setIgnitionEvent(IgnitionEvent event) {
 		if (ignitionEvent == event)
@@ -275,13 +281,13 @@ public class InnerTube extends ThicknessRingComponent
 		ignitionEvent = event;
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-
-
+	
+	
 	@Override
 	public double getIgnitionDelay() {
 		return ignitionDelay;
 	}
-
+	
 	@Override
 	public void setIgnitionDelay(double delay) {
 		if (MathUtil.equals(delay, ignitionDelay))
@@ -289,13 +295,13 @@ public class InnerTube extends ThicknessRingComponent
 		ignitionDelay = delay;
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-
-
+	
+	
 	@Override
 	public double getMotorOverhang() {
 		return overhang;
 	}
-
+	
 	@Override
 	public void setMotorOverhang(double overhang) {
 		if (MathUtil.equals(this.overhang, overhang))
@@ -303,15 +309,15 @@ public class InnerTube extends ThicknessRingComponent
 		this.overhang = overhang;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-
+	
+	
 	@Override
 	public Coordinate getMotorPosition(String id) {
 		Motor motor = motors.get(id);
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
-
+		
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 	
@@ -329,5 +335,5 @@ public class InnerTube extends ThicknessRingComponent
 		((InnerTube) c).ejectionDelays = (HashMap<String, Double>) ejectionDelays.clone();
 		return c;
 	}
-
+	
 }

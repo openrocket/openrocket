@@ -16,12 +16,15 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 
 public class MassComponentConfig extends RocketComponentConfig {
+	private static final Translator trans = Application.getTranslator();
 
 	public MassComponentConfig(RocketComponent component) {
 		super(component);
@@ -32,7 +35,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		
 		////  Mass
-		panel.add(new JLabel("Mass"));
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Mass")));
 		
 		DoubleModel m = new DoubleModel(component,"ComponentMass",UnitGroup.UNITS_MASS,0);
 		
@@ -46,7 +49,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		
 		////  Mass length
-		panel.add(new JLabel("Length"));
+		//// Length
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Length")));
 		
 		m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -59,7 +63,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		
 		//// Tube diameter
-		panel.add(new JLabel("Diameter:"));
+		//// Diameter:
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Diameter")));
 
 		DoubleModel od  = new DoubleModel(component,"Radius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -73,8 +78,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 
 		
 		////  Position
-		
-		panel.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
 
 		JComboBox combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -85,8 +90,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 						RocketComponent.Position.ABSOLUTE
 				}));
 		panel.add(combo,"spanx, growx, wrap");
-		
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -99,10 +104,12 @@ public class MassComponentConfig extends RocketComponentConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 
-
-		tabbedPane.insertTab("General", null, panel, "General properties", 0);
-		tabbedPane.insertTab("Radial position", null, positionTab(), 
-				"Radial position configuration", 1);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("MassComponentCfg.tab.General"), null, panel, 
+				trans.get("MassComponentCfg.tab.ttip.General"), 0);
+		//// Radial position and Radial position configuration
+		tabbedPane.insertTab(trans.get("MassComponentCfg.tab.Radialpos"), null, positionTab(), 
+				trans.get("MassComponentCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
 	
@@ -111,7 +118,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::]",""));
 		
 		////  Radial position
-		panel.add(new JLabel("Radial distance:"));
+		//// Radial distance:
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Radialdistance")));
 		
 		DoubleModel m = new DoubleModel(component,"RadialPosition",UnitGroup.UNITS_LENGTH,0);
 		
@@ -123,8 +131,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)),"w 100lp, wrap");
 		
 		
-		//// Radial direction
-		panel.add(new JLabel("Radial direction:"));
+		//// Radial direction:
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Radialdirection")));
 		
 		m = new DoubleModel(component,"RadialDirection",UnitGroup.UNITS_ANGLE,0);
 		
@@ -137,7 +145,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 
 		
 		//// Reset button
-		JButton button = new JButton("Reset");
+		JButton button = new JButton(trans.get("MassComponentCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

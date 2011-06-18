@@ -34,6 +34,7 @@ import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -41,6 +42,7 @@ import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Invalidatable;
@@ -48,6 +50,8 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Prefs;
 
 public class RocketComponentConfig extends JPanel {
+	
+	private static final Translator trans = Application.getTranslator();
 	
 	protected final RocketComponent component;
 	protected final JTabbedPane tabbedPane;
@@ -69,25 +73,34 @@ public class RocketComponentConfig extends JPanel {
 		setLayout(new MigLayout("fill", "[grow, fill]"));
 		this.component = component;
 		
-		JLabel label = new JLabel("Component name:");
-		label.setToolTipText("The component name.");
+		//// Component name:
+		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
+		//// The component name.
+		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
 		this.add(label, "split, gapright 10");
 		
 		componentNameField = new JTextField(15);
 		textFieldListener = new TextFieldListener();
 		componentNameField.addActionListener(textFieldListener);
 		componentNameField.addFocusListener(textFieldListener);
-		componentNameField.setToolTipText("The component name.");
+		//// The component name.
+		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
 		this.add(componentNameField, "growx, growy 0, wrap");
 		
 
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, "growx, growy 1, wrap");
 		
-		tabbedPane.addTab("Override", null, overrideTab(), "Mass and CG override options");
+		//// Override and Mass and CG override options
+		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(), 
+				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (component.isMassive())
-			tabbedPane.addTab("Figure", null, figureTab(), "Figure style options");
-		tabbedPane.addTab("Comment", null, commentTab(), "Specify a comment for the component");
+			//// Figure and Figure style options
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Figure"), null, figureTab(), 
+					trans.get("RocketCompCfg.tab.Figstyleopt"));
+		//// Comment and Specify a comment for the component
+		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(), 
+				trans.get("RocketCompCfg.tab.Specifyacomment"));
 		
 		addButtons();
 		
@@ -102,14 +115,16 @@ public class RocketComponentConfig extends JPanel {
 		
 		buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
 		
-		massLabel = new StyledLabel("Mass: ", -1);
+		//// Mass:
+		massLabel = new StyledLabel(trans.get("RocketCompCfg.lbl.Mass") + " ", -1);
 		buttonPanel.add(massLabel, "growx");
 		
 		for (JButton b : buttons) {
 			buttonPanel.add(b, "right, gap para");
 		}
 		
-		JButton closeButton = new JButton("Close");
+		//// Close button
+		JButton closeButton = new JButton(trans.get("dlg.but.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -142,19 +157,22 @@ public class RocketComponentConfig extends JPanel {
 		
 		// Mass label
 		if (component.isMassive()) {
-			String text = "Component mass: ";
+			//// Component mass:
+			String text = trans.get("RocketCompCfg.lbl.Componentmass") + " ";
 			text += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
 					component.getComponentMass());
 			
 			String overridetext = null;
 			if (component.isMassOverridden()) {
-				overridetext = "(overridden to " + UnitGroup.UNITS_MASS.getDefaultUnit().
+				//// (overridden to 
+				overridetext = trans.get("RocketCompCfg.lbl.overriddento")+" " + UnitGroup.UNITS_MASS.getDefaultUnit().
 						toStringUnit(component.getOverrideMass()) + ")";
 			}
 			
 			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
 				if (c.isMassOverridden() && c.getOverrideSubcomponents()) {
-					overridetext = "(overridden by " + c.getName() + ")";
+					///// (overridden by
+					overridetext = trans.get("RocketCompCfg.lbl.overriddenby")+" " + c.getName() + ")";
 				}
 			}
 			
@@ -169,25 +187,30 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	protected JPanel materialPanel(JPanel panel, Material.Type type) {
-		return materialPanel(panel, type, "Component material:", "Component finish:");
+		////Component material: and Component finish:
+		return materialPanel(panel, type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
+				trans.get("RocketCompCfg.lbl.Componentfinish"));
 	}
 	
 	protected JPanel materialPanel(JPanel panel, Material.Type type,
 			String materialString, String finishString) {
 		JLabel label = new JLabel(materialString);
-		label.setToolTipText("The component material affects the weight of the component.");
+		//// The component material affects the weight of the component.
+		label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
 		panel.add(label, "spanx 4, wrap rel");
 		
 		JComboBox combo = new JComboBox(new MaterialModel(panel, component, type));
-		combo.setToolTipText("The component material affects the weight of the component.");
+		//// The component material affects the weight of the component.
+		combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
 		panel.add(combo, "spanx 4, growx, wrap paragraph");
 		
 
 		if (component instanceof ExternalComponent) {
 			label = new JLabel(finishString);
-			String tip = "<html>The component finish affects the aerodynamic drag of the "
-					+ "component.<br>"
-					+ "The value indicated is the average roughness height of the surface.";
+			////<html>The component finish affects the aerodynamic drag of the component.<br>
+			String tip = trans.get("RocketCompCfg.lbl.longA1")
+					//// The value indicated is the average roughness height of the surface.
+					+ trans.get("RocketCompCfg.lbl.longA2");
 			label.setToolTipText(tip);
 			panel.add(label, "spanx 4, wmin 220lp, wrap rel");
 			
@@ -195,8 +218,10 @@ public class RocketComponentConfig extends JPanel {
 			combo.setToolTipText(tip);
 			panel.add(combo, "spanx 4, growx, split");
 			
-			JButton button = new JButton("Set for all");
-			button.setToolTipText("Set this finish for all components of the rocket.");
+			//// Set for all
+			JButton button = new JButton(trans.get("RocketCompCfg.but.Setforall"));
+			//// Set this finish for all components of the rocket.
+			button.setToolTipText(trans.get("RocketCompCfg.but.ttip.Setforall"));
 			button.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -232,8 +257,8 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel overrideTab() {
 		JPanel panel = new JPanel(new MigLayout("align 50% 20%, fillx, gap rel unrel",
 				"[][65lp::][30lp::][]", ""));
-		
-		panel.add(new StyledLabel("Override the mass or center of gravity of the " +
+		//// Override the mass or center of gravity of the
+		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Overridemassorcenter") + " " +
 				component.getComponentName() + ":", Style.BOLD), "spanx, wrap 20lp");
 		
 		JCheckBox check;
@@ -244,7 +269,8 @@ public class RocketComponentConfig extends JPanel {
 		////  Mass
 		bm = new BooleanModel(component, "MassOverridden");
 		check = new JCheckBox(bm);
-		check.setText("Override mass:");
+		//// Override mass:
+		check.setText(trans.get("RocketCompCfg.checkbox.Overridemass"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
 		DoubleModel m = new DoubleModel(component, "OverrideMass", UnitGroup.UNITS_MASS, 0);
@@ -266,7 +292,8 @@ public class RocketComponentConfig extends JPanel {
 		////  CG override
 		bm = new BooleanModel(component, "CGOverridden");
 		check = new JCheckBox(bm);
-		check.setText("Override center of gravity:");
+		//// Override center of gravity:"
+		check.setText(trans.get("RocketCompCfg.checkbox.Overridecenterofgrav"));
 		panel.add(check, "growx 1, gapright 20lp");
 		
 		m = new DoubleModel(component, "OverrideCGX", UnitGroup.UNITS_LENGTH, 0);
@@ -303,12 +330,14 @@ public class RocketComponentConfig extends JPanel {
 		// Override subcomponents checkbox
 		bm = new BooleanModel(component, "OverrideSubcomponents");
 		check = new JCheckBox(bm);
-		check.setText("Override mass and CG of all subcomponents");
+		//// Override mass and CG of all subcomponents
+		check.setText(trans.get("RocketCompCfg.checkbox.OverridemassandCG"));
 		panel.add(check, "gap para, spanx, wrap para");
 		
-
-		panel.add(new StyledLabel("<html>The overridden mass does not include motors.<br>" +
-				"The center of gravity is measured from the front end of the " +
+		//// <html>The overridden mass does not include motors.<br>
+		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.longB1") +
+				//// The center of gravity is measured from the front end of the
+				trans.get("RocketCompCfg.lbl.longB2") +" " +
 				component.getComponentName().toLowerCase() + ".", -1),
 				"spanx, wrap, gap para, height 0::30lp");
 		
@@ -319,7 +348,8 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel commentTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		panel.add(new StyledLabel("Comments on the " + component.getComponentName() + ":",
+		//// Comments on the
+		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Commentsonthe") +" " + component.getComponentName() + ":",
 				Style.BOLD), "wrap");
 		
 		// TODO: LOW:  Changes in comment from other sources not reflected in component
@@ -340,10 +370,11 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel figureTab() {
 		JPanel panel = new JPanel(new MigLayout("align 20% 20%"));
 		
-		panel.add(new StyledLabel("Figure style:", Style.BOLD), "wrap para");
+		//// Figure style:
+		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Figurestyle"), Style.BOLD), "wrap para");
 		
-
-		panel.add(new JLabel("Component color:"), "gapleft para, gapright 10lp");
+		//// Component color:
+		panel.add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")), "gapleft para, gapright 10lp");
 		
 		colorButton = new JButton(new ColorIcon(getColor()));
 		colorButton.addActionListener(new ActionListener() {
@@ -354,7 +385,8 @@ public class RocketComponentConfig extends JPanel {
 					c = Prefs.getDefaultColor(component.getClass());
 				}
 				
-				c = JColorChooser.showDialog(tabbedPane, "Choose color", c);
+				//// Choose color
+				c = JColorChooser.showDialog(tabbedPane, trans.get("RocketCompCfg.lbl.Choosecolor"), c);
 				if (c != null) {
 					component.setColor(c);
 				}
@@ -362,7 +394,8 @@ public class RocketComponentConfig extends JPanel {
 		});
 		panel.add(colorButton, "gapright 10lp");
 		
-		colorDefault = new JCheckBox("Use default color");
+		//// Use default color
+		colorDefault = new JCheckBox(trans.get("RocketCompCfg.checkbox.Usedefaultcolor"));
 		if (component.getColor() == null)
 			colorDefault.setSelected(true);
 		colorDefault.addActionListener(new ActionListener() {
@@ -376,18 +409,19 @@ public class RocketComponentConfig extends JPanel {
 		});
 		panel.add(colorDefault, "wrap para");
 		
-
-		panel.add(new JLabel("Component line style:"), "gapleft para, gapright 10lp");
+		//// Component line style:
+		panel.add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")), "gapleft para, gapright 10lp");
 		
 		LineStyle[] list = new LineStyle[LineStyle.values().length + 1];
 		System.arraycopy(LineStyle.values(), 0, list, 1, LineStyle.values().length);
 		
 		JComboBox combo = new JComboBox(new EnumModel<LineStyle>(component, "LineStyle",
-				list, "Default style"));
+				//// Default style
+				list, trans.get("LineStyle.Defaultstyle")));
 		panel.add(combo, "spanx 2, growx, wrap 50lp");
 		
-
-		JButton button = new JButton("Save as default style");
+		//// Save as default style
+		JButton button = new JButton(trans.get("RocketCompCfg.but.Saveasdefstyle"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -432,11 +466,13 @@ public class RocketComponentConfig extends JPanel {
 		if (!(component instanceof NoseCone)) {
 			sub = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 			
-			sub.setBorder(BorderFactory.createTitledBorder("Fore shoulder"));
+			//// Fore shoulder
+			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.border.Foreshoulder")));
 			
 
 			////  Radius
-			sub.add(new JLabel("Diameter:"));
+			//// Diameter:
+			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
 			
 			m = new DoubleModel(component, "ForeShoulderRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 			m2 = new DoubleModel(component, "ForeRadius", 2, UnitGroup.UNITS_LENGTH);
@@ -449,8 +485,8 @@ public class RocketComponentConfig extends JPanel {
 			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
 			
 
-			////  Length
-			sub.add(new JLabel("Length:"));
+			////  Length:
+			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
 			
 			m = new DoubleModel(component, "ForeShoulderLength", UnitGroup.UNITS_LENGTH, 0);
 			
@@ -462,8 +498,8 @@ public class RocketComponentConfig extends JPanel {
 			sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
 			
 
-			////  Thickness
-			sub.add(new JLabel("Thickness:"));
+			////  Thickness:
+			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
 			
 			m = new DoubleModel(component, "ForeShoulderThickness", UnitGroup.UNITS_LENGTH, 0);
 			m2 = new DoubleModel(component, "ForeShoulderRadius", UnitGroup.UNITS_LENGTH);
@@ -479,8 +515,10 @@ public class RocketComponentConfig extends JPanel {
 			////  Capped
 			bm = new BooleanModel(component, "ForeShoulderCapped");
 			check = new JCheckBox(bm);
-			check.setText("End capped");
-			check.setToolTipText("Whether the end of the shoulder is capped.");
+			//// End capped
+			check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
+			//// Whether the end of the shoulder is capped.
+			check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
 			sub.add(check, "spanx");
 			
 
@@ -492,13 +530,16 @@ public class RocketComponentConfig extends JPanel {
 		sub = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
 		if (component instanceof NoseCone)
-			sub.setBorder(BorderFactory.createTitledBorder("Nose cone shoulder"));
+			//// Nose cone shoulder
+			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Noseconeshoulder")));
 		else
-			sub.setBorder(BorderFactory.createTitledBorder("Aft shoulder"));
+			//// Aft shoulder
+			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
 		
 
 		////  Radius
-		sub.add(new JLabel("Diameter:"));
+		//// Diameter:
+		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
 		
 		m = new DoubleModel(component, "AftShoulderRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		m2 = new DoubleModel(component, "AftRadius", 2, UnitGroup.UNITS_LENGTH);
@@ -511,8 +552,8 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
 		
 
-		////  Length
-		sub.add(new JLabel("Length:"));
+		////  Length:
+		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
 		
 		m = new DoubleModel(component, "AftShoulderLength", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -524,8 +565,8 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
 		
 
-		////  Thickness
-		sub.add(new JLabel("Thickness:"));
+		////  Thickness:
+		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
 		
 		m = new DoubleModel(component, "AftShoulderThickness", UnitGroup.UNITS_LENGTH, 0);
 		m2 = new DoubleModel(component, "AftShoulderRadius", UnitGroup.UNITS_LENGTH);
@@ -541,8 +582,10 @@ public class RocketComponentConfig extends JPanel {
 		////  Capped
 		bm = new BooleanModel(component, "AftShoulderCapped");
 		check = new JCheckBox(bm);
-		check.setText("End capped");
-		check.setToolTipText("Whether the end of the shoulder is capped.");
+		//// End capped
+		check.setText(trans.get("RocketCompCfg.checkbox.Endcapped"));
+		//// Whether the end of the shoulder is capped.
+		check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
 		sub.add(check, "spanx");
 		
 

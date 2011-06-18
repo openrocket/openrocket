@@ -34,6 +34,7 @@ import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.SimpleFileFilter;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
@@ -47,22 +48,29 @@ public class PreferencesDialog extends JDialog {
 	private final List<DefaultUnitSelector> unitSelectors = new ArrayList<DefaultUnitSelector>();
 	
 	private File defaultDirectory = null;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private PreferencesDialog() {
-		super((Window) null, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
+		//// Preferences
+		super((Window) null, trans.get("pref.dlg.title.Preferences"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill, gap unrel", "[grow]", "[grow][]"));
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "grow, wrap");
 		
-
-		tabbedPane.addTab("Units", null, unitsPane(), "Default units");
-		tabbedPane.addTab("Materials", null, new MaterialEditPanel(), "Custom materials");
-		tabbedPane.addTab("Options", null, optionsPane(), "Miscellaneous options");
+		//// Units and Default units
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null, unitsPane(), 
+				trans.get("pref.dlg.tab.Defaultunits"));
+		//// Materials and Custom materials
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Materials"), null, new MaterialEditPanel(),
+				trans.get("pref.dlg.tab.Custommaterials"));
+		//// Options and Miscellaneous options
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(), 
+				trans.get("pref.dlg.tab.Miscellaneousoptions"));
 		
-
-		JButton close = new JButton("Close");
+		//// Close button
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -90,17 +98,26 @@ public class PreferencesDialog extends JDialog {
 	private JPanel optionsPane() {
 		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
 		
-
-		panel.add(new JLabel("Position to insert new body components:"), "gapright para");
+		//// Position to insert new body components:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
 		panel.add(new JComboBox(new PrefChoiseSelector(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY,
-				"Always ask", "Insert in middle", "Add to end")), "wrap para, growx, sg combos");
+				//// Always ask
+				//// Insert in middle
+				//// Add to end
+				trans.get("pref.dlg.PrefChoiseSelector1"), 
+				trans.get("pref.dlg.PrefChoiseSelector2"), 
+				trans.get("pref.dlg.PrefChoiseSelector3"))), "wrap para, growx, sg combos");
 		
-		panel.add(new JLabel("Confirm deletion of simulations:"));
+		//// Confirm deletion of simulations:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Confirmdeletion")));
 		panel.add(new JComboBox(new PrefBooleanSelector(Prefs.CONFIRM_DELETE_SIMULATION,
-				"Delete", "Confirm", true)), "wrap 40lp, growx, sg combos");
+				//// Delete
+				//// Confirm
+				trans.get("pref.dlg.PrefBooleanSelector1"), 
+				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap 40lp, growx, sg combos");
 		
-
-		panel.add(new JLabel("User-defined thrust curves:"), "spanx, wrap");
+		//// User-defined thrust curves:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
 		List<File> files = Prefs.getUserThrustCurveFiles();
 		String str = "";
@@ -141,19 +158,26 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(field, "w 100px, gapright unrel, spanx, growx, split");
 		
-		JButton button = new JButton("Add");
+		//// Add button
+		JButton button = new JButton(trans.get("pref.dlg.but.add"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
-				SimpleFileFilter filter = new SimpleFileFilter("All thrust curve files (*.eng; *.rse; *.zip; directories)",
+				SimpleFileFilter filter = 
+					new SimpleFileFilter(
+							//// All thrust curve files (*.eng; *.rse; *.zip; directories)
+							trans.get("pref.dlg.Allthrustcurvefiles"),
 						true, "eng", "rse", "zip");
 				chooser.addChoosableFileFilter(filter);
-				chooser.addChoosableFileFilter(new SimpleFileFilter("RASP motor files (*.eng)",
+				//// RASP motor files (*.eng)
+				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RASPfiles"),
 						true, "eng"));
-				chooser.addChoosableFileFilter(new SimpleFileFilter("RockSim engine files (*.rse)",
+				//// RockSim engine files (*.rse)
+				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RockSimfiles"),
 						true, "rse"));
-				chooser.addChoosableFileFilter(new SimpleFileFilter("ZIP archives (*.zip)",
+				//// ZIP archives (*.zip)
+				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.ZIParchives"),
 						true, "zip"));
 				chooser.setFileFilter(filter);
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -161,7 +185,8 @@ public class PreferencesDialog extends JDialog {
 					chooser.setCurrentDirectory(defaultDirectory);
 				}
 				
-				int returnVal = chooser.showDialog(PreferencesDialog.this, "Add");
+				//// Add
+				int returnVal = chooser.showDialog(PreferencesDialog.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					log.user("Adding user thrust curve: " + chooser.getSelectedFile());
 					defaultDirectory = chooser.getCurrentDirectory();
@@ -176,7 +201,8 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(button, "gapright unrel");
 		
-		button = new JButton("Reset");
+		//// Reset button
+		button = new JButton(trans.get("pref.dlg.but.reset"));
 		
 		button.addActionListener(new ActionListener() {
 			@Override
@@ -188,16 +214,16 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(button, "wrap");
 		
-		DescriptionArea desc = new DescriptionArea("Add directories, RASP motor files (*.eng), " +
-				"RockSim engine files (*.rse) or ZIP archives separated by a semicolon (;) to load external " +
-				"thrust curves.  Changes will take effect the next time you start OpenRocket.", 3, -3, false);
+		//// Add directories, RASP motor files (*.eng), RockSim engine files (*.rse) or ZIP archives separated by a semicolon (;) to load external thrust curves.  Changes will take effect the next time you start OpenRocket.
+		DescriptionArea desc = new DescriptionArea(trans.get("pref.dlg.DescriptionArea.Adddirectories"), 3, -3, false);
 		desc.setBackground(getBackground());
 		panel.add(desc, "spanx, growx, wrap 40lp");
 		
 
 
-
-		final JCheckBox softwareUpdateBox = new JCheckBox("Check for software updates at startup");
+		//// Check for software updates at startup
+		final JCheckBox softwareUpdateBox = 
+			new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
 		softwareUpdateBox.setSelected(Prefs.getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override
@@ -207,8 +233,10 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(softwareUpdateBox);
 		
-		button = new JButton("Check now");
-		button.setToolTipText("Check for software updates now");
+		//// Check now button
+		button = new JButton(trans.get("pref.dlg.but.checknow"));
+		//// Check for software updates now
+		button.setToolTipText(trans.get("pref.dlg.ttip.Checkupdatesnow"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -225,106 +253,117 @@ public class PreferencesDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("", "[][]40lp[][]"));
 		JComboBox combo;
 		
-		panel.add(new JLabel("Select your preferred units:"), "span, wrap paragraph");
+		//// Select your preferred units:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Selectprefunits")), "span, wrap paragraph");
 		
 
-		panel.add(new JLabel("Rocket dimensions:"));
+		//// Rocket dimensions:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketdimensions")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_LENGTH));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Line density:"));
+		//// Line density:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Linedensity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_LINE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Motor dimensions:"));
+		//// Motor dimensions:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Motordimensions")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_MOTOR_DIMENSIONS));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Surface density:"));
+		//// Surface density:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Surfacedensity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_SURFACE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Distance:"));
+		//// Distance:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Distance")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DISTANCE));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Bulk density::"));
+		//// Bulk density::
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Bulkdensity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_BULK));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Velocity:"));
+		//// Velocity:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Velocity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_VELOCITY));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Surface roughness:"));
+		//// Surface roughness:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Surfaceroughness")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ROUGHNESS));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Acceleration:"));
+		//// Acceleration:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Acceleration")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ACCELERATION));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Area:"));
+		//// Area:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Area")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_AREA));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Mass:"));
+		//// Mass:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Mass")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_MASS));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Angle:"));
+		//// Angle:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Angle")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ANGLE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Force:"));
+		//// Force:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Force")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_FORCE));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Roll rate:"));
+		//// Roll rate:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rollrate")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ROLL));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Total impulse:"));
+		//// Total impulse:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Totalimpulse")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_IMPULSE));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Temperature:"));
+		//// Temperature:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Temperature")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_TEMPERATURE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 
-
-		panel.add(new JLabel("Moment of inertia:"));
+		//// Moment of inertia:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Momentofinertia")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
 		panel.add(combo, "sizegroup boxes");
 		
-		panel.add(new JLabel("Pressure:"));
+		//// Pressure:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Pressure")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_PRESSURE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
-
-		panel.add(new JLabel("Stability:"));
+		//// Stability:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
 		panel.add(combo, "sizegroup boxes, wrap para");
 		
 
 
-
-		JButton button = new JButton("Default metric");
+		//// Default metric button
+		JButton button = new JButton(trans.get("pref.dlg.but.defaultmetric"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -335,7 +374,8 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(button, "spanx, split 2, grow");
 		
-		button = new JButton("Default imperial");
+		//// Default imperial button
+		button = new JButton(trans.get("pref.dlg.but.defaultimperial"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -346,8 +386,9 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(button, "grow, wrap para");
 		
-
-		panel.add(new StyledLabel("The effects will take place the next time you open a window.", -2),
+		//// The effects will take place the next time you open a window.
+		panel.add(new StyledLabel(
+				trans.get("pref.dlg.lbl.effect1"), -2),
 				"spanx, wrap");
 		
 
@@ -520,13 +561,15 @@ public class PreferencesDialog extends JDialog {
 		final JDialog dialog = new JDialog(this, ModalityType.APPLICATION_MODAL);
 		JPanel panel = new JPanel(new MigLayout());
 		
-		panel.add(new JLabel("Checking for updates..."), "wrap");
+		//// Checking for updates...
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Checkingupdates")), "wrap");
 		
 		JProgressBar bar = new JProgressBar();
 		bar.setIndeterminate(true);
 		panel.add(bar, "growx, wrap para");
 		
-		JButton cancel = new JButton("Cancel");
+		//// Cancel button
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -564,14 +607,18 @@ public class PreferencesDialog extends JDialog {
 		UpdateInfo info = retriever.getUpdateInfo();
 		if (info == null) {
 			JOptionPane.showMessageDialog(this,
-					"An error occurred while communicating with the server.",
-					"Unable to retrieve update information", JOptionPane.WARNING_MESSAGE, null);
+					//// An error occurred while communicating with the server.
+					trans.get("pref.dlg.lbl.msg1"),
+					//// Unable to retrieve update information
+					trans.get("pref.dlg.lbl.msg2"), JOptionPane.WARNING_MESSAGE, null);
 		} else if (info.getLatestVersion() == null ||
 				info.getLatestVersion().equals("") ||
 				Prefs.getVersion().equalsIgnoreCase(info.getLatestVersion())) {
 			JOptionPane.showMessageDialog(this,
-					"You are running the latest version of OpenRocket.",
-					"No updates available", JOptionPane.INFORMATION_MESSAGE, null);
+					//// You are running the latest version of OpenRocket.
+					trans.get("pref.dlg.lbl.msg3"),
+					//// No updates available
+					trans.get("pref.dlg.lbl.msg4"), JOptionPane.INFORMATION_MESSAGE, null);
 		} else {
 			UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 			infoDialog.setVisible(true);

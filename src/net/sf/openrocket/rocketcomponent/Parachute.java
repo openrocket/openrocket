@@ -1,11 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 
 public class Parachute extends RecoveryDevice {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	public static final double DEFAULT_CD = 0.8;
 	
 	private double diameter;
@@ -103,7 +106,8 @@ public class Parachute extends RecoveryDevice {
 	
 	@Override
 	public String getComponentName() {
-		return "Parachute";
+		//// Parachute
+		return trans.get("Parachute.Parachute");
 	}
 	
 	@Override

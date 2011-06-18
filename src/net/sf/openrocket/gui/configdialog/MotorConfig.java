@@ -27,6 +27,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -34,6 +35,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class MotorConfig extends JPanel {
@@ -43,7 +45,8 @@ public class MotorConfig extends JPanel {
 	private final Configuration configuration;
 	private JPanel panel;
 	private JLabel motorLabel;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	public MotorConfig(MotorMount motorMount) {
 		super(new MigLayout("fill"));
 		
@@ -55,7 +58,8 @@ public class MotorConfig extends JPanel {
 		
 		model = new BooleanModel(motorMount, "MotorMount");
 		JCheckBox check = new JCheckBox(model);
-		check.setText("This component is a motor mount");
+		////This component is a motor mount
+		check.setText(trans.get("MotorCfg.checkbox.compmotormount"));
 		this.add(check, "wrap");
 		
 
@@ -64,7 +68,8 @@ public class MotorConfig extends JPanel {
 		
 
 		// Motor configuration selector
-		panel.add(new JLabel("Motor configuration:"), "shrink");
+		//// Motor configuration:
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Motorcfg")), "shrink");
 		
 		JComboBox combo = new JComboBox(new MotorConfigurationModel(configuration));
 		panel.add(combo, "growx");
@@ -76,7 +81,8 @@ public class MotorConfig extends JPanel {
 			}
 		});
 		
-		JButton button = new JButton("New");
+		//// New button
+		JButton button = new JButton(trans.get("MotorCfg.but.New"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -87,8 +93,8 @@ public class MotorConfig extends JPanel {
 		panel.add(button, "wrap unrel");
 		
 
-		// Current motor
-		panel.add(new JLabel("Current motor:"), "shrink");
+		// Current motor:
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Currentmotor")), "shrink");
 		
 		motorLabel = new JLabel();
 		motorLabel.setFont(motorLabel.getFont().deriveFont(Font.BOLD));
@@ -98,7 +104,8 @@ public class MotorConfig extends JPanel {
 
 
 		//  Overhang
-		panel.add(new JLabel("Motor overhang:"));
+		//// Motor overhang:
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Motoroverhang")));
 		
 		DoubleModel dm = new DoubleModel(motorMount, "MotorOverhang", UnitGroup.UNITS_LENGTH);
 		
@@ -112,20 +119,23 @@ public class MotorConfig extends JPanel {
 
 
 		// Select ignition event
-		panel.add(new JLabel("Ignition at:"), "");
+		//// Ignition at:
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
 		
 		combo = new JComboBox(new EnumModel<IgnitionEvent>(mount, "IgnitionEvent"));
 		panel.add(combo, "growx, wrap");
 		
 		// ... and delay
-		panel.add(new JLabel("plus"), "gap indent, skip 1, span, split");
+		//// plus
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
 		dm = new DoubleModel(mount, "IgnitionDelay", 0);
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "gap rel rel");
 		
-		panel.add(new JLabel("seconds"), "wrap unrel");
+		//// seconds
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.seconds")), "wrap unrel");
 		
 
 
@@ -135,17 +145,24 @@ public class MotorConfig extends JPanel {
 		int stages = c.getChildCount();
 		
 		if (stages == 1) {
-			panel.add(new StyledLabel("The current design has only one stage.  " +
-					"Stages can be added by clicking \"New stage\".", -1),
+			//// The current design has only one stage.
+			//// Stages can be added by clicking \"New stage\".
+			
+			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longA1") +
+					trans.get("MotorCfg.lbl.longA2"), -1),
 					"spanx, right, wrap para");
 		} else {
-			panel.add(new StyledLabel("The current design has " + stages + " stages.", -1),
+			//// The current design has 
+			//// stages.
+			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longB1") + " " + stages +" " +
+					trans.get("MotorCfg.lbl.longB2"), -1),
 					"skip 1, spanx, wrap para");
 		}
 		
 
 		// Select etc. buttons
-		button = new JButton("Select motor");
+		//// Select motor
+		button = new JButton(trans.get("MotorCfg.but.Selectmotor"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -171,7 +188,8 @@ public class MotorConfig extends JPanel {
 		});
 		panel.add(button, "span, split, growx");
 		
-		button = new JButton("Remove motor");
+		//// Remove motor
+		button = new JButton(trans.get("MotorCfg.but.Removemotor"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -201,7 +219,8 @@ public class MotorConfig extends JPanel {
 		String id = configuration.getMotorConfigurationID();
 		Motor m = mount.getMotor(id);
 		if (m == null) {
-			motorLabel.setText("None");
+			//// None
+			motorLabel.setText(trans.get("MotorCfg.lbl.motorLabel"));
 		} else {
 			String str = "";
 			if (m instanceof ThrustCurveMotor)

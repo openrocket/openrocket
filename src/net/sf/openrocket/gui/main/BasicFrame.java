@@ -80,6 +80,7 @@ import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -108,17 +109,21 @@ public class BasicFrame extends JFrame {
 	
 	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
 	
-
+	private static final Translator trans = Application.getTranslator();
+	
 	// FileFilters for different types of rocket design files
 	private static final FileFilter ALL_DESIGNS_FILTER =
-			new SimpleFileFilter("All rocket designs (*.ork; *.rkt)",
+			//// All rocket designs (*.ork; *.rkt)
+			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter1"),
 					".ork", ".ork.gz", ".rkt", ".rkt.gz");
 	
 	private static final FileFilter OPENROCKET_DESIGN_FILTER =
-			new SimpleFileFilter("OpenRocket designs (*.ork)", ".ork", ".ork.gz");
+			//// OpenRocket designs (*.ork)
+			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter2"), ".ork", ".ork.gz");
 	
 	private static final FileFilter ROCKSIM_DESIGN_FILTER =
-			new SimpleFileFilter("RockSim designs (*.rkt)", ".rkt", ".rkt.gz");
+			//// RockSim designs (*.rkt)
+			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter3"), ".rkt", ".rkt.gz");
 	
 
 
@@ -212,8 +217,10 @@ public class BasicFrame extends JFrame {
 
 		// The top tabbed pane
 		tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("Rocket design", null, designTab());
-		tabbedPane.addTab("Flight simulations", null, simulationPanel);
+		//// Rocket design
+		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designTab());
+		//// Flight simulations
+		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
 		
 		vertical.setTopComponent(tabbedPane);
 		
@@ -374,7 +381,7 @@ public class BasicFrame extends JFrame {
 		scroll.setBorder(null);
 		scroll.setViewportBorder(null);
 		
-		TitledBorder border = new TitledBorder("Add new component");
+		TitledBorder border = new TitledBorder(trans.get("BasicFrame.title.Addnewcomp"));
 		border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
 		scroll.setBorder(border);
 		
@@ -396,14 +403,17 @@ public class BasicFrame extends JFrame {
 		JMenuItem item;
 		
 		////  File
-		menu = new JMenu("File");
+		menu = new JMenu(trans.get("main.menu.file"));
 		menu.setMnemonic(KeyEvent.VK_F);
+		//// File-handling related tasks
 		menu.getAccessibleContext().setAccessibleDescription("File-handling related tasks");
 		menubar.add(menu);
 		
-		item = new JMenuItem("New", KeyEvent.VK_N);
+		//// New 
+		item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_N);
+		//// Create a new rocket design
 		item.getAccessibleContext().setAccessibleDescription("Create a new rocket design");
 		item.setIcon(Icons.FILE_NEW);
 		item.addActionListener(new ActionListener() {
@@ -419,9 +429,11 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-		item = new JMenuItem("Open...", KeyEvent.VK_O);
+		//// Open...
+		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-		item.getAccessibleContext().setAccessibleDescription("Open a rocket design");
+		//// Open a rocket design
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
 		item.setIcon(Icons.FILE_OPEN);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -432,8 +444,10 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-		item = new JMenuItem("Open example...");
-		item.getAccessibleContext().setAccessibleDescription("Open an example rocket design");
+		//// Open example...
+		item = new JMenuItem(trans.get("main.menu.file.openExample"));
+		//// Open an example rocket design
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
 				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
 		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
@@ -454,9 +468,11 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("Save", KeyEvent.VK_S);
+		//// Save
+		item = new JMenuItem(trans.get("main.menu.file.save"), KeyEvent.VK_S);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-		item.getAccessibleContext().setAccessibleDescription("Save the current rocket design");
+		//// Save the current rocket design
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.SavecurRocketdesign"));
 		item.setIcon(Icons.FILE_SAVE);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -467,11 +483,12 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-		item = new JMenuItem("Save as...", KeyEvent.VK_A);
+		//// Save as...
+		item = new JMenuItem(trans.get("main.menu.file.saveAs"), KeyEvent.VK_A);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
 				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
-		item.getAccessibleContext().setAccessibleDescription("Save the current rocket design " +
-				"to a new file");
+		//// Save the current rocket design to a new file
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.SavecurRocketdesnewfile"));
 		item.setIcon(Icons.FILE_SAVE_AS);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -482,10 +499,11 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-
-		item = new JMenuItem("Print / Export PDF...", KeyEvent.VK_P);
+		//// Print...
+		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
-		item.getAccessibleContext().setAccessibleDescription("Print parts list and fin template");
+		//// Print parts list and fin template
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Printpart"));
 		item.setIcon(Icons.FILE_PRINT);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -499,9 +517,11 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 		
-		item = new JMenuItem("Close", KeyEvent.VK_C);
+		//// Close
+		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
-		item.getAccessibleContext().setAccessibleDescription("Close the current rocket design");
+		//// Close the current rocket design
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Closedesign"));
 		item.setIcon(Icons.FILE_CLOSE);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -514,9 +534,11 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("Quit", KeyEvent.VK_Q);
+		//// Quit
+		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
-		item.getAccessibleContext().setAccessibleDescription("Quit the program");
+		//// Quit the program
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Quitprogram"));
 		item.setIcon(Icons.FILE_QUIT);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -530,9 +552,10 @@ public class BasicFrame extends JFrame {
 
 
 		////  Edit
-		menu = new JMenu("Edit");
+		menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
-		menu.getAccessibleContext().setAccessibleDescription("Rocket editing");
+		//// Rocket editing
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.menu.Rocketedt"));
 		menubar.add(menu);
 		
 
@@ -540,6 +563,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_U);
+		//// Undo the previous operation
 		item.getAccessibleContext().setAccessibleDescription("Undo the previous operation");
 		
 		menu.add(item);
@@ -548,6 +572,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_R);
+		//// Redo the previously undone operation
 		item.getAccessibleContext().setAccessibleDescription("Redo the previously undone " +
 				"operation");
 		menu.add(item);
@@ -569,8 +594,10 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("Preferences");
+		//// Preferences
+		item = new JMenuItem(trans.get("main.menu.edit.preferences"));
 		item.setIcon(Icons.PREFERENCES);
+		//// Setup the application preferences
 		item.getAccessibleContext().setAccessibleDescription("Setup the application " +
 				"preferences");
 		item.addActionListener(new ActionListener() {
@@ -586,12 +613,15 @@ public class BasicFrame extends JFrame {
 
 
 		////  Analyze
-		menu = new JMenu("Analyze");
+		menu = new JMenu(trans.get("main.menu.analyze"));
 		menu.setMnemonic(KeyEvent.VK_A);
+		//// Analyzing the rocket
 		menu.getAccessibleContext().setAccessibleDescription("Analyzing the rocket");
 		menubar.add(menu);
 		
-		item = new JMenuItem("Component analysis", KeyEvent.VK_C);
+		//// Component analysis
+		item = new JMenuItem(trans.get("main.menu.analyze.componentAnalysis"), KeyEvent.VK_C);
+		//// Analyze the rocket components separately
 		item.getAccessibleContext().setAccessibleDescription("Analyze the rocket components " +
 				"separately");
 		item.addActionListener(new ActionListener() {
@@ -614,14 +644,16 @@ public class BasicFrame extends JFrame {
 
 		////  Help
 		
-		menu = new JMenu("Help");
+		menu = new JMenu(trans.get("main.menu.help"));
 		menu.setMnemonic(KeyEvent.VK_H);
+		//// Information about OpenRocket
 		menu.getAccessibleContext().setAccessibleDescription("Information about OpenRocket");
 		menubar.add(menu);
 		
 
-
-		item = new JMenuItem("License", KeyEvent.VK_L);
+		//// License
+		item = new JMenuItem(trans.get("main.menu.help.license"), KeyEvent.VK_L);
+		//// OpenRocket license information
 		item.getAccessibleContext().setAccessibleDescription("OpenRocket license information");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -634,7 +666,9 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("Bug report", KeyEvent.VK_B);
+		//// Bug report
+		item = new JMenuItem(trans.get("main.menu.help.bugReport"), KeyEvent.VK_B);
+		//// Information about reporting bugs in OpenRocket
 		item.getAccessibleContext().setAccessibleDescription("Information about reporting " +
 				"bugs in OpenRocket");
 		item.addActionListener(new ActionListener() {
@@ -646,7 +680,9 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-		item = new JMenuItem("Debug log");
+		//// Debug log
+		item = new JMenuItem(trans.get("main.menu.help.debugLog"));
+		//// View the OpenRocket debug log
 		item.getAccessibleContext().setAccessibleDescription("View the OpenRocket debug log");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -659,7 +695,9 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
-		item = new JMenuItem("About", KeyEvent.VK_A);
+		//// About
+		item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
+		//// About OpenRocket
 		item.getAccessibleContext().setAccessibleDescription("About OpenRocket");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -681,8 +719,10 @@ public class BasicFrame extends JFrame {
 		
 		////  Debug menu
 		menu = new JMenu("Debug");
+		//// OpenRocket debugging tasks
 		menu.getAccessibleContext().setAccessibleDescription("OpenRocket debugging tasks");
 		
+		//// What is this menu?
 		item = new JMenuItem("What is this menu?");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -702,6 +742,7 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
+		//// Create test rocket
 		item = new JMenuItem("Create test rocket");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -808,7 +849,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-
+		//// Exhaust memory
 		item = new JMenuItem("Exhaust memory");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -841,6 +882,7 @@ public class BasicFrame extends JFrame {
 
 		menu.addSeparator();
 		
+		//// Exception here
 		item = new JMenuItem("Exception here");
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -1104,10 +1146,13 @@ public class BasicFrame extends JFrame {
 			log.info("Warnings while reading file: " + warnings);
 			WarningDialog.showWarnings(parent,
 					new Object[] {
-							"The following problems were encountered while opening " + filename + ".",
-							"Some design features may not have been loaded correctly."
+							//// The following problems were encountered while opening
+							trans.get("BasicFrame.WarningDialog.txt1") + " " + filename + ".",
+							//// Some design features may not have been loaded correctly.
+							trans.get("BasicFrame.WarningDialog.txt2")
 					},
-					"Warnings while opening file", warnings);
+					//// Warnings while opening file
+					trans.get("BasicFrame.WarningDialog.title"), warnings);
 		}
 		
 
@@ -1261,9 +1306,10 @@ public class BasicFrame extends JFrame {
 			log.info("Confirming whether to save the design");
 			ComponentConfigDialog.hideDialog();
 			int result = JOptionPane.showConfirmDialog(this,
-					"Design '" + rocket.getName() + "' has not been saved.  " +
-							"Do you want to save it?",
-					"Design not saved", JOptionPane.YES_NO_CANCEL_OPTION,
+					trans.get("BasicFrame.dlg.lbl1") + rocket.getName() +
+							trans.get("BasicFrame.dlg.lbl2") + "  " +
+							trans.get("BasicFrame.dlg.lbl3"),
+					trans.get("BasicFrame.dlg.title"), JOptionPane.YES_NO_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
 				// Save
@@ -1321,7 +1367,8 @@ public class BasicFrame extends JFrame {
 		
 		Rocket rocket = new Rocket();
 		Stage stage = new Stage();
-		stage.setName("Sustainer");
+		//// Sustainer
+		stage.setName(trans.get("BasicFrame.StageName.Sustainer"));
 		rocket.addChild(stage);
 		OpenRocketDocument doc = new OpenRocketDocument(rocket);
 		doc.setSaved(true);

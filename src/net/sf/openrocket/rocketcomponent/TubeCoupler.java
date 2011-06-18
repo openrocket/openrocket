@@ -1,8 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
+
 
 public class TubeCoupler extends ThicknessRingComponent implements RadialParent {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	public TubeCoupler() {
 		setOuterRadiusAutomatic(true);
 		setThickness(0.002);
@@ -19,7 +23,8 @@ public class TubeCoupler extends ThicknessRingComponent implements RadialParent 
 	
 	@Override
 	public String getComponentName() {
-		return "Tube coupler";
+		//// Tube coupler
+		return trans.get("TubeCoupler.TubeCoupler");
 	}
 	
 	@Override

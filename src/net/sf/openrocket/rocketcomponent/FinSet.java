@@ -5,13 +5,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
 
 public abstract class FinSet extends ExternalComponent {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	/**
 	 * Maximum allowed cant of fins.
 	 */
@@ -19,9 +22,12 @@ public abstract class FinSet extends ExternalComponent {
 	
 	
 	public enum CrossSection {
-		SQUARE("Square", 1.00),
-		ROUNDED("Rounded", 0.99),
-		AIRFOIL("Airfoil", 0.85);
+		//// Square
+		SQUARE(trans.get("FinSet.CrossSection.SQUARE"), 1.00),
+		//// Rounded
+		ROUNDED(trans.get("FinSet.CrossSection.ROUNDED"), 0.99),
+		//// Airfoil
+		AIRFOIL(trans.get("FinSet.CrossSection.AIRFOIL"), 0.85);
 		
 		private final String name;
 		private final double volume;
@@ -42,9 +48,12 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	public enum TabRelativePosition {
-		FRONT("Root chord leading edge"),
-		CENTER("Root chord midpoint"),
-		END("Root chord trailing edge");
+		//// Root chord leading edge
+		FRONT(trans.get("FinSet.TabRelativePosition.FRONT")),
+		//// Root chord midpoint
+		CENTER(trans.get("FinSet.TabRelativePosition.CENTER")),
+		//// Root chord trailing edge
+		END(trans.get("FinSet.TabRelativePosition.END"));
 		
 		private final String name;
 		

@@ -12,19 +12,23 @@ import javax.swing.Timer;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 public class MotorDatabaseLoadingDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
-	
+	private static final Translator trans = Application.getTranslator();
+
 	
 	private MotorDatabaseLoadingDialog(Window parent) {
-		super(parent, "Loading motors", ModalityType.APPLICATION_MODAL);
+		//// Loading motors
+		super(parent, trans.get("MotorDbLoadDlg.title"), ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
-		panel.add(new JLabel("Loading motors..."), "wrap para");
+		//// Loading motors...
+		panel.add(new JLabel(trans.get("MotorDbLoadDlg.Loadingmotors")), "wrap para");
 		
 		JProgressBar progress = new JProgressBar();
 		progress.setIndeterminate(true);

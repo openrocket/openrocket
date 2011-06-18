@@ -4,17 +4,22 @@ import java.text.Collator;
 import java.util.Comparator;
 
 import net.sf.openrocket.database.ThrustCurveMotorSet;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.unit.ValueComparator;
 
+
 /**
  * Enum defining the table columns.
  */
+
 enum ThrustCurveMotorColumns {
-	MANUFACTURER("Manufacturer", 100) {
+	//// Manufacturer
+	MANUFACTURER("TCurveMotorCol.MANUFACTURER", 100) {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
 			return m.getManufacturer().getDisplayName();
@@ -25,7 +30,8 @@ enum ThrustCurveMotorColumns {
 			return Collator.getInstance();
 		}
 	},
-	DESIGNATION("Designation") {
+	//// Designation
+	DESIGNATION("TCurveMotorCol.DESIGNATION") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
 			return m.getDesignation();
@@ -36,7 +42,8 @@ enum ThrustCurveMotorColumns {
 			return new DesignationComparator();
 		}
 	},
-	TYPE("Type") {
+	//// Type
+	TYPE("TCurveMotorCol.TYPE") {
 		@Override
 		public String getValue(ThrustCurveMotorSet m) {
 			return m.getType().getName();
@@ -47,7 +54,8 @@ enum ThrustCurveMotorColumns {
 			return Collator.getInstance();
 		}
 	},
-	DIAMETER("Diameter") {
+	//// Diameter
+	DIAMETER("TCurveMotorCol.DIAMETER") {
 		@Override
 		public Object getValue(ThrustCurveMotorSet m) {
 			return new Value(m.getDiameter(), UnitGroup.UNITS_MOTOR_DIMENSIONS);
@@ -58,7 +66,8 @@ enum ThrustCurveMotorColumns {
 			return ValueComparator.INSTANCE;
 		}
 	},
-	LENGTH("Length") {
+	//// Length
+	LENGTH("TCurveMotorCol.LENGTH") {
 		@Override
 		public Object getValue(ThrustCurveMotorSet m) {
 			return new Value(m.getLength(), UnitGroup.UNITS_MOTOR_DIMENSIONS);
@@ -73,6 +82,7 @@ enum ThrustCurveMotorColumns {
 
 	private final String title;
 	private final int width;
+	private static final Translator trans = Application.getTranslator();
 	
 	ThrustCurveMotorColumns(String title) {
 		this(title, 50);
@@ -89,7 +99,7 @@ enum ThrustCurveMotorColumns {
 	public abstract Comparator<?> getComparator();
 	
 	public String getTitle() {
-		return title;
+		return trans.get(title);
 	}
 	
 	public int getWidth() {

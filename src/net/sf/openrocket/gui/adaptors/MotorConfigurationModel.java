@@ -14,13 +14,16 @@ import javax.swing.event.ListDataListener;
 
 import net.sf.openrocket.gui.dialogs.EditMotorConfigurationDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
 
 public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
+	private static final Translator trans = Application.getTranslator();
 
-	private static final String EDIT = "Edit configurations";
+	private static final String EDIT = trans.get("MotorCfgModel.Editcfg");
 	
 	
 	private EventListenerList listenerList = new EventListenerList();

@@ -1,14 +1,18 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 
 public interface MotorMount extends ChangeSource {
-	
+	static final Translator trans = Application.getTranslator();
+
 	public static enum IgnitionEvent {
-		AUTOMATIC("Automatic (launch or ejection charge)") {
+		//// Automatic (launch or ejection charge)
+		AUTOMATIC(trans.get("MotorMount.IgnitionEvent.AUTOMATIC")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				int count = source.getRocket().getStageCount();
@@ -21,13 +25,15 @@ public interface MotorMount extends ChangeSource {
 				}
 			}
 		},
-		LAUNCH("Launch") {
+		//// Launch
+		LAUNCH(trans.get("MotorMount.IgnitionEvent.LAUNCH")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e,	RocketComponent source) {
 				return (e.getType() == FlightEvent.Type.LAUNCH);
 			}
 		},
-		EJECTION_CHARGE("First ejection charge of previous stage") {
+		//// First ejection charge of previous stage
+		EJECTION_CHARGE(trans.get("MotorMount.IgnitionEvent.EJECTION_CHARGE")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
@@ -38,7 +44,8 @@ public interface MotorMount extends ChangeSource {
 				return (mount+1 == charge);
 			}
 		},
-		BURNOUT("First burnout of previous stage") {
+		//// First burnout of previous stage
+		BURNOUT(trans.get("MotorMount.IgnitionEvent.BURNOUT")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				if (e.getType() != FlightEvent.Type.BURNOUT)
@@ -49,7 +56,8 @@ public interface MotorMount extends ChangeSource {
 				return (mount+1 == charge);
 			}
 		},
-		NEVER("Never") {
+		//// Never
+		NEVER(trans.get("MotorMount.IgnitionEvent.NEVER")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return false;

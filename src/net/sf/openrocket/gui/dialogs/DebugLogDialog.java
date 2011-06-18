@@ -42,6 +42,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.SelectableLabel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.DelegatorLogger;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
@@ -58,7 +59,8 @@ public class DebugLogDialog extends JDialog {
 	
 	private static final int POLL_TIME = 250;
 	private static final String STACK_TRACE_MARK = "\uFF01";
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private static final EnumMap<LogLevel, Color> backgroundColors = new EnumMap<LogLevel, Color>(LogLevel.class);
 	static {
 		for (LogLevel l : LogLevel.values()) {
@@ -101,7 +103,8 @@ public class DebugLogDialog extends JDialog {
 	private final JTextArea stackTraceLabel;
 	
 	public DebugLogDialog(Window parent) {
-		super(parent, "OpenRocket debug log");
+		//// OpenRocket debug log
+		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));
 		
 		// Start listening to log lines
 		LogHelper applicationLog = Application.getLogger();
@@ -138,7 +141,8 @@ public class DebugLogDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		split.add(panel);
 		
-		panel.add(new JLabel("Display log lines:"), "gapright para, split");
+		//// Display log lines:
+		panel.add(new JLabel(trans.get("debuglogdlg.Displayloglines")), "gapright para, split");
 		for (LogLevel l : LogLevel.values()) {
 			JCheckBox box = new JCheckBox(l.toString());
 			// By default display DEBUG and above
@@ -153,11 +157,13 @@ public class DebugLogDialog extends JDialog {
 			filterButtons.put(l, box);
 		}
 		
-		followBox = new JCheckBox("Follow");
+		//// Follow
+		followBox = new JCheckBox(trans.get("debuglogdlg.Follow"));
 		followBox.setSelected(true);
 		panel.add(followBox, "skip, gapright para, right");
 		
-		JButton clear = new JButton("Clear");
+		//// Clear button
+		JButton clear = new JButton(trans.get("debuglogdlg.but.clear"));
 		clear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -185,7 +191,8 @@ public class DebugLogDialog extends JDialog {
 				return 60;
 			}
 		},
-				new Column("Time") {
+				//// Time
+				new Column(trans.get("debuglogdlg.col.Time")) {
 					@Override
 					public Object getValueAt(int row) {
 						return String.format("%.3f", buffer.get(row).getTimestamp() / 1000.0);
@@ -196,7 +203,8 @@ public class DebugLogDialog extends JDialog {
 						return 60;
 					}
 				},
-				new Column("Level") {
+				//// Level
+				new Column(trans.get("debuglogdlg.col.Level")) {
 					@Override
 					public Object getValueAt(int row) {
 						return buffer.get(row).getLevel();
@@ -222,7 +230,8 @@ public class DebugLogDialog extends JDialog {
 						return 16;
 					}
 				},
-				new Column("Location") {
+				//// Location
+				new Column(trans.get("debuglogdlg.col.Location")) {
 					@Override
 					public Object getValueAt(int row) {
 						TraceException e = buffer.get(row).getTrace();
@@ -238,7 +247,8 @@ public class DebugLogDialog extends JDialog {
 						return 200;
 					}
 				},
-				new Column("Message") {
+				//// Message
+				new Column(trans.get("debuglogdlg.col.Message")) {
 					@Override
 					public Object getValueAt(int row) {
 						return buffer.get(row).getMessage();
@@ -291,26 +301,32 @@ public class DebugLogDialog extends JDialog {
 		panel = new JPanel(new MigLayout("fill"));
 		split.add(panel);
 		
-		panel.add(new JLabel("Log line number:"), "split, gapright rel");
+		//// Log line number:
+		panel.add(new JLabel(trans.get("debuglogdlg.lbl.Loglinenbr")), "split, gapright rel");
 		numberLabel = new SelectableLabel();
 		panel.add(numberLabel, "width 70lp, gapright para");
 		
-		panel.add(new JLabel("Time:"), "split, gapright rel");
+		//// Time:
+		panel.add(new JLabel(trans.get("debuglogdlg.lbl.Time")), "split, gapright rel");
 		timeLabel = new SelectableLabel();
 		panel.add(timeLabel, "width 70lp, gapright para");
 		
-		panel.add(new JLabel("Level:"), "split, gapright rel");
+		//// Level:
+		panel.add(new JLabel(trans.get("debuglogdlg.lbl.Level")), "split, gapright rel");
 		levelLabel = new SelectableLabel();
 		panel.add(levelLabel, "width 70lp, gapright para");
 		
+		//// Location:
 		panel.add(new JLabel("Location:"), "split, gapright rel");
 		locationLabel = new SelectableLabel();
 		panel.add(locationLabel, "growx, wrap unrel");
 		
+		//// Log message:
 		panel.add(new JLabel("Log message:"), "split, gapright rel");
 		messageLabel = new SelectableLabel();
 		panel.add(messageLabel, "growx, wrap para");
 		
+		//// Stack trace:
 		panel.add(new JLabel("Stack trace:"), "wrap rel");
 		stackTraceLabel = new JTextArea(8, 80);
 		stackTraceLabel.setEditable(false);
@@ -318,7 +334,8 @@ public class DebugLogDialog extends JDialog {
 		panel.add(new JScrollPane(stackTraceLabel), "grow");
 		
 
-		JButton close = new JButton("Close");
+		//Close button
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

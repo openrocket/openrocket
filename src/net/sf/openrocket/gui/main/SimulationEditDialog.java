@@ -42,6 +42,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotPanel;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
@@ -51,6 +52,7 @@ import net.sf.openrocket.simulation.GUISimulationConditions;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.example.CSVSaveListener;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
@@ -81,14 +83,16 @@ public class SimulationEditDialog extends JDialog {
 	private final Simulation simulation;
 	private final GUISimulationConditions conditions;
 	private final Configuration configuration;
-	
+	private static final Translator trans = Application.getTranslator();
+
 	
 	public SimulationEditDialog(Window parent, Simulation s) {
 		this(parent, s, 0);
 	}	
 	
 	public SimulationEditDialog(Window parent, Simulation s, int tab) {
-		super(parent, "Edit simulation", JDialog.ModalityType.DOCUMENT_MODAL);
+		//// Edit simulation
+		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
 		
 		this.parentWindow = parent;
 		this.simulation = s;
@@ -97,7 +101,8 @@ public class SimulationEditDialog extends JDialog {
 		
 		JPanel mainPanel = new JPanel(new MigLayout("fill","[grow, fill]"));
 		
-		mainPanel.add(new JLabel("Simulation name: "), "span, split 2, shrink");
+		//// Simulation name:
+		mainPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "span, split 2, shrink");
 		final JTextField field = new JTextField(simulation.getName());
 		field.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -125,11 +130,14 @@ public class SimulationEditDialog extends JDialog {
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
-		
-		tabbedPane.addTab("Launch conditions", flightConditionsTab());
-		tabbedPane.addTab("Simulation options", simulationOptionsTab());
-		tabbedPane.addTab("Plot data", plotTab());
-		tabbedPane.addTab("Export data", exportTab());
+		//// Launch conditions
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), flightConditionsTab());
+		//// Simulation options
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), simulationOptionsTab());
+		//// Plot data
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Plotdata"), plotTab());
+		//// Export data
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Exportdata"), exportTab());
 		
 		// Select the initial tab
 		if (tab == EDIT) {
@@ -151,7 +159,8 @@ public class SimulationEditDialog extends JDialog {
 		mainPanel.add(new JPanel(), "spanx, split, growx");
 
 		JButton button;
-		button = new JButton("Run simulation");
+		//// Run simulation button
+		button = new JButton(trans.get("simedtdlg.but.runsimulation"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -161,8 +170,8 @@ public class SimulationEditDialog extends JDialog {
 		});
 		mainPanel.add(button, "gapright para");
 		
-		
-		JButton close = new JButton("Close");
+		//// Close button 
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -194,12 +203,15 @@ public class SimulationEditDialog extends JDialog {
 		JSpinner spin;
 		
 		//// Motor selector
-		JLabel label = new JLabel("Motor configuration:");
-		label.setToolTipText("Select the motor configuration to use.");
+		//// Motor configuration:
+		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Motorcfg"));
+		//// Select the motor configuration to use.
+		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Motorcfg"));
 		panel.add(label, "shrinkx, spanx, split 2");
 		
 		JComboBox combo = new JComboBox(new MotorConfigurationModel(configuration));
-		combo.setToolTipText("Select the motor configuration to use.");
+		//// Select the motor configuration to use.
+		combo.setToolTipText(trans.get("simedtdlg.combo.ttip.motorconf"));
 		combo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -212,13 +224,16 @@ public class SimulationEditDialog extends JDialog {
 		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]",""));
-		sub.setBorder(BorderFactory.createTitledBorder("Wind"));
+		//// Wind
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Wind")));
 		panel.add(sub, "growx, split 2, aligny 0, flowy, gapright para");
 
 
 		// Wind average
-		label = new JLabel("Average windspeed:");
-		tip = "The average windspeed relative to the ground.";
+		//// Average windspeed:
+		label = new JLabel(trans.get("simedtdlg.lbl.Averwindspeed"));
+		//// The average windspeed relative to the ground.
+		tip = trans.get("simedtdlg.lbl.ttip.Averwindspeed");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -239,10 +254,11 @@ public class SimulationEditDialog extends JDialog {
 
 
 		// Wind std. deviation
-		label = new JLabel("Standard deviation:");
-		tip = "<html>The standard deviation of the windspeed.<br>" +
-				"The windspeed is within twice the standard deviation from the average for " +
-				"95% of the time.";
+		//// Standard deviation:
+		label = new JLabel(trans.get("simedtdlg.lbl.Stddeviation"));
+		//// <html>The standard deviation of the windspeed.<br>
+		//// The windspeed is within twice the standard deviation from the average for 95% of the time.
+		tip = trans.get("simedtdlg.lbl.ttip.Stddeviation");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -264,12 +280,15 @@ public class SimulationEditDialog extends JDialog {
 				
 
 		// Wind turbulence intensity
-		label = new JLabel("Turbulence intensity:");
-		tip = "<html>The turbulence intensity is the standard deviation " +
-			"divided by the average windspeed.<br>" +
-			"Typical values range from "+
+		//// Turbulence intensity:
+		label = new JLabel(trans.get("simedtdlg.lbl.Turbulenceintensity"));
+		//// <html>The turbulence intensity is the standard deviation divided by the average windspeed.<br>
+		//// Typical values range from 
+		//// to
+		tip = trans.get("simedtdlg.lbl.ttip.Turbulenceintensity1") +
+			trans.get("simedtdlg.lbl.ttip.Turbulenceintensity2") + " "+
 			UnitGroup.UNITS_RELATIVE.getDefaultUnit().toStringUnit(0.05) +
-			" to " +
+			" " + trans.get("simedtdlg.lbl.ttip.Turbulenceintensity3") +" " +
 			UnitGroup.UNITS_RELATIVE.getDefaultUnit().toStringUnit(0.20) + ".";
 		label.setToolTipText(tip);
 		sub.add(label);
@@ -304,24 +323,30 @@ public class SimulationEditDialog extends JDialog {
 		//// Temperature and pressure
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]",""));
-		sub.setBorder(BorderFactory.createTitledBorder("Atmospheric conditions"));
+		//// Atmospheric conditions
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Atmoscond")));
 		panel.add(sub, "growx, aligny 0, gapright para");
 
 		
 		BooleanModel isa = new BooleanModel(conditions, "ISAAtmosphere");
 		JCheckBox check = new JCheckBox(isa);
-		check.setText("Use International Standard Atmosphere");
-		check.setToolTipText("<html>Select to use the International Standard Atmosphere model."+
-				"<br>This model has a temperature of " + 
+		//// Use International Standard Atmosphere
+		check.setText(trans.get("simedtdlg.checkbox.InterStdAtmosphere"));
+		//// <html>Select to use the International Standard Atmosphere model.
+		//// <br>This model has a temperature of
+		//// and a pressure of
+		//// at sea level.
+		check.setToolTipText(trans.get("simedtdlg.checkbox.ttip.InterStdAtmosphere1") +" " + 
 				UnitGroup.UNITS_TEMPERATURE.toStringUnit(ExtendedISAModel.STANDARD_TEMPERATURE)+
-				" and a pressure of " +
+				" " + trans.get("simedtdlg.checkbox.ttip.InterStdAtmosphere2") + " " +
 				UnitGroup.UNITS_PRESSURE.toStringUnit(ExtendedISAModel.STANDARD_PRESSURE) +
-				" at sea level.");
+				" " + trans.get("simedtdlg.checkbox.ttip.InterStdAtmosphere3"));
 		sub.add(check, "spanx, wrap unrel");
 		
-		// Temperature
-		label = new JLabel("Temperature:");
-		tip = "The temperature at the launch site.";
+		// Temperature:
+		label = new JLabel(trans.get("simedtdlg.lbl.Temperature"));
+		//// The temperature at the launch site.
+		tip = trans.get("simedtdlg.lbl.ttip.Temperature");
 		label.setToolTipText(tip);
 		isa.addEnableComponent(label, false);
 		sub.add(label);
@@ -345,9 +370,10 @@ public class SimulationEditDialog extends JDialog {
 		
 
 		
-		// Pressure
-		label = new JLabel("Pressure:");
-		tip = "The atmospheric pressure at the launch site.";
+		// Pressure:
+		label = new JLabel(trans.get("simedtdlg.lbl.Pressure"));
+		//// The atmospheric pressure at the launch site.
+		tip = trans.get("simedtdlg.lbl.ttip.Pressure");
 		label.setToolTipText(tip);
 		isa.addEnableComponent(label, false);
 		sub.add(label);
@@ -376,15 +402,16 @@ public class SimulationEditDialog extends JDialog {
 		//// Launch site conditions
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]",""));
-		sub.setBorder(BorderFactory.createTitledBorder("Launch site"));
+		//// Launch site
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Launchsite")));
 		panel.add(sub, "growx, split 2, aligny 0, flowy");
 
 		
-		// Latitude
-		label = new JLabel("Latitude:");
-		tip = "<html>The launch site latitude affects the gravitational pull of Earth.<br>" +
-			"Positive values are on the Northern hemisphere, negative values on the " +
-			"Southern hemisphere.";
+		// Latitude:
+		label = new JLabel(trans.get("simedtdlg.lbl.Latitude"));
+		//// <html>The launch site latitude affects the gravitational pull of Earth.<br>
+		//// Positive values are on the Northern hemisphere, negative values on the Southern hemisphere.
+		tip = trans.get("simedtdlg.lbl.ttip.Latitude");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -404,10 +431,11 @@ public class SimulationEditDialog extends JDialog {
 		
 
 		
-		// Altitude
-		label = new JLabel("Altitude:");
-		tip = "<html>The launch altitude above mean sea level.<br>" +
-				"This affects the position of the rocket in the atmospheric model.";
+		// Altitude:
+		label = new JLabel(trans.get("simedtdlg.lbl.Altitude"));
+		//// <html>The launch altitude above mean sea level.<br> 
+		//// This affects the position of the rocket in the atmospheric model.
+		tip = trans.get("simedtdlg.lbl.ttip.Altitude");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -432,13 +460,15 @@ public class SimulationEditDialog extends JDialog {
 		//// Launch rod
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]",""));
-		sub.setBorder(BorderFactory.createTitledBorder("Launch rod"));
+		//// Launch rod
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Launchrod")));
 		panel.add(sub, "growx, aligny 0, wrap");
 
 		
-		// Length
-		label = new JLabel("Length:");
-		tip = "The length of the launch rod.";
+		// Length:
+		label = new JLabel(trans.get("simedtdlg.lbl.Length"));
+		//// The length of the launch rod.
+		tip = trans.get("simedtdlg.lbl.ttip.Length");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -458,9 +488,10 @@ public class SimulationEditDialog extends JDialog {
 		
 
 		
-		// Angle
-		label = new JLabel("Angle:");
-		tip = "The angle of the launch rod from vertical.";
+		// Angle:
+		label = new JLabel(trans.get("simedtdlg.lbl.Angle"));
+		//// The angle of the launch rod from vertical.
+		tip = trans.get("simedtdlg.lbl.ttip.Angle");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -482,13 +513,16 @@ public class SimulationEditDialog extends JDialog {
 		
 
 		
-		// Direction
-		label = new JLabel("Direction:");
-		tip = "<html>Direction of the launch rod relative to the wind.<br>" +
+		// Direction:
+		label = new JLabel(trans.get("simedtdlg.lbl.Direction"));
+		//// <html>Direction of the launch rod relative to the wind.<br>
+		////  = towards the wind, 
+		////  = downwind.
+		tip = trans.get("simedtdlg.lbl.ttip.Direction1") +
 				UnitGroup.UNITS_ANGLE.toStringUnit(0) +
-				" = towards the wind, "+
+				" " + trans.get("simedtdlg.lbl.ttip.Direction2") + " "+
 				UnitGroup.UNITS_ANGLE.toStringUnit(Math.PI) +
-				" = downwind.";
+				" " + trans.get("simedtdlg.lbl.ttip.Direction3");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
@@ -513,18 +547,25 @@ public class SimulationEditDialog extends JDialog {
 	
 	private String getIntensityDescription(double i) {
 		if (i < 0.001)
-			return "None";
+			//// None
+			return trans.get("simedtdlg.IntensityDesc.None");
 		if (i < 0.05)
-			return "Very low";
+			//// Very low
+			return trans.get("simedtdlg.IntensityDesc.Verylow");
 		if (i < 0.10)
-			return "Low";
+			//// Low
+			return trans.get("simedtdlg.IntensityDesc.Low");
 		if (i < 0.15)
-			return "Medium";
+			//// Medium
+			return trans.get("simedtdlg.IntensityDesc.Medium");
 		if (i < 0.20)
-			return "High";
+			//// High
+			return trans.get("simedtdlg.IntensityDesc.High");
 		if (i < 0.25)
-			return "Very high";
-		return "Extreme";
+			//// Very high
+			return trans.get("simedtdlg.IntensityDesc.Veryhigh");
+		//// Extreme
+		return trans.get("simedtdlg.IntensityDesc.Extreme");
 	}
 
 	
@@ -543,32 +584,35 @@ public class SimulationEditDialog extends JDialog {
 		//// Simulation options
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]",""));
-		sub.setBorder(BorderFactory.createTitledBorder("Simulator options"));
+		//// Simulator options
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simopt")));
 		panel.add(sub, "w 330lp!, growy, aligny 0");
 
 		
 		//  Calculation method
-		tip = "<html>" +
-				"The Extended Barrowman method calculates aerodynamic forces according <br>" +
-				"to the Barrowman equations extended to accommodate more components.";
+		//// <html>The Extended Barrowman method calculates aerodynamic forces according <br>
+		//// to the Barrowman equations extended to accommodate more components.
+		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
 
-		label = new JLabel("Calculation method:");
+		//// Calculation method:
+		label = new JLabel(trans.get("simedtdlg.lbl.Calcmethod"));
 		label.setToolTipText(tip);
 		sub.add(label, "gaptop unrel, gapright para, spanx, split 2, w 150lp!");
 		
-		label = new JLabel("Extended Barrowman");
+		//// Extended Barrowman
+		label = new JLabel(trans.get("simedtdlg.lbl.ExtBarrowman"));
 		label.setToolTipText(tip);
 		sub.add(label, "growx, wrap para");
 		
 		
 		//  Simulation method
-		tip = "<html>" +
-				"The six degree-of-freedom simulator allows the rocket total freedom during " +
-				"flight.<br>" +
-				"Integration is performed using a 4<sup>th</sup> order Runge-Kutta 4 " +
-				"numerical integration.";
+		//// <html>The six degree-of-freedom simulator allows the rocket total freedom during flight.<br>
+		//// Integration is performed using a 4<sup>th</sup> order Runge-Kutta 4 numerical integration.
+		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1") +
+		trans.get("simedtdlg.lbl.ttip.Simmethod2");
 
-		label = new JLabel("Simulation method:");
+		//// Simulation method:
+		label = new JLabel(trans.get("simedtdlg.lbl.Simmethod"));
 		label.setToolTipText(tip);
 		sub.add(label, "gaptop unrel, gapright para, spanx, split 2, w 150lp!");
 		
@@ -578,11 +622,13 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		// Wind average
-		label = new JLabel("Time step:");
-		tip = "<html>The time between simulation steps.<br>" +
-		"A smaller time step results in a more accurate but slower simulation.<br>" +
-				"The 4<sup>th</sup> order simulation method is quite accurate with a time " +
-				"step of " +
+		//// Time step:
+		label = new JLabel(trans.get("simedtdlg.lbl.Timestep"));
+		//// <html>The time between simulation steps.<br>
+		//// A smaller time step results in a more accurate but slower simulation.<br>
+		//// The 4<sup>th</sup> order simulation method is quite accurate with a time step of 
+		tip = trans.get("simedtdlg.lbl.ttip.Timestep1") +
+		trans.get("simedtdlg.lbl.ttip.Timestep2") + " " +
 				UnitGroup.UNITS_TIME_STEP.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP) +
 				".";
 		label.setToolTipText(tip);
@@ -631,8 +677,10 @@ public class SimulationEditDialog extends JDialog {
 		sub.add(slider,"w 75lp, wrap para");
 		*/
 
-		JButton button = new JButton("Reset to default");
-		button.setToolTipText("Reset the time step to its default value (" +
+		//// Reset to default button
+		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
+		//// Reset the time step to its default value (
+		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault") +
 				UnitGroup.UNITS_SHORT_TIME.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP) +
 				").");
 		button.addActionListener(new ActionListener() {
@@ -654,20 +702,20 @@ public class SimulationEditDialog extends JDialog {
 		
 		//// Simulation listeners
 		sub = new JPanel(new MigLayout("fill, gap 0 0"));
-		sub.setBorder(BorderFactory.createTitledBorder("Simulator listeners"));
+		//// Simulator listeners
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simlist")));
 		panel.add(sub, "growx, growy");
 		
 		
 		DescriptionArea desc = new DescriptionArea(5);
-		desc.setText("<html>" +
-				"<i>Simulation listeners</i> is an advanced feature that allows "+
-				"user-written code to listen to and interact with the simulation.  " +
-				"For details on writing simulation listeners, see the OpenRocket " +
-				"technical documentation.");
+		//// <html><i>Simulation listeners</i> is an advanced feature that allows user-written code to listen to and interact with the simulation.  
+		//// For details on writing simulation listeners, see the OpenRocket technical documentation.
+		desc.setText(trans.get("simedtdlg.txt.longA1") +
+				trans.get("simedtdlg.txt.longA2"));
 		sub.add(desc, "aligny 0, growx, wrap para");
 		
-		
-		label = new JLabel("Current listeners:");
+		//// Current listeners:
+		label = new JLabel(trans.get("simedtdlg.lbl.Curlist"));
 		sub.add(label, "spanx, wrap rel");
 
 		final ListenerListModel listenerModel = new ListenerListModel();
@@ -677,17 +725,19 @@ public class SimulationEditDialog extends JDialog {
 //		scroll.setPreferredSize(new Dimension(1,1));
 		sub.add(scroll, "height 1px, grow, wrap rel");
 		
-		
-		button = new JButton("Add");
+		//// Add button
+		button = new JButton(trans.get("simedtdlg.but.add"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String previous = Prefs.NODE.get("previousListenerName", "");
 				String input = (String)JOptionPane.showInputDialog(SimulationEditDialog.this,
 						new Object[] {
+						//// Type the full Java class name of the simulation listener, for example:
 						"Type the full Java class name of the simulation listener, for example:",
 						"<html><tt>" + CSVSaveListener.class.getName() + "</tt>" },
-						"Add simulation listener",
+						//// Add simulation listener
+						trans.get("simedtdlg.lbl.Addsimlist"),
 						JOptionPane.QUESTION_MESSAGE,
 						null, null,
 						previous
@@ -702,7 +752,8 @@ public class SimulationEditDialog extends JDialog {
 		});
 		sub.add(button, "split 2, sizegroup buttons, alignx 50%, gapright para");
 		
-		button = new JButton("Remove");
+		//// Remove button
+		button = new JButton(trans.get("simedtdlg.but.remove"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -783,9 +834,11 @@ public class SimulationEditDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// No data available
-		panel.add(new JLabel("No flight data available."),
+		//// No flight data available.
+		panel.add(new JLabel(trans.get("simedtdlg.lbl.Noflightdata")),
 		"alignx 50%, aligny 100%, wrap para");
-		panel.add(new JLabel("Please run the simulation first."),
+		//// Please run the simulation first.
+		panel.add(new JLabel(trans.get("simedtdlg.lbl.runsimfirst")),
 		"alignx 50%, aligny 0%, wrap");
 		return panel;
 	}
@@ -842,7 +895,8 @@ public class SimulationEditDialog extends JDialog {
 		
 		// Create the chart using the factory to get all default settings
         JFreeChart chart = ChartFactory.createXYLineChart(
-            "Simulated flight",
+            //// Simulated flight
+        	trans.get("simedtdlg.chart.Simflight"),
             null, 
             null, 
             null,
@@ -881,7 +935,8 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		// Create the dialog
-		final JDialog dialog = new JDialog(this, "Simulation results");
+		//// Simulation results
+		final JDialog dialog = new JDialog(this, trans.get("simedtdlg.dlg.Simres"));
 		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -901,7 +956,8 @@ public class SimulationEditDialog extends JDialog {
 		
 		panel.add(chartPanel, "grow, wrap 20lp");
 
-		JButton button = new JButton("Close");
+		//// Close button
+		JButton button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -965,9 +1021,11 @@ public class SimulationEditDialog extends JDialog {
 
 			if (ex == null) {
 				setIcon(Icons.SIMULATION_LISTENER_OK);
+				//// Listener instantiated successfully.
 				setToolTipText("Listener instantiated successfully.");
 			} else {
 				setIcon(Icons.SIMULATION_LISTENER_ERROR);
+				//// <html>Unable to instantiate listener due to exception:<br>
 				setToolTipText("<html>Unable to instantiate listener due to exception:<br>" +
 						ex.toString());
 			}

@@ -15,6 +15,7 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
@@ -30,7 +31,8 @@ import net.sf.openrocket.util.MathUtil;
  */
 public class SwingWorkerDialog extends JDialog implements PropertyChangeListener {
 	private static final LogHelper log = Application.getLogger();
-	
+	private static final Translator trans = Application.getTranslator();
+
 	/** Number of milliseconds to wait at a time between checking worker status */
 	private static final int DELAY = 100;
 	
@@ -65,7 +67,8 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		progressBar = new JProgressBar();
 		panel.add(progressBar, "growx, wrap para");
 		
-		JButton cancel = new JButton("Cancel");
+		//// Cancel button
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

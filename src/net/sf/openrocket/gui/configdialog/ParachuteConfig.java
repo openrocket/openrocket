@@ -21,14 +21,17 @@ import net.sf.openrocket.gui.components.HtmlLabel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class ParachuteConfig extends RecoveryDeviceConfig {
+	private static final Translator trans = Application.getTranslator();
 
 	public ParachuteConfig(final RocketComponent component) {
 		super(component);
@@ -39,10 +42,10 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Canopy
-		panel.add(new StyledLabel("Canopy:", Style.BOLD), "wrap unrel");
+		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Canopy"), Style.BOLD), "wrap unrel");
 		
-
-		panel.add(new JLabel("Diameter:"));
+		//// Diameter:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Diameter")));
 		
 		DoubleModel m = new DoubleModel(component,"Diameter",UnitGroup.UNITS_LENGTH,0);
 		
@@ -52,12 +55,13 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)),"w 100lp, wrap");
 
-		
-		panel.add(new JLabel("Material:"));
+		//// Material:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
 		
 		JComboBox combo = new JComboBox(new MaterialModel(panel, component, 
 				Material.Type.SURFACE));
-		combo.setToolTipText("The component material affects the weight of the component.");
+		//// The component material affects the weight of the component.
+		combo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
 		panel.add(combo,"spanx 3, growx, wrap paragraph");
 
 //		materialPanel(panel, Material.Type.SURFACE, "Material:", null);
@@ -65,10 +69,11 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		// CD
-		JLabel label = new HtmlLabel("<html>Drag coefficient C<sub>D</sub>:");
-		String tip = "<html>The drag coefficient relative to the total area of the parachute.<br>" +
-				"A larger drag coefficient yields a slowed descent rate.  " +
-				"A typical value for parachutes is 0.8.";
+		//// <html>Drag coefficient C<sub>D</sub>:
+		JLabel label = new HtmlLabel(trans.get("ParachuteCfg.lbl.longA1"));
+		String tip = trans.get("ParachuteCfg.lbl.longB1") +
+		trans.get("ParachuteCfg.lbl.longB2") + "  " +
+		trans.get("ParachuteCfg.lbl.longB3");
 		label.setToolTipText(tip);
 		panel.add(label);
 		
@@ -79,7 +84,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin,"growx");
 		
-		JButton button = new JButton("Reset");
+		//// Reset button
+		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -92,18 +98,18 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		////  Shroud lines
-		panel.add(new StyledLabel("Shroud lines:", Style.BOLD), "wrap unrel");
+		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Shroudlines"), Style.BOLD), "wrap unrel");
 
-
-		panel.add(new JLabel("Number of lines:"));
+		//// Number of lines:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Numberoflines")));
 		IntegerModel im = new IntegerModel(component,"LineCount",0);
 		
 		spin = new JSpinner(im.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin,"growx, wrap");
 		
-		
-		panel.add(new JLabel("Line length:"));
+		//// Line length:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Linelength")));
 
 		m = new DoubleModel(component,"LineLength",UnitGroup.UNITS_LENGTH,0);
 		
@@ -113,8 +119,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)),"w 100lp, wrap");
 
-		
-		panel.add(new JLabel("Material:"));
+		//// Material:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
 		
 		combo = new JComboBox(new MaterialModel(panel, component, Material.Type.LINE, 
 				"LineMaterial"));
@@ -129,8 +135,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Position
-
-		panel.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Posrelativeto")));
 
 		combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -142,7 +148,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				}));
 		panel.add(combo,"spanx, growx, wrap");
 		
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plus")),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -157,7 +164,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 
 		////  Spatial length
-		panel.add(new JLabel("Packed length:"));
+		//// Packed length:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packedlength")));
 		
 		m = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -170,7 +178,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Tube diameter
-		panel.add(new JLabel("Packed diameter:"));
+		//// Packed diameter:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packeddiam")));
 
 		DoubleModel od  = new DoubleModel(component,"Radius",2,UnitGroup.UNITS_LENGTH,0);
 		// Diameter = 2*Radius
@@ -184,24 +193,26 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		
 		//// Deployment
-
-		panel.add(new JLabel("Deploys at:"),"");
+		//// Deploys at:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat")),"");
 		
 		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DeployEvent"));
 		panel.add(combo,"spanx 3, growx, wrap");
 		
 		// ... and delay
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plus")),"right");
 		
 		m = new DoubleModel(component,"DeployDelay",0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin,"spanx, split");
 		
-		panel.add(new JLabel("seconds"),"wrap paragraph");
+		//// seconds
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")),"wrap paragraph");
 
-		// Altitude
-		label = new JLabel("Altitude:");
+		// Altitude:
+		label = new JLabel(trans.get("ParachuteCfg.lbl.Altitude"));
 		altitudeComponents.add(label);
 		panel.add(label);
 		
@@ -223,9 +234,11 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		updateFields();
 
-		tabbedPane.insertTab("General", null, primary, "General properties", 0);
-		tabbedPane.insertTab("Radial position", null, positionTab(), 
-				"Radial position configuration", 1);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("ParachuteCfg.tab.General"), null, primary, trans.get("ParachuteCfg.tab.ttip.General"), 0);
+		//// Radial position and Radial position configuration
+		tabbedPane.insertTab(trans.get("ParachuteCfg.tab.Radialpos"), null, positionTab(), 
+				trans.get("ParachuteCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
 	
@@ -237,7 +250,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::]",""));
 		
 		////  Radial position
-		panel.add(new JLabel("Radial distance:"));
+		//// Radial distance:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdistance")));
 		
 		DoubleModel m = new DoubleModel(component,"RadialPosition",UnitGroup.UNITS_LENGTH,0);
 		
@@ -249,8 +263,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)),"w 100lp, wrap");
 		
 		
-		//// Radial direction
-		panel.add(new JLabel("Radial direction:"));
+		//// Radial direction:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdirection")));
 		
 		m = new DoubleModel(component,"RadialDirection",UnitGroup.UNITS_ANGLE,0);
 		
@@ -263,7 +277,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 
 		
 		//// Reset button
-		JButton button = new JButton("Reset");
+		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

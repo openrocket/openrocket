@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -25,10 +26,12 @@ import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.startup.Application;
 
 
 public class ComponentIcons {
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private static final String ICON_DIRECTORY = "pix/componenticons/";
 	private static final String SMALL_SUFFIX = "-small.png";
 	private static final String LARGE_SUFFIX = "-large.png";
@@ -41,22 +44,38 @@ public class ComponentIcons {
 		new HashMap<Class<?>,ImageIcon>();
 
 	static {
-		load("nosecone", "Nose cone", NoseCone.class);
-		load("bodytube", "Body tube", BodyTube.class);
-		load("transition", "Transition", Transition.class);
-		load("trapezoidfin", "Trapezoidal fin set", TrapezoidFinSet.class);
-		load("ellipticalfin", "Elliptical fin set", EllipticalFinSet.class);
-		load("freeformfin", "Freeform fin set", FreeformFinSet.class);
-		load("launchlug", "Launch lug", LaunchLug.class);
-		load("innertube", "Inner tube", InnerTube.class);
-		load("tubecoupler", "Tube coupler", TubeCoupler.class);
-		load("centeringring", "Centering ring", CenteringRing.class);
-		load("bulkhead", "Bulk head", Bulkhead.class);
-		load("engineblock", "Engine block", EngineBlock.class);
-		load("parachute", "Parachute", Parachute.class);
-		load("streamer", "Streamer", Streamer.class);
-		load("shockcord", "Shock cord", ShockCord.class);
-		load("mass", "Mass component", MassComponent.class);
+		//// Nose cone
+		load("nosecone", trans.get("ComponentIcons.Nosecone"), NoseCone.class);
+		//// Body tube
+		load("bodytube", trans.get("ComponentIcons.Bodytube"), BodyTube.class);
+		//// Transition
+		load("transition", trans.get("ComponentIcons.Transition"), Transition.class);
+		//// Trapezoidal fin set
+		load("trapezoidfin", trans.get("ComponentIcons.Trapezoidalfinset"), TrapezoidFinSet.class);
+		//// Elliptical fin set
+		load("ellipticalfin", trans.get("ComponentIcons.Ellipticalfinset"), EllipticalFinSet.class);
+		//// Freeform fin set
+		load("freeformfin", trans.get("ComponentIcons.Freeformfinset"), FreeformFinSet.class);
+		//// Launch lug
+		load("launchlug", trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
+		//// Inner tube
+		load("innertube", trans.get("ComponentIcons.Innertube"), InnerTube.class);
+		//// Tube coupler
+		load("tubecoupler", trans.get("ComponentIcons.Tubecoupler"), TubeCoupler.class);
+		//// Centering ring
+		load("centeringring", trans.get("ComponentIcons.Centeringring"), CenteringRing.class);
+		//// Bulk head
+		load("bulkhead", trans.get("ComponentIcons.Bulkhead"), Bulkhead.class);
+		//// Engine block
+		load("engineblock", trans.get("ComponentIcons.Engineblock"), EngineBlock.class);
+		//// Parachute
+		load("parachute", trans.get("ComponentIcons.Parachute"), Parachute.class);
+		//// Streamer
+		load("streamer", trans.get("ComponentIcons.Streamer"), Streamer.class);
+		//// Shock cord
+		load("shockcord", trans.get("ComponentIcons.Shockcord"), ShockCord.class);
+		//// Mass component
+		load("mass", trans.get("ComponentIcons.Masscomponent"), MassComponent.class);
 	}
 	
 	private static void load(String filename, String name, Class<?> componentClass) {
@@ -133,7 +152,8 @@ public class ComponentIcons {
 				
 			}
 			
-			icons[1] = new ImageIcon(bi2,desc + " (disabled)");
+			//// (disabled)
+			icons[1] = new ImageIcon(bi2,desc + " " +trans.get("ComponentIcons.disabled"));
 	    	
 	        return icons;
 	    } else {

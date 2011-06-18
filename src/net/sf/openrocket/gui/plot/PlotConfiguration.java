@@ -4,9 +4,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
@@ -16,12 +18,15 @@ import net.sf.openrocket.util.Pair;
 
 public class PlotConfiguration implements Cloneable {
 	
+	private static final Translator trans = Application.getTranslator();
+
 	public static final PlotConfiguration[] DEFAULT_CONFIGURATIONS;
 	static {
 		ArrayList<PlotConfiguration> configs = new ArrayList<PlotConfiguration>();
 		PlotConfiguration config;
 		
-		config = new PlotConfiguration("Vertical motion vs. time");
+		//// Vertical motion vs. time
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Verticalmotion"));
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_VELOCITY_Z);
 		config.addPlotDataType(FlightDataType.TYPE_ACCELERATION_Z);
@@ -33,7 +38,8 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
-		config = new PlotConfiguration("Total motion vs. time");
+		//// Total motion vs. time
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Totalmotion"));
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_VELOCITY_TOTAL);
 		config.addPlotDataType(FlightDataType.TYPE_ACCELERATION_TOTAL);
@@ -45,7 +51,8 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
-		config = new PlotConfiguration("Flight side profile", FlightDataType.TYPE_POSITION_X);
+		//// Flight side profile
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Flightside"), FlightDataType.TYPE_POSITION_X);
 		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE);
 		config.setEvent(FlightEvent.Type.IGNITION, true);
 		config.setEvent(FlightEvent.Type.BURNOUT, true);
@@ -55,6 +62,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
+		//// Stability vs. time
 		config = new PlotConfiguration("Stability vs. time");
 		config.addPlotDataType(FlightDataType.TYPE_STABILITY, 0);
 		config.addPlotDataType(FlightDataType.TYPE_CP_LOCATION, 1);
@@ -67,6 +75,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
+		//// Drag coefficients vs. Mach number
 		config = new PlotConfiguration("Drag coefficients vs. Mach number",
 				FlightDataType.TYPE_MACH_NUMBER);
 		config.addPlotDataType(FlightDataType.TYPE_DRAG_COEFF, 0);
@@ -75,6 +84,7 @@ public class PlotConfiguration implements Cloneable {
 		config.addPlotDataType(FlightDataType.TYPE_PRESSURE_DRAG_COEFF, 0);
 		configs.add(config);
 		
+		//// Roll characteristics
 		config = new PlotConfiguration("Roll characteristics");
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_RATE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_MOMENT_COEFF, 1);
@@ -89,6 +99,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
+		//// Angle of attack and orientation vs. time
 		config = new PlotConfiguration("Angle of attack and orientation vs. time");
 		config.addPlotDataType(FlightDataType.TYPE_AOA, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_PHI);
@@ -101,6 +112,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
 		configs.add(config);
 		
+		//// Simulation time step and computation time
 		config = new PlotConfiguration("Simulation time step and computation time");
 		config.addPlotDataType(FlightDataType.TYPE_TIME_STEP);
 		config.addPlotDataType(FlightDataType.TYPE_COMPUTATION_TIME);

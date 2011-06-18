@@ -16,11 +16,14 @@ import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 public class LicenseDialog extends JDialog {
 	private static final String LICENSE_FILENAME = "LICENSE.TXT";
-	
+	private static final Translator trans = Application.getTranslator();
+
 	private static final String DEFAULT_LICENSE_TEXT =
 		"\n" +
 		"Error:  Unable to load " + LICENSE_FILENAME + "!\n" +
@@ -60,7 +63,8 @@ public class LicenseDialog extends JDialog {
 		text.setEditable(false);
 		panel.add(new JScrollPane(text),"grow, wrap para");
 		
-		JButton close = new JButton("Close");
+		//Close button
+		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

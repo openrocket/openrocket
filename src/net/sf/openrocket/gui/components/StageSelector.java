@@ -11,7 +11,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.startup.Application;
 
 
 public class StageSelector extends JPanel implements ChangeListener {
@@ -62,6 +64,7 @@ public class StageSelector extends JPanel implements ChangeListener {
 	
 	private class StageAction extends AbstractAction implements ChangeListener {
 		private final int stage;
+		private final Translator trans = Application.getTranslator();
 
 		public StageAction(final int stage) {
 			this.stage = stage;
@@ -72,7 +75,8 @@ public class StageSelector extends JPanel implements ChangeListener {
 		@Override
 		public Object getValue(String key) {
 			if (key.equals(NAME)) {
-				return "Stage "+(stage+1);
+				//// Stage
+				return trans.get("StageAction.Stage") + " " + (stage+1);
 			}
 			return super.getValue(key);
 		}

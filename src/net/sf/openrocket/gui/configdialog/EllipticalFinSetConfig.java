@@ -15,12 +15,15 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class EllipticalFinSetConfig extends FinSetConfig {
+	private static final Translator trans = Application.getTranslator();
 
 	public EllipticalFinSetConfig(final RocketComponent component) {
 		super(component);
@@ -36,7 +39,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel","[][65lp::][30lp::]",""));
 		
 		////  Number of fins
-		panel.add(new JLabel("Number of fins:"));
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Nbroffins")));
 		
 		IntegerModel im = new IntegerModel(component,"FinCount",1,8);
 		
@@ -46,7 +49,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		
 		////  Base rotation
-		panel.add(new JLabel("Rotation:"));
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Rotation")));
 		
 		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE,-Math.PI,Math.PI);
 		
@@ -59,9 +62,9 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		
 		////  Fin cant
-		JLabel label = new JLabel("Fin cant:");
-		label.setToolTipText("The angle that the fins are canted with respect to the rocket " +
-				"body.");
+		JLabel label = new JLabel(trans.get("EllipticalFinSetCfg.Fincant"));
+		//// "The angle that the fins are canted with respect to the rocket
+		label.setToolTipText(trans.get("EllipticalFinSetCfg.ttip.Fincant"));
 		panel.add(label);
 		
 		m = new DoubleModel(component, "CantAngle", UnitGroup.UNITS_ANGLE,
@@ -78,7 +81,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 
 		
 		////  Root chord
-		panel.add(new JLabel("Root chord:"));
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Rootchord")));
 		
 		m  = new DoubleModel(component,"Length",UnitGroup.UNITS_LENGTH,0);
 		
@@ -91,7 +94,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 
 
 		////  Height
-		panel.add(new JLabel("Height:"));
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Height")));
 		
 		m = new DoubleModel(component,"Height",UnitGroup.UNITS_LENGTH,0);
 		
@@ -104,8 +107,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 	
 		
 		////  Position
-		
-		panel.add(new JLabel("Position relative to:"));
+		//// Position relative to:
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Positionrelativeto")));
 
 		combo = new JComboBox(
 				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -117,7 +120,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 				}));
 		panel.add(combo,"spanx, growx, wrap");
 		
-		panel.add(new JLabel("plus"),"right");
+		//// plus
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.plus")),"right");
 
 		m = new DoubleModel(component,"PositionValue",UnitGroup.UNITS_LENGTH);
 		spin = new JSpinner(m.getSpinnerModel());
@@ -143,14 +147,15 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 
 
 		////  Cross section
-		panel.add(new JLabel("Fin cross section:"),"span, split");
+		//// Fin cross section:
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.FincrossSection")),"span, split");
 		combo = new JComboBox(
 				new EnumModel<FinSet.CrossSection>(component,"CrossSection"));
 		panel.add(combo,"growx, wrap unrel");
 		
 
-		////  Thickness
-		panel.add(new JLabel("Thickness:"));
+		////  Thickness:
+		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Thickness")));
 		
 		m = new DoubleModel(component,"Thickness",UnitGroup.UNITS_LENGTH,0);
 		
@@ -174,8 +179,9 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		addFinSetButtons();
 
-
-		tabbedPane.insertTab("General", null, mainPanel, "General properties", 0);
+		//// General and General properties
+		tabbedPane.insertTab(trans.get("EllipticalFinSetCfg.General"), null, mainPanel, 
+				trans.get("EllipticalFinSetCfg.Generalproperties"), 0);
 		tabbedPane.setSelectedIndex(0);
 	}
 
