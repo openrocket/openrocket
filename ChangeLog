@@ -1,3 +1,11 @@
+2011-06-26  Sampo Niskanen
+
+	* [BUG] Original rocket was modified when sim.listener modified rocket
+
+2011-06-18  Sampo Niskanen
+
+	* Merged l10n branch into trunk, initial l10n support
+
 2011-06-10  Sampo Niskanen
 
 	* Released version 1.1.5

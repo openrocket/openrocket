@@ -61,8 +61,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 
 		SimulationListenerHelper.fireStartSimulation(status);
+		// Get originating position (in case listener has modified launch position)
+		Coordinate origin = status.getRocketPosition();
+		Coordinate originVelocity = status.getRocketVelocity();
 		
 		try {
+			double maxAlt = Double.NEGATIVE_INFINITY;
 			
 			// Start the simulation
 			while (handleEvents()) {
@@ -91,17 +95,24 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						status.getConfiguration().getRocket(),
 						new Pair<Double, Double>(oldAlt, status.getRocketPosition().z)));
 				
+				if (status.getRocketPosition().z > maxAlt) {
+					maxAlt = status.getRocketPosition().z;
+				}
+				
 
+				// Position relative to start location
+				Coordinate relativePosition = status.getRocketPosition().sub(origin);
+				
 				// Add appropriate events
 				if (!status.isLiftoff()) {
 					
 					// Avoid sinking into ground before liftoff
-					if (status.getRocketPosition().z < 0) {
-						status.setRocketPosition(Coordinate.NUL);
-						status.setRocketVelocity(Coordinate.NUL);
+					if (relativePosition.z < 0) {
+						status.setRocketPosition(origin);
+						status.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off
-					if (status.getRocketPosition().z > 0.01) {
+					if (relativePosition.z > 0.02) {
 						addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, status.getSimulationTime()));
 					}
 					
@@ -118,13 +129,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// Check for launch guide clearance
 				if (!status.isLaunchRodCleared() &&
-						status.getRocketPosition().length() > status.getSimulationConditions().getLaunchRodLength()) {
+						relativePosition.length() > status.getSimulationConditions().getLaunchRodLength()) {
 					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, status.getSimulationTime(), null));
 				}
 				
 
 				// Check for apogee
-				if (!status.isApogeeReached() && status.getRocketPosition().z < oldAlt - 0.001) {
+				if (!status.isApogeeReached() && status.getRocketPosition().z < maxAlt - 0.01) {
 					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, status.getSimulationTime(),
 							status.getConfiguration().getRocket()));
 				}

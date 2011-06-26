@@ -436,7 +436,7 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	public SimulationConditions toSimulationConditions() {
 		SimulationConditions conditions = new SimulationConditions();
 		
-		conditions.setRocket(getRocket());
+		conditions.setRocket((Rocket) getRocket().copy());
 		conditions.setMotorConfigurationID(getMotorConfigurationID());
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
