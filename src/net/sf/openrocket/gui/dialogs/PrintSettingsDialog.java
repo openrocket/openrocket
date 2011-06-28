@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.components.ColorChooserButton;
 import net.sf.openrocket.gui.print.PaperOrientation;
 import net.sf.openrocket.gui.print.PaperSize;
 import net.sf.openrocket.gui.print.PrintSettings;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
@@ -28,7 +29,8 @@ import net.sf.openrocket.util.GUIUtil;
  */
 public class PrintSettingsDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
-	
+	private static final Translator trans = Application.getTranslator();
+
 	
 	/**
 	 * Construct a dialog for setting the advanced rocket print settings.
@@ -36,13 +38,14 @@ public class PrintSettingsDialog extends JDialog {
 	 * @param parent the owning dialog
 	 */
 	public PrintSettingsDialog(Window parent, final PrintSettings settings) {
-		super(parent, "Print settings", ModalityType.APPLICATION_MODAL);
+		////Print settings
+		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
 		
 
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-
-		panel.add(new JLabel("Template fill color:"));
+		////Template fill color:
+		panel.add(new JLabel(trans.get("lbl.Templatefillcolor")));
 		final ColorChooserButton fillColorButton = new ColorChooserButton(settings.getTemplateFillColor());
 		fillColorButton.addColorPropertyChangeListener(new PropertyChangeListener() {
 			@Override
@@ -54,8 +57,8 @@ public class PrintSettingsDialog extends JDialog {
 		});
 		panel.add(fillColorButton, "wrap para");
 		
-
-		panel.add(new JLabel("Template border color:"));
+		//// Template border color:
+		panel.add(new JLabel(trans.get("lbl.Templatebordercolor")));
 		final ColorChooserButton borderColorButton = new ColorChooserButton(settings.getTemplateBorderColor());
 		borderColorButton.addColorPropertyChangeListener(new PropertyChangeListener() {
 			@Override
@@ -70,19 +73,21 @@ public class PrintSettingsDialog extends JDialog {
 
 
 		JComboBox combo = new JComboBox(new EnumModel<PaperSize>(settings, "PaperSize"));
-		panel.add(new JLabel("Paper size:"));
+		////Paper size:
+		panel.add(new JLabel(trans.get("lbl.Papersize")));
 		panel.add(combo, "growx, wrap para");
 		
 
 		combo = new JComboBox(new EnumModel<PaperOrientation>(settings, "PaperOrientation"));
-		panel.add(new JLabel("Paper orientation:"));
+		//// Paper orientation:
+		panel.add(new JLabel(trans.get("lbl.Paperorientation")));
 		panel.add(combo, "growx, wrap para*2");
 		
 
 
 
-
-		JButton button = new JButton("Reset");
+		//// Reset
+		JButton button = new JButton(trans.get("but.Reset"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -95,8 +100,8 @@ public class PrintSettingsDialog extends JDialog {
 		});
 		panel.add(button, "spanx, split, right");
 		
-
-		JButton closeButton = new JButton("Close");
+		//// Close
+		JButton closeButton = new JButton(trans.get("but.Close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
