@@ -1,8 +1,9 @@
-package net.sf.openrocket.optimization.rocketoptimization;
+package net.sf.openrocket.optimization.services;
 
 import java.util.Collection;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 
 /**
  * A service for generating simulation modifiers.

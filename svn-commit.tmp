@@ -1,0 +1,54 @@
+bug fixes and rocket optimization
+--This line, and those below, will be ignored--
+
+M    test/net/sf/openrocket/optimization/rocketoptimization/modifiers/TestGenericModifier.java
+M    test/net/sf/openrocket/optimization/rocketoptimization/TestRocketOptimizationFunction.java
+A    src/META-INF/services/net.sf.openrocket.optimization.services.SimulationModifierService
+D    src/META-INF/services/net.sf.openrocket.optimization.rocketoptimization.RocketOptimizationParameterService
+A  + src/META-INF/services/net.sf.openrocket.optimization.services.OptimizableParameterService
+M    src/net/sf/openrocket/unit/Value.java
+M    src/net/sf/openrocket/file/openrocket/OpenRocketLoader.java
+M    src/net/sf/openrocket/file/openrocket/savers/BodyTubeSaver.java
+M    src/net/sf/openrocket/models/wind/PinkNoiseWindModel.java
+M    src/net/sf/openrocket/gui/dialogs/optimization/GeneralOptimizationDialog.java
+M    src/net/sf/openrocket/gui/dialogs/PrintDialog.java
+M    src/net/sf/openrocket/gui/main/BasicFrame.java
+M    src/net/sf/openrocket/gui/configdialog/RingComponentConfig.java
+M    src/net/sf/openrocket/gui/configdialog/RocketConfig.java
+M    src/net/sf/openrocket/gui/configdialog/MotorConfig.java
+A    src/net/sf/openrocket/gui/optimization
+A    src/net/sf/openrocket/gui/optimization/OptimizationTestDialog.java
+M    src/net/sf/openrocket/simulation/RK4SimulationStepper.java
+M    src/net/sf/openrocket/simulation/GUISimulationConditions.java
+A  + src/net/sf/openrocket/optimization/services
+A  + src/net/sf/openrocket/optimization/services/OptimizableParameterService.java
+A  + src/net/sf/openrocket/optimization/services/SimulationModifierService.java
+A    src/net/sf/openrocket/optimization/services/DefaultOptimizableParameterService.java
+A    src/net/sf/openrocket/optimization/services/OptimizationServiceHelper.java
+M    src/net/sf/openrocket/optimization/services/DefaultSimulationModifierService.java
+M    src/net/sf/openrocket/optimization/general/ParallelExecutorCache.java
+M    src/net/sf/openrocket/optimization/general/ParallelFunctionCache.java
+M    src/net/sf/openrocket/optimization/general/Point.java
+D    src/net/sf/openrocket/optimization/rocketoptimization/OptimizableParameterService.java
+M    src/net/sf/openrocket/optimization/rocketoptimization/modifiers/AbstractSimulationModifier.java
+M    src/net/sf/openrocket/optimization/rocketoptimization/modifiers/GenericModifier.java
+M    src/net/sf/openrocket/optimization/rocketoptimization/modifiers/GenericComponentModifier.java
+M    src/net/sf/openrocket/optimization/rocketoptimization/SimulationModifier.java
+M    src/net/sf/openrocket/optimization/rocketoptimization/parameters/MaximumAltitudeParameter.java
+D    src/net/sf/openrocket/optimization/rocketoptimization/services
+M    src/net/sf/openrocket/optimization/rocketoptimization/RocketOptimizationFunction.java
+D    src/net/sf/openrocket/optimization/rocketoptimization/SimulationModifierService.java
+A    src/net/sf/openrocket/optimization/rocketoptimization/RocketOptimizationListener.java
+A    src/net/sf/openrocket/optimization/rocketoptimization/domains
+A    src/net/sf/openrocket/optimization/rocketoptimization/domains/IdentitySimulationDomain.java
+A    src/net/sf/openrocket/optimization/rocketoptimization/domains/StabilityDomain.java
+M    src/net/sf/openrocket/optimization/rocketoptimization/SimulationDomain.java
+M    src/net/sf/openrocket/rocketcomponent/FinSet.java
+M    src/net/sf/openrocket/rocketcomponent/RocketComponent.java
+M    src/net/sf/openrocket/rocketcomponent/BodyTube.java
+M    src/net/sf/openrocket/util/TestRockets.java
+M    src/net/sf/openrocket/aerodynamics/barrowman/SymmetricComponentCalc.java
+M    ChangeLog
+A    datafiles/examples/Simulation listeners.ork
+A    doc/design/optimization-classes.uxf
+M    l10n/messages.properties

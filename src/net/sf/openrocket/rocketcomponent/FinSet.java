@@ -14,7 +14,9 @@ import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
-
+	
+	// FIXME:  converting triangular fins to freeform fails
+	
 	/**
 	 * Maximum allowed cant of fins.
 	 */

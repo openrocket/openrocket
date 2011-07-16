@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><umlet_diagram><help_text>// Uncomment the following line to change the fontsize:
+// fontsize=14
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Welcome to UMLet!
+//
+// Double-click on UML elements to add them to the diagram, or to copy them
+// Edit elements by modifying the text in this panel
+// Hold Ctrl to select multiple elements
+// Use Ctrl+mouse to select via lasso
+//
+// Use Â± or Ctrl+mouse wheel to zoom
+// Drag a whole relation at its central square icon
+//
+// Press Ctrl+C to copy the whole diagram to the system clipboard (then just paste it to, eg, Word)
+// Edit the files in the "palettes" directory to create your own element palettes
+//
+// Select "Custom Elements &gt; New..." to create new element types
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Class</type><coordinates><x>680</x><y>280</y><w>240</w><h>40</h></coordinates><panel_attributes>MultidirectionalSearchOptimizer
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>660</x><y>60</y><w>290</w><h>80</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+FunctionOptimizer
+/Minimizes a function/
+--
+--
+optimize(Point, OptimizationController)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>780</x><y>110</y><w>50</w><h>190</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;30;170</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1030</x><y>20</y><w>170</w><h>80</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+FunctionCache
+--
+--
+getValue(Point)
+get/setFunction()</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1030</x><y>140</y><w>170</w><h>100</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+ParallelFunctionCache
+--
+--
+compute(Point)
+waitFor(Point)
+abort(Point)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1090</x><y>70</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1030</x><y>280</y><w>170</w><h>40</h></coordinates><panel_attributes>ParallelExecutorCache
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1090</x><y>210</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>890</x><y>150</y><w>160</w><h>170</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>30;150;140;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1290</x><y>150</y><w>150</w><h>70</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+Function
+--
+--
+evaluate(Point)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1170</x><y>150</y><w>140</w><h>170</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes><additional_attributes>30;150;120;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1260</x><y>370</y><w>230</w><h>40</h></coordinates><panel_attributes>RocketOptimizationFunction
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1340</x><y>190</y><w>50</w><h>200</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;30;180</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1040</x><y>390</y><w>100</w><h>30</h></coordinates><panel_attributes>Simulation
+--
+--
+</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1110</x><y>360</y><w>170</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes><additional_attributes>150;30;30;40</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>940</x><y>550</y><w>200</w><h>80</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+OptimizableParameter
+--
+--
+getName()
+computeValue(Simulation)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1010</x><y>380</y><w>320</w><h>190</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes><additional_attributes>300;30;30;170</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1160</x><y>550</y><w>260</w><h>70</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+OptimizationGoal
+--
+--
+getMinimizationParameter(double)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1260</x><y>380</y><w>120</w><h>190</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes><additional_attributes>100;30;30;170</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1430</x><y>550</y><w>260</w><h>70</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+SimulationDomain
+--
+--
+getDistanceToDomain(Simulation)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1410</x><y>380</y><w>170</w><h>190</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes><additional_attributes>30;30;150;170</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1620</x><y>340</y><w>210</w><h>120</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+SimulationModifier
+--
+--
+getName()
+getRelatedObject()
+modify(Simulation, double)
+get/set...</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1460</x><y>360</y><w>180</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-
+m2=*</panel_attributes><additional_attributes>30;30;160;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>920</x><y>710</y><w>220</w><h>40</h></coordinates><panel_attributes>MaximumAltitudeParameter
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1000</x><y>600</y><w>50</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;30;110</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1310</x><y>710</y><w>140</w><h>40</h></coordinates><panel_attributes>MaximizationGoal
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1150</x><y>710</y><w>140</w><h>40</h></coordinates><panel_attributes>MinimizationGoal
+--
+--
+</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1240</x><y>770</y><w>120</w><h>40</h></coordinates><panel_attributes>ValueSeekGoal
+--
+--
+</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1190</x><y>590</y><w>70</w><h>140</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>50;30;30;120</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1320</x><y>590</y><w>70</w><h>140</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;50;120</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1270</x><y>590</y><w>50</w><h>200</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;30;180</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1910</x><y>340</y><w>210</w><h>40</h></coordinates><panel_attributes>/AbstractSimulationModifier/
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1800</x><y>330</y><w>130</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;.</panel_attributes><additional_attributes>30;30;110;30</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1910</x><y>420</y><w>210</w><h>40</h></coordinates><panel_attributes>/GenericModifier/
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1990</x><y>350</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>1910</x><y>500</y><w>210</w><h>40</h></coordinates><panel_attributes>GenericComponentModifier
+--
+--</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>1990</x><y>430</y><w>50</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;70</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>620</x><y>430</y><w>330</w><h>70</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+OptimizationController
+--
+--
+stepTaken(Point,double,Point,double,double)</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>760</x><y>290</y><w>50</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes><additional_attributes>30;30;30;140</additional_attributes></element><element><type>com.umlet.element.base.Note</type><coordinates><x>50</x><y>60</y><w>530</w><h>490</h></coordinates><panel_attributes>FunctionOptimizer is the central interface that defines optimization
+algorithms.  This is a general bounded function minimization 
+algorithm.  It obtains the function values from a FunctionCache.
+The FunctionCache caches function evaluations that  it obtains 
+from a Function object.
+ 
+Some implementations require the usage of a ParallelFunctionCache,
+which allows queueing function evaluations to take place in the
+background.
+ 
+The main Function implementation is RocketOptimizationFunction,
+which computes various properties of a given Simulation.  The
+parameter that is computed is defined by an OptimizableParameter
+(e.g. apogee altitude, stability, max. velocity).  The goal of the 
+optimization is defined by an OptimizationGoal (e.g. maximize/minimize
+the parameter, or seek a specific value).  The optimization may be 
+additionally limited using a SimulationDomain (e.g. require a specific 
+minimum amount of stability).
+ 
+The modifications to the simulation are done by SimulationModifier
+objects.  The number of modifier objects is the dimensionality of the
+optimization - each optimization dimensions corresponds to a specific
+value that can be changed in the simulation.  The generic modifier
+classes use reflection to modify values dynamically.
+ 
+The optimization progress and ending can be controlled by an
+OptimizationController.  The stepTaken method is called after each
+step to determine whether to continue or stop the optimization.
+
+bg=#ffff88</panel_attributes><additional_attributes/></element></umlet_diagram>

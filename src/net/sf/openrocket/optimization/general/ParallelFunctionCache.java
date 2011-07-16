@@ -35,6 +35,7 @@ public interface ParallelFunctionCache extends FunctionCache {
 	 * 
 	 * @param points	the points to wait for.
 	 * @throws InterruptedException		if this thread or the computing thread was interrupted while waiting.
+	 * @throws OptimizationException 	if an error preventing continuing the optimization occurs.
 	 */
 	public void waitFor(Collection<Point> points) throws InterruptedException, OptimizationException;
 	
@@ -44,7 +45,7 @@ public interface ParallelFunctionCache extends FunctionCache {
 	 * 
 	 * @param point		the point to wait for.
 	 * @throws InterruptedException		if this thread or the computing thread was interrupted while waiting.
-	 * @throws OptimizationException 
+	 * @throws OptimizationException 	if an error preventing continuing the optimization occurs.
 	 */
 	public void waitFor(Point point) throws InterruptedException, OptimizationException;
 	

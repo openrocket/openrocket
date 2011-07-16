@@ -38,7 +38,7 @@ public interface SimulationModifier extends ChangeSource {
 	 * @return	the current value of this parameter in SI units.
 	 * @throws OptimizationException	if fetching the current value fails
 	 */
-	public double getCurrentValue(Simulation simulation) throws OptimizationException;
+	public double getCurrentSIValue(Simulation simulation) throws OptimizationException;
 	
 	
 	/**
@@ -68,7 +68,7 @@ public interface SimulationModifier extends ChangeSource {
 	
 	
 	/**
-	 * Return the unit group used for the values returned by {@link #getCurrentValue(Simulation)} etc.
+	 * Return the unit group used for the values returned by {@link #getCurrentSIValue(Simulation)} etc.
 	 * @return	the unit group
 	 */
 	public UnitGroup getUnitGroup();

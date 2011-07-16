@@ -5,6 +5,9 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.unit.Value;
+import net.sf.openrocket.util.Pair;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -29,7 +32,8 @@ public class TestRocketOptimizationFunction {
 	SimulationModifier modifier1;
 	@Mock
 	SimulationModifier modifier2;
-	
+	@Mock
+	RocketOptimizationListener listener;
 	
 	@Test
 	public void testNormalEvaluation() throws InterruptedException, OptimizationException {
@@ -39,20 +43,29 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = -0.43;
+		final double dref = 0.33;
 		final double pvalue = 9.81;
 		final double gvalue = 8.81;
+		final Point point = new Point(p1, p2);
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(ddist));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
 				oneOf(parameter).computeValue(simulation); will(returnValue(pvalue));
 				oneOf(goal).getMinimizationParameter(pvalue); will(returnValue(gvalue));
+				oneOf(modifier1).getCurrentSIValue(simulation); will(returnValue(0.2));
+				oneOf(modifier1).getUnitGroup(); will(returnValue(UnitGroup.UNITS_LENGTH));
+				oneOf(modifier2).getCurrentSIValue(simulation); will(returnValue(0.3));
+				oneOf(modifier2).getUnitGroup(); will(returnValue(UnitGroup.UNITS_LENGTH));
+				oneOf(listener).evaluated(point, new Value[] {
+						new Value(0.2, UnitGroup.UNITS_LENGTH.getDefaultUnit()),
+						new Value(0.3, UnitGroup.UNITS_LENGTH.getDefaultUnit())
+				}, dref, pvalue, gvalue);
 		}});
 		// @formatter:on
 		
-
 		RocketOptimizationFunction function = new RocketOptimizationFunction(simulation,
 				parameter, goal, domain, modifier1, modifier2) {
 			@Override
@@ -60,20 +73,11 @@ public class TestRocketOptimizationFunction {
 				return sim;
 			}
 		};
+		function.addRocketOptimizationListener(listener);
 		
-
-		assertEquals(Double.NaN, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
-		double value = function.evaluate(new Point(p1, p2));
-		assertEquals(gvalue, value, 0);
-		
-		assertEquals(pvalue, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
-		// Re-evaluate the point to verify parameter is not recomputed
-		value = function.evaluate(new Point(p1, p2));
+		double value = function.evaluate(point);
 		assertEquals(gvalue, value, 0);
 	}
-	
 	
 	@Test
 	public void testNaNValue() throws InterruptedException, OptimizationException {
@@ -83,13 +87,14 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = -0.43;
+		final double dref = 0.33;
 		final double pvalue = 9.81;
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(ddist));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
 				oneOf(parameter).computeValue(simulation); will(returnValue(pvalue));
 				oneOf(goal).getMinimizationParameter(pvalue); will(returnValue(Double.NaN));
 		}});
@@ -105,14 +110,7 @@ public class TestRocketOptimizationFunction {
 		};
 		
 
-		assertEquals(Double.NaN, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
 		double value = function.evaluate(new Point(p1, p2));
-		assertEquals(Double.MAX_VALUE, value, 0);
-		
-		assertEquals(pvalue, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
-		value = function.evaluate(new Point(p1, p2));
 		assertEquals(Double.MAX_VALUE, value, 0);
 	}
 	
@@ -125,12 +123,22 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = 0.98;
+		final double dref = 0.33;
+		final Point point = new Point(p1, p2);
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(ddist));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
+				oneOf(modifier1).getCurrentSIValue(simulation); will(returnValue(0.2));
+				oneOf(modifier1).getUnitGroup(); will(returnValue(UnitGroup.UNITS_LENGTH));
+				oneOf(modifier2).getCurrentSIValue(simulation); will(returnValue(0.3));
+				oneOf(modifier2).getUnitGroup(); will(returnValue(UnitGroup.UNITS_LENGTH));
+				oneOf(listener).evaluated(point, new Value[] {
+						new Value(0.2, UnitGroup.UNITS_LENGTH.getDefaultUnit()),
+						new Value(0.3, UnitGroup.UNITS_LENGTH.getDefaultUnit())
+				}, dref, Double.NaN, 1.98E200);
 		}});
 		// @formatter:on
 		
@@ -142,16 +150,9 @@ public class TestRocketOptimizationFunction {
 				return sim;
 			}
 		};
-		
-
-		assertEquals(Double.NaN, function.getComputedParameterValue(new Point(p1, p2)), 0);
+		function.addRocketOptimizationListener(listener);
 		
 		double value = function.evaluate(new Point(p1, p2));
-		assertTrue(value > 1e100);
-		
-		assertEquals(Double.NaN, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
-		value = function.evaluate(new Point(p1, p2));
 		assertTrue(value > 1e100);
 	}
 	
@@ -163,12 +164,13 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = Double.NaN;
+		final double dref = 0.33;
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(ddist));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
 		}});
 		// @formatter:on
 		
@@ -181,15 +183,7 @@ public class TestRocketOptimizationFunction {
 			}
 		};
 		
-
-		assertEquals(Double.NaN, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
 		double value = function.evaluate(new Point(p1, p2));
-		assertEquals(Double.MAX_VALUE, value, 0);
-		
-		assertEquals(Double.NaN, function.getComputedParameterValue(new Point(p1, p2)), 0);
-		
-		value = function.evaluate(new Point(p1, p2));
 		assertEquals(Double.MAX_VALUE, value, 0);
 	}
 	

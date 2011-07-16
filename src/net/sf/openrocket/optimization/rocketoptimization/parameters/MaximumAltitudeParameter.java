@@ -22,7 +22,9 @@ public class MaximumAltitudeParameter implements OptimizableParameter {
 	@Override
 	public double computeValue(Simulation simulation) throws OptimizationException {
 		try {
+			System.out.println("Running simulation");
 			simulation.simulate(new ApogeeEndListener());
+			System.out.println("Maximum altitude was " + simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE));
 			return simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE);
 		} catch (SimulationException e) {
 			throw new OptimizationException(e);

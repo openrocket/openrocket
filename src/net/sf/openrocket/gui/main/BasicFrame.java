@@ -79,6 +79,7 @@ import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
+import net.sf.openrocket.gui.optimization.OptimizationTestDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -935,7 +936,15 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 
-
+		item = new JMenuItem("Optimization test");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new OptimizationTestDialog(BasicFrame.this, document).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
 		return menu;
 	}
 	

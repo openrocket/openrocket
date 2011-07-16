@@ -16,6 +16,11 @@ public final class Point {
 	private double length2 = -1;
 	
 	
+	/**
+	 * Create a new point with all values zero.
+	 * 
+	 * @param dim	the dimensionality of the point
+	 */
 	public Point(int dim) {
 		if (dim <= 0) {
 			throw new IllegalArgumentException("Invalid dimensionality " + dim);
@@ -23,11 +28,24 @@ public final class Point {
 		point = new double[dim];
 	}
 	
+	
+	/**
+	 * Create a new point filled with a specific value.
+	 * 
+	 * @param dim		the dimensionality of the point
+	 * @param value		the value for all dimensions
+	 */
 	public Point(int dim, double value) {
 		this(dim);
 		Arrays.fill(point, value);
 	}
 	
+	
+	/**
+	 * Create a new point with specific values.
+	 * 
+	 * @param value		the values of the dimensions.
+	 */
 	public Point(double... value) {
 		if (value.length == 0) {
 			throw new IllegalArgumentException("Zero-dimensional point not allowed");
@@ -35,6 +53,12 @@ public final class Point {
 		point = value.clone();
 	}
 	
+	
+	/**
+	 * Create a copy of a point.  Used locally to create copies.
+	 * 
+	 * @param p		the point to copy.
+	 */
 	private Point(Point p) {
 		point = p.point.clone();
 	}
@@ -137,6 +161,7 @@ public final class Point {
 	}
 	
 	
+
 	/**
 	 * Return the point as an array.
 	 * 

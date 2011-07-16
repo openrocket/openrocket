@@ -1,8 +1,9 @@
-package net.sf.openrocket.optimization.rocketoptimization;
+package net.sf.openrocket.optimization.services;
 
 import java.util.Collection;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 
 /**
  * A service for generating rocket optimization parameters.
@@ -20,4 +21,5 @@ public interface OptimizableParameterService {
 	 */
 	public Collection<OptimizableParameter> getParameters(OpenRocketDocument document);
 	
+
 }

@@ -1514,7 +1514,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Returns an iterator that iterates over this components, its children and sub-children.
+	 * Returns an iterator that iterates over this component, its children and sub-children.
 	 * <p>
 	 * This method is equivalent to <code>iterator(true)</code>.
 	 *

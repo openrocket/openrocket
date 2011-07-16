@@ -48,6 +48,9 @@ import net.sf.openrocket.util.Prefs;
  */
 public class PrintDialog extends JDialog implements TreeSelectionListener {
 	
+	// FIXME:  Printouts use SI units even when imperial are selected
+	// FIXME:  Array out of bounds exception when printing
+	
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	

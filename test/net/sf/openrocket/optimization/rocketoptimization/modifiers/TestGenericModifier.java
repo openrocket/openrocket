@@ -38,9 +38,9 @@ public class TestGenericModifier {
 	@Test
 	public void testGetCurrentValue() throws OptimizationException {
 		value.d = 1.0;
-		assertEquals(2.0, gm.getCurrentValue(sim), EPSILON);
+		assertEquals(2.0, gm.getCurrentSIValue(sim), EPSILON);
 		value.d = 2.0;
-		assertEquals(4.0, gm.getCurrentValue(sim), EPSILON);
+		assertEquals(4.0, gm.getCurrentSIValue(sim), EPSILON);
 	}
 	
 	@Test

@@ -140,7 +140,7 @@ public class TestRockets {
 		body.setMotorMount(rnd.nextBoolean());
 		body.setMotorOverhang(rnd.nextGaussian() * 0.03);
 		body.setOuterRadius(rnd(0.06));
-		body.setRadiusAutomatic(rnd.nextBoolean());
+		body.setOuterRadiusAutomatic(rnd.nextBoolean());
 		stage.addChild(body);
 		
 

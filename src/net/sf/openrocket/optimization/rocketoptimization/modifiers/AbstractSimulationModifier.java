@@ -14,7 +14,7 @@ import net.sf.openrocket.util.MathUtil;
 
 /**
  * An abstract implementation of the SimulationModifier interface.  An implementation
- * needs only to implement the {@link #getCurrentValue(Simulation)} and
+ * needs only to implement the {@link #getCurrentSIValue(Simulation)} and
  * {@link #modify(net.sf.openrocket.document.Simulation, double)} methods.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
@@ -57,7 +57,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	
 	@Override
 	public double getCurrentScaledValue(Simulation simulation) throws OptimizationException {
-		double value = getCurrentValue(simulation);
+		double value = getCurrentSIValue(simulation);
 		return toScaledValue(value);
 	}
 	
@@ -91,6 +91,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	 * @return			the value in SI units
 	 */
 	protected double toBaseValue(double value) {
+		System.out.println("value=" + value + " minValue=" + minValue + " maxValue=" + maxValue);
 		return MathUtil.map(value, 0.0, 1.0, minValue, maxValue);
 	}
 	

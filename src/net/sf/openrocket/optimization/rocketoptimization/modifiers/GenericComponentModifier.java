@@ -13,7 +13,7 @@ import net.sf.openrocket.unit.UnitGroup;
  */
 public class GenericComponentModifier extends GenericModifier<RocketComponent> {
 	
-	private final Class<RocketComponent> componentClass;
+	private final Class<? extends RocketComponent> componentClass;
 	private final String componentId;
 	
 	/**
@@ -29,7 +29,7 @@ public class GenericComponentModifier extends GenericModifier<RocketComponent> {
 	 * @param methodName		the base name of the getter/setter methods (without "get"/"set")
 	 */
 	public GenericComponentModifier(String modifierName, Object relatedObject, UnitGroup unitGroup,
-			double multiplier, Class<RocketComponent> componentClass, String componentId, String methodName) {
+			double multiplier, Class<? extends RocketComponent> componentClass, String componentId, String methodName) {
 		super(modifierName, relatedObject, unitGroup, multiplier, componentClass, methodName);
 		
 		this.componentClass = componentClass;

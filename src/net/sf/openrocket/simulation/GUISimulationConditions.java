@@ -445,6 +445,8 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 		conditions.setLaunchLatitude(getLaunchLatitude());
 		
 		PinkNoiseWindModel windModel = new PinkNoiseWindModel();
+		// FIXME:  Random seed
+		windModel.setSeed(1);
 		windModel.setAverage(getWindSpeedAverage());
 		windModel.setStandardDeviation(getWindSpeedDeviation());
 		conditions.setWindModel(windModel);

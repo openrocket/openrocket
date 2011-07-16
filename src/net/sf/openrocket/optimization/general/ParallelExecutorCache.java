@@ -87,6 +87,12 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	
 	@Override
 	public void compute(Point point) {
+		
+		if (isOutsideRange(point)) {
+			// Point is outside of range
+			return;
+		}
+		
 		if (functionCache.containsKey(point)) {
 			// Function has already been evaluated at the point
 			return;
@@ -114,6 +120,10 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	
 	@Override
 	public void waitFor(Point point) throws InterruptedException, OptimizationException {
+		if (isOutsideRange(point)) {
+			return;
+		}
+		
 		if (functionCache.containsKey(point)) {
 			return;
 		}
@@ -161,6 +171,10 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 
 	@Override
 	public boolean abort(Point point) {
+		if (isOutsideRange(point)) {
+			return false;
+		}
+		
 		if (functionCache.containsKey(point)) {
 			return true;
 		}
@@ -189,6 +203,10 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	
 	@Override
 	public double getValue(Point point) {
+		if (isOutsideRange(point)) {
+			return Double.MAX_VALUE;
+		}
+		
 		Double d = functionCache.get(point);
 		if (d == null) {
 			throw new IllegalStateException(point + " is not in function cache.  " +
@@ -222,7 +240,22 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	}
 	
 	
-
+	/**
+	 * Check whether a point is outside of the valid optimization range.
+	 */
+	private boolean isOutsideRange(Point p) {
+		int n = p.dim();
+		for (int i = 0; i < n; i++) {
+			double d = p.get(i);
+			// Include NaN in disallowed range
+			if (!(d >= 0.0 && d <= 1.0)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 	/**
 	 * A Callable that evaluates a function at a specific point and returns the result.
 	 */

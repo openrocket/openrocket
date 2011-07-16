@@ -1,8 +1,8 @@
 package net.sf.openrocket.optimization.rocketoptimization;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.logging.LogHelper;
@@ -11,6 +11,9 @@ import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.unit.Value;
+import net.sf.openrocket.util.Pair;
 
 /**
  * A Function that optimizes a specific RocketOptimizationParameter to some goal
@@ -33,8 +36,8 @@ public class RocketOptimizationFunction implements Function {
 	private final SimulationDomain domain;
 	private final SimulationModifier[] modifiers;
 	
-	private final Map<Point, Double> parameterValueCache = new ConcurrentHashMap<Point, Double>();
-	private final Map<Point, Double> goalValueCache = new ConcurrentHashMap<Point, Double>();
+
+	private final List<RocketOptimizationListener> listeners = new ArrayList<RocketOptimizationListener>();
 	
 	
 	/**
@@ -63,19 +66,16 @@ public class RocketOptimizationFunction implements Function {
 	
 	@Override
 	public double evaluate(Point point) throws InterruptedException, OptimizationException {
+		
+		System.out.println("Evaluating function at point " + point);
+		
 		/*
 		 * parameterValue is the computed parameter value (e.g. altitude)
 		 * goalValue is the value that needs to be minimized
 		 */
 		double goalValue, parameterValue;
 		
-		// Check for precomputed value
-		Double d = goalValueCache.get(point);
-		if (d != null && !Double.isNaN(d)) {
-			log.verbose("Optimization function value at point " + point + " was found in cache: " + d);
-			return d;
-		}
-		
+
 		log.verbose("Computing optimization function value at point " + point);
 		
 		// Create the new simulation based on the point
@@ -92,34 +92,39 @@ public class RocketOptimizationFunction implements Function {
 		
 
 		// Check whether the point is within the simulation domain
-		double distance = domain.getDistanceToDomain(simulation);
+		Pair<Double, Double> d = domain.getDistanceToDomain(simulation);
+		double distance = d.getU();
+		double referenceValue = d.getV();
 		if (distance > 0 || Double.isNaN(distance)) {
 			if (Double.isNaN(distance)) {
 				goalValue = Double.MAX_VALUE;
 			} else {
 				goalValue = (distance + 1) * OUTSIDE_DOMAIN_SCALE;
 			}
-			parameterValueCache.put(point, Double.NaN);
-			goalValueCache.put(point, goalValue);
 			log.verbose("Optimization point is outside of domain, distance=" + distance + " goal function value=" + goalValue);
+			System.out.println("Optimization point is outside of domain, distance=" + distance + " goal function value=" + goalValue);
+			
+			fireEvent(simulation, point, referenceValue, Double.NaN, goalValue);
+			
 			return goalValue;
 		}
 		
 
 		// Compute the optimization value
 		parameterValue = parameter.computeValue(simulation);
-		parameterValueCache.put(point, parameterValue);
-		
 		goalValue = goal.getMinimizationParameter(parameterValue);
+		
 		if (Double.isNaN(goalValue)) {
 			log.warn("Computed goal value was NaN, baseSimulation=" + baseSimulation + " parameter=" + parameter +
 					" goal=" + goal + " modifiers=" + Arrays.toString(modifiers) + " simulation=" + simulation +
 					" parameter value=" + parameterValue);
 			goalValue = Double.MAX_VALUE;
 		}
-		goalValueCache.put(point, goalValue);
 		
-		log.verbose("Parameter value at point " + point + " is " + goalValue + ", goal function value=" + goalValue);
+		log.verbose("Parameter value at point " + point + " is " + parameterValue + ", goal function value=" + goalValue);
+		System.out.println("Parameter value at point " + point + " is " + parameterValue + ", goal function value=" + goalValue);
+		
+		fireEvent(simulation, point, referenceValue, parameterValue, goalValue);
 		
 		return goalValue;
 	}
@@ -127,23 +132,7 @@ public class RocketOptimizationFunction implements Function {
 	
 
 
-	/**
-	 * Return the parameter value at a point that has been computed.  The purpose is
-	 * to allow retrieving the parameter value corresponding to the found minimum value.
-	 * 
-	 * @param point		the point to use.
-	 * @return			the parameter value at that point, or NaN if the value at this point has not been computed.
-	 */
-	public double getComputedParameterValue(Point point) {
-		Double value = parameterValueCache.get(point);
-		if (value != null) {
-			return value;
-		} else {
-			return Double.NaN;
-		}
-	}
-	
-	
+
 	/**
 	 * Returns a new deep copy of the simulation and rocket.  This methods performs
 	 * synchronization on the simulation for thread protection.
@@ -154,10 +143,48 @@ public class RocketOptimizationFunction implements Function {
 	 */
 	Simulation newSimulationInstance(Simulation simulation) {
 		synchronized (baseSimulation) {
-			Rocket newRocket = (Rocket) simulation.getRocket().copy();
+			Rocket newRocket = simulation.getRocket().copyWithOriginalID();
 			Simulation newSimulation = simulation.duplicateSimulation(newRocket);
 			return newSimulation;
 		}
 	}
 	
+	
+	/**
+	 * Add a listener to this function.  The listener will be notified each time the
+	 * function is successfully evaluated.
+	 * <p>
+	 * Note that the listener may be called from other threads and must be thread-safe!
+	 * 
+	 * @param listener	the listener to add.
+	 */
+	public void addRocketOptimizationListener(RocketOptimizationListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeRocketOptimizationListener(RocketOptimizationListener listener) {
+		listeners.remove(listener);
+	}
+	
+	
+
+	private void fireEvent(Simulation simulation, Point p, double domainReference, double parameterValue, double goalValue)
+			throws OptimizationException {
+		
+		if (listeners.isEmpty()) {
+			return;
+		}
+		
+
+		Value[] values = new Value[p.dim()];
+		for (int i = 0; i < values.length; i++) {
+			double value = modifiers[i].getCurrentSIValue(simulation);
+			UnitGroup unit = modifiers[i].getUnitGroup();
+			values[i] = new Value(value, unit.getDefaultUnit());
+		}
+		
+		for (RocketOptimizationListener l : listeners) {
+			l.evaluated(p, values, domainReference, parameterValue, goalValue);
+		}
+	}
 }

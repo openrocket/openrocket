@@ -22,7 +22,7 @@ public class BodyTubeSaver extends SymmetricComponentSaver {
 		super.addParams(c, elements);
 		net.sf.openrocket.rocketcomponent.BodyTube tube = (net.sf.openrocket.rocketcomponent.BodyTube) c;
 
-		if (tube.isRadiusAutomatic())
+		if (tube.isOuterRadiusAutomatic())
 			elements.add("<radius>auto</radius>");
 		else
 			elements.add("<radius>" + tube.getOuterRadius() + "</radius>");

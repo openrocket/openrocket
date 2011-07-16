@@ -115,14 +115,14 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	 * Returns whether the radius is selected automatically or not.
 	 * Returns false also in case automatic radius selection is not possible.
 	 */
-	public boolean isRadiusAutomatic() {
+	public boolean isOuterRadiusAutomatic() {
 		return autoRadius;
 	}
 	
 	/**
 	 * Sets whether the radius is selected automatically or not.
 	 */
-	public void setRadiusAutomatic(boolean auto) {
+	public void setOuterRadiusAutomatic(boolean auto) {
 		if (autoRadius == auto)
 			return;
 		
@@ -143,19 +143,19 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	@Override
 	public boolean isAftRadiusAutomatic() {
-		return isRadiusAutomatic();
+		return isOuterRadiusAutomatic();
 	}
 	
 	@Override
 	public boolean isForeRadiusAutomatic() {
-		return isRadiusAutomatic();
+		return isOuterRadiusAutomatic();
 	}
 	
 	
 
 	@Override
 	protected double getFrontAutoRadius() {
-		if (isRadiusAutomatic()) {
+		if (isOuterRadiusAutomatic()) {
 			// Search for previous SymmetricComponent
 			SymmetricComponent c = this.getPreviousSymmetricComponent();
 			if (c != null) {
@@ -169,7 +169,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	@Override
 	protected double getRearAutoRadius() {
-		if (isRadiusAutomatic()) {
+		if (isOuterRadiusAutomatic()) {
 			// Search for next SymmetricComponent
 			SymmetricComponent c = this.getNextSymmetricComponent();
 			if (c != null) {

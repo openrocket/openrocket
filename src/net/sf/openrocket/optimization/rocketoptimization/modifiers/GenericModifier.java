@@ -18,6 +18,9 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	
 	private final double multiplier;
 	
+	private final Class<? extends T> modifiedClass;
+	private final String methodName;
+	
 	private final Method getter;
 	private final Method setter;
 	
@@ -34,9 +37,12 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	 * @param methodName		the base name of the getter/setter methods (without "get"/"set")
 	 */
 	public GenericModifier(String modifierName, Object relatedObject, UnitGroup unitGroup, double multiplier,
-			Class<T> modifiedClass, String methodName) {
+			Class<? extends T> modifiedClass, String methodName) {
 		super(modifierName, relatedObject, unitGroup);
 		this.multiplier = multiplier;
+		
+		this.modifiedClass = modifiedClass;
+		this.methodName = methodName;
 		
 		if (MathUtil.equals(multiplier, 0)) {
 			throw new IllegalArgumentException("multiplier is zero");
@@ -56,7 +62,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	
 
 	@Override
-	public double getCurrentValue(Simulation simulation) throws OptimizationException {
+	public double getCurrentSIValue(Simulation simulation) throws OptimizationException {
 		T modifiable = getModifiedObject(simulation);
 		if (modifiable == null) {
 			throw new OptimizationException("BUG: getModifiedObject() returned null");
@@ -72,6 +78,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 			throw new OptimizationException("BUG: getModifiedObject() returned null");
 		}
 		double siValue = toBaseValue(scaledValue) / multiplier;
+		System.out.println("Setting setter=" + setter + " modifiable=" + modifiable + " siValue=" + siValue + "scaledValue=" + scaledValue);
 		setter.invoke(modifiable, siValue);
 	}
 	
@@ -84,5 +91,12 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	 * @throws OptimizationException 	if the object cannot be found
 	 */
 	protected abstract T getModifiedObject(Simulation simulation) throws OptimizationException;
+	
+	
+
+	@Override
+	public String toString() {
+		return "GenericModifier[modifiedClass=" + modifiedClass.getCanonicalName() + ", methodName=" + methodName + ", multiplier=" + multiplier + "]";
+	}
 	
 }

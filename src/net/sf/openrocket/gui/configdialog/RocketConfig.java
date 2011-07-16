@@ -56,7 +56,7 @@ public class RocketConfig extends RocketComponentConfig {
 		this.add(new JScrollPane(commentTextArea), "wmin 400lp, height 155lp:155lp:, grow 100, wrap para");
 		
 		//// Revision history:
-		this.add(new JLabel(trans.get("RocketCfg.lbl.Material")), "top, pad 4lp, gapright 10lp");
+		this.add(new JLabel(trans.get("RocketCfg.lbl.Revisionhistory")), "top, pad 4lp, gapright 10lp");
 		revisionTextArea = new JTextArea(rocket.getRevision());
 		revisionTextArea.setLineWrap(true);
 		revisionTextArea.setWrapStyleWord(true);
@@ -73,13 +73,16 @@ public class RocketConfig extends RocketComponentConfig {
 	
 
 	private class TextFieldListener implements ActionListener, FocusListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			setName();
 		}
 		
+		@Override
 		public void focusGained(FocusEvent e) {
 		}
 		
+		@Override
 		public void focusLost(FocusEvent e) {
 			setName();
 		}

@@ -1,5 +1,14 @@
 package net.sf.openrocket.file.openrocket;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.database.Databases;
@@ -67,17 +76,9 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import java.awt.Color;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 
 /**
@@ -245,7 +246,7 @@ class DocumentConfig {
 		setters.put("BodyTube:radius", new DoubleSetter(
 				Reflection.findMethodStatic(BodyTube.class, "setOuterRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(BodyTube.class, "setRadiusAutomatic", boolean.class)));
+				Reflection.findMethodStatic(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
@@ -752,7 +753,6 @@ class ComponentParameterHandler extends ElementHandler {
 			Setter s = DocumentConfig.setters.get(setterKey);
 			if (s != null) {
 				// Setter found
-				System.out.println("Calling with key " + setterKey);
 				s.set(component, content, attributes, warnings);
 				break;
 			}
@@ -1669,6 +1669,7 @@ class StringSetter implements Setter {
 		setMethod = set;
 	}
 	
+	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		setMethod.invoke(c, s);
@@ -1683,6 +1684,7 @@ class IntSetter implements Setter {
 		setMethod = set;
 	}
 	
+	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		try {
@@ -1703,6 +1705,7 @@ class BooleanSetter implements Setter {
 		setMethod = set;
 	}
 	
+	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1767,6 +1770,7 @@ class DoubleSetter implements Setter {
 	}
 	
 	
+	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1798,6 +1802,7 @@ class OverrideSetter implements Setter {
 		this.enabledMethod = enabledMethod;
 	}
 	
+	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1844,6 +1849,7 @@ class ColorSetter implements Setter {
 		setMethod = set;
 	}
 	
+	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1891,6 +1897,7 @@ class MaterialSetter implements Setter {
 		this.type = type;
 	}
 	
+	@Override
 	public void set(RocketComponent c, String name, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -1947,6 +1954,7 @@ class MaterialSetter implements Setter {
 
 class PositionSetter implements Setter {
 	
+	@Override
 	public void set(RocketComponent c, String value, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
@@ -2022,6 +2030,7 @@ class FinTabPositionSetter extends DoubleSetter {
 
 class ClusterConfigurationSetter implements Setter {
 	
+	@Override
 	public void set(RocketComponent component, String value, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		

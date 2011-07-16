@@ -15,7 +15,7 @@ import net.sf.openrocket.util.PinkNoise;
  */
 public class PinkNoiseWindModel implements WindModel {
 	
-	/** Source for seed numbers. */
+	/** Source for seed numbers, may be overridden by get/setSeed(). */
 	private static final Random seedSource = new Random();
 	
 	/** Pink noise alpha parameter. */
@@ -134,6 +134,7 @@ public class PinkNoiseWindModel implements WindModel {
 	
 	
 
+	@Override
 	public Coordinate getWindVelocity(double time, double altitude) {
 		if (time < 0) {
 			throw new IllegalArgumentException("Requesting wind speed at t=" + time);

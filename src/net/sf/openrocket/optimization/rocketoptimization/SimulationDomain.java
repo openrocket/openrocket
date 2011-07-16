@@ -1,6 +1,7 @@
 package net.sf.openrocket.optimization.rocketoptimization;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.util.Pair;
 
 /**
  * An interface defining a function domain which limits allowed function values.
@@ -17,9 +18,11 @@ public interface SimulationDomain {
 	 * is NaN, the simulation is outside of the domain.
 	 * 
 	 * @param simulation	the simulation to check.
-	 * @return				a negative value or zero if the simulation is in the domain;
-	 * 						a positive value or NaN if not.
+	 * @return				the double parameter is the domain indication;
+	 * 						a negative value or zero if the simulation is in the domain,
+	 * 						a positive value or NaN if not.  The second is a human-readable
+	 * 						indication of the domain (may be null).
 	 */
-	public double getDistanceToDomain(Simulation simulation);
+	public Pair<Double, Double> getDistanceToDomain(Simulation simulation);
 	
 }

@@ -32,9 +32,9 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -46,7 +46,7 @@ public class MotorConfig extends JPanel {
 	private JPanel panel;
 	private JLabel motorLabel;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public MotorConfig(MotorMount motorMount) {
 		super(new MigLayout("fill"));
 		
@@ -148,13 +148,13 @@ public class MotorConfig extends JPanel {
 			//// The current design has only one stage.
 			//// Stages can be added by clicking \"New stage\".
 			
-			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longA1") +
+			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longA1") + " " +
 					trans.get("MotorCfg.lbl.longA2"), -1),
 					"spanx, right, wrap para");
 		} else {
 			//// The current design has 
 			//// stages.
-			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longB1") + " " + stages +" " +
+			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longB1") + " " + stages + " " +
 					trans.get("MotorCfg.lbl.longB2"), -1),
 					"skip 1, spanx, wrap para");
 		}

@@ -1,3 +1,8 @@
+2011-07-14  Sampo Niskanen
+
+	* [BUG] Body tube auto-radius not enabled
+	* Optimization implementation
+
 2011-06-26  Sampo Niskanen
 
 	* [BUG] Original rocket was modified when sim.listener modified rocket

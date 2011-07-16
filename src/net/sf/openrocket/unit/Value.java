@@ -1,5 +1,7 @@
 package net.sf.openrocket.unit;
 
+import net.sf.openrocket.util.MathUtil;
+
 /**
  * A class representing an SI value and a unit.  The toString() method yields the
  * current value in the current units.  This class may be used to encapsulate
@@ -39,7 +41,7 @@ public class Value implements Comparable<Value> {
 	public Value(double value, UnitGroup group) {
 		this(value, group.getDefaultUnit());
 	}
-
+	
 	
 	/**
 	 * Get the value of this object.
@@ -49,7 +51,7 @@ public class Value implements Comparable<Value> {
 	public double getValue() {
 		return value;
 	}
-
+	
 	/**
 	 * Set the value of this object.
 	 * 
@@ -79,7 +81,7 @@ public class Value implements Comparable<Value> {
 		this.value = unit.fromUnit(value);
 	}
 	
-
+	
 	/**
 	 * Get the unit of this object.
 	 * 
@@ -88,7 +90,7 @@ public class Value implements Comparable<Value> {
 	public Unit getUnit() {
 		return unit;
 	}
-
+	
 	/**
 	 * Set the value of this object.
 	 * 
@@ -111,7 +113,41 @@ public class Value implements Comparable<Value> {
 	public String toString() {
 		return unit.toStringUnit(value);
 	}
+	
+	
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		Value other = (Value) obj;
+		if (this.unit != other.unit) {
+			return false;
+		}
+		
+		if (!MathUtil.equals(this.value, other.value)) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(value);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
 	
 	
 	/**
@@ -143,5 +179,5 @@ public class Value implements Comparable<Value> {
 		else
 			return 0;
 	}
-
+	
 }
