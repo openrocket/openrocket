@@ -26,6 +26,12 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	static {
 		//addModifier("optimization.modifier.", unitGroup, multiplier, componentClass, methodName);
 		
+		/*
+		 * Note:  Each component type must contain only mutually exclusive variables.
+		 * For example, body tube does not have inner diameter definition because it is
+		 * defined by the outer diameter and thickness.
+		 */
+
 		addModifier("optimization.modifier.nosecone.length", UnitGroup.UNITS_LENGTH, 1.0, NoseCone.class, "Length");
 		addModifier("optimization.modifier.nosecone.diameter", UnitGroup.UNITS_LENGTH, 2.0, NoseCone.class, "AftRadius");
 		addModifier("optimization.modifier.nosecone.thickness", UnitGroup.UNITS_LENGTH, 1.0, NoseCone.class, "Thickness");
@@ -37,7 +43,6 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		
 		addModifier("optimization.modifier.bodytube.length", UnitGroup.UNITS_LENGTH, 1.0, BodyTube.class, "Length");
 		addModifier("optimization.modifier.bodytube.outerDiameter", UnitGroup.UNITS_LENGTH, 2.0, BodyTube.class, "OuterRadius");
-		addModifier("optimization.modifier.bodytube.innerDiameter", UnitGroup.UNITS_LENGTH, 2.0, BodyTube.class, "InnerRadius");
 		addModifier("optimization.modifier.bodytube.thickness", UnitGroup.UNITS_LENGTH, 1.0, BodyTube.class, "Thickness");
 		
 

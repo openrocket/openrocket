@@ -90,9 +90,10 @@ public class Reflection {
 	
 
 	/**
+	 * Find a method from the rocket component classes.
 	 * Throws an exception if method not found.
 	 */
-	public static Reflection.Method findMethodStatic(
+	public static Reflection.Method findMethod(
 			Class<? extends RocketComponent> componentClass,
 			String method, Class<?>... params) {
 		Reflection.Method m = findMethod(ROCKETCOMPONENT_PACKAGE, componentClass,

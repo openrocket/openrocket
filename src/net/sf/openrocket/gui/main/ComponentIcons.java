@@ -31,18 +31,18 @@ import net.sf.openrocket.startup.Application;
 
 public class ComponentIcons {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final String ICON_DIRECTORY = "pix/componenticons/";
 	private static final String SMALL_SUFFIX = "-small.png";
 	private static final String LARGE_SUFFIX = "-large.png";
 	
-	private static final HashMap<Class<?>,ImageIcon> SMALL_ICONS = 
-		new HashMap<Class<?>,ImageIcon>();
-	private static final HashMap<Class<?>,ImageIcon> LARGE_ICONS = 
-		new HashMap<Class<?>,ImageIcon>();
-	private static final HashMap<Class<?>,ImageIcon> DISABLED_ICONS = 
-		new HashMap<Class<?>,ImageIcon>();
-
+	private static final HashMap<Class<?>, ImageIcon> SMALL_ICONS =
+			new HashMap<Class<?>, ImageIcon>();
+	private static final HashMap<Class<?>, ImageIcon> LARGE_ICONS =
+			new HashMap<Class<?>, ImageIcon>();
+	private static final HashMap<Class<?>, ImageIcon> DISABLED_ICONS =
+			new HashMap<Class<?>, ImageIcon>();
+	
 	static {
 		//// Nose cone
 		load("nosecone", trans.get("ComponentIcons.Nosecone"), NoseCone.class);
@@ -88,24 +88,43 @@ public class ComponentIcons {
 	}
 	
 	
-	
+	/**
+	 * Return the small icon for a component type.
+	 * 
+	 * @param c		the component class.
+	 * @return		the icon, or <code>null</code> if none available.
+	 */
 	public static Icon getSmallIcon(Class<?> c) {
 		return SMALL_ICONS.get(c);
 	}
+	
+	/**
+	 * Return the large icon for a component type.
+	 * 
+	 * @param c		the component class.
+	 * @return		the icon, or <code>null</code> if none available.
+	 */
 	public static Icon getLargeIcon(Class<?> c) {
 		return LARGE_ICONS.get(c);
 	}
+	
+	/**
+	 * Return the large disabled icon for a component type.
+	 * 
+	 * @param c		the component class.
+	 * @return		the icon, or <code>null</code> if none available.
+	 */
 	public static Icon getLargeDisabledIcon(Class<?> c) {
 		return DISABLED_ICONS.get(c);
 	}
 	
 	
-	
-	
+
+
 	private static ImageIcon loadSmall(String file, String desc) {
 		URL url = ClassLoader.getSystemResource(file);
-		if (url==null) {
-	        ExceptionHandler.handleErrorCondition("ERROR:  Couldn't find file: " + file);
+		if (url == null) {
+			ExceptionHandler.handleErrorCondition("ERROR:  Couldn't find file: " + file);
 			return null;
 		}
 		return new ImageIcon(url, desc);
@@ -116,35 +135,35 @@ public class ComponentIcons {
 		ImageIcon[] icons = new ImageIcon[2];
 		
 		URL url = ClassLoader.getSystemResource(file);
-	    if (url != null) {
-	    	BufferedImage bi,bi2;
-	    	try {
+		if (url != null) {
+			BufferedImage bi, bi2;
+			try {
 				bi = ImageIO.read(url);
-				bi2 = ImageIO.read(url);   //  How the fsck can one duplicate a BufferedImage???
+				bi2 = ImageIO.read(url); //  How the fsck can one duplicate a BufferedImage???
 			} catch (IOException e) {
-				ExceptionHandler.handleErrorCondition("ERROR:  Couldn't read file: "+file, e);
-		        return new ImageIcon[]{null,null};
+				ExceptionHandler.handleErrorCondition("ERROR:  Couldn't read file: " + file, e);
+				return new ImageIcon[] { null, null };
 			}
 			
-			icons[0] = new ImageIcon(bi,desc);
+			icons[0] = new ImageIcon(bi, desc);
 			
 			// Create disabled icon
-			if (false) {   // Fade using alpha 
-				
-				int rgb[] = bi2.getRGB(0,0,bi2.getWidth(),bi2.getHeight(),null,0,bi2.getWidth());
-				for (int i=0; i<rgb.length; i++) {
-					final int alpha = (rgb[i]>>24)&0xFF;
-					rgb[i] = (rgb[i]&0xFFFFFF) | (alpha/3)<<24;
+			if (false) { // Fade using alpha 
+			
+				int rgb[] = bi2.getRGB(0, 0, bi2.getWidth(), bi2.getHeight(), null, 0, bi2.getWidth());
+				for (int i = 0; i < rgb.length; i++) {
+					final int alpha = (rgb[i] >> 24) & 0xFF;
+					rgb[i] = (rgb[i] & 0xFFFFFF) | (alpha / 3) << 24;
 					
 					//rgb[i] = (rgb[i]&0xFFFFFF) | ((rgb[i]>>1)&0x3F000000);
 				}
 				bi2.setRGB(0, 0, bi2.getWidth(), bi2.getHeight(), rgb, 0, bi2.getWidth());
-
-			} else {   // Raster alpha
-
-				for (int x=0; x < bi.getWidth(); x++) {
-					for (int y=0; y < bi.getHeight(); y++) {
-						if ((x+y)%2 == 0) {
+				
+			} else { // Raster alpha
+			
+				for (int x = 0; x < bi.getWidth(); x++) {
+					for (int y = 0; y < bi.getHeight(); y++) {
+						if ((x + y) % 2 == 0) {
 							bi2.setRGB(x, y, 0);
 						}
 					}
@@ -153,12 +172,12 @@ public class ComponentIcons {
 			}
 			
 			//// (disabled)
-			icons[1] = new ImageIcon(bi2,desc + " " +trans.get("ComponentIcons.disabled"));
-	    	
-	        return icons;
-	    } else {
-	    	ExceptionHandler.handleErrorCondition("ERROR:  Couldn't find file: " + file);
-	        return new ImageIcon[]{null,null};
-	    }
+			icons[1] = new ImageIcon(bi2, desc + " " + trans.get("ComponentIcons.disabled"));
+			
+			return icons;
+		} else {
+			ExceptionHandler.handleErrorCondition("ERROR:  Couldn't find file: " + file);
+			return new ImageIcon[] { null, null };
+		}
 	}
 }

@@ -186,7 +186,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		}
 		
 		// Unknown Error
-		if (!(e instanceof Exception)) {
+		if (!(e instanceof Exception) && !(e instanceof LinkageError)) {
 			log.info("Showing Error dialog");
 			JOptionPane.showMessageDialog(null,
 					new Object[] {

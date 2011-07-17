@@ -206,83 +206,83 @@ class DocumentConfig {
 	static {
 		// RocketComponent
 		setters.put("RocketComponent:name", new StringSetter(
-				Reflection.findMethodStatic(RocketComponent.class, "setName", String.class)));
+				Reflection.findMethod(RocketComponent.class, "setName", String.class)));
 		setters.put("RocketComponent:color", new ColorSetter(
-				Reflection.findMethodStatic(RocketComponent.class, "setColor", Color.class)));
+				Reflection.findMethod(RocketComponent.class, "setColor", Color.class)));
 		setters.put("RocketComponent:linestyle", new EnumSetter<LineStyle>(
-				Reflection.findMethodStatic(RocketComponent.class, "setLineStyle", LineStyle.class),
+				Reflection.findMethod(RocketComponent.class, "setLineStyle", LineStyle.class),
 				LineStyle.class));
 		setters.put("RocketComponent:position", new PositionSetter());
 		setters.put("RocketComponent:overridemass", new OverrideSetter(
-				Reflection.findMethodStatic(RocketComponent.class, "setOverrideMass", double.class),
-				Reflection.findMethodStatic(RocketComponent.class, "setMassOverridden", boolean.class)));
+				Reflection.findMethod(RocketComponent.class, "setOverrideMass", double.class),
+				Reflection.findMethod(RocketComponent.class, "setMassOverridden", boolean.class)));
 		setters.put("RocketComponent:overridecg", new OverrideSetter(
-				Reflection.findMethodStatic(RocketComponent.class, "setOverrideCGX", double.class),
-				Reflection.findMethodStatic(RocketComponent.class, "setCGOverridden", boolean.class)));
+				Reflection.findMethod(RocketComponent.class, "setOverrideCGX", double.class),
+				Reflection.findMethod(RocketComponent.class, "setCGOverridden", boolean.class)));
 		setters.put("RocketComponent:overridesubcomponents", new BooleanSetter(
-				Reflection.findMethodStatic(RocketComponent.class, "setOverrideSubcomponents", boolean.class)));
+				Reflection.findMethod(RocketComponent.class, "setOverrideSubcomponents", boolean.class)));
 		setters.put("RocketComponent:comment", new StringSetter(
-				Reflection.findMethodStatic(RocketComponent.class, "setComment", String.class)));
+				Reflection.findMethod(RocketComponent.class, "setComment", String.class)));
 		
 		// ExternalComponent
 		setters.put("ExternalComponent:finish", new EnumSetter<Finish>(
-				Reflection.findMethodStatic(ExternalComponent.class, "setFinish", Finish.class),
+				Reflection.findMethod(ExternalComponent.class, "setFinish", Finish.class),
 				Finish.class));
 		setters.put("ExternalComponent:material", new MaterialSetter(
-				Reflection.findMethodStatic(ExternalComponent.class, "setMaterial", Material.class),
+				Reflection.findMethod(ExternalComponent.class, "setMaterial", Material.class),
 				Material.Type.BULK));
 		
 		// BodyComponent
 		setters.put("BodyComponent:length", new DoubleSetter(
-				Reflection.findMethodStatic(BodyComponent.class, "setLength", double.class)));
+				Reflection.findMethod(BodyComponent.class, "setLength", double.class)));
 		
 		// SymmetricComponent
 		setters.put("SymmetricComponent:thickness", new DoubleSetter(
-				Reflection.findMethodStatic(SymmetricComponent.class, "setThickness", double.class),
+				Reflection.findMethod(SymmetricComponent.class, "setThickness", double.class),
 				"filled",
-				Reflection.findMethodStatic(SymmetricComponent.class, "setFilled", boolean.class)));
+				Reflection.findMethod(SymmetricComponent.class, "setFilled", boolean.class)));
 		
 		// BodyTube
 		setters.put("BodyTube:radius", new DoubleSetter(
-				Reflection.findMethodStatic(BodyTube.class, "setOuterRadius", double.class),
+				Reflection.findMethod(BodyTube.class, "setOuterRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(BodyTube.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 		// Transition
 		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
-				Reflection.findMethodStatic(Transition.class, "setType", Transition.Shape.class),
+				Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
 				Transition.Shape.class));
 		setters.put("Transition:shapeclipped", new BooleanSetter(
-				Reflection.findMethodStatic(Transition.class, "setClipped", boolean.class)));
+				Reflection.findMethod(Transition.class, "setClipped", boolean.class)));
 		setters.put("Transition:shapeparameter", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setShapeParameter", double.class)));
+				Reflection.findMethod(Transition.class, "setShapeParameter", double.class)));
 		
 		setters.put("Transition:foreradius", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setForeRadius", double.class),
+				Reflection.findMethod(Transition.class, "setForeRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(Transition.class, "setForeRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(Transition.class, "setForeRadiusAutomatic", boolean.class)));
 		setters.put("Transition:aftradius", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setAftRadius", double.class),
+				Reflection.findMethod(Transition.class, "setAftRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(Transition.class, "setAftRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(Transition.class, "setAftRadiusAutomatic", boolean.class)));
 		
 		setters.put("Transition:foreshoulderradius", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setForeShoulderRadius", double.class)));
+				Reflection.findMethod(Transition.class, "setForeShoulderRadius", double.class)));
 		setters.put("Transition:foreshoulderlength", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setForeShoulderLength", double.class)));
+				Reflection.findMethod(Transition.class, "setForeShoulderLength", double.class)));
 		setters.put("Transition:foreshoulderthickness", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setForeShoulderThickness", double.class)));
+				Reflection.findMethod(Transition.class, "setForeShoulderThickness", double.class)));
 		setters.put("Transition:foreshouldercapped", new BooleanSetter(
-				Reflection.findMethodStatic(Transition.class, "setForeShoulderCapped", boolean.class)));
+				Reflection.findMethod(Transition.class, "setForeShoulderCapped", boolean.class)));
 		
 		setters.put("Transition:aftshoulderradius", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setAftShoulderRadius", double.class)));
+				Reflection.findMethod(Transition.class, "setAftShoulderRadius", double.class)));
 		setters.put("Transition:aftshoulderlength", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setAftShoulderLength", double.class)));
+				Reflection.findMethod(Transition.class, "setAftShoulderLength", double.class)));
 		setters.put("Transition:aftshoulderthickness", new DoubleSetter(
-				Reflection.findMethodStatic(Transition.class, "setAftShoulderThickness", double.class)));
+				Reflection.findMethod(Transition.class, "setAftShoulderThickness", double.class)));
 		setters.put("Transition:aftshouldercapped", new BooleanSetter(
-				Reflection.findMethodStatic(Transition.class, "setAftShoulderCapped", boolean.class)));
+				Reflection.findMethod(Transition.class, "setAftShoulderCapped", boolean.class)));
 		
 		// NoseCone - disable disallowed elements
 		setters.put("NoseCone:foreradius", null);
@@ -293,180 +293,180 @@ class DocumentConfig {
 		
 		// FinSet
 		setters.put("FinSet:fincount", new IntSetter(
-				Reflection.findMethodStatic(FinSet.class, "setFinCount", int.class)));
+				Reflection.findMethod(FinSet.class, "setFinCount", int.class)));
 		setters.put("FinSet:rotation", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
+				Reflection.findMethod(FinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
 		setters.put("FinSet:thickness", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setThickness", double.class)));
+				Reflection.findMethod(FinSet.class, "setThickness", double.class)));
 		setters.put("FinSet:crosssection", new EnumSetter<FinSet.CrossSection>(
-				Reflection.findMethodStatic(FinSet.class, "setCrossSection", FinSet.CrossSection.class),
+				Reflection.findMethod(FinSet.class, "setCrossSection", FinSet.CrossSection.class),
 				FinSet.CrossSection.class));
 		setters.put("FinSet:cant", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setCantAngle", double.class), Math.PI / 180.0));
+				Reflection.findMethod(FinSet.class, "setCantAngle", double.class), Math.PI / 180.0));
 		setters.put("FinSet:tabheight", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setTabHeight", double.class)));
+				Reflection.findMethod(FinSet.class, "setTabHeight", double.class)));
 		setters.put("FinSet:tablength", new DoubleSetter(
-				Reflection.findMethodStatic(FinSet.class, "setTabLength", double.class)));
+				Reflection.findMethod(FinSet.class, "setTabLength", double.class)));
 		setters.put("FinSet:tabposition", new FinTabPositionSetter());
 		
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
-				Reflection.findMethodStatic(TrapezoidFinSet.class, "setRootChord", double.class)));
+				Reflection.findMethod(TrapezoidFinSet.class, "setRootChord", double.class)));
 		setters.put("TrapezoidFinSet:tipchord", new DoubleSetter(
-				Reflection.findMethodStatic(TrapezoidFinSet.class, "setTipChord", double.class)));
+				Reflection.findMethod(TrapezoidFinSet.class, "setTipChord", double.class)));
 		setters.put("TrapezoidFinSet:sweeplength", new DoubleSetter(
-				Reflection.findMethodStatic(TrapezoidFinSet.class, "setSweep", double.class)));
+				Reflection.findMethod(TrapezoidFinSet.class, "setSweep", double.class)));
 		setters.put("TrapezoidFinSet:height", new DoubleSetter(
-				Reflection.findMethodStatic(TrapezoidFinSet.class, "setHeight", double.class)));
+				Reflection.findMethod(TrapezoidFinSet.class, "setHeight", double.class)));
 		
 		// EllipticalFinSet
 		setters.put("EllipticalFinSet:rootchord", new DoubleSetter(
-				Reflection.findMethodStatic(EllipticalFinSet.class, "setLength", double.class)));
+				Reflection.findMethod(EllipticalFinSet.class, "setLength", double.class)));
 		setters.put("EllipticalFinSet:height", new DoubleSetter(
-				Reflection.findMethodStatic(EllipticalFinSet.class, "setHeight", double.class)));
+				Reflection.findMethod(EllipticalFinSet.class, "setHeight", double.class)));
 		
 		// FreeformFinSet points handled as a special handler
 		
 		// LaunchLug
 		setters.put("LaunchLug:radius", new DoubleSetter(
-				Reflection.findMethodStatic(LaunchLug.class, "setOuterRadius", double.class)));
+				Reflection.findMethod(LaunchLug.class, "setOuterRadius", double.class)));
 		setters.put("LaunchLug:length", new DoubleSetter(
-				Reflection.findMethodStatic(LaunchLug.class, "setLength", double.class)));
+				Reflection.findMethod(LaunchLug.class, "setLength", double.class)));
 		setters.put("LaunchLug:thickness", new DoubleSetter(
-				Reflection.findMethodStatic(LaunchLug.class, "setThickness", double.class)));
+				Reflection.findMethod(LaunchLug.class, "setThickness", double.class)));
 		setters.put("LaunchLug:radialdirection", new DoubleSetter(
-				Reflection.findMethodStatic(LaunchLug.class, "setRadialDirection", double.class),
+				Reflection.findMethod(LaunchLug.class, "setRadialDirection", double.class),
 				Math.PI / 180.0));
 		
 		// InternalComponent - nothing
 		
 		// StructuralComponent
 		setters.put("StructuralComponent:material", new MaterialSetter(
-				Reflection.findMethodStatic(StructuralComponent.class, "setMaterial", Material.class),
+				Reflection.findMethod(StructuralComponent.class, "setMaterial", Material.class),
 				Material.Type.BULK));
 		
 		// RingComponent
 		setters.put("RingComponent:length", new DoubleSetter(
-				Reflection.findMethodStatic(RingComponent.class, "setLength", double.class)));
+				Reflection.findMethod(RingComponent.class, "setLength", double.class)));
 		setters.put("RingComponent:radialposition", new DoubleSetter(
-				Reflection.findMethodStatic(RingComponent.class, "setRadialPosition", double.class)));
+				Reflection.findMethod(RingComponent.class, "setRadialPosition", double.class)));
 		setters.put("RingComponent:radialdirection", new DoubleSetter(
-				Reflection.findMethodStatic(RingComponent.class, "setRadialDirection", double.class),
+				Reflection.findMethod(RingComponent.class, "setRadialDirection", double.class),
 				Math.PI / 180.0));
 		
 		// ThicknessRingComponent - radius on separate components due to differing automatics
 		setters.put("ThicknessRingComponent:thickness", new DoubleSetter(
-				Reflection.findMethodStatic(ThicknessRingComponent.class, "setThickness", double.class)));
+				Reflection.findMethod(ThicknessRingComponent.class, "setThickness", double.class)));
 		
 		// EngineBlock
 		setters.put("EngineBlock:outerradius", new DoubleSetter(
-				Reflection.findMethodStatic(EngineBlock.class, "setOuterRadius", double.class),
+				Reflection.findMethod(EngineBlock.class, "setOuterRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(EngineBlock.class, "setOuterRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(EngineBlock.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 		// TubeCoupler
 		setters.put("TubeCoupler:outerradius", new DoubleSetter(
-				Reflection.findMethodStatic(TubeCoupler.class, "setOuterRadius", double.class),
+				Reflection.findMethod(TubeCoupler.class, "setOuterRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(TubeCoupler.class, "setOuterRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(TubeCoupler.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 		// InnerTube
 		setters.put("InnerTube:outerradius", new DoubleSetter(
-				Reflection.findMethodStatic(InnerTube.class, "setOuterRadius", double.class)));
+				Reflection.findMethod(InnerTube.class, "setOuterRadius", double.class)));
 		setters.put("InnerTube:clusterconfiguration", new ClusterConfigurationSetter());
 		setters.put("InnerTube:clusterscale", new DoubleSetter(
-				Reflection.findMethodStatic(InnerTube.class, "setClusterScale", double.class)));
+				Reflection.findMethod(InnerTube.class, "setClusterScale", double.class)));
 		setters.put("InnerTube:clusterrotation", new DoubleSetter(
-				Reflection.findMethodStatic(InnerTube.class, "setClusterRotation", double.class),
+				Reflection.findMethod(InnerTube.class, "setClusterRotation", double.class),
 				Math.PI / 180.0));
 		
 		// RadiusRingComponent
 		
 		// Bulkhead
 		setters.put("RadiusRingComponent:innerradius", new DoubleSetter(
-				Reflection.findMethodStatic(RadiusRingComponent.class, "setInnerRadius", double.class)));
+				Reflection.findMethod(RadiusRingComponent.class, "setInnerRadius", double.class)));
 		setters.put("Bulkhead:outerradius", new DoubleSetter(
-				Reflection.findMethodStatic(Bulkhead.class, "setOuterRadius", double.class),
+				Reflection.findMethod(Bulkhead.class, "setOuterRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(Bulkhead.class, "setOuterRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(Bulkhead.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 		// CenteringRing
 		setters.put("CenteringRing:innerradius", new DoubleSetter(
-				Reflection.findMethodStatic(CenteringRing.class, "setInnerRadius", double.class),
+				Reflection.findMethod(CenteringRing.class, "setInnerRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(CenteringRing.class, "setInnerRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(CenteringRing.class, "setInnerRadiusAutomatic", boolean.class)));
 		setters.put("CenteringRing:outerradius", new DoubleSetter(
-				Reflection.findMethodStatic(CenteringRing.class, "setOuterRadius", double.class),
+				Reflection.findMethod(CenteringRing.class, "setOuterRadius", double.class),
 				"auto",
-				Reflection.findMethodStatic(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
+				Reflection.findMethod(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
-				Reflection.findMethodStatic(MassObject.class, "setLength", double.class)));
+				Reflection.findMethod(MassObject.class, "setLength", double.class)));
 		setters.put("MassObject:packedradius", new DoubleSetter(
-				Reflection.findMethodStatic(MassObject.class, "setRadius", double.class)));
+				Reflection.findMethod(MassObject.class, "setRadius", double.class)));
 		setters.put("MassObject:radialposition", new DoubleSetter(
-				Reflection.findMethodStatic(MassObject.class, "setRadialPosition", double.class)));
+				Reflection.findMethod(MassObject.class, "setRadialPosition", double.class)));
 		setters.put("MassObject:radialdirection", new DoubleSetter(
-				Reflection.findMethodStatic(MassObject.class, "setRadialDirection", double.class),
+				Reflection.findMethod(MassObject.class, "setRadialDirection", double.class),
 				Math.PI / 180.0));
 		
 		// MassComponent
 		setters.put("MassComponent:mass", new DoubleSetter(
-				Reflection.findMethodStatic(MassComponent.class, "setComponentMass", double.class)));
+				Reflection.findMethod(MassComponent.class, "setComponentMass", double.class)));
 		
 		// ShockCord
 		setters.put("ShockCord:cordlength", new DoubleSetter(
-				Reflection.findMethodStatic(ShockCord.class, "setCordLength", double.class)));
+				Reflection.findMethod(ShockCord.class, "setCordLength", double.class)));
 		setters.put("ShockCord:material", new MaterialSetter(
-				Reflection.findMethodStatic(ShockCord.class, "setMaterial", Material.class),
+				Reflection.findMethod(ShockCord.class, "setMaterial", Material.class),
 				Material.Type.LINE));
 		
 		// RecoveryDevice
 		setters.put("RecoveryDevice:cd", new DoubleSetter(
-				Reflection.findMethodStatic(RecoveryDevice.class, "setCD", double.class),
+				Reflection.findMethod(RecoveryDevice.class, "setCD", double.class),
 				"auto",
-				Reflection.findMethodStatic(RecoveryDevice.class, "setCDAutomatic", boolean.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setCDAutomatic", boolean.class)));
 		setters.put("RecoveryDevice:deployevent", new EnumSetter<RecoveryDevice.DeployEvent>(
-				Reflection.findMethodStatic(RecoveryDevice.class, "setDeployEvent", RecoveryDevice.DeployEvent.class),
+				Reflection.findMethod(RecoveryDevice.class, "setDeployEvent", RecoveryDevice.DeployEvent.class),
 				RecoveryDevice.DeployEvent.class));
 		setters.put("RecoveryDevice:deployaltitude", new DoubleSetter(
-				Reflection.findMethodStatic(RecoveryDevice.class, "setDeployAltitude", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setDeployAltitude", double.class)));
 		setters.put("RecoveryDevice:deploydelay", new DoubleSetter(
-				Reflection.findMethodStatic(RecoveryDevice.class, "setDeployDelay", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setDeployDelay", double.class)));
 		setters.put("RecoveryDevice:material", new MaterialSetter(
-				Reflection.findMethodStatic(RecoveryDevice.class, "setMaterial", Material.class),
+				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
 		
 		// Parachute
 		setters.put("Parachute:diameter", new DoubleSetter(
-				Reflection.findMethodStatic(Parachute.class, "setDiameter", double.class)));
+				Reflection.findMethod(Parachute.class, "setDiameter", double.class)));
 		setters.put("Parachute:linecount", new IntSetter(
-				Reflection.findMethodStatic(Parachute.class, "setLineCount", int.class)));
+				Reflection.findMethod(Parachute.class, "setLineCount", int.class)));
 		setters.put("Parachute:linelength", new DoubleSetter(
-				Reflection.findMethodStatic(Parachute.class, "setLineLength", double.class)));
+				Reflection.findMethod(Parachute.class, "setLineLength", double.class)));
 		setters.put("Parachute:linematerial", new MaterialSetter(
-				Reflection.findMethodStatic(Parachute.class, "setLineMaterial", Material.class),
+				Reflection.findMethod(Parachute.class, "setLineMaterial", Material.class),
 				Material.Type.LINE));
 		
 		// Streamer
 		setters.put("Streamer:striplength", new DoubleSetter(
-				Reflection.findMethodStatic(Streamer.class, "setStripLength", double.class)));
+				Reflection.findMethod(Streamer.class, "setStripLength", double.class)));
 		setters.put("Streamer:stripwidth", new DoubleSetter(
-				Reflection.findMethodStatic(Streamer.class, "setStripWidth", double.class)));
+				Reflection.findMethod(Streamer.class, "setStripWidth", double.class)));
 		
 		// Rocket
 		// <motorconfiguration> handled by separate handler
 		setters.put("Rocket:referencetype", new EnumSetter<ReferenceType>(
-				Reflection.findMethodStatic(Rocket.class, "setReferenceType", ReferenceType.class),
+				Reflection.findMethod(Rocket.class, "setReferenceType", ReferenceType.class),
 				ReferenceType.class));
 		setters.put("Rocket:customreference", new DoubleSetter(
-				Reflection.findMethodStatic(Rocket.class, "setCustomReferenceLength", double.class)));
+				Reflection.findMethod(Rocket.class, "setCustomReferenceLength", double.class)));
 		setters.put("Rocket:designer", new StringSetter(
-				Reflection.findMethodStatic(Rocket.class, "setDesigner", String.class)));
+				Reflection.findMethod(Rocket.class, "setDesigner", String.class)));
 		setters.put("Rocket:revision", new StringSetter(
-				Reflection.findMethodStatic(Rocket.class, "setRevision", String.class)));
+				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
 	}
 	
 	
@@ -1993,7 +1993,7 @@ class PositionSetter implements Setter {
 class FinTabPositionSetter extends DoubleSetter {
 	
 	public FinTabPositionSetter() {
-		super(Reflection.findMethodStatic(FinSet.class, "setTabShift", double.class));
+		super(Reflection.findMethod(FinSet.class, "setTabShift", double.class));
 	}
 	
 	@Override

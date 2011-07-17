@@ -20,15 +20,6 @@ import net.sf.openrocket.util.BugException;
 
 /**
  * A TreeModel that implements viewing of the rocket tree structure.
- * This transforms the internal view (which has nested Stages) into the user-view
- * (which has parallel Stages).
- * 
- * To view with the internal structure, switch to using BareComponentTreeModel in
- * ComponentTree.java.  NOTE: This class's makeTreePath will still be used, which
- * will create illegal paths, which results in problems with selections. 
- * 
- * TODO: MEDIUM: When converting a component to another component this model given 
- * outdated information, since it uses the components themselves as the nodes.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -102,32 +93,6 @@ public class ComponentTreeModel implements TreeModel, ComponentChangeListener {
 		Object[] l = listeners.toArray();
 		for (int i = 0; i < l.length; i++)
 			((TreeModelListener) l[i]).treeNodesChanged(e);
-	}
-	
-	private void fireTreeNodesChanged() {
-		Object[] path = { root };
-		TreeModelEvent e = new TreeModelEvent(this, path);
-		Object[] l = listeners.toArray();
-		for (int i = 0; i < l.length; i++)
-			((TreeModelListener) l[i]).treeNodesChanged(e);
-	}
-	
-	
-	@SuppressWarnings("unused")
-	private void printStructure(TreePath p, int level) {
-		String indent = "";
-		for (int i = 0; i < level; i++)
-			indent += "  ";
-		System.out.println(indent + p +
-				": isVisible:" + tree.isVisible(p) +
-				" isCollapsed:" + tree.isCollapsed(p) +
-				" isExpanded:" + tree.isExpanded(p));
-		Object parent = p.getLastPathComponent();
-		for (int i = 0; i < getChildCount(parent); i++) {
-			Object child = getChild(parent, i);
-			TreePath path = makeTreePath((RocketComponent) child);
-			printStructure(path, level + 1);
-		}
 	}
 	
 	

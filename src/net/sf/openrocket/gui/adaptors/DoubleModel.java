@@ -528,18 +528,44 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	private Invalidator invalidator = new Invalidator(this);
 	
 	
+	/**
+	 * Generate a DoubleModel that contains an internal double value.
+	 * 
+	 * @param value		the initial value.
+	 */
 	public DoubleModel(double value) {
 		this(value, UnitGroup.UNITS_NONE, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 	
+	/**
+	 * Generate a DoubleModel that contains an internal double value.
+	 * 
+	 * @param value		the initial value.
+	 * @param unit		the unit for the value.
+	 */
 	public DoubleModel(double value, UnitGroup unit) {
 		this(value, unit, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 	}
 	
+	/**
+	 * Generate a DoubleModel that contains an internal double value.
+	 * 
+	 * @param value		the initial value.
+	 * @param unit		the unit for the value.
+	 * @param min		minimum value.
+	 */
 	public DoubleModel(double value, UnitGroup unit, double min) {
 		this(value, unit, min, Double.POSITIVE_INFINITY);
 	}
 	
+	/**
+	 * Generate a DoubleModel that contains an internal double value.
+	 * 
+	 * @param value		the initial value.
+	 * @param unit		the unit for the value.
+	 * @param min		minimum value.
+	 * @param max		maximum value.
+	 */
 	public DoubleModel(double value, UnitGroup unit, double min, double max) {
 		this.lastValue = value;
 		this.minValue = min;

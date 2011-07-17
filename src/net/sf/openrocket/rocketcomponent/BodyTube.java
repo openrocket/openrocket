@@ -20,7 +20,7 @@ import net.sf.openrocket.util.MathUtil;
 public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial {
 	private static final Translator trans = Application.getTranslator();
 	
-	private double radius = 0;
+	private double outerRadius = 0;
 	private boolean autoRadius = false; // Radius chosen automatically based on parent component
 	
 	// When changing the inner radius, thickness is modified
@@ -37,13 +37,13 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	public BodyTube() {
 		super();
 		this.length = 8 * DEFAULT_RADIUS;
-		this.radius = DEFAULT_RADIUS;
+		this.outerRadius = DEFAULT_RADIUS;
 		this.autoRadius = true;
 	}
 	
 	public BodyTube(double length, double radius) {
 		super();
-		this.radius = Math.max(radius, 0);
+		this.outerRadius = Math.max(radius, 0);
 		this.length = Math.max(length, 0);
 	}
 	
@@ -86,7 +86,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 				r = DEFAULT_RADIUS;
 			return r;
 		}
-		return radius;
+		return outerRadius;
 	}
 	
 	
@@ -99,14 +99,14 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	 */
 	@Override
 	public void setOuterRadius(double radius) {
-		if ((this.radius == radius) && (autoRadius == false))
+		if ((this.outerRadius == radius) && (autoRadius == false))
 			return;
 		
 		this.autoRadius = false;
-		this.radius = Math.max(radius, 0);
+		this.outerRadius = Math.max(radius, 0);
 		
-		if (this.thickness > this.radius)
-			this.thickness = this.radius;
+		if (this.thickness > this.outerRadius)
+			this.thickness = this.outerRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	

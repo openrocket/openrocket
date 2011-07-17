@@ -75,8 +75,10 @@ import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
 import net.sf.openrocket.gui.dialogs.PrintDialog;
+import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
+import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.optimization.OptimizationTestDialog;
@@ -396,6 +398,19 @@ public class BasicFrame extends JFrame {
 	
 
 	/**
+	 * Return the currently selected rocket component, or <code>null</code> if none selected.
+	 */
+	private RocketComponent getSelectedComponent() {
+		TreePath path = componentSelectionModel.getSelectionPath();
+		if (path == null)
+			return null;
+		tree.scrollPathToVisible(path);
+		
+		return (RocketComponent) path.getLastPathComponent();
+	}
+	
+	
+	/**
 	 * Creates the menu for the window.
 	 */
 	private void createMenu() {
@@ -407,7 +422,7 @@ public class BasicFrame extends JFrame {
 		menu = new JMenu(trans.get("main.menu.file"));
 		menu.setMnemonic(KeyEvent.VK_F);
 		//// File-handling related tasks
-		menu.getAccessibleContext().setAccessibleDescription("File-handling related tasks");
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
 		menubar.add(menu);
 		
 		//// New 
@@ -415,7 +430,7 @@ public class BasicFrame extends JFrame {
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_N);
 		//// Create a new rocket design
-		item.getAccessibleContext().setAccessibleDescription("Create a new rocket design");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
 		item.setIcon(Icons.FILE_NEW);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -504,7 +519,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 		//// Print parts list and fin template
-		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Printpart"));
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.print.desc"));
 		item.setIcon(Icons.FILE_PRINT);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -565,7 +580,7 @@ public class BasicFrame extends JFrame {
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_U);
 		//// Undo the previous operation
-		item.getAccessibleContext().setAccessibleDescription("Undo the previous operation");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
 		
 		menu.add(item);
 		
@@ -574,8 +589,7 @@ public class BasicFrame extends JFrame {
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_R);
 		//// Redo the previously undone operation
-		item.getAccessibleContext().setAccessibleDescription("Redo the previously undone " +
-				"operation");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.redo.desc"));
 		menu.add(item);
 		
 		menu.addSeparator();
@@ -595,12 +609,31 @@ public class BasicFrame extends JFrame {
 		
 		menu.addSeparator();
 		
+
+
+		item = new JMenuItem(trans.get("main.menu.edit.resize"));
+		// FIXME: Icon
+		//item.setIcon(Icons.PREFERENCES);
+		//// Setup the application preferences
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.resize.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("Scale... selected");
+				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponent(), BasicFrame.this);
+				dialog.setVisible(true);
+				dialog.dispose();
+			}
+		});
+		menu.add(item);
+		
+
+
 		//// Preferences
 		item = new JMenuItem(trans.get("main.menu.edit.preferences"));
 		item.setIcon(Icons.PREFERENCES);
 		//// Setup the application preferences
-		item.getAccessibleContext().setAccessibleDescription("Setup the application " +
-				"preferences");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.preferences.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -617,14 +650,13 @@ public class BasicFrame extends JFrame {
 		menu = new JMenu(trans.get("main.menu.analyze"));
 		menu.setMnemonic(KeyEvent.VK_A);
 		//// Analyzing the rocket
-		menu.getAccessibleContext().setAccessibleDescription("Analyzing the rocket");
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.desc"));
 		menubar.add(menu);
 		
 		//// Component analysis
 		item = new JMenuItem(trans.get("main.menu.analyze.componentAnalysis"), KeyEvent.VK_C);
 		//// Analyze the rocket components separately
-		item.getAccessibleContext().setAccessibleDescription("Analyze the rocket components " +
-				"separately");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.componentAnalysis.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -648,14 +680,14 @@ public class BasicFrame extends JFrame {
 		menu = new JMenu(trans.get("main.menu.help"));
 		menu.setMnemonic(KeyEvent.VK_H);
 		//// Information about OpenRocket
-		menu.getAccessibleContext().setAccessibleDescription("Information about OpenRocket");
+		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
 		menubar.add(menu);
 		
 
 		//// License
 		item = new JMenuItem(trans.get("main.menu.help.license"), KeyEvent.VK_L);
 		//// OpenRocket license information
-		item.getAccessibleContext().setAccessibleDescription("OpenRocket license information");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.license.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -670,8 +702,7 @@ public class BasicFrame extends JFrame {
 		//// Bug report
 		item = new JMenuItem(trans.get("main.menu.help.bugReport"), KeyEvent.VK_B);
 		//// Information about reporting bugs in OpenRocket
-		item.getAccessibleContext().setAccessibleDescription("Information about reporting " +
-				"bugs in OpenRocket");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.bugReport.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -684,7 +715,7 @@ public class BasicFrame extends JFrame {
 		//// Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"));
 		//// View the OpenRocket debug log
-		item.getAccessibleContext().setAccessibleDescription("View the OpenRocket debug log");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -699,7 +730,7 @@ public class BasicFrame extends JFrame {
 		//// About
 		item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
 		//// About OpenRocket
-		item.getAccessibleContext().setAccessibleDescription("About OpenRocket");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.about.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -713,11 +744,14 @@ public class BasicFrame extends JFrame {
 		this.setJMenuBar(menubar);
 	}
 	
-	
 	private JMenu makeDebugMenu() {
 		JMenu menu;
 		JMenuItem item;
 		
+		/*
+		 * This menu is intentionally left untranslated.
+		 */
+
 		////  Debug menu
 		menu = new JMenu("Debug");
 		//// OpenRocket debugging tasks
@@ -931,6 +965,16 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.user("OutOfMemoryError here selected");
 				throw new OutOfMemoryError("Testing OutOfMemoryError from menu action listener");
+			}
+		});
+		menu.add(item);
+		
+
+		item = new JMenuItem("General optimization test");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
 			}
 		});
 		menu.add(item);

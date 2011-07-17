@@ -7,44 +7,60 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 
+import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
-import net.sf.openrocket.optimization.services.OptimizableParameterService;
-import net.sf.openrocket.optimization.services.SimulationModifierService;
+import net.sf.openrocket.optimization.services.OptimizationServiceHelper;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.GUIUtil;
 
 public class GeneralOptimizationDialog extends JDialog {
+	private static final Translator trans = Application.getTranslator();
 	
 	private final List<OptimizableParameter> optimizationParameters = new ArrayList<OptimizableParameter>();
 	private final Map<Object, List<SimulationModifier>> simulationModifiers =
 			new HashMap<Object, List<SimulationModifier>>();
-	private static final Translator trans = Application.getTranslator();
+	
 
-
-	private final OpenRocketDocument document;
+	private final OpenRocketDocument baseDocument;
+	private final Rocket rocketCopy;
+	
 	
 	public GeneralOptimizationDialog(OpenRocketDocument document, Window parent) {
-		this.document = document;
+		super(parent, "Rocket optimization");
+		
+		this.baseDocument = document;
+		this.rocketCopy = document.getRocket().copyWithOriginalID();
 		
 		loadOptimizationParameters();
 		loadSimulationModifiers();
+		
+
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		
+
+		JTree tree = new SimulationModifierTree(rocketCopy, simulationModifiers);
+		JScrollPane scroll = new JScrollPane(tree);
+		panel.add(scroll, "width 300lp, height 300lp");
+		
+
+		this.add(panel);
+		GUIUtil.setDisposableDialogOptions(this, null);
 	}
 	
 	
 	private void loadOptimizationParameters() {
-		ServiceLoader<OptimizableParameterService> loader =
-				ServiceLoader.load(OptimizableParameterService.class);
-		
-		for (OptimizableParameterService g : loader) {
-			optimizationParameters.addAll(g.getParameters(document));
-		}
+		optimizationParameters.addAll(OptimizationServiceHelper.getOptimizableParameters(baseDocument));
 		
 		if (optimizationParameters.isEmpty()) {
 			throw new BugException("No rocket optimization parameters found, distribution built wrong.");
@@ -60,18 +76,15 @@ public class GeneralOptimizationDialog extends JDialog {
 	
 	
 	private void loadSimulationModifiers() {
-		ServiceLoader<SimulationModifierService> loader = ServiceLoader.load(SimulationModifierService.class);
 		
-		for (SimulationModifierService g : loader) {
-			for (SimulationModifier m : g.getModifiers(document)) {
-				Object key = m.getRelatedObject();
-				List<SimulationModifier> list = simulationModifiers.get(key);
-				if (list == null) {
-					list = new ArrayList<SimulationModifier>();
-					simulationModifiers.put(key, list);
-				}
-				list.add(m);
+		for (SimulationModifier m : OptimizationServiceHelper.getSimulationModifiers(baseDocument)) {
+			Object key = m.getRelatedObject();
+			List<SimulationModifier> list = simulationModifiers.get(key);
+			if (list == null) {
+				list = new ArrayList<SimulationModifier>();
+				simulationModifiers.put(key, list);
 			}
+			list.add(m);
 		}
 		
 		for (Object key : simulationModifiers.keySet()) {
@@ -86,4 +99,6 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 	}
 	
+
+
 }

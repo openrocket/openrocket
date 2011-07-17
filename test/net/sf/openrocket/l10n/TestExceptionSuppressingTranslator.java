@@ -1,6 +1,6 @@
 package net.sf.openrocket.l10n;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.MissingResourceException;
 
@@ -37,7 +37,7 @@ public class TestExceptionSuppressingTranslator {
 	public void testFailure() {
 		ExceptionSuppressingTranslator est = new ExceptionSuppressingTranslator(translator);
 		
-		assertEquals("Prerequisite failed", 0, ExceptionSuppressingTranslator.failures);
+		assertFalse("Prerequisite failed", ExceptionSuppressingTranslator.errorReported);
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
@@ -49,15 +49,15 @@ public class TestExceptionSuppressingTranslator {
 		
 		// Test first failure
 		assertEquals("fake.key", est.get("fake.key"));
-		assertEquals(1, ExceptionSuppressingTranslator.failures);
+		assertTrue(ExceptionSuppressingTranslator.errorReported);
 		
 		// Test second failure
 		assertEquals("fake.key", est.get("fake.key"));
-		assertEquals(1, ExceptionSuppressingTranslator.failures);
+		assertTrue(ExceptionSuppressingTranslator.errorReported);
 		
 		// Test failure with other key
 		assertEquals("fake.key2", est.get("fake.key2"));
-		assertEquals(2, ExceptionSuppressingTranslator.failures);
+		assertTrue(ExceptionSuppressingTranslator.errorReported);
 	}
 	
 
