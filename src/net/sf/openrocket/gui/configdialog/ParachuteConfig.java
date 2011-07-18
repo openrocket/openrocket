@@ -201,7 +201,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		// ... and delay
 		//// plus
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plus")),"right");
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")),"right");
 		
 		m = new DoubleModel(component,"DeployDelay",0);
 		spin = new JSpinner(m.getSpinnerModel());

@@ -10,13 +10,15 @@ import javax.swing.ImageIcon;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 
 
 public class Icons {
 	private static final LogHelper log = Application.getLogger();
-	
+	private static final Translator trans = Application.getTranslator();
+
 	static {
 		log.debug("Starting to load icons");
 	}
@@ -52,8 +54,8 @@ public class Icons {
 	public static final Icon FILE_CLOSE = loadImageIcon("pix/icons/document-close.png", "Close document");
 	public static final Icon FILE_QUIT = loadImageIcon("pix/icons/application-exit.png", "Quit OpenRocket");
 	
-	public static final Icon EDIT_UNDO = loadImageIcon("pix/icons/edit-undo.png", "Undo");
-	public static final Icon EDIT_REDO = loadImageIcon("pix/icons/edit-redo.png", "Redo");
+	public static final Icon EDIT_UNDO = loadImageIcon("pix/icons/edit-undo.png", trans.get("Icons.Undo"));
+	public static final Icon EDIT_REDO = loadImageIcon("pix/icons/edit-redo.png", trans.get("Icons.Redo"));
 	public static final Icon EDIT_CUT = loadImageIcon("pix/icons/edit-cut.png", "Cut");
 	public static final Icon EDIT_COPY = loadImageIcon("pix/icons/edit-copy.png", "Copy");
 	public static final Icon EDIT_PASTE = loadImageIcon("pix/icons/edit-paste.png", "Paste");

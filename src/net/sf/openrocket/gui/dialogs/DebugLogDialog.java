@@ -317,17 +317,17 @@ public class DebugLogDialog extends JDialog {
 		panel.add(levelLabel, "width 70lp, gapright para");
 		
 		//// Location:
-		panel.add(new JLabel("Location:"), "split, gapright rel");
+		panel.add(new JLabel(trans.get("debuglogdlg.lbl.Location")), "split, gapright rel");
 		locationLabel = new SelectableLabel();
 		panel.add(locationLabel, "growx, wrap unrel");
 		
 		//// Log message:
-		panel.add(new JLabel("Log message:"), "split, gapright rel");
+		panel.add(new JLabel(trans.get("debuglogdlg.lbl.Logmessage")), "split, gapright rel");
 		messageLabel = new SelectableLabel();
 		panel.add(messageLabel, "growx, wrap para");
 		
 		//// Stack trace:
-		panel.add(new JLabel("Stack trace:"), "wrap rel");
+		panel.add(new JLabel(trans.get("debuglogdlg.lbl.Stacktrace")), "wrap rel");
 		stackTraceLabel = new JTextArea(8, 80);
 		stackTraceLabel.setEditable(false);
 		GUIUtil.changeFontSize(stackTraceLabel, -2);

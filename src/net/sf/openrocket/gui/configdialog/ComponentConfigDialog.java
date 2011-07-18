@@ -97,7 +97,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		configurator.updateFields();
 		
 		//// configuration
-		setTitle(component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
+		setTitle(trans.get("ComponentCfgDlg.configuration1") + " " + component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
 		
 		//		Dimension pref = getPreferredSize();
 		//		Dimension real = getSize();

@@ -2,15 +2,21 @@
  * OpenRocketPrintable.java
  */
 package net.sf.openrocket.gui.print;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 
 /**
  * This enumeration identifies the various types of information that may be printed.
  */
+
 public enum OpenRocketPrintable {
     //PARTS_LIST("Parts list", true, 0),
-    PARTS_DETAIL("Parts detail", true, 1),
-    FIN_TEMPLATE("Fin templates", true, 2),
-    DESIGN_REPORT("Design Report", false, 3);
+	//// Parts detail
+    PARTS_DETAIL("OpenRocketPrintable.Partsdetail", true, 1),
+    ////
+    FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 2),
+    //// Design Report
+    DESIGN_REPORT("OpenRocketPrintable.DesignReport", false, 3);
 
     /**
      * The description - will be displayed in the JTree.
@@ -46,7 +52,8 @@ public enum OpenRocketPrintable {
      * @return a displayable string
      */
     public String getDescription () {
-        return description;
+    	final Translator trans = Application.getTranslator();
+        return trans.get(description);
     }
 
     /**

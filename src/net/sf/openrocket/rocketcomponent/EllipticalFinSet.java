@@ -1,9 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
 public class EllipticalFinSet extends FinSet {
+	private static final Translator trans = Application.getTranslator();
+
 	public static final int POINTS = 21;
 
 	private static final double[] POINT_X = new double[POINTS];
@@ -44,7 +48,8 @@ public class EllipticalFinSet extends FinSet {
 
 	@Override
 	public String getComponentName() {
-		return "Elliptical fin set";
+		//// Elliptical fin set
+		return trans.get("EllipticalFinSet.Ellipticalfinset");
 	}
 
 

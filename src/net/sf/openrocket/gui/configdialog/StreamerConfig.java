@@ -197,7 +197,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		// ... and delay
 		//// plus
-		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plus")),"right");
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plusdelay")),"right");
 		
 		m = new DoubleModel(component,"DeployDelay",0);
 		spin = new JSpinner(m.getSpinnerModel());

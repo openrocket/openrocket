@@ -12,6 +12,7 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -31,7 +32,8 @@ import net.sf.openrocket.util.Icons;
  */
 public class OpenRocketDocument implements ComponentChangeListener {
 	private static final LogHelper log = Application.getLogger();
-	
+	private static final Translator trans = Application.getTranslator();
+
 	/**
 	 * The minimum number of undo levels that are stored.
 	 */
@@ -557,14 +559,16 @@ public class OpenRocketDocument implements ComponentChangeListener {
 			
 			switch (type) {
 			case UNDO:
-				name = "Undo";
+				//// Undo
+				name = trans.get("OpenRocketDocument.Undo");
 				desc = getUndoDescription();
 				actionEnabled = isUndoAvailable();
 				this.putValue(SMALL_ICON, Icons.EDIT_UNDO);
 				break;
 			
 			case REDO:
-				name = "Redo";
+				////Redo
+				name = trans.get("OpenRocketDocument.Redo");
 				desc = getRedoDescription();
 				actionEnabled = isRedoAvailable();
 				this.putValue(SMALL_ICON, Icons.EDIT_REDO);
