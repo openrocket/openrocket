@@ -11,8 +11,8 @@ import java.util.List;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.motor.MotorDigest.DataType;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.Coordinate;
 
 public class RASPMotorLoader extends AbstractMotorLoader {
@@ -202,8 +202,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 
 		try {
 			
-			return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer),
-					designation, comment, Motor.Type.UNKNOWN,
+			Manufacturer m = Manufacturer.getManufacturer(manufacturer);
+			return new ThrustCurveMotor(m, designation, comment, m.getMotorType(),
 					delays, diameter, length, timeArray, thrustArray, cgArray);
 			
 		} catch (IllegalArgumentException e) {

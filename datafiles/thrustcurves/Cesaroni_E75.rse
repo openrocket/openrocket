@@ -1,0 +1,33 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="25-E75-VM-17A" Type="unspecified" dia="24." len="69."
+initWt="52." propWt="16." delays="17,14,12,10,8" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="74.434" peakThrust="95.099" throatDia="0."
+exitDia="0." Itot="24.489" burn-time="0.33" massFrac="30.77" Isp="156.07"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro24-1G Vmax 25-E75</comments>
+    <data>
+      <eng-data  t="0." f="0." m="16." cg="34.5"/>
+      <eng-data  t="0.009" f="84.213" m="15.7524" cg="34.5"/>
+      <eng-data  t="0.012" f="95.099" m="15.5767" cg="34.5"/>
+      <eng-data  t="0.023" f="77.08" m="14.958" cg="34.5"/>
+      <eng-data  t="0.027" f="68.697" m="14.7675" cg="34.5"/>
+      <eng-data  t="0.047" f="73.452" m="13.8387" cg="34.5"/>
+      <eng-data  t="0.092" f="81.835" m="11.5559" cg="34.5"/>
+      <eng-data  t="0.118" f="83.837" m="10.1488" cg="34.5"/>
+      <eng-data  t="0.141" f="86.465" m="8.86918" cg="34.5"/>
+      <eng-data  t="0.192" f="86.966" m="5.97971" cg="34.5"/>
+      <eng-data  t="0.222" f="85.339" m="4.29106" cg="34.5"/>
+      <eng-data  t="0.25" f="80.083" m="2.77795" cg="34.5"/>
+      <eng-data  t="0.26" f="78.332" m="2.26044" cg="34.5"/>
+      <eng-data  t="0.281" f="82.961" m="1.15393" cg="34.5"/>
+      <eng-data  t="0.287" f="78.206" m="0.838029" cg="34.5"/>
+      <eng-data  t="0.306" f="24.776" m="0.198831" cg="34.5"/>
+      <eng-data  t="0.314" f="14.14" m="0.0971265" cg="34.5"/>
+      <eng-data  t="0.326" f="8.509" m="0.00833913" cg="34.5"/>
+      <eng-data  t="0.329" f="0." m="0." cg="34.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

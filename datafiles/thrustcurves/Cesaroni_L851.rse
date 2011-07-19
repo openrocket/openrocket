@@ -1,0 +1,26 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="3683-L851-WH-P" Type="unspecified" dia="75." len="486."
+initWt="3789." propWt="2195." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="847.89" peakThrust="980.11" throatDia="0." exitDia="0." Itot="3678.99"
+burn-time="4.34" massFrac="57.93" Isp="170.91" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Pro75-3G White 3683-L851</comments>
+    <data>
+      <eng-data  t="0." f="0." m="2195." cg="243."/>
+      <eng-data  t="0.059" f="971.271" m="2177.91" cg="243."/>
+      <eng-data  t="0.102" f="855.249" m="2154.48" cg="243."/>
+      <eng-data  t="0.485" f="838.674" m="1960.94" cg="243."/>
+      <eng-data  t="1.353" f="911.602" m="1507.72" cg="243."/>
+      <eng-data  t="1.824" f="980.11" m="1241.93" cg="243."/>
+      <eng-data  t="3.107" f="883.978" m="528.468" cg="243."/>
+      <eng-data  t="3.68" f="816.575" m="237.784" cg="243."/>
+      <eng-data  t="4.031" f="732.597" m="75.5724" cg="243."/>
+      <eng-data  t="4.128" f="579.006" m="37.6191" cg="243."/>
+      <eng-data  t="4.256" f="246.409" m="6.10113" cg="243."/>
+      <eng-data  t="4.339" f="0." m="0." cg="243."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

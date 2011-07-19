@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="867-J244-WH-14A" Type="unspecified" dia="54." len="236."
+initWt="911." propWt="511." delays="14,11,9,7,5" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="242.698" peakThrust="266.519" throatDia="0."
+exitDia="0." Itot="849.443" burn-time="3.5" massFrac="56.09" Isp="169.51"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro54-2G White 867-J244</comments>
+    <data>
+      <eng-data  t="0." f="0." m="511." cg="118."/>
+      <eng-data  t="0.029" f="154.144" m="509.655" cg="118."/>
+      <eng-data  t="0.1" f="262.541" m="500.757" cg="118."/>
+      <eng-data  t="0.161" f="235.691" m="491.615" cg="118."/>
+      <eng-data  t="0.484" f="256.575" m="443.79" cg="118."/>
+      <eng-data  t="0.853" f="261.215" m="386.32" cg="118."/>
+      <eng-data  t="1.348" f="266.519" m="307.747" cg="118."/>
+      <eng-data  t="1.904" f="262.541" m="219.269" cg="118."/>
+      <eng-data  t="2.422" f="251.934" m="139.11" cg="118."/>
+      <eng-data  t="2.855" f="235.691" m="75.6015" cg="118."/>
+      <eng-data  t="3.176" f="223.094" m="31.3049" cg="118."/>
+      <eng-data  t="3.252" f="221.768" m="21.1354" cg="118."/>
+      <eng-data  t="3.362" f="184.972" m="7.67789" cg="118."/>
+      <eng-data  t="3.5" f="0." m="0." cg="118."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

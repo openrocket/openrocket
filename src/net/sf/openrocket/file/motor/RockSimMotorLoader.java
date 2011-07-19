@@ -12,17 +12,21 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.NullElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.motor.MotorDigest.DataType;
+import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class RockSimMotorLoader extends AbstractMotorLoader {
+	
+	private static final LogHelper log = Application.getLogger();
 	
 	public static final String CHARSET_NAME = "UTF-8";
 	
@@ -32,6 +36,8 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	/** Any delay longed than this will be interpreted as a plugged motor. */
 	private static final int DELAY_LIMIT = 90;
 	
+	
+	// FIXME: Obtain default motor type from manufacturer info
 	
 
 	@Override
@@ -362,8 +368,20 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			
 
 			try {
-				return new ThrustCurveMotor(Manufacturer.getManufacturer(manufacturer),
-						designation, description, type,
+				Manufacturer m = Manufacturer.getManufacturer(manufacturer);
+				Motor.Type t = type;
+				if (t == Motor.Type.UNKNOWN) {
+					t = m.getMotorType();
+				} else {
+					if (m.getMotorType() != Motor.Type.UNKNOWN && m.getMotorType() != t) {
+						log.warn("Loaded motor type inconsistent with manufacturer," +
+								" loaded type=" + t + " manufacturer=" + m +
+								" manufacturer type=" + m.getMotorType() +
+								" designation=" + designation);
+					}
+				}
+				
+				return new ThrustCurveMotor(m, designation, description, t,
 						delays, diameter, length, timeArray, thrustArray, cgArray);
 			} catch (IllegalArgumentException e) {
 				throw new SAXException("Illegal motor data", e);

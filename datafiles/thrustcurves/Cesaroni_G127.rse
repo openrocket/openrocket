@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="137-G127-RL-14A" Type="unspecified" dia="24." len="228."
+initWt="166." propWt="81." delays="14,11,9,7,5" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="125.315" peakThrust="179.753" throatDia="0."
+exitDia="0." Itot="135.466" burn-time="1.08" massFrac="48.8" Isp="170.54"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro24-6G RL 137-G127</comments>
+    <data>
+      <eng-data  t="0." f="0." m="81." cg="114."/>
+      <eng-data  t="0.018" f="164.454" m="80.115" cg="114."/>
+      <eng-data  t="0.029" f="175.478" m="78.9971" cg="114."/>
+      <eng-data  t="0.042" f="172.103" m="77.6462" cg="114."/>
+      <eng-data  t="0.14" f="179.753" m="67.3372" cg="114."/>
+      <eng-data  t="0.378" f="158.83" m="43.2455" cg="114."/>
+      <eng-data  t="0.578" f="138.583" m="25.4621" cg="114."/>
+      <eng-data  t="0.763" f="121.485" m="11.0779" cg="114."/>
+      <eng-data  t="0.838" f="97.638" m="6.16459" cg="114."/>
+      <eng-data  t="0.9" f="62.317" m="3.19966" cg="114."/>
+      <eng-data  t="0.966" f="32.621" m="1.32635" cg="114."/>
+      <eng-data  t="1.056" f="13.048" m="0.0975235" cg="114."/>
+      <eng-data  t="1.081" f="0." m="0." cg="114."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

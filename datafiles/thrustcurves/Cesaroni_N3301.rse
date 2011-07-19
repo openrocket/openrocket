@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="19318-N3301-WH-P" Type="unspecified" dia="98." len="1239."
+initWt="16525." propWt="10919." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="3266.35" peakThrust="5000." throatDia="0." exitDia="0." Itot="19189.8"
+burn-time="5.88" massFrac="66.08" Isp="179.21" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Pro98-6GXL White 19318-N3301</comments>
+    <data>
+      <eng-data  t="0." f="0." m="10919." cg="619.5"/>
+      <eng-data  t="0.027" f="5000." m="10880.6" cg="619.5"/>
+      <eng-data  t="0.074" f="4201.39" m="10757.6" cg="619.5"/>
+      <eng-data  t="0.114" f="4415.51" m="10659.5" cg="619.5"/>
+      <eng-data  t="0.325" f="4091.43" m="10148.8" cg="619.5"/>
+      <eng-data  t="1.438" f="3993.06" m="7588.89" cg="619.5"/>
+      <eng-data  t="2.391" f="3964.12" m="5431.47" cg="619.5"/>
+      <eng-data  t="3.139" f="3842.59" m="3770.16" cg="619.5"/>
+      <eng-data  t="4.033" f="3524.31" m="1896.44" cg="619.5"/>
+      <eng-data  t="4.425" f="2557.87" m="1218.14" cg="619.5"/>
+      <eng-data  t="4.774" f="2314.82" m="734.325" cg="619.5"/>
+      <eng-data  t="5.318" f="1116.9" m="203.207" cg="619.5"/>
+      <eng-data  t="5.793" f="329.861" m="7.69532" cg="619.5"/>
+      <eng-data  t="5.875" f="0." m="0." cg="619.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

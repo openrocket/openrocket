@@ -1,0 +1,30 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="15227-N2501-WH-P" Type="unspecified" dia="98." len="1010."
+initWt="13308." propWt="8704." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="2510.27" peakThrust="3488.42" throatDia="0." exitDia="0."
+Itot="15282.5" burn-time="6.09" massFrac="65.4" Isp="179.04" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro98 6G 15227 N2501-WH Plugged</comments>
+    <data>
+      <eng-data  t="0." f="0." m="8704." cg="505."/>
+      <eng-data  t="0.039" f="1715.55" m="8684.95" cg="505."/>
+      <eng-data  t="0.059" f="2835.72" m="8659.03" cg="505."/>
+      <eng-data  t="0.141" f="3488.42" m="8511.35" cg="505."/>
+      <eng-data  t="0.224" f="3188.53" m="8353.53" cg="505."/>
+      <eng-data  t="0.373" f="3135.61" m="8085.2" cg="505."/>
+      <eng-data  t="2.237" f="2998.9" m="4828.93" cg="505."/>
+      <eng-data  t="2.905" f="2928.34" m="3701.41" cg="505."/>
+      <eng-data  t="3.45" f="2769.57" m="2817.1" cg="505."/>
+      <eng-data  t="3.462" f="2787.21" m="2798.11" cg="505."/>
+      <eng-data  t="4.537" f="2407.94" m="1207.73" cg="505."/>
+      <eng-data  t="4.804" f="1949.28" m="876.435" cg="505."/>
+      <eng-data  t="5.165" f="1684.67" m="502.857" cg="505."/>
+      <eng-data  t="5.511" f="1181.92" m="220.41" cg="505."/>
+      <eng-data  t="6.013" f="313.12" m="6.68754" cg="505."/>
+      <eng-data  t="6.088" f="0." m="0." cg="505."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

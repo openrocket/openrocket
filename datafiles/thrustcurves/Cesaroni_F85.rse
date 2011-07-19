@@ -1,0 +1,25 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="74-F85-WT-15A" Type="unspecified" dia="24." len="133."
+initWt="96." propWt="42." delays="15,12,10,8,6" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="83.814" peakThrust="102.402" throatDia="0."
+exitDia="0." Itot="73.17" burn-time="0.87" massFrac="43.75" Isp="177.65"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pro24-3G White Thunder 74-F85</comments>
+    <data>
+      <eng-data  t="0." f="0." m="42." cg="66.5"/>
+      <eng-data  t="0.01" f="76.074" m="41.7817" cg="66.5"/>
+      <eng-data  t="0.023" f="100.185" m="41.124" cg="66.5"/>
+      <eng-data  t="0.04" f="92.425" m="40.1843" cg="66.5"/>
+      <eng-data  t="0.118" f="100.878" m="35.8569" cg="66.5"/>
+      <eng-data  t="0.283" f="102.402" m="26.2304" cg="66.5"/>
+      <eng-data  t="0.51" f="96.443" m="13.2757" cg="66.5"/>
+      <eng-data  t="0.688" f="87.436" m="3.88187" cg="66.5"/>
+      <eng-data  t="0.787" f="25.912" m="0.661258" cg="66.5"/>
+      <eng-data  t="0.852" f="7.206" m="0.0434313" cg="66.5"/>
+      <eng-data  t="0.873" f="0." m="0." cg="66.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>
