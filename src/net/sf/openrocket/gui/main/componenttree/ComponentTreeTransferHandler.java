@@ -103,6 +103,12 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 	@Override
 	public boolean importData(TransferHandler.TransferSupport support) {
 		
+		// We currently only support drop, not paste
+		if (!support.isDrop()) {
+			log.warn("Import action is not a drop action");
+			return false;
+		}
+		
 		// Sun JRE silently ignores any RuntimeExceptions in importData, yeech!
 		try {
 			

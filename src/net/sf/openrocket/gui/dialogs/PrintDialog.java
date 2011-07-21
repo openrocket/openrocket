@@ -23,13 +23,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.print.PrintController;
 import net.sf.openrocket.gui.print.PrintSettings;
 import net.sf.openrocket.gui.print.PrintableContext;
@@ -40,6 +38,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.FileHelper;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
 
@@ -47,9 +46,6 @@ import net.sf.openrocket.util.Prefs;
  * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
  */
 public class PrintDialog extends JDialog implements TreeSelectionListener {
-	
-	// FIXME:  Printouts use SI units even when imperial are selected
-	// FIXME:  Array out of bounds exception when printing
 	
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
@@ -322,40 +318,37 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private boolean onSavePDF() {
 		
 		JFileChooser chooser = new JFileChooser();
-		// Note: source for ExampleFileFilter can be found in FileChooserDemo,
-		// under the demo/jfc directory in the Java 2 SDK, Standard Edition.
-		FileFilter filter = new FileFilter() {
-			
-			//Accept all directories and all pdf files.
-			@Override
-			public boolean accept(File f) {
-				if (f.isDirectory())
-					return true;
-				return f.getName().toLowerCase().endsWith(".pdf");
-			}
-			
-			//The description of this filter
-			@Override
-			public String getDescription() {
-				return trans.get("filetypes.pdf");
-			}
-		};
-		chooser.setFileFilter(filter);
+		chooser.setFileFilter(FileHelper.PDF_FILTER);
+		
+		// Select initial directory
+		File dir = document.getFile();
+		if (dir != null) {
+			dir = dir.getParentFile();
+		}
+		if (dir == null) {
+			dir = Prefs.getDefaultDirectory();
+		}
+		chooser.setCurrentDirectory(dir);
+		
 		int returnVal = chooser.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+		File file = chooser.getSelectedFile();
+		if (returnVal == JFileChooser.APPROVE_OPTION && file != null) {
+			
+			file = FileHelper.ensureExtension(file, "pdf");
+			if (!FileHelper.confirmWrite(file, this)) {
+				return false;
+			}
 			
 			try {
-				String fname = chooser.getSelectedFile().getCanonicalPath();
-				if (!getExtension(fname).equals("pdf")) {
-					fname = fname + ".pdf";
-				}
-				File f = new File(fname);
+				
 				PrintSettings settings = Prefs.getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
-				generateReport(f, settings);
+				generateReport(file, settings);
+				
 			} catch (IOException e) {
-				ExceptionHandler.handleErrorCondition(e);
+				FileHelper.errorWriting(e, this);
+				return false;
 			}
 			return true;
 		} else {
@@ -363,16 +356,4 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		}
 	}
 	
-	/**
-	 * Get the extension of a file.
-	 */
-	private static String getExtension(String s) {
-		String ext = null;
-		int i = s.lastIndexOf('.');
-		
-		if (i > 0 && i < s.length() - 1) {
-			ext = s.substring(i + 1).toLowerCase();
-		}
-		return ext != null ? ext : "";
-	}
 }

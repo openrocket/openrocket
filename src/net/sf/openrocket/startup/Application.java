@@ -89,6 +89,10 @@ public final class Application {
 	 * @return	a translator.
 	 */
 	public static Translator getTranslator() {
+		if (baseTranslator instanceof DebugTranslator) {
+			return baseTranslator;
+		}
+		
 		Translator t = baseTranslator;
 		t = new ClassBasedTranslator(t, 1);
 		t = new ExceptionSuppressingTranslator(t);

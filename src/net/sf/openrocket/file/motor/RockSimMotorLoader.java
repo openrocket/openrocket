@@ -33,11 +33,9 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	public static final Charset CHARSET = Charset.forName(CHARSET_NAME);
 	
 
-	/** Any delay longed than this will be interpreted as a plugged motor. */
+	/** Any delay longer than this will be interpreted as a plugged motor. */
 	private static final int DELAY_LIMIT = 90;
 	
-	
-	// FIXME: Obtain default motor type from manufacturer info
 	
 
 	@Override

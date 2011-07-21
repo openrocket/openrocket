@@ -69,7 +69,7 @@ public class PlotDialog extends JDialog {
 	
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final Color DEFAULT_EVENT_COLOR = new Color(0, 0, 0);
 	private static final Map<FlightEvent.Type, Color> EVENT_COLORS =
 			new HashMap<FlightEvent.Type, Color>();
@@ -364,7 +364,7 @@ public class PlotDialog extends JDialog {
 					}
 				}
 				
-				final double xcoord;
+				double xcoord;
 				if (a == 0) {
 					xcoord = domain.get(tindex);
 				} else {
@@ -375,15 +375,25 @@ public class PlotDialog extends JDialog {
 					FlightDataType type = config.getType(index);
 					List<Double> range = branch.get(type);
 					
-					final double ycoord;
+					// Image annotations are not supported on the right-side axis
+					// TODO: LOW: Can this be achieved by JFreeChart?
+					if (filled.getAxis(index) != SimulationPlotPanel.LEFT) {
+						continue;
+					}
+					
+					double ycoord;
 					if (a == 0) {
 						ycoord = range.get(tindex);
 					} else {
 						ycoord = a * range.get(tindex) + (1 - a) * range.get(tindex + 1);
 					}
 					
+					// Convert units
+					xcoord = config.getDomainAxisUnit().toUnit(xcoord);
+					ycoord = config.getUnit(index).toUnit(ycoord);
+					
 					XYImageAnnotation annotation =
-							new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
+								new XYImageAnnotation(xcoord, ycoord, image, RectangleAnchor.CENTER);
 					annotation.setToolTipText(event);
 					plot.addAnnotation(annotation);
 				}
@@ -447,7 +457,6 @@ public class PlotDialog extends JDialog {
 		
 		GUIUtil.setDisposableDialogOptions(this, button);
 	}
-	
 	
 	private String getLabel(FlightDataType type, Unit unit) {
 		String name = type.getName();

@@ -20,6 +20,7 @@ edit-delete.png
 edit-paste.png
 edit-redo.png
 edit-undo.png
+edit-scale.png (modified from edit-copy.png)
 
 
 From the "Crystal" project:

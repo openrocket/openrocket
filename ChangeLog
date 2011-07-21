@@ -1,3 +1,13 @@
+2011-07-21  Sampo Niskanen
+
+	* [BUG] Converting triangular fin to freeform
+	* [BUG] Unit conversions in printout
+	* [BUG] Mass computations in printout
+	* [BUG] "Not a drop" exception in ComponentTreeTransferHandler
+	* [BUG] Plot annotation positioned wrong
+	* [BUG] Exception when writing PDF failed
+	* Language selector in preferences
+
 2011-07-18  Sampo Niskanen
 
 	* Select motor type based on known manufacturers

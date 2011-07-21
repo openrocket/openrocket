@@ -24,7 +24,7 @@ import net.sf.openrocket.util.Prefs;
 public class StabilityDomain implements SimulationDomain {
 	
 	/*
-	 * FIXME:  Should this rather inspect stability during flight
+	 * TODO: HIGH:  Should this rather inspect stability during flight
 	 */
 
 	private final double limit;

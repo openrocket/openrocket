@@ -43,9 +43,9 @@ public class BugReportDialog extends JDialog {
 	
 	private static final String REPORT_EMAIL = "openrocket-bugs@lists.sourceforge.net";
 	private static final Translator trans = Application.getTranslator();
-
 	
-	public BugReportDialog(Window parent, String labelText, String message) {
+	
+	public BugReportDialog(Window parent, String labelText, final String message, final boolean sendIfUnchanged) {
 		//// Bug report
 		super(parent, trans.get("bugreport.dlg.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
@@ -67,7 +67,7 @@ public class BugReportDialog extends JDialog {
 		panel.add(label, "gapleft para, wrap");
 		
 		//// Otherwise, send the text below to the address:
-		panel.add(new JLabel(trans.get("bugreport.dlg.otherwise") +" "),
+		panel.add(new JLabel(trans.get("bugreport.dlg.otherwise") + " "),
 				"gapleft para, split 2, gapright rel");
 		panel.add(new SelectableLabel(REPORT_EMAIL), "growx, wrap para");
 		
@@ -115,6 +115,13 @@ public class BugReportDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String text = textArea.getText();
+				if (text.equals(message) && !sendIfUnchanged) {
+					JOptionPane.showMessageDialog(BugReportDialog.this,
+							trans.get("bugreport.dlg.provideDescription"),
+							trans.get("bugreport.dlg.provideDescription.title"), JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				try {
 					
 					BugReporter.sendBugReport(text);
@@ -127,7 +134,7 @@ public class BugReportDialog extends JDialog {
 							"Bug report sent", JOptionPane.INFORMATION_MESSAGE);*/
 					JOptionPane.showMessageDialog(BugReportDialog.this,
 							new Object[] { trans.get("bugreport.dlg.successmsg1"),
-							trans.get("bugreport.dlg.successmsg2") },
+									trans.get("bugreport.dlg.successmsg2") },
 							trans.get("bugreport.dlg.successmsg3"), JOptionPane.INFORMATION_MESSAGE);
 					
 				} catch (Exception ex) {
@@ -137,9 +144,9 @@ public class BugReportDialog extends JDialog {
 							new Object[] { trans.get("bugreport.dlg.failedmsg1"),
 									ex.getClass().getSimpleName() + ": " + ex.getMessage(), " ",
 									//// Please send the report manually to 
-									trans.get("bugreport.dlg.failedmsg2") +" " + REPORT_EMAIL },
+									trans.get("bugreport.dlg.failedmsg2") + " " + REPORT_EMAIL },
 									//// Error sending report
-									trans.get("bugreport.dlg.failedmsg3"), JOptionPane.ERROR_MESSAGE);
+							trans.get("bugreport.dlg.failedmsg3"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -197,10 +204,8 @@ public class BugReportDialog extends JDialog {
 		sb.append("---------- End of bug report ----------\n");
 		sb.append('\n');
 		
-		BugReportDialog reportDialog =
-				new BugReportDialog(parent,
-						//// <html><b>You can report a bug in OpenRocket by filling in and submitting the form below.</b><br>You can also report bugs and include attachments on the project web site.
-						trans.get("bugreport.reportDialog.txt"), sb.toString());
+		BugReportDialog reportDialog = new BugReportDialog(parent,
+						trans.get("bugreport.reportDialog.txt"), sb.toString(), false);
 		reportDialog.setVisible(true);
 	}
 	
@@ -258,8 +263,8 @@ public class BugReportDialog extends JDialog {
 		sb.append('\n');
 		
 		BugReportDialog reportDialog =
-			//// <html><b>Please include a short description about what you were doing when the exception occurred.</b>
-				new BugReportDialog(parent, trans.get("bugreport.reportDialog.txt2"), sb.toString());
+				//// <html><b>Please include a short description about what you were doing when the exception occurred.</b>
+				new BugReportDialog(parent, trans.get("bugreport.reportDialog.txt2"), sb.toString(), true);
 		reportDialog.setVisible(true);
 	}
 	

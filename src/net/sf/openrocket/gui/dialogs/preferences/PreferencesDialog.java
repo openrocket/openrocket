@@ -8,7 +8,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
@@ -32,15 +34,19 @@ import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
-import net.sf.openrocket.gui.main.SimpleFileFilter;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.SimpleFileFilter;
+import net.sf.openrocket.util.Utils;
+
 
 public class PreferencesDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
@@ -49,10 +55,10 @@ public class PreferencesDialog extends JDialog {
 	
 	private File defaultDirectory = null;
 	private static final Translator trans = Application.getTranslator();
-
-	private PreferencesDialog() {
+	
+	private PreferencesDialog(Window parent) {
 		//// Preferences
-		super((Window) null, trans.get("pref.dlg.title.Preferences"), Dialog.ModalityType.APPLICATION_MODAL);
+		super(parent, trans.get("pref.dlg.title.Preferences"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		JPanel panel = new JPanel(new MigLayout("fill, gap unrel", "[grow]", "[grow][]"));
 		
@@ -60,13 +66,13 @@ public class PreferencesDialog extends JDialog {
 		panel.add(tabbedPane, "grow, wrap");
 		
 		//// Units and Default units
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null, unitsPane(), 
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null, unitsPane(),
 				trans.get("pref.dlg.tab.Defaultunits"));
 		//// Materials and Custom materials
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Materials"), null, new MaterialEditPanel(),
 				trans.get("pref.dlg.tab.Custommaterials"));
 		//// Options and Miscellaneous options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(), 
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(),
 				trans.get("pref.dlg.tab.Miscellaneousoptions"));
 		
 		//// Close button
@@ -98,14 +104,44 @@ public class PreferencesDialog extends JDialog {
 	private JPanel optionsPane() {
 		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
 		
+
+		//// Language selector
+		Locale userLocale = Prefs.getUserLocale();
+		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
+		for (Locale l : Prefs.getSupportedLocales()) {
+			locales.add(new Named<Locale>(l, l.getDisplayLanguage()));
+		}
+		Collections.sort(locales);
+		locales.add(0, new Named<Locale>(null, trans.get("languages.default")));
+		
+		final JComboBox languageCombo = new JComboBox(locales.toArray());
+		for (int i = 0; i < locales.size(); i++) {
+			if (Utils.equals(userLocale, locales.get(i).get())) {
+				languageCombo.setSelectedIndex(i);
+			}
+		}
+		languageCombo.addActionListener(new ActionListener() {
+			@Override
+			@SuppressWarnings("unchecked")
+			public void actionPerformed(ActionEvent e) {
+				Named<Locale> selection = (Named<Locale>) languageCombo.getSelectedItem();
+				Prefs.setUserLocale(selection.get());
+			}
+		});
+		panel.add(new JLabel(trans.get("lbl.language")), "gapright para");
+		panel.add(languageCombo, "wrap rel, growx, sg combos");
+		
+		panel.add(new StyledLabel(trans.get("PreferencesDialog.lbl.languageEffect"), -3, Style.ITALIC), "span, wrap para*2");
+		
+
 		//// Position to insert new body components:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
 		panel.add(new JComboBox(new PrefChoiseSelector(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY,
 				//// Always ask
 				//// Insert in middle
 				//// Add to end
-				trans.get("pref.dlg.PrefChoiseSelector1"), 
-				trans.get("pref.dlg.PrefChoiseSelector2"), 
+				trans.get("pref.dlg.PrefChoiseSelector1"),
+				trans.get("pref.dlg.PrefChoiseSelector2"),
 				trans.get("pref.dlg.PrefChoiseSelector3"))), "wrap para, growx, sg combos");
 		
 		//// Confirm deletion of simulations:
@@ -113,7 +149,7 @@ public class PreferencesDialog extends JDialog {
 		panel.add(new JComboBox(new PrefBooleanSelector(Prefs.CONFIRM_DELETE_SIMULATION,
 				//// Delete
 				//// Confirm
-				trans.get("pref.dlg.PrefBooleanSelector1"), 
+				trans.get("pref.dlg.PrefBooleanSelector1"),
 				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap 40lp, growx, sg combos");
 		
 		//// User-defined thrust curves:
@@ -164,11 +200,11 @@ public class PreferencesDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser chooser = new JFileChooser();
-				SimpleFileFilter filter = 
-					new SimpleFileFilter(
-							//// All thrust curve files (*.eng; *.rse; *.zip; directories)
-							trans.get("pref.dlg.Allthrustcurvefiles"),
-						true, "eng", "rse", "zip");
+				SimpleFileFilter filter =
+						new SimpleFileFilter(
+								//// All thrust curve files (*.eng; *.rse; *.zip; directories)
+								trans.get("pref.dlg.Allthrustcurvefiles"),
+								true, "eng", "rse", "zip");
 				chooser.addChoosableFileFilter(filter);
 				//// RASP motor files (*.eng)
 				chooser.addChoosableFileFilter(new SimpleFileFilter(trans.get("pref.dlg.RASPfiles"),
@@ -222,8 +258,8 @@ public class PreferencesDialog extends JDialog {
 
 
 		//// Check for software updates at startup
-		final JCheckBox softwareUpdateBox = 
-			new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
+		final JCheckBox softwareUpdateBox =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
 		softwareUpdateBox.setSelected(Prefs.getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override
@@ -355,6 +391,7 @@ public class PreferencesDialog extends JDialog {
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_PRESSURE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
+
 		//// Stability:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
@@ -388,7 +425,7 @@ public class PreferencesDialog extends JDialog {
 		
 		//// The effects will take place the next time you open a window.
 		panel.add(new StyledLabel(
-				trans.get("pref.dlg.lbl.effect1"), -2),
+				trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
 				"spanx, wrap");
 		
 
@@ -636,11 +673,11 @@ public class PreferencesDialog extends JDialog {
 	
 	private static PreferencesDialog dialog = null;
 	
-	public static void showPreferences() {
+	public static void showPreferences(Window parent) {
 		if (dialog != null) {
 			dialog.dispose();
 		}
-		dialog = new PreferencesDialog();
+		dialog = new PreferencesDialog(parent);
 		dialog.setVisible(true);
 	}
 	

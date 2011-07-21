@@ -206,8 +206,6 @@ public class ScaleDialog extends JDialog {
 	
 	private boolean changing = false;
 	
-	// FIXME: Localize
-	
 	/**
 	 * Sole constructor.
 	 * 
@@ -430,7 +428,7 @@ public class ScaleDialog extends JDialog {
 			
 			// Scale the entire rocket design
 			try {
-				document.startUndo("Scale rocket");
+				document.startUndo(trans.get("undo.scaleRocket"));
 				for (RocketComponent c : document.getRocket()) {
 					scale(c, mul, scaleMass);
 				}
@@ -442,7 +440,7 @@ public class ScaleDialog extends JDialog {
 			
 			// Scale component and subcomponents
 			try {
-				document.startUndo("Scale components");
+				document.startUndo(trans.get("undo.scaleComponents"));
 				for (RocketComponent c : selection) {
 					scale(c, mul, scaleMass);
 				}
@@ -454,7 +452,7 @@ public class ScaleDialog extends JDialog {
 			
 			// Scale only the selected component
 			try {
-				document.startUndo("Scale component");
+				document.startUndo(trans.get("undo.scaleComponent"));
 				scale(selection, mul, scaleMass);
 			} finally {
 				document.stopUndo();

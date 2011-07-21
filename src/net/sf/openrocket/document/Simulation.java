@@ -254,7 +254,12 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 
-
+	/**
+	 * Simulate the flight.
+	 * 
+	 * @param additionalListeners	additional simulation listeners (those defined by the simulation are used in any case)
+	 * @throws SimulationException	if a problem occurs during simulation
+	 */
 	public void simulate(SimulationListener... additionalListeners)
 						throws SimulationException {
 		mutex.lock("simulate");

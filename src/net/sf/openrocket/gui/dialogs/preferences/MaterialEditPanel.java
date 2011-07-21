@@ -24,6 +24,8 @@ import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
+import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
@@ -32,7 +34,7 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 
 public class MaterialEditPanel extends JPanel {
-
+	
 	private final JTable table;
 	
 	private final JButton addButton;
@@ -40,12 +42,12 @@ public class MaterialEditPanel extends JPanel {
 	private final JButton deleteButton;
 	private final JButton revertButton;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	
 	public MaterialEditPanel() {
 		super(new MigLayout("fill"));
 		
-		
+
 		// TODO: LOW: Create sorter that keeps material types always in order
 		final ColumnTableModel model = new ColumnTableModel(
 				//// Material
@@ -61,6 +63,7 @@ public class MaterialEditPanel extends JPanel {
 					public Object getValueAt(int row) {
 						return getMaterial(row).getType().toString();
 					}
+					
 					@Override
 					public int getDefaultWidth() {
 						return 15;
@@ -86,22 +89,24 @@ public class MaterialEditPanel extends JPanel {
 							throw new IllegalStateException("Material type " + m.getType());
 						}
 					}
+					
 					@Override
 					public int getDefaultWidth() {
 						return 15;
 					}
+					
 					@Override
 					public Class<?> getColumnClass() {
 						return Value.class;
 					}
 				}
-		) {
-			@Override
-			public int getRowCount() {
-				return Databases.BULK_MATERIAL.size() + Databases.SURFACE_MATERIAL.size() +
-					Databases.LINE_MATERIAL.size();
-			}
-		};
+				) {
+					@Override
+					public int getRowCount() {
+						return Databases.BULK_MATERIAL.size() + Databases.SURFACE_MATERIAL.size() +
+								Databases.LINE_MATERIAL.size();
+					}
+				};
 		
 		table = new JTable(model);
 		model.setColumnWidths(table.getColumnModel());
@@ -109,7 +114,7 @@ public class MaterialEditPanel extends JPanel {
 		table.setDefaultRenderer(Object.class, new MaterialCellRenderer());
 		this.add(new JScrollPane(table), "w 200px, h 100px, grow 100");
 		
-		
+
 		//// New button
 		addButton = new JButton(trans.get("matedtpan.but.new"));
 		//// Add a new material
@@ -120,7 +125,7 @@ public class MaterialEditPanel extends JPanel {
 				CustomMaterialDialog dialog = new CustomMaterialDialog(
 							SwingUtilities.getWindowAncestor(MaterialEditPanel.this),
 							//// Add a custom material
-							null, false, trans.get("matedtpan.title.Addcustmaterial"));
+						null, false, trans.get("matedtpan.title.Addcustmaterial"));
 				dialog.setVisible(true);
 				if (dialog.getOkClicked()) {
 					Material mat = dialog.getMaterial();
@@ -155,7 +160,7 @@ public class MaterialEditPanel extends JPanel {
 					dialog = new CustomMaterialDialog(
 							SwingUtilities.getWindowAncestor(MaterialEditPanel.this),
 							//// Add a custom material
-							m, false, trans.get("matedtpan.title.Addcustmaterial"), 
+							m, false, trans.get("matedtpan.title.Addcustmaterial"),
 							//// The built-in materials cannot be modified.
 							trans.get("matedtpan.title2.Editmaterial"));
 				}
@@ -196,7 +201,7 @@ public class MaterialEditPanel extends JPanel {
 		});
 		this.add(deleteButton, "gap rel rel para para, growx 1, top");
 		
-		
+
 		this.add(new JPanel(), "grow 1");
 		
 		//// Revert all button
@@ -206,27 +211,27 @@ public class MaterialEditPanel extends JPanel {
 		revertButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int sel = JOptionPane.showConfirmDialog(MaterialEditPanel.this, 
+				int sel = JOptionPane.showConfirmDialog(MaterialEditPanel.this,
 						//// Delete all user-defined materials?
-						trans.get("matedtpan.title.Deletealluser-defined"), 
+						trans.get("matedtpan.title.Deletealluser-defined"),
 						//// Revert all?
-						trans.get("matedtpan.title.Revertall"), 
+						trans.get("matedtpan.title.Revertall"),
 						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if (sel == JOptionPane.YES_OPTION) {
 					Iterator<Material> iterator;
-
+					
 					iterator = Databases.LINE_MATERIAL.iterator();
 					while (iterator.hasNext()) {
 						if (iterator.next().isUserDefined())
 							iterator.remove();
 					}
-
+					
 					iterator = Databases.SURFACE_MATERIAL.iterator();
 					while (iterator.hasNext()) {
 						if (iterator.next().isUserDefined())
 							iterator.remove();
 					}
-
+					
 					iterator = Databases.BULK_MATERIAL.iterator();
 					while (iterator.hasNext()) {
 						if (iterator.next().isUserDefined())
@@ -237,7 +242,7 @@ public class MaterialEditPanel extends JPanel {
 				}
 			}
 		});
-		this.add(revertButton, "gap rel rel para para, growx 1, bottom, wrap");
+		this.add(revertButton, "gap rel rel para para, growx 1, bottom, wrap unrel");
 		
 		setButtonStates();
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -257,9 +262,9 @@ public class MaterialEditPanel extends JPanel {
 		
 		//// <html><i>Editing materials will not affect existing
 		//// rocket designs.</i>
-		this.add(new JLabel(trans.get("matedtpan.lbl.edtmaterials")), "span");
+		this.add(new StyledLabel(trans.get("matedtpan.lbl.edtmaterials"), -2, Style.ITALIC), "span");
 		
-		
+
 	}
 	
 	
@@ -273,9 +278,9 @@ public class MaterialEditPanel extends JPanel {
 			
 		case LINE:
 			return Databases.LINE_MATERIAL;
-
+			
 		default:
-			throw new IllegalArgumentException("Material type invalid, m="+m);
+			throw new IllegalArgumentException("Material type invalid, m=" + m);
 		}
 	}
 	
@@ -296,18 +301,18 @@ public class MaterialEditPanel extends JPanel {
 		} else {
 			deleteButton.setEnabled(false);
 		}
-
+		
 		// Revert button enabled if any user-defined material exists
 		boolean found = false;
 		
-		for (Material m: Databases.BULK_MATERIAL) {
+		for (Material m : Databases.BULK_MATERIAL) {
 			if (m.isUserDefined()) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			for (Material m: Databases.SURFACE_MATERIAL) {
+			for (Material m : Databases.SURFACE_MATERIAL) {
 				if (m.isUserDefined()) {
 					found = true;
 					break;
@@ -315,7 +320,7 @@ public class MaterialEditPanel extends JPanel {
 			}
 		}
 		if (!found) {
-			for (Material m: Databases.LINE_MATERIAL) {
+			for (Material m : Databases.LINE_MATERIAL) {
 				if (m.isUserDefined()) {
 					found = true;
 					break;
@@ -346,25 +351,25 @@ public class MaterialEditPanel extends JPanel {
 		if (row < n) {
 			return Databases.LINE_MATERIAL.get(row);
 		}
-		throw new IndexOutOfBoundsException("row="+origRow+" while material count" +
-				" bulk:" + Databases.BULK_MATERIAL.size() + 
+		throw new IndexOutOfBoundsException("row=" + origRow + " while material count" +
+				" bulk:" + Databases.BULK_MATERIAL.size() +
 				" surface:" + Databases.SURFACE_MATERIAL.size() +
 				" line:" + Databases.LINE_MATERIAL.size());
 	}
 	
 	
 	private class MaterialCellRenderer extends DefaultTableCellRenderer {
-
+		
 		/* (non-Javadoc)
 		 * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 		 */
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, 
+			Component c = super.getTableCellRendererComponent(table, value, isSelected,
 					hasFocus, row, column);
 			if (c instanceof JLabel) {
-				JLabel label = (JLabel)c;
+				JLabel label = (JLabel) c;
 				Material m = getMaterial(row);
 				
 				if (isSelected) {
@@ -383,5 +388,5 @@ public class MaterialEditPanel extends JPanel {
 		}
 		
 	}
-
+	
 }

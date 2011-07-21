@@ -51,7 +51,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -92,6 +91,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.FileHelper;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.MemoryManagement;
@@ -114,23 +114,6 @@ public class BasicFrame extends JFrame {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	// FileFilters for different types of rocket design files
-	private static final FileFilter ALL_DESIGNS_FILTER =
-			//// All rocket designs (*.ork; *.rkt)
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter1"),
-					".ork", ".ork.gz", ".rkt", ".rkt.gz");
-	
-	private static final FileFilter OPENROCKET_DESIGN_FILTER =
-			//// OpenRocket designs (*.ork)
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter2"), ".ork", ".ork.gz");
-	
-	private static final FileFilter ROCKSIM_DESIGN_FILTER =
-			//// RockSim designs (*.rkt)
-			new SimpleFileFilter(trans.get("BasicFrame.SimpleFileFilter3"), ".rkt", ".rkt.gz");
-	
-
-
-
 	public static final int COMPONENT_TAB = 0;
 	public static final int SIMULATION_TAB = 1;
 	
@@ -612,9 +595,7 @@ public class BasicFrame extends JFrame {
 
 
 		item = new JMenuItem(trans.get("main.menu.edit.resize"));
-		// FIXME: Icon
-		//item.setIcon(Icons.PREFERENCES);
-		//// Setup the application preferences
+		item.setIcon(Icons.EDIT_SCALE);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.resize.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -638,7 +619,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Preferences selected");
-				PreferencesDialog.showPreferences();
+				PreferencesDialog.showPreferences(BasicFrame.this);
 			}
 		});
 		menu.add(item);
@@ -1007,10 +988,10 @@ public class BasicFrame extends JFrame {
 	private void openAction() {
 		JFileChooser chooser = new JFileChooser();
 		
-		chooser.addChoosableFileFilter(ALL_DESIGNS_FILTER);
-		chooser.addChoosableFileFilter(OPENROCKET_DESIGN_FILTER);
-		chooser.addChoosableFileFilter(ROCKSIM_DESIGN_FILTER);
-		chooser.setFileFilter(ALL_DESIGNS_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+		chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+		chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
 		
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
@@ -1234,7 +1215,7 @@ public class BasicFrame extends JFrame {
 		log.info("Saving document to " + file);
 		
 		// Saving RockSim designs is not supported
-		if (ROCKSIM_DESIGN_FILTER.accept(file)) {
+		if (FileHelper.ROCKSIM_DESIGN_FILTER.accept(file)) {
 			file = new File(file.getAbsolutePath().replaceAll(".[rR][kK][tT](.[gG][zZ])?$",
 					".ork"));
 			
@@ -1262,7 +1243,7 @@ public class BasicFrame extends JFrame {
 		StorageOptionChooser storageChooser =
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(OPENROCKET_DESIGN_FILTER);
+		chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
 		chooser.setAccessory(storageChooser);
 		if (document.getFile() != null)
@@ -1283,22 +1264,9 @@ public class BasicFrame extends JFrame {
 		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
 		storageChooser.storeOptions(document.getDefaultStorageOptions());
 		
-		if (file.getName().indexOf('.') < 0) {
-			log.debug("File name does not contain extension, adding .ork");
-			String name = file.getAbsolutePath();
-			name = name + ".ork";
-			file = new File(name);
-		}
-		
-		if (file.exists()) {
-			log.info("File " + file + " exists, confirming overwrite from user");
-			int result = JOptionPane.showConfirmDialog(this,
-					"File '" + file.getName() + "' exists.  Do you want to overwrite it?",
-					"File exists", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if (result != JOptionPane.YES_OPTION) {
-				log.user("User decided not to overwrite the file");
-				return false;
-			}
+		file = FileHelper.ensureExtension(file, "ork");
+		if (!FileHelper.confirmWrite(file, this)) {
+			return false;
 		}
 		
 		return saveAs(file);

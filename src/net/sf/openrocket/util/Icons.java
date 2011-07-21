@@ -18,7 +18,7 @@ import net.sf.openrocket.startup.Application;
 public class Icons {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
-
+	
 	static {
 		log.debug("Starting to load icons");
 	}
@@ -60,6 +60,7 @@ public class Icons {
 	public static final Icon EDIT_COPY = loadImageIcon("pix/icons/edit-copy.png", "Copy");
 	public static final Icon EDIT_PASTE = loadImageIcon("pix/icons/edit-paste.png", "Paste");
 	public static final Icon EDIT_DELETE = loadImageIcon("pix/icons/edit-delete.png", "Delete");
+	public static final Icon EDIT_SCALE = loadImageIcon("pix/icons/edit-scale.png", "Scale");
 	
 	public static final Icon ZOOM_IN = loadImageIcon("pix/icons/zoom-in.png", "Zoom in");
 	public static final Icon ZOOM_OUT = loadImageIcon("pix/icons/zoom-out.png", "Zoom out");

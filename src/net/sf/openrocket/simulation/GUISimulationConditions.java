@@ -2,6 +2,7 @@ package net.sf.openrocket.simulation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -445,8 +446,8 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 		conditions.setLaunchLatitude(getLaunchLatitude());
 		
 		PinkNoiseWindModel windModel = new PinkNoiseWindModel();
-		// FIXME:  Random seed
-		windModel.setSeed(1);
+		// TODO: HIGH: Randomness source for simulation
+		windModel.setSeed(new Random().nextInt());
 		windModel.setAverage(getWindSpeedAverage());
 		windModel.setStandardDeviation(getWindSpeedDeviation());
 		conditions.setWindModel(windModel);

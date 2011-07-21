@@ -17,6 +17,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -72,6 +73,7 @@ public class IntegrationTest {
 		db.startLoading();
 		assertEquals(1, db.getMotorSets().size());
 		Application.setMotorSetDatabase(db);
+		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
 	}
 	
 	/**

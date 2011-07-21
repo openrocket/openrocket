@@ -7,11 +7,11 @@ import net.sf.openrocket.util.Chars;
 public abstract class Unit {
 	
 	/** No unit with 2 digit precision */
-	public static final Unit NOUNIT2 = new GeneralUnit(1,""+Chars.ZWSP, 2);
-
-	protected final double multiplier;   // meters = units * multiplier
+	public static final Unit NOUNIT2 = new GeneralUnit(1, "" + Chars.ZWSP, 2);
+	
+	protected final double multiplier; // meters = units * multiplier
 	protected final String unit;
-
+	
 	/**
 	 * Creates a new Unit with a given multiplier and unit name.
 	 * 
@@ -26,7 +26,7 @@ public abstract class Unit {
 		this.multiplier = multiplier;
 		this.unit = unit;
 	}
-
+	
 	/**
 	 * Converts from SI units to this unit.  The default implementation simply divides by the
 	 * multiplier.
@@ -35,9 +35,9 @@ public abstract class Unit {
 	 * @return       Value in these units
 	 */
 	public double toUnit(double value) {
-		return value/multiplier;
+		return value / multiplier;
 	}
-
+	
 	/**
 	 * Convert from this type of units to SI units.  The default implementation simply 
 	 * multiplies by the multiplier.
@@ -46,9 +46,9 @@ public abstract class Unit {
 	 * @return       Value in SI units
 	 */
 	public double fromUnit(double value) {
-		return value*multiplier;
+		return value * multiplier;
 	}
-
+	
 	
 	/**
 	 * Return the unit name.
@@ -111,10 +111,12 @@ public abstract class Unit {
 		return unit;
 	}
 	
+	// TODO: Should this use grouping separator ("#,##0.##")?
+	
 	private static final DecimalFormat intFormat = new DecimalFormat("#");
 	private static final DecimalFormat decFormat = new DecimalFormat("0.##");
 	private static final DecimalFormat expFormat = new DecimalFormat("0.00E0");
-
+	
 	/**
 	 * Format the given value (in SI units) to a string representation of the value in this
 	 * units.  An suitable amount of decimals for the unit are used in the representation.
@@ -125,7 +127,7 @@ public abstract class Unit {
 	 */
 	public String toString(double value) {
 		double val = toUnit(value);
-
+		
 		if (Math.abs(val) > 1E6) {
 			return expFormat.format(val);
 		}
@@ -135,7 +137,7 @@ public abstract class Unit {
 		if (Math.abs(val) <= 0.005) {
 			return "0";
 		}
-
+		
 		double sign = Math.signum(val);
 		val = Math.abs(val);
 		double mul = 1.0;
@@ -143,7 +145,7 @@ public abstract class Unit {
 			mul *= 10;
 			val *= 10;
 		}
-		val = Math.rint(val)/mul * sign;
+		val = Math.rint(val) / mul * sign;
 		
 		return decFormat.format(val);
 	}
@@ -168,7 +170,7 @@ public abstract class Unit {
 	}
 	
 	
-	
+
 	/**
 	 * Creates a new Value object with the specified value and this unit.
 	 * 
@@ -189,7 +191,7 @@ public abstract class Unit {
 	 * @return       Rounded value.
 	 */
 	public abstract double round(double value);
-
+	
 	/**
 	 * Return the next rounded value after the given value.
 	 * @param value  Value in these units.
@@ -224,13 +226,12 @@ public abstract class Unit {
 			return false;
 		if (this.getClass() != other.getClass())
 			return false;
-		return ((this.multiplier == ((Unit)other).multiplier) && 
-				this.unit.equals(((Unit)other).unit));
+		return ((this.multiplier == ((Unit) other).multiplier) && this.unit.equals(((Unit) other).unit));
 	}
 	
 	@Override
 	public int hashCode() {
 		return this.getClass().hashCode() + this.unit.hashCode();
 	}
-
+	
 }

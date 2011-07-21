@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
@@ -23,6 +25,7 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.print.PrintSettings;
+import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
@@ -45,6 +48,16 @@ public class Prefs {
 	private static final LogHelper log = Application.getLogger();
 	
 	private static final String SPLIT_CHARACTER = "|";
+	
+
+	private static final List<Locale> SUPPORTED_LOCALES;
+	static {
+		List<Locale> list = new ArrayList<Locale>();
+		for (String lang : new String[] { "en", "de", "es", "fr" }) {
+			list.add(new Locale(lang));
+		}
+		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
+	}
 	
 
 	/**
@@ -391,7 +404,24 @@ public class Prefs {
 	//////////////////
 	
 
-
+	public static List<Locale> getSupportedLocales() {
+		return SUPPORTED_LOCALES;
+	}
+	
+	public static Locale getUserLocale() {
+		String locale = getString("locale", null);
+		return L10N.toLocale(locale);
+	}
+	
+	public static void setUserLocale(Locale l) {
+		if (l == null) {
+			putString("locale", null);
+		} else {
+			putString("locale", l.toString());
+		}
+	}
+	
+	
 
 	public static boolean getCheckUpdates() {
 		return PREFNODE.getBoolean(CHECK_UPDATES, BuildPropertyHolder.DEFAULT_CHECK_UPDATES);

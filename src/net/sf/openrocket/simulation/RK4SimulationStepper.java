@@ -50,8 +50,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private static final double MIN_TIME_STEP = 0.001;
 	
 
-	// FIXME: Random seed
-	private final Random random = new Random(10);
+	// TODO: HIGH: Randomness source from simulation
+	private final Random random = new Random();
 	
 	
 

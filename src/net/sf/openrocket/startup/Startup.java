@@ -25,9 +25,9 @@ import net.sf.openrocket.file.motor.MotorLoaderHelper;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.ExceptionHandler;
-import net.sf.openrocket.gui.main.SimpleFileFilter;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.l10n.DebugTranslator;
+import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.DelegatorLogger;
@@ -39,6 +39,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.SimpleFileFilter;
 
 
 /**
@@ -123,19 +124,20 @@ public class Startup {
 	 * Initializes the localization system.
 	 */
 	private static void initializeL10n() {
-		String locale = System.getProperty("openrocket.locale");
-		if (locale != null) {
-			Locale l;
-			String[] split = locale.split("[_-]", 3);
-			if (split.length == 1) {
-				l = new Locale(split[0]);
-			} else if (split.length == 2) {
-				l = new Locale(split[0], split[1]);
-			} else {
-				l = new Locale(split[0], split[1], split[2]);
-			}
+		
+		String langcode = System.getProperty("openrocket.locale");
+		if (langcode != null) {
+			Locale l = L10N.toLocale(langcode);
 			log.info("Setting custom locale " + l);
 			Locale.setDefault(l);
+		} else {
+			Locale l = Prefs.getUserLocale();
+			if (l != null) {
+				log.info("Setting user-selected locale " + l);
+				Locale.setDefault(l);
+			} else {
+				log.info("Using default locale " + Locale.getDefault());
+			}
 		}
 		
 		Translator t;
@@ -151,7 +153,6 @@ public class Startup {
 	}
 	
 	
-
 	private static void runMain(String[] args) {
 		
 		// Initialize the splash screen with version info
