@@ -31,6 +31,10 @@ public class AboutDialog extends JDialog {
 			"Sampo Niskanen (main developer)<br>" +
 			"Doug Pedrick (RockSim file format, printing)<br>" +
 			"Boris du Reau (internationalization, translation lead)<br><br>" +
+			"<b>Translations by:</b><br><br>" +
+			"Tripoli France (French)<br>" +
+			"Stefan Lobas / ERIG e.V. (German)<br>" +
+			"Tripoli Spain (Spanish)<br><br>" +
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +

@@ -1,3 +1,12 @@
+OpenRocket 1.1.6  (2011-07-22):
+-------------------------------
+
+Internationalization support thanks to work by Boris du Reau and
+translations by Tripoli Spain, Tripoli France and Stefan Lobas
+(ERIG e.V.).  The release also contains rocket design scaling support
+and numerous bug fixes.
+
+
 OpenRocket 1.1.5  (2011-06-10):
 -------------------------------
 

@@ -80,37 +80,56 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "1.1.5";
+$unstable = "1.1.6";
 $stable = "1.0.0";
 
-if (preg_match("/^1\.1\.4/", $version)) {
+if (preg_match("/^1\.1\.5/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
-    "5: Fixes to printing system";
+    "6: Initial localization support\n" .
+    "5: Scaling support\n" .
+    "4: Bug fixes\n" .
+    "";
+} else if (preg_match("/^1\.1\.4/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "6: Initial localization support\n" .
+    "5: Fixes to printing system\n" .
+    "5: Scaling support\n" .
+    "";
 } else if (preg_match("/^1\.1\.3/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
-    "5: Initial printing support\n" .
-    "4: Bug fixes\n";
+    "7: Initial printing support\n" .
+    "6: Initial localization support\n" .
+    "5: Scaling support\n" .
+    "4: Bug fixes\n" .
+    "";
 } else if (preg_match("/^1\.1\.[12]/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "6: Initial printing support\n" .
     "5: Initial drag-and-drop support\n" .
-    "4: Bug fixes\n";
+    "5: Initial localization support\n" .
+    "5: Scaling support\n" .
+    "4: Bug fixes\n" .
+    "";
 } else if (preg_match("/^1\.1\.0/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "6: Initial printing support\n" .
+    "6: Initial localization support\n" .
     "6: Enhanced motor selection\n" .
     "5: Rewritten simulation code\n" .
     "5: Drag-and-drop support\n" .
-    "4: Bug fixes";
+    "4: Bug fixes\n" .
+    "";
 } else if (preg_match("/^0\.9\.6/", $version)) {
   $updates = "Version: " . $stable . "\n" .
     "6: Hundreds of new thrustcurves\n" .
-    "5: Bug fixes";
+    "5: Bug fixes\n" .
+    "";
 } else if (preg_match("/^0\.9\.[45]/", $version)) {
   $updates = "Version: " . $stable . "\n" .
     "7: Hundreds of new thrustcurves\n" .
     "6: Aerodynamic computation updates\n" .
-    "5: Numerous bug fixes";
+    "5: Numerous bug fixes" .
+    "";
 }
 
 

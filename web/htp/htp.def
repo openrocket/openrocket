@@ -1,5 +1,5 @@
 <set stableversion="1.0.0">
-<set developmentversion="1.1.5">
+<set developmentversion="1.1.6">
 <set version="${developmentversion}">
 
 <def name="downloadbox">
