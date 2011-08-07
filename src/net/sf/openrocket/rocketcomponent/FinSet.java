@@ -513,7 +513,7 @@ public abstract class FinSet extends ExternalComponent {
 		
 		double radius = getBodyRadius();
 		
-		return fins * (inertia + MathUtil.pow2(Math.sqrt(h2) + radius));
+		return fins * (inertia + MathUtil.pow2(MathUtil.safeSqrt(h2) + radius));
 	}
 	
 	
@@ -538,9 +538,9 @@ public abstract class FinSet extends ExternalComponent {
 		double h = getSpan();
 		
 		if (MathUtil.equals(w * h, 0)) {
-			h = Math.sqrt(area);
+			h = MathUtil.safeSqrt(area);
 		} else {
-			h = Math.sqrt(h * area / w);
+			h = MathUtil.safeSqrt(h * area / w);
 		}
 		
 		if (fins == 1)

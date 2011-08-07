@@ -22,6 +22,7 @@ import net.sf.openrocket.util.MathUtil;
 public abstract class AbstractSimulationModifier implements SimulationModifier {
 	
 	private final String name;
+	private final String description;
 	private final Object relatedObject;
 	private final UnitGroup unitGroup;
 	
@@ -34,20 +35,34 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	/**
 	 * Sole constructor.
 	 * 
-	 * @param modifierName		the name of this modifier (returned by {@link #getName()})
-	 * @param relatedObject		the related object (returned by {@link #getRelatedObject()})
-	 * @param unitGroup			the unit group (returned by {@link #getUnitGroup()})
+	 * @param modifierName			the name of this modifier (returned by {@link #getName()})
+	 * @param modifierDescription	the description of this modifier (returned by {@link #getDescription()})
+	 * @param relatedObject			the related object (returned by {@link #getRelatedObject()})
+	 * @param unitGroup				the unit group (returned by {@link #getUnitGroup()})
 	 */
-	public AbstractSimulationModifier(String modifierName, Object relatedObject, UnitGroup unitGroup) {
+	public AbstractSimulationModifier(String modifierName, String modifierDescription, Object relatedObject,
+			UnitGroup unitGroup) {
 		this.name = modifierName;
+		this.description = modifierDescription;
 		this.relatedObject = relatedObject;
 		this.unitGroup = unitGroup;
+		
+		if (this.name == null || this.description == null || this.relatedObject == null || this.unitGroup == null) {
+			throw new IllegalArgumentException("null value provided:" +
+					" name=" + this.name + " description=" + description + " relatedObject=" + relatedObject +
+					" unitGroup=" + unitGroup);
+		}
 	}
 	
 	
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getDescription() {
+		return description;
 	}
 	
 	@Override
@@ -155,4 +170,40 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 		}
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		AbstractSimulationModifier other = (AbstractSimulationModifier) obj;
+		if (!this.description.equals(other.description))
+			return false;
+		if (!this.name.equals(other.name))
+			return false;
+		if (!this.relatedObject.equals(other.relatedObject))
+			return false;
+		if (!this.unitGroup.equals(other.unitGroup))
+			return false;
+		
+		return true;
+	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (description.hashCode());
+		result = prime * result + (name.hashCode());
+		result = prime * result + (relatedObject.hashCode());
+		result = prime * result + (unitGroup.hashCode());
+		return result;
+	}
+	
+
 }

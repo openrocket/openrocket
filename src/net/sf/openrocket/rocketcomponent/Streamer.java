@@ -60,7 +60,7 @@ public class Streamer extends RecoveryDevice {
 		
 		ratio = Math.max(ratio, 0.01);
 		double area = getArea();
-		stripWidth = Math.sqrt(area / ratio);
+		stripWidth = MathUtil.safeSqrt(area / ratio);
 		stripLength = ratio * stripWidth;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
@@ -76,7 +76,7 @@ public class Streamer extends RecoveryDevice {
 			return;
 		
 		double ratio = Math.max(getAspectRatio(), 0.01);
-		stripWidth = Math.sqrt(area / ratio);
+		stripWidth = MathUtil.safeSqrt(area / ratio);
 		stripLength = ratio * stripWidth;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}

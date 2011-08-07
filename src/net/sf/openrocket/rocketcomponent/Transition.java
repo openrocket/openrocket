@@ -1,6 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sin;
 import static net.sf.openrocket.util.MathUtil.*;
 
 import java.util.Collection;
@@ -581,12 +581,12 @@ public class Transition extends SymmetricComponent {
 					return CONICAL.getRadius(x, radius, length, param);
 				
 				// Radius of circle is:
-				double R = sqrt((pow2(length) + pow2(radius)) *
+				double R = MathUtil.safeSqrt((pow2(length) + pow2(radius)) *
 						(pow2((2 - param) * length) + pow2(param * radius)) / (4 * pow2(param * radius)));
 				double L = length / param;
 				//				double R = (radius + length*length/(radius*param*param))/2;
-				double y0 = sqrt(R * R - L * L);
-				return sqrt(R * R - (L - x) * (L - x)) - y0;
+				double y0 = MathUtil.safeSqrt(R * R - L * L);
+				return MathUtil.safeSqrt(R * R - (L - x) * (L - x)) - y0;
 			}
 		},
 		
@@ -605,7 +605,7 @@ public class Transition extends SymmetricComponent {
 				assert x <= length;
 				assert radius >= 0;
 				x = x * radius / length;
-				return sqrt(2 * radius * x - x * x); // radius/length * sphere
+				return MathUtil.safeSqrt(2 * radius * x - x * x); // radius/length * sphere
 			}
 		},
 		
@@ -699,10 +699,10 @@ public class Transition extends SymmetricComponent {
 				assert param <= 2;
 				
 				double theta = Math.acos(1 - 2 * x / length);
-				if (param == 0) {
-					return radius * sqrt((theta - sin(2 * theta) / 2) / Math.PI);
+				if (MathUtil.equals(param, 0)) {
+					return radius * MathUtil.safeSqrt((theta - sin(2 * theta) / 2) / Math.PI);
 				}
-				return radius * sqrt((theta - sin(2 * theta) / 2 + param * pow3(sin(theta))) / Math.PI);
+				return radius * MathUtil.safeSqrt((theta - sin(2 * theta) / 2 + param * pow3(sin(theta))) / Math.PI);
 			}
 		},
 		

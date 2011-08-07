@@ -15,9 +15,11 @@ import net.sf.openrocket.util.PinkNoise;
  */
 public class PinkNoiseWindModel implements WindModel {
 	
-	/** Source for seed numbers, may be overridden by get/setSeed(). */
-	private static final Random seedSource = new Random();
+	/** Random value with which to XOR the random seed value */
+	private static final int SEED_RANDOMIZATION = 0x7343AA03;
 	
+
+
 	/** Pink noise alpha parameter. */
 	private static final double ALPHA = 5.0 / 3.0;
 	
@@ -34,7 +36,7 @@ public class PinkNoiseWindModel implements WindModel {
 	private double average = 0;
 	private double standardDeviation = 0;
 	
-	private int seed;
+	private final int seed;
 	
 	private PinkNoise randomSource = null;
 	private double time1;
@@ -42,12 +44,11 @@ public class PinkNoiseWindModel implements WindModel {
 	
 	
 	/**
-	 * Construct a new wind simulator with a random starting seed value.
+	 * Construct a new wind simulation with a specific seed value.
+	 * @param seed	the seed value.
 	 */
-	public PinkNoiseWindModel() {
-		synchronized (seedSource) {
-			seed = seedSource.nextInt();
-		}
+	public PinkNoiseWindModel(int seed) {
+		this.seed = seed ^ SEED_RANDOMIZATION;
 	}
 	
 	
@@ -121,18 +122,6 @@ public class PinkNoiseWindModel implements WindModel {
 	
 
 
-
-	public int getSeed() {
-		return seed;
-	}
-	
-	public void setSeed(int seed) {
-		if (this.seed == seed)
-			return;
-		this.seed = seed;
-	}
-	
-	
 
 	@Override
 	public Coordinate getWindVelocity(double time, double altitude) {

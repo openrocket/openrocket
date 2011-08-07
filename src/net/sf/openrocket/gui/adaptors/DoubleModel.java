@@ -261,7 +261,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 				// Use quadratic scale
 				// Further solution of the quadratic equation
 				//   a*x^2 + b*x + c-value == 0
-				x = (Math.sqrt(quad1 * quad1 - 4 * quad2 * (quad0 - value)) - quad1) / (2 * quad2);
+				x = (MathUtil.safeSqrt(quad1 * quad1 - 4 * quad2 * (quad0 - value)) - quad1) / (2 * quad2);
 			}
 			return (int) (x * MAX);
 		}

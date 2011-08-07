@@ -21,12 +21,12 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	public static final double DEFAULT_RADIUS = 0.025;
 	public static final double DEFAULT_THICKNESS = 0.002;
 	
-	private static final int DIVISIONS = 100;  // No. of divisions when integrating
+	private static final int DIVISIONS = 100; // No. of divisions when integrating
 	
 	protected boolean filled = false;
 	protected double thickness = DEFAULT_THICKNESS;
 	
-	
+
 	// Cached data, default values signify not calculated
 	private double wetArea = -1;
 	private double planArea = -1;
@@ -38,11 +38,11 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	private Coordinate cg = null;
 	
 	
-	
+
 	public SymmetricComponent() {
 		super();
 	}
-
+	
 	
 	/**
 	 * Return the component radius at position x.
@@ -51,15 +51,21 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 *          the component.
 	 */
 	public abstract double getRadius(double x);
+	
+	@Override
 	public abstract double getInnerRadius(double x);
-
+	
 	public abstract double getForeRadius();
+	
 	public abstract boolean isForeRadiusAutomatic();
+	
 	public abstract double getAftRadius();
+	
 	public abstract boolean isAftRadiusAutomatic();
 	
 	
 	// Implement the Radial interface:
+	@Override
 	public final double getOuterRadius(double x) {
 		return getRadius(x);
 	}
@@ -76,14 +82,14 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	}
 	
 	
-	
+
 	/**
 	 * Return the component wall thickness.
 	 */
 	public double getThickness() {
 		if (filled)
-			return Math.max(getForeRadius(),getAftRadius());
-		return Math.min(thickness,Math.max(getForeRadius(),getAftRadius()));
+			return Math.max(getForeRadius(), getAftRadius());
+		return Math.min(thickness, Math.max(getForeRadius(), getAftRadius()));
 	}
 	
 	
@@ -94,11 +100,11 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	public void setThickness(double thickness) {
 		if ((this.thickness == thickness) && !filled)
 			return;
-		this.thickness = MathUtil.clamp(thickness,0,Math.max(getForeRadius(),getAftRadius()));
+		this.thickness = MathUtil.clamp(thickness, 0, Math.max(getForeRadius(), getAftRadius()));
 		filled = false;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
-
+	
 	
 	/**
 	 * Returns whether the component is set as filled.  If it is set filled, then the
@@ -120,23 +126,23 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
-
+	
 	/**
 	 * Adds component bounds at a number of points between 0...length.
 	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		List<Coordinate> list = new ArrayList<Coordinate>(20);
-		for (int n=0; n<=5; n++) {
-			double x = n*length/5;
+		for (int n = 0; n <= 5; n++) {
+			double x = n * length / 5;
 			double r = getRadius(x);
-			addBound(list,x,r);
+			addBound(list, x, r);
 		}
 		return list;
 	}
 	
 	
-	
+
 	/**
 	 * Calculate volume of the component by integrating over the length of the component.
 	 * The method caches the result, so subsequent calls are instant.  Subclasses may
@@ -231,7 +237,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	@Override
 	public double getLongitudinalUnitInertia() {
 		if (longitudinalInertia < 0) {
-			if (getComponentVolume() > 0.0000001)  // == 0.1cm^3
+			if (getComponentVolume() > 0.0000001) // == 0.1cm^3
 				integrateInertiaVolume();
 			else
 				integrateInertiaSurface();
@@ -257,7 +263,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * Performs integration over the length of the component and updates the cached variables.
 	 */
 	private void integrate() {
-		double x,r1,r2;
+		double x, r1, r2;
 		double cgx;
 		
 		// Check length > 0
@@ -270,12 +276,12 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			return;
 		}
 		
-		
+
 		// Integrate for volume, CG, wetted area and planform area
 		
-		final double l = length/DIVISIONS;
-		final double pil  = Math.PI*l;    // PI * l
-		final double pil3 = Math.PI*l/3;  // PI * l/3
+		final double l = length / DIVISIONS;
+		final double pil = Math.PI * l; // PI * l
+		final double pil3 = Math.PI * l / 3; // PI * l/3
 		r1 = getRadius(0);
 		x = 0;
 		wetArea = 0;
@@ -285,44 +291,44 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		volume = 0;
 		cgx = 0;
 		
-		for (int n=1; n<=DIVISIONS; n++) {
+		for (int n = 1; n <= DIVISIONS; n++) {
 			/*
 			 * r1 and r2 are the two radii
 			 * x is the position of r1
 			 * hyp is the length of the hypotenuse from r1 to r2
 			 * height if the y-axis height of the component if not filled
 			 */
+
+			r2 = getRadius(x + l);
+			final double hyp = MathUtil.hypot(r2 - r1, l);
 			
-			r2 = getRadius(x+l);
-			final double hyp = MathUtil.hypot(r2-r1, l);
-			
-			
+
 			// Volume differential elements
 			final double dV;
 			final double dFullV;
 			
-			dFullV = pil3*(r1*r1 + r1*r2 + r2*r2);
-			if (filled || r1<thickness || r2<thickness) {
+			dFullV = pil3 * (r1 * r1 + r1 * r2 + r2 * r2);
+			if (filled || r1 < thickness || r2 < thickness) {
 				// Filled piece
 				dV = dFullV;
 			} else {
 				// Hollow piece
-				final double height = thickness*hyp/l;
-				dV = MathUtil.max(pil*height*(r1+r2-height), 0);
+				final double height = thickness * hyp / l;
+				dV = MathUtil.max(pil * height * (r1 + r2 - height), 0);
 			}
-
+			
 			// Add to the volume-related components
 			volume += dV;
 			fullVolume += dFullV;
-			cgx += (x+l/2)*dV;
+			cgx += (x + l / 2) * dV;
 			
 			// Wetted area ( * PI at the end)
-			wetArea += hyp*(r1+r2);
+			wetArea += hyp * (r1 + r2);
 			
 			// Planform area & center
-			final double p = l*(r1+r2);
+			final double p = l * (r1 + r2);
 			planArea += p;
-			planCenter += (x+l/2)*p;
+			planCenter += (x + l / 2) * p;
 			
 			// Update for next iteration
 			r1 = r2;
@@ -334,14 +340,14 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		if (planArea > 0)
 			planCenter /= planArea;
 		
-		if (volume < 0.0000000001) {  // 0.1 mm^3
+		if (volume < 0.0000000001) { // 0.1 mm^3
 			volume = 0;
-			cg = new Coordinate(length/2, 0, 0, 0);
+			cg = new Coordinate(length / 2, 0, 0, 0);
 		} else {
 			// getComponentMass is safe now
 			// Use super.getComponentMass() to ensure only the transition shape mass
 			// is used, not the shoulders
-			cg = new Coordinate(cgx/volume,0,0,super.getComponentMass());
+			cg = new Coordinate(cgx / volume, 0, 0, super.getComponentMass());
 		}
 	}
 	
@@ -352,11 +358,11 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 */
 	private void integrateInertiaVolume() {
 		double x, r1, r2;
-
-		final double l = length/DIVISIONS;
-		final double pil  = Math.PI*l;    // PI * l
-		final double pil3 = Math.PI*l/3;  // PI * l/3
-
+		
+		final double l = length / DIVISIONS;
+		final double pil = Math.PI * l; // PI * l
+		final double pil3 = Math.PI * l / 3; // PI * l/3
+		
 		r1 = getRadius(0);
 		x = 0;
 		longitudinalInertia = 0;
@@ -364,34 +370,34 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		
 		double volume = 0;
 		
-		for (int n=1; n<=DIVISIONS; n++) {
+		for (int n = 1; n <= DIVISIONS; n++) {
 			/*
 			 * r1 and r2 are the two radii, outer is their average
 			 * x is the position of r1
 			 * hyp is the length of the hypotenuse from r1 to r2
 			 * height if the y-axis height of the component if not filled
 			 */
-			r2 = getRadius(x+l);
-			final double outer = (r1 + r2)/2;
+			r2 = getRadius(x + l);
+			final double outer = (r1 + r2) / 2;
 			
-			
+
 			// Volume differential elements
 			final double inner;
 			final double dV;
 			
-			if (filled || r1<thickness || r2<thickness) {
+			if (filled || r1 < thickness || r2 < thickness) {
 				inner = 0;
-				dV = pil3*(r1*r1 + r1*r2 + r2*r2);
+				dV = pil3 * (r1 * r1 + r1 * r2 + r2 * r2);
 			} else {
-				final double hyp = MathUtil.hypot(r2-r1, l);
-				final double height = thickness*hyp/l;
-				dV = pil*height*(r1+r2-height);
-				inner = Math.max(outer-height, 0);
+				final double hyp = MathUtil.hypot(r2 - r1, l);
+				final double height = thickness * hyp / l;
+				dV = pil * height * (r1 + r2 - height);
+				inner = Math.max(outer - height, 0);
 			}
 			
-			rotationalInertia += dV * (pow2(outer) + pow2(inner))/2;
-			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l))/12 
-					+ pow2(x+l/2));
+			rotationalInertia += dV * (pow2(outer) + pow2(inner)) / 2;
+			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12
+					+ pow2(x + l / 2));
 			
 			volume += dV;
 			
@@ -400,14 +406,14 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			x += l;
 		}
 		
-		if (MathUtil.equals(volume,0)) {
+		if (MathUtil.equals(volume, 0)) {
 			integrateInertiaSurface();
 			return;
 		}
 		
 		rotationalInertia /= volume;
 		longitudinalInertia /= volume;
-
+		
 		// Shift longitudinal inertia to CG
 		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);
 	}
@@ -420,31 +426,33 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 */
 	private void integrateInertiaSurface() {
 		double x, r1, r2;
-
-		final double l = length/DIVISIONS;
-
+		
+		final double l = length / DIVISIONS;
+		
 		r1 = getRadius(0);
+		System.out.println(r1);
 		x = 0;
+		
 		longitudinalInertia = 0;
 		rotationalInertia = 0;
 		
 		double surface = 0;
 		
-		for (int n=1; n<=DIVISIONS; n++) {
+		for (int n = 1; n <= DIVISIONS; n++) {
 			/*
 			 * r1 and r2 are the two radii, outer is their average
 			 * x is the position of r1
 			 * hyp is the length of the hypotenuse from r1 to r2
 			 * height if the y-axis height of the component if not filled
 			 */
-			r2 = getRadius(x+l);
-			final double hyp = MathUtil.hypot(r2-r1, l);
-			final double outer = (r1 + r2)/2;
+			r2 = getRadius(x + l);
+			final double hyp = MathUtil.hypot(r2 - r1, l);
+			final double outer = (r1 + r2) / 2;
 			
-			final double dS = hyp * (r1+r2) * Math.PI;
-
+			final double dS = hyp * (r1 + r2) * Math.PI;
+			
 			rotationalInertia += dS * pow2(outer);
-			longitudinalInertia += dS * ((6 * pow2(outer) + pow2(l))/12 + pow2(x+l/2));
+			longitudinalInertia += dS * ((6 * pow2(outer) + pow2(l)) / 12 + pow2(x + l / 2));
 			
 			surface += dS;
 			
@@ -452,7 +460,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			r1 = r2;
 			x += l;
 		}
-
+		
 		if (MathUtil.equals(surface, 0)) {
 			longitudinalInertia = 0;
 			rotationalInertia = 0;
@@ -467,8 +475,8 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	}
 	
 	
-	
-	
+
+
 	/**
 	 * Invalidates the cached volume and CG information.
 	 */
@@ -488,10 +496,10 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	}
 	
 	
-	
+
 	///////////   Auto radius helper methods
 	
-	
+
 	/**
 	 * Returns the automatic radius for this component towards the 
 	 * front of the rocket.  The automatics will not search towards the
@@ -500,7 +508,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	 * match was not found.
 	 */
 	protected abstract double getFrontAutoRadius();
-
+	
 	/**
 	 * Returns the automatic radius for this component towards the
 	 * end of the rocket.  The automatics will not search towards the
@@ -511,7 +519,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	protected abstract double getRearAutoRadius();
 	
 	
-	
+
 	/**
 	 * Return the previous symmetric component, or null if none exists.
 	 * NOTE: This method currently assumes that there are no external
@@ -523,11 +531,11 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		RocketComponent c;
 		for (c = this.getPreviousComponent(); c != null; c = c.getPreviousComponent()) {
 			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent)c;
+				return (SymmetricComponent) c;
 			}
 			if (!(c instanceof Stage) &&
-				 (c.relativePosition == RocketComponent.Position.AFTER))
-				return null;   // Bad component type as "parent"
+					(c.relativePosition == RocketComponent.Position.AFTER))
+				return null; // Bad component type as "parent"
 		}
 		return null;
 	}
@@ -543,11 +551,11 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		RocketComponent c;
 		for (c = this.getNextComponent(); c != null; c = c.getNextComponent()) {
 			if (c instanceof SymmetricComponent) {
-				return (SymmetricComponent)c;
+				return (SymmetricComponent) c;
 			}
 			if (!(c instanceof Stage) &&
-				 (c.relativePosition == RocketComponent.Position.AFTER))
-				return null;   // Bad component type as "parent"
+					(c.relativePosition == RocketComponent.Position.AFTER))
+				return null; // Bad component type as "parent"
 		}
 		return null;
 	}

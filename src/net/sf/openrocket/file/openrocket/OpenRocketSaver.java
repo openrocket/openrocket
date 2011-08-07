@@ -25,7 +25,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
@@ -291,7 +291,7 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	
 	private void saveSimulation(Simulation simulation, double timeSkip) throws IOException {
-		GUISimulationConditions cond = simulation.getConditions();
+		SimulationOptions cond = simulation.getOptions();
 		
 		writeln("<simulation status=\"" + enumToXMLName(simulation.getStatus()) + "\">");
 		indent++;

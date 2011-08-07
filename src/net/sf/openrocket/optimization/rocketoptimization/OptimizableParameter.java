@@ -2,6 +2,7 @@ package net.sf.openrocket.optimization.rocketoptimization;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
+import net.sf.openrocket.unit.UnitGroup;
 
 /**
  * A parameter of a rocket or simulation that can be optimized
@@ -29,5 +30,12 @@ public interface OptimizableParameter {
 	 * @throws OptimizationException	if an error occurs preventing the optimization from continuing
 	 */
 	public double computeValue(Simulation simulation) throws OptimizationException;
+	
+	
+	/**
+	 * Return the unit group associated with the computed value.
+	 * @return	the unit group of the computed value.
+	 */
+	public UnitGroup getUnitGroup();
 	
 }

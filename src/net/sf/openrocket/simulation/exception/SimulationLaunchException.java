@@ -7,21 +7,13 @@ package net.sf.openrocket.simulation.exception;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationLaunchException extends SimulationException {
-
-	public SimulationLaunchException() {
-
-	}
-
+	
 	public SimulationLaunchException(String message) {
 		super(message);
 	}
-
-	public SimulationLaunchException(Throwable cause) {
-		super(cause);
-	}
-
+	
 	public SimulationLaunchException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
+	
 }

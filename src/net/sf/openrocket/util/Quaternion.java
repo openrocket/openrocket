@@ -216,7 +216,7 @@ public class Quaternion {
 	 */
 	public double norm() {
 		if (norm < 0) {
-			norm = Math.sqrt(x * x + y * y + z * z + w * w);
+			norm = MathUtil.safeSqrt(x * x + y * y + z * z + w * w);
 		}
 		return norm;
 	}

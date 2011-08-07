@@ -5,6 +5,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Pair;
@@ -43,8 +44,9 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = -0.43;
-		final double dref = 0.33;
+		final Value dref = new Value(ddist, Unit.NOUNIT2);
 		final double pvalue = 9.81;
+		final Value pvalueValue = new Value(9.81, Unit.NOUNIT2);
 		final double gvalue = 8.81;
 		final Point point = new Point(p1, p2);
 		
@@ -52,8 +54,9 @@ public class TestRocketOptimizationFunction {
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Value>(ddist, dref)));
 				oneOf(parameter).computeValue(simulation); will(returnValue(pvalue));
+				oneOf(parameter).getUnitGroup(); will(returnValue(UnitGroup.UNITS_NONE));
 				oneOf(goal).getMinimizationParameter(pvalue); will(returnValue(gvalue));
 				oneOf(modifier1).getCurrentSIValue(simulation); will(returnValue(0.2));
 				oneOf(modifier1).getUnitGroup(); will(returnValue(UnitGroup.UNITS_LENGTH));
@@ -62,7 +65,7 @@ public class TestRocketOptimizationFunction {
 				oneOf(listener).evaluated(point, new Value[] {
 						new Value(0.2, UnitGroup.UNITS_LENGTH.getDefaultUnit()),
 						new Value(0.3, UnitGroup.UNITS_LENGTH.getDefaultUnit())
-				}, dref, pvalue, gvalue);
+				}, dref, pvalueValue, gvalue);
 		}});
 		// @formatter:on
 		
@@ -87,15 +90,16 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = -0.43;
-		final double dref = 0.33;
+		final Value dref = new Value(0.33, Unit.NOUNIT2);
 		final double pvalue = 9.81;
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Value>(ddist, dref)));
 				oneOf(parameter).computeValue(simulation); will(returnValue(pvalue));
+				oneOf(parameter).getUnitGroup(); will(returnValue(UnitGroup.UNITS_NONE));
 				oneOf(goal).getMinimizationParameter(pvalue); will(returnValue(Double.NaN));
 		}});
 		// @formatter:on
@@ -123,14 +127,14 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = 0.98;
-		final double dref = 0.33;
+		final Value dref = new Value(ddist, Unit.NOUNIT2);
 		final Point point = new Point(p1, p2);
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Value>(ddist, dref)));
 				oneOf(modifier1).getCurrentSIValue(simulation); will(returnValue(0.2));
 				oneOf(modifier1).getUnitGroup(); will(returnValue(UnitGroup.UNITS_LENGTH));
 				oneOf(modifier2).getCurrentSIValue(simulation); will(returnValue(0.3));
@@ -138,7 +142,7 @@ public class TestRocketOptimizationFunction {
 				oneOf(listener).evaluated(point, new Value[] {
 						new Value(0.2, UnitGroup.UNITS_LENGTH.getDefaultUnit()),
 						new Value(0.3, UnitGroup.UNITS_LENGTH.getDefaultUnit())
-				}, dref, Double.NaN, 1.98E200);
+				}, dref, null, 1.98E200);
 		}});
 		// @formatter:on
 		
@@ -164,13 +168,13 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = Double.NaN;
-		final double dref = 0.33;
+		final Value dref = new Value(0.33, Unit.NOUNIT2);
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
 				oneOf(modifier1).modify(simulation, p1);
 				oneOf(modifier2).modify(simulation, p2);
-				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Double>(ddist, dref)));
+				oneOf(domain).getDistanceToDomain(simulation); will(returnValue(new Pair<Double,Value>(ddist, dref)));
 		}});
 		// @formatter:on
 		

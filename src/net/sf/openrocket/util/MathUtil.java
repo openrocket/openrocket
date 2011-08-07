@@ -6,7 +6,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
+
 public class MathUtil {
+	private static final LogHelper log = Application.getLogger();
+	
 	public static final double EPSILON = 0.00000001; // 10mm^3 in m^3
 	
 	/**
@@ -192,6 +197,25 @@ public class MathUtil {
 	}
 	
 	
+	/**
+	 * Return the square root of a value.  If the value is negative, zero is returned.
+	 * This is safer in cases where rounding errors might make a value slightly negative.
+	 * 
+	 * @param d		the value of which the square root is to be taken.
+	 * @return		the square root of the value.
+	 */
+	public static double safeSqrt(double d) {
+		if (d < 0) {
+			if (d < 0.01) {
+				log.warn(1, "Attempting to compute sqrt(" + d + ")");
+			}
+			return 0;
+		}
+		return Math.sqrt(d);
+	}
+	
+	
+
 	public static boolean equals(double a, double b) {
 		double absb = Math.abs(b);
 		

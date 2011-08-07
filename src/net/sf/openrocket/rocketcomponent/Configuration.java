@@ -328,7 +328,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	/**
 	 * Perform a deep-clone.  The object references are also cloned and no
-	 * listeners are listening on the cloned object.  
+	 * listeners are listening on the cloned object.  The rocket instance remains the same.
 	 */
 	@Override
 	public Configuration clone() {

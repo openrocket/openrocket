@@ -67,16 +67,13 @@ public class RocketOptimizationFunction implements Function {
 	@Override
 	public double evaluate(Point point) throws InterruptedException, OptimizationException {
 		
-		System.out.println("Evaluating function at point " + point);
-		
 		/*
 		 * parameterValue is the computed parameter value (e.g. altitude)
 		 * goalValue is the value that needs to be minimized
 		 */
 		double goalValue, parameterValue;
 		
-
-		log.verbose("Computing optimization function value at point " + point);
+		log.debug("Computing optimization function value at point " + point);
 		
 		// Create the new simulation based on the point
 		double[] p = point.asArray();
@@ -92,19 +89,18 @@ public class RocketOptimizationFunction implements Function {
 		
 
 		// Check whether the point is within the simulation domain
-		Pair<Double, Double> d = domain.getDistanceToDomain(simulation);
+		Pair<Double, Value> d = domain.getDistanceToDomain(simulation);
 		double distance = d.getU();
-		double referenceValue = d.getV();
+		Value referenceValue = d.getV();
 		if (distance > 0 || Double.isNaN(distance)) {
 			if (Double.isNaN(distance)) {
 				goalValue = Double.MAX_VALUE;
 			} else {
 				goalValue = (distance + 1) * OUTSIDE_DOMAIN_SCALE;
 			}
-			log.verbose("Optimization point is outside of domain, distance=" + distance + " goal function value=" + goalValue);
-			System.out.println("Optimization point is outside of domain, distance=" + distance + " goal function value=" + goalValue);
+			log.debug("Optimization point is outside of domain, distance=" + distance + " goal function value=" + goalValue);
 			
-			fireEvent(simulation, point, referenceValue, Double.NaN, goalValue);
+			fireEvent(simulation, point, referenceValue, null, goalValue);
 			
 			return goalValue;
 		}
@@ -122,9 +118,9 @@ public class RocketOptimizationFunction implements Function {
 		}
 		
 		log.verbose("Parameter value at point " + point + " is " + parameterValue + ", goal function value=" + goalValue);
-		System.out.println("Parameter value at point " + point + " is " + parameterValue + ", goal function value=" + goalValue);
 		
-		fireEvent(simulation, point, referenceValue, parameterValue, goalValue);
+		fireEvent(simulation, point, referenceValue, new Value(parameterValue, parameter.getUnitGroup().getDefaultUnit()),
+				goalValue);
 		
 		return goalValue;
 	}
@@ -168,7 +164,7 @@ public class RocketOptimizationFunction implements Function {
 	
 	
 
-	private void fireEvent(Simulation simulation, Point p, double domainReference, double parameterValue, double goalValue)
+	private void fireEvent(Simulation simulation, Point p, Value domainReference, Value parameterValue, double goalValue)
 			throws OptimizationException {
 		
 		if (listeners.isEmpty()) {

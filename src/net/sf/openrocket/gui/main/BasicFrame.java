@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -80,7 +81,6 @@ import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
-import net.sf.openrocket.gui.optimization.OptimizationTestDialog;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -367,8 +367,8 @@ public class BasicFrame extends JFrame {
 		scroll.setBorder(null);
 		scroll.setViewportBorder(null);
 		
-		TitledBorder border = new TitledBorder(trans.get("BasicFrame.title.Addnewcomp"));
-		border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
+		TitledBorder border = BorderFactory.createTitledBorder(trans.get("BasicFrame.title.Addnewcomp"));
+		GUIUtil.changeFontStyle(border, Font.BOLD);
 		scroll.setBorder(border);
 		
 		panel.add(scroll, "grow");
@@ -647,6 +647,19 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
+
+		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("Rocket optimization selected");
+				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+
 
 		////  Debug
 		// (shown if openrocket.debug.menu is defined)
@@ -951,25 +964,6 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 
-		item = new JMenuItem("General optimization test");
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
-			}
-		});
-		menu.add(item);
-		
-
-		item = new JMenuItem("Optimization test");
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new OptimizationTestDialog(BasicFrame.this, document).setVisible(true);
-			}
-		});
-		menu.add(item);
-		
 		return menu;
 	}
 	
@@ -1370,13 +1364,6 @@ public class BasicFrame extends JFrame {
 	 * 
 	 */
 	public void printAction() {
-		if (!Prefs.getBoolean("printing.experimental.communicated", false)) {
-			log.info("Showing printing is experimental warning to the user");
-			JOptionPane.showMessageDialog(this, "Printing is an currently an experimental feature " +
-					"and might not fully work on all platforms",
-					"Experimental feature", JOptionPane.WARNING_MESSAGE);
-			Prefs.putBoolean("printing.experimental.communicated", true);
-		}
 		new PrintDialog(this, document).setVisible(true);
 	}
 	

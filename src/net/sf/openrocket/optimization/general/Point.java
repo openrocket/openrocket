@@ -139,7 +139,7 @@ public final class Point {
 	 */
 	public double length() {
 		if (length < 0) {
-			length = Math.sqrt(length2());
+			length = MathUtil.safeSqrt(length2());
 		}
 		return length;
 	}

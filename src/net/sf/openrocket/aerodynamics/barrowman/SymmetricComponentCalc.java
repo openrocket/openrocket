@@ -317,14 +317,14 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 				p = (param - 0.5) * 4;
 			} else {
 				int1 = x34Interpolator;
-				int2 = calculateOgiveNoseInterpolator(0, 1 / Math.sqrt(1 + 4 * pow2(fineness)));
+				int2 = calculateOgiveNoseInterpolator(0, 1 / MathUtil.safeSqrt(1 + 4 * pow2(fineness)));
 				p = (param - 0.75) * 4;
 			}
 			break;
 		
 		case PARABOLIC:
 			if (param <= 0.5) {
-				int1 = calculateOgiveNoseInterpolator(0, 1 / Math.sqrt(1 + 4 * pow2(fineness)));
+				int1 = calculateOgiveNoseInterpolator(0, 1 / MathUtil.safeSqrt(1 + 4 * pow2(fineness)));
 				int2 = parabolic12Interpolator;
 				p = param * 2;
 			} else if (param <= 0.75) {
@@ -429,7 +429,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		
 		// Above M = 1.3 use direct formula
 		for (double m = 1.32; m < 4; m += 0.02) {
-			interpolator.addPoint(m, mul * (2.1 * pow2(sinphi) + 0.5 * sinphi / Math.sqrt(m * m - 1)));
+			interpolator.addPoint(m, mul * (2.1 * pow2(sinphi) + 0.5 * sinphi / MathUtil.safeSqrt(m * m - 1)));
 		}
 		
 		return interpolator;

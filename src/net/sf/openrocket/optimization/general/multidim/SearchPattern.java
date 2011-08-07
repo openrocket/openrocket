@@ -58,7 +58,7 @@ public class SearchPattern {
 			for (int j = 0; j < i; j++) {
 				value -= MathUtil.pow2(coordinates[j]);
 			}
-			value = Math.sqrt(value);
+			value = MathUtil.safeSqrt(value);
 			
 			coordinates[i] = value;
 			pattern.add(new Point(coordinates));

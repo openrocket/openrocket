@@ -8,16 +8,12 @@ import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -32,32 +28,20 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.FileHelper;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.SaveCSVWorker;
 
 public class SimulationExportPanel extends JPanel {
-
+	
 	private static final String SPACE = "SPACE";
 	private static final String TAB = "TAB";
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final FileFilter CSV_FILE_FILTER = new FileFilter() {
-		@Override
-		public String getDescription() {
-			//// Comma Separated Files (*.csv)
-			return trans.get("SimExpPan.desc");
-		}
-		@Override
-		public boolean accept(File f) {
-			if (f.isDirectory())
-				return true;
-			String name = f.getName().toLowerCase();
-			return name.endsWith(".csv");
-		}
-    };
-
-	
+	private static final int OPTION_SIMULATION_COMMENTS = 0;
+	private static final int OPTION_FIELD_DESCRIPTIONS = 1;
+	private static final int OPTION_FLIGHT_EVENTS = 2;
 	
 	private final JTable table;
 	private final SelectionTableModel tableModel;
@@ -70,38 +54,32 @@ public class SimulationExportPanel extends JPanel {
 	private final FlightDataType[] types;
 	private final Unit[] units;
 	
-	private final JComboBox fieldSeparator;
-	private final JCheckBox simulationComments;
-	private final JCheckBox fieldNameComments;
-	private final JCheckBox eventComments;
-	private final JComboBox commentCharacter;
+	private final CsvOptionPanel csvOptions;
 	
 	
 	public SimulationExportPanel(Simulation sim) {
 		super(new MigLayout("fill, flowy"));
-
-		JLabel label;
+		
 		JPanel panel;
 		JButton button;
-		String tip;
 		
-		
+
 		this.simulation = sim;
 		
 		// TODO: MEDIUM: Only exports primary branch
 		
 		final FlightData data = simulation.getSimulatedData();
-
+		
 		// Check that data exists
-		if (data == null  || data.getBranchCount() == 0 ||
+		if (data == null || data.getBranchCount() == 0 ||
 				data.getBranch(0).getTypes().length == 0) {
 			throw new IllegalArgumentException("No data for panel");
 		}
 		
-		
+
 		// Create the data model
 		branch = data.getBranch(0);
-
+		
 		types = branch.getTypes();
 		Arrays.sort(types);
 		
@@ -112,16 +90,16 @@ public class SimulationExportPanel extends JPanel {
 			units[i] = types[i].getUnitGroup().getDefaultUnit();
 		}
 		
-		
+
 		//// Create the panel
 		
-		
+
 		// Set up the variable selection table
 		tableModel = new SelectionTableModel();
 		table = new JTable(tableModel);
-		table.setDefaultRenderer(Object.class, 
+		table.setDefaultRenderer(Object.class,
 				new SelectionBackgroundCellRenderer(table.getDefaultRenderer(Object.class)));
-		table.setDefaultRenderer(Boolean.class, 
+		table.setDefaultRenderer(Boolean.class,
 				new SelectionBackgroundCellRenderer(table.getDefaultRenderer(Boolean.class)));
 		table.setRowSelectionAllowed(false);
 		table.setColumnSelectionAllowed(false);
@@ -146,7 +124,7 @@ public class SimulationExportPanel extends JPanel {
 		
 		col = columnModel.getColumn(2);
 		col.setPreferredWidth(100);
-
+		
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
 		
 		// Add table
@@ -174,85 +152,31 @@ public class SimulationExportPanel extends JPanel {
 		});
 		panel.add(button, "growx 1, sizegroup selectbutton, wrap");
 		
-		
+
 		selectedCountLabel = new JLabel();
 		updateSelectedCount();
 		panel.add(selectedCountLabel);
 		
 		this.add(panel, "grow 100, wrap");
 		
-		
-		
-		// Field separator panel
-		panel = new JPanel(new MigLayout("fill"));
-		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Fieldsep")));
-		
-		label = new JLabel(trans.get("SimExpPan.lbl.Fieldsepstr"));
-		//// <html>The string used to separate the fields in the exported file.<br>
-		//// Use ',' for a Comma Separated Values (CSV) file.
-		tip = trans.get("SimExpPan.lbl.longA1") +
-		trans.get("SimExpPan.lbl.longA2");
-		label.setToolTipText(tip);
-		panel.add(label);
-		
-		fieldSeparator = new JComboBox(new String[] { ",", ";", SPACE, TAB });
-		fieldSeparator.setEditable(true);
-		fieldSeparator.setSelectedItem(Prefs.getString(Prefs.EXPORT_FIELD_SEPARATOR, 
-				","));
-		fieldSeparator.setToolTipText(tip);
-		panel.add(fieldSeparator);
-		
-		this.add(panel, "spany, split, growx 1");
-		
-		
-		
-		
-		// Comments separator panel
-		panel = new JPanel(new MigLayout("fill"));
-		//// Comments
-		panel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Comments")));
-		
-		//// Include simulation description
-		simulationComments = new JCheckBox(trans.get("SimExpPan.checkbox.Includesimudesc"));
-		//// Include a comment at the beginning of the file describing the simulation.
-		simulationComments.setToolTipText(trans.get("SimExpPan.checkbox.ttip.Includesimudesc"));
-		simulationComments.setSelected(Prefs.getBoolean(Prefs.EXPORT_SIMULATION_COMMENT, 
-				true));
-		panel.add(simulationComments, "wrap");
-		
-		//// Include field descriptions
-		fieldNameComments = new JCheckBox(trans.get("SimExpPan.checkbox.Includefielddesc"));
-		//// Include a comment line with the descriptions of the exported variables.
-		fieldNameComments.setToolTipText(trans.get("SimExpPan.checkbox.ttip.Includefielddesc"));
-		fieldNameComments.setSelected(Prefs.getBoolean(Prefs.EXPORT_FIELD_NAME_COMMENT, true));
-		panel.add(fieldNameComments, "wrap");
-		
-		
-		eventComments = new JCheckBox(trans.get("SimExpPan.checkbox.Incflightevents"));
-		eventComments.setToolTipText(trans.get("SimExpPan.checkbox.ttip.Incflightevents"));
-		eventComments.setSelected(Prefs.getBoolean(Prefs.EXPORT_EVENT_COMMENTS, true));
-		panel.add(eventComments, "wrap");
-		
-		
-		label = new JLabel(trans.get("SimExpPan.lbl.Commentchar"));
-		tip = trans.get("SimExpPan.lbl.ttip.Commentchar");
-		label.setToolTipText(tip);
-		panel.add(label, "split 2");
-		
-		commentCharacter = new JComboBox(new String[] { "#", "%", ";" });
-		commentCharacter.setEditable(true);
-		commentCharacter.setSelectedItem(Prefs.getString(Prefs.EXPORT_COMMENT_CHARACTER, "#"));
-		commentCharacter.setToolTipText(tip);
-		panel.add(commentCharacter);
-		
-		this.add(panel, "growx 1");
 
+		// These need to be in the order of the OPTIONS_XXX indices
+		csvOptions = new CsvOptionPanel(SimulationExportPanel.class,
+				trans.get("SimExpPan.checkbox.Includesimudesc"),
+				trans.get("SimExpPan.checkbox.ttip.Includesimudesc"),
+				trans.get("SimExpPan.checkbox.Includefielddesc"),
+				trans.get("SimExpPan.checkbox.ttip.Includefielddesc"),
+				trans.get("SimExpPan.checkbox.Incflightevents"),
+				trans.get("SimExpPan.checkbox.ttip.Incflightevents"));
 		
+		this.add(csvOptions, "spany, split, growx 1");
+		
+
 		// Space-filling panel
 		panel = new JPanel();
 		this.add(panel, "width 1, height 1, grow 1");
 		
-		
+
 		// Export button
 		button = new JButton(trans.get("SimExpPan.but.Exporttofile"));
 		button.addActionListener(new ActionListener() {
@@ -268,7 +192,7 @@ public class SimulationExportPanel extends JPanel {
 	
 	private void doExport() {
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(CSV_FILE_FILTER);
+		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
 		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
@@ -278,49 +202,33 @@ public class SimulationExportPanel extends JPanel {
 		if (file == null)
 			return;
 		
-		if (file.getName().indexOf('.') < 0) {
-			String name = file.getAbsolutePath();
-			name = name + ".csv";
-			file = new File(name);
+		file = FileHelper.ensureExtension(file, "csv");
+		if (!FileHelper.confirmWrite(file, this)) {
+			return;
 		}
+		
 
-		if (file.exists()) {
-			int ret = JOptionPane.showConfirmDialog(this,
-					//// File 
-					trans.get("SimExpPan.Fileexists.desc1") + file.getName() + 
-					//// \" exists.  Overwrite?
-					trans.get("SimExpPan.Fileexists.desc2"), 
-					//// File exists
-					trans.get("SimExpPan.Fileexists.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (ret != JOptionPane.YES_OPTION)
-				return;
-		}
-
-		String commentChar = commentCharacter.getSelectedItem().toString();
-		String fieldSep = fieldSeparator.getSelectedItem().toString();
-		boolean simulationComment = simulationComments.isSelected();
-		boolean fieldComment = fieldNameComments.isSelected();
-		boolean eventComment = eventComments.isSelected();
+		String commentChar = csvOptions.getCommentCharacter();
+		String fieldSep = csvOptions.getFieldSeparator();
+		boolean simulationComment = csvOptions.getSelectionOption(OPTION_SIMULATION_COMMENTS);
+		boolean fieldComment = csvOptions.getSelectionOption(OPTION_FIELD_DESCRIPTIONS);
+		boolean eventComment = csvOptions.getSelectionOption(OPTION_FLIGHT_EVENTS);
+		csvOptions.storePreferences();
 		
 		// Store preferences and export
 		int n = 0;
 		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
-		for (int i=0; i < selected.length; i++) {
+		for (int i = 0; i < selected.length; i++) {
 			Prefs.setExportSelected(types[i], selected[i]);
 			if (selected[i])
 				n++;
 		}
-		Prefs.putString(Prefs.EXPORT_FIELD_SEPARATOR, fieldSep);
-		Prefs.putString(Prefs.EXPORT_COMMENT_CHARACTER, commentChar);
-		Prefs.putBoolean(Prefs.EXPORT_EVENT_COMMENTS, eventComment);
-		Prefs.putBoolean(Prefs.EXPORT_FIELD_NAME_COMMENT, fieldComment);
-		Prefs.putBoolean(Prefs.EXPORT_SIMULATION_COMMENT, simulationComment);
 		
-		
+
 		FlightDataType[] fieldTypes = new FlightDataType[n];
 		Unit[] fieldUnits = new Unit[n];
 		int pos = 0;
-		for (int i=0; i < selected.length; i++) {
+		for (int i = 0; i < selected.length; i++) {
 			if (selected[i]) {
 				fieldTypes[pos] = types[i];
 				fieldUnits[pos] = units[i];
@@ -334,9 +242,9 @@ public class SimulationExportPanel extends JPanel {
 			fieldSep = "\t";
 		}
 		
-		
-		SaveCSVWorker.export(file, simulation, branch, fieldTypes, fieldUnits, fieldSep, 
-				commentChar, simulationComment, fieldComment, eventComment, 
+
+		SaveCSVWorker.export(file, simulation, branch, fieldTypes, fieldUnits, fieldSep,
+				commentChar, simulationComment, fieldComment, eventComment,
 				SwingUtilities.getWindowAncestor(this));
 	}
 	
@@ -346,7 +254,7 @@ public class SimulationExportPanel extends JPanel {
 		int n = 0;
 		String str;
 		
-		for (int i=0; i < selected.length; i++) {
+		for (int i = 0; i < selected.length; i++) {
 			if (selected[i])
 				n++;
 		}
@@ -357,21 +265,21 @@ public class SimulationExportPanel extends JPanel {
 		} else {
 			//// Exporting 
 			//// variables out of
-			str = trans.get("SimExpPan.ExportingVar.desc2") + " "+n+" " + 
-			trans.get("SimExpPan.ExportingVar.desc3") + " " + total + ".";
+			str = trans.get("SimExpPan.ExportingVar.desc2") + " " + n + " " +
+					trans.get("SimExpPan.ExportingVar.desc3") + " " + total + ".";
 		}
-
+		
 		selectedCountLabel.setText(str);
 	}
 	
 	
-	
+
 	/**
 	 * A table cell renderer that uses another renderer and sets the background and
 	 * foreground of the returned component based on the selection of the variable.
 	 */
 	private class SelectionBackgroundCellRenderer implements TableCellRenderer {
-
+		
 		private final TableCellRenderer renderer;
 		
 		public SelectionBackgroundCellRenderer(TableCellRenderer renderer) {
@@ -382,7 +290,7 @@ public class SimulationExportPanel extends JPanel {
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
 			
-			Component component = renderer.getTableCellRendererComponent(table, 
+			Component component = renderer.getTableCellRendererComponent(table,
 					value, isSelected, hasFocus, row, column);
 			
 			if (selected[row]) {
@@ -406,12 +314,12 @@ public class SimulationExportPanel extends JPanel {
 		private static final int SELECTED = 0;
 		private static final int NAME = 1;
 		private static final int UNIT = 2;
-
+		
 		@Override
 		public int getColumnCount() {
 			return 3;
 		}
-
+		
 		@Override
 		public int getRowCount() {
 			return types.length;
@@ -447,10 +355,10 @@ public class SimulationExportPanel extends JPanel {
 				throw new IndexOutOfBoundsException("column=" + column);
 			}
 		}
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
-
+			
 			switch (column) {
 			case SELECTED:
 				return selected[row];
@@ -462,34 +370,34 @@ public class SimulationExportPanel extends JPanel {
 				return units[row];
 				
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 			
 		}
-
+		
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			
 			switch (column) {
 			case SELECTED:
-				selected[row] = (Boolean)value;
+				selected[row] = (Boolean) value;
 				this.fireTableRowsUpdated(row, row);
 				updateSelectedCount();
 				break;
-				
+			
 			case NAME:
 				break;
-				
+			
 			case UNIT:
-				units[row] = (Unit)value;
+				units[row] = (Unit) value;
 				break;
-				
+			
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 			
 		}
-
+		
 		@Override
 		public boolean isCellEditable(int row, int column) {
 			switch (column) {
@@ -503,7 +411,7 @@ public class SimulationExportPanel extends JPanel {
 				return types[row].getUnitGroup().getUnitCount() > 1;
 				
 			default:
-				throw new IndexOutOfBoundsException("column="+column);
+				throw new IndexOutOfBoundsException("column=" + column);
 			}
 		}
 		

@@ -12,10 +12,10 @@ import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.aerodynamics.barrowman.RocketComponentCalc;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
-import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.PolyInterpolator;
@@ -268,7 +268,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				//				System.out.printf("constant Cf=%f ",Cf);
 			} else if (Re < 5.39e5) {
 				// Fully laminar
-				Cf = 1.328 / Math.sqrt(Re);
+				Cf = 1.328 / MathUtil.safeSqrt(Re);
 				//				System.out.printf("basic Cf=%f ",Cf);
 			} else {
 				// Transitional

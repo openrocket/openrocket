@@ -14,11 +14,11 @@ public interface RocketOptimizationListener {
 	 * Called after successful function evaluation.
 	 * 
 	 * @param point				the optimization point.
-	 * @param state				the values to which the rocket has been modified, in the order of "point".
-	 * @param domainReference	the domain reference value (or NaN if unavailable)
+	 * @param state				the values to which the rocket has been modified in SI units, in the order of "point".
+	 * @param domainReference	the domain reference description (or null if unavailable)
 	 * @param parameterValue	the parameter value (or NaN if unavailable)
 	 * @param goalValue			the goal value (return value of the function)
 	 */
-	public void evaluated(Point point, Value[] state, double domainReference, double parameterValue, double goalValue);
+	public void evaluated(Point point, Value[] state, Value domainReference, Value parameterValue, double goalValue);
 	
 }

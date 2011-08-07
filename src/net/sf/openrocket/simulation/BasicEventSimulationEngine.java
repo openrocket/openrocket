@@ -16,6 +16,7 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
@@ -51,7 +52,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		Configuration configuration = setupConfiguration(simulationConditions);
 		MotorInstanceConfiguration motorConfiguration = setupMotorConfiguration(configuration);
 		if (motorConfiguration.getMotorIDs().isEmpty()) {
-			throw new SimulationLaunchException("No motors defined.");
+			throw new MotorIgnitionException("No motors defined in the simulation.");
 		}
 		
 		// Initialize the simulation
@@ -161,7 +162,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		flightData.addBranch(status.getFlightData());
 		
-		log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
+		if (!flightData.getWarningSet().isEmpty()) {
+			log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
+		}
 		
 		// TODO: HIGH: Simulate branches
 		return flightData;
@@ -494,7 +497,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// If no motor has ignited, abort
 		if (!status.isMotorIgnited()) {
-			throw new SimulationLaunchException("No motors ignited.");
+			throw new MotorIgnitionException("No motors ignited.");
 		}
 		
 		return ret;

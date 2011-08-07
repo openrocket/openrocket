@@ -9,16 +9,15 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
-import net.sf.openrocket.simulation.listeners.system.ApogeeEndListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 /**
- * An optimization parameter that computes the maximum altitude of a simulated flight.
+ * An optimization parameter that computes the distance where a rocket lands.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class MaximumAltitudeParameter implements OptimizableParameter {
+public class LandingDistanceParameter implements OptimizableParameter {
 	
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
@@ -31,16 +30,17 @@ public class MaximumAltitudeParameter implements OptimizableParameter {
 	@Override
 	public double computeValue(Simulation simulation) throws OptimizationException {
 		try {
-			log.debug("Running simulation to evaluate apogee altitude");
-			simulation.simulate(new ApogeeEndListener());
-			log.debug("Maximum altitude was " + simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE));
-			return simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE);
+			log.debug("Running simulation to evaluate rocket landing distance");
+			simulation.simulate();
+			double value = simulation.getSimulatedData().getBranch(0).getLast(FlightDataType.TYPE_POSITION_XY);
+			log.debug("Landing distance was " + value);
+			return value;
 		} catch (MotorIgnitionException e) {
 			// A problem with motor ignition will cause optimization to fail
 			throw new OptimizationException(e);
 		} catch (SimulationLaunchException e) {
 			// Other launch exceptions result in zero altitude
-			return 0.0;
+			return Double.NaN;
 		} catch (SimulationException e) {
 			// Other exceptions fail
 			throw new OptimizationException(e);

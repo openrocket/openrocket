@@ -4,9 +4,15 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
+/**
+ * This class represents a generic component that has a specific mass and an approximate shape.
+ * The mass is accessed via get/setComponentMass.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class MassComponent extends MassObject {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private double mass = 0;
 	
 	

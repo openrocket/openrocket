@@ -65,7 +65,12 @@ import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
-public class PlotDialog extends JDialog {
+/**
+ * Dialog that shows a plot of a simulation results based on user options.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
+public class SimulationPlotDialog extends JDialog {
 	
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
 	private static final Translator trans = Application.getTranslator();
@@ -128,7 +133,7 @@ public class PlotDialog extends JDialog {
 	private final List<ModifiedXYItemRenderer> renderers =
 			new ArrayList<ModifiedXYItemRenderer>();
 	
-	private PlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
+	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
 		//// Flight data plot
 		super(parent, trans.get("PlotDialog.title.Flightdataplot"));
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -447,7 +452,7 @@ public class PlotDialog extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PlotDialog.this.dispose();
+				SimulationPlotDialog.this.dispose();
 			}
 		});
 		panel.add(button, "right");
@@ -493,7 +498,7 @@ public class PlotDialog extends JDialog {
 	 * @param config		the configuration of the plot.
 	 */
 	public static void showPlot(Window parent, Simulation simulation, PlotConfiguration config) {
-		new PlotDialog(parent, simulation, config).setVisible(true);
+		new SimulationPlotDialog(parent, simulation, config).setVisible(true);
 	}
 	
 	

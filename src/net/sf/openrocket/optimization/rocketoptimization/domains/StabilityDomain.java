@@ -11,37 +11,53 @@ import net.sf.openrocket.optimization.rocketoptimization.SimulationDomain;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Prefs;
 
 /**
- * A simulation domain that limits the requires stability of the rocket.
+ * A simulation domain that limits the required stability of the rocket.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class StabilityDomain implements SimulationDomain {
 	
-	/*
-	 * TODO: HIGH:  Should this rather inspect stability during flight
+	private final double minimum;
+	private final boolean minAbsolute;
+	private final double maximum;
+	private final boolean maxAbsolute;
+	
+	
+	/**
+	 * Sole constructor.
+	 * 
+	 * @param minimum		minimum stability requirement (or <code>NaN</code> for no limit)
+	 * @param minAbsolute	<code>true</code> if minimum is an absolute SI measurement,
+	 * 						<code>false</code> if it is relative to the rocket caliber
+	 * @param maximum		maximum stability requirement (or <code>NaN</code> for no limit)
+	 * @param maxAbsolute	<code>true</code> if maximum is an absolute SI measurement,
+	 * 						<code>false</code> if it is relative to the rocket caliber
 	 */
-
-	private final double limit;
-	private final boolean absolute;
-	
-	
-	public StabilityDomain(double limit, boolean absolute) {
-		this.limit = limit;
-		this.absolute = absolute;
+	public StabilityDomain(double minimum, boolean minAbsolute, double maximum, boolean maxAbsolute) {
+		super();
+		this.minimum = minimum;
+		this.minAbsolute = minAbsolute;
+		this.maximum = maximum;
+		this.maxAbsolute = maxAbsolute;
 	}
 	
 	
+
+
 	@Override
-	public Pair<Double, Double> getDistanceToDomain(Simulation simulation) {
+	public Pair<Double, Value> getDistanceToDomain(Simulation simulation) {
 		Coordinate cp, cg;
 		double cpx, cgx;
-		double reference;
+		double absolute;
+		double relative;
 		
 		/*
 		 * These are instantiated each time because this class must be thread-safe.
@@ -73,23 +89,51 @@ public class StabilityDomain implements SimulationDomain {
 		
 
 		// Calculate the reference (absolute or relative)
-		reference = cpx - cgx;
-		if (!absolute) {
-			double diameter = 0;
-			for (RocketComponent c : configuration) {
-				if (c instanceof SymmetricComponent) {
-					double d1 = ((SymmetricComponent) c).getForeRadius() * 2;
-					double d2 = ((SymmetricComponent) c).getAftRadius() * 2;
-					diameter = MathUtil.max(diameter, d1, d2);
-				}
+		absolute = cpx - cgx;
+		
+		double diameter = 0;
+		for (RocketComponent c : configuration) {
+			if (c instanceof SymmetricComponent) {
+				double d1 = ((SymmetricComponent) c).getForeRadius() * 2;
+				double d2 = ((SymmetricComponent) c).getAftRadius() * 2;
+				diameter = MathUtil.max(diameter, d1, d2);
 			}
-			
-			reference = (cpx - cgx) / diameter;
+		}
+		relative = absolute / diameter;
+		
+
+		Value desc;
+		if (minAbsolute && maxAbsolute) {
+			desc = new Value(absolute, UnitGroup.UNITS_LENGTH);
+		} else {
+			desc = new Value(relative, UnitGroup.UNITS_STABILITY_CALIBERS);
 		}
 		
-		System.out.println("DOMAIN: limit=" + limit + " reference=" + reference + " result=" + (limit - reference));
+		double ref;
+		if (minAbsolute) {
+			ref = minimum - absolute;
+			if (ref > 0) {
+				return new Pair<Double, Value>(ref, desc);
+			}
+		} else {
+			ref = minimum - relative;
+			if (ref > 0) {
+				return new Pair<Double, Value>(ref, desc);
+			}
+		}
 		
-		return new Pair<Double, Double>(limit - reference, reference);
+		if (maxAbsolute) {
+			ref = absolute - maximum;
+			if (ref > 0) {
+				return new Pair<Double, Value>(ref, desc);
+			}
+		} else {
+			ref = relative - maximum;
+			if (ref > 0) {
+				return new Pair<Double, Value>(ref, desc);
+			}
+		}
+		
+		return new Pair<Double, Value>(0.0, desc);
 	}
-	
 }

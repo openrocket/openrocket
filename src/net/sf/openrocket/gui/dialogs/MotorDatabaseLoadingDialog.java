@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.SplashScreen;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,10 +18,15 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
+/**
+ * A progress dialog displayed while loading motors.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class MotorDatabaseLoadingDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
-
+	
 	
 	private MotorDatabaseLoadingDialog(Window parent) {
 		//// Loading motors
@@ -44,7 +50,8 @@ public class MotorDatabaseLoadingDialog extends JDialog {
 	
 	/**
 	 * Check whether the motor database is loaded and block until it is.
-	 * An uncloseable modal dialog window is opened while loading.
+	 * An uncloseable modal dialog window is opened while loading unless the splash screen
+	 * is still being displayed.
 	 * 
 	 * @param parent	the parent window for the dialog, or <code>null</code>
 	 */
@@ -53,31 +60,54 @@ public class MotorDatabaseLoadingDialog extends JDialog {
 		if (db.isLoaded())
 			return;
 		
-		log.info(1, "Motor database not loaded yet, displaying dialog");
-		
-		final MotorDatabaseLoadingDialog dialog = new MotorDatabaseLoadingDialog(parent);
-		
-		final Timer timer = new Timer(100, new ActionListener() {
-			private int count = 0;
+		if (SplashScreen.getSplashScreen() == null) {
 			
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			log.info(1, "Motor database not loaded yet, displaying dialog");
+			
+			final MotorDatabaseLoadingDialog dialog = new MotorDatabaseLoadingDialog(parent);
+			
+			final Timer timer = new Timer(100, new ActionListener() {
+				private int count = 0;
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					count++;
+					if (db.isLoaded()) {
+						log.debug("Database loaded, closing dialog");
+						dialog.setVisible(false);
+					} else if (count % 10 == 0) {
+						log.debug("Database not loaded, count=" + count);
+					}
+				}
+			});
+			
+			db.setInUse();
+			timer.start();
+			dialog.setVisible(true);
+			timer.stop();
+			
+		} else {
+			
+			log.info(1, "Motor database not loaded yet, splash screen still present, delaying until loaded");
+			
+			db.setInUse();
+			int count = 0;
+			while (!db.isLoaded()) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// No-op
+				}
+				
 				count++;
-				if (db.isLoaded()) {
-					log.debug("Database loaded, closing dialog");
-					dialog.setVisible(false);
-				} else if (count % 10 == 0) {
+				if (count % 10 == 0) {
 					log.debug("Database not loaded, count=" + count);
 				}
 			}
-		});
+			
+		}
 		
-		db.setInUse();
-		timer.start();
-		dialog.setVisible(true);
-		timer.stop();
-		
-		log.debug("Motor database now loaded");
+		log.info("Motor database now loaded");
 	}
 	
 }

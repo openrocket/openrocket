@@ -17,11 +17,16 @@ import net.sf.openrocket.util.ChangeSource;
 public interface SimulationModifier extends ChangeSource {
 	
 	/**
-	 * Return a name describing this modifier.
+	 * Return a short name describing this modifier.
 	 * @return	a name describing this modifier.
 	 */
 	public String getName();
 	
+	/**
+	 * Return a longer description describing this modifiers.
+	 * @return	a description of the modifier.
+	 */
+	public String getDescription();
 	
 	/**
 	 * Return the object this modifier is related to.  This is for example the
@@ -94,4 +99,13 @@ public interface SimulationModifier extends ChangeSource {
 	 */
 	public void modify(Simulation simulation, double scaledValue) throws OptimizationException;
 	
+	
+	/**
+	 * Compare whether this SimulationModifier is equivalent to another simulation modifier.
+	 * "Equivalent" means that the simulation modifier corresponds to the same modification in
+	 * another rocket instance (e.g. the same modification on another rocket component that
+	 * has the same component ID).
+	 */
+	@Override
+	public boolean equals(Object obj);
 }

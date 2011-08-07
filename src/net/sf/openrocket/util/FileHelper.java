@@ -24,7 +24,7 @@ public final class FileHelper {
 	private static final Translator trans = Application.getTranslator();
 	
 
-	// TODO: MEDIUM: Rename translation keys
+	// TODO: HIGH: Rename translation keys
 	
 	/** File filter for any rocket designs (*.ork, *.rkt) */
 	public static final FileFilter ALL_DESIGNS_FILTER =
@@ -43,7 +43,12 @@ public final class FileHelper {
 	public static final FileFilter PDF_FILTER =
 			new SimpleFileFilter(trans.get("filetypes.pdf"), ".pdf");
 	
+	/** File filter for CSV files (*.csv) */
+	public static final FileFilter CSV_FILE_FILTER =
+			new SimpleFileFilter(trans.get("SimExpPan.desc"), ".csv");
 	
+	
+
 
 
 	private FileHelper() {

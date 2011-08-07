@@ -8,7 +8,7 @@ import net.sf.openrocket.util.Prefs;
 
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public static final double DEFAULT_CD = 0.8;
 	
 	private double diameter;
@@ -94,7 +94,7 @@ public class Parachute extends RecoveryDevice {
 	public void setArea(double area) {
 		if (MathUtil.equals(getArea(), area))
 			return;
-		diameter = Math.sqrt(area / Math.PI) * 2;
+		diameter = MathUtil.safeSqrt(area / Math.PI) * 2;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	

@@ -38,7 +38,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
-import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -758,7 +758,7 @@ public class Prefs {
 	
 	public static Simulation getBackgroundSimulation(Rocket rocket) {
 		Simulation s = new Simulation(rocket);
-		GUISimulationConditions cond = s.getConditions();
+		SimulationOptions cond = s.getOptions();
 		
 		cond.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP * 2);
 		cond.setWindSpeedAverage(1.0);

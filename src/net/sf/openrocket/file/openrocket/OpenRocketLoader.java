@@ -69,7 +69,7 @@ import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.FlightEvent.Type;
-import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -1257,12 +1257,12 @@ class SingleSimulationHandler extends ElementHandler {
 			status = Simulation.Status.OUTDATED;
 		}
 		
-		GUISimulationConditions conditions;
+		SimulationOptions conditions;
 		if (conditionHandler != null) {
 			conditions = conditionHandler.getConditions();
 		} else {
 			warnings.add("Simulation conditions not defined, using defaults.");
-			conditions = new GUISimulationConditions(doc.getRocket());
+			conditions = new SimulationOptions(doc.getRocket());
 		}
 		
 		if (name == null)
@@ -1284,14 +1284,14 @@ class SingleSimulationHandler extends ElementHandler {
 
 
 class SimulationConditionsHandler extends ElementHandler {
-	private GUISimulationConditions conditions;
+	private SimulationOptions conditions;
 	private AtmosphereHandler atmosphereHandler;
 	
 	public SimulationConditionsHandler(Rocket rocket) {
-		conditions = new GUISimulationConditions(rocket);
+		conditions = new SimulationOptions(rocket);
 	}
 	
-	public GUISimulationConditions getConditions() {
+	public SimulationOptions getConditions() {
 		return conditions;
 	}
 	
@@ -1418,7 +1418,7 @@ class AtmosphereHandler extends ElementHandler {
 	}
 	
 	
-	public void storeSettings(GUISimulationConditions cond, WarningSet warnings) {
+	public void storeSettings(SimulationOptions cond, WarningSet warnings) {
 		if (!Double.isNaN(pressure)) {
 			cond.setLaunchPressure(pressure);
 		}

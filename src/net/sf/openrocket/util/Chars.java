@@ -6,7 +6,7 @@ package net.sf.openrocket.util;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Chars {
-
+	
 	/** The fraction 1/2 */
 	public static final char FRAC12 = '\u00BD';
 	/** The fraction 1/4 */
@@ -37,7 +37,7 @@ public class Chars {
 	
 	/** Micro sign (Greek letter mu) */
 	public static final char MICRO = '\u00B5';
-
+	
 	/** Alpha */
 	public static final char ALPHA = '\u03b1';
 	/** Theta */
@@ -47,4 +47,10 @@ public class Chars {
 	public static final char COPY = '\u00A9';
 	/** A centered bullet */
 	public static final char BULLET = '\u2022';
+	
+	/** Left arrow (light) */
+	public static final char LEFT_ARROW = '\u2190';
+	/** Right arrow (light) */
+	public static final char RIGHT_ARROW = '\u2192';
+	
 }

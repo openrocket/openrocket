@@ -21,6 +21,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	
 	private static final LogHelper log = Application.getLogger();
 	
+	/** Random value with which to XOR the random seed value */
+	private static final int SEED_RANDOMIZATION = 0x23E3A01F;
+	
 
 	/**
 	 * A recommended reasonably accurate time step.
@@ -50,16 +53,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private static final double MIN_TIME_STEP = 0.001;
 	
 
-	// TODO: HIGH: Randomness source from simulation
-	private final Random random = new Random();
+	private Random random;
 	
 	
 
 
 	@Override
 	public RK4SimulationStatus initialize(SimulationStatus original) {
-		
-		log.info("Performing RK4SimulationStepper initialization");
 		
 		RK4SimulationStatus status = new RK4SimulationStatus();
 		
@@ -71,6 +71,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 				Math.sin(sim.getLaunchRodAngle()) * Math.sin(sim.getLaunchRodDirection()),
 				Math.cos(sim.getLaunchRodAngle())
 				));
+		
+		this.random = new Random(original.getSimulationConditions().getRandomSeed() ^ SEED_RANDOMIZATION);
 		
 		return status;
 	}

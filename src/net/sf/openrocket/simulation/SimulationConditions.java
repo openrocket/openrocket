@@ -57,11 +57,12 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private List<SimulationListener> simulationListeners = new ArrayList<SimulationListener>();
 	
 
+	private int randomSeed = 0;
+	
 	private int modID = 0;
 	private int modIDadd = 0;
 	
 	
-
 
 	public AerodynamicCalculator getAerodynamicCalculator() {
 		return aerodynamicCalculator;
@@ -236,6 +237,18 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	public void setCalculateExtras(boolean calculateExtras) {
 		this.calculateExtras = calculateExtras;
+		this.modID++;
+	}
+	
+	
+
+	public int getRandomSeed() {
+		return randomSeed;
+	}
+	
+	
+	public void setRandomSeed(int randomSeed) {
+		this.randomSeed = randomSeed;
 		this.modID++;
 	}
 	

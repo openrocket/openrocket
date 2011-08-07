@@ -1,6 +1,7 @@
 package net.sf.openrocket.optimization.rocketoptimization;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Pair;
 
 /**
@@ -18,11 +19,12 @@ public interface SimulationDomain {
 	 * is NaN, the simulation is outside of the domain.
 	 * 
 	 * @param simulation	the simulation to check.
-	 * @return				the double parameter is the domain indication;
+	 * @return				A pair indicating the status.  The first element is the reference value,
 	 * 						a negative value or zero if the simulation is in the domain,
-	 * 						a positive value or NaN if not.  The second is a human-readable
+	 * 						a positive value or NaN if not.  The second is the value
 	 * 						indication of the domain (may be null).
 	 */
-	public Pair<Double, Double> getDistanceToDomain(Simulation simulation);
+	public Pair<Double, Value> getDistanceToDomain(Simulation simulation);
 	
+
 }

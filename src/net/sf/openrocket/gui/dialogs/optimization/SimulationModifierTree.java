@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.gui.components.BasicTree;
@@ -17,6 +19,7 @@ import net.sf.openrocket.gui.main.ComponentIcons;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.TextUtil;
 
 /**
  * A tree that displays the simulation modifiers in a tree structure.
@@ -28,28 +31,39 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  */
 public class SimulationModifierTree extends BasicTree {
 	
+	private final List<SimulationModifier> selectedModifiers;
+	
 	/**
 	 * Sole constructor.
 	 * 
 	 * @param rocket				the rocket.
 	 * @param simulationModifiers	the simulation modifiers, ordered and mapped by components
+	 * @param selectedModifiers		a list of the currently selected modifiers (may be modified).
 	 */
-	public SimulationModifierTree(Rocket rocket, Map<Object, List<SimulationModifier>> simulationModifiers) {
-		super(createModifierTree(rocket, simulationModifiers));
+	public SimulationModifierTree(Rocket rocket, Map<Object, List<SimulationModifier>> simulationModifiers,
+			List<SimulationModifier> selectedModifiers) {
+		this.selectedModifiers = selectedModifiers;
 		
+		populateTree(rocket, simulationModifiers);
 		this.setCellRenderer(new ComponentModifierTreeRenderer());
+		
+		// Enable tooltips for this component
+		ToolTipManager.sharedInstance().registerComponent(this);
+		
 		expandComponents();
 	}
 	
 	
-
-	private static DefaultMutableTreeNode createModifierTree(Rocket rocket,
-			Map<Object, List<SimulationModifier>> simulationModifiers) {
+	/**
+	 * Populate the simulation modifier tree from the provided information.  This can be used to update
+	 * the tree.
+	 */
+	public void populateTree(Rocket rocket, Map<Object, List<SimulationModifier>> simulationModifiers) {
 		
 		DefaultMutableTreeNode baseNode = new DefaultMutableTreeNode(rocket);
 		populateTree(baseNode, rocket, simulationModifiers);
 		
-		return baseNode;
+		this.setModel(new DefaultTreeModel(baseNode));
 	}
 	
 	
@@ -83,8 +97,11 @@ public class SimulationModifierTree extends BasicTree {
 	}
 	
 	
+	/**
+	 * Expand the rocket components, but not the modifiers.
+	 */
 	@SuppressWarnings("rawtypes")
-	private void expandComponents() {
+	public void expandComponents() {
 		DefaultMutableTreeNode baseNode = (DefaultMutableTreeNode) this.getModel().getRoot();
 		
 		Enumeration enumeration = baseNode.breadthFirstEnumeration();
@@ -135,13 +152,30 @@ public class SimulationModifierTree extends BasicTree {
 			if (object instanceof RocketComponent) {
 				setForeground(Color.GRAY);
 				setFont(componentFont);
+				
+				// Set tooltip
+				RocketComponent c = (RocketComponent) object;
+				String comment = c.getComment().trim();
+				if (comment.length() > 0) {
+					comment = TextUtil.htmlEncode(comment);
+					comment = "<html>" + comment.replace("\n", "<br>");
+					this.setToolTipText(comment);
+				} else {
+					this.setToolTipText(null);
+				}
 			} else if (object instanceof String) {
 				setForeground(Color.GRAY);
 				setFont(stringFont);
 			} else if (object instanceof SimulationModifier) {
-				setForeground(Color.BLACK);
+				
+				if (selectedModifiers.contains(object)) {
+					setForeground(Color.GRAY);
+				} else {
+					setForeground(Color.BLACK);
+				}
 				setFont(modifierFont);
 				setText(((SimulationModifier) object).getName());
+				setToolTipText(((SimulationModifier) object).getDescription());
 			}
 			
 			return this;

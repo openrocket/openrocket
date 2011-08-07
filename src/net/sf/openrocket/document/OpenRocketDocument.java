@@ -26,14 +26,20 @@ import net.sf.openrocket.util.Icons;
 
 /**
  * Class describing an entire OpenRocket document, including a rocket and
- * simulations.  This class also handles undo/redo operations for the rocket structure.
+ * simulations.  The document contains:
+ * <p>
+ * - the rocket definition
+ * - a default Configuration
+ * - Simulation instances
+ * - the stored file and file save information
+ * - undo/redo information
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenRocketDocument implements ComponentChangeListener {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
-
+	
 	/**
 	 * The minimum number of undo levels that are stored.
 	 */
@@ -49,6 +55,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	/** Whether an undo error has already been reported to the user */
 	private static boolean undoErrorReported = false;
 	
+
+
 	private final Rocket rocket;
 	private final Configuration configuration;
 	
@@ -496,6 +504,27 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 	}
 	
+	
+
+	/**
+	 * Return a copy of this document.  The rocket is copied with original ID's, the default
+	 * motor configuration ID is maintained and the simulations are copied to the new rocket.
+	 * No undo/redo information or file storage information is maintained.
+	 * 
+	 * @return	a copy of this document.
+	 */
+	public OpenRocketDocument copy() {
+		Rocket rocketCopy = rocket.copyWithOriginalID();
+		OpenRocketDocument documentCopy = new OpenRocketDocument(rocketCopy);
+		documentCopy.getDefaultConfiguration().setMotorConfigurationID(configuration.getMotorConfigurationID());
+		for (Simulation s : simulations) {
+			documentCopy.addSimulation(s.duplicateSimulation(rocketCopy));
+		}
+		return documentCopy;
+	}
+	
+	
+
 	///////  Listeners
 	
 	public void addDocumentChangeListener(DocumentChangeListener listener) {

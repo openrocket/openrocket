@@ -57,7 +57,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * Sqrt(1 - M^2)  for M<1
 	 * Sqrt(M^2 - 1)  for M>1
 	 */
-	private double beta = Math.sqrt(1 - mach * mach);
+	private double beta = MathUtil.safeSqrt(1 - mach * mach);
 	
 
 	/** Current roll rate. */
@@ -122,7 +122,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 */
 	public void setRefArea(double area) {
 		refArea = area;
-		refLength = Math.sqrt(area / Math.PI) * 2;
+		refLength = MathUtil.safeSqrt(area / Math.PI) * 2;
 		fireChangeEvent();
 	}
 	
@@ -237,9 +237,9 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		
 		this.mach = mach;
 		if (mach < 1)
-			this.beta = Math.sqrt(1 - mach * mach);
+			this.beta = MathUtil.safeSqrt(1 - mach * mach);
 		else
-			this.beta = Math.sqrt(mach * mach - 1);
+			this.beta = MathUtil.safeSqrt(mach * mach - 1);
 		fireChangeEvent();
 	}
 	
@@ -378,6 +378,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 * 
 	 * @return	the number of times this object has been modified since instantiation.
 	 */
+	@Override
 	public int getModID() {
 		return modID + modIDadd + this.atmosphericConditions.getModID();
 	}

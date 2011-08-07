@@ -21,6 +21,8 @@ import net.sf.openrocket.util.Statistics;
  * This is a parallel pattern search optimization algorithm.  The function evaluations are performed
  * using an ExecutorService.  By default a ThreadPoolExecutor is used that has as many thread defined
  * as the system has processors.
+ * <p>
+ * The optimization can be aborted by interrupting the current thread.
  */
 public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Statistics {
 	private static final LogHelper log = Application.getLogger();
@@ -30,6 +32,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 	private ParallelFunctionCache functionExecutor;
 	
 	private boolean useExpansion = false;
+	private boolean useCoordinateSearch = false;
 	
 	private int stepCount = 0;
 	private int reflectionAcceptance = 0;
@@ -73,7 +76,8 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 			List<Point> coordinateSearch = new ArrayList<Point>(simplex.size());
 			Point current;
 			double currentValue;
-			do {
+			boolean continueOptimization = true;
+			while (continueOptimization) {
 				
 				log.debug("Starting optimization step with simplex " + simplex +
 						(simplexComputed ? "" : " (not computed)"));
@@ -95,12 +99,14 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 				 * Expansion is unlikely as we're mainly dealing with bounded optimization.
 				 */
 				createReflection(simplex, reflection);
-				createCoordinateSearch(current, step, coordinateSearch);
+				if (useCoordinateSearch)
+					createCoordinateSearch(current, step, coordinateSearch);
 				if (useExpansion)
 					createExpansion(simplex, expansion);
 				
 				functionExecutor.compute(reflection);
-				functionExecutor.compute(coordinateSearch);
+				if (useCoordinateSearch)
+					functionExecutor.compute(coordinateSearch);
 				if (useExpansion)
 					functionExecutor.compute(expansion);
 				
@@ -113,7 +119,8 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					log.debug("Reflection was successful, aborting coordinate search, " +
 							(useExpansion ? "computing" : "skipping") + " expansion");
 					
-					functionExecutor.abort(coordinateSearch);
+					if (useCoordinateSearch)
+						functionExecutor.abort(coordinateSearch);
 					
 					simplex.clear();
 					simplex.add(current);
@@ -160,24 +167,31 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					 */
 					halveStep(simplex);
 					functionExecutor.compute(simplex);
-					functionExecutor.waitFor(coordinateSearch);
 					
-					if (accept(coordinateSearch, currentValue)) {
+					if (useCoordinateSearch) {
+						functionExecutor.waitFor(coordinateSearch);
 						
-						log.debug("Coordinate search successful, reseting simplex");
-						List<Point> toAbort = new LinkedList<Point>(simplex);
-						simplex.clear();
-						simplex.add(current);
-						for (Point p : pattern) {
-							simplex.add(current.add(p.mul(step)));
+						if (accept(coordinateSearch, currentValue)) {
+							
+							log.debug("Coordinate search successful, reseting simplex");
+							List<Point> toAbort = new LinkedList<Point>(simplex);
+							simplex.clear();
+							simplex.add(current);
+							for (Point p : pattern) {
+								simplex.add(current.add(p.mul(step)));
+							}
+							toAbort.removeAll(simplex);
+							functionExecutor.abort(toAbort);
+							simplexComputed = false;
+							coordinateAcceptance++;
+							
+						} else {
+							log.debug("Coordinate search unsuccessful, halving step.");
+							step /= 2;
+							reductionFallback++;
 						}
-						toAbort.removeAll(simplex);
-						functionExecutor.abort(toAbort);
-						simplexComputed = false;
-						coordinateAcceptance++;
-						
 					} else {
-						log.debug("Coordinate search unsuccessful, halving step.");
+						log.debug("Coordinate search not used, halving step.");
 						step /= 2;
 						reductionFallback++;
 					}
@@ -186,12 +200,14 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 				
 				log.debug("Ending optimization step with simplex " + simplex);
 				
+				continueOptimization = control.stepTaken(current, currentValue, simplex.get(0),
+						functionExecutor.getValue(simplex.get(0)), step);
+				
 				if (Thread.interrupted()) {
 					throw new InterruptedException();
 				}
 				
-			} while (control.stepTaken(current, currentValue, simplex.get(0),
-					functionExecutor.getValue(simplex.get(0)), step));
+			}
 			
 		} catch (InterruptedException e) {
 			log.info("Optimization was interrupted with InterruptedException");

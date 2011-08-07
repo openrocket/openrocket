@@ -3,7 +3,7 @@ package net.sf.openrocket.unit;
 import net.sf.openrocket.util.MathUtil;
 
 /**
- * A class representing an SI value and a unit.  The toString() method yields the
+ * An immutable class representing an SI value and a unit.  The toString() method yields the
  * current value in the current units.  This class may be used to encapsulate
  * a sortable value for example for tables.  The sorting is performed by the
  * value in the current units, ignoring the unit.
@@ -12,8 +12,8 @@ import net.sf.openrocket.util.MathUtil;
  */
 public class Value implements Comparable<Value> {
 	
-	private double value;
-	private Unit unit;
+	private final double value;
+	private final Unit unit;
 	
 	
 	/**
@@ -44,7 +44,7 @@ public class Value implements Comparable<Value> {
 	
 	
 	/**
-	 * Get the value of this object.
+	 * Get the value of this object (in SI units).
 	 * 
 	 * @return the value
 	 */
@@ -52,16 +52,8 @@ public class Value implements Comparable<Value> {
 		return value;
 	}
 	
-	/**
-	 * Set the value of this object.
-	 * 
-	 * @param value the value to set
-	 */
-	public void setValue(double value) {
-		this.value = value;
-	}
 	
-	
+
 	/**
 	 * Get the value of this object in the current units.
 	 * 
@@ -73,34 +65,12 @@ public class Value implements Comparable<Value> {
 	
 	
 	/**
-	 * Set the value of this object in the current units.
-	 * 
-	 * @param value		the value in current units.
-	 */
-	public void setUnitValue(double value) {
-		this.value = unit.fromUnit(value);
-	}
-	
-	
-	/**
 	 * Get the unit of this object.
 	 * 
 	 * @return the unit
 	 */
 	public Unit getUnit() {
 		return unit;
-	}
-	
-	/**
-	 * Set the value of this object.
-	 * 
-	 * @param unit the unit to set (<code>null</code> not allowed)
-	 */
-	public void setUnit(Unit unit) {
-		if (unit == null) {
-			throw new IllegalArgumentException("unit is null");
-		}
-		this.unit = unit;
 	}
 	
 	

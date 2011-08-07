@@ -2,6 +2,7 @@ package net.sf.openrocket.optimization.rocketoptimization.domains;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationDomain;
+import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Pair;
 
 /**
@@ -12,8 +13,8 @@ import net.sf.openrocket.util.Pair;
 public class IdentitySimulationDomain implements SimulationDomain {
 	
 	@Override
-	public Pair<Double, Double> getDistanceToDomain(Simulation simulation) {
-		return new Pair<Double, Double>(-1.0, Double.NaN);
+	public Pair<Double, Value> getDistanceToDomain(Simulation simulation) {
+		return new Pair<Double, Value>(-1.0, null);
 	}
 	
 }

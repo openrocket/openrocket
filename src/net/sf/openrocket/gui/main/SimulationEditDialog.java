@@ -48,7 +48,7 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
-import net.sf.openrocket.simulation.GUISimulationConditions;
+import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.example.CSVSaveListener;
@@ -81,7 +81,7 @@ public class SimulationEditDialog extends JDialog {
 	
 	private final Window parentWindow;
 	private final Simulation simulation;
-	private final GUISimulationConditions conditions;
+	private final SimulationOptions conditions;
 	private final Configuration configuration;
 	private static final Translator trans = Application.getTranslator();
 
@@ -96,7 +96,7 @@ public class SimulationEditDialog extends JDialog {
 		
 		this.parentWindow = parent;
 		this.simulation = s;
-		this.conditions = simulation.getConditions();
+		this.conditions = simulation.getOptions();
 		configuration = simulation.getConfiguration();
 		
 		JPanel mainPanel = new JPanel(new MigLayout("fill","[grow, fill]"));
@@ -496,7 +496,7 @@ public class SimulationEditDialog extends JDialog {
 		sub.add(label);
 		
 		m = new DoubleModel(conditions,"LaunchRodAngle", UnitGroup.UNITS_ANGLE,
-				0, GUISimulationConditions.MAX_LAUNCH_ROD_ANGLE);
+				0, SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -507,7 +507,7 @@ public class SimulationEditDialog extends JDialog {
 		unit.setToolTipText(tip);
 		sub.add(unit,"growx");
 		slider = new BasicSlider(m.getSliderModel(0, Math.PI/9, 
-				GUISimulationConditions.MAX_LAUNCH_ROD_ANGLE));
+				SimulationOptions.MAX_LAUNCH_ROD_ANGLE));
 		slider.setToolTipText(tip);
 		sub.add(slider,"w 75lp, wrap");
 		

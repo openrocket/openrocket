@@ -1,6 +1,6 @@
 package net.sf.openrocket.aerodynamics.barrowman;
 
-import static java.lang.Math.*;
+import static java.lang.Math.pow;
 import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.Arrays;
@@ -462,7 +462,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		double[] k3 = new double[n];
 		for (int i = 0; i < n; i++) {
 			double M = CNA_SUPERSONIC + i * 0.1;
-			double beta = sqrt(M * M - 1);
+			double beta = MathUtil.safeSqrt(M * M - 1);
 			x[i] = M;
 			k1[i] = 2.0 / beta;
 			k2[i] = ((GAMMA + 1) * pow(M, 4) - 4 * pow2(beta)) / (4 * pow(beta, 4));
@@ -487,7 +487,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		// Subsonic case
 		if (mach <= CNA_SUBSONIC) {
-			return 2 * Math.PI * pow2(span) / (1 + sqrt(1 + (1 - pow2(mach)) *
+			return 2 * Math.PI * pow2(span) / (1 + MathUtil.safeSqrt(1 + (1 - pow2(mach)) *
 					pow2(pow2(span) / (finArea * cosGamma)))) / ref;
 		}
 		
@@ -501,7 +501,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		double subV, superV;
 		double subD, superD;
 		
-		double sq = sqrt(1 + (1 - pow2(CNA_SUBSONIC)) * pow2(span * span / (finArea * cosGamma)));
+		double sq = MathUtil.safeSqrt(1 + (1 - pow2(CNA_SUBSONIC)) * pow2(span * span / (finArea * cosGamma)));
 		subV = 2 * Math.PI * pow2(span) / ref / (1 + sq);
 		subD = 2 * mach * Math.PI * pow(span, 6) / (pow2(finArea * cosGamma) * ref *
 				sq * pow2(1 + sq));

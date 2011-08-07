@@ -33,9 +33,14 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
 
+/**
+ * Panel that displays the simulation plot options to the user.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class SimulationPlotPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	// TODO: LOW: Should these be somewhere else?
 	public static final int AUTO = -1;
 	public static final int LEFT = 0;
@@ -238,7 +243,7 @@ public class SimulationPlotPanel extends JPanel {
 					JOptionPane.showMessageDialog(SimulationPlotPanel.this,
 							//// A maximum of 15 plots is allowed.
 							//// Cannot add plot
-							trans.get("simplotpanel.OptionPane.lbl1"), 
+							trans.get("simplotpanel.OptionPane.lbl1"),
 							trans.get("simplotpanel.OptionPane.lbl2"),
 							JOptionPane.ERROR_MESSAGE);
 					return;
@@ -287,7 +292,7 @@ public class SimulationPlotPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				defaultConfiguration = configuration.clone();
-				PlotDialog.showPlot(SwingUtilities.getWindowAncestor(SimulationPlotPanel.this),
+				SimulationPlotDialog.showPlot(SwingUtilities.getWindowAncestor(SimulationPlotPanel.this),
 						simulation, configuration);
 			}
 		});
@@ -375,7 +380,7 @@ public class SimulationPlotPanel extends JPanel {
 				public void itemStateChanged(ItemEvent e) {
 					if (modifying > 0)
 						return;
-					Unit unit = (Unit) unitSelector.getSelectedUnit();
+					Unit unit = unitSelector.getSelectedUnit();
 					configuration.setPlotDataUnit(index, unit);
 				}
 			});

@@ -29,6 +29,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	 * Sole constructor.
 	 * 
 	 * @param modifierName		the name of this modifier (returned by {@link #getName()})
+	 * @param modifierDescription	the description of this modifier (returned by {@link #getDescription()})
 	 * @param relatedObject		the related object (returned by {@link #getRelatedObject()})
 	 * @param unitGroup			the unit group (returned by {@link #getUnitGroup()})
 	 * @param multiplier		the multiplier by which the value returned by the getter is multiplied
@@ -36,9 +37,9 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	 * @param modifiedClass		the class type that {@link #getModifiedObject(Simulation)} returns
 	 * @param methodName		the base name of the getter/setter methods (without "get"/"set")
 	 */
-	public GenericModifier(String modifierName, Object relatedObject, UnitGroup unitGroup, double multiplier,
-			Class<? extends T> modifiedClass, String methodName) {
-		super(modifierName, relatedObject, unitGroup);
+	public GenericModifier(String modifierName, String modifierDescription, Object relatedObject, UnitGroup unitGroup,
+			double multiplier, Class<? extends T> modifiedClass, String methodName) {
+		super(modifierName, modifierDescription, relatedObject, unitGroup);
 		this.multiplier = multiplier;
 		
 		this.modifiedClass = modifiedClass;

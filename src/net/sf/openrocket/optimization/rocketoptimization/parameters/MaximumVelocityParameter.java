@@ -14,11 +14,11 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 /**
- * An optimization parameter that computes the maximum altitude of a simulated flight.
+ * An optimization parameter that computes the maximum velocity during a simulated flight.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class MaximumAltitudeParameter implements OptimizableParameter {
+public class MaximumVelocityParameter implements OptimizableParameter {
 	
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
@@ -31,16 +31,17 @@ public class MaximumAltitudeParameter implements OptimizableParameter {
 	@Override
 	public double computeValue(Simulation simulation) throws OptimizationException {
 		try {
-			log.debug("Running simulation to evaluate apogee altitude");
+			log.debug("Running simulation to evaluate maximum velocity");
 			simulation.simulate(new ApogeeEndListener());
-			log.debug("Maximum altitude was " + simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE));
-			return simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE);
+			double value = simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_VELOCITY_TOTAL);
+			log.debug("Maximum velocity was " + value);
+			return value;
 		} catch (MotorIgnitionException e) {
 			// A problem with motor ignition will cause optimization to fail
 			throw new OptimizationException(e);
 		} catch (SimulationLaunchException e) {
-			// Other launch exceptions result in zero altitude
-			return 0.0;
+			// Other launch exceptions result in zero velocity
+			return Double.NaN;
 		} catch (SimulationException e) {
 			// Other exceptions fail
 			throw new OptimizationException(e);
@@ -49,7 +50,7 @@ public class MaximumAltitudeParameter implements OptimizableParameter {
 	
 	@Override
 	public UnitGroup getUnitGroup() {
-		return UnitGroup.UNITS_DISTANCE;
+		return UnitGroup.UNITS_VELOCITY;
 	}
 	
 }

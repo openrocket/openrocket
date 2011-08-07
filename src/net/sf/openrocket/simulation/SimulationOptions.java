@@ -18,9 +18,14 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.MathUtil;
 
-// TODO: HIGH: Move somewhere else and clean up
-@Deprecated
-public class GUISimulationConditions implements ChangeSource, Cloneable {
+/**
+ * A class holding simulation options in basic parameter form and which functions
+ * as a ChangeSource.  A SimulationConditions instance is generated from this class
+ * using {@link #toSimulationConditions()}.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
+public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
 	
@@ -59,11 +64,12 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	private boolean useISA = true;
 	private double launchTemperature = ExtendedISAModel.STANDARD_TEMPERATURE;
 	private double launchPressure = ExtendedISAModel.STANDARD_PRESSURE;
-	private AtmosphericModel atmosphericModel = null;
 	
 
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
+	
+	private int randomSeed = new Random().nextInt();
 	
 	private boolean calculateExtras = true;
 	
@@ -72,7 +78,7 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	
 	
 
-	public GUISimulationConditions(Rocket rocket) {
+	public SimulationOptions(Rocket rocket) {
 		this.rocket = rocket;
 	}
 	
@@ -242,7 +248,6 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchTemperature, launchTemperature))
 			return;
 		this.launchTemperature = launchTemperature;
-		this.atmosphericModel = null;
 		fireChangeEvent();
 	}
 	
@@ -258,7 +263,6 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 		if (MathUtil.equals(this.launchPressure, launchPressure))
 			return;
 		this.launchPressure = launchPressure;
-		this.atmosphericModel = null;
 		fireChangeEvent();
 	}
 	
@@ -269,15 +273,11 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	 * 
 	 * @return	an AtmosphericModel object.
 	 */
-	public AtmosphericModel getAtmosphericModel() {
+	private AtmosphericModel getAtmosphericModel() {
 		if (useISA) {
 			return ISA_ATMOSPHERIC_MODEL;
 		}
-		if (atmosphericModel == null) {
-			atmosphericModel = new ExtendedISAModel(launchAltitude,
-					launchTemperature, launchPressure);
-		}
-		return atmosphericModel;
+		return new ExtendedISAModel(launchAltitude, launchTemperature, launchPressure);
 	}
 	
 	
@@ -321,10 +321,37 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	
 	
 
+	public int getRandomSeed() {
+		return randomSeed;
+	}
+	
+	public void setRandomSeed(int randomSeed) {
+		if (this.randomSeed == randomSeed) {
+			return;
+		}
+		this.randomSeed = randomSeed;
+		/*
+		 * This does not fire an event since we don't want to invalidate simulation results
+		 * due to changing the seed value.  This needs to be revisited if the user is ever
+		 * allowed to select the seed value.
+		 */
+		//		fireChangeEvent();
+	}
+	
+	/**
+	 * Randomize the random seed value.
+	 */
+	public void randomizeSeed() {
+		this.randomSeed = new Random().nextInt();
+		//		fireChangeEvent();
+	}
+	
+	
+
 	@Override
-	public GUISimulationConditions clone() {
+	public SimulationOptions clone() {
 		try {
-			GUISimulationConditions copy = (GUISimulationConditions) super.clone();
+			SimulationOptions copy = (SimulationOptions) super.clone();
 			copy.listeners = new ArrayList<ChangeListener>();
 			return copy;
 		} catch (CloneNotSupportedException e) {
@@ -333,7 +360,7 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	}
 	
 	
-	public void copyFrom(GUISimulationConditions src) {
+	public void copyFrom(SimulationOptions src) {
 		
 		if (this.rocket == src.rocket) {
 			
@@ -371,6 +398,7 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 		this.windAverage = src.windAverage;
 		this.windTurbulence = src.windTurbulence;
 		this.calculateExtras = src.calculateExtras;
+		this.randomSeed = src.randomSeed;
 		
 		fireChangeEvent();
 	}
@@ -383,11 +411,11 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		if (!(other instanceof GUISimulationConditions))
+		if (!(other instanceof SimulationOptions))
 			return false;
-		GUISimulationConditions o = (GUISimulationConditions) other;
+		SimulationOptions o = (SimulationOptions) other;
 		return ((this.rocket == o.rocket) &&
-				this.motorID == o.motorID &&
+				this.motorID.equals(o.motorID) &&
 				MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&
@@ -398,7 +426,8 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.windAverage, o.windAverage) &&
-				MathUtil.equals(this.windTurbulence, o.windTurbulence) && this.calculateExtras == o.calculateExtras);
+				MathUtil.equals(this.windTurbulence, o.windTurbulence) &&
+				this.calculateExtras == o.calculateExtras && this.randomSeed == o.randomSeed);
 	}
 	
 	/**
@@ -433,7 +462,6 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 	
 	
 	// TODO: HIGH: Clean up
-	@Deprecated
 	public SimulationConditions toSimulationConditions() {
 		SimulationConditions conditions = new SimulationConditions();
 		
@@ -444,10 +472,9 @@ public class GUISimulationConditions implements ChangeSource, Cloneable {
 		conditions.setLaunchRodDirection(getLaunchRodDirection());
 		conditions.setLaunchAltitude(getLaunchAltitude());
 		conditions.setLaunchLatitude(getLaunchLatitude());
+		conditions.setRandomSeed(randomSeed);
 		
-		PinkNoiseWindModel windModel = new PinkNoiseWindModel();
-		// TODO: HIGH: Randomness source for simulation
-		windModel.setSeed(new Random().nextInt());
+		PinkNoiseWindModel windModel = new PinkNoiseWindModel(randomSeed);
 		windModel.setAverage(getWindSpeedAverage());
 		windModel.setStandardDeviation(getWindSpeedDeviation());
 		conditions.setWindModel(windModel);

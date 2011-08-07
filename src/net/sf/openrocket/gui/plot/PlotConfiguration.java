@@ -19,7 +19,7 @@ import net.sf.openrocket.util.Pair;
 public class PlotConfiguration implements Cloneable {
 	
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public static final PlotConfiguration[] DEFAULT_CONFIGURATIONS;
 	static {
 		ArrayList<PlotConfiguration> configs = new ArrayList<PlotConfiguration>();
@@ -676,7 +676,7 @@ public class PlotConfiguration implements Cloneable {
 				continue;
 			
 			double d = (max - min) / axis.getRangeLength();
-			d = Math.sqrt(d); // Prioritize small ranges
+			d = MathUtil.safeSqrt(d); // Prioritize small ranges
 			goodness += d * 100.0;
 		}
 		

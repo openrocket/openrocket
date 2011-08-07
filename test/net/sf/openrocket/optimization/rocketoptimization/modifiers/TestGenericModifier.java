@@ -22,7 +22,9 @@ public class TestGenericModifier {
 		value = new TestValue();
 		sim = new Simulation(new Rocket());
 		
-		gm = new GenericModifier<TestGenericModifier.TestValue>("Test modifier", null,
+		Object related = new Object();
+		
+		gm = new GenericModifier<TestGenericModifier.TestValue>("Test modifier", "Description", related,
 				UnitGroup.UNITS_NONE, 2.0, TestValue.class, "value") {
 			@Override
 			protected TestValue getModifiedObject(Simulation simulation) {

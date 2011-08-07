@@ -6,7 +6,12 @@ import java.util.List;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
+import net.sf.openrocket.optimization.rocketoptimization.parameters.GroundHitVelocityParameter;
+import net.sf.openrocket.optimization.rocketoptimization.parameters.LandingDistanceParameter;
+import net.sf.openrocket.optimization.rocketoptimization.parameters.MaximumAccelerationParameter;
 import net.sf.openrocket.optimization.rocketoptimization.parameters.MaximumAltitudeParameter;
+import net.sf.openrocket.optimization.rocketoptimization.parameters.MaximumVelocityParameter;
+import net.sf.openrocket.optimization.rocketoptimization.parameters.StabilityParameter;
 
 /**
  * Default implementation for optimization parameter service.
@@ -20,6 +25,12 @@ public class DefaultOptimizableParameterService implements OptimizableParameterS
 		List<OptimizableParameter> list = new ArrayList<OptimizableParameter>();
 		
 		list.add(new MaximumAltitudeParameter());
+		list.add(new MaximumVelocityParameter());
+		list.add(new MaximumAccelerationParameter());
+		list.add(new StabilityParameter(false));
+		list.add(new StabilityParameter(true));
+		list.add(new GroundHitVelocityParameter());
+		list.add(new LandingDistanceParameter());
 		
 		return list;
 	}

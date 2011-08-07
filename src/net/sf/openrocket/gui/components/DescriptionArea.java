@@ -16,14 +16,33 @@ public class DescriptionArea extends JScrollPane {
 	private final JEditorPane editorPane;
 	
 	
+	/**
+	 * Construct a description area with the specified number of rows, default description font size,
+	 * being opaque.
+	 * 
+	 * @param rows	the number of rows
+	 */
 	public DescriptionArea(int rows) {
 		this("", rows, -1);
 	}
 	
+	/**
+	 * Construct a description area with the specified number of rows and size, being opaque.
+	 * 
+	 * @param rows	the number of rows.
+	 * @param size	the font size difference compared to the default font size.
+	 */
 	public DescriptionArea(int rows, float size) {
 		this("", rows, size);
 	}
 	
+	/**
+	 * Construct an opaque description area with the specified number of rows, size and text, being opaque.
+	 * 
+	 * @param text	the initial text.
+	 * @param rows	the number of rows.
+	 * @param size	the font size difference compared to the default font size.
+	 */
 	public DescriptionArea(String text, int rows, float size) {
 		this(text, rows, size, true);
 	}

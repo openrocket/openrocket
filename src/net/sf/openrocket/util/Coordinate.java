@@ -206,7 +206,7 @@ public final class Coordinate implements Serializable {
 	 */
 	public double length() {
 		if (length < 0) {
-			length = Math.sqrt(x * x + y * y + z * z);
+			length = MathUtil.safeSqrt(x * x + y * y + z * z);
 		}
 		return length;
 	}

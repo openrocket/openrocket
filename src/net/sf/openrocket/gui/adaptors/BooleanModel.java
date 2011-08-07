@@ -37,17 +37,21 @@ import net.sf.openrocket.util.Reflection;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-
 public class BooleanModel extends AbstractAction implements ChangeListener, Invalidatable {
 	private static final LogHelper log = Application.getLogger();
 	
 	private final ChangeSource source;
 	private final String valueName;
 	
+	/* Only used when referencing a ChangeSource! */
 	private final Method getMethod;
 	private final Method setMethod;
 	private final Method getEnabled;
 	
+	/* Only used with internal boolean value! */
+	private boolean value;
+	
+
 	private final List<Component> components = new ArrayList<Component>();
 	private final List<Boolean> componentEnableState = new ArrayList<Boolean>();
 	
@@ -61,6 +65,34 @@ public class BooleanModel extends AbstractAction implements ChangeListener, Inva
 	private Invalidator invalidator = new Invalidator(this);
 	
 	
+	/**
+	 * Construct a BooleanModel that holds the boolean value within itself.
+	 * 
+	 * @param initialValue	the initial value of the boolean
+	 */
+	public BooleanModel(boolean initialValue) {
+		this.valueName = null;
+		this.source = null;
+		this.getMethod = null;
+		this.setMethod = null;
+		this.getEnabled = null;
+		
+		this.value = initialValue;
+		
+		oldValue = getValue();
+		oldEnabled = getIsEnabled();
+		
+		this.setEnabled(oldEnabled);
+		this.putValue(SELECTED_KEY, oldValue);
+		
+	}
+	
+	/**
+	 * Construct a BooleanModel that references the boolean from a ChangeSource method.
+	 * 
+	 * @param source		the boolean source.
+	 * @param valueName		the name of the getter/setter method (without the get/is/set prefix)
+	 */
 	public BooleanModel(ChangeSource source, String valueName) {
 		this.source = source;
 		this.valueName = valueName;
@@ -109,24 +141,41 @@ public class BooleanModel extends AbstractAction implements ChangeListener, Inva
 	}
 	
 	public boolean getValue() {
-		try {
-			return (Boolean) getMethod.invoke(source);
-		} catch (IllegalAccessException e) {
-			throw new BugException("getMethod execution error for source " + source, e);
-		} catch (InvocationTargetException e) {
-			throw Reflection.handleWrappedException(e);
+		
+		if (getMethod != null) {
+			
+			try {
+				return (Boolean) getMethod.invoke(source);
+			} catch (IllegalAccessException e) {
+				throw new BugException("getMethod execution error for source " + source, e);
+			} catch (InvocationTargetException e) {
+				throw Reflection.handleWrappedException(e);
+			}
+			
+		} else {
+			
+			// Use internal value
+			return value;
+			
 		}
 	}
 	
 	public void setValue(boolean b) {
 		checkState(true);
 		log.debug("Setting value of " + this + " to " + b);
-		try {
-			setMethod.invoke(source, new Object[] { b });
-		} catch (IllegalAccessException e) {
-			throw new BugException("setMethod execution error for source " + source, e);
-		} catch (InvocationTargetException e) {
-			throw Reflection.handleWrappedException(e);
+		
+		if (setMethod != null) {
+			try {
+				setMethod.invoke(source, new Object[] { b });
+			} catch (IllegalAccessException e) {
+				throw new BugException("setMethod execution error for source " + source, e);
+			} catch (InvocationTargetException e) {
+				throw Reflection.handleWrappedException(e);
+			}
+		} else {
+			// Manually fire state change - normally the ChangeSource fires it
+			value = b;
+			stateChanged(null);
 		}
 	}
 	
@@ -271,7 +320,11 @@ public class BooleanModel extends AbstractAction implements ChangeListener, Inva
 	@Override
 	public String toString() {
 		if (toString == null) {
-			toString = "BooleanModel[" + source.getClass().getSimpleName() + ":" + valueName + "]";
+			if (source != null) {
+				toString = "BooleanModel[" + source.getClass().getSimpleName() + ":" + valueName + "]";
+			} else {
+				toString = "BooleanModel[internal value]";
+			}
 		}
 		return toString;
 	}

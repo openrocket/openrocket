@@ -20,11 +20,10 @@ import net.sf.openrocket.unit.UnitGroup;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class UnitCellEditor extends AbstractCellEditor 
-implements TableCellEditor, ActionListener {
-
-	private final JComboBox editor;
+public abstract class UnitCellEditor extends AbstractCellEditor
+		implements TableCellEditor, ActionListener {
 	
+	private final JComboBox editor;
 	
 	public UnitCellEditor() {
 		editor = new JComboBox();
@@ -36,12 +35,12 @@ implements TableCellEditor, ActionListener {
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value,
 			boolean isSelected, int row, int column) {
-
+		
 		Unit unit = (Unit) value;
 		UnitGroup group = getUnitGroup(unit, row, column);
 		
 		editor.removeAllItems();
-		for (Unit u: group.getUnits()) {
+		for (Unit u : group.getUnits()) {
 			editor.addItem(u);
 		}
 		
@@ -49,22 +48,22 @@ implements TableCellEditor, ActionListener {
 		
 		return editor;
 	}
-
+	
 	
 	@Override
 	public Object getCellEditorValue() {
 		return editor.getSelectedItem();
 	}
 	
-
 	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// End editing when a value has been selected
 		this.fireEditingStopped();
 	}
-
-
+	
+	
 	/**
 	 * Return the unit group corresponding to the specified cell.
 	 * 

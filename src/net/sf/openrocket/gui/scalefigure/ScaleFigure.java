@@ -48,7 +48,7 @@ public interface ScaleFigure extends ChangeSource {
 	 */
 	public double getScaling();
 	
-
+	
 	/**
 	 * Return the scale of the figure on px/m.
 	 * 
@@ -56,7 +56,7 @@ public interface ScaleFigure extends ChangeSource {
 	 */
 	public double getAbsoluteScale();
 	
-
+	
 	/**
 	 * Return the pixel coordinates of the figure origin.
 	 * 
@@ -64,4 +64,19 @@ public interface ScaleFigure extends ChangeSource {
 	 */
 	public Dimension getOrigin();
 	
+	
+	/**
+	 * Get the amount of blank space left around the figure.
+	 * 
+	 * @return	the amount of horizontal and vertical space left on both sides of the figure.
+	 */
+	public Dimension getBorderPixels();
+	
+	/**
+	 * Set the amount of blank space left around the figure.
+	 * 
+	 * @param width		the amount of horizontal space left on both sides of the figure.
+	 * @param height	the amount of vertical space left on both sides of the figure.
+	 */
+	public void setBorderPixels(int width, int height);
 }

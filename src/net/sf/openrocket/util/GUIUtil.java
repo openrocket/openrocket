@@ -52,6 +52,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
@@ -265,6 +266,32 @@ public class GUIUtil {
 	}
 	
 	
+	/**
+	 * Changes the style of the font of the specified border.
+	 * 
+	 * @param border		the component for which to change the font
+	 * @param style			the change in the font style
+	 */
+	public static void changeFontStyle(TitledBorder border, int style) {
+		/*
+		 * There's been an NPE caused by the font changing, this is debug for it.
+		 */
+		if (border == null) {
+			throw new BugException("border is null");
+		}
+		Font font = border.getTitleFont();
+		if (font == null) {
+			throw new BugException("Border font is null");
+		}
+		font = font.deriveFont(style);
+		if (font == null) {
+			throw new BugException("Derived font is null");
+		}
+		border.setTitleFont(font);
+	}
+	
+	
+
 	/**
 	 * Traverses recursively the component tree, and sets all applicable component 
 	 * models to null, so as to remove the listener connections.  After calling this

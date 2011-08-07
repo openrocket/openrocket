@@ -31,6 +31,11 @@ public class UnitGroup {
 	
 	public static final UnitGroup UNITS_AREA;
 	public static final UnitGroup UNITS_STABILITY;
+	/**
+	 * This unit group contains only the caliber unit that never scales the originating "SI" value.
+	 * It can be used in cases where the originating value is already in calibers to obtains the correct unit.
+	 */
+	public static final UnitGroup UNITS_STABILITY_CALIBERS;
 	public static final UnitGroup UNITS_VELOCITY;
 	public static final UnitGroup UNITS_ACCELERATION;
 	public static final UnitGroup UNITS_MASS;
@@ -111,6 +116,10 @@ public class UnitGroup {
 		UNITS_STABILITY.addUnit(new CaliberUnit((Rocket) null));
 		UNITS_STABILITY.setDefaultUnit(3);
 		
+		UNITS_STABILITY_CALIBERS = new UnitGroup();
+		UNITS_STABILITY_CALIBERS.addUnit(new GeneralUnit(1, "cal"));
+		
+
 		UNITS_VELOCITY = new UnitGroup();
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1, "m/s"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1 / 3.6, "km/h"));
@@ -204,8 +213,11 @@ public class UnitGroup {
 		
 		UNITS_RELATIVE = new UnitGroup();
 		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01, 1.0));
-		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("%", 1, 0.01));
+		UNITS_RELATIVE.addUnit(new GeneralUnit(0.01, "%"));
 		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + PERMILLE, 1, 0.001));
+		//		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01, 1.0));
+		//		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("%", 1, 0.01));
+		//		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + PERMILLE, 1, 0.001));
 		UNITS_RELATIVE.setDefaultUnit(1);
 		
 
@@ -309,22 +321,44 @@ public class UnitGroup {
 	}
 	
 	
-
+	/**
+	 * Return a UnitGroup for stability units based on the rocket.
+	 * 
+	 * @param rocket	the rocket from which to calculate the caliber
+	 * @return			the unit group
+	 */
 	public static UnitGroup stabilityUnits(Rocket rocket) {
 		return new StabilityUnitGroup(rocket);
 	}
 	
 	
+	/**
+	 * Return a UnitGroup for stability units based on the rocket configuration.
+	 * 
+	 * @param config	the rocket configuration from which to calculate the caliber
+	 * @return			the unit group
+	 */
 	public static UnitGroup stabilityUnits(Configuration config) {
 		return new StabilityUnitGroup(config);
+	}
+	
+	
+	/**
+	 * Return a UnitGroup for stability units based on a constant caliber.
+	 * 
+	 * @param reference	the constant reference length
+	 * @return			the unit group
+	 */
+	public static UnitGroup stabilityUnits(double reference) {
+		return new StabilityUnitGroup(reference);
 	}
 	
 	
 	//////////////////////////////////////////////////////
 	
 
-	private ArrayList<Unit> units = new ArrayList<Unit>();
-	private int defaultUnit = 0;
+	protected ArrayList<Unit> units = new ArrayList<Unit>();
+	protected int defaultUnit = 0;
 	
 	public int getUnitCount() {
 		return units.size();
@@ -391,16 +425,8 @@ public class UnitGroup {
 		return units.indexOf(u);
 	}
 	
-	public void addUnit(Unit u) {
+	private void addUnit(Unit u) {
 		units.add(u);
-	}
-	
-	public void addUnit(int n, Unit u) {
-		units.add(n, u);
-	}
-	
-	public void removeUnit(int n) {
-		units.remove(n);
 	}
 	
 	public boolean contains(Unit u) {
@@ -508,80 +534,33 @@ public class UnitGroup {
 	 */
 	private static class StabilityUnitGroup extends UnitGroup {
 		
-		private final CaliberUnit caliberUnit;
-		
+		public StabilityUnitGroup(double ref) {
+			this(new CaliberUnit(ref));
+		}
 		
 		public StabilityUnitGroup(Rocket rocket) {
-			caliberUnit = new CaliberUnit(rocket);
+			this(new CaliberUnit(rocket));
 		}
 		
 		public StabilityUnitGroup(Configuration config) {
-			caliberUnit = new CaliberUnit(config);
+			this(new CaliberUnit(config));
 		}
 		
-		
-		////  Modify CaliberUnit to use local variable
-		
-		@Override
-		public Unit getDefaultUnit() {
-			return getUnit(UNITS_STABILITY.getDefaultUnitIndex());
-		}
-		
-		@Override
-		public Unit getUnit(int n) {
-			Unit u = UNITS_STABILITY.getUnit(n);
-			if (u instanceof CaliberUnit) {
-				return caliberUnit;
-			}
-			return u;
-		}
-		
-		@Override
-		public int getUnitIndex(Unit u) {
-			if (u instanceof CaliberUnit) {
-				for (int i = 0; i < UNITS_STABILITY.getUnitCount(); i++) {
-					if (UNITS_STABILITY.getUnit(i) instanceof CaliberUnit)
-						return i;
+		private StabilityUnitGroup(CaliberUnit caliberUnit) {
+			this.units.addAll(UnitGroup.UNITS_STABILITY.units);
+			this.defaultUnit = UnitGroup.UNITS_STABILITY.defaultUnit;
+			for (int i = 0; i < units.size(); i++) {
+				if (units.get(i) instanceof CaliberUnit) {
+					units.set(i, caliberUnit);
 				}
 			}
-			return UNITS_STABILITY.getUnitIndex(u);
 		}
 		
-		
-
-		////  Pass on to UNITS_STABILITY
-		
-		@Override
-		public int getDefaultUnitIndex() {
-			return UNITS_STABILITY.getDefaultUnitIndex();
-		}
 		
 		@Override
 		public void setDefaultUnit(int n) {
+			super.setDefaultUnit(n);
 			UNITS_STABILITY.setDefaultUnit(n);
-		}
-		
-		@Override
-		public int getUnitCount() {
-			return UNITS_STABILITY.getUnitCount();
-		}
-		
-		
-		////  Unsupported methods
-		
-		@Override
-		public void addUnit(int n, Unit u) {
-			throw new UnsupportedOperationException("StabilityUnitGroup must not be modified");
-		}
-		
-		@Override
-		public void addUnit(Unit u) {
-			throw new UnsupportedOperationException("StabilityUnitGroup must not be modified");
-		}
-		
-		@Override
-		public void removeUnit(int n) {
-			throw new UnsupportedOperationException("StabilityUnitGroup must not be modified");
 		}
 	}
 }

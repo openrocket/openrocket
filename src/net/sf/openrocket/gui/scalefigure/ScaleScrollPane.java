@@ -43,18 +43,18 @@ import net.sf.openrocket.util.BugException;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class ScaleScrollPane extends JScrollPane 
+public class ScaleScrollPane extends JScrollPane
 		implements MouseListener, MouseMotionListener {
 	
 	public static final int RULER_SIZE = 20;
 	public static final int MINOR_TICKS = 3;
 	public static final int MAJOR_TICKS = 30;
-
 	
+
 	private JComponent component;
 	private ScaleFigure figure;
 	private JViewport viewport;
-
+	
 	private DoubleModel rulerUnit;
 	private Ruler horizontalRuler;
 	private Ruler verticalRuler;
@@ -64,25 +64,34 @@ public class ScaleScrollPane extends JScrollPane
 	private boolean fit = false;
 	
 	
+	/**
+	 * Create a scale scroll pane that allows fitting.
+	 * 
+	 * @param component		the component to contain (must implement ScaleFigure)
+	 */
 	public ScaleScrollPane(JComponent component) {
 		this(component, true);
 	}
 	
+	/**
+	 * Create a scale scroll pane.
+	 * 
+	 * @param component		the component to contain (must implement ScaleFigure)
+	 * @param allowFit		whether automatic fitting of the figure is allowed
+	 */
 	public ScaleScrollPane(JComponent component, boolean allowFit) {
 		super(component);
-//		super(component, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-//				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		
 		if (!(component instanceof ScaleFigure)) {
 			throw new IllegalArgumentException("component must implement ScaleFigure");
 		}
 		
 		this.component = component;
-		this.figure = (ScaleFigure)component;
+		this.figure = (ScaleFigure) component;
 		this.allowFit = allowFit;
 		
 
-		rulerUnit = new DoubleModel(0.0,UnitGroup.UNITS_LENGTH);
+		rulerUnit = new DoubleModel(0.0, UnitGroup.UNITS_LENGTH);
 		rulerUnit.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -100,10 +109,10 @@ public class ScaleScrollPane extends JScrollPane
 		this.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel());
 		this.setCorner(JScrollPane.LOWER_LEFT_CORNER, new JPanel());
 		this.setCorner(JScrollPane.LOWER_RIGHT_CORNER, new JPanel());
-
-		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
 		
+		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		
+
 		viewport = this.getViewport();
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
@@ -135,14 +144,25 @@ public class ScaleScrollPane extends JScrollPane
 	}
 	
 	
+	/**
+	 * Return whether automatic fitting of the figure is allowed.
+	 */
 	public boolean isFittingAllowed() {
 		return allowFit;
 	}
 	
+	/**
+	 * Return whether the figure is currently automatically fitted within the component bounds.
+	 */
 	public boolean isFitting() {
 		return fit;
 	}
 	
+	/**
+	 * Set whether the figure is automatically fitted within the component bounds.
+	 * 
+	 * @throws BugException		if automatic fitting is disallowed and <code>fit</code> is <code>true</code>
+	 */
 	public void setFitting(boolean fit) {
 		if (fit && !allowFit) {
 			throw new BugException("Attempting to fit figure not allowing fit.");
@@ -169,7 +189,7 @@ public class ScaleScrollPane extends JScrollPane
 	public double getScale() {
 		return figure.getAbsoluteScale();
 	}
-
+	
 	public void setScaling(double scale) {
 		if (fit) {
 			setFitting(false);
@@ -188,54 +208,54 @@ public class ScaleScrollPane extends JScrollPane
 	////////////////  Mouse handlers  ////////////////
 	
 
-	private int dragStartX=0;
-	private int dragStartY=0;
+	private int dragStartX = 0;
+	private int dragStartY = 0;
 	private Rectangle dragRectangle = null;
-
+	
 	@Override
 	public void mousePressed(MouseEvent e) {
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 		dragRectangle = viewport.getViewRect();
 	}
-
+	
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		dragRectangle = null;
 	}
-
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		if (dragRectangle==null) {
+		if (dragRectangle == null) {
 			return;
 		}
-
-		dragRectangle.setLocation(dragStartX-e.getX(),dragStartY-e.getY());
-
+		
+		dragRectangle.setLocation(dragStartX - e.getX(), dragStartY - e.getY());
+		
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 		
 		viewport.scrollRectToVisible(dragRectangle);
 	}
-
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 	}
-
+	
 	@Override
 	public void mouseEntered(MouseEvent e) {
 	}
-
+	
 	@Override
 	public void mouseExited(MouseEvent e) {
 	}
-
+	
 	@Override
 	public void mouseMoved(MouseEvent e) {
 	}
 	
-
 	
+
 	////////////////  The view port rulers  ////////////////
 	
 
@@ -261,9 +281,9 @@ public class ScaleScrollPane extends JScrollPane
 		public void updateSize() {
 			Dimension d = component.getPreferredSize();
 			if (orientation == HORIZONTAL) {
-				setPreferredSize(new Dimension(d.width+10,RULER_SIZE));
+				setPreferredSize(new Dimension(d.width + 10, RULER_SIZE));
 			} else {
-				setPreferredSize(new Dimension(RULER_SIZE,d.height+10));
+				setPreferredSize(new Dimension(RULER_SIZE, d.height + 10));
 			}
 			revalidate();
 			repaint();
@@ -274,102 +294,102 @@ public class ScaleScrollPane extends JScrollPane
 			if (orientation == HORIZONTAL) {
 				px -= origin.width;
 			} else {
-//				px = -(px - origin.height);
+				//				px = -(px - origin.height);
 				px -= origin.height;
 			}
-			return px/figure.getAbsoluteScale();
+			return px / figure.getAbsoluteScale();
 		}
 		
 		private int toPx(double l) {
 			Dimension origin = figure.getOrigin();
-			int px = (int)(l * figure.getAbsoluteScale() + 0.5);
+			int px = (int) (l * figure.getAbsoluteScale() + 0.5);
 			if (orientation == HORIZONTAL) {
 				px += origin.width;
 			} else {
 				px = px + origin.height;
-//				px += origin.height;
+				//				px += origin.height;
 			}
 			return px;
 		}
 		
 		
-	    @Override
+		@Override
 		protected void paintComponent(Graphics g) {
-	    	super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D)g;
+			super.paintComponent(g);
+			Graphics2D g2 = (Graphics2D) g;
 			
 			Rectangle area = g2.getClipBounds();
-
-	        // Fill area with background color
+			
+			// Fill area with background color
 			g2.setColor(getBackground());
-	        g2.fillRect(area.x, area.y, area.width, area.height+100);
+			g2.fillRect(area.x, area.y, area.width, area.height + 100);
+			
 
+			int startpx, endpx;
+			if (orientation == HORIZONTAL) {
+				startpx = area.x;
+				endpx = area.x + area.width;
+			} else {
+				startpx = area.y;
+				endpx = area.y + area.height;
+			}
+			
+			Unit unit = rulerUnit.getCurrentUnit();
+			double start, end, minor, major;
+			start = fromPx(startpx);
+			end = fromPx(endpx);
+			minor = MINOR_TICKS / figure.getAbsoluteScale();
+			major = MAJOR_TICKS / figure.getAbsoluteScale();
+			
+			Tick[] ticks = unit.getTicks(start, end, minor, major);
+			
 
-	        int startpx,endpx;
-	        if (orientation == HORIZONTAL) {
-	        	startpx = area.x;
-	        	endpx = area.x+area.width;
-	        } else {
-	        	startpx = area.y;
-	        	endpx = area.y+area.height;
-	        }
-	        
-	        Unit unit = rulerUnit.getCurrentUnit();
-	        double start,end,minor,major;
-	        start = fromPx(startpx);
-	        end = fromPx(endpx);
-	        minor = MINOR_TICKS/figure.getAbsoluteScale();
-	        major = MAJOR_TICKS/figure.getAbsoluteScale();
-
-	        Tick[] ticks = unit.getTicks(start, end, minor, major);
-	        
-	        
-	        // Set color & hints
-	        g2.setColor(Color.BLACK);
+			// Set color & hints
+			g2.setColor(Color.BLACK);
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 					RenderingHints.VALUE_STROKE_NORMALIZE);
-			g2.setRenderingHint(RenderingHints.KEY_RENDERING, 
+			g2.setRenderingHint(RenderingHints.KEY_RENDERING,
 					RenderingHints.VALUE_RENDER_QUALITY);
 			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-			for (Tick t: ticks) {
-	        	int position = toPx(t.value);
-	        	drawTick(g2,position,t);
-	        }
-	    }
-	    
-	    private void drawTick(Graphics g, int position, Tick t) {
-	    	int length;
-	    	String str = null;
-	    	if (t.major) {
-	    		length = RULER_SIZE/2;
-	    	} else {
-	    		if (t.notable)
-	    			length = RULER_SIZE/3;
-	    		else
-	    			length = RULER_SIZE/6;
-	    	}
-	    	
-	    	// Set font
-	    	if (t.major) {
-	    		str = rulerUnit.getCurrentUnit().toString(t.value);
-	    		if (t.notable)
-	    	        g.setFont(new Font("SansSerif", Font.BOLD, 9));
-	    		else 
-	    			g.setFont(new Font("SansSerif", Font.PLAIN, 9));
-	    	}
-	    	
-	    	// Draw tick & text
-	    	if (orientation == HORIZONTAL) {
-	    		g.drawLine(position, RULER_SIZE-length, position, RULER_SIZE);
-	    		if (str != null)
-	    			g.drawString(str, position, RULER_SIZE-length-1);
-	    	} else {
-	    		g.drawLine(RULER_SIZE-length, position, RULER_SIZE, position);
-	    		if (str != null)
-	    			g.drawString(str, 1, position-1);
-	    	}
-	    }
+			
+			for (Tick t : ticks) {
+				int position = toPx(t.value);
+				drawTick(g2, position, t);
+			}
+		}
+		
+		private void drawTick(Graphics g, int position, Tick t) {
+			int length;
+			String str = null;
+			if (t.major) {
+				length = RULER_SIZE / 2;
+			} else {
+				if (t.notable)
+					length = RULER_SIZE / 3;
+				else
+					length = RULER_SIZE / 6;
+			}
+			
+			// Set font
+			if (t.major) {
+				str = rulerUnit.getCurrentUnit().toString(t.value);
+				if (t.notable)
+					g.setFont(new Font("SansSerif", Font.BOLD, 9));
+				else
+					g.setFont(new Font("SansSerif", Font.PLAIN, 9));
+			}
+			
+			// Draw tick & text
+			if (orientation == HORIZONTAL) {
+				g.drawLine(position, RULER_SIZE - length, position, RULER_SIZE);
+				if (str != null)
+					g.drawString(str, position, RULER_SIZE - length - 1);
+			} else {
+				g.drawLine(RULER_SIZE - length, position, RULER_SIZE, position);
+				if (str != null)
+					g.drawString(str, 1, position - 1);
+			}
+		}
 	}
 }

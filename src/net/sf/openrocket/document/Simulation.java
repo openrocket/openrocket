@@ -15,10 +15,10 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.GUISimulationConditions;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationEngine;
+import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.SimulationStepper;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationListenerException;
@@ -67,7 +67,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	/** The conditions to use */
 	// TODO: HIGH: Change to use actual conditions class??
-	private GUISimulationConditions conditions;
+	private SimulationOptions options;
 	
 	private ArrayList<String> simulationListeners = new ArrayList<String>();
 	
@@ -83,7 +83,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 
 	/** The conditions actually used in the previous simulation, or null */
-	private GUISimulationConditions simulatedConditions = null;
+	private SimulationOptions simulatedConditions = null;
 	private String simulatedMotors = null;
 	private FlightData simulatedData = null;
 	private int simulatedRocketID = -1;
@@ -99,14 +99,14 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.rocket = rocket;
 		this.status = Status.NOT_SIMULATED;
 		
-		conditions = new GUISimulationConditions(rocket);
-		conditions.setMotorConfigurationID(
+		options = new SimulationOptions(rocket);
+		options.setMotorConfigurationID(
 				rocket.getDefaultConfiguration().getMotorConfigurationID());
-		conditions.addChangeListener(new ConditionListener());
+		options.addChangeListener(new ConditionListener());
 	}
 	
 	
-	public Simulation(Rocket rocket, Status status, String name, GUISimulationConditions conditions,
+	public Simulation(Rocket rocket, Status status, String name, SimulationOptions options,
 			List<String> listeners, FlightData data) {
 		
 		if (rocket == null)
@@ -115,8 +115,8 @@ public class Simulation implements ChangeSource, Cloneable {
 			throw new IllegalArgumentException("status cannot be null");
 		if (name == null)
 			throw new IllegalArgumentException("name cannot be null");
-		if (conditions == null)
-			throw new IllegalArgumentException("conditions cannot be null");
+		if (options == null)
+			throw new IllegalArgumentException("options cannot be null");
 		
 		this.rocket = rocket;
 		
@@ -130,8 +130,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		
 		this.name = name;
 		
-		this.conditions = conditions;
-		conditions.addChangeListener(new ConditionListener());
+		this.options = options;
+		options.addChangeListener(new ConditionListener());
 		
 		if (listeners != null) {
 			this.simulationListeners.addAll(listeners);
@@ -141,7 +141,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		if (data != null && this.status != Status.NOT_SIMULATED) {
 			simulatedData = data;
 			if (this.status == Status.LOADED) {
-				simulatedConditions = conditions.clone();
+				simulatedConditions = options.clone();
 				simulatedRocketID = rocket.getModID();
 			}
 		}
@@ -169,21 +169,21 @@ public class Simulation implements ChangeSource, Cloneable {
 	public Configuration getConfiguration() {
 		mutex.verify();
 		Configuration c = new Configuration(rocket);
-		c.setMotorConfigurationID(conditions.getMotorConfigurationID());
+		c.setMotorConfigurationID(options.getMotorConfigurationID());
 		c.setAllStages();
 		return c;
 	}
 	
 	/**
-	 * Returns the simulation conditions attached to this simulation.  The conditions
+	 * Returns the simulation options attached to this simulation.  The options
 	 * may be modified freely, and the status of the simulation will change to reflect
 	 * the changes.
 	 * 
 	 * @return the simulation conditions.
 	 */
-	public GUISimulationConditions getConditions() {
+	public SimulationOptions getOptions() {
 		mutex.verify();
-		return conditions;
+		return options;
 	}
 	
 	
@@ -245,7 +245,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		
 		if (status == Status.UPTODATE || status == Status.LOADED) {
 			if (rocket.getFunctionalModID() != simulatedRocketID ||
-					!conditions.equals(simulatedConditions))
+					!options.equals(simulatedConditions))
 				return Status.OUTDATED;
 		}
 		
@@ -277,11 +277,9 @@ public class Simulation implements ChangeSource, Cloneable {
 				throw new IllegalStateException("Cannot instantiate simulator.", e);
 			} catch (IllegalAccessException e) {
 				throw new IllegalStateException("Cannot access simulator instance?! BUG!", e);
-			} catch (NullPointerException e) {
-				throw new IllegalStateException("Simulator null", e);
 			}
 			
-			SimulationConditions simulationConditions = conditions.toSimulationConditions();
+			SimulationConditions simulationConditions = options.toSimulationConditions();
 			for (SimulationListener l : additionalListeners) {
 				simulationConditions.getSimulationListenerList().add(l);
 			}
@@ -306,7 +304,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
 			
 			// Set simulated info after simulation, will not be set in case of exception
-			simulatedConditions = conditions.clone();
+			simulatedConditions = options.clone();
 			simulatedMotors = getConfiguration().getMotorConfigurationDescription();
 			simulatedRocketID = rocket.getFunctionalModID();
 			
@@ -324,7 +322,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * 
 	 * @return	the conditions used in the previous simulation, or <code>null</code>.
 	 */
-	public GUISimulationConditions getSimulatedConditions() {
+	public SimulationOptions getSimulatedConditions() {
 		mutex.verify();
 		return simulatedConditions;
 	}
@@ -373,6 +371,7 @@ public class Simulation implements ChangeSource, Cloneable {
 
 	/**
 	 * Returns a copy of this simulation suitable for cut/copy/paste operations.  
+	 * The rocket refers to the same instance as the original simulation.
 	 * This excludes any simulated data.
 	 *  
 	 * @return	a copy of this simulation and its conditions.
@@ -385,7 +384,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
-			copy.conditions = this.conditions.clone();
+			copy.options = this.options.clone();
 			copy.simulationListeners = this.simulationListeners.clone();
 			copy.listeners = new ArrayList<ChangeListener>();
 			copy.simulatedConditions = null;
@@ -416,7 +415,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			Simulation copy = new Simulation(newRocket);
 			
 			copy.name = this.name;
-			copy.conditions.copyFrom(this.conditions);
+			copy.options.copyFrom(this.options);
 			copy.simulationListeners = this.simulationListeners.clone();
 			copy.simulationStepperClass = this.simulationStepperClass;
 			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;

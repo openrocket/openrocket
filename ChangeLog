@@ -1,3 +1,11 @@
+2011-08-07  Sampo Niskanen
+
+	* Optimization implementation
+
+2011-07-29  Sampo Niskanen
+
+	* [BUG] NaN in transition radius calculation
+
 2011-07-22  Sampo Niskanen
 
 	* Released version 1.1.6.

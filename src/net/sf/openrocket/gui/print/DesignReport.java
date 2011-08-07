@@ -456,7 +456,7 @@ public class DesignReport {
 		FlightData flight = null;
 		try {
 			Simulation simulation = Prefs.getBackgroundSimulation(duplicate);
-			simulation.getConditions().setMotorConfigurationID(motorId);
+			simulation.getOptions().setMotorConfigurationID(motorId);
 			simulation.simulate();
 			flight = simulation.getSimulatedData();
 		} catch (SimulationException e1) {
