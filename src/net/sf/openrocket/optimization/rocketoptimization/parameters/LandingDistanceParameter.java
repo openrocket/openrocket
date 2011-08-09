@@ -7,8 +7,10 @@ import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
+import net.sf.openrocket.simulation.exception.SimulationCancelledException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
+import net.sf.openrocket.simulation.listeners.system.InterruptListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -28,10 +30,10 @@ public class LandingDistanceParameter implements OptimizableParameter {
 	}
 	
 	@Override
-	public double computeValue(Simulation simulation) throws OptimizationException {
+	public double computeValue(Simulation simulation) throws OptimizationException, InterruptedException {
 		try {
 			log.debug("Running simulation to evaluate rocket landing distance");
-			simulation.simulate();
+			simulation.simulate(new InterruptListener());
 			double value = simulation.getSimulatedData().getBranch(0).getLast(FlightDataType.TYPE_POSITION_XY);
 			log.debug("Landing distance was " + value);
 			return value;
@@ -41,6 +43,8 @@ public class LandingDistanceParameter implements OptimizableParameter {
 		} catch (SimulationLaunchException e) {
 			// Other launch exceptions result in zero altitude
 			return Double.NaN;
+		} catch (SimulationCancelledException e) {
+			throw (InterruptedException) new InterruptedException("Optimization was interrupted").initCause(e);
 		} catch (SimulationException e) {
 			// Other exceptions fail
 			throw new OptimizationException(e);

@@ -95,6 +95,8 @@ import net.sf.openrocket.util.TextUtil;
 
 import com.itextpdf.text.Font;
 
+// FIXME: Override to zero mass produces NaN in simulation
+
 /**
  * General rocket optimization dialog.
  * 
@@ -937,7 +939,10 @@ public class GeneralOptimizationDialog extends JDialog {
 			if (newModifiers != null) {
 				int index = newModifiers.indexOf(original);
 				if (index >= 0) {
-					newSelected.add(newModifiers.get(index));
+					SimulationModifier updated = newModifiers.get(index);
+					updated.setMinValue(original.getMinValue());
+					updated.setMaxValue(original.getMaxValue());
+					newSelected.add(updated);
 				}
 			}
 		}

@@ -29,7 +29,7 @@ public interface OptimizableParameter {
 	 * @return				the parameter value (any double value)
 	 * @throws OptimizationException	if an error occurs preventing the optimization from continuing
 	 */
-	public double computeValue(Simulation simulation) throws OptimizationException;
+	public double computeValue(Simulation simulation) throws OptimizationException, InterruptedException;
 	
 	
 	/**

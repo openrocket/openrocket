@@ -98,6 +98,16 @@ public class MathUtilTest {
 		assertEquals(2.0, MathUtil.max(2.0, NaN, 1.0), 0);
 		assertEquals(2.0, MathUtil.max(1.0, 2.0, NaN), 0);
 		assertEquals(2.0, MathUtil.max(NaN, 2.0, 1.0), 0);
+		
+		assertEquals(1.0, MathUtil.min(1.0, 2.0, 3.0, 4.0), 0);
+		assertEquals(1.0, MathUtil.min(1.0, NaN, NaN, NaN), 0);
+		assertEquals(1.0, MathUtil.min(NaN, 1.0, NaN, NaN), 0);
+		assertEquals(1.0, MathUtil.min(NaN, NaN, 1.0, NaN), 0);
+		assertEquals(1.0, MathUtil.min(2.0, NaN, 1.0, NaN), 0);
+		assertEquals(1.0, MathUtil.min(2.0, NaN, NaN, 1.0), 0);
+		assertEquals(1.0, MathUtil.min(1.0, 2.0, NaN, 3.0), 0);
+		assertEquals(1.0, MathUtil.min(NaN, 2.0, 3.0, 1.0), 0);
+		
 	}
 	
 	@Test

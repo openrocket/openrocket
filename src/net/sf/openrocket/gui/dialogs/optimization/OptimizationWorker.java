@@ -15,6 +15,7 @@ import net.sf.openrocket.optimization.general.ParallelExecutorCache;
 import net.sf.openrocket.optimization.general.ParallelFunctionCache;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.optimization.general.multidim.MultidirectionalSearchOptimizer;
+import net.sf.openrocket.optimization.general.onedim.GoldenSectionSearchOptimizer;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizationGoal;
 import net.sf.openrocket.optimization.rocketoptimization.RocketOptimizationFunction;
@@ -90,7 +91,11 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 		cache = new ParallelExecutorCache(1);
 		cache.setFunction(function);
 		
-		optimizer = new MultidirectionalSearchOptimizer(cache);
+		if (modifiers.length == 1) {
+			optimizer = new GoldenSectionSearchOptimizer(cache);
+		} else {
+			optimizer = new MultidirectionalSearchOptimizer(cache);
+		}
 	}
 	
 	

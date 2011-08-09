@@ -3,6 +3,7 @@ package net.sf.openrocket.optimization.general;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -202,6 +203,30 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 	
 	
 	@Override
+	public void abortAll() {
+		Iterator<Point> iterator = futureMap.keySet().iterator();
+		while (iterator.hasNext()) {
+			Point point = iterator.next();
+			Future<Double> future = futureMap.get(point);
+			iterator.remove();
+			
+			if (future.isDone()) {
+				// Evaluation has been completed, store value in cache
+				try {
+					double value = future.get();
+					functionCache.put(point, value);
+				} catch (Exception e) {
+					// Ignore
+				}
+			} else {
+				// Cancel the evaluation
+				future.cancel(true);
+			}
+		}
+	}
+	
+	
+	@Override
 	public double getValue(Point point) {
 		if (isOutsideRange(point)) {
 			return Double.MAX_VALUE;
@@ -274,4 +299,5 @@ public class ParallelExecutorCache implements ParallelFunctionCache {
 		}
 	}
 	
+
 }

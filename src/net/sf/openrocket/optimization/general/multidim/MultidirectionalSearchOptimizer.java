@@ -215,6 +215,7 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 		
 		log.info("Finishing optimization at point " + simplex.get(0) + " value = " +
 				functionExecutor.getValue(simplex.get(0)));
+		log.info("Optimization statistics: " + getStatistics());
 	}
 	
 	

@@ -152,6 +152,18 @@ public class MathUtil {
 		}
 	}
 	
+	
+
+	/**
+	 * Compute the minimum of three values.  This is performed by direct comparison. 
+	 * However, if one of the values is NaN and the other is not, the non-NaN value is
+	 * returned.
+	 */
+	public static double min(double w, double x, double y, double z) {
+		return min(min(w, x), min(y, z));
+	}
+	
+	
 	/**
 	 * Compute the maximum of three values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is

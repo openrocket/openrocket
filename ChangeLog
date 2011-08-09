@@ -1,3 +1,8 @@
+2011-08-08  Sampo Niskanen
+
+	* Enhanced one-dimensional optimization algorithm
+	* [BUG] l10n/ directory not included in source distribution
+
 2011-08-07  Sampo Niskanen
 
 	* Optimization implementation

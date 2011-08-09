@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.components;
 
 import java.awt.Component;
+import java.text.ParseException;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JSpinner;
@@ -31,6 +32,17 @@ public class DoubleCellEditor extends AbstractCellEditor implements TableCellEdi
 		model.setValue(val);
 		
 		return editor;
+	}
+	
+	
+	@Override
+	public boolean stopCellEditing() {
+		try {
+			editor.commitEdit();
+		} catch (ParseException e) {
+			// Ignore
+		}
+		return super.stopCellEditing();
 	}
 	
 	

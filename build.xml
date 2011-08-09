@@ -89,7 +89,7 @@
 			<fileset dir="." includes="*">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="." includes="datafiles/ lib/ lib-test/ pix/ src/ test/"/>
+			<fileset dir="." includes="datafiles/ lib/ lib-test/ pix/ src/ test/ l10n/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>

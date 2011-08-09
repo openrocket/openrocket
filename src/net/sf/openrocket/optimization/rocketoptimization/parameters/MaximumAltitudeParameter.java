@@ -7,9 +7,11 @@ import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
+import net.sf.openrocket.simulation.exception.SimulationCancelledException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.system.ApogeeEndListener;
+import net.sf.openrocket.simulation.listeners.system.InterruptListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -29,10 +31,10 @@ public class MaximumAltitudeParameter implements OptimizableParameter {
 	}
 	
 	@Override
-	public double computeValue(Simulation simulation) throws OptimizationException {
+	public double computeValue(Simulation simulation) throws OptimizationException, InterruptedException {
 		try {
 			log.debug("Running simulation to evaluate apogee altitude");
-			simulation.simulate(new ApogeeEndListener());
+			simulation.simulate(new ApogeeEndListener(), new InterruptListener());
 			log.debug("Maximum altitude was " + simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE));
 			return simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ALTITUDE);
 		} catch (MotorIgnitionException e) {
@@ -41,6 +43,8 @@ public class MaximumAltitudeParameter implements OptimizableParameter {
 		} catch (SimulationLaunchException e) {
 			// Other launch exceptions result in zero altitude
 			return 0.0;
+		} catch (SimulationCancelledException e) {
+			throw (InterruptedException) new InterruptedException("Optimization was interrupted").initCause(e);
 		} catch (SimulationException e) {
 			// Other exceptions fail
 			throw new OptimizationException(e);

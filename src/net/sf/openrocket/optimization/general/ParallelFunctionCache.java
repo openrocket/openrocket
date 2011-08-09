@@ -68,4 +68,10 @@ public interface ParallelFunctionCache extends FunctionCache {
 	 * @return			<code>true</code> if the point has been computed anyway, <code>false</code> if not.
 	 */
 	public boolean abort(Point point);
+	
+	
+	/**
+	 * Abort the computation of all still unexecuted points.
+	 */
+	public void abortAll();
 }
