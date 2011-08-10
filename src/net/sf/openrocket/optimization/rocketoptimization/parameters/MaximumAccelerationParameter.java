@@ -1,17 +1,10 @@
 package net.sf.openrocket.optimization.rocketoptimization.parameters;
 
-import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.optimization.general.OptimizationException;
-import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
+import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataType;
-import net.sf.openrocket.simulation.exception.MotorIgnitionException;
-import net.sf.openrocket.simulation.exception.SimulationCancelledException;
-import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.simulation.exception.SimulationLaunchException;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.system.ApogeeEndListener;
-import net.sf.openrocket.simulation.listeners.system.InterruptListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -20,9 +13,8 @@ import net.sf.openrocket.unit.UnitGroup;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class MaximumAccelerationParameter implements OptimizableParameter {
+public class MaximumAccelerationParameter extends SimulationBasedParameter {
 	
-	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
 	@Override
@@ -31,25 +23,13 @@ public class MaximumAccelerationParameter implements OptimizableParameter {
 	}
 	
 	@Override
-	public double computeValue(Simulation simulation) throws OptimizationException, InterruptedException {
-		try {
-			log.debug("Running simulation to evaluate maximum acceleration");
-			simulation.simulate(new ApogeeEndListener(), new InterruptListener());
-			double value = simulation.getSimulatedData().getBranch(0).getMaximum(FlightDataType.TYPE_ACCELERATION_TOTAL);
-			log.debug("Maximum acceleration was " + value);
-			return value;
-		} catch (MotorIgnitionException e) {
-			// A problem with motor ignition will cause optimization to fail
-			throw new OptimizationException(e);
-		} catch (SimulationLaunchException e) {
-			// Other launch exceptions result in zero velocity
-			return Double.NaN;
-		} catch (SimulationCancelledException e) {
-			throw (InterruptedException) new InterruptedException("Optimization was interrupted").initCause(e);
-		} catch (SimulationException e) {
-			// Other exceptions fail
-			throw new OptimizationException(e);
-		}
+	protected SimulationListener[] getSimulationListeners() {
+		return new SimulationListener[] { new ApogeeEndListener() };
+	}
+	
+	@Override
+	protected double getResultValue(FlightData simulatedData) {
+		return simulatedData.getBranch(0).getMaximum(FlightDataType.TYPE_ACCELERATION_TOTAL);
 	}
 	
 	@Override

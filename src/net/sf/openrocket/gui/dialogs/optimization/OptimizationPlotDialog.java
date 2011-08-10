@@ -57,7 +57,8 @@ public class OptimizationPlotDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
-
+	// FIXME:  Set range to optimization range
+	
 	private static final LinearInterpolator RED = new LinearInterpolator(
 			new double[] { 0.0, 1.0 }, new double[] { 0.0, 1.0 }
 			);
@@ -165,7 +166,6 @@ public class OptimizationPlotDialog extends JDialog {
 		tooltipGenerator.addToolTipSeries(tooltips);
 		lineRenderer.setBaseToolTipGenerator(tooltipGenerator);
 		
-
 		XYPlot plot = chart.getXYPlot();
 		
 		plot.setDataset(0, new XYSeriesCollection(series));
@@ -255,6 +255,14 @@ public class OptimizationPlotDialog extends JDialog {
 				true, // Tooltips
 				false); // Urls
 		
+
+		chart.getXYPlot().getDomainAxis().setRange(xUnit.toUnit(modX.getMinValue()),
+				xUnit.toUnit(modX.getMaxValue()));
+		
+		chart.getXYPlot().getRangeAxis().setRange(yUnit.toUnit(modY.getMinValue()),
+				yUnit.toUnit(modY.getMaxValue()));
+		
+
 		PaintScale paintScale = new GradientScale(min, max);
 		
 		XYShapeRenderer shapeRenderer = new XYShapeRenderer();

@@ -111,6 +111,9 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					functionExecutor.compute(expansion);
 				
 				// Check reflection acceptance
+				System.err.println("stepsize = " + step);
+				System.err.println("Simplex    = " + simplex);
+				System.err.println("Reflection = " + reflection);
 				log.debug("Computing reflection");
 				functionExecutor.waitFor(reflection);
 				
@@ -188,11 +191,13 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 						} else {
 							log.debug("Coordinate search unsuccessful, halving step.");
 							step /= 2;
+							simplexComputed = false;
 							reductionFallback++;
 						}
 					} else {
 						log.debug("Coordinate search not used, halving step.");
 						step /= 2;
+						simplexComputed = false;
 						reductionFallback++;
 					}
 					
@@ -223,8 +228,11 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 	private void createReflection(List<Point> base, List<Point> reflection) {
 		Point current = base.get(0);
 		reflection.clear();
+		
+		/*  new = - (old - current) + current = 2*current - old  */
 		for (int i = 1; i < base.size(); i++) {
-			Point p = current.mul(2).sub(base.get(i));
+			Point p = base.get(i);
+			p = current.mul(2).sub(p);
 			reflection.add(p);
 		}
 	}
@@ -242,6 +250,9 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 		Point current = base.get(0);
 		for (int i = 1; i < base.size(); i++) {
 			Point p = base.get(i);
+			
+			/* new = (old - current)*0.5 + current = old*0.5 + current*0.5 = (old + current)*0.5 */
+
 			p = p.add(current).mul(0.5);
 			base.set(i, p);
 		}
