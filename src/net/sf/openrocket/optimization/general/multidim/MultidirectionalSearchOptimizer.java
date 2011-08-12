@@ -111,9 +111,6 @@ public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Stati
 					functionExecutor.compute(expansion);
 				
 				// Check reflection acceptance
-				System.err.println("stepsize = " + step);
-				System.err.println("Simplex    = " + simplex);
-				System.err.println("Reflection = " + reflection);
 				log.debug("Computing reflection");
 				functionExecutor.waitFor(reflection);
 				

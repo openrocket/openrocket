@@ -106,7 +106,6 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	 * @return			the value in SI units
 	 */
 	protected double toBaseValue(double value) {
-		System.out.println("value=" + value + " minValue=" + minValue + " maxValue=" + maxValue);
 		return MathUtil.map(value, 0.0, 1.0, minValue, maxValue);
 	}
 	

@@ -1,7 +1,9 @@
 package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.OptimizationException;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
@@ -15,6 +17,7 @@ import net.sf.openrocket.util.Reflection.Method;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class GenericModifier<T> extends AbstractSimulationModifier {
+	private static final LogHelper log = Application.getLogger();
 	
 	private final double multiplier;
 	
@@ -79,7 +82,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 			throw new OptimizationException("BUG: getModifiedObject() returned null");
 		}
 		double siValue = toBaseValue(scaledValue) / multiplier;
-		System.out.println("Setting setter=" + setter + " modifiable=" + modifiable + " siValue=" + siValue + "scaledValue=" + scaledValue);
+		log.verbose("Setting setter=" + setter + " modifiable=" + modifiable + " siValue=" + siValue + "scaledValue=" + scaledValue);
 		setter.invoke(modifiable, siValue);
 	}
 	

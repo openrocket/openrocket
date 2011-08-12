@@ -107,7 +107,6 @@ public class GoldenSectionSearchOptimizer implements FunctionOptimizer, Statisti
 				 */
 				guessAC = section1(a, c);
 				guessBD = section2(b, d);
-				System.err.println("Queueing " + guessAC + " and " + guessBD);
 				if (Double.isNaN(fd) || fa < fd) {
 					guessedAC = true;
 					functionExecutor.compute(guessAC);
@@ -200,11 +199,9 @@ public class GoldenSectionSearchOptimizer implements FunctionOptimizer, Statisti
 		}
 		
 		if (guessAC != null) {
-			System.err.println("Aborting " + guessAC);
 			functionExecutor.abort(guessAC);
 		}
 		if (guessBD != null) {
-			System.err.println("Aborting " + guessBD);
 			functionExecutor.abort(guessBD);
 		}
 		

@@ -559,7 +559,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 
 		label = new JLabel(trans.get("status.evalCount"));
-		tip = trans.get("status.evalCount");
+		tip = trans.get("status.evalCount.ttip");
 		label.setToolTipText(tip);
 		sub.add(label, "gapright unrel");
 		
@@ -832,10 +832,9 @@ public class GeneralOptimizationDialog extends JDialog {
 				Point newPoint = latest.getNewPoint();
 				
 				FunctionEvaluationData pointValue = evaluationHistory.get(newPoint);
-				if (pointValue != null) {
+				if (pointValue != null && pointValue.getParameterValue() != null) {
 					bestValue = pointValue.getParameterValue().getValue();
 				} else {
-					log.error("History does not contain point " + newPoint);
 					bestValue = Double.NaN;
 				}
 				

@@ -63,6 +63,7 @@
 		<copy todir="${dist.dir}/">
 			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes build.properties fileformat.txt" />
 			<fileset dir="." includes="datafiles/ pix/ l10n/" />
+			<fileset dir="src/" includes="META-INF/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
 		<jar destfile="${jar.file}" basedir="${dist.dir}">
@@ -86,7 +87,7 @@
 		<mkdir dir="${build.dir}/${pkgname}"/>
 		<mkdir dir="${jar.dir}"/>
 		<copy todir="${build.dir}/${pkgname}">
-			<fileset dir="." includes="*">
+			<fileset dir="." includes="*" excludes="*.log">
 				<type type="file"/>
 			</fileset>
 			<fileset dir="." includes="datafiles/ lib/ lib-test/ pix/ src/ test/ l10n/"/>
