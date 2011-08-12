@@ -140,6 +140,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		total.setCm(total.getCm() - total.getPitchDampingMoment());
 		total.setCyaw(total.getCyaw() - total.getYawDampingMoment());
 		
+
 		return total;
 	}
 	
@@ -648,6 +649,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		double yaw = conditions.getYawRate();
 		double vel = conditions.getVelocity();
 		
+		vel = MathUtil.max(vel, 1);
+		
 		//			double Cm = total.Cm - total.CN * total.cg.x / conditions.getRefLength();
 		//			System.out.printf("Damping pitch/yaw, mul=%.4f pitch rate=%.4f "+
 		//					"Cm=%.4f / %.4f effect=%.4f aoa=%.4f\n", mul, pitch, total.Cm, Cm, 
@@ -660,7 +663,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		//			total.Cyaw -= mul * yaw / pow2(vel);
 		total.setPitchDampingMoment(mul * MathUtil.sign(pitch) * pow2(pitch / vel));
 		total.setYawDampingMoment(mul * MathUtil.sign(yaw) * pow2(yaw / vel));
-		
 	}
 	
 	// TODO: MEDIUM: Are the rotation etc. being added correctly?  sin/cos theta?

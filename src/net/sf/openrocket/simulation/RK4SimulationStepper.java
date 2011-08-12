@@ -8,6 +8,7 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.simulation.exception.SimulationCalculationException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.startup.Application;
@@ -255,6 +256,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		status.setSimulationTime(status.getSimulationTime() + store.timestep);
 		
 		status.setPreviousTimeStep(store.timestep);
+		
+		// Verify that values don't run out of range
+		if (status.getRocketVelocity().length2() > 1e18 ||
+				status.getRocketPosition().length2() > 1e18 ||
+				status.getRocketRotationVelocity().length2() > 1e18) {
+			throw new SimulationCalculationException("Simulation values exceeded limits");
+		}
 	}
 	
 	
@@ -360,7 +368,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			
 			// Compute acceleration in rocket coordinates
 			store.angularAcceleration = new Coordinate(momX / store.massData.getLongitudinalInertia(),
-						momY / store.massData.getLongitudinalInertia(), momZ / store.massData.getRotationalInertia());
+						momY / store.massData.getLongitudinalInertia(),
+						momZ / store.massData.getRotationalInertia());
 			
 			store.rollAcceleration = store.angularAcceleration.z;
 			// TODO: LOW: This should be hypot, but does it matter?

@@ -208,7 +208,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 */
 	protected void checkNaN(Coordinate c) {
 		if (c.isNaN()) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug.");
+			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug, c=" + c);
 		}
 	}
 	
@@ -221,7 +221,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	 */
 	protected void checkNaN(Quaternion q) {
 		if (q.isNaN()) {
-			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug.");
+			throw new BugException("Simulation resulted in not-a-number (NaN) value, please report a bug, q=" + q);
 		}
 	}
 }

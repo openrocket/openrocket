@@ -34,6 +34,9 @@ import net.sf.openrocket.util.MathUtil;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYBoxAnnotation;
+import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.labels.CustomXYToolTipGenerator;
@@ -47,6 +50,7 @@ import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.TextAnchor;
 
 /**
  * A class that plots the path of an optimization.
@@ -57,8 +61,7 @@ public class OptimizationPlotDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
-	// FIXME:  Set range to optimization range
-	
+
 	private static final LinearInterpolator RED = new LinearInterpolator(
 			new double[] { 0.0, 1.0 }, new double[] { 0.0, 1.0 }
 			);
@@ -155,6 +158,37 @@ public class OptimizationPlotDialog extends JDialog {
 				false); // Urls
 		
 
+		// Set the scale of the plot to the limits
+		double x1 = xUnit.toUnit(modX.getMinValue());
+		double x2 = xUnit.toUnit(modX.getMaxValue());
+		
+		chart.getXYPlot().getDomainAxis().setRange(x1, x2);
+		
+		// Add lines to show optimization limits
+		XYLineAnnotation line = new XYLineAnnotation(x1, -1e19, x1, 1e19);
+		chart.getXYPlot().addAnnotation(line);
+		line = new XYLineAnnotation(x2, -1e19, x2, 1e19);
+		chart.getXYPlot().addAnnotation(line);
+		
+		// Mark the optimum point
+		Point optimum = path.get(path.size() - 1);
+		FunctionEvaluationData data = evaluations.get(optimum);
+		if (data != null) {
+			if (data.getParameterValue() != null) {
+				Value[] state = data.getState();
+				double x = xUnit.toUnit(state[0].getValue());
+				double y = yUnit.toUnit(data.getParameterValue().getValue());
+				
+				XYPointerAnnotation text = new XYPointerAnnotation(trans.get("plot.label.optimum"),
+						x, y, Math.PI / 2);
+				text.setTextAnchor(TextAnchor.TOP_LEFT);
+				chart.getXYPlot().addAnnotation(text);
+			}
+		} else {
+			log.error("Could not find evaluation data for point " + optimum);
+		}
+		
+
 		XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, true);
 		lineRenderer.setBaseShapesVisible(true);
 		lineRenderer.setSeriesShapesFilled(0, false);
@@ -191,13 +225,13 @@ public class OptimizationPlotDialog extends JDialog {
 		Unit yUnit = modY.getUnitGroup().getDefaultUnit();
 		
 		// Create the optimization path dataset
-		XYSeries series = new XYSeries(trans.get("plot2d.path"), false, true);
+		XYSeries pathSeries = new XYSeries(trans.get("plot2d.path"), false, true);
 		List<String> pathTooltips = new ArrayList<String>();
 		for (Point p : path) {
 			FunctionEvaluationData data = evaluations.get(p);
 			if (data != null) {
 				Value[] state = data.getState();
-				series.add(xUnit.toUnit(state[0].getValue()), yUnit.toUnit(state[1].getValue()));
+				pathSeries.add(xUnit.toUnit(state[0].getValue()), yUnit.toUnit(state[1].getValue()));
 				pathTooltips.add(getTooltip(data, parameter));
 			} else {
 				log.error("Could not find evaluation data for point " + p);
@@ -256,13 +290,24 @@ public class OptimizationPlotDialog extends JDialog {
 				false); // Urls
 		
 
-		chart.getXYPlot().getDomainAxis().setRange(xUnit.toUnit(modX.getMinValue()),
-				xUnit.toUnit(modX.getMaxValue()));
+		// Set the scale of the plot to the limits
+		double x1 = xUnit.toUnit(modX.getMinValue());
+		double x2 = xUnit.toUnit(modX.getMaxValue());
+		double y1 = yUnit.toUnit(modY.getMinValue());
+		double y2 = yUnit.toUnit(modY.getMaxValue());
 		
-		chart.getXYPlot().getRangeAxis().setRange(yUnit.toUnit(modY.getMinValue()),
-				yUnit.toUnit(modY.getMaxValue()));
+		chart.getXYPlot().getDomainAxis().setRange(x1, x2);
+		chart.getXYPlot().getRangeAxis().setRange(y1, y2);
 		
-
+		XYBoxAnnotation box = new XYBoxAnnotation(x1, y1, x2, y2);
+		chart.getXYPlot().addAnnotation(box);
+		
+		int n = pathSeries.getItemCount();
+		XYPointerAnnotation text = new XYPointerAnnotation(trans.get("plot.label.optimum"),
+				(Double) pathSeries.getX(n - 1), (Double) pathSeries.getY(n - 1), -Math.PI / 5);
+		text.setTextAnchor(TextAnchor.BASELINE_LEFT);
+		chart.getXYPlot().addAnnotation(text);
+		
 		PaintScale paintScale = new GradientScale(min, max);
 		
 		XYShapeRenderer shapeRenderer = new XYShapeRenderer();
@@ -290,7 +335,7 @@ public class OptimizationPlotDialog extends JDialog {
 
 		XYPlot plot = chart.getXYPlot();
 		
-		plot.setDataset(0, new XYSeriesCollection(series));
+		plot.setDataset(0, new XYSeriesCollection(pathSeries));
 		plot.setRenderer(lineRenderer);
 		
 		plot.setDataset(1, evalDataset);

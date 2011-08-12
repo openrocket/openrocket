@@ -113,7 +113,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * @param message	the error message.
 	 * @param exception	the exception that occurred.
 	 */
-	public static void handleErrorCondition(String message, Exception exception) {
+	public static void handleErrorCondition(String message, Throwable exception) {
 		log.error(1, message, exception);
 		handleErrorCondition(new InternalException(message, exception));
 	}
@@ -128,7 +128,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * 
 	 * @param exception		the exception that occurred.
 	 */
-	public static void handleErrorCondition(final Exception exception) {
+	public static void handleErrorCondition(final Throwable exception) {
 		try {
 			if (!(exception instanceof InternalException)) {
 				log.error(1, "Error occurred", exception);

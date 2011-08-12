@@ -409,50 +409,15 @@ public class SimulationRunDialog extends JDialog {
 						},
 						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 				
-			} else if (t instanceof Exception) {
-				
-				// TODO: MEDIUM: Check the exception handling here...
-				t.printStackTrace();
-				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
-						new Object[] {
-								//// An exception occurred during the simulation:
-								trans.get("SimuRunDlg.msg.AnException1"),
-								t.getMessage(),
-								simulation.getSimulationListeners().isEmpty() ?
-										trans.get("SimuRunDlg.msg.AnException2") : ""
-						},
-						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
-				
-			} else if (t instanceof AssertionError) {
-				
-				t.printStackTrace();
-				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
-						new Object[] {
-								//// A computation error occurred during the simulation.
-								trans.get("SimuRunDlg.msg.AssertionError1"),
-								//// Please report this as a bug along with the details below.
-								trans.get("SimuRunDlg.msg.AssertionError2")
-						},
-						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
-				
 			} else {
 				
-				// Probably an Error
-				DetailDialog.showDetailedMessageDialog(SimulationRunDialog.this,
-						new Object[] {
-								//// An unknown error was encountered during the simulation.
-								trans.get("SimuRunDlg.msg.unknownerror1"),
-								//// The program may be unstable, you should save all your designs and restart OpenRocket now!
-								trans.get("SimuRunDlg.msg.unknownerror2")
-						},
-						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
+				ExceptionHandler.handleErrorCondition("An exception occurred during the simulation", t);
 				
 			}
 			simulationDone();
 		}
 		
 		
-
 		private void setSimulationProgress(double p) {
 			int exact = Math.max(progress, (int) (100 * p + 0.5));
 			progress = MathUtil.clamp(exact, 0, 100);

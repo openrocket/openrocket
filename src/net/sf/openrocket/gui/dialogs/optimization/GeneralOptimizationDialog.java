@@ -37,6 +37,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -95,7 +96,6 @@ import net.sf.openrocket.util.TextUtil;
 
 import com.itextpdf.text.Font;
 
-// FIXME: Override to zero mass produces NaN in simulation
 
 /**
  * General rocket optimization dialog.
@@ -791,6 +791,18 @@ public class GeneralOptimizationDialog extends JDialog {
 				
 				worker = null;
 				stopOptimization();
+				
+				// Disable the start/stop button for a short while after ending the simulation
+				// to prevent accidentally starting a new optimization when trying to stop it
+				startButton.setEnabled(false);
+				Timer timer = new Timer(750, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						startButton.setEnabled(true);
+					}
+				});
+				timer.setRepeats(false);
+				timer.start();
 			}
 			
 			@Override
