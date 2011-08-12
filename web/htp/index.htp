@@ -32,9 +32,9 @@
 
     <p>OpenRocket features a full six-degree-of-freedom simulation,
       realistic wind modeling, a multitude of different components
-      including free-form fins and canted fins, clustering and
-      staging.  Read more about its <a href="features.html">features
-      and see screenshots</a>.
+      including free-form fins and canted fins, automatic design
+      optimization, clustering and staging.  Read more about its <a
+      href="features.html">features and see screenshots</a>.
     </p>
     <p>OpenRocket is an Open Source project licensed under the 
       <a href="license.html">GNU GPL</a>.  This means that the

@@ -87,6 +87,9 @@
       <li>Full <strong>six degree of freedom</strong> simulation</li>
       <li>Rocket stability computed using <strong>extended Barrowman
           method</strong></li>
+      <li><strong>Automatic design optimization</strong> &mdash; you
+        can optimize any number of rocket parameters for flight
+        altitude, maximum velocity or a number of other values</li>
       <li>Realistic wind modeling</li>
       <li>Analysis of the <strong>effect of separate
 	  components</strong> on the stability, drag and roll

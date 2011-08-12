@@ -80,23 +80,30 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "1.1.6";
+$unstable = "1.1.7";
 $stable = "1.0.0";
 
-if (preg_match("/^1\.1\.5/", $version)) {
+if (preg_match("/^1\.1\.6/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Automatic rocket design optimization\n" .
+    "";
+} else if (preg_match("/^1\.1\.5/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "8: Automatic rocket design optimization\n" .
     "6: Initial localization support\n" .
     "5: Scaling support\n" .
     "4: Bug fixes\n" .
     "";
 } else if (preg_match("/^1\.1\.4/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Automatic rocket design optimization\n" .
     "6: Initial localization support\n" .
     "5: Fixes to printing system\n" .
     "5: Scaling support\n" .
     "";
 } else if (preg_match("/^1\.1\.3/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Automatic rocket design optimization\n" .
     "7: Initial printing support\n" .
     "6: Initial localization support\n" .
     "5: Scaling support\n" .
@@ -104,6 +111,7 @@ if (preg_match("/^1\.1\.5/", $version)) {
     "";
 } else if (preg_match("/^1\.1\.[12]/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Automatic rocket design optimization\n" .
     "6: Initial printing support\n" .
     "5: Initial drag-and-drop support\n" .
     "5: Initial localization support\n" .
@@ -112,6 +120,7 @@ if (preg_match("/^1\.1\.5/", $version)) {
     "";
 } else if (preg_match("/^1\.1\.0/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Automatic rocket design optimization\n" .
     "6: Initial printing support\n" .
     "6: Initial localization support\n" .
     "6: Enhanced motor selection\n" .
