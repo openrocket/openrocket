@@ -20,14 +20,6 @@
 </def>
 
 <def name="contentbox">
-  <div class="t"></div>
-  <div class="r"></div>
-  <div class="b"></div>
-  <div class="l"></div>
-  <div class="tr"></div>
-  <div class="tl"></div>
-  <div class="br"></div>
-  <div class="bl"></div>
 </def>
 
 

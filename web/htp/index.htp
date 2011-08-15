@@ -25,15 +25,21 @@
 
    </div>
 
-
     <p><strong>OpenRocket</strong> is an free, fully featured model
       rocket simulator that allows you to design and simulate your
       rockets before actually building and flying them.</p>
 
-    <p>OpenRocket features a full six-degree-of-freedom simulation,
-      realistic wind modeling, a multitude of different components
-      including free-form fins and canted fins, automatic design
-      optimization, clustering and staging.  Read more about its <a
+    <p>The main features include:</p>
+
+    <ul>
+      <li>Six-degree-of-freedom flight simulation</li>
+      <li>Automatic design optimization</li>
+      <li>Realtime simulated altitude, velocity and acceleration display</li>
+      <li>Staging and clustering support</li>
+      <li>Cross-platform (Java-based)</li>
+    </ul>
+    
+    <p>Read more about its <a
       href="features.html">features and see screenshots</a>.
     </p>
     <p>OpenRocket is an Open Source project licensed under the 

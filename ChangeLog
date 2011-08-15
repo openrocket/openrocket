@@ -1,3 +1,7 @@
+2011-08-13  Sampo Niskanen
+
+	* [BUG] JDK7 returns null font for TitledBorder
+
 2011-08-12  Sampo Niskanen
 
 	* Released version 1.1.7

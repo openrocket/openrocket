@@ -88,6 +88,7 @@
     <h3 id="other">Other</h3>
 
     <ul>
+      <li><a href="http://openrocket.trans.free.fr/">Translating OpenRocket</a> to your language</li>
       <li>Creating good and interesting example designs that
 	demonstrate some OpenRocket features.</li>
       <li>Hosting a place to share rocket designs with other

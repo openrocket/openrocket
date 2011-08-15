@@ -84,13 +84,18 @@ div.menu {
   width: 170px;
   margin: 0;
   padding: 0 0;
-  background: #c1d0db url(menubg.png) repeat-x;
+
+  background: url("menubg.png") repeat-x scroll 0 -35px #C1D0DB;
+
   z-index: 200;
   border: solid 1px black;
   -moz-border-radius: 12px;
   -webkit-border-radius: 12px;
   -khtml-border-radius: 12px;
   border-radius: 12px;
+  -moz-box-shadow: 0px 1px 10px 0px rgba(0,0,0,0.5);
+  -webkit-box-shadow: 0px 1px 10px 0px rgba(0,0,0,0.5);
+  box-shadow: 0px 1px 10px 0px rgba(0,0,0,0.5);
 }
 div.menu ul {
   position: relative;
@@ -194,70 +199,54 @@ div.menu div.logo img {
 
 .content {
     margin: 0em 2em 1em 130px;
-    padding: 2em 2em 2em 80px;
+    padding: 2em 2em 2em 95px;
     min-height: 27em;
     background-color: white;
     position: relative;
-    border: 2px solid #666;
+    *border: 2px solid #666;
     min-height: 530px;
+    
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border-radius: 7px;
+
+    -moz-box-shadow: 0px 0px 8px 5px white;
+    -webkit-box-shadow: 0px 0px 8px 5px white;
+    box-shadow: 0px 0px 8px 5px white;
 }
 
 
-.content div.tl, .content div.tr, .content div.bl, .content div.br {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: url('whitebox.png') no-repeat;
-}
-.content div.tl {
-  top: -10px;
-  left: -10px;
-  background-position: 0px 0px;
-}
-.content div.tr {
-  top: -10px;
-  right: -10px;
-  background-position: -50px 0px;
-}
-.content div.bl {
-  bottom: -10px;
-  left: -10px;
-  background-position: 0px -50px;
-}
-.content div.br {
-  bottom: -10px;
-  right: -10px;
-  background-position: -50px -50px;
-}
+.gradientbutton {
+    display: inline-block;
+    width: 200px;
+    height: 100px;
 
-.content div.t, .content div.b {
-  position: absolute;
-  height: 10px;
-  left: 0px;
-  right: 0px;
-  background: url('whitebox-vertical.png') repeat-x;
-}
-.content div.t {
-  top: -10px;
-}
-.content div.b {
-  bottom: -10px;
-  background-position: 0px -50px;
-}
+    border-top:    2px solid #6f2;
+    border-left:   1px solid #4c1;
+    border-right:  1px solid #380;
+    border-bottom: 2px solid #360;
 
-.content div.l, .content div.r {
-  position: absolute;
-  width: 10px;
-  top: 0px;
-  bottom: 0px;
-  background: url('whitebox-horizontal.png') repeat-y;
-}
-.content div.l {
-  left: -10px;
-}
-.content div.r {
-  right: -10px;
-  background-position: -50px 0px;
+    background-color: #5c2;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+
+    background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.08, rgb(55,146,14)),
+	color-stop(0.9, rgb(102,221,17))
+    );
+    background-image: -moz-linear-gradient(
+	center bottom,
+	rgb(55,146,14) 8%,
+	rgb(102,221,17) 90%
+    );
+/*
+    background: -moz-linear-gradient(center bottom , #0B5CE2 30%, #2678FF 65%) repeat scroll 0 0;
+/** */
 }
 
 
@@ -363,10 +352,38 @@ dd {
 
 div.downloadbox {
     position: relative;
-    width: 175px;
+    width: 180px;
     height: 80px;
-    background: transparent url('greenbox.png') no-repeat;
     text-align: left;
+
+    border-top:    2px solid #6e2;
+    border-left:   1px solid #4c1;
+    border-right:  1px solid #380;
+    border-bottom: 2px solid #360;
+
+    -moz-box-shadow: 1px 1px 4px 0px #333;
+    -webkit-box-shadow: 1px 1px 4px 0px #333;
+    box-shadow: 1px 1px 4px 0px #333;
+
+
+    background-color: #5c2;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+
+    background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.08, rgb(55,156,14)),
+	color-stop(0.9, rgb(102,221,17))
+    );
+    background-image: -moz-linear-gradient(
+	center bottom,
+	rgb(55,156,14) 8%,
+	rgb(102,221,17) 90%
+    );
 }
 
 div.downloadbox a.main {
@@ -379,7 +396,7 @@ div.downloadbox a.main {
     color: #a0ff4b;
     font-family: Arial, sans-serif;
 
-    padding: 10px 12px;
+    padding: 8px 12px;
     text-shadow: #666 1px 1px 1px;
 }
 div.downloadbox a.main span {

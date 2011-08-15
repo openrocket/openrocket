@@ -39,6 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JRootPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -274,14 +275,18 @@ public class GUIUtil {
 	 */
 	public static void changeFontStyle(TitledBorder border, int style) {
 		/*
-		 * There's been an NPE caused by the font changing, this is debug for it.
+		 * The fix of JRE bug #4129681 causes a TitledBorder occasionally to
+		 * return a null font.  We try to work around the issue by detecting it
+		 * and reverting to the font of a JLabel instead.
 		 */
-		if (border == null) {
-			throw new BugException("border is null");
-		}
 		Font font = border.getTitleFont();
 		if (font == null) {
-			throw new BugException("Border font is null");
+			log.error("Border font is null, reverting to JLabel font");
+			font = new JLabel().getFont();
+			if (font == null) {
+				log.error("JLabel font is null, not modifying font");
+				return;
+			}
 		}
 		font = font.deriveFont(style);
 		if (font == null) {
