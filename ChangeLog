@@ -1,3 +1,7 @@
+2011-08-17  Justin Seitz
+
+	* Added Blue tube to materials database.
+
 2011-08-13  Sampo Niskanen
 
 	* [BUG] JDK7 returns null font for TitledBorder
