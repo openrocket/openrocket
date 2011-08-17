@@ -59,6 +59,7 @@ public class Databases {
 		//		BULK_MATERIAL.add(new Material.Bulk("Styrofoam (Blue foam, XPS)", 32, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.StyrofoamBluefoamXPS"), 32, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Quantumtubing"), 1050, false));
+		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.BlueTube"), 1300, false));
 		
 		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Ripstopnylon"), 0.067, false));
 		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Mylar"), 0.021, false));
