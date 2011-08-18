@@ -4,6 +4,9 @@ import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.material.Material.Type;
+import net.sf.openrocket.preset.ExternalComponentPreset;
+import net.sf.openrocket.preset.RocketComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Prefs;
@@ -111,6 +114,7 @@ public abstract class ExternalComponent extends RocketComponent {
 		if (material.equals(mat))
 			return;
 		material = mat;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -123,6 +127,27 @@ public abstract class ExternalComponent extends RocketComponent {
 			return;
 		this.finish = finish;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+	}
+	
+	
+	@Override
+	protected void loadFromPreset(RocketComponentPreset preset) {
+		super.loadFromPreset(preset);
+		
+		ExternalComponentPreset p = (ExternalComponentPreset) preset;
+		String materialName = p.getMaterialName();
+		double mass = p.getMass();
+		
+		double volume = getComponentVolume();
+		double density;
+		if (volume > 0.00001) {
+			density = mass / volume;
+		} else {
+			density = 1000;
+		}
+		
+		Material mat = Material.newMaterial(Type.BULK, materialName, density, true);
+		setMaterial(mat);
 	}
 	
 	

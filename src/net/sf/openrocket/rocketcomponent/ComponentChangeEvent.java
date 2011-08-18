@@ -4,8 +4,8 @@ import javax.swing.event.ChangeEvent;
 
 public class ComponentChangeEvent extends ChangeEvent {
 	private static final long serialVersionUID = 1L;
-
 	
+
 	/** A change that does not affect simulation results in any way (name, color, etc.) */
 	public static final int NONFUNCTIONAL_CHANGE = 1;
 	/** A change that affects the mass properties of the rocket */
@@ -13,15 +13,15 @@ public class ComponentChangeEvent extends ChangeEvent {
 	/** A change that affects the aerodynamic properties of the rocket */
 	public static final int AERODYNAMIC_CHANGE = 4;
 	/** A change that affects the mass and aerodynamic properties of the rocket */
-	public static final int BOTH_CHANGE = MASS_CHANGE|AERODYNAMIC_CHANGE; // Mass & Aerodynamic
-
+	public static final int BOTH_CHANGE = MASS_CHANGE | AERODYNAMIC_CHANGE; // Mass & Aerodynamic
+	
 	/** A change that affects the rocket tree structure */
 	public static final int TREE_CHANGE = 8;
 	/** A change caused by undo/redo. */
 	public static final int UNDO_CHANGE = 16;
 	/** A change in the motor configurations or names */
 	public static final int MOTOR_CHANGE = 32;
-	/** A change in the events occurring during flight. */
+	/** A change that affects the events occurring during flight. */
 	public static final int EVENT_CHANGE = 64;
 	
 	/** A bit-field that contains all possible change types. */
@@ -29,7 +29,7 @@ public class ComponentChangeEvent extends ChangeEvent {
 	
 	private final int type;
 	
-
+	
 	public ComponentChangeEvent(RocketComponent component, int type) {
 		super(component);
 		if (type == 0) {
@@ -46,8 +46,8 @@ public class ComponentChangeEvent extends ChangeEvent {
 	public RocketComponent getSource() {
 		return (RocketComponent) super.getSource();
 	}
-
-
+	
+	
 	public boolean isAerodynamicChange() {
 		return (type & AERODYNAMIC_CHANGE) != 0;
 	}
@@ -71,7 +71,7 @@ public class ComponentChangeEvent extends ChangeEvent {
 	public boolean isMotorChange() {
 		return (type & MOTOR_CHANGE) != 0;
 	}
-
+	
 	public int getType() {
 		return type;
 	}

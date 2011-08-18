@@ -7,6 +7,17 @@ import java.security.NoSuchAlgorithmException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.TextUtil;
 
+/**
+ * A class that generated a "digest" of a motor.  A digest is a string value that
+ * uniquely identifies a motor (like a hash code or checksum).  Two motors that have
+ * the same digest behave similarly with a very high probability.  The digest can
+ * therefore be used to identify motors that otherwise have the same specifications.
+ * <p>
+ * The digest only uses a limited amount of precision, so that rounding errors won't
+ * cause differing digest results.
+ * 
+ * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ */
 public class MotorDigest {
 	
 	private static final double EPSILON = 0.00000000001;
@@ -24,22 +35,25 @@ public class MotorDigest {
 		CG_PER_TIME(4, 1000),
 		/** Thrust force per time (in mN) */
 		FORCE_PER_TIME(5, 1000);
-
+		
 		private final int order;
 		private final int multiplier;
+		
 		DataType(int order, int multiplier) {
 			this.order = order;
 			this.multiplier = multiplier;
 		}
+		
 		public int getOrder() {
 			return order;
 		}
+		
 		public int getMultiplier() {
 			return multiplier;
 		}
 	}
 	
-
+	
 	private final MessageDigest digest;
 	private boolean used = false;
 	private int lastOrder = -1;
@@ -54,11 +68,11 @@ public class MotorDigest {
 	}
 	
 	
-	public void update(DataType type, int ... values) {
-
+	public void update(DataType type, int... values) {
+		
 		// Check for correct order
 		if (lastOrder >= type.getOrder()) {
-			throw new IllegalArgumentException("Called with type="+type+" order="+type.getOrder()+
+			throw new IllegalArgumentException("Called with type=" + type + " order=" + type.getOrder() +
 					" while lastOrder=" + lastOrder);
 		}
 		lastOrder = type.getOrder();
@@ -70,17 +84,17 @@ public class MotorDigest {
 		digest.update(bytes(values.length));
 		
 		// Digest the values
-		for (int v: values) {
+		for (int v : values) {
 			digest.update(bytes(v));
 		}
 		
 	}
 	
 	
-	private void update(DataType type, int multiplier, double ... values) {
-
+	private void update(DataType type, int multiplier, double... values) {
+		
 		int[] intValues = new int[values.length];
-		for (int i=0; i<values.length; i++) {
+		for (int i = 0; i < values.length; i++) {
 			double v = values[i];
 			v = next(v);
 			v *= multiplier;
@@ -90,7 +104,7 @@ public class MotorDigest {
 		update(type, intValues);
 	}
 	
-	public void update(DataType type, double ... values) {
+	public void update(DataType type, double... values) {
 		update(type, type.getMultiplier(), values);
 	}
 	
@@ -107,16 +121,15 @@ public class MotorDigest {
 		byte[] result = digest.digest();
 		return TextUtil.hexString(result);
 	}
+	
+	
 
-	
-	
 	private byte[] bytes(int value) {
 		return new byte[] {
-				(byte) ((value>>>24) & 0xFF), (byte) ((value>>>16) & 0xFF),
-				(byte) ((value>>>8) & 0xFF), (byte) (value & 0xFF) 
-		};
+				(byte) ((value >>> 24) & 0xFF), (byte) ((value >>> 16) & 0xFF),
+				(byte) ((value >>> 8) & 0xFF), (byte) (value & 0xFF) };
 	}
-
+	
 	
 	/**
 	 * Digest the contents of a thrust curve motor.  The result is a string uniquely
@@ -126,7 +139,7 @@ public class MotorDigest {
 	 * @return		the digest
 	 */
 	public static String digestMotor(ThrustCurveMotor m) {
-
+		
 		// Create the motor digest from data available in RASP files
 		MotorDigest motorDigest = new MotorDigest();
 		motorDigest.update(DataType.TIME_ARRAY, m.getTimePoints());
@@ -134,7 +147,7 @@ public class MotorDigest {
 		Coordinate[] cg = m.getCGPoints();
 		double[] cgx = new double[cg.length];
 		double[] mass = new double[cg.length];
-		for (int i=0; i<cg.length; i++) {
+		for (int i = 0; i < cg.length; i++) {
 			cgx[i] = cg[i].x;
 			mass[i] = cg[i].weight;
 		}
@@ -161,7 +174,7 @@ public class MotorDigest {
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException("UTF-8 encoding not supported by JRE", e);
 		}
-
+		
 		return TextUtil.hexString(digest.digest());
 	}
 	

@@ -12,6 +12,7 @@ import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.preset.RocketComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
@@ -123,6 +124,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	// Unique ID of the component
 	private String id = null;
 	
+	// Preset component this component is based upon
+	private RocketComponentPreset presetComponent = null;
+	
+
 	/**
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
 	 */
@@ -654,6 +659,89 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.comment = "";
 		else
 			this.comment = comment;
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+	}
+	
+	
+
+	/**
+	 * Return the preset component that this component is based upon.
+	 * 
+	 * @return	the preset component, or <code>null</code> if this is not based on a preset.
+	 */
+	public final RocketComponentPreset getPresetComponent() {
+		return presetComponent;
+	}
+	
+	/**
+	 * Set the preset component this component is based upon and load all of the 
+	 * preset values.
+	 * 
+	 * @param preset	the preset component to load, or <code>null</code> to clear the preset.
+	 */
+	public final void loadPreset(RocketComponentPreset preset) {
+		if (presetComponent == preset) {
+			return;
+		}
+		
+		if (preset == null) {
+			clearPreset();
+			return;
+		}
+		
+		if (preset.getComponentClass() != this.getClass()) {
+			throw new IllegalArgumentException("Attempting to load preset of type " + preset.getComponentClass()
+						+ " into component of type " + this.getClass());
+		}
+		
+		RocketComponent root = getRoot();
+		final Rocket rocket;
+		if (root instanceof Rocket) {
+			rocket = (Rocket) root;
+		} else {
+			rocket = null;
+		}
+		
+		try {
+			if (rocket != null) {
+				rocket.freeze();
+			}
+			
+			loadFromPreset(preset);
+			
+			this.presetComponent = preset;
+			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+			
+		} finally {
+			if (rocket != null) {
+				rocket.thaw();
+			}
+		}
+	}
+	
+	
+	/**
+	 * Load component properties from the specified preset.  The preset is guaranteed
+	 * to be of the correct type.
+	 * <p>
+	 * This method should fire the appropriate events related to the changes.  The rocket
+	 * is frozen by the caller, so the events will be automatically combined.
+	 * 
+	 * @param preset	the preset to load from
+	 */
+	protected void loadFromPreset(RocketComponentPreset preset) {
+		// No-op
+	}
+	
+	
+	/**
+	 * Clear the current component preset.  This does not affect the component properties
+	 * otherwise.
+	 */
+	public final void clearPreset() {
+		if (presetComponent == null)
+			return;
+		presetComponent = null;
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
