@@ -1,3 +1,14 @@
+2011-08-25  Sampo Niskanen
+
+	* [BUG] Ignore synthetic methods in logging traces
+	* [BUG] Ignore JRE bug #6826104
+
+2011-08-24  Sampo Niskanen
+
+	* [BUG] NPE in SimulationOptions.equals
+	* [BUG] Exception in plotting optimization path
+	* [BUG] Exception in saving optimization path
+
 2011-08-17  Justin Seitz
 
 	* Added Blue tube to materials database.

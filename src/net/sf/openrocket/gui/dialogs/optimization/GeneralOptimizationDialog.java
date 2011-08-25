@@ -606,8 +606,11 @@ public class GeneralOptimizationDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Plotting optimization path, dimensionality=" + selectedModifiers.size());
-				OptimizationPlotDialog dialog = new OptimizationPlotDialog(optimizationPath, evaluationHistory,
-						selectedModifiers, getSelectedParameter(),
+				OptimizationPlotDialog dialog = new OptimizationPlotDialog(
+						Collections.unmodifiableList(optimizationPath),
+						Collections.unmodifiableMap(evaluationHistory),
+						Collections.unmodifiableList(selectedModifiers),
+						getSelectedParameter(),
 						UnitGroup.stabilityUnits(getSelectedSimulation().getRocket()),
 						GeneralOptimizationDialog.this);
 				dialog.setVisible(true);
@@ -803,6 +806,7 @@ public class GeneralOptimizationDialog extends JDialog {
 				});
 				timer.setRepeats(false);
 				timer.start();
+				updateComponents();
 			}
 			
 			@Override
@@ -1125,16 +1129,21 @@ public class GeneralOptimizationDialog extends JDialog {
 	 * Update the enabled status of all components in the dialog.
 	 */
 	private void updateComponents() {
+		boolean state;
 		
 		if (updating) {
+			log.debug("Ignoring updateComponents");
 			return;
 		}
+		
+		log.debug("Running updateComponents()");
 		
 		updating = true;
 		
 
 		// First enable all components if optimization not running
 		if (!running) {
+			log.debug("Initially enabling all components");
 			for (JComponent c : disableComponents) {
 				c.setEnabled(true);
 			}
@@ -1143,46 +1152,56 @@ public class GeneralOptimizationDialog extends JDialog {
 
 		// "Add" button
 		SimulationModifier mod = getSelectedAvailableModifier();
-		if (mod != null && !selectedModifiers.contains(mod)) {
-			addButton.setEnabled(true);
-		} else {
-			addButton.setEnabled(false);
-		}
+		state = (mod != null && !selectedModifiers.contains(mod));
+		log.debug("addButton enabled: " + state);
+		addButton.setEnabled(state);
 		
 		// "Remove" button
-		removeButton.setEnabled(selectedModifierTable.getSelectedRow() >= 0);
+		state = (selectedModifierTable.getSelectedRow() >= 0);
+		log.debug("removeButton enabled: " + state);
+		removeButton.setEnabled(state);
 		
 		// "Remove all" button
-		removeAllButton.setEnabled(!selectedModifiers.isEmpty());
+		state = (!selectedModifiers.isEmpty());
+		log.debug("removeAllButton enabled: " + state);
+		removeAllButton.setEnabled(state);
 		
 
 		// Optimization goal
 		String selected = (String) optimizationGoalCombo.getSelectedItem();
-		if (GOAL_SEEK.equals(selected)) {
-			optimizationGoalSpinner.setVisible(true);
-			optimizationGoalUnitSelector.setVisible(true);
-		} else {
-			optimizationGoalSpinner.setVisible(false);
-			optimizationGoalUnitSelector.setVisible(false);
-		}
+		state = GOAL_SEEK.equals(selected);
+		log.debug("optimizationGoalSpinner & UnitSelector enabled: " + state);
+		optimizationGoalSpinner.setVisible(state);
+		optimizationGoalUnitSelector.setVisible(state);
 		
 
 		// Minimum/maximum stability options
-		minimumStabilitySpinner.setEnabled(minimumStabilitySelected.isSelected());
-		minimumStabilityUnitSelector.setEnabled(minimumStabilitySelected.isSelected());
-		maximumStabilitySpinner.setEnabled(maximumStabilitySelected.isSelected());
-		maximumStabilityUnitSelector.setEnabled(maximumStabilitySelected.isSelected());
+		state = minimumStabilitySelected.isSelected();
+		log.debug("minimumStabilitySpinner & UnitSelector enabled: " + state);
+		minimumStabilitySpinner.setEnabled(state);
+		minimumStabilityUnitSelector.setEnabled(state);
+		
+		state = maximumStabilitySelected.isSelected();
+		log.debug("maximumStabilitySpimmer & UnitSelector enabled: " + state);
+		maximumStabilitySpinner.setEnabled(state);
+		maximumStabilityUnitSelector.setEnabled(state);
 		
 
 		// Plot button (enabled if path exists and dimensionality is 1 or 2)
-		plotButton.setEnabled(!optimizationPath.isEmpty() && (selectedModifiers.size() == 1 || selectedModifiers.size() == 2));
+		state = (!optimizationPath.isEmpty() && (selectedModifiers.size() == 1 || selectedModifiers.size() == 2));
+		log.debug("plotButton enabled: " + state + " optimizationPath.isEmpty=" + optimizationPath.isEmpty() +
+				" selectedModifiers.size=" + selectedModifiers.size());
+		plotButton.setEnabled(state);
 		
 		// Save button (enabled if path exists)
-		saveButton.setEnabled(!optimizationPath.isEmpty());
+		state = (!evaluationHistory.isEmpty());
+		log.debug("saveButton enabled: " + state);
+		saveButton.setEnabled(state);
 		
 
 		// Last disable all components if optimization is running
 		if (running) {
+			log.debug("Disabling all components because optimization is running");
 			for (JComponent c : disableComponents) {
 				c.setEnabled(false);
 			}
@@ -1444,6 +1463,12 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		@Override
 		public void setValueAt(Object value, int row, int column) {
+			
+			if (row >= selectedModifiers.size()) {
+				throw new BugException("setValueAt with invalid row:  value=" + value + " row=" + row + " column=" + column +
+						" selectedModifiers.size=" + selectedModifiers.size() + " selectedModifiers=" + selectedModifiers +
+						" selectedModifierTable.getRowCount=" + selectedModifierTable.getRowCount());
+			}
 			
 			switch (column) {
 			case PARAMETER:

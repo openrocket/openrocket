@@ -108,6 +108,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		if (this.thickness > this.outerRadius)
 			this.thickness = this.outerRadius;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		clearPreset();
 	}
 	
 	
@@ -128,6 +129,16 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		
 		autoRadius = auto;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		clearPreset();
+	}
+	
+	
+	@Override
+	protected void loadFromPreset(RocketComponent preset) {
+		BodyTube c = (BodyTube) preset;
+		this.setOuterRadius(c.getOuterRadius());
+		
+		super.loadFromPreset(preset);
 	}
 	
 	

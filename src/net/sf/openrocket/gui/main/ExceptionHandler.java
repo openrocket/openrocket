@@ -301,6 +301,29 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		
 		// NOTE:  Calling method logs the entire throwable, so log only message here
 		
+
+		/*
+		 * Detect and ignore bug 6826104 in Sun JRE.
+		 */
+		if (t instanceof NullPointerException) {
+			StackTraceElement[] trace = t.getStackTrace();
+			
+			if (trace.length > 3 &&
+					trace[0].getClassName().equals("sun.awt.X11.XWindowPeer") &&
+					trace[0].getMethodName().equals("restoreTransientFor") &&
+
+					trace[1].getClassName().equals("sun.awt.X11.XWindowPeer") &&
+					trace[1].getMethodName().equals("removeFromTransientFors") &&
+
+					trace[2].getClassName().equals("sun.awt.X11.XWindowPeer") &&
+					trace[2].getMethodName().equals("setModalBlocked")) {
+				log.warn("Ignoring Sun JRE bug (6826104): http://bugs.sun.com/view_bug.do?bug_id=6826104" + t);
+				return true;
+			}
+			
+		}
+		
+
 		/*
 		 * Detect and ignore bug 6828938 in Sun JRE 1.6.0_14 - 1.6.0_16.
 		 */

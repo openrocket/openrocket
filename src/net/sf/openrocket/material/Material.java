@@ -15,7 +15,7 @@ import net.sf.openrocket.util.MathUtil;
  */
 
 public abstract class Material implements Comparable<Material> {
-
+	
 	public enum Type {
 		LINE("Line", UnitGroup.UNITS_DENSITY_LINE),
 		SURFACE("Surface", UnitGroup.UNITS_DENSITY_SURFACE),
@@ -23,13 +23,16 @@ public abstract class Material implements Comparable<Material> {
 		
 		private final String name;
 		private final UnitGroup units;
+		
 		private Type(String name, UnitGroup units) {
 			this.name = name;
 			this.units = units;
 		}
+		
 		public UnitGroup getUnitGroup() {
 			return units;
 		}
+		
 		@Override
 		public String toString() {
 			return name;
@@ -43,7 +46,7 @@ public abstract class Material implements Comparable<Material> {
 		public Line(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
 		}
-
+		
 		@Override
 		public Type getType() {
 			return Type.LINE;
@@ -71,7 +74,7 @@ public abstract class Material implements Comparable<Material> {
 		public Bulk(String name, double density, boolean userDefined) {
 			super(name, density, userDefined);
 		}
-
+		
 		@Override
 		public Type getType() {
 			return Type.BULK;
@@ -79,7 +82,7 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	
-	
+
 	private final String name;
 	private final double density;
 	private final boolean userDefined;
@@ -92,7 +95,7 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	
-	
+
 	public double getDensity() {
 		return density;
 	}
@@ -116,7 +119,7 @@ public abstract class Material implements Comparable<Material> {
 		return this.getName(this.getType().getUnitGroup().getDefaultUnit());
 	}
 	
-
+	
 	/**
 	 * Compares this object to another object.  Material objects are equal if and only if
 	 * their types, names and densities are identical.
@@ -127,30 +130,30 @@ public abstract class Material implements Comparable<Material> {
 			return false;
 		if (this.getClass() != o.getClass())
 			return false;
-		Material m = (Material)o;
-		return ((m.name.equals(this.name)) && 
-				MathUtil.equals(m.density, this.density)); 
+		Material m = (Material) o;
+		return ((m.name.equals(this.name)) && MathUtil.equals(m.density, this.density));
 	}
-
-
+	
+	
 	/**
 	 * A hashCode() method giving a hash code compatible with the equals() method.
 	 */
 	@Override
 	public int hashCode() {
-		return name.hashCode() + (int)(density*1000);
+		return name.hashCode() + (int) (density * 1000);
 	}
-
+	
 	
 	/**
 	 * Order the materials according to their name, secondarily according to density.
 	 */
+	@Override
 	public int compareTo(Material o) {
 		int c = this.name.compareTo(o.name);
 		if (c != 0) {
 			return c;
 		} else {
-			return (int)((this.density - o.density)*1000);
+			return (int) ((this.density - o.density) * 1000);
 		}
 	}
 	
@@ -158,7 +161,7 @@ public abstract class Material implements Comparable<Material> {
 	/**
 	 * Return a new material of the specified type.
 	 */
-	public static Material newMaterial(Type type, String name, double density, 
+	public static Material newMaterial(Type type, String name, double density,
 			boolean userDefined) {
 		switch (type) {
 		case LINE:
@@ -171,7 +174,7 @@ public abstract class Material implements Comparable<Material> {
 			return new Material.Bulk(name, density, userDefined);
 			
 		default:
-			throw new IllegalArgumentException("Unknown material type: "+type);
+			throw new IllegalArgumentException("Unknown material type: " + type);
 		}
 	}
 	
@@ -193,10 +196,10 @@ public abstract class Material implements Comparable<Material> {
 		if (str == null)
 			throw new IllegalArgumentException("Material string is null");
 		
-		String[] split = str.split("\\|",3);
+		String[] split = str.split("\\|", 3);
 		if (split.length < 3)
-			throw new IllegalArgumentException("Illegal material string: "+str);
-
+			throw new IllegalArgumentException("Illegal material string: " + str);
+		
 		Type type = null;
 		String name;
 		double density;
@@ -204,15 +207,15 @@ public abstract class Material implements Comparable<Material> {
 		try {
 			type = Type.valueOf(split[0]);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Illegal material string: "+str, e);
+			throw new IllegalArgumentException("Illegal material string: " + str, e);
 		}
-
+		
 		name = split[1];
 		
 		try {
 			density = Double.parseDouble(split[2]);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Illegal material string: "+str, e);
+			throw new IllegalArgumentException("Illegal material string: " + str, e);
 		}
 		
 		switch (type) {
@@ -226,8 +229,8 @@ public abstract class Material implements Comparable<Material> {
 			return new Material.Line(name, density, userDefined);
 			
 		default:
-			throw new IllegalArgumentException("Illegal material string: "+str);
+			throw new IllegalArgumentException("Illegal material string: " + str);
 		}
 	}
-
+	
 }

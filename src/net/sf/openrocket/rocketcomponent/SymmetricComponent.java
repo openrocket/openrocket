@@ -103,6 +103,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		this.thickness = MathUtil.clamp(thickness, 0, Math.max(getForeRadius(), getAftRadius()));
 		filled = false;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		clearPreset();
 	}
 	
 	
@@ -124,6 +125,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			return;
 		this.filled = filled;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		clearPreset();
 	}
 	
 	
@@ -142,6 +144,18 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	}
 	
 	
+
+	@Override
+	protected void loadFromPreset(RocketComponent preset) {
+		SymmetricComponent c = (SymmetricComponent) preset;
+		this.setThickness(c.getThickness());
+		this.setFilled(c.isFilled());
+		
+		super.loadFromPreset(preset);
+	}
+	
+	
+
 
 	/**
 	 * Calculate volume of the component by integrating over the length of the component.
@@ -368,7 +382,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 		longitudinalInertia = 0;
 		rotationalInertia = 0;
 		
-		double volume = 0;
+		double vol = 0;
 		
 		for (int n = 1; n <= DIVISIONS; n++) {
 			/*
@@ -399,20 +413,20 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			longitudinalInertia += dV * ((3 * (pow2(outer) + pow2(inner)) + pow2(l)) / 12
 					+ pow2(x + l / 2));
 			
-			volume += dV;
+			vol += dV;
 			
 			// Update for next iteration
 			r1 = r2;
 			x += l;
 		}
 		
-		if (MathUtil.equals(volume, 0)) {
+		if (MathUtil.equals(vol, 0)) {
 			integrateInertiaSurface();
 			return;
 		}
 		
-		rotationalInertia /= volume;
-		longitudinalInertia /= volume;
+		rotationalInertia /= vol;
+		longitudinalInertia /= vol;
 		
 		// Shift longitudinal inertia to CG
 		longitudinalInertia = Math.max(longitudinalInertia - pow2(getComponentCG().x), 0);

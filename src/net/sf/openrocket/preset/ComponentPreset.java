@@ -7,26 +7,31 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  * A model for a preset component.
  * <p>
  * A preset component contains a component class type, manufacturer information,
- * part information, and getter methods for various properties of the component.
+ * part information, and a method that returns a prototype of the preset component.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RocketComponentPreset {
+public abstract class ComponentPreset {
 	
-	private final Class<? extends RocketComponent> componentClass;
 	private final Manufacturer manufacturer;
-	private final String partName;
 	private final String partNo;
 	private final String partDescription;
+	private final RocketComponent prototype;
 	
 	
-	public RocketComponentPreset(Class<? extends RocketComponent> componentClass, Manufacturer manufacturer,
-			String partName, String partNo, String partDescription) {
-		this.componentClass = componentClass;
+	public ComponentPreset(Manufacturer manufacturer, String partNo, String partDescription,
+			RocketComponent prototype) {
 		this.manufacturer = manufacturer;
-		this.partName = partName;
 		this.partNo = partNo;
 		this.partDescription = partDescription;
+		this.prototype = prototype.copy();
+		
+		if (prototype.getParent() != null) {
+			throw new IllegalArgumentException("Prototype component cannot have a parent");
+		}
+		if (prototype.getChildCount() > 0) {
+			throw new IllegalArgumentException("Prototype component cannot have children");
+		}
 	}
 	
 	
@@ -34,7 +39,7 @@ public abstract class RocketComponentPreset {
 	 * Return the component class that this preset defines.
 	 */
 	public Class<? extends RocketComponent> getComponentClass() {
-		return componentClass;
+		return prototype.getClass();
 	}
 	
 	/**
@@ -42,13 +47,6 @@ public abstract class RocketComponentPreset {
 	 */
 	public Manufacturer getManufacturer() {
 		return manufacturer;
-	}
-	
-	/**
-	 * Return the part name.  This is a short, human-readable name of the part.
-	 */
-	public String getPartName() {
-		return partName;
 	}
 	
 	/**
@@ -63,6 +61,13 @@ public abstract class RocketComponentPreset {
 	 */
 	public String getPartDescription() {
 		return partDescription;
+	}
+	
+	/**
+	 * Return a prototype component.  This component may be modified freely.
+	 */
+	public RocketComponent getPrototype() {
+		return prototype.copy();
 	}
 	
 }

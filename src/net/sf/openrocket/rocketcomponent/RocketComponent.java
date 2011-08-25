@@ -12,7 +12,7 @@ import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.preset.RocketComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
@@ -125,7 +125,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	private String id = null;
 	
 	// Preset component this component is based upon
-	private RocketComponentPreset presetComponent = null;
+	private ComponentPreset presetComponent = null;
 	
 
 	/**
@@ -669,7 +669,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * 
 	 * @return	the preset component, or <code>null</code> if this is not based on a preset.
 	 */
-	public final RocketComponentPreset getPresetComponent() {
+	public final ComponentPreset getPresetComponent() {
 		return presetComponent;
 	}
 	
@@ -679,7 +679,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * 
 	 * @param preset	the preset component to load, or <code>null</code> to clear the preset.
 	 */
-	public final void loadPreset(RocketComponentPreset preset) {
+	public final void loadPreset(ComponentPreset preset) {
 		if (presetComponent == preset) {
 			return;
 		}
@@ -707,7 +707,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				rocket.freeze();
 			}
 			
-			loadFromPreset(preset);
+			loadFromPreset(preset.getPrototype());
 			
 			this.presetComponent = preset;
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
@@ -726,10 +726,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * This method should fire the appropriate events related to the changes.  The rocket
 	 * is frozen by the caller, so the events will be automatically combined.
+	 * <p>
+	 * This method must FIRST perform the preset loading and THEN call super.loadFromPreset().
+	 * This is because mass setting requires the dimensions to be set beforehand.
 	 * 
 	 * @param preset	the preset to load from
 	 */
-	protected void loadFromPreset(RocketComponentPreset preset) {
+	protected void loadFromPreset(RocketComponent preset) {
 		// No-op
 	}
 	

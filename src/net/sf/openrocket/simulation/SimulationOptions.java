@@ -17,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Utils;
 
 /**
  * A class holding simulation options in basic parameter form and which functions
@@ -415,7 +416,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
 		return ((this.rocket == o.rocket) &&
-				this.motorID.equals(o.motorID) &&
+				Utils.equals(this.motorID, o.motorID) &&
 				MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&

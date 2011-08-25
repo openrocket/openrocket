@@ -162,7 +162,12 @@ public class OptimizationPlotDialog extends JDialog {
 		double x1 = xUnit.toUnit(modX.getMinValue());
 		double x2 = xUnit.toUnit(modX.getMaxValue());
 		
-		chart.getXYPlot().getDomainAxis().setRange(x1, x2);
+		if (x1 < x2 - 0.0001) {
+			log.debug("Setting 1D plot domain axis x1=" + x1 + " x2=" + x2);
+			chart.getXYPlot().getDomainAxis().setRange(x1, x2);
+		} else {
+			log.warn("1D plot domain singular x1=" + x1 + " x2=" + x2 + ", not setting");
+		}
 		
 		// Add lines to show optimization limits
 		XYLineAnnotation line = new XYLineAnnotation(x1, -1e19, x1, 1e19);
@@ -296,8 +301,19 @@ public class OptimizationPlotDialog extends JDialog {
 		double y1 = yUnit.toUnit(modY.getMinValue());
 		double y2 = yUnit.toUnit(modY.getMaxValue());
 		
-		chart.getXYPlot().getDomainAxis().setRange(x1, x2);
-		chart.getXYPlot().getRangeAxis().setRange(y1, y2);
+		if (x1 < x2 - 0.0001) {
+			log.debug("Setting 2D plot domain axis to x1=" + x1 + " x2=" + x2);
+			chart.getXYPlot().getDomainAxis().setRange(x1, x2);
+		} else {
+			log.warn("2D plot has singular domain axis: x1=" + x1 + " x2=" + x2);
+		}
+		
+		if (y1 < y2 - 0.0001) {
+			log.debug("Setting 2D plot range axis to y1=" + y1 + " y2=" + y2);
+			chart.getXYPlot().getRangeAxis().setRange(y1, y2);
+		} else {
+			log.warn("2D plot has singular range axis: y1=" + y1 + " y2=" + y2);
+		}
 		
 		XYBoxAnnotation box = new XYBoxAnnotation(x1, y1, x2, y2);
 		chart.getXYPlot().addAnnotation(box);
@@ -307,6 +323,15 @@ public class OptimizationPlotDialog extends JDialog {
 				(Double) pathSeries.getX(n - 1), (Double) pathSeries.getY(n - 1), -Math.PI / 5);
 		text.setTextAnchor(TextAnchor.BASELINE_LEFT);
 		chart.getXYPlot().addAnnotation(text);
+		
+
+		if (min < max - 0.0001) {
+			log.debug("Setting gradient scale range to min=" + min + " max=" + max);
+		} else {
+			log.warn("2D plot has singular gradient scale, resetting to (0,1): min=" + min + " max=" + max);
+			min = 0;
+			max = 1;
+		}
 		
 		PaintScale paintScale = new GradientScale(min, max);
 		
