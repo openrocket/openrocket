@@ -1,3 +1,11 @@
+OpenRocket 1.1.8  (2011-08-25):
+-------------------------------
+
+This release contains bug fixes to the optimization methods.
+It also contains a workaround to a JRE bug that prevents running
+OpenRocket on Java 7.
+
+
 OpenRocket 1.1.7  (2011-08-12):
 -------------------------------
 

@@ -80,10 +80,14 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "1.1.7";
+$unstable = "1.1.8";
 $stable = "1.0.0";
 
-if (preg_match("/^1\.1\.6/", $version)) {
+if (preg_match("/^1\.1\.7/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "4: Bug fixes\n" .
+    "";
+} else if (preg_match("/^1\.1\.6/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "8: Automatic rocket design optimization\n" .
     "";

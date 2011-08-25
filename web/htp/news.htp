@@ -9,7 +9,18 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
-  <p><span class="date">22.7.2011:</span> Version 1.1.7 is 
+  <p><span class="date">25.8.2011:</span> Version 1.1.8 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>This release contains bug fixes to the optimization methods.
+    It also contains a workaround to a JRE bug that prevents running
+    OpenRocket on some builds of Java 7.</p>
+
+  <p>The web pages have also been somewhat updated and Boris du Reau has
+    created <a href="http://openrocket.trans.free.fr/">a separate site</a>
+    for coordinating the localization efforts for OpenRocket.</p>
+  
+  <p><span class="date">12.8.2011:</span> Version 1.1.7 is 
     <a href="download.html">released</a>!</p>
 
   <p>This release includes automatic rocket design optimization
@@ -35,15 +46,15 @@
   <p>The release also includes design scaling support and numerous bug
     fixes.</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">10.6.2011:</span> Version 1.1.5 is 
     <a href="download.html">released</a>!</p>
 
   <p>This release includes updates to the printing system which fixes
   printing on Windows.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">5.3.2011:</span> Version 1.1.4 is 
     <a href="download.html">released</a>!</p>
