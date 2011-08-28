@@ -13,10 +13,11 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Quaternion;
 import net.sf.openrocket.util.Rotation2D;
-
+import net.sf.openrocket.util.WorldCoordinate;
 
 public class RK4SimulationStepper extends AbstractSimulationStepper {
 	
@@ -67,6 +68,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		status.copyFrom(original);
 		
 		SimulationConditions sim = original.getSimulationConditions();
+		
 		status.setLaunchRodDirection(new Coordinate(
 				Math.sin(sim.getLaunchRodAngle()) * Math.cos(sim.getLaunchRodDirection()),
 				Math.sin(sim.getLaunchRodAngle()) * Math.sin(sim.getLaunchRodDirection()),
@@ -87,7 +89,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		RK4SimulationStatus status = (RK4SimulationStatus) simulationStatus;
 		DataStore store = new DataStore();
 		
-
 		////////  Perform RK4 integration:  ////////
 		
 		RK4SimulationStatus status2;
@@ -253,6 +254,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		status.setRocketRotationVelocity(status.getRocketRotationVelocity().add(deltaR));
 		status.setRocketOrientationQuaternion(status.getRocketOrientationQuaternion().multiplyLeft(Quaternion.rotation(deltaO)).normalizeIfNecessary());
 		
+		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
+		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
+		status.setRocketWorldPosition(w);
+		
 		status.setSimulationTime(status.getSimulationTime() + store.timestep);
 		
 		status.setPreviousTimeStep(store.timestep);
@@ -338,13 +343,18 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		store.linearAcceleration = store.thetaRotation.rotateZ(store.linearAcceleration);
 		
-		// Convert into world coordinates and add effect of gravity
+		// Convert into rocket world coordinates
 		store.linearAcceleration = status.getRocketOrientationQuaternion().rotate(store.linearAcceleration);
 		
+		// add effect of gravity
 		store.gravity = modelGravity(status);
 		store.linearAcceleration = store.linearAcceleration.sub(0, 0, store.gravity);
 		
-
+		// add effect of Coriolis acceleration
+		store.coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation()
+				.getCoriolisAcceleration(status.getRocketWorldPosition(), status.getRocketVelocity());
+		store.linearAcceleration = store.linearAcceleration.add(store.coriolisAcceleration);
+		
 		// If still on the launch rod, project acceleration onto launch rod direction and
 		// set angular acceleration to zero.
 		if (!status.isLaunchRodCleared()) {
@@ -388,7 +398,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	}
 	
 	
-
 	/**
 	 * Calculate the aerodynamic forces into the data store.  This method also handles
 	 * whether to include aerodynamic computation warnings or not.
@@ -538,6 +547,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 		
+		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.NONE) {
+			data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
+			data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
+			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, store.coriolisAcceleration.length());
+		}
+		
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
@@ -683,6 +698,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		public double longitudinalAcceleration = Double.NaN;
 		
 		public MassData massData;
+		
+		public Coordinate coriolisAcceleration;
 		
 		public Coordinate linearAcceleration;
 		public Coordinate angularAcceleration;

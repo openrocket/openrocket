@@ -1,3 +1,7 @@
+2011-08-28  Richard Graham
+
+	* Patch for geodetic computations + coriolis effect
+
 2011-08-25  Sampo Niskanen
 
 	* Released version 1.1.8

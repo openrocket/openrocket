@@ -11,7 +11,9 @@ import net.sf.openrocket.models.wind.WindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.Monitorable;
+import net.sf.openrocket.util.WorldCoordinate;
 
 /**
  * A holder class for the simulation conditions.  These include conditions that do not change
@@ -34,9 +36,12 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	/** Launch rod direction, 0 = upwind, PI = downwind. */
 	private double launchRodDirection = 0;
 	
-
-	private double launchAltitude = 0;
-	private double launchLatitude = 45;
+	// TODO: Depreciate these and use worldCoordinate only.
+	//private double launchAltitude = 0;
+	//private double launchLatitude = 45;
+	//private double launchLongitude = 0;
+	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
+	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
 
 	private WindModel windModel;
@@ -64,6 +69,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	
 
+
 	public AerodynamicCalculator getAerodynamicCalculator() {
 		return aerodynamicCalculator;
 	}
@@ -75,7 +81,6 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		this.modID++;
 		this.aerodynamicCalculator = aerodynamicCalculator;
 	}
-	
 	
 	public MassCalculator getMassCalculator() {
 		return massCalculator;
@@ -147,24 +152,29 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	}
 	
 	
-	public double getLaunchAltitude() {
-		return launchAltitude;
+	public WorldCoordinate getLaunchSite() {
+		return this.launchSite;
 	}
 	
-	
-	public void setLaunchAltitude(double launchAltitude) {
-		this.launchAltitude = launchAltitude;
+	public void setLaunchSite(WorldCoordinate site) {
+		if (this.launchSite.equals(site))
+			return;
+		this.launchSite = site;
 		this.modID++;
 	}
 	
 	
-	public double getLaunchLatitude() {
-		return launchLatitude;
+	public GeodeticComputationStrategy getGeodeticComputation() {
+		return geodeticComputation;
 	}
 	
-	
-	public void setLaunchLatitude(double launchLatitude) {
-		this.launchLatitude = launchLatitude;
+	public void setGeodeticComputation(GeodeticComputationStrategy geodeticComputation) {
+		if (this.geodeticComputation == geodeticComputation)
+			return;
+		if (geodeticComputation == null) {
+			throw new IllegalArgumentException("strategy cannot be null");
+		}
+		this.geodeticComputation = geodeticComputation;
 		this.modID++;
 	}
 	
@@ -201,8 +211,8 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	
 	public void setGravityModel(GravityModel gravityModel) {
-		if (this.gravityModel != null)
-			this.modIDadd += this.gravityModel.getModID();
+		//if (this.gravityModel != null)
+		//	this.modIDadd += this.gravityModel.getModID();
 		this.modID++;
 		this.gravityModel = gravityModel;
 	}
@@ -253,6 +263,8 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	}
 	
 	
+
+
 	// TODO: HIGH: Make cleaner
 	public List<SimulationListener> getSimulationListenerList() {
 		return simulationListeners;
@@ -261,8 +273,10 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	@Override
 	public int getModID() {
+		//return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
+		//		gravityModel.getModID() + aerodynamicCalculator.getModID() + massCalculator.getModID());
 		return (modID + modIDadd + rocket.getModID() + windModel.getModID() + atmosphericModel.getModID() +
-				gravityModel.getModID() + aerodynamicCalculator.getModID() + massCalculator.getModID());
+				aerodynamicCalculator.getModID() + massCalculator.getModID());
 	}
 	
 	

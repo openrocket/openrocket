@@ -587,7 +587,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	 * The double value is read and written using the methods "get"/"set" + valueName.
 	 *  
 	 * @param source Component whose parameter to use.
-	 * @param valueName Name of metods used to get/set the parameter.
+	 * @param valueName Name of methods used to get/set the parameter.
 	 * @param multiplier Value shown by the model is the value from component.getXXX * multiplier
 	 * @param min Minimum value allowed (in SI units)
 	 * @param max Maximum value allowed (in SI units)

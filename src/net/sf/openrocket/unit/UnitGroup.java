@@ -99,6 +99,7 @@ public class UnitGroup {
 		UNITS_DISTANCE.addUnit(new GeneralUnit(0.3048, "ft"));
 		UNITS_DISTANCE.addUnit(new GeneralUnit(0.9144, "yd"));
 		UNITS_DISTANCE.addUnit(new GeneralUnit(1609.344, "mi"));
+		UNITS_DISTANCE.addUnit(new GeneralUnit(1852, "nmi"));
 		
 		UNITS_AREA = new UnitGroup();
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.001), "mm" + SQUARED));
@@ -148,6 +149,7 @@ public class UnitGroup {
 		UNITS_ANGLE = new UnitGroup();
 		UNITS_ANGLE.addUnit(new DegreeUnit());
 		UNITS_ANGLE.addUnit(new FixedPrecisionUnit("rad", 0.01));
+		UNITS_ANGLE.addUnit(new GeneralUnit(1.0/3437.74677078, "arcmin"));
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "g/cm" + CUBED));

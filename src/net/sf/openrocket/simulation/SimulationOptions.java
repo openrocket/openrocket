@@ -11,13 +11,16 @@ import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
-import net.sf.openrocket.models.gravity.BasicGravityModel;
+import net.sf.openrocket.models.gravity.GravityModel;
+import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Utils;
+import net.sf.openrocket.util.WorldCoordinate;
 
 /**
  * A class holding simulation options in basic parameter form and which functions
@@ -59,8 +62,14 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double windAverage = 2.0;
 	private double windTurbulence = 0.1;
 	
+	/*
+	 * SimulationOptions maintains the launch site parameters as separate double values,
+	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
+	 */
 	private double launchAltitude = 0;
 	private double launchLatitude = 45;
+	private double launchLongitude = 0;
+	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
 	private boolean useISA = true;
 	private double launchTemperature = ExtendedISAModel.STANDARD_TEMPERATURE;
@@ -84,7 +93,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
 	public Rocket getRocket() {
 		return rocket;
 	}
@@ -223,10 +231,34 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		fireChangeEvent();
 	}
 	
+	public double getLaunchLongitude() {
+		return launchLongitude;
+	}
 	
-
-
-
+	public void setLaunchLongitude(double launchLongitude) {
+		launchLongitude = MathUtil.clamp(launchLongitude, -180, 180);
+		if (MathUtil.equals(this.launchLongitude, launchLongitude))
+			return;
+		this.launchLongitude = launchLongitude;
+		fireChangeEvent();
+	}
+	
+	
+	public GeodeticComputationStrategy getGeodeticComputation() {
+		return geodeticComputation;
+	}
+	
+	public void setGeodeticComputation(GeodeticComputationStrategy geodeticComputation) {
+		if (this.geodeticComputation == geodeticComputation)
+			return;
+		if (geodeticComputation == null) {
+			throw new IllegalArgumentException("strategy cannot be null");
+		}
+		this.geodeticComputation = geodeticComputation;
+		fireChangeEvent();
+	}
+	
+	
 	public boolean isISAAtmosphere() {
 		return useISA;
 	}
@@ -278,7 +310,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		if (useISA) {
 			return ISA_ATMOSPHERIC_MODEL;
 		}
-		return new ExtendedISAModel(launchAltitude, launchTemperature, launchPressure);
+		return new ExtendedISAModel(getLaunchAltitude(), launchTemperature, launchPressure);
 	}
 	
 	
@@ -389,6 +421,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		
 		this.launchAltitude = src.launchAltitude;
 		this.launchLatitude = src.launchLatitude;
+		this.launchLongitude = src.launchLongitude;
 		this.launchPressure = src.launchPressure;
 		this.launchRodAngle = src.launchRodAngle;
 		this.launchRodDirection = src.launchRodDirection;
@@ -419,6 +452,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 				Utils.equals(this.motorID, o.motorID) &&
 				MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
+				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&
 				MathUtil.equals(this.launchRodAngle, o.launchRodAngle) &&
 				MathUtil.equals(this.launchRodDirection, o.launchRodDirection) &&
@@ -471,8 +505,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());
-		conditions.setLaunchAltitude(getLaunchAltitude());
-		conditions.setLaunchLatitude(getLaunchLatitude());
+		conditions.setLaunchSite(new WorldCoordinate(getLaunchLatitude(), getLaunchLongitude(), getLaunchAltitude()));
+		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
 		
 		PinkNoiseWindModel windModel = new PinkNoiseWindModel(randomSeed);
@@ -482,7 +516,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		
 		conditions.setAtmosphericModel(getAtmosphericModel());
 		
-		BasicGravityModel gravityModel = new BasicGravityModel(getLaunchLatitude());
+		//BasicGravityModel gravityModel = new BasicGravityModel(getLaunchLatitude());
+		GravityModel gravityModel = new WGSGravityModel();
+		
 		conditions.setGravityModel(gravityModel);
 		
 		conditions.setAerodynamicCalculator(new BarrowmanCalculator());

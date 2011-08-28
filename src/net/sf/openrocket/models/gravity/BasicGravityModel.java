@@ -1,5 +1,9 @@
 package net.sf.openrocket.models.gravity;
 
+import net.sf.openrocket.util.WorldCoordinate;
+
+@Deprecated
+
 /**
  * A gravity model based on the International Gravity Formula of 1967.  The gravity
  * value is computed when the object is constructed and later returned as a static
@@ -7,6 +11,7 @@ package net.sf.openrocket.models.gravity;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+
 public class BasicGravityModel implements GravityModel {
 	
 	private final double g;
@@ -22,15 +27,21 @@ public class BasicGravityModel implements GravityModel {
 		g = 9.780327 * (1 + 0.0053024 * sin - 0.0000058 * sin2);
 	}
 	
-	@Override
+	//@Override
 	public double getGravity(double altitude) {
 		return g;
 	}
 	
-	@Override
+	//@Override
 	public int getModID() {
 		// Return constant mod ID
 		return (int) (g * 1000000);
+	}
+
+	@Override
+	public double getGravity(WorldCoordinate wc) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

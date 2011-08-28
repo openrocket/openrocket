@@ -185,8 +185,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		init.setPreviousTimeStep(simulationConditions.getTimeStep());
 		init.setRocketPosition(Coordinate.NUL);
 		init.setRocketVelocity(Coordinate.NUL);
+		init.setRocketWorldPosition(simulationConditions.getLaunchSite());
 		
-
 		// Initialize to roll angle with least stability w.r.t. the wind
 		Quaternion o;
 		FlightConditions cond = new FlightConditions(configuration);

@@ -30,7 +30,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		// Compute conditions
-		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchAltitude();
+		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
 		conditions = status.getSimulationConditions().getAtmosphericModel().getConditions(altitude);
 		
 		// Call post-listener
@@ -61,7 +61,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		// Compute conditions
-		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchAltitude();
+		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchSite().getAltitude();
 		wind = status.getSimulationConditions().getWindModel().getWindVelocity(status.getSimulationTime(), altitude);
 		
 		// Call post-listener
@@ -91,8 +91,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		// Compute conditions
-		double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchAltitude();
-		gravity = status.getSimulationConditions().getGravityModel().getGravity(altitude);
+		//double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchAltitude();
+		//gravity = status.getSimulationConditions().getGravityModel().getGravity(altitude);
+		gravity = status.getSimulationConditions().getGravityModel().getGravity(status.getRocketWorldPosition());
 		
 		// Call post-listener
 		gravity = SimulationListenerHelper.firePostGravityModel(status, gravity);

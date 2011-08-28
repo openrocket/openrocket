@@ -22,7 +22,7 @@ import net.sf.openrocket.unit.UnitGroup;
  */
 public class FlightDataType implements Comparable<FlightDataType> {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	/** Priority of custom-created variables */
 	private static final int DEFAULT_PRIORITY = 999;
 	
@@ -64,8 +64,11 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), UnitGroup.UNITS_VELOCITY, 34);
 	//// Lateral acceleration
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), UnitGroup.UNITS_ACCELERATION, 35);
+	//// Latitude
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), UnitGroup.UNITS_ANGLE, 36);
+	//// Longitude
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), UnitGroup.UNITS_ANGLE, 37);
 	
-
 	//// Angular motion
 	//// Angle of attack
 	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), UnitGroup.UNITS_ANGLE, 40);
@@ -140,6 +143,9 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Yaw damping coefficient
 	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_DAMPING_MOMENT_COEFF"), UnitGroup.UNITS_COEFFICIENT, 98);
 	
+	//// Coriolis acceleration
+	public static final FlightDataType TYPE_CORIOLIS_ACCELERATION = newType(trans.get("FlightDataType.TYPE_CORIOLIS_ACCELERATION"), UnitGroup.UNITS_ACCELERATION, 99);
+	
 
 	////  Reference length + area
 	//// Reference length
@@ -165,7 +171,6 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Speed of sound
 	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType(trans.get("FlightDataType.TYPE_SPEED_OF_SOUND"), UnitGroup.UNITS_VELOCITY, 113);
 	
-
 	////  Simulation information
 	//// Simulation time step
 	public static final FlightDataType TYPE_TIME_STEP = newType(trans.get("FlightDataType.TYPE_TIME_STEP"), UnitGroup.UNITS_TIME_STEP, 200);

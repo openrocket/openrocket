@@ -13,6 +13,7 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
 import net.sf.openrocket.util.MonitorableSet;
 import net.sf.openrocket.util.Quaternion;
+import net.sf.openrocket.util.WorldCoordinate;
 
 /**
  * A holder class for the dynamic status during the rocket's flight.
@@ -35,6 +36,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private double previousTimeStep;
 	
 	private Coordinate position;
+	private WorldCoordinate worldPosition;
 	private Coordinate velocity;
 	
 	private Quaternion orientation;
@@ -146,6 +148,14 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		return position;
 	}
 	
+	public void setRocketWorldPosition(WorldCoordinate wc) {
+		this.worldPosition = wc;
+		this.modID++;
+	}
+	
+	public WorldCoordinate getRocketWorldPosition() {
+		return worldPosition;
+	}
 	
 	public void setRocketVelocity(Coordinate velocity) {
 		this.velocity = velocity;
@@ -341,6 +351,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		this.time = orig.time;
 		this.previousTimeStep = orig.previousTimeStep;
 		this.position = orig.position;
+		this.worldPosition = orig.worldPosition;
 		this.velocity = orig.velocity;
 		this.orientation = orig.orientation;
 		this.rotationVelocity = orig.rotationVelocity;
