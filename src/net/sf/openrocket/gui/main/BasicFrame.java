@@ -125,9 +125,6 @@ public class BasicFrame extends JFrame {
 	private static final ArrayList<BasicFrame> frames = new ArrayList<BasicFrame>();
 	
 
-
-
-
 	/**
 	 * Whether "New" and "Open" should replace this frame.
 	 * Should be set to false on the first rocket modification.
@@ -1007,6 +1004,10 @@ public class BasicFrame extends JFrame {
 				
 				// Close previous window if replacing
 				if (replaceable && document.isSaved()) {
+					// We are replacing the frame, make new window have current location
+					BasicFrame newFrame = frames.get(frames.size() - 1);
+					newFrame.setLocation(this.getLocation());
+					
 					log.info("Closing window because it is replaceable");
 					closeAction();
 					replaceable = false;
@@ -1188,6 +1189,7 @@ public class BasicFrame extends JFrame {
 		doc.setFile(file);
 		doc.setSaved(true);
 		
+
 		// Open the frame
 		log.debug("Opening new frame with the document");
 		BasicFrame frame = new BasicFrame(doc);
