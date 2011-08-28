@@ -193,6 +193,11 @@ public class OpenRocketSaver extends RocketSaver {
 		 * Otherwise use version 1.0.
 		 */
 
+		// Check if design has simulations defined (version 1.3)
+		if (document.getSimulationCount() > 0) {
+			return FILE_VERSION_DIVISOR + 3;
+		}
+		
 		// Check for motor definitions (version 1.2)
 		Iterator<RocketComponent> iterator = document.getRocket().iterator();
 		while (iterator.hasNext()) {
@@ -311,6 +316,8 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("windturbulence", cond.getWindTurbulenceIntensity());
 		writeElement("launchaltitude", cond.getLaunchAltitude());
 		writeElement("launchlatitude", cond.getLaunchLatitude());
+		writeElement("launchlongitude", cond.getLaunchLongitude());
+		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase());
 		
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");

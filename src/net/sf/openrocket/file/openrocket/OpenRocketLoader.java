@@ -74,6 +74,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
 
@@ -158,7 +159,7 @@ public class OpenRocketLoader extends RocketLoader {
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1", "1.2" };
+	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1", "1.2", "1.3" };
 	
 
 	////////  Component constructors
@@ -1289,6 +1290,8 @@ class SimulationConditionsHandler extends ElementHandler {
 	
 	public SimulationConditionsHandler(Rocket rocket) {
 		conditions = new SimulationOptions(rocket);
+		// Set up default loading settings (which may differ from the new defaults)
+		conditions.setGeodeticComputation(GeodeticComputationStrategy.NONE);
 	}
 	
 	public SimulationOptions getConditions() {
@@ -1363,6 +1366,20 @@ class SimulationConditionsHandler extends ElementHandler {
 				warnings.add("Illegal launch latitude defined, ignoring.");
 			} else {
 				conditions.setLaunchLatitude(d);
+			}
+		} else if (element.equals("launchlongitude")) {
+			if (Double.isNaN(d)) {
+				warnings.add("Illegal launch longitude.");
+			} else {
+				conditions.setLaunchLongitude(d);
+			}
+		} else if (element.equals("geodeticmethod")) {
+			GeodeticComputationStrategy gcs =
+					(GeodeticComputationStrategy) DocumentConfig.findEnum(content, GeodeticComputationStrategy.class);
+			if (gcs != null) {
+				conditions.setGeodeticComputation(gcs);
+			} else {
+				warnings.add("Unknown geodetic computation method '" + content + "'");
 			}
 		} else if (element.equals("atmosphere")) {
 			atmosphereHandler.storeSettings(conditions, warnings);
