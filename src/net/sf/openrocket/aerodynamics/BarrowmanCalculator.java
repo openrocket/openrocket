@@ -58,7 +58,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	public Coordinate getCP(Configuration configuration, FlightConditions conditions,
 			WarningSet warnings) {
 		checkCache(configuration);
-		AerodynamicForces forces = getNonAxial(configuration, conditions, null, warnings);
+		AerodynamicForces forces = calculateNonAxialForces(configuration, conditions, null, warnings);
 		return forces.getCP();
 	}
 	
@@ -83,7 +83,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 
 		// Calculate non-axial force data
-		AerodynamicForces total = getNonAxial(configuration, conditions, map, warnings);
+		AerodynamicForces total = calculateNonAxialForces(configuration, conditions, map, warnings);
 		
 
 		// Calculate friction data
@@ -124,7 +124,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			warnings = ignoreWarningSet;
 		
 		// Calculate non-axial force data
-		AerodynamicForces total = getNonAxial(configuration, conditions, null, warnings);
+		AerodynamicForces total = calculateNonAxialForces(configuration, conditions, null, warnings);
 		
 		// Calculate friction data
 		total.setFrictionCD(calculateFrictionDrag(configuration, conditions, null, warnings));
@@ -150,7 +150,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	/*
 	 * Perform the actual CP calculation.
 	 */
-	private AerodynamicForces getNonAxial(Configuration configuration, FlightConditions conditions,
+	private AerodynamicForces calculateNonAxialForces(Configuration configuration, FlightConditions conditions,
 			Map<RocketComponent, AerodynamicForces> map, WarningSet warnings) {
 		
 		checkCache(configuration);
