@@ -206,7 +206,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			calcMap.get(component).calculateNonaxialForces(conditions, forces, warnings);
 			forces.setCP(component.toAbsolute(forces.getCP())[0]);
 			forces.setCm(forces.getCN() * forces.getCP().x / conditions.getRefLength());
-			//			System.out.println("  CN="+forces.CN+" cp.x="+forces.cp.x+" Cm="+forces.Cm);
 			
 			if (map != null) {
 				AerodynamicForces f = map.get(component);
@@ -256,25 +255,19 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		Re = conditions.getVelocity() * configuration.getLength() /
 				conditions.getAtmosphericConditions().getKinematicViscosity();
 		
-		//		System.out.printf("Re=%.3e   ", Re);
-		
 		// Calculate the skin friction coefficient (assume non-roughness limited)
 		if (configuration.getRocket().isPerfectFinish()) {
 			
-			//			System.out.printf("Perfect finish: Re=%f ",Re);
 			// Assume partial laminar layer.  Roughness-limitation is checked later.
 			if (Re < 1e4) {
 				// Too low, constant
 				Cf = 1.33e-2;
-				//				System.out.printf("constant Cf=%f ",Cf);
 			} else if (Re < 5.39e5) {
 				// Fully laminar
 				Cf = 1.328 / MathUtil.safeSqrt(Re);
-				//				System.out.printf("basic Cf=%f ",Cf);
 			} else {
 				// Transitional
 				Cf = 1.0 / pow2(1.50 * Math.log(Re) - 5.6) - 1700 / Re;
-				//				System.out.printf("transitional Cf=%f ",Cf);
 			}
 			
 			// Compressibility correction
@@ -299,7 +292,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				}
 			}
 			
-			//			System.out.printf("c1=%f c2=%f\n", c1,c2);
 			// Applying continuously around Mach 1
 			if (mach < 0.9) {
 				Cf *= c1;
@@ -309,19 +301,16 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				Cf *= c2;
 			}
 			
-			//			System.out.printf("M=%f Cf=%f (smooth)\n",mach,Cf);
-			
+
 		} else {
 			
 			// Assume fully turbulent.  Roughness-limitation is checked later.
 			if (Re < 1e4) {
 				// Too low, constant
 				Cf = 1.48e-2;
-				//				System.out.printf("LOW-TURB  ");
 			} else {
 				// Turbulent
 				Cf = 1.0 / pow2(1.50 * Math.log(Re) - 5.6);
-				//				System.out.printf("NORMAL-TURB  ");
 			}
 			
 			// Compressibility correction
@@ -341,8 +330,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				Cf *= c2;
 			}
 			
-			//			System.out.printf("M=%f, Cd=%f (turbulent)\n", mach,Cf);
-			
 		}
 		
 		// Roughness-limited value correction term
@@ -357,8 +344,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			roughnessCorrection = c2 * (mach - 0.9) / 0.2 + c1 * (1.1 - mach) / 0.2;
 		}
 		
-		//		System.out.printf("Cf=%.3f  ", Cf);
-		
+
 
 		/*
 		 * Calculate the friction drag coefficient.
@@ -388,9 +374,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				roughnessLimited[finish.ordinal()] =
 						0.032 * Math.pow(finish.getRoughnessSize() / configuration.getLength(), 0.2) *
 								roughnessCorrection;
-				
-				//				System.out.printf("roughness["+finish+"]=%.3f  ", 
-				//						roughnessLimited[finish.ordinal()]);
 			}
 			
 			/*
@@ -403,14 +386,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				// For perfect finish require Re > 1e6
 				if ((Re > 1.0e6) && (roughnessLimited[finish.ordinal()] > Cf)) {
 					componentCf = roughnessLimited[finish.ordinal()];
-					//					System.out.printf("    rl=%f Cf=%f (perfect=%b)\n",
-					//					roughnessLimited[finish.ordinal()], 
-					//					Cf,rocket.isPerfectFinish());
-					
-					//					System.out.printf("LIMITED  ");
 				} else {
 					componentCf = Cf;
-					//					System.out.printf("NORMAL  ");
 				}
 				
 			} else {
@@ -420,9 +397,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				
 			}
 			
-			//			System.out.printf("compCf=%.3f  ", componentCf);
-			
-
 
 
 			// Calculate the friction drag:
@@ -471,7 +445,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 		}
 		
-		//		System.out.printf("\n");
 		return (finFriction + correction * bodyFriction) / conditions.getRefArea();
 	}
 	
@@ -651,16 +624,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		vel = MathUtil.max(vel, 1);
 		
-		//			double Cm = total.Cm - total.CN * total.cg.x / conditions.getRefLength();
-		//			System.out.printf("Damping pitch/yaw, mul=%.4f pitch rate=%.4f "+
-		//					"Cm=%.4f / %.4f effect=%.4f aoa=%.4f\n", mul, pitch, total.Cm, Cm, 
-		//					-(mul * MathUtil.sign(pitch) * pow2(pitch/vel)), 
-		//					conditions.getAOA()*180/Math.PI);
-		
 		mul *= 3; // TODO: Higher damping yields much more realistic apogee turn
 		
-		//			total.Cm -= mul * pitch / pow2(vel);
-		//			total.Cyaw -= mul * yaw / pow2(vel);
 		total.setPitchDampingMoment(mul * MathUtil.sign(pitch) * pow2(pitch / vel));
 		total.setYawDampingMoment(mul * MathUtil.sign(yaw) * pow2(yaw / vel));
 	}
