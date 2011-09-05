@@ -8,11 +8,15 @@ import net.sf.openrocket.util.WorldCoordinate;
  * 
  * @author Richard Graham <richard@rdg.cc>
  */
-
 public class WGSGravityModel implements GravityModel {
 	
 	private WorldCoordinate lastWorldCoordinate;
 	private double lastg;
+	
+
+	private static int hit = 0;
+	private static int miss = 0;
+	
 	
 	@Override
 	public double getGravity(WorldCoordinate wc) {
@@ -21,11 +25,24 @@ public class WGSGravityModel implements GravityModel {
 		if (wc != this.lastWorldCoordinate) {
 			this.lastg = calcGravity(wc);
 			this.lastWorldCoordinate = wc;
+			
+			miss++;
+		} else {
+			hit++;
 		}
+		System.out.println("GRAVITY MODEL:  hit=" + hit + " miss=" + miss);
 		
 		return this.lastg;
 		
 	}
+	
+	
+	@Override
+	public int getModID() {
+		// The model is immutable, so it can return a constant mod ID
+		return 0;
+	}
+	
 	
 	private double calcGravity(WorldCoordinate wc) {
 		

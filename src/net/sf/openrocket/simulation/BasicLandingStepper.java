@@ -10,6 +10,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
 	
+	// FIXME:  Add lat/lon code here as well
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) throws SimulationException {

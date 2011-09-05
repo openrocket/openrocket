@@ -149,7 +149,7 @@ public class UnitGroup {
 		UNITS_ANGLE = new UnitGroup();
 		UNITS_ANGLE.addUnit(new DegreeUnit());
 		UNITS_ANGLE.addUnit(new FixedPrecisionUnit("rad", 0.01));
-		UNITS_ANGLE.addUnit(new GeneralUnit(1.0/3437.74677078, "arcmin"));
+		UNITS_ANGLE.addUnit(new GeneralUnit(1.0 / 3437.74677078, "arcmin"));
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "g/cm" + CUBED));
@@ -427,7 +427,7 @@ public class UnitGroup {
 		return units.indexOf(u);
 	}
 	
-	private void addUnit(Unit u) {
+	public void addUnit(Unit u) {
 		units.add(u);
 	}
 	

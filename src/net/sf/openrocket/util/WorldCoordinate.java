@@ -79,7 +79,7 @@ public class WorldCoordinate {
 	
 	@Override
 	public int hashCode() {
-		return ((int) (1000 * lat * lon * alt));
+		return ((int) (1000 * (lat + lon + alt)));
 	}
 	
 }

@@ -11,17 +11,16 @@ import net.sf.openrocket.startup.Application;
 
 public class BulkheadConfig extends RingComponentConfig {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public BulkheadConfig(RocketComponent c) {
 		super(c);
 		
 		JPanel tab;
 		
-		//// Radius: and "Thickness:
-		tab = generalTab(trans.get("BulkheadCfg.tab.Radius"), null, null, 
+		tab = generalTab(trans.get("BulkheadCfg.tab.Diameter"), null, null,
 				trans.get("BulkheadCfg.tab.Thickness"));
 		//// General and General properties
-		tabbedPane.insertTab(trans.get("BulkheadCfg.tab.General"), null, tab, 
+		tabbedPane.insertTab(trans.get("BulkheadCfg.tab.General"), null, tab,
 				trans.get("BulkheadCfg.tab.Generalproperties"), 0);
 		tabbedPane.setSelectedIndex(0);
 	}

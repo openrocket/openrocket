@@ -41,7 +41,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -49,6 +51,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -960,6 +963,28 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
+
+		menu.addSeparator();
+		
+
+		item = new JMenuItem("Test popup");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("Test popup selected");
+				JPanel panel = new JPanel();
+				panel.add(new JTextField(40));
+				panel.add(new JSpinner());
+				JPopupMenu popup = new JPopupMenu();
+				popup.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+				popup.add(panel);
+				popup.show(BasicFrame.this, -50, 100);
+			}
+		});
+		menu.add(item);
+		
+
+
 
 		return menu;
 	}

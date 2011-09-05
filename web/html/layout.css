@@ -384,6 +384,8 @@ div.downloadbox {
 	rgb(55,156,14) 8%,
 	rgb(102,221,17) 90%
     );
+
+    white-space: nowrap;
 }
 
 div.downloadbox a.main {

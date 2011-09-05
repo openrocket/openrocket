@@ -516,7 +516,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		
 		conditions.setAtmosphericModel(getAtmosphericModel());
 		
-		//BasicGravityModel gravityModel = new BasicGravityModel(getLaunchLatitude());
 		GravityModel gravityModel = new WGSGravityModel();
 		
 		conditions.setGravityModel(gravityModel);

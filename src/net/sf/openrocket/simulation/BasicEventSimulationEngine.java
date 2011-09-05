@@ -32,7 +32,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private static final LogHelper log = Application.getLogger();
 	
-	// TODO: HIGH: Allow selecting steppers
+	// TODO: MEDIUM: Allow selecting steppers
 	private SimulationStepper flightStepper = new RK4SimulationStepper();
 	private SimulationStepper landingStepper = new BasicLandingStepper();
 	

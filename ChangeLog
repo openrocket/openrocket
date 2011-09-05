@@ -1,6 +1,7 @@
 2011-08-28  Richard Graham
 
 	* Patch for geodetic computations + coriolis effect
+	* Patch for enhanced gravity model
 
 2011-08-25  Sampo Niskanen
 
