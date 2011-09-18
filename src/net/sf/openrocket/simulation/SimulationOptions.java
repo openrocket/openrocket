@@ -62,6 +62,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double windAverage = 2.0;
 	private double windTurbulence = 0.1;
 	
+
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.

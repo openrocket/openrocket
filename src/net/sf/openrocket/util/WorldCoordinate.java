@@ -15,9 +15,10 @@ public class WorldCoordinate {
 	
 	/**
 	 * Constructs a new WorldCoordinate
+	 * 
 	 * @param lat latitude in degrees north. From -90 to 90, values outside are clamped.
 	 * @param lon longitude in degrees east. From -180 to 180, values outside are reduced to the range.
-	 * @param alt altitude in m. Unbounded.
+	 * @param alt altitude in meters. Unbounded.
 	 */
 	public WorldCoordinate(double lat, double lon, double alt) {
 		this.lat = MathUtil.clamp(Math.toRadians(lat), -Math.PI / 2, Math.PI / 2);
@@ -26,33 +27,35 @@ public class WorldCoordinate {
 	}
 	
 	
-
+	/**
+	 * Returns the altitude.
+	 */
 	public double getAltitude() {
 		return this.alt;
 	}
 	
-	/*
+	/**
 	 * Returns Longitude in radians
 	 */
 	public double getLongitudeRad() {
 		return this.lon;
 	}
 	
-	/*
+	/**
 	 * Returns Longitude in degrees
 	 */
 	public double getLongitudeDeg() {
 		return Math.toDegrees(this.lon);
 	}
 	
-	/*
+	/**
 	 * Returns latitude in radians
 	 */
 	public double getLatitudeRad() {
 		return this.lat;
 	}
 	
-	/*
+	/**
 	 * Returns latitude in degrees
 	 */
 	public double getLatitudeDeg() {
@@ -60,9 +63,10 @@ public class WorldCoordinate {
 	}
 	
 	
+
 	@Override
 	public String toString() {
-		return "WorldCoordinate[lat=" + lat + ", lon=" + lon + ", alt=" + alt + "]";
+		return "WorldCoordinate[lat=" + getLatitudeDeg() + ", lon=" + getLongitudeDeg() + ", alt=" + getAltitude() + "]";
 	}
 	
 	

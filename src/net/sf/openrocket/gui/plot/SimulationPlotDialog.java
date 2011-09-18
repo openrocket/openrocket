@@ -461,6 +461,7 @@ public class SimulationPlotDialog extends JDialog {
 		this.pack();
 		
 		GUIUtil.setDisposableDialogOptions(this, button);
+		GUIUtil.rememberWindowSize(this);
 	}
 	
 	private String getLabel(FlightDataType type, Unit unit) {

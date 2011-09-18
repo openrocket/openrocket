@@ -30,4 +30,7 @@ delete.png
 preferences.png
 zoom-in.png
 zoom-out.png
-
+help-license.png
+help-log.png
+help-about.png
+help-bug.png

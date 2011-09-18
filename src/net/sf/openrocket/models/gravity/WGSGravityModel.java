@@ -10,12 +10,9 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 public class WGSGravityModel implements GravityModel {
 	
+	// Cache the previously computed value
 	private WorldCoordinate lastWorldCoordinate;
 	private double lastg;
-	
-
-	private static int hit = 0;
-	private static int miss = 0;
 	
 	
 	@Override
@@ -25,12 +22,7 @@ public class WGSGravityModel implements GravityModel {
 		if (wc != this.lastWorldCoordinate) {
 			this.lastg = calcGravity(wc);
 			this.lastWorldCoordinate = wc;
-			
-			miss++;
-		} else {
-			hit++;
 		}
-		System.out.println("GRAVITY MODEL:  hit=" + hit + " miss=" + miss);
 		
 		return this.lastg;
 		

@@ -2,6 +2,7 @@ package net.sf.openrocket.util;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
@@ -9,6 +10,8 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -39,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRootPane;
 import javax.swing.JSlider;
@@ -264,6 +268,60 @@ public class GUIUtil {
 		Font font = component.getFont();
 		font = font.deriveFont(font.getSize2D() + size);
 		component.setFont(font);
+	}
+	
+	
+
+	/**
+	 * Automatically remember the size of a window.  This stores the window size in the user
+	 * preferences when resizing/maximizing the window and sets the state on the first call.
+	 */
+	public static void rememberWindowSize(final Window window) {
+		window.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				log.debug("Storing size of " + window.getClass().getName() + ": " + window.getSize());
+				Prefs.setWindowSize(window.getClass(), window.getSize());
+				if (window instanceof JFrame) {
+					if ((((JFrame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
+						log.debug("Storing maximized state of " + window.getClass().getName());
+						Prefs.setWindowMaximized(window.getClass());
+					}
+				}
+			}
+		});
+		
+		if (Prefs.isWindowMaximized(window.getClass())) {
+			if (window instanceof JFrame) {
+				((JFrame) window).setExtendedState(JFrame.MAXIMIZED_BOTH);
+			}
+		} else {
+			Dimension dim = Prefs.getWindowSize(window.getClass());
+			if (dim != null) {
+				window.setSize(dim);
+			}
+		}
+	}
+	
+	
+	/**
+	 * Automatically remember the position of a window.  The position is stored in the user preferences
+	 * every time the window is moved and set from there when first calling this method.
+	 */
+	public static void rememberWindowPosition(final Window window) {
+		window.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				Prefs.setWindowPosition(window.getClass(), window.getLocation());
+			}
+		});
+		
+		// Set window position according to preferences, and set prefs when moving
+		Point position = Prefs.getWindowPosition(window.getClass());
+		if (position != null) {
+			window.setLocationByPlatform(false);
+			window.setLocation(position);
+		}
 	}
 	
 	

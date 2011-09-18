@@ -1291,7 +1291,7 @@ class SimulationConditionsHandler extends ElementHandler {
 	public SimulationConditionsHandler(Rocket rocket) {
 		conditions = new SimulationOptions(rocket);
 		// Set up default loading settings (which may differ from the new defaults)
-		conditions.setGeodeticComputation(GeodeticComputationStrategy.NONE);
+		conditions.setGeodeticComputation(GeodeticComputationStrategy.FLAT);
 	}
 	
 	public SimulationOptions getConditions() {

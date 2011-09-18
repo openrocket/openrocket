@@ -1,3 +1,11 @@
+2011-09-18  Sampo Niskanen
+
+	* Remember window/dialog sizes and/or positions
+
+2011-09-13  Sampo Niskanen
+
+	* Added icons to help menu
+
 2011-08-28  Richard Graham
 
 	* Patch for geodetic computations + coriolis effect

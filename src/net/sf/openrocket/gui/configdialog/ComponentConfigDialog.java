@@ -1,10 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.Point;
 import java.awt.Window;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -18,7 +15,6 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
 
 /**
@@ -44,7 +40,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 	
 	private final Window parent;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private ComponentConfigDialog(Window parent, OpenRocketDocument document,
 			RocketComponent component) {
 		super(parent);
@@ -53,22 +49,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		setComponent(document, component);
 		
 		GUIUtil.setDisposableDialogOptions(this, null);
-		
-		// Set window position according to preferences, and set prefs when moving
-		Point position = Prefs.getWindowPosition(this.getClass());
-		if (position != null) {
-			this.setLocationByPlatform(false);
-			this.setLocation(position);
-		}
-		
-		this.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				Prefs.setWindowPosition(ComponentConfigDialog.this.getClass(),
-						ComponentConfigDialog.this.getLocation());
-			}
-		});
-		
+		GUIUtil.rememberWindowPosition(this);
 	}
 	
 	

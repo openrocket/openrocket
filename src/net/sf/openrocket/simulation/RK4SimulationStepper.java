@@ -266,6 +266,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (status.getRocketVelocity().length2() > 1e18 ||
 				status.getRocketPosition().length2() > 1e18 ||
 				status.getRocketRotationVelocity().length2() > 1e18) {
+			
+			// FIXME:  Make error message better, recommend shortening time step
+			
 			throw new SimulationCalculationException("Simulation values exceeded limits");
 		}
 	}
@@ -547,9 +550,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 		
-		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.NONE) {
-			data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
-			data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
+		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
+		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
+		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
 			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, store.coriolisAcceleration.length());
 		}
 		

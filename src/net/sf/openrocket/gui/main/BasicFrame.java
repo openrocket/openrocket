@@ -6,8 +6,6 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -233,19 +231,16 @@ public class BasicFrame extends JFrame {
 		setTitle();
 		this.pack();
 		
-		Dimension size = Prefs.getWindowSize(this.getClass());
-		if (size == null) {
-			size = Toolkit.getDefaultToolkit().getScreenSize();
-			size.width = size.width * 9 / 10;
-			size.height = size.height * 9 / 10;
-		}
+
+		// Set initial window size
+		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		size.width = size.width * 9 / 10;
+		size.height = size.height * 9 / 10;
 		this.setSize(size);
-		this.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				Prefs.setWindowSize(BasicFrame.this.getClass(), BasicFrame.this.getSize());
-			}
-		});
+		
+		// Remember changed size
+		GUIUtil.rememberWindowSize(this);
+		
 		this.setLocationByPlatform(true);
 		
 		GUIUtil.setWindowIcons(this);
@@ -259,8 +254,8 @@ public class BasicFrame extends JFrame {
 				closeAction();
 			}
 		});
-		frames.add(this);
 		
+		frames.add(this);
 		log.debug("BasicFrame instantiation complete");
 	}
 	
@@ -673,14 +668,13 @@ public class BasicFrame extends JFrame {
 		
 		menu = new JMenu(trans.get("main.menu.help"));
 		menu.setMnemonic(KeyEvent.VK_H);
-		//// Information about OpenRocket
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
 		menubar.add(menu);
 		
 
 		//// License
 		item = new JMenuItem(trans.get("main.menu.help.license"), KeyEvent.VK_L);
-		//// OpenRocket license information
+		item.setIcon(Icons.HELP_LICENSE);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.license.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -695,7 +689,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Bug report
 		item = new JMenuItem(trans.get("main.menu.help.bugReport"), KeyEvent.VK_B);
-		//// Information about reporting bugs in OpenRocket
+		item.setIcon(Icons.HELP_BUG_REPORT);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.bugReport.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -708,7 +702,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Debug log
 		item = new JMenuItem(trans.get("main.menu.help.debugLog"));
-		//// View the OpenRocket debug log
+		item.setIcon(Icons.HELP_DEBUG_LOG);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.debugLog.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -723,7 +717,7 @@ public class BasicFrame extends JFrame {
 		
 		//// About
 		item = new JMenuItem(trans.get("main.menu.help.about"), KeyEvent.VK_A);
-		//// About OpenRocket
+		item.setIcon(Icons.HELP_ABOUT);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.about.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override

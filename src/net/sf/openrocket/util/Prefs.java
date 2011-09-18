@@ -38,8 +38,8 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
-import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
+import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -715,8 +715,19 @@ public class Prefs {
 		return new Dimension(x, y);
 	}
 	
+	
+	public static boolean isWindowMaximized(Class<?> c) {
+		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
+		return "max".equals(pref);
+	}
+	
 	public static void setWindowSize(Class<?> c, Dimension d) {
 		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
+		storeVersion();
+	}
+	
+	public static void setWindowMaximized(Class<?> c) {
+		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
 	
