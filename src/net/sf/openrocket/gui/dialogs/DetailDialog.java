@@ -6,12 +6,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.GUIUtil;
 
 public class DetailDialog {
-	private static final Translator trans = Application.getTranslator();
 	
 	public static void showDetailedMessageDialog(Component parentComponent, Object message,
 			String details, String title, int messageType) {

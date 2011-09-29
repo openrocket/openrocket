@@ -1,3 +1,7 @@
+2011-09-26  Sampo Niskanen
+
+	* [BUG] Thrust was computed from dropped stages
+
 2011-09-18  Sampo Niskanen
 
 	* Remember window/dialog sizes and/or positions

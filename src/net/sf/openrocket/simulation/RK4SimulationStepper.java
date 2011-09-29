@@ -6,6 +6,7 @@ import java.util.Random;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationCalculationException;
@@ -22,7 +23,9 @@ import net.sf.openrocket.util.WorldCoordinate;
 public class RK4SimulationStepper extends AbstractSimulationStepper {
 	
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
 	
+
 	/** Random value with which to XOR the random seed value */
 	private static final int SEED_RANDOMIZATION = 0x23E3A01F;
 	
@@ -266,10 +269,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (status.getRocketVelocity().length2() > 1e18 ||
 				status.getRocketPosition().length2() > 1e18 ||
 				status.getRocketRotationVelocity().length2() > 1e18) {
-			
-			// FIXME:  Make error message better, recommend shortening time step
-			
-			throw new SimulationCalculationException("Simulation values exceeded limits");
+			throw new SimulationCalculationException(trans.get("error.valuesTooLarge"));
 		}
 	}
 	

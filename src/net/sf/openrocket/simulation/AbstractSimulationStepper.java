@@ -5,6 +5,8 @@ import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.util.BugException;
@@ -168,16 +170,20 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 			return thrust;
 		}
 		
+		Configuration configuration = status.getConfiguration();
+		
 		// Iterate over the motors and calculate combined thrust
-		MotorInstanceConfiguration configuration = status.getMotorConfiguration();
+		MotorInstanceConfiguration mic = status.getMotorConfiguration();
 		if (!stepMotors) {
-			configuration = configuration.clone();
+			mic = mic.clone();
 		}
-		configuration.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
+		mic.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
 		thrust = 0;
-		for (MotorId id : configuration.getMotorIDs()) {
-			MotorInstance motor = configuration.getMotorInstance(id);
-			thrust += motor.getThrust();
+		for (MotorId id : mic.getMotorIDs()) {
+			if (configuration.isComponentActive((RocketComponent) mic.getMotorMount(id))) {
+				MotorInstance motor = mic.getMotorInstance(id);
+				thrust += motor.getThrust();
+			}
 		}
 		
 		// Post-listeners

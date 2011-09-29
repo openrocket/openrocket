@@ -17,4 +17,21 @@ public class Utils {
 		}
 	}
 	
+	
+	/**
+	 * Check whether an array contains a specified object.
+	 * 
+	 * @param array		the array to search
+	 * @param search	the object to search for
+	 * @return			whether the object was in the array
+	 */
+	public static boolean contains(Object[] array, Object search) {
+		for (Object o : array) {
+			if (equals(o, search)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 }

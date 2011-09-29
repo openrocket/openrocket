@@ -98,14 +98,11 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		return isStageActive(0);
 	}
 	
-	public boolean isStageActive(RocketComponent stage) {
-		if (!(stage instanceof Stage)) {
-			throw new IllegalArgumentException("called with component " + stage);
-		}
-		return stages.get(stage.getParent().getChildPosition(stage));
-	}
 	
-	
+
+	/**
+	 * Check whether the stage specified by the index is active.
+	 */
 	public boolean isStageActive(int stage) {
 		if (stage >= rocket.getStageCount())
 			return false;
@@ -256,6 +253,15 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	
 	/**
+	 * Return whether a component is in the currently active stages.
+	 */
+	public boolean isComponentActive(final RocketComponent c) {
+		int stage = c.getStageNumber();
+		return isStageActive(stage);
+	}
+	
+	
+	/**
 	 * Return the bounds of the current configuration.  The bounds are cached.
 	 * 
 	 * @return	a <code>Collection</code> containing coordinates bouding the rocket.
@@ -366,7 +372,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			List<Iterator<RocketComponent>> list = new ArrayList<Iterator<RocketComponent>>();
 			
 			for (RocketComponent stage : rocket.getChildren()) {
-				if (isStageActive(stage)) {
+				if (isComponentActive(stage)) {
 					list.add(stage.iterator(false));
 				}
 			}

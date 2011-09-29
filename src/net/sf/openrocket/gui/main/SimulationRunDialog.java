@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.CharArrayWriter;
-import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -382,12 +380,6 @@ public class SimulationRunDialog extends JDialog {
 				return; // Ignore cancellations
 			}
 			
-			// Retrieve the stack trace in a textual form
-			CharArrayWriter arrayWriter = new CharArrayWriter();
-			arrayWriter.append(t.toString() + "\n" + "\n");
-			t.printStackTrace(new PrintWriter(arrayWriter));
-			String stackTrace = arrayWriter.toString();
-			
 			// Analyze the exception type
 			if (t instanceof SimulationLaunchException) {
 				
@@ -407,7 +399,7 @@ public class SimulationRunDialog extends JDialog {
 								trans.get("SimuRunDlg.msg.errorOccurred"),
 								t.getMessage()
 						},
-						stackTrace, simulation.getName(), JOptionPane.ERROR_MESSAGE);
+						null, simulation.getName(), JOptionPane.ERROR_MESSAGE);
 				
 			} else {
 				

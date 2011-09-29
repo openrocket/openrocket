@@ -32,6 +32,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Icons;
+import net.sf.openrocket.util.Utils;
 
 /**
  * Panel that displays the simulation plot options to the user.
@@ -105,10 +106,8 @@ public class SimulationPlotPanel extends JPanel {
 		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
 		types = branch.getTypes();
 		
-		// TODO: LOW: Revert to custom if data type is not available.
-		configuration = defaultConfiguration.clone();
+		setConfiguration(defaultConfiguration);
 		
-
 		////  Configuration selector
 		
 		// Setup the combo box
@@ -118,6 +117,9 @@ public class SimulationPlotPanel extends JPanel {
 				configurationSelector.setSelectedItem(config);
 			}
 		}
+		
+		// FIXME:  Bugs when expected branch is not present
+		
 		configurationSelector.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -127,7 +129,7 @@ public class SimulationPlotPanel extends JPanel {
 				if (conf == CUSTOM_CONFIGURATION)
 					return;
 				modifying++;
-				configuration = conf.clone().resetUnits();
+				setConfiguration(conf.clone().resetUnits());
 				updatePlots();
 				modifying--;
 			}
@@ -291,6 +293,13 @@ public class SimulationPlotPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (configuration.getTypeCount() == 0) {
+					JOptionPane.showMessageDialog(SimulationPlotPanel.this,
+							trans.get("error.noPlotSelected"),
+							trans.get("error.noPlotSelected.title"),
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				defaultConfiguration = configuration.clone();
 				SimulationPlotDialog.showPlot(SwingUtilities.getWindowAncestor(SimulationPlotPanel.this),
 						simulation, configuration);
@@ -300,6 +309,31 @@ public class SimulationPlotPanel extends JPanel {
 		
 
 		updatePlots();
+	}
+	
+	
+	private void setConfiguration(PlotConfiguration conf) {
+		
+		boolean modified = false;
+		
+		configuration = conf.clone();
+		if (!Utils.contains(types, configuration.getDomainAxisType())) {
+			configuration.setDomainAxisType(types[0]);
+			modified = true;
+		}
+		
+		for (int i = 0; i < configuration.getTypeCount(); i++) {
+			if (!Utils.contains(types, configuration.getType(i))) {
+				configuration.removePlotDataType(i);
+				i--;
+				modified = true;
+			}
+		}
+		
+		if (modified) {
+			configuration.setName(CUSTOM);
+		}
+		
 	}
 	
 	

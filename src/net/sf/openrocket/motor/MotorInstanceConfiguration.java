@@ -51,6 +51,9 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 		modID++;
 	}
 	
+	/**
+	 * Return a list of all motor IDs in this configuration (not only ones in active stages).
+	 */
 	public List<MotorId> getMotorIDs() {
 		return unmodifiableIds;
 	}

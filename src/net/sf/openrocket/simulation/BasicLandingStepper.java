@@ -4,13 +4,13 @@ import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.WorldCoordinate;
 
 public class BasicLandingStepper extends AbstractSimulationStepper {
 	
 	private static final double RECOVERY_TIME_STEP = 0.5;
-	
-	// FIXME:  Add lat/lon code here as well
 	
 	@Override
 	public SimulationStatus initialize(SimulationStatus status) throws SimulationException {
@@ -55,6 +55,13 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		linearAcceleration = linearAcceleration.sub(0, 0, gravity);
 		
 
+		// Add coriolis acceleration
+		Coordinate coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
+				status.getRocketWorldPosition(), status.getRocketVelocity());
+		linearAcceleration = linearAcceleration.add(coriolisAcceleration);
+		
+
+
 		// Select time step
 		double timeStep = MathUtil.min(0.5 / linearAcceleration.length(), RECOVERY_TIME_STEP);
 		
@@ -63,6 +70,12 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 				add(linearAcceleration.multiply(MathUtil.pow2(timeStep) / 2)));
 		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
+		
+
+		// Update the world coordinate
+		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
+		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
+		status.setRocketWorldPosition(w);
 		
 
 		// Store data
@@ -93,6 +106,14 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		}
 		
+
+		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
+		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
+		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
+			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
+		}
+		
+
 		data.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
 		data.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
 		

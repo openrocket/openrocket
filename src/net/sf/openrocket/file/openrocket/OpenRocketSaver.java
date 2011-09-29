@@ -409,10 +409,6 @@ public class OpenRocketSaver extends RocketSaver {
 			data.add(branch.get(types[i]));
 		}
 		List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
-		if (timeData == null) {
-			// TODO: MEDIUM: External data may not have time data
-			throw new IllegalArgumentException("Data did not contain time data");
-		}
 		
 		// Build the <databranch> tag
 		StringBuilder sb = new StringBuilder();
@@ -442,9 +438,14 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		
 		for (int i = 1; i < length - 1; i++) {
-			if (Math.abs(timeData.get(i) - previousTime - timeSkip) < Math.abs(timeData.get(i + 1) - previousTime - timeSkip)) {
+			if (timeData != null) {
+				if (Math.abs(timeData.get(i) - previousTime - timeSkip) < Math.abs(timeData.get(i + 1) - previousTime - timeSkip)) {
+					writeDataPointString(data, i, sb);
+					previousTime = timeData.get(i);
+				}
+			} else {
+				// If time data is not available, write all points
 				writeDataPointString(data, i, sb);
-				previousTime = timeData.get(i);
 			}
 		}
 		
@@ -475,8 +476,8 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		List<Double> timeData = branch.get(FlightDataType.TYPE_TIME);
 		if (timeData == null) {
-			// TODO: MEDIUM: External data may not have time data
-			throw new IllegalArgumentException("Data did not contain time data");
+			// If time data not available, store all points
+			return branch.getLength();
 		}
 		
 		// Write the data

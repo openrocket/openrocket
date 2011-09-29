@@ -9,22 +9,18 @@ package net.sf.openrocket.simulation.exception;
 public class SimulationCalculationException extends SimulationException {
 	
 	public SimulationCalculationException() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public SimulationCalculationException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public SimulationCalculationException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public SimulationCalculationException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 	
 }
