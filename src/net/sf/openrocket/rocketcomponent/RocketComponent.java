@@ -1,15 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.awt.Color;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import javax.swing.event.ChangeListener;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -23,6 +13,15 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.SafetyMutex;
 import net.sf.openrocket.util.UniqueID;
+
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
@@ -839,9 +838,43 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.relativePosition = position;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
-	
 
+
+    /**
+     * Determine position relative to given position argument.  Note: This is a side-effect free method.  No state
+     * is modified.  It's exactly like setRelativePosition without the 'set'.
+     *
+     * @param thePosition the relative position to be used as the basis for the computation
+     *
+     * @return double position of the component relative to the parent, with respect to <code>position</code>
+     */
+    public double asPositionValue (Position thePosition) {
+        if (this.relativePosition == thePosition) {
+            return this.position;
+        }
+        double result = this.position;
+        if (this.parent != null) {
+            double thisPos = this.toRelative(Coordinate.NUL, this.parent)[0].x;
+
+            switch (thePosition) {
+            case ABSOLUTE:
+                result = this.toAbsolute(Coordinate.NUL)[0].x;
+                break;
+            case TOP:
+                result = thisPos;
+                break;
+            case MIDDLE:
+                result = thisPos - (this.parent.length - this.length) / 2;
+                break;
+            case BOTTOM:
+                result = thisPos - (this.parent.length - this.length);
+                break;
+            default:
+                throw new BugException("Unknown position type: " + thePosition);
+            }
+        }
+        return result;
+    }
 
 	/**
 	 * Get the position value of the component.  The exact meaning of the value is
