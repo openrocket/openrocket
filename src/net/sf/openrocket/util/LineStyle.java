@@ -14,6 +14,7 @@ import net.sf.openrocket.startup.Application;
 
 public enum LineStyle {
 	
+
 	//// Solid
 	SOLID("LineStyle.Solid", new float[] { 10f, 0f }),
 	//// Dashed
@@ -24,6 +25,10 @@ public enum LineStyle {
 	DASHDOT("LineStyle.Dash-dotted", new float[] { 8f, 3f, 2f, 3f });
 	
 	private static final Translator trans = Application.getTranslator();
+	static {
+		System.out.println("*** LineStyle initialized trans:" + trans + " ***");
+		System.err.println("*** LineStyle initialized ***");
+	}
 	private final String name;
 	private final float[] dashes;
 	

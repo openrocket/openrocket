@@ -80,9 +80,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		//// configuration
 		setTitle(trans.get("ComponentCfgDlg.configuration1") + " " + component.getComponentName() + " " + trans.get("ComponentCfgDlg.configuration"));
 		
-		//		Dimension pref = getPreferredSize();
-		//		Dimension real = getSize();
-		//		if (pref.width > real.width || pref.height > real.height)
 		this.pack();
 	}
 	
@@ -94,7 +91,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 				findDialogContentsConstructor(component);
 		if (c != null) {
 			try {
-				return c.newInstance(component);
+				return c.newInstance(document, component);
 			} catch (InstantiationException e) {
 				throw new BugException("BUG in constructor reflection", e);
 			} catch (IllegalAccessException e) {
@@ -162,7 +159,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 			try {
 				configclass = Class.forName(configclassname);
 				c = (Constructor<? extends RocketComponentConfig>)
-						configclass.getConstructor(RocketComponent.class);
+						configclass.getConstructor(OpenRocketDocument.class, RocketComponent.class);
 				return c;
 			} catch (Exception ignore) {
 			}
@@ -211,27 +208,6 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		}
 	}
 	
-	
-	/**
-	 * Add an undo position for the current document.  This is intended for use only
-	 * by the currently open dialog.
-	 * 
-	 * @param description  Description of the undoable action
-	 */
-	/*package*/static void addUndoPosition(String description) {
-		if (dialog == null) {
-			throw new IllegalStateException("Dialog not open, report bug!");
-		}
-		dialog.document.addUndoPosition(description);
-	}
-	
-	/*package*/
-	static String getUndoDescription() {
-		if (dialog == null) {
-			throw new IllegalStateException("Dialog not open, report bug!");
-		}
-		return dialog.document.getUndoDescription();
-	}
 	
 	/**
 	 * Returns whether the singleton configuration dialog is currently visible or not.

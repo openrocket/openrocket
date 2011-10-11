@@ -1,3 +1,11 @@
+2011-10-11  Sampo Niskanen
+
+	* [BUG] Translators fetched before initialization
+
+2011-10-05  Doug Pedrick
+
+	* Fin tab autocalculation
+
 2011-09-26  Sampo Niskanen
 
 	* [BUG] Thrust was computed from dropped stages

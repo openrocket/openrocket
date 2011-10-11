@@ -1,5 +1,9 @@
 package net.sf.openrocket.startup;
 
+import java.awt.GraphicsEnvironment;
+
+import javax.swing.JOptionPane;
+
 import net.sf.openrocket.logging.LogHelper;
 
 public class VersionHelper {
@@ -34,14 +38,14 @@ public class VersionHelper {
 			
 			if (major < REQUIRED_MAJOR_VERSION ||
 					(major == REQUIRED_MAJOR_VERSION && minor < REQUIRED_MINOR_VERSION)) {
-				Startup.error(new String[] { "Java SE version 6 is required to run OpenRocket.",
+				error(new String[] { "Java SE version 6 is required to run OpenRocket.",
 						"You are currently running " + jreName + " version " +
 								jreVersion + " by " + jreVendor });
 			}
 			
 		} catch (RuntimeException e) {
 			
-			Startup.confirm(new String[] { "The Java version in use could not be detected.",
+			confirm(new String[] { "The Java version in use could not be detected.",
 					"OpenRocket requires at least Java SE 6.",
 					"Continue anyway?" });
 			
@@ -64,7 +68,7 @@ public class VersionHelper {
 			
 			if (jreVersion.matches(BAD_OPENJDK_VERSION)) {
 				
-				Startup.confirm(new String[] { "Old versions of OpenJDK are known to have problems " +
+				confirm(new String[] { "Old versions of OpenJDK are known to have problems " +
 						"running OpenRocket.",
 						" ",
 						"You are currently running " + jreName + " version " +
@@ -74,4 +78,51 @@ public class VersionHelper {
 		}
 	}
 	
+	
+
+	///////////  Helper methods  //////////
+	
+	/**
+	 * Presents an error message to the user and exits the application.
+	 * 
+	 * @param message	an array of messages to present.
+	 */
+	private static void error(String[] message) {
+		
+		System.err.println();
+		System.err.println("Error starting OpenRocket:");
+		System.err.println();
+		for (int i = 0; i < message.length; i++) {
+			System.err.println(message[i]);
+		}
+		System.err.println();
+		
+
+		if (!GraphicsEnvironment.isHeadless()) {
+			
+			JOptionPane.showMessageDialog(null, message, "Error starting OpenRocket",
+					JOptionPane.ERROR_MESSAGE);
+			
+		}
+		
+		System.exit(1);
+	}
+	
+	
+	/**
+	 * Presents the user with a message dialog and asks whether to continue.
+	 * If the user does not select "Yes" the the application exits.
+	 * 
+	 * @param message	the message Strings to show.
+	 */
+	private static void confirm(String[] message) {
+		
+		if (!GraphicsEnvironment.isHeadless()) {
+			
+			if (JOptionPane.showConfirmDialog(null, message, "Error starting OpenRocket",
+					JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+				System.exit(1);
+			}
+		}
+	}
 }

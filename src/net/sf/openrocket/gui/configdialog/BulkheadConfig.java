@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.configdialog;
 
 import javax.swing.JPanel;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -12,8 +13,8 @@ import net.sf.openrocket.startup.Application;
 public class BulkheadConfig extends RingComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public BulkheadConfig(RocketComponent c) {
-		super(c);
+	public BulkheadConfig(OpenRocketDocument d, RocketComponent c) {
+		super(d, c);
 		
 		JPanel tab;
 		

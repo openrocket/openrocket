@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -29,8 +30,8 @@ import net.sf.openrocket.unit.UnitGroup;
 public class RingComponentConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public RingComponentConfig(RocketComponent component) {
-		super(component);
+	public RingComponentConfig(OpenRocketDocument d, RocketComponent component) {
+		super(d, component);
 	}
 	
 	

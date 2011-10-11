@@ -27,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -47,25 +48,25 @@ import net.sf.openrocket.util.Coordinate;
 public class InnerTubeConfig extends ThicknessRingComponentConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-
-	public InnerTubeConfig(RocketComponent c) {
-		super(c);
+	
+	public InnerTubeConfig(OpenRocketDocument d, RocketComponent c) {
+		super(d, c);
 		
 		JPanel tab;
 		
 		tab = new MotorConfig((MotorMount) c);
 		//// Motor and Motor mount configuration
-		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Motor"), null, tab, 
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Motor"), null, tab,
 				trans.get("InnerTubeCfg.tab.ttip.Motor"), 1);
 		
 		tab = clusterTab();
 		//// Cluster and Cluster configuration
-		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Cluster"), null, tab, 
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Cluster"), null, tab,
 				trans.get("InnerTubeCfg.tab.ttip.Cluster"), 2);
 		
 		tab = positionTab();
 		//// Radial position
-		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Radialpos"), null, tab, 
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Radialpos"), null, tab,
 				trans.get("InnerTubeCfg.tab.ttip.Radialpos"), 3);
 		
 		tabbedPane.setSelectedIndex(0);
@@ -156,7 +157,7 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 						if (tube.getClusterCount() <= 1)
 							return;
 						
-						ComponentConfigDialog.addUndoPosition("Split cluster");
+						document.addUndoPosition("Split cluster");
 						
 						Coordinate[] coords = { Coordinate.NUL };
 						coords = component.shiftCoordinates(coords);

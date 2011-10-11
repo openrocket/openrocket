@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -50,8 +51,8 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	private FinPointFigure figure = null;
 	
 	
-	public FreeformFinSetConfig(RocketComponent component) {
-		super(component);
+	public FreeformFinSetConfig(OpenRocketDocument d, RocketComponent component) {
+		super(d, component);
 		this.finset = (FreeformFinSet) component;
 		
 		//// General and General properties

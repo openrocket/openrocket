@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -31,8 +32,8 @@ import net.sf.openrocket.unit.UnitGroup;
 public class StreamerConfig extends RecoveryDeviceConfig {
 	private static final Translator trans = Application.getTranslator();
 	
-	public StreamerConfig(final RocketComponent component) {
-		super(component);
+	public StreamerConfig(OpenRocketDocument d, final RocketComponent component) {
+		super(d, component);
 		
 		JPanel primary = new JPanel(new MigLayout());
 		

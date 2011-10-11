@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -40,7 +41,6 @@ import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -53,6 +53,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	protected final OpenRocketDocument document;
 	protected final RocketComponent component;
 	protected final JTabbedPane tabbedPane;
 	
@@ -69,8 +70,9 @@ public class RocketComponentConfig extends JPanel {
 	private JLabel massLabel;
 	
 	
-	public RocketComponentConfig(RocketComponent component) {
+	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
 		setLayout(new MigLayout("fill", "[grow, fill]"));
+		this.document = document;
 		this.component = component;
 		
 		//// Component name:
@@ -92,14 +94,14 @@ public class RocketComponentConfig extends JPanel {
 		this.add(tabbedPane, "growx, growy 1, wrap");
 		
 		//// Override and Mass and CG override options
-		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(), 
+		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (component.isMassive())
 			//// Figure and Figure style options
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Figure"), null, figureTab(), 
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Figure"), null, figureTab(),
 					trans.get("RocketCompCfg.tab.Figstyleopt"));
 		//// Comment and Specify a comment for the component
-		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(), 
+		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
 		
 		addButtons();
@@ -165,14 +167,14 @@ public class RocketComponentConfig extends JPanel {
 			String overridetext = null;
 			if (component.isMassOverridden()) {
 				//// (overridden to 
-				overridetext = trans.get("RocketCompCfg.lbl.overriddento")+" " + UnitGroup.UNITS_MASS.getDefaultUnit().
+				overridetext = trans.get("RocketCompCfg.lbl.overriddento") + " " + UnitGroup.UNITS_MASS.getDefaultUnit().
 						toStringUnit(component.getOverrideMass()) + ")";
 			}
 			
 			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
 				if (c.isMassOverridden() && c.getOverrideSubcomponents()) {
 					///// (overridden by
-					overridetext = trans.get("RocketCompCfg.lbl.overriddenby")+" " + c.getName() + ")";
+					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
 				}
 			}
 			
@@ -226,24 +228,19 @@ public class RocketComponentConfig extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					Finish f = ((ExternalComponent) component).getFinish();
-					Rocket rocket = component.getRocket();
 					try {
-						rocket.freeze();
-						// Store previous undo description
-						String desc = ComponentConfigDialog.getUndoDescription();
-						ComponentConfigDialog.addUndoPosition("Set rocket finish");
+						document.startUndo("Set rocket finish");
+						
 						// Do changes
-						Iterator<RocketComponent> iter = rocket.iterator();
+						Iterator<RocketComponent> iter = component.getRoot().iterator();
 						while (iter.hasNext()) {
 							RocketComponent c = iter.next();
 							if (c instanceof ExternalComponent) {
 								((ExternalComponent) c).setFinish(f);
 							}
 						}
-						// Restore undo description
-						ComponentConfigDialog.addUndoPosition(desc);
 					} finally {
-						rocket.thaw();
+						document.stopUndo();
 					}
 				}
 			});
@@ -337,7 +334,7 @@ public class RocketComponentConfig extends JPanel {
 		//// <html>The overridden mass does not include motors.<br>
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.longB1") +
 				//// The center of gravity is measured from the front end of the
-				trans.get("RocketCompCfg.lbl.longB2") +" " +
+				trans.get("RocketCompCfg.lbl.longB2") + " " +
 				component.getComponentName().toLowerCase() + ".", -1),
 				"spanx, wrap, gap para, height 0::30lp");
 		
@@ -349,7 +346,7 @@ public class RocketComponentConfig extends JPanel {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		//// Comments on the
-		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Commentsonthe") +" " + component.getComponentName() + ":",
+		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Commentsonthe") + " " + component.getComponentName() + ":",
 				Style.BOLD), "wrap");
 		
 		// TODO: LOW:  Changes in comment from other sources not reflected in component

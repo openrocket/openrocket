@@ -1,31 +1,9 @@
 package net.sf.openrocket.startup;
 
-import java.awt.GraphicsEnvironment;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.ToolTipManager;
-
-import net.sf.openrocket.communication.UpdateInfo;
-import net.sf.openrocket.communication.UpdateInfoRetriever;
-import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.database.ThrustCurveMotorSet;
-import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.file.iterator.DirectoryIterator;
-import net.sf.openrocket.file.iterator.FileIterator;
-import net.sf.openrocket.file.motor.MotorLoaderHelper;
-import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
-import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.ExceptionHandler;
-import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
@@ -35,36 +13,34 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.PrintStreamLogger;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Prefs;
-import net.sf.openrocket.util.SimpleFileFilter;
 
 
 /**
- * A startup class that checks that a suitable JRE environment is being run.
- * If the environment is too old the execution is canceled, and if OpenJDK is being
- * used warns the user of problems and confirms whether to continue.
+ * The first class in the OpenRocket startup sequence.  This class is responsible
+ * for setting up the Application class with the statically used subsystems
+ * (logging and translation) and then delegating to Startup2 class.
+ * <p>
+ * This class must be very cautious about what classes it calls.  This is because
+ * the loggers/translators for classes are initialized as static final members during
+ * class initialization.  For example, this class MUST NOT use the Prefs class, because
+ * using it will cause LineStyle to be initialized, which then receives an invalid
+ * (not-yet-initialized) translator.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Startup {
 	
-	private static LogHelper log;
+	static LogHelper log;
 	
 	private static final String LOG_STDERR_PROPERTY = "openrocket.log.stderr";
 	private static final String LOG_STDOUT_PROPERTY = "openrocket.log.stdout";
 	
 	private static final int LOG_BUFFER_LENGTH = 50;
 	
-	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
 	
-
-	/** Block motor loading for this many milliseconds */
-	private static AtomicInteger blockLoading = new AtomicInteger(Integer.MAX_VALUE);
-	
-	
+	/**
+	 * OpenRocket startup main method.
+	 */
 	public static void main(final String[] args) throws Exception {
 		
 		// Check for "openrocket.debug" property before anything else
@@ -76,33 +52,16 @@ public class Startup {
 		// Setup the translations
 		initializeL10n();
 		
-		// Check that we have a head
-		checkHead();
+		// Continue startup in Startup2 class (where Application is already set up)
+		Startup2.runMain(args);
 		
-		// Check that we're running a good version of a JRE
-		log.info("Checking JRE compatibility");
-		VersionHelper.checkVersion();
-		VersionHelper.checkOpenJDK();
-		
-		// Run the actual startup method in the EDT since it can use progress dialogs etc.
-		log.info("Running main");
-		SwingUtilities.invokeAndWait(new Runnable() {
-			@Override
-			public void run() {
-				runMain(args);
-			}
-		});
-		
-		log.info("Startup complete");
-		
-		// Block motor loading for 1.5 seconds to allow window painting
-		blockLoading.set(1500);
 	}
 	
 	
 
-
-
+	/**
+	 * Set proper system properties if openrocket.debug is defined.
+	 */
 	private static void checkDebugStatus() {
 		if (System.getProperty("openrocket.debug") != null) {
 			setPropertyIfNotSet("openrocket.log.stdout", "VBOSE");
@@ -120,252 +79,10 @@ public class Startup {
 	}
 	
 	
-	/**
-	 * Initializes the localization system.
-	 */
-	private static void initializeL10n() {
-		
-		String langcode = System.getProperty("openrocket.locale");
-		if (langcode != null) {
-			Locale l = L10N.toLocale(langcode);
-			log.info("Setting custom locale " + l);
-			Locale.setDefault(l);
-		} else {
-			Locale l = Prefs.getUserLocale();
-			if (l != null) {
-				log.info("Setting user-selected locale " + l);
-				Locale.setDefault(l);
-			} else {
-				log.info("Using default locale " + Locale.getDefault());
-			}
-		}
-		
-		Translator t;
-		t = new ResourceBundleTranslator("l10n.messages");
-		if (Locale.getDefault().getLanguage().equals("xx")) {
-			t = new DebugTranslator(t);
-		}
-		
-		log.info("Set up translation for locale " + Locale.getDefault() +
-				", debug.currentFile=" + t.get("debug.currentFile"));
-		
-		Application.setBaseTranslator(t);
-	}
-	
-	
-	private static void runMain(String[] args) {
-		
-		// Initialize the splash screen with version info
-		log.info("Initializing the splash screen");
-		Splash.init();
-		
-		// Setup the uncaught exception handler
-		log.info("Registering exception handler");
-		ExceptionHandler.registerExceptionHandler();
-		
-		// Start update info fetching
-		final UpdateInfoRetriever updateInfo;
-		if (Prefs.getCheckUpdates()) {
-			log.info("Starting update check");
-			updateInfo = new UpdateInfoRetriever();
-			updateInfo.start();
-		} else {
-			log.info("Update check disabled");
-			updateInfo = null;
-		}
-		
-		// Set the best available look-and-feel
-		log.info("Setting best LAF");
-		GUIUtil.setBestLAF();
-		
-		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
-		ToolTipManager.sharedInstance().setDismissDelay(30000);
-		
-		// Load defaults
-		Prefs.loadDefaultUnits();
-		
-		// Load motors etc.
-		log.info("Loading databases");
-		loadMotor();
-		Databases.fakeMethod();
-		
-		// Starting action (load files or open new document)
-		log.info("Opening main application window");
-		if (!handleCommandLine(args)) {
-			BasicFrame.newAction();
-		}
-		
-		// Check whether update info has been fetched or whether it needs more time
-		log.info("Checking update status");
-		checkUpdateStatus(updateInfo);
-	}
-	
-	
-
-	private static void loadMotor() {
-		
-		log.info("Starting motor loading from " + THRUSTCURVE_DIRECTORY + " in background thread.");
-		ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(true) {
-			
-			@Override
-			protected void loadMotors() {
-				
-				// Block loading until timeout occurs or database is taken into use
-				log.info("Blocking motor loading while starting up");
-				while (!inUse && blockLoading.addAndGet(-100) > 0) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-					}
-				}
-				log.info("Blocking ended, inUse=" + inUse + " slowLoadingCount=" + blockLoading.get());
-				
-				// Start loading
-				log.info("Loading motors from " + THRUSTCURVE_DIRECTORY);
-				long t0 = System.currentTimeMillis();
-				int fileCount;
-				int thrustCurveCount;
-				
-				// Load the packaged thrust curves
-				List<Motor> list;
-				FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
-								new SimpleFileFilter("", false, "eng", "rse"));
-				if (iterator == null) {
-					throw new IllegalStateException("Thrust curve directory " + THRUSTCURVE_DIRECTORY +
-							"not found, distribution built wrong");
-				}
-				list = MotorLoaderHelper.load(iterator);
-				for (Motor m : list) {
-					this.addMotor((ThrustCurveMotor) m);
-				}
-				fileCount = iterator.getFileCount();
-				
-				thrustCurveCount = list.size();
-				
-				// Load the user-defined thrust curves
-				for (File file : Prefs.getUserThrustCurveFiles()) {
-					// TODO: LOW: This counts a directory as one file
-					log.info("Loading motors from " + file);
-					list = MotorLoaderHelper.load(file);
-					for (Motor m : list) {
-						this.addMotor((ThrustCurveMotor) m);
-					}
-					fileCount++;
-					thrustCurveCount += list.size();
-				}
-				
-				long t1 = System.currentTimeMillis();
-				
-				// Count statistics
-				int distinctMotorCount = 0;
-				int distinctThrustCurveCount = 0;
-				distinctMotorCount = motorSets.size();
-				for (ThrustCurveMotorSet set : motorSets) {
-					distinctThrustCurveCount += set.getMotorCount();
-				}
-				log.info("Motor loading done, took " + (t1 - t0) + " ms to load "
-						+ fileCount + " files/directories containing "
-						+ thrustCurveCount + " thrust curves which contained "
-						+ distinctMotorCount + " distinct motors with "
-						+ distinctThrustCurveCount + " distinct thrust curves.");
-			}
-			
-		};
-		db.startLoading();
-		Application.setMotorSetDatabase(db);
-	}
-	
-	
-
-	private static void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
-		if (updateInfo == null)
-			return;
-		
-		int delay = 1000;
-		if (!updateInfo.isRunning())
-			delay = 100;
-		
-		final Timer timer = new Timer(delay, null);
-		
-		ActionListener listener = new ActionListener() {
-			private int count = 5;
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!updateInfo.isRunning()) {
-					timer.stop();
-					
-					String current = Prefs.getVersion();
-					String last = Prefs.getString(Prefs.LAST_UPDATE, "");
-					
-					UpdateInfo info = updateInfo.getUpdateInfo();
-					if (info != null && info.getLatestVersion() != null &&
-							!current.equals(info.getLatestVersion()) &&
-							!last.equals(info.getLatestVersion())) {
-						
-						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
-						infoDialog.setVisible(true);
-						if (infoDialog.isReminderSelected()) {
-							Prefs.putString(Prefs.LAST_UPDATE, "");
-						} else {
-							Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
-						}
-					}
-				}
-				count--;
-				if (count <= 0)
-					timer.stop();
-			}
-		};
-		timer.addActionListener(listener);
-		timer.start();
-	}
-	
-	
-	/**
-	 * Handles arguments passed from the command line.  This may be used either
-	 * when starting the first instance of OpenRocket or later when OpenRocket is
-	 * executed again while running.
-	 * 
-	 * @param args	the command-line arguments.
-	 * @return		whether a new frame was opened or similar user desired action was
-	 * 				performed as a result.
-	 */
-	public static boolean handleCommandLine(String[] args) {
-		
-		// Check command-line for files
-		boolean opened = false;
-		for (String file : args) {
-			if (BasicFrame.open(new File(file), null)) {
-				opened = true;
-			}
-		}
-		return opened;
-	}
-	
-	
 
 	/**
-	 * Check that the JRE is not running headless.
+	 * Initializes the loggins system.
 	 */
-	private static void checkHead() {
-		
-		log.info("Checking for graphics head");
-		
-		if (GraphicsEnvironment.isHeadless()) {
-			log.error("Application is headless.");
-			System.err.println();
-			System.err.println("OpenRocket cannot currently be run without the graphical " +
-					"user interface.");
-			System.err.println();
-			System.exit(1);
-		}
-		
-	}
-	
-	
-	///////////  Logging  ///////////
-	
 	private static void initializeLogging() {
 		DelegatorLogger delegator = new DelegatorLogger();
 		
@@ -387,7 +104,7 @@ public class Startup {
 		
 		// Initialize the log for this class
 		log = Application.getLogger();
-		log.info("Logging subsystem initialized for OpenRocket " + Prefs.getVersion());
+		log.info("Logging subsystem initialized");
 		String str = "Console logging output:";
 		for (LogLevel l : LogLevel.values()) {
 			PrintStream ps = printer.getOutput(l);
@@ -420,50 +137,64 @@ public class Startup {
 	}
 	
 	
-	///////////  Helper methods  //////////
-	
-	/**
-	 * Presents an error message to the user and exits the application.
-	 * 
-	 * @param message	an array of messages to present.
-	 */
-	static void error(String[] message) {
-		
-		System.err.println();
-		System.err.println("Error starting OpenRocket:");
-		System.err.println();
-		for (int i = 0; i < message.length; i++) {
-			System.err.println(message[i]);
-		}
-		System.err.println();
-		
 
-		if (!GraphicsEnvironment.isHeadless()) {
-			
-			JOptionPane.showMessageDialog(null, message, "Error starting OpenRocket",
-					JOptionPane.ERROR_MESSAGE);
-			
-		}
-		
-		System.exit(1);
-	}
-	
-	
+
 	/**
-	 * Presents the user with a message dialog and asks whether to continue.
-	 * If the user does not select "Yes" the the application exits.
-	 * 
-	 * @param message	the message Strings to show.
+	 * Initializes the localization system.
 	 */
-	static void confirm(String[] message) {
+	private static void initializeL10n() {
 		
-		if (!GraphicsEnvironment.isHeadless()) {
+		// Check for locale propery
+		String langcode = System.getProperty("openrocket.locale");
+		
+		if (langcode != null) {
 			
-			if (JOptionPane.showConfirmDialog(null, message, "Error starting OpenRocket",
-					JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-				System.exit(1);
+			Locale l = L10N.toLocale(langcode);
+			log.info("Setting custom locale " + l);
+			Locale.setDefault(l);
+			
+		} else {
+			
+			// Check user-configured locale
+			Locale l = getUserLocale();
+			if (l != null) {
+				log.info("Setting user-selected locale " + l);
+				Locale.setDefault(l);
+			} else {
+				log.info("Using default locale " + Locale.getDefault());
 			}
+			
 		}
+		
+		// Setup the translator
+		Translator t;
+		t = new ResourceBundleTranslator("l10n.messages");
+		if (Locale.getDefault().getLanguage().equals("xx")) {
+			t = new DebugTranslator(t);
+		}
+		
+		log.info("Set up translation for locale " + Locale.getDefault() +
+				", debug.currentFile=" + t.get("debug.currentFile"));
+		
+		Application.setBaseTranslator(t);
 	}
 	
+	
+
+
+	private static Locale getUserLocale() {
+		/*
+		 * This method MUST NOT use the Prefs class, since is causes a multitude
+		 * of classes to be initialized.  Therefore this duplicates the functionality
+		 * of the Prefs class locally.
+		 */
+
+		if (System.getProperty("openrocket.debug.prefs") != null) {
+			return null;
+		}
+		
+		return L10N.toLocale(Preferences.userRoot().node("OpenRocket").get("locale", null));
+	}
+	
+
 }
