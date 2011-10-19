@@ -1,7 +1,9 @@
 package net.sf.openrocket.gui.configdialog;
 
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,7 +18,7 @@ public class FinSetConfigTest {
 
     @BeforeClass
     public static void classSetup() throws Exception {
-        method = FinSetConfig.class.getDeclaredMethod("computeFinTabLength", List.class, Double.class, Double.class, DoubleModel.class);
+        method = FinSetConfig.class.getDeclaredMethod("computeFinTabLength", List.class, Double.class, Double.class, DoubleModel.class, RocketComponent.class);
         Assert.assertNotNull(method);
         method.setAccessible(true);
     }
@@ -30,10 +32,12 @@ public class FinSetConfigTest {
     public void testComputeFinTabLength() throws Exception {
         DoubleModel dm = new DoubleModel(1d);
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
-        
-        Double result = (Double)method.invoke(null, rings, 10d, 11d, dm);
+
+        RocketComponent parent = new BodyTube();
+
+        Double result = (Double)method.invoke(null, rings, 10d, 11d, dm, parent);
         Assert.assertEquals(0.0001, 11d, result.doubleValue());
-        result = (Double)method.invoke(null, null, 10d, 11d, dm);
+        result = (Double)method.invoke(null, null, 10d, 11d, dm, parent);
         Assert.assertEquals(11d, result.doubleValue(), 0.0001);
     }
 
@@ -45,16 +49,22 @@ public class FinSetConfigTest {
         DoubleModel dm = new DoubleModel(1d);
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
+        RocketComponent parent = new BodyTube();
+
         CenteringRing ring1 = new CenteringRing();
         ring1.setLength(0.004);
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setPositionValue(0.43);
         CenteringRing ring2 = new CenteringRing();
         ring2.setLength(0.004);
+        ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setPositionValue(0.45);
         rings.add(ring1);
         rings.add(ring2);
+        parent.addChild(ring1);
+        parent.addChild(ring2);
 
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
         
     }
@@ -69,10 +79,14 @@ public class FinSetConfigTest {
 
         CenteringRing ring1 = new CenteringRing();
         ring1.setLength(0.004);
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setPositionValue(0.43);
         rings.add(ring1);
 
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
+        RocketComponent parent = new BodyTube();
+        parent.addChild(ring1);
+
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
     }
 
@@ -85,15 +99,21 @@ public class FinSetConfigTest {
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
         CenteringRing ring1 = new CenteringRing();
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
         ring1.setPositionValue(0.43);
         CenteringRing ring2 = new CenteringRing();
+        ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setLength(0.004);
         ring2.setPositionValue(0.45);
         rings.add(ring1);
         rings.add(ring2);
 
-        Double result = (Double)method.invoke(null, rings, 0.45d, 0.01, dm);
+        RocketComponent parent = new BodyTube(1d, 0.01);
+        parent.addChild(ring1);
+        parent.addChild(ring2);
+
+        Double result = (Double)method.invoke(null, rings, 0.45d, 0.01, dm, parent);
         Assert.assertEquals(0.01 - 0.004, result.doubleValue(), 0.0001);
     }
 
@@ -106,15 +126,18 @@ public class FinSetConfigTest {
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
         CenteringRing ring1 = new CenteringRing();
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
         ring1.setPositionValue(0.43);
         CenteringRing ring2 = new CenteringRing();
+        ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setLength(0.004);
         ring2.setPositionValue(0.48);
         rings.add(ring1);
         rings.add(ring2);
 
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
+        RocketComponent parent = new BodyTube();
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, ring1);
         Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
     }
 
@@ -127,15 +150,19 @@ public class FinSetConfigTest {
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
         CenteringRing ring1 = new CenteringRing();
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
         ring1.setPositionValue(0.4701);
         CenteringRing ring2 = new CenteringRing();
         ring2.setLength(0.004);
+        ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setPositionValue(0.48);
         rings.add(ring1);
         rings.add(ring2);
-
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
+        RocketComponent parent = new BodyTube(1.0d, 0.1d);
+        parent.addChild(ring1);
+        parent.addChild(ring2);
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assert.assertEquals(0.0059, result.doubleValue(), 0.0001);
     }
     
@@ -147,17 +174,22 @@ public class FinSetConfigTest {
         DoubleModel dm = new DoubleModel(1d);
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
+        RocketComponent parent = new BodyTube(1.0000d, 0.1d);
         CenteringRing ring1 = new CenteringRing();
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
         ring1.setPositionValue(0.4701);
+        parent.addChild(ring1);
         CenteringRing ring2 = new CenteringRing();
         ring2.setLength(0.004);
+        ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setPositionValue(0.4750);
+        parent.addChild(ring2);
         rings.add(ring1);
         rings.add(ring2);
 
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
-        Assert.assertEquals(0.0009, result.doubleValue(), 0.0001);
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
+        Assert.assertEquals(0.0009, result.doubleValue(), 0.0002);
     }
 
 
@@ -170,16 +202,21 @@ public class FinSetConfigTest {
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
         CenteringRing ring1 = new CenteringRing();
+        ring1.setRelativePosition(RocketComponent.Position.TOP);
         ring1.setLength(0.004);
         ring1.setPositionValue(0.48);
         CenteringRing ring2 = new CenteringRing();
+        ring2.setRelativePosition(RocketComponent.Position.TOP);
         ring2.setLength(0.004);
         ring2.setPositionValue(0.49);
         rings.add(ring1);
         rings.add(ring2);
+        RocketComponent parent = new BodyTube(1.0d, 0.1d);
+        parent.addChild(ring1);
+        parent.addChild(ring2);
 
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
-        Assert.assertEquals(0.006, result.doubleValue(), 0.0001);
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
+        Assert.assertEquals(0.0, result.doubleValue(), 0.0001);
     }
 
     /**
@@ -191,19 +228,27 @@ public class FinSetConfigTest {
         List<CenteringRing> rings = new ArrayList<CenteringRing>();
 
         CenteringRing ring1 = new CenteringRing();
+        ring1.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         ring1.setLength(0.004);
         ring1.setPositionValue(0.47);
         CenteringRing ring2 = new CenteringRing();
+        ring2.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         ring2.setLength(0.004);
         ring2.setPositionValue(0.4702);
         CenteringRing ring3 = new CenteringRing();
+        ring3.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         ring3.setLength(0.004);
         ring3.setPositionValue(0.4770);
         rings.add(ring1);
         rings.add(ring2);
         rings.add(ring3);
+        BodyTube parent = new BodyTube(1.0d, 0.1d);
+        parent.setPositionValue(0);
+        parent.addChild(ring1);
+        parent.addChild(ring2);
+        parent.addChild(ring3);
 
-        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm);
+        Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, parent);
         Assert.assertEquals(0.0028, result.doubleValue(), 0.0001);
     }
 

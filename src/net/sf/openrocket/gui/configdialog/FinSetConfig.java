@@ -1,19 +1,5 @@
 package net.sf.openrocket.gui.configdialog;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SwingUtilities;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -33,6 +19,15 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 
 public abstract class FinSetConfig extends RocketComponentConfig {
@@ -226,11 +221,11 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 					try {
 						document.startUndo("Compute fin tabs");
 						
-						List<RocketComponent> children = parent.getChildren();
 						List<CenteringRing> rings = new ArrayList<CenteringRing>();
-						
-						for (int i = 0; i < children.size(); i++) {
-							RocketComponent rocketComponent = children.get(i);
+                        //Do deep recursive iteration
+                        Iterator<RocketComponent> iter = parent.iterator(false);
+                        while (iter.hasNext()) {
+                            RocketComponent rocketComponent =  iter.next();
 							if (rocketComponent instanceof InnerTube) {
 								InnerTube it = (InnerTube) rocketComponent;
 								if (it.isMotorMount()) {
@@ -249,8 +244,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 						if (!rings.isEmpty()) {
 							FinSet.TabRelativePosition temp = (FinSet.TabRelativePosition) em.getSelectedItem();
 							em.setSelectedItem(FinSet.TabRelativePosition.FRONT);
-							double len = computeFinTabLength(rings, component.asPositionValue(RocketComponent.Position.TOP),
-										component.getLength(), mts);
+							double len = computeFinTabLength(rings, component.asPositionValue(RocketComponent.Position.TOP, parent),
+										component.getLength(), mts, parent);
 							mtl.setValue(len);
 							//Be nice to the user and set the tab relative position enum back the way they had it.
 							em.setSelectedItem(temp);
@@ -281,9 +276,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	 * @param finPositionFromTop the position from the top of the parent of the start of the fin set root
 	 * @param finLength          the length of the root chord
 	 * @param mts                the model for the tab shift (position); the model's value is modified as a result of this method call
+     * @param relativeTo         the parent component of the finset
+     * 
 	 * @return the length of the fin tab
 	 */
-	private static double computeFinTabLength(List<CenteringRing> rings, Double finPositionFromTop, Double finLength, DoubleModel mts) {
+	private static double computeFinTabLength(List<CenteringRing> rings, Double finPositionFromTop, Double finLength, DoubleModel mts,
+                                              final RocketComponent relativeTo) {
 		List<SortableRing> positionsFromTop = new ArrayList<SortableRing>();
 		
 		//Fin tabs will be computed between the last two rings that meet the criteria, represented by top and bottom here.
@@ -295,8 +293,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			Collections.sort(rings, new Comparator<CenteringRing>() {
 				@Override
 				public int compare(CenteringRing centeringRing, CenteringRing centeringRing1) {
-					return (int) (1000d * (centeringRing.asPositionValue(RocketComponent.Position.TOP) -
-							centeringRing1.asPositionValue(RocketComponent.Position.TOP)));
+					return (int) (1000d * (centeringRing.asPositionValue(RocketComponent.Position.TOP, relativeTo) -
+							centeringRing1.asPositionValue(RocketComponent.Position.TOP, relativeTo)));
 						}
 			});
 			
@@ -304,11 +302,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				CenteringRing centeringRing = rings.get(i);
 				//Handle centering rings that overlap or are adjacent by synthetically merging them into one virtual ring.
 				if (!positionsFromTop.isEmpty() &&
-						positionsFromTop.get(positionsFromTop.size() - 1).bottomSidePositionFromTop() >= centeringRing.asPositionValue(RocketComponent.Position.TOP)) {
+						positionsFromTop.get(positionsFromTop.size() - 1).bottomSidePositionFromTop() >=
+                                centeringRing.asPositionValue(RocketComponent.Position.TOP, relativeTo)) {
 					SortableRing adjacent = positionsFromTop.get(positionsFromTop.size() - 1);
-					adjacent.merge(centeringRing);
+					adjacent.merge(centeringRing, relativeTo);
 				} else {
-					positionsFromTop.add(new SortableRing(centeringRing));
+					positionsFromTop.add(new SortableRing(centeringRing, relativeTo));
 				}
 			}
 			
@@ -341,36 +340,63 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				}
 			}
 		}
-		
+
+        double resultFinTabLength = 0d;
+
 		// Edge case where there are no centering rings or for some odd reason top and bottom are identical.
 		if (top == null || top == bottom) {
 			mts.setValue(0);
-			return finLength;
-		}
-		
-		if (bottom == null) {
+			resultFinTabLength = finLength;
+		} else if (bottom == null) {
 			// If there is no bottom ring and the top ring's bottom edge is within the span of the root chord, then
 			// set the position of the fin tab starting at the bottom side of the top ring.
 			if (top.bottomSidePositionFromTop() >= finPositionFromTop) {
 				mts.setValue(top.bottomSidePositionFromTop() - finPositionFromTop);
-				return (finPositionFromTop + finLength - top.bottomSidePositionFromTop());
+				resultFinTabLength = (finPositionFromTop + finLength - top.bottomSidePositionFromTop());
 			} else {
-				// Otherwise the top ring is outside the span of the root chord so set the tab length to be the entire
-				// root chord.
 				mts.setValue(0);
-				return finLength;
-			}
+                double diffLen = top.positionFromTop() - finPositionFromTop;
+                if (diffLen < 0) {
+                // Otherwise the top ring is outside the span of the root chord so set the tab length to be the entire
+                // root chord.
+                    resultFinTabLength = finLength;
+                }
+                else {
+                    // Otherwise there is one ring within the span. Return the length from the start of the fin to the top
+                    // side of the ring.
+                    resultFinTabLength = diffLen;
+                }
+            }
 		}
 		// If the bottom edge of the top centering ring is above the start of the fin's root chord, then make the
 		// fin tab align with the start of the root chord.
-		if (top.bottomSidePositionFromTop() < finPositionFromTop) {
+		else if (top.bottomSidePositionFromTop() < finPositionFromTop) {
 			mts.setValue(0);
-			return bottom.positionFromTop - finPositionFromTop;
+
+            double lenToBottomRing = bottom.positionFromTop - finPositionFromTop;
+            // If the bottom ring lies farther back (down) than the trailing edge of the fin, then the tab should
+            // only be as long as the fin.
+            if (lenToBottomRing > finLength) {
+                resultFinTabLength = finLength;
+            }
+            else {
+                resultFinTabLength = lenToBottomRing;
+            }
 		} else {
-			// Otherwise the rings are within the span of the root chord.  Place the tab between them.
 			mts.setValue(top.bottomSidePositionFromTop() - finPositionFromTop);
-			return (bottom.positionFromTop() - top.bottomSidePositionFromTop());
-		}
+            // The bottom ring is beyond the trailing edge of the fin.
+            if (bottom.positionFromTop() > finLength + finPositionFromTop) {
+                resultFinTabLength = (finLength + finPositionFromTop - top.bottomSidePositionFromTop());
+            }
+			// The rings are within the span of the root chord.  Place the tab between them.
+            else {
+			    resultFinTabLength = (bottom.positionFromTop() - top.bottomSidePositionFromTop());
+            }
+        }
+        if (resultFinTabLength < 0) {
+            resultFinTabLength = 0d;
+        }
+        return resultFinTabLength;
 	}
 	
 	@Override
@@ -400,9 +426,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		 *
 		 * @param r the source centering ring
 		 */
-		SortableRing(CenteringRing r) {
+		SortableRing(CenteringRing r, RocketComponent relativeTo) {
 			thickness = r.getLength();
-			positionFromTop = r.asPositionValue(RocketComponent.Position.TOP);
+			positionFromTop = r.asPositionValue(RocketComponent.Position.TOP, relativeTo);
 		}
 		
 		/**
@@ -410,8 +436,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		 *
 		 * @param adjacent the adjacent ring
 		 */
-		public void merge(CenteringRing adjacent) {
-			double v = adjacent.asPositionValue(RocketComponent.Position.TOP);
+		public void merge(CenteringRing adjacent, RocketComponent relativeTo) {
+			double v = adjacent.asPositionValue(RocketComponent.Position.TOP, relativeTo);
 			if (positionFromTop < v) {
 				thickness = (v + adjacent.getLength()) - positionFromTop;
 			} else {

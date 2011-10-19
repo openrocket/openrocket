@@ -842,19 +842,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
     /**
      * Determine position relative to given position argument.  Note: This is a side-effect free method.  No state
-     * is modified.  It's exactly like setRelativePosition without the 'set'.
+     * is modified.
      *
      * @param thePosition the relative position to be used as the basis for the computation
+     * @param relativeTo  the position is computed relative the the given component
      *
      * @return double position of the component relative to the parent, with respect to <code>position</code>
      */
-    public double asPositionValue (Position thePosition) {
-        if (this.relativePosition == thePosition) {
-            return this.position;
-        }
+    public double asPositionValue (Position thePosition, RocketComponent relativeTo) {
         double result = this.position;
-        if (this.parent != null) {
-            double thisPos = this.toRelative(Coordinate.NUL, this.parent)[0].x;
+        if (relativeTo != null) {
+            double thisPos = this.toRelative(Coordinate.NUL, relativeTo)[0].x;
 
             switch (thePosition) {
             case ABSOLUTE:
@@ -864,10 +862,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
                 result = thisPos;
                 break;
             case MIDDLE:
-                result = thisPos - (this.parent.length - this.length) / 2;
+                result = thisPos - (relativeTo.length - this.length) / 2;
                 break;
             case BOTTOM:
-                result = thisPos - (this.parent.length - this.length);
+                result = thisPos - (relativeTo.length - this.length);
                 break;
             default:
                 throw new BugException("Unknown position type: " + thePosition);
