@@ -1,21 +1,26 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
-
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
+
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 
 
 public class TransitionShapes extends RocketComponentShapes {
 
 	// TODO: LOW: Uses only first component of cluster (not currently clusterable).
-	
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+
+    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
+                                        Transformation transformation) {
+        return getShapesSide(component, transformation, S);
+    }
+
+    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
+                                        Transformation transformation, final double scaleFactor) {
 		net.sf.openrocket.rocketcomponent.Transition transition = (net.sf.openrocket.rocketcomponent.Transition)component;
 
 		Shape[] mainShapes;
@@ -29,15 +34,15 @@ public class TransitionShapes extends RocketComponentShapes {
 					toAbsolute(Coordinate.NUL)[0]);
 			
 			Path2D.Float path = new Path2D.Float();
-			path.moveTo(start.x*S, r1*S);
-			path.lineTo((start.x+length)*S, r2*S);
-			path.lineTo((start.x+length)*S, -r2*S);
-			path.lineTo(start.x*S, -r1*S);
+			path.moveTo(start.x* scaleFactor, r1* scaleFactor);
+			path.lineTo((start.x+length)* scaleFactor, r2* scaleFactor);
+			path.lineTo((start.x+length)* scaleFactor, -r2* scaleFactor);
+			path.lineTo(start.x* scaleFactor, -r1* scaleFactor);
 			path.closePath();
 			
 			mainShapes = new Shape[] { path };
 		} else {
-			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation);
+			mainShapes = SymmetricComponentShapes.getShapesSide(component, transformation, scaleFactor);
 		}
 		
 		Rectangle2D.Double shoulder1=null, shoulder2=null;
@@ -48,7 +53,7 @@ public class TransitionShapes extends RocketComponentShapes {
 					toAbsolute(Coordinate.NUL)[0]);
 			double r = transition.getForeShoulderRadius();
 			double l = transition.getForeShoulderLength();
-			shoulder1 = new Rectangle2D.Double((start.x-l)*S, -r*S, l*S, 2*r*S);
+			shoulder1 = new Rectangle2D.Double((start.x-l)* scaleFactor, -r* scaleFactor, l* scaleFactor, 2*r* scaleFactor);
 			arrayLength++;
 		}
 		if (transition.getAftShoulderLength() > 0.0005) {
@@ -56,7 +61,7 @@ public class TransitionShapes extends RocketComponentShapes {
 					toAbsolute(new Coordinate(transition.getLength()))[0]);
 			double r = transition.getAftShoulderRadius();
 			double l = transition.getAftShoulderLength();
-			shoulder2 = new Rectangle2D.Double(start.x*S, -r*S, l*S, 2*r*S);
+			shoulder2 = new Rectangle2D.Double(start.x* scaleFactor, -r* scaleFactor, l* scaleFactor, 2*r* scaleFactor);
 			arrayLength++;
 		}
 		if (shoulder1==null && shoulder2==null)

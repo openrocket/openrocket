@@ -1,6 +1,3 @@
-/*
- * FinSetVisitorStrategy.java
- */
 package net.sf.openrocket.gui.print.visitor;
 
 import com.itextpdf.text.Document;
@@ -8,11 +5,14 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
+import net.sf.openrocket.gui.print.AbstractPrintableTransition;
 import net.sf.openrocket.gui.print.ITextHelper;
-import net.sf.openrocket.gui.print.PrintableFinSet;
+import net.sf.openrocket.gui.print.PrintableNoseCone;
+import net.sf.openrocket.gui.print.PrintableTransition;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 
 import java.awt.*;
@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A strategy for drawing fin templates.
+ * A strategy for drawing transition/shroud/nose cone templates.
  */
-public class FinSetVisitorStrategy {
+public class TransitionStrategy {
 
     /**
      * The logger.
@@ -52,7 +52,7 @@ public class FinSetVisitorStrategy {
      * @param theWriter        The direct iText writer
      * @param theStagesToVisit The stages to be visited by this strategy
      */
-    public FinSetVisitorStrategy (Document doc, PdfWriter theWriter, Set<Integer> theStagesToVisit) {
+    public TransitionStrategy(Document doc, PdfWriter theWriter, Set<Integer> theStagesToVisit) {
         document = doc;
         writer = theWriter;
         stages = theStagesToVisit;
@@ -61,26 +61,31 @@ public class FinSetVisitorStrategy {
     /**
      * Recurse through the given rocket component.
      *
-     * @param root the root component; all children will be visited recursively
+     * @param root      the root component; all children will be visited recursively
+     * @param noseCones nose cones are a special form of a transition; if true, then print nose cones
      */
-    public void writeToDocument (final RocketComponent root) {
+    public void writeToDocument(final RocketComponent root, boolean noseCones) {
         List<RocketComponent> rc = root.getChildren();
-        goDeep(rc);
+        goDeep(rc, noseCones);
     }
 
 
     /**
      * Recurse through the given rocket component.
      *
-     * @param theRc an array of rocket components; all children will be visited recursively
+     * @param theRc     an array of rocket components; all children will be visited recursively
+     * @param noseCones nose cones are a special form of a transition; if true, then print nose cones
      */
-    protected void goDeep (final List<RocketComponent> theRc) {
+    protected void goDeep(final List<RocketComponent> theRc, boolean noseCones) {
         for (RocketComponent rocketComponent : theRc) {
-            if (rocketComponent instanceof FinSet) {
-                doVisit((FinSet)rocketComponent);
-            }
-            else if (rocketComponent.getChildCount() > 0) {
-                goDeep(rocketComponent.getChildren());
+            if (rocketComponent instanceof NoseCone) {
+                if (noseCones) {
+                    render((Transition) rocketComponent);
+                }
+            } else if (rocketComponent instanceof Transition && !noseCones) {
+                render((Transition) rocketComponent);
+            } else if (rocketComponent.getChildCount() > 0) {
+                goDeep(rocketComponent.getChildren(), noseCones);
             }
         }
     }
@@ -88,49 +93,29 @@ public class FinSetVisitorStrategy {
     /**
      * The core behavior of this visitor.
      *
-     * @param visitable the object to extract info about; a graphical image of the fin shape is drawn to the document
+     * @param component the object to extract info about; a graphical image of the transition shape is drawn to the document
      */
-    private void doVisit (final FinSet visitable) {
-        if (shouldVisitStage(visitable.getStageNumber())) {
-            try {
-                PrintableFinSet pfs = new PrintableFinSet(visitable);
-
-                java.awt.Dimension finSize = pfs.getSize();
-                final Dimension pageSize = getPageSize();
-                if (fitsOnOnePage(pageSize, finSize.getWidth(), finSize.getHeight())) {
-                    printOnOnePage(pfs);
-                }
-                else {
-                    BufferedImage image = (BufferedImage) pfs.createImage();
-                    ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
-                                                       document, writer, image);
-                }
+    private void render(final Transition component) {
+        try {
+            AbstractPrintableTransition pfs;
+            if (component instanceof NoseCone) {
+                pfs = new PrintableNoseCone(component);
+            } else {
+                pfs = new PrintableTransition(component);
             }
-            catch (DocumentException e) {
-                log.error("Could not render fin.", e);
+
+            java.awt.Dimension size = pfs.getSize();
+            final Dimension pageSize = getPageSize();
+            if (fitsOnOnePage(pageSize, size.getWidth(), size.getHeight())) {
+                printOnOnePage(pfs);
+            } else {
+                BufferedImage image = (BufferedImage) pfs.createImage();
+                ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
+                        document, writer, image);
             }
+        } catch (DocumentException e) {
+            log.error("Could not render the transition.", e);
         }
-    }
-
-    /**
-     * Determine if the visitor strategy's set of stage numbers (to print) contains the specified stage.
-     *
-     * @param stageNumber a stage number
-     *
-     * @return true if the visitor strategy contains the stage number provided
-     */
-    public boolean shouldVisitStage (int stageNumber) {
-        if (stages == null || stages.isEmpty()) {
-            return false;
-        }
-
-        for (final Integer stage : stages) {
-            if (stage == stageNumber) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -139,10 +124,9 @@ public class FinSetVisitorStrategy {
      * @param pageSize the page size
      * @param wImage   the width of the thing to be printed
      * @param hImage   the height of the thing to be printed
-     *
      * @return true if the thing to be printed will fit on a single page
      */
-    private boolean fitsOnOnePage (Dimension pageSize, double wImage, double hImage) {
+    private boolean fitsOnOnePage(Dimension pageSize, double wImage, double hImage) {
         double wPage = pageSize.getWidth();
         double hPage = pageSize.getHeight();
 
@@ -153,15 +137,15 @@ public class FinSetVisitorStrategy {
     }
 
     /**
-     * Print the fin set.
+     * Print the transition.
      *
-     * @param thePfs the printable fin set
+     * @param theTransition the printable transition
      */
-    private void printOnOnePage (final PrintableFinSet thePfs) {
+    private void printOnOnePage(final AbstractPrintableTransition theTransition) {
         Dimension d = getPageSize();
         PdfContentByte cb = writer.getDirectContent();
         Graphics2D g2 = cb.createGraphics(d.width, d.height);
-        thePfs.print(g2);
+        theTransition.print(g2);
         g2.dispose();
         document.newPage();
     }
@@ -171,26 +155,31 @@ public class FinSetVisitorStrategy {
      *
      * @return an internal Dimension
      */
-    protected Dimension getPageSize () {
+    protected Dimension getPageSize() {
         return new Dimension(document.getPageSize().getWidth(),
-                             document.getPageSize().getHeight());
+                document.getPageSize().getHeight());
     }
 
     /**
      * Convenience class to model a dimension.
      */
     class Dimension {
-        /** Width, in points. */
+        /**
+         * Width, in points.
+         */
         public float width;
-        /** Height, in points. */
+        /**
+         * Height, in points.
+         */
         public float height;
 
         /**
          * Constructor.
+         *
          * @param w width
          * @param h height
          */
-        public Dimension (float w, float h) {
+        public Dimension(float w, float h) {
             width = w;
             height = h;
         }
@@ -198,9 +187,9 @@ public class FinSetVisitorStrategy {
         /**
          * Get the width.
          *
-         * @return  the width
+         * @return the width
          */
-        public float getWidth () {
+        public float getWidth() {
             return width;
         }
 
@@ -209,7 +198,7 @@ public class FinSetVisitorStrategy {
          *
          * @return the height
          */
-        public float getHeight () {
+        public float getHeight() {
             return height;
         }
     }

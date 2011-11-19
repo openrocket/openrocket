@@ -4,15 +4,6 @@
  */
 package net.sf.openrocket.gui.print;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.Set;
-
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.print.visitor.FinSetVisitorStrategy;
-import net.sf.openrocket.gui.print.visitor.PartsDetailVisitorStrategy;
-
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.ExceptionConverter;
@@ -20,6 +11,16 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfBoolean;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfWriter;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.print.visitor.FinMarkingGuideStrategy;
+import net.sf.openrocket.gui.print.visitor.FinSetPrintStrategy;
+import net.sf.openrocket.gui.print.visitor.PartsDetailVisitorStrategy;
+import net.sf.openrocket.gui.print.visitor.TransitionStrategy;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * This is the main active object for printing.  It performs all actions necessary to create and populate the print
@@ -33,7 +34,7 @@ public class PrintController {
 	 * @param doc         the OR document
 	 * @param toBePrinted the user chosen items to print
 	 * @param outputFile  the file being written to
-	 * @param msn         the paper size
+	 * @param settings    the print settings
 	 */
 	public void print(OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile,
 						PrintSettings settings) {
@@ -63,7 +64,7 @@ public class PrintController {
 					idoc.newPage();
 					break;
 				case FIN_TEMPLATE:
-					final FinSetVisitorStrategy finWriter = new FinSetVisitorStrategy(idoc,
+					final FinSetPrintStrategy finWriter = new FinSetPrintStrategy(idoc,
 																							writer,
 																							stages);
 					finWriter.writeToDocument(doc.getRocket());
@@ -76,7 +77,24 @@ public class PrintController {
 					detailVisitor.close();
 					idoc.newPage();
 					break;
-				}
+                case TRANSITION_TEMPLATE:
+                    final TransitionStrategy tranWriter = new TransitionStrategy(idoc, writer, stages);
+                    tranWriter.writeToDocument(doc.getRocket(), false);
+                    idoc.newPage();
+                    break;
+
+                case NOSE_CONE_TEMPLATE:
+                    final TransitionStrategy coneWriter = new TransitionStrategy(idoc, writer, stages);
+                    coneWriter.writeToDocument(doc.getRocket(), true);
+                    idoc.newPage();
+                    break;
+
+                case FIN_MARKING_GUIDE:
+                    final FinMarkingGuideStrategy fmg = new FinMarkingGuideStrategy(idoc, writer);
+                    fmg.writeToDocument(doc.getRocket());
+                    idoc.newPage();
+                    break;
+                }
 			}
 			//Stupid iText throws a really nasty exception if there is no data when close is called.
 			if (writer.getCurrentDocumentSize() <= 140) {

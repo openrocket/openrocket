@@ -15,7 +15,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -200,43 +200,46 @@ public final class ITextHelper {
      */
     public static void renderImageAcrossPages (Rectangle pageSize, Document doc, PdfWriter writer, java.awt.Image image)
             throws DocumentException {
-        // 4/10 of an inch margin
-        final int margin = (int) (PrintUnit.POINTS_PER_INCH * 0.4f);
+        final int margin = (int)Math.min(doc.topMargin(), PrintUnit.POINTS_PER_INCH * 0.3f);
         float wPage = pageSize.getWidth() - 2 * margin;
         float hPage = pageSize.getHeight() - 2 * margin;
 
         float wImage = image.getWidth(null);
         float hImage = image.getHeight(null);
-
         java.awt.Rectangle crop = new java.awt.Rectangle(0, 0, (int) Math.min(wPage, wImage), (int) Math.min(hPage,
                                                                                                              hImage));
         PdfContentByte content = writer.getDirectContent();
 
-        double adjust;
+        int ymargin = 0;
+
         while (true) {
             BufferedImage subImage = ((BufferedImage) image).getSubimage((int) crop.getX(), (int) crop.getY(),
                                                                          (int) crop.getWidth(), (int) crop.getHeight());
 
-            Graphics2D g2 = content.createGraphics(wPage, hPage);
-            g2.drawImage(subImage, margin - 1, margin - 1, null);
+            Graphics2D g2 = content.createGraphics(pageSize.getWidth(), pageSize.getHeight());
+            g2.drawImage(subImage, margin, ymargin, null);
             g2.dispose();
-            doc.newPage();
+
+            // After the first page, the y-margin needs to be set.
+            ymargin = margin;
+
             final int newX = (int) (crop.getWidth() + crop.getX());
             if (newX < wImage) {
-                adjust = Math.min(wImage - newX, wPage);
+                double adjust = Math.min(wImage - newX, wPage);
                 crop = new java.awt.Rectangle(newX, (int) crop.getY(), (int) adjust,
                                               (int) crop.getHeight());
             }
             else {
                 final int newY = (int) (crop.getHeight() + crop.getY());
                 if (newY < hImage) {
-                    adjust = Math.min(hImage - newY, hPage);
+                    double adjust = Math.min(hImage - newY, hPage);
                     crop = new java.awt.Rectangle(0, newY, (int) Math.min(wPage, wImage), (int) adjust);
                 }
                 else {
                     break;
                 }
             }
+            doc.newPage();
         }
     }
 

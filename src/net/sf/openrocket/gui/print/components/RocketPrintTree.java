@@ -3,23 +3,22 @@
  */
 package net.sf.openrocket.gui.print.components;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import net.sf.openrocket.gui.print.OpenRocketPrintable;
+import net.sf.openrocket.gui.print.PrintableContext;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Stage;
 
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
-import net.sf.openrocket.gui.print.OpenRocketPrintable;
-import net.sf.openrocket.gui.print.PrintableContext;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * A specialized JTree for displaying various rocket items that can be printed.
@@ -76,9 +75,13 @@ public class RocketPrintTree extends JTree {
 				}
 			}
 		}
-		toAddTo.add(new CheckBoxNode(OpenRocketPrintable.DESIGN_REPORT.getDescription(),
+
+        List<OpenRocketPrintable> unstaged = OpenRocketPrintable.getUnstaged();
+        for (int i = 0; i < unstaged.size(); i++) {
+		    toAddTo.add(new CheckBoxNode(unstaged.get(i).getDescription(),
 										INITIAL_CHECKBOX_SELECTED));
-		
+        }
+
 		RocketPrintTree tree = new RocketPrintTree(root);
 		
 		tree.addTreeWillExpandListener

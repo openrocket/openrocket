@@ -1,12 +1,12 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import java.awt.Shape;
-import java.awt.geom.Path2D;
-import java.util.ArrayList;
-
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
+
+import java.awt.*;
+import java.awt.geom.Path2D;
+import java.util.ArrayList;
 
 
 public class SymmetricComponentShapes extends RocketComponentShapes {
@@ -16,9 +16,14 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 	// TODO: HIGH: adaptiveness sucks, remove it.
 	
 	// TODO: LOW: Uses only first component of cluster (not currently clusterable)
-	
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
-			Transformation transformation) {
+
+    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
+                                        Transformation transformation) {
+        return getShapesSide(component, transformation, S);
+    }
+
+    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
+                                        Transformation transformation, final double scaleFactor) {
 		net.sf.openrocket.rocketcomponent.SymmetricComponent c = (net.sf.openrocket.rocketcomponent.SymmetricComponent) component;
 		int i;
 		
@@ -77,14 +82,14 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo(points.get(len - 1).x * S, points.get(len - 1).y * S);
+		path.moveTo(points.get(len - 1).x * scaleFactor, points.get(len - 1).y * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo(points.get(i).x * S, points.get(i).y * S);
+			path.lineTo(points.get(i).x * scaleFactor, points.get(i).y * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo(points.get(i).x * S, -points.get(i).y * S);
+			path.lineTo(points.get(i).x * scaleFactor, -points.get(i).y * scaleFactor);
 		}
-		path.lineTo(points.get(len - 1).x * S, points.get(len - 1).y * S);
+		path.lineTo(points.get(len - 1).x * scaleFactor, points.get(len - 1).y * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;

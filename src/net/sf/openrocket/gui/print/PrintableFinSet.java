@@ -6,11 +6,8 @@ package net.sf.openrocket.gui.print;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.util.Coordinate;
 
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -32,11 +29,19 @@ public class PrintableFinSet extends JPanel implements Printable {
     /**
      * The X margin.
      */
-    private int marginX = 25;
+    private final int marginX = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
     /**
      * The Y margin.
      */
-    private int marginY = 25;
+    private final int marginY = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
+    /**
+     * The minimum X coordinate.
+     */
+    private int minX = 0;
+    /**
+     * The minimum Y coordinate.
+     */
+    private int minY = 0;
 
     /**
      * Constructor.
@@ -68,8 +73,6 @@ public class PrintableFinSet extends JPanel implements Printable {
         polygon = new GeneralPath(GeneralPath.WIND_EVEN_ODD, points.length);
         polygon.moveTo(0, 0);
 
-        int minX = 0;
-        int minY = 0;
         int maxX = 0;
         int maxY = 0;
 
@@ -84,13 +87,7 @@ public class PrintableFinSet extends JPanel implements Printable {
         }
         polygon.closePath();
 
-        if (minX < 0) {
-            marginX += Math.abs(minX);
-        }
-        if (minY < 0) {
-            marginY += Math.abs(minY);
-        }
-        setSize(maxX - minX + marginX, maxY - minY + marginY);
+        setSize(maxX - minX, maxY - minY);
     }
 
     /**
@@ -181,7 +178,18 @@ public class PrintableFinSet extends JPanel implements Printable {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.translate(marginX, marginY);
+        int x = 0;
+        int y = 0;
+
+        // The minimum X/Y can be negative (primarily only Y due to fin tabs; rarely (never) X, but protect both anyway).
+        if (minX < marginX) {
+            x = marginX + Math.abs(minX);
+        }
+        if (minY < marginY) {
+            y = marginY + Math.abs(minY);
+        }
+        // Reset the origin.
+        g2d.translate(x, y);
         g2d.setPaint(TemplateProperties.getFillColor());
         g2d.fill(polygon);
         g2d.setPaint(TemplateProperties.getLineColor());
