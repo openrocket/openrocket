@@ -3,32 +3,33 @@
  */
 package net.sf.openrocket.gui.print;
 
-import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.startup.Application;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 
 /**
  * This enumeration identifies the various types of information that may be printed.
  */
 
 public enum OpenRocketPrintable {
-	// Parts detail
-	PARTS_DETAIL("OpenRocketPrintable.Partsdetail", true, 1),
-	// Finset shape
-	FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 2),
-	// Fin marking guide.
-	FIN_MARKING_GUIDE("OpenRocketPrintable.Finmarkingguide", false, 3),
-    // Transition Templates
-    TRANSITION_TEMPLATE("OpenRocketPrintable.Transitiontemplates", false, 4),
-    // Nose Cone Templates
-    NOSE_CONE_TEMPLATE("OpenRocketPrintable.Noseconetemplates", false, 5),
 	// Design Report
-	DESIGN_REPORT("OpenRocketPrintable.DesignReport", false, 6);
+	DESIGN_REPORT("OpenRocketPrintable.DesignReport", false, 1),
+	// Parts detail
+	PARTS_DETAIL("OpenRocketPrintable.Partsdetail", true, 2),
+	// Nose Cone Templates
+	NOSE_CONE_TEMPLATE("OpenRocketPrintable.Noseconetemplates", false, 3),
+	// Transition Templates
+	TRANSITION_TEMPLATE("OpenRocketPrintable.Transitiontemplates", false, 4),
+	// Finset shape
+	FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 5),
+	// Fin marking guide.
+	FIN_MARKING_GUIDE("OpenRocketPrintable.Finmarkingguide", false, 6);
+	
 
 	private static final Translator trans = Application.getTranslator();
-
+	
 	/**
 	 * The description - will be displayed in the JTree.
 	 */
@@ -101,20 +102,20 @@ public enum OpenRocketPrintable {
 		}
 		return null;
 	}
-
-    /**
-     * Get a list of ordered enum values that do not have stage affinity.
-     *
-     * @return a list of OpenRocketPrintable
-     */
-    public static List<OpenRocketPrintable> getUnstaged() {
-        List<OpenRocketPrintable> unstaged = new ArrayList<OpenRocketPrintable>();
-        OpenRocketPrintable[] values = values();
-        for (OpenRocketPrintable value : values) {
-            if (!value.isStageSpecific()) {
-                unstaged.add(value);
-            }
-        }
-        return unstaged;
-    }
+	
+	/**
+	 * Get a list of ordered enum values that do not have stage affinity.
+	 *
+	 * @return a list of OpenRocketPrintable
+	 */
+	public static List<OpenRocketPrintable> getUnstaged() {
+		List<OpenRocketPrintable> unstaged = new ArrayList<OpenRocketPrintable>();
+		OpenRocketPrintable[] values = values();
+		for (OpenRocketPrintable value : values) {
+			if (!value.isStageSpecific()) {
+				unstaged.add(value);
+			}
+		}
+		return unstaged;
+	}
 }
