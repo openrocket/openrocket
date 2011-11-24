@@ -25,10 +25,6 @@ public enum LineStyle {
 	DASHDOT("LineStyle.Dash-dotted", new float[] { 8f, 3f, 2f, 3f });
 	
 	private static final Translator trans = Application.getTranslator();
-	static {
-		System.out.println("*** LineStyle initialized trans:" + trans + " ***");
-		System.err.println("*** LineStyle initialized ***");
-	}
 	private final String name;
 	private final float[] dashes;
 	

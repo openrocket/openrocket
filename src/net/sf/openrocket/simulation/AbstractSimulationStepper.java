@@ -93,8 +93,6 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		// Compute conditions
-		//double altitude = status.getRocketPosition().z + status.getSimulationConditions().getLaunchAltitude();
-		//gravity = status.getSimulationConditions().getGravityModel().getGravity(altitude);
 		gravity = status.getSimulationConditions().getGravityModel().getGravity(status.getRocketWorldPosition());
 		
 		// Call post-listener

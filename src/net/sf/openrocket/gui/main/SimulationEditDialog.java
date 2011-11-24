@@ -88,8 +88,6 @@ public class SimulationEditDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	
 	
-	// FIXME: NPE if FlightDataType has disappeared
-	
 	public SimulationEditDialog(Window parent, Simulation s) {
 		this(parent, s, 0);
 	}

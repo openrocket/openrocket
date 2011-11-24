@@ -123,7 +123,7 @@ public class SimulationRunDialog extends JDialog {
 		//// Simulation time: 
 		panel.add(new JLabel(trans.get("SimuRunDlg.lbl.Simutime") + " "), "gapright para");
 		timeLabel = new JLabel("");
-		panel.add(timeLabel, "growx, wrap rel");
+		panel.add(timeLabel, "growx, wmin 200lp, wrap rel");
 		
 		//// Altitude:
 		panel.add(new JLabel(trans.get("SimuRunDlg.lbl.Altitude") + " "));

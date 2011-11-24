@@ -45,6 +45,7 @@ public class GeodeticComputationStrategyTest {
 		
 
 		// Test zero movement
+		System.out.println("\nTesting zero movement");
 		testAddCoordinate(50.0, 20.0, 0, 123, 50.0, 20.0, false);
 		
 
@@ -55,22 +56,27 @@ public class GeodeticComputationStrategyTest {
 
 		// Long distance NE over England, crosses Greenwich meridian
 		// 50 03N  005 42W  to  58 38N  003 04E  is  1109km at 027 16'07"
+		System.out.println("\nTesting 1109km NE over England");
 		testAddCoordinate(50 + 3 * min, -5 - 42 * min, 1109000, 27 + 16 * min + 7 * sec, 58 + 38 * min, 3 + 4 * min, false);
 		
 		// SW over Brazil
 		// -10N  -60E  to  -11N  -61E  is  155.9km at 224 25'34"
+		System.out.println("\nTesting 155km SW over Brazil");
 		testAddCoordinate(-10, -60, 155900, 224 + 25 * min + 34 * sec, -11, -61, true);
 		
 		// NW over the 180 meridian
 		// 63N  -179E  to  63 01N  179E  is  100.9km at 271 56'34"
+		System.out.println("\nTesting 100km NW over 180 meridian");
 		testAddCoordinate(63, -179, 100900, 271 + 56 * min + 34 * sec, 63 + 1 * min, 179, true);
 		
 		// NE near the north pole
 		// 89 50N  0E  to 89 45N  175E  is 46.29 km at 003 00'01"
+		System.out.println("\nTesting 46km NE near north pole");
 		testAddCoordinate(89 + 50 * min, 0, 46290, 3 + 0 * min + 1 * sec, 89 + 45 * min, 175, false);
 		
 		// S directly over south pole
 		// -89 50N  12E  to  -89 45N  192E  is  46.33km at 180 00'00"
+		System.out.println("\nTesting 46km directly over south pole ");
 		testAddCoordinate(-89 - 50 * min, 12, 46330, 180, -89 - 45 * min, -168, false);
 		
 	}
@@ -103,20 +109,20 @@ public class GeodeticComputationStrategyTest {
 
 		// Test WGS84
 		/*
-		 * TODO: Since the example values are computed using a spherical earth approximation,
-		 * the WGS84 method will have significantly larger errors.  The tolerance should be
-		 * increased correspondingly.
+		 * Note: Since the example values are computed using a spherical earth approximation,
+		 * the WGS84 method will have significantly larger errors.  A tolerance of 1% accommodates
+		 * all cases except the NE flight near the north pole, where the ellipsoidal effect is
+		 * the greatest.
 		 */
-		//tolerance = ...
+		tolerance = 0.04 * distance / 111325;
 		System.out.println("\nWGS84 tolerance: " + tolerance);
-		result = GeodeticComputationStrategy.WGS84.addCoordinate(result, coord);
+		result = GeodeticComputationStrategy.WGS84.addCoordinate(wc, coord);
 		
 		System.out.println("Difference Lat: " + Math.abs(finalLatitude - result.getLatitudeDeg()));
 		System.out.println("Difference Lon: " + Math.abs(finalLongitude - result.getLongitudeDeg()));
-		// FIXME: Re-enable these when they function
-		//		assertEquals(finalLatitude, result.getLatitudeDeg(), tolerance);
-		//		assertEquals(finalLongitude, result.getLongitudeDeg(), tolerance);
-		//		assertEquals(1000.0, result.getAltitude(), 0.0);
+		assertEquals(finalLatitude, result.getLatitudeDeg(), tolerance);
+		assertEquals(finalLongitude, result.getLongitudeDeg(), tolerance);
+		assertEquals(1000.0, result.getAltitude(), 0.0);
 		
 
 		// Test FLAT

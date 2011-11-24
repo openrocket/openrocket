@@ -4,7 +4,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.WorldCoordinate;
 
 /**
- * A gravity model based on the WGS84 elipsoid.
+ * A gravity model based on the WGS84 ellipsoid.
  * 
  * @author Richard Graham <richard@rdg.cc>
  */
@@ -44,7 +44,7 @@ public class WGSGravityModel implements GravityModel {
 		// Apply correction due to altitude. Note this assumes a spherical earth, but it is a small correction
 		// so it probably doesn't really matter. Also does not take into account gravity of the atmosphere, again
 		// correction could be done but not really necessary.
-		double g_alt = g_0 * Math.pow(WorldCoordinate.REARTH / (WorldCoordinate.REARTH + wc.getAltitude()), 2);
+		double g_alt = g_0 * MathUtil.pow2(WorldCoordinate.REARTH / (WorldCoordinate.REARTH + wc.getAltitude()));
 		
 		return g_alt;
 	}

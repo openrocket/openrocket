@@ -1,3 +1,13 @@
+OpenRocket 1.1.9  (2011-11-24):
+-------------------------------
+
+This release calculates rocket flight in real-world coordinates and
+takes into account geodetic effects (including coriolis effect) thanks
+to work by Richard Graham.  Printing of transitions, nose cone
+profiles and fin marking guides is available thanks to Doug Pedrick.
+It also contains some usability features and bug fixes.
+
+
 OpenRocket 1.1.8  (2011-08-25):
 -------------------------------
 

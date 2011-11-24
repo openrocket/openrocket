@@ -118,8 +118,6 @@ public class SimulationPlotPanel extends JPanel {
 			}
 		}
 		
-		// FIXME:  Bugs when expected branch is not present
-		
 		configurationSelector.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -189,7 +187,7 @@ public class SimulationPlotPanel extends JPanel {
 		
 		typeSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
-		this.add(scroll, "spany 2, height 10px, grow 100, gapright para");
+		this.add(scroll, "spany 2, height 10px, wmin 400lp, grow 100, gapright para");
 		
 
 		//// Flight events
@@ -378,10 +376,6 @@ public class SimulationPlotPanel extends JPanel {
 		private UnitSelector unitSelector;
 		private JComboBox axisSelector;
 		
-		
-		public PlotTypeSelector(int index, FlightDataType type) {
-			this(index, type, null, -1);
-		}
 		
 		public PlotTypeSelector(int plotIndex, FlightDataType type, Unit unit, int position) {
 			super(new MigLayout("ins 0"));

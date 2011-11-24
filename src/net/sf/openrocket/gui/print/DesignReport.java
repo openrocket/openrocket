@@ -6,9 +6,6 @@ package net.sf.openrocket.gui.print;
 import java.awt.Graphics2D;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -152,7 +149,7 @@ public class DesignReport {
 		PrintUtilities.addText(document, PrintUtilities.BIG_BOLD, ROCKET_DESIGN);
 		
 		Rocket rocket = rocketDocument.getRocket();
-		final Configuration configuration = rocket.getDefaultConfiguration();
+		final Configuration configuration = rocket.getDefaultConfiguration().clone();
 		configuration.setAllStages();
 		PdfContentByte canvas = writer.getDirectContent();
 		
@@ -219,8 +216,6 @@ public class DesignReport {
 			
 			String[] motorIds = rocket.getMotorConfigurationIDs();
 			
-			List<Double> stageMasses = getStageMasses(rocket);
-			
 			for (int j = 0; j < motorIds.length; j++) {
 				String motorId = motorIds[j];
 				if (motorId != null) {
@@ -244,29 +239,6 @@ public class DesignReport {
 		}
 	}
 	
-	/**
-	 * Get the motor list for all motor mounts.
-	 *
-	 * @param theRocket the rocket object
-	 * @param theMid    the motor id
-	 *
-	 * @return a list of Motor
-	 */
-	private List<Motor> getMotorList(final Rocket theRocket, final String theMid) {
-		Iterator<RocketComponent> components = theRocket.iterator();
-		final List<Motor> motorList = new ArrayList<Motor>();
-		while (components.hasNext()) {
-			RocketComponent rocketComponent = components.next();
-			if (rocketComponent instanceof MotorMount) {
-				MotorMount mm = (MotorMount) rocketComponent;
-				final Motor motor = mm.getMotor(theMid);
-				if (motor != null) {
-					motorList.add(motor);
-				}
-			}
-		}
-		return motorList;
-	}
 	
 	/**
 	 * Paint a diagram of the rocket into the PDF document.
@@ -543,29 +515,6 @@ public class DesignReport {
 	 */
 	private String stripRightBracket(String target) {
 		return target.replace("]", "");
-	}
-	
-	
-	/**
-	 * Return a list of cumulative stage masses.  The latter masses include the mass
-	 * of the upper stages as well.
-	 *
-	 * @param rocket  	the rocket
-	 * @return			a list containing the cumulative stage masses
-	 */
-	private List<Double> getStageMasses(final Rocket rocket) {
-		List<Double> masses = new ArrayList<Double>();
-		int stages = rocket.getStageCount();
-		
-		Configuration config = new Configuration(rocket);
-		MassCalculator calc = new BasicMassCalculator();
-		
-		for (int i = 0; i < stages; i++) {
-			config.setToStage(i);
-			masses.add(calc.getCG(config, MassCalcType.NO_MOTORS).weight);
-		}
-		
-		return masses;
 	}
 	
 }

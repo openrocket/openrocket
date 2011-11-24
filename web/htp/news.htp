@@ -9,6 +9,21 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">24.11.2011:</span> Version 1.1.9 is 
+    <a href="download.html">released</a>!</p>
+
+  <p>For this version Richard Graham has implemented geodetic
+    computation methods, which take into account the curvature of the
+    Earth and the coriolis effect.  The computation method is selected
+    by the <em>Geodetic calculations</em> option in the simulation
+    options.  It's not <em>(yet)</em> a full spherical computation model, but
+    should be accurate enough for almost all sub-orbital needs.</p>
+
+  <p>Doug Pedrick has also enhanced the printing system with the
+    ability to print fin positioning guides, transition templates and
+    nose cone profiles.  Other smaller enhancements and bug fixes are
+    also included.</p>
+
   <p><span class="date">25.8.2011:</span> Version 1.1.8 is 
     <a href="download.html">released</a>!</p>
 
@@ -33,6 +48,10 @@
     instead of true physical phenomena.  Always keep common sense at
     hand and take the results with a grain of salt.</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">22.7.2011:</span> Version 1.1.6 is 
     <a href="download.html">released</a>!</p>
 
@@ -45,10 +64,6 @@
 
   <p>The release also includes design scaling support and numerous bug
     fixes.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">10.6.2011:</span> Version 1.1.5 is 
     <a href="download.html">released</a>!</p>

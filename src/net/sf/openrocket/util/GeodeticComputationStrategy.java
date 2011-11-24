@@ -54,7 +54,7 @@ public enum GeodeticComputationStrategy {
 			double newAlt = location.getAltitude() + delta.z;
 			
 			// bearing (in radians, clockwise from north);
-			// d/R is the angular distance (in radians), where d is the distance traveled and R is the earth’s radius
+			// d/R is the angular distance (in radians), where d is the distance traveled and R is the earth's radius
 			double d = MathUtil.hypot(delta.x, delta.y);
 			
 			// Check for zero movement before computing bearing
@@ -99,7 +99,7 @@ public enum GeodeticComputationStrategy {
 			double newAlt = location.getAltitude() + delta.z;
 			
 			// bearing (in radians, clockwise from north);
-			// d/R is the angular distance (in radians), where d is the distance traveled and R is the earth’s radius
+			// d/R is the angular distance (in radians), where d is the distance traveled and R is the earth's radius
 			double d = MathUtil.hypot(delta.x, delta.y);
 			
 			// Check for zero movement before computing bearing

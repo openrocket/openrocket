@@ -30,7 +30,8 @@ public class AboutDialog extends JDialog {
 			"<font size=\"+1\"><b>OpenRocket has been developed by:</b></font><br><br>" +
 			"Sampo Niskanen (main developer)<br>" +
 			"Doug Pedrick (RockSim file format, printing)<br>" +
-			"Boris du Reau (internationalization, translation lead)<br><br>" +
+			"Boris du Reau (internationalization, translation lead)<br>" +
+			"Richard Graham (geodetic computations)<br><br>" +
 			"<b>Translations by:</b><br><br>" +
 			"Tripoli France (French)<br>" +
 			"Stefan Lobas / ERIG e.V. (German)<br>" +

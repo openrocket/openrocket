@@ -1,6 +1,14 @@
+2011-11-24  Sampo Niskanen
+
+	* Released version 1.1.9
+
 2011-11-18  Doug Pedrick
 
-    * Printable Fin Marking Guides, Transitions, and Nose Cones (simple projection only)
+	* Printable Fin Marking Guides, Transitions, and Nose Cones
+
+2011-10-20  Sampo Niskanen
+
+	* [BUG] NPE if plot data type is not present
 
 2011-10-11  Sampo Niskanen
 

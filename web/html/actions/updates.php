@@ -80,21 +80,33 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "1.1.8";
+$unstable = "1.1.9";
 $stable = "1.0.0";
 
-if (preg_match("/^1\.1\.7/", $version)) {
+if (preg_match("/^1\.1\.8/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "6: Additional template printing\n" .
+    "5: Geodetic computations\n" .
+    "4: Bug fixes\n" .
+    "";
+} else if (preg_match("/^1\.1\.7/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "6: Additional template printing\n" .
+    "5: Geodetic computations\n" .
     "4: Bug fixes\n" .
     "";
 } else if (preg_match("/^1\.1\.6/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "8: Automatic rocket design optimization\n" .
+    "6: Additional template printing\n" .
+    "5: Geodetic computations\n" .
     "";
 } else if (preg_match("/^1\.1\.5/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "8: Automatic rocket design optimization\n" .
     "6: Initial localization support\n" .
+    "6: Additional template printing\n" .
+    "5: Geodetic computations\n" .
     "5: Scaling support\n" .
     "4: Bug fixes\n" .
     "";

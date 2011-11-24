@@ -2,7 +2,7 @@
 OpenRocket - an Open Source model rocket simulator
 --------------------------------------------------
 
-Copyright (C) 2007-2010  Sampo Niskanen
+Copyright (C) 2007-2011  Sampo Niskanen
 
 
 For license information see the file LICENSE.TXT.
@@ -25,5 +25,8 @@ Contributions have been made by:
 --------------------------------
 
 Sampo Niskanen, main developer
-Doug Pedrick, support for reading RockSim designs
+Doug Pedrick, support for reading RockSim designs, printing
+Richard Graham, geodetic computations
+Boris du Reau, internationalization
+Tripoli France, Tripoli Spain, Stefan Lobas / ERIG, translations
 
