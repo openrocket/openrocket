@@ -278,9 +278,9 @@ public class FinMarkingGuide extends JPanel {
                                 yFirstFin = offset;
                             }
                             drawDoubleArrowLine(g2, x, offset, x + width, offset);
-                            if (hasMultipleComponents) {
+                         //   if (hasMultipleComponents) {
                                 g2.drawString(externalComponent.getName(), x + (width / 3), offset - 2);
-                            }
+                         //   }
                         }
                     } else if (externalComponent instanceof LaunchLug) {
                         LaunchLug lug = (LaunchLug) externalComponent;
