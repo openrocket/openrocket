@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -41,7 +42,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 

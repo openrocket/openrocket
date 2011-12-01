@@ -27,10 +27,10 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.JarUtil;
 
 public class ExampleDesignDialog extends JDialog {

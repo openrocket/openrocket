@@ -23,6 +23,7 @@ import javax.swing.JProgressBar;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -38,7 +39,6 @@ import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
 

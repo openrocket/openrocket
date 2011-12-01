@@ -10,10 +10,10 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.GUIUtil;
 
 public class Tester {
 	

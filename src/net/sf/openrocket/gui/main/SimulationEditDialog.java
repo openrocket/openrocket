@@ -43,6 +43,8 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotPanel;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -57,9 +59,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
-import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Prefs;
 
 import org.jfree.chart.ChartFactory;

@@ -34,12 +34,12 @@ import net.sf.openrocket.gui.print.PrintableContext;
 import net.sf.openrocket.gui.print.TemplateProperties;
 import net.sf.openrocket.gui.print.components.CheckTreeManager;
 import net.sf.openrocket.gui.print.components.RocketPrintTree;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.FileHelper;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
 
 /**

@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -9,6 +9,7 @@ import javax.swing.SwingWorker;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.util.ProgressOutputStream;
 
 public class SaveFileWorker extends SwingWorker<Void, Void> {
 

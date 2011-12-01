@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,6 +15,7 @@ import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.MathUtil;
 
 
 /**

@@ -6,7 +6,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.gui.util.GUIUtil;
 
 public class DetailDialog {
 	

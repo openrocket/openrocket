@@ -13,11 +13,11 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.GUIUtil;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

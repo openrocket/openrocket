@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -73,6 +73,10 @@ import javax.swing.tree.TreeSelectionModel;
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.Invalidatable;
+import net.sf.openrocket.util.MemoryManagement;
+import net.sf.openrocket.util.Prefs;
 
 public class GUIUtil {
 	private static final LogHelper log = Application.getLogger();

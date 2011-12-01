@@ -12,11 +12,11 @@ import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.GUIUtil;
 
 public class RocketConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();

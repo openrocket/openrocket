@@ -14,11 +14,11 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
 import net.sf.openrocket.gui.dialogs.motor.thrustcurve.ThrustCurveMotorSelectionPanel;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.GUIUtil;
 
 public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	

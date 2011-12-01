@@ -47,6 +47,8 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.motor.CloseableDialog;
 import net.sf.openrocket.gui.dialogs.motor.MotorSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
@@ -55,8 +57,6 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.utils.MotorCorrelation;
 

@@ -12,7 +12,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.util.Icons;
+import net.sf.openrocket.gui.util.Icons;
 
 public class ScaleSelector extends JPanel {
 

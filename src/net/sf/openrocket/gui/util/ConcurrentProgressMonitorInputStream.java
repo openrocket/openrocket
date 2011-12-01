@@ -1,10 +1,11 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.awt.Component;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+
 
 
 /**

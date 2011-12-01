@@ -42,6 +42,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.SelectableLabel;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.DelegatorLogger;
 import net.sf.openrocket.logging.LogHelper;
@@ -51,7 +52,6 @@ import net.sf.openrocket.logging.LogLine;
 import net.sf.openrocket.logging.StackTraceWriter;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.NumericComparator;
 
 public class DebugLogDialog extends JDialog {

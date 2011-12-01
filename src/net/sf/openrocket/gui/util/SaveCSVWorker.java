@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.awt.Window;
 import java.io.BufferedOutputStream;
@@ -17,6 +17,8 @@ import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.ProgressOutputStream;
 
 
 public class SaveCSVWorker extends SwingWorker<Void, Void> {

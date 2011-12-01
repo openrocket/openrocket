@@ -36,15 +36,15 @@ import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.Prefs;
-import net.sf.openrocket.util.SimpleFileFilter;
 import net.sf.openrocket.util.Utils;
 
 

@@ -11,12 +11,12 @@ import java.util.List;
 
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
+import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.SimpleFileFilter;
 
 public final class MotorLoaderHelper {
 	

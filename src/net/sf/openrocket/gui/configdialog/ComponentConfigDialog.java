@@ -8,13 +8,13 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.JDialog;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Reflection;
 
 /**

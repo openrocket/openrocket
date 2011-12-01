@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.util.GUIUtil;
+import net.sf.openrocket.gui.util.GUIUtil;
 
 public class ConceptPrintDialog extends JDialog {
 	

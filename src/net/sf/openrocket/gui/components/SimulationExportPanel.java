@@ -21,6 +21,9 @@ import javax.swing.table.TableColumnModel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SaveCSVWorker;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -28,10 +31,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.FileHelper;
-import net.sf.openrocket.util.GUIUtil;
 import net.sf.openrocket.util.Prefs;
-import net.sf.openrocket.util.SaveCSVWorker;
 
 public class SimulationExportPanel extends JPanel {
 	

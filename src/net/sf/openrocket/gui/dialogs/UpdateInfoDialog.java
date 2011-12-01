@@ -15,12 +15,12 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.gui.components.URLLabel;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.ComparablePair;
-import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Icons;
 
 public class UpdateInfoDialog extends JDialog {
 	

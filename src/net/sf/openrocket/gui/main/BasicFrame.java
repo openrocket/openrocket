@@ -83,6 +83,11 @@ import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.OpenFileWorker;
+import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -92,15 +97,10 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.FileHelper;
-import net.sf.openrocket.util.GUIUtil;
-import net.sf.openrocket.util.Icons;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
-import net.sf.openrocket.util.OpenFileWorker;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
-import net.sf.openrocket.util.SaveFileWorker;
 import net.sf.openrocket.util.TestRockets;
 
 public class BasicFrame extends JFrame {

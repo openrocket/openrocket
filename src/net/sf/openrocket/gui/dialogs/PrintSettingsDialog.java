@@ -19,10 +19,10 @@ import net.sf.openrocket.gui.components.ColorChooserButton;
 import net.sf.openrocket.gui.print.PaperOrientation;
 import net.sf.openrocket.gui.print.PaperSize;
 import net.sf.openrocket.gui.print.PrintSettings;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.GUIUtil;
 
 /**
  * This class is a dialog for displaying advanced settings for printing rocket related info.
