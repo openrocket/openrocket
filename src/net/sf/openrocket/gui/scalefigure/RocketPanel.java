@@ -9,6 +9,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -23,8 +25,6 @@ import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -68,6 +68,7 @@ import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * A JPanel that contains a RocketFigure and buttons to manipulate the figure. 
@@ -110,7 +111,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private SimulationWorker backgroundSimulationWorker = null;
 	
-	private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
 
 	/**
@@ -158,9 +159,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		createPanel();
 		
-		configuration.addChangeListener(new ChangeListener() {
+		configuration.addChangeListener(new StateChangeListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void stateChanged(EventObject e) {
 				System.out.println("Configuration changed, calling updateFigure");
 				updateExtras();
 				figure.updateFigure();
@@ -374,20 +375,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	
 
 	@Override
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(EventListener listener) {
 		listeners.add(0, listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(EventListener listener) {
 		listeners.remove(listener);
 	}
 	
 	protected void fireChangeEvent() {
-		ChangeEvent e = new ChangeEvent(this);
-		ChangeListener[] list = listeners.toArray(new ChangeListener[0]);
-		for (ChangeListener l : list) {
-			l.stateChanged(e);
+		EventObject e = new EventObject(this);
+		for (EventListener l : listeners) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(e);
+			}
 		}
 	}
 	
@@ -711,7 +713,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * 
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
-	private class FigureTypeAction extends AbstractAction implements ChangeListener {
+	private class FigureTypeAction extends AbstractAction implements StateChangeListener {
 		private final int type;
 		
 		public FigureTypeAction(int type) {
@@ -732,7 +734,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void stateChanged(EventObject e) {
 			putValue(Action.SELECTED_KEY, figure.getType() == type);
 		}
 	}

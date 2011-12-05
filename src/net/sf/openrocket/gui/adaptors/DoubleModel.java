@@ -6,13 +6,14 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.logging.LogHelper;
@@ -26,6 +27,7 @@ import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
@@ -42,7 +44,7 @@ import net.sf.openrocket.util.Reflection;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable {
+public class DoubleModel implements StateChangeListener, ChangeSource, Invalidatable {
 	private static final LogHelper log = Application.getLogger();
 	
 
@@ -147,7 +149,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 
 	////////////  JSlider model  ////////////
 	
-	private class ValueSliderModel implements BoundedRangeModel, ChangeListener, Invalidatable {
+	private class ValueSliderModel implements BoundedRangeModel, StateChangeListener, Invalidatable {
 		private static final int MAX = 1000;
 		
 		/*
@@ -361,7 +363,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 		}
 		
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void stateChanged(EventObject e) {
 			// Min or max range has changed.
 			// Fire if not already firing
 			if (firing == 0)
@@ -392,7 +394,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 
 	////////////  Action model  ////////////
 	
-	private class AutomaticActionModel extends AbstractAction implements ChangeListener, Invalidatable {
+	private class AutomaticActionModel extends AbstractAction implements StateChangeListener, Invalidatable {
 		private boolean oldValue = false;
 		
 		public AutomaticActionModel() {
@@ -453,7 +455,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 		
 		// If the value has changed, generate an event to the listeners
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void stateChanged(EventObject e) {
 			boolean newValue = isAutomatic();
 			if (oldValue == newValue)
 				return;
@@ -507,7 +509,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	private final Method getAutoMethod;
 	private final Method setAutoMethod;
 	
-	private final ArrayList<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private final ArrayList<EventListener> listeners = new ArrayList<EventListener>();
 	
 	private final UnitGroup units;
 	private Unit currentUnit;
@@ -815,7 +817,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	 * @param l Listener to add.
 	 */
 	@Override
-	public void addChangeListener(ChangeListener l) {
+	public void addChangeListener(EventListener l) {
 		checkState(true);
 		
 		if (listeners.isEmpty()) {
@@ -836,7 +838,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	 * @param l Listener to remove.
 	 */
 	@Override
-	public void removeChangeListener(ChangeListener l) {
+	public void removeChangeListener(EventListener l) {
 		checkState(false);
 		
 		listeners.remove(l);
@@ -888,11 +890,15 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	protected void fireStateChanged() {
 		checkState(true);
 		
-		Object[] l = listeners.toArray();
-		ChangeEvent event = new ChangeEvent(this);
+		EventObject event = new EventObject(this);
 		firing++;
-		for (int i = 0; i < l.length; i++)
-			((ChangeListener) l[i]).stateChanged(event);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] ls = listeners.toArray(new EventListener[0]);
+		for (EventListener l : ls) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(event);
+			}
+		}
 		firing--;
 	}
 	
@@ -901,7 +907,7 @@ public class DoubleModel implements ChangeListener, ChangeSource, Invalidatable 
 	 * it has, updates lastValue and generates ChangeEvents for all listeners of the model.
 	 */
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(EventObject e) {
 		checkState(true);
 		
 		double v = getValue();

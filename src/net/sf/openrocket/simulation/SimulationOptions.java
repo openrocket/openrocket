@@ -1,11 +1,10 @@
 package net.sf.openrocket.simulation;
 
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
@@ -19,6 +18,7 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.util.WorldCoordinate;
 
@@ -85,7 +85,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private boolean calculateExtras = true;
 	
 
-	private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
 	
 
@@ -386,7 +386,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	public SimulationOptions clone() {
 		try {
 			SimulationOptions copy = (SimulationOptions) super.clone();
-			copy.listeners = new ArrayList<ChangeListener>();
+			copy.listeners = new ArrayList<EventListener>();
 			return copy;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException(e);
@@ -477,22 +477,25 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	@Override
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(EventListener listener) {
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(EventListener listener) {
 		listeners.remove(listener);
 	}
 	
-	private final ChangeEvent event = new ChangeEvent(this);
+	private final EventObject event = new EventObject(this);
 	
 	private void fireChangeEvent() {
-		ChangeListener[] array = listeners.toArray(new ChangeListener[0]);
 		
-		for (int i = array.length - 1; i >= 0; i--) {
-			array[i].stateChanged(event);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(event);
+			}
 		}
 	}
 	

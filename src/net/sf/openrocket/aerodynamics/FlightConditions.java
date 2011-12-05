@@ -1,10 +1,9 @@
 package net.sf.openrocket.aerodynamics;
 
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -13,6 +12,7 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
 /**
@@ -23,8 +23,8 @@ import net.sf.openrocket.util.UniqueID;
  */
 public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	
-	private List<ChangeListener> listenerList = new ArrayList<ChangeListener>();
-	private ChangeEvent event = new ChangeEvent(this);
+	private List<EventListener> listenerList = new ArrayList<EventListener>();
+	private EventObject event = new EventObject(this);
 	
 
 	/** Reference length used in calculations. */
@@ -409,8 +409,8 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	public FlightConditions clone() {
 		try {
 			FlightConditions cond = (FlightConditions) super.clone();
-			cond.listenerList = new ArrayList<ChangeListener>();
-			cond.event = new ChangeEvent(cond);
+			cond.listenerList = new ArrayList<EventListener>();
+			cond.event = new EventObject(cond);
 			cond.atmosphericConditions = atmosphericConditions.clone();
 			return cond;
 		} catch (CloneNotSupportedException e) {
@@ -445,20 +445,23 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	
 	
 	@Override
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(EventListener listener) {
 		listenerList.add(0, listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(EventListener listener) {
 		listenerList.remove(listener);
 	}
 	
 	protected void fireChangeEvent() {
 		modID = UniqueID.next();
-		ChangeListener[] listeners = listenerList.toArray(new ChangeListener[0]);
-		for (ChangeListener l : listeners) {
-			l.stateChanged(event);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
+		for (EventListener l : listeners) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(event);
+			}
 		}
 	}
 }

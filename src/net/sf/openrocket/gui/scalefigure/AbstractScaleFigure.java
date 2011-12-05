@@ -2,14 +2,15 @@ package net.sf.openrocket.gui.scalefigure;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure {
@@ -27,7 +28,7 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	protected int borderPixelsWidth = DEFAULT_BORDER_PIXELS_WIDTH;
 	protected int borderPixelsHeight = DEFAULT_BORDER_PIXELS_HEIGHT;
 	
-	protected final List<ChangeListener> listeners = new LinkedList<ChangeListener>();
+	protected final List<EventListener> listeners = new LinkedList<EventListener>();
 	
 	
 	public AbstractScaleFigure() {
@@ -106,23 +107,26 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	
 	@Override
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(EventListener listener) {
 		listeners.add(0, listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(EventListener listener) {
 		listeners.remove(listener);
 	}
 	
-	private ChangeEvent changeEvent = null;
+	private EventObject changeEvent = null;
 	
 	protected void fireChangeEvent() {
-		ChangeListener[] list = listeners.toArray(new ChangeListener[0]);
-		for (ChangeListener l : list) {
-			if (changeEvent == null)
-				changeEvent = new ChangeEvent(this);
-			l.stateChanged(changeEvent);
+		if (changeEvent == null)
+			changeEvent = new EventObject(this);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(changeEvent);
+			}
 		}
 	}
 	

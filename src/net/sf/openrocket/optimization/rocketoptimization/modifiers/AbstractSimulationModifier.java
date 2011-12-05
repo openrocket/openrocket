@@ -1,16 +1,16 @@
 package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * An abstract implementation of the SimulationModifier interface.  An implementation
@@ -29,7 +29,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	private double minValue = 0.0;
 	private double maxValue = 1.0;
 	
-	private final List<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private final List<EventListener> listeners = new ArrayList<EventListener>();
 	
 	
 	/**
@@ -148,12 +148,12 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	
 	
 	@Override
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(EventListener listener) {
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(EventListener listener) {
 		listeners.remove(listener);
 	}
 	
@@ -162,10 +162,13 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	 * Fire a change event to the listeners.
 	 */
 	protected void fireChangeEvent() {
-		ChangeListener[] array = listeners.toArray(new ChangeListener[0]);
-		ChangeEvent event = new ChangeEvent(this);
-		for (ChangeListener l : array) {
-			l.stateChanged(event);
+		EventObject event = new EventObject(this);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(event);
+			}
 		}
 	}
 	

@@ -1,9 +1,8 @@
 package net.sf.openrocket.document;
 
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
@@ -28,6 +27,7 @@ import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.SafetyMutex;
+import net.sf.openrocket.util.StateChangeListener;
 
 /**
  * A class defining a simulation, its conditions and simulated data.
@@ -79,7 +79,7 @@ public class Simulation implements ChangeSource, Cloneable {
 
 
 	/** Listeners for this object */
-	private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
 
 	/** The conditions actually used in the previous simulation, or null */
@@ -386,7 +386,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.status = Status.NOT_SIMULATED;
 			copy.options = this.options.clone();
 			copy.simulationListeners = this.simulationListeners.clone();
-			copy.listeners = new ArrayList<ChangeListener>();
+			copy.listeners = new ArrayList<EventListener>();
 			copy.simulatedConditions = null;
 			copy.simulatedMotors = null;
 			copy.simulatedData = null;
@@ -429,34 +429,37 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 
 	@Override
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(EventListener listener) {
 		mutex.verify();
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(EventListener listener) {
 		mutex.verify();
 		listeners.remove(listener);
 	}
 	
 	protected void fireChangeEvent() {
-		ChangeListener[] ls = listeners.toArray(new ChangeListener[0]);
-		ChangeEvent e = new ChangeEvent(this);
-		for (ChangeListener l : ls) {
-			l.stateChanged(e);
+		EventObject e = new EventObject(this);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] ls = listeners.toArray(new EventListener[0]);
+		for (EventListener l : ls) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(e);
+			}
 		}
 	}
 	
 	
 
 
-	private class ConditionListener implements ChangeListener {
+	private class ConditionListener implements StateChangeListener {
 		
 		private Status oldStatus = null;
 		
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void stateChanged(EventObject e) {
 			if (getStatus() != oldStatus) {
 				oldStatus = getStatus();
 				fireChangeEvent();

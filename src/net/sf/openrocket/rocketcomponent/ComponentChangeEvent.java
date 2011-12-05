@@ -1,8 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
-import javax.swing.event.ChangeEvent;
+import java.util.EventObject;
 
-public class ComponentChangeEvent extends ChangeEvent {
+public class ComponentChangeEvent extends EventObject {
 	private static final long serialVersionUID = 1L;
 	
 

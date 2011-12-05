@@ -1,13 +1,12 @@
 package net.sf.openrocket.gui.adaptors;
 
 
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -19,8 +18,9 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.StateChangeListener;
 
-public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
+public class MotorConfigurationModel implements ComboBoxModel, StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 
 	private static final String EDIT = trans.get("MotorCfgModel.Editcfg");
@@ -121,7 +121,7 @@ public class MotorConfigurationModel implements ComboBoxModel, ChangeListener {
 	 
 	
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(EventObject e) {
 		if (e instanceof ComponentChangeEvent) {
 			// Ignore unnecessary changes
 			if (!((ComponentChangeEvent)e).isMotorChange())

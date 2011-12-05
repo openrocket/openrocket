@@ -3,13 +3,11 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
@@ -17,6 +15,7 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
@@ -34,7 +33,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	private String motorConfiguration = null;
 	
-	private EventListenerList listenerList = new EventListenerList();
+	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
 
 	/* Cached data */
@@ -199,26 +198,27 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	////////////////  Listeners  ////////////////
 	
 	@Override
-	public void addChangeListener(ChangeListener listener) {
-		listenerList.add(ChangeListener.class, listener);
+	public void addChangeListener(EventListener listener) {
+		listenerList.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener listener) {
-		listenerList.remove(ChangeListener.class, listener);
+	public void removeChangeListener(EventListener listener) {
+		listenerList.remove(listener);
 	}
 	
 	protected void fireChangeEvent() {
-		Object[] listeners = listenerList.getListenerList();
-		ChangeEvent e = new ChangeEvent(this);
+		EventObject e = new EventObject(this);
 		
 		this.modID++;
 		boundsModID = -1;
 		refLengthModID = -1;
-		
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == ChangeListener.class) {
-				((ChangeListener) listeners[i + 1]).stateChanged(e);
+
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
+		for (EventListener l : listeners) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(e);
 			}
 		}
 	}
@@ -340,7 +340,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	public Configuration clone() {
 		try {
 			Configuration config = (Configuration) super.clone();
-			config.listenerList = new EventListenerList();
+			config.listenerList = new ArrayList<EventListener>();
 			config.stages = (BitSet) this.stages.clone();
 			config.cachedBounds = new ArrayList<Coordinate>();
 			config.boundsModID = -1;

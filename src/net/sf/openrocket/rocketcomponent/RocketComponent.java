@@ -1,5 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.awt.Color;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.EventListener;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -13,15 +22,6 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.SafetyMutex;
 import net.sf.openrocket.util.UniqueID;
-
-import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
@@ -1470,7 +1470,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @throws IllegalStateException - if the root component is not a <code>Rocket</code>
 	 */
 	@Override
-	public void addChangeListener(ChangeListener l) {
+	public void addChangeListener(EventListener l) {
 		checkState();
 		getRocket().addChangeListener(l);
 	}
@@ -1484,7 +1484,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param l  Listener to remove
 	 */
 	@Override
-	public void removeChangeListener(ChangeListener l) {
+	public void removeChangeListener(EventListener l) {
 		if (this.parent != null) {
 			getRoot().removeChangeListener(l);
 		}

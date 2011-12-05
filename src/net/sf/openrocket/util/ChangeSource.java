@@ -1,6 +1,6 @@
 package net.sf.openrocket.util;
 
-import javax.swing.event.ChangeListener;
+import java.util.EventListener;
 
 /**
  * An interface defining an object firing ChangeEvents.  Why isn't this included in the Java API??
@@ -9,7 +9,7 @@ import javax.swing.event.ChangeListener;
  */
 public interface ChangeSource {
 
-	public void addChangeListener(ChangeListener listener);
-	public void removeChangeListener(ChangeListener listener);
+	public void addChangeListener(EventListener listener);
+	public void removeChangeListener(EventListener listener);
 	
 }

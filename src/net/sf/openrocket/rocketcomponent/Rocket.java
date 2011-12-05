@@ -2,14 +2,12 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.l10n.Translator;
@@ -20,6 +18,7 @@ import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
 
@@ -43,7 +42,7 @@ public class Rocket extends RocketComponent {
 	/**
 	 * List of component change listeners.
 	 */
-	private EventListenerList listenerList = new EventListenerList();
+	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
@@ -341,46 +340,48 @@ public class Rocket extends RocketComponent {
 	 */
 	public void resetListeners() {
 		//		System.out.println("RESETTING LISTENER LIST of Rocket "+this);
-		listenerList = new EventListenerList();
+		listenerList = new ArrayList<EventListener>();
 	}
 	
 	
 	public void printListeners() {
-		System.out.println("" + this + " has " + listenerList.getListenerCount() + " listeners:");
-		Object[] list = listenerList.getListenerList();
-		for (int i = 1; i < list.length; i += 2)
-			System.out.println("  " + ((i + 1) / 2) + ": " + list[i]);
+		System.out.println("" + this + " has " + listenerList.size() + " listeners:");
+		int i =0;
+		for( EventListener l : listenerList ) {
+			System.out.println("  " + (i) + ": " + l);
+			i++;
+		}
 	}
 	
 	@Override
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
-		listenerList.add(ComponentChangeListener.class, l);
+		listenerList.add(l);
 		log.verbose("Added ComponentChangeListener " + l + ", current number of listeners is " +
-				listenerList.getListenerCount());
+				listenerList.size());
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
-		listenerList.remove(ComponentChangeListener.class, l);
+		listenerList.remove(l);
 		log.verbose("Removed ComponentChangeListener " + l + ", current number of listeners is " +
-				listenerList.getListenerCount());
+				listenerList.size());
 	}
 	
 	
 	@Override
-	public void addChangeListener(ChangeListener l) {
+	public void addChangeListener(EventListener l) {
 		checkState();
-		listenerList.add(ChangeListener.class, l);
+		listenerList.add(l);
 		log.verbose("Added ChangeListener " + l + ", current number of listeners is " +
-				listenerList.getListenerCount());
+				listenerList.size());
 	}
 	
 	@Override
-	public void removeChangeListener(ChangeListener l) {
-		listenerList.remove(ChangeListener.class, l);
+	public void removeChangeListener(EventListener l) {
+		listenerList.remove(l);
 		log.verbose("Removed ChangeListener " + l + ", current number of listeners is " +
-				listenerList.getListenerCount());
+				listenerList.size());
 	}
 	
 	
@@ -419,12 +420,11 @@ public class Rocket extends RocketComponent {
 			}
 			
 			// Notify all listeners
-			Object[] listeners = listenerList.getListenerList();
-			for (int i = listeners.length - 2; i >= 0; i -= 2) {
-				if (listeners[i] == ComponentChangeListener.class) {
-					((ComponentChangeListener) listeners[i + 1]).componentChanged(e);
-				} else if (listeners[i] == ChangeListener.class) {
-					((ChangeListener) listeners[i + 1]).stateChanged(e);
+			for ( EventListener l : listenerList ) {
+				if ( l instanceof ComponentChangeListener ) {
+					((ComponentChangeListener) l ).componentChanged(e);
+				} else if ( l instanceof StateChangeListener ) {
+					((StateChangeListener) l ).stateChanged(e);
 				}
 			}
 		} finally {

@@ -1,9 +1,8 @@
 package net.sf.openrocket.util;
 
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.List;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -16,19 +15,19 @@ import net.sf.openrocket.startup.Application;
 public abstract class AbstractChangeSource implements ChangeSource {
 	private static final LogHelper log = Application.getLogger();
 	
-	private final List<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private final List<EventListener> listeners = new ArrayList<EventListener>();
 	
-	private final ChangeEvent event = new ChangeEvent(this);
+	private final EventObject event = new EventObject(this);
 	
 	
 	@Override
-	public final void addChangeListener(ChangeListener listener) {
+	public final void addChangeListener(EventListener listener) {
 		listeners.add(listener);
 		log.verbose(1, "Adding change listeners, listener count is now " + listeners.size());
 	}
 	
 	@Override
-	public final void removeChangeListener(ChangeListener listener) {
+	public final void removeChangeListener(EventListener listener) {
 		listeners.remove(listener);
 		log.verbose(1, "Removing change listeners, listener count is now " + listeners.size());
 	}
@@ -38,10 +37,12 @@ public abstract class AbstractChangeSource implements ChangeSource {
 	 * Fire a change event to all listeners.
 	 */
 	protected void fireChangeEvent() {
-		ChangeListener[] array = listeners.toArray(new ChangeListener[0]);
-		
-		for (ChangeListener l : array) {
-			l.stateChanged(event);
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(event);
+			}
 		}
 	}
 }
