@@ -1,16 +1,17 @@
 package net.sf.openrocket.gui.adaptors;
 
+import java.util.EventObject;
+
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 public class EnumModel<T extends Enum<T>> extends AbstractListModel 
-		implements ComboBoxModel, ChangeListener {
+		implements ComboBoxModel, StateChangeListener {
 
 	private final ChangeSource source;
 	private final String valueName;
@@ -114,7 +115,7 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(EventObject e) {
 		Enum<T> value = (Enum<T>) getMethod.invoke(source);
 		if (value != currentValue) {
 			currentValue = value;

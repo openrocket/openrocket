@@ -6,11 +6,10 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -20,6 +19,7 @@ import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
@@ -37,7 +37,7 @@ import net.sf.openrocket.util.Reflection;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class BooleanModel extends AbstractAction implements ChangeListener, Invalidatable {
+public class BooleanModel extends AbstractAction implements StateChangeListener, Invalidatable {
 	private static final LogHelper log = Application.getLogger();
 	
 	private final ChangeSource source;
@@ -232,7 +232,7 @@ public class BooleanModel extends AbstractAction implements ChangeListener, Inva
 	}
 	
 	@Override
-	public void stateChanged(ChangeEvent event) {
+	public void stateChanged(EventObject event) {
 		checkState(true);
 		
 		if (firing > 0) {

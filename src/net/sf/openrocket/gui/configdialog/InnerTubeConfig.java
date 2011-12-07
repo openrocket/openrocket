@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -23,8 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -43,6 +42,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 public class InnerTubeConfig extends ThicknessRingComponentConfig {
@@ -228,7 +228,7 @@ class ClusterSelectionPanel extends JPanel {
 	}
 	
 	
-	private class ClusterButton extends JPanel implements ChangeListener, MouseListener,
+	private class ClusterButton extends JPanel implements StateChangeListener, MouseListener,
 															Resettable {
 		private Clusterable component;
 		private ClusterConfiguration config;
@@ -285,7 +285,7 @@ class ClusterSelectionPanel extends JPanel {
 		
 		
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void stateChanged(EventObject e) {
 			repaint();
 		}
 		

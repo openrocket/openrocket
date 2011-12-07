@@ -14,6 +14,7 @@ import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.logging.LogHelper;
@@ -891,12 +892,15 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		checkState(true);
 		
 		EventObject event = new EventObject(this);
+		ChangeEvent cevent = new ChangeEvent(this);
 		firing++;
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] ls = listeners.toArray(new EventListener[0]);
 		for (EventListener l : ls) {
 			if ( l instanceof StateChangeListener ) {
 				((StateChangeListener)l).stateChanged(event);
+			} else if ( l instanceof ChangeListener ) {
+				((ChangeListener)l).stateChanged(cevent);
 			}
 		}
 		firing--;

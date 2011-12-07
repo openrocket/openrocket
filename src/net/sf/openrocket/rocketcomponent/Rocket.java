@@ -420,7 +420,9 @@ public class Rocket extends RocketComponent {
 			}
 			
 			// Notify all listeners
-			for ( EventListener l : listenerList ) {
+			// Copy the list before iterating to prevent concurrent modification exceptions.
+			EventListener[] list = listenerList.toArray( new EventListener[0] );
+			for ( EventListener l : list ) {
 				if ( l instanceof ComponentChangeListener ) {
 					((ComponentChangeListener) l ).componentChanged(e);
 				} else if ( l instanceof StateChangeListener ) {

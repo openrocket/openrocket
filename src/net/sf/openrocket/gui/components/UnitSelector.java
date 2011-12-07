@@ -11,6 +11,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.Action;
@@ -20,12 +21,11 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 /**
@@ -36,7 +36,7 @@ import net.sf.openrocket.unit.UnitGroup;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class UnitSelector extends StyledLabel implements ChangeListener, MouseListener,
+public class UnitSelector extends StyledLabel implements StateChangeListener, MouseListener,
 		ItemSelectable {
 
 	private DoubleModel model;
@@ -235,7 +235,8 @@ public class UnitSelector extends StyledLabel implements ChangeListener, MouseLi
 	/**
 	 * Update the component when the DoubleModel changes.
 	 */
-	public void stateChanged(ChangeEvent e) {
+	@Override
+	public void stateChanged(EventObject e) {
 		updateText();
 	}
 

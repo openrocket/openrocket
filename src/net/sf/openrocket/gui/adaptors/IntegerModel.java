@@ -3,6 +3,8 @@ package net.sf.openrocket.gui.adaptors;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
@@ -14,9 +16,10 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.StateChangeListener;
 
 
-public class IntegerModel implements ChangeListener {
+public class IntegerModel implements StateChangeListener {
 	private static final LogHelper log = Application.getLogger();
 	
 	
@@ -95,7 +98,7 @@ public class IntegerModel implements ChangeListener {
 	private final Method getMethod;
 	private final Method setMethod;
 	
-	private final ArrayList<ChangeListener> listeners = new ArrayList<ChangeListener>();
+	private final ArrayList<EventListener> listeners = new ArrayList<EventListener>();
 	
 	private final int minValue;
 	private final int maxValue;
@@ -184,7 +187,7 @@ public class IntegerModel implements ChangeListener {
 	 * is the first listener.
 	 * @param l Listener to add.
 	 */
-	public void addChangeListener(ChangeListener l) {
+	public void addChangeListener(EventListener l) {
 		if (listeners.isEmpty()) {
 			source.addChangeListener(this);
 			lastValue = getValue();
@@ -218,11 +221,17 @@ public class IntegerModel implements ChangeListener {
 	
 	
 	public void fireStateChanged() {
-		Object[] l = listeners.toArray();
-		ChangeEvent event = new ChangeEvent(this);
+		EventListener[] list = listeners.toArray(new EventListener[0] );
+		EventObject event = new EventObject(this);
+		ChangeEvent cevent = new ChangeEvent(this);
 		firing++;
-		for (int i = 0; i < l.length; i++)
-			((ChangeListener) l[i]).stateChanged(event);
+		for( EventListener l : list ) {
+			if ( l instanceof ChangeListener) {
+				((ChangeListener)l).stateChanged(cevent);
+			} else if ( l instanceof StateChangeListener ) {
+				((StateChangeListener)l).stateChanged(event);
+			}
+		}
 		firing--;
 	}
 	
@@ -230,7 +239,8 @@ public class IntegerModel implements ChangeListener {
 	 * Called when the source changes.  Checks whether the modeled value has changed, and if
 	 * it has, updates lastValue and generates ChangeEvents for all listeners of the model.
 	 */
-	public void stateChanged(ChangeEvent e) {
+	@Override
+	public void stateChanged(EventObject e) {
 		int v = getValue();
 		if (lastValue == v)
 			return;
