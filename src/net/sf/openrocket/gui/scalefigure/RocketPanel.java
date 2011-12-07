@@ -162,7 +162,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		configuration.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
-				System.out.println("Configuration changed, calling updateFigure");
+				// System.out.println("Configuration changed, calling updateFigure");
 				updateExtras();
 				figure.updateFigure();
 			}
