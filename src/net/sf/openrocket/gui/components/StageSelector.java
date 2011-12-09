@@ -2,21 +2,21 @@ package net.sf.openrocket.gui.components;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.StateChangeListener;
 
 
-public class StageSelector extends JPanel implements ChangeListener {
+public class StageSelector extends JPanel implements StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final Configuration configuration;
@@ -58,12 +58,12 @@ public class StageSelector extends JPanel implements ChangeListener {
 
 
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(EventObject e) {
 		updateButtons();
 	}
 	
 	
-	private class StageAction extends AbstractAction implements ChangeListener {
+	private class StageAction extends AbstractAction implements StateChangeListener {
 		private final int stage;
 		
 		public StageAction(final int stage) {
@@ -103,9 +103,8 @@ public class StageSelector extends JPanel implements ChangeListener {
 			//			stateChanged(null);
 		}
 		
-		
 		@Override
-		public void stateChanged(ChangeEvent e) {
+		public void stateChanged(EventObject e) {
 			this.putValue(SELECTED_KEY, configuration.isStageActive(stage));
 		}
 	}
