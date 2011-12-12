@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -108,7 +109,26 @@ public class GUIUtil {
 		}
 	}
 	
+	/**
+	 * Return the DPI setting of the monitor.  This is either the setting provided
+	 * by the system or a user-specified DPI setting.
+	 * 
+	 * @return    the DPI setting to use.
+	 */
+	public static double getDPI() {
+		int dpi = Prefs.getInt("DPI", 0); // Tenths of a dpi
+		
+		if (dpi < 10) {
+			dpi = Toolkit.getDefaultToolkit().getScreenResolution() * 10;
+		}
+		if (dpi < 10)
+			dpi = 960;
+		
+		return (dpi) / 10.0;
+	}
 	
+	
+
 
 	/**
 	 * Set suitable options for a single-use disposable dialog.  This includes

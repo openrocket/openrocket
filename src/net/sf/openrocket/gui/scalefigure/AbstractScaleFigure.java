@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 
@@ -32,7 +32,7 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	
 	public AbstractScaleFigure() {
-		this.dpi = Prefs.getDPI();
+		this.dpi = GUIUtil.getDPI();
 		this.scaling = 1.0;
 		this.scale = dpi / 0.0254 * scaling;
 		

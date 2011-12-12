@@ -3,7 +3,6 @@ package net.sf.openrocket.util;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -591,31 +590,14 @@ public class Prefs {
 	}
 	
 	
-	/**
-	 * Return the DPI setting of the monitor.  This is either the setting provided
-	 * by the system or a user-specified DPI setting.
-	 * 
-	 * @return    the DPI setting to use.
-	 */
-	public static double getDPI() {
-		int dpi = PREFNODE.getInt("DPI", 0); // Tenths of a dpi
-		
-		if (dpi < 10) {
-			dpi = Toolkit.getDefaultToolkit().getScreenResolution() * 10;
-		}
-		if (dpi < 10)
-			dpi = 960;
-		
-		return (dpi) / 10.0;
-	}
-	
-	
 	public static double getDefaultMach() {
 		// TODO: HIGH: implement custom default mach number
 		return 0.3;
 	}
 	
-	
+	public static int getInt( String key, int defaultValue ) {
+		return PREFNODE.getInt(key, defaultValue);
+	}
 
 
 	public static Material getDefaultComponentMaterial(
