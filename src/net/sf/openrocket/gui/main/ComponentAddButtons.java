@@ -578,7 +578,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			if (check.isSelected()) {
 				// Save the preference
-				Prefs.NODE.putInt(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
+				Prefs.putInt(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}

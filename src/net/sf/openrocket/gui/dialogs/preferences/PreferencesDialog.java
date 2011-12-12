@@ -542,7 +542,7 @@ public class PreferencesDialog extends JDialog {
 		
 		@Override
 		public Object getSelectedItem() {
-			if (Prefs.NODE.getBoolean(preference, def)) {
+			if (Prefs.getBoolean(preference, def)) {
 				return trueDesc;
 			} else {
 				return falseDesc;
@@ -560,9 +560,9 @@ public class PreferencesDialog extends JDialog {
 			}
 			
 			if (trueDesc.equals(item)) {
-				Prefs.NODE.putBoolean(preference, true);
+				Prefs.putBoolean(preference, true);
 			} else if (falseDesc.equals(item)) {
-				Prefs.NODE.putBoolean(preference, false);
+				Prefs.putBoolean(preference, false);
 			} else {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}

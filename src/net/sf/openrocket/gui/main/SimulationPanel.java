@@ -154,7 +154,7 @@ public class SimulationPanel extends JPanel {
 					return; // TODO: LOW: "None selected" dialog
 					
 				// Verify deletion
-				boolean verify = Prefs.NODE.getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
+				boolean verify = Prefs.getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
 				if (verify) {
 					
 					JPanel panel = new JPanel(new MigLayout());
@@ -180,7 +180,7 @@ public class SimulationPanel extends JPanel {
 						return;
 					
 					if (dontAsk.isSelected()) {
-						Prefs.NODE.putBoolean(Prefs.CONFIRM_DELETE_SIMULATION, false);
+						Prefs.putBoolean(Prefs.CONFIRM_DELETE_SIMULATION, false);
 					}
 				}
 				

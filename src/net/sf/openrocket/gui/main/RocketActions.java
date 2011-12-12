@@ -207,7 +207,7 @@ public class RocketActions {
 	
 	
 	private boolean verifyDeleteSimulation() {
-		boolean verify = Prefs.NODE.getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
+		boolean verify = Prefs.getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
 		if (verify) {
 			JPanel panel = new JPanel(new MigLayout());
 			//// Do not ask me again
@@ -233,7 +233,7 @@ public class RocketActions {
 				return false;
 
 			if (dontAsk.isSelected()) {
-				Prefs.NODE.putBoolean(Prefs.CONFIRM_DELETE_SIMULATION, false);
+				Prefs.putBoolean(Prefs.CONFIRM_DELETE_SIMULATION, false);
 			}
 		}
 

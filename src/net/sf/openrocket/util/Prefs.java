@@ -158,12 +158,6 @@ public class Prefs {
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	
 
-	/**
-	 * Node to this application's preferences.
-	 * @deprecated  Use the static methods instead.
-	 */
-	@Deprecated
-	public static final Preferences NODE;
 	private static final Preferences PREFNODE;
 	
 
@@ -180,7 +174,6 @@ public class Prefs {
 			}
 		}
 		PREFNODE = root.node(NODENAME);
-		NODE = PREFNODE;
 	}
 	
 
@@ -388,7 +381,14 @@ public class Prefs {
 		storeVersion();
 	}
 	
+	public static int getInt( String key, int defaultValue ) {
+		return PREFNODE.getInt(key, defaultValue);
+	}
 	
+	public static void putInt( String key , int value ) {
+		PREFNODE.putInt(key, value );
+	}
+
 	/**
 	 * Return a preferences object for the specified node name.
 	 * 
@@ -595,11 +595,6 @@ public class Prefs {
 		return 0.3;
 	}
 	
-	public static int getInt( String key, int defaultValue ) {
-		return PREFNODE.getInt(key, defaultValue);
-	}
-
-
 	public static Material getDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass,
 			Material.Type type) {
