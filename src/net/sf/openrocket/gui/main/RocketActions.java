@@ -25,8 +25,8 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.Prefs;
 
 
 
@@ -207,7 +207,7 @@ public class RocketActions {
 	
 	
 	private boolean verifyDeleteSimulation() {
-		boolean verify = Application.getPreferences().getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
+		boolean verify = Application.getPreferences().getBoolean(Preferences.CONFIRM_DELETE_SIMULATION, true);
 		if (verify) {
 			JPanel panel = new JPanel(new MigLayout());
 			//// Do not ask me again
@@ -233,7 +233,7 @@ public class RocketActions {
 				return false;
 
 			if (dontAsk.isSelected()) {
-				Application.getPreferences().putBoolean(Prefs.CONFIRM_DELETE_SIMULATION, false);
+				Application.getPreferences().putBoolean(Preferences.CONFIRM_DELETE_SIMULATION, false);
 			}
 		}
 
