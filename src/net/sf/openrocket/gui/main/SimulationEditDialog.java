@@ -60,7 +60,6 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
-import net.sf.openrocket.util.Prefs;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
