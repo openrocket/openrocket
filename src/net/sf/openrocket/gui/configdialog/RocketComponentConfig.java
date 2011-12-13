@@ -36,6 +36,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
@@ -47,7 +48,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.LineStyle;
-import net.sf.openrocket.util.Prefs;
 
 public class RocketComponentConfig extends JPanel {
 	
@@ -379,7 +379,7 @@ public class RocketComponentConfig extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				Color c = component.getColor();
 				if (c == null) {
-					c = ((Prefs) Application.getPreferences()).getDefaultColor(component.getClass());
+					c = ((SwingPreferences) Application.getPreferences()).getDefaultColor(component.getClass());
 				}
 				
 				//// Choose color
@@ -401,7 +401,7 @@ public class RocketComponentConfig extends JPanel {
 				if (colorDefault.isSelected())
 					component.setColor(null);
 				else
-					component.setColor(((Prefs) Application.getPreferences()).getDefaultColor(component.getClass()));
+					component.setColor(((SwingPreferences) Application.getPreferences()).getDefaultColor(component.getClass()));
 			}
 		});
 		panel.add(colorDefault, "wrap para");
@@ -423,7 +423,7 @@ public class RocketComponentConfig extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (component.getColor() != null) {
-					((Prefs) Application.getPreferences()).setDefaultColor(component.getClass(), component.getColor());
+					((SwingPreferences) Application.getPreferences()).setDefaultColor(component.getClass(), component.getColor());
 					component.setColor(null);
 				}
 				if (component.getLineStyle() != null) {
@@ -441,7 +441,7 @@ public class RocketComponentConfig extends JPanel {
 	private Color getColor() {
 		Color c = component.getColor();
 		if (c == null) {
-			c = ((Prefs) Application.getPreferences()).getDefaultColor(component.getClass());
+			c = ((SwingPreferences) Application.getPreferences()).getDefaultColor(component.getClass());
 		}
 		return c;
 	}

@@ -23,6 +23,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SaveCSVWorker;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightData;
@@ -31,7 +32,6 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Prefs;
 
 public class SimulationExportPanel extends JPanel {
 	
@@ -86,7 +86,7 @@ public class SimulationExportPanel extends JPanel {
 		selected = new boolean[types.length];
 		units = new Unit[types.length];
 		for (int i = 0; i < types.length; i++) {
-			selected[i] = ((Prefs) Application.getPreferences()).isExportSelected(types[i]);
+			selected[i] = ((SwingPreferences) Application.getPreferences()).isExportSelected(types[i]);
 			units[i] = types[i].getUnitGroup().getDefaultUnit();
 		}
 		
@@ -193,7 +193,7 @@ public class SimulationExportPanel extends JPanel {
 	private void doExport() {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
-		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
@@ -217,9 +217,9 @@ public class SimulationExportPanel extends JPanel {
 		
 		// Store preferences and export
 		int n = 0;
-		((Prefs) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		for (int i = 0; i < selected.length; i++) {
-			((Prefs) Application.getPreferences()).setExportSelected(types[i], selected[i]);
+			((SwingPreferences) Application.getPreferences()).setExportSelected(types[i], selected[i]);
 			if (selected[i])
 				n++;
 		}

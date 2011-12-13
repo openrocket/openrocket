@@ -37,11 +37,11 @@ import net.sf.openrocket.gui.print.components.CheckTreeManager;
 import net.sf.openrocket.gui.print.components.RocketPrintTree;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * This class isolates the Swing components used to create a panel that is added to a standard Java print dialog.
@@ -63,7 +63,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private JButton cancel;
 	
 	
-	private final static Prefs prefs = (Prefs) Application.getPreferences();
+	private final static SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	/**
 	 * Constructor.
@@ -330,7 +330,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			dir = dir.getParentFile();
 		}
 		if (dir == null) {
-			dir = ((Prefs) Application.getPreferences()).getDefaultDirectory();
+			dir = prefs.getDefaultDirectory();
 		}
 		chooser.setCurrentDirectory(dir);
 		

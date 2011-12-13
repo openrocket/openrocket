@@ -2,8 +2,8 @@ package net.sf.openrocket.material;
 
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * Class for storing changes to user-added materials.  The materials are stored to
@@ -16,13 +16,13 @@ public class MaterialStorage implements DatabaseListener<Material> {
 	@Override
 	public void elementAdded(Material material, Database<Material> source) {
 		if (material.isUserDefined()) {
-			((Prefs) Application.getPreferences()).addUserMaterial(material);
+			((SwingPreferences) Application.getPreferences()).addUserMaterial(material);
 		}
 	}
 
 	@Override
 	public void elementRemoved(Material material, Database<Material> source) {
-		((Prefs) Application.getPreferences()).removeUserMaterial(material);
+		((SwingPreferences) Application.getPreferences()).removeUserMaterial(material);
 	}
 
 }

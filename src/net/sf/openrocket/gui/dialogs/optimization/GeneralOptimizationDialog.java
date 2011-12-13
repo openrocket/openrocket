@@ -67,6 +67,7 @@ import net.sf.openrocket.gui.scalefigure.RocketFigure;
 import net.sf.openrocket.gui.scalefigure.ScaleScrollPane;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.OptimizationException;
@@ -91,7 +92,6 @@ import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Named;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.TextUtil;
 
 import com.itextpdf.text.Font;
@@ -1236,7 +1236,7 @@ public class GeneralOptimizationDialog extends JDialog {
 
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
-		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(csvOptions);
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)

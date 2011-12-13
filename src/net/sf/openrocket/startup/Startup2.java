@@ -24,12 +24,12 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.BuildProperties;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * The second class in the OpenRocket startup sequence.  This class can assume the
@@ -113,7 +113,7 @@ public class Startup2 {
 		ToolTipManager.sharedInstance().setDismissDelay(30000);
 		
 		// Load defaults
-		((Prefs) Application.getPreferences()).loadDefaultUnits();
+		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
 		
 		// Load motors etc.
 		log.info("Loading databases");
@@ -193,7 +193,7 @@ public class Startup2 {
 				thrustCurveCount = list.size();
 				
 				// Load the user-defined thrust curves
-				for (File file : ((Prefs) Application.getPreferences()).getUserThrustCurveFiles()) {
+				for (File file : ((SwingPreferences) Application.getPreferences()).getUserThrustCurveFiles()) {
 					log.info("Loading motors from " + file);
 					list = MotorLoaderHelper.load(file);
 					for (Motor m : list) {
@@ -243,7 +243,7 @@ public class Startup2 {
 					timer.stop();
 					
 					String current = BuildProperties.getVersion();
-					String last = Application.getPreferences().getString(Prefs.LAST_UPDATE, "");
+					String last = Application.getPreferences().getString(Preferences.LAST_UPDATE, "");
 					
 					UpdateInfo info = updateInfo.getUpdateInfo();
 					if (info != null && info.getLatestVersion() != null &&
@@ -253,9 +253,9 @@ public class Startup2 {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
 						if (infoDialog.isReminderSelected()) {
-							Application.getPreferences().putString(Prefs.LAST_UPDATE, "");
+							Application.getPreferences().putString(Preferences.LAST_UPDATE, "");
 						} else {
-							Application.getPreferences().putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+							Application.getPreferences().putString(Preferences.LAST_UPDATE, info.getLatestVersion());
 						}
 					}
 				}

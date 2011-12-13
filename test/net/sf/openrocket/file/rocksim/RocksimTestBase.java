@@ -7,9 +7,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * A base class for the Rocksim tests.  Includes code from the junitx.addons project.
@@ -32,7 +32,7 @@ public abstract class RocksimTestBase extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		Application.setPreferences( new Prefs() );
+		Application.setPreferences( new SwingPreferences() );
 	}
 
 

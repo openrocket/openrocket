@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,7 +17,6 @@ import java.util.prefs.Preferences;
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
-import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
@@ -33,9 +32,11 @@ import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.BuildProperties;
 
 
-public class Prefs extends net.sf.openrocket.startup.Preferences {
+public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private static final LogHelper log = Application.getLogger();
 	
 	private static final String SPLIT_CHARACTER = "|";
@@ -70,22 +71,10 @@ public class Prefs extends net.sf.openrocket.startup.Preferences {
 	 */
 	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
-	/**
-	 * Return whether to use additional safety code checks.
-	 */
-	public static boolean useSafetyChecks() {
-		// Currently default to false unless openrocket.debug.safetycheck is defined
-		String s = System.getProperty("openrocket.debug.safetycheck");
-		if (s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"))) {
-			return true;
-		}
-		return false;
-	}
-	
 	private  final Preferences PREFNODE;
 	
 
-	public Prefs() {
+	public SwingPreferences() {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
 			try {

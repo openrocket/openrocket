@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -30,7 +31,6 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.Transformation;
 
@@ -312,7 +312,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			// Set component color and line style
 			Color color = c.getColor();
 			if (color == null) {
-				color = ((Prefs) Application.getPreferences()).getDefaultColor(c.getClass());
+				color = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
 			}
 			g2.setColor(color);
 			
@@ -348,8 +348,8 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		// Draw motors
 		String motorID = configuration.getMotorConfigurationID();
-		Color fillColor = ((Prefs)Application.getPreferences()).getMotorFillColor();
-		Color borderColor = ((Prefs)Application.getPreferences()).getMotorBorderColor();
+		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
+		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 		Iterator<MotorMount> iterator = configuration.motorIterator();
 		while (iterator.hasNext()) {
 			MotorMount mount = iterator.next();

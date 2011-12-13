@@ -1,12 +1,12 @@
 package net.sf.openrocket.database;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.MaterialStorage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 
 /**
@@ -95,7 +95,7 @@ public class Databases {
 		
 
 		// Add user-defined materials
-		for (Material m : ((Prefs) Application.getPreferences()).getUserMaterials()) {
+		for (Material m : ((SwingPreferences) Application.getPreferences()).getUserMaterials()) {
 			switch (m.getType()) {
 			case LINE:
 				LINE_MATERIAL.add(m);

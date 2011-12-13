@@ -49,6 +49,7 @@ import net.sf.openrocket.gui.figureelements.Caret;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.main.SimulationWorker;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -67,7 +68,6 @@ import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.StateChangeListener;
 
 /**
@@ -121,7 +121,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 */
 	private static final Executor backgroundSimulationExecutor;
 	static {
-		backgroundSimulationExecutor = Executors.newFixedThreadPool(Prefs.getMaxThreadCount(),
+		backgroundSimulationExecutor = Executors.newFixedThreadPool(SwingPreferences.getMaxThreadCount(),
 				new ThreadFactory() {
 					private ThreadFactory factory = Executors.defaultThreadFactory();
 					
@@ -564,7 +564,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		////////  Flight simulation in background
 		
 		// Check whether to compute or not
-		if (!((Prefs) Application.getPreferences()).computeFlightInBackground()) {
+		if (!((SwingPreferences) Application.getPreferences()).computeFlightInBackground()) {
 			extraText.setFlightData(null);
 			extraText.setCalculatingData(false);
 			stopBackgroundSimulation();
@@ -594,7 +594,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setCalculatingData(true);
 		
 		Rocket duplicate = (Rocket) configuration.getRocket().copy();
-		Simulation simulation = ((Prefs)Application.getPreferences()).getBackgroundSimulation(duplicate);
+		Simulation simulation = ((SwingPreferences)Application.getPreferences()).getBackgroundSimulation(duplicate);
 		simulation.getOptions().setMotorConfigurationID(
 				configuration.getMotorConfigurationID());
 		

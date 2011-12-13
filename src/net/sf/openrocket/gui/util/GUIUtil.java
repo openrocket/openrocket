@@ -77,7 +77,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.MemoryManagement;
-import net.sf.openrocket.util.Prefs;
 
 public class GUIUtil {
 	private static final LogHelper log = Application.getLogger();
@@ -305,22 +304,22 @@ public class GUIUtil {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				log.debug("Storing size of " + window.getClass().getName() + ": " + window.getSize());
-				((Prefs) Application.getPreferences()).setWindowSize(window.getClass(), window.getSize());
+				((SwingPreferences) Application.getPreferences()).setWindowSize(window.getClass(), window.getSize());
 				if (window instanceof JFrame) {
 					if ((((JFrame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
 						log.debug("Storing maximized state of " + window.getClass().getName());
-						((Prefs) Application.getPreferences()).setWindowMaximized(window.getClass());
+						((SwingPreferences) Application.getPreferences()).setWindowMaximized(window.getClass());
 					}
 				}
 			}
 		});
 		
-		if (((Prefs) Application.getPreferences()).isWindowMaximized(window.getClass())) {
+		if (((SwingPreferences) Application.getPreferences()).isWindowMaximized(window.getClass())) {
 			if (window instanceof JFrame) {
 				((JFrame) window).setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
 		} else {
-			Dimension dim = ((Prefs) Application.getPreferences()).getWindowSize(window.getClass());
+			Dimension dim = ((SwingPreferences) Application.getPreferences()).getWindowSize(window.getClass());
 			if (dim != null) {
 				window.setSize(dim);
 			}
@@ -336,12 +335,12 @@ public class GUIUtil {
 		window.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent e) {
-				((Prefs) Application.getPreferences()).setWindowPosition(window.getClass(), window.getLocation());
+				((SwingPreferences) Application.getPreferences()).setWindowPosition(window.getClass(), window.getLocation());
 			}
 		});
 		
 		// Set window position according to preferences, and set prefs when moving
-		Point position = ((Prefs) Application.getPreferences()).getWindowPosition(window.getClass());
+		Point position = ((SwingPreferences) Application.getPreferences()).getWindowPosition(window.getClass());
 		if (position != null) {
 			window.setLocationByPlatform(false);
 			window.setLocation(position);

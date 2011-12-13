@@ -12,6 +12,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -29,7 +30,6 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.Prefs;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -427,7 +427,7 @@ public class DesignReport {
 		Rocket duplicate = theRocket.copyWithOriginalID();
 		FlightData flight = null;
 		try {
-			Simulation simulation = ((Prefs)Application.getPreferences()).getBackgroundSimulation(duplicate);
+			Simulation simulation = ((SwingPreferences)Application.getPreferences()).getBackgroundSimulation(duplicate);
 			simulation.getOptions().setMotorConfigurationID(motorId);
 			simulation.simulate();
 			flight = simulation.getSimulatedData();

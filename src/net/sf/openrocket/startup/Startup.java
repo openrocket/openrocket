@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
@@ -13,7 +14,6 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.PrintStreamLogger;
-import net.sf.openrocket.util.Prefs;
 
 
 /**
@@ -50,7 +50,7 @@ public class Startup {
 		// Initialize logging first so we can use it
 		initializeLogging();
 		
-		Application.setPreferences( new Prefs() );
+		Application.setPreferences( new SwingPreferences() );
 		
 		// Setup the translations
 		initializeL10n();

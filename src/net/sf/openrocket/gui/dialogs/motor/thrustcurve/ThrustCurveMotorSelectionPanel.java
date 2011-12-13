@@ -49,6 +49,7 @@ import net.sf.openrocket.gui.dialogs.motor.CloseableDialog;
 import net.sf.openrocket.gui.dialogs.motor.MotorSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
@@ -57,7 +58,6 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.utils.MotorCorrelation;
 
 import org.jfree.chart.ChartColor;
@@ -234,11 +234,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		//// Hide very similar thrust curves
 		hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
 		GUIUtil.changeFontSize(hideSimilarBox, -1);
-		hideSimilarBox.setSelected(Application.getPreferences().getBoolean(Prefs.MOTOR_HIDE_SIMILAR, true));
+		hideSimilarBox.setSelected(Application.getPreferences().getBoolean(SwingPreferences.MOTOR_HIDE_SIMILAR, true));
 		hideSimilarBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Application.getPreferences().putBoolean(Prefs.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+				Application.getPreferences().putBoolean(SwingPreferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
 				updateData();
 			}
 		});
@@ -541,7 +541,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 
 		// Sets the filter:
-		int showMode = Application.getPreferences().getChoice(Prefs.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
+		int showMode = Application.getPreferences().getChoice(SwingPreferences.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
 		filterComboBox.setSelectedIndex(showMode);
 		
 
@@ -585,7 +585,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		
 		// Store selected motor in preferences node, set all others to false
-		Preferences prefs = ((Prefs) Application.getPreferences()).getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(SwingPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : set.getMotors()) {
 			String digest = MotorDigest.digestMotor(m);
 			prefs.putBoolean(digest, m == motor);
@@ -815,7 +815,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Find which motor has been used the most recently
 		List<ThrustCurveMotor> list = set.getMotors();
-		Preferences prefs = ((Prefs) Application.getPreferences()).getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(SwingPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : list) {
 			String digest = MotorDigest.digestMotor(m);
 			if (prefs.getBoolean(digest, false)) {

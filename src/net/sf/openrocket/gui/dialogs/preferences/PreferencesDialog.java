@@ -37,6 +37,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
@@ -47,7 +48,6 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Named;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Utils;
 
 
@@ -96,7 +96,7 @@ public class PreferencesDialog extends JDialog {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				((Prefs) Application.getPreferences()).storeDefaultUnits();
+				((SwingPreferences) Application.getPreferences()).storeDefaultUnits();
 			}
 		});
 		
@@ -115,7 +115,7 @@ public class PreferencesDialog extends JDialog {
 			userLocale = L10N.toLocale(locale);
 		}
 		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
-		for (Locale l : Prefs.getSupportedLocales()) {
+		for (Locale l : SwingPreferences.getSupportedLocales()) {
 			locales.add(new Named<Locale>(l, l.getDisplayLanguage()));
 		}
 		Collections.sort(locales);
@@ -144,7 +144,7 @@ public class PreferencesDialog extends JDialog {
 
 		//// Position to insert new body components:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
-		panel.add(new JComboBox(new PrefChoiseSelector(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY,
+		panel.add(new JComboBox(new PrefChoiseSelector(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY,
 				//// Always ask
 				//// Insert in middle
 				//// Add to end
@@ -154,7 +154,7 @@ public class PreferencesDialog extends JDialog {
 		
 		//// Confirm deletion of simulations:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Confirmdeletion")));
-		panel.add(new JComboBox(new PrefBooleanSelector(Prefs.CONFIRM_DELETE_SIMULATION,
+		panel.add(new JComboBox(new PrefBooleanSelector(Preferences.CONFIRM_DELETE_SIMULATION,
 				//// Delete
 				//// Confirm
 				trans.get("pref.dlg.PrefBooleanSelector1"),
@@ -163,7 +163,7 @@ public class PreferencesDialog extends JDialog {
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
-		List<File> files = ((Prefs) Application.getPreferences()).getUserThrustCurveFiles();
+		List<File> files = ((SwingPreferences) Application.getPreferences()).getUserThrustCurveFiles();
 		String str = "";
 		for (File file : files) {
 			if (str.length() > 0) {
@@ -197,7 +197,7 @@ public class PreferencesDialog extends JDialog {
 						list.add(new File(s));
 					}
 				}
-				((Prefs) Application.getPreferences()).setUserThrustCurveFiles(list);
+				((SwingPreferences) Application.getPreferences()).setUserThrustCurveFiles(list);
 			}
 		});
 		panel.add(field, "w 100px, gapright unrel, spanx, growx, split");
@@ -252,8 +252,8 @@ public class PreferencesDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// First one sets to the default, but does not un-set the pref
-				field.setText(((Prefs)Application.getPreferences()).getDefaultUserThrustCurveFile().getAbsolutePath());
-				((Prefs) Application.getPreferences()).setUserThrustCurveFiles(null);
+				field.setText(((SwingPreferences)Application.getPreferences()).getDefaultUserThrustCurveFile().getAbsolutePath());
+				((SwingPreferences) Application.getPreferences()).setUserThrustCurveFiles(null);
 			}
 		});
 		panel.add(button, "wrap");
@@ -668,9 +668,9 @@ public class PreferencesDialog extends JDialog {
 			UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 			infoDialog.setVisible(true);
 			if (infoDialog.isReminderSelected()) {
-				Application.getPreferences().putString(Prefs.LAST_UPDATE, "");
+				Application.getPreferences().putString(SwingPreferences.LAST_UPDATE, "");
 			} else {
-				Application.getPreferences().putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+				Application.getPreferences().putString(SwingPreferences.LAST_UPDATE, info.getLatestVersion());
 			}
 		}
 		

@@ -24,6 +24,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -40,7 +41,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 
 public class SimulationRunDialog extends JDialog {
@@ -63,7 +63,7 @@ public class SimulationRunDialog extends JDialog {
 	 * dialogs to run in parallel, ie. they both have their own executor service.
 	 */
 	private final ExecutorService executor = Executors.newFixedThreadPool(
-			Prefs.getMaxThreadCount());
+			SwingPreferences.getMaxThreadCount());
 	
 
 	private final JLabel simLabel, timeLabel, altLabel, velLabel;

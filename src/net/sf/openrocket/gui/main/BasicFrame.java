@@ -87,6 +87,7 @@ import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -99,7 +100,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TestRockets;
 
@@ -1005,14 +1005,14 @@ public class BasicFrame extends JFrame {
 		
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
-		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		int option = chooser.showOpenDialog(this);
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.user("Decided not to open files, option=" + option);
 			return;
 		}
 		
-		((Prefs) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		
 		File[] files = chooser.getSelectedFiles();
 		log.user("Opening files " + Arrays.toString(files));
@@ -1259,7 +1259,7 @@ public class BasicFrame extends JFrame {
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
+		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(storageChooser);
 		if (document.getFile() != null)
 			chooser.setSelectedFile(document.getFile());
@@ -1276,7 +1276,7 @@ public class BasicFrame extends JFrame {
 			return false;
 		}
 		
-		((Prefs) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		storageChooser.storeOptions(document.getDefaultStorageOptions());
 		
 		file = FileHelper.ensureExtension(file, "ork");
