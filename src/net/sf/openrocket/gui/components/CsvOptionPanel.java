@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.startup.Preferences;
 
 /**
  * A panel that shows options for saving CSV files.
@@ -59,7 +59,7 @@ public class CsvOptionPanel extends JPanel {
 		
 		fieldSeparator = new JComboBox(new String[] { ",", ";", SPACE, TAB });
 		fieldSeparator.setEditable(true);
-		fieldSeparator.setSelectedItem(Application.getPreferences().getString(Prefs.EXPORT_FIELD_SEPARATOR, ","));
+		fieldSeparator.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_FIELD_SEPARATOR, ","));
 		fieldSeparator.setToolTipText(tip);
 		panel.add(fieldSeparator, "growx");
 		
@@ -92,7 +92,7 @@ public class CsvOptionPanel extends JPanel {
 		
 		commentCharacter = new JComboBox(new String[] { "#", "%", ";" });
 		commentCharacter.setEditable(true);
-		commentCharacter.setSelectedItem(Application.getPreferences().getString(Prefs.EXPORT_COMMENT_CHARACTER, "#"));
+		commentCharacter.setSelectedItem(Application.getPreferences().getString(Preferences.EXPORT_COMMENT_CHARACTER, "#"));
 		commentCharacter.setToolTipText(tip);
 		panel.add(commentCharacter, "growx");
 		
@@ -116,8 +116,8 @@ public class CsvOptionPanel extends JPanel {
 	 * Store the selected options to the user preferences.
 	 */
 	public void storePreferences() {
-		Application.getPreferences().putString(Prefs.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
-		Application.getPreferences().putString(Prefs.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
+		Application.getPreferences().putString(Preferences.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
+		Application.getPreferences().putString(Preferences.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
 		for (int i = 0; i < options.length; i++) {
 			Application.getPreferences().putBoolean("csvOptions." + baseClassName + "." + i, options[i].isSelected());
 		}
