@@ -5,7 +5,6 @@ import java.util.List;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ComparablePair;
-import net.sf.openrocket.util.Prefs;
 
 public class UpdateInfo {
 	
@@ -28,7 +27,7 @@ public class UpdateInfo {
 
 	/**
 	 * Get the latest OpenRocket version.  If it is the current version, then the value
-	 * of {@link Prefs#getVersion()} is returned.
+	 * of {@link BuildProperties#getVersion()} is returned.
 	 * 
 	 * @return	the latest OpenRocket version.
 	 */
