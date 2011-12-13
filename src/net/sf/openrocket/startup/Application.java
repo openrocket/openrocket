@@ -31,6 +31,17 @@ public final class Application {
 		setLogOutputLevel(LogLevel.DEBUG);
 	}
 	
+	/**
+	 * Return whether to use additional safety code checks.
+	 */
+	public static boolean useSafetyChecks() {
+		// Currently default to false unless openrocket.debug.safetycheck is defined
+		String s = System.getProperty("openrocket.debug.safetycheck");
+		if (s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"))) {
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Retrieve the logger to be used in logging.  By default this returns

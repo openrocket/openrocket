@@ -10,7 +10,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Invalidator implements Invalidatable {
-	private static final boolean USE_CHECKS = Prefs.useSafetyChecks();
+	private static final boolean USE_CHECKS = Application.useSafetyChecks();
 	
 	private static final LogHelper log = Application.getLogger();
 	

@@ -18,6 +18,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class SafetyMutex {
+	private static final boolean USE_CHECKS = Application.useSafetyChecks();
 	private static final LogHelper log = Application.getLogger();
 	
 	
@@ -28,7 +29,7 @@ public abstract class SafetyMutex {
 	 * @return	a new instance of a safety mutex
 	 */
 	public static SafetyMutex newInstance() {
-		if (Prefs.useSafetyChecks()) {
+		if (USE_CHECKS) {
 			return new ConcreteSafetyMutex();
 		} else {
 			return new BogusSafetyMutex();
