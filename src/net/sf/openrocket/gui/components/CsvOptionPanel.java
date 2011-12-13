@@ -59,7 +59,7 @@ public class CsvOptionPanel extends JPanel {
 		
 		fieldSeparator = new JComboBox(new String[] { ",", ";", SPACE, TAB });
 		fieldSeparator.setEditable(true);
-		fieldSeparator.setSelectedItem(Prefs.getString(Prefs.EXPORT_FIELD_SEPARATOR, ","));
+		fieldSeparator.setSelectedItem(Application.getPreferences().getString(Prefs.EXPORT_FIELD_SEPARATOR, ","));
 		fieldSeparator.setToolTipText(tip);
 		panel.add(fieldSeparator, "growx");
 		
@@ -80,7 +80,7 @@ public class CsvOptionPanel extends JPanel {
 		for (int i = 0; i < includeComments.length / 2; i++) {
 			options[i] = new JCheckBox(includeComments[i * 2]);
 			options[i].setToolTipText(includeComments[i * 2 + 1]);
-			options[i].setSelected(Prefs.getBoolean("csvOptions." + baseClassName + "." + i, true));
+			options[i].setSelected(Application.getPreferences().getBoolean("csvOptions." + baseClassName + "." + i, true));
 			panel.add(options[i], "wrap");
 		}
 		
@@ -92,7 +92,7 @@ public class CsvOptionPanel extends JPanel {
 		
 		commentCharacter = new JComboBox(new String[] { "#", "%", ";" });
 		commentCharacter.setEditable(true);
-		commentCharacter.setSelectedItem(Prefs.getString(Prefs.EXPORT_COMMENT_CHARACTER, "#"));
+		commentCharacter.setSelectedItem(Application.getPreferences().getString(Prefs.EXPORT_COMMENT_CHARACTER, "#"));
 		commentCharacter.setToolTipText(tip);
 		panel.add(commentCharacter, "growx");
 		
@@ -116,10 +116,10 @@ public class CsvOptionPanel extends JPanel {
 	 * Store the selected options to the user preferences.
 	 */
 	public void storePreferences() {
-		Prefs.putString(Prefs.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
-		Prefs.putString(Prefs.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
+		Application.getPreferences().putString(Prefs.EXPORT_FIELD_SEPARATOR, getFieldSeparator());
+		Application.getPreferences().putString(Prefs.EXPORT_COMMENT_CHARACTER, getCommentCharacter());
 		for (int i = 0; i < options.length; i++) {
-			Prefs.putBoolean("csvOptions." + baseClassName + "." + i, options[i].isSelected());
+			Application.getPreferences().putBoolean("csvOptions." + baseClassName + "." + i, options[i].isSelected());
 		}
 	}
 	

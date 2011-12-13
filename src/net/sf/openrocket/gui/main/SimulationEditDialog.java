@@ -741,7 +741,7 @@ public class SimulationEditDialog extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String previous = Prefs.getString("previousListenerName", "");
+				String previous = Application.getPreferences().getString("previousListenerName", "");
 				String input = (String) JOptionPane.showInputDialog(SimulationEditDialog.this,
 						new Object[] {
 								//// Type the full Java class name of the simulation listener, for example:
@@ -756,7 +756,7 @@ public class SimulationEditDialog extends JDialog {
 				if (input == null || input.equals(""))
 					return;
 				
-				Prefs.putString("previousListenerName", input);
+				Application.getPreferences().putString("previousListenerName", input);
 				simulation.getSimulationListeners().add(input);
 				listenerModel.fireContentsChanged();
 			}

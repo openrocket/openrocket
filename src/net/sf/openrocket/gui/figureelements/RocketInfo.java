@@ -1,5 +1,15 @@
 package net.sf.openrocket.gui.figureelements;
 
+import static net.sf.openrocket.util.Chars.ALPHA;
+import static net.sf.openrocket.util.Chars.THETA;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
@@ -9,17 +19,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.font.GlyphVector;
-import java.awt.geom.Rectangle2D;
-
-import static net.sf.openrocket.util.Chars.ALPHA;
-import static net.sf.openrocket.util.Chars.THETA;
 
 
 /**
@@ -48,7 +47,7 @@ public class RocketInfo implements FigureElement {
 	private double cg = 0, cp = 0;
 	private double length = 0, diameter = 0;
 	private double mass = 0;
-	private double aoa = Double.NaN, theta = Double.NaN, mach = Prefs.getDefaultMach();
+	private double aoa = Double.NaN, theta = Double.NaN, mach = Application.getPreferences().getDefaultMach();
 	
 	private WarningSet warnings = null;
 	

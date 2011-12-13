@@ -18,7 +18,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * An optimization parameter that computes either the absolute or relative stability of a rocket.
@@ -61,7 +60,7 @@ public class StabilityParameter implements OptimizableParameter {
 
 		Configuration configuration = simulation.getConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
-		conditions.setMach(Prefs.getDefaultMach());
+		conditions.setMach(Application.getPreferences().getDefaultMach());
 		conditions.setAOA(0);
 		conditions.setRollRate(0);
 		

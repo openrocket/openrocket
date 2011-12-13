@@ -379,7 +379,7 @@ public class RocketComponentConfig extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				Color c = component.getColor();
 				if (c == null) {
-					c = Prefs.getDefaultColor(component.getClass());
+					c = ((Prefs) Application.getPreferences()).getDefaultColor(component.getClass());
 				}
 				
 				//// Choose color
@@ -401,7 +401,7 @@ public class RocketComponentConfig extends JPanel {
 				if (colorDefault.isSelected())
 					component.setColor(null);
 				else
-					component.setColor(Prefs.getDefaultColor(component.getClass()));
+					component.setColor(((Prefs) Application.getPreferences()).getDefaultColor(component.getClass()));
 			}
 		});
 		panel.add(colorDefault, "wrap para");
@@ -423,11 +423,11 @@ public class RocketComponentConfig extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (component.getColor() != null) {
-					Prefs.setDefaultColor(component.getClass(), component.getColor());
+					((Prefs) Application.getPreferences()).setDefaultColor(component.getClass(), component.getColor());
 					component.setColor(null);
 				}
 				if (component.getLineStyle() != null) {
-					Prefs.setDefaultLineStyle(component.getClass(), component.getLineStyle());
+					Application.getPreferences().setDefaultLineStyle(component.getClass(), component.getLineStyle());
 					component.setLineStyle(null);
 				}
 			}
@@ -441,7 +441,7 @@ public class RocketComponentConfig extends JPanel {
 	private Color getColor() {
 		Color c = component.getColor();
 		if (c == null) {
-			c = Prefs.getDefaultColor(component.getClass());
+			c = ((Prefs) Application.getPreferences()).getDefaultColor(component.getClass());
 		}
 		return c;
 	}

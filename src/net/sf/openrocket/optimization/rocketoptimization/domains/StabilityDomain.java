@@ -11,12 +11,12 @@ import net.sf.openrocket.optimization.rocketoptimization.SimulationDomain;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * A simulation domain that limits the required stability of the rocket.
@@ -69,7 +69,7 @@ public class StabilityDomain implements SimulationDomain {
 
 		Configuration configuration = simulation.getConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
-		conditions.setMach(Prefs.getDefaultMach());
+		conditions.setMach(Application.getPreferences().getDefaultMach());
 		conditions.setAOA(0);
 		conditions.setRollRate(0);
 		

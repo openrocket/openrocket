@@ -2,6 +2,7 @@ package net.sf.openrocket.material;
 
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Prefs;
 
 /**
@@ -15,13 +16,13 @@ public class MaterialStorage implements DatabaseListener<Material> {
 	@Override
 	public void elementAdded(Material material, Database<Material> source) {
 		if (material.isUserDefined()) {
-			Prefs.addUserMaterial(material);
+			((Prefs) Application.getPreferences()).addUserMaterial(material);
 		}
 	}
 
 	@Override
 	public void elementRemoved(Material material, Database<Material> source) {
-		Prefs.removeUserMaterial(material);
+		((Prefs) Application.getPreferences()).removeUserMaterial(material);
 	}
 
 }

@@ -3,6 +3,7 @@ package net.sf.openrocket.communication;
 import java.util.List;
 
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ComparablePair;
 import net.sf.openrocket.util.Prefs;
 
@@ -14,7 +15,7 @@ public class UpdateInfo {
 	
 	
 	public UpdateInfo() {
-		this.latestVersion = Prefs.getVersion();
+		this.latestVersion = BuildProperties.getVersion();
 		this.updates = new ArrayList<ComparablePair<Integer, String>>();
 	}
 	

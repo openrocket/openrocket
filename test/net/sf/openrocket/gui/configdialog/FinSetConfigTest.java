@@ -1,18 +1,20 @@
 package net.sf.openrocket.gui.configdialog;
 
-import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.CenteringRing;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FinSetConfigTest {
+import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.CenteringRing;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+public class FinSetConfigTest extends BaseTestCase {
 
     static Method method;
 

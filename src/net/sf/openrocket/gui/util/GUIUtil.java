@@ -116,7 +116,7 @@ public class GUIUtil {
 	 * @return    the DPI setting to use.
 	 */
 	public static double getDPI() {
-		int dpi = Prefs.getInt("DPI", 0); // Tenths of a dpi
+		int dpi = Application.getPreferences().getInt("DPI", 0); // Tenths of a dpi
 		
 		if (dpi < 10) {
 			dpi = Toolkit.getDefaultToolkit().getScreenResolution() * 10;
@@ -305,22 +305,22 @@ public class GUIUtil {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				log.debug("Storing size of " + window.getClass().getName() + ": " + window.getSize());
-				Prefs.setWindowSize(window.getClass(), window.getSize());
+				((Prefs) Application.getPreferences()).setWindowSize(window.getClass(), window.getSize());
 				if (window instanceof JFrame) {
 					if ((((JFrame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
 						log.debug("Storing maximized state of " + window.getClass().getName());
-						Prefs.setWindowMaximized(window.getClass());
+						((Prefs) Application.getPreferences()).setWindowMaximized(window.getClass());
 					}
 				}
 			}
 		});
 		
-		if (Prefs.isWindowMaximized(window.getClass())) {
+		if (((Prefs) Application.getPreferences()).isWindowMaximized(window.getClass())) {
 			if (window instanceof JFrame) {
 				((JFrame) window).setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
 		} else {
-			Dimension dim = Prefs.getWindowSize(window.getClass());
+			Dimension dim = ((Prefs) Application.getPreferences()).getWindowSize(window.getClass());
 			if (dim != null) {
 				window.setSize(dim);
 			}
@@ -336,12 +336,12 @@ public class GUIUtil {
 		window.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent e) {
-				Prefs.setWindowPosition(window.getClass(), window.getLocation());
+				((Prefs) Application.getPreferences()).setWindowPosition(window.getClass(), window.getLocation());
 			}
 		});
 		
 		// Set window position according to preferences, and set prefs when moving
-		Point position = Prefs.getWindowPosition(window.getClass());
+		Point position = ((Prefs) Application.getPreferences()).getWindowPosition(window.getClass());
 		if (position != null) {
 			window.setLocationByPlatform(false);
 			window.setLocation(position);

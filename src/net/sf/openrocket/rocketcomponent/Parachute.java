@@ -4,7 +4,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 public class Parachute extends RecoveryDevice {
 	private static final Translator trans = Application.getTranslator();
@@ -20,7 +19,7 @@ public class Parachute extends RecoveryDevice {
 	
 	public Parachute() {
 		this.diameter = 0.3;
-		this.lineMaterial = Prefs.getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
+		this.lineMaterial = Application.getPreferences().getDefaultComponentMaterial(Parachute.class, Material.Type.LINE);
 		this.lineLength = 0.3;
 	}
 	

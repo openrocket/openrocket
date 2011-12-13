@@ -38,11 +38,14 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
+import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Named;
 import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Utils;
@@ -93,7 +96,7 @@ public class PreferencesDialog extends JDialog {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				Prefs.storeDefaultUnits();
+				((Prefs) Application.getPreferences()).storeDefaultUnits();
 			}
 		});
 		
@@ -106,7 +109,11 @@ public class PreferencesDialog extends JDialog {
 		
 
 		//// Language selector
-		Locale userLocale = Prefs.getUserLocale();
+		Locale userLocale = null;
+		{
+			String locale = Application.getPreferences().getString("locale", null);
+			userLocale = L10N.toLocale(locale);
+		}
 		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
 		for (Locale l : Prefs.getSupportedLocales()) {
 			locales.add(new Named<Locale>(l, l.getDisplayLanguage()));
@@ -125,7 +132,8 @@ public class PreferencesDialog extends JDialog {
 			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
 				Named<Locale> selection = (Named<Locale>) languageCombo.getSelectedItem();
-				Prefs.setUserLocale(selection.get());
+				Locale l = selection.get();
+				Application.getPreferences().putString(Preferences.USER_LOCAL, l == null ? null : l.toString());
 			}
 		});
 		panel.add(new JLabel(trans.get("lbl.language")), "gapright para");
@@ -155,7 +163,7 @@ public class PreferencesDialog extends JDialog {
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
-		List<File> files = Prefs.getUserThrustCurveFiles();
+		List<File> files = ((Prefs) Application.getPreferences()).getUserThrustCurveFiles();
 		String str = "";
 		for (File file : files) {
 			if (str.length() > 0) {
@@ -189,7 +197,7 @@ public class PreferencesDialog extends JDialog {
 						list.add(new File(s));
 					}
 				}
-				Prefs.setUserThrustCurveFiles(list);
+				((Prefs) Application.getPreferences()).setUserThrustCurveFiles(list);
 			}
 		});
 		panel.add(field, "w 100px, gapright unrel, spanx, growx, split");
@@ -244,8 +252,8 @@ public class PreferencesDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// First one sets to the default, but does not un-set the pref
-				field.setText(Prefs.getDefaultUserThrustCurveFile().getAbsolutePath());
-				Prefs.setUserThrustCurveFiles(null);
+				field.setText(((Prefs)Application.getPreferences()).getDefaultUserThrustCurveFile().getAbsolutePath());
+				((Prefs) Application.getPreferences()).setUserThrustCurveFiles(null);
 			}
 		});
 		panel.add(button, "wrap");
@@ -260,11 +268,11 @@ public class PreferencesDialog extends JDialog {
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
 				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
-		softwareUpdateBox.setSelected(Prefs.getCheckUpdates());
+		softwareUpdateBox.setSelected( Application.getPreferences().getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Prefs.setCheckUpdates(softwareUpdateBox.isSelected());
+				Application.getPreferences().setCheckUpdates(softwareUpdateBox.isSelected());
 			}
 		});
 		panel.add(softwareUpdateBox);
@@ -491,7 +499,7 @@ public class PreferencesDialog extends JDialog {
 		
 		@Override
 		public Object getSelectedItem() {
-			return descriptions[Prefs.getChoise(preference, descriptions.length, 0)];
+			return descriptions[Application.getPreferences().getChoice(preference, descriptions.length, 0)];
 		}
 		
 		@Override
@@ -512,7 +520,7 @@ public class PreferencesDialog extends JDialog {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
 			
-			Prefs.putChoise(preference, index);
+			Application.getPreferences().putChoice(preference, index);
 		}
 		
 		@Override
@@ -542,7 +550,7 @@ public class PreferencesDialog extends JDialog {
 		
 		@Override
 		public Object getSelectedItem() {
-			if (Prefs.getBoolean(preference, def)) {
+			if (Application.getPreferences().getBoolean(preference, def)) {
 				return trueDesc;
 			} else {
 				return falseDesc;
@@ -560,9 +568,9 @@ public class PreferencesDialog extends JDialog {
 			}
 			
 			if (trueDesc.equals(item)) {
-				Prefs.putBoolean(preference, true);
+				Application.getPreferences().putBoolean(preference, true);
 			} else if (falseDesc.equals(item)) {
-				Prefs.putBoolean(preference, false);
+				Application.getPreferences().putBoolean(preference, false);
 			} else {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
@@ -650,7 +658,7 @@ public class PreferencesDialog extends JDialog {
 					trans.get("pref.dlg.lbl.msg2"), JOptionPane.WARNING_MESSAGE, null);
 		} else if (info.getLatestVersion() == null ||
 				info.getLatestVersion().equals("") ||
-				Prefs.getVersion().equalsIgnoreCase(info.getLatestVersion())) {
+				BuildProperties.getVersion().equalsIgnoreCase(info.getLatestVersion())) {
 			JOptionPane.showMessageDialog(this,
 					//// You are running the latest version of OpenRocket.
 					trans.get("pref.dlg.lbl.msg3"),
@@ -660,9 +668,9 @@ public class PreferencesDialog extends JDialog {
 			UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 			infoDialog.setVisible(true);
 			if (infoDialog.isReminderSelected()) {
-				Prefs.putString(Prefs.LAST_UPDATE, "");
+				Application.getPreferences().putString(Prefs.LAST_UPDATE, "");
 			} else {
-				Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+				Application.getPreferences().putString(Prefs.LAST_UPDATE, info.getLatestVersion());
 			}
 		}
 		

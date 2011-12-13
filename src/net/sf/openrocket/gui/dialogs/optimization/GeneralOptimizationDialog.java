@@ -1236,7 +1236,7 @@ public class GeneralOptimizationDialog extends JDialog {
 
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
-		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
+		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(csvOptions);
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)

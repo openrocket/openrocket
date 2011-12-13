@@ -35,7 +35,6 @@ public abstract class SafetyMutex {
 		}
 	}
 	
-	
 
 	/**
 	 * Verify that this mutex is unlocked, but don't lock it.  This has the same effect

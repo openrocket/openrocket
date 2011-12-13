@@ -427,7 +427,7 @@ public class DesignReport {
 		Rocket duplicate = theRocket.copyWithOriginalID();
 		FlightData flight = null;
 		try {
-			Simulation simulation = Prefs.getBackgroundSimulation(duplicate);
+			Simulation simulation = ((Prefs)Application.getPreferences()).getBackgroundSimulation(duplicate);
 			simulation.getOptions().setMotorConfigurationID(motorId);
 			simulation.simulate();
 			flight = simulation.getSimulatedData();

@@ -1,9 +1,13 @@
 package net.sf.openrocket.communication;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Prefs;
 
 import org.junit.Test;
@@ -22,7 +26,7 @@ public class BugReportTest {
 	private void check(HttpURLConnectionMock connection) {
 		assertEquals(Communicator.BUG_REPORT_URL, connection.getTrueUrl());
 		assertTrue(connection.getConnectTimeout() > 0);
-		assertEquals(Prefs.getVersion(), connection.getRequestProperty("X-OpenRocket-Version"));
+		assertEquals(BuildProperties.getVersion(), connection.getRequestProperty("X-OpenRocket-Version"));
 		assertTrue(connection.getInstanceFollowRedirects());
 		assertEquals("POST", connection.getRequestMethod());
 		assertFalse(connection.getUseCaches());
@@ -44,7 +48,7 @@ public class BugReportTest {
 		check(connection);
 		
 		String msg = connection.getOutputStreamString();
-		assertTrue(msg.indexOf("version=" + Prefs.getVersion()) >= 0);
+		assertTrue(msg.indexOf("version=" + BuildProperties.getVersion()) >= 0);
 		assertTrue(msg.indexOf(Communicator.encode(message)) >= 0);
 	}
 	

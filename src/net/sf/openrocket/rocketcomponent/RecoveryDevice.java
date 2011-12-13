@@ -6,7 +6,6 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.Prefs;
 
 
 /**
@@ -100,7 +99,7 @@ public abstract class RecoveryDevice extends MassObject {
 
 	
 	public RecoveryDevice() {
-		this(Prefs.getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
+		this(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
 	}
 	
 	public RecoveryDevice(Material material) {

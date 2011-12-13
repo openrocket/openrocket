@@ -1,6 +1,10 @@
 package net.sf.openrocket;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -32,6 +36,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,7 +45,7 @@ import org.junit.Test;
  * This class contains various integration tests that simulate user actions that
  * might be performed.
  */
-public class IntegrationTest {
+public class IntegrationTest extends BaseTestCase {
 	
 	private OpenRocketDocument document;
 	private Action undoAction, redoAction;

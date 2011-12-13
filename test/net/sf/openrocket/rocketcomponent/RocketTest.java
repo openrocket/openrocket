@@ -1,8 +1,10 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
+
 import org.junit.Test;
 
-public class RocketTest {
+public class RocketTest extends BaseTestCase {
 	
 	@Test
 	public void testCopyFrom() {

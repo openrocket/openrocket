@@ -1,5 +1,8 @@
 package net.sf.openrocket.util;
 
+import java.awt.Color;
+import java.util.Random;
+
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Motor;
@@ -27,9 +30,6 @@ import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.startup.Application;
-
-import java.awt.Color;
-import java.util.Random;
 
 public class TestRockets {
 	
@@ -270,7 +270,7 @@ public class TestRockets {
 		
 		bodytube.addChild(finset);
 		
-		Material material = Prefs.getDefaultComponentMaterial(null, Material.Type.BULK);
+		Material material = Application.getPreferences().getDefaultComponentMaterial(null, Material.Type.BULK);
 		nosecone.setMaterial(material);
 		bodytube.setMaterial(material);
 		finset.setMaterial(material);

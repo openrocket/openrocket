@@ -3,6 +3,7 @@
  */
 package net.sf.openrocket.gui.dialogs;
 
+import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -60,6 +61,9 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private JButton previewButton;
 	private JButton saveAsPDF;
 	private JButton cancel;
+	
+	
+	private final static Prefs prefs = (Prefs) Application.getPreferences();
 	
 	/**
 	 * Constructor.
@@ -143,11 +147,11 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		settingsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PrintSettings settings = Prefs.getPrintSettings();
+				PrintSettings settings = getPrintSettings();
 				log.debug("settings=" + settings);
 				PrintSettingsDialog settingsDialog = new PrintSettingsDialog(PrintDialog.this, settings);
 				settingsDialog.setVisible(true);
-				Prefs.setPrintSettings(settings);
+				setPrintSettings(settings);
 			}
 		});
 		panel.add(settingsButton, "wrap para");
@@ -288,7 +292,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private void onPreview() {
 		if (desktop != null) {
 			try {
-				PrintSettings settings = Prefs.getPrintSettings();
+				PrintSettings settings = getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
 				File f = generateReport(settings);
@@ -326,7 +330,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			dir = dir.getParentFile();
 		}
 		if (dir == null) {
-			dir = Prefs.getDefaultDirectory();
+			dir = ((Prefs) Application.getPreferences()).getDefaultDirectory();
 		}
 		chooser.setCurrentDirectory(dir);
 		
@@ -341,7 +345,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 			
 			try {
 				
-				PrintSettings settings = Prefs.getPrintSettings();
+				PrintSettings settings = getPrintSettings();
 				// TODO: HIGH: Remove UIManager, and pass settings to the actual printing methods
 				TemplateProperties.setColors(settings);
 				generateReport(file, settings);
@@ -356,4 +360,31 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 		}
 	}
 	
+	public PrintSettings getPrintSettings() {
+		PrintSettings settings = new PrintSettings();
+		Color c;
+		
+		c = prefs.getColor("print.template.fillColor", (java.awt.Color) null);
+		if (c != null) {
+			settings.setTemplateFillColor(c);
+		}
+		
+		c = prefs.getColor("print.template.borderColor", (java.awt.Color) null);
+		if (c != null) {
+			settings.setTemplateBorderColor(c);
+		}
+		
+		settings.setPaperSize(prefs.getEnum("print.paper.size", settings.getPaperSize()));
+		settings.setPaperOrientation(prefs.getEnum("print.paper.orientation", settings.getPaperOrientation()));
+		
+		return settings;
+	}
+	
+	public void setPrintSettings(PrintSettings settings) {
+		prefs.putColor("print.template.fillColor", settings.getTemplateFillColor() );
+		prefs.putColor("print.template.borderColor", settings.getTemplateBorderColor() );
+		prefs.putEnum("print.paper.size", settings.getPaperSize());
+		prefs.putEnum("print.paper.orientation", settings.getPaperOrientation());
+	}
+
 }

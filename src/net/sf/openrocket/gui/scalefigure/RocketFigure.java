@@ -25,6 +25,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
@@ -311,13 +312,13 @@ public class RocketFigure extends AbstractScaleFigure {
 			// Set component color and line style
 			Color color = c.getColor();
 			if (color == null) {
-				color = Prefs.getDefaultColor(c.getClass());
+				color = ((Prefs) Application.getPreferences()).getDefaultColor(c.getClass());
 			}
 			g2.setColor(color);
 			
 			LineStyle style = c.getLineStyle();
 			if (style == null)
-				style = Prefs.getDefaultLineStyle(c.getClass());
+				style = Application.getPreferences().getDefaultLineStyle(c.getClass());
 			
 			float[] dashes = style.getDashes();
 			for (int j = 0; j < dashes.length; j++) {
@@ -347,8 +348,8 @@ public class RocketFigure extends AbstractScaleFigure {
 
 		// Draw motors
 		String motorID = configuration.getMotorConfigurationID();
-		Color fillColor = Prefs.getMotorFillColor();
-		Color borderColor = Prefs.getMotorBorderColor();
+		Color fillColor = ((Prefs)Application.getPreferences()).getMotorFillColor();
+		Color borderColor = ((Prefs)Application.getPreferences()).getMotorBorderColor();
 		Iterator<MotorMount> iterator = configuration.motorIterator();
 		while (iterator.hasNext()) {
 			MotorMount mount = iterator.next();

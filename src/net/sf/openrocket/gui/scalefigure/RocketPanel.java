@@ -478,8 +478,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			conditions.setMach(cpMach);
 			extraText.setMach(cpMach);
 		} else {
-			conditions.setMach(Prefs.getDefaultMach());
-			extraText.setMach(Prefs.getDefaultMach());
+			conditions.setMach(Application.getPreferences().getDefaultMach());
+			extraText.setMach(Application.getPreferences().getDefaultMach());
 		}
 		
 		if (!Double.isNaN(cpAOA)) {
@@ -564,7 +564,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		////////  Flight simulation in background
 		
 		// Check whether to compute or not
-		if (!Prefs.computeFlightInBackground()) {
+		if (!((Prefs) Application.getPreferences()).computeFlightInBackground()) {
 			extraText.setFlightData(null);
 			extraText.setCalculatingData(false);
 			stopBackgroundSimulation();
@@ -594,7 +594,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setCalculatingData(true);
 		
 		Rocket duplicate = (Rocket) configuration.getRocket().copy();
-		Simulation simulation = Prefs.getBackgroundSimulation(duplicate);
+		Simulation simulation = ((Prefs)Application.getPreferences()).getBackgroundSimulation(duplicate);
 		simulation.getOptions().setMotorConfigurationID(
 				configuration.getMotorConfigurationID());
 		

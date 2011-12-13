@@ -64,7 +64,6 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	
@@ -112,7 +111,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		
 		rocketPanel.setCPAOA(0);
 		aoa = new DoubleModel(rocketPanel, "CPAOA", UnitGroup.UNITS_ANGLE, 0, Math.PI);
-		rocketPanel.setCPMach(Prefs.getDefaultMach());
+		rocketPanel.setCPMach(Application.getPreferences().getDefaultMach());
 		mach = new DoubleModel(rocketPanel, "CPMach", UnitGroup.UNITS_COEFFICIENT, 0);
 		rocketPanel.setCPTheta(rocketPanel.getFigure().getRotation());
 		theta = new DoubleModel(rocketPanel, "CPTheta", UnitGroup.UNITS_ANGLE, 0, 2 * Math.PI);

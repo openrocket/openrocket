@@ -8,6 +8,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Prefs;
 
 /**
  * A base class for the Rocksim tests.  Includes code from the junitx.addons project.
@@ -23,6 +25,17 @@ public abstract class RocksimTestBase extends TestCase {
 		super(name);
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		Application.setPreferences( new Prefs() );
+	}
+
+
 	public void assertContains(RocketComponent child, List<RocketComponent> components) {
 		assertTrue("Components did not contain child", components.contains(child));
 	}

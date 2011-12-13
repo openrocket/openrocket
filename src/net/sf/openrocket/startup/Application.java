@@ -23,7 +23,8 @@ public final class Application {
 	private static Translator baseTranslator = new DebugTranslator(null);
 	
 	private static ThrustCurveMotorSetDatabase motorSetDatabase;
-	
+
+	private static Preferences preferences;
 
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
@@ -103,7 +104,20 @@ public final class Application {
 		Application.baseTranslator = translator;
 	}
 	
-	
+
+	/**
+	 * @return the preferences
+	 */
+	public static Preferences getPreferences() {
+		return preferences;
+	}
+
+	/**
+	 * @param preferences the preferences to set
+	 */
+	public static void setPreferences(Preferences preferences) {
+		Application.preferences = preferences;
+	}
 
 	/**
 	 * Return the database of all thrust curves loaded into the system.

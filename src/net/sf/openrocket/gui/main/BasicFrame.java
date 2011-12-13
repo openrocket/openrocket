@@ -1005,14 +1005,14 @@ public class BasicFrame extends JFrame {
 		
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setMultiSelectionEnabled(true);
-		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
+		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
 		int option = chooser.showOpenDialog(this);
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.user("Decided not to open files, option=" + option);
 			return;
 		}
 		
-		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
+		((Prefs) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		
 		File[] files = chooser.getSelectedFiles();
 		log.user("Opening files " + Arrays.toString(files));
@@ -1259,7 +1259,7 @@ public class BasicFrame extends JFrame {
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
+		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(storageChooser);
 		if (document.getFile() != null)
 			chooser.setSelectedFile(document.getFile());
@@ -1276,7 +1276,7 @@ public class BasicFrame extends JFrame {
 			return false;
 		}
 		
-		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
+		((Prefs) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		storageChooser.storeOptions(document.getDefaultStorageOptions());
 		
 		file = FileHelper.ensureExtension(file, "ork");

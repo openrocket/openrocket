@@ -506,7 +506,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
-			int pos = Prefs.getChoise(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
+			int pos = Application.getPreferences().getChoice(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
 			if (pos == 0) {
 				if (parent.getChildPosition(c) == parent.getChildCount() - 1)
 					pos = 2; // Selected component is the last component
@@ -578,7 +578,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			if (check.isSelected()) {
 				// Save the preference
-				Prefs.putInt(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
+				Application.getPreferences().putInt(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}

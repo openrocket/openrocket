@@ -18,8 +18,8 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Chars;
-import net.sf.openrocket.util.Prefs;
 
 public class AboutDialog extends JDialog {
 	
@@ -45,7 +45,7 @@ public class AboutDialog extends JDialog {
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
 		
-		final String version = Prefs.getVersion();
+		final String version = BuildProperties.getVersion();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub;

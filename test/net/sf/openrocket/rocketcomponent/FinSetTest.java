@@ -1,6 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 
@@ -11,10 +13,11 @@ import net.sf.openrocket.rocketcomponent.FinSet.CrossSection;
 import net.sf.openrocket.rocketcomponent.FinSet.TabRelativePosition;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.util.LineStyle;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
 
-public class FinSetTest {
+public class FinSetTest extends BaseTestCase {
 	
 
 	@Test

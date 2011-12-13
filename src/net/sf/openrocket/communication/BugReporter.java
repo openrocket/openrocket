@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 
-import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.BuildProperties;
 
 public class BugReporter extends Communicator {
 	
@@ -30,10 +30,10 @@ public class BugReporter extends Communicator {
 		connection.setInstanceFollowRedirects(true);
 		connection.setRequestMethod("POST");
 		connection.setUseCaches(false);
-		connection.setRequestProperty("X-OpenRocket-Version", encode(Prefs.getVersion()));
+		connection.setRequestProperty("X-OpenRocket-Version", encode(BuildProperties.getVersion()));
 		
 		String post;
-		post = (VERSION_PARAM + "=" + encode(Prefs.getVersion())
+		post = (VERSION_PARAM + "=" + encode(BuildProperties.getVersion())
 				+ "&" + BUG_REPORT_PARAM + "=" + encode(report));
 		
 		OutputStreamWriter wr = null;

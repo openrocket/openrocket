@@ -8,7 +8,7 @@ import java.awt.SplashScreen;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
-import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.BuildProperties;
 
 /**
  * Helper methods for manipulating the Java runtime splash screen.
@@ -62,7 +62,7 @@ public class Splash {
 	
 
 	private static void drawVersionNumber(Graphics2D g2) {
-		String text = "Version " + Prefs.getVersion();
+		String text = "Version " + BuildProperties.getVersion();
 		GlyphVector gv = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text);
 		
 		Rectangle2D rect = gv.getVisualBounds();

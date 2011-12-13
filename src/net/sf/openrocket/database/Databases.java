@@ -95,7 +95,7 @@ public class Databases {
 		
 
 		// Add user-defined materials
-		for (Material m : Prefs.getUserMaterials()) {
+		for (Material m : ((Prefs) Application.getPreferences()).getUserMaterials()) {
 			switch (m.getType()) {
 			case LINE:
 				LINE_MATERIAL.add(m);

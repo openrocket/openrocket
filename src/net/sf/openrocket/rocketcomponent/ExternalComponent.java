@@ -7,7 +7,6 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Prefs;
 
 /**
  * Class of components with well-defined physical appearance and which have an effect on
@@ -65,7 +64,7 @@ public abstract class ExternalComponent extends RocketComponent {
 	 */
 	public ExternalComponent(RocketComponent.Position relativePosition) {
 		super(relativePosition);
-		this.material = Prefs.getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
+		this.material = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
 	
 	/**

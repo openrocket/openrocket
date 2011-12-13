@@ -5,7 +5,6 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 public class ShockCord extends MassObject {
 	private static final Translator trans = Application.getTranslator();
@@ -14,7 +13,7 @@ public class ShockCord extends MassObject {
 	private double cordLength;
 	
 	public ShockCord() {
-		material = Prefs.getDefaultComponentMaterial(ShockCord.class, Material.Type.LINE);
+		material = Application.getPreferences().getDefaultComponentMaterial(ShockCord.class, Material.Type.LINE);
 		cordLength = 0.4;
 	}
 	

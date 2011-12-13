@@ -36,8 +36,8 @@ import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.JarUtil;
-import net.sf.openrocket.util.Prefs;
 
 public class BugReportDialog extends JDialog {
 	
@@ -270,8 +270,8 @@ public class BugReportDialog extends JDialog {
 	
 	
 	private static void addSystemInformation(StringBuilder sb) {
-		sb.append("OpenRocket version: " + Prefs.getVersion() + "\n");
-		sb.append("OpenRocket source: " + Prefs.getBuildSource() + "\n");
+		sb.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
+		sb.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sb.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
 		sb.append("Current default locale: " + Locale.getDefault() + "\n");
 		sb.append("System properties:\n");
@@ -320,7 +320,7 @@ public class BugReportDialog extends JDialog {
 		
 		try {
 			text = URLEncoder.encode(text, "UTF-8");
-			version = URLEncoder.encode(Prefs.getVersion(), "UTF-8");
+			version = URLEncoder.encode(BuildProperties.getVersion(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new BugException(e);
 		}

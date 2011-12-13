@@ -11,9 +11,9 @@ import java.util.Locale;
 
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ComparablePair;
 import net.sf.openrocket.util.LimitedInputStream;
-import net.sf.openrocket.util.Prefs;
 
 public class UpdateInfoRetriever {
 	private static final LogHelper log = Application.getLogger();
@@ -136,7 +136,7 @@ public class UpdateInfoRetriever {
 		
 		private void doConnection() throws IOException {
 			String url = Communicator.UPDATE_INFO_URL + "?" + Communicator.VERSION_PARAM + "="
-					+ Communicator.encode(Prefs.getVersion());
+					+ Communicator.encode(BuildProperties.getVersion());
 			
 			HttpURLConnection connection = Communicator.connectionSource.getConnection(url);
 			
@@ -146,9 +146,9 @@ public class UpdateInfoRetriever {
 			connection.setUseCaches(false);
 			connection.setDoInput(true);
 			connection.setRequestProperty("X-OpenRocket-Version",
-					Communicator.encode(Prefs.getVersion() + " " + Prefs.getBuildSource()));
+					Communicator.encode(BuildProperties.getVersion() + " " + BuildProperties.getBuildSource()));
 			connection.setRequestProperty("X-OpenRocket-ID",
-					Communicator.encode(Prefs.getUniqueID()));
+					Communicator.encode(Application.getPreferences().getUniqueID()));
 			connection.setRequestProperty("X-OpenRocket-OS",
 					Communicator.encode(System.getProperty("os.name") + " " +
 							System.getProperty("os.arch")));
@@ -217,7 +217,7 @@ public class UpdateInfoRetriever {
 				
 				// Check version input
 				if (version == null || version.length() == 0 ||
-						version.equalsIgnoreCase(Prefs.getVersion())) {
+						version.equalsIgnoreCase(BuildProperties.getVersion())) {
 					// Invalid response
 					log.warn("Invalid version received, ignoring.");
 					return;

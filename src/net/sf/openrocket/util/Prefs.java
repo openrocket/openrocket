@@ -4,28 +4,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Properties;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.arch.SystemInfo;
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.main.ExceptionHandler;
-import net.sf.openrocket.gui.print.PrintSettings;
-import net.sf.openrocket.l10n.L10N;
-import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
@@ -43,7 +35,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 
-public class Prefs {
+public class Prefs extends net.sf.openrocket.startup.Preferences {
 	private static final LogHelper log = Application.getLogger();
 	
 	private static final String SPLIT_CHARACTER = "|";
@@ -78,91 +70,22 @@ public class Prefs {
 	 */
 	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
-	
-	/*
-	 * Load property file only when necessary.
+	/**
+	 * Return whether to use additional safety code checks.
 	 */
-	private static class BuildPropertyHolder {
-		
-		public static final Properties PROPERTIES;
-		public static final String BUILD_VERSION;
-		public static final String BUILD_SOURCE;
-		public static final boolean DEFAULT_CHECK_UPDATES;
-		
-		static {
-			try {
-				InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
-				if (is == null) {
-					throw new MissingResourceException(
-							"build.properties not found, distribution built wrong" +
-									"   classpath:" + System.getProperty("java.class.path"),
-							"build.properties", "build.version");
-				}
-				
-				PROPERTIES = new Properties();
-				PROPERTIES.load(is);
-				is.close();
-				
-				String version = PROPERTIES.getProperty("build.version");
-				if (version == null) {
-					throw new MissingResourceException(
-							"build.version not found in property file",
-							"build.properties", "build.version");
-				}
-				BUILD_VERSION = version.trim();
-				
-				BUILD_SOURCE = PROPERTIES.getProperty("build.source");
-				if (BUILD_SOURCE == null) {
-					throw new MissingResourceException(
-							"build.source not found in property file",
-							"build.properties", "build.source");
-				}
-				
-				String value = PROPERTIES.getProperty("build.checkupdates");
-				if (value != null)
-					DEFAULT_CHECK_UPDATES = Boolean.parseBoolean(value);
-				else
-					DEFAULT_CHECK_UPDATES = true;
-				
-			} catch (IOException e) {
-				throw new MissingResourceException(
-						"Error reading build.properties",
-						"build.properties", "build.version");
-			}
+	public static boolean useSafetyChecks() {
+		// Currently default to false unless openrocket.debug.safetycheck is defined
+		String s = System.getProperty("openrocket.debug.safetycheck");
+		if (s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"))) {
+			return true;
 		}
+		return false;
 	}
 	
-	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
-	
-	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
-	
-	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
-	
-	// Preferences related to data export
-	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
-	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
-	public static final String EXPORT_FIELD_NAME_COMMENT = "ExportFieldDescriptionComment";
-	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
-	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
-	
-	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
-	
-	private static final String CHECK_UPDATES = "CheckUpdates";
-	public static final String LAST_UPDATE = "LastUpdateVersion";
-	
-	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
-	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
+	private  final Preferences PREFNODE;
 	
 
-	// Node names
-	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
-	
-
-	private static final Preferences PREFNODE;
-	
-
-	// Clear the preferences if debug mode and clearprefs is defined
-	static {
+	public Prefs() {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
 			try {
@@ -177,10 +100,6 @@ public class Prefs {
 	}
 	
 
-
-
-	/////////  Default component attributes
-	
 	private static final HashMap<Class<?>, String> DEFAULT_COLORS =
 			new HashMap<Class<?>, String>();
 	static {
@@ -193,104 +112,17 @@ public class Prefs {
 	}
 	
 
-	private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES =
-			new HashMap<Class<?>, String>();
-	static {
-		DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
-		DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
-	}
-	
-	
-	/*
-	 * Within a holder class so they will load only when needed.
-	 */
-	private static class DefaultMaterialHolder {
-		private static final Translator trans = Application.getTranslator();
-		
-		//// Elastic cord (round 2mm, 1/16 in)
-		private static final Material DEFAULT_LINE_MATERIAL =
-				Databases.findMaterial(Material.Type.LINE, trans.get("Databases.materials.Elasticcordround2mm"),
-						0.0018, false);
-		//// Ripstop nylon
-		private static final Material DEFAULT_SURFACE_MATERIAL =
-				Databases.findMaterial(Material.Type.SURFACE, trans.get("Databases.materials.Ripstopnylon"), 0.067, false);
-		//// Cardboard
-		private static final Material DEFAULT_BULK_MATERIAL =
-				Databases.findMaterial(Material.Type.BULK, trans.get("Databases.materials.Cardboard"), 680, false);
-	}
 	
 	//////////////////////
 	
 
-	/**
-	 * Return the OpenRocket version number.
-	 */
-	public static String getVersion() {
-		return BuildPropertyHolder.BUILD_VERSION;
-	}
-	
-	
-	/**
-	 * Return the OpenRocket build source (e.g. "default" or "Debian")
-	 */
-	public static String getBuildSource() {
-		return BuildPropertyHolder.BUILD_SOURCE;
-	}
-	
-	
-	/**
-	 * Return the OpenRocket unique ID.
-	 * 
-	 * @return	a random ID string that stays constant between OpenRocket executions
-	 */
-	public static String getUniqueID() {
-		String id = PREFNODE.get("id", null);
-		if (id == null) {
-			id = UniqueID.uuid();
-			PREFNODE.put("id", id);
-		}
-		return id;
-	}
-	
-	
 
 	/**
 	 * Store the current OpenRocket version into the preferences to allow for preferences migration.
 	 */
-	private static void storeVersion() {
-		PREFNODE.put("OpenRocketVersion", getVersion());
+	private void storeVersion() {
+		PREFNODE.put("OpenRocketVersion", BuildProperties.getVersion());
 	}
-	
-	
-	/**
-	 * Returns a limited-range integer value from the preferences.  If the value 
-	 * in the preferences is negative or greater than max, then the default value 
-	 * is returned.
-	 * 
-	 * @param key  The preference to retrieve.
-	 * @param max  Maximum allowed value for the choice.
-	 * @param def  Default value.
-	 * @return   The preference value.
-	 */
-	public static int getChoise(String key, int max, int def) {
-		int v = PREFNODE.getInt(key, def);
-		if ((v < 0) || (v > max))
-			return def;
-		return v;
-	}
-	
-	
-	/**
-	 * Helper method that puts an integer choice value into the preferences.
-	 * 
-	 * @param key     the preference key.
-	 * @param value   the value to store.
-	 */
-	public static void putChoise(String key, int value) {
-		PREFNODE.putInt(key, value);
-		storeVersion();
-	}
-	
 	
 	/**
 	 * Return a string preference.
@@ -299,8 +131,15 @@ public class Prefs {
 	 * @param def	the default if no preference is stored
 	 * @return		the preference value
 	 */
-	public static String getString(String key, String def) {
+	@Override
+	public String getString(String key, String def) {
 		return PREFNODE.get(key, def);
+	}
+	
+	@Override
+	public String getString( String directory, String key, String defaultValue ) {
+		Preferences p = PREFNODE.node(directory);
+		return p.get(key,defaultValue);
 	}
 	
 	/**
@@ -309,55 +148,26 @@ public class Prefs {
 	 * @param key		the preference key
 	 * @param value		the value to set, or <code>null</code> to remove the key
 	 */
-	public static void putString(String key, String value) {
+	@Override
+	public void putString(String key, String value) {
 		if (value == null) {
 			PREFNODE.remove(key);
-			return;
+		} else {
+			PREFNODE.put(key, value);
 		}
-		PREFNODE.put(key, value);
 		storeVersion();
 	}
 	
-	
-	/**
-	 * Retrieve an enum value from the user preferences.
-	 * 
-	 * @param <T>	the enum type
-	 * @param key	the key
-	 * @param def	the default value, cannot be null
-	 * @return		the value in the preferences, or the default value
-	 */
-	public static <T extends Enum<T>> T getEnum(String key, T def) {
-		if (def == null) {
-			throw new BugException("Default value cannot be null");
-		}
-		
-		String value = getString(key, null);
-		if (value == null) {
-			return def;
-		}
-		
-		try {
-			return Enum.valueOf(def.getDeclaringClass(), value);
-		} catch (IllegalArgumentException e) {
-			return def;
-		}
-	}
-	
-	/**
-	 * Store an enum value to the user preferences.
-	 * 
-	 * @param key		the key
-	 * @param value		the value to store, or null to remove the value
-	 */
-	public static void putEnum(String key, Enum<?> value) {
-		if (value == null) {
-			putString(key, null);
+	@Override
+	public void putString(String directory, String key, String value ) {
+		Preferences p = PREFNODE.node(directory);
+		if ( value == null ) {
+			p.remove(key);
 		} else {
-			putString(key, value.name());
+			p.put(key,value);
 		}
+		storeVersion();
 	}
-	
 	
 	/**
 	 * Return a boolean preference.
@@ -366,7 +176,8 @@ public class Prefs {
 	 * @param def	the default if no preference is stored
 	 * @return		the preference value
 	 */
-	public static boolean getBoolean(String key, boolean def) {
+	@Override
+	public boolean getBoolean(String key, boolean def) {
 		return PREFNODE.getBoolean(key, def);
 	}
 	
@@ -376,18 +187,35 @@ public class Prefs {
 	 * @param key		the preference key
 	 * @param value		the value to set
 	 */
-	public static void putBoolean(String key, boolean value) {
+	@Override
+	public void putBoolean(String key, boolean value) {
 		PREFNODE.putBoolean(key, value);
 		storeVersion();
 	}
 	
-	public static int getInt( String key, int defaultValue ) {
+	@Override
+	public int getInt( String key, int defaultValue ) {
 		return PREFNODE.getInt(key, defaultValue);
 	}
 	
-	public static void putInt( String key , int value ) {
+	@Override
+	public void putInt( String key , int value ) {
 		PREFNODE.putInt(key, value );
+		storeVersion();
 	}
+	
+	@Override
+	public double getDouble(String key, double defaultValue) {
+		return PREFNODE.getDouble(key,  defaultValue );
+	}
+
+	@Override
+	public void putDouble(String key, double value) {
+		PREFNODE.putDouble(key,value);
+		storeVersion();
+	}
+
+
 
 	/**
 	 * Return a preferences object for the specified node name.
@@ -395,7 +223,7 @@ public class Prefs {
 	 * @param nodeName	the node name
 	 * @return			the preferences object for that node
 	 */
-	public static Preferences getNode(String nodeName) {
+	public Preferences getNode(String nodeName) {
 		return PREFNODE.node(nodeName);
 	}
 	
@@ -407,45 +235,21 @@ public class Prefs {
 		return SUPPORTED_LOCALES;
 	}
 	
-	public static Locale getUserLocale() {
-		String locale = getString("locale", null);
-		return L10N.toLocale(locale);
-	}
-	
-	public static void setUserLocale(Locale l) {
-		if (l == null) {
-			putString("locale", null);
-		} else {
-			putString("locale", l.toString());
-		}
-	}
-	
-	
-
-	public static boolean getCheckUpdates() {
-		return PREFNODE.getBoolean(CHECK_UPDATES, BuildPropertyHolder.DEFAULT_CHECK_UPDATES);
-	}
-	
-	public static void setCheckUpdates(boolean check) {
-		PREFNODE.putBoolean(CHECK_UPDATES, check);
-		storeVersion();
-	}
-	
-	public static File getDefaultDirectory() {
-		String file = PREFNODE.get("defaultDirectory", null);
+	public File getDefaultDirectory() {
+		String file = getString("defaultDirectory", null);
 		if (file == null)
 			return null;
 		return new File(file);
 	}
 	
-	public static void setDefaultDirectory(File dir) {
+	public void setDefaultDirectory(File dir) {
 		String d;
 		if (dir == null) {
 			d = null;
 		} else {
 			d = dir.getAbsolutePath();
 		}
-		PREFNODE.put("defaultDirectory", d);
+		putString("defaultDirectory", d);
 		storeVersion();
 	}
 	
@@ -459,7 +263,7 @@ public class Prefs {
 	 * 
 	 * @return	a list of files to load as thrust curves.
 	 */
-	public static List<File> getUserThrustCurveFiles() {
+	public List<File> getUserThrustCurveFiles() {
 		List<File> list = new ArrayList<File>();
 		
 		String files = getString(USER_THRUST_CURVES_KEY, null);
@@ -482,7 +286,7 @@ public class Prefs {
 		return list;
 	}
 	
-	public static File getDefaultUserThrustCurveFile() {
+	public File getDefaultUserThrustCurveFile() {
 		File appdir = SystemInfo.getUserApplicationDirectory();
 		File tcdir = new File(appdir, "ThrustCurves");
 		return tcdir;
@@ -494,7 +298,7 @@ public class Prefs {
 	 * 
 	 * @param files		the files to load, or <code>null</code> to reset to default value.
 	 */
-	public static void setUserThrustCurveFiles(List<File> files) {
+	public void setUserThrustCurveFiles(List<File> files) {
 		if (files == null) {
 			putString(USER_THRUST_CURVES_KEY, null);
 			return;
@@ -511,121 +315,36 @@ public class Prefs {
 		putString(USER_THRUST_CURVES_KEY, str);
 	}
 	
-	
-
-
-
-	public static Color getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, DEFAULT_COLORS);
-		if (color == null)
-			return Color.BLACK;
-		
-		Color clr = parseColor(color);
-		if (clr != null) {
-			return clr;
-		} else {
-			return Color.BLACK;
-		}
-	}
-	
-	public static void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
-		if (color == null)
-			return;
-		set("componentColors", c, stringifyColor(color));
-	}
-	
-	
-	private static Color parseColor(String color) {
-		if (color == null) {
-			return null;
-		}
-		
-		String[] rgb = color.split(",");
-		if (rgb.length == 3) {
-			try {
-				int red = MathUtil.clamp(Integer.parseInt(rgb[0]), 0, 255);
-				int green = MathUtil.clamp(Integer.parseInt(rgb[1]), 0, 255);
-				int blue = MathUtil.clamp(Integer.parseInt(rgb[2]), 0, 255);
-				return new Color(red, green, blue);
-			} catch (NumberFormatException ignore) {
-			}
-		}
-		return null;
-	}
-	
-	
-	private static String stringifyColor(Color color) {
-		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
-		return string;
-	}
-	
-	
-
-	public static Color getMotorBorderColor() {
+	public Color getMotorBorderColor() {
 		// TODO: MEDIUM:  Motor color (settable?)
 		return new Color(0, 0, 0, 200);
 	}
 	
 	
-	public static Color getMotorFillColor() {
+	public Color getMotorFillColor() {
 		// TODO: MEDIUM:  Motor fill color (settable?)
 		return new Color(0, 0, 0, 100);
 	}
 	
-	
-	public static LineStyle getDefaultLineStyle(Class<? extends RocketComponent> c) {
-		String value = get("componentStyle", c, DEFAULT_LINE_STYLES);
-		try {
-			return LineStyle.valueOf(value);
-		} catch (Exception e) {
-			return LineStyle.SOLID;
+	public Color getDefaultColor(Class<? extends RocketComponent> c) {
+		String color = get("componentColors", c, DEFAULT_COLORS);
+		if (color == null)
+			return Color.BLACK;
+		
+		net.sf.openrocket.util.Color clr = parseColor(color);
+		if (clr != null) {
+			return ColorConversion.toAwtColor(clr);
+		} else {
+			return Color.BLACK;
 		}
 	}
 	
-	public static void setDefaultLineStyle(Class<? extends RocketComponent> c,
-			LineStyle style) {
-		if (style == null)
+	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
+		if (color == null)
 			return;
-		set("componentStyle", c, style.name());
+		putString("componentColors", c.getSimpleName(), stringifyColor(ColorConversion.fromAwtColor(color)));
 	}
-	
-	
-	public static double getDefaultMach() {
-		// TODO: HIGH: implement custom default mach number
-		return 0.3;
-	}
-	
-	public static Material getDefaultComponentMaterial(
-			Class<? extends RocketComponent> componentClass,
-			Material.Type type) {
-		
-		String material = get("componentMaterials", componentClass, null);
-		if (material != null) {
-			try {
-				Material m = Material.fromStorableString(material, false);
-				if (m.getType() == type)
-					return m;
-			} catch (IllegalArgumentException ignore) {
-			}
-		}
-		
-		switch (type) {
-		case LINE:
-			return DefaultMaterialHolder.DEFAULT_LINE_MATERIAL;
-		case SURFACE:
-			return DefaultMaterialHolder.DEFAULT_SURFACE_MATERIAL;
-		case BULK:
-			return DefaultMaterialHolder.DEFAULT_BULK_MATERIAL;
-		}
-		throw new IllegalArgumentException("Unknown material type: " + type);
-	}
-	
-	public static void setDefaultComponentMaterial(
-			Class<? extends RocketComponent> componentClass, Material material) {
-		
-		set("componentMaterials", componentClass,
-				material == null ? null : material.toStorableString());
-	}
+
 	
 	
 	public static int getMaxThreadCount() {
@@ -633,20 +352,8 @@ public class Prefs {
 	}
 	
 	
-	/**
-	 * Return whether to use additional safety code checks.
-	 */
-	public static boolean useSafetyChecks() {
-		// Currently default to false unless openrocket.debug.safetycheck is defined
-		String s = System.getProperty("openrocket.debug.safetycheck");
-		if (s != null && !(s.equalsIgnoreCase("false") || s.equalsIgnoreCase("off"))) {
-			return true;
-		}
-		return false;
-	}
 	
-	
-	public static Point getWindowPosition(Class<?> c) {
+	public Point getWindowPosition(Class<?> c) {
 		int x, y;
 		String pref = PREFNODE.node("windows").get("position." + c.getCanonicalName(), null);
 		
@@ -665,7 +372,7 @@ public class Prefs {
 		return new Point(x, y);
 	}
 	
-	public static void setWindowPosition(Class<?> c, Point p) {
+	public void setWindowPosition(Class<?> c, Point p) {
 		PREFNODE.node("windows").put("position." + c.getCanonicalName(), "" + p.x + "," + p.y);
 		storeVersion();
 	}
@@ -673,7 +380,7 @@ public class Prefs {
 	
 
 
-	public static Dimension getWindowSize(Class<?> c) {
+	public Dimension getWindowSize(Class<?> c) {
 		int x, y;
 		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
 		
@@ -693,58 +400,52 @@ public class Prefs {
 	}
 	
 	
-	public static boolean isWindowMaximized(Class<?> c) {
+	public boolean isWindowMaximized(Class<?> c) {
 		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
 		return "max".equals(pref);
 	}
 	
-	public static void setWindowSize(Class<?> c, Dimension d) {
+	public void setWindowSize(Class<?> c, Dimension d) {
 		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "" + d.width + "," + d.height);
 		storeVersion();
 	}
 	
-	public static void setWindowMaximized(Class<?> c) {
+	public void setWindowMaximized(Class<?> c) {
 		PREFNODE.node("windows").put("size." + c.getCanonicalName(), "max");
 		storeVersion();
 	}
 	
+	/**
+	 * this class returns a java.awt.Color object for the specified key.
+	 * you can pass (java.awt.Color) null to the second argument to
+	 * disambiguate
+	 */
+	public Color getColor( String key, Color defaultValue ) {
+		net.sf.openrocket.util.Color c = super.getColor(key, (net.sf.openrocket.util.Color) null);
+		if ( c == null ) {
+			return defaultValue;
+		}
+		return ColorConversion.toAwtColor(c);
+	}
+	
+	/**
+	 * 
+	 */
+	public void putColor( String key, Color value ) {
+		net.sf.openrocket.util.Color c = ColorConversion.fromAwtColor(value);
+		super.putColor(key,  c); 
+	}
 	
 	////  Printing
 	
-	public static PrintSettings getPrintSettings() {
-		PrintSettings settings = new PrintSettings();
-		Color c;
-		
-		c = parseColor(getString("print.template.fillColor", null));
-		if (c != null) {
-			settings.setTemplateFillColor(c);
-		}
-		
-		c = parseColor(getString("print.template.borderColor", null));
-		if (c != null) {
-			settings.setTemplateBorderColor(c);
-		}
-		
-		settings.setPaperSize(getEnum("print.paper.size", settings.getPaperSize()));
-		settings.setPaperOrientation(getEnum("print.paper.orientation", settings.getPaperOrientation()));
-		
-		return settings;
-	}
-	
-	public static void setPrintSettings(PrintSettings settings) {
-		putString("print.template.fillColor", stringifyColor(settings.getTemplateFillColor()));
-		putString("print.template.borderColor", stringifyColor(settings.getTemplateBorderColor()));
-		putEnum("print.paper.size", settings.getPaperSize());
-		putEnum("print.paper.orientation", settings.getPaperOrientation());
-	}
 	
 	////  Background flight data computation
 	
-	public static boolean computeFlightInBackground() {
+	public boolean computeFlightInBackground() {
 		return PREFNODE.getBoolean("backgroundFlight", true);
 	}
 	
-	public static Simulation getBackgroundSimulation(Rocket rocket) {
+	public Simulation getBackgroundSimulation(Rocket rocket) {
 		Simulation s = new Simulation(rocket);
 		SimulationOptions cond = s.getOptions();
 		
@@ -759,12 +460,12 @@ public class Prefs {
 
 	/////////  Export variables
 	
-	public static boolean isExportSelected(FlightDataType type) {
+	public boolean isExportSelected(FlightDataType type) {
 		Preferences prefs = PREFNODE.node("exports");
 		return prefs.getBoolean(type.getName(), false);
 	}
 	
-	public static void setExportSelected(FlightDataType type, boolean selected) {
+	public void setExportSelected(FlightDataType type, boolean selected) {
 		Preferences prefs = PREFNODE.node("exports");
 		prefs.putBoolean(type.getName(), selected);
 	}
@@ -773,7 +474,7 @@ public class Prefs {
 
 	/////////  Default unit storage
 	
-	public static void loadDefaultUnits() {
+	public void loadDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		try {
 			
@@ -793,7 +494,7 @@ public class Prefs {
 		}
 	}
 	
-	public static void storeDefaultUnits() {
+	public void storeDefaultUnits() {
 		Preferences prefs = PREFNODE.node("units");
 		
 		for (String key : UnitGroup.UNITS.keySet()) {
@@ -817,7 +518,7 @@ public class Prefs {
 	 * 
 	 * @param m		the material to add.
 	 */
-	public static void addUserMaterial(Material m) {
+	public void addUserMaterial(Material m) {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
 
@@ -844,7 +545,7 @@ public class Prefs {
 	 * 
 	 * @param m		the material to remove.
 	 */
-	public static void removeUserMaterial(Material m) {
+	public void removeUserMaterial(Material m) {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
 		try {
@@ -876,7 +577,7 @@ public class Prefs {
 	 * 
 	 * @return	a set of all user-defined materials.
 	 */
-	public static Set<Material> getUserMaterials() {
+	public Set<Material> getUserMaterials() {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
 		HashSet<Material> materials = new HashSet<Material>();
@@ -904,45 +605,5 @@ public class Prefs {
 	
 	
 	////  Helper methods
-	
-	private static String get(String directory,
-			Class<? extends RocketComponent> componentClass,
-			Map<Class<?>, String> defaultMap) {
-		
-		// Search preferences
-		Class<?> c = componentClass;
-		Preferences prefs = PREFNODE.node(directory);
-		while (c != null && RocketComponent.class.isAssignableFrom(c)) {
-			String value = prefs.get(c.getSimpleName(), null);
-			if (value != null)
-				return value;
-			c = c.getSuperclass();
-		}
-		
-		if (defaultMap == null)
-			return null;
-		
-		// Search defaults
-		c = componentClass;
-		while (RocketComponent.class.isAssignableFrom(c)) {
-			String value = defaultMap.get(c);
-			if (value != null)
-				return value;
-			c = c.getSuperclass();
-		}
-		
-		return null;
-	}
-	
-	
-	private static void set(String directory, Class<? extends RocketComponent> componentClass,
-			String value) {
-		Preferences prefs = PREFNODE.node(directory);
-		if (value == null)
-			prefs.remove(componentClass.getSimpleName());
-		else
-			prefs.put(componentClass.getSimpleName(), value);
-		storeVersion();
-	}
 	
 }

@@ -1,18 +1,25 @@
 package net.sf.openrocket.communication;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ComparablePair;
 import net.sf.openrocket.util.Prefs;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
 
-public class UpdateInfoTest {
+public class UpdateInfoTest extends BaseTestCase {
 	
 	/** The connection delay */
 	private static final int DELAY = 100;
@@ -32,10 +39,10 @@ public class UpdateInfoTest {
 	}
 	
 	private void check(HttpURLConnectionMock connection) {
-		assertEquals(Communicator.UPDATE_INFO_URL + "?version=" + Prefs.getVersion(),
+		assertEquals(Communicator.UPDATE_INFO_URL + "?version=" + BuildProperties.getVersion(),
 				connection.getTrueUrl());
 		assertTrue(connection.getConnectTimeout() > 0);
-		assertEquals(Prefs.getVersion() + "+" + Prefs.getBuildSource(), 
+		assertEquals(BuildProperties.getVersion() + "+" + BuildProperties.getBuildSource(), 
 				connection.getRequestProperty("X-OpenRocket-Version"));
 		assertNotNull(connection.getRequestProperty("X-OpenRocket-Country"));
 		assertNotNull(connection.getRequestProperty("X-OpenRocket-ID"));
@@ -119,7 +126,7 @@ public class UpdateInfoTest {
 
 		check(connection);
 
-		assertEquals(Prefs.getVersion(), info.getLatestVersion());
+		assertEquals(BuildProperties.getVersion(), info.getLatestVersion());
 		assertEquals(0, info.getUpdates().size());
 	}
 	

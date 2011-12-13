@@ -28,8 +28,8 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
 
@@ -89,7 +89,7 @@ public class OpenRocketSaver extends RocketSaver {
 
 		writeln("<?xml version='1.0' encoding='utf-8'?>");
 		writeln("<openrocket version=\"" + fileVersionString + "\" creator=\"OpenRocket "
-				+ Prefs.getVersion() + "\">");
+				+ BuildProperties.getVersion() + "\">");
 		indent++;
 		
 		// Recursively save the rocket structure

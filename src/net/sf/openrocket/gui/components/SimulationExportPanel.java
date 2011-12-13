@@ -86,7 +86,7 @@ public class SimulationExportPanel extends JPanel {
 		selected = new boolean[types.length];
 		units = new Unit[types.length];
 		for (int i = 0; i < types.length; i++) {
-			selected[i] = Prefs.isExportSelected(types[i]);
+			selected[i] = ((Prefs) Application.getPreferences()).isExportSelected(types[i]);
 			units[i] = types[i].getUnitGroup().getDefaultUnit();
 		}
 		
@@ -193,7 +193,7 @@ public class SimulationExportPanel extends JPanel {
 	private void doExport() {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setFileFilter(FileHelper.CSV_FILE_FILTER);
-		chooser.setCurrentDirectory(Prefs.getDefaultDirectory());
+		chooser.setCurrentDirectory(((Prefs) Application.getPreferences()).getDefaultDirectory());
 		
 		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
@@ -217,9 +217,9 @@ public class SimulationExportPanel extends JPanel {
 		
 		// Store preferences and export
 		int n = 0;
-		Prefs.setDefaultDirectory(chooser.getCurrentDirectory());
+		((Prefs) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		for (int i = 0; i < selected.length; i++) {
-			Prefs.setExportSelected(types[i], selected[i]);
+			((Prefs) Application.getPreferences()).setExportSelected(types[i], selected[i]);
 			if (selected[i])
 				n++;
 		}

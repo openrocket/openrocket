@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Prefs;
 
 /**
@@ -54,7 +55,7 @@ public class Startup2 {
 	 */
 	static void runMain(final String[] args) throws Exception {
 		
-		log.info("Starting up OpenRocket version " + Prefs.getVersion());
+		log.info("Starting up OpenRocket version " + BuildProperties.getVersion());
 		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");
@@ -95,7 +96,7 @@ public class Startup2 {
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;
-		if (Prefs.getCheckUpdates()) {
+		if ( Application.getPreferences().getCheckUpdates()) {
 			log.info("Starting update check");
 			updateInfo = new UpdateInfoRetriever();
 			updateInfo.start();
@@ -112,7 +113,7 @@ public class Startup2 {
 		ToolTipManager.sharedInstance().setDismissDelay(30000);
 		
 		// Load defaults
-		Prefs.loadDefaultUnits();
+		((Prefs) Application.getPreferences()).loadDefaultUnits();
 		
 		// Load motors etc.
 		log.info("Loading databases");
@@ -192,7 +193,7 @@ public class Startup2 {
 				thrustCurveCount = list.size();
 				
 				// Load the user-defined thrust curves
-				for (File file : Prefs.getUserThrustCurveFiles()) {
+				for (File file : ((Prefs) Application.getPreferences()).getUserThrustCurveFiles()) {
 					log.info("Loading motors from " + file);
 					list = MotorLoaderHelper.load(file);
 					for (Motor m : list) {
@@ -241,8 +242,8 @@ public class Startup2 {
 				if (!updateInfo.isRunning()) {
 					timer.stop();
 					
-					String current = Prefs.getVersion();
-					String last = Prefs.getString(Prefs.LAST_UPDATE, "");
+					String current = BuildProperties.getVersion();
+					String last = Application.getPreferences().getString(Prefs.LAST_UPDATE, "");
 					
 					UpdateInfo info = updateInfo.getUpdateInfo();
 					if (info != null && info.getLatestVersion() != null &&
@@ -252,9 +253,9 @@ public class Startup2 {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
 						if (infoDialog.isReminderSelected()) {
-							Prefs.putString(Prefs.LAST_UPDATE, "");
+							Application.getPreferences().putString(Prefs.LAST_UPDATE, "");
 						} else {
-							Prefs.putString(Prefs.LAST_UPDATE, info.getLatestVersion());
+							Application.getPreferences().putString(Prefs.LAST_UPDATE, info.getLatestVersion());
 						}
 					}
 				}

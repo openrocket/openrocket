@@ -225,7 +225,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				default:
 					throw new BugException("Invalid selection mode sel=" + sel);
 				}
-				Prefs.putChoise("MotorDiameterMatch", sel);
+				Application.getPreferences().putChoice("MotorDiameterMatch", sel);
 				scrollSelectionVisible();
 			}
 		});
@@ -234,11 +234,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		//// Hide very similar thrust curves
 		hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
 		GUIUtil.changeFontSize(hideSimilarBox, -1);
-		hideSimilarBox.setSelected(Prefs.getBoolean(Prefs.MOTOR_HIDE_SIMILAR, true));
+		hideSimilarBox.setSelected(Application.getPreferences().getBoolean(Prefs.MOTOR_HIDE_SIMILAR, true));
 		hideSimilarBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Prefs.putBoolean(Prefs.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+				Application.getPreferences().putBoolean(Prefs.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
 				updateData();
 			}
 		});
@@ -541,7 +541,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 
 		// Sets the filter:
-		int showMode = Prefs.getChoise(Prefs.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
+		int showMode = Application.getPreferences().getChoice(Prefs.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
 		filterComboBox.setSelectedIndex(showMode);
 		
 
@@ -585,7 +585,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		
 		// Store selected motor in preferences node, set all others to false
-		Preferences prefs = Prefs.getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((Prefs) Application.getPreferences()).getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : set.getMotors()) {
 			String digest = MotorDigest.digestMotor(m);
 			prefs.putBoolean(digest, m == motor);
@@ -815,7 +815,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Find which motor has been used the most recently
 		List<ThrustCurveMotor> list = set.getMotors();
-		Preferences prefs = Prefs.getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
+		Preferences prefs = ((Prefs) Application.getPreferences()).getNode(Prefs.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : list) {
 			String digest = MotorDigest.digestMotor(m);
 			if (prefs.getBoolean(digest, false)) {
