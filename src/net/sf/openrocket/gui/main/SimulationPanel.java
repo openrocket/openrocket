@@ -41,8 +41,8 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Prefs;
 
 public class SimulationPanel extends JPanel {
 	private static final LogHelper log = Application.getLogger();
@@ -154,7 +154,7 @@ public class SimulationPanel extends JPanel {
 					return; // TODO: LOW: "None selected" dialog
 					
 				// Verify deletion
-				boolean verify = Application.getPreferences().getBoolean(Prefs.CONFIRM_DELETE_SIMULATION, true);
+				boolean verify = Application.getPreferences().getBoolean(Preferences.CONFIRM_DELETE_SIMULATION, true);
 				if (verify) {
 					
 					JPanel panel = new JPanel(new MigLayout());
@@ -180,7 +180,7 @@ public class SimulationPanel extends JPanel {
 						return;
 					
 					if (dontAsk.isSelected()) {
-						Application.getPreferences().putBoolean(Prefs.CONFIRM_DELETE_SIMULATION, false);
+						Application.getPreferences().putBoolean(Preferences.CONFIRM_DELETE_SIMULATION, false);
 					}
 				}
 				
