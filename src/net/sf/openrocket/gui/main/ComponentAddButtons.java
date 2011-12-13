@@ -52,9 +52,9 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.Reflection;
 
 /**
@@ -506,7 +506,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			// Check whether to insert between or at the end.
 			// 0 = ask, 1 = in between, 2 = at the end
-			int pos = Application.getPreferences().getChoice(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
+			int pos = Application.getPreferences().getChoice(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY, 2, 0);
 			if (pos == 0) {
 				if (parent.getChildPosition(c) == parent.getChildCount() - 1)
 					pos = 2; // Selected component is the last component
@@ -578,7 +578,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			
 			if (check.isSelected()) {
 				// Save the preference
-				Application.getPreferences().putInt(Prefs.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
+				Application.getPreferences().putInt(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY, sel);
 			}
 			return sel;
 		}
