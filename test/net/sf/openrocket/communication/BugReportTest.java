@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import net.sf.openrocket.util.BuildProperties;
-import net.sf.openrocket.util.Prefs;
 
 import org.junit.Test;
 

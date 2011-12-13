@@ -14,7 +14,6 @@ import java.util.Random;
 
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ComparablePair;
-import net.sf.openrocket.util.Prefs;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
