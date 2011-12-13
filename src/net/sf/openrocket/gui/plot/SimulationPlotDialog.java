@@ -39,11 +39,11 @@ import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Prefs;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -138,7 +138,7 @@ public class SimulationPlotDialog extends JDialog {
 		super(parent, trans.get("PlotDialog.title.Flightdataplot"));
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
-		final boolean initialShowPoints = Application.getPreferences().getBoolean(Prefs.PLOT_SHOW_POINTS, false);
+		final boolean initialShowPoints = Application.getPreferences().getBoolean(Preferences.PLOT_SHOW_POINTS, false);
 		
 
 		// Fill the auto-selections
@@ -432,7 +432,7 @@ public class SimulationPlotDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean show = check.isSelected();
-				Application.getPreferences().putBoolean(Prefs.PLOT_SHOW_POINTS, show);
+				Application.getPreferences().putBoolean(Preferences.PLOT_SHOW_POINTS, show);
 				for (ModifiedXYItemRenderer r : renderers) {
 					r.setBaseShapesVisible(show);
 				}
