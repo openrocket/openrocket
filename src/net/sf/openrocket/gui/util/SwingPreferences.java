@@ -89,17 +89,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 
-	private static final HashMap<Class<?>, String> DEFAULT_COLORS =
-			new HashMap<Class<?>, String>();
-	static {
-		DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
-		DEFAULT_COLORS.put(FinSet.class, "0,0,200");
-		DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
-		DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
-		DEFAULT_COLORS.put(MassObject.class, "0,0,0");
-		DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
-	}
-	
 
 	
 	//////////////////////
@@ -315,25 +304,6 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		return new Color(0, 0, 0, 100);
 	}
 	
-	public Color getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, DEFAULT_COLORS);
-		if (color == null)
-			return Color.BLACK;
-		
-		net.sf.openrocket.util.Color clr = parseColor(color);
-		if (clr != null) {
-			return ColorConversion.toAwtColor(clr);
-		} else {
-			return Color.BLACK;
-		}
-	}
-	
-	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
-		if (color == null)
-			return;
-		putString("componentColors", c.getSimpleName(), stringifyColor(ColorConversion.fromAwtColor(color)));
-	}
-
 	
 	
 	public static int getMaxThreadCount() {

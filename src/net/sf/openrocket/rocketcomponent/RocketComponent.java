@@ -1,6 +1,5 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.awt.Color;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
@@ -16,6 +15,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.LineStyle;

@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -310,11 +311,11 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 			
 			// Set component color and line style
-			Color color = c.getColor();
+			net.sf.openrocket.util.Color color = c.getColor();
 			if (color == null) {
-				color = ((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass());
+				color = Application.getPreferences().getDefaultColor(c.getClass());
 			}
-			g2.setColor(color);
+			g2.setColor(ColorConversion.toAwtColor(color));
 			
 			LineStyle style = c.getLineStyle();
 			if (style == null)

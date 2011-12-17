@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.awt.Color;
 import java.util.Iterator;
 
+import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.util.Coordinate;
 
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class ComponentCompareTest {
 		ComponentCompare.assertDeepSimilarity(r1, r2, false);
 		
 		
-		r1.setColor(Color.YELLOW);
+		r1.setColor(ColorConversion.fromAwtColor(Color.YELLOW));
 		try {
 			ComponentCompare.assertEquality(r1, r2);
 			fail();

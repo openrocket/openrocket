@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 
+import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -35,7 +36,7 @@ public class FinSetTest extends BaseTestCase {
 		fin.setBaseRotation(1.1);
 		fin.setCantAngle(0.001);
 		fin.setCGOverridden(true);
-		fin.setColor(Color.YELLOW);
+		fin.setColor(ColorConversion.fromAwtColor(Color.YELLOW));
 		fin.setComment("cmt");
 		fin.setCrossSection(CrossSection.ROUNDED);
 		fin.setFinCount(5);

@@ -6,7 +6,12 @@ import java.util.Map;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.BodyComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.InternalComponent;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
@@ -167,6 +172,26 @@ public abstract class Preferences {
 			putString(key, value.name());
 		}
 	}
+
+	public Color getDefaultColor(Class<? extends RocketComponent> c) {
+		String color = get("componentColors", c, DEFAULT_COLORS);
+		if (color == null)
+			return Color.BLACK;
+		
+		Color clr = parseColor(color);
+		if (clr != null) {
+			return clr;
+		} else {
+			return Color.BLACK;
+		}
+	}
+	
+	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
+		if (color == null)
+			return;
+		putString("componentColors", c.getSimpleName(), stringifyColor(color));
+	}
+
 
 	/**
 	 * Retrieve a Line style for the given component.
@@ -359,6 +384,17 @@ public abstract class Preferences {
 		//// Cardboard
 		private static final Material DEFAULT_BULK_MATERIAL =
 				Databases.findMaterial(Material.Type.BULK, trans.get("Databases.materials.Cardboard"), 680, false);
+	}
+	
+	private static final HashMap<Class<?>, String> DEFAULT_COLORS =
+			new HashMap<Class<?>, String>();
+	static {
+		DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
+		DEFAULT_COLORS.put(FinSet.class, "0,0,200");
+		DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
+		DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
+		DEFAULT_COLORS.put(MassObject.class, "0,0,0");
+		DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
 	}
 	
 

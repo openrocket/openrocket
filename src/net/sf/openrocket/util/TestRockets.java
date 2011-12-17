@@ -1,6 +1,5 @@
 package net.sf.openrocket.util;
 
-import java.awt.Color;
 import java.util.Random;
 
 import net.sf.openrocket.material.Material;

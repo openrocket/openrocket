@@ -1,6 +1,5 @@
 package net.sf.openrocket.file.openrocket.savers;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +14,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.LineStyle;
 
 

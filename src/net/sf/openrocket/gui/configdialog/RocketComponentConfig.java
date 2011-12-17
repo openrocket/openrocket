@@ -35,6 +35,7 @@ import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
@@ -377,13 +378,15 @@ public class RocketComponentConfig extends JPanel {
 		colorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Color c = component.getColor();
+				net.sf.openrocket.util.Color c = component.getColor();
 				if (c == null) {
-					c = ((SwingPreferences) Application.getPreferences()).getDefaultColor(component.getClass());
+					c = Application.getPreferences().getDefaultColor(component.getClass());
 				}
 				
 				//// Choose color
-				c = JColorChooser.showDialog(tabbedPane, trans.get("RocketCompCfg.lbl.Choosecolor"), c);
+				Color awtColor = ColorConversion.toAwtColor(c); 
+				awtColor = JColorChooser.showDialog(tabbedPane, trans.get("RocketCompCfg.lbl.Choosecolor"), awtColor);
+				c = ColorConversion.fromAwtColor(awtColor);
 				if (c != null) {
 					component.setColor(c);
 				}
@@ -439,11 +442,11 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	private Color getColor() {
-		Color c = component.getColor();
+		net.sf.openrocket.util.Color c = component.getColor();
 		if (c == null) {
-			c = ((SwingPreferences) Application.getPreferences()).getDefaultColor(component.getClass());
+			c = Application.getPreferences().getDefaultColor(component.getClass());
 		}
-		return c;
+		return ColorConversion.toAwtColor(c);
 	}
 	
 	
