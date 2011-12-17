@@ -40,6 +40,7 @@ public class Databases {
 		// Add default materials
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Acrylic"), 1190, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Balsa"), 170, false));
+		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Basswood"), 500, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Birch"), 670, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Cardboard"), 680, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Carbonfiber"), 1780, false));
