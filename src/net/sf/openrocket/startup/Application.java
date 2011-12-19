@@ -1,7 +1,6 @@
 package net.sf.openrocket.startup;
 
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
@@ -27,7 +26,7 @@ public final class Application {
 
 	private static Preferences preferences;
 	
-	private static SwingExceptionHandler exceptionHandler;
+	private static ExceptionHandler exceptionHandler;
 
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
@@ -136,14 +135,14 @@ public final class Application {
 	/**
 	 * @return the exceptionHandler
 	 */
-	public static SwingExceptionHandler getExceptionHandler() {
+	public static ExceptionHandler getExceptionHandler() {
 		return exceptionHandler;
 	}
 
 	/**
 	 * @param exceptionHandler the exceptionHandler to set
 	 */
-	public static void setExceptionHandler(SwingExceptionHandler exceptionHandler) {
+	public static void setExceptionHandler(ExceptionHandler exceptionHandler) {
 		Application.exceptionHandler = exceptionHandler;
 	}
 
