@@ -1,0 +1,6 @@
+
+# This file lists all the available tours.
+
+test.tour
+test2.tour
+

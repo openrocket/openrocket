@@ -1,0 +1,15 @@
+
+/*
+ * This stylesheet is used to style all guided tours.
+ * Use only simple styling.
+ *
+ * NOTE:  The Sun JRE does not support "em" widths, use only pixels.
+ */
+
+div.base {
+  font-family: Arial, sans-serif;
+}
+
+p {
+  margin: 0 0 5px;
+}

@@ -81,14 +81,15 @@ import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
+import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SaveFileWorker;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -670,6 +671,24 @@ public class BasicFrame extends JFrame {
 		menu.setMnemonic(KeyEvent.VK_H);
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.desc"));
 		menubar.add(menu);
+		
+
+		// Guided tours
+		
+		item = new JMenuItem(trans.get("main.menu.help.tours"), KeyEvent.VK_L);
+		// TODO: Icon
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.help.tours.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.user("Guided tours selected");
+				// FIXME:  Singleton
+				new GuidedTourSelectionDialog(BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		menu.addSeparator();
 		
 
 		//// License

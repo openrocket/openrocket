@@ -35,6 +35,9 @@ public class Chars {
 	/** Zero-width space */
 	public static final char ZWSP = '\u200B';
 	
+	/** Em dash */
+	public static final char EMDASH = '\u2014';
+	
 	/** Micro sign (Greek letter mu) */
 	public static final char MICRO = '\u00B5';
 	
