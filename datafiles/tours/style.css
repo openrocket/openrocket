@@ -13,3 +13,8 @@ div.base {
 p {
   margin: 0 0 5px;
 }
+
+a {
+  color: #0000dd;
+  text-decoration: underline;
+}

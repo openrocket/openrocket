@@ -1,18 +1,19 @@
 
 # Foo bar
 
-A test tour
+First test tour
 
 This is the <i>description</i>.
 
+
 [left_design.png]
 
-This is the left_design file.
+<p>This is the first slide &mdash; the left_design file.
 
-It's nifty. It's also <a href="foobar">economical</a>.
+<p>It's nifty. It can also contain <a href="foobar">links</a> (though they don't work yet).
 
 
 
 [main_window.png]
-This is the next one.
+This is the next slide (and the last).
 
