@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
@@ -459,7 +458,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 		
 		if (m == null) {
-			ExceptionHandler.handleErrorCondition("ERROR: Rocket figure paint method not found for "
+			Application.getExceptionHandler().handleErrorCondition("ERROR: Rocket figure paint method not found for "
 					+ component);
 			return new Shape[0];
 		}

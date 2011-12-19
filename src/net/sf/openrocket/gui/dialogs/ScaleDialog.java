@@ -25,7 +25,6 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -410,7 +409,7 @@ public class ScaleDialog extends JDialog {
 	private void doScale() {
 		double mul = multiplier.getValue();
 		if (!(SCALE_MIN <= mul && mul <= SCALE_MAX)) {
-			ExceptionHandler.handleErrorCondition("Illegal multiplier value, mul=" + mul);
+			Application.getExceptionHandler().handleErrorCondition("Illegal multiplier value, mul=" + mul);
 			return;
 		}
 		

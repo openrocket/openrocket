@@ -2,7 +2,6 @@ package net.sf.openrocket.util;
 
 import java.util.LinkedList;
 
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
@@ -148,7 +147,7 @@ public abstract class SafetyMutex {
 			try {
 				
 				if (location == null) {
-					ExceptionHandler.handleErrorCondition("location is null");
+					Application.getExceptionHandler().handleErrorCondition("location is null");
 					location = "";
 				}
 				checkState(false);
@@ -181,7 +180,7 @@ public abstract class SafetyMutex {
 				}
 				return true;
 			} catch (Exception e) {
-				ExceptionHandler.handleErrorCondition("An exception occurred while unlocking a mutex, " +
+				Application.getExceptionHandler().handleErrorCondition("An exception occurred while unlocking a mutex, " +
 						"locking thread=" + lockingThread + " locations=" + locations, e);
 				return false;
 			}
@@ -225,7 +224,7 @@ public abstract class SafetyMutex {
 			
 			if (!errorReported) {
 				errorReported = true;
-				ExceptionHandler.handleErrorCondition(ex);
+				Application.getExceptionHandler().handleErrorCondition(ex);
 			} else {
 				log.error(message, ex);
 			}

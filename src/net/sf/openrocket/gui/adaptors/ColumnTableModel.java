@@ -4,7 +4,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.startup.Application;
 
 public abstract class ColumnTableModel extends AbstractTableModel {
 	private final Column[] columns;
@@ -47,7 +47,7 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 	public Object getValueAt(int row, int col) {
 		if ((row < 0) || (row >= getRowCount()) ||
 				(col < 0) || (col >= columns.length)) {
-			ExceptionHandler.handleErrorCondition("Error:  Requested illegal column/row, col=" + col + " row=" + row);
+			Application.getExceptionHandler().handleErrorCondition("Error:  Requested illegal column/row, col=" + col + " row=" + row);
 			return null;
 		}
 		return columns[col].getValueAt(row);

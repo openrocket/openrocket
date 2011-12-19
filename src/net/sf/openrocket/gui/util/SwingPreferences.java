@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,17 +15,9 @@ import java.util.prefs.Preferences;
 
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.BodyComponent;
-import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.InternalComponent;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
-import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationOptions;
@@ -449,7 +440,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			}
 			
 		} catch (BackingStoreException e) {
-			ExceptionHandler.handleErrorCondition(e);
+			Application.getExceptionHandler().handleErrorCondition(e);
 		}
 	}
 	

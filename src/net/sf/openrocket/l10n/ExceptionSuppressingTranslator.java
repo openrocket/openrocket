@@ -3,7 +3,7 @@ package net.sf.openrocket.l10n;
 import java.util.Locale;
 import java.util.MissingResourceException;
 
-import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.startup.Application;
 
 /**
  * A translator that suppresses MissingResourceExceptions and handles them gracefully.
@@ -46,7 +46,7 @@ public class ExceptionSuppressingTranslator implements Translator {
 	private static synchronized void handleError(String key, MissingResourceException e) {
 		if (!errorReported) {
 			errorReported = true;
-			ExceptionHandler.handleErrorCondition("Can not find translation for '" + key + "' locale=" + Locale.getDefault(), e);
+			Application.getExceptionHandler().handleErrorCondition("Can not find translation for '" + key + "' locale=" + Locale.getDefault(), e);
 		}
 	}
 	

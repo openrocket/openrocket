@@ -403,7 +403,7 @@ public class SimulationRunDialog extends JDialog {
 				
 			} else {
 				
-				ExceptionHandler.handleErrorCondition("An exception occurred during the simulation", t);
+				Application.getExceptionHandler().handleErrorCondition("An exception occurred during the simulation", t);
 				
 			}
 			simulationDone();

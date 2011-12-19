@@ -11,7 +11,6 @@ import javax.swing.Action;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -500,7 +499,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		
 		if (!undoErrorReported) {
 			undoErrorReported = true;
-			ExceptionHandler.handleErrorCondition("Undo/Redo error: " + error);
+			Application.getExceptionHandler().handleErrorCondition("Undo/Redo error: " + error);
 		}
 	}
 	

@@ -12,7 +12,6 @@ import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
@@ -72,7 +71,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 			try {
 				is.close();
 			} catch (Exception e) {
-				ExceptionHandler.handleErrorCondition("Error closing file", e);
+				Application.getExceptionHandler().handleErrorCondition("Error closing file", e);
 			}
 		}
 	}

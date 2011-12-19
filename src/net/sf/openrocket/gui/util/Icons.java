@@ -9,7 +9,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -94,7 +93,7 @@ public class Icons {
 		
 		URL url = ClassLoader.getSystemResource(file);
 		if (url == null) {
-			ExceptionHandler.handleErrorCondition("Image file " + file + " not found, ignoring.");
+			Application.getExceptionHandler().handleErrorCondition("Image file " + file + " not found, ignoring.");
 			return null;
 		}
 		return new ImageIcon(url, name);

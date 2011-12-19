@@ -21,11 +21,11 @@ import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.file.motor.MotorLoaderHelper;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.gui.main.Splash;
+import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -92,7 +92,9 @@ public class Startup2 {
 		
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
-		ExceptionHandler.registerExceptionHandler();
+		SwingExceptionHandler exceptionHandler = new SwingExceptionHandler();
+		Application.setExceptionHandler(exceptionHandler);
+		exceptionHandler.registerExceptionHandler();
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;

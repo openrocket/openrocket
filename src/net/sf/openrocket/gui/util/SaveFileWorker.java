@@ -8,7 +8,7 @@ import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.gui.main.ExceptionHandler;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ProgressOutputStream;
 
 public class SaveFileWorker extends SwingWorker<Void, Void> {
@@ -48,7 +48,7 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 			try {
 				os.close();
 			} catch (Exception e) {
-				ExceptionHandler.handleErrorCondition("Error closing file", e);
+				Application.getExceptionHandler().handleErrorCondition("Error closing file", e);
 			}
 		}
 		return null;

@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
@@ -459,7 +458,7 @@ public class Rocket extends RocketComponent {
 			freezeList = new LinkedList<ComponentChangeEvent>();
 			log.debug("Freezing Rocket");
 		} else {
-			ExceptionHandler.handleErrorCondition("Attempting to freeze Rocket when it is already frozen, " +
+			Application.getExceptionHandler().handleErrorCondition("Attempting to freeze Rocket when it is already frozen, " +
 					"freezeList=" + freezeList);
 		}
 	}
@@ -474,7 +473,7 @@ public class Rocket extends RocketComponent {
 	public void thaw() {
 		checkState();
 		if (freezeList == null) {
-			ExceptionHandler.handleErrorCondition("Attempting to thaw Rocket when it is not frozen");
+			Application.getExceptionHandler().handleErrorCondition("Attempting to thaw Rocket when it is not frozen");
 			return;
 		}
 		if (freezeList.size() == 0) {

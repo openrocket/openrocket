@@ -9,7 +9,7 @@ import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
 
 
-public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
+public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, net.sf.openrocket.startup.ExceptionHandler {
 	
 	private static final LogHelper log = Application.getLogger();
 	
@@ -20,11 +20,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * <p>
 	 * This field is package-private so that the JRE cannot optimize its use away.
 	 */
-	static volatile byte[] memoryReserve = null;
+	volatile byte[] memoryReserve = null;
 	
-	private static ExceptionHandler instance = null;
-	
-
 	private volatile boolean handling = false;
 	
 	
@@ -97,7 +94,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * 
 	 * @param message	the error message.
 	 */
-	public static void handleErrorCondition(String message) {
+	@Override
+	public void handleErrorCondition(String message) {
 		log.error(1, message, new TraceException());
 		handleErrorCondition(new InternalException(message));
 	}
@@ -113,7 +111,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * @param message	the error message.
 	 * @param exception	the exception that occurred.
 	 */
-	public static void handleErrorCondition(String message, Throwable exception) {
+	@Override
+	public void handleErrorCondition(String message, Throwable exception) {
 		log.error(1, message, exception);
 		handleErrorCondition(new InternalException(message, exception));
 	}
@@ -128,28 +127,24 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * 
 	 * @param exception		the exception that occurred.
 	 */
-	public static void handleErrorCondition(final Throwable exception) {
+	@Override
+	public void handleErrorCondition(final Throwable exception) {
 		try {
 			if (!(exception instanceof InternalException)) {
 				log.error(1, "Error occurred", exception);
 			}
 			final Thread thread = Thread.currentThread();
-			final ExceptionHandler handler = instance;
-			
-			if (handler == null) {
-				log.error("Error condition occurred before exception handling has been initialized", exception);
-				return;
-			}
 			
 			if (SwingUtilities.isEventDispatchThread()) {
 				log.info("Running in EDT, showing dialog");
-				handler.showDialog(thread, exception);
+				this.showDialog(thread, exception);
 			} else {
 				log.info("Not in EDT, invoking dialog later");
+				final SwingExceptionHandler instance = this;
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						handler.showDialog(thread, exception);
+						instance.showDialog(thread, exception);
 					}
 				});
 			}
@@ -229,18 +224,15 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * Registers the uncaught exception handler.  This should be used to ensure that
 	 * all necessary registrations are performed.
 	 */
-	public static void registerExceptionHandler() {
+	public void registerExceptionHandler() {
 		
-		if (instance == null) {
-			instance = new ExceptionHandler();
-			Thread.setDefaultUncaughtExceptionHandler(instance);
-			
-			// Handler for modal dialogs of Sun's Java implementation
-			// See bug ID 4499199.
-			System.setProperty("sun.awt.exception.handler", AwtHandler.class.getName());
-			
-			reserveMemory();
-		}
+		Thread.setDefaultUncaughtExceptionHandler(this);
+
+		// Handler for modal dialogs of Sun's Java implementation
+		// See bug ID 4499199.
+		System.setProperty("sun.awt.exception.handler", AwtHandler.class.getName());
+
+		reserveMemory();
 		
 	}
 	
@@ -248,7 +240,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	/**
 	 * Reserve the buffer memory that is freed in case an OutOfMemoryError occurs.
 	 */
-	private static void reserveMemory() {
+	private void reserveMemory() {
 		memoryReserve = new byte[MEMORY_RESERVE];
 		for (int i = 0; i < MEMORY_RESERVE; i++) {
 			memoryReserve[i] = (byte) i;
@@ -284,9 +276,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 */
 	public static class AwtHandler {
 		public void handle(Throwable t) {
-			if (instance != null) {
-				instance.uncaughtException(Thread.currentThread(), t);
-			}
+				Application.getExceptionHandler().uncaughtException(Thread.currentThread(), t);
 		}
 	}
 	
@@ -297,7 +287,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 	 * @param t		the throwable
 	 * @return		whether this exception should be ignored
 	 */
-	private static boolean isNonFatalJREBug(Throwable t) {
+	private boolean isNonFatalJREBug(Throwable t) {
 		
 		// NOTE:  Calling method logs the entire throwable, so log only message here
 		

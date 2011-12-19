@@ -14,7 +14,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.gui.main.ExceptionHandler;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -177,7 +176,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					ExceptionHandler.handleErrorCondition(e);
+					Application.getExceptionHandler().handleErrorCondition(e);
 				}
 			});
 			return false;
