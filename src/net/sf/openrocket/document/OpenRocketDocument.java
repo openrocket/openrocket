@@ -1,18 +1,12 @@
 package net.sf.openrocket.document;
 
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
-import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -21,7 +15,6 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.BugException;
 
 /**
  * Class describing an entire OpenRocket document, including a rocket and
@@ -37,7 +30,6 @@ import net.sf.openrocket.util.BugException;
  */
 public class OpenRocketDocument implements ComponentChangeListener {
 	private static final LogHelper log = Application.getLogger();
-	private static final Translator trans = Application.getTranslator();
 	
 	/**
 	 * The minimum number of undo levels that are stored.
@@ -54,8 +46,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	/** Whether an undo error has already been reported to the user */
 	private static boolean undoErrorReported = false;
 	
-
-
 	private final Rocket rocket;
 	private final Configuration configuration;
 	
@@ -72,7 +62,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 */
 	private LinkedList<Rocket> undoHistory = new LinkedList<Rocket>();
 	private LinkedList<String> undoDescription = new LinkedList<String>();
-	
+
 	/**
 	 * The position in the undoHistory we are currently at.  If modifications have been
 	 * made to the rocket, the rocket is in "dirty" state and this points to the previous
@@ -87,6 +77,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private String storedDescription = null;
 	
 
+	private ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
+	
 	private File file = null;
 	private int savedID = -1;
 	
@@ -95,11 +87,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 
 	private final List<DocumentChangeListener> listeners =
 			new ArrayList<DocumentChangeListener>();
-	
-	/* These must be initialized after undo history is set up. */
-	private final UndoRedoAction undoAction;
-	private final UndoRedoAction redoAction;
-	
 	
 	public OpenRocketDocument(Rocket rocket) {
 		this(rocket.getDefaultConfiguration());
@@ -111,9 +98,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		this.rocket = configuration.getRocket();
 		
 		clearUndo();
-		
-		undoAction = new UndoRedoAction(UndoRedoAction.UNDO);
-		redoAction = new UndoRedoAction(UndoRedoAction.REDO);
 		
 		rocket.addComponentChangeListener(this);
 	}
@@ -322,16 +306,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-	public Action getUndoAction() {
-		return undoAction;
-	}
-	
-	
-	public Action getRedoAction() {
-		return redoAction;
-	}
-	
-	
 	/**
 	 * Clear the undo history.
 	 */
@@ -343,11 +317,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		undoHistory.add(rocket.copyWithOriginalID());
 		undoDescription.add(null);
 		undoPosition = 0;
-		
-		if (undoAction != null)
-			undoAction.setAllValues();
-		if (redoAction != null)
-			redoAction.setAllValues();
+
+		fireUndoRedoChangeEvent();
 	}
 	
 	
@@ -370,8 +341,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 			undoDescription.set(undoPosition, nextDescription);
 		}
 		
-		undoAction.setAllValues();
-		redoAction.setAllValues();
+		fireUndoRedoChangeEvent();
 	}
 	
 	
@@ -430,8 +400,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 				" undoHistory.size=" + undoHistory.size() + " isClean=" + isCleanState());
 		if (!isUndoAvailable()) {
 			logUndoError("Undo not available");
-			undoAction.setAllValues();
-			redoAction.setAllValues();
+			fireUndoRedoChangeEvent();
 			return;
 		}
 		if (storedDescription != null) {
@@ -468,8 +437,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 				" undoHistory.size=" + undoHistory.size() + " isClean=" + isCleanState());
 		if (!isRedoAvailable()) {
 			logUndoError("Redo not available");
-			undoAction.setAllValues();
-			redoAction.setAllValues();
+			fireUndoRedoChangeEvent();
 			return;
 		}
 		if (storedDescription != null) {
@@ -526,6 +494,22 @@ public class OpenRocketDocument implements ComponentChangeListener {
 
 	///////  Listeners
 	
+	public void addUndoRedoListener( UndoRedoListener listener ) {
+		undoRedoListeners.add(listener);
+	}
+	
+	public void removeUndoRedoListener( UndoRedoListener listener ) {
+		undoRedoListeners.remove(listener);
+	}
+	
+	private void fireUndoRedoChangeEvent() {
+		UndoRedoListener[] array = undoRedoListeners.toArray(new UndoRedoListener[0]);
+		for (UndoRedoListener l : array) {
+			l.setAllValues();
+		}
+		
+	}
+	
 	public void addDocumentChangeListener(DocumentChangeListener listener) {
 		listeners.add(listener);
 	}
@@ -544,73 +528,4 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 
 
-	/**
-	 * Inner class to implement undo/redo actions.
-	 */
-	private class UndoRedoAction extends AbstractAction {
-		public static final int UNDO = 1;
-		public static final int REDO = 2;
-		
-		private final int type;
-		
-		// Sole constructor
-		public UndoRedoAction(int type) {
-			if (type != UNDO && type != REDO) {
-				throw new IllegalArgumentException("Unknown type = " + type);
-			}
-			this.type = type;
-			setAllValues();
-		}
-		
-		
-		// Actual action to make
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			switch (type) {
-			case UNDO:
-				log.user("Performing undo, event=" + e);
-				undo();
-				break;
-			
-			case REDO:
-				log.user("Performing redo, event=" + e);
-				redo();
-				break;
-			}
-		}
-		
-		
-		// Set all the values correctly (name and enabled/disabled status)
-		public void setAllValues() {
-			String name, desc;
-			boolean actionEnabled;
-			
-			switch (type) {
-			case UNDO:
-				//// Undo
-				name = trans.get("OpenRocketDocument.Undo");
-				desc = getUndoDescription();
-				actionEnabled = isUndoAvailable();
-				this.putValue(SMALL_ICON, Icons.EDIT_UNDO);
-				break;
-			
-			case REDO:
-				////Redo
-				name = trans.get("OpenRocketDocument.Redo");
-				desc = getRedoDescription();
-				actionEnabled = isRedoAvailable();
-				this.putValue(SMALL_ICON, Icons.EDIT_REDO);
-				break;
-			
-			default:
-				throw new BugException("illegal type=" + type);
-			}
-			
-			if (desc != null)
-				name = name + " (" + desc + ")";
-			
-			putValue(NAME, name);
-			setEnabled(actionEnabled);
-		}
-	}
 }

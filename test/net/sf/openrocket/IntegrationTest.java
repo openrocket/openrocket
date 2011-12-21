@@ -21,6 +21,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
+import net.sf.openrocket.gui.main.UndoRedoAction;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -96,8 +97,8 @@ public class IntegrationTest extends BaseTestCase {
 		document = loader.load(is);
 		is.close();
 		
-		undoAction = document.getUndoAction();
-		redoAction = document.getRedoAction();
+		undoAction = UndoRedoAction.newUndoAction(document );
+		redoAction = UndoRedoAction.newRedoAction(document);
 		config = document.getSimulation(0).getConfiguration();
 		conditions = new FlightConditions(config);
 		

@@ -554,7 +554,7 @@ public class BasicFrame extends JFrame {
 		menubar.add(menu);
 		
 
-		Action action = document.getUndoAction();
+		Action action = UndoRedoAction.newUndoAction(document);
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_U);
@@ -562,8 +562,8 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
 		
 		menu.add(item);
-		
-		action = document.getRedoAction();
+
+		action = UndoRedoAction.newRedoAction(document);
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
 		item.setMnemonic(KeyEvent.VK_R);
