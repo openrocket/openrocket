@@ -7,9 +7,10 @@ import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.ExceptionHandler;
 
 
-public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, net.sf.openrocket.startup.ExceptionHandler {
+public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, ExceptionHandler {
 	
 	private static final LogHelper log = Application.getLogger();
 	
