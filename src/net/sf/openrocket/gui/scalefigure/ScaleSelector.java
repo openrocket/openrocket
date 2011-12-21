@@ -4,15 +4,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.EventObject;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.util.StateChangeListener;
 
 public class ScaleSelector extends JPanel {
 
@@ -85,9 +85,9 @@ public class ScaleSelector extends JPanel {
 				}
 			}
 		});
-		scrollPane.getFigure().addChangeListener(new ChangeListener() {
+		scrollPane.getFigure().addChangeListener(new StateChangeListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void stateChanged(EventObject e) {
 				setZoomText();
 			}
 		});

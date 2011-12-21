@@ -13,6 +13,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -29,6 +30,7 @@ import net.sf.openrocket.unit.Tick;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 
@@ -117,9 +119,9 @@ public class ScaleScrollPane extends JScrollPane
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		
-		figure.addChangeListener(new ChangeListener() {
+		figure.addChangeListener(new StateChangeListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void stateChanged(EventObject e) {
 				horizontalRuler.updateSize();
 				verticalRuler.updateSize();
 				if (fit) {
