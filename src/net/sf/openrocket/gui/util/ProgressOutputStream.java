@@ -1,4 +1,4 @@
-package net.sf.openrocket.util;
+package net.sf.openrocket.gui.util;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -6,6 +6,8 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
 import javax.swing.SwingWorker;
+
+import net.sf.openrocket.util.MathUtil;
 
 
 public abstract class ProgressOutputStream extends FilterOutputStream {

@@ -18,7 +18,6 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.ProgressOutputStream;
 
 
 public class SaveCSVWorker extends SwingWorker<Void, Void> {

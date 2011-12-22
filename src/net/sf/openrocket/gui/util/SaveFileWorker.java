@@ -9,7 +9,6 @@ import javax.swing.SwingWorker;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.ProgressOutputStream;
 
 public class SaveFileWorker extends SwingWorker<Void, Void> {
 
