@@ -127,8 +127,8 @@ public class GUIUtil {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Set suitable options for a single-use disposable dialog.  This includes
 	 * setting ESC to close the dialog, adding the appropriate window icons and
@@ -153,7 +153,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * Add the correct action to close a JDialog when the ESC key is pressed.
 	 * The dialog is closed by sending is a WINDOW_CLOSING event.
@@ -192,7 +192,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * Change the behavior of a component so that TAB and Shift-TAB cycles the focus of
 	 * the components.  This is necessary for e.g. <code>JTextArea</code>.
@@ -207,7 +207,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * Set the OpenRocket icons to the window icons.
 	 * 
@@ -236,7 +236,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * Set the best available look-and-feel into use.
 	 */
@@ -294,7 +294,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * Automatically remember the size of a window.  This stores the window size in the user
 	 * preferences when resizing/maximizing the window and sets the state on the first call.
@@ -377,7 +377,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * Traverses recursively the component tree, and sets all applicable component 
 	 * models to null, so as to remove the listener connections.  After calling this
@@ -519,7 +519,7 @@ public class GUIUtil {
 	}
 	
 	
-
+	
 	/**
 	 * A mouse listener that toggles the state of a boolean value in a table model
 	 * when clicked on another column of the table.

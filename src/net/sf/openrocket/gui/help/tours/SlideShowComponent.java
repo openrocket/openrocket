@@ -19,6 +19,10 @@ import net.sf.openrocket.gui.components.ImageDisplayComponent;
  */
 public class SlideShowComponent extends JSplitPane {
 	
+	private final int WIDTH = 600;
+	private final int HEIGHT_IMAGE = 400;
+	private final int HEIGHT_TEXT = 100;
+	
 	private final ImageDisplayComponent imageDisplay;
 	private final JEditorPane textPane;
 	
@@ -27,21 +31,21 @@ public class SlideShowComponent extends JSplitPane {
 		super(VERTICAL_SPLIT);
 		
 		imageDisplay = new ImageDisplayComponent();
-		imageDisplay.setPreferredSize(new Dimension(600, 350));
+		imageDisplay.setPreferredSize(new Dimension(WIDTH, HEIGHT_IMAGE));
 		this.setLeftComponent(imageDisplay);
 		
 		textPane = new JEditorPane("text/html", "");
 		textPane.setEditable(false);
-		textPane.setPreferredSize(new Dimension(600, 100));
+		textPane.setPreferredSize(new Dimension(WIDTH, HEIGHT_TEXT));
 		
 		JScrollPane scrollPanel = new JScrollPane(textPane);
 		this.setRightComponent(scrollPanel);
 		
-		this.setResizeWeight(0.7);
+		this.setResizeWeight(((double) HEIGHT_IMAGE) / (HEIGHT_IMAGE + HEIGHT_TEXT));
 	}
 	
 	
-
+	
 	public void setSlide(Slide slide) {
 		this.imageDisplay.setImage(slide.getImage());
 		this.textPane.setText(slide.getText());

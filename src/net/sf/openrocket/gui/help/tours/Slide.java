@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Slide {
+	private static final String NO_IMAGE = "none";
 	
 	private final String imageFile;
 	private SoftReference<BufferedImage> imageReference = null;
@@ -21,15 +22,19 @@ public class Slide {
 	private final String text;
 	
 	
-
+	
 	public Slide(String imageFile, String text) {
 		this.imageFile = imageFile;
 		this.text = text;
 	}
 	
 	
-
+	
 	public BufferedImage getImage() {
+		
+		if (imageFile.equals(NO_IMAGE)) {
+			return new BufferedImage(0, 0, BufferedImage.TYPE_INT_ARGB);
+		}
 		
 		// Check the cache
 		if (imageReference != null) {
@@ -51,7 +56,7 @@ public class Slide {
 	}
 	
 	
-
+	
 	private BufferedImage loadImage() {
 		BufferedImage img;
 		

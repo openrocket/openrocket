@@ -3,24 +3,28 @@ package net.sf.openrocket.gui.help.tours;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
 
 public class SlideShowDialog extends JDialog {
 	
+	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
 	private SlideShowComponent slideShowComponent;
@@ -38,35 +42,38 @@ public class SlideShowDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		slideShowComponent = new SlideShowComponent();
+		slideShowComponent.addHyperlinkListener(new SlideShowLinkListener(parent));
 		panel.add(slideShowComponent, "spanx, grow, wrap para");
 		
-
+		
 		JPanel sub = new JPanel(new MigLayout("ins 0, fill"));
 		
 		prevButton = new JButton(Chars.LEFT_ARROW + " " + trans.get("btn.prev"));
 		prevButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("Clicked previous button");
 				setPosition(position - 1);
 			}
 		});
 		sub.add(prevButton, "left");
 		
-
-
+		
+		
 		nextButton = new JButton(trans.get("btn.next") + " " + Chars.RIGHT_ARROW);
 		nextButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				log.user("Clicked next button");
 				setPosition(position + 1);
 			}
 		});
 		sub.add(nextButton, "left, gapleft para");
 		
-
+		
 		sub.add(new JPanel(), "growx");
 		
-
+		
 		closeButton = new JButton(trans.get("button.close"));
 		closeButton.addActionListener(new ActionListener() {
 			@Override
@@ -76,12 +83,16 @@ public class SlideShowDialog extends JDialog {
 		});
 		sub.add(closeButton, "right");
 		
-
+		
 		panel.add(sub, "growx");
 		
 		this.add(panel);
 		updateEnabled();
+		addKeyActions();
 		GUIUtil.setDisposableDialogOptions(this, nextButton);
+		nextButton.grabFocus();
+		GUIUtil.rememberWindowPosition(this);
+		GUIUtil.rememberWindowSize(this);
 		this.setAlwaysOnTop(true);
 	}
 	
@@ -120,41 +131,43 @@ public class SlideShowDialog extends JDialog {
 	}
 	
 	
-	public static void main(String[] args) throws Exception {
-		
-		Locale.setDefault(new Locale("de", "DE", ""));
-		
-		SlideSetManager manager = new SlideSetManager("datafiles/tours");
-		manager.load();
-		
-		final SlideSet set = manager.getSlideSet("test.tour");
-		
-		SwingUtilities.invokeAndWait(new Runnable() {
+	
+	
+	
+	private void addKeyActions() {
+		Action next = new AbstractAction() {
 			@Override
-			public void run() {
-				
-				SlideShowDialog ssd = new SlideShowDialog(null);
-				
-				ssd.slideShowComponent.addHyperlinkListener(new HyperlinkListener() {
-					@Override
-					public void hyperlinkUpdate(HyperlinkEvent e) {
-						System.out.println("Hyperlink event: " + e);
-						System.out.println("Event type: " + e.getEventType());
-						System.out.println("Description: " + e.getDescription());
-						System.out.println("URL: " + e.getURL());
-						System.out.println("Source element: " + e.getSourceElement());
-						
-					}
-				});
-				
-				ssd.setSize(500, 500);
-				ssd.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-				ssd.setVisible(true);
-				
-				ssd.setSlideSet(set, 0);
+			public void actionPerformed(ActionEvent event) {
+				log.user("Key action for next slide");
+				if (position < slideSet.getSlideCount() - 1) {
+					setPosition(position + 1);
+				}
 			}
-		});
+		};
+		
+		Action previous = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				log.user("Key action for previous slide");
+				if (position > 0) {
+					setPosition(position - 1);
+				}
+			}
+		};
+		
+		String nextKey = "slide:next";
+		String prevKey = "slide:previous";
+		
+		JRootPane root = this.getRootPane();
+		root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), nextKey);
+		root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, 0), nextKey);
+		root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), prevKey);
+		root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, 0), prevKey);
+		
+		root.getActionMap().put(nextKey, next);
+		root.getActionMap().put(prevKey, previous);
 	}
 	
-
+	
+	
 }

@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -29,16 +27,14 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Named;
 
 public class GuidedTourSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String TOURS_BASE_DIR = "datafiles/tours";
 	
-
+	
 	private final SlideSetManager slideSetManager;
 	private final List<String> tourNames;
 	
@@ -52,21 +48,9 @@ public class GuidedTourSelectionDialog extends JDialog {
 	public GuidedTourSelectionDialog(Window parent) {
 		super(parent, trans.get("title"), ModalityType.MODELESS);
 		
-		try {
-			
-			slideSetManager = new SlideSetManager(TOURS_BASE_DIR);
-			slideSetManager.load();
-			
-			tourNames = slideSetManager.getSlideSetNames();
-			if (tourNames.isEmpty()) {
-				throw new FileNotFoundException("No tours found.");
-			}
-			
-		} catch (IOException e) {
-			throw new BugException(e);
-		}
+		slideSetManager = SlideSetManager.getSlideSetManager();
+		tourNames = slideSetManager.getSlideSetNames();
 		
-
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		panel.add(new StyledLabel(trans.get("lbl.selectTour"), Style.BOLD), "spanx, wrap rel");
@@ -87,10 +71,10 @@ public class GuidedTourSelectionDialog extends JDialog {
 				}
 			}
 		});
-		panel.add(new JScrollPane(tourList), "grow, gapright unrel, w 200lp, h 150lp");
+		panel.add(new JScrollPane(tourList), "grow, gapright unrel, w 200lp, h 250lp");
 		
-
-
+		
+		
 		//  Sub-panel containing description and start button
 		JPanel sub = new JPanel(new MigLayout("fill, ins 0"));
 		sub.add(new StyledLabel(trans.get("lbl.description"), -1), "wrap rel");
@@ -113,10 +97,10 @@ public class GuidedTourSelectionDialog extends JDialog {
 		});
 		sub.add(start, "growx");
 		
-		panel.add(sub, "grow, wrap para, w 200lp, h 150lp");
+		panel.add(sub, "grow, wrap para, w 350lp, h 250lp");
 		
-
-
+		
+		
 		JButton close = new JButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
@@ -128,6 +112,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 		this.add(panel);
 		GUIUtil.setDisposableDialogOptions(this, close);
+		GUIUtil.rememberWindowPosition(this);
 		tourList.setSelectedIndex(0);
 	}
 	
@@ -192,6 +177,6 @@ public class GuidedTourSelectionDialog extends JDialog {
 		
 	}
 	
-
-
+	
+	
 }

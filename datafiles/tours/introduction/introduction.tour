@@ -1,0 +1,84 @@
+
+Introduction
+
+<p>This first tour provides a quick overview of OpenRocket screens and
+features.
+
+
+[logo.png]
+# TODO: Add "Welcome to OpenRocket" text to image.
+
+<p><b>OpenRocket</b> is a versatile application for designing,
+simulating and optimizing model rockets.  This first tour provides an
+overview of the OpenRocket screens and features.
+
+<p>You can browse through the tour using the <b>Next</b> and
+<b>Previous</b> buttons, or using the <em>left</em> and <em>right
+arrows</em> on your keyboard.
+
+
+[none]
+
+<p>This is the startup screen from which you can create a new rocket
+design or open existing designs.
+
+<p>For this tour, let's open an example design called <em>A simple model
+rocket</em>.
+
+
+[main_window.jpg]
+
+<p>This is the main screen of OpenRocket.  It is divided horizontally
+into two parts:  the rocket design / flight simulation section and the
+rocket design view.
+
+
+[main_window_top.jpg]
+
+<p>On the top left is the component tree of the rocket design.
+It displays which components are attached to what components.
+
+<p>Next to it are buttons which allow adding new components to the
+rocket.
+
+
+[main_window_bottom.jpg]
+
+<p>The bottom half of the window contains a diagram of the current
+rocket design.
+
+<p>The different viewing options are described in detail in the
+<a href="FIXME">Viewing options</a> tour. 
+
+
+[flight_simulations.jpg]
+
+<p>When you select the <b>Flight simulations</b> tab, the top part of
+the window changes to show the simulations that have been defined for
+the rocket.
+
+<p>You can define various simulations with different motor
+configurations and differing launch conditions, such as wind and
+launch rod angle.
+
+
+[simulation_edit.png]
+
+<p>By double-clicking on a simulation you open the <em>Simulation edit
+dialog</em>.  On the first two tabs you can define simulation options,
+on the last two tabs you can plot or export the results.
+
+<p>Simulating a rocket is described in detail in the
+<a href="FIXME">Simulating a flight</a> tour.
+
+
+[advanced_features.jpg]
+
+<p>Other advanced features include component analysis and automatic
+design optimization, which are covered by separate tours.
+
+<p>Next you can take a tour on <a href="FIXME">Creating a rocket
+design</a>, browse other tours or start experimenting with the
+software.
+
+

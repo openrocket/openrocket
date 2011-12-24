@@ -11,7 +11,8 @@ This is the <i>description</i>.
 <p>This is the first slide &mdash; the left_design file.
 
 <p>It's nifty. It can also contain <a href="foobar">links</a> (though they don't work yet).
-
+<p>Tour2: <a href="test2/test2.tour">Test2</a>
+<p>Hyperlink: <a href="http://www.google.com">google</a>
 
 
 [main_window.png]

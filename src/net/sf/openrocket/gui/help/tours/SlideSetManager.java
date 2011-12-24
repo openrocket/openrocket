@@ -11,6 +11,8 @@ import java.util.Map;
 
 import javax.swing.text.html.StyleSheet;
 
+import net.sf.openrocket.util.BugException;
+
 /**
  * A manager that loads a number of slide sets from a defined base directory
  * and provides access to them.
@@ -18,11 +20,14 @@ import javax.swing.text.html.StyleSheet;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SlideSetManager {
+	private static final String TOURS_BASE_DIR = "datafiles/tours";
 	
 	private static final String TOURS_FILE = "tours.txt";
 	private static final String STYLESHEET_FILE = "style.css";
 	
-
+	private static SlideSetManager slideSetManager = null;
+	
+	
 	private final String baseDir;
 	private final Map<String, SlideSet> slideSets = new LinkedHashMap<String, SlideSet>();
 	
@@ -49,20 +54,24 @@ public class SlideSetManager {
 		List<String> tours = loadTourList();
 		StyleSheet styleSheet = loadStyleSheet();
 		
-		for (String file : tours) {
+		for (String fileAndDir : tours) {
+			String base;
+			String file;
 			
-			String base = baseDir + file;
-			int index = base.lastIndexOf('/');
+			String fullFileAndDir = baseDir + fileAndDir;
+			int index = fullFileAndDir.lastIndexOf('/');
 			if (index >= 0) {
-				base = base.substring(0, index);
+				base = fullFileAndDir.substring(0, index);
+				file = fullFileAndDir.substring(index + 1);
 			} else {
 				base = "";
+				file = "";
 			}
 			
 			SlideSetLoader loader = new SlideSetLoader(base);
 			SlideSet set = loader.load(file);
 			set.setStyleSheet(styleSheet);
-			slideSets.put(file, set);
+			slideSets.put(fileAndDir, set);
 		}
 		
 	}
@@ -131,4 +140,26 @@ public class SlideSetManager {
 		
 	}
 	
+	
+	
+	/**
+	 * Return a singleton implementation that has loaded the default tours.
+	 */
+	public static SlideSetManager getSlideSetManager() {
+		if (slideSetManager == null) {
+			try {
+				SlideSetManager ssm = new SlideSetManager(TOURS_BASE_DIR);
+				ssm.load();
+				
+				if (ssm.getSlideSetNames().isEmpty()) {
+					throw new FileNotFoundException("No tours found.");
+				}
+				
+				slideSetManager = ssm;
+			} catch (IOException e) {
+				throw new BugException(e);
+			}
+		}
+		return slideSetManager;
+	}
 }
