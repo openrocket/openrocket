@@ -6,7 +6,6 @@ features.
 
 
 [logo.png]
-# TODO: Add "Welcome to OpenRocket" text to image.
 
 <p><b>OpenRocket</b> is a versatile application for designing,
 simulating and optimizing model rockets.  This first tour provides an
@@ -18,6 +17,7 @@ arrows</em> on your keyboard.
 
 
 [none]
+# FIXME: Add screenshot after dialog is complete
 
 <p>This is the startup screen from which you can create a new rocket
 design or open existing designs.
