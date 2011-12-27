@@ -31,7 +31,7 @@ public class TrapezoidFinSet extends FinSet {
 	 *                length
 	 *              == rootChord
 	 */
-
+	
 	// rootChord == length
 	private double tipChord = 0;
 	private double height = 0;
@@ -39,7 +39,7 @@ public class TrapezoidFinSet extends FinSet {
 	
 	
 	public TrapezoidFinSet() {
-		this(3, 0.05, 0.05, 0.025, 0.05);
+		this(3, 0.05, 0.05, 0.025, 0.03);
 	}
 	
 	// TODO: HIGH:  height=0 -> CP = NaN
@@ -149,7 +149,7 @@ public class TrapezoidFinSet extends FinSet {
 	}
 	
 	
-
+	
 	/**
 	 * Returns the geometry of a trapezoidal fin.
 	 */

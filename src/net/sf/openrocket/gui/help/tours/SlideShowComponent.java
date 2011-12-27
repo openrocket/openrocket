@@ -49,6 +49,7 @@ public class SlideShowComponent extends JSplitPane {
 	public void setSlide(Slide slide) {
 		this.imageDisplay.setImage(slide.getImage());
 		this.textPane.setText(slide.getText());
+		this.textPane.setCaretPosition(0);
 	}
 	
 	

@@ -2,7 +2,7 @@
 # This file lists all the available tours.
 
 introduction/introduction.tour
-
+creating_design/creating_design.tour
 
 test1/test.tour
 test2/test2.tour

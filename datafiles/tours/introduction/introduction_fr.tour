@@ -1,83 +1,83 @@
 Introduction
 
-<p>Ce premier tour d'horizon donne un apperçu rapide des écrans et fonctionnalités 
+<p>Ce premier tour d'horizon donne un apperÃ§u rapide des Ã©crans et fonctionnalitÃ©s 
 d'OpenRocket.
 
 
-[logo.png]
+[logo_fr.png]
 
 <p><b>OpenRocket</b> est une application pour concevoir,
-simuler et optimiser des fusées modèle réduit.  Ce premier tour d'horizon
-montre une vue globale des écrans et fonctionnalités d'OpenRocket.
+simuler et optimiser des fusÃ©es modÃ¨le rÃ©duit.  Ce premier tour d'horizon
+montre une vue globale des Ã©crans et fonctionnalitÃ©s d'OpenRocket.
 
-<p>Vous pouvez vous déplacer dans le tour d'horizon en utilisant les boutons <b>Suivant</b> 
-et <b>Précédant</b>, ou en utilisant les flèches <em>gauche</em> et <em>droite
+<p>Vous pouvez vous dÃ©placer dans le tour d'horizon en utilisant les boutons <b>Suivant</b> 
+et <b>PrÃ©cÃ©dant</b>, ou en utilisant les flÃ¨ches <em>gauche</em> et <em>droite
 </em> sur votre clavier.
 
 
 [none]
 # FIXME: Add screenshot after dialog is complete
 
-<p>Ceci est l'écran de démarrage depuis lequel vous pouvez créer une nouvelle fusée
+<p>Ceci est l'Ã©cran de dÃ©marrage depuis lequel vous pouvez crÃ©er une nouvelle fusÃ©e
 ou ouvrir des projets existant.
 
-<p>Pour ce tour d'horizon, ouvrons le projet exemple nommé <em>A simple model
+<p>Pour ce tour d'horizon, ouvrons le projet exemple nommÃ© <em>A simple model
 rocket</em>.
 
 
 [main_window.jpg]
 
-<p>Ceci est l'écran principal d'OpenRocket.  Il est divisé horizontalement en 
-deux parties:  la partie projet fusée / simulation de vol 
-et la partie conception fusée.
+<p>Ceci est l'Ã©cran principal d'OpenRocket.  Il est divisÃ© horizontalement en 
+deux parties:  la partie projet fusÃ©e / simulation de vol 
+et la partie conception fusÃ©e.
 
 
 
 [main_window_top.jpg]
 
-<p>En haut à gauche il y a l'arborescence de pièces du projet fusée.
-Il montre quelles pièces sont attachées à quelles pièces.
+<p>En haut Ã  gauche il y a l'arborescence de piÃ¨ces du projet fusÃ©e.
+Il montre quelles piÃ¨ces sont attachÃ©es Ã  quelles piÃ¨ces.
 
-<p>Juste à coté les buttons permettent d'ajouter de nouvelles pièces à 
-la fusée.
+<p>Juste Ã  cotÃ© les buttons permettent d'ajouter de nouvelles piÃ¨ces Ã  
+la fusÃ©e.
 
 
 [main_window_bottom.jpg]
 
-<p>La partie basse de la fenêtre contient un diagramme du projet fusée 
+<p>La partie basse de la fenÃªtre contient un diagramme du projet fusÃ©e 
 en cour.
 
-<p>Les différentes options de visualisation sont décrites en détail dans le tour
+<p>Les diffÃ©rentes options de visualisation sont dÃ©crites en dÃ©tail dans le tour
 d'horizon <a href="FIXME">Options de visualisation</a>. 
 
 
 [flight_simulations.jpg]
 
-<p>Lorsque vous sélectionnez l'onglet <b>Simulations de vol</b>, la partie haute de
-la fenêtre change pour montrer les simulations qui ont été programmées pour
-la fusée.
+<p>Lorsque vous sÃ©lectionnez l'onglet <b>Simulations de vol</b>, la partie haute de
+la fenÃªtre change pour montrer les simulations qui ont Ã©tÃ© programmÃ©es pour
+la fusÃ©e.
 
-<p>Vous pouvez définir plusieurs simulations avec des configurations moteurs différentes
+<p>Vous pouvez dÃ©finir plusieurs simulations avec des configurations moteurs diffÃ©rentes
 et en modifiant les conditions de lancement, comme le vent et l'inclinaison 
 de la rampe de lancement.
 
 
 [simulation_edit.png]
 
-<p>En double cliquant sur une simulation vous ouvrez <em>la fenêtre de dialogue de modification 
-de Simulation </em>.  Sur les deux premiers onglets vous pouvez définir les options de simulation,
-dans les deux derniers onglets vous pouvez tracer ou exporter les résultats.
+<p>En double cliquant sur une simulation vous ouvrez <em>la fenÃªtre de dialogue de modification 
+de Simulation </em>.  Sur les deux premiers onglets vous pouvez dÃ©finir les options de simulation,
+dans les deux derniers onglets vous pouvez tracer ou exporter les rÃ©sultats.
 
-<p>La simulation d'une fusée est décrite en détail dans le tour d'horizon
+<p>La simulation d'une fusÃ©e est dÃ©crite en dÃ©tail dans le tour d'horizon
 <a href="FIXME">Simulation d'un vol</a>.
 
 
 [advanced_features.jpg]
 
-<p>D'autres fonctionnalités avancées incluant l'analyse des pièces et une
-optimisation automatique du projet sont traités dans d'autres tours d'horizon.
+<p>D'autres fonctionnalitÃ©s avancÃ©es incluant l'analyse des piÃ¨ces et une
+optimisation automatique du projet sont traitÃ©s dans d'autres tours d'horizon.
 
-<p>Ensuite vous pouvez voir <a href="FIXME">Créer un projet fusée
-</a>, survoler d'autres tours d'horizons ou commencer à expérimenter le
+<p>Ensuite vous pouvez voir <a href="FIXME">CrÃ©er un projet fusÃ©e
+</a>, survoler d'autres tours d'horizons ou commencer Ã  expÃ©rimenter le
 logiciel.
 
