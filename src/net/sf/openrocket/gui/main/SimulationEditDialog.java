@@ -610,11 +610,11 @@ public class SimulationEditDialog extends JDialog {
 				"[grow][65lp!][30lp!][75lp!]", ""));
 		//// Simulator options
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simopt")));
-		panel.add(sub, "w 330lp!, growy, aligny 0");
+		panel.add(sub, "growx, growy, aligny 0");
 		
 
 		// Separate panel for computation methods, as they use a different layout
-		subsub = new JPanel(new MigLayout("fill"));
+		subsub = new JPanel(new MigLayout("insets 0, fill"));
 		
 
 		//// Calculation method:
