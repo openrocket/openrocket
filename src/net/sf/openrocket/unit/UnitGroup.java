@@ -65,10 +65,10 @@ public class UnitGroup {
 	
 	//	public static final UnitGroup UNITS_FREQUENCY;
 	
-
+	
 	public static final Map<String, UnitGroup> UNITS;
 	
-
+	
 	/*
 	 * Note:  Units may not use HTML tags.
 	 * 
@@ -109,7 +109,7 @@ public class UnitGroup {
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.3048), "ft" + SQUARED));
 		UNITS_AREA.setDefaultUnit(1);
 		
-
+		
 		UNITS_STABILITY = new UnitGroup();
 		UNITS_STABILITY.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_STABILITY.addUnit(new GeneralUnit(0.01, "cm"));
@@ -120,7 +120,7 @@ public class UnitGroup {
 		UNITS_STABILITY_CALIBERS = new UnitGroup();
 		UNITS_STABILITY_CALIBERS.addUnit(new GeneralUnit(1, "cal"));
 		
-
+		
 		UNITS_VELOCITY = new UnitGroup();
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1, "m/s"));
 		UNITS_VELOCITY.addUnit(new GeneralUnit(1 / 3.6, "km/h"));
@@ -130,6 +130,7 @@ public class UnitGroup {
 		UNITS_ACCELERATION = new UnitGroup();
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(1, "m/s" + SQUARED));
 		UNITS_ACCELERATION.addUnit(new GeneralUnit(0.3048, "ft/s" + SQUARED));
+		UNITS_ACCELERATION.addUnit(new GeneralUnit(9.80665, "G"));
 		
 		UNITS_MASS = new UnitGroup();
 		UNITS_MASS.addUnit(new GeneralUnit(0.001, "g"));
@@ -222,16 +223,16 @@ public class UnitGroup {
 		//		UNITS_RELATIVE.addUnit(new FixedPrecisionUnit("" + PERMILLE, 1, 0.001));
 		UNITS_RELATIVE.setDefaultUnit(1);
 		
-
+		
 		UNITS_ROUGHNESS = new UnitGroup();
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, MICRO + "m"));
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.0000254, "mil"));
 		
-
+		
 		UNITS_COEFFICIENT = new UnitGroup();
 		UNITS_COEFFICIENT.addUnit(new FixedPrecisionUnit("" + ZWSP, 0.01)); // zero-width space
 		
-
+		
 		// This is not used by OpenRocket, and not extensively tested:
 		//		UNITS_FREQUENCY = new UnitGroup();
 		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(1, "s"));
@@ -241,7 +242,7 @@ public class UnitGroup {
 		//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
 		//		UNITS_FREQUENCY.setDefaultUnit(3);
 		
-
+		
 		HashMap<String, UnitGroup> map = new HashMap<String, UnitGroup>();
 		map.put("NONE", UNITS_NONE);
 		map.put("LENGTH", UNITS_LENGTH);
@@ -358,7 +359,7 @@ public class UnitGroup {
 	
 	//////////////////////////////////////////////////////
 	
-
+	
 	protected ArrayList<Unit> units = new ArrayList<Unit>();
 	protected int defaultUnit = 0;
 	
@@ -382,7 +383,7 @@ public class UnitGroup {
 	}
 	
 	
-
+	
 	/**
 	 * Find a unit by approximate unit name.  Only letters and (ordinary) numbers are
 	 * considered in the matching.  This method is mainly means for testing, allowing
@@ -466,9 +467,9 @@ public class UnitGroup {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Creates a new Value object with the specified value and the default unit of this group.
 	 * 
@@ -480,8 +481,8 @@ public class UnitGroup {
 	}
 	
 	
-
-
+	
+	
 	private static final Pattern STRING_PATTERN = Pattern.compile("^\\s*([0-9.,-]+)(.*?)$");
 	
 	/**
@@ -529,7 +530,7 @@ public class UnitGroup {
 	
 	///////////////////////////
 	
-
+	
 	/**
 	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.
