@@ -2,6 +2,7 @@ package net.sf.openrocket.startup;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.l10n.Translator;
@@ -357,6 +358,10 @@ public abstract class Preferences {
 		
 		return null;
 	}
+
+	public abstract void addUserMaterial(Material m);
+	public abstract Set<Material> getUserMaterials();
+	public abstract void removeUserMaterial(Material m);
 
 	/*
 	 * Map of default line styles
