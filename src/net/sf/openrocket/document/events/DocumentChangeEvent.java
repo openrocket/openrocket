@@ -1,8 +1,8 @@
 package net.sf.openrocket.document.events;
 
-import javax.swing.event.ChangeEvent;
+import java.util.EventObject;
 
-public class DocumentChangeEvent extends ChangeEvent {
+public class DocumentChangeEvent extends EventObject {
 
 	public DocumentChangeEvent(Object source) {
 		super(source);
