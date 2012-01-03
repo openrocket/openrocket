@@ -81,8 +81,8 @@ public class SimulationPlotFragment extends Fragment implements OnTouchListener 
 		mySimpleXYPlot.setUserDomainOrigin(0);
 		mySimpleXYPlot.setUserRangeOrigin(0);
 		mySimpleXYPlot.setRangeLabel("");
-		mySimpleXYPlot.setDomainLabel(FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString());
-		mySimpleXYPlot.setRangeLabel( selectedSeries.getUnitGroup().getDefaultUnit().toString() ); 
+		mySimpleXYPlot.setDomainLabel(FlightDataType.TYPE_TIME.getName() + " (" + FlightDataType.TYPE_TIME.getUnitGroup().getDefaultUnit().toString() + ")");
+		mySimpleXYPlot.setRangeLabel( selectedSeries.getName() + " (" + selectedSeries.getUnitGroup().getDefaultUnit().toString() + ")"); 
 		mySimpleXYPlot.disableAllMarkup();
 
 		for ( FlightEvent event : eventsToShow ) {
@@ -109,7 +109,7 @@ public class SimulationPlotFragment extends Fragment implements OnTouchListener 
 		}
 		Log.d("plot","data = " + yvals.toString());
 
-		mySeries = new SimpleXYSeries(xvals, yvals, FlightDataType.TYPE_ALTITUDE.toString());
+		mySeries = new SimpleXYSeries(xvals, yvals, selectedSeries.toString());
 
 		mySimpleXYPlot.addSeries(mySeries, LineAndPointRenderer.class,
 				new LineAndPointFormatter(Color.rgb(0, 255, 0), Color.rgb(200, 0, 0), null));
