@@ -143,24 +143,6 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 		redraw();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.motor_details_option_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.save:
-			// Extract form data to Motor.
-			// Save motor.
-			return true;
-		}
-		return super.onMenuItemSelected(featureId, item);
-	}
-
 	private void redraw() {
 		List<FlightEvent> eventsToShow = new ArrayList<FlightEvent>();
 		{
