@@ -8,7 +8,7 @@
         android:id="@+id/heading"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Started" />
+        android:text="" />
 
     <ListView
         android:id="@+id/rocketSimulations"

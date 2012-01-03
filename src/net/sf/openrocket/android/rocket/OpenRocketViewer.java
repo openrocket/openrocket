@@ -11,6 +11,7 @@ import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,11 +32,14 @@ public class OpenRocketViewer extends Activity {
 
 	private static final String TAG = "OpenRocketViewer";
 
-	TextView header;
-	ListView simulationList;
-	
-	Application app;
+	private ProgressDialog progress;
 
+	private TextView header;
+	private ListView simulationList;
+
+	private Application app;
+
+	private final static int PICK_ORK_FILE_RESULT = 1;
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -43,21 +47,59 @@ public class OpenRocketViewer extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		Log.d(TAG,"In onCreate");
-		
+
 		app = (Application) this.getApplication();
 
 		setContentView(R.layout.openrocketviewer);
-		
+
 		header = (TextView) findViewById(R.id.heading);
 		simulationList = (ListView) findViewById(R.id.rocketSimulations);
 
 		Intent i = getIntent();
 		Uri file = i.getData();
-		String path = file.getPath();
+
+		if ( file == null ) {
+			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+			intent.setType("file/*");
+			startActivityForResult(intent,PICK_ORK_FILE_RESULT);
+
+		} else {
+			loadOrkFile(file);
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		if ( progress != null ) {
+			if ( progress.isShowing() ) {
+				progress.dismiss();
+			}
+			progress = null;
+		}
+		super.onDestroy();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		switch(requestCode){
+		case PICK_ORK_FILE_RESULT:
+			if(resultCode==RESULT_OK){
+				Uri file = data.getData();
+				loadOrkFile(file);
+			}
+			break;
+		}
+	}
+	
+	private void loadOrkFile( Uri file ) {
 		Log.d(TAG,"Use ork file: " + file);
+		String path = file.getPath();
 		File orkFile = new File(path);
+		progress = ProgressDialog.show(this, "Loading file", "");
+
 		final OpenRocketLoaderTask task = new OpenRocketLoaderTask() {
 
 			/* (non-Javadoc)
@@ -69,17 +111,18 @@ public class OpenRocketViewer extends Activity {
 				app.setRocketDocument( result );
 				updateContents();
 			}
-			
+
 		};
-		
+
 		task.execute(orkFile);
+
 	}
 
 	private void updateContents() {
-		
+
 		OpenRocketDocument rocket = app.getRocketDocument();
 		header.setText( rocket.getRocket().getName());
-		
+
 		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this,android.R.layout.simple_list_item_1,rocket.getSimulations()) {
 
 			@Override
@@ -104,16 +147,20 @@ public class OpenRocketViewer extends Activity {
 				i.putExtra("Simulation",(int)id);
 				startActivityForResult(i, 1/*magic*/);
 			}
-			
+
 		});
 		simulationList.setAdapter(sims);
 
+		if ( progress.isShowing() ) {
+			progress.dismiss();
+		}
+
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.rocket_viewer_option_menu, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.rocket_viewer_option_menu, menu);
 		return true;
 	}
 
@@ -134,9 +181,9 @@ public class OpenRocketViewer extends Activity {
 
 	public void startMotorBrowser() {
 		Log.d(TAG,"motorBrowserButton clicked");
-    	Intent i = new Intent(OpenRocketViewer.this, MotorHierarchicalBrowser.class);
-    	startActivity(i);
-    }
+		Intent i = new Intent(OpenRocketViewer.this, MotorHierarchicalBrowser.class);
+		startActivity(i);
+	}
 
 
 
