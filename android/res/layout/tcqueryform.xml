@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TableLayout
+        android:id="@+id/tableLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1" >
+
+        <TableRow >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:text="@string/TCMotorSearchFormManufacturer" />
+
+            <Spinner
+                android:id="@+id/TCMotorSearchFormManufacturerField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/TCMotorSearchManufacturerList" />
+        </TableRow>
+
+        <TableRow >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:text="@string/TCMotorSearchFormImpulse" />
+
+            <Spinner
+                android:id="@+id/TCMotorSearchFormImpulseField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/TCMotorSearchImpulseList" />
+        </TableRow>
+
+        <TableRow >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:text="@string/TCMotorSearchFormCommonName" />
+
+            <EditText
+                android:id="@+id/TCMotorSearchFormCommonNameField"
+                android:text="" />
+        </TableRow>
+
+        <TableRow >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:text="@string/TCMotorSearchFormDiameter" />
+
+            <Spinner
+                android:id="@+id/TCMotorSearchFormDiameterField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/TCMotorSearchDiameterList" />
+        </TableRow>
+    </TableLayout>
+
+    <Button
+        android:id="@+id/TCMotorSearchFromSubmitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:text="@string/TCMotorSearchFormSubmit" />
+
+</RelativeLayout>

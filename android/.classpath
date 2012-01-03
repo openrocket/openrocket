@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry excluding="net/sf/openrocket/gui/|net/sf/openrocket/utils/|net/sf/openrocket/file/motor/MotorLoaderHelper.java|net/sf/openrocket/material/MaterialStorage.java|net/sf/openrocket/database/Databases.java" kind="src" path="src"/>
+	<classpathentry excluding="net/sf/openrocket/file/motor/MotorLoaderHelper.java|net/sf/openrocket/gui/|net/sf/openrocket/startup/Startup.java|net/sf/openrocket/startup/Startup2.java|net/sf/openrocket/startup/VersionHelper.java|net/sf/openrocket/utils/|net/sf/openrocket/file/motor/|net/sf/openrocket/file/CSVExport.java" kind="src" path="src"/>
+	<classpathentry kind="src" path="locale"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="libs/Androidplot-core-0.4.4-release.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

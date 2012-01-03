@@ -999,7 +999,7 @@ class MotorHandler extends ElementHandler {
 			return null;
 		}
 		
-		List<ThrustCurveMotor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer,
+		List<? extends Motor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer,
 				designation, diameter, length);
 		
 		// No motors
@@ -1014,7 +1014,7 @@ class MotorHandler extends ElementHandler {
 		
 		// One motor
 		if (motors.size() == 1) {
-			ThrustCurveMotor m = motors.get(0);
+			Motor m = motors.get(0);
 			if (digest != null && !MotorDigest.digestMotor(m).equals(digest)) {
 				String str = "Motor with designation '" + designation + "'";
 				if (manufacturer != null)
@@ -1029,7 +1029,7 @@ class MotorHandler extends ElementHandler {
 		if (digest != null) {
 			
 			// Check for motor with correct digest
-			for (ThrustCurveMotor m : motors) {
+			for (Motor m : motors) {
 				if (MotorDigest.digestMotor(m).equals(digest)) {
 					return m;
 				}
@@ -1044,7 +1044,7 @@ class MotorHandler extends ElementHandler {
 			
 			// No digest, check for preferred digest (OpenRocket <= 1.1.0)
 			// TODO: MEDIUM: This should only be done for document versions 1.1 and below
-			for (ThrustCurveMotor m : motors) {
+			for (Motor m : motors) {
 				if (PreferredMotorDigests.DIGESTS.contains(MotorDigest.digestMotor(m))) {
 					return m;
 				}

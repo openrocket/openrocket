@@ -1,5 +1,6 @@
 package net.sf.openrocket.motor;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;

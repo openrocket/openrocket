@@ -15,7 +15,7 @@ import net.sf.openrocket.startup.Application;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class ThrustCurveMotorSetDatabase {
+public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	
 	private static final LogHelper logger = Application.getLogger();
 	
@@ -38,11 +38,8 @@ public abstract class ThrustCurveMotorSetDatabase {
 	}
 	
 	
-	/**
-	 * Return a list of the ThrustCurveMotorSet objects.  The list is in sorted order and
-	 * is unmodifiable.
-	 * 
-	 * @return		the list of all ThrustCurveMotorSets.
+	/* (non-Javadoc)
+	 * @see net.sf.openrocket.database.ThrustCurveMotorSetDatabaseI#getMotorSets()
 	 */
 	public List<ThrustCurveMotorSet> getMotorSets() {
 		blockUntilLoaded();
@@ -51,17 +48,10 @@ public abstract class ThrustCurveMotorSetDatabase {
 	
 	
 
-	/**
-	 * Return all motors in the database matching a search criteria.  Any search criteria that
-	 * is null or NaN is ignored.
-	 * 
-	 * @param type			the motor type, or null.
-	 * @param manufacturer	the manufacturer, or null.
-	 * @param designation	the designation, or null.
-	 * @param diameter		the diameter, or NaN.
-	 * @param length		the length, or NaN.
-	 * @return				a list of all the matching motors.
+	/* (non-Javadoc)
+	 * @see net.sf.openrocket.database.ThrustCurveMotorSetDatabaseI#findMotors(net.sf.openrocket.motor.Motor.Type, java.lang.String, java.lang.String, double, double)
 	 */
+	@Override
 	public List<ThrustCurveMotor> findMotors(Motor.Type type, String manufacturer, String designation,
 			double diameter, double length) {
 		blockUntilLoaded();

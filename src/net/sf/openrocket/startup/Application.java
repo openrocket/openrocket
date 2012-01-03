@@ -1,6 +1,6 @@
 package net.sf.openrocket.startup;
 
-import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.database.MotorDatabase;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
@@ -22,7 +22,7 @@ public final class Application {
 	
 	private static Translator baseTranslator = new DebugTranslator(null);
 	
-	private static ThrustCurveMotorSetDatabase motorSetDatabase;
+	private static MotorDatabase motorSetDatabase;
 
 	private static Preferences preferences;
 	
@@ -149,14 +149,14 @@ public final class Application {
 	/**
 	 * Return the database of all thrust curves loaded into the system.
 	 */
-	public static ThrustCurveMotorSetDatabase getMotorSetDatabase() {
+	public static MotorDatabase getMotorSetDatabase() {
 		return motorSetDatabase;
 	}
 	
 	/**
 	 * Set the database of thrust curves loaded into the system.
 	 */
-	public static void setMotorSetDatabase(ThrustCurveMotorSetDatabase motorSetDatabase) {
+	public static void setMotorSetDatabase(MotorDatabase motorSetDatabase) {
 		Application.motorSetDatabase = motorSetDatabase;
 	}
 	

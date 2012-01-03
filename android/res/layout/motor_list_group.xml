@@ -1,0 +1,18 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="45dip" >
+
+    <TextView
+        android:id="@+id/motorGroup"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        android:gravity="center_vertical|right"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:text="motor group"
+        android:textColor="#ffffffff"
+        android:textSize="17dip"
+        android:textStyle="bold" >
+    </TextView>
+
+</LinearLayout>

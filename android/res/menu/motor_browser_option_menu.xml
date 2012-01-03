@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:title="Download from ThrustCurve" android:id="@+id/download_from_thrustcurve_menu_option"/>
+  <item android:title="Preferences" android:id="@+id/preference_menu_option"/>
+</menu>

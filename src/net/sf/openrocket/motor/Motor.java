@@ -126,5 +126,8 @@ public interface Motor {
 	public double getMaxThrustEstimate();
 	public double getTotalImpulseEstimate();
 	
+	public double[] getTimePoints();
+	public double[] getThrustPoints();
+	public Coordinate[] getCGPoints();
 	
 }

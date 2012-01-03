@@ -138,7 +138,7 @@ public class MotorDigest {
 	 * @param m		the motor to digest
 	 * @return		the digest
 	 */
-	public static String digestMotor(ThrustCurveMotor m) {
+	public static String digestMotor(Motor m) {
 		
 		// Create the motor digest from data available in RASP files
 		MotorDigest motorDigest = new MotorDigest();

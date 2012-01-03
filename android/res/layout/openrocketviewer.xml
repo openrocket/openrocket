@@ -5,8 +5,14 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/heading"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:text="Started" />
+
+    <ListView
+        android:id="@+id/rocketSimulations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
