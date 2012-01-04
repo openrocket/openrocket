@@ -3,14 +3,14 @@
  */
 package net.sf.openrocket.file.rocksim;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.HashMap;
 
@@ -20,54 +20,13 @@ import java.util.HashMap;
 public class StreamerHandlerTest extends RocksimTestBase {
 
     /**
-     * The class under test.
-     */
-    public static final Class classUT = StreamerHandler.class;
-
-    /**
-     * The test class (this class).
-     */
-    public static final Class testClass = StreamerHandlerTest.class;
-
-    /**
-     * Create a test suite of all tests within this test class.
-     *
-     * @return a suite of tests
-     */
-    public static Test suite() {
-        return new TestSuite(StreamerHandlerTest.class);
-    }
-
-    /**
-     * Test constructor.
-     *
-     * @param name the name of the test to run.
-     */
-    public StreamerHandlerTest(String name) {
-        super(name);
-    }
-
-    /**
-     * Setup the fixture.
-     */
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    /**
-     * Teardown the fixture.
-     */
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    /**
      * Method: openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new StreamerHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new StreamerHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -75,6 +34,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
@@ -84,32 +44,32 @@ public class StreamerHandlerTest extends RocksimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Width", attributes, "0", warnings);
-        assertEquals(0d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth());
+        Assert.assertEquals(0d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
         handler.closeElement("Width", attributes, "10", warnings);
-        assertEquals(10d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth());
+        Assert.assertEquals(10d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
         handler.closeElement("Width", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Len", attributes, "-1", warnings);
-        assertEquals(0d, component.getStripLength());
+        Assert.assertEquals(0d, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength());
+        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength());
+        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Name", attributes, "Test Name", warnings);
-        assertEquals("Test Name", component.getName());
+        Assert.assertEquals("Test Name", component.getName());
 
         handler.closeElement("DragCoefficient", attributes, "0.94", warnings);
-        assertEquals(0.94d, component.getCD());
+        Assert.assertEquals(0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "-0.94", warnings);
-        assertEquals(-0.94d, component.getCD());
+        Assert.assertEquals(-0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
     }
@@ -119,11 +79,12 @@ public class StreamerHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testConstructor() throws Exception {
 
         try {
             new StreamerHandler(null, new WarningSet());
-            fail("Should have thrown IllegalArgumentException");
+            Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
             //success
@@ -140,12 +101,13 @@ public class StreamerHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
-        assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
+        Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
     }
 
     /**
@@ -153,8 +115,9 @@ public class StreamerHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testGetComponent() throws Exception {
-        assertTrue(new StreamerHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Streamer);
+        Assert.assertTrue(new StreamerHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Streamer);
     }
 
     /**
@@ -162,8 +125,9 @@ public class StreamerHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.SURFACE, new StreamerHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.SURFACE, new StreamerHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
     /**
@@ -171,6 +135,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @Test
     public void testEndHandler() throws Exception {
         BodyTube tube = new BodyTube();
         StreamerHandler handler = new StreamerHandler(tube, new WarningSet());
@@ -181,29 +146,29 @@ public class StreamerHandlerTest extends RocksimTestBase {
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
-        assertEquals(component.getPositionValue(), -10d/RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
+        Assert.assertEquals(component.getPositionValue(), -10d/RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
-        assertEquals(component.getPositionValue(), 10d/RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        Assert.assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
+        Assert.assertEquals(component.getPositionValue(), 10d/RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Thickness", attributes, "0.02", warnings);
-        assertEquals(0.01848, handler.computeDensity(RocksimDensityType.ROCKSIM_BULK, 924d));
+        Assert.assertEquals(0.01848, handler.computeDensity(RocksimDensityType.ROCKSIM_BULK, 924d), 0.001);
 
         //Test Density Type 0 (Bulk)
         handler.closeElement("Density", attributes, "924.0", warnings);
         handler.closeElement("DensityType", attributes, "0", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        assertEquals(0.01848d, component.getMaterial().getDensity());
+        Assert.assertEquals(0.01848d, component.getMaterial().getDensity(), 0.001);
 
         //Test Density Type 1 (Surface)
         handler.closeElement("Density", attributes, "0.006685", warnings);
         handler.closeElement("DensityType", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
-        assertTrue(Math.abs(0.06685d - component.getMaterial().getDensity()) < 0.00001);
+        Assert.assertTrue(Math.abs(0.06685d - component.getMaterial().getDensity()) < 0.00001);
 
         //Test Density Type 2 (Line)
         handler.closeElement("Density", attributes, "0.223225", warnings);
@@ -212,7 +177,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
         handler.closeElement("Width", attributes, "203.2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
 
-        assertEquals(1.728190092, component.getMass());
+        Assert.assertEquals(1.728190092, component.getMass(), 0.001);
 
     }
 

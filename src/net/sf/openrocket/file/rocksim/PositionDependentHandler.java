@@ -18,10 +18,10 @@ import java.util.HashMap;
 public abstract class PositionDependentHandler<C extends RocketComponent> extends BaseHandler<C> {
 
     /** Temporary position value. */
-    private Double positionValue;
+    private Double positionValue = 0d;
 
     /** Temporary position. */
-    private RocketComponent.Position position;
+    private RocketComponent.Position position = RocketComponent.Position.TOP;
 
     /**
      * {@inheritDoc}

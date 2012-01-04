@@ -3,14 +3,13 @@
  */
 package net.sf.openrocket.file.rocksim;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import org.junit.Assert;
 
 import java.util.HashMap;
 
@@ -20,54 +19,13 @@ import java.util.HashMap;
 public class ParachuteHandlerTest extends RocksimTestBase {
 
     /**
-     * The class under test.
-     */
-    public static final Class classUT = ParachuteHandler.class;
-
-    /**
-     * The test class (this class).
-     */
-    public static final Class testClass = ParachuteHandlerTest.class;
-
-    /**
-     * Create a test suite of all tests within this test class.
-     *
-     * @return a suite of tests
-     */
-    public static Test suite() {
-        return new TestSuite(ParachuteHandlerTest.class);
-    }
-
-    /**
-     * Test constructor.
-     *
-     * @param name the name of the test to run.
-     */
-    public ParachuteHandlerTest(String name) {
-        super(name);
-    }
-
-    /**
-     * Setup the fixture.
-     */
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    /**
-     * Teardown the fixture.
-     */
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    /**
      * Method: openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testOpenElement() throws Exception {
-        assertEquals(PlainTextHandler.INSTANCE, new ParachuteHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new ParachuteHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -75,6 +33,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
@@ -84,38 +43,38 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Name", attributes, "Test Name", warnings);
-        assertEquals("Test Name", component.getName());
+        Assert.assertEquals("Test Name", component.getName());
 
         handler.closeElement("DragCoefficient", attributes, "0.94", warnings);
-        assertEquals(0.94d, component.getCD());
+        Assert.assertEquals(0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "-0.94", warnings);
-        assertEquals(-0.94d, component.getCD());
+        Assert.assertEquals(-0.94d, component.getCD(), 0.001);
         handler.closeElement("DragCoefficient", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("Dia", attributes, "-1", warnings);
-        assertEquals(-1d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter());
+        Assert.assertEquals(-1d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
         handler.closeElement("Dia", attributes, "10", warnings);
-        assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter());
+        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getDiameter(), 0.001);
         handler.closeElement("Dia", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("ShroudLineCount", attributes, "-1", warnings);
-        assertEquals(0, component.getLineCount());
+        Assert.assertEquals(0, component.getLineCount());
         handler.closeElement("ShroudLineCount", attributes, "10", warnings);
-        assertEquals(10, component.getLineCount());
+        Assert.assertEquals(10, component.getLineCount());
         handler.closeElement("ShroudLineCount", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
         handler.closeElement("ShroudLineLen", attributes, "-1", warnings);
-        assertEquals(0d, component.getLineLength());
+        Assert.assertEquals(0d, component.getLineLength(), 0.001);
         handler.closeElement("ShroudLineLen", attributes, "10", warnings);
-        assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLineLength());
+        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLineLength(), 0.001);
         handler.closeElement("ShroudLineLen", attributes, "foo", warnings);
-        assertEquals(1, warnings.size());
+        Assert.assertEquals(1, warnings.size());
         warnings.clear();
 
     }
@@ -125,11 +84,12 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testConstructor() throws Exception {
 
         try {
             new ParachuteHandler(null, new WarningSet());
-            fail("Should have thrown IllegalArgumentException");
+            Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
             //success
@@ -146,12 +106,13 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
-        assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
+        Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
     }
 
     /**
@@ -159,8 +120,9 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testGetComponent() throws Exception {
-        assertTrue(new ParachuteHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
+        Assert.assertTrue(new ParachuteHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
     }
 
     /**
@@ -168,8 +130,9 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        assertEquals(Material.Type.SURFACE, new ParachuteHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.SURFACE, new ParachuteHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 
     /**
@@ -177,6 +140,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testEndHandler() throws Exception {
         BodyTube tube = new BodyTube();
         ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
@@ -187,15 +151,13 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
-        assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
-        assertEquals(component.getPositionValue(), -10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
+        Assert.assertEquals(component.getPositionValue(), -10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Parachute", attributes, null, warnings);
-        assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
-        assertEquals(component.getPositionValue(), 10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        Assert.assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
+        Assert.assertEquals(component.getPositionValue(), 10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
     }
-
-
 }

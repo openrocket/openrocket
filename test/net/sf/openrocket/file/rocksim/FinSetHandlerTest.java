@@ -3,9 +3,7 @@
  */
 package net.sf.openrocket.file.rocksim;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -23,53 +21,11 @@ import java.util.HashMap;
 public class FinSetHandlerTest extends TestCase {
 
     /**
-     * The class under test.
-     */
-    public static final Class classUT = FinSetHandler.class;
-
-    /**
-     * The test class (this class).
-     */
-    public static final Class testClass = FinSetHandlerTest.class;
-
-    /**
-     * Create a test suite of all tests within this test class.
-     *
-     * @return a suite of tests
-     */
-    public static Test suite() {
-        return new TestSuite(FinSetHandlerTest.class);
-    }
-
-    /**
-     * Test constructor.
-     *
-     * @param name the name of the test to run.
-     */
-    public FinSetHandlerTest(String name) {
-        super(name);
-    }
-
-    /**
-     * Setup the fixture.
-     */
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    /**
-     * Teardown the fixture.
-     */
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-
-    /**
      * Method: asOpenRocket(WarningSet warnings)
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testAsOpenRocket() throws Exception {
 
         FinSetHandler dto = new FinSetHandler(new BodyTube());
@@ -135,6 +91,7 @@ public class FinSetHandlerTest extends TestCase {
      *
      * @throws Exception thrown if something goes awry
      */
+    @org.junit.Test
     public void testToCoordinates() throws Exception {
         FinSetHandler holder = new FinSetHandler(new BodyTube());
         Method method = FinSetHandler.class.getDeclaredMethod("toCoordinates", String.class, WarningSet.class);

@@ -201,11 +201,12 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
     }
     
     /**
-     * Create a custom material based on the density.
+     * Create a custom material based on the density.  The name of the material is prepended with 'RS: ' to
+     * indicate it came from a RockSim material.
      *
      * @param type    the type of the material
      * @param name    the name of the component
-     * @param density the density in g/cm^3
+     * @param density the density
      *
      * @return a Material instance
      */
