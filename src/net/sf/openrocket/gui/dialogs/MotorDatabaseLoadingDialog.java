@@ -56,7 +56,8 @@ public class MotorDatabaseLoadingDialog extends JDialog {
 	 * @param parent	the parent window for the dialog, or <code>null</code>
 	 */
 	public static void check(Window parent) {
-		final ThrustCurveMotorSetDatabase db = Application.getMotorSetDatabase();
+		// TODO - ugly blind cast
+		final ThrustCurveMotorSetDatabase db = (ThrustCurveMotorSetDatabase) Application.getMotorSetDatabase();
 		if (db.isLoaded())
 			return;
 		

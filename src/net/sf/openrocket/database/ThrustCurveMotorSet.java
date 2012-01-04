@@ -19,7 +19,7 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
 
-class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
+public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	
 	//  Comparators:
 	private static final Collator COLLATOR = Collator.getInstance(Locale.US);
