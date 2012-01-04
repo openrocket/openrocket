@@ -27,16 +27,30 @@
         <activity
             android:label="@string/app_name"
             android:name=".android.rocket.OpenRocketViewer" >
+
+            <!--
+            I don't understand why I need to have two different intent filters.  Combining the <data> elements
+            into a single field did not result in a working application.
+            The first intent-filter (with mimeType wildcard) convinces the file browser to associate the correct launcher
+            icon.
+            the second intent-filter is actually invoked when a file is selected.
+            -->
             <intent-filter >
                 <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
                     android:host="*"
+                    android:mimeType="*/*"
                     android:pathPattern=".*\\.ork"
-                    android:scheme="content" />
+                    android:scheme="file" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
                 <data
                     android:host="*"
                     android:pathPattern=".*\\.ork"
