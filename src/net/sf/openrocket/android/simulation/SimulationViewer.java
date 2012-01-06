@@ -9,36 +9,27 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SlidingDrawer;
+import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-public class SimulationViewer extends FragmentActivity
-implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListener {
+public class SimulationViewer extends Activity {
 
-	private final static String TAG = "MotorDetails";
-
-	private SlidingDrawer slidingDrawer;
-	private ImageView handle;
+	private final static String TAG = "SimulationViewer";
 
 	private ListView eventList;
-	private ListView seriesList;
-
-	private SimulationPlotFragment simPlot;
+	private Spinner series1Spinner;
+	private Spinner series2Spinner;
 
 	private Simulation sim;
 	private FlightDataBranch data;
@@ -54,15 +45,6 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 		sim = ((Application)this.getApplication()).getRocketDocument().getSimulation(simnumber);
 		data = sim.getSimulatedData().getBranch(0);
 
-		simPlot = (SimulationPlotFragment) getSupportFragmentManager().findFragmentById(R.id.simulationPlotFragment);
-
-		slidingDrawer = (SlidingDrawer) findViewById(R.id.drawer);
-
-		slidingDrawer.setOnDrawerOpenListener(this);
-		slidingDrawer.setOnDrawerCloseListener(this);
-
-		handle = (ImageView) findViewById(R.id.handle);
-
 		TabHost tabs=(TabHost)findViewById(R.id.simulationConfigurationForm);
 
 		tabs.setup();
@@ -74,13 +56,11 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 		tabs.addTab(spec);
 
 		spec=tabs.newTabSpec("tag2");
-		spec.setContent(R.id.simulationSeriesList);
+		spec.setContent(R.id.simulationSeriesSelection);
 		spec.setIndicator("Series");
 		tabs.addTab(spec);	
 
 		eventList = (ListView) findViewById(R.id.simulationEventsList);
-
-		seriesList = (ListView) findViewById(R.id.simulationSeriesList);
 
 		// Initialize the eventList
 		ArrayAdapter<FlightEvent> events = new ArrayAdapter<FlightEvent>(this,android.R.layout.simple_list_item_multiple_choice,data.getEvents()) {
@@ -102,6 +82,9 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 		eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		eventList.setAdapter(events);
 
+		series1Spinner = (Spinner) findViewById(R.id.simulationSeries1);
+		series2Spinner = (Spinner) findViewById(R.id.simulationSeries2);
+
 		List<FlightDataType> selectableSeries = new ArrayList<FlightDataType>();
 		for( FlightDataType fdt : data.getTypes() ) {
 			if ( fdt == FlightDataType.TYPE_TIME ) { 
@@ -110,7 +93,7 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 				selectableSeries.add(fdt);
 			}
 		}
-		ArrayAdapter<FlightDataType> serieses = new ArrayAdapter<FlightDataType>(this,android.R.layout.simple_list_item_multiple_choice,selectableSeries) {
+		ArrayAdapter<FlightDataType> serieses = new ArrayAdapter<FlightDataType>(this,android.R.layout.simple_spinner_item,selectableSeries) {
 
 			@Override
 			public View getView(int position, View convertView,
@@ -118,7 +101,7 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 				View v = convertView;
 				if ( v == null ) {
 					LayoutInflater li = getLayoutInflater();
-					v = li.inflate(android.R.layout.simple_list_item_multiple_choice,null);
+					v = li.inflate(android.R.layout.simple_spinner_item,null);
 				}
 				FlightDataType fdt = this.getItem(position);
 				((TextView)v.findViewById(android.R.id.text1)).setText( fdt.toString() );
@@ -126,24 +109,12 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 			}
 
 		};
-		seriesList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		seriesList.setAdapter(serieses);
-		redraw();
+		series1Spinner.setAdapter(serieses);
+		series2Spinner.setAdapter(serieses);
 
 	}
 
-	@Override
-	public void onDrawerOpened() {
-		handle.setImageResource(R.drawable.arrow_down_float);
-	}
-
-	@Override
-	public void onDrawerClosed() {
-		handle.setImageResource(R.drawable.arrow_up_float);
-		redraw();
-	}
-
-	private void redraw() {
+	public void draw( View v ) {
 		List<FlightEvent> eventsToShow = new ArrayList<FlightEvent>();
 		{
 			SparseBooleanArray eventsSelected = eventList.getCheckedItemPositions();
@@ -154,16 +125,18 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 				}
 			}
 		}
-		FlightDataType selectedSeries = null;
-		{
-			int selected = seriesList.getCheckedItemPosition();
-			if ( selected >= 0 ) {
-				selectedSeries = (FlightDataType) seriesList.getAdapter().getItem(selected);
-			}
-		}
+		FlightDataType series1 = (FlightDataType) series1Spinner.getSelectedItem();
+		Log.d(TAG,"sereis1 = " + series1.toString());
+		FlightDataType series2 = (FlightDataType) series2Spinner.getSelectedItem();
+		Log.d(TAG,"series2 = " + series2.toString());
 
-		simPlot.init(data, selectedSeries, eventsToShow );
-
+		SimulationChart chart = new SimulationChart();
+		chart.setFlightDataBranch(data);
+		chart.setSeries1(series1);
+		chart.setSeries2(series2);
+		chart.setFlightEvents(eventsToShow);
+		
+		startActivity(chart.execute(this));
 	}
 
 }

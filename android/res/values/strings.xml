@@ -94,5 +94,7 @@
 
     <string name="TCMotorSearchFormSubmit">Submit</string>
     <string name="tcdownload">Download from ThrustCurve</string>
+    <string name="simulationSeries1Label">Series 1</string>
+    <string name="simulationSeries2Label">Series 2</string>
 
 </resources>
