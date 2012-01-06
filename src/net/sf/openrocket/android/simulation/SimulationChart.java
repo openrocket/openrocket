@@ -95,6 +95,10 @@ public class SimulationChart {
 	 */
 	public Intent execute(Context context) {
 
+		/*
+		 * TODO -
+		 * Figure out why you can pan all over the place even where there are no visible points.
+		 */
 		int seriesCount = 2;
 		// if the same series is selected twice, only plot it once.
 		if ( series1 == series2 ) {
@@ -111,7 +115,7 @@ public class SimulationChart {
 		renderer.setXLabels(10);
 		renderer.setYLabels(10);
 		renderer.setShowGrid(true);
-		//renderer.setZoomButtonsVisible(true);
+		renderer.setZoomButtonsVisible(true);
 		renderer.setChartTitle("Simulation");
 
 		renderer.setMargins(new int[] { 50, 30, 0, 20 });
@@ -122,6 +126,8 @@ public class SimulationChart {
 				r.setPointStyle(styles[i]);
 				r.setFillPoints(true);
 				renderer.addSeriesRenderer(r);
+				// setting the YAximMin to 0 locks the origins.
+				renderer.setYAxisMin(0.0, i);
 			}
 		}
 
@@ -158,9 +164,7 @@ public class SimulationChart {
 		renderer.setXAxisMax(xmax);
 		renderer.setYAxisMax(ymax);
 
-		// Don't allow pan & zoom just yet.
-		renderer.setPanEnabled(false,false);
-		renderer.setZoomEnabled(false,false);
+		// These configurations don't really work well just now.
 		//renderer.setPanLimits(new double[] { xmin, xmax, ymin, ymax });
 		//renderer.setZoomLimits(new double[] { xmin, xmax, ymin, ymax });
 
