@@ -52,9 +52,7 @@
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath">
-			<exclude name="/net/sf/openrocket/android/**/*"/>
-		</javac>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
 		<echo level="info">Copying build.properties</echo>
 		<copy file="build.properties" todir="${dist.dir}"/>
 	</target>
