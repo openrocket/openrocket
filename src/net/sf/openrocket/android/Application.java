@@ -2,6 +2,8 @@ package net.sf.openrocket.android;
 
 import java.util.Locale;
 
+import android.preference.PreferenceManager;
+
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.DebugTranslator;
@@ -52,6 +54,15 @@ public class Application extends android.app.Application {
 
 	public Application() {
 		initialize();
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Application#onCreate()
+	 */
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		PreferencesActivity.initializePreferences(this, PreferenceManager.getDefaultSharedPreferences(this));
 	}
 
 	/**

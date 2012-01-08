@@ -10,11 +10,19 @@ import net.sf.openrocket.android.motor.MotorHierarchicalBrowser;
 import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.RocketUtils;
+import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.Coordinate;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,15 +34,18 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TabHost;
 import android.widget.TextView;
 
-public class OpenRocketViewer extends Activity {
+public class OpenRocketViewer extends Activity
+implements SharedPreferences.OnSharedPreferenceChangeListener
+{
 
 	private static final String TAG = "OpenRocketViewer";
 
 	private ProgressDialog progress;
 
-	private TextView header;
+	private ListView componentList;
 	private ListView simulationList;
 
 	private Application app;
@@ -54,8 +65,31 @@ public class OpenRocketViewer extends Activity {
 
 		setContentView(R.layout.openrocketviewer);
 
-		header = (TextView) findViewById(R.id.heading);
-		simulationList = (ListView) findViewById(R.id.rocketSimulations);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);
+
+		TabHost tabs=(TabHost)findViewById(R.id.openrocketviewerTabHost);
+
+		tabs.setup();
+
+		TabHost.TabSpec spec=tabs.newTabSpec("tag1");
+
+		spec.setContent(R.id.openrocketviewerOverview);
+		spec.setIndicator("Overview");
+		tabs.addTab(spec);
+
+		spec=tabs.newTabSpec("tag2");
+		spec.setContent(R.id.openrocketviewerComponentList);
+		spec.setIndicator("Components");
+		tabs.addTab(spec);	
+
+		spec=tabs.newTabSpec("tag3");
+		spec.setContent(R.id.openrocketviewerSimulationList);
+		spec.setIndicator("Simulations");
+		tabs.addTab(spec);	
+
+		componentList = (ListView) findViewById(R.id.openrocketviewerComponentList);
+		simulationList = (ListView) findViewById(R.id.openrocketviewerSimulationList);
 
 		Intent i = getIntent();
 		Uri file = i.getData();
@@ -118,23 +152,48 @@ public class OpenRocketViewer extends Activity {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		// just in case the user changed the units, we redraw.
+		PreferencesActivity.initializePreferences(getApplication(), PreferenceManager.getDefaultSharedPreferences(this));
+		updateContents();
+	}
+
 	private void updateContents() {
 
-		OpenRocketDocument rocket = app.getRocketDocument();
-		header.setText( rocket.getRocket().getName());
+		OpenRocketDocument rocketDocument = app.getRocketDocument();
+		Rocket rocket = rocketDocument.getRocket();
+		
+		setTitle(rocket.getName());
+		
+		Unit LengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
+		Unit MassUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
+		
+		Coordinate cg = RocketUtils.getCG(rocket);
+		double length = RocketUtils.getLength(rocket);
+		((TextView) findViewById(R.id.openrocketviewerRocketName)).setText( rocket.getName());
+		((TextView)findViewById(R.id.openrocketviewerDesigner)).setText(rocket.getDesigner());
+		((TextView)findViewById(R.id.openrocketviewerCG)).setText(LengthUnit.toStringUnit(cg.x) );
+		((TextView)findViewById(R.id.openrocketviewerLength)).setText(LengthUnit.toStringUnit(length));
+		((TextView)findViewById(R.id.openrocketviewerMass)).setText(MassUnit.toStringUnit(cg.weight));
+		((TextView)findViewById(R.id.openrocketviewerStageCount)).setText(String.valueOf(rocket.getStageCount()));
+		((TextView)findViewById(R.id.openrocketviewerComment)).setText(rocket.getComment());
 
-		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this,android.R.layout.simple_list_item_1,rocket.getSimulations()) {
+		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this,android.R.layout.simple_list_item_2,rocketDocument.getSimulations()) {
 
 			@Override
-			public View getView(int position, View convertView,
-					ViewGroup parent) {
+			public View getView(int position, View convertView,	ViewGroup parent) {
 				View v = convertView;
 				if ( v == null ) {
 					LayoutInflater li = getLayoutInflater();
-					v = li.inflate(android.R.layout.simple_list_item_1,null);
+					v = li.inflate(android.R.layout.simple_list_item_2,null);
 				}
 				Simulation sim = this.getItem(position);
 				((TextView)v.findViewById(android.R.id.text1)).setText( sim.getName() );
+				((TextView)v.findViewById(android.R.id.text2)).setText( "motors: " + sim.getConfiguration().getMotorConfigurationDescription() + " apogee: " + sim.getSimulatedData().getMaxAltitude() + "m  time: " + sim.getSimulatedData().getFlightTime() + "s");
 				return v;
 			}
 
@@ -151,6 +210,27 @@ public class OpenRocketViewer extends Activity {
 		});
 		simulationList.setAdapter(sims);
 
+		ArrayAdapter<RocketComponent> comps = new ArrayAdapter<RocketComponent>(this, android.R.layout.simple_list_item_1,rocket.getChildren()) {
+
+			/* (non-Javadoc)
+			 * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
+			 */
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				View v = convertView;
+				if ( v == null ) {
+					LayoutInflater li = getLayoutInflater();
+					v = li.inflate(android.R.layout.simple_list_item_1,null);
+				}
+				RocketComponent comp = this.getItem(position);
+				((TextView)v.findViewById(android.R.id.text1)).setText( comp.getName() );
+				return v;
+			}
+			
+			
+		};
+		componentList.setAdapter(comps);
+		
 		if ( progress.isShowing() ) {
 			progress.dismiss();
 		}

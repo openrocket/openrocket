@@ -96,5 +96,33 @@
     <string name="tcdownload">Download from ThrustCurve</string>
     <string name="simulationSeries1Label">Series 1</string>
     <string name="simulationSeries2Label">Series 2</string>
-
+    <string name="PreferenceUnitLengthOption">PreferenceUnitLengthOption</string>
+    <string-array name="PreferenceUnitLengthEntries">
+        <item >Millimeters</item>
+        <item >Centimeters</item>
+        <item >Meters</item>
+        <item >Inches</item>
+        <item >Feet</item>
+    </string-array>
+    <string-array name="PreferenceUnitLengthValues">
+        <item >mm</item>
+        <item >cm</item>
+        <item >m</item>
+        <item >in</item>
+        <item >ft</item>
+    </string-array>
+    <string name="PreferenceUnitMassOption">PreferenceUnitMassOption</string>
+    <string-array name="PreferenceUnitMassEntries">
+        <item >Grams</item>
+        <item >Kilograms</item>
+        <item >Ounces</item>
+        <item >Pounds</item>
+    </string-array>
+    <string-array name="PreferenceUnitMassValues">
+        <item >g</item>
+        <item >kg</item>
+        <item >oz</item>
+        <item >lb</item>
+    </string-array>
+        
 </resources>
