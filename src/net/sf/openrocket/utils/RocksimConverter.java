@@ -1,20 +1,19 @@
 package net.sf.openrocket.utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
-
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.file.rocksim.RocksimLoader;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.startup.Application;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Utility that loads Rocksim file formats and saves them in ORK format.
@@ -32,7 +31,7 @@ public class RocksimConverter {
 		
 		setup();
 		
-		RocketLoader loader = new RocksimLoader();
+		RocketLoader loader = new net.sf.openrocket.file.rocksim.importt.RocksimLoader();
 		RocketSaver saver = new OpenRocketSaver();
 		
 		for (String inputFile : args) {

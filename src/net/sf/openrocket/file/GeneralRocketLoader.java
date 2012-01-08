@@ -1,15 +1,14 @@
 package net.sf.openrocket.file;
 
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.openrocket.OpenRocketLoader;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.zip.GZIPInputStream;
 import java.util.Arrays;
-
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.openrocket.OpenRocketLoader;
-import net.sf.openrocket.file.rocksim.RocksimLoader;
+import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -31,7 +30,7 @@ public class GeneralRocketLoader extends RocketLoader {
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
     
-    private final RocksimLoader rocksimLoader = new RocksimLoader();
+    private final net.sf.openrocket.file.rocksim.importt.RocksimLoader rocksimLoader = new net.sf.openrocket.file.rocksim.importt.RocksimLoader();
 	
 	@Override
 	protected OpenRocketDocument loadFromStream(InputStream source) throws IOException,

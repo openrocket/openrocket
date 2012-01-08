@@ -1,12 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A set of trapezoidal fins.  The root and tip chords are perpendicular to the rocket
@@ -109,7 +109,7 @@ public class TrapezoidFinSet extends FinSet {
 	
 	/**
 	 * Get the sweep angle.  This is calculated from the true sweep and height, and is not
-	 * stored separetely.
+	 * stored separately.
 	 */
 	public double getSweepAngle() {
 		if (height == 0) {

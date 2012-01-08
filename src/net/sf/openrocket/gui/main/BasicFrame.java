@@ -1,62 +1,5 @@
 package net.sf.openrocket.gui.main;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -65,6 +8,7 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
@@ -103,6 +47,38 @@ import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TestRockets;
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class BasicFrame extends JFrame {
 	private static final LogHelper log = Application.getLogger();
@@ -1277,7 +1253,9 @@ public class BasicFrame extends JFrame {
 		StorageOptionChooser storageChooser =
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+        chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+        chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+        chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(storageChooser);
 		if (document.getFile() != null)
@@ -1298,12 +1276,30 @@ public class BasicFrame extends JFrame {
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		storageChooser.storeOptions(document.getDefaultStorageOptions());
 		
-		file = FileHelper.ensureExtension(file, "ork");
-		if (!FileHelper.confirmWrite(file, this)) {
-			return false;
-		}
+        if (chooser.getFileFilter().equals(FileHelper.OPENROCKET_DESIGN_FILTER)) {
+		    file = FileHelper.ensureExtension(file, "ork");
+		    if (!FileHelper.confirmWrite(file, this)) {
+			    return false;
+    		}
 		
-		return saveAs(file);
+	    	return saveAs(file);
+        }
+        else if (chooser.getFileFilter().equals(FileHelper.ROCKSIM_DESIGN_FILTER)) {
+            file = FileHelper.ensureExtension(file, "rkt");
+            if (!FileHelper.confirmWrite(file, this)) {
+                return false;
+            }
+
+            try {
+                new RocksimSaver().save(file, document);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
 	}
 	
 	private boolean saveAs(File file) {
