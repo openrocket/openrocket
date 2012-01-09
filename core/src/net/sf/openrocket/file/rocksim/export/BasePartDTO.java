@@ -6,6 +6,7 @@ import net.sf.openrocket.file.rocksim.importt.RocksimFinishCode;
 import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
 import net.sf.openrocket.file.rocksim.importt.RocksimLocationMode;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
@@ -47,7 +48,7 @@ public abstract class BasePartDTO {
     private double radialAngle = 0;
     @XmlElement(name = "LocationMode")
     private int locationMode = 0;
-    @XmlElement(name = "Len")
+    @XmlElement(name = "Len", required = false, nillable = false)
     private double len = 0d;
     @XmlElement(name = "FinishCode")
     private int finishCode = 0;
@@ -60,18 +61,29 @@ public abstract class BasePartDTO {
         setCalcMass(ec.getComponentMass() * RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
         setKnownCG(ec.getOverrideCGX() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
         setKnownMass(ec.getOverrideMass() * RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
-        setLen(ec.getLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        if (! (ec instanceof FinSet)) {
+            setLen(ec.getLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        }
         setUseKnownCG(ec.isCGOverridden() || ec.isMassOverridden() ? 1 : 0);
         setName(ec.getName());
 
         setXb(ec.getPositionValue() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+
+        //When the relative position is BOTTOM, the position location of the bottom edge of the component is +
+        //to the right of the bottom of the parent, and - to the left.
+        //But in Rocksim, it's + to the left and - to the right
+        if (ec.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
+            setXb((-1 * ec.getPositionValue()) * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        }
+        else if (ec.getRelativePosition().equals(RocketComponent.Position.MIDDLE)) {
+            //Mapped to TOP, so adjust accordingly
+            setXb((ec.getPositionValue() + (ec.getParent().getLength() - ec.getLength()) /2)* RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        }
+
         if (ec instanceof ExternalComponent) {
             ExternalComponent comp = (ExternalComponent) ec;
             setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
 
-            if (comp.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
-                setXb(-1 * getXb());
-            }
             setDensity(comp.getMaterial().getDensity() * RocksimHandler.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
             String material = comp.getMaterial().getName();
@@ -86,9 +98,6 @@ public abstract class BasePartDTO {
             StructuralComponent comp = (StructuralComponent) ec;
 
             setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
-            if (comp.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
-                setXb(-1 * getXb());
-            }
             setDensity(comp.getMaterial().getDensity() * RocksimHandler.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
             String material = comp.getMaterial().getName();
@@ -101,9 +110,6 @@ public abstract class BasePartDTO {
             RecoveryDevice comp = (RecoveryDevice) ec;
 
             setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
-            if (comp.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
-                setXb(-1 * getXb());
-            }
             setDensity(comp.getMaterial().getDensity() * RocksimHandler.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
             String material = comp.getMaterial().getName();

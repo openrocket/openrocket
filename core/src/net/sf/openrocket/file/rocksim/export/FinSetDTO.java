@@ -5,7 +5,6 @@ import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -52,33 +51,28 @@ public class FinSetDTO extends BasePartDTO {
     public FinSetDTO(FinSet ec) {
         super(ec);
 
-        setCantAngle(ec.getCantAngle());
         setFinCount(ec.getFinCount());
-        setRootChord(ec.getLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setCantAngle(ec.getCantAngle());
         setTabDepth(ec.getTabHeight() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
         setTabLength(ec.getTabLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
         setTabOffset(ec.getTabShift() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
         setThickness(ec.getThickness() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
-
-        if (ec.getRelativePosition().equals(RocketComponent.Position.BOTTOM)) {
-            setXb(getXb() + getLen());
-        }
 
         setRadialAngle(ec.getBaseRotation());
         setTipShapeCode(TipShapeCode.convertTipShapeCode(ec.getCrossSection()));
         if (ec instanceof TrapezoidFinSet) {
             TrapezoidFinSet tfs = (TrapezoidFinSet) ec;
             setShapeCode(0);
+            setRootChord(ec.getLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
             setSemiSpan(tfs.getHeight() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
             setTipChord(tfs.getTipChord() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
             setSweepDistance(tfs.getSweep() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
-            setLen(tfs.getLength());
         }
         else if (ec instanceof EllipticalFinSet) {
             EllipticalFinSet efs = (EllipticalFinSet) ec;
             setShapeCode(1);
+            setRootChord(ec.getLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
             setSemiSpan(efs.getHeight() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
-            setLen(efs.getLength() *RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
         }
         else if (ec instanceof FreeformFinSet) {
             setShapeCode(2);

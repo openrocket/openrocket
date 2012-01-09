@@ -13,6 +13,8 @@ public class RocketDesignDTO {
     private String name;
     @XmlElement(name = "StageCount")
     private int stageCount = 1;
+    @XmlElement(name = "DisplayFlags")
+    private int displayFlags = 7;
     @XmlElement(name = "ViewType")
     private int viewType = 0;
     @XmlElement(name = "ViewStageCount")

@@ -29,7 +29,9 @@ public class CustomFinSetDTO extends FinSetDTO {
 
     private String convertFreeFormPoints(Coordinate[] points) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < points.length; i++) {
+
+        //Reverse the order for Rocksim
+        for (int i = points.length - 1; i >= 0; i--) {
             Coordinate point = points[i];
             sb.append(point.x * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH).append(",")
                     .append(point.y * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH).append("|");
