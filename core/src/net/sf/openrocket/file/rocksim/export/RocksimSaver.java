@@ -22,11 +22,20 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
+ * This class is responsible for converting an OpenRocket design to a Rocksim design.
  */
 public class RocksimSaver extends RocketSaver {
 
+    /** The logger. */
     private static final LogHelper log = Application.getLogger();
 
+    /**
+     * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant XML.
+     *
+     * @param doc  the OR design
+     *
+     * @return Rocksim-compliant XML
+     */
     public String marshalToRocksim(OpenRocketDocument doc) {
 
         try {
@@ -60,6 +69,13 @@ public class RocksimSaver extends RocketSaver {
         return marshalToRocksim(doc).length();
     }
 
+    /**
+     * Root conversion method.  It iterates over all subcomponents.
+     *
+     * @param doc  the OR design
+     *
+     * @return a corresponding Rocksim representation
+     */
     private RocksimDocumentDTO toRocksimDocumentDTO(OpenRocketDocument doc) {
         RocksimDocumentDTO rsd = new RocksimDocumentDTO();
 

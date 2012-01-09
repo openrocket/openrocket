@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * The base class for all OpenRocket to Rocksim conversions.
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -53,9 +54,17 @@ public abstract class BasePartDTO {
     @XmlElement(name = "FinishCode")
     private int finishCode = 0;
 
+    /**
+     * Default constructor.
+     */
     protected BasePartDTO() {
     }
 
+    /**
+     * Copy constructor of sorts, that performs all common conversions for components.
+     *
+     * @param ec
+     */
     protected BasePartDTO(RocketComponent ec) {
         setCalcCG(ec.getCG().x * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
         setCalcMass(ec.getComponentMass() * RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
@@ -117,7 +126,6 @@ public abstract class BasePartDTO {
                 material = material.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
             }
             setMaterial(material);
-
         }
     }
 

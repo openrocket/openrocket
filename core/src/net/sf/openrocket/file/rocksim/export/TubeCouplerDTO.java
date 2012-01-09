@@ -7,11 +7,17 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Conversion DTO for a TubeCoupler.  TubeCoupler's are represented as Rings in Rocksim.
  */
 @XmlRootElement(name = "Ring")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TubeCouplerDTO extends CenteringRingDTO {
 
+    /**
+     * Constructor.
+     *
+     * @param tc an OR TubeCoupler
+     */
     public TubeCouplerDTO(TubeCoupler tc) {
         super(tc);
         setUsageCode(UsageCode.TubeCoupler);
