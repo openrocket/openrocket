@@ -4,6 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -50,7 +51,7 @@ public class RingHandlerTest extends RocksimTestBase {
         handler.closeElement("OD", attributes, "0", warnings);
         Assert.assertEquals(0d, component.getOuterRadius(), 0.001);
         handler.closeElement("OD", attributes, "75", warnings);
-        Assert.assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, component.getOuterRadius(), 0.001);
+        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getOuterRadius(), 0.001);
         handler.closeElement("OD", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -58,7 +59,7 @@ public class RingHandlerTest extends RocksimTestBase {
         handler.closeElement("ID", attributes, "0", warnings);
         Assert.assertEquals(0d, component.getInnerRadius(), 0.001);
         handler.closeElement("ID", attributes, "75", warnings);
-        Assert.assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(), 0.001);
+        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, component.getInnerRadius(), 0.001);
         handler.closeElement("ID", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -66,9 +67,9 @@ public class RingHandlerTest extends RocksimTestBase {
         handler.closeElement("Len", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -102,9 +103,9 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals(1, tube.getChildren().size());
         RingComponent child = (RingComponent)tube.getChild(0);
 
-        Assert.assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
-        Assert.assertEquals(0d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
+        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
+        Assert.assertEquals(0d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getPositionValue(), 0.0);
@@ -138,9 +139,9 @@ public class RingHandlerTest extends RocksimTestBase {
         RingComponent child = (RingComponent)tube.getChild(0);
         Assert.assertTrue(child instanceof TubeCoupler);
 
-        Assert.assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
-        Assert.assertEquals(70d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
+        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
+        Assert.assertEquals(70d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getPositionValue(), 0.0);
@@ -173,14 +174,14 @@ public class RingHandlerTest extends RocksimTestBase {
         RingComponent child = (RingComponent)tube.getChild(0);
         Assert.assertTrue(child instanceof EngineBlock);
 
-        Assert.assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
-        Assert.assertEquals(70d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
+        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
+        Assert.assertEquals(70d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getPositionValue(), 0.0);
         Assert.assertEquals(RocketComponent.Position.TOP, child.getRelativePosition());
-        Assert.assertEquals(4d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, child.getCG().x, 0.000001);
+        Assert.assertEquals(4d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getCG().x, 0.000001);
         
     }
 
@@ -208,9 +209,9 @@ public class RingHandlerTest extends RocksimTestBase {
         Assert.assertEquals(1, tube.getChildren().size());
         RingComponent child = (RingComponent)tube.getChild(0);
 
-        Assert.assertEquals(75d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
-        Assert.assertEquals(0d / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
+        Assert.assertEquals(75d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getOuterRadius(), 0.001);
+        Assert.assertEquals(0d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS, child.getInnerRadius(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, child.getLength(), 0.001);
         Assert.assertEquals("Test Name", child.getName());
         Assert.assertEquals(109.9/1000, child.getMass(), 0.001);
         Assert.assertEquals(0, child.getPositionValue(), 0.0);
