@@ -7,6 +7,7 @@ import net.sf.openrocket.R;
 import net.sf.openrocket.android.Application;
 import net.sf.openrocket.android.PreferencesActivity;
 import net.sf.openrocket.android.motor.MotorHierarchicalBrowser;
+import net.sf.openrocket.android.rocket.RocketComponentTreeAdapter.RocketComponentWithId;
 import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -16,6 +17,10 @@ import net.sf.openrocket.rocketcomponent.RocketUtils;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
+import pl.polidea.treeview.InMemoryTreeStateManager;
+import pl.polidea.treeview.TreeBuilder;
+import pl.polidea.treeview.TreeStateManager;
+import pl.polidea.treeview.TreeViewList;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -33,6 +38,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -45,7 +51,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 	private ProgressDialog progress;
 
-	private ListView componentList;
+	private TreeViewList componentTree;
 	private ListView simulationList;
 
 	private Application app;
@@ -79,7 +85,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		tabs.addTab(spec);
 
 		spec=tabs.newTabSpec("tag2");
-		spec.setContent(R.id.openrocketviewerComponentList);
+		spec.setContent(R.id.openrocketviewerComponentTree);
 		spec.setIndicator("Components");
 		tabs.addTab(spec);	
 
@@ -88,7 +94,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		spec.setIndicator("Simulations");
 		tabs.addTab(spec);	
 
-		componentList = (ListView) findViewById(R.id.openrocketviewerComponentList);
+		
+		componentTree = (TreeViewList) findViewById(R.id.openrocketviewerComponentTree);
 		simulationList = (ListView) findViewById(R.id.openrocketviewerSimulationList);
 
 		Intent i = getIntent();
@@ -127,7 +134,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			break;
 		}
 	}
-	
+
 	private void loadOrkFile( Uri file ) {
 		Log.d(TAG,"Use ork file: " + file);
 		String path = file.getPath();
@@ -166,12 +173,12 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		OpenRocketDocument rocketDocument = app.getRocketDocument();
 		Rocket rocket = rocketDocument.getRocket();
-		
+
 		setTitle(rocket.getName());
-		
+
 		Unit LengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		Unit MassUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-		
+
 		Coordinate cg = RocketUtils.getCG(rocket);
 		double length = RocketUtils.getLength(rocket);
 		((TextView) findViewById(R.id.openrocketviewerRocketName)).setText( rocket.getName());
@@ -210,31 +217,11 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		});
 		simulationList.setAdapter(sims);
 
-		ArrayAdapter<RocketComponent> comps = new ArrayAdapter<RocketComponent>(this, android.R.layout.simple_list_item_1,rocket.getChildren()) {
+		componentTree.setAdapter( buildAdapter( rocket ) );
 
-			/* (non-Javadoc)
-			 * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
-			 */
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				View v = convertView;
-				if ( v == null ) {
-					LayoutInflater li = getLayoutInflater();
-					v = li.inflate(android.R.layout.simple_list_item_1,null);
-				}
-				RocketComponent comp = this.getItem(position);
-				((TextView)v.findViewById(android.R.id.text1)).setText( comp.getName() );
-				return v;
-			}
-			
-			
-		};
-		componentList.setAdapter(comps);
-		
 		if ( progress.isShowing() ) {
 			progress.dismiss();
 		}
-
 	}
 
 	@Override
@@ -265,6 +252,52 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		startActivity(i);
 	}
 
+	private ListAdapter buildAdapter( Rocket rocket ) {
+		/*
+		final int[] DEMO_NODES = new int[] { 0, 0, 1, 1, 1, 2, 2, 1,
+				1, 2, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 1, 2, 0, 1, 2, 0, 1 };
+		final int LEVEL_NUMBER = 4;
+
+		TreeStateManager<Long> manager = new InMemoryTreeStateManager<Long>();
+		final TreeBuilder<Long> treeBuilder = new TreeBuilder<Long>(manager);
+		for (int i = 0; i < DEMO_NODES.length; i++) {
+			treeBuilder.sequentiallyAddNextNode((long) i, DEMO_NODES[i]);
+		}
+
+		return new SimpleStandardAdapter(this, manager, LEVEL_NUMBER);
+		*/
+		
+		TreeStateManager<RocketComponentWithId> manager = new InMemoryTreeStateManager<RocketComponentWithId>();
+		TreeBuilder<RocketComponentWithId> treeBuilder = new TreeBuilder<RocketComponentWithId>(manager);
+		
+		int depth = buildRecursive( rocket, treeBuilder, 0 );
+		return new RocketComponentTreeAdapter(this, manager, depth+1);
+	}
+	
+	long id = 0;
+	private int buildRecursive( RocketComponent comp, TreeBuilder<RocketComponentWithId> builder, int depth ) {
+		
+		
+		int maxDepth = depth;
+		
+		RocketComponentWithId rcid = new RocketComponentWithId(comp, id++);
+		
+		// Add this component.
+		builder.sequentiallyAddNextNode(rcid, depth);
+		
+		if ( comp.allowsChildren() ) {
+			
+			for( RocketComponent child : comp.getChildren() ) {
+				int childDepth = buildRecursive( child, builder, depth+1);
+				if ( childDepth > maxDepth) {
+					maxDepth = childDepth;
+				}
+			}
+			
+		}
+		
+		return maxDepth;
+	}
 
 
 }

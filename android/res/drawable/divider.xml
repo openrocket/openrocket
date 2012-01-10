@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:src="@android:drawable/divider_horizontal_dark"
+  android:layout_width="fill_parent" android:layout_height="wrap_content"
+  android:scaleType="fitXY" android:paddingLeft="5sp"
+  android:paddingRight="5sp" android:paddingBottom="2sp" />

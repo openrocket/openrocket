@@ -32,81 +32,89 @@
                     android:orientation="vertical" >
 
                     <TextView
-                        android:text='Rocket Name'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="Rocket Name" />
+
                     <TextView
                         android:id="@+id/openrocketviewerRocketName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
+
                     <TextView
-                        android:text='Designer'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="Designer" />
+
                     <TextView
                         android:id="@+id/openrocketviewerDesigner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
+
                     <TextView
-                        android:text='CG'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="CG" />
+
                     <TextView
                         android:id="@+id/openrocketviewerCG"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
+
                     <TextView
-                        android:text='Length'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="Length" />
+
                     <TextView
                         android:id="@+id/openrocketviewerLength"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
+
                     <TextView
-                        android:text='Mass'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="Mass" />
+
                     <TextView
                         android:id="@+id/openrocketviewerMass"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
+
                     <TextView
-                        android:text='Stage Count'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="Stage Count" />
+
                     <TextView
                         android:id="@+id/openrocketviewerStageCount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
+
                     <TextView
-                        android:text='Comment'
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        />
+                        android:text="Comment" />
+
                     <TextView
                         android:id="@+id/openrocketviewerComment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
-                    </LinearLayout>
+                </LinearLayout>
 
-                <ListView
-                    android:id="@+id/openrocketviewerComponentList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <pl.polidea.treeview.TreeViewList
+                    android:id="@+id/openrocketviewerComponentTree"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:scrollbars="vertical"
+                    android:smoothScrollbar="true" />
 
                 <ListView
                     android:id="@+id/openrocketviewerSimulationList"
