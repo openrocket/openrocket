@@ -7,7 +7,6 @@ import net.sf.openrocket.file.rocksim.RocksimLocationMode;
 import net.sf.openrocket.file.rocksim.importt.BaseHandler;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
-import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -71,7 +70,7 @@ public abstract class BasePartDTO {
         setCalcCG(ec.getCG().x * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setCalcMass(ec.getComponentMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
         setKnownCG(ec.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setKnownMass(ec.getOverrideMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+        setKnownMass(ec.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
 
         if (! (ec instanceof FinSet)) {
             setLen(ec.getLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -133,11 +132,6 @@ public abstract class BasePartDTO {
 
         if (ec instanceof RingComponent) {
             RingComponent rc = (RingComponent)ec;
-            setRadialAngle(rc.getRadialDirection());
-            setRadialLoc(rc.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        }
-        else if (ec instanceof MassObject) {
-            MassObject rc = (MassObject)ec;
             setRadialAngle(rc.getRadialDirection());
             setRadialLoc(rc.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         }

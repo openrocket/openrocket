@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MassObjectDTO extends BasePartDTO{
 
     @XmlElement(name = RocksimCommonConstants.TYPE_CODE)
-    private int typeCode = 0;
+    private final int typeCode = 0;
 
     /**
      * Default constructor.
@@ -31,5 +31,11 @@ public class MassObjectDTO extends BasePartDTO{
      */
     public MassObjectDTO(MassObject mo) {
         super(mo);
+        setRadialAngle(mo.getRadialDirection());
+        setRadialLoc(mo.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setCalcMass(0d);
+        setCalcCG(0d);
+        setKnownCG(getXb());
+        setUseKnownCG(1);
     }
 }
