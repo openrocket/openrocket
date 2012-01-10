@@ -4,6 +4,8 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -52,22 +54,22 @@ class LaunchLugHandler extends PositionDependentHandler<LaunchLug> {
         super.closeElement(element, attributes, content, warnings);
 
         try {
-            if ("OD".equals(element)) {
-                lug.setOuterRadius(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+            if (RocksimCommonConstants.OD.equals(element)) {
+                lug.setOuterRadius(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
-            if ("ID".equals(element)) {
-                lug.setInnerRadius(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+            if (RocksimCommonConstants.ID.equals(element)) {
+                lug.setInnerRadius(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
-            if ("Len".equals(element)) {
-                lug.setLength(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+            if (RocksimCommonConstants.LEN.equals(element)) {
+                lug.setLength(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
-            if ("Material".equals(element)) {
+            if (RocksimCommonConstants.MATERIAL.equals(element)) {
                 setMaterialName(content);
             }
-            if ("RadialAngle".equals(element)) {
+            if (RocksimCommonConstants.RADIAL_ANGLE.equals(element)) {
                 lug.setRadialDirection(Double.parseDouble(content));
             }
-            if ("FinishCode".equals(element)) {
+            if (RocksimCommonConstants.FINISH_CODE.equals(element)) {
                 lug.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
             }
         }

@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 
@@ -11,8 +11,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
+ * Centering ring conversion from OR to Rocksim.
  */
-@XmlRootElement(name = "Ring")
+@XmlRootElement(name = RocksimCommonConstants.RING)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CenteringRingDTO extends BasePartDTO {
 
@@ -32,13 +33,13 @@ public class CenteringRingDTO extends BasePartDTO {
         }
     }
 
-    @XmlElement(name = "OD")
+    @XmlElement(name = RocksimCommonConstants.OD)
     private double od = 0d;
-    @XmlElement(name = "ID")
+    @XmlElement(name = RocksimCommonConstants.ID)
     private double id = 0d;
-    @XmlElement(name = "UsageCode")
+    @XmlElement(name = RocksimCommonConstants.USAGE_CODE)
     private int usageCode = UsageCode.CenteringRing.ordinal;
-    @XmlElement(name = "AutoSize")
+    @XmlElement(name = RocksimCommonConstants.AUTO_SIZE)
     private int autoSize = 0;
 
     public CenteringRingDTO() {
@@ -46,14 +47,14 @@ public class CenteringRingDTO extends BasePartDTO {
     }
     public CenteringRingDTO(RadiusRingComponent cr) {
         super(cr);
-        setId(cr.getInnerRadius()* RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(cr.getOuterRadius()* RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setId(cr.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(cr.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
 
     public CenteringRingDTO(ThicknessRingComponent trc) {
         super(trc);
-        setId(trc.getInnerRadius()* RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(trc.getOuterRadius()* RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setId(trc.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(trc.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
     public double getOd() {
         return od;

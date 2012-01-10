@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,13 +10,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  */
-@XmlRootElement(name = "LaunchLug")
+@XmlRootElement(name = RocksimCommonConstants.LAUNCH_LUG)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LaunchLugDTO extends BasePartDTO {
 
-    @XmlElement(name = "OD")
+    @XmlElement(name = RocksimCommonConstants.OD)
     private double od = 0d;
-    @XmlElement(name = "ID")
+    @XmlElement(name = RocksimCommonConstants.ID)
     private double id = 0d;
 
     public LaunchLugDTO() {
@@ -24,8 +24,8 @@ public class LaunchLugDTO extends BasePartDTO {
 
     public LaunchLugDTO(LaunchLug ec) {
         super(ec);
-        setId(ec.getInnerRadius() * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(ec.getOuterRadius() * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setId(ec.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(ec.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setRadialAngle(ec.getRadialDirection());
     }
 

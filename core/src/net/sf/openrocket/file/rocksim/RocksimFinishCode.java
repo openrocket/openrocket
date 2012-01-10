@@ -1,7 +1,7 @@
 /*
  * RocksimFinishCode.java
  */
-package net.sf.openrocket.file.rocksim.importt;
+package net.sf.openrocket.file.rocksim;
 
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 

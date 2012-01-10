@@ -4,6 +4,8 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -61,23 +63,23 @@ public abstract class BaseHandler<C extends RocketComponent> extends ElementHand
             throws SAXException {
         final C component = getComponent();
         try {
-            if ("Name".equals(element)) {
+            if (RocksimCommonConstants.NAME.equals(element)) {
                 component.setName(content);
             }
-            if ("KnownMass".equals(element)) {
-                mass = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
+            if (RocksimCommonConstants.KNOWN_MASS.equals(element)) {
+                mass = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
             }
-            if ("Density".equals(element)) {
+            if (RocksimCommonConstants.DENSITY.equals(element)) {
                 density = Math.max(0d, Double.parseDouble(content) );
             }
-            if ("KnownCG".equals(element)) {
-                cg = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (RocksimCommonConstants.KNOWN_CG.equals(element)) {
+                cg = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
-            if ("UseKnownCG".equals(element)) {  //Rocksim sets UseKnownCG to true to control the override of both cg and mass
+            if (RocksimCommonConstants.USE_KNOWN_CG.equals(element)) {  //Rocksim sets UseKnownCG to true to control the override of both cg and mass
                 boolean override = "1".equals(content);
                 setOverride(component, override, mass, cg);
             }
-            if ("DensityType".equals(element)) {
+            if (RocksimCommonConstants.DENSITY_TYPE.equals(element)) {
                 densityType = RocksimDensityType.fromCode(Integer.parseInt(content));
             }
         }

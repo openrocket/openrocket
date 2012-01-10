@@ -4,6 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -32,31 +33,31 @@ class AttachedPartsHandler extends ElementHandler {
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
-        if ("FinSet".equals(element)) {
+        if (RocksimCommonConstants.FIN_SET.equals(element)) {
             return new FinSetHandler(component);
         }
-        if ("CustomFinSet".equals(element)) {
+        if (RocksimCommonConstants.CUSTOM_FIN_SET.equals(element)) {
             return new FinSetHandler(component);
         }
-        if ("LaunchLug".equals(element)) {
+        if (RocksimCommonConstants.LAUNCH_LUG.equals(element)) {
             return new LaunchLugHandler(component, warnings);
         }
-        if ("Parachute".equals(element)) {
+        if (RocksimCommonConstants.PARACHUTE.equals(element)) {
             return new ParachuteHandler(component, warnings);
         }
-        if ("Streamer".equals(element)) {
+        if (RocksimCommonConstants.STREAMER.equals(element)) {
             return new StreamerHandler(component, warnings);
         }
-        if ("MassObject".equals(element)) {
+        if (RocksimCommonConstants.MASS_OBJECT.equals(element)) {
             return new MassObjectHandler(component, warnings);
         }
-        if ("Ring".equals(element)) {
+        if (RocksimCommonConstants.RING.equals(element)) {
             return new RingHandler(component, warnings);
         }
-        if ("BodyTube".equals(element)) {
+        if (RocksimCommonConstants.BODY_TUBE.equals(element)) {
             return new InnerBodyTubeHandler(component, warnings);
         }
-        if ("Transition".equals(element)) {
+        if (RocksimCommonConstants.TRANSITION.equals(element)) {
             return new TransitionHandler(component, warnings);
         }
         if ("TubeFinSet".equals(element)) {

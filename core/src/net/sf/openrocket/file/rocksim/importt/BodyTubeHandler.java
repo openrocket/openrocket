@@ -4,6 +4,8 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -41,7 +43,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
-        if ("AttachedParts".equals(element)) {
+        if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
             return new AttachedPartsHandler(bodyTube);
         }
         return PlainTextHandler.INSTANCE;
@@ -53,26 +55,26 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
         super.closeElement(element, attributes, content, warnings);
 
         try {
-            if ("OD".equals(element)) {
-                bodyTube.setOuterRadius(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+            if (RocksimCommonConstants.OD.equals(element)) {
+                bodyTube.setOuterRadius(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
             }
-            if ("ID".equals(element)) {
-                final double r = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS;
+            if (RocksimCommonConstants.ID.equals(element)) {
+                final double r = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
                 bodyTube.setInnerRadius(r);
             }
-            if ("Len".equals(element)) {
-                bodyTube.setLength(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (RocksimCommonConstants.LEN.equals(element)) {
+                bodyTube.setLength(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
-            if ("FinishCode".equals(element)) {
+            if (RocksimCommonConstants.FINISH_CODE.equals(element)) {
                 bodyTube.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
             }
-            if ("IsMotorMount".equals(element)) {
+            if (RocksimCommonConstants.IS_MOTOR_MOUNT.equals(element)) {
                 bodyTube.setMotorMount("1".equals(content));
             }
-            if ("EngineOverhang".equals(element)) {
-                bodyTube.setMotorOverhang(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (RocksimCommonConstants.ENGINE_OVERHANG.equals(element)) {
+                bodyTube.setMotorOverhang(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
-            if ("Material".equals(element)) {
+            if (RocksimCommonConstants.MATERIAL.equals(element)) {
                 setMaterialName(content);
             }
         }

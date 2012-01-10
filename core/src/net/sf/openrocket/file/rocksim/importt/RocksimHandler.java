@@ -7,6 +7,7 @@ package net.sf.openrocket.file.rocksim.importt;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -24,36 +25,6 @@ import java.util.HashMap;
  * Limitations: Rocksim flight simulations are not imported; tube fins are not supported; Rocksim 'pods' are not supported.
  */
 public class RocksimHandler extends ElementHandler {
-
-    /**
-     * Length conversion.  Rocksim is in millimeters, OpenRocket in meters.
-     */
-    public static final int ROCKSIM_TO_OPENROCKET_LENGTH = 1000;
-
-    /**
-     * Mass conversion.  Rocksim is in grams, OpenRocket in kilograms.
-     */
-    public static final int ROCKSIM_TO_OPENROCKET_MASS = 1000;
-
-    /**
-     * Bulk Density conversion.  Rocksim is in kilograms/cubic meter, OpenRocket in kilograms/cubic meter.
-     */
-    public static final int ROCKSIM_TO_OPENROCKET_BULK_DENSITY = 1;
-
-    /**
-     * Surface Density conversion.  Rocksim is in grams/sq centimeter, OpenRocket in kilograms/sq meter.  1000/(100*100) = 1/10
-     */
-    public static final double ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY = 1/10d;
-
-    /**
-     * Line Density conversion.  Rocksim is in kilograms/meter, OpenRocket in kilograms/meter. 
-     */
-    public static final int ROCKSIM_TO_OPENROCKET_LINE_DENSITY = 1;
-
-    /**
-     * Radius conversion.  Rocksim is always in diameters, OpenRocket mostly in radius.
-     */
-    public static final int ROCKSIM_TO_OPENROCKET_RADIUS = 2 * ROCKSIM_TO_OPENROCKET_LENGTH;
 
     /**
      * The main content handler.
@@ -310,22 +281,22 @@ class RocketDesignHandler extends ElementHandler {
                 stageCount = Integer.parseInt(content);
             }
             if ("Stage3Mass".equals(element)) {
-                stage3Mass = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS;
+                stage3Mass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
             }
             if ("Stage2Mass".equals(element)) {
-                stage2Mass = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS;
+                stage2Mass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
             }
             if ("Stage1Mass".equals(element)) {
-                stage1Mass = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS;
+                stage1Mass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
             }
             if ("Stage3CG".equals(element)) {
-                stage3CG = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH;
+                stage3CG = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
             if ("Stage2CGAlone".equals(element)) {
-                stage2CG = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH;
+                stage2CG = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
             if ("Stage1CGAlone".equals(element)) {
-                stage1CG = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH;
+                stage1CG = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
         }
         catch (NumberFormatException nfe) {
@@ -359,13 +330,13 @@ class StageHandler extends ElementHandler {
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
-        if ("NoseCone".equals(element)) {
+        if (RocksimCommonConstants.NOSE_CONE.equals(element)) {
             return new NoseConeHandler(component, warnings);
         }
-        if ("BodyTube".equals(element)) {
+        if (RocksimCommonConstants.BODY_TUBE.equals(element)) {
             return new BodyTubeHandler(component, warnings);
         }
-        if ("Transition".equals(element)) {
+        if (RocksimCommonConstants.TRANSITION.equals(element)) {
             return new TransitionHandler(component, warnings);
         }
         return null;

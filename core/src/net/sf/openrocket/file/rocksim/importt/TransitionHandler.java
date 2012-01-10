@@ -4,6 +4,9 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimFinishCode;
+import net.sf.openrocket.file.rocksim.RocksimNoseConeCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -59,34 +62,34 @@ class TransitionHandler extends BaseHandler<Transition> {
             }
             if ("Len".equals(element)) {
                 transition.setLength(Math.max(0, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
             if ("FrontDia".equals(element)) {
                 transition.setForeRadius(Math.max(0, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
             if ("RearDia".equals(element)) {
                 transition.setAftRadius(Math.max(0, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
             if ("WallThickness".equals(element)) {
-                thickness = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+                thickness = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
             if ("FrontShoulderDia".equals(element)) {
                 transition.setForeShoulderRadius(Math.max(0d, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
             if ("RearShoulderDia".equals(element)) {
                 transition.setAftShoulderRadius(Math.max(0d, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
             if ("FrontShoulderLen".equals(element)) {
                 transition.setForeShoulderLength(Math.max(0d, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
             if ("RearShoulderLen".equals(element)) {
                 transition.setAftShoulderLength(Math.max(0d, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
             if ("ShapeParameter".equals(element)) {
                 if (Transition.Shape.POWER.equals(transition.getType()) ||

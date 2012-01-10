@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  */
-@XmlRootElement(name = "BodyTube")
+@XmlRootElement(name = RocksimCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class InnerBodyTubeDTO extends BodyTubeDTO {
 
@@ -30,10 +30,10 @@ public class InnerBodyTubeDTO extends BodyTubeDTO {
 
     public InnerBodyTubeDTO(InnerTube bt) {
         super(bt);
-        setEngineOverhang(bt.getMotorOverhang() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setId(bt.getInnerRadius() * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(bt.getOuterRadius() * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setEngineOverhang(bt.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setId(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setMotorMount(bt.isMotorMount());
 
         List<RocketComponent> children = bt.getChildren();

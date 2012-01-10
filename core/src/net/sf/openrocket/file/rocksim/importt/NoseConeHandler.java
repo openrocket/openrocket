@@ -4,6 +4,9 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimFinishCode;
+import net.sf.openrocket.file.rocksim.RocksimNoseConeCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -50,7 +53,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         //Nose cones in Rocksim may have attached parts - namely Mass Objects - as children.
-        if ("AttachedParts".equals(element)) {
+        if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
             return new AttachedPartsHandler(noseCone);
         }
         return PlainTextHandler.INSTANCE;
@@ -62,27 +65,27 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
         super.closeElement(element, attributes, content, warnings);
 
         try {
-            if ("ShapeCode".equals(element)) {
+            if (RocksimCommonConstants.SHAPE_CODE.equals(element)) {
                 noseCone.setType(RocksimNoseConeCode.fromCode(Integer.parseInt(content)).asOpenRocket());
             }
-            if ("Len".equals(element)) {
-                noseCone.setLength(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+            if (RocksimCommonConstants.LEN.equals(element)) {
+                noseCone.setLength(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
-            if ("BaseDia".equals(element)) {
-                noseCone.setAftRadius(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+            if (RocksimCommonConstants.BASE_DIA.equals(element)) {
+                noseCone.setAftRadius(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
-            if ("WallThickness".equals(element)) {
-                thickness = Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (RocksimCommonConstants.WALL_THICKNESS.equals(element)) {
+                thickness = Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
-            if ("ShoulderOD".equals(element)) {
+            if (RocksimCommonConstants.SHOULDER_OD.equals(element)) {
                 noseCone.setAftShoulderRadius(Math.max(0, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS));
             }
-            if ("ShoulderLen".equals(element)) {
+            if (RocksimCommonConstants.SHOULDER_LEN.equals(element)) {
                 noseCone.setAftShoulderLength(Math.max(0, Double.parseDouble(
-                        content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+                        content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
-            if ("ShapeParameter".equals(element)) {
+            if (RocksimCommonConstants.SHAPE_PARAMETER.equals(element)) {
                 //The Rocksim ShapeParameter only applies to certain shapes, although it is included
                 //in the design file for all nose cones.  Applying it when it should not be causes oddities so 
                 //a check is made for the allowable shapes.
@@ -92,7 +95,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
                     noseCone.setShapeParameter(Double.parseDouble(content));
                 }
             }
-            if ("ConstructionType".equals(element)) {
+            if (RocksimCommonConstants.CONSTRUCTION_TYPE.equals(element)) {
                 int typeCode = Integer.parseInt(content);
                 if (typeCode == 0) {
                     //SOLID
@@ -103,10 +106,10 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
                     noseCone.setFilled(false);
                 }
             }
-            if ("FinishCode".equals(element)) {
+            if (RocksimCommonConstants.FINISH_CODE.equals(element)) {
                 noseCone.setFinish(RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket());
             }
-            if ("Material".equals(element)) {
+            if (RocksimCommonConstants.MATERIAL.equals(element)) {
                 setMaterialName(content);
             }
         }

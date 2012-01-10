@@ -1,7 +1,7 @@
 /*
  * RocksimDensityType.java
  */
-package net.sf.openrocket.file.rocksim.importt;
+package net.sf.openrocket.file.rocksim;
 
 import net.sf.openrocket.material.Material;
 
@@ -9,9 +9,9 @@ import net.sf.openrocket.material.Material;
  * Models the nose cone shape of a rocket.  Maps from Rocksim's notion to OpenRocket's.
  */
 public enum RocksimDensityType {
-    ROCKSIM_BULK   (0, RocksimHandler.ROCKSIM_TO_OPENROCKET_BULK_DENSITY),
-    ROCKSIM_SURFACE(1, RocksimHandler.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY),
-    ROCKSIM_LINE   (2, RocksimHandler.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
+    ROCKSIM_BULK   (0, RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY),
+    ROCKSIM_SURFACE(1, RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY),
+    ROCKSIM_LINE   (2, RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
 
     /** The Rocksim enumeration value. Sent in XML. */
     private final int ordinal;

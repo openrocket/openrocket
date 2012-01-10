@@ -4,6 +4,8 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimLocationMode;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import org.xml.sax.SAXException;
 
@@ -30,10 +32,10 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
     public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         super.closeElement(element, attributes, content, warnings);
-        if ("Xb".equals(element)) {
-            positionValue = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH;
+        if (RocksimCommonConstants.XB.equals(element)) {
+            positionValue = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
         }
-        if ("LocationMode".equals(element)) {
+        if (RocksimCommonConstants.LOCATION_MODE.equals(element)) {
             position = RocksimLocationMode.fromCode(Integer.parseInt(
                     content)).asOpenRocket();
         }

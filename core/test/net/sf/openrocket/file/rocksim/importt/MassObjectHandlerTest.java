@@ -4,6 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -69,10 +70,10 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         handler.closeElement("Len", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(10d / (MassObjectHandler.MASS_LEN_FUDGE_FACTOR * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH)
+        Assert.assertEquals(10d / (MassObjectHandler.MASS_LEN_FUDGE_FACTOR * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH)
                 , component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / (MassObjectHandler.MASS_LEN_FUDGE_FACTOR * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH)
+        Assert.assertEquals(10d / (MassObjectHandler.MASS_LEN_FUDGE_FACTOR * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH)
                 , component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
@@ -81,7 +82,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         handler.closeElement("KnownMass", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getComponentMass(), 0.001);
         handler.closeElement("KnownMass", attributes, "100", warnings);
-        Assert.assertEquals(100d / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(), 0.001);
+        Assert.assertEquals(100d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS, component.getComponentMass(), 0.001);
         handler.closeElement("KnownMass", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();

@@ -4,6 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -60,13 +61,13 @@ class MassObjectHandler extends PositionDependentHandler<MassComponent> {
             throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         try {
-            if ("Len".equals(element)) {
-                mass.setLength(Double.parseDouble(content) / (RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH * MASS_LEN_FUDGE_FACTOR));
+            if (RocksimCommonConstants.LEN.equals(element)) {
+                mass.setLength(Double.parseDouble(content) / (RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH * MASS_LEN_FUDGE_FACTOR));
             }
-            if ("KnownMass".equals(element)) {
-                mass.setComponentMass(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
+            if (RocksimCommonConstants.KNOWN_MASS.equals(element)) {
+                mass.setComponentMass(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
             }
-            if ("KnownCG".equals(element)) {
+            if (RocksimCommonConstants.KNOWN_CG.equals(element)) {
                 //Setting the CG of the Mass Object to 0 is important because of the different ways that Rocksim and
                 //OpenRocket treat mass objects.  Rocksim treats them as points (even though the data file contains a
                 //length) and because Rocksim sets the CG of the mass object to really be relative to the front of

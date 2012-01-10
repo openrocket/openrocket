@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -28,33 +28,33 @@ import java.util.List;
 
 /**
  */
-@XmlRootElement(name = "BodyTube")
+@XmlRootElement(name = RocksimCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BodyTubeDTO extends BasePartDTO {
 
-    @XmlElement(name = "OD")
+    @XmlElement(name = RocksimCommonConstants.OD)
     private double od = 0d;
-    @XmlElement(name = "ID")
+    @XmlElement(name = RocksimCommonConstants.ID)
     private double id = 0d;
-    @XmlElement(name = "IsMotorMount")
+    @XmlElement(name = RocksimCommonConstants.IS_MOTOR_MOUNT)
     private int isMotorMount = 0;
-    @XmlElement(name = "MotorDia")
+    @XmlElement(name = RocksimCommonConstants.MOTOR_DIA)
     private double motorDia = 0d;
-    @XmlElement(name = "EngineOverhang")
+    @XmlElement(name = RocksimCommonConstants.ENGINE_OVERHANG)
     private double engineOverhang = 0d;
-    @XmlElement(name = "IsInsideTube")
+    @XmlElement(name = RocksimCommonConstants.IS_INSIDE_TUBE)
     private int isInsideTube = 0;
-    @XmlElementWrapper(name = "AttachedParts")
+    @XmlElementWrapper(name = RocksimCommonConstants.ATTACHED_PARTS)
     @XmlElementRefs({
-            @XmlElementRef(name = "BodyTube", type = BodyTubeDTO.class),
-            @XmlElementRef(name = "BodyTube", type = InnerBodyTubeDTO.class),
-            @XmlElementRef(name = "Ring", type = CenteringRingDTO.class),
-            @XmlElementRef(name = "LaunchLug", type = LaunchLugDTO.class),
-            @XmlElementRef(name = "FinSet", type = FinSetDTO.class),
-            @XmlElementRef(name = "CustomFinSet", type = CustomFinSetDTO.class),
-            @XmlElementRef(name = "Streamer", type = StreamerDTO.class),
-            @XmlElementRef(name = "Parachute", type = ParachuteDTO.class),
-            @XmlElementRef(name = "MassObject", type = MassObjectDTO.class)})
+            @XmlElementRef(name = RocksimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.BODY_TUBE, type = InnerBodyTubeDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.RING, type = CenteringRingDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.LAUNCH_LUG, type = LaunchLugDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.FIN_SET, type = FinSetDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.CUSTOM_FIN_SET, type = CustomFinSetDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.STREAMER, type = StreamerDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class)})
     List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
 
     public BodyTubeDTO() {
@@ -67,10 +67,10 @@ public class BodyTubeDTO extends BasePartDTO {
     public BodyTubeDTO(BodyTube bt) {
         super(bt);
 
-        setEngineOverhang(bt.getMotorOverhang() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setId(bt.getInnerRadius() * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(bt.getOuterRadius() * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setEngineOverhang(bt.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setId(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setMotorMount(bt.isMotorMount());
 
         List<RocketComponent> children = bt.getChildren();

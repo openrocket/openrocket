@@ -4,6 +4,8 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -38,11 +40,11 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
         super.closeElement(element, attributes, content, warnings);
 
         try {
-            if ("Thickness".equals(element)) {
-                thickness = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH;
+            if (RocksimCommonConstants.THICKNESS.equals(element)) {
+                thickness = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("CalcMass".equals(element)) {
-                calcMass = Math.max(0d, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_MASS);
+            if (RocksimCommonConstants.CALC_MASS.equals(element)) {
+                calcMass = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
             }
         }
         catch (NumberFormatException nfe) {

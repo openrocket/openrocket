@@ -1,7 +1,7 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
-import net.sf.openrocket.file.rocksim.importt.RocksimNoseConeCode;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimNoseConeCode;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -31,25 +31,25 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AbstractTransitionDTO extends BasePartDTO {
 
-    @XmlElement(name = "ShapeCode")
+    @XmlElement(name = RocksimCommonConstants.SHAPE_CODE)
     private int shapeCode = 1;
-    @XmlElement(name = "ConstructionType")
+    @XmlElement(name = RocksimCommonConstants.CONSTRUCTION_TYPE)
     private int constructionType = 1;
-    @XmlElement(name = "WallThickness")
+    @XmlElement(name = RocksimCommonConstants.WALL_THICKNESS)
     private double wallThickness = 0d;
-    @XmlElement(name = "ShapeParameter")
+    @XmlElement(name = RocksimCommonConstants.SHAPE_PARAMETER)
     private double shapeParameter = 0d;
 
-    @XmlElementWrapper(name = "AttachedParts")
+    @XmlElementWrapper(name = RocksimCommonConstants.ATTACHED_PARTS)
     @XmlElementRefs({
-            @XmlElementRef(name = "BodyTube", type = BodyTubeDTO.class),
-            @XmlElementRef(name = "BodyTube", type = InnerBodyTubeDTO.class),
-            @XmlElementRef(name = "FinSet", type = FinSetDTO.class),
-            @XmlElementRef(name = "CustomFinSet", type = CustomFinSetDTO.class),
-            @XmlElementRef(name = "Ring", type = CenteringRingDTO.class),
-            @XmlElementRef(name = "Streamer", type = StreamerDTO.class),
-            @XmlElementRef(name = "Parachute", type = ParachuteDTO.class),
-            @XmlElementRef(name = "MassObject", type = MassObjectDTO.class)})
+            @XmlElementRef(name = RocksimCommonConstants.BODY_TUBE, type = BodyTubeDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.BODY_TUBE, type = InnerBodyTubeDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.FIN_SET, type = FinSetDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.CUSTOM_FIN_SET, type = CustomFinSetDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.RING, type = CenteringRingDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.STREAMER, type = StreamerDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class)})
     List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
 
     /**
@@ -74,7 +74,7 @@ public class AbstractTransitionDTO extends BasePartDTO {
             setShapeParameter(nc.getShapeParameter());
         }
 
-        setWallThickness(nc.getThickness() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setWallThickness(nc.getThickness() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         List<RocketComponent> children = nc.getChildren();
         for (int i = 0; i < children.size(); i++) {

@@ -1,6 +1,6 @@
 package net.sf.openrocket.file.rocksim.export;
 
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.rocketcomponent.Streamer;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,13 +10,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  */
-@XmlRootElement(name = "Streamer")
+@XmlRootElement(name = RocksimCommonConstants.STREAMER)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StreamerDTO extends BasePartDTO {
 
-        @XmlElement(name = "Width")
+    @XmlElement(name = RocksimCommonConstants.WIDTH)
         private double width = 0d;
-        @XmlElement(name = "DragCoefficient")
+        @XmlElement(name = RocksimCommonConstants.DRAG_COEFFICIENT)
         private double dragCoefficient = 0.75d;
 
     public StreamerDTO() {
@@ -24,7 +24,7 @@ public class StreamerDTO extends BasePartDTO {
 
     public StreamerDTO(Streamer ec) {
         super(ec);
-        setWidth(ec.getStripWidth() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setWidth(ec.getStripWidth() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setDragCoefficient(ec.getCD());
     }
 

@@ -4,6 +4,8 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -44,9 +46,9 @@ public class StreamerHandlerTest extends RocksimTestBase {
         WarningSet warnings = new WarningSet();
 
         handler.closeElement("Width", attributes, "0", warnings);
-        Assert.assertEquals(0d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
+        Assert.assertEquals(0d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
         handler.closeElement("Width", attributes, "10", warnings);
-        Assert.assertEquals(10d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
+        Assert.assertEquals(10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripWidth(), 0.001);
         handler.closeElement("Width", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -54,9 +56,9 @@ public class StreamerHandlerTest extends RocksimTestBase {
         handler.closeElement("Len", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(), 0.001);
+        Assert.assertEquals(10d / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, component.getStripLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
         warnings.clear();
@@ -147,13 +149,13 @@ public class StreamerHandlerTest extends RocksimTestBase {
         handler.closeElement("LocationMode", attributes, "1", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
-        Assert.assertEquals(component.getPositionValue(), -10d/RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getPositionValue(), -10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Xb", attributes, "-10", warnings);
         handler.closeElement("LocationMode", attributes, "2", warnings);
         handler.endHandler("Streamer", attributes, null, warnings);
         Assert.assertEquals(RocketComponent.Position.BOTTOM, component.getRelativePosition());
-        Assert.assertEquals(component.getPositionValue(), 10d/ RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
+        Assert.assertEquals(component.getPositionValue(), 10d/ RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH, 0.001);
 
         handler.closeElement("Thickness", attributes, "0.02", warnings);
         Assert.assertEquals(0.01848, handler.computeDensity(RocksimDensityType.ROCKSIM_BULK, 924d), 0.001);

@@ -1,7 +1,7 @@
 package net.sf.openrocket.file.rocksim.export;
 
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.importt.BaseHandler;
-import net.sf.openrocket.file.rocksim.importt.RocksimHandler;
 import net.sf.openrocket.rocketcomponent.Parachute;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,27 +11,27 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  */
-@XmlRootElement(name = "Parachute")
+@XmlRootElement(name = RocksimCommonConstants.PARACHUTE)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ParachuteDTO extends BasePartDTO {
 
-    @XmlElement(name = "Dia")
+    @XmlElement(name = RocksimCommonConstants.DIAMETER)
     private double dia = 0d;
-    @XmlElement(name = "SpillHoleDia")
+    @XmlElement(name = RocksimCommonConstants.SPILL_HOLE_DIA)
     private double spillHoleDia = 0d;
-    @XmlElement(name = "ShroudLineCount")
+    @XmlElement(name = RocksimCommonConstants.SHROUD_LINE_COUNT)
     private int ShroudLineCount = 0;
-    @XmlElement(name = "Thickness")
+    @XmlElement(name = RocksimCommonConstants.THICKNESS)
     private double thickness = 0d;
-    @XmlElement(name = "ShroudLineLen")
+    @XmlElement(name = RocksimCommonConstants.SHROUD_LINE_LEN)
     private double shroudLineLen = 0d;
-    @XmlElement(name = "ChuteCount")
+    @XmlElement(name = RocksimCommonConstants.CHUTE_COUNT)
     private int chuteCount = 1;
-    @XmlElement(name = "ShroudLineMassPerMM")
+    @XmlElement(name = RocksimCommonConstants.SHROUD_LINE_MASS_PER_MM)
     private double shroudLineMassPerMM = 0d;
-    @XmlElement(name = "ShroudLineMaterial")
+    @XmlElement(name = RocksimCommonConstants.SHROUD_LINE_MATERIAL)
     private String shroudLineMaterial = "";
-    @XmlElement(name = "DragCoefficient")
+    @XmlElement(name = RocksimCommonConstants.DRAG_COEFFICIENT)
     private double dragCoefficient = 0.75d;
     
     public ParachuteDTO() {
@@ -41,13 +41,13 @@ public class ParachuteDTO extends BasePartDTO {
         super(ec);
         
         setChuteCount(1);
-        setDia(ec.getDiameter() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setDia(ec.getDiameter() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setDragCoefficient(ec.getCD());
         setShroudLineCount(ec.getLineCount());
-        setShroudLineLen(ec.getLineLength() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setShroudLineLen(ec.getLineLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
         String material = ec.getLineMaterial().getName();
-        setShroudLineMassPerMM(ec.getLineMaterial().getDensity() * RocksimHandler.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
+        setShroudLineMassPerMM(ec.getLineMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
 
         if (material.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
             material = material.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());

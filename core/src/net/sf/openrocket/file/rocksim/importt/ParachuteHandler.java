@@ -4,6 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -62,8 +63,8 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
             throws SAXException {
         super.closeElement(element, attributes, content, warnings);
         try {
-            if ("Dia".equals(element)) {
-                chute.setDiameter(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (RocksimCommonConstants.DIAMETER.equals(element)) {
+                chute.setDiameter(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
                 /* Rocksim doesn't have a packed parachute radius, so we approximate it. */
                 double packed;
                 RocketComponent parent = chute.getParent();
@@ -78,27 +79,27 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
                 }
                 chute.setRadius(packed);
             }
-            if ("ShroudLineCount".equals(element)) {
+            if (RocksimCommonConstants.SHROUD_LINE_COUNT.equals(element)) {
                 chute.setLineCount(Math.max(0, Integer.parseInt(content)));
             }
-            if ("ShroudLineLen".equals(element)) {
-                chute.setLineLength(Math.max(0, Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH));
+            if (RocksimCommonConstants.SHROUD_LINE_LEN.equals(element)) {
+                chute.setLineLength(Math.max(0, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH));
             }
-            if ("SpillHoleDia".equals(element)) {
+            if (RocksimCommonConstants.SPILL_HOLE_DIA.equals(element)) {
                 //Not supported in OpenRocket
-                double spillHoleRadius = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS;
+                double spillHoleRadius = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
                 warnings.add("Parachute spill holes are not supported. Ignoring.");
             }
-            if ("ShroudLineMassPerMM".equals(element)) {
-                shroudLineDensity = Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LINE_DENSITY;
+            if (RocksimCommonConstants.SHROUD_LINE_MASS_PER_MM.equals(element)) {
+                shroudLineDensity = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY;
             }
-            if ("ShroudLineMaterial".equals(element)) {
+            if (RocksimCommonConstants.SHROUD_LINE_MATERIAL.equals(element)) {
                 chute.setLineMaterial(createCustomMaterial(Material.Type.LINE, content, shroudLineDensity));
             }
-            if ("DragCoefficient".equals(element)) {
+            if (RocksimCommonConstants.DRAG_COEFFICIENT.equals(element)) {
                 chute.setCD(Double.parseDouble(content));
             }
-            if ("Material".equals(element)) {
+            if (RocksimCommonConstants.MATERIAL.equals(element)) {
                 setMaterialName(content);
             }
         }

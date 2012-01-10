@@ -4,6 +4,7 @@
 package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -62,19 +63,19 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
         super.closeElement(element, attributes, content, warnings);
 
         try {
-            if ("OD".equals(element)) {
-                ring.setOuterRadius(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+            if (RocksimCommonConstants.OD.equals(element)) {
+                ring.setOuterRadius(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
             }
-            if ("ID".equals(element)) {
-                ring.setInnerRadius(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_RADIUS);
+            if (RocksimCommonConstants.ID.equals(element)) {
+                ring.setInnerRadius(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
             }
-            if ("Len".equals(element)) {
-                ring.setLength(Double.parseDouble(content) / RocksimHandler.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (RocksimCommonConstants.LEN.equals(element)) {
+                ring.setLength(Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
-            if ("Material".equals(element)) {
+            if (RocksimCommonConstants.MATERIAL.equals(element)) {
                 setMaterialName(content);
             }
-            if ("UsageCode".equals(element)) {
+            if (RocksimCommonConstants.USAGE_CODE.equals(element)) {
                 usageCode = Integer.parseInt(content);
             }
         } catch (NumberFormatException nfe) {
@@ -172,6 +173,7 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
         result.setRelativePosition(ring.getRelativePosition());
         result.setPositionValue(ring.getPositionValue());
         result.setMaterial(ring.getMaterial());
+        result.setThickness(result.getThickness());
     }
 
     /**
