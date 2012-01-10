@@ -3,13 +3,13 @@ package net.sf.openrocket.file.rocksim.export;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
+import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 
 import javax.xml.bind.JAXBContext;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.util.List;
 
 /**
  * This class is responsible for converting an OpenRocket design to a Rocksim design.
@@ -92,47 +91,38 @@ public class RocksimSaver extends RocketSaver {
 
     private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
         RocketDesignDTO result = new RocketDesignDTO();
-        result.setName(rocket.getName());
+
+        MassCalculator massCalc = new BasicMassCalculator();
+
+            final double cg = massCalc.getCG(new Configuration(rocket), MassCalculator.MassCalcType.NO_MOTORS).x *
+                    RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
         int stageCount = rocket.getStageCount();
+        if (stageCount == 3) {
+            result.setStage321CG(cg);
+        }
+        else if (stageCount == 2) {
+            result.setStage32CG(cg);
+        }
+        else {
+            result.setStage3CG(cg);
+        }
+
+        result.setName(rocket.getName());
         result.setStageCount(stageCount);
         if (stageCount > 0) {
-            result.setStage3(toStageDTO(rocket.getChild(0).getStage()));
+            result.setStage3(toStageDTO(rocket.getChild(0).getStage(), result, 3));
         }
         if (stageCount > 1) {
-            result.setStage2(toStageDTO(rocket.getChild(1).getStage()));
+            result.setStage2(toStageDTO(rocket.getChild(1).getStage(), result, 2));
         }
         if (stageCount > 2) {
-            result.setStage1(toStageDTO(rocket.getChild(2).getStage()));
+            result.setStage1(toStageDTO(rocket.getChild(2).getStage(), result, 1));
         }
         return result;
     }
 
-    private StageDTO toStageDTO(Stage stage) {
-        StageDTO result = new StageDTO();
-
-        List<RocketComponent> children = stage.getChildren();
-        for (int i = 0; i < children.size(); i++) {
-            RocketComponent rocketComponents = children.get(i);
-            if (rocketComponents instanceof NoseCone) {
-                result.addExternalPart(toNoseConeDTO((NoseCone) rocketComponents));
-            } else if (rocketComponents instanceof BodyTube) {
-                result.addExternalPart(toBodyTubeDTO((BodyTube) rocketComponents));
-            } else if (rocketComponents instanceof Transition) {
-                result.addExternalPart(toTransitionDTO((Transition) rocketComponents));
-            }
-        }
-        return result;
+    private StageDTO toStageDTO(Stage stage, RocketDesignDTO designDTO, int stageNumber) {
+        return new StageDTO(stage, designDTO, stageNumber);
     }
 
-    private NoseConeDTO toNoseConeDTO(NoseCone nc) {
-        return new NoseConeDTO(nc);
-    }
-
-    private BodyTubeDTO toBodyTubeDTO(BodyTube bt) {
-        return new BodyTubeDTO(bt);
-    }
-
-    private TransitionDTO toTransitionDTO(Transition tran) {
-        return new TransitionDTO(tran);
-    }
 }
