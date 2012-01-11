@@ -11,6 +11,7 @@ import net.sf.openrocket.android.rocket.RocketComponentTreeAdapter.RocketCompone
 import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketUtils;
@@ -40,6 +41,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -51,6 +53,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 	private ProgressDialog progress;
 
+	private Spinner configurationSpinner;
 	private TreeViewList componentTree;
 	private ListView simulationList;
 
@@ -94,7 +97,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		spec.setIndicator("Simulations");
 		tabs.addTab(spec);	
 
-		
+		configurationSpinner = (Spinner) findViewById(R.id.openrocketviewerConfigurationSpinner);
 		componentTree = (TreeViewList) findViewById(R.id.openrocketviewerComponentTree);
 		simulationList = (ListView) findViewById(R.id.openrocketviewerSimulationList);
 
@@ -176,12 +179,19 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		setTitle(rocket.getName());
 
+		String[] motorConfigs = rocket.getMotorConfigurationIDs();
+		ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item);
+		for( String config: motorConfigs ) {
+			spinnerAdapter.add(rocket.getMotorConfigurationNameOrDescription(config));
+		}
+		
+		configurationSpinner.setAdapter(spinnerAdapter);
+		
 		Unit LengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		Unit MassUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
 
-		Coordinate cg = RocketUtils.getCG(rocket);
+		Coordinate cg = RocketUtils.getCG(rocket, MassCalcType.NO_MOTORS);
 		double length = RocketUtils.getLength(rocket);
-		((TextView) findViewById(R.id.openrocketviewerRocketName)).setText( rocket.getName());
 		((TextView)findViewById(R.id.openrocketviewerDesigner)).setText(rocket.getDesigner());
 		((TextView)findViewById(R.id.openrocketviewerCG)).setText(LengthUnit.toStringUnit(cg.x) );
 		((TextView)findViewById(R.id.openrocketviewerLength)).setText(LengthUnit.toStringUnit(length));

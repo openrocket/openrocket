@@ -25,9 +25,9 @@ public abstract class RocketUtils {
 		return length;
 	}
 
-	public static Coordinate getCG(Rocket rocket) {
+	public static Coordinate getCG(Rocket rocket, MassCalcType calcType) {
 		MassCalculator massCalculator = new BasicMassCalculator();
-		Coordinate cg = massCalculator.getCG(rocket.getDefaultConfiguration(), MassCalcType.LAUNCH_MASS);
+		Coordinate cg = massCalculator.getCG(rocket.getDefaultConfiguration(), calcType);
 		return cg;
 	}
 	

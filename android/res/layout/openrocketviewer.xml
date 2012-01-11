@@ -34,32 +34,10 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Rocket Name" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerRocketName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
                         android:text="Designer" />
 
                     <TextView
                         android:id="@+id/openrocketviewerDesigner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="CG" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerCG"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
@@ -78,7 +56,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Mass" />
+                        android:text="Empty Mass" />
 
                     <TextView
                         android:id="@+id/openrocketviewerMass"
@@ -97,10 +75,26 @@
                         android:layout_height="wrap_content"
                         android:text="" />
 
+                    <Spinner android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/openrocketviewerConfigurationSpinner" 
+                        />
+                    
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="Comment" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="CG" />
+
+                    <TextView
+                        android:id="@+id/openrocketviewerCG"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="" />
 
                     <TextView
                         android:id="@+id/openrocketviewerComment"
