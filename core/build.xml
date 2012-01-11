@@ -1,6 +1,6 @@
 <project name="OpenRocket" basedir=".">
 
-	<property file="build.properties" />
+	<property file="resources/build.properties" />
 	
 	<property name="src.dir"    	value="src"/>		<!-- Source directory -->
 	<property name="src-test.dir"	value="test"/>		<!-- Test directory -->
@@ -53,16 +53,14 @@
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
 		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
-		<echo level="info">Copying build.properties</echo>
-		<copy file="build.properties" todir="${dist.dir}"/>
 	</target>
 	
 	
 	<!-- JAR -->
 	<target name="jar" depends="build">
 		<copy todir="${dist.dir}/">
-			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes build.properties fileformat.txt" />
-			<fileset dir="." includes="datafiles/ pix/ l10n/" />
+			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
+			<fileset dir="resources/" includes="datafiles/ pix/ l10n/ build.properties" />
 			<fileset dir="src/" includes="META-INF/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
@@ -90,7 +88,7 @@
 			<fileset dir="." includes="*" excludes="*.log">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="." includes="datafiles/ lib/ lib-test/ pix/ src/ test/ l10n/"/>
+			<fileset dir="" includes="resources/datafiles/ lib/ lib-test/ resources/pix/ src/ test/ resources/l10n/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
