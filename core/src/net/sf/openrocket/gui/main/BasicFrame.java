@@ -1211,11 +1211,15 @@ public class BasicFrame extends JFrame {
 		
 		return true;
 	}
-	
-	
 
-
-
+    /**
+     * "Save" action.  If the design is new, then this is identical to "Save As", with a default file filter for .ork.
+     * If the rocket being edited previously was opened from a .ork file, then it will be saved immediately to the same
+     * file.  But clicking on 'Save' for an existing design file with a .rkt will bring up a confirmation dialog because
+     * it's potentially a destructive write (loss of some fidelity if it's truly an original Rocksim generated file).
+     *
+     * @return true if the file was saved, false otherwise
+     */
 	private boolean saveAction() {
 		File file = document.getFile();
 		if (file == null) {
@@ -1224,43 +1228,46 @@ public class BasicFrame extends JFrame {
 		}
 		log.info("Saving document to " + file);
 		
-		// Saving RockSim designs is not supported
 		if (FileHelper.ROCKSIM_DESIGN_FILTER.accept(file)) {
-			file = new File(file.getAbsolutePath().replaceAll(".[rR][kK][tT](.[gG][zZ])?$",
-					".ork"));
-			
-			log.info("Attempting to save in RockSim format, renaming to " + file);
-			int option = JOptionPane.showConfirmDialog(this, new Object[] {
-					"Saving designs in RockSim format is not supported.",
-					"Save in OpenRocket format instead (" + file.getName() + ")?"
-				}, "Save " + file.getName(), JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE, null);
-			if (option != JOptionPane.YES_OPTION) {
-				log.user("User chose not to save");
-				return false;
-			}
-			
-			document.setFile(file);
+            return saveAsRocksim(file);
 		}
 		return saveAs(file);
 	}
-	
-	
+
+    /**
+     * "Save As" action.
+     *
+     * Never should a .rkt file contain an OpenRocket content, or an .ork file contain a Rocksim design.  Regardless of
+     * what extension the user has chosen, it would violate the Principle of Least Astonishment to do otherwise
+     * (and we want to make doing the wrong thing really hard to do).  So always force the appropriate extension.
+     *
+     * This can result in some odd looking filenames (MyDesign.rkt.ork, MyDesign.rkt.ork.rkt, etc.) if the user is
+     * not paying attention, but the user can control that by modifying the filename in the dialog.
+     *
+     * @return true if the file was saved, false otherwise
+     */
 	private boolean saveAsAction() {
 		File file = null;
-		
-		// TODO: HIGH: what if *.rkt chosen?
+
 		StorageOptionChooser storageChooser =
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
-		JFileChooser chooser = new JFileChooser();
+		final JFileChooser chooser = new JFileChooser();
         chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
         chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-        chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+
+        //Force the file filter to match the file extension that was opened.  Will default to OR if the file is null.
+        if (FileHelper.ROCKSIM_DESIGN_FILTER.accept(document.getFile())) {
+            chooser.setFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+        }
+        else {
+            chooser.setFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+        }
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setAccessory(storageChooser);
-		if (document.getFile() != null)
+		if (document.getFile() != null) {
 			chooser.setSelectedFile(document.getFile());
-		
+        }
+        
 		int option = chooser.showSaveDialog(BasicFrame.this);
 		if (option != JFileChooser.APPROVE_OPTION) {
 			log.user("User decided not to save, option=" + option);
@@ -1275,34 +1282,45 @@ public class BasicFrame extends JFrame {
 		
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 		storageChooser.storeOptions(document.getDefaultStorageOptions());
-		
-        if (chooser.getFileFilter().equals(FileHelper.OPENROCKET_DESIGN_FILTER)) {
-		    file = FileHelper.ensureExtension(file, "ork");
-		    if (!FileHelper.confirmWrite(file, this)) {
-			    return false;
-    		}
-		
-	    	return saveAs(file);
-        }
-        else if (chooser.getFileFilter().equals(FileHelper.ROCKSIM_DESIGN_FILTER)) {
-            file = FileHelper.ensureExtension(file, "rkt");
-            if (!FileHelper.confirmWrite(file, this)) {
-                return false;
-            }
 
-            try {
-                new RocksimSaver().save(file, document);
-                return true;
-            } catch (IOException e) {
-                return false;
-            }
+        if (chooser.getFileFilter().equals(FileHelper.ROCKSIM_DESIGN_FILTER)) {
+            return saveAsRocksim(file);
         }
         else {
-            return false;
+            file = FileHelper.forceExtension(file, "ork");
+            return FileHelper.confirmWrite(file, this) && saveAs(file);
         }
 	}
-	
-	private boolean saveAs(File file) {
+
+    /**
+     * Perform the writing of the design to the given file in Rocksim format.
+     *
+     * @param file  the chosen file
+     *
+     * @return true if the file was written
+     */
+    private boolean saveAsRocksim(File file) {
+        file = FileHelper.forceExtension(file, "rkt");
+        if (!FileHelper.confirmWrite(file, this)) {
+            return false;
+        }
+
+        try {
+            new RocksimSaver().save(file, document);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Perform the writing of the design to the given file in OpenRocket format.
+     *
+     * @param file  the chosen file
+     *
+     * @return true if the file was written
+     */
+    private boolean saveAs(File file) {
 		log.info("Saving document as " + file);
 		boolean saved = false;
 		

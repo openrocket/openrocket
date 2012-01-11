@@ -1,16 +1,15 @@
 package net.sf.openrocket.gui.util;
 
-import java.awt.Component;
-import java.io.File;
-import java.io.IOException;
-
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
-
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Helper methods related to user-initiated file manipulation.
@@ -61,7 +60,7 @@ public final class FileHelper {
 	 * 
 	 * @param original		the original file
 	 * @param extension		the extension to append if none exists (without preceding dot)
-	 * @return				the resulting filen
+	 * @return				the resulting file
 	 */
 	public static File ensureExtension(File original, String extension) {
 		
@@ -75,7 +74,33 @@ public final class FileHelper {
 		return original;
 	}
 	
-	
+	/**
+	 * Ensure that the provided file has the given file extension.  This differs from ensureExtension in that this
+     * method guarantees that the file will have the extension, whereas ensureExtension only treats the extension
+     * as a default.
+	 *
+	 * @param original		the original file
+	 * @param extension		the extension to guarantee (without preceding dot)
+	 * @return				the resulting file
+	 */
+	public static File forceExtension(File original, String extension) {
+
+		if (!original.getName().toLowerCase().endsWith(extension.toLowerCase())) {
+			log.debug(1, "File name does not contain extension, adding '" + extension + "'");
+			String name = original.getAbsolutePath();
+            if (extension.startsWith(".")) {
+                name = name + extension;
+            }
+            else {
+    			name = name + "." + extension;
+            }
+            return new File(name);
+		}
+
+		return original;
+	}
+
+
 	/**
 	 * Confirm that it is allowed to write to a file.  If the file exists,
 	 * a confirmation dialog will be presented to the user to ensure overwriting is ok.

@@ -17,8 +17,6 @@ public class ParachuteDTO extends BasePartDTO {
 
     @XmlElement(name = RocksimCommonConstants.DIAMETER)
     private double dia = 0d;
-    @XmlElement(name = RocksimCommonConstants.SPILL_HOLE_DIA)
-    private double spillHoleDia = 0d;
     @XmlElement(name = RocksimCommonConstants.SHROUD_LINE_COUNT)
     private int ShroudLineCount = 0;
     @XmlElement(name = RocksimCommonConstants.THICKNESS)
@@ -61,14 +59,6 @@ public class ParachuteDTO extends BasePartDTO {
 
     public void setDia(double theDia) {
         dia = theDia;
-    }
-
-    public double getSpillHoleDia() {
-        return spillHoleDia;
-    }
-
-    public void setSpillHoleDia(double theSpillHoleDia) {
-        spillHoleDia = theSpillHoleDia;
     }
 
     public int getShroudLineCount() {
