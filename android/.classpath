@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry including="l10n/**/*" kind="src" path="core-resources"/>
-	<classpathentry excluding="net/sf/openrocket/file/CSVExport.java|net/sf/openrocket/file/motor/|net/sf/openrocket/file/rocksim/export/|net/sf/openrocket/gui/|net/sf/openrocket/startup/Startup.java|net/sf/openrocket/startup/Startup2.java|net/sf/openrocket/startup/VersionHelper.java|net/sf/openrocket/utils/" kind="src" path="core"/>
+	<classpathentry excluding="net/sf/openrocket/file/CSVExport.java|net/sf/openrocket/file/rocksim/export/|net/sf/openrocket/gui/|net/sf/openrocket/startup/Startup.java|net/sf/openrocket/startup/Startup2.java|net/sf/openrocket/startup/VersionHelper.java|net/sf/openrocket/utils/|net/sf/openrocket/file/motor/MotorLoaderHelper.java" kind="src" path="core"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>

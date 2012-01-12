@@ -21,7 +21,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
-import android.widget.SimpleCursorTreeAdapter;
+import android.widget.ResourceCursorTreeAdapter;
+import android.widget.TextView;
 
 
 public class MotorHierarchicalBrowser
@@ -48,17 +49,15 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 	private DbAdapter mDbHelper;
 
-	public class MotorHierarchicalListAdapter extends SimpleCursorTreeAdapter
+	public class MotorHierarchicalListAdapter extends ResourceCursorTreeAdapter
 	{
 
 		// Note that the constructor does not take a Cursor. This is done to avoid querying the 
 		// database on the main thread.
 		public MotorHierarchicalListAdapter(Context context, Cursor cursor, int groupLayout,
-				int childLayout, String[] groupFrom, int[] groupTo, String[] childrenFrom,
-				int[] childrenTo) {
+				int childLayout ) {
 
-			super(context, cursor, groupLayout, groupFrom, groupTo, childLayout, childrenFrom,
-					childrenTo);
+			super(context, cursor, groupLayout, childLayout);
 		}
 
 		@Override
@@ -76,6 +75,46 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		public long getGroupId(int groupPosition) {
 			return groupPosition;
 		}
+
+		//new String[] { MotorDao.MANUFACTURER, MotorDao.DESIGNATION, MotorDao.CASE_INFO, MotorDao.TOTAL_IMPULSE }, // Number for child layouts
+		//new int[] { R.id.motorChildManu, R.id.motorChildName, R.id.motorChildDelays, R.id.motorChildImpulse }
+
+		/* (non-Javadoc)
+		 * @see android.widget.CursorTreeAdapter#bindChildView(android.view.View, android.content.Context, android.database.Cursor, boolean)
+		 */
+		@Override
+		protected void bindChildView(View arg0, Context arg1, Cursor arg2,
+				boolean arg3) {
+			
+			TextView manu = (TextView) arg0.findViewById(R.id.motorChildManu);
+			manu.setText( arg2.getString(arg2.getColumnIndex(MotorDao.MANUFACTURER)));
+			
+			TextView desig = (TextView) arg0.findViewById(R.id.motorChildName);
+			desig.setText( arg2.getString(arg2.getColumnIndex(MotorDao.DESIGNATION)));
+			
+			TextView delays = (TextView) arg0.findViewById(R.id.motorChildDelays);
+			delays.setText( MotorDao.extractPrettyDelayString( arg2 ));
+			
+			TextView totImpulse = (TextView) arg0.findViewById(R.id.motorChildImpulse);
+			totImpulse.setText( arg2.getString(arg2.getColumnIndex(MotorDao.TOTAL_IMPULSE)));
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.CursorTreeAdapter#bindGroupView(android.view.View, android.content.Context, android.database.Cursor, boolean)
+		 */
+		@Override
+		protected void bindGroupView(View view, Context context, Cursor cursor,
+				boolean isExpanded) {
+			TextView v = (TextView) view.findViewById(R.id.motorGroup);
+			if ( MotorDao.DIAMETER.equals(groupColumn)) {
+				double d = cursor.getDouble( cursor.getColumnIndex(groupColumn));
+				v.setText( String.valueOf(Math.round(d * 1000.0)) );
+			} else {
+				v.setText( cursor.getString( cursor.getColumnIndex(groupColumn)));
+			}
+		}
+		
+		
 
 	}
 
@@ -167,10 +206,9 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 		super.onChildClick(parent, v, groupPosition, childPosition, id);
-		Motor m = mDbHelper.getMotorDao().fetchMotor(id);
 		//Intent i = new Intent(this, BurnPlotActivity.class);
 		Intent i = new Intent(this,MotorDetails.class);
-		i.putExtra("Motor", m);
+		i.putExtra("Motor", id);
 		startActivity(i);
 		return true;
 	}
@@ -221,11 +259,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 				this,
 				motorCursor,
 				R.layout.motor_list_group,
-				R.layout.motor_list_child,
-				new String[] { groupColumn }, // Name for group layouts
-				new int[] { R.id.motorGroup },
-				new String[] { MotorDao.MANUFACTURER, MotorDao.NAME, MotorDao.TOTAL_IMPULSE }, // Number for child layouts
-				new int[] { R.id.motorChildManu, R.id.motorChildName, R.id.motorChildImpulse });
+				R.layout.motor_list_child);
 		setListAdapter(mAdapter);
 	}
 }

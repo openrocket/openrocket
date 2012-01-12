@@ -1,89 +1,91 @@
 package net.sf.openrocket.android.thrustcurve;
 
-import java.util.Vector;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.List;
+
+import net.sf.openrocket.file.motor.RASPMotorLoader;
+import net.sf.openrocket.file.motor.RockSimMotorLoader;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class MotorBurnFile {
 
-	private Integer motor_id;
+	private Integer motorId;
 	private String filetype;
-	private Float length;
-	private String delays;
-	private Double propWeightG;
-	private Double totWeightG;
-	private Vector<Double> datapoints = new Vector<Double>();
-	
+	private ThrustCurveMotor thrustCurveMotor;
+
 	public void init() {
-		this.motor_id = null;
+		this.motorId = null;
 		this.filetype = null;
-		this.length = null;
-		this.delays = null;
-		this.propWeightG = null;
-		this.totWeightG = null;
-		this.datapoints = new Vector<Double>();
+		this.thrustCurveMotor = null;
 	}
-	
+
 	@Override
 	public MotorBurnFile clone() {
 		MotorBurnFile clone = new MotorBurnFile();
-		clone.motor_id = this.motor_id;
+		clone.motorId = this.motorId;
 		clone.filetype = this.filetype;
-		clone.length = this.length;
-		clone.delays = this.delays;
-		clone.propWeightG = this.propWeightG;
-		clone.totWeightG = this.totWeightG;
-		clone.datapoints = this.datapoints;
+		clone.thrustCurveMotor = this.thrustCurveMotor;
 		return clone;
 	}
 
-	public void decodeFile(String data){
-		if (SupportedFileTypes.RASP_FORMAT.equals(filetype)) {
-			RaspBurnFile.parse(this,data);
-		} else if (SupportedFileTypes.ROCKSIM_FORMAT.equals(filetype) ){
-			RSEBurnFile.parse(this,data);
+	public void decodeFile(String data) {
+		try {
+			if (SupportedFileTypes.RASP_FORMAT.equals(filetype)) {
+				RASPMotorLoader loader = new RASPMotorLoader();
+				List<Motor> motors = loader.load( new StringReader(data), "download");
+				this.thrustCurveMotor = (ThrustCurveMotor) motors.get(0);
+			} else if (SupportedFileTypes.ROCKSIM_FORMAT.equals(filetype) ){
+				RockSimMotorLoader loader = new RockSimMotorLoader();
+				List<Motor> motors = loader.load( new StringReader(data), "download");
+				this.thrustCurveMotor = (ThrustCurveMotor) motors.get(0);
+			}
+		} catch ( IOException ex ) {
+			this.thrustCurveMotor = null;
 		}
 	}
-	
+
+	/**
+	 * @return the motor_id
+	 */
 	public Integer getMotorId() {
-		return motor_id;
-	}
-	public String getFileType() {
-		return filetype;
-	}
-	public Float getLength() {
-		return length;
-	}
-	public String getDelays() {
-		return delays;
-	}
-	public Double getPropWeightG() {
-		return propWeightG;
-	}
-	public Double getTotWeightG() {
-		return totWeightG;
-	}
-	public Vector<Double> getDatapoints() {
-		return datapoints;
+		return motorId;
 	}
 
-	void setMotor_id(Integer motor_id) {
-		this.motor_id = motor_id;
+	/**
+	 * @param motor_id the motor_id to set
+	 */
+	public void setMotorId(Integer motorId) {
+		this.motorId = motorId;
 	}
-	void setFiletype(String filetype ) {
+
+	/**
+	 * @return the filetype
+	 */
+	public String getFiletype() {
+		return filetype;
+	}
+
+	/**
+	 * @param filetype the filetype to set
+	 */
+	public void setFiletype(String filetype) {
 		this.filetype = filetype;
 	}
-	void setLength(Float length) {
-		this.length = length;
+
+	/**
+	 * @return the thrustCurveMotor
+	 */
+	public ThrustCurveMotor getThrustCurveMotor() {
+		return thrustCurveMotor;
 	}
-	void setDelays(String delays) {
-		this.delays = delays;
+
+	/**
+	 * @param thrustCurveMotor the thrustCurveMotor to set
+	 */
+	public void setThrustCurveMotor(ThrustCurveMotor thrustCurveMotor) {
+		this.thrustCurveMotor = thrustCurveMotor;
 	}
-	void setPropWeightG(Double propWeightG) {
-		this.propWeightG = propWeightG;
-	}
-	void setTotWeightG(Double totWeightG) {
-		this.totWeightG = totWeightG;
-	}
-	void setDatapoints(Vector<Double> datapoints) {
-		this.datapoints = datapoints;
-	}
+	
 }

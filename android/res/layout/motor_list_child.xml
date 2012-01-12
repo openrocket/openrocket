@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="45dip"
     android:gravity="center_vertical"
@@ -8,7 +8,6 @@
         android:id="@+id/motorChildManu"
         android:layout_width="wrap_content"
         android:layout_height="45dip"
-        android:layout_alignParentLeft="true"
         android:gravity="center_vertical"
         android:paddingLeft="5dip"
         android:paddingRight="5dip"
@@ -21,10 +20,8 @@
         android:id="@+id/motorChildName"
         android:layout_width="wrap_content"
         android:layout_height="45dip"
-        android:layout_toRightOf="@id/motorChildManu"
         android:gravity="center_vertical"
         android:paddingLeft="5dip"
-        android:paddingRight="5dip"
         android:text="Motor Name"
         android:textColor="#ffCCCC22"
         android:textSize="17dip"
@@ -32,10 +29,39 @@
     </TextView>
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="45dip"
+        android:gravity="center_vertical"
+        android:text="-"
+        android:paddingLeft="2dip"
+        android:paddingRight="2dip"
+        android:textColor="#ffCCCC22"
+        android:textSize="17dip"
+        android:textStyle="bold" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/motorChildDelays"
+        android:layout_width="wrap_content"
+        android:layout_height="45dip"
+        android:layout_weight="0"
+        android:gravity="center_vertical"
+        android:paddingRight="5dip"
+        android:text=""
+        android:textColor="#ffCCCC22"
+        android:textSize="17dip"
+        android:textStyle="bold" >
+    </TextView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="2" />
+    
+    <TextView
         android:id="@+id/motorChildImpulse"
         android:layout_width="wrap_content"
         android:layout_height="45dip"
-        android:layout_alignParentRight="true"
         android:gravity="center_vertical"
         android:paddingLeft="5dip"
         android:paddingRight="5dip"
@@ -45,4 +71,4 @@
         android:textStyle="bold" >
     </TextView>
 
-</RelativeLayout>
+</LinearLayout>

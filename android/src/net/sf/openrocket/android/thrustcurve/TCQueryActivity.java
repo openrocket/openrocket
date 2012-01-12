@@ -1,10 +1,8 @@
 package net.sf.openrocket.android.thrustcurve;
 
-import java.util.Vector;
-
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.db.DbAdapter;
-import net.sf.openrocket.android.motor.Motor;
+import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -161,29 +159,12 @@ public class TCQueryActivity extends Activity {
 
 					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
 
-					if ( b != null ) {
-						if ( b.getLength() != null ) {
-							mi.setLength( b.getLength() );
-						}
-						if ( b.getPropWeightG() != null ) {
-							mi.setProp_mass_g(b.getPropWeightG());
-						}
-						if ( b.getTotWeightG() != null ) {
-							mi.setTot_mass_g(b.getTotWeightG());
-						}
-						if ( b.getDelays() != null ) {
-							mi.setDelays(b.getDelays());
-						}
-						mi.setBurndata(b.getDatapoints());
-					}
 					Log.d(TAG, mi.toString());
 
-					// convert to Motors.  One per delay.
-					Motor m = new Motor();
-					// Base name of motor.
-					String name = mi.getCommon_name() + "-";
-
-					m.setManufacturer(mi.getManufacturer_abbr());
+					ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
+					
+					m.setThrustCurveMotor( b.getThrustCurveMotor() );
+					
 					// Convert impulse class.  ThrustCurve puts mmx, 1/4a and 1/2a as A.
 					m.setImpulseClass(mi.getImpulse_class());
 					if ( "a".equalsIgnoreCase(mi.getImpulse_class())) {
@@ -195,15 +176,7 @@ public class TCQueryActivity extends Activity {
 							m.setImpulseClass("1/8A");
 						}
 					}
-					m.setAvgThrust(mi.getAvg_thrust_n());
-					m.setBurndata(mi.getBurndata());
-					m.setBurnTime(mi.getBurn_time_s());
-					m.setDiameter(mi.getDiameter() == null ? null : mi.getDiameter().longValue());
-					m.setLength(mi.getLength());
-					m.setMaxThrust(mi.getMax_thrust_n());
-					m.setPropMass(mi.getProp_mass_g());
-					m.setTotalImpulse(mi.getTot_impulse_ns());
-					m.setTotMass(mi.getTot_mass_g());
+					
 					// Convert Case Info.
 					if ( mi.getCase_info() == null
 							|| "single use".equalsIgnoreCase(mi.getCase_info())
@@ -213,31 +186,9 @@ public class TCQueryActivity extends Activity {
 						m.setCaseInfo(mi.getCase_info());
 					}
 
-					Vector<String> delays = new Vector<String>();
-					{
-						String delaysString = mi.getDelays();
-						if ( delaysString != null ) {
-							delaysString = delaysString.trim();
-						}
-
-						if ( delaysString == null || "".equals(delaysString)) {
-							delays.add("");
-						} else {
-							String[] delayString = delaysString.split(",");
-							for( String d : delayString )  {
-								delays.add( d.trim() );
-							}
-						}
-					}
-
-					for( String d: delays ) {
-						if ( "100".equals(d) ) {
-							m.setName(name + "P");
-						} else {
-							m.setName(name + d);
-						}
-						mDbHelper.getMotorDao().insertOrUpdateMotor(m);
-					}
+					Log.d(TAG,"adding motor " + m.toString());
+					// Write motor.
+					mDbHelper.getMotorDao().insertOrUpdateMotor(m);
 				}
 				if ( total < res.getMatches() ) {
 					handler.post( new Error( total + " motors downloaded, " + res.getMatches() + " matched.  Try restricting the query more.") );

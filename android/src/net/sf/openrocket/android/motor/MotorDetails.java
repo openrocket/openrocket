@@ -1,6 +1,7 @@
 package net.sf.openrocket.android.motor;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.db.DbAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -19,7 +20,7 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 	private SlidingDrawer slidingDrawer;
 	private ImageView handle;
 	
-	private Motor motor;
+	private ExtendedThrustCurveMotor motor;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,18 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 		setContentView(R.layout.motor_detail);
 
 		Intent i = getIntent();
-		motor = (Motor) i.getSerializableExtra("Motor");
+		long motorId = i.getLongExtra("Motor",-1);
+
+		DbAdapter mDbHelper = new DbAdapter(this);
+		mDbHelper.open();
+
+		try {
+			motor = mDbHelper.getMotorDao().fetchMotor(motorId);
+		} catch ( Exception e ) {
+			
+		}
+
+		mDbHelper.close();
 		
 		BurnPlotFragment burnPlot = (BurnPlotFragment) getSupportFragmentManager().findFragmentById(R.id.burnPlotFragment);
 		burnPlot.init(motor);

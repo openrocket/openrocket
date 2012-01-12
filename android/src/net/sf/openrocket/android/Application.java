@@ -2,13 +2,11 @@ package net.sf.openrocket.android;
 
 import java.util.Locale;
 
-import android.preference.PreferenceManager;
-
-import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
+import android.preference.PreferenceManager;
 
 public class Application extends android.app.Application {
 
@@ -17,7 +15,7 @@ public class Application extends android.app.Application {
 	// Big B boolean so I can synchronize on it.
 	private static Boolean initialized = false;
 	
-	public static void initialize() {
+	public void initialize() {
 		synchronized (initialized) {
 			if ( initialized == true ) {
 				return;
@@ -30,13 +28,7 @@ public class Application extends android.app.Application {
 			
 			net.sf.openrocket.startup.Application.setPreferences( new PreferencesAdapter() );
 			
-			ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(false) {
-				
-				@Override
-				protected void loadMotors() {
-				}
-			};
-			db.startLoading();
+			MotorDatabaseAdapter db = new MotorDatabaseAdapter(this);
 
 			net.sf.openrocket.startup.Application.setMotorSetDatabase(db);
 			
@@ -53,7 +45,6 @@ public class Application extends android.app.Application {
 	}
 
 	public Application() {
-		initialize();
 	}
 
 	/* (non-Javadoc)
@@ -62,6 +53,7 @@ public class Application extends android.app.Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		initialize();
 		PreferencesActivity.initializePreferences(this, PreferenceManager.getDefaultSharedPreferences(this));
 	}
 

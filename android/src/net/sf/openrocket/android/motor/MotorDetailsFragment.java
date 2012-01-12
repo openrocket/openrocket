@@ -1,6 +1,9 @@
 package net.sf.openrocket.android.motor;
 
+import java.util.Arrays;
+
 import net.sf.openrocket.R;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ public class MotorDetailsFragment extends Fragment {
 
 	EditText manuField;
 	EditText nameField;
+	EditText delaysField;
 	EditText caseField;
 	EditText impulseClassField;
 	EditText diameterField;
@@ -23,6 +27,7 @@ public class MotorDetailsFragment extends Fragment {
 		View v = inflater.inflate(R.layout.motor_detail_form, container, false);
 		manuField = (EditText) v.findViewById(R.id.motorDetailsManufacturer);
 		nameField = (EditText) v.findViewById(R.id.motorDetailsName);
+		delaysField = (EditText) v.findViewById(R.id.motorDetailsDelays);
 		caseField = (EditText) v.findViewById(R.id.motorDetailsCaseInfo);
 		impulseClassField = (EditText) v.findViewById(R.id.motorDetailsImpuseClass);
 		diameterField = (EditText) v.findViewById(R.id.motorDetailsDiameter);
@@ -30,13 +35,15 @@ public class MotorDetailsFragment extends Fragment {
 		return v;
 	}
 
-	public void init( Motor m ) {
-		manuField.setText( m.getManufacturer());
-		nameField.setText( m.getName() );
+	public void init( ExtendedThrustCurveMotor m ) {
+		ThrustCurveMotor tcm = m.getThrustCurveMotor();
+		manuField.setText( tcm.getManufacturer().getDisplayName());
+		nameField.setText( tcm.getDesignation() );
+		delaysField.setText( Arrays.toString(tcm.getStandardDelays()) );
 		caseField.setText( m.getCaseInfo());
 		impulseClassField.setText( m.getImpulseClass());
-		diameterField.setText( m.getDiameter().toString() );
-		lengthField.setText( m.getLength().toString() );
+		diameterField.setText( String.valueOf(tcm.getDiameter()*1000.0) );
+		lengthField.setText( String.valueOf(tcm.getLength()*1000.0) );
 		
 	}
 	

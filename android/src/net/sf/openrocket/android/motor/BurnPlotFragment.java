@@ -1,5 +1,7 @@
 package net.sf.openrocket.android.motor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import net.sf.openrocket.R;
@@ -27,27 +29,18 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 
 	private final static String TAG = "BurnPlotFragment";
 
+	private ExtendedThrustCurveMotor motor;
+
 	private XYPlot mySimpleXYPlot;
 	private SimpleXYSeries mySeries;
 	private PointF minXY;
 	private PointF maxXY;
-	
+
 	private float absMinX;
 	private float absMaxX;
-	private float minNoError;
-	private float maxNoError;
 
 	private ScaleGestureDetector mScaleDetector;
 	private float mScaleFactor = 1.f;
-
-	public static BurnPlotFragment initializeBurnPlotHelper( Motor motor ) {
-		BurnPlotFragment h = new BurnPlotFragment();
-
-		Bundle args = new Bundle();
-		args.putSerializable("Motor", motor);
-		h.setArguments(args);
-		return h;
-	}
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -69,42 +62,47 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 		mySimpleXYPlot = (XYPlot) v.findViewById(R.id.xyplot);
 		mySimpleXYPlot.setOnTouchListener(this);
 		mScaleDetector = new ScaleGestureDetector(v.getContext(), new ScaleListener());
-		//		Motor motor = getMotor();
-		//		init(motor);
 		return v;
 	}
 
-	void init( Motor motor ) {
+	private static List<Double> fromArray( double[] arry ) {
+		List<Double> l = new ArrayList<Double>(arry.length);
+		for( double d: arry ) {
+			l.add(d);
+		}
+		return l;
+	}
+	void init( ExtendedThrustCurveMotor motor ) {
 
 		mySimpleXYPlot.setUserDomainOrigin(0);
 		mySimpleXYPlot.setUserRangeOrigin(0);
 		mySimpleXYPlot.setRangeLabel("impuse (n)");
 		mySimpleXYPlot.setDomainLabel("time (s)");
-		mySimpleXYPlot.addMarker(new YValueMarker(motor.getAvgThrust(),"average" ));
+		mySimpleXYPlot.addMarker(new YValueMarker(motor.getThrustCurveMotor().getAverageThrustEstimate(),"average" ));
 		mySimpleXYPlot.disableAllMarkup();
 
-		Vector<Double> data = null;
-		try {
-			data = motor.getBurndata();
-		} catch ( Exception ex ) {
-		}
-		if ( data == null || data.size() == 0 ) {
-			data = new Vector<Double>();
-			data.add(0.0);
-			data.add(0.0);
-			data.add(1.0);
-			data.add(1.0);
-		}
-		Log.d("plot","data = " + data.toString());
 
-		mySeries = new SimpleXYSeries(data, SimpleXYSeries.ArrayFormat.XY_VALS_INTERLEAVED,motor.getName());
+		try {
+			mySeries = new SimpleXYSeries( 
+					fromArray(motor.getThrustCurveMotor().getTimePoints()),
+					fromArray(motor.getThrustCurveMotor().getThrustPoints()),
+					motor.getThrustCurveMotor().getDesignation());
+		} catch ( Exception ex ) {
+
+			Vector<Double> data = new Vector<Double>();
+			data.add(0.0);
+			data.add(0.0);
+			data.add(1.0);
+			data.add(1.0);
+			mySeries = new SimpleXYSeries(data, SimpleXYSeries.ArrayFormat.XY_VALS_INTERLEAVED,"no data");
+		}
 
 		mySimpleXYPlot.addSeries(mySeries, LineAndPointRenderer.class,
 				new LineAndPointFormatter(Color.rgb(0, 255, 0), Color.rgb(200, 0, 0), null));
 
 		//Set of internal variables for keeping track of the boundaries
 		mySimpleXYPlot.calculateMinMaxVals();
-		
+
 		mySimpleXYPlot.redraw();
 
 		minXY=new PointF(mySimpleXYPlot.getCalculatedMinX().floatValue(),mySimpleXYPlot.getCalculatedMinY().floatValue());
@@ -112,9 +110,7 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 
 		absMinX = minXY.x;
 		absMaxX = maxXY.x;
-		
-		minNoError = Math.round(mySeries.getX(1).floatValue() +2);
-		maxNoError = Math.round(mySeries.getX(mySeries.size() -1).floatValue()) - 2.0f;
+
 	}
 
 	private float mPosX;
@@ -141,7 +137,7 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 			mActivePointerId = event.getPointerId(0);
 			break;
 		}
-		
+
 		case MotionEvent.ACTION_MOVE: {
 			final int pointerIndex = event.findPointerIndex(mActivePointerId);
 			final float x = event.getX(pointerIndex);
@@ -150,29 +146,29 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 			if (!mScaleDetector.isInProgress()) {
 				final float dx = x - mLastTouchX;
 				final float dy = y - mLastTouchY;
-			
+
 				mPosX += dx;
 				mPosY += dy;
 				scroll(dx);
 				// do scroll.
-			
+
 			}
 			mLastTouchX = x;
 			mLastTouchY = y;
-			
+
 			break;
 		}
-		
+
 		case MotionEvent.ACTION_UP: {
 			mActivePointerId = -1;
 			break;
 		}
-		
+
 		case MotionEvent.ACTION_CANCEL: {
 			mActivePointerId = -1;
 			break;
 		}
-		
+
 		case MotionEvent.ACTION_POINTER_UP: {
 			final int pointerIndex = (action & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
 			final int pointerId = event.getPointerId(pointerIndex);
@@ -218,16 +214,16 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 	}
 
 	private void checkBoundaries() {
-		
+
 		if ( minXY.x < absMinX) 
 			minXY.x = absMinX;
-//		else if ( minXY.x > maxNoError )
-//			minXY.x = maxNoError;
-		
+		//		else if ( minXY.x > maxNoError )
+		//			minXY.x = maxNoError;
+
 		if ( maxXY.x > absMaxX)
 			maxXY.x = absMaxX;
-//		else if ( maxXY.x < minNoError)
-//			maxXY.x = minNoError;
+		//		else if ( maxXY.x < minNoError)
+		//			maxXY.x = minNoError;
 	}
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 		@Override

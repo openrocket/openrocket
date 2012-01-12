@@ -1,12 +1,10 @@
 package net.sf.openrocket.android.db;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Vector;
-
-import net.sf.openrocket.android.motor.Motor;
+import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.util.Coordinate;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -25,7 +23,8 @@ public class MotorDao {
 			"create table "+ DATABASE_TABLE + " ( " +
 					"_id integer primary key, "+
 					"unique_name text unique, "+
-					"name text, "+
+					"designation text, "+
+					"delays blob, "+
 					"diameter number, "+
 					"tot_impulse_ns number, "+
 					"avg_thrust_n number, "+
@@ -36,8 +35,11 @@ public class MotorDao {
 					"tot_mass_g number,"+
 					"case_info text,"+
 					"manufacturer text," +
+					"type text," +
 					"impulse_class text," +
-					"burndata blob"+
+					"thrust_data blob,"+
+					"time_data blob," +
+					"cg_data blob"+
 					");";
 
 	MotorDao( SQLiteDatabase mDb ) {
@@ -52,54 +54,61 @@ public class MotorDao {
 
 	public final static String ID = "_id";
 	public final static String UNIQUE_NAME = "unique_name";
-	public final static String NAME = "name";
+	public final static String DESIGNATION = "designation";
+	public final static String DELAYS = "delays";
 	public final static String DIAMETER = "diameter";
 	public final static String TOTAL_IMPULSE = "tot_impulse_ns"; 
 	public final static String AVG_THRUST = "avg_thrust_n";
 	public final static String MAX_THRUST = "max_thrust_n";
 	public final static String BURN_TIME = "burn_time_s";
 	public final static String LENGTH = "length";
-	public final static String PROP_MASS = "prop_mass_g";
-	public final static String TOT_MASS = "tot_mass_g";
-	public final static String BURNDATA = "burndata";
 	public final static String CASE_INFO = "case_info";
 	public final static String MANUFACTURER = "manufacturer";
+	public final static String TYPE = "type";
 	public final static String IMPULSE_CLASS = "impulse_class";
+	public final static String THRUST_DATA = "thrust_data";
+	public final static String TIME_DATA = "time_data";
+	public final static String CG_DATA = "cg_data";
 
-	public long insertOrUpdateMotor(Motor mi) {
+	private final static String[] ALL_COLS = new String[] {
+		ID,
+		DESIGNATION ,
+		DELAYS ,
+		DIAMETER ,
+		TOTAL_IMPULSE ,
+		AVG_THRUST ,
+		MAX_THRUST ,
+		BURN_TIME ,
+		LENGTH,
+		CASE_INFO,
+		TYPE,
+		IMPULSE_CLASS,
+		MANUFACTURER,
+		THRUST_DATA,
+		TIME_DATA,
+		CG_DATA
+	};
+
+	public long insertOrUpdateMotor(ExtendedThrustCurveMotor mi) throws Exception {
 		ContentValues initialValues = new ContentValues();
-		initialValues.put(ID, mi.getMotor_id());
-		initialValues.put(NAME, mi.getName());
-		initialValues.put(DIAMETER,mi.getDiameter());
-		initialValues.put(TOTAL_IMPULSE,mi.getTotalImpulse());
-		initialValues.put(AVG_THRUST,mi.getAvgThrust());
-		initialValues.put(MAX_THRUST,mi.getMaxThrust());
-		initialValues.put(BURN_TIME,mi.getBurnTime());
-		initialValues.put(LENGTH, mi.getLength());
-		initialValues.put(PROP_MASS, mi.getPropMass());
-		initialValues.put(TOT_MASS,mi.getTotMass());
+		final ThrustCurveMotor tcm = mi.getThrustCurveMotor();
+		initialValues.put(ID, mi.getId());
+		initialValues.put(UNIQUE_NAME, tcm.getManufacturer()+tcm.getDesignation());
+		initialValues.put(DESIGNATION, tcm.getDesignation());
+		initialValues.put(DELAYS, ConversionUtils.serializeArrayOfDouble(tcm.getStandardDelays()));
+		initialValues.put(DIAMETER,tcm.getDiameter());
+		initialValues.put(TOTAL_IMPULSE,tcm.getTotalImpulseEstimate());
+		initialValues.put(AVG_THRUST,tcm.getAverageThrustEstimate());
+		initialValues.put(MAX_THRUST,tcm.getMaxThrustEstimate());
+		initialValues.put(BURN_TIME,tcm.getBurnTimeEstimate());
+		initialValues.put(LENGTH, tcm.getLength());
 		initialValues.put(CASE_INFO, mi.getCaseInfo());
-		initialValues.put(MANUFACTURER,mi.getManufacturer());
+		initialValues.put(TYPE, tcm.getMotorType().getName());
 		initialValues.put(IMPULSE_CLASS,mi.getImpulseClass());
-		initialValues.put(UNIQUE_NAME, mi.getManufacturer()+mi.getName());
-		{
-			// Serialize the Vector of burn data
-			Vector<Double> burndata = mi.getBurndata();
-			byte[] serObj = null;
-			if ( burndata != null ) {
-				try {
-					ByteArrayOutputStream b = new ByteArrayOutputStream();
-					ObjectOutputStream os = new ObjectOutputStream(b);
-					os.writeObject(burndata);
-					os.close();
-					serObj = b.toByteArray();
-				} catch (Exception ex) {
-					Log.d(TAG,"unable to serialze burndata");
-				}
-			}
-			initialValues.put(BURNDATA, serObj);
-		}
-
+		initialValues.put(MANUFACTURER,tcm.getManufacturer().getSimpleName());
+		initialValues.put(THRUST_DATA, ConversionUtils.serializeArrayOfDouble(tcm.getThrustPoints()));
+		initialValues.put(TIME_DATA,ConversionUtils.serializeArrayOfDouble(tcm.getTimePoints()));
+		initialValues.put(CG_DATA,ConversionUtils.serializeArrayOfCoordinate(tcm.getCGPoints()));
 
 		Log.d(TAG,"insertOrUpdate Motor");
 		long rv = mDb.insertWithOnConflict(DATABASE_TABLE, null, initialValues,SQLiteDatabase.CONFLICT_REPLACE);
@@ -126,26 +135,12 @@ public class MotorDao {
 	 */
 	public Cursor fetchAllInGroups( String groupCol, String groupVal ) {
 		return mDb.query(DATABASE_TABLE, 
-				/* columns */new String[] {
-				ID,
-				NAME,
-				DIAMETER ,
-				TOTAL_IMPULSE,
-				AVG_THRUST ,
-				MAX_THRUST ,
-				BURN_TIME ,
-				LENGTH,
-				PROP_MASS,
-				TOT_MASS,
-				CASE_INFO,
-				IMPULSE_CLASS,
-				MANUFACTURER
-		},
-		/* selection */groupCol + "=?",
-		/* selection args*/new String[] {groupVal},
-		/* groupby */null,
-		/* having*/null,
-		/* orderby*/ NAME );
+				/* columns */ ALL_COLS,
+				/* selection */groupCol + "=?",
+				/* selection args*/new String[] {groupVal},
+				/* groupby */null,
+				/* having*/null,
+				/* orderby*/ DESIGNATION );
 
 	}
 
@@ -175,52 +170,61 @@ public class MotorDao {
 	 */
 	public Cursor fetchAllMotors() {
 
-		return mDb.query(DATABASE_TABLE, 
-				/* columns */new String[] {
-				ID,
-				NAME,
-				DIAMETER ,
-				TOTAL_IMPULSE,
-				AVG_THRUST ,
-				MAX_THRUST ,
-				BURN_TIME ,
-				LENGTH,
-				PROP_MASS,
-				TOT_MASS,
-				CASE_INFO,
-				IMPULSE_CLASS,
-				MANUFACTURER
-		},
-		/* selection */null,
-		/* selection args*/null,
-		/* groupby */null,
-		/* having*/null,
-		/* orderby*/null);
+		return mDb.query(DATABASE_TABLE,
+				/* columns */ ALL_COLS,
+				/* selection */null,
+				/* selection args*/null,
+				/* groupby */null,
+				/* having*/null,
+				/* orderby*/null);
 	}
 
-	public Motor fetchMotor(Long id ) throws SQLException {
+	private ExtendedThrustCurveMotor hydrateMotor( Cursor mCursor ) throws Exception {
+		ExtendedThrustCurveMotor mi = new ExtendedThrustCurveMotor();
+
+		mi.setId(mCursor.getLong(mCursor.getColumnIndex(ID)));
+		mi.setCaseInfo(mCursor.getString(mCursor.getColumnIndex(CASE_INFO)));
+		mi.setImpulseClass(mCursor.getString(mCursor.getColumnIndex(IMPULSE_CLASS)));
+
+		{
+			String designation = mCursor.getString(mCursor.getColumnIndex(DESIGNATION));
+			double[] delays = ConversionUtils.deserializeArrayOfDouble( mCursor.getBlob(mCursor.getColumnIndex(DELAYS)));
+			double diameter = mCursor.getDouble(mCursor.getColumnIndex(DIAMETER));
+			double totImpulse = mCursor.getDouble(mCursor.getColumnIndex(TOTAL_IMPULSE));
+			double avgImpulse = mCursor.getDouble(mCursor.getColumnIndex(AVG_THRUST));
+			double maxThrust = mCursor.getDouble(mCursor.getColumnIndex(MAX_THRUST));
+			double length = mCursor.getDouble(mCursor.getColumnIndex(LENGTH));
+			Motor.Type type = Motor.Type.fromName( mCursor.getString(mCursor.getColumnIndex(TYPE)));
+			Manufacturer manufacturer = Manufacturer.getManufacturer( mCursor.getString( mCursor.getColumnIndex(MANUFACTURER)));
+			double[] thrustData = ConversionUtils.deserializeArrayOfDouble( mCursor.getBlob(mCursor.getColumnIndex(THRUST_DATA)));
+			double[] timeData = ConversionUtils.deserializeArrayOfDouble( mCursor.getBlob(mCursor.getColumnIndex(TIME_DATA)));
+			Coordinate[] cgData = ConversionUtils.deserializeArrayOfCoordinate( mCursor.getBlob(mCursor.getColumnIndex(CG_DATA)));
+
+			ThrustCurveMotor tcm = new ThrustCurveMotor(manufacturer,
+					designation,
+					"",
+					type,
+					delays,
+					diameter,
+					length,
+					timeData,
+					thrustData,
+					cgData
+					);
+			mi.setThrustCurveMotor(tcm);
+		}
+		return mi;
+
+	}
+
+	public ExtendedThrustCurveMotor fetchMotor(Long id ) throws Exception {
 		Cursor mCursor = mDb.query(DATABASE_TABLE, 
-				/* columns */new String[] {
-				ID,
-				NAME ,
-				DIAMETER ,
-				TOTAL_IMPULSE ,
-				AVG_THRUST ,
-				MAX_THRUST ,
-				BURN_TIME ,
-				LENGTH,
-				PROP_MASS,
-				TOT_MASS,
-				CASE_INFO,
-				IMPULSE_CLASS,
-				MANUFACTURER,
-				BURNDATA
-		},
-		/* selection */ID + "="+id,
-		/* selection args*/null,
-		/* groupby */null,
-		/* having*/null,
-		/* orderby*/null);
+				/* columns */ ALL_COLS,
+				/* selection */ID + "="+id,
+				/* selection args*/null,
+				/* groupby */null,
+				/* having*/null,
+				/* orderby*/null);
 		if ( mCursor == null ) {
 			return null;
 		}
@@ -229,37 +233,7 @@ public class MotorDao {
 				return null;
 			}
 			mCursor.moveToFirst();
-			Motor mi = new Motor();
-			mi.setMotor_id(mCursor.getLong(mCursor.getColumnIndex(ID)));
-			mi.setName(mCursor.getString(mCursor.getColumnIndex(NAME)));
-			mi.setDiameter(mCursor.getLong(mCursor.getColumnIndex(DIAMETER)));
-			mi.setTotalImpulse(mCursor.getFloat(mCursor.getColumnIndex(TOTAL_IMPULSE)));
-			mi.setAvgThrust(mCursor.getFloat(mCursor.getColumnIndex(AVG_THRUST)));
-			mi.setMaxThrust(mCursor.getFloat(mCursor.getColumnIndex(MAX_THRUST)));
-			mi.setBurnTime(mCursor.getFloat(mCursor.getColumnIndex(BURN_TIME)));
-			mi.setLength(mCursor.getFloat(mCursor.getColumnIndex(LENGTH)));
-			mi.setPropMass(mCursor.getDouble(mCursor.getColumnIndex(PROP_MASS)));
-			mi.setCaseInfo(mCursor.getString(mCursor.getColumnIndex(CASE_INFO)));
-			mi.setTotMass(mCursor.getDouble(mCursor.getColumnIndex(TOT_MASS)));
-			mi.setManufacturer(mCursor.getString(mCursor.getColumnIndex(MANUFACTURER)));
-			mi.setImpulseClass(mCursor.getString(mCursor.getColumnIndex(IMPULSE_CLASS)));
-
-			{
-				// Deserialize burndata column
-				byte[] serObj = mCursor.getBlob(mCursor.getColumnIndex(BURNDATA));
-				Vector<Double> burndata = null;
-				if (serObj != null ) {
-					try {
-						ObjectInputStream is = new ObjectInputStream( new ByteArrayInputStream(serObj));
-						burndata = (Vector<Double>) is.readObject();
-					}
-					catch (Exception ex) {
-						Log.d(TAG,"cannot deserialize burndata");
-					}
-				}
-				mi.setBurndata(burndata);
-			}
-			return mi;
+			return hydrateMotor(mCursor);
 		}
 		finally {
 			mCursor.close();
@@ -267,4 +241,51 @@ public class MotorDao {
 
 	}
 
+	public ExtendedThrustCurveMotor fetchMotor(String manufacturerShortName, String designation ) throws Exception {
+		Cursor mCursor = mDb.query(DATABASE_TABLE, 
+				/* columns */ ALL_COLS,
+				/* selection */MANUFACTURER + "='"+manufacturerShortName + "' and "+DESIGNATION+"='"+designation+"'",
+				/* selection args*/null,
+				/* groupby */null,
+				/* having*/null,
+				/* orderby*/null);
+		if ( mCursor == null ) {
+			return null;
+		}
+		try {
+			if (mCursor.getCount() == 0) {
+				return null;
+			}
+			mCursor.moveToFirst();
+			return hydrateMotor(mCursor);
+		}
+		finally {
+			mCursor.close();
+		}
+
+	}
+	
+	public static String extractPrettyDelayString( Cursor c ) {
+		byte[] blob = c.getBlob(c.getColumnIndex(MotorDao.DELAYS));
+		String s = "";
+		try {
+			double[] delayarry = ConversionUtils.deserializeArrayOfDouble(blob);
+			boolean first = true;
+			for( double d:delayarry ) {
+				if (!first) {
+					s += ",";
+				} else {
+					first = false;
+				}
+				if ( d == Motor.PLUGGED ) {
+					s+= "P";
+				} else {
+					s += Math.round(d);
+				}
+			}
+		} catch ( Exception ex ) {
+		}
+		return s;
+	}
+	
 }

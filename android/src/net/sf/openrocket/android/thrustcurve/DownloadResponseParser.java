@@ -86,7 +86,7 @@ public class DownloadResponseParser {
 				new EndTextElementListener() {
 					@Override
 					public void end(String arg0) {
-						currentMotor.setMotor_id(Integer.parseInt(arg0));
+						currentMotor.setMotorId(Integer.parseInt(arg0));
 					}
 				}
 				);

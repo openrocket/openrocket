@@ -13,7 +13,7 @@ public class DbAdapter {
     private SQLiteDatabase mDb;
 
     private static final String DATABASE_NAME = "rocketflightnotebook";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 2;
 
     private final Context mCtx;
 

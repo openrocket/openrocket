@@ -12,7 +12,7 @@ public class DownloadResponse {
 	
 	public void add( MotorBurnFile mbd ) {
 		MotorBurnFile currentData = data.get(mbd.getMotorId());
-		if ( currentData == null || currentData.getDatapoints().size() < mbd.getDatapoints().size() ) {
+		if ( currentData == null || currentData.getThrustCurveMotor() == null ) {
 			data.put(mbd.getMotorId(),mbd);
 		}
 	}
