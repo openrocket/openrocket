@@ -234,15 +234,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			
 			// Motor type
 			str = attributes.get("Type");
-			if (str != null && str.equalsIgnoreCase("single-use")) {
-				type = Motor.Type.SINGLE;
-			} else if (str != null && str.equalsIgnoreCase("hybrid")) {
-				type = Motor.Type.HYBRID;
-			} else if (str != null && str.equalsIgnoreCase("reloadable")) {
-				type = Motor.Type.RELOAD;
-			} else {
-				type = Motor.Type.UNKNOWN;
-			}
+			type = Motor.Type.fromName(str);
 			
 			// Calculate mass
 			str = attributes.get("auto-calc-mass");

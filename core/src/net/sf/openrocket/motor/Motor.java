@@ -22,6 +22,21 @@ public interface Motor {
 			this.name = name;
 			this.description = description;
 		}
+		
+		public static Type fromName( String name ) {
+			if ( name == null ) {
+				return UNKNOWN;
+			}
+			if ("single-use".equalsIgnoreCase(name)) {
+				return SINGLE;
+			} else if ("hybrid".equalsIgnoreCase(name)) {
+				return HYBRID;
+			} else if ("reloadable".equalsIgnoreCase(name)) {
+				return RELOAD;
+			} else {
+				return UNKNOWN;
+			}
+		}
 
 		/**
 		 * Return a short name of this motor type.
