@@ -1,14 +1,14 @@
 
 Introducción
 
-<p>Esta primera guía proporciona una visión rápida sobre las pantallas de OpenRocket y sus características.
+<p>Esta introducción proporciona una visión rápida sobre las pantallas de OpenRocket y sus características.
 
 
 [logo_es.png]
 
-<p><b>OpenRocket</b> es una aplicación versátil para el diseño, la simulación, y la optimización de modelos de cohete. Esta guía proporciona información sobre las pantallas de OpenRocket y sus características funcionales.
+<p><b>OpenRocket</b> es una aplicación versátil para el diseño, la simulación, y la optimización de modelos de cohete. En esta introducción le proporcionamos información sobre las pantallas de OpenRocket y sus características funcionales.
 
-<p>Puede navegar por ésta guía a través de los botones <b>Siguiente</b> y <b>Anterior</b>, o utilizando las flechas de desplazamiento <em>izq.</em> y <em>der.</em> de su teclado.
+<p>Puede navegar utilizando los botones <b>Siguiente</b> y <b>Anterior</b>, o utilizando las flechas de desplazamiento <b><em>izq.</em></b> y <b><em>der.</em></b> de su teclado.
 
 
 [none]
@@ -16,17 +16,17 @@ Introducción
 
 <p>Esta es la pantalla de inicio desde la cual puede crear un nuevo diseño de cohete, o abrir diseños ya existentes.
 
-<p>En esta ocasión abra un diseño de ejemplo llamado <em>A simple model rocket</em>.
+<p>En esta ocasión abra un diseño de ejemplo llamado <b><em>A simple model rocket</em></b>.
 
 
 [main_window.jpg]
 
-<p>Esta es la pantalla principal de OpenRocket.  Está dividida horizontalmente en dos partes:  En la parte superior se muestra el diseño del cohete (pestaña <em>Diseño del cohete</em>) ó Las simulaciones de vuelo (pestaña <em>Simulaciones de vuelo</em>). En la parte inferior siempre aparecerá un dibujo del diseño del cohete.
+<p>Esta es la pantalla principal de OpenRocket que está dividida horizontalmente en dos partes:  En la parte superior se muestra el diseño del cohete (pestaña <em>Diseño del cohete</em>), o Las simulaciones de vuelo (pestaña <em>Simulaciones de vuelo</em>). En la parte inferior siempre verá un dibujo del diseño del cohete.
 
 
 [main_window_top.jpg]
 
-<p>En <em>Diseño del cohete</em>, parte superior a la izquierda, aparece el árbol de componentes del diseño con los componentes ya instalados. En él se puede ver la forma en que los componentes están relacionados entre sí y su organización jerárquica.
+<p>En <em>Diseño del cohete</em>, parte superior a la izquierda, aparece el árbol del diseño con los componentes ya instalados. En él puede ver cómo están relacionados los componentes entre sí, y su organización jerárquica.
 
 <p>En el lado derecho están los botones de los componentes disponibles en forma de iconos, que son los que permiten agregar componentes al árbol del diseño del cohete al hacer clic sobre ellos.
 
@@ -35,7 +35,7 @@ Introducción
 
 <p>La mitad inferior de la ventana contiene un esquema del diseño actual del cohete.
 
-<p>Las diferentes opciones de vista se describen con detalle en la guía <a href="FIXME">Opciones de vista</a>. 
+<p>Las diferentes opciones de vista se describen con detalle en el tema <a href="FIXME">Opciones de vista</a>. 
 
 
 [flight_simulations.jpg]
@@ -49,7 +49,7 @@ Introducción
 
 <p>Haciendo doble clic sobre una simulación, abrirá la ventana de <em>Edición de la simulación</em>.  En las primeras dos pestañas puede definir los parámetros de la simulación, y en las dos últimas pestañas puede abrir una gráfica o exportar los resultados de la simulación.
 
-<p>La simulación del vuelo de un cohete se describe con detalle en la guía <a href="FIXME">Simulación del vuelo</a>.
+<p>La simulación del vuelo de un cohete se describe con detalle en el tema <a href="FIXME">Simulación del vuelo</a>.
 
 
 [advanced_features.jpg]
