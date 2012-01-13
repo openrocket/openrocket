@@ -83,7 +83,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Comment" />
+                        android:text="Lift off weight" />
+
+                    <TextView
+                        android:id="@+id/openrocketviewerLiftOffWeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -97,11 +103,28 @@
                         android:text="" />
 
                     <TextView
-                        android:id="@+id/openrocketviewerComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="CP" />
+
+                    <TextView
+                        android:id="@+id/openrocketviewerCP"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="" />
-                </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Stability margin" />
+
+                    <TextView
+                        android:id="@+id/openrocketviewerStabilityMargin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="" />
+
+                    </LinearLayout>
 
                 <pl.polidea.treeview.TreeViewList
                     android:id="@+id/openrocketviewerComponentTree"

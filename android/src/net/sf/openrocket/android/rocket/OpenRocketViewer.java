@@ -4,6 +4,10 @@ package net.sf.openrocket.android.rocket;
 import java.io.File;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
+import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
+import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.Application;
 import net.sf.openrocket.android.PreferencesActivity;
 import net.sf.openrocket.android.motor.MotorHierarchicalBrowser;
@@ -11,7 +15,10 @@ import net.sf.openrocket.android.rocket.RocketComponentTreeAdapter.RocketCompone
 import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
+import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketUtils;
@@ -56,6 +63,13 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	private Spinner configurationSpinner;
 	private TreeViewList componentTree;
 	private ListView simulationList;
+	
+	/* Calculation of CP and CG */
+	private AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
+	private MassCalculator massCalculator  = new BasicMassCalculator();
+
+	OpenRocketDocument rocketDocument;
+	Configuration rocketConfiguration;
 
 	private Application app;
 
@@ -174,7 +188,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 	private void updateContents() {
 
-		OpenRocketDocument rocketDocument = app.getRocketDocument();
+		rocketDocument = app.getRocketDocument();
+		rocketConfiguration = rocketDocument.getDefaultConfiguration();
 		Rocket rocket = rocketDocument.getRocket();
 
 		setTitle(rocket.getName());
@@ -186,19 +201,58 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		}
 		
 		configurationSpinner.setAdapter(spinnerAdapter);
+		configurationSpinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
+
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
+			 */
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+
+				String selectedConfigId = rocketDocument.getRocket().getMotorConfigurationIDs()[arg2];
+				rocketConfiguration.setMotorConfigurationID(selectedConfigId);
+				Coordinate cp = aerodynamicCalculator.getWorstCP(rocketConfiguration,
+						new FlightConditions(rocketConfiguration),
+						new WarningSet());
+				
+				Coordinate cg = massCalculator.getCG(rocketConfiguration, MassCalcType.LAUNCH_MASS);
+
+				Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
+				Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
+				Unit stabilityUnit = UnitGroup.stabilityUnits(rocketConfiguration).getDefaultUnit();
+
+				((TextView)findViewById(R.id.openrocketviewerCP)).setText(lengthUnit.toStringUnit(cp.x));
+				((TextView)findViewById(R.id.openrocketviewerCG)).setText(lengthUnit.toStringUnit(cg.x));
+				((TextView)findViewById(R.id.openrocketviewerLiftOffWeight)).setText(massUnit.toStringUnit(cg.weight));
+				((TextView)findViewById(R.id.openrocketviewerStabilityMargin)).setText(stabilityUnit.toStringUnit(cp.x-cg.x));
+
+			}
+
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
+			 */
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				((TextView)findViewById(R.id.openrocketviewerCP)).setText("");
+				((TextView)findViewById(R.id.openrocketviewerCG)).setText("");
+				((TextView)findViewById(R.id.openrocketviewerLiftOffWeight)).setText("");
+				((TextView)findViewById(R.id.openrocketviewerStabilityMargin)).setText("");
+			}
+			
+		});
 		
-		Unit LengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-		Unit MassUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
+		Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
+		Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
 
 		Coordinate cg = RocketUtils.getCG(rocket, MassCalcType.NO_MOTORS);
 		double length = RocketUtils.getLength(rocket);
 		((TextView)findViewById(R.id.openrocketviewerDesigner)).setText(rocket.getDesigner());
-		((TextView)findViewById(R.id.openrocketviewerCG)).setText(LengthUnit.toStringUnit(cg.x) );
-		((TextView)findViewById(R.id.openrocketviewerLength)).setText(LengthUnit.toStringUnit(length));
-		((TextView)findViewById(R.id.openrocketviewerMass)).setText(MassUnit.toStringUnit(cg.weight));
+		((TextView)findViewById(R.id.openrocketviewerLength)).setText(lengthUnit.toStringUnit(length));
+		((TextView)findViewById(R.id.openrocketviewerMass)).setText(massUnit.toStringUnit(cg.weight));
 		((TextView)findViewById(R.id.openrocketviewerStageCount)).setText(String.valueOf(rocket.getStageCount()));
-		((TextView)findViewById(R.id.openrocketviewerComment)).setText(rocket.getComment());
 
+		
 		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this,android.R.layout.simple_list_item_2,rocketDocument.getSimulations()) {
 
 			@Override
