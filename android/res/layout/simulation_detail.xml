@@ -4,12 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="draw"
-        android:text="Draw" />
-
     <TabHost
         android:id="@+id/simulationConfigurationForm"
         android:layout_width="fill_parent"
@@ -63,6 +57,12 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:drawSelectorOnTop="true" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="draw"
+                        android:text="Draw" />
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>

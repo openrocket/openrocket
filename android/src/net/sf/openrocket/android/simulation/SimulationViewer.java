@@ -63,7 +63,7 @@ public class SimulationViewer extends Activity {
 		eventList = (ListView) findViewById(R.id.simulationEventsList);
 
 		// Initialize the eventList
-		ArrayAdapter<FlightEvent> events = new ArrayAdapter<FlightEvent>(this,android.R.layout.simple_list_item_multiple_choice,data.getEvents()) {
+		ArrayAdapter<FlightEvent> events = new ArrayAdapter<FlightEvent>(this,android.R.layout.simple_list_item_1,data.getEvents()) {
 
 			@Override
 			public View getView(int position, View convertView,
@@ -71,7 +71,7 @@ public class SimulationViewer extends Activity {
 				View v = convertView;
 				if ( v == null ) {
 					LayoutInflater li = getLayoutInflater();
-					v = li.inflate(android.R.layout.simple_list_item_multiple_choice,null);
+					v = li.inflate(android.R.layout.simple_list_item_1,null);
 				}
 				FlightEvent event = this.getItem(position);
 				((TextView)v.findViewById(android.R.id.text1)).setText( event.getType().toString() + " " + event.getTime() + " (s)" );
@@ -79,7 +79,7 @@ public class SimulationViewer extends Activity {
 			}
 
 		};
-		eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		//eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		eventList.setAdapter(events);
 
 		series1Spinner = (Spinner) findViewById(R.id.simulationSeries1);
@@ -131,6 +131,7 @@ public class SimulationViewer extends Activity {
 		Log.d(TAG,"series2 = " + series2.toString());
 
 		SimulationChart chart = new SimulationChart();
+		chart.setSimulationName( sim.getName() );
 		chart.setFlightDataBranch(data);
 		chart.setSeries1(series1);
 		chart.setSeries2(series2);

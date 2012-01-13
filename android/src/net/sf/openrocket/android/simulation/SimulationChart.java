@@ -48,12 +48,20 @@ public class SimulationChart {
 	private FlightDataType series2;
 	private final FlightDataType time = FlightDataType.TYPE_TIME;
 	private List<FlightEvent> flightEvents;
+	private String simulationName;
 
 	// Define 4 different colors and point styles to use for the series.
 	// For now only 2 series are supported though.
 	private final static int[] colors = new int[] { Color.BLUE, Color.YELLOW, Color.GREEN, Color.RED };
 	private final static PointStyle[] styles = new PointStyle[] { PointStyle.CIRCLE, PointStyle.DIAMOND,
 		PointStyle.TRIANGLE, PointStyle.SQUARE };
+
+	/**
+	 * @param simulationName the simulationName to set
+	 */
+	public void setSimulationName(String simulationName) {
+		this.simulationName = simulationName;
+	}
 
 	/**
 	 * @param flightDataBranch the flightDataBranch to set
@@ -116,7 +124,7 @@ public class SimulationChart {
 		renderer.setYLabels(10);
 		renderer.setShowGrid(true);
 		renderer.setZoomButtonsVisible(true);
-		renderer.setChartTitle("Simulation");
+		renderer.setChartTitle(simulationName);
 
 		renderer.setMargins(new int[] { 50, 30, 0, 20 });
 		{
