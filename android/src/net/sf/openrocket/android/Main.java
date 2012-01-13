@@ -1,13 +1,14 @@
 package net.sf.openrocket.android;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.filebrowser.SimpleFileBrowser;
 import net.sf.openrocket.android.motor.MotorHierarchicalBrowser;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 
 public class Main extends Activity {
 
@@ -39,9 +40,15 @@ public class Main extends Activity {
 	}
 
 	public void pickOrkFiles( View v ) {
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("file/*");
-		startActivityForResult(intent,PICK_ORK_FILE_RESULT);
+		try {
+			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+			intent.setType("file/*");
+			startActivityForResult(intent,PICK_ORK_FILE_RESULT);
+		} catch ( ActivityNotFoundException ex ) { 
+			// No activity for ACTION_GET_CONTENT  use internal file browser
+			Intent intent = new Intent(Main.this, SimpleFileBrowser.class);
+			startActivityForResult(intent,PICK_ORK_FILE_RESULT);
+		}
 	}
 
 	public void browseMotors( View v ) {
