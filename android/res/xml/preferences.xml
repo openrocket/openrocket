@@ -30,4 +30,21 @@
         android:summary="Set the mass unit"
         android:title="Unit of Mass"
         />
+    <ListPreference
+        android:defaultValue="m/s"
+        android:entries="@array/PreferenceUnitVelocityEntries"
+        android:entryValues="@array/PreferenceUnitVelocityValues"
+        android:key="@string/PreferenceUnitVelocityOption"
+        android:summary="Set the velocity unit"
+        android:title="Unit for Velocity"
+        />
+    <ListPreference
+        android:defaultValue="m"
+        android:entries="@array/PreferenceUnitDistanceEntries"
+        android:entryValues="@array/PreferenceUnitDistanceValues"
+        android:key="@string/PreferenceUnitDistanceOption"
+        android:summary="Set the distance unit"
+        android:title="Unit for Distance and Altitude"
+        />
+    
 </PreferenceScreen>

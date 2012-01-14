@@ -43,6 +43,14 @@ implements SharedPreferences.OnSharedPreferenceChangeListener {
 		String mass = sharedPreferences.getString(unitMass, "g");
 		UnitGroup.UNITS_MASS.setDefaultUnit( mass );
 		
+		String unitVelocity = app.getResources().getString(R.string.PreferenceUnitVelocityOption);
+		String velocity = sharedPreferences.getString(unitVelocity, "m/s");
+		UnitGroup.UNITS_VELOCITY.setDefaultUnit( velocity );
+		
+		String unitDistance = app.getResources().getString(R.string.PreferenceUnitDistanceOption);
+		String distance = sharedPreferences.getString(unitDistance, "m");
+		UnitGroup.UNITS_DISTANCE.setDefaultUnit( distance );
+		
 	}
 	
 }
