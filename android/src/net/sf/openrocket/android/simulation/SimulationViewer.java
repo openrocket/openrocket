@@ -79,6 +79,7 @@ public class SimulationViewer extends Activity {
 			}
 
 		};
+		// Events are not selectable for plotting right now.
 		//eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		eventList.setAdapter(events);
 
@@ -116,6 +117,7 @@ public class SimulationViewer extends Activity {
 
 	public void draw( View v ) {
 		List<FlightEvent> eventsToShow = new ArrayList<FlightEvent>();
+		/* Events are not selectable for plotting right now.
 		{
 			SparseBooleanArray eventsSelected = eventList.getCheckedItemPositions();
 			List<FlightEvent> flightEvents = data.getEvents();
@@ -125,6 +127,7 @@ public class SimulationViewer extends Activity {
 				}
 			}
 		}
+		*/
 		FlightDataType series1 = (FlightDataType) series1Spinner.getSelectedItem();
 		Log.d(TAG,"sereis1 = " + series1.toString());
 		FlightDataType series2 = (FlightDataType) series2Spinner.getSelectedItem();
