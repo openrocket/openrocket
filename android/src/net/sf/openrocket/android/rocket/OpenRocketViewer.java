@@ -264,7 +264,12 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 				}
 				Simulation sim = this.getItem(position);
 				((TextView)v.findViewById(android.R.id.text1)).setText( sim.getName() );
-				((TextView)v.findViewById(android.R.id.text2)).setText( "motors: " + sim.getConfiguration().getMotorConfigurationDescription() + " apogee: " + sim.getSimulatedData().getMaxAltitude() + "m  time: " + sim.getSimulatedData().getFlightTime() + "s");
+				StringBuilder sb = new StringBuilder();
+				sb.append("motors: ").append(sim.getConfiguration().getMotorConfigurationDescription());
+				Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
+				sb.append(" apogee: ").append( distanceUnit.toStringUnit(sim.getSimulatedData().getMaxAltitude()));
+				sb.append(" time: ").append(sim.getSimulatedData().getFlightTime()).append("s");
+				((TextView)v.findViewById(android.R.id.text2)).setText( sb.toString() );
 				return v;
 			}
 
@@ -275,7 +280,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 				Intent i = new Intent(OpenRocketViewer.this, SimulationViewer.class);
 				Log.d(TAG,"onItemClick simulation number " + id );
 				i.putExtra("Simulation",(int)id);
-				startActivityForResult(i, 1/*magic*/);
+				startActivity(i);
 			}
 
 		});

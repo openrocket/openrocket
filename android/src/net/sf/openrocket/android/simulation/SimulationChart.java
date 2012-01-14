@@ -15,11 +15,13 @@
  */
 package net.sf.openrocket.android.simulation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.unit.Unit;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.LineChart;
@@ -157,7 +159,13 @@ public class SimulationChart {
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 
 		List<Double> timevalues = flightDataBranch.get(time);
-		List<Double> series1values = flightDataBranch.get(series1);
+		List<Double> series1values = new ArrayList<Double>( flightDataBranch.get(series1).size() );
+		{
+			Unit u = series1.getUnitGroup().getDefaultUnit();
+			for( Double d: flightDataBranch.get(series1) ) {
+				series1values.add( u.toUnit(d));
+			}
+		}
 
 		// compute the axis limits using timevalues and series1values.
 		double xmin = 0;
@@ -181,7 +189,15 @@ public class SimulationChart {
 
 		if ( seriesCount > 1 ) {
 			// Add second series
-			addXYSeries(dataset, series2.getName(), timevalues, flightDataBranch.get(series2), 1);
+			List<Double> series2values = new ArrayList<Double>( flightDataBranch.get(series2).size() );
+			{
+				Unit u = series2.getUnitGroup().getDefaultUnit();
+				for( Double d: flightDataBranch.get(series2) ) {
+					series2values.add( u.toUnit(d));
+				}
+			}
+
+			addXYSeries(dataset, series2.getName(), timevalues, series2values, 1);
 		}
 		Intent intent = getLineChartIntent(context, dataset, renderer,"Simulation");
 		return intent;
