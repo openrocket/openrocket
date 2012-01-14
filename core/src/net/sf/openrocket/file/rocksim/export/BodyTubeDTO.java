@@ -30,7 +30,7 @@ import java.util.List;
  */
 @XmlRootElement(name = RocksimCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BodyTubeDTO extends BasePartDTO {
+public class BodyTubeDTO extends BasePartDTO implements AttachedParts {
 
     @XmlElement(name = RocksimCommonConstants.OD)
     private double od = 0d;
@@ -77,7 +77,11 @@ public class BodyTubeDTO extends BasePartDTO {
         for (int i = 0; i < children.size(); i++) {
             RocketComponent rocketComponents = children.get(i);
             if (rocketComponents instanceof InnerTube) {
-                attachedParts.add(new InnerBodyTubeDTO((InnerTube) rocketComponents));
+                final InnerTube innerTube = (InnerTube) rocketComponents;
+                final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
+                if (innerTube.getClusterCount() == 1) {
+                    attachedParts.add(innerBodyTubeDTO);
+                }
             } else if (rocketComponents instanceof BodyTube) {
                 attachedParts.add(new BodyTubeDTO((BodyTube) rocketComponents));
             } else if (rocketComponents instanceof Transition) {
@@ -175,7 +179,13 @@ public class BodyTubeDTO extends BasePartDTO {
         return attachedParts;
     }
 
-    public void addAttachedParts(BasePartDTO thePart) {
+    @Override
+    public void addAttachedPart(BasePartDTO thePart) {
         attachedParts.add(thePart);
+    }
+
+    @Override
+    public void removeAttachedPart(BasePartDTO part) {
+        attachedParts.remove(part);
     }
 }

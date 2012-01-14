@@ -29,7 +29,7 @@ import java.util.List;
  * Transition to a Rocksim Transition.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AbstractTransitionDTO extends BasePartDTO {
+public class AbstractTransitionDTO extends BasePartDTO implements AttachedParts {
 
     @XmlElement(name = RocksimCommonConstants.SHAPE_CODE)
     private int shapeCode = 1;
@@ -80,7 +80,7 @@ public class AbstractTransitionDTO extends BasePartDTO {
         for (int i = 0; i < children.size(); i++) {
             RocketComponent rocketComponents = children.get(i);
             if (rocketComponents instanceof InnerTube) {
-                attachedParts.add(new InnerBodyTubeDTO((InnerTube) rocketComponents));
+                attachedParts.add(new InnerBodyTubeDTO((InnerTube) rocketComponents, this));
             } else if (rocketComponents instanceof BodyTube) {
                 attachedParts.add(new BodyTubeDTO((BodyTube) rocketComponents));
             } else if (rocketComponents instanceof Transition) {
@@ -135,5 +135,15 @@ public class AbstractTransitionDTO extends BasePartDTO {
 
     public void setShapeParameter(double theShapeParameter) {
         shapeParameter = theShapeParameter;
+    }
+
+    @Override
+    public void addAttachedPart(BasePartDTO part) {
+        attachedParts.add(part);
+    }
+
+    @Override
+    public void removeAttachedPart(BasePartDTO part) {
+        attachedParts.remove(part);
     }
 }

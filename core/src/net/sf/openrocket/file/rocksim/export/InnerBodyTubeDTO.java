@@ -24,17 +24,13 @@ import java.util.List;
  */
 @XmlRootElement(name = RocksimCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class InnerBodyTubeDTO extends BodyTubeDTO {
+public class InnerBodyTubeDTO extends BodyTubeDTO implements AttachedParts {
 
     public InnerBodyTubeDTO() {
         super.setInsideTube(true);
     }
 
-    public InnerBodyTubeDTO(InnerTube bt) {
-        this(bt, true);
-    }
-
-    public InnerBodyTubeDTO(InnerTube bt, boolean deep) {
+    public InnerBodyTubeDTO(InnerTube bt, AttachedParts parent) {
         super(bt);
         setEngineOverhang(bt.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setID(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
@@ -45,12 +41,14 @@ public class InnerBodyTubeDTO extends BodyTubeDTO {
         setRadialAngle(bt.getRadialDirection());
         setRadialLoc(bt.getRadialPosition() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
-        if (deep) {
             List<RocketComponent> children = bt.getChildren();
             for (int i = 0; i < children.size(); i++) {
                 RocketComponent rocketComponents = children.get(i);
                 if (rocketComponents instanceof InnerTube) {
-                    attachedParts.add(new InnerBodyTubeDTO((InnerTube) rocketComponents));
+                    final InnerTube innerTube = (InnerTube) rocketComponents;
+                    if (innerTube.getClusterCount() == 1) {
+                        attachedParts.add(new InnerBodyTubeDTO(innerTube, this));
+                    }
                 } else if (rocketComponents instanceof BodyTube) {
                     attachedParts.add(new BodyTubeDTO((BodyTube) rocketComponents));
                 } else if (rocketComponents instanceof Transition) {
@@ -71,17 +69,17 @@ public class InnerBodyTubeDTO extends BodyTubeDTO {
                     attachedParts.add(new MassObjectDTO((MassObject) rocketComponents));
                 }
             }
-        }
 
         //Do the cluster.  For now this splits the cluster into separate tubes, which is how Rocksim represents it.
         //The import (from Rocksim to OR) could be augmented to be more intelligent and try to determine if the
         //co-located tubes are a cluster.
         if (bt.getClusterConfiguration().getClusterCount() > 1) {
-            handleCluster(bt);
+            handleCluster(bt, parent);
+            parent.removeAttachedPart(this);
         }
     }
 
-    private void handleCluster(InnerTube it) {
+    private void handleCluster(InnerTube it, AttachedParts p) {
 
         Coordinate[] coords = {Coordinate.NUL};
         coords = it.shiftCoordinates(coords);
@@ -92,11 +90,21 @@ public class InnerBodyTubeDTO extends BodyTubeDTO {
             copy.setClusterScale(1.0);
             copy.setRadialShift(coords[x].y, coords[x].z);
             copy.setName(copy.getName() + " #" + (x + 1));
-            attachedParts.add(copy(copy));
+            p.addAttachedPart(copy(copy, p));
         }
     }
 
-    private InnerBodyTubeDTO copy(InnerTube it) {
-        return new InnerBodyTubeDTO(it, false);
+    private InnerBodyTubeDTO copy(InnerTube it, AttachedParts p) {
+        return new InnerBodyTubeDTO(it, p);
+    }
+
+    @Override
+    public void addAttachedPart(BasePartDTO part) {
+        attachedParts.add(part);
+    }
+
+    @Override
+    public void removeAttachedPart(BasePartDTO part) {
+        attachedParts.remove(part);
     }
 }
