@@ -64,12 +64,12 @@ public class BodyTubeDTO extends BasePartDTO {
         super(inner);
     }
 
-    public BodyTubeDTO(BodyTube bt) {
+    protected BodyTubeDTO(BodyTube bt) {
         super(bt);
 
         setEngineOverhang(bt.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setId(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setID(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOD(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
         setMotorMount(bt.isMotorMount());
 
@@ -103,23 +103,22 @@ public class BodyTubeDTO extends BasePartDTO {
             } else if (rocketComponents instanceof FinSet) {
                 attachedParts.add(new FinSetDTO((FinSet) rocketComponents));
             }
-            
         }
     }
 
-    public double getOd() {
+    public double getOD() {
         return od;
     }
 
-    public void setOd(double theOd) {
+    public void setOD(double theOd) {
         od = theOd;
     }
 
-    public double getId() {
+    public double getID() {
         return id;
     }
 
-    public void setId(double theId) {
+    public void setID(double theId) {
         id = theId;
     }
 

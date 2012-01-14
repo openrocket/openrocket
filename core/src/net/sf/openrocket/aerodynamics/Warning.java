@@ -35,8 +35,8 @@ public abstract class Warning {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		return (o.getClass() == this.getClass());
-	}
+        return o != null && (o.getClass() == this.getClass());
+    }
 	
 	/**
 	 * A <code>hashCode</code> method compatible with the <code>equals</code> method.
