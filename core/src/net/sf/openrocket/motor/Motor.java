@@ -128,6 +128,7 @@ public interface Motor {
 	 */
 	public double getLength();
 	
+	public String getDigest();
 
 	public MotorInstance getInstance();
 	

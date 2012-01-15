@@ -129,7 +129,7 @@ public class MotorCorrelation {
 		// Output motor digests
 		final int count = motors.size();
 		for (int i = 0; i < count; i++) {
-			System.out.println(files.get(i) + ": " + MotorDigest.digestMotor((ThrustCurveMotor) motors.get(i)));
+			System.out.println(files.get(i) + ": " + ((ThrustCurveMotor) motors.get(i)).getDigest());
 		}
 		
 		// Cross-correlate every pair

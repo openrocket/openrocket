@@ -26,7 +26,7 @@ public class ThrustCurveMotorTest {
 					new Coordinate(0.02,0,0,0.05),
 					new Coordinate(0.02,0,0,0.05),
 					new Coordinate(0.03,0,0,0.03)
-		});
+		}, "digestA");
 	
 	@Test 
 	public void testMotorData() {

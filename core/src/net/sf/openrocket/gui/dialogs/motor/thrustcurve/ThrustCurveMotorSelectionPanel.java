@@ -589,7 +589,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		// Store selected motor in preferences node, set all others to false
 		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(net.sf.openrocket.startup.Preferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : set.getMotors()) {
-			String digest = MotorDigest.digestMotor(m);
+			String digest = m.getDigest();
 			prefs.putBoolean(digest, m == motor);
 		}
 	}
@@ -689,7 +689,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				selectedMotor.getEmptyCG().weight));
 		dataPointsLabel.setText("" + (selectedMotor.getTimePoints().length - 1));
 		if (digestLabel != null) {
-			digestLabel.setText(MotorDigest.digestMotor(selectedMotor));
+			digestLabel.setText(selectedMotor.getDigest());
 		}
 		
 		setComment(selectedMotor.getDescription());
@@ -819,7 +819,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		List<ThrustCurveMotor> list = set.getMotors();
 		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(net.sf.openrocket.startup.Preferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
 		for (ThrustCurveMotor m : list) {
-			String digest = MotorDigest.digestMotor(m);
+			String digest = m.getDigest();
 			if (prefs.getBoolean(digest, false)) {
 				return m;
 			}

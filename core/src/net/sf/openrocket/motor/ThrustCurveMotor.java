@@ -1,6 +1,5 @@
 package net.sf.openrocket.motor;
 
-import java.io.Serializable;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
@@ -26,7 +25,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 	}
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	
-
+	private final String digest;
 
 	private final Manufacturer manufacturer;
 	private final String designation;
@@ -61,8 +60,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 	 */
 	public ThrustCurveMotor(Manufacturer manufacturer, String designation, String description,
 			Motor.Type type, double[] delays, double diameter, double length,
-			double[] time, double[] thrust, Coordinate[] cg) {
-		
+			double[] time, double[] thrust, Coordinate[] cg, String digest) {
+		this.digest = digest;
 		// Check argument validity
 		if ((time.length != thrust.length) || (time.length != cg.length)) {
 			throw new IllegalArgumentException("Array lengths do not match, " +
@@ -253,6 +252,10 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		return totalImpulse;
 	}
 	
+	@Override
+	public String getDigest() {
+		return digest;
+	}
 	
 
 	/**

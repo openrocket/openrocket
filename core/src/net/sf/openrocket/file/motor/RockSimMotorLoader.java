@@ -353,8 +353,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 				motorDigest.update(DataType.CG_PER_TIME, toArray(cg));
 			}
 			motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
-			// TODO: HIGH: Motor digest?
-			//			final String digest = motorDigest.getDigest();
+			final String digest = motorDigest.getDigest();
 			
 
 			try {
@@ -372,7 +371,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 				}
 				
 				return new ThrustCurveMotor(m, designation, description, t,
-						delays, diameter, length, timeArray, thrustArray, cgArray);
+						delays, diameter, length, timeArray, thrustArray, cgArray, digest);
 			} catch (IllegalArgumentException e) {
 				throw new SAXException("Illegal motor data", e);
 			}

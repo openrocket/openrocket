@@ -14,7 +14,6 @@ import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.Motor.Type;
-import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.MathUtil;
@@ -95,7 +94,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		
 
 		// Check whether to add as new motor or overwrite existing
-		final String digest = MotorDigest.digestMotor(motor);
+		final String digest = motor.getDigest();
 		for (int index = 0; index < motors.size(); index++) {
 			Motor m = motors.get(index);
 			

@@ -23,8 +23,9 @@ public class MotorDao {
 			"create table "+ DATABASE_TABLE + " ( " +
 					"_id integer primary key, "+
 					"unique_name text unique, "+
+					"digest string, " +
 					"designation text, "+
-					"delays blob, "+
+					"delays text, "+
 					"diameter number, "+
 					"tot_impulse_ns number, "+
 					"avg_thrust_n number, "+
@@ -54,6 +55,7 @@ public class MotorDao {
 
 	public final static String ID = "_id";
 	public final static String UNIQUE_NAME = "unique_name";
+	public final static String DIGEST = "digest";
 	public final static String DESIGNATION = "designation";
 	public final static String DELAYS = "delays";
 	public final static String DIAMETER = "diameter";
@@ -72,6 +74,7 @@ public class MotorDao {
 
 	private final static String[] ALL_COLS = new String[] {
 		ID,
+		DIGEST,
 		DESIGNATION ,
 		DELAYS ,
 		DIAMETER ,
@@ -94,8 +97,9 @@ public class MotorDao {
 		final ThrustCurveMotor tcm = mi.getThrustCurveMotor();
 		initialValues.put(ID, mi.getId());
 		initialValues.put(UNIQUE_NAME, tcm.getManufacturer()+tcm.getDesignation());
+		initialValues.put(DIGEST, tcm.getDigest());
 		initialValues.put(DESIGNATION, tcm.getDesignation());
-		initialValues.put(DELAYS, ConversionUtils.serializeArrayOfDouble(tcm.getStandardDelays()));
+		initialValues.put(DELAYS, ConversionUtils.delaysToString(tcm.getStandardDelays()));
 		initialValues.put(DIAMETER,tcm.getDiameter());
 		initialValues.put(TOTAL_IMPULSE,tcm.getTotalImpulseEstimate());
 		initialValues.put(AVG_THRUST,tcm.getAverageThrustEstimate());
@@ -187,8 +191,10 @@ public class MotorDao {
 		mi.setImpulseClass(mCursor.getString(mCursor.getColumnIndex(IMPULSE_CLASS)));
 
 		{
+			String digest = mCursor.getString(mCursor.getColumnIndex(DIGEST));
 			String designation = mCursor.getString(mCursor.getColumnIndex(DESIGNATION));
-			double[] delays = ConversionUtils.deserializeArrayOfDouble( mCursor.getBlob(mCursor.getColumnIndex(DELAYS)));
+			String delayString = mCursor.getString(mCursor.getColumnIndex(DELAYS));
+			double[] delays = ConversionUtils.stringToDelays(delayString);
 			double diameter = mCursor.getDouble(mCursor.getColumnIndex(DIAMETER));
 			double totImpulse = mCursor.getDouble(mCursor.getColumnIndex(TOTAL_IMPULSE));
 			double avgImpulse = mCursor.getDouble(mCursor.getColumnIndex(AVG_THRUST));
@@ -209,7 +215,8 @@ public class MotorDao {
 					length,
 					timeData,
 					thrustData,
-					cgData
+					cgData,
+					digest
 					);
 			mi.setThrustCurveMotor(tcm);
 		}
@@ -263,29 +270,6 @@ public class MotorDao {
 			mCursor.close();
 		}
 
-	}
-	
-	public static String extractPrettyDelayString( Cursor c ) {
-		byte[] blob = c.getBlob(c.getColumnIndex(MotorDao.DELAYS));
-		String s = "";
-		try {
-			double[] delayarry = ConversionUtils.deserializeArrayOfDouble(blob);
-			boolean first = true;
-			for( double d:delayarry ) {
-				if (!first) {
-					s += ",";
-				} else {
-					first = false;
-				}
-				if ( d == Motor.PLUGGED ) {
-					s+= "P";
-				} else {
-					s += Math.round(d);
-				}
-			}
-		} catch ( Exception ex ) {
-		}
-		return s;
 	}
 	
 }

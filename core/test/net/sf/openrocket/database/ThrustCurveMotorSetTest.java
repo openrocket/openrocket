@@ -19,25 +19,25 @@ public class ThrustCurveMotorSetTest {
 			Manufacturer.getManufacturer("A"),
 			"F12X", "Desc", Motor.Type.UNKNOWN, new double[] { },
 			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL});
+			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestA");
 	
 	private static final ThrustCurveMotor motor2 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
 			"F12H", "Desc", Motor.Type.SINGLE, new double[] { 5 },
 			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL});
+			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestB");
 	
 	private static final ThrustCurveMotor motor3 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
 			"F12", "Desc", Motor.Type.UNKNOWN, new double[] { 0, Motor.PLUGGED },
 			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 2, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL});
+			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestC");
 
 	private static final ThrustCurveMotor motor4 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
 			"F12", "Desc", Motor.Type.HYBRID, new double[] { 0 },
 			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 2, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL});
+			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestD");
 	
 	
 	@Test

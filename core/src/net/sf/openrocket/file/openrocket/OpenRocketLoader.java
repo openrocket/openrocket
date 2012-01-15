@@ -23,8 +23,6 @@ import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorDigest;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
@@ -1015,7 +1013,7 @@ class MotorHandler extends ElementHandler {
 		// One motor
 		if (motors.size() == 1) {
 			Motor m = motors.get(0);
-			if (digest != null && !MotorDigest.digestMotor(m).equals(digest)) {
+			if (digest != null && !digest.equals(m.getDigest())) {
 				String str = "Motor with designation '" + designation + "'";
 				if (manufacturer != null)
 					str += " for manufacturer '" + manufacturer + "'";
@@ -1030,7 +1028,7 @@ class MotorHandler extends ElementHandler {
 			
 			// Check for motor with correct digest
 			for (Motor m : motors) {
-				if (MotorDigest.digestMotor(m).equals(digest)) {
+				if (digest.equals(m.getDigest())) {
 					return m;
 				}
 			}
@@ -1045,7 +1043,7 @@ class MotorHandler extends ElementHandler {
 			// No digest, check for preferred digest (OpenRocket <= 1.1.0)
 			// TODO: MEDIUM: This should only be done for document versions 1.1 and below
 			for (Motor m : motors) {
-				if (PreferredMotorDigests.DIGESTS.contains(MotorDigest.digestMotor(m))) {
+				if (PreferredMotorDigests.DIGESTS.contains(m.getDigest())) {
 					return m;
 				}
 			}

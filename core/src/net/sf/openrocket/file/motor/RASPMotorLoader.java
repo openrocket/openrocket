@@ -196,15 +196,13 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		motorDigest.update(DataType.TIME_ARRAY, timeArray);
 		motorDigest.update(DataType.MASS_SPECIFIC, totalW, totalW - propW);
 		motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
-		// TODO: HIGH: Motor digest?
-		//		final String digest = motorDigest.getDigest();
-		
+		final String digest = motorDigest.getDigest();
 
 		try {
 			
 			Manufacturer m = Manufacturer.getManufacturer(manufacturer);
 			return new ThrustCurveMotor(m, designation, comment, m.getMotorType(),
-					delays, diameter, length, timeArray, thrustArray, cgArray);
+					delays, diameter, length, timeArray, thrustArray, cgArray, digest);
 			
 		} catch (IllegalArgumentException e) {
 			

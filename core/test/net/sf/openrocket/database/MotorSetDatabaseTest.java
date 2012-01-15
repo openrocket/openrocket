@@ -28,15 +28,15 @@ public class MotorSetDatabaseTest {
 				this.addMotor(new ThrustCurveMotor(Manufacturer.getManufacturer("A"),
 						"Foo", "Desc", Motor.Type.SINGLE, new double[] { 0 },
 						0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-						new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}));
+						new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestA"));
 				this.addMotor(new ThrustCurveMotor(Manufacturer.getManufacturer("A"),
 						"Bar", "Desc", Motor.Type.SINGLE, new double[] { 0 },
 						0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-						new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}));
+						new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestB"));
 				this.addMotor(new ThrustCurveMotor(Manufacturer.getManufacturer("A"),
 						"Foo", "Desc", Motor.Type.UNKNOWN, new double[] { 0 },
 						0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-						new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}));
+						new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestA"));
 			}
 		};
 		

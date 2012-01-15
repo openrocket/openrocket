@@ -39,7 +39,7 @@ public class MotorPrinter {
 				System.out.printf("  Total impulse: %.2f Ns\n", m.getTotalImpulseEstimate());
 				System.out.println("  Diameter:      " + m.getDiameter() * 1000 + " mm");
 				System.out.println("  Length:        " + m.getLength() * 1000 + " mm");
-				System.out.println("  Digest:        " + MotorDigest.digestMotor(m));
+				System.out.println("  Digest:        " + m.getDigest());
 				
 				if (m instanceof ThrustCurveMotor) {
 					ThrustCurveMotor tc = (ThrustCurveMotor) m;

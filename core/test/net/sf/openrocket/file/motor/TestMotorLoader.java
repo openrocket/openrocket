@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.motor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 
 import org.junit.Test;
@@ -52,12 +53,12 @@ public class TestMotorLoader {
 		
 		String[] d = new String[digests.length];
 		for (int i = 0; i < motors.size(); i++) {
-			d[i] = MotorDigest.digestMotor((ThrustCurveMotor) motors.get(i));
+			d[i] = ((ThrustCurveMotor) motors.get(i)).getDigest();
 		}
 		
 		Arrays.sort(digests);
 		Arrays.sort(d);
-		assertTrue(Arrays.equals(d, digests));
+		assertTrue("d = " + Arrays.toString(d) + " digests = " + Arrays.toString(digests), Arrays.equals(d, digests));
 	}
 	
 }

@@ -76,9 +76,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			return groupPosition;
 		}
 
-		//new String[] { MotorDao.MANUFACTURER, MotorDao.DESIGNATION, MotorDao.CASE_INFO, MotorDao.TOTAL_IMPULSE }, // Number for child layouts
-		//new int[] { R.id.motorChildManu, R.id.motorChildName, R.id.motorChildDelays, R.id.motorChildImpulse }
-
 		/* (non-Javadoc)
 		 * @see android.widget.CursorTreeAdapter#bindChildView(android.view.View, android.content.Context, android.database.Cursor, boolean)
 		 */
@@ -93,7 +90,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			desig.setText( arg2.getString(arg2.getColumnIndex(MotorDao.DESIGNATION)));
 			
 			TextView delays = (TextView) arg0.findViewById(R.id.motorChildDelays);
-			delays.setText( MotorDao.extractPrettyDelayString( arg2 ));
+			delays.setText( arg2.getString(arg2.getColumnIndex(MotorDao.DELAYS)));
 			
 			TextView totImpulse = (TextView) arg0.findViewById(R.id.motorChildImpulse);
 			totImpulse.setText( arg2.getString(arg2.getColumnIndex(MotorDao.TOTAL_IMPULSE)));
