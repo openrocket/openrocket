@@ -1,14 +1,20 @@
 package net.sf.openrocket.l10n;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.MissingResourceException;
+
+import net.sf.openrocket.gui.main.SwingExceptionHandler;
+import net.sf.openrocket.startup.Application;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,6 +22,10 @@ import org.junit.runner.RunWith;
 public class TestExceptionSuppressingTranslator {
 	Mockery context = new JUnit4Mockery();
 	
+	@Before
+	public void setupExceptionHandler() {
+		Application.setExceptionHandler( new SwingExceptionHandler() );
+	}
 	@Mock
 	Translator translator;
 	
