@@ -360,6 +360,10 @@ public class OpenRocketSaver extends RocketSaver {
 				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime()) + "\"";
 			if (!Double.isNaN(data.getGroundHitVelocity()))
 				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity()) + "\"";
+			if (!Double.isNaN(data.getLaunchRodVelocity()))
+				str += " launchrodvelocity=\"" + TextUtil.doubleToString(data.getLaunchRodVelocity()) + "\"";
+			if (!Double.isNaN(data.getDeploymentVelocity()))
+				str += " deploymentvelocity=\"" + TextUtil.doubleToString(data.getDeploymentVelocity()) + "\"";
 			str += ">";
 			writeln(str);
 			indent++;

@@ -49,6 +49,7 @@ public class FlightData {
 	private double flightTime = Double.NaN;
 	private double groundHitVelocity = Double.NaN;
 	private double launchRodVelocity = Double.NaN;
+	private double deploymentVelocity = Double.NaN;
 	
 	
 	/**
@@ -70,11 +71,12 @@ public class FlightData {
 	 * @param timeToApogee			time to apogee.
 	 * @param flightTime			total flight time.
 	 * @param groundHitVelocity		ground hit velocity.
-	 * @param launchRodVelocity TODO
+	 * @param launchRodVelocity     velocity at launch rod clearance
+	 * @param deploymentVelocity    velocity at deployment
 	 */
 	public FlightData(double maxAltitude, double maxVelocity, double maxAcceleration,
 			double maxMachNumber, double timeToApogee, double flightTime,
-			double groundHitVelocity, double launchRodVelocity) {
+			double groundHitVelocity, double launchRodVelocity, double deploymentVelocity) {
 		this.maxAltitude = maxAltitude;
 		this.maxVelocity = maxVelocity;
 		this.maxAcceleration = maxAcceleration;
@@ -83,6 +85,7 @@ public class FlightData {
 		this.flightTime = flightTime;
 		this.groundHitVelocity = groundHitVelocity;
 		this.launchRodVelocity = launchRodVelocity;
+		this.deploymentVelocity = deploymentVelocity;
 	}
 	
 	
@@ -171,7 +174,11 @@ public class FlightData {
 		return launchRodVelocity;
 	}
 	
-	
+
+	public double getDeploymentVelocity() {
+		return deploymentVelocity;
+	}
+
 
 	/**
 	 * Calculate the max. altitude/velocity/acceleration, time to apogee, flight time
@@ -223,15 +230,11 @@ public class FlightData {
 			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
 				double t = event.getTime();
 				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
-				if (velocity == null) {
-					break;
-				}
-				for (int i = 0; i < velocity.size(); i++) {
-					if (time.get(i) >= t) {
-						launchRodVelocity = velocity.get(i);
-						break eventloop;
-					}
-				}
+				launchRodVelocity = MathUtil.interpolate( time, velocity, t);
+			} else if ( event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
+				double t = event.getTime();
+				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);
+				deploymentVelocity = MathUtil.interpolate( time, velocity, t);
 			}
 		}
 		

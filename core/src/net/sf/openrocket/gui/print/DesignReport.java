@@ -117,6 +117,7 @@ public class DesignReport {
 	private static final String TIME_TO_APOGEE = "Time to Apogee";
 	private static final String VELOCITY_OFF_PAD = "Velocity off Pad";
 	private static final String MAX_VELOCITY = "Max Velocity";
+	private static final String DEPLOYMENT_VELOCITY = "Velocity at Deployment";
 	private static final String LANDING_VELOCITY = "Landing Velocity";
 	private static final String ROCKET_DESIGN = "Rocket Design";
 	private static final double GRAVITY_CONSTANT = 9.80665d;
@@ -468,6 +469,9 @@ public class DesignReport {
 				
 				labelTable.addCell(ITextHelper.createCell(MAX_VELOCITY, 2, 2));
 				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getMaxVelocity()), 2, 2));
+				
+				labelTable.addCell(ITextHelper.createCell(DEPLOYMENT_VELOCITY, 2,2));
+				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getDeploymentVelocity()),2,2));
 				
 				labelTable.addCell(ITextHelper.createCell(LANDING_VELOCITY, 2, 2));
 				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getGroundHitVelocity()), 2, 2));

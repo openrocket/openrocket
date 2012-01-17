@@ -1517,6 +1517,8 @@ class FlightDataHandler extends ElementHandler {
 			double timeToApogee = Double.NaN;
 			double flightTime = Double.NaN;
 			double groundHitVelocity = Double.NaN;
+			double launchRodVelocity = Double.NaN;
+			double deploymentVelocity = Double.NaN;
 			
 			try {
 				maxAltitude = DocumentConfig.stringToDouble(attributes.get("maxaltitude"));
@@ -1547,10 +1549,18 @@ class FlightDataHandler extends ElementHandler {
 						DocumentConfig.stringToDouble(attributes.get("groundhitvelocity"));
 			} catch (NumberFormatException ignore) {
 			}
+			try {
+				launchRodVelocity = DocumentConfig.stringToDouble(attributes.get("launchrodvelocity"));
+			} catch (NumberFormatException ignore) {
+			}
+			try {
+				deploymentVelocity = DocumentConfig.stringToDouble(attributes.get("deploymentvelocity"));
+			} catch (NumberFormatException ignore) {
+			}
 			
 			// TODO: HIGH: Store and load launchRodVelocity
 			data = new FlightData(maxAltitude, maxVelocity, maxAcceleration, maxMach,
-					timeToApogee, flightTime, groundHitVelocity, Double.NaN);
+					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity);
 		}
 		
 		data.getWarningSet().addAll(warningSet);

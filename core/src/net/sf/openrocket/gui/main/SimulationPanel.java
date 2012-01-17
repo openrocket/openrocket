@@ -311,6 +311,22 @@ public class SimulationPanel extends JPanel {
 					}
 				},
 
+				//// Launch rod velocity
+				new Column(trans.get("simpanel.col.Velocityoffrod")) {
+					@Override
+					public Object getValueAt(int row) {
+						if (row < 0 || row >= document.getSimulationCount())
+							return null;
+						
+						FlightData data = document.getSimulation(row).getSimulatedData();
+						if (data == null)
+							return null;
+						
+						return UnitGroup.UNITS_VELOCITY.getDefaultUnit().toStringUnit(
+								data.getLaunchRodVelocity());
+					}
+				},
+
 				//// Apogee
 				new Column(trans.get("simpanel.col.Apogee")) {
 					@Override
@@ -324,6 +340,22 @@ public class SimulationPanel extends JPanel {
 						
 						return UnitGroup.UNITS_DISTANCE.getDefaultUnit().toStringUnit(
 								data.getMaxAltitude());
+					}
+				},
+
+				//// Velocity at deployment
+				new Column(trans.get("simpanel.col.Velocityatdeploy")) {
+					@Override
+					public Object getValueAt(int row) {
+						if (row < 0 || row >= document.getSimulationCount())
+							return null;
+						
+						FlightData data = document.getSimulation(row).getSimulatedData();
+						if (data == null)
+							return null;
+						
+						return UnitGroup.UNITS_VELOCITY.getDefaultUnit().toStringUnit(
+								data.getDeploymentVelocity());
 					}
 				},
 

@@ -216,4 +216,64 @@ public class MathUtilTest {
 		assertEquals(5.43, MathUtil.median(doubles), EPS);
 	}
 	
+	@Test
+	public void testInterpolate() {
+		double v;
+		List<Double> x;
+		List<Double> y;
+
+		x = new ArrayList<Double>();
+		y = new ArrayList<Double>();
+		y.add(1.0);
+		
+		v= MathUtil.interpolate(null, y, 0.0);
+		assertEquals("Failed to test for domain null", Double.NaN, v, EPS);
+		
+		v = MathUtil.interpolate(x, y, 0.0);
+		assertEquals("Failed to test for empty domain", Double.NaN, v, EPS);
+		
+		x = new ArrayList<Double>();
+		x.add(1.0);
+		y = new ArrayList<Double>();
+		
+		v = MathUtil.interpolate(x, null, 0.0);
+		assertEquals("Failed to test for range null", Double.NaN, v, EPS);
+		
+		v = MathUtil.interpolate(x, y, 0.0);
+		assertEquals("Failed to test for empty range", Double.NaN, v, EPS);
+		
+		x = new ArrayList<Double>();
+		x.add(1.0);
+		x.add(2.0);
+		y = new ArrayList<Double>();
+		y.add(15.0);
+		y.add(17.0);
+		
+		v = MathUtil.interpolate(x,y,0.0);
+		assertEquals("Failed to test t out of domain", Double.NaN, v, EPS);
+		
+		v = MathUtil.interpolate(x,y,5.0);
+		assertEquals("Failed to test t out of domain", Double.NaN, v, EPS);
+		
+		v = MathUtil.interpolate(x,y,1.0);
+		assertEquals("Failed to calculate left endpoint", 15.0, v, EPS);
+		v = MathUtil.interpolate(x,y,2.0);
+		assertEquals("Failed to calculate right endpoint", 17.0, v, EPS);
+		v = MathUtil.interpolate(x,y,1.5);
+		assertEquals("Failed to calculate center", 16.0, v, EPS);
+		
+		x = new ArrayList<Double>();
+		x.add(0.25);
+		x.add(0.5);
+		x.add(1.0);
+		x.add(2.0);
+		y = new ArrayList<Double>();
+		y.add(0.0);
+		y.add(0.0);
+		y.add(15.0);
+		y.add(17.0);
+		v = MathUtil.interpolate(x,y,1.5);
+		assertEquals("Failed to calculate center with longer list", 16.0, v, EPS);
+		
+	}
 }
