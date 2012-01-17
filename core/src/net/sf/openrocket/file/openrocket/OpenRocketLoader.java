@@ -1558,7 +1558,6 @@ class FlightDataHandler extends ElementHandler {
 			} catch (NumberFormatException ignore) {
 			}
 			
-			// TODO: HIGH: Store and load launchRodVelocity
 			data = new FlightData(maxAltitude, maxVelocity, maxAcceleration, maxMach,
 					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity);
 		}
