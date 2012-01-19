@@ -1,0 +1,111 @@
+
+Crea un semplice progetto di razzo
+
+<p>Questo tour mostra come creare un semplice progetto di razzo da zero.
+
+
+[initial.jpg]
+
+<p>Quando scegli di creare un nuovo progetto, ti viene mostrato un progetto vuoto con in primo piano la finestra  <em>Configurazione razzo</em> .
+Qui puoi inserire le informazioni generali del tuo progetto, come il nome del razzo, il progettista, commenti e informazioni di revisione.
+
+<p>Puoi anche riaprirla in seguito facendo doppio click sul componente radice (il razzo stesso) nell'albero.
+
+[main-1.jpg]
+
+<p>Poi, aggiungi un <em>Naso</em> al progetto cliccando nel corrispettivo pulsante di aggiunta.  Questo apre la finestra di configurazione del naso.
+
+
+[dialog-1.jpg]
+
+<p>La finestra contiene,tra le altre, le impostazione della forma, del diametro e del materiale.  Imposta la lunghezza a  10&nbsp;cm,
+il diametro di base  a 2.5&nbsp;cm ed il materiale a Polystyrene (plastic).
+
+<p>Per usare i pollici invece dei centimetri, o clicca sull'unità per cambiarla temporaneamente, o cambia l'unità di misura predefinita in <a href="FIXME">Preferenze</a>.
+
+
+[main-2.jpg]
+
+<p>La finestra di disegno mostra il naso.  Poi, aggiungi al disegno un <em>corpo</em>.
+
+
+[dialog-2.jpg]
+
+<p>Cambia la lunghezza del corpo a 25&nbsp;cm.  L'opzione <em>Automatico</em>
+per il diametro esterno è già marcata, in questo caso il diametro viene fissato uguale a quello del naso in modo automatico.
+
+
+[main-3.jpg]
+
+<p>Poi, aggiungi al razzo l'insieme di pinne <em>Trapezoidale</em> .  Per far ciò deve essere selezionato il corpo.
+
+
+[dialog-3.jpg]
+
+<p>Puoi cambiare numerosi parametri nella configurazione delle pinne.  I più importanti sono la lunghezza prossima al tubo e quella prossima alla punta, l'altezza e l'inclinazione.
+
+<p>I valori preimpostati vanno bene per il progetto d'esempio.
+
+
+[main-4.jpg]
+
+<p>Poi, aggiungi un <em>Tubo interno</em> come alloggiamento per il motore.  Seleziona il corpo e poi clicca sul pulsante di aggiunta corrispondente.
+
+
+[dialog-4.jpg]
+
+<p>Le dimensioni predefinite vanno bene per i motori Estes delle classi A-B-C.  Per far sporgere un po' il motore, cambia il parametro posizione relativa a 
+<em>Parte bassa del componente genitore</em> piu' 0.5&nbsp;cm.
+
+
+[main-5.jpg]
+
+<p>Per aggiungere gli <em>Anelli di centraggio</em> per mantenere l'alloggia motore nella sua sede, seleziona il corpo e clicca sul pulsante Anelli di centraggio.
+
+<p>(Se hai selezionato il Tubo interno quando clicchi  allora gli Anelli di centraggio saranno inseriti al suo interno. Usa <b>Modifica</b> 
+<b>Annulla</b> per annullare l'ultima azione.)
+
+
+[dialog-5.jpg]
+
+<p>Quando le caselle di selezione <em>Automatico</em> sono selezionate l' Anello di centraggio sceglie gli appropriati diametri esterno ed interno.
+
+<p>Sposta l'anello di centraggio nella parte anteriore dell'alloggia motore impostando il parametro di posizione a  <em>Parte bassa del componente genitore</em> piu'
+-5.0&nbsp;cm.
+
+<p>Poi aggiungi un altro Anello di centraggio alla parte posteriore azzerando il parametro posizione.
+
+
+[main-6.jpg]
+
+<p>Poi aggiungi un <em>Paracadute</em> al corpo.
+
+
+[dialog-6.jpg]
+
+<p>Il <em>Diametro</em> ed il  <em>Coefficiente d'attrito</em>
+determinano quanto il paracadute rallenta la discesa del razzo.
+Il <em>materiale</em> e <em>Funi</em> modificano la massa totale.   <em>Lunghezza ripiegato</em>, <em>diametro</em> e
+<em>posizione</em> modificano l'ingombro e la posizione del paracadute.
+
+<p>Il <em>Esce a </em> serve ad impostare proprio quando esce dal tubo.  <em>Prima carica di espulsione di questo stadio</em>
+farà uscire il paracadute quando si innescherà la carica , caso tipico dei piccoli razzi.
+
+
+[main-7.jpg]
+
+<p>Adesso l'aspetto funzionale del progetto è concluso.
+
+<p>Per completezza puoi anche aggiungere una  <em>Zavorra</em> al corpo del razzo per l'imbottitura tampone,e un <em>Blocca motore</em> al tubo interno per mantenere in sede il motore.
+
+
+[final.jpg]
+
+<p>Il razzo è completo!
+
+<p>Adesso puoi continuare da
+<a href="defining_motors/defining_motors">definire i motori</a> del tuo razzo.
+
+
+
+
