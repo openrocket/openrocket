@@ -1,30 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.Ellipse2D;
-import java.util.EventObject;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.Resettable;
@@ -43,6 +19,17 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.StateChangeListener;
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Ellipse2D;
+import java.util.EventObject;
+import java.util.List;
 
 
 public class InnerTubeConfig extends ThicknessRingComponentConfig {
@@ -163,12 +150,7 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 						coords = component.shiftCoordinates(coords);
 						parent.removeChild(index);
 						for (int i = 0; i < coords.length; i++) {
-							InnerTube copy = (InnerTube) component.copy();
-							copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
-							copy.setClusterRotation(0.0);
-							copy.setClusterScale(1.0);
-							copy.setRadialShift(coords[i].y, coords[i].z);
-							copy.setName(copy.getName() + " #" + (i + 1));
+                            InnerTube copy = makeIndividualClusterComponent(coords[i], component.getName() + " #" + (i + 1), component);
 							
 							parent.addChild(copy, index + i);
 						}
@@ -198,6 +180,27 @@ public class InnerTubeConfig extends ThicknessRingComponentConfig {
 
 		return panel;
 	}
+
+    /**
+     * For a given coordinate that represents one tube in a cluster, create an instance of that tube.  Must be called
+     * once for each tube in the cluster.
+     *
+     * @param coord        the coordinate of the clustered tube to create
+     * @param splitName    the name of the individual tube
+     * @param theInnerTube the 'parent' from which this tube will be created.
+     *
+     * @return an instance of an inner tube that represents ONE of the clustered tubes in the cluster represented
+     *  by <code>theInnerTube</code>
+     */
+    public static InnerTube makeIndividualClusterComponent(Coordinate coord, String splitName, RocketComponent theInnerTube) {
+        InnerTube copy = (InnerTube) theInnerTube.copy();
+        copy.setClusterConfiguration(ClusterConfiguration.SINGLE);
+        copy.setClusterRotation(0.0);
+        copy.setClusterScale(1.0);
+        copy.setRadialShift(coord.y, coord.z);
+        copy.setName(splitName);
+        return copy;
+    }
 }
 
 

@@ -17,10 +17,10 @@ public class BulkheadDTO extends CenteringRingDTO {
     /**
      * Constructor.
      *
-     * @param bh bulkhead
+     * @param theORBulkhead the OR bulkhead
      */
-    public BulkheadDTO(Bulkhead bh) {
-        super(bh);
+    public BulkheadDTO(Bulkhead theORBulkhead) {
+        super(theORBulkhead);
         setUsageCode(CenteringRingDTO.UsageCode.Bulkhead);
     }
 }

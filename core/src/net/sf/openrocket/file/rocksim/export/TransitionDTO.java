@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * This class models a transition XML element in Rocksim file format.
  */
 @XmlRootElement(name = RocksimCommonConstants.TRANSITION)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -28,17 +29,26 @@ public class TransitionDTO extends AbstractTransitionDTO {
     @XmlElement(name = RocksimCommonConstants.REAR_DIA)
     private double rearDia = 0d;
 
+    /**
+     * Default constructor.
+     */
     public TransitionDTO() {
     }
 
-    public TransitionDTO(Transition tran) {
-        super(tran);
-        setFrontDia(tran.getForeRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRearDia(tran.getAftRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setFrontShoulderDia(tran.getForeShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setFrontShoulderLen(tran.getForeShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setRearShoulderDia(tran.getAftShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRearShoulderLen(tran.getAftShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+    /**
+     * Copy constructor.  This TransitionDTO instance will be as equivalent as possible to the OR <code>tran</code>
+     * once the constructor returns.  No further modification (invoking setters) is necessary.
+     *
+     * @param theORTransition  the OR transition
+     */
+    public TransitionDTO(Transition theORTransition) {
+        super(theORTransition);
+        setFrontDia(theORTransition.getForeRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setRearDia(theORTransition.getAftRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setFrontShoulderDia(theORTransition.getForeShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setFrontShoulderLen(theORTransition.getForeShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setRearShoulderDia(theORTransition.getAftShoulderRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setRearShoulderLen(theORTransition.getAftShoulderLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
 
     }

@@ -29,7 +29,7 @@ import java.util.List;
  * Transition to a Rocksim Transition.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AbstractTransitionDTO extends BasePartDTO implements AttachedParts {
+public class AbstractTransitionDTO extends BasePartDTO implements AttachableParts {
 
     @XmlElement(name = RocksimCommonConstants.SHAPE_CODE)
     private int shapeCode = 1;

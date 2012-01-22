@@ -42,20 +42,34 @@ public class CenteringRingDTO extends BasePartDTO {
     @XmlElement(name = RocksimCommonConstants.AUTO_SIZE)
     private int autoSize = 0;
 
+    /**
+     * Default Constructor.
+     */
     public CenteringRingDTO() {
-
-    }
-    public CenteringRingDTO(RadiusRingComponent cr) {
-        super(cr);
-        setId(cr.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(cr.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
 
-    public CenteringRingDTO(ThicknessRingComponent trc) {
-        super(trc);
-        setId(trc.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(trc.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+    /**
+     * Copy constructor.
+     *
+     * @param theORRadiusRing
+     */
+    public CenteringRingDTO(RadiusRingComponent theORRadiusRing) {
+        super(theORRadiusRing);
+        setId(theORRadiusRing.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(theORRadiusRing.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
     }
+
+    /**
+     * Copy constructor.
+     *
+     * @param theORThicknessRing
+     */
+    public CenteringRingDTO(ThicknessRingComponent theORThicknessRing) {
+        super(theORThicknessRing);
+        setId(theORThicknessRing.getInnerRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(theORThicknessRing.getOuterRadius()* RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+    }
+
     public double getOd() {
         return od;
     }

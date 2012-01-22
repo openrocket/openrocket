@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * This class models an XML element for a Rocksim LaunchLug.
  */
 @XmlRootElement(name = RocksimCommonConstants.LAUNCH_LUG)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,14 +20,22 @@ public class LaunchLugDTO extends BasePartDTO {
     @XmlElement(name = RocksimCommonConstants.ID)
     private double id = 0d;
 
+    /**
+     * Default constructor.
+     */
     public LaunchLugDTO() {
     }
 
-    public LaunchLugDTO(LaunchLug ec) {
-        super(ec);
-        setId(ec.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOd(ec.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setRadialAngle(ec.getRadialDirection());
+    /**
+     * Copy constructor.  Fully populates this instance with values taken from the OR LaunchLug.
+     *
+     * @param theORLaunchLug
+     */
+    public LaunchLugDTO(LaunchLug theORLaunchLug) {
+        super(theORLaunchLug);
+        setId(theORLaunchLug.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOd(theORLaunchLug.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setRadialAngle(theORLaunchLug.getRadialDirection());
     }
 
     public double getOd() {

@@ -31,21 +31,29 @@ public class ParachuteDTO extends BasePartDTO {
     private String shroudLineMaterial = "";
     @XmlElement(name = RocksimCommonConstants.DRAG_COEFFICIENT)
     private double dragCoefficient = 0.75d;
-    
+
+    /**
+     * Default constructor.
+     */
     public ParachuteDTO() {
     }
 
-    public ParachuteDTO(Parachute ec) {
-        super(ec);
+    /**
+     * Copy constructor.  Fully populates this instance with values taken from the corresponding OR Parachute.
+     *
+     * @param theORParachute  the OR Parachute instance
+     */
+    public ParachuteDTO(Parachute theORParachute) {
+        super(theORParachute);
         
         setChuteCount(1);
-        setDia(ec.getDiameter() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setDragCoefficient(ec.getCD());
-        setShroudLineCount(ec.getLineCount());
-        setShroudLineLen(ec.getLineLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setDia(theORParachute.getDiameter() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setDragCoefficient(theORParachute.getCD());
+        setShroudLineCount(theORParachute.getLineCount());
+        setShroudLineLen(theORParachute.getLineLength() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
 
-        String material = ec.getLineMaterial().getName();
-        setShroudLineMassPerMM(ec.getLineMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
+        String material = theORParachute.getLineMaterial().getName();
+        setShroudLineMassPerMM(theORParachute.getLineMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY);
 
         if (material.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
             material = material.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());

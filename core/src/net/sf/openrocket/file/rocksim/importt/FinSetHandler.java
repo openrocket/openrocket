@@ -162,79 +162,79 @@ class FinSetHandler extends ElementHandler {
     public void closeElement (String element, HashMap<String, String> attributes, String content, WarningSet warnings)
             throws SAXException {
         try {
-            if ("Name".equals(element)) {
+            if (RocksimCommonConstants.NAME.equals(element)) {
                 name = content;
             }
-            if ("Material".equals(element)) {
+            if (RocksimCommonConstants.MATERIAL.equals(element)) {
                 materialName = content;
             }
-            if ("FinishCode".equals(element)) {
+            if (RocksimCommonConstants.FINISH_CODE.equals(element)) {
                 finish = RocksimFinishCode.fromCode(Integer.parseInt(content)).asOpenRocket();
             }
-            if ("Xb".equals(element)) {
+            if (RocksimCommonConstants.XB.equals(element)) {
                 location = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("LocationMode".equals(element)) {
+            if (RocksimCommonConstants.LOCATION_MODE.equals(element)) {
                 position = RocksimLocationMode.fromCode(Integer.parseInt(content)).asOpenRocket();
             }
-            if ("FinCount".equals(element)) {
+            if (RocksimCommonConstants.FIN_COUNT.equals(element)) {
                 finCount = Integer.parseInt(content);
             }
-            if ("RootChord".equals(element)) {
+            if (RocksimCommonConstants.ROOT_CHORD.equals(element)) {
                 rootChord = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("TipChord".equals(element)) {
+            if (RocksimCommonConstants.TIP_CHORD.equals(element)) {
                 tipChord = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("SemiSpan".equals(element)) {
+            if (RocksimCommonConstants.SEMI_SPAN.equals(element)) {
                 semiSpan = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
             if ("MidChordLen".equals(element)) {
                 midChordLen = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("SweepDistance".equals(element)) {
+            if (RocksimCommonConstants.SWEEP_DISTANCE.equals(element)) {
                 sweepDistance = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("Thickness".equals(element)) {
+            if (RocksimCommonConstants.THICKNESS.equals(element)) {
                 thickness = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("TipShapeCode".equals(element)) {
+            if (RocksimCommonConstants.TIP_SHAPE_CODE.equals(element)) {
                 tipShapeCode = Integer.parseInt(content);
             }
-            if ("TabLength".equals(element)) {
+            if (RocksimCommonConstants.TAB_LENGTH.equals(element)) {
                 tabLength = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("TabDepth".equals(element)) {
+            if (RocksimCommonConstants.TAB_DEPTH.equals(element)) {
                 tabDepth = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("TabOffset".equals(element)) {
+            if (RocksimCommonConstants.TAB_OFFSET.equals(element)) {
                 taboffset = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
-            if ("RadialAngle".equals(element)) {
+            if (RocksimCommonConstants.RADIAL_ANGLE.equals(element)) {
                 radialAngle = Double.parseDouble(content);
             }
-            if ("ShapeCode".equals(element)) {
+            if (RocksimCommonConstants.SHAPE_CODE.equals(element)) {
                 shapeCode = Integer.parseInt(content);
             }
-            if ("PointList".equals(element)) {
+            if (RocksimCommonConstants.POINT_LIST.equals(element)) {
                 pointList = content;
             }
-            if ("KnownMass".equals(element)) {
+            if (RocksimCommonConstants.KNOWN_MASS.equals(element)) {
                 mass = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
             }
-            if ("Density".equals(element)) {
+            if (RocksimCommonConstants.DENSITY.equals(element)) {
                 density = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             }
-            if ("KnownCG".equals(element)) {
+            if (RocksimCommonConstants.KNOWN_CG.equals(element)) {
                 cg = Math.max(0d, Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
             }
-            if ("UseKnownCG".equals(element)) {
+            if (RocksimCommonConstants.USE_KNOWN_CG.equals(element)) {
                 override = "1".equals(content);
             }
-            if ("CalcMass".equals(element)) {
+            if (RocksimCommonConstants.CALC_MASS.equals(element)) {
                 calcMass = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS;
             }
-            if ("CalcCg".equals(element)) {
+            if (RocksimCommonConstants.CALC_CG.equals(element)) {
                 calcCg = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
         }

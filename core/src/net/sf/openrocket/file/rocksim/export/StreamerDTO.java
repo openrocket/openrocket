@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * This class models a Rocksim XML element for a streamer.
  */
 @XmlRootElement(name = RocksimCommonConstants.STREAMER)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,13 +20,21 @@ public class StreamerDTO extends BasePartDTO {
         @XmlElement(name = RocksimCommonConstants.DRAG_COEFFICIENT)
         private double dragCoefficient = 0.75d;
 
+    /**
+     * The default constructor.
+     */
     public StreamerDTO() {
     }
 
-    public StreamerDTO(Streamer ec) {
-        super(ec);
-        setWidth(ec.getStripWidth() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setDragCoefficient(ec.getCD());
+    /**
+     * Copy constructor.  This constructor fully populates this instance with values taken from the OR component.
+     *
+     * @param theORStreamer  the OR streamer component
+     */
+    public StreamerDTO(Streamer theORStreamer) {
+        super(theORStreamer);
+        setWidth(theORStreamer.getStripWidth() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setDragCoefficient(theORStreamer.getCD());
     }
 
     public double getWidth() {

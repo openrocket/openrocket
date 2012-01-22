@@ -25,7 +25,7 @@ public class MassObjectDTO extends BasePartDTO{
     }
 
     /**
-     * Typed constructor.
+     * Typed copy constructor.
      *
      * @param mo  OR MassObject
      */

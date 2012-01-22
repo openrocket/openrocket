@@ -33,39 +33,46 @@ public class StageDTO {
     public StageDTO() {
     }
 
-    public StageDTO(Stage stage, RocketDesignDTO design, int stageNumber) {
+    /**
+     * Copy constructor.
+     *
+     * @param theORStage  the OR stage
+     * @param design      the encompassing container DTO
+     * @param stageNumber the stage number (3 is always at the top, even if it's the only one)
+     */
+    public StageDTO(Stage theORStage, RocketDesignDTO design, int stageNumber) {
 
         if (stageNumber == 3) {
-            if (stage.isMassOverridden()) {
-                design.setStage3Mass(stage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+            if (theORStage.isMassOverridden()) {
+                design.setStage3Mass(theORStage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
                 design.setUseKnownMass(1);
             }
-            if (stage.isCGOverridden()) {
-                design.setStage3CG(stage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (theORStage.isCGOverridden()) {
+                design.setStage3CG(theORStage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
         }
         
         if (stageNumber == 2) {
-            if (stage.isMassOverridden()) {
-                design.setStage2Mass(stage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+            if (theORStage.isMassOverridden()) {
+                design.setStage2Mass(theORStage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
                 design.setUseKnownMass(1);
             }
-            if (stage.isCGOverridden()) {
-                design.setStage2CGAlone(stage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (theORStage.isCGOverridden()) {
+                design.setStage2CGAlone(theORStage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
         }
 
         if (stageNumber == 1) {
-            if (stage.isMassOverridden()) {
-                design.setStage1Mass(stage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
+            if (theORStage.isMassOverridden()) {
+                design.setStage1Mass(theORStage.getMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
                 design.setUseKnownMass(1);
             }
-            if (stage.isCGOverridden()) {
-                design.setStage1CGAlone(stage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+            if (theORStage.isCGOverridden()) {
+                design.setStage1CGAlone(theORStage.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
             }
         }
 
-        List<RocketComponent> children = stage.getChildren();
+        List<RocketComponent> children = theORStage.getChildren();
         for (int i = 0; i < children.size(); i++) {
             RocketComponent rocketComponents = children.get(i);
             if (rocketComponents instanceof NoseCone) {

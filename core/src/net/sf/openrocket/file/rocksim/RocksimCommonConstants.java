@@ -102,4 +102,7 @@ public class RocksimCommonConstants {
      * Radius conversion.  Rocksim is always in diameters, OpenRocket mostly in radius.
      */
     public static final int ROCKSIM_TO_OPENROCKET_RADIUS = 2 * ROCKSIM_TO_OPENROCKET_LENGTH;
+    public static final String TUBE_FIN_SET = "TubeFinSet";
+    public static final String RING_TAIL = "RingTail";
+    public static final String EXTERNAL_POD = "ExternalPod";
 }

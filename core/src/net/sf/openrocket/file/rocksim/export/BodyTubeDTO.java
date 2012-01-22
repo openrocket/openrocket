@@ -27,10 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Models the XML element for a Rocksim body tube.
  */
 @XmlRootElement(name = RocksimCommonConstants.BODY_TUBE)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BodyTubeDTO extends BasePartDTO implements AttachedParts {
+public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
 
     @XmlElement(name = RocksimCommonConstants.OD)
     private double od = 0d;
@@ -57,28 +58,42 @@ public class BodyTubeDTO extends BasePartDTO implements AttachedParts {
             @XmlElementRef(name = RocksimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class)})
     List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
 
+    /**
+     * Constructor.
+     */
     public BodyTubeDTO() {
     }
 
-    public BodyTubeDTO(InnerTube inner) {
-        super(inner);
+    /**
+     * Copy constructor.
+     *
+     * @param theORInnerTube  an OR inner tube; used by subclasses
+     */
+    protected BodyTubeDTO(InnerTube theORInnerTube) {
+        super(theORInnerTube);
     }
 
-    protected BodyTubeDTO(BodyTube bt) {
-        super(bt);
+    /**
+     * Copy constructor.
+     *
+     * @param theORBodyTube an OR body tube
+     */
+    protected BodyTubeDTO(BodyTube theORBodyTube) {
+        super(theORBodyTube);
 
-        setEngineOverhang(bt.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
-        setID(bt.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setOD(bt.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setMotorDia((bt.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
-        setMotorMount(bt.isMotorMount());
+        setEngineOverhang(theORBodyTube.getMotorOverhang() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
+        setID(theORBodyTube.getInnerRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setOD(theORBodyTube.getOuterRadius() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setMotorDia((theORBodyTube.getMotorMountDiameter() / 2) * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS);
+        setMotorMount(theORBodyTube.isMotorMount());
 
-        List<RocketComponent> children = bt.getChildren();
+        List<RocketComponent> children = theORBodyTube.getChildren();
         for (int i = 0; i < children.size(); i++) {
             RocketComponent rocketComponents = children.get(i);
             if (rocketComponents instanceof InnerTube) {
                 final InnerTube innerTube = (InnerTube) rocketComponents;
                 final InnerBodyTubeDTO innerBodyTubeDTO = new InnerBodyTubeDTO(innerTube, this);
+                //Only add the inner tube if it is NOT a cluster.
                 if (innerTube.getClusterCount() == 1) {
                     attachedParts.add(innerBodyTubeDTO);
                 }

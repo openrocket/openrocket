@@ -60,13 +60,13 @@ class AttachedPartsHandler extends ElementHandler {
         if (RocksimCommonConstants.TRANSITION.equals(element)) {
             return new TransitionHandler(component, warnings);
         }
-        if ("TubeFinSet".equals(element)) {
+        if (RocksimCommonConstants.TUBE_FIN_SET.equals(element)) {
             warnings.add("Tube fins are not currently supported. Ignoring.");
         }
-        if ("RingTail".equals(element)) {
+        if (RocksimCommonConstants.RING_TAIL.equals(element)) {
             warnings.add("Ring tails are not currently supported. Ignoring.");
         }
-        if ("ExternalPod".equals(element)) {
+        if (RocksimCommonConstants.EXTERNAL_POD.equals(element)) {
             warnings.add("Pods are not currently supported. Ignoring.");
         }
         return null;

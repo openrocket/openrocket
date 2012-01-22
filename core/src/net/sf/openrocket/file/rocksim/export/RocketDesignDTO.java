@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
+ * This class models a Rocksim XML element for a rocket design container.  It's really nothing more than
+ * a bunch of boilerplate XML that does not change, coupled with the stage DTOs that are part of the rocket design.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RocketDesignDTO {
@@ -67,6 +69,9 @@ public class RocketDesignDTO {
     @XmlElement(name = "Stage1Parts", required = false, nillable = false)
     private StageDTO stage1 = new StageDTO();
 
+    /**
+     * Default constructor.
+     */
     public RocketDesignDTO() {
     }
 

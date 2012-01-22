@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * This class models a Rocksim XML Element for a nose cone.
  */
 @XmlRootElement(name = RocksimCommonConstants.NOSE_CONE)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -29,7 +30,7 @@ public class NoseConeDTO extends AbstractTransitionDTO {
     }
 
     /**
-     * Full copy constructor.
+     * Full copy constructor.  Fully populates this instance with values taken from the OR NoseCone instance.
      *
      * @param nc  the OR nose cone
      */

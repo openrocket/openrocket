@@ -103,15 +103,15 @@ class RocksimContentHandler extends ElementHandler {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes,
                                       WarningSet warnings) {
-        if ("DesignInformation".equals(element)) {
+        if (RocksimCommonConstants.DESIGN_INFORMATION.equals(element)) {
             //The next sub-element is "RocketDesign", which is really the only thing that matters.  Rather than
             //create another handler just for that element, handle it here.
             return this;
         }
-        if ("FileVersion".equals(element)) {
+        if (RocksimCommonConstants.FILE_VERSION.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
-        if ("RocketDesign".equals(element)) {
+        if (RocksimCommonConstants.ROCKET_DESIGN.equals(element)) {
             return new RocketDesignHandler(rocket);
         }
         return null;
@@ -124,7 +124,7 @@ class RocksimContentHandler extends ElementHandler {
          * SAX handler for Rocksim file version number.  The value is not used currently, but could be used in the future
          * for backward/forward compatibility reasons (different lower level handlers could be called via a strategy pattern).
          */
-        if ("FileVersion".equals(element)) {
+        if (RocksimCommonConstants.FILE_VERSION.equals(element)) {
             version = content;
         }
     }
@@ -243,7 +243,7 @@ class RocketDesignHandler extends ElementHandler {
                 return new StageHandler(stage);
             }
         }
-        if ("Name".equals(element)) {
+        if (RocksimCommonConstants.NAME.equals(element)) {
             return PlainTextHandler.INSTANCE;
         }
         if ("StageCount".equals(element)) {
@@ -274,7 +274,7 @@ class RocketDesignHandler extends ElementHandler {
     public void closeElement(String element, HashMap<String, String> attributes,
                              String content, WarningSet warnings) throws SAXException {
         try {
-            if ("Name".equals(element)) {
+            if (RocksimCommonConstants.NAME.equals(element)) {
                 component.setName(content);
             }
             if ("StageCount".equals(element)) {
