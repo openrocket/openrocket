@@ -4,19 +4,13 @@
     <string name="app_name">OpenRocket</string>
     <string name="save">Save</string>
     <string name="MotorListTitle">Motor List</string>
-    <string name="PreferenceMotorBrowserGroupingOption">PreferenceMotorBrowserGroupingOption</string>
+    <string name="Preferences">Preferences</string>
 
     <string-array name="PreferenceMotorBrowserGroupingEntries">
         <item>Case</item>
         <item>Diameter</item>
         <item>Impulse</item>
         <item>Manufacturer</item>
-    </string-array>
-    <string-array name="PreferenceMotorBrowserGroupingValues">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
     </string-array>
 
     <string name="TCMotorSearchFormImpulse">Impulse</string>
@@ -96,8 +90,11 @@
     <string name="tcdownload">Download from ThrustCurve</string>
     <string name="simulationSeries1Label">Series 1</string>
     <string name="simulationSeries2Label">Series 2</string>
-    <string name="PreferenceUnitLengthOption">PreferenceUnitLengthOption</string>
 
+    <string name="motorbrowsergrouptitle">Motor Browser Grouping</string>
+    <string name="useinternalfilebrowsertitle">Use Internal File Browser</string>
+    <string name="useinternalfilebrowsersummary">uncheck to use system file browser if available</string>
+    
     <string-array name="PreferenceUnitLengthEntries">
         <item>Millimeters</item>
         <item>Centimeters</item>
@@ -105,46 +102,18 @@
         <item>Inches</item>
         <item>Feet</item>
     </string-array>
-    <string-array name="PreferenceUnitLengthValues">
-        <item>mm</item>
-        <item>cm</item>
-        <item>m</item>
-        <item>in</item>
-        <item>ft</item>
-    </string-array>
-
-    <string name="PreferenceUnitMassOption">PreferenceUnitMassOption</string>
-
     <string-array name="PreferenceUnitMassEntries">
         <item>Grams</item>
         <item>Kilograms</item>
         <item>Ounces</item>
         <item>Pounds</item>
     </string-array>
-    <string-array name="PreferenceUnitMassValues">
-        <item>g</item>
-        <item>kg</item>
-        <item>oz</item>
-        <item>lb</item>
-    </string-array>
-
-    <string name="PreferenceUnitVelocityOption">PreferenceUnitVelocityOption</string>
-
     <string-array name="PreferenceUnitVelocityEntries">
         <item>Meters/Second</item>
         <item>Kilometers/Hour</item>
         <item>Feet/Second</item>
         <item>Miles/Hour</item>
     </string-array>
-    <string-array name="PreferenceUnitVelocityValues">
-        <item>m/s</item>
-        <item>km/h</item>
-        <item>ft/s</item>
-        <item>mph</item>
-    </string-array>
-
-    <string name="PreferenceUnitDistanceOption">PreferenceUnitDistanceOption</string>
-
     <string-array name="PreferenceUnitDistanceEntries">
         <item>Meters</item>
         <item>Kilometers</item>
@@ -152,14 +121,6 @@
         <item>Yards</item>
         <item>Miles</item>
         <item>Nautical Miles</item>
-    </string-array>
-    <string-array name="PreferenceUnitDistanceValues">
-        <item>m</item>
-        <item>km</item>
-        <item>ft</item>
-        <item>yd</item>
-        <item>mi</item>
-        <item>nmi</item>
     </string-array>
 
 </resources>

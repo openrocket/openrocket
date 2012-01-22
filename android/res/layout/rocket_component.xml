@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pl.polidea.treeview.TreeViewList xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/openrocketviewerComponentTree"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="vertical"
+    android:smoothScrollbar="true" />

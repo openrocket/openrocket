@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="PreferenceMotorBrowserGroupingOption">PreferenceMotorBrowserGroupingOption</string>
+
+    <string name="PreferenceUseInternalFileBrowserOption">PreferenceUseInternalFileBrowserOpion</string>
+    
+    <string-array name="PreferenceMotorBrowserGroupingValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string name="PreferenceUnitLengthOption">PreferenceUnitLengthOption</string>
+
+    <string-array name="PreferenceUnitLengthValues">
+        <item>mm</item>
+        <item>cm</item>
+        <item>m</item>
+        <item>in</item>
+        <item>ft</item>
+    </string-array>
+
+    <string name="PreferenceUnitMassOption">PreferenceUnitMassOption</string>
+
+    <string-array name="PreferenceUnitMassValues">
+        <item>g</item>
+        <item>kg</item>
+        <item>oz</item>
+        <item>lb</item>
+    </string-array>
+
+    <string name="PreferenceUnitVelocityOption">PreferenceUnitVelocityOption</string>
+
+    <string-array name="PreferenceUnitVelocityValues">
+        <item>m/s</item>
+        <item>km/h</item>
+        <item>ft/s</item>
+        <item>mph</item>
+    </string-array>
+
+    <string name="PreferenceUnitDistanceOption">PreferenceUnitDistanceOption</string>
+
+    <string-array name="PreferenceUnitDistanceValues">
+        <item>m</item>
+        <item>km</item>
+        <item>ft</item>
+        <item>yd</item>
+        <item>mi</item>
+        <item>nmi</item>
+    </string-array>
+
+</resources>

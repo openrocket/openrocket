@@ -2,10 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/motor_list_menu_option"
-        android:title="Motor List"/>
+        android:id="@+id/main_menu_open"
+        android:title="Open"/>
     <item
-        android:id="@+id/preference_menu_option"
+        android:id="@+id/main_menu_motor"
+        android:title="Motor"/>
+    <item
+        android:id="@+id/main_menu_preferences"
         android:title="@string/Preferences"
         android:icon="@drawable/ic_menu_preferences"/>
 

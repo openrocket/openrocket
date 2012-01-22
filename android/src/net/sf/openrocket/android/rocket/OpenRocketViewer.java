@@ -1,88 +1,41 @@
 package net.sf.openrocket.android.rocket;
 
 
-import java.io.File;
-
 import net.sf.openrocket.R;
-import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
-import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
-import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.Application;
-import net.sf.openrocket.android.PreferencesActivity;
-import net.sf.openrocket.android.motor.MotorHierarchicalBrowser;
-import net.sf.openrocket.android.rocket.RocketComponentTreeAdapter.RocketComponentWithId;
-import net.sf.openrocket.android.simulation.SimulationViewer;
+import net.sf.openrocket.android.util.TabsAdapter;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator;
-import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.RocketUtils;
-import net.sf.openrocket.unit.Unit;
-import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Coordinate;
-import pl.polidea.treeview.InMemoryTreeStateManager;
-import pl.polidea.treeview.TreeBuilder;
-import pl.polidea.treeview.TreeStateManager;
-import pl.polidea.treeview.TreeViewList;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TabHost;
-import android.widget.TextView;
 
-public class OpenRocketViewer extends Activity
+public class OpenRocketViewer extends FragmentActivity
 implements SharedPreferences.OnSharedPreferenceChangeListener
 {
 
 	private static final String TAG = "OpenRocketViewer";
-
-	private ProgressDialog progress;
-
-	private Spinner configurationSpinner;
-	private TreeViewList componentTree;
-	private ListView simulationList;
-	
-	/* Calculation of CP and CG */
-	private AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
-	private MassCalculator massCalculator  = new BasicMassCalculator();
 
 	OpenRocketDocument rocketDocument;
 	Configuration rocketConfiguration;
 
 	private Application app;
 
-	private final static int PICK_ORK_FILE_RESULT = 1;
+	TabHost mTabHost;
+	ViewPager  mViewPager;
+	TabsAdapter mTabsAdapter;
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreate(android.os.Bundle)
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Log.d(TAG,"In onCreate");
 
 		app = (Application) this.getApplication();
 
@@ -91,89 +44,29 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
 
-		TabHost tabs=(TabHost)findViewById(R.id.openrocketviewerTabHost);
+		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
+		mTabHost.setup();
 
-		tabs.setup();
+		mViewPager = (ViewPager)findViewById(R.id.pager);
 
-		TabHost.TabSpec spec=tabs.newTabSpec("tag1");
+		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-		spec.setContent(R.id.openrocketviewerOverview);
-		spec.setIndicator("Overview");
-		tabs.addTab(spec);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("overview").setIndicator("Overview"),
+				Overview.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("components").setIndicator("Components"),
+				Component.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("simulations").setIndicator("Simulations"),
+				Simulations.class, null);
 
-		spec=tabs.newTabSpec("tag2");
-		spec.setContent(R.id.openrocketviewerComponentTree);
-		spec.setIndicator("Components");
-		tabs.addTab(spec);	
-
-		spec=tabs.newTabSpec("tag3");
-		spec.setContent(R.id.openrocketviewerSimulationList);
-		spec.setIndicator("Simulations");
-		tabs.addTab(spec);	
-
-		configurationSpinner = (Spinner) findViewById(R.id.openrocketviewerConfigurationSpinner);
-		componentTree = (TreeViewList) findViewById(R.id.openrocketviewerComponentTree);
-		simulationList = (ListView) findViewById(R.id.openrocketviewerSimulationList);
-
-		Intent i = getIntent();
-		Uri file = i.getData();
-
-		if ( file == null ) {
-			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-			intent.setType("file/*");
-			startActivityForResult(intent,PICK_ORK_FILE_RESULT);
-
-		} else {
-			loadOrkFile(file);
+		if (savedInstanceState != null) {
+			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
 		}
 	}
 
 	@Override
-	protected void onDestroy() {
-		if ( progress != null ) {
-			if ( progress.isShowing() ) {
-				progress.dismiss();
-			}
-			progress = null;
-		}
-		super.onDestroy();
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
-		switch(requestCode){
-		case PICK_ORK_FILE_RESULT:
-			if(resultCode==RESULT_OK){
-				Uri file = data.getData();
-				loadOrkFile(file);
-			}
-			break;
-		}
-	}
-
-	private void loadOrkFile( Uri file ) {
-		Log.d(TAG,"Use ork file: " + file);
-		String path = file.getPath();
-		File orkFile = new File(path);
-		progress = ProgressDialog.show(this, "Loading file", "");
-
-		final OpenRocketLoaderTask task = new OpenRocketLoaderTask() {
-
-			/* (non-Javadoc)
-			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-			 */
-			@Override
-			protected void onPostExecute(OpenRocketDocument result) {
-				super.onPostExecute(result);
-				app.setRocketDocument( result );
-				updateContents();
-			}
-
-		};
-
-		task.execute(orkFile);
-
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("tab", mTabHost.getCurrentTabTag());
 	}
 
 	/* (non-Javadoc)
@@ -182,115 +75,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		// just in case the user changed the units, we redraw.
-		PreferencesActivity.initializePreferences(getApplication(), PreferenceManager.getDefaultSharedPreferences(this));
-		updateContents();
-	}
-
-	private void updateContents() {
-
-		rocketDocument = app.getRocketDocument();
-		rocketConfiguration = rocketDocument.getDefaultConfiguration();
-		Rocket rocket = rocketDocument.getRocket();
-
-		setTitle(rocket.getName());
-
-		String[] motorConfigs = rocket.getMotorConfigurationIDs();
-		ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item);
-		for( String config: motorConfigs ) {
-			spinnerAdapter.add(rocket.getMotorConfigurationNameOrDescription(config));
-		}
-		
-		configurationSpinner.setAdapter(spinnerAdapter);
-		configurationSpinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
-
-			/* (non-Javadoc)
-			 * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
-			 */
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-
-				String selectedConfigId = rocketDocument.getRocket().getMotorConfigurationIDs()[arg2];
-				rocketConfiguration.setMotorConfigurationID(selectedConfigId);
-				Coordinate cp = aerodynamicCalculator.getWorstCP(rocketConfiguration,
-						new FlightConditions(rocketConfiguration),
-						new WarningSet());
-				
-				Coordinate cg = massCalculator.getCG(rocketConfiguration, MassCalcType.LAUNCH_MASS);
-
-				Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-				Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-				Unit stabilityUnit = UnitGroup.stabilityUnits(rocketConfiguration).getDefaultUnit();
-
-				((TextView)findViewById(R.id.openrocketviewerCP)).setText(lengthUnit.toStringUnit(cp.x));
-				((TextView)findViewById(R.id.openrocketviewerCG)).setText(lengthUnit.toStringUnit(cg.x));
-				((TextView)findViewById(R.id.openrocketviewerLiftOffWeight)).setText(massUnit.toStringUnit(cg.weight));
-				((TextView)findViewById(R.id.openrocketviewerStabilityMargin)).setText(stabilityUnit.toStringUnit(cp.x-cg.x));
-
-			}
-
-			/* (non-Javadoc)
-			 * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
-			 */
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				((TextView)findViewById(R.id.openrocketviewerCP)).setText("");
-				((TextView)findViewById(R.id.openrocketviewerCG)).setText("");
-				((TextView)findViewById(R.id.openrocketviewerLiftOffWeight)).setText("");
-				((TextView)findViewById(R.id.openrocketviewerStabilityMargin)).setText("");
-			}
-			
-		});
-		
-		Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-		Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-
-		Coordinate cg = RocketUtils.getCG(rocket, MassCalcType.NO_MOTORS);
-		double length = RocketUtils.getLength(rocket);
-		((TextView)findViewById(R.id.openrocketviewerDesigner)).setText(rocket.getDesigner());
-		((TextView)findViewById(R.id.openrocketviewerLength)).setText(lengthUnit.toStringUnit(length));
-		((TextView)findViewById(R.id.openrocketviewerMass)).setText(massUnit.toStringUnit(cg.weight));
-		((TextView)findViewById(R.id.openrocketviewerStageCount)).setText(String.valueOf(rocket.getStageCount()));
-
-		
-		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this,android.R.layout.simple_list_item_2,rocketDocument.getSimulations()) {
-
-			@Override
-			public View getView(int position, View convertView,	ViewGroup parent) {
-				View v = convertView;
-				if ( v == null ) {
-					LayoutInflater li = getLayoutInflater();
-					v = li.inflate(android.R.layout.simple_list_item_2,null);
-				}
-				Simulation sim = this.getItem(position);
-				((TextView)v.findViewById(android.R.id.text1)).setText( sim.getName() );
-				StringBuilder sb = new StringBuilder();
-				sb.append("motors: ").append(sim.getConfiguration().getMotorConfigurationDescription());
-				Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
-				sb.append(" apogee: ").append( distanceUnit.toStringUnit(sim.getSimulatedData().getMaxAltitude()));
-				sb.append(" time: ").append(sim.getSimulatedData().getFlightTime()).append("s");
-				((TextView)v.findViewById(android.R.id.text2)).setText( sb.toString() );
-				return v;
-			}
-
-		};
-		simulationList.setOnItemClickListener( new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView l, View v, int position, long id) {
-				Intent i = new Intent(OpenRocketViewer.this, SimulationViewer.class);
-				Log.d(TAG,"onItemClick simulation number " + id );
-				i.putExtra("Simulation",(int)id);
-				startActivity(i);
-			}
-
-		});
-		simulationList.setAdapter(sims);
-
-		componentTree.setAdapter( buildAdapter( rocket ) );
-
-		if ( progress.isShowing() ) {
-			progress.dismiss();
-		}
+		//	TODO = 	updateContents();  redraw all children..
 	}
 
 	@Override
@@ -301,72 +86,31 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch ( item.getItemId() ) {
+		/*		case android.R.id.home:
+			Intent i = new Intent( this, Main.class );
+			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(i);
+			return true;
+		 */
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		Log.d(TAG,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case R.id.motor_list_menu_option:
-			startMotorBrowser();
+			ActivityHelpers.browseMotors(this);
 			return true;
 		case R.id.preference_menu_option:
-			Intent intent = new Intent().setClass(this, PreferencesActivity.class);
-			this.startActivity(intent);
+			ActivityHelpers.startPreferences(this);
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
-
-	public void startMotorBrowser() {
-		Log.d(TAG,"motorBrowserButton clicked");
-		Intent i = new Intent(OpenRocketViewer.this, MotorHierarchicalBrowser.class);
-		startActivity(i);
-	}
-
-	private ListAdapter buildAdapter( Rocket rocket ) {
-		/*
-		final int[] DEMO_NODES = new int[] { 0, 0, 1, 1, 1, 2, 2, 1,
-				1, 2, 1, 0, 0, 0, 1, 2, 3, 2, 0, 0, 1, 2, 0, 1, 2, 0, 1 };
-		final int LEVEL_NUMBER = 4;
-
-		TreeStateManager<Long> manager = new InMemoryTreeStateManager<Long>();
-		final TreeBuilder<Long> treeBuilder = new TreeBuilder<Long>(manager);
-		for (int i = 0; i < DEMO_NODES.length; i++) {
-			treeBuilder.sequentiallyAddNextNode((long) i, DEMO_NODES[i]);
-		}
-
-		return new SimpleStandardAdapter(this, manager, LEVEL_NUMBER);
-		*/
-		
-		TreeStateManager<RocketComponentWithId> manager = new InMemoryTreeStateManager<RocketComponentWithId>();
-		TreeBuilder<RocketComponentWithId> treeBuilder = new TreeBuilder<RocketComponentWithId>(manager);
-		
-		int depth = buildRecursive( rocket, treeBuilder, 0 );
-		return new RocketComponentTreeAdapter(this, manager, depth+1);
-	}
-	
-	long id = 0;
-	private int buildRecursive( RocketComponent comp, TreeBuilder<RocketComponentWithId> builder, int depth ) {
-		
-		
-		int maxDepth = depth;
-		
-		RocketComponentWithId rcid = new RocketComponentWithId(comp, id++);
-		
-		// Add this component.
-		builder.sequentiallyAddNextNode(rcid, depth);
-		
-		if ( comp.allowsChildren() ) {
-			
-			for( RocketComponent child : comp.getChildren() ) {
-				int childDepth = buildRecursive( child, builder, depth+1);
-				if ( childDepth > maxDepth) {
-					maxDepth = childDepth;
-				}
-			}
-			
-		}
-		
-		return maxDepth;
-	}
-
 
 }

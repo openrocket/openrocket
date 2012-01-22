@@ -2,15 +2,20 @@ package net.sf.openrocket.android;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.filebrowser.SimpleFileBrowser;
-import net.sf.openrocket.android.motor.MotorHierarchicalBrowser;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
-public class Main extends Activity {
+public class Main extends FragmentActivity {
 
 	private static final int PICK_ORK_FILE_RESULT = 1;
 
@@ -19,6 +24,29 @@ public class Main extends Activity {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch( item.getItemId() ) {
+		case R.id.main_menu_motor:
+			ActivityHelpers.browseMotors(this);
+			return true;
+		case R.id.main_menu_open:
+			pickOrkFiles();
+			return true;
+		case R.id.main_menu_preferences:
+			ActivityHelpers.startPreferences(this);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/* (non-Javadoc)
@@ -39,21 +67,37 @@ public class Main extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	public void pickOrkFiles( View v ) {
-		try {
-			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-			intent.setType("file/*");
-			startActivityForResult(intent,PICK_ORK_FILE_RESULT);
-		} catch ( ActivityNotFoundException ex ) { 
-			// No activity for ACTION_GET_CONTENT  use internal file browser
+	private void pickOrkFiles( ) {
+		Resources resources = this.getResources();
+		String key = resources.getString(R.string.PreferenceUseInternalFileBrowserOption);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+		boolean useinternalbrowser = pref.getBoolean(key, false);
+
+		if ( useinternalbrowser ) {
 			Intent intent = new Intent(Main.this, SimpleFileBrowser.class);
 			startActivityForResult(intent,PICK_ORK_FILE_RESULT);
-		}
+		} else {
+			try {
+				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+				intent.setType("file/*");
+				startActivityForResult(intent,PICK_ORK_FILE_RESULT);
+			} catch ( ActivityNotFoundException ex ) { 
+				// No activity for ACTION_GET_CONTENT  use internal file browser
+				// update the preference value.
+				pref.edit().putBoolean(key, false).commit();
+				// fire our browser
+				Intent intent = new Intent(Main.this, SimpleFileBrowser.class);
+				startActivityForResult(intent,PICK_ORK_FILE_RESULT);
+			}
+		}		
+	}
+	public void pickOrkFiles( View v ) {
+		pickOrkFiles();
 	}
 
 	public void browseMotors( View v ) {
-		Intent i = new Intent(Main.this, MotorHierarchicalBrowser.class);
-		startActivity(i);
+		ActivityHelpers.browseMotors(this);
 	}
 
 }

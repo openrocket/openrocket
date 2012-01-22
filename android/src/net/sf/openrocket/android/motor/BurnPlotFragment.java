@@ -43,12 +43,6 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 	private float mScaleFactor = 1.f;
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		Log.d(TAG,"onAttach");
-	}
-
-	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);

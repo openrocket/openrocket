@@ -52,5 +52,13 @@ implements SharedPreferences.OnSharedPreferenceChangeListener {
 		UnitGroup.UNITS_DISTANCE.setDefaultUnit( distance );
 		
 	}
+
+	@Override
+	protected void onStop() {
+		initializePreferences(getApplication(), PreferenceManager.getDefaultSharedPreferences(this));
+		super.onStop();
+	}
+	
+	
 	
 }

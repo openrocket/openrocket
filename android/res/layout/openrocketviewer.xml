@@ -1,144 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TabHost
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/tabhost"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent">
 
-    <TabHost
-        android:id="@+id/openrocketviewerTabHost"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/black" >
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <TabWidget
+            android:id="@android:id/tabs"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:layout_height="wrap_content"
+            android:layout_weight="0"/>
 
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <FrameLayout
+            android:id="@android:id/tabcontent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0"/>
 
-            <FrameLayout
-                android:id="@android:id/tabcontent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
-                <LinearLayout
-                    android:id="@+id/openrocketviewerOverview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" >
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Designer" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerDesigner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Length" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerLength"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Empty Mass" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerMass"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Stage Count" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerStageCount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <Spinner android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:id="@+id/openrocketviewerConfigurationSpinner" 
-                        />
-                    
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Lift off weight" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerLiftOffWeight"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="CG" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerCG"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="CP" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerCP"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Stability margin" />
-
-                    <TextView
-                        android:id="@+id/openrocketviewerStabilityMargin"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="" />
-
-                    </LinearLayout>
-
-                <pl.polidea.treeview.TreeViewList
-                    android:id="@+id/openrocketviewerComponentTree"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:scrollbars="vertical"
-                    android:smoothScrollbar="true" />
-
-                <ListView
-                    android:id="@+id/openrocketviewerSimulationList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </FrameLayout>
-        </LinearLayout>
-    </TabHost>
-
-</LinearLayout>
+    </LinearLayout>
+</TabHost>
