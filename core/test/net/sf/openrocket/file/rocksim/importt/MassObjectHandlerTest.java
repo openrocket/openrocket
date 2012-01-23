@@ -38,8 +38,9 @@ public class MassObjectHandlerTest extends RocksimTestBase {
 
         BodyTube tube = new BodyTube();
         MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
-        MassComponent component = (MassComponent) getField(handler, "mass");
-        assertContains(component, tube.getChildren());
+        MassComponent mass = (MassComponent) getField(handler, "mass");
+        MassComponent current = (MassComponent) getField(handler, "current");
+        Assert.assertEquals(mass, current);
     }
 
     /**
@@ -70,10 +71,10 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         handler.closeElement("Len", attributes, "-1", warnings);
         Assert.assertEquals(0d, component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10", warnings);
-        Assert.assertEquals(10d / (MassObjectHandler.MASS_LEN_FUDGE_FACTOR * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH)
+        Assert.assertEquals(0.01
                 , component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "10.0", warnings);
-        Assert.assertEquals(10d / (MassObjectHandler.MASS_LEN_FUDGE_FACTOR * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH)
+        Assert.assertEquals(0.01
                 , component.getLength(), 0.001);
         handler.closeElement("Len", attributes, "foo", warnings);
         Assert.assertEquals(1, warnings.size());
@@ -120,6 +121,6 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new MassObjectHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.LINE, new MassObjectHandler(new BodyTube(), new WarningSet()).getMaterialType());
     }
 }
