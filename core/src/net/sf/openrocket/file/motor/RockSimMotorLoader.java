@@ -32,19 +32,19 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	
 	public static final Charset CHARSET = Charset.forName(CHARSET_NAME);
 	
-
+	
 	/** Any delay longer than this will be interpreted as a plugged motor. */
 	private static final int DELAY_LIMIT = 90;
 	
 	
-
+	
 	@Override
 	protected Charset getDefaultCharset() {
 		return CHARSET;
 	}
 	
 	
-
+	
 	/**
 	 * Load a <code>Motor</code> from a RockSim motor definition file specified by the 
 	 * <code>Reader</code>. The <code>Reader</code> is responsible for using the correct 
@@ -73,7 +73,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	}
 	
 	
-
+	
 	/**
 	 * Initial handler for the RockSim engine files.
 	 */
@@ -234,7 +234,15 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			
 			// Motor type
 			str = attributes.get("Type");
-			type = Motor.Type.fromName(str);
+			if ("single-use".equalsIgnoreCase(str)) {
+				type = Motor.Type.SINGLE;
+			} else if ("hybrid".equalsIgnoreCase(str)) {
+				type = Motor.Type.HYBRID;
+			} else if ("reloadable".equalsIgnoreCase(str)) {
+				type = Motor.Type.RELOAD;
+			} else {
+				type = Motor.Type.UNKNOWN;
+			}
 			
 			// Calculate mass
 			str = attributes.get("auto-calc-mass");
@@ -315,7 +323,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			if (time == null || time.size() == 0)
 				throw new SAXException("Illegal motor data");
 			
-
+			
 			finalizeThrustCurve(time, force, mass, cg);
 			final int n = time.size();
 			
@@ -340,7 +348,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 				cgArray[i] = new Coordinate(cg.get(i), 0, 0, mass.get(i));
 			}
 			
-
+			
 			// Create the motor digest from all data available in the file
 			MotorDigest motorDigest = new MotorDigest();
 			motorDigest.update(DataType.TIME_ARRAY, timeArray);
@@ -352,10 +360,11 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			if (!calculateCG) {
 				motorDigest.update(DataType.CG_PER_TIME, toArray(cg));
 			}
+			// FIXME: Should this use CG_SPECIFIC ???
 			motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
 			final String digest = motorDigest.getDigest();
 			
-
+			
 			try {
 				Manufacturer m = Manufacturer.getManufacturer(manufacturer);
 				Motor.Type t = type;
@@ -451,7 +460,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	}
 	
 	
-
+	
 	private static boolean hasIllegalValue(List<Double> list) {
 		for (Double d : list) {
 			if (d == null || d.isNaN() || d.isInfinite()) {

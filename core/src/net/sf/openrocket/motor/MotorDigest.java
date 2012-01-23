@@ -68,7 +68,23 @@ public class MotorDigest {
 	}
 	
 	
-	public void update(DataType type, int... values) {
+	
+	public void update(DataType type, double... values) {
+		int multiplier = type.getMultiplier();
+		
+		int[] intValues = new int[values.length];
+		for (int i = 0; i < values.length; i++) {
+			double v = values[i];
+			v = next(v);
+			v *= multiplier;
+			v = next(v);
+			intValues[i] = (int) Math.round(v);
+		}
+		update(type, intValues);
+	}
+	
+	
+	private void update(DataType type, int... values) {
 		
 		// Check for correct order
 		if (lastOrder >= type.getOrder()) {
@@ -91,23 +107,6 @@ public class MotorDigest {
 	}
 	
 	
-	private void update(DataType type, int multiplier, double... values) {
-		
-		int[] intValues = new int[values.length];
-		for (int i = 0; i < values.length; i++) {
-			double v = values[i];
-			v = next(v);
-			v *= multiplier;
-			v = next(v);
-			intValues[i] = (int) Math.round(v);
-		}
-		update(type, intValues);
-	}
-	
-	public void update(DataType type, double... values) {
-		update(type, type.getMultiplier(), values);
-	}
-	
 	private static double next(double v) {
 		return v + Math.signum(v) * EPSILON;
 	}
@@ -123,7 +122,7 @@ public class MotorDigest {
 	}
 	
 	
-
+	
 	private byte[] bytes(int value) {
 		return new byte[] {
 				(byte) ((value >>> 24) & 0xFF), (byte) ((value >>> 16) & 0xFF),
@@ -138,7 +137,7 @@ public class MotorDigest {
 	 * @param m		the motor to digest
 	 * @return		the digest
 	 */
-	public static String digestMotor(Motor m) {
+	public static String digestMotor(ThrustCurveMotor m) {
 		
 		// Create the motor digest from data available in RASP files
 		MotorDigest motorDigest = new MotorDigest();

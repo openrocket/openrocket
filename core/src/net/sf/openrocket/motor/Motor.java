@@ -3,16 +3,16 @@ package net.sf.openrocket.motor;
 import net.sf.openrocket.util.Coordinate;
 
 public interface Motor {
-
+	
 	/**
 	 * Enum of rocket motor types.
 	 * 
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	public enum Type {
-		SINGLE("Single-use", "Single-use solid propellant motor"), 
-		RELOAD("Reloadable", "Reloadable solid propellant motor"), 
-		HYBRID("Hybrid", "Hybrid rocket motor engine"), 
+		SINGLE("Single-use", "Single-use solid propellant motor"),
+		RELOAD("Reloadable", "Reloadable solid propellant motor"),
+		HYBRID("Hybrid", "Hybrid rocket motor engine"),
 		UNKNOWN("Unknown", "Unknown motor type");
 		
 		private final String name;
@@ -23,21 +23,7 @@ public interface Motor {
 			this.description = description;
 		}
 		
-		public static Type fromName( String name ) {
-			if ( name == null ) {
-				return UNKNOWN;
-			}
-			if ("single-use".equalsIgnoreCase(name)) {
-				return SINGLE;
-			} else if ("hybrid".equalsIgnoreCase(name)) {
-				return HYBRID;
-			} else if ("reloadable".equalsIgnoreCase(name)) {
-				return RELOAD;
-			} else {
-				return UNKNOWN;
-			}
-		}
-
+		
 		/**
 		 * Return a short name of this motor type.
 		 * @return  a short name of the motor type.
@@ -75,16 +61,16 @@ public interface Motor {
 	 */
 	public static final double MARGINAL_THRUST = 0.05;
 	
-
-
+	
+	
 	/**
 	 * Return the motor type.
 	 * 
 	 * @return  the motorType
 	 */
 	public Type getMotorType();
-
-
+	
+	
 	/**
 	 * Return the designation of the motor.
 	 * 
@@ -100,7 +86,7 @@ public interface Motor {
 	 */
 	public String getDesignation(double delay);
 	
-
+	
 	/**
 	 * Return extra description for the motor.  This may include for example 
 	 * comments on the source of the thrust curve.  The returned <code>String</code>
@@ -117,7 +103,7 @@ public interface Motor {
 	 * @return the diameter
 	 */
 	public double getDiameter();
-
+	
 	/**
 	 * Return the length of the motor.  This should be a "characteristic" length,
 	 * and the exact definition may depend on the motor type.  Typically this should
@@ -129,21 +115,33 @@ public interface Motor {
 	public double getLength();
 	
 	public String getDigest();
-
+	
 	public MotorInstance getInstance();
 	
 	
 	public Coordinate getLaunchCG();
+	
 	public Coordinate getEmptyCG();
 	
 	
+	/**
+	 * Return an estimate of the burn time of this motor, or NaN if an estimate is unavailable.
+	 */
 	public double getBurnTimeEstimate();
-	public double getAverageThrustEstimate();
-	public double getMaxThrustEstimate();
-	public double getTotalImpulseEstimate();
 	
-	public double[] getTimePoints();
-	public double[] getThrustPoints();
-	public Coordinate[] getCGPoints();
+	/**
+	 * Return an estimate of the average thrust of this motor, or NaN if an estimate is unavailable.
+	 */
+	public double getAverageThrustEstimate();
+	
+	/**
+	 * Return an estimate of the maximum thrust of this motor, or NaN if an estimate is unavailable.
+	 */
+	public double getMaxThrustEstimate();
+	
+	/**
+	 * Return an estimate of the total impulse of this motor, or NaN if an estimate is unavailable.
+	 */
+	public double getTotalImpulseEstimate();
 	
 }

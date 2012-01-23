@@ -22,8 +22,8 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 	public static final Charset CHARSET = Charset.forName(CHARSET_NAME);
 	
 	
-
-
+	
+	
 	@Override
 	protected Charset getDefaultCharset() {
 		return CHARSET;
@@ -197,7 +197,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 		motorDigest.update(DataType.MASS_SPECIFIC, totalW, totalW - propW);
 		motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
 		final String digest = motorDigest.getDigest();
-
+		
 		try {
 			
 			Manufacturer m = Manufacturer.getManufacturer(manufacturer);
