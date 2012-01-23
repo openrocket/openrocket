@@ -1002,11 +1002,14 @@ class MotorHandler extends ElementHandler {
 		
 		// No motors
 		if (motors.size() == 0) {
-			String str = "No motor with designation '" + designation + "'";
-			if (manufacturer != null)
-				str += " for manufacturer '" + manufacturer + "'";
-			str += " found.";
-			warnings.add(str);
+			Warning.MissingMotor mmw = new Warning.MissingMotor();
+			mmw.setDesignation(designation);
+			mmw.setDigest(digest);
+			mmw.setDiameter(diameter);
+			mmw.setLength(length);
+			mmw.setManufacturer(manufacturer);
+			mmw.setType(type);
+			warnings.add(mmw);
 			return null;
 		}
 		

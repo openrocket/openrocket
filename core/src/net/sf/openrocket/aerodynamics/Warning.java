@@ -1,6 +1,7 @@
 package net.sf.openrocket.aerodynamics;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -91,6 +92,100 @@ public abstract class Warning {
 		}
 	}
 	
+	public static class MissingMotor extends Warning {
+
+		private Motor.Type type = null;
+		private String manufacturer = null;
+		private String designation = null;
+		private String digest = null;
+		private double diameter = Double.NaN;
+		private double length = Double.NaN;
+		private double delay = Double.NaN;
+
+		public String toString() {
+			String str = "No motor with designation '" + designation + "'";
+			if (manufacturer != null)
+				str += " for manufacturer '" + manufacturer + "'";
+			str += " found.";
+			return str;
+		}
+
+		public Motor.Type getType() {
+			return type;
+		}
+
+
+		public void setType(Motor.Type type) {
+			this.type = type;
+		}
+
+
+		public String getManufacturer() {
+			return manufacturer;
+		}
+
+
+		public void setManufacturer(String manufacturer) {
+			this.manufacturer = manufacturer;
+		}
+
+
+		public String getDesignation() {
+			return designation;
+		}
+
+
+		public void setDesignation(String designation) {
+			this.designation = designation;
+		}
+
+
+		public String getDigest() {
+			return digest;
+		}
+
+
+		public void setDigest(String digest) {
+			this.digest = digest;
+		}
+
+
+		public double getDiameter() {
+			return diameter;
+		}
+
+
+		public void setDiameter(double diameter) {
+			this.diameter = diameter;
+		}
+
+
+		public double getLength() {
+			return length;
+		}
+
+
+		public void setLength(double length) {
+			this.length = length;
+		}
+
+
+		public double getDelay() {
+			return delay;
+		}
+
+
+		public void setDelay(double delay) {
+			this.delay = delay;
+		}
+
+
+		@Override
+		public boolean replaceBy(Warning other) {
+			return false;
+		}
+		
+	}
 	
 	
 	/**
