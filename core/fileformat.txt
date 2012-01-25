@@ -5,7 +5,7 @@ reference implementation.  This will hopefully change in the future.
 
 The "version" attribute of the <openrocket> tag describes the file
 format version used, while the "creator" attribute MAY describe the
-software version used to write the document.
+software and version used to write the document.
 
 The file format version is increased every time the format is
 changed.  The minor number is increased when changes are made that are
@@ -19,11 +19,6 @@ version that supports all the necessary design features.
 
 The following file format versions exist:
 
-
-0.9:  Used before the first public release of Openrocket; effectively
-      equivalent to 1.0.  Should not be used when writing documents.
-      OpenRocket accepts this version when reading files, but other
-      software need not.
 
 1.0:  File format version of the first public release (OpenRocket 0.9.0)
 
@@ -40,4 +35,5 @@ The following file format versions exist:
       <geodeticmethod> parameters to the simulation conditions element.
 
 1.4:  Introduced with OpenRocket 1.1.10.  Adds the launchrodvelocity and
-      deploymentvelocity attributes to <flightdata> element.
+      deploymentvelocity attributes to <flightdata> element.  The motor
+      digesting algorithm was changed.

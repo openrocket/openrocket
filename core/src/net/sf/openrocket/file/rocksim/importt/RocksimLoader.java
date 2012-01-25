@@ -3,15 +3,16 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
-import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.file.simplesax.SimpleSAX;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import java.io.IOException;
 import java.io.InputStream;
+
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.AbstractRocketLoader;
+import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.simplesax.SimpleSAX;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * This class is the main entry point for Rocksim design file imported to OpenRocket.  Currently only Rocksim v9
@@ -28,7 +29,7 @@ import java.io.InputStream;
  *          setMaterial
  *          getMaterial
  */
-public class RocksimLoader extends RocketLoader {
+public class RocksimLoader extends AbstractRocketLoader {
 	/**
 	 * This method is called by the default implementations of {@link #load(java.io.File)}
 	 * and {@link #load(java.io.InputStream)} to load the rocket.

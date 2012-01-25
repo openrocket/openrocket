@@ -5,7 +5,7 @@ import java.util.List;
 import net.sf.openrocket.motor.Motor;
 
 public interface MotorDatabase {
-
+	
 	/**
 	 * Return all motors in the database matching a search criteria.  Any search criteria that
 	 * is null or NaN is ignored.
@@ -20,5 +20,5 @@ public interface MotorDatabase {
 	public List<? extends Motor> findMotors(Motor.Type type,
 			String manufacturer, String designation, double diameter,
 			double length);
-
+	
 }

@@ -1,4 +1,4 @@
-package net.sf.openrocket.file.openrocket;
+package net.sf.openrocket.file.openrocket.importt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -15,8 +17,8 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.Simulation.Status;
 import net.sf.openrocket.document.StorageOptions;
+import net.sf.openrocket.file.AbstractRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
@@ -90,7 +92,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class OpenRocketLoader extends RocketLoader {
+public class OpenRocketLoader extends AbstractRocketLoader {
 	private static final LogHelper log = Application.getLogger();
 	
 	
@@ -98,11 +100,12 @@ public class OpenRocketLoader extends RocketLoader {
 	public OpenRocketDocument loadFromStream(InputStream source) throws RocketLoadException,
 			IOException {
 		log.info("Loading .ork file");
+		DocumentLoadingContext context = new DocumentLoadingContext();
 		
 		InputSource xmlSource = new InputSource(source);
-		OpenRocketHandler handler = new OpenRocketHandler();
+		OpenRocketHandler handler = new OpenRocketHandler(context);
 		
-
+		
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);
 		} catch (SAXException e) {
@@ -110,7 +113,7 @@ public class OpenRocketLoader extends RocketLoader {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
-
+		
 		OpenRocketDocument doc = handler.getDocument();
 		doc.getDefaultConfiguration().setAllStages();
 		
@@ -157,9 +160,16 @@ public class OpenRocketLoader extends RocketLoader {
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "0.9", "1.0", "1.1", "1.2", "1.3" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4" };
 	
-
+	/**
+	 * Divisor used in converting an integer version to the point-represented version.
+	 * The integer version divided by this value is the major version and the remainder is
+	 * the minor version.  For example 101 corresponds to file version "1.1".
+	 */
+	public static final int FILE_VERSION_DIVISOR = 100;
+	
+	
 	////////  Component constructors
 	static final HashMap<String, Constructor<? extends RocketComponent>> constructors = new HashMap<String, Constructor<? extends RocketComponent>>();
 	static {
@@ -194,7 +204,7 @@ class DocumentConfig {
 		}
 	}
 	
-
+	
 	////////  Parameter setters
 	/*
 	 * The keys are of the form Class:param, where Class is the class name and param
@@ -399,7 +409,7 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethod(CenteringRing.class, "setOuterRadiusAutomatic", boolean.class)));
 		
-
+		
 		// MassObject
 		setters.put("MassObject:packedlength", new DoubleSetter(
 				Reflection.findMethod(MassObject.class, "setLength", double.class)));
@@ -526,7 +536,12 @@ class DocumentConfig {
  * the contents to be read by a OpenRocketContentsHandler.
  */
 class OpenRocketHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private OpenRocketContentHandler handler = null;
+	
+	public OpenRocketHandler(DocumentLoadingContext context) {
+		this.context = context;
+	}
 	
 	/**
 	 * Return the OpenRocketDocument read from the file, or <code>null</code> if a document
@@ -551,7 +566,7 @@ class OpenRocketHandler extends ElementHandler {
 		// Check for first call
 		if (handler != null) {
 			warnings.add(Warning.fromString("Multiple document elements found, ignoring later "
-							+ "ones."));
+					+ "ones."));
 			return null;
 		}
 		
@@ -575,8 +590,25 @@ class OpenRocketHandler extends ElementHandler {
 			warnings.add(str);
 		}
 		
-		handler = new OpenRocketContentHandler();
+		context.setFileVersion(parseVersion(docVersion));
+		
+		handler = new OpenRocketContentHandler(context);
 		return handler;
+	}
+	
+	
+	private int parseVersion(String docVersion) {
+		if (docVersion == null)
+			return 0;
+		
+		Matcher m = Pattern.compile("^([0-9]+)\\.([0-9]+)$").matcher(docVersion);
+		if (m.matches()) {
+			int major = Integer.parseInt(m.group(1));
+			int minor = Integer.parseInt(m.group(2));
+			return major * DocumentConfig.FILE_VERSION_DIVISOR + minor;
+		} else {
+			return 0;
+		}
 	}
 	
 	@Override
@@ -587,7 +619,7 @@ class OpenRocketHandler extends ElementHandler {
 		super.closeElement(element, attributes, content, warnings);
 	}
 	
-
+	
 }
 
 
@@ -595,13 +627,15 @@ class OpenRocketHandler extends ElementHandler {
  * Handles the content of the <openrocket> tag.
  */
 class OpenRocketContentHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private final OpenRocketDocument doc;
 	private final Rocket rocket;
 	
 	private boolean rocketDefined = false;
 	private boolean simulationsDefined = false;
 	
-	public OpenRocketContentHandler() {
+	public OpenRocketContentHandler(DocumentLoadingContext context) {
+		this.context = context;
 		this.rocket = new Rocket();
 		this.doc = new OpenRocketDocument(rocket);
 	}
@@ -625,7 +659,7 @@ class OpenRocketContentHandler extends ElementHandler {
 				return null;
 			}
 			rocketDefined = true;
-			return new ComponentParameterHandler(rocket);
+			return new ComponentParameterHandler(rocket, context);
 		}
 		
 		if (element.equals("simulations")) {
@@ -636,7 +670,7 @@ class OpenRocketContentHandler extends ElementHandler {
 				return null;
 			}
 			simulationsDefined = true;
-			return new SimulationsHandler(doc);
+			return new SimulationsHandler(doc, context);
 		}
 		
 		warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
@@ -653,10 +687,12 @@ class OpenRocketContentHandler extends ElementHandler {
  * contents is passed on to ComponentParameterHandler.
  */
 class ComponentHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private final RocketComponent parent;
 	
-	public ComponentHandler(RocketComponent parent) {
+	public ComponentHandler(RocketComponent parent, DocumentLoadingContext context) {
 		this.parent = parent;
+		this.context = context;
 	}
 	
 	@Override
@@ -684,7 +720,7 @@ class ComponentHandler extends ElementHandler {
 		
 		parent.addChild(c);
 		
-		return new ComponentParameterHandler(c);
+		return new ComponentParameterHandler(c, context);
 	}
 }
 
@@ -695,10 +731,12 @@ class ComponentHandler extends ElementHandler {
  * elements.
  */
 class ComponentParameterHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private final RocketComponent component;
 	
-	public ComponentParameterHandler(RocketComponent c) {
+	public ComponentParameterHandler(RocketComponent c, DocumentLoadingContext context) {
 		this.component = c;
+		this.context = context;
 	}
 	
 	@Override
@@ -707,31 +745,31 @@ class ComponentParameterHandler extends ElementHandler {
 		
 		// Check for specific elements that contain other elements
 		if (element.equals("subcomponents")) {
-			return new ComponentHandler(component);
+			return new ComponentHandler(component, context);
 		}
 		if (element.equals("motormount")) {
 			if (!(component instanceof MotorMount)) {
 				warnings.add(Warning.fromString("Illegal component defined as motor mount."));
 				return null;
 			}
-			return new MotorMountHandler((MotorMount) component);
+			return new MotorMountHandler((MotorMount) component, context);
 		}
 		if (element.equals("finpoints")) {
 			if (!(component instanceof FreeformFinSet)) {
 				warnings.add(Warning.fromString("Illegal component defined for fin points."));
 				return null;
 			}
-			return new FinSetPointHandler((FreeformFinSet) component);
+			return new FinSetPointHandler((FreeformFinSet) component, context);
 		}
 		if (element.equals("motorconfiguration")) {
 			if (!(component instanceof Rocket)) {
 				warnings.add(Warning.fromString("Illegal component defined for motor configuration."));
 				return null;
 			}
-			return new MotorConfigurationHandler((Rocket) component);
+			return new MotorConfigurationHandler((Rocket) component, context);
 		}
 		
-
+		
 		return PlainTextHandler.INSTANCE;
 	}
 	
@@ -774,11 +812,14 @@ class ComponentParameterHandler extends ElementHandler {
  * <finpoints> elements.
  */
 class FinSetPointHandler extends ElementHandler {
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
 	private final FreeformFinSet finset;
 	private final ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
 	
-	public FinSetPointHandler(FreeformFinSet finset) {
+	public FinSetPointHandler(FreeformFinSet finset, DocumentLoadingContext context) {
 		this.finset = finset;
+		this.context = context;
 	}
 	
 	@Override
@@ -823,11 +864,13 @@ class FinSetPointHandler extends ElementHandler {
 
 
 class MotorMountHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private final MotorMount mount;
 	private MotorHandler motorHandler;
 	
-	public MotorMountHandler(MotorMount mount) {
+	public MotorMountHandler(MotorMount mount, DocumentLoadingContext context) {
 		this.mount = mount;
+		this.context = context;
 		mount.setMotorMount(true);
 	}
 	
@@ -836,7 +879,7 @@ class MotorMountHandler extends ElementHandler {
 			WarningSet warnings) {
 		
 		if (element.equals("motor")) {
-			motorHandler = new MotorHandler();
+			motorHandler = new MotorHandler(context);
 			return motorHandler;
 		}
 		
@@ -851,7 +894,7 @@ class MotorMountHandler extends ElementHandler {
 	}
 	
 	
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -917,12 +960,15 @@ class MotorMountHandler extends ElementHandler {
 
 
 class MotorConfigurationHandler extends ElementHandler {
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
 	private final Rocket rocket;
 	private String name = null;
 	private boolean inNameElement = false;
 	
-	public MotorConfigurationHandler(Rocket rocket) {
+	public MotorConfigurationHandler(Rocket rocket, DocumentLoadingContext context) {
 		this.rocket = rocket;
+		this.context = context;
 	}
 	
 	@Override
@@ -973,6 +1019,11 @@ class MotorConfigurationHandler extends ElementHandler {
 
 
 class MotorHandler extends ElementHandler {
+	/** File version where latest digest format was introduced */
+	private static final int MOTOR_DIGEST_VERSION = 104;
+	
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
 	private Motor.Type type = null;
 	private String manufacturer = null;
 	private String designation = null;
@@ -980,6 +1031,11 @@ class MotorHandler extends ElementHandler {
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
+	
+	public MotorHandler(DocumentLoadingContext context) {
+		this.context = context;
+	}
+	
 	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
@@ -1105,8 +1161,10 @@ class MotorHandler extends ElementHandler {
 			
 		} else if (element.equals("digest")) {
 			
-			// Digest
-			digest = content.trim();
+			// Digest is used only for file versions saved using the same digest algorithm
+			if (context.getFileVersion() >= MOTOR_DIGEST_VERSION) {
+				digest = content.trim();
+			}
 			
 		} else if (element.equals("diameter")) {
 			
@@ -1162,11 +1220,13 @@ class MotorHandler extends ElementHandler {
 
 
 class SimulationsHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private final OpenRocketDocument doc;
 	private SingleSimulationHandler handler;
 	
-	public SimulationsHandler(OpenRocketDocument doc) {
+	public SimulationsHandler(OpenRocketDocument doc, DocumentLoadingContext context) {
 		this.doc = doc;
+		this.context = context;
 	}
 	
 	@Override
@@ -1178,7 +1238,7 @@ class SimulationsHandler extends ElementHandler {
 			return null;
 		}
 		
-		handler = new SingleSimulationHandler(doc);
+		handler = new SingleSimulationHandler(doc, context);
 		return handler;
 	}
 	
@@ -1189,10 +1249,11 @@ class SimulationsHandler extends ElementHandler {
 		super.closeElement(element, attributes, content, warnings);
 	}
 	
-
+	
 }
 
 class SingleSimulationHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	
 	private final OpenRocketDocument doc;
 	
@@ -1203,12 +1264,13 @@ class SingleSimulationHandler extends ElementHandler {
 	
 	private final List<String> listeners = new ArrayList<String>();
 	
-	public SingleSimulationHandler(OpenRocketDocument doc) {
+	public SingleSimulationHandler(OpenRocketDocument doc, DocumentLoadingContext context) {
 		this.doc = doc;
+		this.context = context;
 	}
 	
 	
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
@@ -1217,10 +1279,10 @@ class SingleSimulationHandler extends ElementHandler {
 				element.equals("calculator") || element.equals("listener")) {
 			return PlainTextHandler.INSTANCE;
 		} else if (element.equals("conditions")) {
-			conditionHandler = new SimulationConditionsHandler(doc.getRocket());
+			conditionHandler = new SimulationConditionsHandler(doc.getRocket(), context);
 			return conditionHandler;
 		} else if (element.equals("flightdata")) {
-			dataHandler = new FlightDataHandler();
+			dataHandler = new FlightDataHandler(context);
 			return dataHandler;
 		} else {
 			warnings.add("Unknown element '" + element + "', ignoring.");
@@ -1286,10 +1348,12 @@ class SingleSimulationHandler extends ElementHandler {
 
 
 class SimulationConditionsHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	private SimulationOptions conditions;
 	private AtmosphereHandler atmosphereHandler;
 	
-	public SimulationConditionsHandler(Rocket rocket) {
+	public SimulationConditionsHandler(Rocket rocket, DocumentLoadingContext context) {
+		this.context = context;
 		conditions = new SimulationOptions(rocket);
 		// Set up default loading settings (which may differ from the new defaults)
 		conditions.setGeodeticComputation(GeodeticComputationStrategy.FLAT);
@@ -1303,7 +1367,7 @@ class SimulationConditionsHandler extends ElementHandler {
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		if (element.equals("atmosphere")) {
-			atmosphereHandler = new AtmosphereHandler(attributes.get("model"));
+			atmosphereHandler = new AtmosphereHandler(attributes.get("model"), context);
 			return atmosphereHandler;
 		}
 		return PlainTextHandler.INSTANCE;
@@ -1319,7 +1383,7 @@ class SimulationConditionsHandler extends ElementHandler {
 		} catch (NumberFormatException ignore) {
 		}
 		
-
+		
 		if (element.equals("configid")) {
 			if (content.equals("")) {
 				conditions.setMotorConfigurationID(null);
@@ -1396,12 +1460,15 @@ class SimulationConditionsHandler extends ElementHandler {
 
 
 class AtmosphereHandler extends ElementHandler {
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
 	private final String model;
 	private double temperature = Double.NaN;
 	private double pressure = Double.NaN;
 	
-	public AtmosphereHandler(String model) {
+	public AtmosphereHandler(String model, DocumentLoadingContext context) {
 		this.model = model;
+		this.context = context;
 	}
 	
 	@Override
@@ -1458,12 +1525,18 @@ class AtmosphereHandler extends ElementHandler {
 
 
 class FlightDataHandler extends ElementHandler {
+	private final DocumentLoadingContext context;
 	
 	private FlightDataBranchHandler dataHandler;
 	private WarningSet warningSet = new WarningSet();
 	private List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
 	
 	private FlightData data;
+	
+	
+	public FlightDataHandler(DocumentLoadingContext context) {
+		this.context = context;
+	}
 	
 	public FlightData getFlightData() {
 		return data;
@@ -1482,7 +1555,7 @@ class FlightDataHandler extends ElementHandler {
 				return null;
 			}
 			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
-					attributes.get("types"));
+					attributes.get("types"), context);
 			return dataHandler;
 		}
 		
@@ -1569,15 +1642,18 @@ class FlightDataHandler extends ElementHandler {
 		data.immute();
 	}
 	
-
+	
 }
 
 
 class FlightDataBranchHandler extends ElementHandler {
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
 	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
 	
-	public FlightDataBranchHandler(String name, String typeList) {
+	public FlightDataBranchHandler(String name, String typeList, DocumentLoadingContext context) {
+		this.context = context;
 		String[] split = typeList.split(",");
 		types = new FlightDataType[split.length];
 		for (int i = 0; i < split.length; i++) {
@@ -1639,7 +1715,7 @@ class FlightDataBranchHandler extends ElementHandler {
 		
 		// element == "datapoint"
 		
-
+		
 		// Check line format
 		String[] split = content.split(",");
 		if (split.length != types.length) {
@@ -2051,7 +2127,7 @@ class FinTabPositionSetter extends DoubleSetter {
 		super.set(c, s, attributes, warnings);
 	}
 	
-
+	
 }
 
 

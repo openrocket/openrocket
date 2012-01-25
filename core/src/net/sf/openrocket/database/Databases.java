@@ -18,7 +18,7 @@ public class Databases {
 	private static final Translator trans = Application.getTranslator();
 	
 	/* Static implementations of specific databases: */
-
+	
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
@@ -32,15 +32,17 @@ public class Databases {
 	 */
 	public static final Database<Material> LINE_MATERIAL = new Database<Material>();
 	
-
-
+	
+	
 	static {
 		
 		// Add default materials
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Acrylic"), 1190, false));
+		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Aluminum"), 2700, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Balsa"), 170, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Basswood"), 500, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Birch"), 670, false));
+		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Brass"), 8600, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Cardboard"), 680, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Carbonfiber"), 1780, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Cork"), 240, false));
@@ -55,9 +57,11 @@ public class Databases {
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Polystyrene"), 1050, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.PVC"), 1390, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Spruce"), 450, false));
+		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Steel"), 7850, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.StyrofoamgenericEPS"), 20, false));
 		//		BULK_MATERIAL.add(new Material.Bulk("Styrofoam (Blue foam, XPS)", 32, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.StyrofoamBluefoamXPS"), 32, false));
+		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Titanium"), 4500, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Quantumtubing"), 1050, false));
 		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.BlueTube"), 1300, false));
 		
@@ -93,7 +97,7 @@ public class Databases {
 		//// Tubular nylon (25 mm, 1 in)
 		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Tubularnylon25mm"), 0.029, false));
 		
-
+		
 		// Add user-defined materials
 		for (Material m : Application.getPreferences().getUserMaterials()) {
 			switch (m.getType()) {
@@ -198,5 +202,5 @@ public class Databases {
 		return Material.newMaterial(type, name, density, userDefined);
 	}
 	
-
+	
 }

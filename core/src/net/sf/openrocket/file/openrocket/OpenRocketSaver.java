@@ -36,7 +36,7 @@ import net.sf.openrocket.util.TextUtil;
 public class OpenRocketSaver extends RocketSaver {
 	private static final LogHelper log = Application.getLogger();
 	
-
+	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
 	 * The integer version divided by this value is the major version and the remainder is
@@ -44,13 +44,13 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	public static final int FILE_VERSION_DIVISOR = 100;
 	
-
+	
 	private static final String OPENROCKET_CHARSET = "UTF-8";
 	
 	private static final String METHOD_PACKAGE = "net.sf.openrocket.file.openrocket.savers";
 	private static final String METHOD_SUFFIX = "Saver";
 	
-
+	
 	// Estimated storage used by different portions
 	// These have been hand-estimated from saved files
 	private static final int BYTES_PER_COMPONENT_UNCOMPRESSED = 590;
@@ -60,7 +60,7 @@ public class OpenRocketSaver extends RocketSaver {
 	private static final int BYTES_PER_DATAPOINT_UNCOMPRESSED = 350;
 	private static final int BYTES_PER_DATAPOINT_COMPRESSED = 100;
 	
-
+	
 	private int indent;
 	private Writer dest;
 	
@@ -83,10 +83,10 @@ public class OpenRocketSaver extends RocketSaver {
 				(fileVersion / FILE_VERSION_DIVISOR) + "." + (fileVersion % FILE_VERSION_DIVISOR);
 		log.debug("Storing file version " + fileVersionString);
 		
-
+		
 		this.indent = 0;
 		
-
+		
 		writeln("<?xml version='1.0' encoding='utf-8'?>");
 		writeln("<openrocket version=\"" + fileVersionString + "\" creator=\"OpenRocket "
 				+ BuildProperties.getVersion() + "\">");
@@ -121,7 +121,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	@Override
 	public long estimateFileSize(OpenRocketDocument doc, StorageOptions options) {
 		
@@ -141,14 +141,14 @@ public class OpenRocketSaver extends RocketSaver {
 		else
 			size += componentCount * BYTES_PER_COMPONENT_UNCOMPRESSED;
 		
-
+		
 		// Size per simulation
 		if (options.isCompressionEnabled())
 			size += doc.getSimulationCount() * BYTES_PER_SIMULATION_COMPRESSED;
 		else
 			size += doc.getSimulationCount() * BYTES_PER_SIMULATION_UNCOMPRESSED;
 		
-
+		
 		// Size per flight data point
 		int pointCount = 0;
 		double timeSkip = options.getSimulationTimeSkip();
@@ -183,7 +183,8 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
-		 * File version 1.2 is required for:
+		 * File version 1.4 is required for:
+		 *  - saving simulation data
 		 *  - saving motor data
 		 * 
 		 * File version 1.1 is required for:
@@ -192,13 +193,13 @@ public class OpenRocketSaver extends RocketSaver {
 		 * 
 		 * Otherwise use version 1.0.
 		 */
-
-		// Check if design has simulations defined (version 1.3)
+		
+		// Check if design has simulations defined (version 1.4)
 		if (document.getSimulationCount() > 0) {
-			return FILE_VERSION_DIVISOR + 3;
+			return FILE_VERSION_DIVISOR + 4;
 		}
 		
-		// Check for motor definitions (version 1.2)
+		// Check for motor definitions (version 1.4)
 		Iterator<RocketComponent> iterator = document.getRocket().iterator();
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
@@ -208,7 +209,7 @@ public class OpenRocketSaver extends RocketSaver {
 			MotorMount mount = (MotorMount) c;
 			for (String id : document.getRocket().getMotorConfigurationIDs()) {
 				if (mount.getMotor(id) != null) {
-					return FILE_VERSION_DIVISOR + 2;
+					return FILE_VERSION_DIVISOR + 4;
 				}
 			}
 		}
@@ -240,7 +241,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	@SuppressWarnings("unchecked")
 	private void saveComponent(RocketComponent component) throws IOException {
 		
@@ -335,12 +336,12 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</conditions>");
 		
-
+		
 		for (String s : simulation.getSimulationListeners()) {
 			writeElement("listener", escapeXML(s));
 		}
 		
-
+		
 		// Write basic simulation data
 		
 		FlightData data = simulation.getSimulatedData();
@@ -393,7 +394,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip)
 			throws IOException {
 		double previousTime = -100000;
@@ -462,7 +463,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	/* TODO: LOW: This is largely duplicated from above! */
 	private int countFlightDataBranchPoints(FlightDataBranch branch, double timeSkip) {
 		int count = 0;
@@ -506,7 +507,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	private void writeDataPointString(List<List<Double>> data, int index, StringBuilder sb)
 			throws IOException {
 		sb.setLength(0);
@@ -521,7 +522,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	private void writeElement(String element, Object content) throws IOException {
 		if (content == null)
 			content = "";
@@ -529,7 +530,7 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
+	
 	private void writeln(String str) throws IOException {
 		if (str.length() == 0) {
 			dest.write("\n");
@@ -543,8 +544,8 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return the XML equivalent of an enum name.
 	 * 

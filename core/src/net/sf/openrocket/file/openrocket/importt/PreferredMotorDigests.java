@@ -1,4 +1,4 @@
-package net.sf.openrocket.file.openrocket;
+package net.sf.openrocket.file.openrocket.importt;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,6 +16,8 @@ import java.util.Set;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 final class PreferredMotorDigests {
+	
+	// FIXME:  This class is obsolete/broken after digesting algorithm changes
 	
 	/**
 	 * A set containing the preferred motor digests.

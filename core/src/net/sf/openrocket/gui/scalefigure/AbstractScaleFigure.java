@@ -19,7 +19,7 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	private static final int DEFAULT_BORDER_PIXELS_WIDTH = 30;
 	private static final int DEFAULT_BORDER_PIXELS_HEIGHT = 20;
 	
-
+	
 	protected final double dpi;
 	
 	protected double scale = 1.0;
@@ -41,7 +41,7 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	}
 	
 	
-
+	
 	public abstract void updateFigure();
 	
 	public abstract double getFigureWidth();
@@ -90,6 +90,11 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		
 		double s = Math.min(zh, zv) / dpi * 0.0254 - 0.001;
 		
+		// Restrict to 100%
+		if (s > 1.0) {
+			s = 1.0;
+		}
+		
 		setScaling(s);
 	}
 	
@@ -124,8 +129,8 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listeners.toArray(new EventListener[0]);
 		for (EventListener l : list) {
-			if ( l instanceof StateChangeListener ) {
-				((StateChangeListener)l).stateChanged(changeEvent);
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(changeEvent);
 			}
 		}
 	}
