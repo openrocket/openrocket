@@ -3,17 +3,18 @@ package net.sf.openrocket.android.rocket;
 import java.io.File;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.Application;
-import net.sf.openrocket.document.OpenRocketDocument;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
 
 public class OpenRocketLoader extends FragmentActivity {
 	private static final String TAG = "OpenRocketLoader";
@@ -52,11 +53,10 @@ public class OpenRocketLoader extends FragmentActivity {
 			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 			 */
 			@Override
-			protected void onPostExecute(OpenRocketDocument result) {
+			protected void onPostExecute(OpenRocketLoaderResult result) {
 				super.onPostExecute(result);
-				((Application)OpenRocketLoader.this.getApplication()).setRocketDocument( result );
 				Log.d(TAG,"Finished loading " + OpenRocketLoader.this);
-				finishedLoading();
+				finishedLoading(result);
 			}
 
 		};
@@ -65,15 +65,66 @@ public class OpenRocketLoader extends FragmentActivity {
 
 	}
 	
-	private void finishedLoading() {
+	private void finishedLoading(OpenRocketLoaderResult result) {
 		if ( progress.isShowing() ) {
 			progress.dismiss();
 		}
-		
-		Intent i = new Intent(this,OpenRocketViewer.class);
-		startActivity(i);
-		finish();
+
+		WarningSet warnings = result.warnings;
+		if (warnings == null || warnings.isEmpty()) {
+			((Application)OpenRocketLoader.this.getApplication()).setRocketDocument( result.rocket );
+			Intent i = new Intent(this,OpenRocketViewer.class);
+			startActivity(i);
+			finish();
+		} else {
+			// TODO - Build a warning listing dialog
+			DialogFragment newFragment = WarningDialogFragment.newInstance();
+			newFragment.show(getSupportFragmentManager(), "dialog");
+		}
 	}
 
+    public void doPositiveClick() {
+        // Do stuff here.
+        Log.i("FragmentAlertDialog", "Positive click!");
+        finish();
+    }
 
+    public void doNegativeClick() {
+        // Do stuff here.
+        Log.i("FragmentAlertDialog", "Negative click!");
+        finish();
+    }
+
+    public static class WarningDialogFragment extends DialogFragment {
+
+	    public static WarningDialogFragment newInstance() {
+	    	WarningDialogFragment frag = new WarningDialogFragment();
+	        Bundle args = new Bundle();
+	        frag.setArguments(args);
+	        return frag;
+	    }
+
+	    @Override
+	    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+	        return new AlertDialog.Builder(getActivity())
+//	                .setIcon(android.R.drawable.alert_dialog_icon)
+	                .setTitle("Warnings")
+	                .setPositiveButton("OK",
+	                    new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int whichButton) {
+	                            ((OpenRocketLoader)getActivity()).doPositiveClick();
+	                        }
+	                    }
+	                )
+	                .setNegativeButton("Cancel",
+	                    new DialogInterface.OnClickListener() {
+	                        public void onClick(DialogInterface dialog, int whichButton) {
+	                            ((OpenRocketLoader)getActivity()).doNegativeClick();
+	                        }
+	                    }
+	                )
+	                .create();
+	    }
+	}
 }

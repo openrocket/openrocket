@@ -8,7 +8,7 @@ import net.sf.openrocket.file.openrocket.OpenRocketLoader;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketDocument> {
+public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketLoaderResult> {
 
 	private final static String TAG = "OpenRocketLoaderTask";
 	
@@ -16,13 +16,16 @@ public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketDocume
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	@Override
-	protected OpenRocketDocument doInBackground(File... arg0) {
+	protected OpenRocketLoaderResult doInBackground(File... arg0) {
 		Log.d(TAG,"doInBackgroud");
 		
 		OpenRocketLoader rocketLoader = new OpenRocketLoader();
 		try {
+			OpenRocketLoaderResult result = new OpenRocketLoaderResult();
 			OpenRocketDocument rocket = rocketLoader.load(arg0[0]);
-			return rocket;
+			result.rocket = rocket;
+			result.warnings = result.warnings;
+			return result;
 		}
 		catch( RocketLoadException ex ) {
 			Log.e(TAG, "doInBackground rocketLaoder.load threw", ex);
