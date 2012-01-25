@@ -2,12 +2,11 @@ package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.Application;
-import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import android.content.Intent;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -22,7 +21,12 @@ import android.widget.TextView;
 
 public class Simulations extends Fragment {
 
+	public interface OnSimulationSelectedListener {
+		public void onSimulationSelected( int simulationId );
+	}
+	
 	private ListView simulationList;
+	private OnSimulationSelectedListener listener;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,6 +35,19 @@ public class Simulations extends Fragment {
 		simulationList = (ListView) v.findViewById(R.id.openrocketviewerSimulationList);
 
 		return v;
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if ( activity instanceof OnSimulationSelectedListener ) {
+			listener = (OnSimulationSelectedListener) activity;
+		}
+	}
+
+
+	public void setListener(OnSimulationSelectedListener listener) {
+		this.listener = listener;
 	}
 
 	@Override
@@ -64,9 +81,9 @@ public class Simulations extends Fragment {
 		simulationList.setOnItemClickListener( new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView l, View v, int position, long id) {
-				Intent i = new Intent(getActivity(), SimulationViewer.class);
-				i.putExtra("Simulation",(int)id);
-				startActivity(i);
+				if (listener != null ) {
+					listener.onSimulationSelected(position);
+				}
 			}
 
 		});

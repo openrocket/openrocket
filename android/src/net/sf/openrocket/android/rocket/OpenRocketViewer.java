@@ -4,9 +4,11 @@ package net.sf.openrocket.android.rocket;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.simulation.SimulationViewer;
 import net.sf.openrocket.android.util.TabsAdapter;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,7 +21,8 @@ import android.view.MenuItem;
 import android.widget.TabHost;
 
 public class OpenRocketViewer extends FragmentActivity
-implements SharedPreferences.OnSharedPreferenceChangeListener
+implements SharedPreferences.OnSharedPreferenceChangeListener,
+Simulations.OnSimulationSelectedListener
 {
 
 	private static final String TAG = "OpenRocketViewer";
@@ -112,5 +115,12 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
+
+	@Override
+	public void onSimulationSelected(int simulationId) {
+		Intent i = new Intent(this, SimulationViewer.class);
+		i.putExtra("Simulation",simulationId);
+		startActivity(i);
+		}
 
 }
