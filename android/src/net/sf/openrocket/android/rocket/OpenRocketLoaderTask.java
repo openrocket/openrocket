@@ -4,7 +4,7 @@ import java.io.File;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.openrocket.OpenRocketLoader;
+import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import android.os.AsyncTask;
 import android.util.Log;
 
