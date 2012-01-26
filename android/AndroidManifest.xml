@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".android.rocket.OpenRocketLoader"
+            android:name=".android.rocket.OpenRocketLoaderActivity"
             android:label="@string/app_name" >
 
             <!--

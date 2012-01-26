@@ -16,7 +16,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-public class OpenRocketLoader extends FragmentActivity {
+public class OpenRocketLoaderActivity extends FragmentActivity {
 	private static final String TAG = "OpenRocketLoader";
 
 	private ProgressDialog progress;
@@ -55,7 +55,7 @@ public class OpenRocketLoader extends FragmentActivity {
 			@Override
 			protected void onPostExecute(OpenRocketLoaderResult result) {
 				super.onPostExecute(result);
-				Log.d(TAG,"Finished loading " + OpenRocketLoader.this);
+				Log.d(TAG,"Finished loading " + OpenRocketLoaderActivity.this);
 				finishedLoading(result);
 			}
 
@@ -72,7 +72,7 @@ public class OpenRocketLoader extends FragmentActivity {
 
 		WarningSet warnings = result.warnings;
 		if (warnings == null || warnings.isEmpty()) {
-			((Application)OpenRocketLoader.this.getApplication()).setRocketDocument( result.rocket );
+			((Application)OpenRocketLoaderActivity.this.getApplication()).setRocketDocument( result.rocket );
 			Intent i = new Intent(this,OpenRocketViewer.class);
 			startActivity(i);
 			finish();
@@ -113,14 +113,14 @@ public class OpenRocketLoader extends FragmentActivity {
 	                .setPositiveButton("OK",
 	                    new DialogInterface.OnClickListener() {
 	                        public void onClick(DialogInterface dialog, int whichButton) {
-	                            ((OpenRocketLoader)getActivity()).doPositiveClick();
+	                            ((OpenRocketLoaderActivity)getActivity()).doPositiveClick();
 	                        }
 	                    }
 	                )
 	                .setNegativeButton("Cancel",
 	                    new DialogInterface.OnClickListener() {
 	                        public void onClick(DialogInterface dialog, int whichButton) {
-	                            ((OpenRocketLoader)getActivity()).doNegativeClick();
+	                            ((OpenRocketLoaderActivity)getActivity()).doNegativeClick();
 	                        }
 	                    }
 	                )
