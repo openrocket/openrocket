@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <!--  shim to get dialog correct size ?? -->
+    <View
+        android:layout_width="2000dp"
+        android:layout_height="0px"
+        android:layout_margin="0px"
+        android:orientation="horizontal" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/simulationSeries1Label" />
+
+    <Spinner
+        android:id="@+id/simulationSeries1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawSelectorOnTop="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/simulationSeries2Label" />
+
+    <Spinner
+        android:id="@+id/simulationSeries2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawSelectorOnTop="true" />
+
+    <Button
+        android:id="@+id/simulationOkButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_horizontal"
+        android:text="ok" />
+
+</LinearLayout>

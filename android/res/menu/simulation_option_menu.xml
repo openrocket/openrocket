@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:title="Select Events" android:id="@+id/simulation_select_events_menu_option"/>
   <item android:title="Select Series" android:id="@+id/simulation_select_series_menu_option"/>
-  <item android:title="Preferences" android:id="@+id/preference_menu_option"/>
+  <item android:title="View Event" android:id="@+id/simulation_select_events_menu_option"/>
 </menu>

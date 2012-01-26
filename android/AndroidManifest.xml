@@ -74,8 +74,7 @@
         <activity android:name=".android.motor.MotorHierarchicalBrowser" />
         <activity android:name=".android.motor.MotorDetails" />
         <activity android:name=".android.thrustcurve.TCQueryActivity" />
-        <activity android:name=".android.simulation.SimulationViewer" />
-        <activity android:name=".android.simulation.GraphicalActivity" />
+        <activity android:name=".android.simulation.SimulationViewActivity" />
         <activity android:name=".android.filebrowser.SimpleFileBrowser" />
     </application>
 

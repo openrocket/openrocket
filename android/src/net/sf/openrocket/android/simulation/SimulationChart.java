@@ -15,15 +15,16 @@
  */
 package net.sf.openrocket.android.simulation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
-import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.Unit;
 
-import org.achartengine.ChartFactory;
 import org.achartengine.chart.LineChart;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.chart.XYChart;
@@ -32,78 +33,76 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.util.Log;
 
 /**
- * Multiple temperature demo chart.
+ * This is really a flyweight object so we can serialize the
+ * values behind a simulation chart.  Since OpenRocketDocument, FlightDataBranch,
+ * FlightDataType, Unit and all the other underlying types are not serializable,
+ * we have to resort to persisting just the bare minimum of information.
+ * 
+ * This also means without further changes to FlightDataType, we cannot actually
+ * restore the displayed series.
+ * 
+ * TODO make FlightDataBranch serializable or at least reconstructable from
+ * from some the name.
+ * 
  */
-public class SimulationChart {
+public class SimulationChart implements Serializable {
 	
 	private final static String TAG = "SimulationChart";
 
-	private FlightDataBranch flightDataBranch;
-	private FlightDataType series1;
-	private FlightDataType series2;
-	private final FlightDataType time = FlightDataType.TYPE_TIME;
-	private List<FlightEvent> flightEvents;
-	private String simulationName;
-
+	private final int simulationIndex;
+	private transient FlightDataType series1;
+	private transient FlightDataType series2;
+	
 	// Define 4 different colors and point styles to use for the series.
 	// For now only 2 series are supported though.
 	private final static int[] colors = new int[] { Color.BLUE, Color.YELLOW, Color.GREEN, Color.RED };
 	private final static PointStyle[] styles = new PointStyle[] { PointStyle.CIRCLE, PointStyle.DIAMOND,
 		PointStyle.TRIANGLE, PointStyle.SQUARE };
 
-	/**
-	 * @param simulationName the simulationName to set
-	 */
-	public void setSimulationName(String simulationName) {
-		this.simulationName = simulationName;
-	}
-
-	/**
-	 * @param flightDataBranch the flightDataBranch to set
-	 */
-	public void setFlightDataBranch(FlightDataBranch flightDataBranch) {
-		this.flightDataBranch = flightDataBranch;
-	}
-
-	/**
-	 * @param series1 the series1 to set
-	 */
-	public void setSeries1(FlightDataType series1) {
-		this.series1 = series1;
-	}
-
-	/**
-	 * @param series2 the series2 to set
-	 */
-	public void setSeries2(FlightDataType series2) {
-		this.series2 = series2;
-	}
-
-	/**
-	 * @param flightEvents the flightEvents to set
-	 */
-	public void setFlightEvents(List<FlightEvent> flightEvents) {
-		this.flightEvents = flightEvents;
+	public SimulationChart(int simulationIndex) {
+		super();
+		this.simulationIndex = simulationIndex;
 	}
 
 	private static String formatFlightDataTypeAxisLabel( FlightDataType fdt ) {
 		return fdt.getName() + " (" + fdt.getUnitGroup().getDefaultUnit().toString() + ")";
 	}
 
+	public void setSeries1(FlightDataType series1) {
+		this.series1 = series1;
+	}
+
+	public void setSeries2(FlightDataType series2) {
+		this.series2 = series2;
+	}
+
+	public FlightDataBranch getFlightDataBranch( OpenRocketDocument rocketDocument ) {
+		Simulation sim = rocketDocument.getSimulation(simulationIndex);
+		FlightDataBranch flightDataBranch = sim.getSimulatedData().getBranch(0);
+		return flightDataBranch;
+	}
 	/**
 	 * Executes the chart demo.
 	 * 
 	 * @param context the context
 	 * @return the built intent
 	 */
-	public Intent execute(Context context) {
+	public XYChart buildChart(OpenRocketDocument rocketDocument) {
+
+		Simulation sim = rocketDocument.getSimulation(simulationIndex);
+		FlightDataBranch flightDataBranch = sim.getSimulatedData().getBranch(0);
+		FlightDataType time = FlightDataType.TYPE_TIME;
+		if (series1== null) {
+			series1 = flightDataBranch.getTypes()[1];
+		}
+		if (series2== null) {
+			series2 = flightDataBranch.getTypes()[2];
+		}
 
 		/*
 		 * TODO -
@@ -126,7 +125,7 @@ public class SimulationChart {
 		renderer.setYLabels(10);
 		renderer.setShowGrid(true);
 		renderer.setZoomButtonsVisible(true);
-		renderer.setChartTitle(simulationName);
+		renderer.setChartTitle(sim.getName());
 
 		renderer.setMargins(new int[] { 50, 30, 0, 20 });
 		{
@@ -199,8 +198,9 @@ public class SimulationChart {
 
 			addXYSeries(dataset, series2.getName(), timevalues, series2values, 1);
 		}
-		Intent intent = getLineChartIntent(context, dataset, renderer,"Simulation");
-		return intent;
+		XYChart chart = new LineChart(dataset, renderer);
+		
+		return chart;
 	}
 
 	private static void addXYSeries(XYMultipleSeriesDataset dataset, String titles, List<Double> xValues, List<Double> yValues, int scale) {
@@ -211,16 +211,6 @@ public class SimulationChart {
 		}
 		dataset.addSeries(series);
 
-	}
-
-	private static Intent getLineChartIntent(Context context, XYMultipleSeriesDataset dataset,
-			XYMultipleSeriesRenderer renderer, String activityTitle) {
-		//		    checkParameters(dataset, renderer);
-		Intent intent = new Intent(context, GraphicalActivity.class);
-		XYChart chart = new LineChart(dataset, renderer);
-		intent.putExtra(ChartFactory.CHART, chart);
-		intent.putExtra(ChartFactory.TITLE, activityTitle);
-		return intent;
 	}
 
 	private static double computeMaxValueWithPadding( List<Double> list ) {
