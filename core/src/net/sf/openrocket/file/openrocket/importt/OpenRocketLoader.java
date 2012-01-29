@@ -18,6 +18,7 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.Simulation.Status;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.AbstractRocketLoader;
+import net.sf.openrocket.file.MotorFinder;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -86,7 +87,7 @@ import org.xml.sax.SAXException;
  * Class that loads a rocket definition from an OpenRocket rocket file.
  * <p>
  * This class uses SAX to read the XML file format.  The 
- * {@link #loadFromStream(InputStream)} method simply sets the system up and 
+ * #loadFromStream(InputStream) method simply sets the system up and 
  * starts the parsing, while the actual logic is in the private inner class
  * <code>OpenRocketHandler</code>.
  * 
@@ -97,10 +98,11 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 	
 	
 	@Override
-	public OpenRocketDocument loadFromStream(InputStream source) throws RocketLoadException,
+	public OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws RocketLoadException,
 			IOException {
 		log.info("Loading .ork file");
 		DocumentLoadingContext context = new DocumentLoadingContext();
+		context.setMotorFinder(motorFinder);
 		
 		InputSource xmlSource = new InputSource(source);
 		OpenRocketHandler handler = new OpenRocketHandler(context);
@@ -1022,7 +1024,6 @@ class MotorHandler extends ElementHandler {
 	/** File version where latest digest format was introduced */
 	private static final int MOTOR_DIGEST_VERSION = 104;
 	
-	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private Motor.Type type = null;
 	private String manufacturer = null;
@@ -1048,73 +1049,7 @@ class MotorHandler extends ElementHandler {
 	 * Return the motor to use, or null.
 	 */
 	public Motor getMotor(WarningSet warnings) {
-		if (designation == null) {
-			warnings.add(Warning.fromString("No motor specified, ignoring."));
-			return null;
-		}
-		
-		List<? extends Motor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer,
-				designation, diameter, length);
-		
-		// No motors
-		if (motors.size() == 0) {
-			Warning.MissingMotor mmw = new Warning.MissingMotor();
-			mmw.setDesignation(designation);
-			mmw.setDigest(digest);
-			mmw.setDiameter(diameter);
-			mmw.setLength(length);
-			mmw.setManufacturer(manufacturer);
-			mmw.setType(type);
-			warnings.add(mmw);
-			return null;
-		}
-		
-		// One motor
-		if (motors.size() == 1) {
-			Motor m = motors.get(0);
-			if (digest != null && !digest.equals(m.getDigest())) {
-				String str = "Motor with designation '" + designation + "'";
-				if (manufacturer != null)
-					str += " for manufacturer '" + manufacturer + "'";
-				str += " has differing thrust curve than the original.";
-				warnings.add(str);
-			}
-			return m;
-		}
-		
-		// Multiple motors, check digest for which one to use
-		if (digest != null) {
-			
-			// Check for motor with correct digest
-			for (Motor m : motors) {
-				if (digest.equals(m.getDigest())) {
-					return m;
-				}
-			}
-			String str = "Motor with designation '" + designation + "'";
-			if (manufacturer != null)
-				str += " for manufacturer '" + manufacturer + "'";
-			str += " has differing thrust curve than the original.";
-			warnings.add(str);
-			
-		} else {
-			
-			// No digest, check for preferred digest (OpenRocket <= 1.1.0)
-			// TODO: MEDIUM: This should only be done for document versions 1.1 and below
-			for (Motor m : motors) {
-				if (PreferredMotorDigests.DIGESTS.contains(m.getDigest())) {
-					return m;
-				}
-			}
-			
-			String str = "Multiple motors with designation '" + designation + "'";
-			if (manufacturer != null)
-				str += " for manufacturer '" + manufacturer + "'";
-			str += " found, one chosen arbitrarily.";
-			warnings.add(str);
-			
-		}
-		return motors.get(0);
+		return context.getMotorFinder().findMotor(type, manufacturer, designation, diameter, length, digest, warnings);
 	}
 	
 	/**

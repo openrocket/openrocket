@@ -19,14 +19,14 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * Loads a rocket from the specified File object.
 	 */
 	@Override
-	public final OpenRocketDocument load(File source) throws RocketLoadException {
+	public final OpenRocketDocument load(File source, MotorFinder motorFinder) throws RocketLoadException {
 		warnings.clear();
 		InputStream stream = null;
 		
 		try {
 			
 			stream = new BufferedInputStream(new FileInputStream(source));
-			return load(stream);
+			return load(stream, motorFinder);
 			
 		} catch (FileNotFoundException e) {
 			throw new RocketLoadException("File not found: " + source);
@@ -45,11 +45,11 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * Loads a rocket from the specified InputStream.
 	 */
 	@Override
-	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
+	public final OpenRocketDocument load(InputStream source, MotorFinder motorFinder) throws RocketLoadException {
 		warnings.clear();
 		
 		try {
-			return loadFromStream(source);
+			return loadFromStream(source, motorFinder);
 		} catch (RocketLoadException e) {
 			throw e;
 		} catch (IOException e) {
@@ -60,12 +60,12 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	
 	
 	/**
-	 * This method is called by the default implementations of {@link #load(File)} 
-	 * and {@link #load(InputStream)} to load the rocket.
+	 * This method is called by the default implementations of #load(File) 
+	 * and load(InputStream) to load the rocket.
 	 * 
 	 * @throws RocketLoadException	if an error occurs during loading.
 	 */
-	protected abstract OpenRocketDocument loadFromStream(InputStream source) throws IOException,
+	protected abstract OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException,
 			RocketLoadException;
 	
 	

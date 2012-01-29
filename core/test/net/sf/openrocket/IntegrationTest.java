@@ -1,10 +1,6 @@
 package net.sf.openrocket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -18,6 +14,7 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
@@ -94,119 +91,119 @@ public class IntegrationTest extends BaseTestCase {
 		GeneralRocketLoader loader = new GeneralRocketLoader();
 		InputStream is = this.getClass().getResourceAsStream("simplerocket.ork");
 		assertNotNull("Problem in unit test, cannot find simplerocket.ork", is);
-		document = loader.load(is);
+		document = loader.load(is, new DatabaseMotorFinder());
 		is.close();
 		
-		undoAction = UndoRedoAction.newUndoAction(document );
+		undoAction = UndoRedoAction.newUndoAction(document);
 		redoAction = UndoRedoAction.newRedoAction(document);
 		config = document.getSimulation(0).getConfiguration();
 		conditions = new FlightConditions(config);
 		
-
+		
 		// Test undo state
 		checkUndoState(null, null);
 		
-
+		
 		// Compute cg+cp + altitude
 		checkCgCp(0.248, 0.0645, 0.320, 12.0);
 		checkAlt(48.2);
 		
-
+		
 		// Mass modification
 		document.addUndoPosition("Modify mass");
 		checkUndoState(null, null);
 		massComponent().setComponentMass(0.01);
 		checkUndoState("Modify mass", null);
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		checkAlt(37.2);
 		
-
+		
 		// Non-change
 		document.addUndoPosition("No change");
 		checkUndoState("Modify mass", null);
 		
-
+		
 		// Non-funcitonal change
 		document.addUndoPosition("Name change");
 		checkUndoState("Modify mass", null);
 		massComponent().setName("Foobar component");
 		checkUndoState("Name change", null);
 		
-
+		
 		// Check cg+cp
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		
-
+		
 		// Aerodynamic modification
 		document.addUndoPosition("Remove component");
 		checkUndoState("Name change", null);
 		document.getRocket().getChild(0).removeChild(0);
 		checkUndoState("Remove component", null);
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.163, 0.0613, 0.275, 9.95);
 		checkAlt(45.0);
 		
-
+		
 		// Undo "Remove component" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertTrue(document.getRocket().getChild(0).getChild(0) instanceof NoseCone);
 		checkUndoState("Name change", "Remove component");
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		checkAlt(37.2);
 		
-
+		
 		// Undo "Name change" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertEquals("Extra mass", massComponent().getName());
 		checkUndoState("Modify mass", "Name change");
 		
-
+		
 		// Check cg+cp
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		
-
+		
 		// Undo "Modify mass" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertEquals(0, massComponent().getComponentMass(), 0);
 		checkUndoState(null, "Modify mass");
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.248, 0.0645, 0.320, 12.0);
 		checkAlt(48.2);
 		
-
+		
 		// Redo "Modify mass" change
 		redoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertEquals(0.010, massComponent().getComponentMass(), 0.00001);
 		checkUndoState("Modify mass", "Name change");
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.230, 0.0745, 0.320, 12.0);
 		checkAlt(37.2);
 		
-
+		
 		// Mass modification
 		document.addUndoPosition("Modify mass2");
 		checkUndoState("Modify mass", "Name change");
 		massComponent().setComponentMass(0.015);
 		checkUndoState("Modify mass2", null);
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.223, 0.0795, 0.320, 12.0);
 		checkAlt(32.7);
 		
-
+		
 		// Perform component movement
 		document.startUndo("Move component");
 		document.getRocket().freeze();
@@ -220,55 +217,55 @@ public class IntegrationTest extends BaseTestCase {
 		checkUndoState("Move component", null);
 		document.stopUndo();
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(32.7);
 		
-
+		
 		// Modify mass without setting undo description
 		massComponent().setComponentMass(0.020);
 		checkUndoState("Modify mass2", null);
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.215, 0.0847, 0.320, 12.0);
 		checkAlt(29.0);
 		
-
+		
 		// Undo "Modify mass2" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertEquals(0.015, massComponent().getComponentMass(), 0.0000001);
 		checkUndoState("Move component", "Modify mass2");
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(32.7);
 		
-
+		
 		// Undo "Move component" change
 		undoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertTrue(document.getRocket().getChild(0).getChild(1).getChild(2).getChild(0) instanceof EngineBlock);
 		checkUndoState("Modify mass2", "Move component");
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.223, 0.0795, 0.320, 12.0);
 		checkAlt(32.7);
 		
-
+		
 		// Redo "Move component" change
 		redoAction.actionPerformed(new ActionEvent(this, 0, "foo"));
 		assertTrue(document.getRocket().getChild(0).getChild(1).getChild(0) instanceof EngineBlock);
 		checkUndoState("Move component", "Modify mass2");
 		
-
+		
 		// Check cg+cp + altitude
 		checkCgCp(0.221, 0.0797, 0.320, 12.0);
 		checkAlt(32.7);
 		
-
+		
 	}
 	
 	private String massComponentID = null;

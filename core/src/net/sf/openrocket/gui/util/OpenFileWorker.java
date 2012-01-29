@@ -11,6 +11,7 @@ import java.io.InterruptedIOException;
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -66,7 +67,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			return loader.load(is);
+			return loader.load(is, new DatabaseMotorFinder());
 		} finally {
 			try {
 				is.close();
@@ -77,8 +78,8 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	}
 	
 	
-
-
+	
+	
 	private class ProgressInputStream extends FilterInputStream {
 		
 		private final int size;
@@ -98,7 +99,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		}
 		
 		
-
+		
 		@Override
 		public int read() throws IOException {
 			int c = in.read();
@@ -162,7 +163,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		}
 		
 		
-
+		
 		private void setProgress() {
 			int p = MathUtil.clamp(readBytes * 100 / size, 0, 100);
 			if (progress != p) {
