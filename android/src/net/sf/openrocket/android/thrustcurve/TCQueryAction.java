@@ -83,7 +83,7 @@ public class TCQueryAction {
 		
 		mDbHelper.close();
 		
-		if ( progress.isShowing() ) {
+		if ( progress != null && progress.isShowing() ) {
 			progress.dismiss();
 		}
 	}
