@@ -1,10 +1,12 @@
 package net.sf.openrocket.android.motor;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.PreferencesActivity;
 import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.db.MotorDao;
-import net.sf.openrocket.android.thrustcurve.TCQueryActivity;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
+import net.sf.openrocket.android.util.PersistentExpandableListFragment;
+import net.sf.openrocket.motor.Motor;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,11 +14,9 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CursorTreeAdapter;
@@ -25,14 +25,23 @@ import android.widget.ResourceCursorTreeAdapter;
 import android.widget.TextView;
 
 
-public class MotorHierarchicalBrowser
-extends PersistentExpandableListActivity
+/*
+ * TODO - make this work with PersistentExpandableListFragment.
+ * 
+ */
+public class MotorListFragment extends PersistentExpandableListFragment
 implements SharedPreferences.OnSharedPreferenceChangeListener
 {
-	private static final String TAG = "MotorHierarchicalBrowser";
-
-	private static final int ACTIVITY_DOWNLOAD=0;
-
+	public interface OnMotorSelectedListener {
+		public void onMotorSelected( long motorId );
+	}
+	
+	public static MotorListFragment newInstance( ) {
+		
+		MotorListFragment frag = new MotorListFragment();
+		return frag;
+	}
+	
 	private static final int CONTEXTMENU_DELETE = Menu.FIRST+1;
 
 	private String groupColumnPreferenceKey;
@@ -48,6 +57,13 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	private CursorTreeAdapter mAdapter;
 
 	private DbAdapter mDbHelper;
+	
+	private OnMotorSelectedListener motorSelectedListener;
+	
+	public void setMotorSelectedListener(
+			OnMotorSelectedListener motorSelectedListener) {
+		this.motorSelectedListener = motorSelectedListener;
+	}
 
 	public class MotorHierarchicalListAdapter extends ResourceCursorTreeAdapter
 	{
@@ -62,12 +78,12 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		@Override
 		protected Cursor getChildrenCursor(Cursor arg0) {
-			Log.d(TAG,"getChildrenCursor");
+			AndroidLogWrapper.d(MotorListFragment.class,"getChildrenCursor");
 			String group = arg0.getString(arg0.getColumnIndex(groupColumn));
-			Log.d(TAG,"  for: "+ groupColumn + " = " + group);
+			AndroidLogWrapper.d(MotorListFragment.class,"  for: "+ groupColumn + " = " + group);
 			Cursor c = mDbHelper.getMotorDao().fetchAllInGroups(groupColumn,group);
-			Log.d(TAG,"  got cursor");
-			startManagingCursor(c);
+			AndroidLogWrapper.d(MotorListFragment.class,"  got cursor");
+			getActivity().startManagingCursor(c);
 			return c;
 		}
 
@@ -111,8 +127,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			}
 		}
 		
-		
-
 	}
 
 	@Override
@@ -124,20 +138,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		mDbHelper = new DbAdapter(this);
-		mDbHelper.open();
-
-		Resources resources = this.getResources();
-		groupColumnPreferenceKey = resources.getString(R.string.PreferenceMotorBrowserGroupingOption);
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-
-		setGroupColumnFromPreferences(pref);
-
-		pref.registerOnSharedPreferenceChangeListener(this);
-
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 		refreshData();
 
 		registerForContextMenu(getExpandableListView());
@@ -145,37 +147,29 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.motor_browser_option_menu, menu);
-		return true;
-	}
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		mDbHelper = new DbAdapter(getActivity());
+		mDbHelper.open();
 
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		Log.d(TAG,"onMenuItemSelected" + item.getItemId());
-		switch(item.getItemId()) {
-		case R.id.download_from_thrustcurve_menu_option:
-			tcDownload();
-			return true;
-		case R.id.preference_menu_option:
-			Intent intent = new Intent().setClass(this, PreferencesActivity.class);
-			this.startActivity(intent);
-			return true;
+		Resources resources = this.getResources();
+		groupColumnPreferenceKey = resources.getString(R.string.PreferenceMotorBrowserGroupingOption);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+		setGroupColumnFromPreferences(pref);
+
+		pref.registerOnSharedPreferenceChangeListener(this);
+		
+		if ( activity instanceof OnMotorSelectedListener ) {
+			motorSelectedListener = (OnMotorSelectedListener) activity;
 		}
-		return super.onMenuItemSelected(featureId, item);
+
 	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		Log.d(TAG,"onCreateContextMenu " + menuInfo);
-		Log.d(TAG, "v.getId() = " + v.getId());
-		Log.d(TAG, "motorListView = " + R.id.motorListView);
-		//    	if (v.getId() == R.id.motorListView) {
-		ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) menuInfo;
-		menu.setHeaderTitle("context menu");
+		menu.setHeaderTitle("Motor Operations");
 		menu.add(Menu.NONE,CONTEXTMENU_DELETE,CONTEXTMENU_DELETE,"Delete");
-		//    	}
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
@@ -183,7 +177,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	public boolean onContextItemSelected(MenuItem item) {
 		ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
 		long motorId = info.id;
-		Log.d(TAG,"ContextMenu: " + motorId);
+		AndroidLogWrapper.d(MotorListFragment.class,"ContextMenu: " + motorId);
 		switch(item.getItemId()) {
 		case CONTEXTMENU_DELETE:
 			mDbHelper.getMotorDao().deleteMotor(motorId);
@@ -194,27 +188,19 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		super.onActivityResult(requestCode, resultCode, intent);
-		refreshData();
-	}
-
-
-	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 		super.onChildClick(parent, v, groupPosition, childPosition, id);
 		//Intent i = new Intent(this, BurnPlotActivity.class);
-		Intent i = new Intent(this,MotorDetails.class);
-		i.putExtra("Motor", id);
-		startActivity(i);
+		if( motorSelectedListener != null ) {
+			motorSelectedListener.onMotorSelected(id);
+		}
 		return true;
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+	public void onDetach() {
+		super.onDetach();
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		pref.unregisterOnSharedPreferenceChangeListener(this);
 
 		// Null out the group cursor. This will cause the group cursor and all of the child cursors
@@ -223,11 +209,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		mAdapter = null;
 
 		mDbHelper.close();
-	}
-
-	private void tcDownload() {
-		Intent i = new Intent(this, TCQueryActivity.class);
-		startActivityForResult(i, ACTIVITY_DOWNLOAD);
 	}
 
 	private void setGroupColumnFromPreferences( SharedPreferences prefs ) {
@@ -250,10 +231,10 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			mAdapter.changeCursor(null);
 		}
 		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
-		startManagingCursor(motorCursor);
+		getActivity().startManagingCursor(motorCursor);
 		// Set up our adapter
 		mAdapter = new MotorHierarchicalListAdapter( 
-				this,
+				getActivity(),
 				motorCursor,
 				R.layout.motor_list_group,
 				R.layout.motor_list_child);

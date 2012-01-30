@@ -71,8 +71,8 @@
                 <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
         </activity>
-        <activity android:name=".android.motor.MotorHierarchicalBrowser" />
-        <activity android:name=".android.motor.MotorDetails" />
+        <activity android:name=".android.motor.MotorBrowserActivity" />
+        <activity android:name=".android.motor.MotorDetailsActivity" />
         <activity android:name=".android.thrustcurve.TCQueryActivity" />
         <activity android:name=".android.simulation.SimulationViewActivity" />
         <activity android:name=".android.filebrowser.SimpleFileBrowser" />

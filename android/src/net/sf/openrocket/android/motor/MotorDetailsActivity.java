@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.SlidingDrawer;
 
-public class MotorDetails extends FragmentActivity
+public class MotorDetailsActivity extends FragmentActivity
 implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListener {
 
 	private final static String TAG = "MotorDetails";

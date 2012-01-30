@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.Coordinate;
 
-abstract class ConversionUtils {
+public abstract class ConversionUtils {
 
 	static double[] stringToDelays( String value ) {
 		if (value == null || "".equals(value) ) {
@@ -28,7 +28,7 @@ abstract class ConversionUtils {
 		return values;
 	}
 	
-	static String delaysToString( double[] delays ) {
+	public static String delaysToString( double[] delays ) {
 		StringBuilder s = new StringBuilder();
 		boolean first = true;
 		for( double d:delays ) {

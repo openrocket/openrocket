@@ -1,8 +1,7 @@
 package net.sf.openrocket.android.motor;
 
-import java.util.Arrays;
-
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.db.ConversionUtils;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -39,7 +38,7 @@ public class MotorDetailsFragment extends Fragment {
 		ThrustCurveMotor tcm = m.getThrustCurveMotor();
 		manuField.setText( tcm.getManufacturer().getDisplayName());
 		nameField.setText( tcm.getDesignation() );
-		delaysField.setText( Arrays.toString(tcm.getStandardDelays()) );
+		delaysField.setText( ConversionUtils.delaysToString(tcm.getStandardDelays()) );
 		caseField.setText( m.getCaseInfo());
 		impulseClassField.setText( m.getImpulseClass());
 		diameterField.setText( String.valueOf(tcm.getDiameter()*1000.0) );
