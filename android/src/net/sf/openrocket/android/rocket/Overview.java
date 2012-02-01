@@ -6,6 +6,7 @@ import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -18,7 +19,6 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +39,7 @@ public class Overview extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		Log.d("Overview", "Created View");
+		AndroidLogWrapper.d(Overview.class, "Created View");
 		View v = inflater.inflate(R.layout.rocket_overview, container, false);
 		configurationSpinner = (Spinner) v.findViewById(R.id.openrocketviewerConfigurationSpinner);
 
@@ -61,8 +61,8 @@ public class Overview extends Fragment {
 			spinnerAdapter.add(rocket.getMotorConfigurationNameOrDescription(config));
 		}
 
-		Log.d("Overview", "spinnerAdapter = " + spinnerAdapter);
-		Log.d("Overview", "configurationSpinner = " + configurationSpinner);
+		AndroidLogWrapper.d(Overview.class, "spinnerAdapter = " + spinnerAdapter);
+		AndroidLogWrapper.d(Overview.class, "configurationSpinner = " + configurationSpinner);
 		
 		configurationSpinner.setAdapter(spinnerAdapter);
 		configurationSpinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {

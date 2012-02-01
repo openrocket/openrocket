@@ -2,6 +2,7 @@ package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.unit.Unit;
@@ -9,7 +10,6 @@ import net.sf.openrocket.unit.UnitGroup;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +55,7 @@ public class Simulations extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 
 		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
-		Log.d("sim","activity = " + this.getActivity());
+		AndroidLogWrapper.d(Simulations.class,"activity = {0}", this.getActivity());
 
 		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this.getActivity(),android.R.layout.simple_list_item_2,rocketDocument.getSimulations()) {
 

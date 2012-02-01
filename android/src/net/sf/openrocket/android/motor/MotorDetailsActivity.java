@@ -2,10 +2,10 @@ package net.sf.openrocket.android.motor;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.db.DbAdapter;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,8 +15,6 @@ import android.widget.SlidingDrawer;
 public class MotorDetailsActivity extends FragmentActivity
 implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListener {
 
-	private final static String TAG = "MotorDetails";
-	
 	private SlidingDrawer slidingDrawer;
 	private ImageView handle;
 	
@@ -25,7 +23,7 @@ implements SlidingDrawer.OnDrawerCloseListener, SlidingDrawer.OnDrawerOpenListen
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG,"onCreate Bundle = "+ String.valueOf(savedInstanceState));
+		AndroidLogWrapper.d(MotorDetailsActivity.class,"onCreate Bundle = "+ String.valueOf(savedInstanceState));
 		setContentView(R.layout.motor_detail);
 
 		Intent i = getIntent();

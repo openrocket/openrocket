@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -35,7 +36,6 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 import android.graphics.Color;
 import android.graphics.Paint.Align;
-import android.util.Log;
 
 /**
  * This is really a flyweight object so we can serialize the
@@ -52,8 +52,6 @@ import android.util.Log;
  */
 public class SimulationChart implements Serializable {
 	
-	private final static String TAG = "SimulationChart";
-
 	private final int simulationIndex;
 	private transient FlightDataType series1;
 	private transient FlightDataType series2;
@@ -175,7 +173,7 @@ public class SimulationChart implements Serializable {
 		double ymax = computeMaxValueWithPadding( series1values );
 		double xmax = Math.ceil( timevalues.get( timevalues.size()-1));
 		
-		Log.d(TAG,"ymax = " + ymax);
+		AndroidLogWrapper.d(SimulationChart.class,"ymax = " + ymax);
 		renderer.setXAxisMax(xmax);
 		renderer.setYAxisMax(ymax);
 

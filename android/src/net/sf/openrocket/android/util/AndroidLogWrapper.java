@@ -2,6 +2,9 @@ package net.sf.openrocket.android.util;
 
 import java.text.MessageFormat;
 
+import net.sf.openrocket.logging.LogLevel;
+import net.sf.openrocket.logging.LogLine;
+
 import android.util.Log;
 
 public class AndroidLogWrapper {
@@ -51,5 +54,39 @@ public class AndroidLogWrapper {
 		String s = clzz.getSimpleName();
 		return s;
 	}
-	
+
+	public static class LogHelper extends net.sf.openrocket.logging.LogHelper {
+
+		/* (non-Javadoc)
+		 * @see net.sf.openrocket.logging.LogHelper#log(net.sf.openrocket.logging.LogLine)
+		 */
+		@Override
+		public void log(LogLine line) {
+			
+			if ( !logEnabled ) {
+				return;
+			}
+			
+			LogLevel level = line.getLevel();
+			
+			switch ( level ) {
+			case ERROR:
+				Log.e("OpenRocket", line.toString());
+				break;
+			case WARN:
+				Log.w("OpenRocket", line.toString());
+				break;
+			case INFO:
+				Log.i("OpenRocket", line.toString());
+				break;
+			case DEBUG:
+				Log.d("OpenRocket", line.toString());
+				break;
+			default:
+				Log.v("OpenRocket", line.toString());
+			}
+		}
+
+	}
+
 }

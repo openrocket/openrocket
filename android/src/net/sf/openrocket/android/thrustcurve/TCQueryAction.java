@@ -2,12 +2,12 @@ package net.sf.openrocket.android.thrustcurve;
 
 import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Handler;
-import android.util.Log;
 
 /**
  * TCQueryAction is a class which provides all the functionality required
@@ -32,8 +32,6 @@ public class TCQueryAction {
 	public interface OnComplete {
 		public void onComplete();
 	}
-
-	private final static String TAG = "TCQueryAction";
 
 	private DbAdapter mDbHelper;
 
@@ -157,7 +155,7 @@ public class TCQueryAction {
 
 					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
 
-					Log.d(TAG, mi.toString());
+					AndroidLogWrapper.d(TCQueryAction.class, mi.toString());
 
 					ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
 
@@ -184,7 +182,7 @@ public class TCQueryAction {
 						m.setCaseInfo(mi.getCase_info());
 					}
 
-					Log.d(TAG,"adding motor " + m.toString());
+					AndroidLogWrapper.d(TCQueryAction.class,"adding motor " + m.toString());
 					// Write motor.
 					mDbHelper.getMotorDao().insertOrUpdateMotor(m);
 				}
@@ -195,7 +193,7 @@ public class TCQueryAction {
 				}
 			}
 			catch( Exception ex){
-				Log.d(TAG,ex.toString());
+				AndroidLogWrapper.d(TCQueryAction.class,ex.toString());
 				handler.post( new Error(ex.toString()) );
 			}
 

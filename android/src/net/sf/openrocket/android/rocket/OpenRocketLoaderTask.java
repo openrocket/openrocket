@@ -2,23 +2,21 @@ package net.sf.openrocket.android.rocket;
 
 import java.io.File;
 
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketLoaderResult> {
-	
-	private final static String TAG = "OpenRocketLoaderTask";
 	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
 	 */
 	@Override
 	protected OpenRocketLoaderResult doInBackground(File... arg0) {
-		Log.d(TAG, "doInBackgroud");
+		AndroidLogWrapper.d(OpenRocketLoaderTask.class, "doInBackgroud");
 		
 		OpenRocketLoader rocketLoader = new OpenRocketLoader();
 		try {
@@ -28,7 +26,7 @@ public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketLoader
 			result.warnings = result.warnings;
 			return result;
 		} catch (RocketLoadException ex) {
-			Log.e(TAG, "doInBackground rocketLaoder.load threw", ex);
+			AndroidLogWrapper.e(OpenRocketLoaderTask.class, "doInBackground rocketLaoder.load threw", ex);
 		}
 		return null;
 		

@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Vector;
 
 import net.sf.openrocket.R;
-import android.app.Activity;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -27,8 +26,6 @@ import com.androidplot.xy.YValueMarker;
 
 public class BurnPlotFragment extends Fragment implements OnTouchListener {
 
-	private final static String TAG = "BurnPlotFragment";
-
 	private ExtendedThrustCurveMotor motor;
 
 	private XYPlot mySimpleXYPlot;
@@ -44,14 +41,14 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG,"onCreate");
+		AndroidLogWrapper.d(BurnPlotFragment.class,"onCreate");
 		super.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		Log.d(TAG,"onCreateView");
+		AndroidLogWrapper.d(BurnPlotFragment.class,"onCreateView");
 		View v = inflater.inflate(R.layout.motor_burn, container, false);
 		mySimpleXYPlot = (XYPlot) v.findViewById(R.id.xyplot);
 		mySimpleXYPlot.setOnTouchListener(this);
@@ -180,17 +177,17 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 	}
 
 	private void zoom(float scale) {
-		Log.d(TAG,"zoom by " + scale);
+		AndroidLogWrapper.d(BurnPlotFragment.class,"zoom by " + scale);
 		float domainSpan = absMaxX	- absMinX;
-		Log.d(TAG,"domainSpan = " + domainSpan);
+		AndroidLogWrapper.d(BurnPlotFragment.class,"domainSpan = " + domainSpan);
 		float domainMidPoint = absMaxX		- domainSpan / 2.0f;
-		Log.d(TAG,"domainMidPoint = " + domainMidPoint);
+		AndroidLogWrapper.d(BurnPlotFragment.class,"domainMidPoint = " + domainMidPoint);
 		float offset = domainSpan / scale;
-		Log.d(TAG,"offset " + offset);
+		AndroidLogWrapper.d(BurnPlotFragment.class,"offset " + offset);
 		minXY.x=domainMidPoint- offset;
-		Log.d(TAG,"min X " + minXY.x);
+		AndroidLogWrapper.d(BurnPlotFragment.class,"min X " + minXY.x);
 		maxXY.x=domainMidPoint+offset;
-		Log.d(TAG,"max X " + maxXY.x);
+		AndroidLogWrapper.d(BurnPlotFragment.class,"max X " + maxXY.x);
 		checkBoundaries();
 		mySimpleXYPlot.setDomainBoundaries(minXY.x, maxXY.x, BoundaryMode.AUTO);
 		mySimpleXYPlot.redraw();

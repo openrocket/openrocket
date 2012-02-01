@@ -1,15 +1,9 @@
 package net.sf.openrocket.android.thrustcurve;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.db.DbAdapter;
-import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,8 +12,6 @@ import android.widget.Spinner;
 public class TCQueryActivity extends Activity
 implements TCQueryAction.OnComplete
 {
-
-	private static final String TAG = "ThrustCurveQueryActivity";
 
 	private TCQueryAction queryAction;
 
@@ -40,24 +32,24 @@ implements TCQueryAction.OnComplete
 				new View.OnClickListener() {
 					@Override
 					public void onClick( View v ) {
-						Log.d(TAG,"submit button clicked");
+						AndroidLogWrapper.d(TCQueryActivity.class,"submit button clicked");
 
 						String commonName = commonNameField.getText().toString();
 
 						SearchRequest r = new SearchRequest();
 						if ( manufacturerField.getSelectedItemPosition() != 0) {
 							String m = (String) manufacturerField.getSelectedItem();
-							Log.d(TAG,"manufacturer = " + m);
+							AndroidLogWrapper.d(TCQueryActivity.class,"manufacturer = " + m);
 							r.setManufacturer(m);
 						}
 						if ( impulseField.getSelectedItemPosition() != 0  ) {
 							String impulse = (String) impulseField.getSelectedItem();
-							Log.d(TAG,"impulse = " + impulse);
+							AndroidLogWrapper.d(TCQueryActivity.class,"impulse = " + impulse);
 							r.setImpulse_class(impulse);
 						}
 						if ( diameterField.getSelectedItemPosition() != 0 ) {
 							String diameter = (String)diameterField.getSelectedItem();
-							Log.d(TAG,"diameter = " + diameter);
+							AndroidLogWrapper.d(TCQueryActivity.class,"diameter = " + diameter);
 							r.setDiameter(diameter);
 						}
 						r.setCommon_name(commonName);

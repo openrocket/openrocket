@@ -1,6 +1,7 @@
 package net.sf.openrocket.android.db;
 
 import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -8,11 +9,8 @@ import net.sf.openrocket.util.Coordinate;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class MotorDao {
-	
-	private static final String TAG = "MotorDao";
 	
 	private SQLiteDatabase mDb;
 	
@@ -115,7 +113,7 @@ public class MotorDao {
 		initialValues.put(TIME_DATA, ConversionUtils.serializeArrayOfDouble(tcm.getTimePoints()));
 		initialValues.put(CG_DATA, ConversionUtils.serializeArrayOfCoordinate(tcm.getCGPoints()));
 		
-		Log.d(TAG, "insertOrUpdate Motor");
+		AndroidLogWrapper.d(MotorDao.class, "insertOrUpdate Motor");
 		long rv = mDb.insertWithOnConflict(DATABASE_TABLE, null, initialValues, SQLiteDatabase.CONFLICT_REPLACE);
 		return rv;
 	}

@@ -1,6 +1,6 @@
 package pl.polidea.treeview;
 
-import android.util.Log;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 
 /**
  * Allows to build tree easily in sequential mode (you have to know levels of
@@ -10,7 +10,6 @@ import android.util.Log;
  * @param <T>
  */
 public class TreeBuilder<T> {
-    private static final String TAG = TreeBuilder.class.getSimpleName();
 
     private final TreeStateManager<T> manager;
 
@@ -38,7 +37,7 @@ public class TreeBuilder<T> {
      *            child id
      */
     public synchronized void addRelation(final T parent, final T child) {
-        Log.d(TAG, "Adding relation parent:" + parent + " -> child: " + child);
+        AndroidLogWrapper.d(TreeBuilder.class, "Adding relation parent:" + parent + " -> child: " + child);
         manager.addAfterChild(parent, child, null);
         lastAddedId = child;
         lastLevel = manager.getLevel(child);
@@ -58,7 +57,7 @@ public class TreeBuilder<T> {
      *            its level
      */
     public synchronized void sequentiallyAddNextNode(final T id, final int level) {
-        Log.d(TAG, "Adding sequentiall node " + id + " at level " + level);
+        AndroidLogWrapper.d(TreeBuilder.class, "Adding sequentiall node " + id + " at level " + level);
         if (lastAddedId == null) {
             addNodeToParentOneLevelDown(null, id, level);
         } else {

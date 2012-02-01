@@ -2,6 +2,8 @@ package net.sf.openrocket.android.thrustcurve;
 
 import java.io.InputStream;
 
+import net.sf.openrocket.android.util.AndroidLogWrapper;
+
 import org.xml.sax.Attributes;
 
 import android.sax.Element;
@@ -9,12 +11,9 @@ import android.sax.EndElementListener;
 import android.sax.EndTextElementListener;
 import android.sax.RootElement;
 import android.sax.StartElementListener;
-import android.util.Log;
 import android.util.Xml;
 
 public class DownloadResponseParser {
-
-	private static final String TAG = "DownloadResponseParser";
 
 	private static final String thrustcurveURI = "http://www.thrustcurve.org/2009/DownloadResponse";
 
@@ -45,7 +44,7 @@ public class DownloadResponseParser {
 		rootEl.setStartElementListener(
 				new StartElementListener() {
 					public void start(Attributes arg0) {
-						Log.d(TAG,"Start Element error");
+						AndroidLogWrapper.d(TAG,"Start Element error");
 						ret.setError("IsError");
 					}
 				}
@@ -57,7 +56,7 @@ public class DownloadResponseParser {
 				new StartElementListener() {
 					@Override
 					public void start(Attributes arg0) {
-						Log.d(TAG,"Start Element result");
+						AndroidLogWrapper.d(DownloadResponseParser.class,"Start Element result");
 						currentMotor.init();
 					}
 				}
@@ -73,7 +72,7 @@ public class DownloadResponseParser {
 							try {
 								s = Base64Decoder.decodeData(current_data.s);
 							} catch ( Exception ex ) {
-								Log.d(TAG,"base64: " + ex.getMessage());
+								AndroidLogWrapper.d(DownloadResponseParser.class,"base64: " + ex.getMessage());
 							}
 							currentMotor.decodeFile( s );
 						}

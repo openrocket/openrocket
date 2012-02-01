@@ -1,10 +1,10 @@
 package net.sf.openrocket.android.db;
 
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DbAdapter {
 
@@ -35,7 +35,7 @@ public class DbAdapter {
         
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
+            AndroidLogWrapper.w(DbAdapter.class, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
             executeSQL(db, MotorDao.update(oldVersion, newVersion));
         }

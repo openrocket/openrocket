@@ -7,20 +7,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import android.util.Log;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 
 
 public class ThrustCurveAPI {
 
-	private final static String TAG = "ThrustCurveAPI";
-	
 	private String url_base = "http://www.thrustcurve.org/servlets/";
 	
 	public SearchResponse doSearch( SearchRequest request ) throws MalformedURLException, IOException {
 		
 		String requestString = request.toString();
 		
-		Log.d(TAG, "doSearch: " + requestString);
+		AndroidLogWrapper.d(ThrustCurveAPI.class, "doSearch: " + requestString);
 		URL url = new URL(url_base + "search");
 
         OutputStream  stream;
@@ -38,7 +36,7 @@ public class ThrustCurveAPI {
         InputStream is = conn.getInputStream();
 
         SearchResponse result = SearchResponseParser.parse(is);
-        Log.d(TAG,result.toString());
+        AndroidLogWrapper.d(ThrustCurveAPI.class,result.toString());
         
         return result;
 	}
@@ -53,7 +51,7 @@ public class ThrustCurveAPI {
 
 		String requestString = dr.toString();
 
-		Log.d(TAG, "downloadData: " + requestString);
+		AndroidLogWrapper.d(ThrustCurveAPI.class, "downloadData: " + requestString);
 		URL url = new URL(url_base + "download");
 
 		OutputStream  stream;
@@ -70,7 +68,7 @@ public class ThrustCurveAPI {
 		InputStream is = conn.getInputStream();
 
 		DownloadResponse downloadResponse = DownloadResponseParser.parse(is);
-		Log.d(TAG,downloadResponse.toString());
+		AndroidLogWrapper.d(ThrustCurveAPI.class,downloadResponse.toString());
 
 		MotorBurnFile mbf = downloadResponse.getData(motor_id);
 

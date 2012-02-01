@@ -7,6 +7,7 @@ import net.sf.openrocket.android.Application;
 import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationFragment;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.TabsAdapter;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -19,7 +20,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,8 +30,6 @@ public class OpenRocketViewer extends FragmentActivity
 implements SharedPreferences.OnSharedPreferenceChangeListener,
 Simulations.OnSimulationSelectedListener
 {
-
-	private static final String TAG = "OpenRocketViewer";
 
 	OpenRocketDocument rocketDocument;
 	Configuration rocketConfiguration;
@@ -96,7 +94,7 @@ Simulations.OnSimulationSelectedListener
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		Log.d(TAG,"onMenuItemSelected" + item.getItemId());
+		AndroidLogWrapper.d(OpenRocketViewer.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case R.id.motor_list_menu_option:
 			ActivityHelpers.browseMotors(this);

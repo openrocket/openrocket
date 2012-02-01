@@ -5,6 +5,7 @@ import java.io.File;
 import net.sf.openrocket.R;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -14,10 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 public class OpenRocketLoaderActivity extends FragmentActivity {
-	private static final String TAG = "OpenRocketLoader";
 
 	private ProgressDialog progress;
 
@@ -42,7 +41,7 @@ public class OpenRocketLoaderActivity extends FragmentActivity {
 	}
 
 	private void loadOrkFile( Uri file ) {
-		Log.d(TAG,"Use ork file: " + file);
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + file);
 		String path = file.getPath();
 		File orkFile = new File(path);
 		progress = ProgressDialog.show(this, "Loading file", "");
@@ -55,7 +54,7 @@ public class OpenRocketLoaderActivity extends FragmentActivity {
 			@Override
 			protected void onPostExecute(OpenRocketLoaderResult result) {
 				super.onPostExecute(result);
-				Log.d(TAG,"Finished loading " + OpenRocketLoaderActivity.this);
+				AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Finished loading " + OpenRocketLoaderActivity.this);
 				finishedLoading(result);
 			}
 
@@ -85,13 +84,13 @@ public class OpenRocketLoaderActivity extends FragmentActivity {
 
     public void doPositiveClick() {
         // Do stuff here.
-        Log.i("FragmentAlertDialog", "Positive click!");
+        AndroidLogWrapper.i(OpenRocketLoaderActivity.class, "Positive click!");
         finish();
     }
 
     public void doNegativeClick() {
         // Do stuff here.
-        Log.i("FragmentAlertDialog", "Negative click!");
+    	AndroidLogWrapper.i(OpenRocketLoaderActivity.class, "Negative click!");
         finish();
     }
 

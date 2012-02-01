@@ -2,6 +2,7 @@ package net.sf.openrocket.android;
 
 import java.util.Locale;
 
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
@@ -24,7 +25,7 @@ public class Application extends android.app.Application {
 			// Android does not have a default sax parser set.  This needs to be defined first.
 			System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
 
-			net.sf.openrocket.startup.Application.setLogger( new LogHelper() );
+			net.sf.openrocket.startup.Application.setLogger( new AndroidLogWrapper.LogHelper() );
 			
 			net.sf.openrocket.startup.Application.setPreferences( new PreferencesAdapter() );
 			
