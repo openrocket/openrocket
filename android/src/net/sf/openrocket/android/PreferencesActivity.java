@@ -1,29 +1,52 @@
 package net.sf.openrocket.android;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.unit.UnitGroup;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 
 public class PreferencesActivity extends android.preference.PreferenceActivity 
-implements SharedPreferences.OnSharedPreferenceChangeListener {
+{
 
+	
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		super.onCreate( savedInstanceState );
 		addPreferencesFromResource(R.xml.preferences);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		prefs.registerOnSharedPreferenceChangeListener(this);
+		
+		PreferenceManager prefManager = getPreferenceManager();
+		{
+			String key = getApplication().getResources().getString(R.string.PreferenceUnitLengthOption);
+			Preference pref = prefManager.findPreference(key);
+			new UnitPreferenceListener(pref, UnitGroup.UNITS_LENGTH, "Current value ");
+			
+		}
+		{
+			String key = getApplication().getResources().getString(R.string.PreferenceUnitMassOption);
+			Preference pref = prefManager.findPreference(key);
+			new UnitPreferenceListener(pref, UnitGroup.UNITS_MASS, "Current value ");
+			
+		}
+		{
+			String key = getApplication().getResources().getString(R.string.PreferenceUnitVelocityOption);
+			Preference pref = prefManager.findPreference(key);
+			new UnitPreferenceListener(pref, UnitGroup.UNITS_VELOCITY, "Current value ");
+			
+		}
+		{
+			String key = getApplication().getResources().getString(R.string.PreferenceUnitDistanceOption);
+			Preference pref = prefManager.findPreference(key);
+			new UnitPreferenceListener(pref, UnitGroup.UNITS_DISTANCE, "Current value ");
+			
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
-	 */
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-		initializePreferences(getApplication(), PreferenceManager.getDefaultSharedPreferences(this));
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	/**
@@ -39,6 +62,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener {
 		String len = sharedPreferences.getString(unitLength, "cm");
 		UnitGroup.UNITS_LENGTH.setDefaultUnit( len );
 		
+		AndroidLogWrapper.d(PreferencesActivity.class, "Chaning mass");
 		String unitMass = app.getResources().getString(R.string.PreferenceUnitMassOption);
 		String mass = sharedPreferences.getString(unitMass, "g");
 		UnitGroup.UNITS_MASS.setDefaultUnit( mass );
@@ -53,12 +77,28 @@ implements SharedPreferences.OnSharedPreferenceChangeListener {
 		
 	}
 
-	@Override
-	protected void onStop() {
-		initializePreferences(getApplication(), PreferenceManager.getDefaultSharedPreferences(this));
-		super.onStop();
+	private class UnitPreferenceListener implements Preference.OnPreferenceChangeListener {
+
+		private UnitGroup matchedGroup;
+		private String message;
+		private Preference pref;
+		
+		private UnitPreferenceListener( Preference pref, UnitGroup unit, String message) {
+			this.pref = pref;
+			this.matchedGroup = unit;
+			this.message = message;
+			pref.setSummary(message + unit.getDefaultUnit().getUnit());
+			// todo figure out how to setSummary - need to get initial value.
+			pref.setOnPreferenceChangeListener(this);
+		}
+		
+		@Override
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			matchedGroup.setDefaultUnit((String)newValue);
+			preference.setSummary(message + newValue);
+			return true;
+		}
+		
 	}
-	
-	
 	
 }

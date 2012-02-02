@@ -17,7 +17,9 @@ import net.sf.openrocket.rocketcomponent.RocketUtils;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +29,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class Overview extends Fragment {
+public class Overview extends Fragment
+implements SharedPreferences.OnSharedPreferenceChangeListener
+{
 
 	/* Calculation of CP and CG */
 	private AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
@@ -46,11 +50,33 @@ public class Overview extends Fragment {
 		return v;
 	}
 
-	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		prefs.registerOnSharedPreferenceChangeListener(this);
 
+		setup();
+
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		prefs.unregisterOnSharedPreferenceChangeListener(this);
+}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences arg0, String arg1) {
+		if ( this.isVisible() ) {
+			setup();
+		}
+	}
+	
+	private void setup() {
 		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
 		final Configuration rocketConfiguration = rocketDocument.getDefaultConfiguration();
 		Rocket rocket = rocketDocument.getRocket();
@@ -63,7 +89,7 @@ public class Overview extends Fragment {
 
 		AndroidLogWrapper.d(Overview.class, "spinnerAdapter = " + spinnerAdapter);
 		AndroidLogWrapper.d(Overview.class, "configurationSpinner = " + configurationSpinner);
-		
+
 		configurationSpinner.setAdapter(spinnerAdapter);
 		configurationSpinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
 
@@ -108,16 +134,13 @@ public class Overview extends Fragment {
 
 		Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-
+		
 		Coordinate cg = RocketUtils.getCG(rocket, MassCalcType.NO_MOTORS);
 		double length = RocketUtils.getLength(rocket);
 		((TextView)getActivity().findViewById(R.id.openrocketviewerDesigner)).setText(rocket.getDesigner());
 		((TextView)getActivity().findViewById(R.id.openrocketviewerLength)).setText(lengthUnit.toStringUnit(length));
 		((TextView)getActivity().findViewById(R.id.openrocketviewerMass)).setText(massUnit.toStringUnit(cg.weight));
 		((TextView)getActivity().findViewById(R.id.openrocketviewerStageCount)).setText(String.valueOf(rocket.getStageCount()));
-
-
 	}
-
 
 }

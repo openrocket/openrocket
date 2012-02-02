@@ -8,7 +8,9 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +21,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class Simulations extends Fragment {
+public class Simulations extends Fragment
+implements SharedPreferences.OnSharedPreferenceChangeListener
+{
 
 	public interface OnSimulationSelectedListener {
 		public void onSimulationSelected( int simulationId );
 	}
-	
+
 	private ListView simulationList;
 	private OnSimulationSelectedListener listener;
 
@@ -54,6 +58,30 @@ public class Simulations extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		prefs.registerOnSharedPreferenceChangeListener(this);
+
+		setup();
+
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		prefs.unregisterOnSharedPreferenceChangeListener(this);
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences arg0, String arg1) {
+		if ( this.isVisible() ) {
+			setup();
+		}
+	}
+
+
+	private void setup() {
 		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
 		AndroidLogWrapper.d(Simulations.class,"activity = {0}", this.getActivity());
 

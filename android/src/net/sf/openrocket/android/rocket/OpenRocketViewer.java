@@ -13,9 +13,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -27,8 +25,7 @@ import android.view.View;
 import android.widget.TabHost;
 
 public class OpenRocketViewer extends FragmentActivity
-implements SharedPreferences.OnSharedPreferenceChangeListener,
-Simulations.OnSimulationSelectedListener
+implements Simulations.OnSimulationSelectedListener
 {
 
 	OpenRocketDocument rocketDocument;
@@ -47,9 +44,6 @@ Simulations.OnSimulationSelectedListener
 		app = (Application) this.getApplication();
 
 		setContentView(R.layout.openrocketviewer);
-
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		prefs.registerOnSharedPreferenceChangeListener(this);
 
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		mTabHost.setup();
@@ -74,15 +68,6 @@ Simulations.OnSimulationSelectedListener
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putString("tab", mTabHost.getCurrentTabTag());
-	}
-
-	/* (non-Javadoc)
-	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
-	 */
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		// just in case the user changed the units, we redraw.
-		//	TODO = 	updateContents();  redraw all children..
 	}
 
 	@Override
