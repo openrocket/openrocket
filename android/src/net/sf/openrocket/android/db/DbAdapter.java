@@ -12,7 +12,7 @@ public class DbAdapter {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
 
-    private static final String DATABASE_NAME = "rocketflightnotebook";
+    private static final String DATABASE_NAME = "openrocket";
     private static final int DATABASE_VERSION = 3;
 
     private final Context mCtx;
