@@ -64,7 +64,7 @@ public class TCQueryAction {
 	public void setOnCompleteListener(OnComplete onCompleteListener) {
 		this.onCompleteListener = onCompleteListener;
 	}
-	
+
 	public void start( SearchRequest request) {
 		Downloader d = new Downloader(request);
 
@@ -78,14 +78,14 @@ public class TCQueryAction {
 
 	public void dismiss() {
 		// TODO - need to kill the thread.
-		
+
 		mDbHelper.close();
-		
+
 		if ( progress != null && progress.isShowing() ) {
 			progress.dismiss();
 		}
 	}
-	
+
 	private class UpdateMessage implements Runnable {
 		private String newMessage;
 		UpdateMessage( String message ) {
@@ -147,7 +147,18 @@ public class TCQueryAction {
 				int total = res.getResults().size();
 				int count = 1;
 				for( TCMotor mi : res.getResults() ) {
-					handler.post(new UpdateMessage("Downloading details " + count + " of " + total));
+					StringBuilder message = new StringBuilder();
+					message.append("Downloading details ");
+					if ( total > 1 ) {
+						message.append(count);
+						message.append(" of " );
+						message.append(total);
+						message.append("\n");
+					}
+					message.append(mi.getManufacturer());
+					message.append(" ");
+					message.append(mi.getCommon_name());
+					handler.post(new UpdateMessage(message.toString()));
 					count++;
 					if ( mi.getData_files() == null || mi.getData_files().intValue() == 0 ) {
 						continue;
