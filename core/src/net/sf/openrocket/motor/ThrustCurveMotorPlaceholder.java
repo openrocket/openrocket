@@ -107,6 +107,36 @@ public class ThrustCurveMotorPlaceholder implements Motor {
 	public double getTotalImpulseEstimate() {
 		return Double.NaN;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((digest == null) ? 0 : digest.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ThrustCurveMotorPlaceholder other = (ThrustCurveMotorPlaceholder) obj;
+		if (digest == null) {
+			if (other.digest != null)
+				return false;
+		} else if (!digest.equals(other.digest))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "ThrustCurveMotorPlaceholder [manufacturer=" + manufacturer
+				+ ", designation=" + designation + "]";
+	}
 	
 }
