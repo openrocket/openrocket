@@ -11,6 +11,14 @@ public class AndroidLogWrapper {
 
 	private static final boolean logEnabled = true;
 	
+	public static void d( Class clzz, String msg ) {
+		
+		if ( logEnabled ) {
+			String tag = getTagForClass(clzz);
+			Log.d(tag,msg);
+		}
+	}
+
 	public static void d( Class clzz, String msg, Object ... args ) {
 		
 		if ( logEnabled ) {
@@ -20,6 +28,13 @@ public class AndroidLogWrapper {
 		}
 	}
 
+	public static void e( Class clzz, String msg ) {
+		if ( logEnabled ) {
+			String tag = getTagForClass(clzz);
+			Log.e(tag,msg);
+		}
+	}
+	
 	public static void e( Class clzz, String msg, Object ... args ) {
 		if ( logEnabled ) {
 			String tag = getTagForClass(clzz);
@@ -28,6 +43,13 @@ public class AndroidLogWrapper {
 		}
 	}
 
+	public static void i( Class clzz, String msg ) {
+		if ( logEnabled ) {
+			String tag = getTagForClass(clzz);
+			Log.i(tag,msg);
+		}
+	}
+	
 	public static void i( Class clzz, String msg, Object ... args ) {
 		if ( logEnabled ) {
 			String tag = getTagForClass(clzz);
@@ -35,6 +57,14 @@ public class AndroidLogWrapper {
 			Log.i(tag,formatted);
 		}
 	}
+
+	public static void v( Class clzz, String msg ) {
+		if ( logEnabled ) {
+			String tag = getTagForClass(clzz);
+			Log.v(tag,msg);
+		}
+	}
+
 	public static void v( Class clzz, String msg, Object ... args ) {
 		if ( logEnabled ) {
 			String tag = getTagForClass(clzz);
@@ -42,6 +72,14 @@ public class AndroidLogWrapper {
 			Log.v(tag,formatted);
 		}
 	}
+
+	public static void w( Class clzz, String msg ) {
+		if ( logEnabled ) {
+			String tag = getTagForClass(clzz);
+			Log.w(tag,msg);
+		}
+	}
+
 	public static void w( Class clzz, String msg, Object ... args ) {
 		if ( logEnabled ) {
 			String tag = getTagForClass(clzz);
