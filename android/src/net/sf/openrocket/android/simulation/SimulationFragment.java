@@ -39,7 +39,7 @@ public class SimulationFragment extends Fragment implements SimulationSeriesDial
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		setRetainInstance(false);
+		setRetainInstance(true);
 		setHasOptionsMenu(true);
 		OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
 
@@ -54,9 +54,6 @@ public class SimulationFragment extends Fragment implements SimulationSeriesDial
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// TODO without the clear it seems to create multiple copies
-		// of the menu items on orientation change.
-		menu.clear();
 		inflater.inflate(R.menu.simulation_option_menu, menu);
 	}
 
