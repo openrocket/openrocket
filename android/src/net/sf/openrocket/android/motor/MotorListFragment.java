@@ -5,10 +5,8 @@ import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.db.MotorDao;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.PersistentExpandableListFragment;
-import net.sf.openrocket.motor.Motor;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -35,13 +33,13 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	public interface OnMotorSelectedListener {
 		public void onMotorSelected( long motorId );
 	}
-	
+
 	public static MotorListFragment newInstance( ) {
-		
+
 		MotorListFragment frag = new MotorListFragment();
 		return frag;
 	}
-	
+
 	private static final int CONTEXTMENU_DELETE = Menu.FIRST+1;
 
 	private String groupColumnPreferenceKey;
@@ -57,9 +55,9 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	private CursorTreeAdapter mAdapter;
 
 	private DbAdapter mDbHelper;
-	
+
 	private OnMotorSelectedListener motorSelectedListener;
-	
+
 	public void setMotorSelectedListener(
 			OnMotorSelectedListener motorSelectedListener) {
 		this.motorSelectedListener = motorSelectedListener;
@@ -80,10 +78,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		protected Cursor getChildrenCursor(Cursor arg0) {
 			AndroidLogWrapper.d(MotorListFragment.class,"getChildrenCursor");
 			String group = arg0.getString(arg0.getColumnIndex(groupColumn));
-			AndroidLogWrapper.d(MotorListFragment.class,"  for: "+ groupColumn + " = " + group);
 			Cursor c = mDbHelper.getMotorDao().fetchAllInGroups(groupColumn,group);
-			AndroidLogWrapper.d(MotorListFragment.class,"  got cursor");
-			getActivity().startManagingCursor(c);
 			return c;
 		}
 
@@ -98,16 +93,16 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		@Override
 		protected void bindChildView(View arg0, Context arg1, Cursor arg2,
 				boolean arg3) {
-			
+
 			TextView manu = (TextView) arg0.findViewById(R.id.motorChildManu);
 			manu.setText( arg2.getString(arg2.getColumnIndex(MotorDao.MANUFACTURER)));
-			
+
 			TextView desig = (TextView) arg0.findViewById(R.id.motorChildName);
 			desig.setText( arg2.getString(arg2.getColumnIndex(MotorDao.DESIGNATION)));
-			
+
 			TextView delays = (TextView) arg0.findViewById(R.id.motorChildDelays);
 			delays.setText( arg2.getString(arg2.getColumnIndex(MotorDao.DELAYS)));
-			
+
 			TextView totImpulse = (TextView) arg0.findViewById(R.id.motorChildImpulse);
 			totImpulse.setText( arg2.getString(arg2.getColumnIndex(MotorDao.TOTAL_IMPULSE)));
 		}
@@ -126,7 +121,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 				v.setText( cursor.getString( cursor.getColumnIndex(groupColumn)));
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -159,7 +154,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		setGroupColumnFromPreferences(pref);
 
 		pref.registerOnSharedPreferenceChangeListener(this);
-		
+
 		if ( activity instanceof OnMotorSelectedListener ) {
 			motorSelectedListener = (OnMotorSelectedListener) activity;
 		}
@@ -227,17 +222,19 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 	}
 	private void refreshData() {
-		if (mAdapter != null ) {
-			mAdapter.changeCursor(null);
-		}
 		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
-		getActivity().startManagingCursor(motorCursor);
-		// Set up our adapter
-		mAdapter = new MotorHierarchicalListAdapter( 
-				getActivity(),
-				motorCursor,
-				R.layout.motor_list_group,
-				R.layout.motor_list_child);
-		setListAdapter(mAdapter);
+		if (mAdapter != null ) {
+			mAdapter.changeCursor(motorCursor);
+		}
+		else {
+			// Set up our adapter
+			mAdapter = new MotorHierarchicalListAdapter( 
+					getActivity(),
+					motorCursor,
+					R.layout.motor_list_group,
+					R.layout.motor_list_child);
+			setListAdapter(mAdapter);
+		}
 	}
+	
 }
