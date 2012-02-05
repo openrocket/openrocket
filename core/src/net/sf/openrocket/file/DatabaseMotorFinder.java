@@ -16,6 +16,27 @@ import net.sf.openrocket.startup.Application;
  */
 public class DatabaseMotorFinder implements MotorFinder {
 	
+	/**
+	 * Do something when a missing motor is found.
+	 * 
+	 * This implementation adds a Warning.MissingMotor to the warning set and returns null.
+	 * 
+	 * Override this function to change the behavior.
+	 * 
+	 * @return The Motor which will be put in the Rocket.
+	 */
+	protected Motor handleMissingMotor(Type type, String manufacturer, String designation, double diameter, double length, String digest, WarningSet warnings) {
+		Warning.MissingMotor mmw = new Warning.MissingMotor();
+		mmw.setDesignation(designation);
+		mmw.setDigest(digest);
+		mmw.setDiameter(diameter);
+		mmw.setLength(length);
+		mmw.setManufacturer(manufacturer);
+		mmw.setType(type);
+		warnings.add(mmw);
+		return null;
+	}
+	
 	@Override
 	public Motor findMotor(Type type, String manufacturer, String designation, double diameter, double length, String digest, WarningSet warnings) {
 		
@@ -28,16 +49,8 @@ public class DatabaseMotorFinder implements MotorFinder {
 		
 		// No motors
 		if (motors.size() == 0) {
-			Warning.MissingMotor mmw = new Warning.MissingMotor();
-			mmw.setDesignation(designation);
-			mmw.setDigest(digest);
-			mmw.setDiameter(diameter);
-			mmw.setLength(length);
-			mmw.setManufacturer(manufacturer);
-			mmw.setType(type);
-			warnings.add(mmw);
-			return null;
-		}
+			return handleMissingMotor(type, manufacturer, designation, diameter, length, digest, warnings);
+		}		
 		
 		// One motor
 		if (motors.size() == 1) {
