@@ -4,12 +4,19 @@ import java.io.File;
 
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.DatabaseMotorFinderWithMissingMotors;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
+import android.app.Activity;
 import android.os.AsyncTask;
 
 public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketLoaderResult> {
+	
+	private OpenRocketLoaderActivity parent;
+	
+	public OpenRocketLoaderTask( OpenRocketLoaderActivity parent ) {
+		this.parent = parent;
+	}
 	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#doInBackground(Params[])
@@ -21,7 +28,7 @@ public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketLoader
 		OpenRocketLoader rocketLoader = new OpenRocketLoader();
 		try {
 			OpenRocketLoaderResult result = new OpenRocketLoaderResult();
-			OpenRocketDocument rocket = rocketLoader.load(arg0[0], new DatabaseMotorFinder());
+			OpenRocketDocument rocket = rocketLoader.load(arg0[0], new DatabaseMotorFinderWithMissingMotors());
 			result.rocket = rocket;
 			result.warnings = result.warnings;
 			return result;
@@ -31,5 +38,12 @@ public class OpenRocketLoaderTask extends AsyncTask<File, Void, OpenRocketLoader
 		return null;
 		
 	}
-	
+
+	@Override
+	protected void onPostExecute(OpenRocketLoaderResult result) {
+		super.onPostExecute(result);
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Finished loading " + OpenRocketLoaderTask.this);
+		parent.finishedLoading(result);
+	}
+
 }
