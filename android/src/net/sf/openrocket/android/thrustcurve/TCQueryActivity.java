@@ -13,14 +13,14 @@ public class TCQueryActivity extends Activity
 implements TCQueryAction.OnComplete
 {
 
-	private TCQueryAction queryAction;
+	private TCSearchAction queryAction;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tcqueryform);
-
-		queryAction = new TCQueryAction(this);
+		
+		queryAction = new TCSearchAction(this);
 
 		final Spinner manufacturerField = (Spinner) findViewById(R.id.TCMotorSearchFormManufacturerField);
 		final Spinner impulseField = (Spinner) findViewById(R.id.TCMotorSearchFormImpulseField);
@@ -33,7 +33,7 @@ implements TCQueryAction.OnComplete
 					@Override
 					public void onClick( View v ) {
 						AndroidLogWrapper.d(TCQueryActivity.class,"submit button clicked");
-
+						
 						String commonName = commonNameField.getText().toString();
 
 						SearchRequest r = new SearchRequest();
@@ -54,7 +54,8 @@ implements TCQueryAction.OnComplete
 						}
 						r.setCommon_name(commonName);
 
-						queryAction.start(r);
+						queryAction.setRequest(r);
+						queryAction.start();
 					}
 				}
 				);

@@ -1,8 +1,6 @@
 package net.sf.openrocket.android.thrustcurve;
 
 import net.sf.openrocket.android.db.DbAdapter;
-import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
-import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,17 +25,17 @@ import android.os.Handler;
  * When the parent Activity is dismissed, it must call TCQueryAction.dismiss() to free resources.
  * 
  */
-public class TCQueryAction {
+public abstract class TCQueryAction {
 
 	public interface OnComplete {
 		public void onComplete();
 	}
 
-	private DbAdapter mDbHelper;
+	protected DbAdapter mDbHelper;
 
 	private ProgressDialog progress;
 	private Thread downloadThread;
-	private Handler handler;
+	protected Handler handler;
 
 	private final Activity parent;
 	private OnComplete onCompleteListener;
@@ -65,16 +63,17 @@ public class TCQueryAction {
 		this.onCompleteListener = onCompleteListener;
 	}
 
-	public void start( SearchRequest request) {
-		Downloader d = new Downloader(request);
-
+	protected abstract Runnable getTask();
+	
+	public void start() {
 		handler = new Handler();
 		progress = ProgressDialog.show(parent, null, "");
 
-		downloadThread = new Thread( d );
+		downloadThread = new Thread( getTask() );
 		downloadThread.start();
 
 	}
+
 
 	public void dismiss() {
 		// TODO - need to kill the thread.
@@ -86,7 +85,7 @@ public class TCQueryAction {
 		}
 	}
 
-	private class UpdateMessage implements Runnable {
+	protected class UpdateMessage implements Runnable {
 		private String newMessage;
 		UpdateMessage( String message ) {
 			this.newMessage = message;
@@ -97,7 +96,7 @@ public class TCQueryAction {
 		}
 	}
 
-	private class Dismiss implements Runnable {
+	protected class Dismiss implements Runnable {
 		@Override
 		public void run() {
 			progress.dismiss();
@@ -108,7 +107,7 @@ public class TCQueryAction {
 		}
 	}
 
-	private class Error implements Runnable {
+	protected class Error implements Runnable {
 		private String newMessage;
 		Error( String message ) {
 			this.newMessage = message;
@@ -127,87 +126,6 @@ public class TCQueryAction {
 
 			});
 			dialog.show();
-		}
-	}
-
-	private class Downloader implements Runnable {
-
-		SearchRequest request;
-
-		Downloader( SearchRequest request ) {
-			this.request = request;
-		}
-
-		@Override
-		public void run() {
-			try {
-				handler.post( new UpdateMessage("Quering Thrustcurve"));
-				SearchResponse res = new ThrustCurveAPI().doSearch(request);
-
-				int total = res.getResults().size();
-				int count = 1;
-				for( TCMotor mi : res.getResults() ) {
-					StringBuilder message = new StringBuilder();
-					message.append("Downloading details ");
-					if ( total > 1 ) {
-						message.append(count);
-						message.append(" of " );
-						message.append(total);
-						message.append("\n");
-					}
-					message.append(mi.getManufacturer());
-					message.append(" ");
-					message.append(mi.getCommon_name());
-					handler.post(new UpdateMessage(message.toString()));
-					count++;
-					if ( mi.getData_files() == null || mi.getData_files().intValue() == 0 ) {
-						continue;
-					}
-
-					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
-
-					AndroidLogWrapper.d(TCQueryAction.class, mi.toString());
-
-					ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
-
-					m.setThrustCurveMotor( b.getThrustCurveMotor() );
-
-					// Convert impulse class.  ThrustCurve puts mmx, 1/4a and 1/2a as A.
-					m.setImpulseClass(mi.getImpulse_class());
-					if ( "a".equalsIgnoreCase(mi.getImpulse_class())) {
-						if( mi.getCommon_name().startsWith("1/2A") ) {
-							m.setImpulseClass("1/2A");
-						} else if (mi.getCommon_name().startsWith("1/4A") ) {
-							m.setImpulseClass("1/4A");
-						} else if (mi.getCommon_name().startsWith("Micro") ) {
-							m.setImpulseClass("1/8A");
-						}
-					}
-
-					// Convert Case Info.
-					if ( mi.getCase_info() == null
-							|| "single use".equalsIgnoreCase(mi.getCase_info())
-							|| "single-use".equalsIgnoreCase(mi.getCase_info())) {
-						m.setCaseInfo(mi.getType()+ " " + mi.getDiameter() + "x" + mi.getLength());
-					} else {
-						m.setCaseInfo(mi.getCase_info());
-					}
-
-					AndroidLogWrapper.d(TCQueryAction.class,"adding motor " + m.toString());
-					// Write motor.
-					mDbHelper.getMotorDao().insertOrUpdateMotor(m);
-				}
-				if ( total < res.getMatches() ) {
-					handler.post( new Error( total + " motors downloaded, " + res.getMatches() + " matched.  Try restricting the query more.") );
-				} else {
-					handler.post( new Dismiss());
-				}
-			}
-			catch( Exception ex){
-				AndroidLogWrapper.d(TCQueryAction.class,ex.toString());
-				handler.post( new Error(ex.toString()) );
-			}
-
 		}
 	}
 
