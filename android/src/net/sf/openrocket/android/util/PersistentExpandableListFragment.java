@@ -62,39 +62,6 @@ public class PersistentExpandableListFragment extends ExpandableListFragment {
 		outState.putLongArray("ExpandedIds", this.expandedIds);
 	}
 
-	/*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (this.expandedIds != null) {
-            restoreExpandedState(expandedIds);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        expandedIds = getExpandedIds();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        this.expandedIds = getExpandedIds();
-        outState.putLongArray("ExpandedIds", this.expandedIds);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
-        long[] expandedIds = state.getLongArray("ExpandedIds");
-        if (expandedIds != null) {
-            restoreExpandedState(expandedIds);
-        }
-    }
-	 */
-
-
 	private long[] getExpandedIds() {
 		ExpandableListView list = getExpandableListView();
 		ExpandableListAdapter adapter = getExpandableListAdapter();
