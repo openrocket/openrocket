@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Vector;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -27,6 +28,7 @@ import com.androidplot.xy.YValueMarker;
 public class BurnPlotFragment extends Fragment implements OnTouchListener {
 
 	private ExtendedThrustCurveMotor motor;
+	private long motorId;
 
 	private XYPlot mySimpleXYPlot;
 	private SimpleXYSeries mySeries;
@@ -39,10 +41,42 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 	private ScaleGestureDetector mScaleDetector;
 	private float mScaleFactor = 1.f;
 
+	public static BurnPlotFragment newInstance( long motorId ) {
+		BurnPlotFragment frag = new BurnPlotFragment();
+		Bundle bundle = new Bundle();
+		bundle.putLong("motorId", motorId);
+		frag.setArguments(bundle);
+		return frag;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		AndroidLogWrapper.d(BurnPlotFragment.class,"onCreate");
+		
+		if ( savedInstanceState!= null) {
+			motorId = savedInstanceState.getLong("motorId",-1);
+		} else {
+			Bundle b = getArguments();
+			motorId = b.getLong("motorId");
+		}
+		
+		DbAdapter mDbHelper = new DbAdapter(getActivity());
+		mDbHelper.open();
+
+		try {
+			motor = mDbHelper.getMotorDao().fetchMotor(motorId);
+		} catch ( Exception e ) {
+			
+		}
+
+		mDbHelper.close();
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putLong("motorId", motorId);
 	}
 
 	@Override
@@ -53,6 +87,7 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 		mySimpleXYPlot = (XYPlot) v.findViewById(R.id.xyplot);
 		mySimpleXYPlot.setOnTouchListener(this);
 		mScaleDetector = new ScaleGestureDetector(v.getContext(), new ScaleListener());
+		init(motor);
 		return v;
 	}
 
@@ -63,7 +98,8 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 		}
 		return l;
 	}
-	void init( ExtendedThrustCurveMotor motor ) {
+	
+	private void init( ExtendedThrustCurveMotor motor ) {
 
 		mySimpleXYPlot.setUserDomainOrigin(0);
 		mySimpleXYPlot.setUserRangeOrigin(0);

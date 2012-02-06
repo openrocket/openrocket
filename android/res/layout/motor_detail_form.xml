@@ -1,108 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/motorDetailForm"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/black"
-    android:orientation="vertical"
-    android:paddingTop="10px" >
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <TableRow >
+    <TableLayout
+        android:id="@+id/motorDetailForm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        android:paddingTop="10dp" >
 
-        <TextView
-            android:paddingRight="10px"
-            android:text="Manufacturer" />
+        <TableRow>
 
-        <EditText
-            android:id="@+id/motorDetailsManufacturer"
-            android:layout_width="match_parent"
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Manufacturer" />
+
+            <EditText
+                android:id="@+id/motorDetailsManufacturer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Name" />
+
+            <EditText
+                android:id="@+id/motorDetailsName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Delays" />
+
+            <EditText
+                android:id="@+id/motorDetailsDelays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="number" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Case Info" />
+
+            <EditText
+                android:id="@+id/motorDetailsCaseInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Impulse Class" />
+
+            <EditText
+                android:id="@+id/motorDetailsImpuseClass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Diameter" />
+
+            <EditText
+                android:id="@+id/motorDetailsDiameter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="10dp"
+                android:text="Length" />
+
+            <EditText
+                android:id="@+id/motorDetailsLength"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.04"
+                android:editable="false"
+                android:inputType="text" />
+        </TableRow>
+    </TableLayout>
+    <!--
+        <Button
+            android:id="@+id/motorDetailsSaveButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
+            android:text="@string/save" />
+    -->
 
-    <TableRow >
-
-        <TextView
-            android:paddingRight="10px"
-            android:text="Name" />
-
-        <EditText
-            android:id="@+id/motorDetailsName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
-
-    <TableRow >
-
-        <TextView
-            android:paddingRight="10px"
-            android:text="Delays" />
-
-        <EditText
-            android:id="@+id/motorDetailsDelays"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
-
-    <TableRow >
-
-        <TextView
-            android:paddingRight="10px"
-            android:text="Case Info" />
-
-        <EditText
-            android:id="@+id/motorDetailsCaseInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
-
-    <TableRow >
-
-        <TextView
-            android:paddingRight="10px"
-            android:text="Impulse Class" />
-
-        <EditText
-            android:id="@+id/motorDetailsImpuseClass"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
-
-    <TableRow >
-
-        <TextView
-            android:paddingRight="10px"
-            android:text="Diameter" />
-
-        <EditText
-            android:id="@+id/motorDetailsDiameter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
-
-    <TableRow >
-
-        <TextView
-            android:paddingRight="10px"
-            android:text="Length" />
-
-        <EditText
-            android:id="@+id/motorDetailsLength"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04"
-            android:editable="false" />
-    </TableRow>
-
-</TableLayout>
+</ScrollView>

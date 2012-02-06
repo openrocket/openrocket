@@ -72,7 +72,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".android.motor.MotorBrowserActivity" />
-        <activity android:name=".android.motor.MotorDetailsActivity" />
+        <activity android:name=".android.motor.BurnPlotActivity" />
         <activity android:name=".android.thrustcurve.TCQueryActivity" />
         <activity android:name=".android.simulation.SimulationViewActivity" />
         <activity android:name=".android.filebrowser.SimpleFileBrowser" />

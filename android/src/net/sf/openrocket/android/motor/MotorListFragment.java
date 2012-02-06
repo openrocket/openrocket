@@ -12,6 +12,9 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -35,12 +38,12 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	public static MotorListFragment newInstance( ) {
-
 		MotorListFragment frag = new MotorListFragment();
 		return frag;
 	}
 
 	private static final int CONTEXTMENU_DELETE = Menu.FIRST+1;
+	private static final int CONTEXTMENU_EDIT = Menu.FIRST+2;
 
 	private String groupColumnPreferenceKey;
 	private String groupColumn = MotorDao.CASE_INFO;
@@ -165,6 +168,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		menu.setHeaderTitle("Motor Operations");
 		menu.add(Menu.NONE,CONTEXTMENU_DELETE,CONTEXTMENU_DELETE,"Delete");
+		menu.add(Menu.NONE,CONTEXTMENU_EDIT,CONTEXTMENU_EDIT,"Edit");
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
@@ -177,6 +181,21 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		case CONTEXTMENU_DELETE:
 			mDbHelper.getMotorDao().deleteMotor(motorId);
 			refreshData();
+			return true;
+		case CONTEXTMENU_EDIT:
+			// DialogFragment.show() will take care of adding the fragment
+			// in a transaction.  We also want to remove any currently showing
+			// dialog, so make our own transaction and take care of that here.
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+			if (prev != null) {
+				ft.remove(prev);
+			}
+			ft.addToBackStack(null);
+
+			// Create and show the dialog.
+			DialogFragment newFragment = MotorDetailsFragment.newInstance(motorId);
+			newFragment.show(ft, "dialog");
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -236,5 +255,5 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			setListAdapter(mAdapter);
 		}
 	}
-	
+
 }

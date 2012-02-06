@@ -2,15 +2,17 @@ package net.sf.openrocket.android.motor;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.db.ConversionUtils;
+import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 
-public class MotorDetailsFragment extends Fragment {
+public class MotorDetailsFragment extends DialogFragment {
 
 	EditText manuField;
 	EditText nameField;
@@ -19,7 +21,44 @@ public class MotorDetailsFragment extends Fragment {
 	EditText impulseClassField;
 	EditText diameterField;
 	EditText lengthField;
-	
+
+	ExtendedThrustCurveMotor motor;
+
+	public static MotorDetailsFragment newInstance( long motorId ) {
+		MotorDetailsFragment fragment = new MotorDetailsFragment();
+		Bundle b = new Bundle();
+		b.putLong("motorId", motorId);
+		fragment.setArguments(b);
+		return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setStyle(DialogFragment.STYLE_NO_TITLE,getTheme());
+
+		Long motorId;
+		if ( savedInstanceState != null ) {
+			motorId = savedInstanceState.getLong("motorId");
+		} else {
+			Bundle b = getArguments();
+			motorId = b.getLong("motorId");
+		}
+		DbAdapter mDbHelper = new DbAdapter(getActivity());
+		mDbHelper.open();
+		try {
+			motor = mDbHelper.getMotorDao().fetchMotor(motorId);
+		} catch ( Exception e ) {
+		}
+		mDbHelper.close();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle arg0) {
+		super.onSaveInstanceState(arg0);
+		arg0.putLong("motorId", motor.getId());
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -31,19 +70,37 @@ public class MotorDetailsFragment extends Fragment {
 		impulseClassField = (EditText) v.findViewById(R.id.motorDetailsImpuseClass);
 		diameterField = (EditText) v.findViewById(R.id.motorDetailsDiameter);
 		lengthField = (EditText) v.findViewById(R.id.motorDetailsLength);
+		init();
+		/* TODO - enable saving.
+		((Button) v.findViewById(R.id.motorDetailsSaveButton)).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						MotorDetailsFragment.this.saveChanges();
+					}
+				});
+				*/
 		return v;
 	}
 
-	public void init( ExtendedThrustCurveMotor m ) {
-		ThrustCurveMotor tcm = m.getThrustCurveMotor();
+	private void init( ) {
+		ThrustCurveMotor tcm = motor.getThrustCurveMotor();
 		manuField.setText( tcm.getManufacturer().getDisplayName());
 		nameField.setText( tcm.getDesignation() );
 		delaysField.setText( ConversionUtils.delaysToString(tcm.getStandardDelays()) );
-		caseField.setText( m.getCaseInfo());
-		impulseClassField.setText( m.getImpulseClass());
+		caseField.setText( motor.getCaseInfo());
+		impulseClassField.setText( motor.getImpulseClass());
 		diameterField.setText( String.valueOf(tcm.getDiameter()*1000.0) );
 		lengthField.setText( String.valueOf(tcm.getLength()*1000.0) );
-		
 	}
-	
+
+	private void saveChanges() {
+		DbAdapter mDbHelper = new DbAdapter(getActivity());
+		mDbHelper.open();
+		try {
+			mDbHelper.getMotorDao().insertOrUpdateMotor(motor);
+		} catch ( Exception e ) {
+		}
+
+	}
 }

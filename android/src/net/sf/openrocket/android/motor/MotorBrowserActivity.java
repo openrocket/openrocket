@@ -6,6 +6,7 @@ import net.sf.openrocket.android.PreferencesActivity;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
@@ -23,13 +24,8 @@ implements MotorListFragment.OnMotorSelectedListener
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-        if (getSupportFragmentManager().findFragmentById(android.R.id.content) == null) {
-    		motorList = MotorListFragment.newInstance();
-    		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    		ft.add(android.R.id.content, motorList);
-    		ft.commit();
-        }
+		setContentView(R.layout.motorbrowser);
+		getSupportFragmentManager().beginTransaction().add( R.id.motorBrowserList, new MotorListFragment()).commit();
 	}
 
 	@Override
@@ -59,23 +55,19 @@ implements MotorListFragment.OnMotorSelectedListener
 		
 		View sidepane = findViewById(R.id.sidepane);
 		if ( /* if multi pane */ sidepane != null ) {
-			/*
-			Simulation sim = app.getRocketDocument().getSimulation(simulationId);
-			SimulationChart chart = new SimulationChart(simulationId);
-
-			Fragment graph = SimulationFragment.newInstance(chart);
+			
+			Fragment graph = BurnPlotFragment.newInstance(motorId);
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 			// probably only want to update back stack for first time.
-			ft.addToBackStack("simulationplot");
+			ft.addToBackStack("burnplot");
 			ft.replace(R.id.sidepane, graph);
 			ft.show(graph);
 			ft.commit();
-*/
 
 		} else {
-			Intent i = new Intent(this,MotorDetailsActivity.class);
+			Intent i = new Intent(this,BurnPlotActivity.class);
 			i.putExtra("Motor", motorId);
 			startActivity(i);
 		}
