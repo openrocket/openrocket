@@ -2,6 +2,7 @@ package net.sf.openrocket.android;
 
 import java.util.Locale;
 
+import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.DebugTranslator;
@@ -12,6 +13,7 @@ import android.preference.PreferenceManager;
 public class Application extends android.app.Application {
 
 	private OpenRocketDocument rocketDocument;
+	private WarningSet warnings;
 	
 	// Big B boolean so I can synchronize on it.
 	private static Boolean initialized = false;
@@ -70,6 +72,14 @@ public class Application extends android.app.Application {
 	 */
 	public void setRocketDocument(OpenRocketDocument rocketDocument) {
 		this.rocketDocument = rocketDocument;
+	}
+
+	public WarningSet getWarnings() {
+		return warnings;
+	}
+
+	public void setWarnings(WarningSet warnings) {
+		this.warnings = warnings;
 	}
 	
 	

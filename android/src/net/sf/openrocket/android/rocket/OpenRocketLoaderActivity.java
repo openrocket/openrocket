@@ -10,7 +10,7 @@ import net.sf.openrocket.android.thrustcurve.TCMissingMotorDownloadAction;
 import net.sf.openrocket.android.thrustcurve.TCQueryAction;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
-import android.app.ProgressDialog;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,15 +18,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 
 public class OpenRocketLoaderActivity extends FragmentActivity
-implements TCQueryAction.OnComplete
+implements TCQueryAction.OnComplete, OpenRocketLoaderFragment.OnOpenRocketFileLoaded
 {
 
-	private OpenRocketLoaderResult result;
+	private final static String MISSING_MOTOR_DIAG_FRAGMENT_TAG = "missingmotordialog";
 	
-	private Set<ThrustCurveMotorPlaceholder> missingMotors;
-	private OpenRocketLoaderTask task;
-	private ProgressDialog progress;
-	private DialogFragment missingMotorDialog;
 	private TCMissingMotorDownloadAction missingMotorDownloadAction;
 
 	@Override
@@ -39,7 +35,6 @@ implements TCQueryAction.OnComplete
 			Uri file = i.getData();
 			loadOrkFile(file);
 		} else {
-			progress = ProgressDialog.show(this, "Loading file", "");
 		}
 	}
 
@@ -51,12 +46,6 @@ implements TCQueryAction.OnComplete
 
 	@Override
 	protected void onDestroy() {
-		if ( progress != null ) {
-			if ( progress.isShowing() ) {
-				progress.dismiss();
-			}
-			progress = null;
-		}
 		if ( missingMotorDownloadAction != null ) {
 			missingMotorDownloadAction.dismiss();
 		}
@@ -68,12 +57,9 @@ implements TCQueryAction.OnComplete
 		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + file);
 		String path = file.getPath();
 		File orkFile = new File(path);
-		progress = ProgressDialog.show(this, "Loading file", "");
-
-		task = new OpenRocketLoaderTask(this);
-
-		task.execute(orkFile);
-
+		
+		getSupportFragmentManager().beginTransaction().add( OpenRocketLoaderFragment.newInstance(orkFile), "loader").commit();
+		
 	}
 
 	/**
@@ -82,23 +68,21 @@ implements TCQueryAction.OnComplete
 	 * 
 	 * @param result
 	 */
-	void finishedLoading(OpenRocketLoaderResult result) {
-		if ( progress != null && progress.isShowing() ) {
-			progress.dismiss();
-		}
-		this.result = result;
+	public void onOpenRocketFileLoaded(OpenRocketLoaderResult result) {
 		((Application)OpenRocketLoaderActivity.this.getApplication()).setRocketDocument( result.rocket );
-
+		((Application)OpenRocketLoaderActivity.this.getApplication()).setWarnings( result.warnings );
+		
 		updateMissingMotors();
 
 	}
 
 	private void updateMissingMotors() {
-		missingMotors = MissingMotorHelpers.findMissingMotors(result.rocket.getRocket());
+		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
+		Set<ThrustCurveMotorPlaceholder> missingMotors = MissingMotorHelpers.findMissingMotors(rocket);
 
 		if ( missingMotors.size() > 0 ) {
-			missingMotorDialog = MissingMotorDialogFragment.newInstance( missingMotors );
-			missingMotorDialog.show(getSupportFragmentManager(), "missing motors");
+			DialogFragment missingMotorDialog = MissingMotorDialogFragment.newInstance( missingMotors );
+			getSupportFragmentManager().beginTransaction().add(missingMotorDialog, MISSING_MOTOR_DIAG_FRAGMENT_TAG).commit();
 			return;
 		}
 
@@ -111,14 +95,16 @@ implements TCQueryAction.OnComplete
 	@Override
 	public void onComplete() {
 
+		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
+		WarningSet warnings = ((Application)OpenRocketLoaderActivity.this.getApplication()).getWarnings();
 		// Need to update the motor references.
-		MissingMotorHelpers.updateMissingMotors(result.rocket.getRocket(), result.warnings);
+		MissingMotorHelpers.updateMissingMotors(rocket, warnings);
 
 		displayWarningDialog();
 	}
 
 	private void displayWarningDialog() {
-		WarningSet warnings = result.warnings;
+		WarningSet warnings = ((Application)OpenRocketLoaderActivity.this.getApplication()).getWarnings();
 		if (warnings == null || warnings.isEmpty()) {
 		} else {
 			// TODO - Build a warning listing dialog
@@ -131,8 +117,8 @@ implements TCQueryAction.OnComplete
 	}
 
 	public void doFixMissingMotors() {
-
-		missingMotorDialog.dismiss();
+		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
+		Set<ThrustCurveMotorPlaceholder> missingMotors = MissingMotorHelpers.findMissingMotors(rocket);
 
 		missingMotorDownloadAction.setMissingMotors(missingMotors);
 		missingMotorDownloadAction.start();
@@ -140,7 +126,6 @@ implements TCQueryAction.OnComplete
 	}
 
 	public void doNotFixMissingMotors() {
-		missingMotorDialog.dismiss();
 		displayWarningDialog();
 	}
 

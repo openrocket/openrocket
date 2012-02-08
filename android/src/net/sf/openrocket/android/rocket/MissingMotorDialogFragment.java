@@ -10,28 +10,44 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
 public class MissingMotorDialogFragment extends DialogFragment {
-
-	Set<ThrustCurveMotorPlaceholder> missingMotors;
+	
+	private final static String MESSAGE_ARG_KEY = "message";
 
 	public static MissingMotorDialogFragment newInstance( Set<ThrustCurveMotorPlaceholder> missingMotors ) {
 		MissingMotorDialogFragment frag = new MissingMotorDialogFragment();
-		frag.missingMotors = missingMotors;
+		Bundle b = new Bundle();
+		b.putString(MESSAGE_ARG_KEY, buildMessage(missingMotors));
+		frag.setArguments(b);
 		return frag;
 	}
 
-	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		//	                .setIcon(android.R.drawable.alert_dialog_icon)
-		builder.setTitle("Missing Motors");
+	private static String buildMessage( Set<ThrustCurveMotorPlaceholder> missingMotors ) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("The following motors are missing:");
 		for( ThrustCurveMotorPlaceholder m : missingMotors ) {
 			sb.append("\n").append(m.getManufacturer()).append(" ").append(m.getDesignation());
 		}
 		sb.append("\nWould you like to download them from Thrustcurve?");
-		builder.setMessage(sb.toString());
+		return sb.toString();
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setRetainInstance(true);
+		setCancelable(false);
+	}
+
+
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+		String message = getArguments().getString(MESSAGE_ARG_KEY);
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		//	                .setIcon(android.R.drawable.alert_dialog_icon)
+		builder.setTitle("Missing Motors");
+		builder.setMessage(message);
 		builder.setPositiveButton("OK",
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
@@ -48,5 +64,18 @@ public class MissingMotorDialogFragment extends DialogFragment {
 				);
 		return builder.create();
 	}
+
+	/**
+	 * Work around for dialog getting dismissed on orientation change.  See code.google.com/p/android/issues/detail?id=17423
+	 */
+	@Override
+	public void onDestroyView() {
+		if ( getDialog() != null  && getRetainInstance() ) {
+			getDialog().setDismissMessage(null);
+		}
+		super.onDestroyView();
+	}
+	
+	
 }
 

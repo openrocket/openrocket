@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class Main extends FragmentActivity {
 
@@ -24,6 +25,20 @@ public class Main extends FragmentActivity {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
+		((Button) findViewById(R.id.main_open)).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Main.this.pickOrkFiles();
+					}
+				});
+		((Button) findViewById(R.id.main_browse)).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						ActivityHelpers.browseMotors(Main.this);
+					}
+				});
 	}
 
 	@Override
