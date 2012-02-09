@@ -4,17 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/motorBrowserList"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="4"/>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/sidepane"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical" />
+        android:layout_weight="1"/>
 
 </LinearLayout>
