@@ -2,42 +2,46 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@drawable/starfield"
     android:orientation="horizontal" >
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_weight="4"
         android:src="@drawable/rocketglobe" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_weight="4"
         android:orientation="vertical" >
 
-        <TextView
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="Welcome to OpenRocket" />
+            android:src="@drawable/openrocket" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:gravity="center"
             android:orientation="horizontal" >
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/main_open"
-            android:text="View ork file" />
+            <Button
+                android:id="@+id/main_open"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View ork file" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/main_browse"
-            android:text="View motors" />
+            <Button
+                android:id="@+id/main_browse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View motors" />
         </LinearLayout>
     </LinearLayout>
 
