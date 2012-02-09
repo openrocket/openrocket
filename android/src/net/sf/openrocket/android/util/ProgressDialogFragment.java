@@ -6,6 +6,8 @@ import android.support.v4.app.DialogFragment;
 
 public class ProgressDialogFragment extends DialogFragment {
 
+	ProgressDialog progressDialog;
+
 	public static ProgressDialogFragment newInstance(String title, String message) {
 		ProgressDialogFragment fragment = new ProgressDialogFragment();
 		Bundle args = new Bundle();
@@ -16,20 +18,35 @@ public class ProgressDialogFragment extends DialogFragment {
 		return fragment;
 	}
 
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
 	@Override
 	public ProgressDialog onCreateDialog(Bundle savedInstanceState) {
-		String title = getArguments().getString("title");
-		String message = getArguments().getString("message");
+		String title = null;
+		String message = null;
+		Bundle args = getArguments();
+		if ( args != null ) {
+			title = getArguments().getString("title");
+			message = getArguments().getString("message");
+		}
 
-		ProgressDialog progressDialog = new ProgressDialog(getActivity());
+		AndroidLogWrapper.d(ProgressDialogFragment.class, "onCreateDialog");
+		progressDialog = new ProgressDialog(getActivity());
 		progressDialog.setTitle(title);
 		progressDialog.setMessage(message);
 
 		progressDialog.setCancelable(false);
+		progressDialog.setCanceledOnTouchOutside(false);
 
 		progressDialog.show();
-
 		return progressDialog;
 	}
 
+	public void setMessage( String message ) {
+		progressDialog.setMessage(message);
+	}
 }

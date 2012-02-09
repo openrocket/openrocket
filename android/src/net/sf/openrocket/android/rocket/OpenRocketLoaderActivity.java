@@ -18,18 +18,16 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 
 public class OpenRocketLoaderActivity extends FragmentActivity
-implements TCQueryAction.OnComplete, OpenRocketLoaderFragment.OnOpenRocketFileLoaded
+implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnOpenRocketFileLoaded
 {
 
 	private final static String MISSING_MOTOR_DIAG_FRAGMENT_TAG = "missingmotordialog";
+	private final static String MISSING_MOTOR_DOWNLOAD_FRAGMENT_TAG = "missingmotortask";
 	
-	private TCMissingMotorDownloadAction missingMotorDownloadAction;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		missingMotorDownloadAction = new TCMissingMotorDownloadAction(this);
 		if ( savedInstanceState == null || savedInstanceState.getBoolean("isLoading", false) == false ) {
 			Intent i = getIntent();
 			Uri file = i.getData();
@@ -42,15 +40,6 @@ implements TCQueryAction.OnComplete, OpenRocketLoaderFragment.OnOpenRocketFileLo
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("isLoading", true);
-	}
-
-	@Override
-	protected void onDestroy() {
-		if ( missingMotorDownloadAction != null ) {
-			missingMotorDownloadAction.dismiss();
-		}
-
-		super.onDestroy();
 	}
 
 	private void loadOrkFile( Uri file ) {
@@ -93,7 +82,7 @@ implements TCQueryAction.OnComplete, OpenRocketLoaderFragment.OnOpenRocketFileLo
 	 * Called when the TCMissingMotorDownload process finishes.
 	 */
 	@Override
-	public void onComplete() {
+	public void onTCQueryComplete(String message) {
 
 		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
 		WarningSet warnings = ((Application)OpenRocketLoaderActivity.this.getApplication()).getWarnings();
@@ -120,8 +109,8 @@ implements TCQueryAction.OnComplete, OpenRocketLoaderFragment.OnOpenRocketFileLo
 		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
 		Set<ThrustCurveMotorPlaceholder> missingMotors = MissingMotorHelpers.findMissingMotors(rocket);
 
-		missingMotorDownloadAction.setMissingMotors(missingMotors);
-		missingMotorDownloadAction.start();
+		TCMissingMotorDownloadAction motorfrag = TCMissingMotorDownloadAction.newInstance( missingMotors );
+		getSupportFragmentManager().beginTransaction().add( motorfrag, MISSING_MOTOR_DOWNLOAD_FRAGMENT_TAG).commit();
 
 	}
 

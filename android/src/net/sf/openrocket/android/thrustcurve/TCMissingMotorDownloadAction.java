@@ -2,29 +2,25 @@ package net.sf.openrocket.android.thrustcurve;
 
 import java.util.Set;
 
-import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
-import android.app.Activity;
 
 public class TCMissingMotorDownloadAction extends TCQueryAction {
 
-	private Set<ThrustCurveMotorPlaceholder> missingMotors;
-
-	public TCMissingMotorDownloadAction(Activity parent) {
-		super(parent);
+	public static TCMissingMotorDownloadAction newInstance( Set<ThrustCurveMotorPlaceholder> missingMotors ) {
+		TCMissingMotorDownloadAction frag = new TCMissingMotorDownloadAction();
+		frag.task = frag.new Downloader(missingMotors);
+		return frag;
 	}
 
-	public void setMissingMotors( Set<ThrustCurveMotorPlaceholder> missingMotors ) {
-		this.missingMotors = missingMotors;
-	}
+	private class Downloader extends TCQueryAction.TCQueryTask {
 
-	protected Runnable getTask() {
-		return new Downloader();
-	}
-
-	private class Downloader implements Runnable {
-
+		private Set<ThrustCurveMotorPlaceholder> missingMotors;
+		
+		private Downloader( Set<ThrustCurveMotorPlaceholder> missingMotors ) {
+			this.missingMotors = missingMotors;
+		}
+		
 		private void downloadMissingMotor( ThrustCurveMotorPlaceholder motor ) {
 			try {
 				SearchRequest request = new SearchRequest();
@@ -55,55 +51,32 @@ public class TCMissingMotorDownloadAction extends TCQueryAction {
 						continue;
 					}
 
-					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
-
 					AndroidLogWrapper.d(TCQueryAction.class, mi.toString());
 
-					ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
+					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
 
-					m.setThrustCurveMotor( b.getThrustCurveMotor() );
+					writeMotor( mi, b);
 
-					// Convert impulse class.  ThrustCurve puts mmx, 1/4a and 1/2a as A.
-					m.setImpulseClass(mi.getImpulse_class());
-					if ( "a".equalsIgnoreCase(mi.getImpulse_class())) {
-						if( mi.getCommon_name().startsWith("1/2A") ) {
-							m.setImpulseClass("1/2A");
-						} else if (mi.getCommon_name().startsWith("1/4A") ) {
-							m.setImpulseClass("1/4A");
-						} else if (mi.getCommon_name().startsWith("Micro") ) {
-							m.setImpulseClass("1/8A");
-						}
-					}
-
-					// Convert Case Info.
-					if ( mi.getCase_info() == null
-							|| "single use".equalsIgnoreCase(mi.getCase_info())
-							|| "single-use".equalsIgnoreCase(mi.getCase_info())) {
-						m.setCaseInfo(mi.getType()+ " " + mi.getDiameter() + "x" + mi.getLength());
-					} else {
-						m.setCaseInfo(mi.getCase_info());
-					}
-
-					AndroidLogWrapper.d(TCQueryAction.class,"adding motor " + m.toString());
-					// Write motor.
-					mDbHelper.getMotorDao().insertOrUpdateMotor(m);
 				}
 			}
 			catch( Exception ex){
 				AndroidLogWrapper.d(TCQueryAction.class,ex.toString());
-				handler.post( new Error(ex.toString()) );
+				handler.post( new UpdateMessage("Failed") );
+
 			}
 
 		}
 
-	@Override
-	public void run() {
-		for ( ThrustCurveMotorPlaceholder motor : missingMotors ) {
-			AndroidLogWrapper.d(TCMissingMotorDownloadAction.class, "Motor: {}", motor);
-			downloadMissingMotor(motor);
+		@Override
+		protected String doInBackground(Void... arg0) {
+			for ( ThrustCurveMotorPlaceholder motor : missingMotors ) {
+				AndroidLogWrapper.d(TCMissingMotorDownloadAction.class, "Motor: {}", motor);
+				downloadMissingMotor(motor);
+			}
+			dismiss();
+			return null;
 		}
-		handler.post( new Dismiss() );
+
 	}
-}
 
 }

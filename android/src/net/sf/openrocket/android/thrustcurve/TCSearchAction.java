@@ -1,32 +1,28 @@
 package net.sf.openrocket.android.thrustcurve;
 
-import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
-import android.app.Activity;
 
 public class TCSearchAction extends TCQueryAction {
 
-	private SearchRequest request;
-	
-	public TCSearchAction(Activity parent) {
-		super(parent);
-	}
-	
-	public void setRequest( SearchRequest request ) {
-		this.request = request;
+	public static TCSearchAction newInstance( SearchRequest searchRequest ) {
+		TCSearchAction frag = new TCSearchAction();
+		frag.task = frag.new Downloader(searchRequest);
+		return frag;
 	}
 
-	protected Runnable getTask() {
-		return new Downloader();
-	}
-	
-	private class Downloader implements Runnable {
+	private class Downloader extends TCQueryAction.TCQueryTask {
+
+		private SearchRequest searchRequest;
+		
+		private Downloader( SearchRequest searchRequest ) {
+			this.searchRequest = searchRequest;
+		}
 
 		@Override
-		public void run() {
+		protected String doInBackground(Void... params) {
 			try {
 				handler.post( new UpdateMessage("Quering Thrustcurve"));
-				SearchResponse res = new ThrustCurveAPI().doSearch(request);
+				SearchResponse res = new ThrustCurveAPI().doSearch(searchRequest);
 
 				int total = res.getResults().size();
 				int count = 1;
@@ -48,50 +44,24 @@ public class TCSearchAction extends TCQueryAction {
 						continue;
 					}
 
-					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
-
 					AndroidLogWrapper.d(TCQueryAction.class, mi.toString());
 
-					ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
+					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
 
-					m.setThrustCurveMotor( b.getThrustCurveMotor() );
-
-					// Convert impulse class.  ThrustCurve puts mmx, 1/4a and 1/2a as A.
-					m.setImpulseClass(mi.getImpulse_class());
-					if ( "a".equalsIgnoreCase(mi.getImpulse_class())) {
-						if( mi.getCommon_name().startsWith("1/2A") ) {
-							m.setImpulseClass("1/2A");
-						} else if (mi.getCommon_name().startsWith("1/4A") ) {
-							m.setImpulseClass("1/4A");
-						} else if (mi.getCommon_name().startsWith("Micro") ) {
-							m.setImpulseClass("1/8A");
-						}
-					}
-
-					// Convert Case Info.
-					if ( mi.getCase_info() == null
-							|| "single use".equalsIgnoreCase(mi.getCase_info())
-							|| "single-use".equalsIgnoreCase(mi.getCase_info())) {
-						m.setCaseInfo(mi.getType()+ " " + mi.getDiameter() + "x" + mi.getLength());
-					} else {
-						m.setCaseInfo(mi.getCase_info());
-					}
-
-					AndroidLogWrapper.d(TCQueryAction.class,"adding motor " + m.toString());
-					// Write motor.
-					mDbHelper.getMotorDao().insertOrUpdateMotor(m);
+					writeMotor( mi, b);
 				}
 				if ( total < res.getMatches() ) {
-					handler.post( new Error( total + " motors downloaded, " + res.getMatches() + " matched.  Try restricting the query more.") );
+					dismiss();
+					return "" + total + " motors downloaded, " + res.getMatches() + " matched.  Try restricting the query more.";
 				} else {
-					handler.post( new Dismiss());
+					dismiss();
+					return null;
 				}
 			}
 			catch( Exception ex){
-				AndroidLogWrapper.d(TCQueryAction.class,ex.toString());
-				handler.post( new Error(ex.toString()) );
+				AndroidLogWrapper.d(TCSearchAction.class,ex.toString());
+				return ex.toString();
 			}
-
 		}
 	}
 
