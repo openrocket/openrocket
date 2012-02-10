@@ -16,6 +16,7 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
@@ -60,7 +61,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		status = initialStatus(configuration, motorConfiguration, simulationConditions, flightData);
 		status = currentStepper.initialize(status);
 		
-
+		
 		SimulationListenerHelper.fireStartSimulation(status);
 		// Get originating position (in case listener has modified launch position)
 		Coordinate origin = status.getRocketPosition();
@@ -87,7 +88,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				SimulationListenerHelper.firePostStep(status);
 				
-
+				
 				// Check for NaN values in the simulation status
 				checkNaN();
 				
@@ -100,7 +101,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					maxAlt = status.getRocketPosition().z;
 				}
 				
-
+				
 				// Position relative to start location
 				Coordinate relativePosition = status.getRocketPosition().sub(origin);
 				
@@ -134,14 +135,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, status.getSimulationTime(), null));
 				}
 				
-
+				
 				// Check for apogee
 				if (!status.isApogeeReached() && status.getRocketPosition().z < maxAlt - 0.01) {
 					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, status.getSimulationTime(),
 							status.getConfiguration().getRocket()));
 				}
 				
-
+				
 				// Check for burnt out motors
 				for (MotorId motorId : status.getMotorConfiguration().getMotorIDs()) {
 					MotorInstance motor = status.getMotorConfiguration().getMotorInstance(motorId);
@@ -171,7 +172,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	
-
+	
 	private SimulationStatus initialStatus(Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
 			SimulationConditions simulationConditions, FlightData flightData) {
@@ -201,7 +202,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		init.setRocketOrientationQuaternion(o);
 		init.setRocketRotationVelocity(Coordinate.NUL);
 		
-
+		
 		/*
 		 * Calculate the effective launch rod length taking into account launch lugs.
 		 * If no lugs are found, assume a tower launcher of full length.
@@ -228,8 +229,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 		init.setEffectiveLaunchRodLength(length);
 		
-
-
+		
+		
 		init.setSimulationStartWallTime(System.nanoTime());
 		
 		init.setMotorIgnited(false);
@@ -246,7 +247,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	
-
+	
 	/**
 	 * Create a rocket configuration from the launch conditions.
 	 * 
@@ -262,7 +263,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	
-
+	
 	/**
 	 * Create a new motor instance configuration for the rocket configuration.
 	 * 
@@ -302,6 +303,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		for (event = nextEvent(); event != null; event = nextEvent()) {
 			
+			// Ignore events for components that are no longer attached to the rocket
+			if (event.getSource() != null && event.getSource().getParent() != null &&
+					!status.getConfiguration().isStageActive(event.getSource().getStageNumber())) {
+				continue;
+			}
+			
 			// Call simulation listeners, allow aborting event handling
 			if (!SimulationListenerHelper.fireHandleFlightEvent(status, event)) {
 				continue;
@@ -327,8 +334,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
-
-
+			
+			
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorId id : status.getMotorConfiguration().getMotorIDs()) {
 				MotorMount mount = status.getMotorConfiguration().getMotorMount(id);
@@ -341,7 +348,20 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
-
+			
+			// Check for stage separation event
+			for (int stageNo : status.getConfiguration().getActiveStages()) {
+				if (stageNo == 0)
+					continue;
+				
+				Stage stage = (Stage) status.getConfiguration().getRocket().getChild(stageNo);
+				if (stage.getSeparationEvent().isSeparationEvent(event, stage)) {
+					addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
+							event.getTime() + stage.getSeparationDelay(), stage));
+				}
+			}
+			
+			
 			// Check for recovery device deployment, add events to queue
 			Iterator<RocketComponent> rci = status.getConfiguration().iterator();
 			while (rci.hasNext()) {
@@ -355,7 +375,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
-
+			
 			// Handle event
 			switch (event.getType()) {
 			
@@ -363,7 +383,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				status.getFlightData().addEvent(event);
 				break;
 			}
-				
+			
 			case IGNITION: {
 				// Ignite the motor
 				MotorMount mount = (MotorMount) event.getSource();
@@ -374,31 +394,23 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				status.setMotorIgnited(true);
 				status.getFlightData().addEvent(event);
 				
-				// Add stage separation event if appropriate
-				int n = component.getStageNumber();
-				if (n < component.getRocket().getStageCount() - 1) {
-					if (status.getConfiguration().isStageActive(n + 1)) {
-						addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION, event.getTime(),
-								component.getStage()));
-					}
-				}
 				break;
 			}
-				
+			
 			case LIFTOFF: {
 				// Mark lift-off as occurred
 				status.setLiftoff(true);
 				status.getFlightData().addEvent(event);
 				break;
 			}
-				
+			
 			case LAUNCHROD: {
 				// Mark launch rod as cleared
 				status.setLaunchRodCleared(true);
 				status.getFlightData().addEvent(event);
 				break;
 			}
-				
+			
 			case BURNOUT: {
 				// If motor burnout occurs without lift-off, abort
 				if (!status.isLiftoff()) {
@@ -415,21 +427,21 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				status.getFlightData().addEvent(event);
 				break;
 			}
-				
+			
 			case EJECTION_CHARGE: {
 				status.getFlightData().addEvent(event);
 				break;
 			}
-				
+			
 			case STAGE_SEPARATION: {
 				// TODO: HIGH: Store lower stages to be simulated later
 				RocketComponent stage = event.getSource();
 				int n = stage.getStageNumber();
-				status.getConfiguration().setToStage(n);
+				status.getConfiguration().setToStage(n - 1);
 				status.getFlightData().addEvent(event);
 				break;
 			}
-				
+			
 			case APOGEE:
 				// Mark apogee as reached
 				status.setApogeeReached(true);
@@ -494,7 +506,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 		}
 		
-
+		
 		// If no motor has ignited, abort
 		if (!status.isMotorIgnited()) {
 			throw new MotorIgnitionException("No motors ignited.");
@@ -502,7 +514,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		return ret;
 	}
-	
 	
 	/**
 	 * Add a flight event to the event queue unless a listener aborts adding it.
@@ -516,7 +527,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	
-
+	
 	/**
 	 * Return the next flight event to handle, or null if no more events should be handled.
 	 * This method jumps the simulation time forward in case no motors have been ignited.
@@ -543,7 +554,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	}
 	
 	
-
+	
 	private void checkNaN() throws SimulationException {
 		double d = 0;
 		boolean b = false;
@@ -568,5 +579,5 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 	
-
+	
 }

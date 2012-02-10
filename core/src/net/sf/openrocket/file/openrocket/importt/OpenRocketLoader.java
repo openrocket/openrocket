@@ -478,6 +478,14 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setDesigner", String.class)));
 		setters.put("Rocket:revision", new StringSetter(
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
+		
+		// Stage
+		setters.put("Stage:separationevent", new EnumSetter<Stage.SeparationEvent>(
+				Reflection.findMethod(Stage.class, "setSeparationEvent", Stage.SeparationEvent.class),
+				Stage.SeparationEvent.class));
+		setters.put("Stage:separationdelay", new DoubleSetter(
+				Reflection.findMethod(Stage.class, "setSeparationDelay", double.class)));
+		
 	}
 	
 	

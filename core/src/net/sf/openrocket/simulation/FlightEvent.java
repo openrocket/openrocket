@@ -12,7 +12,7 @@ import net.sf.openrocket.startup.Application;
  */
 public class FlightEvent implements Comparable<FlightEvent> {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	/**
 	 * The type of the flight event.
 	 * 
@@ -22,68 +22,56 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		/** 
 		 * Rocket launch.
 		 */
-		//// Launch
 		LAUNCH(trans.get("FlightEvent.Type.LAUNCH")),
 		/** 
 		 * Ignition of a motor.  Source is the motor mount the motor of which has ignited,
 		 * and the data is the MotorId of the motor instance.
 		 */
-		//// Motor ignition
 		IGNITION(trans.get("FlightEvent.Type.IGNITION")),
 		/**
 		 * When the motor has lifted off the ground.
 		 */
-		//// Lift-off
 		LIFTOFF(trans.get("FlightEvent.Type.LIFTOFF")),
 		/**
 		 * Launch rod has been cleared.
 		 */
-		//// Launch rod clearance
 		LAUNCHROD(trans.get("FlightEvent.Type.LAUNCHROD")),
 		/** 
 		 * Burnout of a motor.  Source is the motor mount the motor of which has burnt out,
 		 * and the data is the MotorId of the motor instance.
 		 */
-		//// Motor burnout
 		BURNOUT(trans.get("FlightEvent.Type.BURNOUT")),
 		/** 
 		 * Ejection charge of a motor fired.  Source is the motor mount the motor of
 		 * which has exploded its ejection charge, and data is the MotorId of the motor instance.
 		 */
-		//// Ejection charge
 		EJECTION_CHARGE(trans.get("FlightEvent.Type.EJECTION_CHARGE")),
 		/** 
-		 * Separation of a stage.  Source is the stage which has separated all lower stages. 
+		 * Separation of a stage.  Source is the stage which is being separated from the upper stages.
 		 */
-		//// Stage separation
 		STAGE_SEPARATION(trans.get("FlightEvent.Type.STAGE_SEPARATION")),
 		/** 
 		 * Apogee has been reached.
 		 */
-		//// Apogee
 		APOGEE(trans.get("FlightEvent.Type.APOGEE")),
 		/** 
 		 * Opening of a recovery device.  Source is the RecoveryComponent which has opened. 
 		 */
-		//// Recovery device deployment
 		RECOVERY_DEVICE_DEPLOYMENT(trans.get("FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT")),
 		/** 
 		 * Ground has been hit after flight.
 		 */
-		//// Ground hit
 		GROUND_HIT(trans.get("FlightEvent.Type.GROUND_HIT")),
-
+		
 		/**
 		 * End of simulation.  Placing this to the queue will end the simulation.
 		 */
-		//// Simulation end
 		SIMULATION_END(trans.get("FlightEvent.Type.SIMULATION_END")),
-
+		
 		/**
 		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
 		 * which contains the old and new altitudes.
 		 */
-		//// Altitude change
 		ALTITUDE(trans.get("FlightEvent.Type.ALTITUDE"));
 		
 		private final String name;
@@ -120,7 +108,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	}
 	
 	
-
+	
 	public Type getType() {
 		return type;
 	}
