@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+
+    <!-- this is just here so the edittext doesn't get focus -->
+
+    <LinearLayout
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
     <TableLayout
         android:id="@+id/tableLayout1"
@@ -10,7 +18,7 @@
         android:layout_height="wrap_content"
         android:stretchColumns="1" >
 
-        <TableRow >
+        <TableRow>
 
             <TextView
                 android:id="@+id/textView1"
@@ -23,7 +31,7 @@
                 android:entries="@array/TCMotorSearchManufacturerList" />
         </TableRow>
 
-        <TableRow >
+        <TableRow>
 
             <TextView
                 android:id="@+id/textView1"
@@ -36,7 +44,7 @@
                 android:entries="@array/TCMotorSearchImpulseList" />
         </TableRow>
 
-        <TableRow >
+        <TableRow>
 
             <TextView
                 android:id="@+id/textView1"
@@ -47,7 +55,7 @@
                 android:text="" />
         </TableRow>
 
-        <TableRow >
+        <TableRow>
 
             <TextView
                 android:id="@+id/textView1"
@@ -65,8 +73,7 @@
         android:id="@+id/TCMotorSearchFromSubmitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center_horizontal"
         android:text="@string/TCMotorSearchFormSubmit" />
 
-</RelativeLayout>
+</LinearLayout>
