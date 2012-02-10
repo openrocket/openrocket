@@ -36,7 +36,6 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 {
 
 	static final int INTERNAL_EMPTY_ID = 0x00ff0001;
-	static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
 	final private Handler mHandler = new Handler();
 
@@ -82,13 +81,10 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		FrameLayout root = new FrameLayout(getActivity());
 
-		FrameLayout lframe = new FrameLayout(getActivity());
-		lframe.setId(INTERNAL_LIST_CONTAINER_ID);
-
 		TextView tv = new TextView(getActivity());
 		tv.setId(INTERNAL_EMPTY_ID);
 		tv.setGravity(Gravity.CENTER);
-		lframe.addView(tv,
+		root.addView(tv,
 				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 
 		ExpandableListView lv = new ExpandableListView(getActivity());
@@ -98,10 +94,7 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 		lv.setOnGroupExpandListener(this);
 		lv.setOnGroupCollapseListener(this);
 
-		lframe.addView(lv,
-				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-
-		root.addView(lframe, new FrameLayout.LayoutParams(
+		root.addView(lv, new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
 
 		ListView.LayoutParams lp =
@@ -272,7 +265,7 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 			if (mStandardEmptyView == null) {
 				mEmptyView = root.findViewById(android.R.id.empty);
 			}
-			mListContainer = root.findViewById(INTERNAL_LIST_CONTAINER_ID);
+			mListContainer = root.findViewById(android.R.id.list);
 			View rawListView = root.findViewById(android.R.id.list);
 			if (!(rawListView instanceof ExpandableListView)) {
 				if (rawListView == null) {
