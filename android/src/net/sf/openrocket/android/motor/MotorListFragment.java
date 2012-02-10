@@ -20,7 +20,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ResourceCursorTreeAdapter;
 import android.widget.TextView;
@@ -54,8 +53,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		MotorDao.IMPULSE_CLASS,
 		MotorDao.MANUFACTURER
 	};
-
-	private CursorTreeAdapter mAdapter;
 
 	private DbAdapter mDbHelper;
 
@@ -138,6 +135,10 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		// TODO - need some error text but unfortunately doing this, makes the layout funky
+		// on ICS.
+		//setEmptyText("No motors in database - download them from Thrustcurve using the Option Menu");
+
 		refreshData();
 
 		registerForContextMenu(getExpandableListView());
@@ -204,7 +205,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 		super.onChildClick(parent, v, groupPosition, childPosition, id);
-		//Intent i = new Intent(this, BurnPlotActivity.class);
 		if( motorSelectedListener != null ) {
 			motorSelectedListener.onMotorSelected(id);
 		}
@@ -216,11 +216,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		super.onDetach();
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		pref.unregisterOnSharedPreferenceChangeListener(this);
-
-		// Null out the group cursor. This will cause the group cursor and all of the child cursors
-		// to be closed.
-		mAdapter.changeCursor(null);
-		mAdapter = null;
 
 		mDbHelper.close();
 	}
@@ -240,20 +235,15 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		groupColumn = groupColumns[index];
 
 	}
-	private void refreshData() {
-		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
-		if (mAdapter != null ) {
-			mAdapter.changeCursor(motorCursor);
-		}
-		else {
-			// Set up our adapter
-			mAdapter = new MotorHierarchicalListAdapter( 
-					getActivity(),
-					motorCursor,
-					R.layout.motor_list_group,
-					R.layout.motor_list_child);
-			setListAdapter(mAdapter);
-		}
-	}
 
+	public void refreshData() {
+		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
+		MotorHierarchicalListAdapter mAdapter = new MotorHierarchicalListAdapter( 
+				getActivity(),
+				motorCursor,
+				R.layout.motor_list_group,
+				R.layout.motor_list_child);
+		setListAdapter(mAdapter);
+		onContentChanged();
+	}
 }

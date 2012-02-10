@@ -18,9 +18,9 @@ public abstract class ActivityHelpers {
 		parent.startActivity(intent);
 	}
 	
-	public static void downloadFromThrustcurve( Activity parent ) {
+	public static void downloadFromThrustcurve( Activity parent, int requestCode ) {
 		Intent i = new Intent(parent, TCQueryActivity.class);
-		parent.startActivity(i);
+		parent.startActivityForResult(i, requestCode);
 	}
 
 }

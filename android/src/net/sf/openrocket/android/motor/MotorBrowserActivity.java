@@ -19,6 +19,8 @@ implements MotorListFragment.OnMotorSelectedListener
 {
 
 	MotorListFragment motorList;
+	
+	private final static int DOWNLOAD_REQUEST_CODE = 1;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -40,7 +42,7 @@ implements MotorListFragment.OnMotorSelectedListener
 		AndroidLogWrapper.d(MotorBrowserActivity.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case R.id.download_from_thrustcurve_menu_option:
-			ActivityHelpers.downloadFromThrustcurve(this);
+			ActivityHelpers.downloadFromThrustcurve(this,DOWNLOAD_REQUEST_CODE);
 			return true;
 		case R.id.preference_menu_option:
 			Intent intent = new Intent().setClass(this, PreferencesActivity.class);
@@ -48,6 +50,14 @@ implements MotorListFragment.OnMotorSelectedListener
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+		if ( requestCode == DOWNLOAD_REQUEST_CODE ) {
+			MotorListFragment frag = (MotorListFragment) getSupportFragmentManager().findFragmentById(R.id.motorBrowserList);
+			frag.refreshData();
+		}
 	}
 
 	@Override
