@@ -3,18 +3,18 @@ package net.sf.openrocket.android.motor;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.PreferencesActivity;
+import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MotorBrowserActivity extends FragmentActivity
+public class MotorBrowserActivity extends ActionBarFragmentActivity
 implements MotorListFragment.OnMotorSelectedListener
 {
 
@@ -27,6 +27,7 @@ implements MotorListFragment.OnMotorSelectedListener
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.motorbrowser);
+		getActionBarHelper().setDisplayHomeAsUpEnabled(true);
 		getSupportFragmentManager().beginTransaction().add( R.id.motorBrowserList, new MotorListFragment()).commit();
 	}
 
@@ -41,6 +42,9 @@ implements MotorListFragment.OnMotorSelectedListener
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		AndroidLogWrapper.d(MotorBrowserActivity.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.download_from_thrustcurve_menu_option:
 			ActivityHelpers.downloadFromThrustcurve(this,DOWNLOAD_REQUEST_CODE);
 			return true;

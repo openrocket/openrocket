@@ -3,8 +3,8 @@
     android:id="@+id/xyplot"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:layout_marginLeft="0px"
-    android:layout_marginRight="0px"
-    android:layout_marginTop="5px"
-    title="plot"
+    android:layout_marginLeft="2dp"
+    android:layout_marginRight="2dp"
+    android:layout_marginTop="5dp"
+    title="                                                                              "
 />

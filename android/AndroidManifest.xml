@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="9" />
+        android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,10 +16,11 @@
         android:debuggable="true"
         android:icon="@drawable/or_launcher"
         android:killAfterRestore="true"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".android.Main"
-            android:theme="@android:style/Theme.Black.NoTitleBar" >
+            android:theme="@style/AppTheme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,14 +29,14 @@
         </activity>
         <activity
             android:name=".android.rocket.OpenRocketLoaderActivity"
-            android:theme="@android:style/Theme.Black.NoTitleBar" >
+            android:theme="@style/AppTheme.NoTitleBar" >
 
             <!--
                  I don't understand why I need to have two different intent filters. 
 				Combining the <data> elements into a single field did not result in a working 
 				application. The first intent-filter (with mimeType wildcard) convinces the 
 				file browser to associate the correct launcher icon. the second intent-filter 
-				is actually invoked when a file is selected.
+				is actually invoked when a file is selected.
             -->
             <!-- this intent filter convinces the file browser to display icons -->
             <intent-filter>
@@ -61,9 +62,7 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".android.rocket.OpenRocketViewer"
-            android:label="@string/app_name" />
+        <activity android:name=".android.rocket.OpenRocketViewer" />
         <activity android:name=".android.PreferencesActivity" >
             <intent-filter>
                 <action android:name="net.sf.openrocket.android.PreferencesActivity" />
@@ -72,9 +71,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".android.motor.MotorBrowserActivity" />
-        <activity android:name=".android.motor.BurnPlotActivity" />
+        <activity
+            android:name=".android.motor.BurnPlotActivity"
+            android:theme="@style/AppTheme.NoTitleBar" />
         <activity android:name=".android.thrustcurve.TCQueryActivity" />
-        <activity android:name=".android.simulation.SimulationViewActivity" />
+        <activity
+            android:name=".android.simulation.SimulationViewActivity"
+            android:theme="@style/AppTheme.NoTitleBar" />
         <activity android:name=".android.filebrowser.SimpleFileBrowser" />
     </application>
 

@@ -19,5 +19,5 @@ public class BurnPlotActivity extends FragmentActivity {
 		getSupportFragmentManager().beginTransaction().replace(android.R.id.content, burnPlot).commit();
 		
 	}
-	
+
 }

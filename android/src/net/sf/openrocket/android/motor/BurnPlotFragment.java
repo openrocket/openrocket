@@ -8,6 +8,7 @@ import net.sf.openrocket.R;
 import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -48,25 +49,25 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 		frag.setArguments(bundle);
 		return frag;
 	}
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		AndroidLogWrapper.d(BurnPlotFragment.class,"onCreate");
-		
+
 		if ( savedInstanceState!= null) {
 			motorId = savedInstanceState.getLong("motorId",-1);
 		} else {
 			Bundle b = getArguments();
 			motorId = b.getLong("motorId");
 		}
-		
+
 		DbAdapter mDbHelper = new DbAdapter(getActivity());
 		mDbHelper.open();
 
 		try {
 			motor = mDbHelper.getMotorDao().fetchMotor(motorId);
 		} catch ( Exception e ) {
-			
+
 		}
 
 		mDbHelper.close();
@@ -98,22 +99,25 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 		}
 		return l;
 	}
-	
+
 	private void init( ExtendedThrustCurveMotor motor ) {
 
 		mySimpleXYPlot.setUserDomainOrigin(0);
 		mySimpleXYPlot.setUserRangeOrigin(0);
 		mySimpleXYPlot.setRangeLabel("impuse (n)");
 		mySimpleXYPlot.setDomainLabel("time (s)");
-		mySimpleXYPlot.addMarker(new YValueMarker(motor.getThrustCurveMotor().getAverageThrustEstimate(),"average" ));
+		YValueMarker average = new YValueMarker(motor.getThrustCurveMotor().getAverageThrustEstimate(),"average" );
+		average.getLinePaint().setColor(Color.BLACK);
+		average.getTextPaint().setColor(Color.BLACK);
+		mySimpleXYPlot.addMarker( average );
 		mySimpleXYPlot.disableAllMarkup();
-
 
 		try {
 			mySeries = new SimpleXYSeries( 
 					fromArray(motor.getThrustCurveMotor().getTimePoints()),
-					fromArray(motor.getThrustCurveMotor().getThrustPoints()),
-					motor.getThrustCurveMotor().getDesignation());
+					fromArray(motor.getThrustCurveMotor().getThrustPoints()), 
+					motor.getThrustCurveMotor().getManufacturer().getDisplayName() + " " + motor.getThrustCurveMotor().getDesignation()
+					);
 		} catch ( Exception ex ) {
 
 			Vector<Double> data = new Vector<Double>();
@@ -124,8 +128,11 @@ public class BurnPlotFragment extends Fragment implements OnTouchListener {
 			mySeries = new SimpleXYSeries(data, SimpleXYSeries.ArrayFormat.XY_VALS_INTERLEAVED,"no data");
 		}
 
-		mySimpleXYPlot.addSeries(mySeries, LineAndPointRenderer.class,
-				new LineAndPointFormatter(Color.rgb(0, 255, 0), Color.rgb(200, 0, 0), null));
+		LineAndPointFormatter formatter= new LineAndPointFormatter(Color.RED, Color.GREEN, Color.GREEN);
+
+		formatter.getLinePaint().setShadowLayer(0, 0, 0, 0);
+		formatter.getVertexPaint().setShadowLayer(0, 0, 0, 0);
+		mySimpleXYPlot.addSeries(mySeries, LineAndPointRenderer.class,formatter);
 
 		//Set of internal variables for keeping track of the boundaries
 		mySimpleXYPlot.calculateMinMaxVals();

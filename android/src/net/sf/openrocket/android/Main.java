@@ -51,12 +51,6 @@ public class Main extends FragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch( item.getItemId() ) {
-		case R.id.main_menu_motor:
-			ActivityHelpers.browseMotors(this);
-			return true;
-		case R.id.main_menu_open:
-			pickOrkFiles();
-			return true;
 		case R.id.main_menu_preferences:
 			ActivityHelpers.startPreferences(this);
 			return true;

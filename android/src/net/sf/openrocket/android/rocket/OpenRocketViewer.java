@@ -4,72 +4,45 @@ package net.sf.openrocket.android.rocket;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationFragment;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
-import net.sf.openrocket.android.util.TabsAdapter;
-import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.rocketcomponent.Configuration;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TabHost;
 
-public class OpenRocketViewer extends FragmentActivity
+public class OpenRocketViewer extends ActionBarFragmentActivity
 implements Simulations.OnSimulationSelectedListener
 {
 
-	OpenRocketDocument rocketDocument;
-	Configuration rocketConfiguration;
-
 	private Application app;
-
-	TabHost mTabHost;
-	ViewPager  mViewPager;
-	TabsAdapter mTabsAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		app = (Application) this.getApplication();
-
 		setContentView(R.layout.openrocketviewer);
-
-		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
-		mTabHost.setup();
-
-		mViewPager = (ViewPager)findViewById(R.id.pager);
-
-		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
-
-		mTabsAdapter.addTab(mTabHost.newTabSpec("overview").setIndicator("Overview"),
-				Overview.class, null);
-		mTabsAdapter.addTab(mTabHost.newTabSpec("components").setIndicator("Components"),
-				Component.class, null);
-		mTabsAdapter.addTab(mTabHost.newTabSpec("simulations").setIndicator("Simulations"),
-				Simulations.class, null);
-
-		if (savedInstanceState != null) {
-			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-		}
+		ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
+		viewPager.setAdapter( new OpenRocketViewerPager( this.getSupportFragmentManager()));
+		
+		setTitle(app.getRocketDocument().getRocket().getName());
+		
+		getActionBarHelper().setDisplayHomeAsUpEnabled(true);
+		
 	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString("tab", mTabHost.getCurrentTabTag());
-	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -81,6 +54,9 @@ implements Simulations.OnSimulationSelectedListener
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		AndroidLogWrapper.d(OpenRocketViewer.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
 		case R.id.motor_list_menu_option:
 			ActivityHelpers.browseMotors(this);
 			return true;
@@ -113,6 +89,41 @@ implements Simulations.OnSimulationSelectedListener
 			Intent i = new Intent(this, SimulationViewActivity.class);
 			i.putExtra("Simulation",simulationId);
 			startActivity(i);
+		}
+	}
+
+	private class OpenRocketViewerPager extends FragmentPagerAdapter {
+
+		public OpenRocketViewerPager( FragmentManager fm ) {
+			super(fm);
+		}
+		@Override
+		public int getCount() {
+			return 3;
+		}
+		@Override
+		public Fragment getItem( int position ) {
+			switch (position) {
+			case 0:
+				return new Overview();
+			case 1:
+				return new Component();
+			case 2:
+				return new Simulations();
+			}
+			return null;
+		}
+		@Override
+		public CharSequence getPageTitle(int position) {
+			switch (position) {
+			case 0:
+				return "Overview";
+			case 1:
+				return "Components";
+			case 2:
+				return "Simulations";
+			}
+			return null;
 		}
 	}
 

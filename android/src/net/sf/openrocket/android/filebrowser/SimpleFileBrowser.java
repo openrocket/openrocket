@@ -9,8 +9,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.actionbarcompat.ActionBarListActivity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,14 +19,12 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
-public class SimpleFileBrowser extends ListActivity {
+public class SimpleFileBrowser extends ActionBarListActivity {
 
 	private List<String> item = null;
 	private List<String> path = null;
 	private String root = "/";
-	private TextView myPath;
 
 	private static final OrkFileFilter filter = new OrkFileFilter();
 	private static final Collator sorter = Collator.getInstance();
@@ -40,7 +38,6 @@ public class SimpleFileBrowser extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.simplefilebrowser);
-		myPath = (TextView) findViewById(R.id.path);
 		getDir(	Environment.getExternalStorageDirectory().getAbsolutePath() );
 	}
 
@@ -88,7 +85,7 @@ public class SimpleFileBrowser extends ListActivity {
 	}
 
 	private void getDir(String dirPath) {
-		myPath.setText("Location: " + dirPath);
+		setTitle(dirPath);
 		item = new ArrayList<String>();
 		path = new ArrayList<String>();
 

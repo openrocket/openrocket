@@ -6,7 +6,7 @@
 
     <!--  shim to get dialog correct size ?? -->
     <View
-        android:layout_width="2000dp"
+        android:layout_width="200dp"
         android:layout_height="0px"
         android:layout_margin="0px"
         android:orientation="horizontal" />
