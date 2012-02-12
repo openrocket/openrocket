@@ -82,7 +82,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		Rocket rocket = rocketDocument.getRocket();
 
 		String[] motorConfigs = rocket.getMotorConfigurationIDs();
-		ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item);
+		ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(),R.layout.simple_spinner_item);
 		for( String config: motorConfigs ) {
 			spinnerAdapter.add(rocket.getMotorConfigurationNameOrDescription(config));
 		}

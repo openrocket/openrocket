@@ -88,14 +88,14 @@ public class SimulationSeriesDialog extends DialogFragment {
 				selectableSeries.add(fdt);
 			}
 		}
-		ArrayAdapter<FlightDataType> serieses = new ArrayAdapter<FlightDataType>(getActivity(),android.R.layout.simple_spinner_item,selectableSeries) {
+		ArrayAdapter<FlightDataType> serieses = new ArrayAdapter<FlightDataType>(getActivity(),R.layout.simple_spinner_item,selectableSeries) {
 
 			@Override
 			public View getView(int position, View convertView,	ViewGroup parent) {
 				View v = convertView;
 				if ( v == null ) {
 					LayoutInflater li = inflater;
-					v = li.inflate(android.R.layout.simple_spinner_item,null);
+					v = li.inflate(R.layout.simple_spinner_item,null);
 				}
 				FlightDataType fdt = this.getItem(position);
 				((TextView)v.findViewById(android.R.id.text1)).setText( fdt.toString() );
