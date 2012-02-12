@@ -17,7 +17,6 @@
 <resources>
 
     <style name="AppTheme" parent="android:style/Theme">
-        <item name="android:textColor">#FFFFFF</item>
         <item name="android:windowTitleSize">@dimen/actionbar_compat_height</item>
         <item name="android:windowTitleBackgroundStyle">@style/ActionBarCompat</item>
         <item name="android:windowContentOverlay">@drawable/actionbar_shadow</item>
