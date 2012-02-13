@@ -41,6 +41,8 @@ public class RocketDesignDTO {
     private int threeDFlags = 0;
     @XmlElement(name = "ThreeDFlagsEdit")
     private int threeDFlagsEdit = 0;
+    @XmlElement(name = "LastSerialNumber")
+    private int lastSerialNumber = -1;
     @XmlElement(name = "Stage3Mass")
     private double stage3Mass = 0d;
     @XmlElement(name = "Stage2Mass")
@@ -60,6 +62,8 @@ public class RocketDesignDTO {
 
     @XmlElement(name = "CPCalcFlags")
     private int cpCalcFlags = 1;
+    @XmlElement(name = "CPSimFlags")
+    private int cpSimFlags = 1;
     @XmlElement(name = "UseKnownMass")
     private int useKnownMass = 0;
     @XmlElement(name = "Stage3Parts")
@@ -185,5 +189,13 @@ public class RocketDesignDTO {
 
     public void setStage32CG(double stage32CG) {
         this.stage32CG = stage32CG;
+    }
+
+    public int getLastSerialNumber() {
+        return lastSerialNumber;
+    }
+
+    public void setLastSerialNumber(int lastSerialNumber) {
+        this.lastSerialNumber = lastSerialNumber;
     }
 }

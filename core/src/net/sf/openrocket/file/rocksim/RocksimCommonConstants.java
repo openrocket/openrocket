@@ -30,6 +30,7 @@ public class RocksimCommonConstants {
     public static final String RADIAL_ANGLE = "RadialAngle";
     public static final String LOCATION_MODE = "LocationMode";
     public static final String FINISH_CODE = "FinishCode";
+    public static final String SERIAL_NUMBER = "SerialNo";
     public static final String LEN = "Len";
     public static final String OD = "OD";
     public static final String ID = "ID";

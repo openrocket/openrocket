@@ -24,6 +24,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class BasePartDTO {
 
+    /**
+     * The very important Rocksim serial number.  Each component needs one.  This is not multi-thread safe.  Trying
+     * to save multiple files at the same time will have unpredictable results with respect to the serial numbering.
+     */
+    private static int currentSerialNumber = 1;
+
     @XmlElement(name = RocksimCommonConstants.KNOWN_MASS)
     private double knownMass = 0d;
     @XmlElement(name = RocksimCommonConstants.DENSITY)
@@ -54,11 +60,14 @@ public abstract class BasePartDTO {
     private double len = 0d;
     @XmlElement(name = RocksimCommonConstants.FINISH_CODE)
     private int finishCode = 0;
+    @XmlElement(name = RocksimCommonConstants.SERIAL_NUMBER)
+    private int serialNumber = -1;
 
     /**
      * Default constructor.
      */
     protected BasePartDTO() {
+        serialNumber = currentSerialNumber++;
     }
 
     /**
@@ -67,6 +76,7 @@ public abstract class BasePartDTO {
      * @param ec
      */
     protected BasePartDTO(RocketComponent ec) {
+        serialNumber = currentSerialNumber++;
         setCalcCG(ec.getCG().x * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
         setCalcMass(ec.getComponentMass() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_MASS);
         setKnownCG(ec.getOverrideCGX() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH);
@@ -257,4 +267,14 @@ public abstract class BasePartDTO {
         finishCode = theFinishCode;
     }
 
+    public static int getCurrentSerialNumber() {
+        return currentSerialNumber - 1;
+    }
+
+    /**
+     * Reset the serial number, which needs to happen after each file save.
+     */
+    public static void resetCurrentSerialNumber() {
+        currentSerialNumber = 0;
+    }
 }

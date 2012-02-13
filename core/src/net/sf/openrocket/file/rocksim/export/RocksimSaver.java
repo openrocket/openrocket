@@ -25,14 +25,15 @@ import java.io.StringWriter;
  */
 public class RocksimSaver extends RocketSaver {
 
-    /** The logger. */
+    /**
+     * The logger.
+     */
     private static final LogHelper log = Application.getLogger();
 
     /**
      * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant XML.
      *
-     * @param doc  the OR design
-     *
+     * @param doc the OR design
      * @return Rocksim-compliant XML
      */
     public String marshalToRocksim(OpenRocketDocument doc) {
@@ -71,8 +72,7 @@ public class RocksimSaver extends RocketSaver {
     /**
      * Root conversion method.  It iterates over all subcomponents.
      *
-     * @param doc  the OR design
-     *
+     * @param doc the OR design
      * @return a corresponding Rocksim representation
      */
     private RocksimDocumentDTO toRocksimDocumentDTO(OpenRocketDocument doc) {
@@ -94,16 +94,14 @@ public class RocksimSaver extends RocketSaver {
 
         MassCalculator massCalc = new BasicMassCalculator();
 
-            final double cg = massCalc.getCG(new Configuration(rocket), MassCalculator.MassCalcType.NO_MOTORS).x *
-                    RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
+        final double cg = massCalc.getCG(new Configuration(rocket), MassCalculator.MassCalcType.NO_MOTORS).x *
+                RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
         int stageCount = rocket.getStageCount();
         if (stageCount == 3) {
             result.setStage321CG(cg);
-        }
-        else if (stageCount == 2) {
+        } else if (stageCount == 2) {
             result.setStage32CG(cg);
-        }
-        else {
+        } else {
             result.setStage3CG(cg);
         }
 
@@ -118,6 +116,9 @@ public class RocksimSaver extends RocketSaver {
         if (stageCount > 2) {
             result.setStage1(toStageDTO(rocket.getChild(2).getStage(), result, 1));
         }
+        //Set the last serial number element and reset it.
+        result.setLastSerialNumber(BasePartDTO.getCurrentSerialNumber());
+        BasePartDTO.resetCurrentSerialNumber();
         return result;
     }
 
