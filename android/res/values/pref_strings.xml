@@ -4,6 +4,8 @@
     <string name="PreferenceMotorBrowserGroupingOption">PreferenceMotorBrowserGroupingOption</string>
 
     <string name="PreferenceUseInternalFileBrowserOption">PreferenceUseInternalFileBrowserOpion</string>
+    <string name="PreferenceFileBrowserBaseDirectory">PreferenceFileBrowserBaseDirectory</string>
+    <string name="PreferenceShowOnlyOrkFiles">PreferenceShowOnlyOrkFiles</string>
     
     <string-array name="PreferenceMotorBrowserGroupingValues">
         <item>0</item>

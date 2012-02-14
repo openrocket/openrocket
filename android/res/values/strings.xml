@@ -93,8 +93,12 @@
     <string name="simulationSeries2Label">Series 2</string>
 
     <string name="motorbrowsergrouptitle">Motor Browser Grouping</string>
+    
     <string name="useinternalfilebrowsertitle">Use Internal File Browser</string>
     <string name="useinternalfilebrowsersummary">Check to use built in file browser instead of external file browser</string>
+    
+    <string name="showonlyorkfiles">Show only ORK files in Internal File Browser</string>
+    <string name="showonlyorkfilessummary">Check to show only .ork files in internal file browser</string>
     
     <string-array name="PreferenceUnitLengthEntries">
         <item>Millimeters</item>

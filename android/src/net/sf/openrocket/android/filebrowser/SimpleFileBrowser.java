@@ -13,32 +13,47 @@ import net.sf.openrocket.android.actionbarcompat.ActionBarListActivity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class SimpleFileBrowser extends ActionBarListActivity {
 
-	private List<String> item = null;
-	private List<String> path = null;
-	private String root = "/";
+	private List<File> path = null;
+	private final static File root = new File("/");
 
+	private String baseDirPrefKey;
+	private String baseDirName;
+
+	private boolean showOnlyOrkFiles;
+	
 	private static final OrkFileFilter filter = new OrkFileFilter();
-	private static final Collator sorter = Collator.getInstance();
-	static {
-		sorter.setStrength(Collator.TERTIARY);
-		sorter.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
-	}
+	private static final Comparator<String> sorter = new AlphanumComparator();
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.simplefilebrowser);
-		getDir(	Environment.getExternalStorageDirectory().getAbsolutePath() );
+
+		Resources resources = this.getResources();
+		baseDirPrefKey = resources.getString(R.string.PreferenceFileBrowserBaseDirectory);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+
+		String showOnlyOrkFilesKey = resources.getString(R.string.PreferenceShowOnlyOrkFiles);
+		showOnlyOrkFiles = pref.getBoolean(showOnlyOrkFilesKey, false);
+
+		baseDirName = pref.getString(baseDirPrefKey, Environment.getExternalStorageDirectory().getAbsolutePath() );
+		getDir(	new File(baseDirName) );
 	}
 
 	private static class OrkFileFilter implements FileFilter {
@@ -51,12 +66,15 @@ public class SimpleFileBrowser extends ActionBarListActivity {
 			if ( arg0.isDirectory() ) { 
 				return true;
 			}
+			return isOrk(arg0);
+		}
+
+		public boolean isOrk(File arg0) {
 			if ( arg0.getName().endsWith(".ork") ) {
 				return true;
 			}
 			return false;
 		}
-
 	}
 
 	private static class FileComparator implements Comparator<File> {
@@ -84,39 +102,32 @@ public class SimpleFileBrowser extends ActionBarListActivity {
 
 	}
 
-	private void getDir(String dirPath) {
-		setTitle(dirPath);
-		item = new ArrayList<String>();
-		path = new ArrayList<String>();
+	private void getDir(File dirPath) {
+		setTitle(dirPath.getAbsolutePath());
+		path = new ArrayList<File>();
 
-		File f = new File(dirPath);
-		File[] files = f.listFiles(filter);
+		File[] files = dirPath.listFiles((showOnlyOrkFiles) ? filter : null );
 
-		if (!dirPath.equals(root)) {
-			item.add(root);
+		boolean hasUp = false;
+		if ( !dirPath.getAbsolutePath().equals("/")) {
 			path.add(root);
-			item.add("../");
-			path.add(f.getParent());
+			path.add( dirPath.getParentFile() );
+			hasUp = true;
 		}
 
 		Arrays.sort(files, new FileComparator() );
-		for (int i = 0; i < files.length; i++) {
-			File file = files[i];
-			path.add(file.getPath());
-			if (file.isDirectory())
-				item.add(file.getName() + "/");
-			else
-				item.add(file.getName());
+		for( File file : files ) {
+			path.add(file);
 		}
 
-		ArrayAdapter<String> fileList = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, item);
+		DirectoryList fileList = new DirectoryList(hasUp, path);
 		setListAdapter(fileList);
 
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		final File file = new File(path.get(position));
+		final File file = path.get(position);
 		if (file.isDirectory()) {
 			if (file.canRead())
 				getDir(path.get(position));
@@ -140,4 +151,107 @@ public class SimpleFileBrowser extends ActionBarListActivity {
 			finish();
 		}
 	}
+
+	private class DirectoryList extends BaseAdapter {
+
+		List<File> listing;
+		boolean hasUp;
+
+		DirectoryList( boolean hasUp ,List<File> listing ) {
+			this.listing = listing;
+			this.hasUp = hasUp;
+		}
+
+		@Override
+		public int getCount() {
+			return listing.size();
+		}
+
+		@Override
+		public Object getItem(int arg0) {
+			return listing.get(arg0);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if ( convertView == null ) {
+				convertView = getLayoutInflater().inflate(R.layout.filebrowser_list_item, parent, false);
+			}
+
+			File file = (File) getItem(position);
+
+			// Set the name of the field.
+			{
+				String fileName = file.getName();
+				if ( hasUp ) {
+					if (position == 0 ) {
+						fileName = root.getAbsolutePath();
+					} else if (position == 1) {
+						fileName = "..";
+					}
+				}
+
+				((TextView) convertView.findViewById(R.id.filebrowser_list_item_name)).setText(fileName);
+			}
+			
+			// Set the "type icon"  directory, ork file, or none.
+			{
+				ImageView v = (ImageView) (convertView.findViewById(R.id.filebrowser_list_item_typeicon));
+				if ( file.isDirectory() ) {
+					v.setVisibility(View.VISIBLE);
+					v.setImageResource(R.drawable.ic_directory);
+				} else if ( filter.isOrk( file ) ) {
+					v.setVisibility(View.VISIBLE);
+					v.setImageResource(R.drawable.or_launcher);
+				} else {
+					v.setVisibility(View.INVISIBLE);
+				}
+			}
+
+			// Set the "base directory" thing.
+			{
+				ImageView v = (ImageView) (convertView.findViewById(R.id.filebrowser_list_item_homeicon));
+				if ( !file.isDirectory() ) {
+					v.setVisibility(View.INVISIBLE);
+					v.setClickable(false);
+				} else {
+					v.setVisibility(View.VISIBLE);
+					if ( baseDirName.equals( file.getAbsolutePath() ) )  {
+						v.setSelected(true);
+					} else {
+						v.setSelected(false);
+						v.setClickable(true);
+						v.setOnClickListener( new ChangeBaseDirectory(file.getAbsolutePath()));
+					}
+				}
+			}
+			return convertView;
+		}
+	}
+
+	private class ChangeBaseDirectory implements View.OnClickListener {
+
+		private final String dirname;
+		
+		ChangeBaseDirectory ( String dirname ) {
+			this.dirname = dirname;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			if ( v.isSelected() == false ) {
+				SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(SimpleFileBrowser.this);
+				baseDirName = dirname;
+				pref.edit().putString(baseDirPrefKey, dirname).apply();
+				SimpleFileBrowser.this.getDir(new File(dirname));
+			}
+		}
+		
+	}
+	
 }

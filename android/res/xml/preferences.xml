@@ -17,7 +17,22 @@
         android:key="@string/PreferenceUseInternalFileBrowserOption"
         android:summary="@string/useinternalfilebrowsersummary"
         />
-        
+     
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:title="@string/showonlyorkfiles"
+        android:key="@string/PreferenceShowOnlyOrkFiles"
+        android:summary="@string/showonlyorkfilessummary"
+        android:dependency="@string/PreferenceUseInternalFileBrowserOption" 
+        />
+    
+    <!-- This preference is hidden - not to be configured in the Preference screen
+    <Preference
+        android:defaultValue="/"
+        android:key="@string/PreferenceFileBrowserBaseDirectory"
+        />
+     -->
+     
     <PreferenceScreen
         android:key="UnitPrefences"
         android:summary="Configure units"
