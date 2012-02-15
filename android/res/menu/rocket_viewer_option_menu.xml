@@ -4,6 +4,7 @@
     <item
         android:id="@+id/motor_list_menu_option"
         android:title="Motor List"
+        android:icon="@drawable/ic_motorbrowser"
         android:showAsAction="always"/>
     <item
         android:id="@+id/preference_menu_option"
