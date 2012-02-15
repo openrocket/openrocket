@@ -24,7 +24,7 @@ public class MotorDatabaseAdapter implements MotorDatabase {
 	public List<? extends Motor> findMotors(Type type, String manufacturer,
 			String designation, double diameter, double length) {
 
-		AndroidLogWrapper.d(MotorDatabaseAdapter.class,"find motor: type="+ type.toString());
+		AndroidLogWrapper.d(MotorDatabaseAdapter.class,"find motor: type="+ String.valueOf(type));
 		AndroidLogWrapper.d(MotorDatabaseAdapter.class,"find motor: manu="+ manufacturer);
 		AndroidLogWrapper.d(MotorDatabaseAdapter.class,"find motor: designation="+ designation);
 		AndroidLogWrapper.d(MotorDatabaseAdapter.class,"find motor: diameter=" +diameter);
