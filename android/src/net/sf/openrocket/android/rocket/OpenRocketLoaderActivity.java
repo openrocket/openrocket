@@ -11,6 +11,8 @@ import net.sf.openrocket.android.thrustcurve.TCQueryAction;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +25,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 
 	private final static String MISSING_MOTOR_DIAG_FRAGMENT_TAG = "missingmotordialog";
 	private final static String MISSING_MOTOR_DOWNLOAD_FRAGMENT_TAG = "missingmotortask";
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,9 +48,9 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + file);
 		String path = file.getPath();
 		File orkFile = new File(path);
-		
+
 		getSupportFragmentManager().beginTransaction().add( OpenRocketLoaderFragment.newInstance(orkFile), "loader").commit();
-		
+
 	}
 
 	/**
@@ -58,11 +60,25 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	 * @param result
 	 */
 	public void onOpenRocketFileLoaded(OpenRocketLoaderResult result) {
-		((Application)OpenRocketLoaderActivity.this.getApplication()).setRocketDocument( result.rocket );
-		((Application)OpenRocketLoaderActivity.this.getApplication()).setWarnings( result.warnings );
-		
-		updateMissingMotors();
+		if ( result.loadingError != null ) {
+			
+			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+			dialogBuilder.setTitle("Error Loading File" );
+			dialogBuilder.setMessage( result.loadingError.getLocalizedMessage());
+			dialogBuilder.setOnCancelListener( new DialogInterface.OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					OpenRocketLoaderActivity.this.finish();
+				}
+			});
+			dialogBuilder.create().show();
 
+		} else {
+			((Application)OpenRocketLoaderActivity.this.getApplication()).setRocketDocument( result.rocket );
+			((Application)OpenRocketLoaderActivity.this.getApplication()).setWarnings( result.warnings );
+
+			updateMissingMotors();
+		}
 	}
 
 	private void updateMissingMotors() {

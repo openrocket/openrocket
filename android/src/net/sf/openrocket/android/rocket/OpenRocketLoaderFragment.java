@@ -6,8 +6,8 @@ import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.ProgressDialogFragment;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinderWithMissingMotors;
+import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -85,17 +85,17 @@ public class OpenRocketLoaderFragment extends Fragment {
 		protected OpenRocketLoaderResult doInBackground(File... arg0) {
 			AndroidLogWrapper.d(OpenRocketLoaderTask.class, "doInBackgroud");
 			
-			OpenRocketLoader rocketLoader = new OpenRocketLoader();
+			GeneralRocketLoader rocketLoader = new GeneralRocketLoader();
+			OpenRocketLoaderResult result = new OpenRocketLoaderResult();
 			try {
-				OpenRocketLoaderResult result = new OpenRocketLoaderResult();
 				OpenRocketDocument rocket = rocketLoader.load(arg0[0], new DatabaseMotorFinderWithMissingMotors());
 				result.rocket = rocket;
 				result.warnings = rocketLoader.getWarnings();
-				return result;
 			} catch (RocketLoadException ex) {
-				AndroidLogWrapper.e(OpenRocketLoaderTask.class, "doInBackground rocketLaoder.load threw", ex);
+				AndroidLogWrapper.e(OpenRocketLoaderTask.class, "doInBackground rocketLaoder.load threw {}", ex);
+				result.loadingError = ex;
 			}
-			return null;
+			return result;
 			
 		}
 
