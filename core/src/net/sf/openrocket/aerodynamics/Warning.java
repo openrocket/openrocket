@@ -184,6 +184,65 @@ public abstract class Warning {
 		public boolean replaceBy(Warning other) {
 			return false;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			long temp;
+			temp = Double.doubleToLongBits(delay);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result
+					+ ((designation == null) ? 0 : designation.hashCode());
+			temp = Double.doubleToLongBits(diameter);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result
+					+ ((digest == null) ? 0 : digest.hashCode());
+			temp = Double.doubleToLongBits(length);
+			result = prime * result + (int) (temp ^ (temp >>> 32));
+			result = prime * result
+					+ ((manufacturer == null) ? 0 : manufacturer.hashCode());
+			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!super.equals(obj))
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			MissingMotor other = (MissingMotor) obj;
+			if (Double.doubleToLongBits(delay) != Double
+					.doubleToLongBits(other.delay))
+				return false;
+			if (designation == null) {
+				if (other.designation != null)
+					return false;
+			} else if (!designation.equals(other.designation))
+				return false;
+			if (Double.doubleToLongBits(diameter) != Double
+					.doubleToLongBits(other.diameter))
+				return false;
+			if (digest == null) {
+				if (other.digest != null)
+					return false;
+			} else if (!digest.equals(other.digest))
+				return false;
+			if (Double.doubleToLongBits(length) != Double
+					.doubleToLongBits(other.length))
+				return false;
+			if (manufacturer == null) {
+				if (other.manufacturer != null)
+					return false;
+			} else if (!manufacturer.equals(other.manufacturer))
+				return false;
+			if (type != other.type)
+				return false;
+			return true;
+		}
 		
 	}
 	
