@@ -14,6 +14,11 @@ public class DownloadResponse {
 		MotorBurnFile currentData = data.get(mbd.getMotorId());
 		if ( currentData == null || currentData.getThrustCurveMotor() == null ) {
 			data.put(mbd.getMotorId(),mbd);
+		} else {
+			// Prefer RASP motors.
+			if ( "RockSim".equals(mbd.getFiletype()) && !"RockSim".equals(currentData.getFiletype()) ) {
+				data.put(mbd.getMotorId(), mbd);
+			}
 		}
 	}
 
