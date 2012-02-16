@@ -136,7 +136,7 @@ public abstract class TCQueryAction extends Fragment {
 	protected void dismiss() {
 		AndroidLogWrapper.d(TCQueryAction.class,"dismiss the progress");
 		ProgressDialogFragment progress = (ProgressDialogFragment) getActivity().getSupportFragmentManager().findFragmentByTag(PROGRESS_DIALOG_TAG);
-		if ( progress != null ) {
+		if ( progress != null && progress.isVisible()) {
 			progress.dismiss();
 		}
 	}
