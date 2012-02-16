@@ -112,7 +112,6 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		WarningSet warnings = ((Application)OpenRocketLoaderActivity.this.getApplication()).getWarnings();
 		if (warnings == null || warnings.isEmpty()) {
 		} else {
-			// TODO - Build a warning listing dialog
 			DialogFragment newFragment = WarningDialogFragment.newInstance();
 			newFragment.show(getSupportFragmentManager(), "dialog");
 			return;
@@ -134,7 +133,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		displayWarningDialog();
 	}
 
-	private void moveOnToViewer() {
+	public void moveOnToViewer() {
 		Intent i = new Intent(this,OpenRocketViewer.class);
 		startActivity(i);
 		finish();
