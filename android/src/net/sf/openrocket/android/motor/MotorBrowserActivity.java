@@ -19,8 +19,9 @@ implements MotorListFragment.OnMotorSelectedListener
 {
 
 	MotorListFragment motorList;
-	
+
 	private final static int DOWNLOAD_REQUEST_CODE = 1;
+	private final static String MOTOR_LIST_FRAGMENT = "motor_list";
 
 	/** Called when the activity is first created. */
 	@Override
@@ -28,13 +29,20 @@ implements MotorListFragment.OnMotorSelectedListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.motorbrowser);
 		getActionBarHelper().setDisplayHomeAsUpEnabled(true);
-		getSupportFragmentManager().beginTransaction().add( R.id.motorBrowserList, new MotorListFragment()).commit();
+		// Only create the motorBrowser fragment if it doesn't already exist.
+		Fragment motorBrowser = getSupportFragmentManager().findFragmentByTag(MOTOR_LIST_FRAGMENT);
+		if ( motorBrowser == null ) {
+			getSupportFragmentManager()
+			.beginTransaction()
+			.add( R.id.motorBrowserList, new MotorListFragment(), MOTOR_LIST_FRAGMENT)
+			.commit();
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.motor_browser_option_menu, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.motor_browser_option_menu, menu);
 		return true;
 	}
 
@@ -66,10 +74,10 @@ implements MotorListFragment.OnMotorSelectedListener
 
 	@Override
 	public void onMotorSelected(long motorId) {
-		
+
 		View sidepane = findViewById(R.id.sidepane);
 		if ( /* if multi pane */ sidepane != null ) {
-			
+
 			Fragment graph = BurnPlotFragment.newInstance(motorId);
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
