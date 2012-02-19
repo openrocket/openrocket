@@ -54,7 +54,6 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -75,19 +74,19 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final double MOTOR_SIMILARITY_THRESHOLD = 0.95;
 	
 	private static final int SHOW_ALL = 0;
 	private static final int SHOW_SMALLER = 1;
 	private static final int SHOW_EXACT = 2;
 	private static final String[] SHOW_DESCRIPTIONS = {
-		//// Show all motors
-		trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc1"),
+			//// Show all motors
+			trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc1"),
 			//// Show motors with diameter less than that of the motor mount
-		trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2"),
+			trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2"),
 			//// Show motors with diameter equal to that of the motor mount
-		trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3")
+			trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3")
 	};
 	private static final int SHOW_MAX = 2;
 	
@@ -101,14 +100,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	
 	private static final ThrustCurveMotorComparator MOTOR_COMPARATOR = new ThrustCurveMotorComparator();
 	
-
-
+	
+	
 	private final List<ThrustCurveMotorSet> database;
 	
 	private final double diameter;
 	private CloseableDialog dialog = null;
 	
-
+	
 	private final ThrustCurveMotorDatabaseModel model;
 	private final JTable table;
 	private final TableRowSorter<TableModel> sorter;
@@ -118,12 +117,13 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final JTextField searchField;
 	private String[] searchTerms = new String[0];
 	
-
+	
 	private final JLabel curveSelectionLabel;
 	private final JComboBox curveSelectionBox;
 	private final DefaultComboBoxModel curveSelectionModel;
 	
 	private final JLabel totalImpulseLabel;
+	private final JLabel classificationLabel;
 	private final JLabel avgThrustLabel;
 	private final JLabel maxThrustLabel;
 	private final JLabel burnTimeLabel;
@@ -159,7 +159,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		this.diameter = diameter;
 		
-
+		
 		// Construct the database (adding the current motor if not in the db already)
 		List<ThrustCurveMotorSet> db;
 		// TODO - ugly blind cast.
@@ -185,8 +185,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		database = db;
 		
-
-
+		
+		
 		////  GUI
 		
 		JPanel panel;
@@ -195,8 +195,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		panel = new JPanel(new MigLayout("fill"));
 		this.add(panel, "grow");
 		
-
-
+		
+		
 		// Selection label
 		//// Select rocket motor:
 		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Selrocketmotor"), Style.BOLD);
@@ -246,12 +246,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		});
 		panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap para");
 		
-
+		
 		// Motor selection table
 		model = new ThrustCurveMotorDatabaseModel(database);
 		table = new JTable(model);
 		
-
+		
 		// Set comparators and widths
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		sorter = new TableRowSorter<TableModel>(model);
@@ -290,22 +290,22 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 		});
 		
-
+		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(table);
 		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
 		
-
-
-
+		
+		
+		
 		// Motor mount diameter label
 		//// Motor mount diameter: 
-		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Motormountdia")+ " " +
+		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Motormountdia") + " " +
 				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(diameter));
 		panel.add(label, "gapright 30lp, spanx, split");
 		
-
-
+		
+		
 		// Search field
 		//// Search:
 		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Search"));
@@ -345,15 +345,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		});
 		panel.add(searchField, "growx, wrap");
 		
-
-
+		
+		
 		// Vertical split
 		this.add(panel, "grow");
 		this.add(new JSeparator(JSeparator.VERTICAL), "growy, gap para para");
 		panel = new JPanel(new MigLayout("fill"));
 		
-
-
+		
+		
 		// Thrust curve selection
 		//// Select thrust curve:
 		curveSelectionLabel = new JLabel(trans.get("TCMotorSelPan.lbl.Selectthrustcurve"));
@@ -373,10 +373,10 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		});
 		panel.add(curveSelectionBox, "growx, wrap para");
 		
-
-
-
-
+		
+		
+		
+		
 		// Ejection charge delay:
 		panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay")));
 		
@@ -404,16 +404,20 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.NumberofsecondsorNone"), -3), "skip, wrap para");
 		setDelays(false);
 		
-
+		
 		panel.add(new JSeparator(), "spanx, growx, wrap para");
 		
-
-
+		
+		
 		// Thrust curve info
 		//// Total impulse:
 		panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Totalimpulse")));
 		totalImpulseLabel = new JLabel();
-		panel.add(totalImpulseLabel, "wrap");
+		panel.add(totalImpulseLabel, "split");
+		classificationLabel = new JLabel();
+		classificationLabel.setEnabled(false); // Gray
+		//		classificationLabel.setForeground(Color.GRAY);
+		panel.add(classificationLabel, "gapleft unrel, wrap");
 		
 		//// Avg. thrust:
 		panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Avgthrust")));
@@ -454,7 +458,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			digestLabel = null;
 		}
 		
-
+		
 		comment = new JTextArea(5, 5);
 		GUIUtil.changeFontSize(comment, -2);
 		withCommentFont = comment.getFont();
@@ -465,9 +469,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		scrollpane = new JScrollPane(comment);
 		panel.add(scrollpane, "spanx, growx, wrap para");
 		
-
-
-
+		
+		
+		
 		// Thrust curve plot
 		chart = ChartFactory.createXYLineChart(
 				null, // title
@@ -480,7 +484,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				false // urls
 				);
 		
-
+		
 		// Add the data and formatting to the plot
 		XYPlot plot = chart.getXYPlot();
 		
@@ -533,20 +537,20 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		zoomIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		layer.add(zoomIcon, (Integer) 1);
 		
-
+		
 		panel.add(layer, "width 300:300:, height 180:180:, grow, spanx");
 		
-
-
+		
+		
 		this.add(panel, "grow");
 		
-
-
+		
+		
 		// Sets the filter:
 		int showMode = Application.getPreferences().getChoice(net.sf.openrocket.startup.Preferences.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
 		filterComboBox.setSelectedIndex(showMode);
 		
-
+		
 		// Update the panel data
 		updateData();
 		selectedDelay = delay;
@@ -599,7 +603,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 	
 	
-
+	
 	private void changeLabelFont(ValueAxis axis, float size) {
 		Font font = axis.getTickLabelFont();
 		font = font.deriveFont(font.getSize2D() + size);
@@ -638,6 +642,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionBox.setEnabled(false);
 			curveSelectionLabel.setEnabled(false);
 			totalImpulseLabel.setText("");
+			totalImpulseLabel.setToolTipText(null);
+			classificationLabel.setText("");
+			classificationLabel.setToolTipText(null);
 			avgThrustLabel.setText("");
 			maxThrustLabel.setText("");
 			burnTimeLabel.setText("");
@@ -652,12 +659,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			return;
 		}
 		
-
+		
 		// Check which thrust curves to display
 		List<ThrustCurveMotor> motors = getFilteredCurves();
 		final int index = motors.indexOf(selectedMotor);
 		
-
+		
 		// Update the thrust curve selection box
 		curveSelectionModel.removeAllElements();
 		for (int i = 0; i < motors.size(); i++) {
@@ -673,10 +680,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionLabel.setEnabled(false);
 		}
 		
-
+		
 		// Update thrust curve data
-		totalImpulseLabel.setText(UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(
-				selectedMotor.getTotalImpulseEstimate()));
+		double impulse = selectedMotor.getTotalImpulseEstimate();
+		MotorClass mc = MotorClass.getMotorClass(impulse);
+		totalImpulseLabel.setText(UnitGroup.UNITS_IMPULSE.getDefaultUnit().toStringUnit(impulse));
+		classificationLabel.setText("(" + mc.getDescription(impulse) + ")");
+		totalImpulseLabel.setToolTipText(mc.getClassDescription());
+		classificationLabel.setToolTipText(mc.getClassDescription());
+		
 		avgThrustLabel.setText(UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(
 				selectedMotor.getAverageThrustEstimate()));
 		maxThrustLabel.setText(UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(
@@ -694,7 +706,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		setComment(selectedMotor.getDescription());
 		
-
+		
 		// Update the plot
 		XYPlot plot = chart.getXYPlot();
 		
@@ -720,7 +732,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		plot.setDataset(dataset);
 	}
-	
 	
 	private List<ThrustCurveMotor> getFilteredCurves() {
 		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
@@ -797,7 +808,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 	
 	
-
+	
 	/**
 	 * Select the default motor from this ThrustCurveMotorSet.  This uses primarily motors
 	 * that the user has previously used, and secondarily a heuristic method of selecting which
@@ -814,7 +825,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			return set.getMotors().get(0);
 		}
 		
-
+		
 		// Find which motor has been used the most recently
 		List<ThrustCurveMotor> list = set.getMotors();
 		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(net.sf.openrocket.startup.Preferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
@@ -867,7 +878,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 				if (!Double.isNaN(closest)) {
 					selectedDelay = closest;
-				//// None
+					//// None
 					delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(closest, trans.get("TCMotorSelPan.delayBox.None")));
 				} else {
 					delayBox.setSelectedItem("None");
@@ -876,7 +887,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			} else {
 				
 				selectedDelay = currentDelay;
-			//// None
+				//// None
 				delayBox.setSelectedItem(ThrustCurveMotor.getDelayString(currentDelay, trans.get("TCMotorSelPan.delayBox.None")));
 				
 			}
@@ -885,11 +896,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 	
 	
-
-
+	
+	
 	//////////////////////
 	
-
+	
 	private class CurveSelectionRenderer implements ListCellRenderer {
 		
 		private final ListCellRenderer renderer;

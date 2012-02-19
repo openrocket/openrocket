@@ -1,3 +1,7 @@
+2012-02-19  Sampo Niskanen
+
+	* Display computed motor class
+
 2012-02-16  Sampo Niskanen
 
 	* [BUG] Freeze when dropping component on child component
