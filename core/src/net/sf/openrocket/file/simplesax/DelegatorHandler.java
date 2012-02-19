@@ -13,7 +13,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * The actual SAX handler class.  Contains the necessary methods for parsing the SAX source.
- * Delegates the actual content parsing to {@link AbstractElementHandler} objects.
+ * Delegates the actual content parsing to {@link ElementHandler} objects.
  */
 class DelegatorHandler extends DefaultHandler {
 	private final WarningSet warnings;
@@ -27,7 +27,7 @@ class DelegatorHandler extends DefaultHandler {
 	private int ignore = 0;
 	
 	
-	public DelegatorHandler(AbstractElementHandler initialHandler, WarningSet warnings) {
+	public DelegatorHandler(ElementHandler initialHandler, WarningSet warnings) {
 		this.warnings = warnings;
 		handlerStack.add(initialHandler);
 		elementData.add(new StringBuilder()); // Just in case
