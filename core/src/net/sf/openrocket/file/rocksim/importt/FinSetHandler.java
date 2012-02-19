@@ -7,6 +7,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.rocksim.RocksimLocationMode;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
@@ -31,7 +32,7 @@ import java.util.List;
  * characteristics are kept here until the closing FinSet tag. At that point, <code>asOpenRocket</code> method is called
  * to construct the corresponding OpenRocket FinSet.
  */
-class FinSetHandler extends ElementHandler {
+class FinSetHandler extends AbstractElementHandler {
     /**
      * The parent component.
      */

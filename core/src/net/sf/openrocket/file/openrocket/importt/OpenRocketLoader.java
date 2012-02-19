@@ -20,6 +20,7 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.AbstractRocketLoader;
 import net.sf.openrocket.file.MotorFinder;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
@@ -545,7 +546,7 @@ class DocumentConfig {
  * The starting point of the handlers.  Accepts a single <openrocket> element and hands
  * the contents to be read by a OpenRocketContentsHandler.
  */
-class OpenRocketHandler extends ElementHandler {
+class OpenRocketHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private OpenRocketContentHandler handler = null;
 	
@@ -636,7 +637,7 @@ class OpenRocketHandler extends ElementHandler {
 /**
  * Handles the content of the <openrocket> tag.
  */
-class OpenRocketContentHandler extends ElementHandler {
+class OpenRocketContentHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final OpenRocketDocument doc;
 	private final Rocket rocket;
@@ -696,7 +697,7 @@ class OpenRocketContentHandler extends ElementHandler {
  * A handler that creates components from the corresponding elements.  The control of the
  * contents is passed on to ComponentParameterHandler.
  */
-class ComponentHandler extends ElementHandler {
+class ComponentHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final RocketComponent parent;
 	
@@ -740,7 +741,7 @@ class ComponentHandler extends ElementHandler {
  * This uses the setters, or delegates the handling to another handler for specific
  * elements.
  */
-class ComponentParameterHandler extends ElementHandler {
+class ComponentParameterHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final RocketComponent component;
 	
@@ -821,7 +822,7 @@ class ComponentParameterHandler extends ElementHandler {
  * A handler that reads the <point> specifications within the freeformfinset's
  * <finpoints> elements.
  */
-class FinSetPointHandler extends ElementHandler {
+class FinSetPointHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final FreeformFinSet finset;
@@ -873,7 +874,7 @@ class FinSetPointHandler extends ElementHandler {
 }
 
 
-class MotorMountHandler extends ElementHandler {
+class MotorMountHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final MotorMount mount;
 	private MotorHandler motorHandler;
@@ -969,7 +970,7 @@ class MotorMountHandler extends ElementHandler {
 
 
 
-class MotorConfigurationHandler extends ElementHandler {
+class MotorConfigurationHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final Rocket rocket;
@@ -1028,7 +1029,7 @@ class MotorConfigurationHandler extends ElementHandler {
 }
 
 
-class MotorHandler extends ElementHandler {
+class MotorHandler extends AbstractElementHandler {
 	/** File version where latest digest format was introduced */
 	private static final int MOTOR_DIGEST_VERSION = 104;
 	
@@ -1162,7 +1163,7 @@ class MotorHandler extends ElementHandler {
 
 
 
-class SimulationsHandler extends ElementHandler {
+class SimulationsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final OpenRocketDocument doc;
 	private SingleSimulationHandler handler;
@@ -1195,7 +1196,7 @@ class SimulationsHandler extends ElementHandler {
 	
 }
 
-class SingleSimulationHandler extends ElementHandler {
+class SingleSimulationHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	
 	private final OpenRocketDocument doc;
@@ -1290,7 +1291,7 @@ class SingleSimulationHandler extends ElementHandler {
 
 
 
-class SimulationConditionsHandler extends ElementHandler {
+class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private SimulationOptions conditions;
 	private AtmosphereHandler atmosphereHandler;
@@ -1402,7 +1403,7 @@ class SimulationConditionsHandler extends ElementHandler {
 }
 
 
-class AtmosphereHandler extends ElementHandler {
+class AtmosphereHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final String model;
@@ -1467,7 +1468,7 @@ class AtmosphereHandler extends ElementHandler {
 }
 
 
-class FlightDataHandler extends ElementHandler {
+class FlightDataHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	
 	private FlightDataBranchHandler dataHandler;
@@ -1589,7 +1590,7 @@ class FlightDataHandler extends ElementHandler {
 }
 
 
-class FlightDataBranchHandler extends ElementHandler {
+class FlightDataBranchHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final FlightDataType[] types;

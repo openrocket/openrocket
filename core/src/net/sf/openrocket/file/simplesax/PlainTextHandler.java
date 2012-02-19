@@ -9,7 +9,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
  * An element handler that does not allow any sub-elements.  If any are encountered
  * a warning is generated and they are ignored.
  */
-public class PlainTextHandler extends ElementHandler {
+public class PlainTextHandler extends AbstractElementHandler {
 	public static final PlainTextHandler INSTANCE = new PlainTextHandler();
 
 	private PlainTextHandler() {

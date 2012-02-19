@@ -16,8 +16,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * both.  This holds true for both the OpenRocket and RockSim design formats and the
  * RockSim engine definition format.
  * <p>
- * The actual handling is performed by subclasses of {@link ElementHandler}.  The 
- * initial handler is provided to the {@link #readXML(InputSource, ElementHandler, WarningSet)}
+ * The actual handling is performed by subclasses of {@link AbstractElementHandler}.  The 
+ * initial handler is provided to the {@link #readXML(InputSource, AbstractElementHandler, WarningSet)}
  * method.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
@@ -33,7 +33,7 @@ public class SimpleSAX {
 	 * @throws IOException		if an I/O exception occurs while reading.
 	 * @throws SAXException		if e.g. malformed XML is encountered.
 	 */
-	public static void readXML(InputSource source, ElementHandler initialHandler,
+	public static void readXML(InputSource source, AbstractElementHandler initialHandler,
 			WarningSet warnings) throws IOException, SAXException {
 
 		DelegatorHandler xmlhandler = new DelegatorHandler(initialHandler, warnings);

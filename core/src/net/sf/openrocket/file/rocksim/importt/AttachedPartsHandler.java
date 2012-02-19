@@ -5,6 +5,7 @@ package net.sf.openrocket.file.rocksim.importt;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -13,7 +14,7 @@ import java.util.HashMap;
 /**
  * A SAX handler for the Rocksim AttachedParts XML type.  
  */
-class AttachedPartsHandler extends ElementHandler {
+class AttachedPartsHandler extends AbstractElementHandler {
     /** The parent component. */
     private final RocketComponent component;
 

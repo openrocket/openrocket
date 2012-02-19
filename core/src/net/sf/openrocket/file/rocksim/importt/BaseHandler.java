@@ -6,7 +6,7 @@ package net.sf.openrocket.file.rocksim.importt;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
-import net.sf.openrocket.file.simplesax.ElementHandler;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import org.xml.sax.SAXException;
@@ -20,7 +20,7 @@ import java.util.HashMap;
  *
  * @param <C>   the specific RocketComponent subtype for which the concrete handler can create
  */
-public abstract class BaseHandler<C extends RocketComponent> extends ElementHandler {
+public abstract class BaseHandler<C extends RocketComponent> extends AbstractElementHandler {
 
     /**
      * Prepend rocksim materials.

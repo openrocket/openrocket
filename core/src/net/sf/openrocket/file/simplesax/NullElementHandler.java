@@ -16,7 +16,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class NullElementHandler extends ElementHandler {
+public class NullElementHandler extends AbstractElementHandler {
 	public static final NullElementHandler INSTANCE = new NullElementHandler();
 
 	private static final HashMap<String, String> EMPTY_MAP = new HashMap<String,String>();

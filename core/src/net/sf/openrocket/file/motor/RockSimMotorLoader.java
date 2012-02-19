@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.NullElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -77,7 +78,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	/**
 	 * Initial handler for the RockSim engine files.
 	 */
-	private static class RSEHandler extends ElementHandler {
+	private static class RSEHandler extends AbstractElementHandler {
 		private final List<Motor> motors = new ArrayList<Motor>();
 		
 		private RSEMotorHandler motorHandler;
@@ -124,7 +125,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	/**
 	 * Handler for a RockSim engine file <motor> element.
 	 */
-	private static class RSEMotorHandler extends ElementHandler {
+	private static class RSEMotorHandler extends AbstractElementHandler {
 		
 		private final String manufacturer;
 		private final String designation;
@@ -390,7 +391,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 	/**
 	 * Handler for the <data> element in a RockSim engine file motor definition.
 	 */
-	private static class RSEMotorDataHandler extends ElementHandler {
+	private static class RSEMotorDataHandler extends AbstractElementHandler {
 		
 		private final List<Double> time = new ArrayList<Double>();
 		private final List<Double> force = new ArrayList<Double>();

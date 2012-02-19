@@ -13,7 +13,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * The actual SAX handler class.  Contains the necessary methods for parsing the SAX source.
- * Delegates the actual content parsing to {@link ElementHandler} objects.
+ * Delegates the actual content parsing to {@link AbstractElementHandler} objects.
  */
 class DelegatorHandler extends DefaultHandler {
 	private final WarningSet warnings;
@@ -22,12 +22,12 @@ class DelegatorHandler extends DefaultHandler {
 	private final Deque<StringBuilder> elementData = new ArrayDeque<StringBuilder>();
 	private final Deque<HashMap<String, String>> elementAttributes = new ArrayDeque<HashMap<String, String>>();
 	
-
+	
 	// Ignore all elements as long as ignore > 0
 	private int ignore = 0;
 	
 	
-	public DelegatorHandler(ElementHandler initialHandler, WarningSet warnings) {
+	public DelegatorHandler(AbstractElementHandler initialHandler, WarningSet warnings) {
 		this.warnings = warnings;
 		handlerStack.add(initialHandler);
 		elementData.add(new StringBuilder()); // Just in case

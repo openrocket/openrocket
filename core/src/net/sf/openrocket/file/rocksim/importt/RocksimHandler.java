@@ -8,6 +8,7 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -24,7 +25,7 @@ import java.util.HashMap;
  * <p/>
  * Limitations: Rocksim flight simulations are not imported; tube fins are not supported; Rocksim 'pods' are not supported.
  */
-public class RocksimHandler extends ElementHandler {
+public class RocksimHandler extends AbstractElementHandler {
 
     /**
      * The main content handler.
@@ -67,7 +68,7 @@ public class RocksimHandler extends ElementHandler {
 /**
  * Handles the content of the <DesignInformation> tag.
  */
-class RocksimContentHandler extends ElementHandler {
+class RocksimContentHandler extends AbstractElementHandler {
     /**
      * The OpenRocketDocument that is the container for the rocket.
      */
@@ -145,7 +146,7 @@ class RocksimContentHandler extends ElementHandler {
  * Correct functioning of this handler is predicated on the stage count element appearing before the actual stage parts
  * structures.  If that invariant is not true, then behavior will be unpredictable.
  */
-class RocketDesignHandler extends ElementHandler {
+class RocketDesignHandler extends AbstractElementHandler {
     /**
      * The parent component.
      */
@@ -309,7 +310,7 @@ class RocketDesignHandler extends ElementHandler {
 /**
  * A SAX handler for a Rocksim stage.
  */
-class StageHandler extends ElementHandler {
+class StageHandler extends AbstractElementHandler {
     /**
      * The parent OpenRocket component.
      */
