@@ -32,6 +32,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 	
 	private final OpenRocketDocument document;
 	
+	
 	/**
 	 * Sole constructor.
 	 * 
@@ -69,15 +70,15 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public void exportDone(JComponent comp, Transferable trans, int action) {
 		// Removal from the old place is implemented already in import, so do nothing
 	}
 	
 	
-
+	
 	@Override
 	public boolean canImport(TransferHandler.TransferSupport support) {
 		SourceTarget data = getSourceAndTarget(support);
@@ -89,6 +90,17 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		boolean allowed = data.destParent.isCompatible(data.child);
 		log.verbose("Checking validity of drag-drop " + data.toString() + " allowed:" + allowed);
 		
+		// Ensure we're not dropping a component onto a child component
+		RocketComponent path = data.destParent;
+		while (path != null) {
+			if (path.equals(data.child)) {
+				log.verbose("Drop would cause cycle in tree, disallowing.");
+				allowed = false;
+				break;
+			}
+			path = path.getParent();
+		}
+		
 		// If drag-dropping to another rocket always copy
 		if (support.getDropAction() == MOVE && data.srcParent.getRoot() != data.destParent.getRoot()) {
 			support.setDropAction(COPY);
@@ -98,7 +110,6 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 	}
 	
 	
-
 	@Override
 	public boolean importData(TransferHandler.TransferSupport support) {
 		
@@ -121,7 +132,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 				action = TransferHandler.COPY;
 			}
 			
-
+			
 			// Check whether move action would be a no-op
 			if ((action == MOVE) && (data.srcParent == data.destParent) &&
 					(data.destIndex == data.srcIndex || data.destIndex == data.srcIndex + 1)) {
@@ -129,7 +140,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 				return false;
 			}
 			
-
+			
 			switch (action) {
 			case MOVE:
 				log.user("Performing DnD move operation: " + data);
@@ -184,7 +195,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 	}
 	
 	
-
+	
 	/**
 	 * Fetch the source and target for the DnD action.  This method does not perform
 	 * checks on whether this action is allowed based on component positioning rules.
@@ -214,7 +225,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		}
 		MyDropLocation location = convertDropLocation((JTree) support.getComponent(), dl);
 		
-
+		
 		// Fetch the transferred component (child component)
 		Transferable transferable = support.getTransferable();
 		RocketComponent child;
@@ -228,7 +239,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 			throw new BugException(e);
 		}
 		
-
+		
 		// Get the source component & index
 		RocketComponent srcParent = child.getParent();
 		if (srcParent == null) {
@@ -237,7 +248,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		}
 		int srcIndex = srcParent.getChildPosition(child);
 		
-
+		
 		// Get destination component & index
 		RocketComponent destParent = ComponentTreeModel.componentFromPath(location.path);
 		int destIndex = location.index;
@@ -278,7 +289,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 	}
 	
 	
-
+	
 	/**
 	 * Convert the JTree drop location in order to work around bug 6560955
 	 * (http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6560955).

@@ -36,4 +36,5 @@ The following file format versions exist:
 
 1.4:  Introduced with OpenRocket 1.1.10.  Adds the launchrodvelocity and
       deploymentvelocity attributes to <flightdata> element.  The motor
-      digesting algorithm was changed.
+      digesting algorithm was changed.  Adds <separationevent> and
+      <separationdelay> elements to stage components (except sustainer).

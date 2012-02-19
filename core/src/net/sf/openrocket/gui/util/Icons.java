@@ -43,7 +43,7 @@ public class Icons {
 		SIMULATION_LISTENER_ERROR = SIMULATION_STATUS_ICON_MAP.get(Simulation.Status.OUTDATED);
 	}
 	
-
+	
 	public static final Icon FILE_NEW = loadImageIcon("pix/icons/document-new.png", "New document");
 	public static final Icon FILE_OPEN = loadImageIcon("pix/icons/document-open.png", "Open document");
 	public static final Icon FILE_OPEN_EXAMPLE = loadImageIcon("pix/icons/document-open-example.png", "Open example document");
@@ -62,9 +62,10 @@ public class Icons {
 	public static final Icon EDIT_SCALE = loadImageIcon("pix/icons/edit-scale.png", "Scale");
 	
 	public static final Icon HELP_ABOUT = loadImageIcon("pix/icons/help-about.png", "About");
+	public static final Icon HELP_LICENSE = loadImageIcon("pix/icons/help-license.png", "License");
 	public static final Icon HELP_BUG_REPORT = loadImageIcon("pix/icons/help-bug.png", "Bug report");
 	public static final Icon HELP_DEBUG_LOG = loadImageIcon("pix/icons/help-log.png", "Debug log");
-	public static final Icon HELP_LICENSE = loadImageIcon("pix/icons/help-license.png", "License");
+	public static final Icon HELP_TOURS = loadImageIcon("pix/icons/help-tours.png", "Guided tours");
 	
 	public static final Icon ZOOM_IN = loadImageIcon("pix/icons/zoom-in.png", "Zoom in");
 	public static final Icon ZOOM_OUT = loadImageIcon("pix/icons/zoom-out.png", "Zoom out");

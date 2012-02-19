@@ -77,7 +77,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private ArrayList<RocketComponent> children = new ArrayList<RocketComponent>();
 	
-
+	
 	////////  Parameters common to all components:
 	
 	/**
@@ -99,12 +99,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected double position = 0;
 	
-
+	
 	// Color of the component, null means to use the default color
 	private Color color = null;
 	private LineStyle lineStyle = null;
 	
-
+	
 	// Override mass/CG
 	private double overrideMass = 0;
 	private boolean massOverriden = false;
@@ -113,7 +113,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	private boolean overrideSubcomponents = false;
 	
-
+	
 	// User-given name of the component
 	private String name = null;
 	
@@ -126,7 +126,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	// Preset component this component is based upon
 	private ComponentPreset presetComponent = null;
 	
-
+	
 	/**
 	 * Used to invalidate the component after calling {@link #copyFrom(RocketComponent)}.
 	 */
@@ -135,8 +135,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	////  NOTE !!!  All fields must be copied in the method copyFrom()!  ////
 	
-
-
+	
+	
 	/**
 	 * Default constructor.  Sets the name of the component to the component's static name
 	 * and the relative position of the component.
@@ -150,7 +150,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	////////////  Methods that must be implemented  ////////////
 	
-
+	
 	/**
 	 * Static component name.  The name may not vary of the parameters, it must be static.
 	 */
@@ -166,7 +166,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public abstract Coordinate getComponentCG(); // CG of non-overridden component
 	
-
+	
 	/**
 	 * Return the longitudinal (around the y- or z-axis) unitary moment of inertia.
 	 * The unitary moment of inertia is the moment of inertia with the assumption that
@@ -225,7 +225,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/**
 	 * Return a collection of bounding coordinates.  The coordinates must be such that
 	 * the component is fully enclosed in their convex hull.
@@ -245,12 +245,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public abstract boolean isMassive();
 	
 	
-
-
-
+	
+	
+	
 	////////////  Methods that may be overridden  ////////////
 	
-
+	
 	/**
 	 * Shift the coordinates in the array corresponding to radial movement.  A component
 	 * that has a radial position must shift the coordinates in this array suitably.
@@ -283,8 +283,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return the user-provided name of the component, or the component base
 	 * name if the user-provided name is empty.  This can be used in the UI.
@@ -345,7 +345,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/**
 	 * Make a deep copy of the rocket component tree structure from this component
 	 * downwards while maintaining the component ID's.  The purpose of this method is
@@ -400,8 +400,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	//////////////  Methods that may not be overridden  ////////////
 	
-
-
+	
+	
 	////////// Common parameter setting/getting //////////
 	
 	/**
@@ -441,8 +441,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Get the current override mass.  The mass is not necessarily in use
 	 * at the moment.
@@ -495,9 +495,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Return the current override CG.  The CG is not necessarily overridden.
 	 *
@@ -559,7 +559,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/**
 	 * Return whether the mass and/or CG override overrides all subcomponent values
 	 * as well.  The default implementation is a normal getter/setter implementation,
@@ -607,8 +607,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Get the user-defined name of the component.
 	 */
@@ -662,7 +662,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/**
 	 * Return the preset component that this component is based upon.
 	 * 
@@ -690,7 +690,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		if (preset.getComponentClass() != this.getClass()) {
 			throw new IllegalArgumentException("Attempting to load preset of type " + preset.getComponentClass()
-						+ " into component of type " + this.getClass());
+					+ " into component of type " + this.getClass());
 		}
 		
 		RocketComponent root = getRoot();
@@ -748,7 +748,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/**
 	 * Returns the unique ID of the component.
 	 *
@@ -767,8 +767,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Get the characteristic length of the component, for example the length of a body tube
 	 * of the length of the root chord of a fin.  This is used in positioning the component
@@ -838,42 +838,42 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.relativePosition = position;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-
-    /**
-     * Determine position relative to given position argument.  Note: This is a side-effect free method.  No state
-     * is modified.
-     *
-     * @param thePosition the relative position to be used as the basis for the computation
-     * @param relativeTo  the position is computed relative the the given component
-     *
-     * @return double position of the component relative to the parent, with respect to <code>position</code>
-     */
-    public double asPositionValue (Position thePosition, RocketComponent relativeTo) {
-        double result = this.position;
-        if (relativeTo != null) {
-            double thisPos = this.toRelative(Coordinate.NUL, relativeTo)[0].x;
-
-            switch (thePosition) {
-            case ABSOLUTE:
-                result = this.toAbsolute(Coordinate.NUL)[0].x;
-                break;
-            case TOP:
-                result = thisPos;
-                break;
-            case MIDDLE:
-                result = thisPos - (relativeTo.length - this.length) / 2;
-                break;
-            case BOTTOM:
-                result = thisPos - (relativeTo.length - this.length);
-                break;
-            default:
-                throw new BugException("Unknown position type: " + thePosition);
-            }
-        }
-        return result;
-    }
-
+	
+	
+	/**
+	 * Determine position relative to given position argument.  Note: This is a side-effect free method.  No state
+	 * is modified.
+	 *
+	 * @param thePosition the relative position to be used as the basis for the computation
+	 * @param relativeTo  the position is computed relative the the given component
+	 *
+	 * @return double position of the component relative to the parent, with respect to <code>position</code>
+	 */
+	public double asPositionValue(Position thePosition, RocketComponent relativeTo) {
+		double result = this.position;
+		if (relativeTo != null) {
+			double thisPos = this.toRelative(Coordinate.NUL, relativeTo)[0].x;
+			
+			switch (thePosition) {
+			case ABSOLUTE:
+				result = this.toAbsolute(Coordinate.NUL)[0].x;
+				break;
+			case TOP:
+				result = thisPos;
+				break;
+			case MIDDLE:
+				result = thisPos - (relativeTo.length - this.length) / 2;
+				break;
+			case BOTTOM:
+				result = thisPos - (relativeTo.length - this.length);
+				break;
+			default:
+				throw new BugException("Unknown position type: " + thePosition);
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Get the position value of the component.  The exact meaning of the value is
 	 * dependent on the current relative positioning.
@@ -905,7 +905,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	///////////  Coordinate changes  ///////////
 	
 	/**
@@ -1044,7 +1044,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/////////// Total mass and CG calculation ////////////
 	
 	/**
@@ -1104,10 +1104,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	///////////  Children handling  ///////////
 	
-
+	
 	/**
 	 * Adds a child to the rocket component tree.  The component is added to the end
 	 * of the component's child list.  This is a helper method that calls
@@ -1138,10 +1138,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public void addChild(RocketComponent component, int index) {
 		checkState();
+		
 		if (component.parent != null) {
 			throw new IllegalArgumentException("component " + component.getComponentName() +
 					" is already in a tree");
 		}
+		
+		// Ensure that the no loops are created in component tree [A -> X -> Y -> B, B.addChild(A)]
+		if (this.getRoot().equals(component)) {
+			throw new IllegalStateException("Component " + component.getComponentName() +
+					" is a parent of " + this.getComponentName() + ", attempting to create cycle in tree.");
+		}
+		
 		if (!isCompatible(component)) {
 			throw new IllegalStateException("Component " + component.getComponentName() +
 					" not currently compatible with component " + getComponentName());
@@ -1155,7 +1163,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		
 		fireAddRemoveEvent(component);
 	}
-	
 	
 	/**
 	 * Removes a child from the rocket component tree.
@@ -1199,8 +1206,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Move a child to another position.
 	 *
@@ -1614,7 +1621,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	/**
 	 * Returns an iterator that iterates over all children and sub-children.
 	 * <p>
@@ -1648,9 +1655,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Compare component equality based on the ID of this component.  Only the
 	 * ID and class type is used for a basis of comparison.
@@ -1668,19 +1675,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	@Override
 	public int hashCode() {
 		return id.hashCode();
 	}
 	
 	
-
+	
 	////////////  Helper methods for subclasses
 	
-
-
-
+	
+	
+	
 	/**
 	 * Helper method to add rotationally symmetric bounds at the specified coordinates.
 	 * The X-axis value is <code>x</code> and the radius at the specified position is
@@ -1703,7 +1710,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected static final double ringMass(double outerRadius, double innerRadius,
 			double length, double density) {
 		return Math.PI * (MathUtil.pow2(outerRadius) - MathUtil.pow2(innerRadius)) *
-					length * density;
+				length * density;
 	}
 	
 	protected static final double ringLongitudinalUnitInertia(double outerRadius,
@@ -1719,10 +1726,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-
+	
 	////////////  OTHER
 	
-
+	
 	/**
 	 * Loads the RocketComponent fields from the given component.  This method is meant
 	 * for in-place replacement of a component.  It is used with the undo/redo

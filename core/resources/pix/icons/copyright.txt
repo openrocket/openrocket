@@ -34,3 +34,4 @@ help-license.png
 help-log.png
 help-about.png
 help-bug.png
+help-tours.png

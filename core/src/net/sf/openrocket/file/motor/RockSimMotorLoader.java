@@ -360,7 +360,6 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			if (!calculateCG) {
 				motorDigest.update(DataType.CG_PER_TIME, toArray(cg));
 			}
-			// FIXME: Should this use CG_SPECIFIC ???
 			motorDigest.update(DataType.FORCE_PER_TIME, thrustArray);
 			final String digest = motorDigest.getDigest();
 			

@@ -1,3 +1,7 @@
+2012-02-16  Sampo Niskanen
+
+	* [BUG] Freeze when dropping component on child component
+
 2012-02-10  Sampo Niskanen
 
 	* Configurable stage separation events
