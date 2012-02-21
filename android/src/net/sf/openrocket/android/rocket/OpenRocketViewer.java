@@ -10,6 +10,7 @@ import net.sf.openrocket.android.simulation.SimulationFragment;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.Simulation;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -69,9 +70,19 @@ implements Simulations.OnSimulationSelectedListener
 
 	@Override
 	public void onSimulationSelected(int simulationId) {
+		
+		Simulation sim = app.getRocketDocument().getSimulation(simulationId);
+		// Check if there is data for this simulation.
+		if ( sim.getSimulatedData().getBranchCount() == 0 ) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("The selected simulation does not have saved data.");
+			builder.setCancelable(true);
+			builder.show();
+			return;
+		}
+		
 		View sidepane = findViewById(R.id.sidepane);
 		if ( /* if multi pane */ sidepane != null ) {
-			Simulation sim = app.getRocketDocument().getSimulation(simulationId);
 			SimulationChart chart = new SimulationChart(simulationId);
 
 			Fragment graph = SimulationFragment.newInstance(chart);
