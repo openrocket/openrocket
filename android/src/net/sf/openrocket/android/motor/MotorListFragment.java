@@ -6,6 +6,7 @@ import net.sf.openrocket.android.db.MotorDao;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.PersistentExpandableListFragment;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -135,9 +136,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		// TODO - need some error text but unfortunately doing this, makes the layout funky
-		// on ICS.
-		//setEmptyText("No motors in database - download them from Thrustcurve using the Option Menu");
 
 		refreshData();
 
@@ -163,6 +161,18 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			motorSelectedListener = (OnMotorSelectedListener) activity;
 		}
 
+		Cursor motorCounter = mDbHelper.getMotorDao().fetchAllMotors();
+		int motorCount = motorCounter.getCount();
+		motorCounter.close();
+		
+		if ( motorCount == 0 ) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+			builder.setTitle("No Motors Found");
+			builder.setMessage("Motors can be downloaded from thrustcurve");
+			builder.setCancelable(true);
+			builder.create().show();
+		}
+		
 	}
 
 	@Override
