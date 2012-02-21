@@ -1,6 +1,9 @@
 package net.sf.openrocket.android.thrustcurve;
 
+import java.util.List;
+
 import net.sf.openrocket.android.util.AndroidLogWrapper;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 
 public class TCSearchAction extends TCQueryAction {
 
@@ -22,7 +25,7 @@ public class TCSearchAction extends TCQueryAction {
 		protected String doInBackground(Void... params) {
 			try {
 				handler.post( new UpdateMessage("Quering Thrustcurve"));
-				SearchResponse res = new ThrustCurveAPI().doSearch(searchRequest);
+				SearchResponse res = ThrustCurveAPI.doSearch(searchRequest);
 
 				int total = res.getResults().size();
 				int count = 1;
@@ -46,9 +49,13 @@ public class TCSearchAction extends TCQueryAction {
 
 					AndroidLogWrapper.d(TCQueryAction.class, mi.toString());
 
-					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
-
-					writeMotor( mi, b);
+					List<MotorBurnFile> b = ThrustCurveAPI.downloadData(mi.getMotor_id());
+					List<ThrustCurveMotor> motors = ThrustCurveAPI.extractAllMotors(b);
+					if ( motors != null && motors.size() > 0 ) {
+						for( ThrustCurveMotor motor : motors ) {
+							writeMotor( mi, motor);
+						}
+					}
 				}
 				if ( total < res.getMatches() ) {
 					dismiss();

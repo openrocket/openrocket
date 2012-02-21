@@ -1,28 +1,27 @@
 package net.sf.openrocket.android.thrustcurve;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 public class DownloadResponse {
 
-	private Map<Integer,MotorBurnFile> data = new HashMap<Integer,MotorBurnFile>();
+	private Map<Integer,List<MotorBurnFile>> data = new HashMap<Integer,List<MotorBurnFile>>();
 	
 	private String error = null;
 	
 	public void add( MotorBurnFile mbd ) {
-		MotorBurnFile currentData = data.get(mbd.getMotorId());
-		if ( currentData == null || currentData.getThrustCurveMotor() == null ) {
-			data.put(mbd.getMotorId(),mbd);
-		} else {
-			// Prefer RASP motors.
-			if ( "RockSim".equals(mbd.getFiletype()) && !"RockSim".equals(currentData.getFiletype()) ) {
-				data.put(mbd.getMotorId(), mbd);
-			}
+		List<MotorBurnFile> currentData = data.get(mbd.getMotorId());
+		if ( currentData == null ) {
+			currentData = new ArrayList<MotorBurnFile>();
+			data.put(mbd.getMotorId(), currentData);
 		}
+		currentData.add(mbd);
 	}
 
-	public MotorBurnFile getData(Integer motor_id) {
+	public List<MotorBurnFile> getData(Integer motor_id) {
 		return data.get(motor_id);
 	}
 	

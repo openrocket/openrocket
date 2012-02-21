@@ -81,11 +81,4 @@ public class MotorBurnFile {
 		return thrustCurveMotor;
 	}
 
-	/**
-	 * @param thrustCurveMotor the thrustCurveMotor to set
-	 */
-	public void setThrustCurveMotor(ThrustCurveMotor thrustCurveMotor) {
-		this.thrustCurveMotor = thrustCurveMotor;
-	}
-	
 }

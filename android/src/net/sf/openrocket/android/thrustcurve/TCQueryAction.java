@@ -4,6 +4,7 @@ import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.ProgressDialogFragment;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -95,14 +96,14 @@ public abstract class TCQueryAction extends Fragment {
 		}
 	}
 
-	protected void writeMotor( TCMotor mi, MotorBurnFile b) throws Exception {
+	protected void writeMotor( TCMotor mi, ThrustCurveMotor thrustCurveMotor) throws Exception {
 
 		DbAdapter mDbHelper = new DbAdapter(getActivity());
 		mDbHelper.open();
 		try {
 			ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
 
-			m.setThrustCurveMotor( b.getThrustCurveMotor() );
+			m.setThrustCurveMotor( thrustCurveMotor );
 
 			// Convert impulse class.  ThrustCurve puts mmx, 1/4a and 1/2a as A.
 			m.setImpulseClass(mi.getImpulse_class());

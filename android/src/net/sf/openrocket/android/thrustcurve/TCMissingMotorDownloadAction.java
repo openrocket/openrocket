@@ -1,10 +1,12 @@
 package net.sf.openrocket.android.thrustcurve;
 
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.openrocket.android.util.AndroidLogWrapper;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
 
 public class TCMissingMotorDownloadAction extends TCQueryAction {
@@ -48,7 +50,7 @@ public class TCMissingMotorDownloadAction extends TCQueryAction {
 
 				handler.post( new UpdateMessage("Looking for " + motor.getManufacturer() + " " + motor.getDesignation()));
 
-				SearchResponse res = new ThrustCurveAPI().doSearch(request);
+				SearchResponse res = ThrustCurveAPI.doSearch(request);
 
 				int total = res.getResults().size();
 				int count = 1;
@@ -72,9 +74,10 @@ public class TCMissingMotorDownloadAction extends TCQueryAction {
 
 					AndroidLogWrapper.d(TCQueryAction.class, mi.toString());
 
-					MotorBurnFile b = new ThrustCurveAPI().downloadData(mi.getMotor_id());
+					List<MotorBurnFile> listOfMotors = ThrustCurveAPI.downloadData(mi.getMotor_id());
 
-					writeMotor( mi, b);
+					ThrustCurveMotor bestMatch = ThrustCurveAPI.findBestMatch(motor, listOfMotors);
+					writeMotor( mi, bestMatch);
 
 				}
 			}

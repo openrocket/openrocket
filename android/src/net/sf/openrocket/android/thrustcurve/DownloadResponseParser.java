@@ -75,8 +75,8 @@ public class DownloadResponseParser {
 								AndroidLogWrapper.d(DownloadResponseParser.class,"base64: " + ex.getMessage());
 							}
 							currentMotor.decodeFile( s );
+							ret.add((MotorBurnFile)currentMotor.clone());
 						}
-						ret.add((MotorBurnFile)currentMotor.clone());
 					}
 				}
 				);
