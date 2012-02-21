@@ -2,7 +2,6 @@ package net.sf.openrocket.android.filebrowser;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,6 +10,7 @@ import java.util.List;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.actionbarcompat.ActionBarListActivity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +31,8 @@ public class SimpleFileBrowser extends ActionBarListActivity {
 	private List<File> path = null;
 	private final static File root = new File("/");
 
+	private File previousDirectory = root;
+	
 	private String baseDirPrefKey;
 	private String baseDirName;
 
@@ -102,7 +104,35 @@ public class SimpleFileBrowser extends ActionBarListActivity {
 
 	}
 
-	private void getDir(File dirPath) {
+	private void getDir(final File dirPath) {
+		
+		// A little sanity check.  It could be possible the directory saved in the preference
+		// is no longer mounted, is not a directory (any more), or cannot be read.
+		// if any of these are the case, we display a little dialog, then revert to the
+		// previousDirectory.
+		if ( !dirPath.exists() || !dirPath.isDirectory() || !dirPath.canRead() ) {
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Unable to open directory " + dirPath.getAbsolutePath() );
+			builder.setCancelable(true);
+			builder.setOnCancelListener( new Dialog.OnCancelListener() {
+
+				@Override
+				public void onCancel(DialogInterface arg0) {
+					if ( root.getAbsolutePath().equals(dirPath.getAbsolutePath()) ) {
+						SimpleFileBrowser.this.finish();
+					} else {
+						SimpleFileBrowser.this.getDir( previousDirectory );
+					}
+				}
+				
+			});
+			builder.show();
+			return;
+		}
+		
+		previousDirectory = dirPath;
+		
 		setTitle(dirPath.getAbsolutePath());
 		path = new ArrayList<File>();
 
