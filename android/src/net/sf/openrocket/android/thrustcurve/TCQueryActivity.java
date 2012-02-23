@@ -3,7 +3,6 @@ package net.sf.openrocket.android.thrustcurve;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.ErrorDialogFragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
