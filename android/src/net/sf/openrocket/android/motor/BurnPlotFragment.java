@@ -1,33 +1,34 @@
 package net.sf.openrocket.android.motor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
-import net.sf.openrocket.R;
 import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
+
+import org.achartengine.GraphicalView;
+import org.achartengine.chart.LineChart;
+import org.achartengine.chart.PointStyle;
+import org.achartengine.chart.XYChart;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
+
 import android.graphics.Color;
-import android.graphics.PointF;
+import android.graphics.Paint.Align;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.LineAndPointRenderer;
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.YValueMarker;
-
 public class BurnPlotFragment extends Fragment {
 
 	private ExtendedThrustCurveMotor motor;
 	private long motorId;
 
-	private XYPlot mySimpleXYPlot;
-	private SimpleXYSeries mySeries;
+	/** The encapsulated graphical view. */
+	private GraphicalView mView;
+	/** The chart to be drawn. */
+	private XYChart mChart;
 
 	public static BurnPlotFragment newInstance( long motorId ) {
 		BurnPlotFragment frag = new BurnPlotFragment();
@@ -71,58 +72,85 @@ public class BurnPlotFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		AndroidLogWrapper.d(BurnPlotFragment.class,"onCreateView");
-		View v = inflater.inflate(R.layout.motor_burn, container, false);
-		mySimpleXYPlot = (XYPlot) v.findViewById(R.id.xyplot);
+		
 		init(motor);
-		return v;
-	}
-
-	private static List<Double> fromArray( double[] arry ) {
-		List<Double> l = new ArrayList<Double>(arry.length);
-		for( double d: arry ) {
-			l.add(d);
-		}
-		return l;
+		mView = new GraphicalView(container.getContext(), mChart);
+		return mView;
 	}
 
 	private void init( ExtendedThrustCurveMotor motor ) {
 
-		mySimpleXYPlot.setUserDomainOrigin(0);
-		mySimpleXYPlot.setUserRangeOrigin(0);
-		mySimpleXYPlot.setRangeLabel("impuse (n)");
-		mySimpleXYPlot.setDomainLabel("time (s)");
-		YValueMarker average = new YValueMarker(motor.getThrustCurveMotor().getAverageThrustEstimate(),"average" );
-		average.getLinePaint().setColor(Color.BLACK);
-		average.getTextPaint().setColor(Color.BLACK);
-		mySimpleXYPlot.addMarker( average );
-		mySimpleXYPlot.disableAllMarkup();
+		XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer(1);
 
-		try {
-			mySeries = new SimpleXYSeries( 
-					fromArray(motor.getThrustCurveMotor().getTimePoints()),
-					fromArray(motor.getThrustCurveMotor().getThrustPoints()), 
-					motor.getThrustCurveMotor().getManufacturer().getDisplayName() + " " + motor.getThrustCurveMotor().getDesignation()
-					);
-		} catch ( Exception ex ) {
+		renderer.setAxisTitleTextSize(16);
+		renderer.setChartTitleTextSize(20);
+		renderer.setLabelsTextSize(15);
+		renderer.setLegendTextSize(15);
+		renderer.setPointSize(5f);
+		renderer.setXLabels(10);
+		renderer.setYLabels(10);
+		renderer.setShowGrid(true);
+		renderer.setZoomButtonsVisible(false);
+		renderer.setZoomEnabled(false,false);
+		renderer.setPanEnabled(false,false);
+		renderer.setMargins(new int[] { 50, 40, 10, 20 });
+		renderer.setShowLegend(false);
+		renderer.setAxesColor(Color.LTGRAY);
+		renderer.setLabelsColor(Color.LTGRAY);
 
-			Vector<Double> data = new Vector<Double>();
-			data.add(0.0);
-			data.add(0.0);
-			data.add(1.0);
-			data.add(1.0);
-			mySeries = new SimpleXYSeries(data, SimpleXYSeries.ArrayFormat.XY_VALS_INTERLEAVED,"no data");
+		renderer.setChartTitle(motor.getThrustCurveMotor().getManufacturer() + " " + motor.getThrustCurveMotor().getDesignation());
+
+		renderer.setXTitle("time (s)");
+		renderer.setXLabelsAlign(Align.RIGHT);
+
+		renderer.setYTitle("impuse (n)");
+		renderer.setYLabelsAlign(Align.RIGHT,0);
+
+		XYSeriesRenderer r = new XYSeriesRenderer();
+		r.setColor(Color.RED);
+		r.setPointStyle(PointStyle.CIRCLE);
+		r.setFillPoints(true);
+		renderer.addSeriesRenderer(r);
+		// setting the YAximMin to 0 locks the origins.
+		renderer.setYAxisMin(0.0, 0);
+
+		// TODO get markers working in achartengine
+		//YValueMarker average = new YValueMarker(motor.getThrustCurveMotor().getAverageThrustEstimate(),"average" );
+		//average.getLinePaint().setColor(Color.BLACK);
+		//average.getTextPaint().setColor(Color.BLACK);
+		//mySimpleXYPlot.addMarker( average );
+
+		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
+
+		XYSeries series = new XYSeries(motor.getThrustCurveMotor().getDesignation(), 0);
+		
+		double[] timePoints = motor.getThrustCurveMotor().getTimePoints();
+		double[] thrustPoints = motor.getThrustCurveMotor().getThrustPoints();
+
+		// We are going to abuse this loop to also compute the Y axis max.
+		int maxy = 0;
+		int datasize = timePoints.length;
+		for( int i = 0; i<datasize; i++ ) {
+			series.add(timePoints[i], thrustPoints[i]);
+			int ceil = new Double(Math.ceil(thrustPoints[i])).intValue();
+			if ( ceil > maxy ) {
+				maxy = ceil;
+			}
 		}
+		renderer.setYAxisMax(maxy);
+		
+		// Find the X axis max.  compute it as next larger integer if t_max > 2 else round up to next tenth.
+		double maxx = timePoints[datasize-1];
+		if ( maxx >= 2.0 ) {
+			maxx = Math.ceil(maxx);
+		} else {
+			maxx = new Double( Math.ceil(maxx*10.0) ).intValue() /10.0;
+		}
+		renderer.setXAxisMax(maxx);
+		
+		dataset.addSeries(series);
 
-		LineAndPointFormatter formatter= new LineAndPointFormatter(Color.GREEN, Color.GREEN, Color.GREEN);
-
-		formatter.getLinePaint().setShadowLayer(0, 0, 0, 0);
-		formatter.getVertexPaint().setShadowLayer(0, 0, 0, 0);
-		mySimpleXYPlot.addSeries(mySeries, LineAndPointRenderer.class,formatter);
-
-		//Set of internal variables for keeping track of the boundaries
-		mySimpleXYPlot.calculateMinMaxVals();
-
-		mySimpleXYPlot.redraw();
+		mChart = new LineChart(dataset, renderer);
 
 	}
 
