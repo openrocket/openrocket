@@ -137,17 +137,13 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		refreshData();
-
 		registerForContextMenu(getExpandableListView());
 
 	}
 
+	
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		mDbHelper = new DbAdapter(getActivity());
-		mDbHelper.open();
+	public void onResume() {
 
 		Resources resources = this.getResources();
 		groupColumnPreferenceKey = resources.getString(R.string.PreferenceMotorBrowserGroupingOption);
@@ -157,22 +153,15 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		pref.registerOnSharedPreferenceChangeListener(this);
 
+		Activity activity = getActivity();
 		if ( activity instanceof OnMotorSelectedListener ) {
 			motorSelectedListener = (OnMotorSelectedListener) activity;
 		}
 
-		Cursor motorCounter = mDbHelper.getMotorDao().fetchAllMotors();
-		int motorCount = motorCounter.getCount();
-		motorCounter.close();
-		
-		if ( motorCount == 0 ) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-			builder.setTitle("No Motors Found");
-			builder.setMessage("Motors can be downloaded from thrustcurve");
-			builder.setCancelable(true);
-			builder.create().show();
-		}
-		
+		refreshData();
+
+		super.onResume();
+
 	}
 
 	@Override
@@ -222,8 +211,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	@Override
-	public void onDetach() {
-		super.onDetach();
+	public void onPause() {
+		super.onPause();
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		pref.unregisterOnSharedPreferenceChangeListener(this);
 
@@ -247,6 +236,23 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	public void refreshData() {
+		if ( mDbHelper == null ) {
+			mDbHelper = new DbAdapter(getActivity());
+		}
+		mDbHelper.open();
+
+		Cursor motorCounter = mDbHelper.getMotorDao().fetchAllMotors();
+		int motorCount = motorCounter.getCount();
+		motorCounter.close();
+		
+		if ( motorCount == 0 ) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("No Motors Found");
+			builder.setMessage("Motors can be downloaded from thrustcurve");
+			builder.setCancelable(true);
+			builder.create().show();
+		}
+
 		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
 		MotorHierarchicalListAdapter mAdapter = new MotorHierarchicalListAdapter( 
 				getActivity(),
