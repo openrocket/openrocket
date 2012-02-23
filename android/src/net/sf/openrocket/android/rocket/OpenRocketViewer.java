@@ -56,7 +56,7 @@ implements Simulations.OnSimulationSelectedListener
 		AndroidLogWrapper.d(OpenRocketViewer.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case android.R.id.home:
-			finish();
+			ActivityHelpers.goHome(this);
 			return true;
 		case R.id.motor_list_menu_option:
 			ActivityHelpers.browseMotors(this);
