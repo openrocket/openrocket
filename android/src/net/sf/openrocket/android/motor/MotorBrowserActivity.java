@@ -51,7 +51,7 @@ implements MotorListFragment.OnMotorSelectedListener
 		AndroidLogWrapper.d(MotorBrowserActivity.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case android.R.id.home:
-			finish();
+			ActivityHelpers.goHome(this);
 			return true;
 		case R.id.download_from_thrustcurve_menu_option:
 			ActivityHelpers.downloadFromThrustcurve(this,DOWNLOAD_REQUEST_CODE);
@@ -82,8 +82,6 @@ implements MotorListFragment.OnMotorSelectedListener
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			// probably only want to update back stack for first time.
-			ft.addToBackStack("burnplot");
 			ft.replace(R.id.sidepane, graph);
 			ft.show(graph);
 			ft.commit();
