@@ -7,6 +7,11 @@ import android.content.Intent;
 
 public abstract class ActivityHelpers {
 
+	public static void goHome( Activity parent ) {
+		Intent i = new Intent(parent, Main.class);
+		i.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		parent.startActivity(i);
+	}
 	
 	public static void browseMotors( Activity parent ) {
 		Intent i = new Intent(parent, MotorBrowserActivity.class);
