@@ -36,13 +36,13 @@
                 android:id="@+id/main_open"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View ork file" />
+                android:text="@string/openfilelabel" />
 
             <Button
                 android:id="@+id/main_browse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View motors" />
+                android:text="@string/viewmotorslabel" />
         </LinearLayout>
     </LinearLayout>
 

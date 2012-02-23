@@ -8,12 +8,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Designer" />
+            android:text="@string/rocket_designer" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -21,12 +21,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Length" />
+            android:text="@string/rocket_length" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -34,12 +34,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Empty Mass" />
+            android:text="@string/rocket_emptymass" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -47,12 +47,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Stage Count" />
+            android:text="@string/rocket_stagecount" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -66,12 +66,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:prompt="@string/overviewConfigurationSpinnerPrompt" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lift off weight" />
+            android:text="@string/rocket_liftoffweight" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -79,12 +79,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CG" />
+            android:text="@string/rocket_cg" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -92,12 +92,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CP" />
+            android:text="@string/rocket_cp" />
 
         <TextView
             style="@style/valueTextStyle"
@@ -105,12 +105,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="" />
-
+
         <TextView
             style="@style/labelTextStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Stability margin" />
+            android:text="@string/rocket_stabilitymargin" />
 
         <TextView
             style="@style/valueTextStyle"

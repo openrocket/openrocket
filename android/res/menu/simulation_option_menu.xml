@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/simulation_select_series_menu_option"
-        android:title="Select Series"/>
+        android:title="@string/select_series"/>
     <item
         android:id="@+id/simulation_select_events_menu_option"
-        android:title="View Event"/>
+        android:title="@string/view_events"/>
 </menu>

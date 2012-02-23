@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/download_from_thrustcurve_menu_option"
-        android:title="Download from ThrustCurve"/>
+        android:title="@string/Download"/>
     <item
         android:id="@+id/preference_menu_option"
         android:icon="@drawable/ic_menu_preferences"

@@ -4,7 +4,10 @@
     <string name="app_name">OpenRocket</string>
     <string name="save">Save</string>
     <string name="MotorListTitle">Motor List</string>
+    <string name="Download">Download</string>
     <string name="Preferences">Preferences</string>
+    <string name="select_series">Select Series</string>
+    <string name="view_events">View Events</string>
 
     <string-array name="PreferenceMotorBrowserGroupingEntries">
         <item>Case</item>
@@ -13,81 +16,7 @@
         <item>Manufacturer</item>
     </string-array>
 
-    <string name="TCMotorSearchFormImpulse">Impulse</string>
-
-    <string-array name="TCMotorSearchImpulseList">
-        <item>All</item>
-        <item>A</item>
-        <item>B</item>
-        <item>C</item>
-        <item>D</item>
-        <item>E</item>
-        <item>F</item>
-        <item>G</item>
-        <item>H</item>
-        <item>I</item>
-        <item>J</item>
-        <item>K</item>
-        <item>L</item>
-        <item>M</item>
-        <item>N</item>
-        <item>O</item>
-    </string-array>
-
-    <string name="TCMotorSearchFormManufacturer">Manufacturer</string>
-
-    <string-array name="TCMotorSearchManufacturerList">
-        <item>All</item>
-        <item>AeroTech</item>
-        <item>Alpha Hybrids</item>
-        <item>Animal Motor Works</item>
-        <item>Apogee Components</item>
-        <item>Cesaroni Technology</item>
-        <item>Contrail Rockets</item>
-        <item>Ellis Mountain</item>
-        <item>Estes Industries</item>
-        <item>Gorilla Rocket Motors</item>
-        <item>Hypertek</item>
-        <item>Kosdon by AeroTech</item>
-        <item>Kosdon TRM</item>
-        <item>Loki Research</item>
-        <item>Propulsion Polymers</item>
-        <item>Public Missiles, Ltd.</item>
-        <item>Quest Aerospace</item>
-        <item>R.A.T.T. Works</item>
-        <item>Roadrunner Rocketry</item>
-        <item>Rocketvision Flight-Star</item>
-        <item>Sky Ripper Systems</item>
-        <item>West Coast Hybrids</item>
-    </string-array>
-
-    <string name="TCMotorSearchFormCommonName">Common Name</string>
-    <string name="TCMotorSearchFormDiameter">Diameter</string>
-
-    <string-array name="TCMotorSearchDiameterList">
-        <item>All</item>
-        <item>6</item>
-        <item>10.5</item>
-        <item>13</item>
-        <item>18</item>
-        <item>20</item>
-        <item>24</item>
-        <item>29</item>
-        <item>32</item>
-        <item>38</item>
-        <item>54</item>
-        <item>64</item>
-        <item>69</item>
-        <item>75</item>
-        <item>76</item>
-        <item>81</item>
-        <item>98</item>
-        <item>152</item>
-        <item>161</item>
-    </string-array>
-
     <string name="TCMotorSearchFormSubmit">Submit</string>
-    <string name="tcdownload">Download from ThrustCurve</string>
     <string name="overviewConfigurationSpinnerPrompt">Select Configuration</string>
     <string name="simulationSeries1Label">Series 1</string>
     <string name="simulationSeries2Label">Series 2</string>
@@ -127,5 +56,22 @@
         <item>Miles</item>
         <item>Nautical Miles</item>
     </string-array>
+        <string name="rocket_cg">CG</string>
+        <string name="rocket_designer">Designer</string>
+        <string name="rocket_length">Length</string>
+        <string name="rocket_emptymass">Empty Mass</string>
+        <string name="rocket_stagecount">Stage Count</string>
+        <string name="rocket_liftoffweight">Lift off weight</string>
+        <string name="rocket_cp">CP</string>
+        <string name="rocket_stabilitymargin">Stability margin</string>
+        <string name="openfilelabel">Open ork file</string>
+        <string name="viewmotorslabel">View motors</string>
+        <string name="motor_manufacturer">Manufacturer</string>
+        <string name="motor_commonname">Common Name</string>
+        <string name="motor_delays">Delays</string>
+        <string name="motor_caseinfo">Case Info</string>
+        <string name="motor_impulseclass">Impulse Class</string>
+        <string name="motor_diameter">Diameter</string>
+        <string name="motor_length">Length</string>
 
 </resources>

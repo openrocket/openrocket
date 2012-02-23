@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" >
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
     <TableLayout
         android:id="@+id/motorDetailForm"
@@ -13,7 +15,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Manufacturer" />
+                android:text="@string/motor_manufacturer" />
 
             <EditText
                 android:id="@+id/motorDetailsManufacturer"
@@ -28,7 +30,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Name" />
+                android:text="@string/motor_commonname" />
 
             <EditText
                 android:id="@+id/motorDetailsName"
@@ -43,7 +45,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Delays" />
+                android:text="@string/motor_delays" />
 
             <EditText
                 android:id="@+id/motorDetailsDelays"
@@ -58,7 +60,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Case Info" />
+                android:text="@string/motor_caseinfo" />
 
             <EditText
                 android:id="@+id/motorDetailsCaseInfo"
@@ -73,7 +75,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Impulse Class" />
+                android:text="@string/motor_impulseclass" />
 
             <EditText
                 android:id="@+id/motorDetailsImpuseClass"
@@ -88,7 +90,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Diameter" />
+                android:text="@string/motor_diameter" />
 
             <EditText
                 android:id="@+id/motorDetailsDiameter"
@@ -103,7 +105,7 @@
 
             <TextView
                 android:paddingRight="10dp"
-                android:text="Length" />
+                android:text="@string/motor_length" />
 
             <EditText
                 android:id="@+id/motorDetailsLength"

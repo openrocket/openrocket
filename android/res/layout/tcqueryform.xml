@@ -22,7 +22,7 @@
 
             <TextView
                 android:id="@+id/textView1"
-                android:text="@string/TCMotorSearchFormManufacturer" />
+                android:text="@string/motor_manufacturer" />
 
             <Spinner
                 android:id="@+id/TCMotorSearchFormManufacturerField"
@@ -34,8 +34,7 @@
         <TableRow>
 
             <TextView
-                android:id="@+id/textView1"
-                android:text="@string/TCMotorSearchFormImpulse" />
+                android:text="@string/motor_impulseclass" />
 
             <Spinner
                 android:id="@+id/TCMotorSearchFormImpulseField"
@@ -47,8 +46,7 @@
         <TableRow>
 
             <TextView
-                android:id="@+id/textView1"
-                android:text="@string/TCMotorSearchFormCommonName" />
+                android:text="@string/motor_commonname" />
 
             <EditText
                 android:id="@+id/TCMotorSearchFormCommonNameField"
@@ -58,8 +56,7 @@
         <TableRow>
 
             <TextView
-                android:id="@+id/textView1"
-                android:text="@string/TCMotorSearchFormDiameter" />
+                android:text="@string/motor_diameter" />
 
             <Spinner
                 android:id="@+id/TCMotorSearchFormDiameterField"
