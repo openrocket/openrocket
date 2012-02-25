@@ -6,6 +6,7 @@ import java.util.Set;
 import net.sf.openrocket.R;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.thrustcurve.TCMissingMotorDownloadAction;
 import net.sf.openrocket.android.thrustcurve.TCQueryAction;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
@@ -17,9 +18,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 
-public class OpenRocketLoaderActivity extends FragmentActivity
+public class OpenRocketLoaderActivity extends ActionBarFragmentActivity
 implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnOpenRocketFileLoaded
 {
 
@@ -29,6 +29,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTitle("");
 		setContentView(R.layout.main);
 		if ( savedInstanceState == null || savedInstanceState.getBoolean("isLoading", false) == false ) {
 			Intent i = getIntent();

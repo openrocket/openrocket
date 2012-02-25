@@ -4,6 +4,8 @@ import net.sf.openrocket.android.motor.MotorBrowserActivity;
 import net.sf.openrocket.android.thrustcurve.TCQueryActivity;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 
 public abstract class ActivityHelpers {
 
@@ -26,6 +28,18 @@ public abstract class ActivityHelpers {
 	public static void downloadFromThrustcurve( Activity parent, int requestCode ) {
 		Intent i = new Intent(parent, TCQueryActivity.class);
 		parent.startActivityForResult(i, requestCode);
+	}
+
+	public static void donate( Activity parent ) {
+		String url = "http://sourceforge.net/donate/index.php?group_id=260357";
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData( Uri.parse(url) );
+		parent.startActivity(intent);
+	}
+	
+	public static void showAbout( FragmentActivity parent ) {
+		AboutDialogFragment frag = AboutDialogFragment.newInstance();
+		frag.show(parent.getSupportFragmentManager(), "about");
 	}
 
 }

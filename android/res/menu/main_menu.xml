@@ -5,6 +5,11 @@
         android:id="@+id/main_menu_preferences"
         android:title="@string/Preferences"
         android:icon="@drawable/ic_menu_preferences"
-        android:showAsAction="always"/>
+        android:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/menu_about"
+        android:title="@string/About"
+        android:showAsAction="never"/>
 
 </menu>

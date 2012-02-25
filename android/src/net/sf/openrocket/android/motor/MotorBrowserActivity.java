@@ -60,6 +60,9 @@ implements MotorListFragment.OnMotorSelectedListener
 			Intent intent = new Intent().setClass(this, PreferencesActivity.class);
 			this.startActivity(intent);
 			return true;
+		case R.id.menu_about:
+			ActivityHelpers.showAbout(this);
+			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}

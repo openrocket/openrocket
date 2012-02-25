@@ -64,6 +64,9 @@ implements Simulations.OnSimulationSelectedListener
 		case R.id.preference_menu_option:
 			ActivityHelpers.startPreferences(this);
 			return true;
+		case R.id.menu_about:
+			ActivityHelpers.showAbout(this);
+			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}

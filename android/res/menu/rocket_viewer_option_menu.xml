@@ -3,12 +3,16 @@
 
     <item
         android:id="@+id/motor_list_menu_option"
-        android:title="@string/viewmotorslabel"
         android:icon="@drawable/ic_motorbrowser"
-        android:showAsAction="always"/>
+        android:showAsAction="always"
+        android:title="@string/viewmotorslabel"/>
     <item
         android:id="@+id/preference_menu_option"
-        android:title="@string/Preferences"
-        android:icon="@drawable/ic_menu_preferences"/>
+        android:icon="@drawable/ic_menu_preferences"
+        android:title="@string/Preferences"/>
+    <item
+        android:id="@+id/menu_about"
+        android:showAsAction="never"
+        android:title="@string/About"/>
 
 </menu>

@@ -25,19 +25,25 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center_horizontal" >
-
+
         <Button
             android:id="@+id/main_open"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/openfilelabel" />
-
+
         <Button
             android:id="@+id/main_browse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/viewmotorslabel" />
-
     </LinearLayout>
+
+    <Button
+        android:id="@+id/main_donate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/sf_donate" />
 
 </LinearLayout>

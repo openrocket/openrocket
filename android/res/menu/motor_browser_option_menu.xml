@@ -7,7 +7,10 @@
     <item
         android:id="@+id/preference_menu_option"
         android:icon="@drawable/ic_menu_preferences"
-        android:title="@string/Preferences"
-        />
+        android:title="@string/Preferences"/>
+    <item
+        android:id="@+id/menu_about"
+        android:showAsAction="never"
+        android:title="@string/About"/>
 
 </menu>
