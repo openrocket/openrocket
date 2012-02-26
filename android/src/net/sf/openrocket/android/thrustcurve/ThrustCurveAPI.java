@@ -139,7 +139,9 @@ public abstract class ThrustCurveAPI {
 		
 		for( MotorBurnFile entry : listOfMotors ) {
 			ThrustCurveMotor motor = entry.getThrustCurveMotor();
-			motorsByDesignation.put( motor.getDesignation(), motor);
+			if ( motor != null ) {
+				motorsByDesignation.put( motor.getDesignation(), motor);
+			}
 		}
 		
 		return new ArrayList<ThrustCurveMotor>(motorsByDesignation.values());
