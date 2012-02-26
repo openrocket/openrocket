@@ -117,7 +117,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			TextView v = (TextView) view.findViewById(R.id.motorGroup);
 			if ( MotorDao.DIAMETER.equals(groupColumn)) {
 				double d = cursor.getDouble( cursor.getColumnIndex(groupColumn));
-				v.setText( String.valueOf(Math.round(d * 1000.0)) );
+				v.setText( String.valueOf(Math.round(d * 1000.0)) + " mm");
 			} else {
 				v.setText( cursor.getString( cursor.getColumnIndex(groupColumn)));
 			}
