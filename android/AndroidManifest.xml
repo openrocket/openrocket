@@ -19,8 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".android.Main"
-            android:theme="@style/AppTheme.NoTitleBar" >
+            android:name=".android.Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,8 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".android.rocket.OpenRocketLoaderActivity"
-            android:theme="@style/AppTheme.NoTitleBar" >
+            android:name=".android.rocket.OpenRocketLoaderActivity">
 
             <!--
                  I don't understand why I need to have two different intent filters. 
