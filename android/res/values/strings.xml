@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">OpenRocket</string>
+    <string name="version">version 12.03</string>
     <string name="save">Save</string>
     <string name="MotorListTitle">Motor List</string>
     <string name="Download">Download</string>

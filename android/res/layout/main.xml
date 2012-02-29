@@ -13,6 +13,12 @@
         android:gravity="center_horizontal"
         android:src="@drawable/openrocket" />
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/version" />
+
     <ImageView
         android:id="@+id/rocketglobe"
         android:layout_width="fill_parent"
