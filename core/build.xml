@@ -32,7 +32,7 @@
 	
 	<path id="test-classpath">
 		<path refid="classpath"/>
-		<pathelement location="${basedir}"/>
+		<pathelement location="${basedir}/resources"/>
 		<pathelement location="${build-test.dir}"/>
 		<pathelement location="${classes.dir}"/>
 		<pathelement location="${src-test.dir}"/>

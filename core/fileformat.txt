@@ -34,7 +34,7 @@ The following file format versions exist:
 1.3:  Introduced with OpenRocket 1.1.9.  Adds the <launchlongitude> and
       <geodeticmethod> parameters to the simulation conditions element.
 
-1.4:  Introduced with OpenRocket 1.1.10.  Adds the launchrodvelocity and
+1.4:  Introduced with OpenRocket 12.03.  Adds the launchrodvelocity and
       deploymentvelocity attributes to <flightdata> element.  The motor
       digesting algorithm was changed.  Adds <separationevent> and
       <separationdelay> elements to stage components (except sustainer).
