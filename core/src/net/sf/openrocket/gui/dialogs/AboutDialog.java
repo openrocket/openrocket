@@ -30,12 +30,15 @@ public class AboutDialog extends JDialog {
 			"<font size=\"+1\"><b>OpenRocket has been developed by:</b></font><br><br>" +
 			"Sampo Niskanen (main developer)<br>" +
 			"Doug Pedrick (RockSim file format, printing)<br>" +
+			"Kevin Ruland (Android version)<br>" +
 			"Boris du Reau (internationalization, translation lead)<br>" +
 			"Richard Graham (geodetic computations)<br><br>" +
 			"<b>Translations by:</b><br><br>" +
 			"Tripoli France (French)<br>" +
 			"Stefan Lobas / ERIG e.V. (German)<br>" +
-			"Tripoli Spain (Spanish)<br><br>" +
+			"Tripoli Spain (Spanish)<br>" +
+			"Sky Dart Team (Russian)<br>" +
+			"Mauro Biasutti (Italian)<br><br>" +
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
@@ -50,22 +53,22 @@ public class AboutDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub;
 		
-
+		
 		// OpenRocket logo
 		panel.add(new JLabel(Icons.loadImageIcon("pix/icon/icon-about.png", "OpenRocket")), "top");
 		
-
+		
 		// OpenRocket version info + copyright
 		sub = new JPanel(new MigLayout("fill"));
 		
 		sub.add(new StyledLabel("OpenRocket", 20), "ax 50%, growy, wrap para");
 		sub.add(new StyledLabel(trans.get("lbl.version").trim() + " " + version, 3), "ax 50%, growy, wrap rel");
-		sub.add(new StyledLabel("Copyright " + Chars.COPY + " 2007-2011 Sampo Niskanen"), "ax 50%, growy, wrap para");
+		sub.add(new StyledLabel("Copyright " + Chars.COPY + " 2007-2012 Sampo Niskanen and others"), "ax 50%, growy, wrap para");
 		
 		sub.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");
 		panel.add(sub, "grow");
 		
-
+		
 		// Translation information (if present)
 		String translation = trans.get("lbl.translation").trim();
 		String translator = trans.get("lbl.translator").trim();
@@ -91,10 +94,10 @@ public class AboutDialog extends JDialog {
 			panel.add(sub);
 		}
 		
-
+		
 		DescriptionArea info = new DescriptionArea(5);
 		info.setText(CREDITS);
-		panel.add(info, "newline, width 10px, height 100lp, grow, spanx, wrap para");
+		panel.add(info, "newline, width 10px, height 150lp, grow, spanx, wrap para");
 		
 		//		JTextArea area = new JTextArea(CREATORS);
 		//		area.setEditable(false);
@@ -102,7 +105,7 @@ public class AboutDialog extends JDialog {
 		//		area.setWrapStyleWord(true);
 		//		panel.add(new JScrollPane(area), "width 10px, height 100lp, grow, spanx, wrap para");
 		
-
+		
 		//Close button
 		JButton close = new JButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {

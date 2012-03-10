@@ -22,13 +22,15 @@
       <p>OpenRocket requires <strong>Java version 6</strong> or
 	  later.  The Sun Java Runtime is recommended.</p>
       
-      <h3>Development release</h3>
+      <h3>Desktop version</h3>
 
-      <p>The development release contains the latest and greatest
-	features, but may contain more bugs than the stable version.
-	Currently the development version is the recommended
-	download.</p>
+      <p>This is the latest version of the desktop version of
+        OpenRocket.  It contains the latest and greatest features, and
+        runs on any system supporting Java.</p>
       
+      <div class="left">
+        <img src="java_logo.png" alt=""/>
+      </div>
       <div class="right support">
         <a href="http://sourceforge.net/donate/index.php?group_id=260357"><img src="project-support.jpg" width="88" height="32" alt="Support This Project" /></a>
       </div>
@@ -36,28 +38,36 @@
       <set sourcelink="true">
       <downloadbox>
 
-      <h3>Stable release</h3>
-
-      <p>Occasionally during OpenRocket development focus will shift
-	from feature development towards getting all open bugs fix and
-	to produce a stable release.  No updates are made to the
-	stable branch except for possible bug fixes, so the stable
-	release has less features than the development release.</p>
-
-      <p>The current stable release is
-	<tt><a class="main"
-	href="https://sourceforge.net/projects/openrocket/files/openrocket/${stableversion}/OpenRocket-${stableversion}.jar/download">OpenRocket-<use stableversion>.jar</a></tt></p>
-      
-
-      <h3>Running OpenRocket</h3>
-      
       <p>OpenRocket can be started in most graphical environments (including
 	Windows) by double-clicking the package icon.  No installation is
 	required.</p>
 
       <p>From the command line OpenRocket can be started by
       <span class="command">java -jar OpenRocket-<use version>.jar</span></p>
-	
+
+      <h3>Android version</h3>
+
+      <p>The Android version allows opening OpenRocket files, viewing
+        simulations and motors.  Later versions will allow running
+        simulations as well.</p>
+
+      <p>The Android version is thanks to the fantastic work by Kevin
+        Ruland.</p>
+
+      <div class="left">
+        <img src="android_logo.png" alt=""/>
+      </div>
+      <div class="instructions">
+        <p>Installation:</p>
+        <ol>
+          <li>Go to <em>Settings</em> &rarr; <em>Applications</em> and
+            check <em>Unknown sources</em>.</li>
+  	  <li>Download <a href="https://sourceforge.net/projects/openrocket/files/openrocket/${version}/OpenRocket-Android-${version}.apk/download">OpenRocket-Android-<use version>.apk</a>
+	    on your device and accept installation.</li>
+
+        </ol>
+      </div>
+
     </div>
     <div class="clear"></div>
 

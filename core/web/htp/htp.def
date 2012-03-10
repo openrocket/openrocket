@@ -1,6 +1,4 @@
-<set stableversion="1.0.0">
-<set developmentversion="1.1.9">
-<set version="${developmentversion}">
+<set version="12.03">
 
 <def name="downloadbox">
   <div class="downloadbox">

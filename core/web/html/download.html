@@ -48,6 +48,21 @@
   <div class="content">
 <div class="news">
       <h2>Recent news:</h2>
+  <p><span class="date">10.3.2012:</span> Version 12.03 for desktop
+    and Android is <a href="download.html">released</a>!</p>
+  <p>In this release the version numbering scheme has been changed.
+    From now on the version number is <em>YY.MM</em> indicating the
+    year and month of the release.  Bug fix releases are indicated by
+    an added "<em>.1</em>".</p>
+  <p>This also marks the first release for Android devices.  In this
+    first release you can open files and examine existing simulations,
+    stability data and motor files.  The Android port is thanks to
+    work by Kevin Ruland.</p>
+  <p>Enhancements in the desktop version include saving designs in RKT
+    format thanks to Doug Pedrick, configurable stage separation
+    events, guided help tours and displaying the computed motor
+    designation class.  The application has also been translated to
+    Italian by Mauro Biasutti and Russian by the Sky Dart Team.</p>
   <p><span class="date">24.11.2011:</span> Version 1.1.9 is
     <a href="download.html">released</a>!</p>
   <p>For this version Richard Graham has implemented geodetic
@@ -68,16 +83,6 @@
   <p>The web pages have also been somewhat updated and Boris du Reau has
     created <a href="http://openrocket.trans.free.fr/">a separate site</a>
     for coordinating the localization efforts for OpenRocket.</p>
-  <p><span class="date">12.8.2011:</span> Version 1.1.7 is
-    <a href="download.html">released</a>!</p>
-  <p>This release includes automatic rocket design optimization
-    support (<em>Analyze</em> &rarr; <em>Rocket optimization</em>).
-    You can optimize any amount of rocket parameters for apogee
-    altitude, maximum velocity or a number of different values.</p>
-  <p>While the automatic optimization is a powerful tool, it is very
-    easy to optimize against particulars of the simulation methods,
-    instead of true physical phenomena.  Always keep common sense at
-    hand and take the results with a grain of salt.</p>
 </div>
     <div class="contentholder">
       <h2>Ready packages</h2>
@@ -87,40 +92,49 @@
 	<a href="http://www.thrustcurve.org/">thrustcurve.org</a>.</p>
       <p>OpenRocket requires <strong>Java version 6</strong> or
 	  later.  The Sun Java Runtime is recommended.</p>
-      <h3>Development release</h3>
-      <p>The development release contains the latest and greatest
-	features, but may contain more bugs than the stable version.
-	Currently the development version is the recommended
-	download.</p>
+      <h3>Desktop version</h3>
+      <p>This is the latest version of the desktop version of
+        OpenRocket.  It contains the latest and greatest features, and
+        runs on any system supporting Java.</p>
+      <div class="left">
+        <img src="java_logo.png" alt="" />
+      </div>
       <div class="right support">
         <a href="http://sourceforge.net/donate/index.php?group_id=260357"><img src="project-support.jpg" width="88" height="32" alt="Support This Project" /></a>
       </div>
         <div class="downloadbox">
-    <a class="main" href="https://sourceforge.net/projects/openrocket/files/openrocket/1.1.9/OpenRocket-1.1.9.jar/download">
+    <a class="main" href="https://sourceforge.net/projects/openrocket/files/openrocket/12.03/OpenRocket-12.03.jar/download">
       <strong>Download now!</strong>
-      <span>OpenRocket-1.1.9.jar</span>
+      <span>OpenRocket-12.03.jar</span>
     </a>
     <span class="alternative">
-      <a href="https://sourceforge.net/projects/openrocket/files/openrocket/1.1.9/ReleaseNotes/view">Release notes</a> |
-            <a href="https://sourceforge.net/projects/openrocket/files/openrocket/1.1.9/OpenRocket-1.1.9-src.zip/download">Source code</a>
+      <a href="https://sourceforge.net/projects/openrocket/files/openrocket/12.03/ReleaseNotes/view">Release notes</a> |
+            <a href="https://sourceforge.net/projects/openrocket/files/openrocket/12.03/OpenRocket-12.03-src.zip/download">Source code</a>
     </span>
   </div>
-      <h3>Stable release</h3>
-      <p>Occasionally during OpenRocket development focus will shift
-	from feature development towards getting all open bugs fix and
-	to produce a stable release.  No updates are made to the
-	stable branch except for possible bug fixes, so the stable
-	release has less features than the development release.</p>
-      <p>The current stable release is
-	<tt><a class="main"
-	href="https://sourceforge.net/projects/openrocket/files/openrocket/1.0.0/OpenRocket-1.0.0.jar/download">OpenRocket-1.0.0.jar</a></tt></p>
-      <h3>Running OpenRocket</h3>
       <p>OpenRocket can be started in most graphical environments (including
 	Windows) by double-clicking the package icon.  No installation is
 	required.</p>
       <p>From the command line OpenRocket can be started by
-      <span class="command">java -jar OpenRocket-1.1.9.jar</span></p>
-	
+      <span class="command">java -jar OpenRocket-12.03.jar</span></p>
+      <h3>Android version</h3>
+      <p>The Android version allows opening OpenRocket files, viewing
+        simulations and motors.  Later versions will allow running
+        simulations as well.</p>
+      <p>The Android version is thanks to the fantastic work by Kevin
+        Ruland.</p>
+      <div class="left">
+        <img src="android_logo.png" alt="" />
+      </div>
+      <div class="instructions">
+        <p>Installation:</p>
+        <ol>
+          <li>Go to <em>Settings</em> &rarr; <em>Applications</em> and
+            check <em>Unknown sources</em>.</li>
+  	  <li>Download <a href="https://sourceforge.net/projects/openrocket/files/openrocket/12.03/OpenRocket-Android-12.03.apk/download">OpenRocket-Android-12.03.apk</a>
+	    on your device and accept installation.</li>
+        </ol>
+      </div>
     </div>
     <div class="clear"></div>
     <h2>Source code and older versions</h2>

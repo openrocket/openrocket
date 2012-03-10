@@ -25,7 +25,7 @@ public class Splash {
 	
 	// The right edge of the text base line for the version string
 	private static final int VERSION_POSITION_X = 617;
-	private static final int VERSION_POSITION_Y = 135;
+	private static final int VERSION_POSITION_Y = 138;
 	private static final Font VERSION_FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
 	private static final Color VERSION_COLOR = Color.WHITE;
 	
@@ -60,7 +60,7 @@ public class Splash {
 	}
 	
 	
-
+	
 	private static void drawVersionNumber(Graphics2D g2) {
 		String text = "Version " + BuildProperties.getVersion();
 		GlyphVector gv = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text);
@@ -69,7 +69,7 @@ public class Splash {
 		double width = rect.getWidth();
 		
 		g2.setColor(VERSION_COLOR);
-		g2.drawGlyphVector(gv, (float) (VERSION_POSITION_X - width), (float) VERSION_POSITION_Y);
+		g2.drawGlyphVector(gv, (float) (VERSION_POSITION_X - width), VERSION_POSITION_Y);
 		
 	}
 	
@@ -88,6 +88,6 @@ public class Splash {
 		}
 	}
 	
-
-
+	
+	
 }

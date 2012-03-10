@@ -415,8 +415,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		totalImpulseLabel = new JLabel();
 		panel.add(totalImpulseLabel, "split");
 		classificationLabel = new JLabel();
-		classificationLabel.setEnabled(false); // Gray
-		//		classificationLabel.setForeground(Color.GRAY);
+		classificationLabel.setEnabled(false); // Gray out
 		panel.add(classificationLabel, "gapleft unrel, wrap");
 		
 		//// Avg. thrust:

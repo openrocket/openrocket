@@ -34,7 +34,7 @@
       interested in contributing something to OpenRocket or simply want
       hear about and discuss future development.  Note that support
       requests should be sent to the 
-      <a href="http://apps.sourceforge.net/phpbb/openrocket/">support
+      <a href="http://www.rocketryforum.com/forumdisplay.php?f=36">support
       forums</a> instead!</p>
 
     <p><strong>Unsubscribing</strong> from the lists can be performed
@@ -44,24 +44,22 @@
 
     <h2>Support forums</h2>
 
-    <p>The main support channel for the usage of OpenRocket is the
-    support forums.  This way everybody can benefit from the answers
-    provided.</p>
+    <p>The official support forum for OpenRocket is the
+      <a href="http://www.rocketryforum.com/forumdisplay.php?f=36">Rocketry
+      Electronics and Software forum</a> at
+      <a href="http://www.rocketryforum.com/">The Rocketry Forum</a>.</p>
 
-    <p><em><a href="http://apps.sourceforge.net/phpbb/openrocket/">Go
-    to the support forums &rarr;</a></em></p>
-
+    <p>Please ask any questions on using OpenRocket on that forum,
+      where others can answer as well and gain knowledge from the
+      answers.</p>
 
     <h2 id="contact">Contact information</h2>
 
-    <p>OpenRocket is primarily developed by Sampo Niskanen.  His contact
+    <p>The main developer of OpenRocket is Sampo Niskanen.  His contact
     information can be found below.</p>
 
-    <p><em>If you would like to contribute something to OpenRocket, please
-    contact me!</em></p>
-
     <p><strong><em>Support requests</em></strong> should be sent to
-    the <a href="http://apps.sourceforge.net/phpbb/openrocket/">support 
+    the <a href="http://www.rocketryforum.com/forumdisplay.php?f=36">support 
     forums</a>.<br/>
 <!--    <strong><em>Bug reports and feature requests</em></strong> should
     be <a href="report.html">reported separately</a>.</p> -->

@@ -301,6 +301,11 @@ hr {
   margin: 2em 0em;
 }
 
+.left {
+  float: left;
+  margin: 0;
+}
+
 .right {
   float: right;
   margin: 0;
@@ -579,4 +584,8 @@ span.licenseimage {
     width: 100px;
     margin-left: 10px;
     margin-top: 2px;
+}
+
+.instructions {
+  margin-left: 100px;
 }

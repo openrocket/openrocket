@@ -9,6 +9,25 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">10.3.2012:</span> Version 12.03 for desktop
+    and Android is <a href="download.html">released</a>!</p>
+
+  <p>In this release the version numbering scheme has been changed.
+    From now on the version number is <em>YY.MM</em> indicating the
+    year and month of the release.  Bug fix releases are indicated by
+    an added "<em>.1</em>".</p>
+
+  <p>This also marks the first release for Android devices.  In this
+    first release you can open files and examine existing simulations,
+    stability data and motor files.  The Android port is thanks to
+    work by Kevin Ruland.</p>
+
+  <p>Enhancements in the desktop version include saving designs in RKT
+    format thanks to Doug Pedrick, configurable stage separation
+    events, guided help tours and displaying the computed motor
+    designation class.  The application has also been translated to
+    Italian by Mauro Biasutti and Russian by the Sky Dart Team.</p>
+
   <p><span class="date">24.11.2011:</span> Version 1.1.9 is 
     <a href="download.html">released</a>!</p>
 
@@ -35,6 +54,10 @@
     created <a href="http://openrocket.trans.free.fr/">a separate site</a>
     for coordinating the localization efforts for OpenRocket.</p>
   
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">12.8.2011:</span> Version 1.1.7 is 
     <a href="download.html">released</a>!</p>
 
@@ -47,10 +70,6 @@
     easy to optimize against particulars of the simulation methods,
     instead of true physical phenomena.  Always keep common sense at
     hand and take the results with a grain of salt.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">22.7.2011:</span> Version 1.1.6 is 
     <a href="download.html">released</a>!</p>
