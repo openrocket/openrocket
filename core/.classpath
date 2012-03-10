@@ -3,7 +3,6 @@
 	<classpathentry excluding="net/sf/openrocket/android/" kind="src" path="src"/>
 	<classpathentry kind="src" path="src-extra"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<accessrules>
 			<accessrule kind="nonaccessible" pattern="com/sun/**"/>
@@ -25,5 +24,6 @@
 	<classpathentry kind="lib" path="lib-test/jmock-junit4-2.6.0-RC2.jar"/>
 	<classpathentry kind="lib" path="lib-test/junit-dep-4.8.2.jar"/>
 	<classpathentry kind="lib" path="lib-test/uispec4j-2.3-jdk16.jar"/>
+	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

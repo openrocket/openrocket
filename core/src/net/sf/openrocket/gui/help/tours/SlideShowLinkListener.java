@@ -4,13 +4,19 @@ import java.awt.Desktop;
 import java.awt.Window;
 import java.net.URL;
 
+import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 
 public class SlideShowLinkListener implements HyperlinkListener {
+	
+	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
 	
 	private final Window parent;
 	
@@ -46,7 +52,9 @@ public class SlideShowLinkListener implements HyperlinkListener {
 				dialog.setSlideSet(ss, 0);
 				dialog.setVisible(true);
 			} catch (IllegalArgumentException e) {
-				Application.getExceptionHandler().handleErrorCondition("Guided tour '" + name + "' not found.");
+				log.warn("Guided tour '" + name + "' not found");
+				JOptionPane.showMessageDialog(parent,
+						trans.get("error.msg"), trans.get("error.title"), JOptionPane.WARNING_MESSAGE);
 			}
 			
 		}

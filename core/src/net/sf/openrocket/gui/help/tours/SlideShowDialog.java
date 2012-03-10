@@ -42,7 +42,7 @@ public class SlideShowDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		slideShowComponent = new SlideShowComponent();
-		slideShowComponent.addHyperlinkListener(new SlideShowLinkListener(parent));
+		slideShowComponent.addHyperlinkListener(new SlideShowLinkListener(this));
 		panel.add(slideShowComponent, "spanx, grow, wrap para");
 		
 		
@@ -93,7 +93,7 @@ public class SlideShowDialog extends JDialog {
 		nextButton.grabFocus();
 		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.rememberWindowSize(this);
-		this.setAlwaysOnTop(true);
+		//		this.setAlwaysOnTop(true);
 	}
 	
 	public void setSlideSet(SlideSet slideSet, int position) {

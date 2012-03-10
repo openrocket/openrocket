@@ -11,12 +11,12 @@ Introducción
 <p>Puede navegar utilizando los botones <b>Siguiente</b> y <b>Anterior</b>, o utilizando las flechas de desplazamiento <b><em>izq.</em></b> y <b><em>der.</em></b> de su teclado.
 
 
-[none]
-# FIXME: Añadir pantallas después de completar el diálogo
-
-<p>Esta es la pantalla de inicio desde la cual puede crear un nuevo diseño de cohete, o abrir diseños ya existentes.
-
-<p>En esta ocasión abra un diseño de ejemplo llamado <b><em>A simple model rocket</em></b>.
+#[none]
+## FIXME: Añadir pantallas después de completar el diálogo
+#
+#<p>Esta es la pantalla de inicio desde la cual puede crear un nuevo diseño de cohete, o abrir diseños ya existentes.
+#
+#<p>En esta ocasión abra un diseño de ejemplo llamado <b><em>A simple model rocket</em></b>.
 
 
 [main_window.jpg]
@@ -56,7 +56,7 @@ Introducción
 
 <p>Otras características más avanzadas son: el <em>Análisis de componentes</em> y la <em>Optimización</em> automática del diseño.
 
-<p>Seguidamente puede hacer un recorrido por <a href="FIXME">Crear un diseño de cohete</a>, navegar por otros apartados, o comenzar a experimentar con la aplicación creando su propio diseño de cohete.
+<p>Seguidamente puede hacer un recorrido por <a href="creating_design/creating_design.tour">Crear un diseño de cohete</a>, navegar por otros apartados, o comenzar a experimentar con la aplicación creando su propio diseño de cohete.
 
 
 

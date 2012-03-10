@@ -683,8 +683,7 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.user("Guided tours selected");
-				// FIXME:  Singleton
-				new GuidedTourSelectionDialog(BasicFrame.this).setVisible(true);
+				GuidedTourSelectionDialog.showDialog(BasicFrame.this);
 			}
 		});
 		menu.add(item);

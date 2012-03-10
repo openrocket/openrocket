@@ -15,14 +15,14 @@ et <b>Précédant</b>, ou en utilisant les flèches <em>gauche</em> et <em>droit
 </em> sur votre clavier.
 
 
-[none]
-# FIXME: Add screenshot after dialog is complete
-
-<p>Ceci est l'écran de démarrage depuis lequel vous pouvez créer une nouvelle fusée
-ou ouvrir des projets existant.
-
-<p>Pour ce tour d'horizon, ouvrons le projet exemple nommé <em>A simple model
-rocket</em>.
+#[none]
+## FIXME: Add screenshot after dialog is complete
+#
+#<p>Ceci est l'écran de démarrage depuis lequel vous pouvez créer une nouvelle fusée
+#ou ouvrir des projets existant.
+#
+#<p>Pour ce tour d'horizon, ouvrons le projet exemple nommé <em>A simple model
+#rocket</em>.
 
 
 [main_window.jpg]
@@ -77,7 +77,7 @@ dans les deux derniers onglets vous pouvez tracer ou exporter les résultats.
 <p>D'autres fonctionnalités avancées incluant l'analyse des pièces et une
 optimisation automatique du projet sont traités dans d'autres tours d'horizon.
 
-<p>Ensuite vous pouvez voir <a href="FIXME">Créer un projet fusée
+<p>Ensuite vous pouvez voir <a href="creating_design/creating_design.tour">Créer un projet fusée
 </a>, survoler d'autres tours d'horizons ou commencer à expérimenter le
 logiciel.
 

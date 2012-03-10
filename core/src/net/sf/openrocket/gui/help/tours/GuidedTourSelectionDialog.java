@@ -33,6 +33,7 @@ public class GuidedTourSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	private static GuidedTourSelectionDialog instance = null;
 	
 	
 	private final SlideSetManager slideSetManager;
@@ -178,5 +179,14 @@ public class GuidedTourSelectionDialog extends JDialog {
 	}
 	
 	
+	public static void showDialog(Window parent) {
+		if (instance != null && instance.isVisible()) {
+			instance.setVisible(true);
+			instance.toFront();
+		} else {
+			instance = new GuidedTourSelectionDialog(parent);
+			instance.setVisible(true);
+		}
+	}
 	
 }

@@ -7,6 +7,8 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
+import net.sf.openrocket.util.BugException;
+
 /**
  * An individual slide in a guided tour.  It contains a image (or reference to an
  * image file) plus a text description (in HTML).
@@ -65,12 +67,10 @@ public class Slide {
 			if (url != null) {
 				img = ImageIO.read(url);
 			} else {
-				//FIXME
-				img = null;
+				throw new BugException("Could not find image " + imageFile);
 			}
 		} catch (IOException e) {
-			// FIXME
-			img = null;
+			throw new BugException("Error reading image " + imageFile, e);
 		}
 		
 		return img;

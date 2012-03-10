@@ -11,13 +11,13 @@ Introduzione
 <b>Precedente</b> , o usando le frecce <em>sinistra</em> e <em>destra</em> della tua tastiera.
 
 
-[none]
-# FIXME: Add screenshot after dialog is complete
-
-<p>Questa è la finestra di avvio dalla quale puoi creare il disegno di un nuovo razzo o aprirne uno esistente.
-
-<p>Per questo tour, lasciami aprire un esempio chiamato <em>A simple model
-rocket</em>.
+#[none]
+## FIXME: Add screenshot after dialog is complete
+#
+#<p>Questa è la finestra di avvio dalla quale puoi creare il disegno di un nuovo razzo o aprirne uno esistente.
+#
+#<p>Per questo tour, lasciami aprire un esempio chiamato <em>A simple model
+#rocket</em>.
 
 
 [main_window.jpg]
@@ -62,7 +62,7 @@ Mostra le connessioni tra i componenti.
 
 <p>Altri tour trattano nello specifico diverse caratteristiche avanzate tra le quali l'analisi dei compononti e l'ottimizzazione automatica del progetto.
 
-<p>Puoi cominciare un tour da <a href="FIXME">Creating a rocket
+<p>Puoi cominciare un tour da <a href="creating_design/creating_design.tour">Creating a rocket
 design</a>, fai altri tour e comincia a prendere confidenza col programma.
 
 
