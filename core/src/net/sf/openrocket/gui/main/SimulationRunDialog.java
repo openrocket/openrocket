@@ -47,7 +47,7 @@ public class SimulationRunDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
-
+	
 	/** Update the dialog status every this many ms */
 	private static final long UPDATE_MS = 200;
 	
@@ -57,19 +57,15 @@ public class SimulationRunDialog extends JDialog {
 	/** Flight progress at apogee */
 	private static final double APOGEE_PROGRESS = 0.7;
 	
-
-	/*
-	 * The executor service is not static since we want concurrent simulation
-	 * dialogs to run in parallel, ie. they both have their own executor service.
-	 */
-	private final ExecutorService executor = Executors.newFixedThreadPool(
+	
+	private final static ExecutorService executor = Executors.newFixedThreadPool(
 			SwingPreferences.getMaxThreadCount());
 	
-
+	
 	private final JLabel simLabel, timeLabel, altLabel, velLabel;
 	private final JProgressBar progressBar;
 	
-
+	
 	/*
 	 * NOTE:  Care must be used when accessing the simulation parameters, since they
 	 * are being run in another thread.  Mutexes are used to avoid concurrent usage, which
@@ -85,7 +81,7 @@ public class SimulationRunDialog extends JDialog {
 	
 	public SimulationRunDialog(Window window, Simulation... simulations) {
 		//// Running simulations...
-		super(window, trans.get("SimuRunDlg.title.RunSim"), Dialog.ModalityType.DOCUMENT_MODAL);
+		super(window, trans.get("SimuRunDlg.title.RunSim"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		if (simulations.length == 0) {
 			throw new IllegalArgumentException("Called with no simulations to run");
@@ -93,7 +89,7 @@ public class SimulationRunDialog extends JDialog {
 		
 		this.simulations = simulations;
 		
-
+		
 		// Randomize the simulation random seeds
 		for (Simulation sim : simulations) {
 			sim.getOptions().randomizeSeed();
@@ -138,7 +134,7 @@ public class SimulationRunDialog extends JDialog {
 		progressBar = new JProgressBar();
 		panel.add(progressBar, "spanx, growx, wrap para");
 		
-
+		
 		// Add cancel button
 		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
@@ -149,7 +145,7 @@ public class SimulationRunDialog extends JDialog {
 		});
 		panel.add(cancel, "spanx, tag cancel");
 		
-
+		
 		// Cancel simulations when user closes the window
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -158,7 +154,7 @@ public class SimulationRunDialog extends JDialog {
 			}
 		});
 		
-
+		
 		this.add(panel);
 		this.setMinimumSize(new Dimension(300, 0));
 		this.setLocationByPlatform(true);
@@ -194,8 +190,8 @@ public class SimulationRunDialog extends JDialog {
 	}
 	
 	
-
-
+	
+	
 	private void updateProgress() {
 		int index;
 		for (index = 0; index < simulations.length; index++) {
@@ -242,7 +238,7 @@ public class SimulationRunDialog extends JDialog {
 	}
 	
 	
-
+	
 	/**
 	 * A SwingWorker that performs a flight simulation.  It periodically updates the
 	 * simulation statuses of the parent class and calls updateProgress().

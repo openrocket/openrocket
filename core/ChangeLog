@@ -1,3 +1,11 @@
+2012-03-13  Sampo Niskanne
+
+	* [BUG] Threads piled up when running simulations
+
+2012-03-11  Sampo Niskanen
+
+	* Update copyright statements
+
 2012-02-19  Sampo Niskanen
 
 	* Display computed motor class
