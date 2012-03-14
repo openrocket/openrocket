@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class AndroidLogWrapper {
 
-	private static final boolean logEnabled = true;
+	private static final boolean logEnabled = false;
 	
 	public static void d( Class clzz, String msg ) {
 		
