@@ -44,8 +44,8 @@ public class FreeformFinSet extends FinSet {
 		this.length = points.get(points.size()-1).x - points.get(0).x;
 	}
 	*/
-
-
+	
+	
 	/**
 	 * Convert an existing fin set into a freeform fin set.  The specified
 	 * fin set is taken out of the rocket tree (if any) and the new component
@@ -77,7 +77,7 @@ public class FreeformFinSet extends FinSet {
 				position = -1;
 			}
 			
-
+			
 			// Create the freeform fin set
 			Coordinate[] finpoints = finset.getFinPoints();
 			try {
@@ -118,7 +118,7 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	
-
+	
 	/**
 	 * Add a fin point between indices <code>index-1</code> and <code>index</code>.
 	 * The point is placed at the midpoint of the current segment.
@@ -166,14 +166,15 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	public void setPoints(Coordinate[] points) throws IllegalFinPointException {
-		ArrayList<Coordinate> list = new ArrayList<Coordinate>(points.length);
-		for (Coordinate p : points) {
-			list.add(p);
-		}
+		setPoints(Arrays.asList(points));
+	}
+	
+	public void setPoints(List<Coordinate> points) throws IllegalFinPointException {
+		ArrayList<Coordinate> list = new ArrayList<Coordinate>(points);
 		validate(list);
 		this.points = list;
 		
-		this.length = points[points.length - 1].x;
+		this.length = points.get(points.size() - 1).x;
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -230,8 +231,8 @@ public class FreeformFinSet extends FinSet {
 			
 		}
 		
-
-
+		
+		
 		// Check for intersecting
 		double px0, py0, px1, py1;
 		px0 = 0;
@@ -275,7 +276,7 @@ public class FreeformFinSet extends FinSet {
 	}
 	
 	
-
+	
 	private boolean intersects(double ax0, double ay0, double ax1, double ay1,
 			double bx0, double by0, double bx1, double by1) {
 		
@@ -326,7 +327,7 @@ public class FreeformFinSet extends FinSet {
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = i + 2; j < n - 1; j++) {
 				if (intersects(pts.get(i).x, pts.get(i).y, pts.get(i + 1).x, pts.get(i + 1).y,
-								pts.get(j).x, pts.get(j).y, pts.get(j + 1).x, pts.get(j + 1).y)) {
+						pts.get(j).x, pts.get(j).y, pts.get(j + 1).x, pts.get(j + 1).y)) {
 					throw new IllegalFinPointException("segments intersect");
 				}
 			}

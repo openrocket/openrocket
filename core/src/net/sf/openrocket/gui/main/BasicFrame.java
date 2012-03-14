@@ -152,6 +152,7 @@ public class BasicFrame extends JFrame {
 	
 	
 	
+	
 	/**
 	 * Sole constructor.  Creates a new frame based on the supplied document
 	 * and adds it to the current frames list.

@@ -19,7 +19,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -52,10 +51,9 @@ public class ScaleScrollPane extends JScrollPane
 	public static final int MINOR_TICKS = 3;
 	public static final int MAJOR_TICKS = 30;
 	
-
+	
 	private JComponent component;
 	private ScaleFigure figure;
-	private JViewport viewport;
 	
 	private DoubleModel rulerUnit;
 	private Ruler horizontalRuler;
@@ -92,7 +90,7 @@ public class ScaleScrollPane extends JScrollPane
 		this.figure = (ScaleFigure) component;
 		this.allowFit = allowFit;
 		
-
+		
 		rulerUnit = new DoubleModel(0.0, UnitGroup.UNITS_LENGTH);
 		rulerUnit.addChangeListener(new ChangeListener() {
 			@Override
@@ -114,8 +112,7 @@ public class ScaleScrollPane extends JScrollPane
 		
 		this.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
-
-		viewport = this.getViewport();
+		
 		viewport.addMouseListener(this);
 		viewport.addMouseMotionListener(this);
 		
@@ -183,7 +180,7 @@ public class ScaleScrollPane extends JScrollPane
 	}
 	
 	
-
+	
 	public double getScaling() {
 		return figure.getScaling();
 	}
@@ -209,7 +206,7 @@ public class ScaleScrollPane extends JScrollPane
 	
 	////////////////  Mouse handlers  ////////////////
 	
-
+	
 	private int dragStartX = 0;
 	private int dragStartY = 0;
 	private Rectangle dragRectangle = null;
@@ -257,10 +254,10 @@ public class ScaleScrollPane extends JScrollPane
 	}
 	
 	
-
+	
 	////////////////  The view port rulers  ////////////////
 	
-
+	
 	private class Ruler extends JComponent {
 		public static final int HORIZONTAL = 0;
 		public static final int VERTICAL = 1;
@@ -326,7 +323,7 @@ public class ScaleScrollPane extends JScrollPane
 			g2.setColor(getBackground());
 			g2.fillRect(area.x, area.y, area.width, area.height + 100);
 			
-
+			
 			int startpx, endpx;
 			if (orientation == HORIZONTAL) {
 				startpx = area.x;
@@ -345,7 +342,7 @@ public class ScaleScrollPane extends JScrollPane
 			
 			Tick[] ticks = unit.getTicks(start, end, minor, major);
 			
-
+			
 			// Set color & hints
 			g2.setColor(Color.BLACK);
 			g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,

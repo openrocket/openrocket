@@ -1,3 +1,7 @@
+2012-03-14  Jason Blood
+
+	* Importing images to freeform fin sets
+
 2012-03-13  Sampo Niskanne
 
 	* [BUG] Threads piled up when running simulations

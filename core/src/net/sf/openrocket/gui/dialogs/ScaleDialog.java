@@ -67,7 +67,7 @@ public class ScaleDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
-
+	
 	/*
 	 * Scaler implementations
 	 * 
@@ -179,9 +179,9 @@ public class ScaleDialog extends JDialog {
 	}
 	
 	
-
-
-
+	
+	
+	
 	private static final double DEFAULT_INITIAL_SIZE = 0.1; // meters
 	private static final double SCALE_MIN = 0.01;
 	private static final double SCALE_MAX = 100.0;
@@ -190,18 +190,19 @@ public class ScaleDialog extends JDialog {
 	private static final String SCALE_SUBSELECTION = trans.get("lbl.scaleSubselection");
 	private static final String SCALE_SELECTION = trans.get("lbl.scaleSelection");
 	
-
-
-
+	
+	
+	
 	private final DoubleModel multiplier = new DoubleModel(1.0, UnitGroup.UNITS_RELATIVE, SCALE_MIN, SCALE_MAX);
 	private final DoubleModel fromField = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
 	private final DoubleModel toField = new DoubleModel(0, UnitGroup.UNITS_LENGTH, 0);
 	
 	private final OpenRocketDocument document;
 	private final RocketComponent selection;
+	private final boolean onlySelection;
 	
-	private final JComboBox selectionOption;
-	private final JCheckBox scaleMassValues;
+	private JComboBox selectionOption;
+	private JCheckBox scaleMassValues;
 	
 	private boolean changing = false;
 	
@@ -213,14 +214,32 @@ public class ScaleDialog extends JDialog {
 	 * @param parent		the parent window.
 	 */
 	public ScaleDialog(OpenRocketDocument document, RocketComponent selection, Window parent) {
+		this(document, selection, parent, false);
+	}
+	
+	/**
+	 * Sole constructor.
+	 * 
+	 * @param document		the document to modify.
+	 * @param selection		the currently selected component (or <code>null</code> if none selected).
+	 * @param parent		the parent window.
+	 * @param onlySelection	true to only allow scaling on the selected component (not the whole rocket)
+	 */
+	public ScaleDialog(OpenRocketDocument document, RocketComponent selection, Window parent, Boolean onlySelection) {
 		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
 		
 		this.document = document;
 		this.selection = selection;
+		this.onlySelection = onlySelection;
 		
+		init();
+	}
+	
+	private void init() {
 		// Generate options for scaling
 		List<String> options = new ArrayList<String>();
-		options.add(SCALE_ROCKET);
+		if (!onlySelection)
+			options.add(SCALE_ROCKET);
 		if (selection != null && selection.getChildCount() > 0) {
 			options.add(SCALE_SUBSELECTION);
 		}
@@ -228,7 +247,7 @@ public class ScaleDialog extends JDialog {
 			options.add(SCALE_SELECTION);
 		}
 		
-
+		
 		/*
 		 * Select initial size for "from" field.
 		 * 
@@ -262,7 +281,7 @@ public class ScaleDialog extends JDialog {
 		fromField.setValue(initialSize);
 		toField.setValue(initialSize);
 		
-
+		
 		// Add actions to the values
 		multiplier.addChangeListener(new ChangeListener() {
 			@Override
@@ -295,13 +314,13 @@ public class ScaleDialog extends JDialog {
 			}
 		});
 		
-
-
+		
+		
 		String tip;
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		this.add(panel);
 		
-
+		
 		// Scaling selection
 		tip = trans.get("lbl.scale.ttip");
 		JLabel label = new JLabel(trans.get("lbl.scale"));
@@ -313,14 +332,14 @@ public class ScaleDialog extends JDialog {
 		selectionOption.setToolTipText(tip);
 		panel.add(selectionOption, "growx, wrap para*2");
 		
-
+		
 		// Scale multiplier
 		tip = trans.get("lbl.scaling.ttip");
 		label = new JLabel(trans.get("lbl.scaling"));
 		label.setToolTipText(tip);
 		panel.add(label, "gapright unrel");
 		
-
+		
 		JSpinner spin = new JSpinner(multiplier.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
@@ -333,7 +352,7 @@ public class ScaleDialog extends JDialog {
 		slider.setToolTipText(tip);
 		panel.add(slider, "w 100lp, growx, wrap para");
 		
-
+		
 		// Scale from ... to ...
 		tip = trans.get("lbl.scaleFromTo.ttip");
 		label = new JLabel(trans.get("lbl.scaleFrom"));
@@ -362,7 +381,7 @@ public class ScaleDialog extends JDialog {
 		unit.setToolTipText(tip);
 		panel.add(unit, "w 30lp, wrap para*2");
 		
-
+		
 		// Scale override
 		scaleMassValues = new JCheckBox(trans.get("checkbox.scaleMass"));
 		scaleMassValues.setToolTipText(trans.get("checkbox.scaleMass.ttip"));
@@ -377,7 +396,7 @@ public class ScaleDialog extends JDialog {
 		scaleMassValues.setEnabled(overridden);
 		panel.add(scaleMassValues, "span, wrap para*3");
 		
-
+		
 		// Buttons
 		
 		JButton scale = new JButton(trans.get("button.scale"));
@@ -399,13 +418,13 @@ public class ScaleDialog extends JDialog {
 		});
 		panel.add(cancel, "right, gap para");
 		
-
-
+		
+		
 		GUIUtil.setDisposableDialogOptions(this, scale);
 	}
 	
 	
-
+	
 	private void doScale() {
 		double mul = multiplier.getValue();
 		if (!(SCALE_MIN <= mul && mul <= SCALE_MAX)) {
@@ -502,7 +521,7 @@ public class ScaleDialog extends JDialog {
 	}
 	
 	
-
+	
 	/**
 	 * Interface for scaling a specific component/value.
 	 */

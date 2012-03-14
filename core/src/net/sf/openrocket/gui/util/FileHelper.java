@@ -1,15 +1,16 @@
 package net.sf.openrocket.gui.util;
 
+import java.awt.Component;
+import java.io.File;
+import java.io.IOException;
+
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
-
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Helper methods related to user-initiated file manipulation.
@@ -22,7 +23,7 @@ public final class FileHelper {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
-
+	
 	// TODO: HIGH: Rename translation keys
 	
 	/** File filter for any rocket designs (*.ork, *.rkt) */
@@ -46,13 +47,24 @@ public final class FileHelper {
 	public static final FileFilter CSV_FILE_FILTER =
 			new SimpleFileFilter(trans.get("SimExpPan.desc"), ".csv");
 	
+	/** File filter for BMP files (*.bmp) */
+	public static final FileFilter BMP_FILE_FILTER =
+			new SimpleFileFilter(trans.get("CustomFinImport.filter"), ".bmp");
 	
-
-
-
+	
+	
+	
+	
 	private FileHelper() {
 		// Prevent instantiation
 	}
+	
+	
+	//	public FileFilter getImageFileFilter() {
+	//		String[] extensions = ImageIO.getReaderFileSuffixes();
+	//		
+	//	}
+	
 	
 	/**
 	 * Ensure that the provided file has a file extension.  If the file does not have
@@ -76,31 +88,31 @@ public final class FileHelper {
 	
 	/**
 	 * Ensure that the provided file has the given file extension.  This differs from ensureExtension in that this
-     * method guarantees that the file will have the extension, whereas ensureExtension only treats the extension
-     * as a default.
+	 * method guarantees that the file will have the extension, whereas ensureExtension only treats the extension
+	 * as a default.
 	 *
 	 * @param original		the original file
 	 * @param extension		the extension to guarantee (without preceding dot)
 	 * @return				the resulting file
 	 */
 	public static File forceExtension(File original, String extension) {
-
+		
 		if (!original.getName().toLowerCase().endsWith(extension.toLowerCase())) {
 			log.debug(1, "File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();
-            if (extension.startsWith(".")) {
-                name = name + extension;
-            }
-            else {
-    			name = name + "." + extension;
-            }
-            return new File(name);
+			if (extension.startsWith(".")) {
+				name = name + extension;
+			}
+			else {
+				name = name + "." + extension;
+			}
+			return new File(name);
 		}
-
+		
 		return original;
 	}
-
-
+	
+	
 	/**
 	 * Confirm that it is allowed to write to a file.  If the file exists,
 	 * a confirmation dialog will be presented to the user to ensure overwriting is ok.
