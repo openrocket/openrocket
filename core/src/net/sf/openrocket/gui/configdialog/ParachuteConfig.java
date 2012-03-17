@@ -41,7 +41,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-
+		
 		//// Canopy
 		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Canopy"), Style.BOLD), "wrap unrel");
 		
@@ -56,21 +56,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.4, 1.5)), "w 100lp, wrap");
 		
-		//// Material:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
-		
-		JComboBox combo = new JComboBox(new MaterialModel(panel, component,
-				Material.Type.SURFACE));
-		//// The component material affects the weight of the component.
-		combo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
-		panel.add(combo, "spanx 3, growx, wrap paragraph");
-		
-		//		materialPanel(panel, Material.Type.SURFACE, "Material:", null);
-		
-
-
 		// CD
-		//// <html>Drag coefficient C<sub>D</sub>:
 		JLabel label = new HtmlLabel(trans.get("ParachuteCfg.lbl.longA1"));
 		String tip = trans.get("ParachuteCfg.lbl.longB1") +
 				trans.get("ParachuteCfg.lbl.longB2") + "  " +
@@ -94,10 +80,19 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				p.setCD(Parachute.DEFAULT_CD);
 			}
 		});
-		panel.add(button, "spanx, wrap 30lp");
+		panel.add(button, "spanx, wrap para");
 		
-
-
+		//// Material:
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Material")));
+		
+		JComboBox combo = new JComboBox(new MaterialModel(panel, component,
+				Material.Type.SURFACE));
+		combo.setToolTipText(trans.get("ParachuteCfg.combo.MaterialModel"));
+		panel.add(combo, "spanx 3, growx, wrap 30lp");
+		
+		
+		
+		
 		////  Shroud lines
 		panel.add(new StyledLabel(trans.get("ParachuteCfg.lbl.Shroudlines"), Style.BOLD), "wrap unrel");
 		
@@ -127,14 +122,14 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				"LineMaterial"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
-
-
+		
+		
 		primary.add(panel, "grow, gapright 20lp");
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-
-
-
+		
+		
+		
 		//// Position
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Posrelativeto")));
@@ -146,7 +141,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx, growx, wrap");
 		
 		//// plus
@@ -163,7 +158,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 		
-
+		
 		////  Spatial length
 		//// Packed length:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packedlength")));
@@ -177,7 +172,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
 		
-
+		
 		//// Tube diameter
 		//// Packed diameter:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Packeddiam")));
@@ -192,7 +187,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 30lp");
 		
-
+		
 		//// Deployment
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat")), "");
@@ -230,7 +225,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(slider);
 		panel.add(slider, "w 100lp, wrap");
 		
-
+		
 		primary.add(panel, "grow");
 		
 		updateFields();
@@ -244,9 +239,9 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 	}
 	
 	
-
-
-
+	
+	
+	
 	protected JPanel positionTab() {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
@@ -263,7 +258,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 		
-
+		
 		//// Radial direction:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdirection")));
 		
@@ -276,7 +271,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
-
+		
 		//// Reset button
 		JButton button = new JButton(trans.get("ParachuteCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {
