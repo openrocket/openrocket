@@ -35,11 +35,11 @@ public class TestClassBasedTranslator {
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
-				oneOf(translator).get("TestClassBasedTranslator.fake.key"); will(returnValue("foobar")); 
+				oneOf(translator).get("TestClassBasedTranslator.fake.key1"); will(returnValue("foobar")); 
 		}});
 		// @formatter:on
 		
-		assertEquals("foobar", cbt.get("fake.key"));
+		assertEquals("foobar", cbt.get("fake.key1"));
 	}
 	
 	
@@ -49,12 +49,12 @@ public class TestClassBasedTranslator {
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
-			oneOf(translator).get("TestClassBasedTranslator.fake.key"); will(throwException(new MissingResourceException("a", "b", "c"))); 
-			oneOf(translator).get("fake.key"); will(returnValue("barbaz")); 
+			oneOf(translator).get("TestClassBasedTranslator.fake.key2"); will(throwException(new MissingResourceException("a", "b", "c"))); 
+			oneOf(translator).get("fake.key2"); will(returnValue("barbaz")); 
 		}});
 		// @formatter:on
 		
-		assertEquals("barbaz", cbt.get("fake.key"));
+		assertEquals("barbaz", cbt.get("fake.key2"));
 	}
 	
 	
@@ -64,15 +64,15 @@ public class TestClassBasedTranslator {
 		
 		// @formatter:off
 		context.checking(new Expectations() {{
-			oneOf(translator).get("TestClassBasedTranslator.fake.key"); will(throwException(new MissingResourceException("a", "b", "c"))); 
-			oneOf(translator).get("fake.key"); will(throwException(new MissingResourceException("a", "b", "c"))); 
+			oneOf(translator).get("TestClassBasedTranslator.fake.key3"); will(throwException(new MissingResourceException("a", "b", "c"))); 
+			oneOf(translator).get("fake.key3"); will(throwException(new MissingResourceException("a", "b", "c"))); 
 		}});
 		// @formatter:on
 		
 		try {
-			fail("Returned: " + cbt.get("fake.key"));
+			fail("Returned: " + cbt.get("fake.key3"));
 		} catch (MissingResourceException e) {
-			assertEquals("Neither key 'TestClassBasedTranslator.fake.key' nor 'fake.key' could be found", e.getMessage());
+			assertEquals("Neither key 'TestClassBasedTranslator.fake.key3' nor 'fake.key3' could be found", e.getMessage());
 		}
 		
 	}
