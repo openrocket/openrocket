@@ -60,7 +60,7 @@
 	<target name="jar" depends="build">
 		<copy todir="${dist.dir}/">
 			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
-			<fileset dir="resources/" includes="datafiles/ pix/ l10n/ build.properties" />
+			<fileset dir="resources/"/>
 			<fileset dir="src/" includes="META-INF/" />
 		</copy>
 		<mkdir dir="${jar.dir}"/>
@@ -88,7 +88,7 @@
 			<fileset dir="." includes="*" excludes="*.log">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="" includes="resources/datafiles/ lib/ lib-test/ resources/pix/ src/ test/ resources/l10n/"/>
+			<fileset dir="." includes="resources/ lib/ lib-test/ src/ test/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
