@@ -4,7 +4,7 @@ Crear un diseño de cohete básico
 <p>Este tema muestra cómo crear un diseño de cohete básico desde el principio.
 
 
-[initial_es.jpg]
+[main-0-initial.jpg]
 
 <p>Cuando elija crear un diseño nuevo, se le abrirá un diseño en blanco y aparecerá el cuadro de diálogo <em>Configuración del cohete</em>.
 
@@ -15,62 +15,62 @@ Crear un diseño de cohete básico
 
 
 
-[main-1_es.jpg]
+[main-1-nosecone.jpg]
 
 <p>Seguidamente añadimos una <em>Ojiva</em> al diseño haciendo clic sobre el icono del componente correspondiente.  Se abrirá la ventana de configuración de la Ojiva. 
 
 
 
-[dialog-1_es.jpg]
+[dialog-1-nosecone.jpg]
 
 <p>La ventana de configuración contiene los parámetros de configuración para la forma de la Ojiva, dimensiones y material.  Establezca la longitud de la Ojiva a 10&nbsp;cm, el diámetro de la base a 2.5&nbsp;cm, y el material a Cartón (0.68 g/cm^3).
 
 <p>Para cambiar a pulgadas, haga clic sobre la unidad de medida, o bien modifique las unidades por defecto en <a href="FIXME">Preferencias</a>.
 
 
-[main-2_es.jpg]
+[main-2-bodytube.jpg]
 
 <p>La ventana de diseño muestra la Ojiva.  Seguidamente añadimos el <em>Cuerpo tubular</em> al diseño, haciendo clic sobre el icono correspondiente. 
 
 
 
-[dialog-2_es.jpg]
+[dialog-2-bodytube.jpg]
 
 <p>Modifique la longitud del cuerpo a 25&nbsp;cm.  El casillero para el diámetro exterior <em>Automático</em> está marcado por defecto, en este caso el diámetro exterior se establece de forma automática al mismo diámetro de la base de la Ojiva.
 
 
-[main-3_es.jpg]
+[main-3-finset.jpg]
 
 <p>Seguidamente añadiremos un <em>Juego de aletas Trapezoidales</em> al cohete.  
 
 <p>Para poder añadirlas, el Cuerpo tubular debe estar seleccionado en el árbol del diseño. Después haga clic sobre el icono del componente de aletas correspondiente.
 
 
-[dialog-3_es.jpg]
+[dialog-3-finset.jpg]
 
 <p>El juego de aletas trapezoidales posee una gran cantidad de parámetros de configuración. Los más importantes son: la longitud de la línea base, la longitud del borde superior, el ángulo de inclinación del borde de ataque, la altura y su localización en el cuerpo. 
 
 <p>Los valores establecidos por defecto son correctos para este ejemplo.
 
 
-[main-4_es.jpg]
+[main-4-innertube.jpg]
 
 <p>A continuación añadiremos un <em>Tubo interior</em> como porta-motor.  Primero seleccione el Cuerpo tubular en el árbol del diseño, y después haga clic sobre el icono correspondiente para añadirlo.
 
 
-[dialog-4_es.jpg]
+[dialog-4-innertube.jpg]
 
 <p>Las dimensiones por defecto están ajustadas para los motores ESTES de clase A hasta la C.  Para que el porta-motor sobresalga un poco, cambie el parámetro de la localización a <em>Extremo inferior del componente</em> con 0.5&nbsp;cm. En la pestaña “Motor” marque el casillero <em>Este componente es un porta motor</em>.
 
 
-[main-5_es.jpg]
+[main-5-centeringring.jpg]
 
 <p>Para añadir los <em>Anillos de centrado</em> que mantienen el porta-motor en su sitio, seleccione primero el Cuerpo tubular en el árbol de componentes y seguidamente haga clic sobre el icono correspondiente.
 
 <p><b>Aviso</b> Si tuviera seleccionado el Tubo interior en el árbol del diseño, al hacer clic sobre el icono del <em>Anillo de centrado</em> éste se añadirá en el interior del tubo porta-motor. Si se ha equivocado, utilice el menú <b>Edición</b> &rarr; <b>Deshacer</b> para deshacer la última acción.
 
 
-[dialog-5_es.jpg]
+[dialog-5-centeringring.jpg]
 
 <p>El casillero <em>Automático</em> está activado por defecto en los parámetros de las dimensiones del componente, por lo que el anillo de centrado se ajustará automáticamente a las dimensiones internas del Cuerpo tubular y a las dimensiones externas del Tubo porta-motor.
 
@@ -79,26 +79,26 @@ Crear un diseño de cohete básico
 <p>Seguidamente agregue otro anillo de centrado en el borde trasero del Cuerpo tubular, poniendo el parámetro de la localización a cero.
 
 
-[main-6_es.jpg]
+[main-6-parachute.jpg]
 
 <p>A continuación incorporaremos un <em>Paracaídas</em> al Cuerpo tubular. Primero seleccione el Cuerpo tubualr en el árbol del diseño, y después haga clic sobre el icono del Paracaídas.
 
 
-[dialog-6_es.jpg]
+[dialog-6-parachute.jpg]
 
 <p>El <em>diámetro del pabellón</em> y el <em>coeficiente de arrastre</em> determinan la velocidad con la que el paracaídas hará descender el cohete a tierra. El <em>material</em> y las <em>cuerdas</em> tienen su efecto en la masa total del cohete, mientras que la longitud del <em>empaquetado</em>, el <em>diámetro</em> y la <em>posición</em> afectan al tamaño del empaquetado y la ubicación del paracaídas en el diseño.
 
 <p>La propiedad <em>Desplegar en</em> puede establecerse para indicar el instante en el que se despliega el paracaídas.  Con la opción <em>Primera carga de eyección de ésta etapa</em> se desplegará el paracaídas en el instante en el que se quema la carga de eyección del motor, que es lo habitual en los pequeños modelos de cohete.
 
 
-[main-7_es.jpg]
+[main-7-rest.jpg]
 
 <p>Ahora los aspectos funcionales del diseño del cohete ya están completados.
 
 <p>Para completarlo aún más, puede añadir un componente <em>Masa</em> al Cuerpo tubular para el algodón ignífugo, y un <em>Retén de motor</em> en el interior del Tubo interior para mantener el motor en su sitio y así evitar que pueda desplazarse por el interior del cohete.
 
 
-[final_es.jpg]
+[main-8-final.jpg]
 
 <p>El diseño del cohete ya está completo.
 

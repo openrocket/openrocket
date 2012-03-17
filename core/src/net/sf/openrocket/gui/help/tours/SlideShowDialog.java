@@ -42,7 +42,7 @@ public class SlideShowDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		slideShowComponent = new SlideShowComponent();
-		slideShowComponent.addHyperlinkListener(new SlideShowLinkListener(this));
+		slideShowComponent.addHyperlinkListener(new SlideShowLinkListener(parent));
 		panel.add(slideShowComponent, "spanx, grow, wrap para");
 		
 		

@@ -4,19 +4,19 @@ Crea un semplice progetto di razzo
 <p>Questo tour mostra come creare un semplice progetto di razzo da zero.
 
 
-[initial.jpg]
+[main-0-initial.jpg]
 
 <p>Quando scegli di creare un nuovo progetto, ti viene mostrato un progetto vuoto con in primo piano la finestra  <em>Configurazione razzo</em> .
 Qui puoi inserire le informazioni generali del tuo progetto, come il nome del razzo, il progettista, commenti e informazioni di revisione.
 
 <p>Puoi anche riaprirla in seguito facendo doppio click sul componente radice (il razzo stesso) nell'albero.
 
-[main-1.jpg]
+[main-1-nosecone.jpg]
 
 <p>Poi, aggiungi un <em>Naso</em> al progetto cliccando nel corrispettivo pulsante di aggiunta.  Questo apre la finestra di configurazione del naso.
 
 
-[dialog-1.jpg]
+[dialog-1-nosecone.jpg]
 
 <p>La finestra contiene,tra le altre, le impostazione della forma, del diametro e del materiale.  Imposta la lunghezza a  10&nbsp;cm,
 il diametro di base  a 2.5&nbsp;cm ed il materiale a Polystyrene (plastic).
@@ -24,41 +24,41 @@ il diametro di base  a 2.5&nbsp;cm ed il materiale a Polystyrene (plastic).
 <p>Per usare i pollici invece dei centimetri, o clicca sull'unità per cambiarla temporaneamente, o cambia l'unità di misura predefinita in <a href="FIXME">Preferenze</a>.
 
 
-[main-2.jpg]
+[main-2-bodytube.jpg]
 
 <p>La finestra di disegno mostra il naso.  Poi, aggiungi al disegno un <em>corpo</em>.
 
 
-[dialog-2.jpg]
+[dialog-2-bodytube.jpg]
 
 <p>Cambia la lunghezza del corpo a 25&nbsp;cm.  L'opzione <em>Automatico</em>
 per il diametro esterno è già marcata, in questo caso il diametro viene fissato uguale a quello del naso in modo automatico.
 
 
-[main-3.jpg]
+[main-3-finset.jpg]
 
 <p>Poi, aggiungi al razzo l'insieme di pinne <em>Trapezoidale</em> .  Per far ciò deve essere selezionato il corpo.
 
 
-[dialog-3.jpg]
+[dialog-3-finset.jpg]
 
 <p>Puoi cambiare numerosi parametri nella configurazione delle pinne.  I più importanti sono la lunghezza prossima al tubo e quella prossima alla punta, l'altezza e l'inclinazione.
 
 <p>I valori preimpostati vanno bene per il progetto d'esempio.
 
 
-[main-4.jpg]
+[main-4-innertube.jpg]
 
 <p>Poi, aggiungi un <em>Tubo interno</em> come alloggiamento per il motore.  Seleziona il corpo e poi clicca sul pulsante di aggiunta corrispondente.
 
 
-[dialog-4.jpg]
+[dialog-4-innertube.jpg]
 
 <p>Le dimensioni predefinite vanno bene per i motori Estes delle classi A-B-C.  Per far sporgere un po' il motore, cambia il parametro posizione relativa a 
 <em>Parte bassa del componente genitore</em> piu' 0.5&nbsp;cm.
 
 
-[main-5.jpg]
+[main-5-centeringring.jpg]
 
 <p>Per aggiungere gli <em>Anelli di centraggio</em> per mantenere l'alloggia motore nella sua sede, seleziona il corpo e clicca sul pulsante Anelli di centraggio.
 
@@ -66,7 +66,7 @@ per il diametro esterno è già marcata, in questo caso il diametro viene fissat
 <b>Annulla</b> per annullare l'ultima azione.)
 
 
-[dialog-5.jpg]
+[dialog-5-centeringring.jpg]
 
 <p>Quando le caselle di selezione <em>Automatico</em> sono selezionate l' Anello di centraggio sceglie gli appropriati diametri esterno ed interno.
 
@@ -76,12 +76,12 @@ per il diametro esterno è già marcata, in questo caso il diametro viene fissat
 <p>Poi aggiungi un altro Anello di centraggio alla parte posteriore azzerando il parametro posizione.
 
 
-[main-6.jpg]
+[main-6-parachute.jpg]
 
 <p>Poi aggiungi un <em>Paracadute</em> al corpo.
 
 
-[dialog-6.jpg]
+[dialog-6-parachute.jpg]
 
 <p>Il <em>Diametro</em> ed il  <em>Coefficiente d'attrito</em>
 determinano quanto il paracadute rallenta la discesa del razzo.
@@ -92,14 +92,14 @@ Il <em>materiale</em> e <em>Funi</em> modificano la massa totale.   <em>Lunghezz
 farà uscire il paracadute quando si innescherà la carica , caso tipico dei piccoli razzi.
 
 
-[main-7.jpg]
+[main-7-rest.jpg]
 
 <p>Adesso l'aspetto funzionale del progetto è concluso.
 
 <p>Per completezza puoi anche aggiungere una  <em>Zavorra</em> al corpo del razzo per l'imbottitura tampone,e un <em>Blocca motore</em> al tubo interno per mantenere in sede il motore.
 
 
-[final.jpg]
+[main-8-final.jpg]
 
 <p>Il razzo è completo!
 

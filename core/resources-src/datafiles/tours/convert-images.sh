@@ -6,7 +6,7 @@
 # files into the suitably sized jpg images in the datafiles directory.
 #
 
-DEST=../../datafiles/tours
+DEST=../../../resources/datafiles/tours
 
 CONVERSION="-background #ececec -flatten -geometry 600x400 -quality 85"
 
