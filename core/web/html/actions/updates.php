@@ -80,29 +80,49 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "1.1.9";
+$unstable = "12.03";
 $stable = "1.0.0";
 
-if (preg_match("/^1\.1\.8$/", $version)) {
+if (preg_match("/^1\.1\.9$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
+    "5: Configurable stage separation\n" .
+    "5: Guided tours\n" .
+    "4: Freeform fin import from images\n" .
+    "4: Translations to Italian and Russian\n" .
+    "";
+} else if (preg_match("/^1\.1\.8$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "6: Additional template printing\n" .
     "5: Geodetic computations\n" .
+    "5: Configurable stage separation\n" .
+    "5: Guided tours\n" .
+    "4: Freeform fin import from images\n" .
+    "4: Translations to Italian and Russian\n" .
     "4: Bug fixes\n" .
     "";
 } else if (preg_match("/^1\.1\.7$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "6: Additional template printing\n" .
     "5: Geodetic computations\n" .
+    "5: Configurable stage separation\n" .
+    "5: Guided tours\n" .
+    "4: Freeform fin import from images\n" .
+    "4: Translations to Italian and Russian\n" .
     "4: Bug fixes\n" .
     "";
 } else if (preg_match("/^1\.1\.6$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "8: Automatic rocket design optimization\n" .
     "6: Additional template printing\n" .
     "5: Geodetic computations\n" .
     "";
 } else if (preg_match("/^1\.1\.5$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "8: Automatic rocket design optimization\n" .
     "6: Initial localization support\n" .
     "6: Additional template printing\n" .
@@ -112,6 +132,7 @@ if (preg_match("/^1\.1\.8$/", $version)) {
     "";
 } else if (preg_match("/^1\.1\.4$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "8: Automatic rocket design optimization\n" .
     "6: Initial localization support\n" .
     "5: Fixes to printing system\n" .
@@ -119,6 +140,7 @@ if (preg_match("/^1\.1\.8$/", $version)) {
     "";
 } else if (preg_match("/^1\.1\.3$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "8: Automatic rocket design optimization\n" .
     "7: Initial printing support\n" .
     "6: Initial localization support\n" .
@@ -127,6 +149,7 @@ if (preg_match("/^1\.1\.8$/", $version)) {
     "";
 } else if (preg_match("/^1\.1\.[12]$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "8: Automatic rocket design optimization\n" .
     "6: Initial printing support\n" .
     "5: Initial drag-and-drop support\n" .
@@ -136,6 +159,7 @@ if (preg_match("/^1\.1\.8$/", $version)) {
     "";
 } else if (preg_match("/^1\.1\.0$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
+    "8: Writing RKT files\n" .
     "8: Automatic rocket design optimization\n" .
     "6: Initial printing support\n" .
     "6: Initial localization support\n" .
@@ -146,11 +170,13 @@ if (preg_match("/^1\.1\.8$/", $version)) {
     "";
 } else if (preg_match("/^0\.9\.6/", $version)) {
   $updates = "Version: " . $stable . "\n" .
+    "8: Writing RKT files\n" .
     "6: Hundreds of new thrustcurves\n" .
     "5: Bug fixes\n" .
     "";
 } else if (preg_match("/^0\.9\.[45]/", $version)) {
   $updates = "Version: " . $stable . "\n" .
+    "8: Writing RKT files\n" .
     "7: Hundreds of new thrustcurves\n" .
     "6: Aerodynamic computation updates\n" .
     "5: Numerous bug fixes" .

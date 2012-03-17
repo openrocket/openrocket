@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<openrocket version="1.0" creator="OpenRocket 0.9.7pre">
+<openrocket version="1.4" creator="OpenRocket 12.03">
   <rocket>
     <name>A clustered rocket</name>
     <comment>Edit the &quot;Clustered Inner Tube&quot; and see the &quot;Cluster&quot; tab for clustering options.</comment>
@@ -21,13 +21,13 @@
             <finish>normal</finish>
             <material type="bulk" density="1050.0">Polystyrene</material>
             <length>0.1</length>
-            <thickness>0.0020</thickness>
+            <thickness>0.002</thickness>
             <shape>ellipsoid</shape>
             <shapeclipped>false</shapeclipped>
             <aftradius>0.0275</aftradius>
             <aftshoulderradius>0.024</aftshoulderradius>
             <aftshoulderlength>0.035</aftshoulderlength>
-            <aftshoulderthickness>0.0020</aftshoulderthickness>
+            <aftshoulderthickness>0.002</aftshoulderthickness>
             <aftshouldercapped>true</aftshouldercapped>
           </nosecone>
 
@@ -36,13 +36,13 @@
             <finish>normal</finish>
             <material type="bulk" density="680.0">Cardboard</material>
             <length>0.6</length>
-            <thickness>0.0010</thickness>
+            <thickness>0.001</thickness>
             <radius>auto</radius>
 
             <subcomponents>
               <innertube>
                 <name>Clustered Inner Tube</name>
-                <position type="bottom">0.0050</position>
+                <position type="bottom">0.005</position>
                 <comment>Clustering the inner tube automatically multiplies also the components attached to it.
 The cluster configuration can be modified at any point in the &quot;Cluster&quot; tab.</comment>
                 <material type="bulk" density="680.0">Cardboard</material>
@@ -58,6 +58,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                   <motor configid="da326836-0959-4c94-bcd5-49dee07235a4">
                     <type>single</type>
                     <manufacturer>Estes</manufacturer>
+                    <digest>22aec01287ea1e3b8c6f66b26fe5fea6</digest>
                     <designation>A8</designation>
                     <diameter>0.018</diameter>
                     <length>0.07</length>
@@ -66,6 +67,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                   <motor configid="05896b5a-71a7-48ac-b7ae-eadeb267975b">
                     <type>single</type>
                     <manufacturer>Estes</manufacturer>
+                    <digest>c15b9b96bf06e0ab896394787da3c47e</digest>
                     <designation>B4</designation>
                     <diameter>0.018</diameter>
                     <length>0.07</length>
@@ -74,6 +76,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                   <motor configid="b13e8ca2-f54d-4ca8-9b23-06c6c9eb237a">
                     <type>single</type>
                     <manufacturer>Estes</manufacturer>
+                    <digest>c8743ef3fa99e14a89885cbe0ead47b2</digest>
                     <designation>C6</designation>
                     <diameter>0.018</diameter>
                     <length>0.07</length>
@@ -82,6 +85,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                   <motor configid="e1dc7488-77c0-403a-b54f-c01db07aba2f">
                     <type>single</type>
                     <manufacturer>Estes</manufacturer>
+                    <digest>c8743ef3fa99e14a89885cbe0ead47b2</digest>
                     <designation>C6</designation>
                     <diameter>0.018</diameter>
                     <length>0.07</length>
@@ -90,6 +94,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                   <motor configid="5d9a2765-395d-4d9c-9678-38eed0988c72">
                     <type>single</type>
                     <manufacturer>Estes</manufacturer>
+                    <digest>c8743ef3fa99e14a89885cbe0ead47b2</digest>
                     <designation>C6</designation>
                     <diameter>0.018</diameter>
                     <length>0.07</length>
@@ -97,19 +102,19 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                   </motor>
                   <ignitionevent>automatic</ignitionevent>
                   <ignitiondelay>0.0</ignitiondelay>
-                  <overhang>0.0030</overhang>
+                  <overhang>0.003</overhang>
                 </motormount>
 
                 <subcomponents>
                   <engineblock>
                     <name>Engine block</name>
-                    <position type="top">0.0020</position>
+                    <position type="top">0.002</position>
                     <material type="bulk" density="680.0">Cardboard</material>
-                    <length>0.0050</length>
+                    <length>0.005</length>
                     <radialposition>0.0</radialposition>
                     <radialdirection>0.0</radialdirection>
                     <outerradius>auto</outerradius>
-                    <thickness>0.0030</thickness>
+                    <thickness>0.003</thickness>
                   </engineblock>
                 </subcomponents>
               </innertube>
@@ -119,7 +124,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <position type="bottom">0.0</position>
                 <comment>The centering ring automatically takes the outer diameter of the body tube and the inner diameter of the inner tube.</comment>
                 <material type="bulk" density="680.0">Cardboard</material>
-                <length>0.0020</length>
+                <length>0.002</length>
                 <radialposition>0.0</radialposition>
                 <radialdirection>0.0</radialdirection>
                 <outerradius>auto</outerradius>
@@ -131,7 +136,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <position type="bottom">-0.045</position>
                 <comment>The centering ring automatically takes the outer diameter of the body tube and the inner diameter of the inner tube.</comment>
                 <material type="bulk" density="680.0">Cardboard</material>
-                <length>0.0020</length>
+                <length>0.002</length>
                 <radialposition>0.0</radialposition>
                 <radialdirection>0.0</radialdirection>
                 <outerradius>auto</outerradius>
@@ -143,7 +148,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <position type="top">0.035</position>
                 <comment>The shock cord does not need to be attached to anything in particular, as it functions only as a mass component.</comment>
                 <packedlength>0.052000000000000005</packedlength>
-                <packedradius>0.0080</packedradius>
+                <packedradius>0.008</packedradius>
                 <radialposition>0.0</radialposition>
                 <radialdirection>0.0</radialdirection>
                 <cordlength>0.6</cordlength>
@@ -165,7 +170,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <diameter>0.4</diameter>
                 <linecount>6</linecount>
                 <linelength>0.3</linelength>
-                <linematerial type="line" density="0.0010">Braided nylon (2 mm, 1/16 in)</linematerial>
+                <linematerial type="line" density="0.001">Braided nylon (2 mm, 1/16 in)</linematerial>
               </parachute>
 
               <masscomponent>
@@ -175,7 +180,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <packedradius>0.0235</packedradius>
                 <radialposition>0.0</radialposition>
                 <radialdirection>0.0</radialdirection>
-                <mass>0.0020</mass>
+                <mass>0.002</mass>
               </masscomponent>
 
               <launchlug>
@@ -185,7 +190,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <material type="bulk" density="680.0">Cardboard</material>
                 <radius>0.0035</radius>
                 <length>0.035</length>
-                <thickness>0.0010</thickness>
+                <thickness>0.001</thickness>
                 <radialdirection>10.0</radialdirection>
               </launchlug>
 
@@ -196,7 +201,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <material type="bulk" density="680.0">Cardboard</material>
                 <radius>0.0035</radius>
                 <length>0.035</length>
-                <thickness>0.0010</thickness>
+                <thickness>0.001</thickness>
                 <radialdirection>10.0</radialdirection>
               </launchlug>
 
@@ -218,7 +223,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <name>Centering ring</name>
                 <position type="bottom">-0.105</position>
                 <material type="bulk" density="680.0">Cardboard</material>
-                <length>0.0020</length>
+                <length>0.002</length>
                 <radialposition>0.0</radialposition>
                 <radialdirection>0.0</radialdirection>
                 <outerradius>auto</outerradius>
@@ -229,7 +234,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <name>Centering ring</name>
                 <position type="bottom">-0.47000000000000003</position>
                 <material type="bulk" density="680.0">Cardboard</material>
-                <length>0.0020</length>
+                <length>0.002</length>
                 <radialposition>0.0</radialposition>
                 <radialdirection>0.0</radialdirection>
                 <outerradius>auto</outerradius>
@@ -243,7 +248,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
                 <material type="bulk" density="680.0">Cardboard</material>
                 <fincount>3</fincount>
                 <rotation>0.0</rotation>
-                <thickness>0.0030</thickness>
+                <thickness>0.003</thickness>
                 <crosssection>square</crosssection>
                 <cant>0.0</cant>
                 <rootchord>0.06</rootchord>
@@ -257,7 +262,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
   </rocket>
 
   <simulations>
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 1</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -270,10 +275,12 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
         <windturbulence>0.1</windturbulence>
         <launchaltitude>0.0</launchaltitude>
         <launchlatitude>45.0</launchlatitude>
+        <launchlongitude>0.0</launchlongitude>
+        <geodeticmethod>flat</geodeticmethod>
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="47.917" maxvelocity="28.744" maxacceleration="143.95" maxmach="0.084456" timetoapogee="3.3612" flighttime="11.553" groundhitvelocity="6.2116">
+      <flightdata maxaltitude="47.898" maxvelocity="27.885" maxacceleration="137.4" maxmach="0.08193" timetoapogee="3.4112" flighttime="11.553" groundhitvelocity="6.2116" launchrodvelocity="12.466" deploymentvelocity="3.9136">
         <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
           <event time="0" type="ignition"/>
@@ -326,7 +333,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 2</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -339,10 +346,12 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
         <windturbulence>0.1</windturbulence>
         <launchaltitude>0.0</launchaltitude>
         <launchlatitude>45.0</launchlatitude>
+        <launchlongitude>0.0</launchlongitude>
+        <geodeticmethod>flat</geodeticmethod>
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="127.23" maxvelocity="52.586" maxacceleration="182.74" maxmach="0.15454" timetoapogee="5.1799" flighttime="26.57" groundhitvelocity="6.1945">
+      <flightdata maxaltitude="127.23" maxvelocity="52.586" maxacceleration="85.121" maxmach="0.15454" timetoapogee="5.1799" flighttime="26.57" groundhitvelocity="6.1945" launchrodvelocity="18.282" deploymentvelocity="3.1015">
         <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
           <event time="0" type="ignition"/>
@@ -431,7 +440,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 3 - too short delay</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -444,10 +453,12 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
         <windturbulence>0.1</windturbulence>
         <launchaltitude>0.0</launchaltitude>
         <launchlatitude>45.0</launchlatitude>
+        <launchlongitude>0.0</launchlongitude>
+        <geodeticmethod>flat</geodeticmethod>
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="262.23" maxvelocity="91.431" maxacceleration="186.3" maxmach="0.26891" timetoapogee="5.6854" flighttime="48.568" groundhitvelocity="6.1546">
+      <flightdata maxaltitude="262.19" maxvelocity="91.431" maxacceleration="158.71" maxmach="0.26891" timetoapogee="5.7878" flighttime="48.568" groundhitvelocity="6.1546" launchrodvelocity="17.572" deploymentvelocity="23.229">
         <warning>Recovery device deployment at high speed (25.9 m/s).</warning>
         <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
@@ -582,7 +593,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 4</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -595,10 +606,12 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
         <windturbulence>0.1</windturbulence>
         <launchaltitude>0.0</launchaltitude>
         <launchlatitude>45.0</launchlatitude>
+        <launchlongitude>0.0</launchlongitude>
+        <geodeticmethod>flat</geodeticmethod>
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="287.03" maxvelocity="91.243" maxacceleration="186.32" maxmach="0.26836" timetoapogee="7.2566" flighttime="54.222" groundhitvelocity="6.1561">
+      <flightdata maxaltitude="287.02" maxvelocity="91.243" maxacceleration="158.73" maxmach="0.26836" timetoapogee="7.207" flighttime="54.222" groundhitvelocity="6.1561" launchrodvelocity="17.537" deploymentvelocity="5.0803">
         <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
           <event time="0" type="ignition"/>
@@ -748,7 +761,7 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 5</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -761,10 +774,12 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
         <windturbulence>0.1</windturbulence>
         <launchaltitude>0.0</launchaltitude>
         <launchlatitude>45.0</launchlatitude>
+        <launchlongitude>0.0</launchlongitude>
+        <geodeticmethod>flat</geodeticmethod>
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="287.42" maxvelocity="91.309" maxacceleration="186.35" maxmach="0.26856" timetoapogee="7.331" flighttime="53.791" groundhitvelocity="6.1539">
+      <flightdata maxaltitude="287.41" maxvelocity="91.198" maxacceleration="158.75" maxmach="0.26822" timetoapogee="7.381" flighttime="53.791" groundhitvelocity="6.1539" launchrodvelocity="17.508" deploymentvelocity="11.713">
         <databranch name="Main" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
           <event time="0" type="ignition"/>
@@ -823,7 +838,6 @@ The cluster configuration can be modified at any point in the &quot;Cluster&quot
           <datapoint>8.7538,278.14,-12.329,-7.7879,12.335,8.5571,13.129,-0.0049316,13.129,-3.7562e-4,1.6032,3.5458,2.7702,1.9278e-7,-0.60421,1.3454e-5,0.23738,0.62007,0.44046,3.2657,0.036354,575410,0,-0.1719,0.62513,-0.7972,0.29161,0.21335,0.12017,4.4262,2.775,1.9493e-5,0,0,0,0,-0.037414,0.055,0.0023758,1.2292,-2.726e-4,1.9711,286.34,98063,339.29,0.037744,0.6864</datapoint>
           <datapoint>8.9553,275.66,-10.689,21.824,11.191,21.831,12.752,-0.0049161,12.752,-3.8551e-4,1.9329,0.57301,NaN,NaN,NaN,NaN,0.23738,NaN,NaN,NaN,0.032982,522147,0,7.5121,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7434,286.36,98089,339.3,0.022903,0.6996</datapoint>
           <datapoint>9.1452,273.9,-8.1898,9.267,8.6899,9.2675,12.39,-0.0049037,12.39,-3.9579e-4,1.9051,0.092184,NaN,NaN,NaN,NaN,0.23738,NaN,NaN,NaN,0.025611,405500,0,4.5302,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8681,286.37,98107,339.31,0.053952,0.70037</datapoint>
-          <datapoint>9.3126,272.62,-7.1903,5.1307,7.6907,5.135,12.068,-0.0048965,12.068,-4.0573e-4,1.9352,0.21065,NaN,NaN,NaN,NaN,0.23738,NaN,NaN,NaN,0.022666,358902,0,3.5486,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0231,286.37,98119,339.31,0.097371,0.70065</datapoint>
           <datapoint>9.4664,271.55,-6.6904,3.2514,7.1904,3.252,11.772,-0.0048918,11.772,-4.1556e-4,1.9253,0.064212,NaN,NaN,NaN,NaN,0.23738,NaN,NaN,NaN,0.021191,335576,0,3.1022,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.8999,286.38,98128,339.32,0.15375,0.7008</datapoint>
           <datapoint>9.7913,269.46,-6.2021,1.5033,6.6933,1.5391,11.164,-0.0048857,11.164,-4.3765e-4,1.8181,0.33,NaN,NaN,NaN,NaN,0.23738,NaN,NaN,NaN,0.019726,312400,0,2.6883,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,1.7303,286.38,98140,339.32,0.32487,0.70094</datapoint>
           <datapoint>10.291,266.34,-6.2431,-0.082115,6.2079,0.42907,10.202,-0.0048822,10.202,-4.7856e-4,2.0287,0.42114,NaN,NaN,NaN,NaN,0.23738,NaN,NaN,NaN,0.018295,289792,0,2.313,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,2.0864,286.4,98165,339.33,0.5,0.70109</datapoint>
