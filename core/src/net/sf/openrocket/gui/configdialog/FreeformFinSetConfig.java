@@ -31,6 +31,7 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
+import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
@@ -259,12 +260,15 @@ public class FreeformFinSetConfig extends FinSetConfig {
 	
 	private void importImage() {
 		JFileChooser chooser = new JFileChooser();
-		
-		chooser.addChoosableFileFilter(FileHelper.BMP_FILE_FILTER);
+		chooser.setFileFilter(FileHelper.getImageFileFilter());
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-		int option = chooser.showOpenDialog(this);
 		
+		JPanel desc = new JPanel(new MigLayout("fill, ins 0 para 0 para"));
+		desc.add(new DescriptionArea(trans.get("CustomFinImport.description"), 5, 0), "grow, wmin 150lp");
+		chooser.setAccessory(desc);
+		
+		int option = chooser.showOpenDialog(this);
 		
 		if (option == JFileChooser.APPROVE_OPTION) {
 			try {
@@ -286,7 +290,6 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		}
 		
 	}
-	
 	
 	
 	@Override

@@ -3,7 +3,9 @@ package net.sf.openrocket.gui.util;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
@@ -47,11 +49,6 @@ public final class FileHelper {
 	public static final FileFilter CSV_FILE_FILTER =
 			new SimpleFileFilter(trans.get("SimExpPan.desc"), ".csv");
 	
-	/** File filter for BMP files (*.bmp) */
-	public static final FileFilter BMP_FILE_FILTER =
-			new SimpleFileFilter(trans.get("CustomFinImport.filter"), ".bmp");
-	
-	
 	
 	
 	
@@ -60,10 +57,26 @@ public final class FileHelper {
 	}
 	
 	
-	//	public FileFilter getImageFileFilter() {
-	//		String[] extensions = ImageIO.getReaderFileSuffixes();
-	//		
-	//	}
+	public static FileFilter getImageFileFilter() {
+		String[] extensions = ImageIO.getReaderFileSuffixes();
+		for (int i = 0; i < extensions.length; i++) {
+			extensions[i] = extensions[i].toLowerCase();
+		}
+		Arrays.sort(extensions);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(trans.get("filetypes.images"));
+		sb.append(" (");
+		for (int i = 0; i < extensions.length; i++) {
+			sb.append("*.").append(extensions[i]);
+			if (i < extensions.length - 1) {
+				sb.append("; ");
+			}
+		}
+		sb.append(")");
+		
+		return new SimpleFileFilter(sb.toString(), extensions);
+	}
 	
 	
 	/**

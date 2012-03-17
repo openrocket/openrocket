@@ -33,13 +33,12 @@ public class CustomFinImporter {
 		startX = -1;
 		facing = FacingDirections.UP;
 		
-		if (validateImage(pic)) {
-			points.add(Coordinate.NUL);
-			loadFin(pic, points);
-		} else {
+		if (!validateImage(pic)) {
 			throw new LocalizedIOException("CustomFinImport.error.badimage");
 		}
 		
+		points.add(Coordinate.NUL);
+		loadFin(pic, points);
 		optimizePoints(points);
 		return points;
 	}
@@ -48,7 +47,7 @@ public class CustomFinImporter {
 	private boolean validateImage(BufferedImage pic) {
 		int height = pic.getHeight();
 		int width = pic.getWidth();
-		Boolean bottomEdgeFound = false;
+		boolean bottomEdgeFound = false;
 		
 		for (int x = 0; x < width; ++x) {
 			for (int y = 0; y < height; ++y) {
@@ -83,18 +82,18 @@ public class CustomFinImporter {
 		currentY = pic.getHeight() - 1;
 		
 		do {
-			if (CheckLeftIsFin(pic, currentX, currentY))
-				RotateLeft();
-			else if (CheckForwardIsFin(pic, currentX, currentY)) {
+			if (checkLeftIsFin(pic, currentX, currentY))
+				rotateLeft();
+			else if (checkForwardIsFin(pic, currentX, currentY)) {
 				// Do nothing
-			} else if (CheckRightIsFin(pic, currentX, currentY))
-				RotateRight();
+			} else if (checkRightIsFin(pic, currentX, currentY))
+				rotateRight();
 			else {
-				TurnAround();
+				turnAround();
 				calledTurnedAround = true;
 			}
 			
-			MoveForward(pic);
+			moveForward(pic);
 			if (pixelIsFin(pic, currentX, currentY)) {
 				if (!calledTurnedAround) {
 					double x = (currentX - startX) * 0.001;
@@ -119,7 +118,7 @@ public class CustomFinImporter {
 		return false;
 	}
 	
-	private boolean CheckLeftIsFin(BufferedImage pic, int x, int y) {
+	private boolean checkLeftIsFin(BufferedImage pic, int x, int y) {
 		if (facing == FacingDirections.DOWN)
 			return pixelIsFin(pic, x + 1, y);
 		else if (facing == FacingDirections.UP)
@@ -132,7 +131,7 @@ public class CustomFinImporter {
 			return false;
 	}
 	
-	private Boolean CheckRightIsFin(BufferedImage pic, int x, int y) {
+	private boolean checkRightIsFin(BufferedImage pic, int x, int y) {
 		if (facing == FacingDirections.DOWN)
 			return pixelIsFin(pic, x - 1, y);
 		else if (facing == FacingDirections.UP)
@@ -145,7 +144,7 @@ public class CustomFinImporter {
 			return false;
 	}
 	
-	private boolean CheckForwardIsFin(BufferedImage pic, int x, int y) {
+	private boolean checkForwardIsFin(BufferedImage pic, int x, int y) {
 		if (facing == FacingDirections.DOWN)
 			return pixelIsFin(pic, x, y + 1);
 		else if (facing == FacingDirections.UP)
@@ -158,7 +157,7 @@ public class CustomFinImporter {
 			return false;
 	}
 	
-	private void RotateLeft() {
+	private void rotateLeft() {
 		if (facing == FacingDirections.UP)
 			facing = FacingDirections.LEFT;
 		else if (facing == FacingDirections.RIGHT)
@@ -169,7 +168,7 @@ public class CustomFinImporter {
 			facing = FacingDirections.DOWN;
 	}
 	
-	private void RotateRight() {
+	private void rotateRight() {
 		if (facing == FacingDirections.UP)
 			facing = FacingDirections.RIGHT;
 		else if (facing == FacingDirections.RIGHT)
@@ -180,7 +179,7 @@ public class CustomFinImporter {
 			facing = FacingDirections.UP;
 	}
 	
-	private void MoveForward(BufferedImage pic) {
+	private void moveForward(BufferedImage pic) {
 		if (facing == FacingDirections.UP) {
 			if (currentY > 0)
 				currentY--;
@@ -196,7 +195,7 @@ public class CustomFinImporter {
 		}
 	}
 	
-	private void TurnAround() {
+	private void turnAround() {
 		if (facing == FacingDirections.UP)
 			facing = FacingDirections.DOWN;
 		else if (facing == FacingDirections.DOWN)

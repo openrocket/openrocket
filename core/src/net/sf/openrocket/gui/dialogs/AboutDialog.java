@@ -32,7 +32,8 @@ public class AboutDialog extends JDialog {
 			"Doug Pedrick (RockSim file format, printing)<br>" +
 			"Kevin Ruland (Android version)<br>" +
 			"Boris du Reau (internationalization, translation lead)<br>" +
-			"Richard Graham (geodetic computations)<br><br>" +
+			"Richard Graham (geodetic computations)<br>" +
+			"Jason Blood (finset import)<br><br>" +
 			"<b>Translations by:</b><br><br>" +
 			"Tripoli France (French)<br>" +
 			"Stefan Lobas / ERIG e.V. (German)<br>" +

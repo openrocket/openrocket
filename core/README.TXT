@@ -28,6 +28,7 @@ Sampo Niskanen, main developer
 Doug Pedrick, support for RockSim designs, printing
 Kevin Ruland, Android version
 Richard Graham, geodetic computations
+Jason Blood, freeform fin set import
 Boris du Reau, internationalization
 
 Translations contributed by:
