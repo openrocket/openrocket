@@ -34,12 +34,20 @@ public class CustomFinImporter {
 		facing = FacingDirections.UP;
 		
 		if (!validateImage(pic)) {
-			throw new LocalizedIOException("CustomFinImport.error.badimage");
+			throw new LocalizedIOException("CustomFinImport.badFinImage");
 		}
-		
+
+		// Load the fin
 		points.add(Coordinate.NUL);
 		loadFin(pic, points);
-		optimizePoints(points);
+
+		// Optimize the loaded fin
+		int count;
+		do {
+			count = points.size();
+			optimizePoints(points);
+		} while (count != points.size());
+
 		return points;
 	}
 	
@@ -52,22 +60,22 @@ public class CustomFinImporter {
 		for (int x = 0; x < width; ++x) {
 			for (int y = 0; y < height; ++y) {
 				int pixel = pic.getRGB(x, y) & 0x00FFFFFF; // Clear alpha, we don't care about it
-				if ((pixel == 0xFFFFFF) || (pixel == 0)) // black or white only
-				{
-					if ((x == 0) || (x == width - 1) || (y == 0)) {
-						// Left, right and top must have no black (fin)
-						if (pixel == 0)
-							return false;
-					} else if (y == height - 1) {
-						if (pixel == 0) {
-							bottomEdgeFound = true;
-							if (startX == -1)
-								startX = x;
-						}
+				// Convert to black & white
+				int red = (pixel & 0x00FF0000) >> 16;  
+				int green = (pixel & 0x0000FF00) >> 8;  
+				int blue = (pixel & 0x000000FF);
+				pixel =  (int)(0.299*red + 0.587*green + 0.114*blue);
+				if (pixel > 200)
+					pixel = 0xFFFFFF; // White
+				else
+					pixel = 0; // Black
+				pic.setRGB(x, y, pixel);
+				if (y == height - 1) {
+					if (pixel == 0) {
+						bottomEdgeFound = true;
+						if (startX == -1)
+							startX = x;
 					}
-				} else {
-					// Found something other than a black or white pixel
-					return false;
 				}
 			}
 		}
@@ -75,11 +83,11 @@ public class CustomFinImporter {
 	}
 	
 	private void loadFin(BufferedImage pic, ArrayList<Coordinate> points) {
-		boolean calledTurnedAround = false;
 		int height = pic.getHeight();
+		Boolean offBottom = false;
 		
 		currentX = startX;
-		currentY = pic.getHeight() - 1;
+		currentY = height - 1;
 		
 		do {
 			if (checkLeftIsFin(pic, currentX, currentY))
@@ -90,19 +98,17 @@ public class CustomFinImporter {
 				rotateRight();
 			else {
 				turnAround();
-				calledTurnedAround = true;
 			}
 			
 			moveForward(pic);
+			if (currentY < height - 1)
+				offBottom = true;
 			if (pixelIsFin(pic, currentX, currentY)) {
-				if (!calledTurnedAround) {
-					double x = (currentX - startX) * 0.001;
-					double y = (height - currentY - 1) * 0.001;
-					points.add(new Coordinate(x, y));
-				} else
-					calledTurnedAround = false;
+				double x = (currentX - startX) * 0.001;
+				double y = (height - currentY - 1) * 0.001;
+				points.add(new Coordinate(x, y));
 			}
-		} while (currentY < height - 1 && currentY >= 0);
+		} while ((!offBottom) || (currentY < height - 1 && currentY >= 0));
 	}
 	
 	private boolean pixelIsFin(BufferedImage pic, int x, int y) {
@@ -210,18 +216,20 @@ public class CustomFinImporter {
 		int startIx;
 		ListIterator<Coordinate> start, entry, entry2;
 		Coordinate startPoint, endPoint, testPoint;
+		Boolean removedSection;
 		
 		startIx = 0;
 		start = points.listIterator();
 		startPoint = start.next();
 		while ((start.hasNext()) && (startPoint != points.get(points.size() - 1))) {
+			removedSection = false;
 			entry = points.listIterator(points.size());
 			endPoint = entry.previous();
 			for (; endPoint != startPoint; endPoint = entry.previous()) {
 				entry2 = points.listIterator(start.nextIndex());
 				testPoint = entry2.next();
 				for (; testPoint != endPoint; testPoint = entry2.next()) {
-					if (pointDistanceFromLine(startPoint, endPoint, testPoint) > 0.001) {
+					if (pointDistanceFromLine(startPoint, endPoint, testPoint) > 0.0008) {
 						break;
 					}
 				}
@@ -239,10 +247,11 @@ public class CustomFinImporter {
 					startIx = nextIx;
 					start = points.listIterator(startIx);
 					startPoint = start.next();
+					removedSection = true;
 					break;
 				}
 			}
-			if (endPoint == startPoint) {
+			if ((!removedSection) && (endPoint == startPoint)) {
 				startIx = start.nextIndex();
 				if (start.hasNext())
 					startPoint = start.next();
