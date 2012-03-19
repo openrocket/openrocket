@@ -80,8 +80,9 @@ public class DesignReport {
 	 * The logger.
 	 */
 	private static final LogHelper log = Application.getLogger();
-	
-	/**
+    public static final double SCALE_FUDGE_FACTOR = 0.4d;
+
+    /**
 	 * The OR Document.
 	 */
 	private OpenRocketDocument rocketDocument;
@@ -264,20 +265,25 @@ public class DesignReport {
 		
 		double scale =
 				(thePageImageableWidth * 2.2) / theFigure.getFigureWidth();
-		
 		theFigure.setScale(scale);
 		/*
 		 * page dimensions are in points-per-inch, which, in Java2D, are the same as pixels-per-inch; thus we don't need any conversion
 		 */
 		theFigure.setSize(thePageImageableWidth, thePageImageableHeight);
 		theFigure.updateFigure();
-		
 
 		final DefaultFontMapper mapper = new DefaultFontMapper();
 		Graphics2D g2d = theCanvas.createGraphics(thePageImageableWidth, thePageImageableHeight * 2, mapper);
-		g2d.translate(20, 120);
-		
-		g2d.scale(0.4d, 0.4d);
+        final double halfFigureHeight = SCALE_FUDGE_FACTOR * theFigure.getFigureHeightPx()/2;
+        int y = PrintUnit.POINTS_PER_INCH;
+        //If the y dimension is negative, then it will potentially be drawn off the top of the page.  Move the origin
+        //to allow for this.
+        if (theFigure.getDimensions().getY() < 0.0d) {
+            y += (int)halfFigureHeight;
+        }
+        g2d.translate(20, y);
+
+		g2d.scale(SCALE_FUDGE_FACTOR, SCALE_FUDGE_FACTOR);
 		theFigure.paint(g2d);
 		g2d.dispose();
 		return scale;

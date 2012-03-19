@@ -77,7 +77,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	private double minX = 0, maxX = 0, maxR = 0;
 	// Figure width and height in SI-units and pixels
 	private double figureWidth = 0, figureHeight = 0;
-	private int figureWidthPx = 0, figureHeightPx = 0;
+	protected int figureWidthPx = 0, figureHeightPx = 0;
 	
 	private AffineTransform g2transformation = null;
 	

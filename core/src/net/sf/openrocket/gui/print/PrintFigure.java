@@ -31,4 +31,8 @@ public class PrintFigure extends RocketFigure {
 		this.scale = theScale; //dpi/0.0254*scaling;
 		updateFigure();
 	}
+
+    public double getFigureHeightPx() {
+        return this.figureHeightPx;
+    }
 }
