@@ -8,8 +8,6 @@ import java.util.ServiceLoader;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.util.TestRockets;
 
 public final class OptimizationServiceHelper {
 	
@@ -37,7 +35,7 @@ public final class OptimizationServiceHelper {
 	}
 	
 	
-
+	
 	/**
 	 * Return the optimization parameters for an OpenRocketDocument.  This queries the
 	 * getParameters() method from all available services and returns a collection of all
@@ -58,10 +56,4 @@ public final class OptimizationServiceHelper {
 	}
 	
 	
-	public static void main(String[] args) {
-		Rocket r = TestRockets.makeBigBlue();
-		OpenRocketDocument document = new OpenRocketDocument(r);
-		System.out.println("Simulation modifiers: " + getSimulationModifiers(document));
-		System.out.println("Optimization parameters: " + getOptimizableParameters(document));
-	}
 }
