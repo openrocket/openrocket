@@ -1442,7 +1442,11 @@ public class BasicFrame extends JFrame {
 	 * 
 	 */
 	public void printAction() {
-		new PrintDialog(this, document).setVisible(true);
+        Double rotation = rocketpanel.getFigure().getRotation();
+        if (rotation == null) {
+            rotation = 0d;
+        }
+		new PrintDialog(this, document, rotation).setVisible(true);
 	}
 	
 	/**

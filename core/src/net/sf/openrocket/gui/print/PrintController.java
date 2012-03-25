@@ -35,9 +35,10 @@ public class PrintController {
 	 * @param toBePrinted the user chosen items to print
 	 * @param outputFile  the file being written to
 	 * @param settings    the print settings
+     * @param rotation    the angle the rocket figure is rotated
 	 */
 	public void print(OpenRocketDocument doc, Iterator<PrintableContext> toBePrinted, OutputStream outputFile,
-						PrintSettings settings) {
+						PrintSettings settings, double rotation) {
 		
 		Document idoc = new Document(getSize(settings));
 		PdfWriter writer = null;
@@ -59,23 +60,19 @@ public class PrintController {
 				
 				switch (printableContext.getPrintable()) {
 				case DESIGN_REPORT:
-					DesignReport dp = new DesignReport(doc, idoc);
+					DesignReport dp = new DesignReport(doc, idoc, rotation);
 					dp.writeToDocument(writer);
 					idoc.newPage();
 					break;
 				case FIN_TEMPLATE:
-					final FinSetPrintStrategy finWriter = new FinSetPrintStrategy(idoc,
-																							writer,
-																							stages);
-					finWriter.writeToDocument(doc.getRocket());
-					break;
-				case PARTS_DETAIL:
-					final PartsDetailVisitorStrategy detailVisitor = new PartsDetailVisitorStrategy(idoc,
-																										writer,
-																										stages);
-					detailVisitor.writeToDocument(doc.getRocket());
-					detailVisitor.close();
-					idoc.newPage();
+					final FinSetPrintStrategy finWriter = new FinSetPrintStrategy(idoc, writer, stages);
+                    finWriter.writeToDocument(doc.getRocket());
+                    break;
+                    case PARTS_DETAIL:
+					final PartsDetailVisitorStrategy detailVisitor = new PartsDetailVisitorStrategy(idoc, writer, stages);
+                        detailVisitor.writeToDocument(doc.getRocket());
+                        detailVisitor.close();
+                        idoc.newPage();
 					break;
                 case TRANSITION_TEMPLATE:
                     final TransitionStrategy tranWriter = new TransitionStrategy(idoc, writer, stages);

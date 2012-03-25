@@ -96,7 +96,12 @@ public class DesignReport {
 	 * The iText document.
 	 */
 	protected Document document;
-	
+
+    /**
+     * The figure rotation.
+     */
+    private double rotation = 0d;
+
 	/** The displayed strings. */
 	private static final String STAGES = "Stages: ";
 	private static final String MASS_WITH_MOTORS = "Mass (with motors): ";
@@ -128,11 +133,13 @@ public class DesignReport {
 	 *
 	 * @param theRocDoc the OR document
 	 * @param theIDoc   the iText document
+     * @param figureRotation the angle the figure is rotated on the screen; printed report will mimic
 	 */
-	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc) {
+	public DesignReport(OpenRocketDocument theRocDoc, Document theIDoc, Double figureRotation) {
 		document = theIDoc;
 		rocketDocument = theRocDoc;
 		panel = new RocketPanel(rocketDocument);
+        rotation = figureRotation;
 	}
 	
 	/**
@@ -156,6 +163,7 @@ public class DesignReport {
 		PdfContentByte canvas = writer.getDirectContent();
 		
 		final PrintFigure figure = new PrintFigure(configuration);
+        figure.setRotation(rotation);
 		
 		FigureElement cp = panel.getExtraCP();
 		FigureElement cg = panel.getExtraCG();

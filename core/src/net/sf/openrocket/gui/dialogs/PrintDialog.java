@@ -61,22 +61,25 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	private JButton previewButton;
 	private JButton saveAsPDF;
 	private JButton cancel;
-	
+
+    private double rotation = 0d;
 	
 	private final static SwingPreferences prefs = (SwingPreferences) Application.getPreferences();
 	
 	/**
 	 * Constructor.
 	 *
+     * @param parent     the parent awt component
 	 * @param orDocument the OR rocket container
+     * @param theRotation the angle of rocket figure rotation
 	 */
-	public PrintDialog(Window parent, OpenRocketDocument orDocument) {
+	public PrintDialog(Window parent, OpenRocketDocument orDocument, double theRotation) {
 		super(parent, trans.get("title"), ModalityType.APPLICATION_MODAL);
 		
 
 		JPanel panel = new JPanel(new MigLayout("fill, gap rel unrel"));
 		this.add(panel);
-		
+		rotation = theRotation;
 
 		// before any Desktop APIs are used, first check whether the API is
 		// supported by this particular VM on this particular host
@@ -257,7 +260,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	/**
 	 * Generate a report using a temporary file.  The file will be deleted upon JVM exit.
 	 *
-	 * @param paper the name of the paper size
+     * @param settings  the container of different print settings
 	 *
 	 * @return a file, populated with the "printed" output (the rocket info)
 	 *
@@ -273,7 +276,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 * Generate a report to a specified file.
 	 *
 	 * @param f     the file to which rocket data will be written
-	 * @param paper the name of the paper size
+	 * @param settings  the container of different print settings
 	 *
 	 * @return a file, populated with the "printed" output (the rocket info)
 	 *
@@ -281,7 +284,7 @@ public class PrintDialog extends JDialog implements TreeSelectionListener {
 	 */
 	private File generateReport(File f, PrintSettings settings) throws IOException {
 		Iterator<PrintableContext> toBePrinted = currentTree.getToBePrinted();
-		new PrintController().print(document, toBePrinted, new FileOutputStream(f), settings);
+		new PrintController().print(document, toBePrinted, new FileOutputStream(f), settings, rotation);
 		return f;
 	}
 	
