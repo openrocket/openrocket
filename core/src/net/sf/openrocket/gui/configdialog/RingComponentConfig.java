@@ -41,7 +41,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		JSpinner spin;
 		DoubleModel od = null;
 		
-
+		
 		//// Outer diameter
 		if (outer != null) {
 			panel.add(new JLabel(outer));
@@ -65,7 +65,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			}
 		}
 		
-
+		
 		////  Inner diameter
 		if (inner != null) {
 			panel.add(new JLabel(inner));
@@ -92,7 +92,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			}
 		}
 		
-
+		
 		////  Wall thickness
 		if (thickness != null) {
 			panel.add(new JLabel(thickness));
@@ -108,7 +108,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap");
 		}
 		
-
+		
 		////  Inner tube length
 		if (length != null) {
 			panel.add(new JLabel(length));
@@ -124,7 +124,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 			panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 		}
 		
-
+		
 		////  Position
 		
 		//// Position relative to:
@@ -137,7 +137,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		//// plus
@@ -155,7 +155,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 		
-
+		
 		//// Material
 		JPanel sub = materialPanel(new JPanel(new MigLayout()), Material.Type.BULK);
 		
@@ -195,14 +195,14 @@ public class RingComponentConfig extends RocketComponentConfig {
 		bs.setToolTipText(trans.get("ringcompcfg.Distancefrom"));
 		panel.add(bs, "w 100lp, wrap");
 		
-
+		
 		//// Radial direction
 		l = new JLabel(trans.get("ringcompcfg.Radialdirection"));
 		//// The radial direction from the rocket centerline
 		l.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
 		panel.add(l);
 		
-		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE, 0);
+		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -216,7 +216,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		bs.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
 		panel.add(bs, "w 100lp, wrap");
 		
-
+		
 		//// Reset button
 		JButton button = new JButton(trans.get("ringcompcfg.but.Reset"));
 		//// Reset the component to the rocket centerline
@@ -230,13 +230,13 @@ public class RingComponentConfig extends RocketComponentConfig {
 		});
 		panel.add(button, "spanx, right, wrap para");
 		
-
+		
 		DescriptionArea note = new DescriptionArea(3);
 		//// Note: An inner tube will not affect the aerodynamics of the rocket even if it is located outside of the body tube.
 		note.setText(trans.get("ringcompcfg.note.desc"));
 		panel.add(note, "spanx, growx");
 		
-
+		
 		return panel;
 	}
 	

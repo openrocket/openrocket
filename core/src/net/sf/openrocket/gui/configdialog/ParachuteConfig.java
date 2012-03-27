@@ -262,7 +262,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Radial direction:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Radialdirection")));
 		
-		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE, 0);
+		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

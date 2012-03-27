@@ -35,8 +35,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		JPanel mainPanel = new JPanel(new MigLayout());
 		
-
-
+		
+		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
 		////  Number of fins
@@ -48,11 +48,11 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx, wrap");
 		
-
+		
 		////  Base rotation
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Rotation")));
 		
-		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -61,7 +61,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
-
+		
 		////  Fin cant
 		JLabel label = new JLabel(trans.get("EllipticalFinSetCfg.Fincant"));
 		//// "The angle that the fins are canted with respect to the rocket
@@ -79,8 +79,8 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT, FinSet.MAX_CANT)),
 				"w 100lp, wrap");
 		
-
-
+		
+		
 		////  Root chord
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Rootchord")));
 		
@@ -93,7 +93,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		
-
+		
 		////  Height
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Height")));
 		
@@ -106,7 +106,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		
-
+		
 		////  Position
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Positionrelativeto")));
@@ -118,7 +118,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx, growx, wrap");
 		
 		//// plus
@@ -135,18 +135,18 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 		
-
-
+		
+		
 		//// Right portion
 		mainPanel.add(panel, "aligny 20%");
 		
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy");
 		
-
-
+		
+		
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
-
+		
 		////  Cross section
 		//// Fin cross section:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.FincrossSection")), "span, split");
@@ -154,7 +154,7 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 				new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
 		panel.add(combo, "growx, wrap unrel");
 		
-
+		
 		////  Thickness:
 		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Thickness")));
 		
@@ -167,15 +167,15 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 30lp");
 		
-
-
+		
+		
 		//// Material
 		materialPanel(panel, Material.Type.BULK);
 		
-
-
-
-
+		
+		
+		
+		
 		mainPanel.add(panel, "aligny 20%");
 		
 		addFinSetButtons();

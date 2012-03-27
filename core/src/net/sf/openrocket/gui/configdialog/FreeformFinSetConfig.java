@@ -104,7 +104,7 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		////  Base rotation
 		panel.add(new JLabel(trans.get("FreeformFinSetCfg.lbl.Finrotation")));
 		
-		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

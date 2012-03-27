@@ -29,11 +29,11 @@ public class MassComponentConfig extends RocketComponentConfig {
 	public MassComponentConfig(OpenRocketDocument d, RocketComponent component) {
 		super(d, component);
 		
-
+		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
-
-
+		
+		
 		////  Mass
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Mass")));
 		
@@ -46,8 +46,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.5)), "w 100lp, wrap");
 		
-
-
+		
+		
 		////  Mass length
 		//// Length
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Length")));
@@ -61,7 +61,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
 		
-
+		
 		//// Tube diameter
 		//// Diameter:
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Diameter")));
@@ -76,7 +76,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap");
 		
-
+		
 		////  Position
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.PosRelativeto")));
@@ -88,7 +88,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.plus")), "right");
@@ -130,11 +130,11 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 		
-
+		
 		//// Radial direction:
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Radialdirection")));
 		
-		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE, 0);
+		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -143,7 +143,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
-
+		
 		//// Reset button
 		JButton button = new JButton(trans.get("MassComponentCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {

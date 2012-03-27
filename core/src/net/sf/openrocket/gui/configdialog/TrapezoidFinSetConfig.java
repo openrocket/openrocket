@@ -37,7 +37,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		
 		JPanel mainPanel = new JPanel(new MigLayout());
 		
-
+		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
 		////  Number of fins:
@@ -54,7 +54,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		spin.setToolTipText(trans.get("TrapezoidFinSetCfg.lbl.ttip.Nbroffins"));
 		panel.add(spin, "growx, wrap");
 		
-
+		
 		////  Base rotation
 		//// Fin rotation:
 		label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Finrotation"));
@@ -62,7 +62,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		label.setToolTipText(trans.get("TrapezoidFinSetCfg.lbl.ttip.Finrotation"));
 		panel.add(label);
 		
-		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE, -Math.PI, Math.PI);
+		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -71,7 +71,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
-
+		
 		////  Fin cant:
 		label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Fincant"));
 		//// The angle that the fins are canted with respect to the rocket 
@@ -89,7 +89,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new BasicSlider(m.getSliderModel(-FinSet.MAX_CANT, FinSet.MAX_CANT)),
 				"w 100lp, wrap");
 		
-
+		
 		////  Root chord:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Rootchord")));
 		
@@ -102,8 +102,8 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		
-
-
+		
+		
 		////  Tip chord:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Tipchord")));
 		
@@ -116,7 +116,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		
-
+		
 		////  Height:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Height")));
 		
@@ -129,8 +129,8 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.2)), "w 100lp, wrap");
 		
-
-
+		
+		
 		////  Sweep length:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Sweeplength")));
 		
@@ -147,7 +147,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		DoubleModel rc = new DoubleModel(component, "RootChord", 1.1, UnitGroup.UNITS_LENGTH);
 		panel.add(new BasicSlider(m.getSliderModel(tc, rc)), "w 100lp, wrap");
 		
-
+		
 		////  Sweep angle:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Sweepangle")));
 		
@@ -162,27 +162,27 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI / 4, Math.PI / 4)),
 				"w 100lp, wrap paragraph");
 		
-
-
-
-
+		
+		
+		
+		
 		mainPanel.add(panel, "aligny 20%");
 		
 		mainPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy");
 		
-
-
+		
+		
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
-
-
+		
+		
 		////  Fin cross section:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.FincrossSection")));
 		combo = new JComboBox(
 				new EnumModel<FinSet.CrossSection>(component, "CrossSection"));
 		panel.add(combo, "span, growx, wrap");
 		
-
+		
 		////  Thickness:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Thickness")));
 		
@@ -195,7 +195,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap para");
 		
-
+		
 		////  Position
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
@@ -207,7 +207,7 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx, growx, wrap");
 		//// plus
 		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
@@ -223,14 +223,14 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap para");
 		
-
-
+		
+		
 		//// Material
 		materialPanel(panel, Material.Type.BULK);
 		
-
-
-
+		
+		
+		
 		mainPanel.add(panel, "aligny 20%");
 		
 		//// General and General properties

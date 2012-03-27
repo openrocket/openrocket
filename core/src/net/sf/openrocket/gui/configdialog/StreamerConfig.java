@@ -39,7 +39,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-
+		
 		//// Strip length:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striplength")));
 		
@@ -62,8 +62,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.2)), "w 100lp, wrap 20lp");
 		
-
-
+		
+		
 		//// Strip area:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Striparea")));
 		
@@ -86,7 +86,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//		panel.add(new UnitSelector(m),"growx");
 		panel.add(new BasicSlider(m.getSliderModel(2, 15)), "skip, w 100lp, wrap 20lp");
 		
-
+		
 		//// Material:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Material")));
 		
@@ -96,8 +96,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		combo.setToolTipText(trans.get("StreamerCfg.combo.ttip.MaterialModel"));
 		panel.add(combo, "spanx 3, growx, wrap 20lp");
 		
-
-
+		
+		
 		// CD
 		//// <html>Drag coefficient C<sub>D</sub>:
 		JLabel label = new HtmlLabel(trans.get("StreamerCfg.lbl.longA1"));
@@ -124,14 +124,14 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new StyledLabel(trans.get("StreamerCfg.lbl.longC1"),
 				-2), "span, wrap");
 		
-
-
+		
+		
 		primary.add(panel, "grow, gapright 20lp");
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-
-
-
+		
+		
+		
 		//// Position
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Posrelativeto")));
@@ -143,7 +143,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx, growx, wrap");
 		
 		//// plus
@@ -160,7 +160,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 		
-
+		
 		////  Spatial length:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Packedlength")));
 		
@@ -173,7 +173,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 0.5)), "w 100lp, wrap");
 		
-
+		
 		//// Tube diameter
 		//// Packed diameter:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Packeddiam")));
@@ -188,7 +188,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 30lp");
 		
-
+		
 		//// Deployment
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat")), "");
@@ -226,7 +226,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(slider);
 		panel.add(slider, "w 100lp, wrap");
 		
-
+		
 		primary.add(panel, "grow");
 		
 		updateFields();
@@ -241,9 +241,9 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 	}
 	
 	
-
-
-
+	
+	
+	
 	protected JPanel positionTab() {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
@@ -260,12 +260,12 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.1, 1.0)), "w 100lp, wrap");
 		
-
+		
 		//// Radial direction
 		//// Radial direction:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Radialdirection")));
 		
-		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE, 0);
+		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -274,7 +274,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
-
+		
 		//// Reset button
 		JButton button = new JButton(trans.get("StreamerCfg.but.Reset"));
 		button.addActionListener(new ActionListener() {

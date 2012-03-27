@@ -29,7 +29,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		JPanel primary = new JPanel(new MigLayout("fill"));
 		
-
+		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
 		////  Body tube length
@@ -45,7 +45,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.1)), "w 100lp, wrap para");
 		
-
+		
 		//// Body tube diameter
 		//// Outer diameter:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Outerdiam")));
@@ -60,14 +60,14 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap rel");
 		
-
+		
 		////  Inner diameter:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Innerdiam")));
 		
 		// Diameter = 2*Radius
 		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		
-
+		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
@@ -75,7 +75,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap rel");
 		
-
+		
 		////  Wall thickness
 		//// Thickness:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Thickness")));
@@ -89,12 +89,11 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 20lp");
 		
-
+		
 		////  Radial position:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Radialpos")));
 		
-		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE,
-				-Math.PI, Math.PI);
+		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -103,14 +102,14 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(-Math.PI, Math.PI)), "w 100lp, wrap");
 		
-
-
-
+		
+		
+		
 		primary.add(panel, "grow, gapright 20lp");
 		panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
-
-
+		
+		
 		//// Position relative to:
 		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto")));
 		
@@ -121,7 +120,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 								RocketComponent.Position.MIDDLE,
 								RocketComponent.Position.BOTTOM,
 								RocketComponent.Position.ABSOLUTE
-				}));
+						}));
 		panel.add(combo, "spanx, growx, wrap");
 		
 		//// plus
@@ -138,12 +137,12 @@ public class LaunchLugConfig extends RocketComponentConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap para");
 		
-
-
+		
+		
 		//// Material
 		materialPanel(panel, Material.Type.BULK);
 		
-
+		
 		primary.add(panel, "grow");
 		
 		//// General and General properties
