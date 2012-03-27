@@ -1,3 +1,7 @@
+2012-03-25  Sampo Niskanen
+
+	* [BUG] Removed locale-specific toLowerCase/toUpperCase
+
 2012-03-25  Doug Pedrick
 
     * Printed rocket figure in design report now honors rotation angle of main figure; fixed bug in layout where the

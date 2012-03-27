@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -333,7 +334,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				String[] split = text.split("\\s+");
 				ArrayList<String> list = new ArrayList<String>();
 				for (String s : split) {
-					s = s.trim().toLowerCase();
+					s = s.trim().toLowerCase(Locale.getDefault());
 					if (s.length() > 0) {
 						list.add(s);
 					}
@@ -943,7 +944,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		public boolean filterByString(ThrustCurveMotorSet m) {
 			main: for (String s : searchTerms) {
 				for (ThrustCurveMotorColumns col : ThrustCurveMotorColumns.values()) {
-					String str = col.getValue(m).toString().toLowerCase();
+					String str = col.getValue(m).toString().toLowerCase(Locale.getDefault());
 					if (str.indexOf(s) >= 0)
 						continue main;
 				}

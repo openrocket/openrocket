@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -41,7 +42,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	
 	private static final double DEFAULT_RANGE_MULTIPLIER = 2.0;
 	
-
+	
 	private static final Map<Class<?>, List<ModifierDefinition>> definitions = new HashMap<Class<?>, List<ModifierDefinition>>();
 	static {
 		//addModifier("optimization.modifier.", unitGroup, multiplier, componentClass, methodName);
@@ -51,7 +52,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		 * For example, body tube does not have inner diameter definition because it is
 		 * defined by the outer diameter and thickness.
 		 */
-
+		
 		addModifier("optimization.modifier.nosecone.length", UnitGroup.UNITS_LENGTH, 1.0, NoseCone.class, "Length");
 		addModifier("optimization.modifier.nosecone.diameter", UnitGroup.UNITS_LENGTH, 2.0, NoseCone.class, "AftRadius", "isAftRadiusAutomatic");
 		addModifier("optimization.modifier.nosecone.thickness", UnitGroup.UNITS_LENGTH, 1.0, NoseCone.class, "Thickness", "isFilled");
@@ -81,7 +82,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		addModifier("optimization.modifier.launchlug.outerDiameter", UnitGroup.UNITS_LENGTH, 2.0, LaunchLug.class, "OuterRadius");
 		addModifier("optimization.modifier.launchlug.thickness", UnitGroup.UNITS_LENGTH, 1.0, LaunchLug.class, "Thickness");
 		
-
+		
 		addModifier("optimization.modifier.masscomponent.mass", UnitGroup.UNITS_MASS, 1.0, MassComponent.class, "ComponentMass");
 		
 		addModifier("optimization.modifier.parachute.diameter", UnitGroup.UNITS_LENGTH, 1.0, Parachute.class, "Diameter");
@@ -100,7 +101,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	}
 	
 	private static void addModifier(String modifierNameKey, UnitGroup unitGroup, double multiplier,
-				Class<? extends RocketComponent> componentClass, String methodName, String autoMethod) {
+			Class<? extends RocketComponent> componentClass, String methodName, String autoMethod) {
 		
 		String modifierDescriptionKey = modifierNameKey + ".desc";
 		
@@ -116,8 +117,8 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public Collection<SimulationModifier> getModifiers(OpenRocketDocument document) {
 		List<SimulationModifier> modifiers = new ArrayList<SimulationModifier>();
@@ -151,7 +152,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				}
 			}
 			
-
+			
 			// Add override modifiers if mass/CG is overridden
 			if (c.isMassOverridden()) {
 				SimulationModifier mod = new GenericComponentModifier(
@@ -173,7 +174,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				modifiers.add(mod);
 			}
 			
-
+			
 			// Conditional motor mount parameters
 			if (c instanceof MotorMount) {
 				MotorMount mount = (MotorMount) c;
@@ -199,7 +200,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				}
 			}
 			
-
+			
 			// Inner component positioning
 			if (c instanceof InternalComponent) {
 				RocketComponent parent = c.getParent();
@@ -213,7 +214,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				modifiers.add(mod);
 			}
 			
-
+			
 			// Custom min/max for fin set position
 			if (c instanceof FinSet) {
 				RocketComponent parent = c.getParent();
@@ -227,7 +228,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				modifiers.add(mod);
 			}
 			
-
+			
 			// Custom min/max for launch lug position
 			if (c instanceof LaunchLug) {
 				RocketComponent parent = c.getParent();
@@ -241,7 +242,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				modifiers.add(mod);
 			}
 			
-
+			
 			// Recovery device deployment altitude and delay
 			if (c instanceof RecoveryDevice) {
 				RecoveryDevice device = (RecoveryDevice) c;
@@ -266,15 +267,15 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				}
 			}
 			
-
+			
 			// Conditional shape parameter of Transition
 			if (c instanceof Transition) {
 				Transition transition = (Transition) c;
 				Transition.Shape shape = transition.getType();
 				if (shape.usesParameter()) {
 					SimulationModifier mod = new GenericComponentModifier(
-							trans.get("optimization.modifier." + c.getClass().getSimpleName().toLowerCase() + ".shapeparameter"),
-							trans.get("optimization.modifier." + c.getClass().getSimpleName().toLowerCase() + ".shapeparameter.desc"),
+							trans.get("optimization.modifier." + c.getClass().getSimpleName().toLowerCase(Locale.ENGLISH) + ".shapeparameter"),
+							trans.get("optimization.modifier." + c.getClass().getSimpleName().toLowerCase(Locale.ENGLISH) + ".shapeparameter.desc"),
 							c, UnitGroup.UNITS_NONE,
 							1.0, c.getClass(), c.getID(), "ShapeParameter");
 					mod.setMinValue(shape.minParameter());
@@ -303,7 +304,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 	 * String modifierName, Object relatedObject, UnitGroup unitGroup,
 			double multiplier, Class<? extends RocketComponent> componentClass, String componentId, String methodName
 	 */
-
+	
 	private static class ModifierDefinition {
 		private final String modifierNameKey;
 		private final String modifierDescriptionKey;

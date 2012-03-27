@@ -67,7 +67,7 @@ public class UpdateInfoRetriever {
 	}
 	
 	
-
+	
 	/**
 	 * Parse the data received from the server.
 	 * 
@@ -84,7 +84,7 @@ public class UpdateInfoRetriever {
 			reader = new BufferedReader(r);
 		}
 		
-
+		
 		String version = null;
 		ArrayList<ComparablePair<Integer, String>> updates =
 				new ArrayList<ComparablePair<Integer, String>>();
@@ -113,7 +113,7 @@ public class UpdateInfoRetriever {
 	}
 	
 	
-
+	
 	/**
 	 * An asynchronous task that fetches and parses the update info.
 	 * 
@@ -183,7 +183,7 @@ public class UpdateInfoRetriever {
 				
 				String contentType = connection.getContentType();
 				if (contentType == null ||
-						contentType.toLowerCase().indexOf(Communicator.UPDATE_INFO_CONTENT_TYPE) < 0) {
+						contentType.toLowerCase(Locale.ENGLISH).indexOf(Communicator.UPDATE_INFO_CONTENT_TYPE) < 0) {
 					// Unknown response type
 					log.warn("Unknown Content-type received:" + contentType);
 					return;
@@ -223,7 +223,7 @@ public class UpdateInfoRetriever {
 					return;
 				}
 				
-
+				
 				info = new UpdateInfo(version, updates);
 				log.info("Found update: " + info);
 			} finally {

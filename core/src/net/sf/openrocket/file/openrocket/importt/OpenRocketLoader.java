@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -508,7 +509,7 @@ class DocumentConfig {
 			return null;
 		name = name.trim();
 		for (Enum<T> e : enumClass.getEnumConstants()) {
-			if (e.name().toLowerCase().replace("_", "").equals(name)) {
+			if (e.name().toLowerCase(Locale.ENGLISH).replace("_", "").equals(name)) {
 				return e;
 			}
 		}
@@ -926,7 +927,7 @@ class MotorMountHandler extends AbstractElementHandler {
 		if (element.equals("ignitionevent")) {
 			MotorMount.IgnitionEvent event = null;
 			for (MotorMount.IgnitionEvent e : MotorMount.IgnitionEvent.values()) {
-				if (e.name().toLowerCase().replaceAll("_", "").equals(content)) {
+				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					event = e;
 					break;
 				}
@@ -1084,7 +1085,7 @@ class MotorHandler extends AbstractElementHandler {
 			// Motor type
 			type = null;
 			for (Motor.Type t : Motor.Type.values()) {
-				if (t.name().toLowerCase().equals(content.trim())) {
+				if (t.name().toLowerCase(Locale.ENGLISH).equals(content.trim())) {
 					type = t;
 					break;
 				}
@@ -1985,7 +1986,7 @@ class MaterialSetter implements Setter {
 		
 		// Check type if specified
 		str = attributes.remove("type");
-		if (str != null && !type.name().toLowerCase().equals(str)) {
+		if (str != null && !type.name().toLowerCase(Locale.ENGLISH).equals(str)) {
 			warnings.add(Warning.fromString("Illegal material type specified, ignoring."));
 			return;
 		}

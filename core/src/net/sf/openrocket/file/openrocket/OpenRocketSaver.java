@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 
 import net.sf.openrocket.aerodynamics.Warning;
@@ -318,7 +319,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchaltitude", cond.getLaunchAltitude());
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
-		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase());
+		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
 		
 		if (cond.isISAAtmosphere()) {
 			writeln("<atmosphere model=\"isa\"/>");
@@ -553,7 +554,7 @@ public class OpenRocketSaver extends RocketSaver {
 	 * @return		the corresponding XML name.
 	 */
 	public static String enumToXMLName(Enum<?> e) {
-		return e.name().toLowerCase().replace("_", "");
+		return e.name().toLowerCase(Locale.ENGLISH).replace("_", "");
 	}
 	
 }

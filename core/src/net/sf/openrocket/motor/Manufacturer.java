@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -98,7 +99,7 @@ public class Manufacturer {
 				"WECO", "WECO FEUERWERKS", "SF", "SACHSEN", "SACHSEN FEUERWERK",
 				"SACHSEN FEUERWERKS"));
 		
-
+		
 		// Check that no duplicates have appeared
 		for (Manufacturer m1 : manufacturers) {
 			for (Manufacturer m2 : manufacturers) {
@@ -114,8 +115,8 @@ public class Manufacturer {
 		}
 	}
 	
-
-
+	
+	
 	private final String displayName;
 	private final String simpleName;
 	private final Set<String> allNames;
@@ -240,10 +241,10 @@ public class Manufacturer {
 	}
 	
 	
-
-
+	
+	
 	private String generateSearchString(String str) {
-		return str.toLowerCase().replaceAll("[^a-zA-Z0-9]+", " ").trim();
+		return str.toLowerCase(Locale.getDefault()).replaceAll("[^a-zA-Z0-9]+", " ").trim();
 	}
 	
 }

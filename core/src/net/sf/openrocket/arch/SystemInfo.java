@@ -1,12 +1,13 @@
 package net.sf.openrocket.arch;
 
 import java.io.File;
+import java.util.Locale;
 
 import net.sf.openrocket.util.BugException;
 
 public class SystemInfo {
 	
-
+	
 	/**
 	 * Enumeration of supported operating systems.
 	 * 
@@ -26,7 +27,7 @@ public class SystemInfo {
 	 * @return	the operating system of the current system.
 	 */
 	public static Platform getPlatform() {
-		String os = System.getProperty("os.name").toLowerCase();
+		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
 		
 		if (os.indexOf("win") >= 0) {
 			return Platform.WINDOWS;
@@ -41,8 +42,8 @@ public class SystemInfo {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return the application data directory of this user.  The location depends
 	 * on the current platform.

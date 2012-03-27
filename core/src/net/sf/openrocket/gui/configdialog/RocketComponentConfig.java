@@ -9,6 +9,7 @@ import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -60,7 +61,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
 	
-
+	
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
@@ -90,7 +91,7 @@ public class RocketComponentConfig extends JPanel {
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
 		this.add(componentNameField, "growx, growy 0, wrap");
 		
-
+		
 		tabbedPane = new JTabbedPane();
 		this.add(tabbedPane, "growx, growy 1, wrap");
 		
@@ -207,7 +208,7 @@ public class RocketComponentConfig extends JPanel {
 		combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
 		panel.add(combo, "spanx 4, growx, wrap paragraph");
 		
-
+		
 		if (component instanceof ExternalComponent) {
 			label = new JLabel(finishString);
 			////<html>The component finish affects the aerodynamic drag of the component.<br>
@@ -286,7 +287,7 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap");
 		
-
+		
 		////  CG override
 		bm = new BooleanModel(component, "CGOverridden");
 		check = new JCheckBox(bm);
@@ -324,7 +325,7 @@ public class RocketComponentConfig extends JPanel {
 		bm.addEnableComponent(bs);
 		panel.add(bs, "growx 5, w 100lp, wrap 35lp");
 		
-
+		
 		// Override subcomponents checkbox
 		bm = new BooleanModel(component, "OverrideSubcomponents");
 		check = new JCheckBox(bm);
@@ -336,7 +337,7 @@ public class RocketComponentConfig extends JPanel {
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.longB1") +
 				//// The center of gravity is measured from the front end of the
 				trans.get("RocketCompCfg.lbl.longB2") + " " +
-				component.getComponentName().toLowerCase() + ".", -1),
+				component.getComponentName().toLowerCase(Locale.getDefault()) + ".", -1),
 				"spanx, wrap, gap para, height 0::30lp");
 		
 		return panel;
@@ -364,7 +365,7 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	
-
+	
 	private JPanel figureTab() {
 		JPanel panel = new JPanel(new MigLayout("align 20% 20%"));
 		
@@ -384,7 +385,7 @@ public class RocketComponentConfig extends JPanel {
 				}
 				
 				//// Choose color
-				Color awtColor = ColorConversion.toAwtColor(c); 
+				Color awtColor = ColorConversion.toAwtColor(c);
 				awtColor = JColorChooser.showDialog(tabbedPane, trans.get("RocketCompCfg.lbl.Choosecolor"), awtColor);
 				c = ColorConversion.fromAwtColor(awtColor);
 				if (c != null) {
@@ -450,7 +451,7 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	
-
+	
 	protected JPanel shoulderTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub;
@@ -460,7 +461,7 @@ public class RocketComponentConfig extends JPanel {
 		JCheckBox check;
 		JSpinner spin;
 		
-
+		
 		////  Fore shoulder, not for NoseCone
 		
 		if (!(component instanceof NoseCone)) {
@@ -469,7 +470,7 @@ public class RocketComponentConfig extends JPanel {
 			//// Fore shoulder
 			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.border.Foreshoulder")));
 			
-
+			
 			////  Radius
 			//// Diameter:
 			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
@@ -484,7 +485,7 @@ public class RocketComponentConfig extends JPanel {
 			sub.add(new UnitSelector(m), "growx");
 			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
 			
-
+			
 			////  Length:
 			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
 			
@@ -497,7 +498,7 @@ public class RocketComponentConfig extends JPanel {
 			sub.add(new UnitSelector(m), "growx");
 			sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
 			
-
+			
 			////  Thickness:
 			sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
 			
@@ -511,7 +512,7 @@ public class RocketComponentConfig extends JPanel {
 			sub.add(new UnitSelector(m), "growx");
 			sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
 			
-
+			
 			////  Capped
 			bm = new BooleanModel(component, "ForeShoulderCapped");
 			check = new JCheckBox(bm);
@@ -521,11 +522,11 @@ public class RocketComponentConfig extends JPanel {
 			check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
 			sub.add(check, "spanx");
 			
-
+			
 			panel.add(sub);
 		}
 		
-
+		
 		////  Aft shoulder
 		sub = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
@@ -536,7 +537,7 @@ public class RocketComponentConfig extends JPanel {
 			//// Aft shoulder
 			sub.setBorder(BorderFactory.createTitledBorder(trans.get("RocketCompCfg.title.Aftshoulder")));
 		
-
+		
 		////  Radius
 		//// Diameter:
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Diameter")));
@@ -551,7 +552,7 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
 		
-
+		
 		////  Length:
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Length")));
 		
@@ -564,7 +565,7 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(0, 0.02, 0.2)), "w 100lp, wrap");
 		
-
+		
 		////  Thickness:
 		sub.add(new JLabel(trans.get("RocketCompCfg.lbl.Thickness")));
 		
@@ -578,7 +579,7 @@ public class RocketComponentConfig extends JPanel {
 		sub.add(new UnitSelector(m), "growx");
 		sub.add(new BasicSlider(m.getSliderModel(m0, m2)), "w 100lp, wrap");
 		
-
+		
 		////  Capped
 		bm = new BooleanModel(component, "AftShoulderCapped");
 		check = new JCheckBox(bm);
@@ -588,16 +589,16 @@ public class RocketComponentConfig extends JPanel {
 		check.setToolTipText(trans.get("RocketCompCfg.ttip.Endcapped"));
 		sub.add(check, "spanx");
 		
-
+		
 		panel.add(sub);
 		
-
+		
 		return panel;
 	}
 	
 	
-
-
+	
+	
 	/*
 	 * Private inner class to handle events in componentNameField.
 	 */

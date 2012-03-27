@@ -1,6 +1,7 @@
 package net.sf.openrocket.startup;
 
 import java.awt.GraphicsEnvironment;
+import java.util.Locale;
 
 import javax.swing.JOptionPane;
 
@@ -59,8 +60,8 @@ public class VersionHelper {
 	 */
 	static void checkOpenJDK() {
 		
-		if (System.getProperty("java.runtime.name", "").toLowerCase().indexOf("icedtea") >= 0 ||
-				System.getProperty("java.vm.name", "").toLowerCase().indexOf("openjdk") >= 0) {
+		if (System.getProperty("java.runtime.name", "").toLowerCase(Locale.ENGLISH).indexOf("icedtea") >= 0 ||
+				System.getProperty("java.vm.name", "").toLowerCase(Locale.ENGLISH).indexOf("openjdk") >= 0) {
 			
 			String jreName = System.getProperty("java.vm.name", "(unknown)");
 			String jreVersion = System.getProperty("java.runtime.version", "(unknown)");
@@ -79,7 +80,7 @@ public class VersionHelper {
 	}
 	
 	
-
+	
 	///////////  Helper methods  //////////
 	
 	/**
@@ -97,7 +98,7 @@ public class VersionHelper {
 		}
 		System.err.println();
 		
-
+		
 		if (!GraphicsEnvironment.isHeadless()) {
 			
 			JOptionPane.showMessageDialog(null, message, "Error starting OpenRocket",

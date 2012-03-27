@@ -36,7 +36,7 @@ public enum PaperSize {
 	}
 	
 	
-
+	
 	//////////////////////////
 	
 	private static final LogHelper log = Application.getLogger();
@@ -181,7 +181,7 @@ public enum PaperSize {
 			return null;
 		}
 		
-		country = country.toUpperCase();
+		country = country.toUpperCase(Locale.ENGLISH);
 		for (String c : letterCountries) {
 			if (c.equals(country)) {
 				return LETTER;

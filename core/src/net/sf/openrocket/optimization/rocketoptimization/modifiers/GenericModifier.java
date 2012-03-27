@@ -1,5 +1,7 @@
 package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
+import java.util.Locale;
+
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.OptimizationException;
@@ -53,7 +55,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 		}
 		
 		try {
-			methodName = methodName.substring(0, 1).toUpperCase() + methodName.substring(1);
+			methodName = methodName.substring(0, 1).toUpperCase(Locale.ENGLISH) + methodName.substring(1);
 			getter = new Method(modifiedClass.getMethod("get" + methodName));
 			setter = new Method(modifiedClass.getMethod("set" + methodName, double.class));
 		} catch (SecurityException e) {
@@ -64,7 +66,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	}
 	
 	
-
+	
 	@Override
 	public double getCurrentSIValue(Simulation simulation) throws OptimizationException {
 		T modifiable = getModifiedObject(simulation);
@@ -97,7 +99,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 	protected abstract T getModifiedObject(Simulation simulation) throws OptimizationException;
 	
 	
-
+	
 	@Override
 	public String toString() {
 		return "GenericModifier[modifiedClass=" + modifiedClass.getCanonicalName() + ", methodName=" + methodName + ", multiplier=" + multiplier + "]";

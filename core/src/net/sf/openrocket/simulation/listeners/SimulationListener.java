@@ -8,6 +8,25 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 public interface SimulationListener {
 	
 	/**
+	 * Get the name of this simulation listener.  Ideally this should be localized, as
+	 * it can be displayed in the UI.
+	 * 
+	 * @return	the name of this simulation listener.
+	 */
+	public String getName();
+	
+	
+	/**
+	 * Get the menu position of this simulation listener.  This should be an array
+	 * of localized submenu names in descending order, or an empty array for positioning
+	 * in the base menu.
+	 * 
+	 * @return	the menu position of this simulation listener.
+	 */
+	public String[] getMenuPosition();
+	
+	
+	/**
 	 * Called when starting a simulation.
 	 * 
 	 * @param status	the simulation status.

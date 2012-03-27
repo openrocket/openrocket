@@ -1,5 +1,7 @@
 package net.sf.openrocket.logging;
 
+import java.util.Locale;
+
 /**
  * The logging level.  The natural order of the LogLevel orders the levels
  * from highest priority to lowest priority.  Comparisons of the relative levels
@@ -16,13 +18,13 @@ public enum LogLevel {
 	 * No ERROR level events _should_ occur while running the program.
 	 */
 	ERROR,
-
+	
 	/** 
 	 * Level for indicating error conditions or atypical events that can occur during
 	 * normal operation (errors while loading files, weird computation results etc).
 	 */
 	WARN,
-
+	
 	/** 
 	 * Level for logging user actions (adding and modifying components, running
 	 * simulations etc).  A user action should be logged as soon as possible on this
@@ -30,13 +32,13 @@ public enum LogLevel {
 	 * user actions from a bounded log buffer.
 	 */
 	USER,
-
+	
 	/**
 	 * Level for indicating general level actions the software is performing and
 	 * other notable events during execution (dialogs shown, simulations run etc).
 	 */
 	INFO,
-
+	
 	/**
 	 * Level for indicating mid-results, outcomes of methods and other debugging 
 	 * information.  The data logged should be of value when analyzing error
@@ -44,7 +46,7 @@ public enum LogLevel {
 	 * during e.g. flight simulation should use the VBOSE level instead.
 	 */
 	DEBUG,
-
+	
 	/**
 	 * Level of verbose debug logging to be used in areas which are called repeatedly,
 	 * such as computational methods used in simulations.  This level is separated to
@@ -103,7 +105,7 @@ public enum LogLevel {
 		if (value == null) {
 			return defaultLevel;
 		}
-		value = value.toUpperCase().trim();
+		value = value.toUpperCase(Locale.ENGLISH).trim();
 		
 		// Find the correct level
 		LogLevel level = defaultLevel;

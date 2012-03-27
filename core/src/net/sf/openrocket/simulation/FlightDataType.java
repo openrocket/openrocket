@@ -1,6 +1,7 @@
 package net.sf.openrocket.simulation;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import net.sf.openrocket.l10n.Translator;
@@ -29,12 +30,12 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	/** List of existing types.  MUST BE DEFINED BEFORE ANY TYPES!! */
 	private static final Map<String, FlightDataType> EXISTING_TYPES = new HashMap<String, FlightDataType>();
 	
-
-
+	
+	
 	//// Time
 	public static final FlightDataType TYPE_TIME = newType(trans.get("FlightDataType.TYPE_TIME"), UnitGroup.UNITS_FLIGHT_TIME, 1);
 	
-
+	
 	//// Vertical position and motion
 	//// Altitude
 	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), UnitGroup.UNITS_DISTANCE, 10);
@@ -43,14 +44,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Vertical acceleration
 	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"), UnitGroup.UNITS_ACCELERATION, 12);
 	
-
+	
 	//// Total motion
 	//// Total velocity
 	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"), UnitGroup.UNITS_VELOCITY, 20);
 	//// Total acceleration
 	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), UnitGroup.UNITS_ACCELERATION, 21);
 	
-
+	
 	//// Lateral position and motion
 	//// Position upwind
 	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), UnitGroup.UNITS_DISTANCE, 30);
@@ -79,7 +80,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Yaw rate
 	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), UnitGroup.UNITS_ROLL, 43);
 	
-
+	
 	//// Stability information
 	//// Mass
 	public static final FlightDataType TYPE_MASS = newType(trans.get("FlightDataType.TYPE_MASS"), UnitGroup.UNITS_MASS, 50);
@@ -94,14 +95,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Stability margin calibers
 	public static final FlightDataType TYPE_STABILITY = newType(trans.get("FlightDataType.TYPE_STABILITY"), UnitGroup.UNITS_COEFFICIENT, 55);
 	
-
+	
 	//// Characteristic numbers
 	//// Mach number
 	public static final FlightDataType TYPE_MACH_NUMBER = newType(trans.get("FlightDataType.TYPE_MACH_NUMBER"), UnitGroup.UNITS_COEFFICIENT, 60);
 	//// Reynolds number
 	public static final FlightDataType TYPE_REYNOLDS_NUMBER = newType(trans.get("FlightDataType.TYPE_REYNOLDS_NUMBER"), UnitGroup.UNITS_COEFFICIENT, 61);
 	
-
+	
 	//// Thrust and drag
 	//// Thrust
 	public static final FlightDataType TYPE_THRUST_FORCE = newType(trans.get("FlightDataType.TYPE_THRUST_FORCE"), UnitGroup.UNITS_FORCE, 70);
@@ -112,7 +113,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Axial drag coefficient
 	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_AXIAL_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 73);
 	
-
+	
 	////  Component drag coefficients
 	//// Friction drag coefficient
 	public static final FlightDataType TYPE_FRICTION_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_FRICTION_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 80);
@@ -121,7 +122,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Base drag coefficient
 	public static final FlightDataType TYPE_BASE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_BASE_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 82);
 	
-
+	
 	////  Other coefficients
 	//// Normal force coefficient
 	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_NORMAL_FORCE_COEFF"), UnitGroup.UNITS_COEFFICIENT, 90);
@@ -146,21 +147,21 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Coriolis acceleration
 	public static final FlightDataType TYPE_CORIOLIS_ACCELERATION = newType(trans.get("FlightDataType.TYPE_CORIOLIS_ACCELERATION"), UnitGroup.UNITS_ACCELERATION, 99);
 	
-
+	
 	////  Reference length + area
 	//// Reference length
 	public static final FlightDataType TYPE_REFERENCE_LENGTH = newType(trans.get("FlightDataType.TYPE_REFERENCE_LENGTH"), UnitGroup.UNITS_LENGTH, 100);
 	//// Reference area
 	public static final FlightDataType TYPE_REFERENCE_AREA = newType(trans.get("FlightDataType.TYPE_REFERENCE_AREA"), UnitGroup.UNITS_AREA, 101);
 	
-
+	
 	////  Orientation
 	//// Vertical orientation (zenith)
 	public static final FlightDataType TYPE_ORIENTATION_THETA = newType(trans.get("FlightDataType.TYPE_ORIENTATION_THETA"), UnitGroup.UNITS_ANGLE, 106);
 	//// Lateral orientation (azimuth)
 	public static final FlightDataType TYPE_ORIENTATION_PHI = newType(trans.get("FlightDataType.TYPE_ORIENTATION_PHI"), UnitGroup.UNITS_ANGLE, 107);
 	
-
+	
 	////  Atmospheric conditions
 	//// Wind velocity
 	public static final FlightDataType TYPE_WIND_VELOCITY = newType(trans.get("FlightDataType.TYPE_WIND_VELOCITY"), UnitGroup.UNITS_VELOCITY, 110);
@@ -178,7 +179,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public static final FlightDataType TYPE_COMPUTATION_TIME = newType(trans.get("FlightDataType.TYPE_COMPUTATION_TIME"), UnitGroup.UNITS_SHORT_TIME, 201);
 	
 	
-
+	
 	/**
 	 * Return a {@link FlightDataType} based on a string description.  This returns known data types
 	 * if possible, or a new type otherwise.
@@ -188,7 +189,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 * @return		a data type.
 	 */
 	public static synchronized FlightDataType getType(String s, UnitGroup u) {
-		FlightDataType type = EXISTING_TYPES.get(s.toLowerCase());
+		FlightDataType type = EXISTING_TYPES.get(s.toLowerCase(Locale.ENGLISH));
 		if (type != null) {
 			return type;
 		}
@@ -201,7 +202,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 */
 	private static synchronized FlightDataType newType(String s, UnitGroup u, int priority) {
 		FlightDataType type = new FlightDataType(s, u, priority);
-		EXISTING_TYPES.put(s.toLowerCase(), type);
+		EXISTING_TYPES.put(s.toLowerCase(Locale.ENGLISH), type);
 		return type;
 	}
 	
@@ -220,12 +221,12 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		this.name = typeName;
 		this.units = units;
 		this.priority = priority;
-		this.hashCode = this.name.toLowerCase().hashCode();
+		this.hashCode = this.name.toLowerCase(Locale.ENGLISH).hashCode();
 	}
 	
 	
-
-
+	
+	
 	public String getName() {
 		return name;
 	}

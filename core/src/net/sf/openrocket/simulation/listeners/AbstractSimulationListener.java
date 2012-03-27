@@ -28,6 +28,16 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	////  SimulationListener  ////
 	
 	@Override
+	public String getName() {
+		return this.getClass().getSimpleName();
+	}
+	
+	@Override
+	public String[] getMenuPosition() {
+		return new String[0];
+	}
+	
+	@Override
 	public void startSimulation(SimulationStatus status) throws SimulationException {
 		// No-op
 	}
@@ -58,8 +68,8 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 	
 	
-
-
+	
+	
 	////  SimulationEventListener  ////
 	
 	@Override
@@ -83,7 +93,7 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 	
 	
-
+	
 	////  SimulationComputationListener  ////
 	
 	@Override

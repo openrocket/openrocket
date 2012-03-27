@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -60,7 +61,7 @@ public final class FileHelper {
 	public static FileFilter getImageFileFilter() {
 		String[] extensions = ImageIO.getReaderFileSuffixes();
 		for (int i = 0; i < extensions.length; i++) {
-			extensions[i] = extensions[i].toLowerCase();
+			extensions[i] = extensions[i].toLowerCase(Locale.ENGLISH);
 		}
 		Arrays.sort(extensions);
 		
@@ -110,7 +111,7 @@ public final class FileHelper {
 	 */
 	public static File forceExtension(File original, String extension) {
 		
-		if (!original.getName().toLowerCase().endsWith(extension.toLowerCase())) {
+		if (!original.getName().toLowerCase(Locale.ENGLISH).endsWith(extension.toLowerCase(Locale.ENGLISH))) {
 			log.debug(1, "File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();
 			if (extension.startsWith(".")) {

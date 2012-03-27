@@ -1,5 +1,7 @@
 package net.sf.openrocket.util;
 
+import java.util.Locale;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
@@ -13,7 +15,7 @@ import net.sf.openrocket.startup.Application;
  */
 public enum GeodeticComputationStrategy {
 	
-
+	
 	/**
 	 * Perform computations using a flat Earth approximation.  addCoordinate computes the
 	 * location using a direct meters-per-degree scaling and getCoriolisAcceleration always
@@ -131,7 +133,7 @@ public enum GeodeticComputationStrategy {
 		}
 	};
 	
-
+	
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final double PRECISION_LIMIT = 0.5e-13;
@@ -141,14 +143,14 @@ public enum GeodeticComputationStrategy {
 	 * Return the name of this geodetic computation method.
 	 */
 	public String getName() {
-		return trans.get(name().toLowerCase() + ".name");
+		return trans.get(name().toLowerCase(Locale.ENGLISH) + ".name");
 	}
 	
 	/**
 	 * Return a description of the geodetic computation methods.
 	 */
 	public String getDescription() {
-		return trans.get(name().toLowerCase() + ".desc");
+		return trans.get(name().toLowerCase(Locale.ENGLISH) + ".desc");
 	}
 	
 	@Override
@@ -169,9 +171,9 @@ public enum GeodeticComputationStrategy {
 	public abstract Coordinate getCoriolisAcceleration(WorldCoordinate location, Coordinate velocity);
 	
 	
-
-
-
+	
+	
+	
 	private static Coordinate computeCoriolisAcceleration(WorldCoordinate latlon, Coordinate velocity) {
 		
 		double sinlat = Math.sin(latlon.getLatitudeRad());
@@ -189,14 +191,14 @@ public enum GeodeticComputationStrategy {
 		// able to be set independently and in terms of bearing with north == +ve y.
 		
 		Coordinate coriolis = new Coordinate(2.0 * WorldCoordinate.EROT * (v_n * sinlat - v_u * coslat),
-												2.0 * WorldCoordinate.EROT * (-1.0 * v_e * sinlat),
-												2.0 * WorldCoordinate.EROT * (v_e * coslat)
-											);
+				2.0 * WorldCoordinate.EROT * (-1.0 * v_e * sinlat),
+				2.0 * WorldCoordinate.EROT * (v_e * coslat)
+				);
 		return coriolis;
 	}
 	
 	
-
+	
 	// ******************************************************************** //
 	// The Vincenty Direct Solution.
 	// Code from GeoConstants.java, Ian Cameron Smith, GPL
@@ -226,8 +228,8 @@ public enum GeodeticComputationStrategy {
 	 *                                              point, in radians clockwise from north.
 	 */
 	private static double[] dirct1(double glat1, double glon1,
-									double azimuth, double dist,
-									double axis, double flat) {
+			double azimuth, double dist,
+			double axis, double flat) {
 		double r = 1.0 - flat;
 		
 		double tu = r * Math.sin(glat1) / Math.cos(glat1);
@@ -264,7 +266,7 @@ public enum GeodeticComputationStrategy {
 			x = e * cy;
 			y = e + e - 1.0;
 			y = (((sy * sy * 4.0 - 3.0) * y * cz * d / 6.0 + x) *
-									d / 4.0 - cz) * sy * d + tu;
+					d / 4.0 - cz) * sy * d + tu;
 		} while (Math.abs(y - c) > PRECISION_LIMIT);
 		
 		baz = cu * cy * cf - su * sy;
@@ -285,5 +287,5 @@ public enum GeodeticComputationStrategy {
 		return ret;
 	}
 	
-
+	
 }

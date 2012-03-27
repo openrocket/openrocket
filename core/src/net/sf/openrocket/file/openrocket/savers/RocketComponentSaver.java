@@ -3,6 +3,7 @@ package net.sf.openrocket.file.openrocket.savers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.material.Material;
@@ -26,7 +27,7 @@ public class RocketComponentSaver {
 	protected void addParams(net.sf.openrocket.rocketcomponent.RocketComponent c, List<String> elements) {
 		elements.add("<name>" + RocketSaver.escapeXML(c.getName()) + "</name>");
 		
-
+		
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
 			Color color = c.getColor();
@@ -38,19 +39,19 @@ public class RocketComponentSaver {
 			LineStyle style = c.getLineStyle();
 			if (style != null) {
 				// Type names currently equivalent to the enum names except for case.
-				elements.add("<linestyle>" + style.name().toLowerCase() + "</linestyle>");
+				elements.add("<linestyle>" + style.name().toLowerCase(Locale.ENGLISH) + "</linestyle>");
 			}
 		}
 		
-
+		
 		// Save position unless "AFTER"
 		if (c.getRelativePosition() != RocketComponent.Position.AFTER) {
 			// The type names are currently equivalent to the enum names except for case.
-			String type = c.getRelativePosition().name().toLowerCase();
+			String type = c.getRelativePosition().name().toLowerCase(Locale.ENGLISH);
 			elements.add("<position type=\"" + type + "\">" + c.getPositionValue() + "</position>");
 		}
 		
-
+		
 		// Overrides
 		boolean overridden = false;
 		if (c.isMassOverridden()) {
@@ -66,7 +67,7 @@ public class RocketComponentSaver {
 					+ "</overridesubcomponents>");
 		}
 		
-
+		
 		// Comment
 		if (c.getComment().length() > 0) {
 			elements.add("<comment>" + RocketSaver.escapeXML(c.getComment()) + "</comment>");
@@ -75,8 +76,8 @@ public class RocketComponentSaver {
 	}
 	
 	
-
-
+	
+	
 	protected final String materialParam(Material mat) {
 		return materialParam("material", mat);
 	}
@@ -121,7 +122,7 @@ public class RocketComponentSaver {
 			
 			elements.add("  <motor configid=\"" + id + "\">");
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
-				elements.add("    <type>" + motor.getMotorType().name().toLowerCase() + "</type>");
+				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
 			}
 			if (motor instanceof ThrustCurveMotor) {
 				ThrustCurveMotor m = (ThrustCurveMotor) motor;
@@ -144,7 +145,7 @@ public class RocketComponentSaver {
 		}
 		
 		elements.add("  <ignitionevent>"
-				+ mount.getIgnitionEvent().name().toLowerCase().replace("_", "")
+				+ mount.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</ignitionevent>");
 		
 		elements.add("  <ignitiondelay>" + mount.getIgnitionDelay() + "</ignitiondelay>");
