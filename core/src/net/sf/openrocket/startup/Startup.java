@@ -53,10 +53,11 @@ public class Startup {
 		
 		Application.setPreferences( new SwingPreferences() );
 		
-		Application.setDaos( new DaosImpl() );
-		
 		// Setup the translations
 		initializeL10n();
+
+		// Must be done after localization is initialized
+		Application.setDaos( new DaosImpl() );
 		
 		// Continue startup in Startup2 class (where Application is already set up)
 		Startup2.runMain(args);
