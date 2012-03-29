@@ -1,5 +1,6 @@
 package net.sf.openrocket.startup;
 
+import net.sf.openrocket.database.Daos;
 import net.sf.openrocket.database.MotorDatabase;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
@@ -23,6 +24,8 @@ public final class Application {
 	private static Translator baseTranslator = new DebugTranslator(null);
 	
 	private static MotorDatabase motorSetDatabase;
+	
+	private static Daos daos;
 
 	private static Preferences preferences;
 	
@@ -158,6 +161,14 @@ public final class Application {
 	 */
 	public static void setMotorSetDatabase(MotorDatabase motorSetDatabase) {
 		Application.motorSetDatabase = motorSetDatabase;
+	}
+
+	public static Daos getDaos() {
+		return daos;
+	}
+
+	public static void setDaos(Daos daos) {
+		Application.daos = daos;
 	}
 	
 

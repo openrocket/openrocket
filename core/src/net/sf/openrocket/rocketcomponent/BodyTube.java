@@ -135,13 +135,16 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	@Override
 	protected void loadFromPreset(RocketComponent preset) {
-		BodyTube c = (BodyTube) preset;
-		this.setOuterRadius(c.getOuterRadius());
-		
 		super.loadFromPreset(preset);
+		BodyTube bt = (BodyTube) preset;
+		this.autoRadius = false;
+		this.outerRadius = bt.getOuterRadius();
+		this.thickness = (bt.getOuterRadius() - bt.getInnerRadius());
+		this.length = bt.getLength();
+
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		
 	}
-	
-	
 	@Override
 	public double getAftRadius() {
 		return getOuterRadius();

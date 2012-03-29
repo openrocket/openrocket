@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.configdialog;
 
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -9,6 +10,7 @@ import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
+import net.sf.openrocket.gui.adaptors.BodyTubePresetModel;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
@@ -16,12 +18,15 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class BodyTubeConfig extends RocketComponentConfig {
 	
+	private ComponentChangeListener listener;
 	private MotorConfig motorConfigPane = null;
 	private static final Translator trans = Application.getTranslator();
 	
@@ -30,17 +35,25 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
+		////  Body tube template
+		panel.add( new JLabel(trans.get("BodyTubecfg.lbl.Bodytubepreset")) );
+		{
+		JComboBox combo = new JComboBox(new BodyTubePresetModel(component));
+		panel.add(combo, "wrap");
+		}
+		
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
 		
-		DoubleModel m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		final DoubleModel maxLength = new DoubleModel(2.0);
+		DoubleModel length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
 		
-		JSpinner spin = new JSpinner(m.getSpinnerModel());
+		JSpinner spin = new JSpinner(length.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(0, 0.5, 2.0)), "w 100lp, wrap");
+		panel.add(new UnitSelector(length), "growx");
+		panel.add(new BasicSlider(length.getSliderModel(0, 0.5, maxLength)), "w 100lp, wrap");
 		
 
 		//// Body tube diameter
@@ -66,7 +79,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
 		
 		// Diameter = 2*Radius
-		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
+		DoubleModel m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		
 
 		spin = new JSpinner(m.getSpinnerModel());
@@ -107,6 +120,29 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfigPane,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 		tabbedPane.setSelectedIndex(0);
+		
+		// need to work in the max length for body tubes based on presets...
+		BodyTube bt = (BodyTube) component;
+		if ( bt.getPresetComponent() != null ) {
+			BodyTube btPreset = (BodyTube) bt.getPresetComponent().getPrototype();
+			maxLength.setValue( btPreset.getLength() );
+		}
+
+		listener = new ComponentChangeListener() {
+
+			@Override
+			public void componentChanged(ComponentChangeEvent e) {
+				BodyTube bt = (BodyTube) component;
+				if ( bt.getPresetComponent() != null ) {
+					BodyTube btPreset = (BodyTube) bt.getPresetComponent().getPrototype();
+					maxLength.setValue(btPreset.getLength());
+				}
+				
+			}
+			
+		};
+		component.addChangeListener(listener);
+		
 	}
 	
 	@Override
@@ -114,6 +150,12 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		super.updateFields();
 		if (motorConfigPane != null)
 			motorConfigPane.updateFields();
+	}
+
+	@Override
+	public void invalidateModels() {
+		super.invalidateModels();
+		component.removeChangeListener(listener);
 	}
 	
 }

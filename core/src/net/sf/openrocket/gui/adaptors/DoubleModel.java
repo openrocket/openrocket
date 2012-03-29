@@ -157,7 +157,8 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		 * Use linear scale  value = linear1 * x + linear0  when x < linearPosition
 		 * Use quadratic scale  value = quad2 * x^2 + quad1 * x + quad0  otherwise
 		 */
-
+		private final boolean islinear;
+		
 		// Linear in range x <= linearPosition
 		private final double linearPosition;
 		
@@ -169,11 +170,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		//private final double linear0;
 		
 		// Non-linear multiplier, exponent and constant
-		private final double quad2, quad1, quad0;
-		
-		
+		private double quad2, quad1, quad0;
 
 		public ValueSliderModel(DoubleModel min, DoubleModel max) {
+			this.islinear = true;
 			linearPosition = 1.0;
 			
 			this.min = min;
@@ -192,6 +192,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		 * Generate a linear model from min to max.
 		 */
 		public ValueSliderModel(double min, double max) {
+			this.islinear = true;
 			linearPosition = 1.0;
 			
 			this.min = new DoubleModel(min);
@@ -205,6 +206,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			this(min, 0.5, mid, max);
 		}
 		
+		public ValueSliderModel(double min, double mid, DoubleModel max) {
+			this(min, 0.5, mid, max);
+		}
+
 		/*
 		 * v(x)  = mul * x^exp + add
 		 * 
@@ -212,33 +217,46 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		 * v(1)    = mul + add = max
 		 * v'(pos) = mul*exp * pos^(exp-1) = linearMul
 		 */
-		public ValueSliderModel(double min, double pos, double mid, double max) {
+		public ValueSliderModel(double min, double pos, double mid, double max ) {
+			this(min, pos, mid, new DoubleModel(max));
+		}
+		public ValueSliderModel(double min, double pos, double mid, DoubleModel max) {
 			this.min = new DoubleModel(min);
 			this.mid = new DoubleModel(mid);
-			this.max = new DoubleModel(max);
-			
+			this.max = max;
 
+			this.islinear = false;
+			
+			max.addChangeListener(this);
+			
 			linearPosition = pos;
 			//linear0 = min;
 			//linear1 = (mid-min)/pos;
 			
-			if (!(min < mid && mid <= max && 0 < pos && pos < 1)) {
+			if (!(min < mid && mid <= max.getValue() && 0 < pos && pos < 1)) {
 				throw new IllegalArgumentException("Bad arguments for ValueSliderModel " +
 						"min=" + min + " mid=" + mid + " max=" + max + " pos=" + pos);
 			}
 			
+			updateExponentialParameters();
+			
+		}
+		
+		private void updateExponentialParameters() {
+			double pos = this.linearPosition;
+			double minValue = this.min.getValue();
+			double midValue = this.mid.getValue();
+			double maxValue = this.max.getValue();
 			/*
 			 * quad2..0 are calculated such that
 			 *   f(pos)  = mid      - continuity
 			 *   f(1)    = max      - end point
 			 *   f'(pos) = linear1  - continuity of derivative
 			 */
-
-			double delta = (mid - min) / pos;
-			quad2 = (max - mid - delta + delta * pos) / pow2(pos - 1);
-			quad1 = (delta + 2 * (mid - max) * pos - delta * pos * pos) / pow2(pos - 1);
-			quad0 = (mid - (2 * mid + delta) * pos + (max + delta) * pos * pos) / pow2(pos - 1);
-			
+			double delta = (midValue - minValue) / pos;
+			quad2 = (maxValue - midValue - delta + delta * pos) / pow2(pos - 1);
+			quad1 = (delta + 2 * (midValue - maxValue) * pos - delta * pos * pos) / pow2(pos - 1);
+			quad0 = (midValue - (2 * midValue + delta) * pos + (maxValue + delta) * pos * pos) / pow2(pos - 1);
 		}
 		
 		private double pow2(double x) {
@@ -366,6 +384,11 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		@Override
 		public void stateChanged(EventObject e) {
 			// Min or max range has changed.
+			if ( !islinear ) {
+				double midValue = (max.getValue() - min.getValue()) /3.0;
+				mid.setValue(midValue);
+				updateExponentialParameters();
+			}
 			// Fire if not already firing
 			if (firing == 0)
 				fireStateChanged();
@@ -382,6 +405,10 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	}
 	
 	public BoundedRangeModel getSliderModel(double min, double mid, double max) {
+		return new ValueSliderModel(min, mid, max);
+	}
+	
+	public BoundedRangeModel getSliderModel(double min, double mid, DoubleModel max) {
 		return new ValueSliderModel(min, mid, max);
 	}
 	
@@ -516,7 +543,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	private Unit currentUnit;
 	
 	private final double minValue;
-	private final double maxValue;
+	private double maxValue;
 	
 	private String toString = null;
 	
@@ -724,7 +751,6 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			throw Reflection.handleWrappedException(e);
 		}
 	}
-	
 	
 	/**
 	 * Returns whether setting the value automatically is available.
