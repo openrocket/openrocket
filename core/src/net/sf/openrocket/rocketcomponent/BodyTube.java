@@ -142,7 +142,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		this.thickness = (bt.getOuterRadius() - bt.getInnerRadius());
 		this.length = bt.getLength();
 
-		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		
 	}
 	@Override
