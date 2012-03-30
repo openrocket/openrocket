@@ -4,16 +4,12 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
-import javax.swing.event.ListDataListener;
 
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
-public class BodyTubePresetModel extends AbstractListModel implements
-		ComboBoxModel, ComponentChangeListener {
+public class BodyTubePresetModel extends AbstractListModel implements ComboBoxModel {
 
 	private final RocketComponent component;
 
@@ -25,13 +21,18 @@ public class BodyTubePresetModel extends AbstractListModel implements
 	}
 	
 	public static class BodyTubePresetAdapter {
+		// If the ComponentPreset bt is null, then no preset is selected.
 		private ComponentPreset bt;
 		private BodyTubePresetAdapter( ComponentPreset bt ) {
 			this.bt = bt;
 		}
 		@Override
 		public String toString() {
-			return bt.getManufacturer() + " " + bt.getPartNo();
+			if ( bt != null ) {
+				return bt.getManufacturer() + " " + bt.getPartNo();
+			} else {
+				return "";
+			}
 		}
 		@Override
 		public int hashCode() {
@@ -65,31 +66,20 @@ public class BodyTubePresetModel extends AbstractListModel implements
 
 	@Override
 	public Object getElementAt(int index) {
+		if ( index < 0 ) {
+			return null;
+		}
 		return new BodyTubePresetAdapter(presets.get(index));
-	}
-
-	@Override
-	public void addListDataListener(ListDataListener l) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void removeListDataListener(ListDataListener l) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void componentChanged(ComponentChangeEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSelectedItem(Object anItem) {
 		BodyTubePresetAdapter selected = (BodyTubePresetAdapter) anItem;
-		component.loadPreset(selected.bt);
+		if ( selected == null ) {
+			component.loadPreset(null);
+		} else {
+			component.loadPreset(selected.bt);
+		}
 	}
 
 	@Override
