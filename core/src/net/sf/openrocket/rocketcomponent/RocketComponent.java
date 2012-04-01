@@ -688,10 +688,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return;
 		}
 		
+		// TODO - do we need to this compatibility check?
+		/*
 		if (preset.getComponentClass() != this.getClass()) {
 			throw new IllegalArgumentException("Attempting to load preset of type " + preset.getComponentClass()
 					+ " into component of type " + this.getClass());
 		}
+		*/
 		
 		RocketComponent root = getRoot();
 		final Rocket rocket;
@@ -706,7 +709,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				rocket.freeze();
 			}
 			
-			loadFromPreset(preset.getPrototype());
+			loadFromPreset(preset);
 			
 			this.presetComponent = preset;
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
@@ -731,7 +734,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * 
 	 * @param preset	the preset to load from
 	 */
-	protected void loadFromPreset(RocketComponent preset) {
+	protected void loadFromPreset(ComponentPreset preset) {
 		// No-op
 	}
 	

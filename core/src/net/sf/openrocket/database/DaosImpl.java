@@ -3,16 +3,16 @@ package net.sf.openrocket.database;
 
 public class DaosImpl implements Daos {
 
-	private BodyTubePresetDao bodyTubePresetDao;
+	private ComponentPresetDao bodyTubePresetDao;
 	
 	public DaosImpl() throws Exception {
-		bodyTubePresetDao = new BodyTubePresetDao();
+		bodyTubePresetDao = new ComponentPresetDao();
 		bodyTubePresetDao.initialize();
 		
 	}
 	
 	@Override
-	public BodyTubePresetDao getBodyTubePresetDao() {
+	public ComponentPresetDao getBodyTubePresetDao() {
 		return bodyTubePresetDao;
 	}
 

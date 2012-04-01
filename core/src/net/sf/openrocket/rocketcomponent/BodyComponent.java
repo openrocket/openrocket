@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.preset.ComponentPreset;
+
 
 
 /**
@@ -49,9 +51,10 @@ public abstract class BodyComponent extends ExternalComponent {
 	
 	
 	@Override
-	protected void loadFromPreset(RocketComponent preset) {
-		BodyComponent c = (BodyComponent) preset;
-		this.setLength(c.getLength());
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.containsKey(ComponentPreset.LENGTH) ) {
+			this.setLength(preset.get(ComponentPreset.LENGTH));
+		}
 		
 		super.loadFromPreset(preset);
 	}

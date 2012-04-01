@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -146,10 +147,13 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	
 
 	@Override
-	protected void loadFromPreset(RocketComponent preset) {
-		SymmetricComponent c = (SymmetricComponent) preset;
-		this.setThickness(c.getThickness());
-		this.setFilled(c.isFilled());
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.containsKey(ComponentPreset.THICKNESS) ) {
+			this.setThickness(preset.get(ComponentPreset.THICKNESS));
+		}
+		if ( preset.containsKey(ComponentPreset.FILLED)) {
+			this.setFilled(preset.get(ComponentPreset.FILLED));
+		}
 		
 		super.loadFromPreset(preset);
 	}

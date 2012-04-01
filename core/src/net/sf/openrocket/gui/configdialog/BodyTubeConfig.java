@@ -1,11 +1,16 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -15,8 +20,10 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -40,7 +47,21 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		////  Body tube template
 		panel.add( new JLabel(trans.get("BodyTubecfg.lbl.Bodytubepreset")) );
 		presetComboBox = new JComboBox(new BodyTubePresetModel(component));
-		panel.add(presetComboBox, "wrap");
+		panel.add(presetComboBox);
+		{
+			JButton opendialog = new JButton("o");
+			opendialog.addActionListener(
+					new ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							ComponentPresetChooserDialog dialog = new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(BodyTubeConfig.this));
+							dialog.setVisible(true);
+							ComponentPreset preset = dialog.getSelectedComponentPreset();
+						}
+					});
+			panel.add( opendialog, "wrap" );
+		}
 
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
@@ -152,8 +173,8 @@ public class BodyTubeConfig extends RocketComponentConfig {
 	private void adjustPresetState() {
 		BodyTube bt = (BodyTube) component;
 		if ( bt.getPresetComponent() != null ) {
-			BodyTube btPreset = (BodyTube) bt.getPresetComponent().getPrototype();
-			maxLength.setValue( btPreset.getLength() );
+			ComponentPreset btPreset = bt.getPresetComponent();
+			maxLength.setValue( btPreset.get(ComponentPreset.LENGTH) );
 		} else {
 			// here we should be able to force the preset combo box to display empty.
 			// We set the selected index to -1 (undefined), then force a repaint.

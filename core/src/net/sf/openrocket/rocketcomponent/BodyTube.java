@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -134,13 +135,18 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	
 	@Override
-	protected void loadFromPreset(RocketComponent preset) {
-		super.loadFromPreset(preset);
-		BodyTube bt = (BodyTube) preset;
+	protected void loadFromPreset(ComponentPreset preset) {
 		this.autoRadius = false;
-		this.outerRadius = bt.getOuterRadius();
-		this.thickness = (bt.getOuterRadius() - bt.getInnerRadius());
-		this.length = bt.getLength();
+		if ( preset.containsKey(ComponentPreset.OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.outerRadius = outerDiameter/2.0;
+			if ( preset.containsKey(ComponentPreset.INNER_DIAMETER) ) {
+				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+				this.thickness = (outerDiameter-innerDiameter) / 2.0;
+			}
+		}
+
+		super.loadFromPreset(preset);
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		

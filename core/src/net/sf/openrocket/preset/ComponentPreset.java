@@ -1,6 +1,10 @@
 package net.sf.openrocket.preset;
 
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 
 
 /**
@@ -11,63 +15,77 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class ComponentPreset {
-
-
-	private final String manufacturer;
-	private final String partNo;
-	private final String partDescription;
-	private final RocketComponent prototype;
-
-
-	public ComponentPreset(String manufacturer, String partNo, String partDescription, RocketComponent prototype) {
-		this.manufacturer = manufacturer;
-		this.partNo = partNo;
-		this.partDescription = partDescription;
-		this.prototype = prototype.copy();
-
-		if (prototype.getParent() != null) {
-			throw new IllegalArgumentException("Prototype component cannot have a parent");
-		}
-		if (prototype.getChildCount() > 0) {
-			throw new IllegalArgumentException("Prototype component cannot have children");
-		}
-
+public class ComponentPreset extends TypedPropertyMap {
+	
+	// TODO - Implement clone.
+	// Implement "freezing" so the object cannot be modified.
+	
+	public enum Type {
+		BodyTube,
+		NoseCone
 	}
 
-	/**
-	 * Return the component class that this preset defines.
-	 */
-	public Class<? extends RocketComponent> getComponentClass() {
-		return prototype.getClass();
+	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class);
+	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class);
+	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class);
+	public final static TypedKey<Material> MATERIAL = new TypedKey<Material>("Material", Material.class);
+	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish",Finish.class);
+	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class);
+	public final static TypedKey<Boolean> FILLED = new TypedKey<Boolean>("Filled",Boolean.class);
+	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class);
+	
+	public final static Map<String,TypedKey<?>> keyMap = new HashMap<String,TypedKey<?>>();
+	static {
+		keyMap.put(LENGTH.getName(), LENGTH);
+		keyMap.put(INNER_DIAMETER.getName(), INNER_DIAMETER);
+		keyMap.put(OUTER_DIAMETER.getName(), OUTER_DIAMETER);
+		keyMap.put(MATERIAL.getName(), MATERIAL);
+		keyMap.put(FINISH.getName(), FINISH);
+		keyMap.put(THICKNESS.getName(), THICKNESS);
+		keyMap.put(FILLED.getName(), FILLED);
+		keyMap.put(MASS.getName(), MASS);
+	}
+	
+	private String manufacturer;
+	private String partNo;
+	private String partDescription;
+	private Type type;
+
+	public ComponentPreset() {
+		
 	}
 
-	/**
-	 * Return the manufacturer of this preset component.
-	 */
 	public String getManufacturer() {
 		return manufacturer;
 	}
 
-	/**
-	 * Return the part number.  This is the part identifier (e.g. "BT-50").
-	 */
+	public void setManufacturer(String manufacturer) {
+		this.manufacturer = manufacturer;
+	}
+
 	public String getPartNo() {
 		return partNo;
 	}
 
-	/**
-	 * Return the part description.  This is a longer description of the component.
-	 */
+	public void setPartNo(String partNo) {
+		this.partNo = partNo;
+	}
+
 	public String getPartDescription() {
 		return partDescription;
 	}
 
-	/**
-	 * Return a prototype component.  This component may be modified freely.
-	 */
-	public RocketComponent getPrototype() {
-		return prototype.copy();
+	public void setPartDescription(String partDescription) {
+		this.partDescription = partDescription;
 	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+	
 
 }

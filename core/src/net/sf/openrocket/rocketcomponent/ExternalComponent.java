@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.material.Material.Type;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -129,27 +129,30 @@ public abstract class ExternalComponent extends RocketComponent {
 
 
 	@Override
-	protected void loadFromPreset(RocketComponent preset) {
+	protected void loadFromPreset(ComponentPreset preset) {
 		super.loadFromPreset(preset);
 
 		// Surface finish is left unchanged
 
-		ExternalComponent c = (ExternalComponent) preset;
-
-		Material mat = c.getMaterial();
-		if ( mat != null ) {
-			setMaterial(mat);
-		} else if (c.isMassOverridden()) {
-			double mass = c.getOverrideMass();
-			double volume = getComponentVolume();
-			double density;
-			if (volume > 0.00001) {
-				density = mass / volume;
-			} else {
-				density = 1000;
+		if ( preset.containsKey(ComponentPreset.MATERIAL ) ) {
+			Material mat = preset.get(ComponentPreset.MATERIAL);
+			if ( mat != null ) {
+				setMaterial(mat);
+			} /*
+			TODO - 
+			else if (c.isMassOverridden()) {
+				double mass = c.getOverrideMass();
+				double volume = getComponentVolume();
+				double density;
+				if (volume > 0.00001) {
+					density = mass / volume;
+				} else {
+					density = 1000;
+				}
+				mat = Material.newMaterial(Type.BULK, mat.getName(), density, true);
+				setMaterial(mat);
 			}
-			mat = Material.newMaterial(Type.BULK, mat.getName(), density, true);
-			setMaterial(mat);
+			*/
 		}
 	}
 
