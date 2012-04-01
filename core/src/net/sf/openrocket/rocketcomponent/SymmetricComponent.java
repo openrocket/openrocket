@@ -148,10 +148,10 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if ( preset.containsKey(ComponentPreset.THICKNESS) ) {
+		if ( preset.has(ComponentPreset.THICKNESS) ) {
 			this.setThickness(preset.get(ComponentPreset.THICKNESS));
 		}
-		if ( preset.containsKey(ComponentPreset.FILLED)) {
+		if ( preset.has(ComponentPreset.FILLED)) {
 			this.setFilled(preset.get(ComponentPreset.FILLED));
 		}
 		

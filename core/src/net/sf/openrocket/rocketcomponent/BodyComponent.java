@@ -52,7 +52,7 @@ public abstract class BodyComponent extends ExternalComponent {
 	
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if ( preset.containsKey(ComponentPreset.LENGTH) ) {
+		if ( preset.has(ComponentPreset.LENGTH) ) {
 			this.setLength(preset.get(ComponentPreset.LENGTH));
 		}
 		

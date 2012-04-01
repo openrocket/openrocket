@@ -1,4 +1,4 @@
-Manufacturer,PartNo,id(cm),od(cm),maxlength(cm)
+Manufacturer,PartNo,InnerDiameter,OuterDiameter,Length
 Semroc,BT-3,0.8865,0.9525,45.72
 Semroc,BT-3H,0.8865,0.9525,7.62
 Semroc,BT-3XW,0.8865,0.9525,3.81

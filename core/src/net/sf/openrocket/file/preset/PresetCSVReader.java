@@ -8,26 +8,25 @@ import java.util.List;
 
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import au.com.bytecode.opencsv.CSVReader;
 
 public class PresetCSVReader {
-
+	
 	private InputStream is;
 	private ColumnDefinition[] columns;
 	
-	public PresetCSVReader( InputStream is ) {
+	public PresetCSVReader(InputStream is) {
 		this.is = is;
 	}
 	
 	public List<ComponentPreset> parse() throws IOException {
-	
+		
 		List<ComponentPreset> templates = new ArrayList<ComponentPreset>();
-
+		
 		InputStreamReader r = new InputStreamReader(is);
-
+		
 		// Create the CSV reader.  Use comma separator and double-quote escaping.
-		CSVReader reader = new CSVReader(r,',','"');
+		CSVReader reader = new CSVReader(r, ',', '"');
 		
 		String[] headers = reader.readNext();
 		if (headers == null || headers.length == 0) {
@@ -35,28 +34,28 @@ public class PresetCSVReader {
 		}
 		
 		columns = new ColumnDefinition[headers.length];
-		for( int i = 0; i< headers.length; i++ ) {
+		for (int i = 0; i < headers.length; i++) {
 			String h = headers[i];
-			if( "Manufacturer".equals(h) ) {
+			if ("Manufacturer".equals(h)) {
 				columns[i] = new ColumnDefinition.Manufactuer();
-			} else if ( "PartNumber".equals(h) ) {
+			} else if ("PartNo".equals(h)) {
 				columns[i] = new ColumnDefinition.PartNumber();
-			} else if ( "Type".equals(h) ) {
+			} else if ("Type".equals(h)) {
 				columns[i] = new ColumnDefinition.Type();
 			} else {
 				TypedKey key = ComponentPreset.keyMap.get(h);
-				if ( key == null ) {
+				if (key == null) {
 					throw new RuntimeException("Invalid parameter key " + h + " in file");
 				}
-				columns[i] = new ColumnDefinition.Parameter( key );
+				columns[i] = new ColumnDefinition.Parameter(key);
 			}
 		}
 		
 		String[] line;
-		while( (line = reader.readNext()) != null ) {
+		while ((line = reader.readNext()) != null) {
 			ComponentPreset preset = new ComponentPreset();
-			for( int i = 0; i< headers.length; i++ ) {
-				if ( i > line.length ) {
+			for (int i = 0; i < headers.length; i++) {
+				if (i > line.length) {
 					break;
 				}
 				String value = line[i];
@@ -64,7 +63,7 @@ public class PresetCSVReader {
 			}
 			templates.add(preset);
 		}
-
+		
 		return templates;
 	}
 	

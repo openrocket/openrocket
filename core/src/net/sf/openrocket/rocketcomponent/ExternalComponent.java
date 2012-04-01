@@ -134,7 +134,7 @@ public abstract class ExternalComponent extends RocketComponent {
 
 		// Surface finish is left unchanged
 
-		if ( preset.containsKey(ComponentPreset.MATERIAL ) ) {
+		if ( preset.has(ComponentPreset.MATERIAL ) ) {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if ( mat != null ) {
 				setMaterial(mat);

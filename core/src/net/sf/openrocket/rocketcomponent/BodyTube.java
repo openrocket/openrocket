@@ -137,10 +137,10 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		this.autoRadius = false;
-		if ( preset.containsKey(ComponentPreset.OUTER_DIAMETER) )  {
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
 			this.outerRadius = outerDiameter/2.0;
-			if ( preset.containsKey(ComponentPreset.INNER_DIAMETER) ) {
+			if ( preset.has(ComponentPreset.INNER_DIAMETER) ) {
 				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
 				this.thickness = (outerDiameter-innerDiameter) / 2.0;
 			}

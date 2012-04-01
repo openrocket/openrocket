@@ -1,138 +1,120 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
-import net.sf.openrocket.gui.adaptors.BodyTubePresetModel;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class BodyTubeConfig extends RocketComponentConfig {
-
-	private ComponentChangeListener listener;
+	
 	private MotorConfig motorConfigPane = null;
 	private DoubleModel maxLength;
 	private JComboBox presetComboBox;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public BodyTubeConfig(OpenRocketDocument d, RocketComponent c) {
 		super(d, c);
-
+		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
-
+		
+		
+		
 		////  Body tube template
-		panel.add( new JLabel(trans.get("BodyTubecfg.lbl.Bodytubepreset")) );
-		presetComboBox = new JComboBox(new BodyTubePresetModel(component));
-		panel.add(presetComboBox);
-		{
-			JButton opendialog = new JButton("o");
-			opendialog.addActionListener(
-					new ActionListener() {
-
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							ComponentPresetChooserDialog dialog = new ComponentPresetChooserDialog(SwingUtilities.getWindowAncestor(BodyTubeConfig.this));
-							dialog.setVisible(true);
-							ComponentPreset preset = dialog.getSelectedComponentPreset();
-						}
-					});
-			panel.add( opendialog, "wrap" );
-		}
-
+		// FIXME: Move to proper location
+		panel.add(new JLabel());
+		presetComboBox = new JComboBox(new PresetModel(component));
+		presetComboBox.setEditable(false);
+		panel.add(presetComboBox, "wrap para");
+		
+		
+		
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
-
+		
 		maxLength = new DoubleModel(2.0);
 		DoubleModel length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-
+		
 		JSpinner spin = new JSpinner(length.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-
+		
 		panel.add(new UnitSelector(length), "growx");
 		panel.add(new BasicSlider(length.getSliderModel(0, 0.5, maxLength)), "w 100lp, wrap");
-
-
+		
+		
 		//// Body tube diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Outerdiameter")));
-
+		
 		DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		// Diameter = 2*Radius
-
+		
 		spin = new JSpinner(od.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-
+		
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap 0px");
-
+		
 		JCheckBox check = new JCheckBox(od.getAutomaticAction());
 		//// Automatic
 		check.setText(trans.get("BodyTubecfg.checkbox.Automatic"));
 		panel.add(check, "skip, span 2, wrap");
-
-
+		
+		
 		////  Inner diameter
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Innerdiameter")));
-
+		
 		// Diameter = 2*Radius
 		DoubleModel m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
-
-
+		
+		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-
+		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(new DoubleModel(0), od)), "w 100lp, wrap");
-
-
+		
+		
 		////  Wall thickness
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Wallthickness")));
-
+		
 		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
-
+		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
-
+		
 		panel.add(new UnitSelector(m), "growx");
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap 0px");
-
+		
 		//// Filled
 		check = new JCheckBox(new BooleanModel(component, "Filled"));
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		panel.add(check, "skip, span 2, wrap");
-
-
+		
+		
 		//// Material
 		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
 				"cell 4 0, gapleft paragraph, aligny 0%, spany");
-
+		
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.General"), null, panel,
 				trans.get("BodyTubecfg.tab.Generalproperties"), 0);
@@ -141,47 +123,17 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfigPane,
 				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 		tabbedPane.setSelectedIndex(0);
-
-		// need to work in the max length for body tubes based on presets...
-		adjustPresetState();
-
-		listener = new ComponentChangeListener() {
-
-			@Override
-			public void componentChanged(ComponentChangeEvent e) {
-				adjustPresetState();
-			}
-
-		};
-		component.addChangeListener(listener);
-
+		
+		
 	}
-
+	
 	@Override
 	public void updateFields() {
 		super.updateFields();
 		if (motorConfigPane != null)
 			motorConfigPane.updateFields();
 	}
-
-	@Override
-	public void invalidateModels() {
-		super.invalidateModels();
-		component.removeChangeListener(listener);
-	}
-
-	private void adjustPresetState() {
-		BodyTube bt = (BodyTube) component;
-		if ( bt.getPresetComponent() != null ) {
-			ComponentPreset btPreset = bt.getPresetComponent();
-			maxLength.setValue( btPreset.get(ComponentPreset.LENGTH) );
-		} else {
-			// here we should be able to force the preset combo box to display empty.
-			// We set the selected index to -1 (undefined), then force a repaint.
-			presetComboBox.setSelectedIndex(-1);
-			presetComboBox.repaint();
-			maxLength.setValue(2.0);
-		}
-	}
-
+	
+	
+	
 }
