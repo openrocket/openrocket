@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class TypedPropertyMap {
+public class TypedPropertyMap implements Cloneable {
 	
 	private final Map<TypedKey<?>, Object> delegate;
 	
@@ -65,6 +65,22 @@ public class TypedPropertyMap {
 	
 	public Set<Entry<TypedKey<?>, Object>> entrySet() {
 		return delegate.entrySet();
+	}
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("TypedPropertyMap: { ");
+		for( Map.Entry<TypedKey<?>, Object> e : delegate.entrySet() ) {
+			sb.append(e.getKey()).append(" => ").append(String.valueOf(e.getValue()));
+		}
+		sb.append("}");
+		return sb.toString();
+	}
+
+	@Override
+	protected TypedPropertyMap clone() throws CloneNotSupportedException {
+		TypedPropertyMap clone = new TypedPropertyMap();
+		clone.putAll(this);
+		return clone;
 	}
 	
 }
