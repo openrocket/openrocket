@@ -55,7 +55,6 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	@Override
 	public void setSelectedItem(Object item) {
 		log.user("User selected preset item '" + item + "' for component " + component);
-		System.err.println("**** Setting item: " + item);
 		
 		if (item == null) {
 			// FIXME:  What to do?
@@ -83,7 +82,6 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	public void componentChanged(ComponentChangeEvent e) {
 		if (previousPreset != component.getPresetComponent()) {
 			previousPreset = component.getPresetComponent();
-			System.err.println("Firing event");
 			fireContentsChanged(this, 0, getSize());
 		}
 	}
