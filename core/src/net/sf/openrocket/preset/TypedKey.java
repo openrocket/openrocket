@@ -2,12 +2,13 @@ package net.sf.openrocket.preset;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class TypedKey<T> {
-	
+
 	private final String name;
 	private final Class<T> type;
 	private final UnitGroup unitGroup;
@@ -21,53 +22,61 @@ public class TypedKey<T> {
 		this.type = type;
 		this.unitGroup = unitGroup;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public Class<T> getType() {
 		return type;
 	}
-	
+
 	public UnitGroup getUnitGroup() {
 		return unitGroup;
 	}
-	
-	public Object parseFromString(String value) {
-		if (type.equals(Boolean.class)) {
+
+	public Object parseFromString( String value ) {
+		if ( type.equals(Manufacturer.class)) {
+			Manufacturer m = Manufacturer.getManufacturer(value);
+			return m;
+		}
+		if ( type.equals(ComponentPreset.Type.class) ) {
+			ComponentPreset.Type t = ComponentPreset.Type.valueOf(value);
+			return t;
+		}
+		if ( type.equals(Boolean.class) ) {
 			return Boolean.parseBoolean(value);
 		}
-		if (type.isAssignableFrom(Double.class)) {
+		if ( type.isAssignableFrom(Double.class) ) {
 			return Double.parseDouble(value);
 		}
-		if (type.equals(String.class)) {
+		if ( type.equals(String.class ) ) {
 			return value;
 		}
-		if (type.equals(Finish.class)) {
+		if ( type.equals(Finish.class) ) {
 			return Finish.valueOf(value);
 		}
-		if (type.equals(Material.class)) {
+		if ( type.equals(Material.class) ) {
 			// need to translate the value first!
 			String translated_value = Application.getTranslator().get(value);
 			Material material;
 			material = Databases.findMaterial(Material.Type.BULK, translated_value);
-			if (material != null) {
+			if ( material != null ) {
 				return material;
 			}
 			material = Databases.findMaterial(Material.Type.LINE, translated_value);
-			if (material != null) {
+			if ( material != null ) {
 				return material;
 			}
 			material = Databases.findMaterial(Material.Type.SURFACE, translated_value);
-			if (material != null) {
+			if ( material != null ) {
 				return material;
 			}
 			throw new IllegalArgumentException("Invalid material " + value + " in component preset.");
 		}
 		throw new IllegalArgumentException("Inavlid type " + type.getName() + " for component preset parameter " + name);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -76,7 +85,7 @@ public class TypedKey<T> {
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
