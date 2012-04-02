@@ -38,7 +38,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		
 		////  Body tube template
 		// FIXME: Move to proper location
-		panel.add(new JLabel());
+		panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
 		presetComboBox = new JComboBox(new PresetModel(component));
 		presetComboBox.setEditable(false);
 		panel.add(presetComboBox, "wrap para");
