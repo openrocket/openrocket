@@ -10,14 +10,22 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.adaptors.Column;
+import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.Value;
 
 public class ComponentPresetChooserDialog extends JDialog {
 	
@@ -31,21 +39,16 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private boolean okClicked = false;
 	
 	
-	public ComponentPresetChooserDialog(Window owner, RocketComponent component, TypedKey<?>... columnKeys) {
+	public ComponentPresetChooserDialog(Window owner, RocketComponent component, final TypedKey<?>... columnKeys) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		this.component = component;
 		
-		// FIXME: Make generic for component type
 		presets = Application.getComponentPresetDao().listAll();
-		
-		
-		
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		/*
-		Column[] columns = new Column[columnKeys.length];
+		final Column[] columns = new Column[columnKeys.length];
 		
 		for (int i = 0; i < columnKeys.length; i++) {
 			final TypedKey<?> key = columnKeys[i];
@@ -53,12 +56,11 @@ public class ComponentPresetChooserDialog extends JDialog {
 				@Override
 				public Object getValueAt(int row) {
 					if (key.getType() == Double.class && key.getUnitGroup() != null) {
-						return new Value(, null);
+						double v = (Double) ComponentPresetChooserDialog.this.presets.get(row).get(key);
+						return new Value( v, key.getUnitGroup() );
+					} else {
+						return ComponentPresetChooserDialog.this.presets.get(row);
 					}
-					
-					
-					// TODO Auto-generated method stub
-					return null;
 				}
 			};
 		}
@@ -66,14 +68,25 @@ public class ComponentPresetChooserDialog extends JDialog {
 		ColumnTableModel tableModel = new ColumnTableModel(columns) {
 			@Override
 			public int getRowCount() {
-				// FIXME Auto-generated method stub
-				return 0;
+				return ComponentPresetChooserDialog.this.presets.size();
 			}
-		}
-		*/
+		};
 		
-		
-		
+		final JTable table = new JTable( tableModel );
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+		// FIXME we might need some custom sorters.
+		/*for (int i = 0; i < columnKeys.length; i++) {
+			TypedKey<?> column = columnKeys[i];
+			sorter.setComparator(i, column.getComparator());
+		}*/
+		table.setRowSorter(sorter);
+
+		JScrollPane scrollpane = new JScrollPane();
+		scrollpane.setViewportView(table);
+		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
+
 		
 		// OK / Cancel buttons
 		JButton okButton = new JButton(trans.get("dlg.but.ok"));
