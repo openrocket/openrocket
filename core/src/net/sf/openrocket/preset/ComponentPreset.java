@@ -7,6 +7,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 
 
@@ -33,14 +34,14 @@ public class ComponentPreset {
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
 	public final static TypedKey<String> PARTNO = new TypedKey<String>("PartNo",String.class);
 	public final static TypedKey<Type> TYPE = new TypedKey<Type>("Type",Type.class);
-	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class);
-	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class);
-	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class);
+	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Material> MATERIAL = new TypedKey<Material>("Material", Material.class);
 	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish", Finish.class);
-	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class);
+	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Boolean> FILLED = new TypedKey<Boolean>("Filled", Boolean.class);
-	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class);
+	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
 	
 	public final static Map<String, TypedKey<?>> keyMap = new HashMap<String, TypedKey<?>>();
 	static {
