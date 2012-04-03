@@ -1,6 +1,6 @@
 package net.sf.openrocket.startup;
 
-import net.sf.openrocket.database.Daos;
+import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.MotorDatabase;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
@@ -25,7 +25,7 @@ public final class Application {
 	
 	private static MotorDatabase motorSetDatabase;
 	
-	private static Daos daos;
+	private static ComponentPresetDao componentPresetDao;
 
 	private static Preferences preferences;
 	
@@ -163,12 +163,13 @@ public final class Application {
 		Application.motorSetDatabase = motorSetDatabase;
 	}
 
-	public static Daos getDaos() {
-		return daos;
+	public static ComponentPresetDao getComponentPresetDao() {
+		return componentPresetDao;
+		
 	}
 
-	public static void setDaos(Daos daos) {
-		Application.daos = daos;
+	public static void setComponentPresetDao(ComponentPresetDao componentPresetDao) {
+		Application.componentPresetDao = componentPresetDao;
 	}
 	
 

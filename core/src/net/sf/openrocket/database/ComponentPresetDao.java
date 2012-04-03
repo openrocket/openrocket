@@ -16,9 +16,9 @@ public class ComponentPresetDao {
 	private final List<ComponentPreset> templates = new ArrayList<ComponentPreset>();
 
 	// Package scope constructor to control creation pattern.
-	ComponentPresetDao() {}
+	public ComponentPresetDao() {}
 	
-	void initialize() throws IOException {
+	public void initialize() throws IOException {
 		
 		InputStream is = ComponentPresetDao.class.getResourceAsStream("/datafiles/bodytubepresets.csv");
 		

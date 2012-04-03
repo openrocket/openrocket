@@ -37,7 +37,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		this.component = component;
 		
 		// FIXME: Make generic for component type
-		presets = Application.getDaos().getBodyTubePresetDao().listAll();
+		presets = Application.getComponentPresetDao().listAll();
 		
 		
 		

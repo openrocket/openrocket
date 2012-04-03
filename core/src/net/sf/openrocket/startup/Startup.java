@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
-import net.sf.openrocket.database.DaosImpl;
+import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
@@ -57,7 +57,9 @@ public class Startup {
 		initializeL10n();
 
 		// Must be done after localization is initialized
-		Application.setDaos( new DaosImpl() );
+		ComponentPresetDao componentPresetDao = new ComponentPresetDao();
+		componentPresetDao.initialize();
+		Application.setComponentPresetDao( componentPresetDao );
 		
 		// Continue startup in Startup2 class (where Application is already set up)
 		Startup2.runMain(args);

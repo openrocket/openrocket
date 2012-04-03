@@ -28,9 +28,8 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private final List<ComponentPreset> presets;
 	
 	public PresetModel(RocketComponent component) {
-		// FIXME:  Make generic for any component type
 		// FIXME:  This should load only the user's favorites, NOT all presets
-		presets = Application.getDaos().getBodyTubePresetDao().listAll();
+		presets = Application.getComponentPresetDao().listAll();
 		this.component = component;
 		previousPreset = component.getPresetComponent();
 		component.addComponentChangeListener(this);
