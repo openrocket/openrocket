@@ -48,11 +48,28 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		final Column[] columns = new Column[columnKeys.length];
+		final Column[] columns = new Column[columnKeys.length+1];
 		
+		columns[0] = new Column(trans.get("table.column.Favorite") ) {
+			@Override
+			public Object getValueAt(int row) {
+				return Boolean.valueOf(ComponentPresetChooserDialog.this.presets.get(row).isFavorite());
+			}
+			
+			@Override
+			public void setValueAt(int row, Object value) {
+				Application.getComponentPresetDao().setFavorite(ComponentPresetChooserDialog.this.presets.get(row), (Boolean) value);
+			}
+
+			@Override
+			public Class<?> getColumnClass() {
+				return Boolean.class;
+			}
+			
+		};
 		for (int i = 0; i < columnKeys.length; i++) {
 			final TypedKey<?> key = columnKeys[i];
-			columns[i] = new Column(trans.get("table.column." + columnKeys[i].getName())) {
+			columns[i+1] = new Column(trans.get("table.column." + columnKeys[i].getName())) {
 				@Override
 				public Object getValueAt(int row) {
 					if (key.getType() == Double.class && key.getUnitGroup() != null) {
@@ -70,9 +87,16 @@ public class ComponentPresetChooserDialog extends JDialog {
 			public int getRowCount() {
 				return ComponentPresetChooserDialog.this.presets.size();
 			}
+
+			@Override
+			public boolean isCellEditable(int rowIndex, int columnIndex) {
+				return columnIndex == 0;
+			}
+			
 		};
 		
 		final JTable table = new JTable( tableModel );
+		
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);

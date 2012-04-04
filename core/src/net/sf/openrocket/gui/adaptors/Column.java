@@ -63,5 +63,16 @@ public abstract class Column {
 	 * @return		the value at the specified position.
 	 */
 	public abstract Object getValueAt(int row);
+
+	/**
+	 * Set a value in the table.
+	 * 
+	 * Override if the cell is editable.
+	 * 
+	 * @param row
+	 * @param value
+	 */
+	public void setValueAt(int row, Object value ) {
+	}
 	
 }

@@ -19,16 +19,37 @@ import net.sf.openrocket.util.BugException;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
+// FIXME - Implement clone.
 public class ComponentPreset {
 	
 	private final TypedPropertyMap properties = new TypedPropertyMap();
 	
-	
-	// TODO - Implement clone.
+	private boolean favorite = false;
 	
 	public enum Type {
 		BODY_TUBE,
-		NOSE_CONE
+		NOSE_CONE;
+
+		Type[] compatibleTypes;
+		
+		Type () {
+			compatibleTypes = new Type[1];
+			compatibleTypes[0] = this;
+		}
+		
+		Type( Type ... t ) {
+			
+			compatibleTypes = new Type[t.length+1];
+			compatibleTypes[0] = this;
+			for( int i=0; i<t.length; i++ ) {
+				compatibleTypes[i+1] = t[i];
+			}
+		}
+		
+		public Type[] getCompatibleTypes() {
+			return compatibleTypes;
+		}
+		
 	}
 	
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
@@ -158,10 +179,20 @@ public class ComponentPreset {
 		return (T) value;
 	}
 	
+	public boolean isFavorite() {
+		return favorite;
+	}
+
+	public void setFavorite(boolean favorite) {
+		this.favorite = favorite;
+	}
+
 	@Override
 	public String toString() {
 		return get(MANUFACTURER).toString() + " " + get(PARTNO);
 	}
 	
-	
+	public String preferenceKey() {
+		return get(MANUFACTURER).toString() + "|" + get(PARTNO);
+	}
 }

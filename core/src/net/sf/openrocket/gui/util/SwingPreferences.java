@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
@@ -553,7 +555,25 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		return materials;
 	}
 	
+	public void setComponentFavorite( ComponentPreset preset, boolean favorite ) {
+		Preferences prefs = PREFNODE.node("favoritePresets");
+		if ( favorite ) {
+			prefs.putBoolean(preset.preferenceKey(), true);
+		} else {
+			prefs.remove(preset.preferenceKey());
+		}
+	}
 	
+	public Set<String> getComponentFavorites( ) {
+		Preferences prefs = PREFNODE.node("favoritePresets");
+		Set<String> collection = new HashSet<String>();
+		try {
+			collection.addAll( Arrays.asList(prefs.keys()));
+		} catch ( BackingStoreException bex ) {
+			
+		}
+		return collection;
+	}
 	////  Helper methods
 	
 }

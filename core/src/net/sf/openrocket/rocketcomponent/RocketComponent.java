@@ -673,6 +673,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	/**
+	 * Return the most compatible preset type for this component.
+	 * This method should be overridden by components which have presets
+	 * 
+	 * @return the most compatible ComponentPreset.Type or <code>null</code> if no presets are compatible.
+	 */
+	public ComponentPreset.Type getPresetType() {
+		return null;
+	}
+	
+	/**
 	 * Set the preset component this component is based upon and load all of the 
 	 * preset values.
 	 * 

@@ -63,6 +63,11 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	/************  Get/set component parameter methods ************/
 	
+	@Override
+	public ComponentPreset.Type getPresetType() {
+		return ComponentPreset.Type.BODY_TUBE;
+	}
+
 	/**
 	 * Return the outer radius of the body tube.
 	 *

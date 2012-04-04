@@ -52,5 +52,10 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 		}
 		return columns[col].getValueAt(row);
 	}
+
+	@Override
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		columns[columnIndex].setValueAt(rowIndex, aValue);
+	}
 	
 }

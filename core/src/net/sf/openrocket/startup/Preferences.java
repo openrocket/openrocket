@@ -7,6 +7,7 @@ import java.util.Set;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
@@ -362,6 +363,9 @@ public abstract class Preferences {
 	public abstract void addUserMaterial(Material m);
 	public abstract Set<Material> getUserMaterials();
 	public abstract void removeUserMaterial(Material m);
+
+	public abstract void setComponentFavorite( ComponentPreset preset, boolean favorite );
+	public abstract Set<String> getComponentFavorites( );
 
 	/*
 	 * Map of default line styles
