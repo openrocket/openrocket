@@ -14,5 +14,5 @@ while echo "$1" | grep -q "^-" ; do
 done
 
 
-java -cp bin/:resources/:lib/miglayout15-swing.jar:lib/jcommon-1.0.16.jar:lib/jfreechart-1.0.13.jar:lib/iText-5.0.2.jar $JAVAOPTS net.sf.openrocket.startup.Startup "$@"
+java -cp bin/:resources/:lib/miglayout15-swing.jar:lib/jcommon-1.0.16.jar:lib/jfreechart-1.0.13.jar:lib/iText-5.0.2.jar:lib/opencsv-2.3.jar $JAVAOPTS net.sf.openrocket.startup.Startup "$@"
 
