@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
-import net.sf.openrocket.database.ComponentPresetDao;
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
@@ -57,8 +57,8 @@ public class Startup {
 		initializeL10n();
 
 		// Must be done after localization is initialized
-		ComponentPresetDao componentPresetDao = new ComponentPresetDao();
-		componentPresetDao.initialize();
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
+		componentPresetDao.load("datafiles", ".*csv");
 		Application.setComponentPresetDao( componentPresetDao );
 		
 		// Continue startup in Startup2 class (where Application is already set up)

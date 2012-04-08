@@ -5,6 +5,8 @@ import java.util.List;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
+import net.sf.openrocket.database.Database;
+import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -13,7 +15,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
-public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener {
+public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset> {
 	
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
@@ -25,7 +27,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private final RocketComponent component;
 	private ComponentPreset previousPreset;
 	
-	private final List<ComponentPreset> presets;
+	private List<ComponentPreset> presets;
 	
 	public PresetModel(RocketComponent component) {
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
@@ -84,6 +86,16 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		}
 	}
 	
-	// FIXME:  Make model invalidatable
-	
+	@Override
+	public void elementAdded(ComponentPreset element, Database<ComponentPreset> source) {
+		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
+		this.fireContentsChanged(this, 0, getSize());
+	}
+
+	@Override
+	public void elementRemoved(ComponentPreset element, Database<ComponentPreset> source) {
+		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
+		this.fireContentsChanged(this, 0, getSize());
+	}
+
 }

@@ -20,7 +20,7 @@ import net.sf.openrocket.util.BugException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 // FIXME - Implement clone.
-public class ComponentPreset {
+public class ComponentPreset implements Comparable<ComponentPreset> {
 	
 	private final TypedPropertyMap properties = new TypedPropertyMap();
 	
@@ -167,6 +167,14 @@ public class ComponentPreset {
 		
 	}
 	
+	public Manufacturer getManufacturer() {
+		return properties.get(MANUFACTURER);
+	}
+	
+	public String getPartNo() {
+		return properties.get(PARTNO);
+	}
+	
 	public boolean has(Object key) {
 		return properties.containsKey(key);
 	}
@@ -188,6 +196,16 @@ public class ComponentPreset {
 	}
 
 	@Override
+	public int compareTo(ComponentPreset p2) {
+		int manuCompare = this.getManufacturer().getSimpleName().compareTo(p2.getManufacturer().getSimpleName());
+		if ( manuCompare != 0 )
+			return manuCompare;
+		
+		int partNoCompare = this.getPartNo().compareTo(p2.getPartNo());
+		return partNoCompare;
+	}
+
+	@Override
 	public String toString() {
 		return get(MANUFACTURER).toString() + " " + get(PARTNO);
 	}
@@ -195,4 +213,5 @@ public class ComponentPreset {
 	public String preferenceKey() {
 		return get(MANUFACTURER).toString() + "|" + get(PARTNO);
 	}
+	
 }

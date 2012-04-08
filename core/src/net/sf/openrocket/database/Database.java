@@ -1,6 +1,7 @@
 package net.sf.openrocket.database;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -15,9 +16,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import net.sf.openrocket.file.Loader;
+import net.sf.openrocket.file.iterator.DirectoryIterator;
+import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.JarUtil;
+import net.sf.openrocket.util.Pair;
 
 
 
@@ -31,7 +35,7 @@ import net.sf.openrocket.util.JarUtil;
 public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 	private static final LogHelper log = Application.getLogger();
 	
-	private final List<T> list = new ArrayList<T>();
+	protected final List<T> list = new ArrayList<T>();
 	private final ArrayList<DatabaseListener<T>> listeners =
 			new ArrayList<DatabaseListener<T>>();
 	private final Loader<T> loader;
@@ -126,7 +130,27 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 
 	////////  Directory loading
 	
+	public void load( String dir, final String pattern ) throws IOException {
+		
+		FileFilter filter = new FileFilter() {
 
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().matches(pattern);
+			}
+			
+		};
+		
+		FileIterator files = DirectoryIterator.findDirectory(dir, filter);
+		while( files != null && files.hasNext() ) {
+			Pair<String, InputStream> file = files.next();
+			try {
+				this.addAll(loader.load(file.getV(), file.getU()));
+			} catch (IOException e) {
+				log.warn("Error loading file " + file + ": " + e.getMessage(), e);
+			}
+		}
+	}
 
 	/**
 	 * Load all files in a directory to the motor database.  Only files with file

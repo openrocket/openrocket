@@ -76,7 +76,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 						double v = (Double) ComponentPresetChooserDialog.this.presets.get(row).get(key);
 						return new Value( v, key.getUnitGroup() );
 					} else {
-						return ComponentPresetChooserDialog.this.presets.get(row);
+						return ComponentPresetChooserDialog.this.presets.get(row).get(key);
 					}
 				}
 			};
