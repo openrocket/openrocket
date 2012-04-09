@@ -1,3 +1,7 @@
+2012-04-09  Sampo Niskanen
+
+	* [BUG] Cancelling simulation causes later simulations to fail
+
 2012-03-27  Sampo Niskanen
 
 	* [BUG] Inputting negative rotation angle values of components

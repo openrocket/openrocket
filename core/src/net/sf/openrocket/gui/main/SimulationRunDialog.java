@@ -10,8 +10,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -58,8 +61,28 @@ public class SimulationRunDialog extends JDialog {
 	private static final double APOGEE_PROGRESS = 0.7;
 	
 	
-	private final static ExecutorService executor = Executors.newFixedThreadPool(
-			SwingPreferences.getMaxThreadCount());
+	/**
+	 * A single ThreadPoolExecutor that will be used for all simulations.
+	 * This executor must not be shut down.
+	 */
+	private static final ThreadPoolExecutor executor;
+	static {
+		int n = SwingPreferences.getMaxThreadCount();
+		executor = new ThreadPoolExecutor(n, n,
+				0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>(),
+				new ThreadFactory() {
+					private ThreadFactory factory = Executors.defaultThreadFactory();
+					
+					@Override
+					public Thread newThread(Runnable r) {
+						Thread t = factory.newThread(r);
+						t.setDaemon(true);
+						return t;
+					}
+				});
+	}
+	
 	
 	
 	private final JLabel simLabel, timeLabel, altLabel, velLabel;
@@ -172,10 +195,10 @@ public class SimulationRunDialog extends JDialog {
 	 * the Cancel button on the dialog.
 	 */
 	public void cancelSimulations() {
-		executor.shutdownNow();
 		for (SimulationWorker w : simulationWorkers) {
 			w.cancel(true);
 		}
+		executor.purge();
 	}
 	
 	
