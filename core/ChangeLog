@@ -1,6 +1,7 @@
 2012-04-09  Sampo Niskanen
 
 	* [BUG] Cancelling simulation causes later simulations to fail
+	* Add debugging for NPE in GeneralOptimizationDialog
 
 2012-03-27  Sampo Niskanen
 
