@@ -1,0 +1,27 @@
+Mfg.,Part No.,Desc.,Units,ID,OD,Length,Material,Engine,,,,,,,
+Giant Leap,B-1.145,29mm BT,mm,29.083,32.131,914.4,Kraft phenolic,,,,,,,,
+Giant Leap,B-1.525,38mm BT,mm,38.735,41.7068,914.4,Kraft phenolic,,,,,,,,
+Giant Leap,B-1.525-L,38mm BT,mm,38.735,41.91,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,B-2.152,54mm BT,mm,54.661,57.6834,914.4,Kraft phenolic,,,,,,,,
+Giant Leap,B-2.152-L,54mm BT,mm,54.661,57.658,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,B-2.56,2.56 BT,mm,65.024,68.072,914.4,Kraft phenolic,,,,,,,,
+Giant Leap,B-3.00,3.00 BT,mm,76.2,77.851,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,B-3.00-L,3.00 BT,mm,76.2508,79.375,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,B-3.90,3.90 BT,mm,99.06,101.854,914.4,Kraft phenolic,,,,,,,,
+Giant Leap,B-3.90-L,3.90 BT,mm,99.06,102.108,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,B-6.00,6.00 BT,mm,152.4,155.575,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,B-7.50,7.50 BT,mm,190.8,195.07,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,MAG 1.5 x 48,38mm Magnaframe Tube,mm,38.735,42.164,1219.2,Kraft phenolic,,,,,,,2.3,58.42
+Giant Leap,MAG 2.1 x 48,54mm Magnaframe Tube,mm,54.661,58.42,1219.2,Kraft phenolic,,,,,,,2.71,68.834
+Giant Leap,MAG 2.5 x 48,2.56  Magnaframe Tube,mm,65.024,68.834,1219.2,Kraft phenolic,,,,,,,3.15,80.01
+Giant Leap,MAG 3.0 x 48,75mm  Magnaframe Tube,mm,76.2,80.01,1219.2,Kraft phenolic,,,,,,,4.05,102.87
+Giant Leap,MAG 3.9 x 48,98mm  Magnaframe Tube,mm,99.06,102.87,1219.2,Kraft phenolic,,,,,,,6.15,156.21
+Giant Leap,MAG 6.0 x48,6.0  Magnaframe Tube,mm,152.4,156.21,1219.2,Kraft phenolic,,,,,,,7.67,194.818
+.Giant Leap,PH 7.5 x 48,7.5  Magnaframe Tube,mm,190.8,194.818,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/MAG 1.5 x 48,38mm Dynawind + Magnaframe Airframe,mm,38.735,42.418,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/MAG 2.1 x 48,54mm Dynawind + Magnaframe Airframe,mm,54.661,58.674,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/MAG 2.5 x 48,2.56 Dynawind + Magnaframe Airframe,mm,65.024,69.088,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/MAG 3.0 x 48,75mm Dynawind + Magnaframe Airframe,mm,76.2,80.772,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/MAG 3.9 x 48,98mm Dynawind + Magnaframe Airframe,mm,99.06,103.632,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/MAG 6.0 x 48,6.0 Dynawind + Magnaframe Airframe,mm,152.4,157.48,1219.2,Kraft phenolic,,,,,,,,
+Giant Leap,DY/PH 7.5 x 48,7.5 Dynawind + Magnaframe Airframe,mm,190.8,196.596,1219.2,Kraft phenolic,,,,,    (don't have this in Magnaframe yet),,,

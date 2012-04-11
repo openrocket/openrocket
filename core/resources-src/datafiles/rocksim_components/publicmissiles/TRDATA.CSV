@@ -1,0 +1,10 @@
+Mfg.,Part No.,Desc.,Units,Front Insert Len,Front Insert OD,Front OD,Length,Rear OD,Core Dia.,Rear Insert Len,Rear Insert OD,Thickness,Config,Material,CG Loc,Mass Units,Mass,Shape
+Public Missiles,PML TC-2.1-1.1,Transition (or tailcone) from 2.152 to 1.145,in,0.25,2.152,2.276,1.75,1.269,0,0,0,0.2189,1,Urethane,0.692,oz.,1.5,0
+Public Missiles,PML TC-2.5-1.1,Transition (or tailcone) from 2.560 to 1.145,in,0.25,2.56,2.684,1.75,1.269,0,0,0,0.334,1,Urethane,0.645,oz.,2.7,0
+Public Missiles,PML TC-2.5-1.5,Transition (or tailcone) from 2.560 to 1.525,in,0.188,2.56,2.684,1.75,1.649,0,0,0,0.17,1,Urethane,0.658,oz.,1.5,0
+Public Missiles,PML TC-3.0-1.5,Transition (or tailcone) from 3.002 to 1.525,in,0.25,3.002,3.126,1.75,1.649,0,0,0,0.263,1,Urethane,0.644,oz.,2.8,0
+Public Missiles,PML TC-3.0-2.1,Transition (or tailcone) from 3.002 to 2.152,in,0.25,3.002,3.126,1.75,2.276,0,0,0,0.155,1,Urethane,0.688,oz.,1.8,0
+Public Missiles,PML TC-3.9-2.1,Transition (or tailcone) from 3.900 to 2.152,in,0.25,3.9,4.024,1.75,2.276,0,0,0,0.225,1,Urethane,0.618,oz.,3.6,0
+Public Missiles,PML TC-3.9-3.0,Transition (or tailcone) from 3.900 to 3.002,in,0.25,3.9,4.024,1.75,3.126,0,0,0,0.205,1,Urethane,0.658,oz.,3.4,0
+Public Missiles,Large Lunar,Boattail,in,6.155,5.987,6.155,20,2.276,0,0.001,2.132,0.0875,1,Polystyrene PS,0,oz.,20,1
+Public Missiles,Little Lunar,Boatail,in,4.024,3.88,4.024,12,1.649,0,0.001,1.505,0.063,1,Polystyrene PS,0,oz.,0,1

@@ -1,0 +1,176 @@
+Mfg.,Part No.,Desc.,Units,Front Insert Len,Front Insert OD,Front OD,Length,Rear OD,Core Dia.,Rear Insert Len,Rear Insert OD,Thickness,Config,Material,CG Loc,Mass Units,Mass,Shape,Shape Param
+SEMROC Astronautics,BR-085225,Balsa Reducer 085 to 225,in,0.500,0.865,0.945,2.500,2.3400,0,0.500,2.250,0,0,Balsa,2.485,oz,0.780,cone,0
+SEMROC Astronautics,BR-085225 [R],Balsa Reducer 085 to 225 – Reversed,in,0.500,2.250,2.340,2.500,0.9450,0,0.500,0.865,0,0,Balsa,1.015,oz,0.780,cone,0
+SEMROC Astronautics,BR-1013,Balsa Reducer 10 to 13,in,0.500,1.000,1.040,0.750,1.3400,0,0.500,1.300,0,0,Balsa,1.243,oz,0.180,cone,0
+SEMROC Astronautics,BR-1013 [R],Balsa Reducer 10 to 13 – Reversed,in,0.500,1.300,1.340,0.750,1.0400,0,0.500,1.000,0,0,Balsa,0.508,oz,0.180,cone,0
+SEMROC Astronautics,BR-1016,Balsa Reducer 10 to 16,in,0.500,1.000,1.040,1.500,1.6400,0,0.500,1.600,0,0,Balsa,1.775,oz,0.320,cone,0
+SEMROC Astronautics,BR-1016 [R],Balsa Reducer 10 to 16 – Reversed,in,0.500,1.600,1.640,1.500,1.0400,0,0.500,1.000,0,0,Balsa,0.725,oz,0.320,cone,0
+SEMROC Astronautics,BR-1016S,Balsa Reducer 10 to 16,in,0.500,1.000,1.040,1.200,1.6400,0,0.500,1.600,0,0,Balsa,1.562,oz,0.290,cone,0
+SEMROC Astronautics,BR-1016S [R],Balsa Reducer 10 to 16 – Reversed,in,0.500,1.600,1.640,1.200,1.0400,0,0.500,1.000,0,0,Balsa,0.638,oz,0.290,cone,0
+SEMROC Astronautics,BR-1116,Balsa Reducer 11 to 16,in,0.500,1.130,1.170,1.500,1.6400,0,0.500,1.600,0,0,Balsa,1.775,oz,0.330,cone,0
+SEMROC Astronautics,BR-1116 [R],Balsa Reducer 11 to 16 – Reversed,in,0.500,1.600,1.640,1.500,1.1700,0,0.500,1.130,0,0,Balsa,0.725,oz,0.330,cone,0
+SEMROC Astronautics,BR-1118,Balsa Reducer 11 to 18,in,0.500,1.130,1.170,1.500,1.8400,0,0.500,1.800,0,0,Balsa,1.775,oz,0.360,cone,0
+SEMROC Astronautics,BR-1118 [R],Balsa Reducer 11 to 18 – Reversed,in,0.500,1.800,1.840,1.500,1.1700,0,0.500,1.130,0,0,Balsa,0.725,oz,0.360,cone,0
+SEMROC Astronautics,BR-11516,Balsa Reducer 115 to 16,in,0.500,1.140,1.220,3.375,1.6400,0,0.500,1.600,0,0,Balsa,3.106,oz,1.050,cone,0
+SEMROC Astronautics,BR-11516 [R],Balsa Reducer 115 to 16 – Reversed,in,0.500,1.600,1.640,3.375,1.2200,0,0.500,1.140,0,0,Balsa,1.269,oz,1.050,cone,0
+SEMROC Astronautics,BR-11518,Balsa Reducer 115 to 18,in,0.500,1.140,1.220,3.375,1.8400,0,0.500,1.800,0,0,Balsa,3.106,oz,1.100,cone,0
+SEMROC Astronautics,BR-11518 [R],Balsa Reducer 115 to 18 – Reversed,in,0.500,1.800,1.840,3.375,1.2200,0,0.500,1.140,0,0,Balsa,1.269,oz,1.100,cone,0
+SEMROC Astronautics,BR-125-175,Balsa Reducer 125 to 175,in,0.500,1.250,1.340,2.100,1.8400,0,0.500,1.750,0,0,Balsa,2.201,oz,0.500,cone,0
+SEMROC Astronautics,BR-125-175 [R],Balsa Reducer 125 to 175 – Reversed,in,0.500,1.750,1.840,2.100,1.3400,0,0.500,1.250,0,0,Balsa,0.899,oz,0.500,cone,0
+SEMROC Astronautics,BR-125-175L,Balsa Reducer 125 to 175,in,0.500,1.250,1.340,2.800,1.8400,0,0.500,1.750,0,0,Balsa,2.698,oz,0.650,cone,0
+SEMROC Astronautics,BR-125-175L [R],Balsa Reducer 125 to 175 – Reversed,in,0.500,1.750,1.840,2.800,1.3400,0,0.500,1.250,0,0,Balsa,1.102,oz,0.650,cone,0
+SEMROC Astronautics,BR-125-225,Balsa Reducer 125 to 225,in,0.500,1.250,1.340,2.800,2.3400,0,0.500,2.250,0,0,Balsa,2.698,oz,0.600,cone,0
+SEMROC Astronautics,BR-125-225 [R],Balsa Reducer 125 to 225 – Reversed,in,0.500,2.250,2.340,2.800,1.3400,0,0.500,1.250,0,0,Balsa,1.102,oz,0.600,cone,0
+SEMROC Astronautics,BR-1316,Balsa Reducer 13 to 16,in,0.500,1.300,1.340,0.750,1.6400,0,0.500,1.600,0,0,Balsa,1.243,oz,0.240,cone,0
+SEMROC Astronautics,BR-1316 [R],Balsa Reducer 13 to 16 – Reversed,in,0.500,1.600,1.640,0.750,1.3400,0,0.500,1.300,0,0,Balsa,0.508,oz,0.240,cone,0
+SEMROC Astronautics,BR-1316F,Balsa Reducer 13 to 16,in,0.500,1.300,1.340,1.750,1.6400,0,0.500,1.600,0,0,Balsa,1.953,oz,0.360,cone,0
+SEMROC Astronautics,BR-1316F [R],Balsa Reducer 13 to 16 – Reversed,in,0.500,1.600,1.640,1.750,1.3400,0,0.500,1.300,0,0,Balsa,0.798,oz,0.360,cone,0
+SEMROC Astronautics,BR-1316L,Balsa Reducer 13 to 16,in,0.500,1.300,1.340,1.500,1.6400,0,0.500,1.600,0,0,Balsa,1.775,oz,0.300,cone,0
+SEMROC Astronautics,BR-1316L [R],Balsa Reducer 13 to 16 – Reversed,in,0.500,1.600,1.640,1.500,1.3400,0,0.500,1.300,0,0,Balsa,0.725,oz,0.300,cone,0
+SEMROC Astronautics,BR-1316M,Balsa Reducer 13 to 16,in,0.500,1.300,1.340,1.000,1.6400,0,0.500,1.600,0,0,Balsa,1.420,oz,0.280,cone,0
+SEMROC Astronautics,BR-1316M [R],Balsa Reducer 13 to 16 – Reversed,in,0.500,1.600,1.640,1.000,1.3400,0,0.500,1.300,0,0,Balsa,0.580,oz,0.280,cone,0
+SEMROC Astronautics,BR-1320,Balsa Reducer 13 to 20,in,0.500,1.300,1.340,0.750,2.0400,0,0.500,2.000,0,0,Balsa,1.243,oz,0.280,cone,0
+SEMROC Astronautics,BR-1320 [R],Balsa Reducer 13 to 20 – Reversed,in,0.500,2.000,2.040,0.750,1.3400,0,0.500,1.300,0,0,Balsa,0.508,oz,0.280,cone,0
+SEMROC Astronautics,BR-1320L,Balsa Reducer 13 to 20,in,0.500,1.300,1.340,4.500,2.0400,0,0.500,2.000,0,0,Balsa,3.905,oz,0.560,cone,0
+SEMROC Astronautics,BR-1320L [R],Balsa Reducer 13 to 20 – Reversed,in,0.500,2.000,2.040,4.500,1.3400,0,0.500,1.300,0,0,Balsa,1.595,oz,0.560,cone,0
+SEMROC Astronautics,BR-150-225,Balsa Reducer 150 to 225,in,0.500,1.500,1.590,2.250,2.3400,0,0.500,2.250,0,0,Balsa,2.308,oz,1.050,cone,0
+SEMROC Astronautics,BR-150-225 [R],Balsa Reducer 150 to 225 – Reversed,in,0.500,2.250,2.340,2.250,1.5900,0,0.500,1.500,0,0,Balsa,0.943,oz,1.050,cone,0
+SEMROC Astronautics,BR-150-275,Balsa Reducer 150 to 275,in,0.500,1.500,1.590,2.900,2.8400,0,0.500,2.750,0,0,Balsa,2.769,oz,1.450,cone,0
+SEMROC Astronautics,BR-150-275 [R],Balsa Reducer 150 to 275 – Reversed,in,0.500,2.750,2.840,2.900,1.5900,0,0.500,1.500,0,0,Balsa,1.131,oz,1.450,cone,0
+SEMROC Astronautics,BR-1618,Balsa Reducer 16 to 18,in,0.500,1.600,1.640,1.500,1.8400,0,0.500,1.800,0,0,Balsa,1.775,oz,0.280,cone,0
+SEMROC Astronautics,BR-1618 [R],Balsa Reducer 16 to 18 – Reversed,in,0.500,1.800,1.840,1.500,1.6400,0,0.500,1.600,0,0,Balsa,0.725,oz,0.280,cone,0
+SEMROC Astronautics,BR-1618F,Balsa Reducer 16 to 18,in,0.500,1.600,1.640,1.800,1.8400,0,0.500,1.800,0,0,Balsa,1.988,oz,0.300,cone,0
+SEMROC Astronautics,BR-1618F [R],Balsa Reducer 16 to 18 – Reversed,in,0.500,1.800,1.840,1.800,1.6400,0,0.500,1.600,0,0,Balsa,0.812,oz,0.300,cone,0
+SEMROC Astronautics,BR-1620,Balsa Reducer 16 to 20,in,0.500,1.600,1.640,1.500,2.0400,0,0.500,2.000,0,0,Balsa,1.775,oz,0.300,cone,0
+SEMROC Astronautics,BR-1620 [R],Balsa Reducer 16 to 20 – Reversed,in,0.500,2.000,2.040,1.500,1.6400,0,0.500,1.600,0,0,Balsa,0.725,oz,0.300,cone,0
+SEMROC Astronautics,BR-1620F,Balsa Reducer 16 to 20,in,0.500,1.600,1.640,1.200,2.0400,0,0.500,2.000,0,0,Balsa,1.562,oz,0.270,cone,0
+SEMROC Astronautics,BR-1620F [R],Balsa Reducer 16 to 20 – Reversed,in,0.500,2.000,2.040,1.200,1.6400,0,0.500,1.600,0,0,Balsa,0.638,oz,0.270,cone,0
+SEMROC Astronautics,BR-16225F,Balsa Reducer 16 to 225,in,0.500,1.600,1.640,1.550,2.3400,0,0.500,2.250,0,0,Balsa,1.811,oz,0.330,cone,0
+SEMROC Astronautics,BR-16225F [R],Balsa Reducer 16 to 225 – Reversed,in,0.500,2.250,2.340,1.550,1.6400,0,0.500,1.600,0,0,Balsa,0.740,oz,0.330,cone,0
+SEMROC Astronautics,BR-175-225,Balsa Reducer 175 to 225,in,0.500,1.750,1.840,2.100,2.3400,0,0.500,2.250,0,0,Balsa,2.201,oz,0.800,cone,0
+SEMROC Astronautics,BR-175-225 [R],Balsa Reducer 175 to 225 – Reversed,in,0.500,2.250,2.340,2.100,1.8400,0,0.500,1.750,0,0,Balsa,0.899,oz,0.800,cone,0
+SEMROC Astronautics,BR-1820,Balsa Reducer 18 to 20,in,0.500,1.800,1.840,1.500,2.0400,0,0.500,2.000,0,0,Balsa,1.775,oz,0.250,cone,0
+SEMROC Astronautics,BR-1820 [R],Balsa Reducer 18 to 20 – Reversed,in,0.500,2.000,2.040,1.500,1.8400,0,0.500,1.800,0,0,Balsa,0.725,oz,0.250,cone,0
+SEMROC Astronautics,BR-18225,Balsa Reducer 18 to 225,in,0.500,1.800,1.840,2.000,2.3400,0,0.500,2.250,0,0,Balsa,2.130,oz,0.310,cone,0
+SEMROC Astronautics,BR-18225 [R],Balsa Reducer 18 to 225 – Reversed,in,0.500,2.250,2.340,2.000,1.8400,0,0.500,1.800,0,0,Balsa,0.870,oz,0.310,cone,0
+SEMROC Astronautics,BR-225-80H,Balsa Reducer 225 to BT-80H,in,0.500,2.250,2.340,2.100,2.6400,0,0.500,2.558,0,0,Balsa,2.201,oz,1.300,cone,0
+SEMROC Astronautics,BR-225-80H [R],Balsa Reducer 225 to BT-80H – Reversed,in,0.500,2.558,2.640,2.100,2.3400,0,0.500,2.250,0,0,Balsa,0.899,oz,1.300,cone,0
+SEMROC Astronautics,BR-510,Balsa Reducer 5 to 10,in,0.500,0.515,0.543,0.750,1.0400,0,0.500,1.000,0,0,Balsa,1.243,oz,0.110,cone,0
+SEMROC Astronautics,BR-510 [R],Balsa Reducer 5 to 10 – Reversed,in,0.500,1.000,1.040,0.750,0.5430,0,0.500,0.515,0,0,Balsa,0.508,oz,0.110,cone,0
+SEMROC Astronautics,BR-511,Balsa Reducer 5 to 11,in,0.500,0.515,0.543,0.750,1.1700,0,0.500,1.130,0,0,Balsa,1.243,oz,0.120,cone,0
+SEMROC Astronautics,BR-511 [R],Balsa Reducer 5 to 11 – Reversed,in,0.500,1.130,1.170,0.750,0.5430,0,0.500,0.515,0,0,Balsa,0.508,oz,0.120,cone,0
+SEMROC Astronautics,BR-513,Balsa Reducer 5 to 13,in,0.500,0.515,0.543,1.500,1.3400,0,0.500,1.300,0,0,Balsa,1.775,oz,0.160,cone,0
+SEMROC Astronautics,BR-513 [R],Balsa Reducer 5 to 13 – Reversed,in,0.500,1.300,1.340,1.500,0.5430,0,0.500,0.515,0,0,Balsa,0.725,oz,0.160,cone,0
+SEMROC Astronautics,BR-57,Balsa Reducer 5 to 7,in,0.500,0.515,0.543,0.500,0.7590,0,0.500,0.715,0,0,Balsa,1.065,oz,0.070,cone,0
+SEMROC Astronautics,BR-57 [R],Balsa Reducer 5 to 7 – Reversed,in,0.500,0.715,0.759,0.500,0.5430,0,0.500,0.515,0,0,Balsa,0.435,oz,0.070,cone,0
+SEMROC Astronautics,BR-58,Balsa Reducer 5 to 8,in,0.500,0.515,0.543,0.500,0.9080,0,0.500,0.865,0,0,Balsa,1.065,oz,0.100,cone,0
+SEMROC Astronautics,BR-58 [R],Balsa Reducer 5 to 8 – Reversed,in,0.500,0.865,0.908,0.500,0.5430,0,0.500,0.515,0,0,Balsa,0.435,oz,0.100,cone,0
+SEMROC Astronautics,BR-58F,Balsa Reducer 5 to 8F,in,0.500,0.515,0.543,0.500,0.9210,0,0.500,0.885,0,0,Balsa,1.065,oz,0.100,cone,0
+SEMROC Astronautics,BR-58F [R],Balsa Reducer 5 to 8F – Reversed,in,0.500,0.885,0.921,0.500,0.5430,0,0.500,0.515,0,0,Balsa,0.435,oz,0.100,cone,0
+SEMROC Astronautics,BR-59,Balsa Reducer 5 to 9,in,0.500,0.515,0.543,1.000,0.9980,0,0.500,0.950,0,0,Balsa,1.420,oz,0.180,cone,0
+SEMROC Astronautics,BR-59 [R],Balsa Reducer 5 to 9 – Reversed,in,0.500,0.950,0.998,1.000,0.5430,0,0.500,0.515,0,0,Balsa,0.580,oz,0.180,cone,0
+SEMROC Astronautics,BR-60-18,Balsa Reducer BT-60 to ST-18,in,0.500,1.595,1.637,1.000,1.8400,0,0.500,1.800,0,0,Balsa,1.420,oz,0.290,cone,0
+SEMROC Astronautics,BR-60-18 [R],Balsa Reducer BT-60 to ST-18 – Reversed,in,0.500,1.800,1.840,1.000,1.6370,0,0.500,1.595,0,0,Balsa,0.580,oz,0.290,cone,0
+SEMROC Astronautics,BR-710,Balsa Reducer 7 to 10,in,0.500,0.715,0.759,0.750,1.0400,0,0.500,1.000,0,0,Balsa,1.243,oz,0.120,cone,0
+SEMROC Astronautics,BR-710 [R],Balsa Reducer 7 to 10 – Reversed,in,0.500,1.000,1.040,0.750,0.7590,0,0.500,0.715,0,0,Balsa,0.508,oz,0.120,cone,0
+SEMROC Astronautics,BR-711,Balsa Reducer 7 to 11,in,0.500,0.715,0.759,0.750,1.1700,0,0.500,1.130,0,0,Balsa,1.243,oz,0.130,cone,0
+SEMROC Astronautics,BR-711 [R],Balsa Reducer 7 to 11 – Reversed,in,0.500,1.130,1.170,0.750,0.7590,0,0.500,0.715,0,0,Balsa,0.508,oz,0.130,cone,0
+SEMROC Astronautics,BR-713,Balsa Reducer 7 to 13,in,0.500,0.715,0.759,1.500,1.3400,0,0.500,1.300,0,0,Balsa,1.775,oz,0.180,cone,0
+SEMROC Astronautics,BR-713 [R],Balsa Reducer 7 to 13 – Reversed,in,0.500,1.300,1.340,1.500,0.7590,0,0.500,0.715,0,0,Balsa,0.725,oz,0.180,cone,0
+SEMROC Astronautics,BR-716,Balsa Reducer 7 to 16,in,0.500,0.715,0.759,2.000,1.6400,0,0.500,1.600,0,0,Balsa,2.130,oz,0.360,cone,0
+SEMROC Astronautics,BR-716 [R],Balsa Reducer 7 to 16 – Reversed,in,0.500,1.600,1.640,2.000,0.7590,0,0.500,0.715,0,0,Balsa,0.870,oz,0.360,cone,0
+SEMROC Astronautics,BR-718,Balsa Reducer 7 to 18,in,0.500,0.715,0.759,2.000,1.8400,0,0.500,1.800,0,0,Balsa,2.130,oz,0.420,cone,0
+SEMROC Astronautics,BR-718 [R],Balsa Reducer 7 to 18 – Reversed,in,0.500,1.800,1.840,2.000,0.7590,0,0.500,0.715,0,0,Balsa,0.870,oz,0.420,cone,0
+SEMROC Astronautics,BR-78,Balsa Reducer 7 to 8,in,0.500,0.715,0.759,0.875,0.9080,0,0.500,0.865,0,0,Balsa,1.331,oz,0.130,cone,0
+SEMROC Astronautics,BR-78 [R],Balsa Reducer 7 to 8 – Reversed,in,0.500,0.865,0.908,0.875,0.7590,0,0.500,0.715,0,0,Balsa,0.544,oz,0.130,cone,0
+SEMROC Astronautics,BR-78F,Balsa Reducer 7 to 8F,in,0.500,0.715,0.759,1.000,0.9210,0,0.500,0.885,0,0,Balsa,1.420,oz,0.170,cone,0
+SEMROC Astronautics,BR-78F [R],Balsa Reducer 7 to 8F – Reversed,in,0.500,0.885,0.921,1.000,0.7590,0,0.500,0.715,0,0,Balsa,0.580,oz,0.170,cone,0
+SEMROC Astronautics,BR-78S,Balsa Reducer 7 to 8,in,0.500,0.715,0.759,0.500,0.9080,0,0.500,0.865,0,0,Balsa,1.065,oz,0.100,cone,0
+SEMROC Astronautics,BR-78S [R],Balsa Reducer 7 to 8 – Reversed,in,0.500,0.865,0.908,0.500,0.7590,0,0.500,0.715,0,0,Balsa,0.435,oz,0.100,cone,0
+SEMROC Astronautics,BR-79,Balsa Reducer 7 to 9,in,0.500,0.715,0.759,1.000,0.9980,0,0.500,0.950,0,0,Balsa,1.420,oz,0.170,cone,0
+SEMROC Astronautics,BR-79 [R],Balsa Reducer 7 to 9 – Reversed,in,0.500,0.950,0.998,1.000,0.7590,0,0.500,0.715,0,0,Balsa,0.580,oz,0.170,cone,0
+SEMROC Astronautics,BR-79L,Balsa Reducer 7 to 9,in,0.500,0.715,0.759,2.000,0.9980,0,0.500,0.950,0,0,Balsa,2.130,oz,0.230,cone,0
+SEMROC Astronautics,BR-79L [R],Balsa Reducer 7 to 9 – Reversed,in,0.500,0.950,0.998,2.000,0.7590,0,0.500,0.715,0,0,Balsa,0.870,oz,0.230,cone,0
+SEMROC Astronautics,BR-810,Balsa Reducer 8 to 10,in,0.500,0.865,0.908,0.500,1.0400,0,0.500,1.000,0,0,Balsa,1.065,oz,0.140,cone,0
+SEMROC Astronautics,BR-810 [R],Balsa Reducer 8 to 10 – Reversed,in,0.500,1.000,1.040,0.500,0.9080,0,0.500,0.865,0,0,Balsa,0.435,oz,0.140,cone,0
+SEMROC Astronautics,BR-813,Balsa Reducer 8 to 13,in,0.500,0.865,0.908,1.700,1.3400,0,0.500,1.300,0,0,Balsa,1.917,oz,0.260,cone,0
+SEMROC Astronautics,BR-813 [R],Balsa Reducer 8 to 13 – Reversed,in,0.500,1.300,1.340,1.700,0.9080,0,0.500,0.865,0,0,Balsa,0.783,oz,0.260,cone,0
+SEMROC Astronautics,BR-813P,Balsa Reducer 8 to 13,in,0.500,0.865,0.908,1.500,1.3400,0,0.500,1.300,0,0,Balsa,1.775,oz,0.260,cone,0
+SEMROC Astronautics,BR-813P [R],Balsa Reducer 8 to 13 – Reversed,in,0.500,1.300,1.340,1.500,0.9080,0,0.500,0.865,0,0,Balsa,0.725,oz,0.260,cone,0
+SEMROC Astronautics,BR-816,Balsa Reducer 8 to 16,in,0.500,0.865,0.908,1.500,1.6400,0,0.500,1.600,0,0,Balsa,1.775,oz,0.300,cone,0
+SEMROC Astronautics,BR-816 [R],Balsa Reducer 8 to 16 – Reversed,in,0.500,1.600,1.640,1.500,0.9080,0,0.500,0.865,0,0,Balsa,0.725,oz,0.300,cone,0
+SEMROC Astronautics,BR-816NT,Balsa Reducer 8 to 16,in,0.500,0.865,0.908,1.700,1.6400,0,0.500,1.600,0,0,Balsa,1.917,oz,0.380,cone,0
+SEMROC Astronautics,BR-816NT [R],Balsa Reducer 8 to 16 – Reversed,in,0.500,1.600,1.640,1.700,0.9080,0,0.500,0.865,0,0,Balsa,0.783,oz,0.380,cone,0
+SEMROC Astronautics,BR-8F11,Balsa Reducer 8F to 11,in,0.500,0.885,0.921,1.000,1.1700,0,0.500,1.130,0,0,Balsa,1.420,oz,0.180,cone,0
+SEMROC Astronautics,BR-8F11 [R],Balsa Reducer 8F to 11 – Reversed,in,0.500,1.130,1.170,1.000,0.9210,0,0.500,0.885,0,0,Balsa,0.580,oz,0.180,cone,0
+SEMROC Astronautics,BR-8F11L,Balsa Reducer 8F to 11,in,0.500,0.885,0.921,1.500,1.1700,0,0.500,1.130,0,0,Balsa,1.775,oz,0.220,cone,0
+SEMROC Astronautics,BR-8F11L [R],Balsa Reducer 8F to 11 – Reversed,in,0.500,1.130,1.170,1.500,0.9210,0,0.500,0.885,0,0,Balsa,0.725,oz,0.220,cone,0
+SEMROC Astronautics,BR-916,Balsa Reducer 9 to 16,in,0.500,0.950,0.998,2.000,1.6400,0,0.500,1.600,0,0,Balsa,2.130,oz,0.300,cone,0
+SEMROC Astronautics,BR-916 [R],Balsa Reducer 9 to 16 – Reversed,in,0.500,1.600,1.640,2.000,0.9980,0,0.500,0.950,0,0,Balsa,0.870,oz,0.300,cone,0
+SEMROC Astronautics,BR-918,Balsa Reducer 9 to 18,in,0.500,0.950,0.998,2.000,1.8400,0,0.500,1.800,0,0,Balsa,2.130,oz,0.320,cone,0
+SEMROC Astronautics,BR-918 [R],Balsa Reducer 9 to 18 – Reversed,in,0.500,1.800,1.840,2.000,0.9980,0,0.500,0.950,0,0,Balsa,0.870,oz,0.320,cone,0
+SEMROC Astronautics,BR-920,Balsa Reducer 9 to 20,in,0.500,0.950,0.998,2.000,2.0400,0,0.500,2.000,0,0,Balsa,2.130,oz,0.340,cone,0
+SEMROC Astronautics,BR-920 [R],Balsa Reducer 9 to 20 – Reversed,in,0.500,2.000,2.040,2.000,0.9980,0,0.500,0.950,0,0,Balsa,0.870,oz,0.340,cone,0
+SEMROC Astronautics,TA-2050,Balsa Reducer BT-20 to BT-50,in,0.500,0.710,0.736,2.000,0.9760,0,0.500,0.950,0,0,Balsa,2.130,oz,0.170,cone,0
+SEMROC Astronautics,TA-2050 [R],Balsa Reducer BT-20 to BT-50 – Reversed,in,0.500,0.950,0.976,2.000,0.7360,0,0.500,0.710,0,0,Balsa,0.870,oz,0.170,cone,0
+SEMROC Astronautics,TA-2050A,Balsa Reducer BT-20 to BT-50,in,0.500,0.710,0.736,1.000,0.9760,0,0.500,0.950,0,0,Balsa,1.420,oz,0.110,cone,0
+SEMROC Astronautics,TA-2050A [R],Balsa Reducer BT-20 to BT-50 – Reversed,in,0.500,0.950,0.976,1.000,0.7360,0,0.500,0.710,0,0,Balsa,0.580,oz,0.110,cone,0
+SEMROC Astronautics,TA-2050B,Balsa Reducer BT-20 to BT-50,in,0.500,0.710,0.736,2.500,0.9760,0,0.500,0.950,0,0,Balsa,2.485,oz,0.210,cone,0
+SEMROC Astronautics,TA-2050B [R],Balsa Reducer BT-20 to BT-50 – Reversed,in,0.500,0.950,0.976,2.500,0.7360,0,0.500,0.710,0,0,Balsa,1.015,oz,0.210,cone,0
+SEMROC Astronautics,TA-2055,Balsa Reducer BT-20 to BT-55,in,0.500,0.710,0.736,1.500,1.3250,0,0.500,1.283,0,0,Balsa,1.775,oz,0.220,cone,0
+SEMROC Astronautics,TA-2055 [R],Balsa Reducer BT-20 to BT-55 – Reversed,in,0.500,1.283,1.325,1.500,0.7360,0,0.500,0.710,0,0,Balsa,0.725,oz,0.220,cone,0
+SEMROC Astronautics,TA-2060,Balsa Reducer BT-20 to BT-60,in,0.500,0.710,0.736,2.000,1.6370,0,0.500,1.595,0,0,Balsa,2.130,oz,0.200,cone,0
+SEMROC Astronautics,TA-2060 [R],Balsa Reducer BT-20 to BT-60 – Reversed,in,0.500,1.595,1.637,2.000,0.7360,0,0.500,0.710,0,0,Balsa,0.870,oz,0.200,cone,0
+SEMROC Astronautics,TA-5055,Balsa Reducer BT-50 to BT-55,in,0.500,0.950,0.976,1.000,1.3250,0,0.500,1.283,0,0,Balsa,1.420,oz,0.600,cone,0
+SEMROC Astronautics,TA-5055 [R],Balsa Reducer BT-50 to BT-55 – Reversed,in,0.500,1.283,1.325,1.000,0.9760,0,0.500,0.950,0,0,Balsa,0.580,oz,0.600,cone,0
+SEMROC Astronautics,TA-5055L,Balsa Reducer BT-50 to BT-55,in,0.500,0.950,0.976,1.500,1.3250,0,0.500,1.283,0,0,Balsa,1.775,oz,0.710,cone,0
+SEMROC Astronautics,TA-5055L [R],Balsa Reducer BT-50 to BT-55 – Reversed,in,0.500,1.283,1.325,1.500,0.9760,0,0.500,0.950,0,0,Balsa,0.725,oz,0.710,cone,0
+SEMROC Astronautics,TA-5060,Balsa Reducer BT-50 to BT-60,in,0.500,0.950,0.976,2.000,1.6370,0,0.500,1.595,0,0,Balsa,2.130,oz,0.230,cone,0
+SEMROC Astronautics,TA-5060 [R],Balsa Reducer BT-50 to BT-60 – Reversed,in,0.500,1.595,1.637,2.000,0.9760,0,0.500,0.950,0,0,Balsa,0.870,oz,0.230,cone,0
+SEMROC Astronautics,TA-5060C,Balsa Reducer BT-50 to BT-60,in,0.500,0.950,0.976,0.500,1.6370,0,0.500,1.595,0,0,Balsa,1.065,oz,0.140,cone,0
+SEMROC Astronautics,TA-5060C [R],Balsa Reducer BT-50 to BT-60 – Reversed,in,0.500,1.595,1.637,0.500,0.9760,0,0.500,0.950,0,0,Balsa,0.435,oz,0.140,cone,0
+SEMROC Astronautics,TA-5060E,Balsa Reducer BT-50 to BT-60,in,0.500,0.950,0.976,2.000,1.6370,0,0.500,1.595,0,0,Balsa,2.130,oz,0.210,elliptical,0
+SEMROC Astronautics,TA-5060E [R],Balsa Reducer BT-50 to BT-60 – Reversed,in,0.500,1.595,1.637,2.000,0.9760,0,0.500,0.950,0,0,Balsa,0.870,oz,0.210,elliptical,0
+SEMROC Astronautics,TA-5065,Balsa Reducer BT-50 to BT-65,in,0.500,0.950,0.976,2.000,1.7960,0,0.500,1.750,0,0,Balsa,2.130,oz,0.260,cone,0
+SEMROC Astronautics,TA-5065 [R],Balsa Reducer BT-50 to BT-65 – Reversed,in,0.500,1.750,1.796,2.000,0.9760,0,0.500,0.950,0,0,Balsa,0.870,oz,0.260,cone,0
+SEMROC Astronautics,TA-520,Balsa Reducer BT-5 to BT-20,in,0.500,0.515,0.541,0.750,0.7360,0,0.500,0.710,0,0,Balsa,1.243,oz,0.040,cone,0
+SEMROC Astronautics,TA-520 [R],Balsa Reducer BT-5 to BT-20 – Reversed,in,0.500,0.710,0.736,0.750,0.5410,0,0.500,0.515,0,0,Balsa,0.508,oz,0.040,cone,0
+SEMROC Astronautics,TA-5260A,Balsa Reducer BT-52 to BT-60,in,0.500,0.988,1.014,1.000,1.6370,0,0.500,1.595,0,0,Balsa,1.420,oz,0.230,cone,0
+SEMROC Astronautics,TA-5260A [R],Balsa Reducer BT-52 to BT-60 – Reversed,in,0.500,1.595,1.637,1.000,1.0140,0,0.500,0.988,0,0,Balsa,0.580,oz,0.230,cone,0
+SEMROC Astronautics,TA-5260C,Balsa Reducer BT-52 to BT-60,in,0.500,0.988,1.014,3.800,1.6370,0,0.500,1.595,0,0,Balsa,3.408,oz,0.330,cone,0
+SEMROC Astronautics,TA-5260C [R],Balsa Reducer BT-52 to BT-60 – Reversed,in,0.500,1.595,1.637,3.800,1.0140,0,0.500,0.988,0,0,Balsa,1.392,oz,0.330,cone,0
+SEMROC Astronautics,TA-550,Balsa Reducer BT-5 to BT-50,in,0.500,0.515,0.541,1.000,0.9760,0,0.500,0.950,0,0,Balsa,1.420,oz,0.060,cone,0
+SEMROC Astronautics,TA-550 [R],Balsa Reducer BT-5 to BT-50 – Reversed,in,0.500,0.950,0.976,1.000,0.5410,0,0.500,0.515,0,0,Balsa,0.580,oz,0.060,cone,0
+SEMROC Astronautics,TA-5560,Balsa Reducer BT-55 to BT-60,in,0.500,1.283,1.325,1.000,1.6370,0,0.500,1.595,0,0,Balsa,1.420,oz,0.250,cone,0
+SEMROC Astronautics,TA-5560 [R],Balsa Reducer BT-55 to BT-60 – Reversed,in,0.500,1.595,1.637,1.000,1.3250,0,0.500,1.283,0,0,Balsa,0.580,oz,0.250,cone,0
+SEMROC Astronautics,TA-5560A,Balsa Reducer BT-55 to BT-60,in,0.500,1.283,1.325,1.250,1.6370,0,0.500,1.595,0,0,Balsa,1.598,oz,0.290,cone,0
+SEMROC Astronautics,TA-5560A [R],Balsa Reducer BT-55 to BT-60 – Reversed,in,0.500,1.595,1.637,1.250,1.3250,0,0.500,1.283,0,0,Balsa,0.653,oz,0.290,cone,0
+SEMROC Astronautics,TA-5565,Balsa Reducer BT-55 to BT-65,in,0.500,1.283,1.325,1.500,1.7960,0,0.500,1.750,0,0,Balsa,1.775,oz,0.380,cone,0
+SEMROC Astronautics,TA-5565 [R],Balsa Reducer BT-55 to BT-65 – Reversed,in,0.500,1.750,1.796,1.500,1.3250,0,0.500,1.283,0,0,Balsa,0.725,oz,0.380,cone,0
+SEMROC Astronautics,TA-6065,Balsa Reducer BT-60 to BT-65,in,0.500,1.595,1.637,0.500,1.7960,0,0.500,1.750,0,0,Balsa,1.065,oz,0.230,cone,0
+SEMROC Astronautics,TA-6065 [R],Balsa Reducer BT-60 to BT-65 – Reversed,in,0.500,1.750,1.796,0.500,1.6370,0,0.500,1.595,0,0,Balsa,0.435,oz,0.230,cone,0
+SEMROC Astronautics,TA-6070,Balsa Reducer BT-60 to BT-70,in,0.500,1.595,1.637,1.500,2.2170,0,0.500,2.175,0,0,Balsa,1.775,oz,0.650,cone,0
+SEMROC Astronautics,TA-6070 [R],Balsa Reducer BT-60 to BT-70 – Reversed,in,0.500,2.175,2.217,1.500,1.6370,0,0.500,1.595,0,0,Balsa,0.725,oz,0.650,cone,0
+SEMROC Astronautics,TA-6080,Balsa Reducer BT-60 to BT-80,in,0.500,1.595,1.637,1.500,2.6000,0,0.500,2.558,0,0,Balsa,1.775,oz,0.650,cone,0
+SEMROC Astronautics,TA-6080 [R],Balsa Reducer BT-60 to BT-80 – Reversed,in,0.500,2.558,2.600,1.500,1.6370,0,0.500,1.595,0,0,Balsa,0.725,oz,0.650,cone,0
+SEMROC Astronautics,TA-7080,Balsa Reducer BT-70 to BT-80,in,0.500,2.175,2.217,1.500,2.6000,0,0.500,2.558,0,0,Balsa,1.775,oz,0.650,cone,0
+SEMROC Astronautics,TA-7080 [R],Balsa Reducer BT-70 to BT-80 – Reversed,in,0.500,2.558,2.600,1.500,2.2170,0,0.500,2.175,0,0,Balsa,0.725,oz,0.650,cone,0
+SEMROC Astronautics,BC-08542 [R],Balsa Nose Cone – Reversed,in,0.500,0.850,0.000,4.200,0.0001,0,0.000,0.000,0,0,Balsa,1.363,oz,0.150,ogive,
+SEMROC Astronautics,BC-1016 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,1.600,0.0001,0,0.000,0.000,0,0,Balsa,0.609,oz,0.120,ogive,
+SEMROC Astronautics,BC-1019 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,1.900,0.0001,0,0.000,0.000,0,0,Balsa,0.696,oz,0.130,ogive,
+SEMROC Astronautics,BC-1020E [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,2.000,0.0001,0,0.000,0.000,0,0,Balsa,0.725,oz,0.130,elliptical
+SEMROC Astronautics,BC-1022 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,2.200,0.0001,0,0.000,0.000,0,0,Balsa,0.783,oz,0.150,elliptical
+SEMROC Astronautics,BC-1024 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,2.400,0.0001,0,0.000,0.000,0,0,Balsa,0.841,oz,0.150,ogive
+SEMROC Astronautics,BC-1031 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,3.100,0.0001,0,0.000,0.000,0,0,Balsa,1.044,oz,0.150,elliptical
+SEMROC Astronautics,BC-1032 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,3.200,0.0001,0,0.000,0.000,0,0,Balsa,1.073,oz,0.150,ogive
+SEMROC Astronautics,BC-1037 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,3.700,0.0001,0,0.000,0.000,0,0,Balsa,1.218,oz,0.160,ogive
+SEMROC Astronautics,BC-1039 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,3.900,0.0001,0,0.000,0.000,0,0,Balsa,1.276,oz,0.170,ogive
+SEMROC Astronautics,BC-1041 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,4.100,0.0001,0,0.000,0.000,0,0,Balsa,1.334,oz,0.180,ogive
+SEMROC Astronautics,BC-1041G [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,4.100,0.0001,0,0.000,0.000,0,0,Balsa,1.334,oz,0.180,cone
+SEMROC Astronautics,BC-1041P [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,4.100,0.0001,0,0.000,0.000,0,0,Balsa,1.334,oz,0.180,elliptical
+SEMROC Astronautics,BC-1045 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,4.500,0.0001,0,0.000,0.000,0,0,Balsa,1.450,oz,0.190,ogive
+SEMROC Astronautics,BC-1045P [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,4.500,0.0001,0,0.000,0.000,0,0,Balsa,1.450,oz,0.190,elliptical
+SEMROC Astronautics,BC-1048 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,4.800,0.0001,0,0.000,0.000,0,0,Balsa,1.537,oz,0.190,elliptical
+SEMROC Astronautics,BC-1050 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,5.000,0.0001,0,0.000,0.000,0,0,Balsa,1.595,oz,1.090,elliptical
+SEMROC Astronautics,BC-1051 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,5.100,0.0001,0,0.000,0.000,0,0,Balsa,1.624,oz,0.200,elliptical
+SEMROC Astronautics,BC-1052 [R],Balsa Nose Cone – Reversed,in,0.500,1.000,1.040,5.200,0.0001,0,0.000,0.000,0,0,Balsa,1.653,oz,0.220,ogive

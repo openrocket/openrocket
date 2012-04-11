@@ -1,0 +1,276 @@
+Mfg.,Part No.,Desc.,Units,Length,Outer Dia,L/D Ratio,Insert Length,Insert OD,Thickness,Shape,Config,Material,CG Loc,Mass Units,Mass,Base Ext. Len
+SEMROC Astronautics,BC-08542,Ogive,in,4.200,0.940,0,0.500,0.850,0,ogive,0,Balsa,3.337,oz,0.150,0
+SEMROC Astronautics,BC-1016,Ogive,in,1.600,1.040,0,0.500,1.000,0,ogive,0,Balsa,1.491,oz,0.120,0
+SEMROC Astronautics,BC-1019,Ogive,in,1.900,1.040,0,0.500,1.000,0,ogive,0,Balsa,1.704,oz,0.130,0
+SEMROC Astronautics,BC-1020E,Elliptical,in,2.000,1.040,0,0.500,1.000,0,elliptical,0,Balsa,1.775,oz,0.130,0
+SEMROC Astronautics,BC-1022,Bezier,in,2.200,1.040,0,0.500,1.000,0,elliptical,0,Balsa,1.917,oz,0.150,0
+SEMROC Astronautics,BC-1024,Ogive,in,2.400,1.040,0,0.500,1.000,0,ogive,0,Balsa,2.059,oz,0.150,0
+SEMROC Astronautics,BC-1031,Bezier,in,3.100,1.040,0,0.500,1.000,0,elliptical,0,Balsa,2.556,oz,0.150,0
+SEMROC Astronautics,BC-1032,Ogive,in,3.200,1.040,0,0.500,1.000,0,ogive,0,Balsa,2.627,oz,0.150,0
+SEMROC Astronautics,BC-1037,Ogive,in,3.700,1.040,0,0.500,1.000,0,ogive,0,Balsa,2.982,oz,0.160,0
+SEMROC Astronautics,BC-1039,Ogive,in,3.900,1.040,0,0.500,1.000,0,ogive,0,Balsa,3.124,oz,0.170,0
+SEMROC Astronautics,BC-1041,Conical,in,4.100,1.040,0,0.500,1.000,0,cone,0,Balsa,3.266,oz,0.180,0
+SEMROC Astronautics,BC-1041G,Bezier,in,4.100,1.040,0,0.500,1.000,0,elliptical,0,Balsa,3.266,oz,0.180,0
+SEMROC Astronautics,BC-1041P,Bezier,in,4.100,1.040,0,0.500,1.000,0,elliptical,0,Balsa,3.266,oz,0.180,0
+SEMROC Astronautics,BC-1045,Ogive,in,4.500,1.040,0,0.500,1.000,0,ogive,0,Balsa,3.550,oz,0.190,0
+SEMROC Astronautics,BC-1045P,Rounded Ogive,in,4.500,1.040,0,0.500,1.000,0,ogive,0,Balsa,3.550,oz,0.190,0
+SEMROC Astronautics,BC-1048,Rounded Ogive,in,4.800,1.040,0,0.500,1.000,0,ogive,0,Balsa,3.763,oz,0.190,0
+SEMROC Astronautics,BC-1050,Bezier,in,5.000,1.040,0,0.500,1.000,0,elliptical,0,Balsa,3.905,oz,0.200,0
+SEMROC Astronautics,BC-1051,Conical,in,5.100,1.040,0,0.500,1.000,0,cone,0,Balsa,3.976,oz,0.200,0
+SEMROC Astronautics,BC-1052,Ogive,in,5.200,1.040,0,0.500,1.000,0,ogive,0,Balsa,4.047,oz,0.220,0
+SEMROC Astronautics,BC-1135,Rounded Ogive,in,3.500,1.170,0,0.500,1.130,0,ogive,0,Balsa,2.840,oz,0.150,0
+SEMROC Astronautics,BC-11518,Elliptical,in,3.500,1.220,0,0.800,1.140,0,elliptical,0,Balsa,3.053,oz,0.130,0
+SEMROC Astronautics,BC-11524,Bezier,in,2.400,1.220,0,0.800,1.140,0,elliptical,0,Balsa,2.272,oz,0.150,0
+SEMROC Astronautics,BC-11535,Bezier,in,3.500,1.220,0,0.800,1.140,0,elliptical,0,Balsa,3.053,oz,0.200,0
+SEMROC Astronautics,BC-11544,Ogive,in,4.400,1.220,0,0.800,1.140,0,ogive,0,Balsa,3.692,oz,0.220,0
+SEMROC Astronautics,BC-11546,Ogive,in,4.600,1.220,0,0.800,1.140,0,ogive,0,Balsa,3.834,oz,0.230,0
+SEMROC Astronautics,BC-11549,Ogive,in,4.900,1.220,0,0.800,1.140,0,ogive,0,Balsa,4.047,oz,0.250,0
+SEMROC Astronautics,BC-11554,Ogive,in,5.400,1.220,0,0.800,1.140,0,ogive,0,Balsa,4.402,oz,0.270,0
+SEMROC Astronautics,BC-11560,Ogive,in,6.000,1.220,0,0.800,1.140,0,ogive,0,Balsa,4.828,oz,0.280,0
+SEMROC Astronautics,BC-12525,Ogive,in,2.500,1.340,0,0.800,1.250,0,ogive,0,Balsa,2.343,oz,0.150,0
+SEMROC Astronautics,BC-12536,Bezier,in,3.600,1.340,0,0.800,1.140,0,elliptical,0,Balsa,3.124,oz,0.210,0
+SEMROC Astronautics,BC-12545,Elliptical,in,4.500,1.340,0,0.800,1.140,0,elliptical,0,Balsa,3.763,oz,0.240,0
+SEMROC Astronautics,BC-12548,Ogive,in,4.800,1.340,0,0.800,1.140,0,ogive,0,Balsa,3.976,oz,0.250,0
+SEMROC Astronautics,BC-12555,Ogive,in,5.500,1.340,0,0.800,1.140,0,ogive,0,Balsa,4.473,oz,0.340,0
+SEMROC Astronautics,BC-12561,Ogive,in,6.100,1.340,0,0.800,1.140,0,ogive,0,Balsa,4.899,oz,0.370,0
+SEMROC Astronautics,BC-1319,Elliptical,in,1.900,1.340,0,0.500,1.300,0,elliptical,0,Balsa,1.704,oz,0.180,0
+SEMROC Astronautics,BC-1321,Bezier,in,2.100,1.340,0,0.500,1.300,0,ogive,0,Balsa,1.846,oz,0.190,0
+SEMROC Astronautics,BC-1327,Bezier,in,2.700,1.340,0,0.500,1.300,0,ogive,0,Balsa,2.272,oz,0.210,0
+SEMROC Astronautics,BC-1329,Rounded-Ogive,in,2.900,1.340,0,0.500,1.300,0,ogive,0,Balsa,2.414,oz,0.240,0
+SEMROC Astronautics,BC-1330,Ogive,in,3.000,1.340,0,0.500,1.300,0,ogive,0,Balsa,2.485,oz,0.250,0
+SEMROC Astronautics,BC-1331,Elliptical,in,3.100,1.340,0,0.500,1.300,0,elliptical,0,Balsa,2.556,oz,0.270,0
+SEMROC Astronautics,BC-1336,Ogive,in,3.600,1.340,0,0.500,1.300,0,ogive,0,Balsa,2.911,oz,0.280,0
+SEMROC Astronautics,BC-1339,Rounded-Ogive,in,3.900,1.340,0,0.500,1.300,0,ogive,0,Balsa,3.124,oz,0.300,0
+SEMROC Astronautics,BC-1344,Ogive,in,4.400,1.340,0,0.500,1.300,0,ogive,0,Balsa,3.479,oz,0.320,0
+SEMROC Astronautics,BC-1345,Elliptical,in,4.400,1.340,0,0.500,1.300,0,elliptical,0,Balsa,3.479,oz,0.320,0
+SEMROC Astronautics,BC-1353,Secant Ogive,in,5.370,1.340,0,0.500,1.300,0,ogive,0,Balsa,4.168,oz,0.490,0
+SEMROC Astronautics,BC-1353F,Ogive,in,5.300,1.340,0,0.500,1.300,0,ogive,0,Balsa,4.118,oz,0.470,0
+SEMROC Astronautics,BC-1354,Ogive,in,5.400,1.340,0,0.500,1.300,0,ogive,0,Balsa,4.189,oz,0.550,0
+SEMROC Astronautics,BC-1354C,Parabolic,in,5.400,1.340,0,0.500,1.300,0,parabolic,0,Balsa,4.189,oz,0.580,0
+SEMROC Astronautics,BC-1364,Rounded-Ogive,in,6.400,1.340,0,0.500,1.300,0,ogive,0,Balsa,4.899,oz,0.620,0
+SEMROC Astronautics,BC-15044,Conical,in,4.400,1.590,0,0.800,1.500,0,cone,0,Balsa,3.692,oz,0.250,0
+SEMROC Astronautics,BC-15066,Ogive,in,6.600,1.590,0,0.800,1.500,0,ogive,0,Balsa,5.254,oz,0.350,0
+SEMROC Astronautics,BC-15070,Ogive,in,7.000,1.590,0,0.800,1.500,0,ogive,0,Balsa,5.538,oz,0.390,0
+SEMROC Astronautics,BC-15080,Ogive,in,8.000,1.590,0,0.800,1.500,0,ogive,0,Balsa,6.248,oz,0.450,0
+SEMROC Astronautics,BC-15081,Rounded Ogive,in,8.100,1.590,0,0.800,1.500,0,elliptical,0,Balsa,6.319,oz,0.430,0
+SEMROC Astronautics,BC-16100,Conical,in,10.000,1.640,0,0.500,1.600,0,cone,0,Balsa,7.455,oz,0.456,0
+SEMROC Astronautics,BC-1625,Elliptical,in,2.500,1.640,0,0.500,1.600,0,elliptical,0,Balsa,2.130,oz,0.200,0
+SEMROC Astronautics,BC-1625P,Bezier,in,2.500,1.640,0,0.500,1.600,0,ogive,0,Balsa,2.130,oz,0.200,0
+SEMROC Astronautics,BC-1631,Ogive,in,3.100,1.640,0,0.500,1.600,0,ogive,0,Balsa,2.556,oz,0.300,0
+SEMROC Astronautics,BC-1634,Rounded-Ogive,in,3.400,1.640,0,0.500,1.600,0,elliptical,0,Balsa,2.769,oz,0.310,0
+SEMROC Astronautics,BC-1636,Bezier,in,3.600,1.640,0,0.500,1.600,0,ogive,0,Balsa,2.911,oz,0.350,0
+SEMROC Astronautics,BC-1646,Ogive,in,4.600,1.640,0,0.500,1.600,0,ogive,0,Balsa,3.621,oz,0.390,0
+SEMROC Astronautics,BC-1647,Ogive,in,4.700,1.640,0,0.500,1.600,0,ogive,0,Balsa,3.692,oz,0.400,0
+SEMROC Astronautics,BC-1648,Ogive,in,4.800,1.640,0,0.500,1.600,0,ogive,0,Balsa,3.763,oz,0.410,0
+SEMROC Astronautics,BC-1650,Parabolic,in,5.000,1.640,0,0.500,1.600,0,parabolic,0,Balsa,3.905,oz,0.430,0
+SEMROC Astronautics,BC-1655,Ogive,in,5.500,1.640,0,0.500,1.600,0,ogive,0,Balsa,4.260,oz,0.460,0
+SEMROC Astronautics,BC-1660,Ogive,in,6.000,1.640,0,0.500,1.600,0,ogive,0,Balsa,4.615,oz,0.480,0
+SEMROC Astronautics,BC-1667,Parabolic,in,6.700,1.640,0,0.500,1.600,0,parabolic,0,Balsa,5.112,oz,0.510,0
+SEMROC Astronautics,BC-1672,Conical-Ogive,in,7.200,1.640,0,0.500,1.600,0,ogive,0,Balsa,5.467,oz,0.580,0
+SEMROC Astronautics,BC-1674,Ogive,in,7.400,1.640,0,0.500,1.600,0,ogive,0,Balsa,5.609,oz,0.620,0
+SEMROC Astronautics,BC-17535,Ogive,in,3.500,1.840,0,0.800,1.750,0,ogive,0,Balsa,3.053,oz,0.480,0
+SEMROC Astronautics,BC-17541,Ogive,in,4.100,1.840,0,0.800,1.750,0,ogive,0,Balsa,3.479,oz,0.530,0
+SEMROC Astronautics,BC-17560,Ogive,in,6.000,1.840,0,0.800,1.750,0,ogive,0,Balsa,4.828,oz,0.690,0
+SEMROC Astronautics,BC-17561,Elliptical,in,6.100,1.840,0,0.800,1.750,0,elliptical,0,Balsa,4.899,oz,0.720,0
+SEMROC Astronautics,BC-17567,Bezier,in,6.700,1.840,0,0.800,1.750,0,elliptical,0,Balsa,5.325,oz,0.760,0
+SEMROC Astronautics,BC-17585,Ogive,in,8.500,1.840,0,0.800,1.750,0,ogive,0,Balsa,6.603,oz,0.920,0
+SEMROC Astronautics,BC-17590,Conical,in,9.000,1.840,0,0.800,1.750,0,cone,0,Balsa,6.958,oz,1.130,0
+SEMROC Astronautics,BC-17592,Ogive,in,9.200,1.840,0,0.800,1.750,0,ogive,0,Balsa,7.100,oz,1.890,0
+SEMROC Astronautics,BC-1828,Elliptical,in,2.800,1.840,0,0.700,1.800,0,elliptical,0,Balsa,2.485,oz,0.700,0
+SEMROC Astronautics,BC-1835,Elliptical,in,3.500,1.840,0,0.700,1.800,0,elliptical,0,Balsa,2.982,oz,1.000,0
+SEMROC Astronautics,BC-1837,Bezier,in,3.700,1.840,0,0.700,1.800,0,elliptical,0,Balsa,3.124,oz,1.000,0
+SEMROC Astronautics,BC-1842,Elliptical,in,4.200,1.840,0,0.700,1.800,0,elliptical,0,Balsa,3.479,oz,1.000,0
+SEMROC Astronautics,BC-1853,Ogive,in,5.300,1.840,0,0.700,1.800,0,ogive,0,Balsa,4.260,oz,0.650,0
+SEMROC Astronautics,BC-1856,Ogive,in,5.600,1.840,0,0.700,1.800,0,ogive,0,Balsa,4.473,oz,1.100,0
+SEMROC Astronautics,BC-1861,Elliptical,in,6.100,1.840,0,0.700,1.800,0,elliptical,0,Balsa,4.828,oz,1.200,0
+SEMROC Astronautics,BC-1869,Ogive,in,6.900,1.840,0,0.700,1.800,0,ogive,0,Balsa,5.396,oz,1.200,0
+SEMROC Astronautics,BC-1869C,Conical,in,6.900,1.840,0,0.700,1.800,0,cone,0,Balsa,5.396,oz,1.200,0
+SEMROC Astronautics,BC-20045,Elliptical,in,4.500,2.040,0,0.800,2.000,0,elliptical,0,Balsa,3.763,oz,0.630,0
+SEMROC Astronautics,BC-20107,Conical,in,10.700,2.040,0,0.700,2.000,0,cone,0,Balsa,8.094,oz,1.780,0
+SEMROC Astronautics,BC-2025,Elliptical,in,2.500,2.040,0,0.700,2.000,0,elliptical,0,Balsa,2.272,oz,0.420,0
+SEMROC Astronautics,BC-2026,Bezier,in,2.600,2.040,0,0.700,2.000,0,elliptical,0,Balsa,2.343,oz,0.430,0
+SEMROC Astronautics,BC-2033,Elliptical,in,3.300,2.040,0,0.700,2.000,0,elliptical,0,Balsa,2.840,oz,0.610,0
+SEMROC Astronautics,BC-2039,Bezier,in,3.900,2.040,0,0.700,2.000,0,elliptical,0,Balsa,3.266,oz,0.690,0
+SEMROC Astronautics,BC-2045,Ogive,in,4.500,2.040,0,0.700,2.000,0,ogive,0,Balsa,3.692,oz,1.540,0
+SEMROC Astronautics,BC-2050,Conical,in,5.000,2.040,0,0.700,2.000,0,cone,0,Balsa,4.047,oz,1.360,0
+SEMROC Astronautics,BC-2057,Ogive,in,5.700,2.040,0,0.700,2.000,0,ogive,0,Balsa,4.544,oz,1.680,0
+SEMROC Astronautics,BC-2065,Ogive,in,6.500,2.040,0,0.700,2.000,0,ogive,0,Balsa,5.112,oz,1.770,0
+SEMROC Astronautics,BC-2080,Elliptical,in,8.000,2.040,0,0.700,2.000,0,elliptical,0,Balsa,6.177,oz,1.970,0
+SEMROC Astronautics,BC-225103,Fat Ogive,in,10.300,2.340,0,0.800,2.250,0,ogive,0,Balsa,7.881,oz,2.900,0
+SEMROC Astronautics,BC-22530,Bezier,in,3.000,2.340,0,0.800,2.250,0,elliptical,0,Balsa,2.698,oz,0.900,0
+SEMROC Astronautics,BC-22545,Elliptical,in,4.500,2.340,0,0.800,2.250,0,elliptical,0,Balsa,3.763,oz,1.050,0
+SEMROC Astronautics,BC-22563,Bezier,in,6.300,2.340,0,0.800,2.250,0,elliptical,0,Balsa,5.041,oz,1.480,0
+SEMROC Astronautics,BC-22567,Bezier,in,6.700,2.340,0,0.800,2.250,0,elliptical,0,Balsa,5.325,oz,1.550,0
+SEMROC Astronautics,BC-22567E,Ogive,in,6.700,2.340,0,0.800,2.250,0,ogive,0,Balsa,5.325,oz,1.510,0
+SEMROC Astronautics,BC-22569,Ogive,in,6.900,2.340,0,0.800,2.250,0,ogive,0,Balsa,5.467,oz,1.670,0
+SEMROC Astronautics,BC-22578,Elliptical,in,7.800,2.340,0,0.800,2.250,0,elliptical,0,Balsa,6.106,oz,1.800,0
+SEMROC Astronautics,BC-22579,Ogive,in,7.900,2.340,0,0.800,2.250,0,ogive,0,Balsa,6.177,oz,1.700,0
+SEMROC Astronautics,BC-22588,Elliptical,in,8.800,2.340,0,0.800,2.250,0,elliptical,0,Balsa,6.816,oz,2.200,0
+SEMROC Astronautics,BC-22595,Secant-Ogive,in,9.500,2.340,0,0.800,2.250,0,Sears-haack,0,Balsa,7.313,oz,2.500,0
+SEMROC Astronautics,BC-22597,Ogive,in,9.700,2.340,0,0.800,2.250,0,ogive,0,Balsa,7.455,oz,2.600,0
+SEMROC Astronautics,BC-27540,Blunt Ogive,in,4.000,2.840,0,0.800,2.750,0,elliptical,0,Balsa,3.408,oz,1.230,0
+SEMROC Astronautics,BC-27554,Ogive,in,5.400,2.840,0,0.800,2.750,0,ogive,0,Balsa,4.402,oz,1.550,0
+SEMROC Astronautics,BC-27555,Bezier,in,5.500,2.840,0,0.800,2.750,0,elliptical,0,Balsa,4.473,oz,1.610,0
+SEMROC Astronautics,BC-505,Spherical,in,0.500,0.543,0,0.400,0.515,0,elliptical,0,Balsa,0.639,oz,0.020,0
+SEMROC Astronautics,BC-508,Elliptical,in,0.800,0.543,0,0.400,0.515,0,elliptical,0,Balsa,0.852,oz,0.020,0
+SEMROC Astronautics,BC-510,Conical,in,1.000,0.543,0,0.400,0.515,0,cone,0,Balsa,0.994,oz,0.200,0
+SEMROC Astronautics,BC-510P,Elliptical,in,1.000,0.543,0,0.400,0.515,0,elliptical,0,Balsa,0.994,oz,0.020,0
+SEMROC Astronautics,BC-512,Ogive,in,1.200,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.136,oz,0.020,0
+SEMROC Astronautics,BC-514,Ogive,in,1.400,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.278,oz,0.030,0
+SEMROC Astronautics,BC-515,Conical,in,1.500,0.543,0,0.400,0.515,0,cone,0,Balsa,1.349,oz,0.030,0
+SEMROC Astronautics,BC-515E,Ogive,in,1.500,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.349,oz,0.030,0
+SEMROC Astronautics,BC-516,Conical,in,1.600,0.543,0,0.400,0.515,0,cone,0,Balsa,1.420,oz,0.030,0
+SEMROC Astronautics,BC-517,Ogive,in,1.700,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.491,oz,0.030,0
+SEMROC Astronautics,BC-518,Ogive,in,1.800,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.562,oz,0.030,0
+SEMROC Astronautics,BC-522,Elliptical,in,2.200,0.543,0,0.400,0.515,0,elliptical,0,Balsa,1.846,oz,0.040,0
+SEMROC Astronautics,BC-522P,Ogive,in,2.200,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.846,oz,0.040,0
+SEMROC Astronautics,BC-523,Taper-Conical,in,2.300,0.543,0,0.400,0.515,0,Power-series,0,Balsa,1.917,oz,0.060,0
+SEMROC Astronautics,BC-524,Ogive,in,2.400,0.543,0,0.400,0.515,0,ogive,0,Balsa,1.988,oz,0.040,0
+SEMROC Astronautics,BC-526,Conical,in,2.600,0.543,0,0.400,0.515,0,cone,0,Balsa,2.130,oz,0.030,0
+SEMROC Astronautics,BC-528,Conical,in,2.800,0.543,0,0.400,0.515,0,cone,0,Balsa,2.272,oz,0.030,0
+SEMROC Astronautics,BC-529,Ogive,in,2.900,0.543,0,0.400,0.515,0,ogive,0,Balsa,2.343,oz,0.040,0
+SEMROC Astronautics,BC-708,Conical,in,0.800,0.759,0,0.500,0.715,0,cone,0,Balsa,0.923,oz,0.200,0
+SEMROC Astronautics,BC-710,Conical,in,1.000,0.759,0,0.500,0.715,0,cone,0,Balsa,1.065,oz,0.030,0
+SEMROC Astronautics,BC-711,Conical,in,1.100,0.759,0,0.500,0.715,0,cone,0,Balsa,1.136,oz,0.030,0
+SEMROC Astronautics,BC-714,Ogive,in,1.400,0.759,0,0.500,0.715,0,ogive,0,Balsa,1.349,oz,0.040,0
+SEMROC Astronautics,BC-715,Rounded Ogive,in,1.500,0.759,0,0.500,0.715,0,elliptical,0,Balsa,1.420,oz,0.040,0
+SEMROC Astronautics,BC-716,Elliptical,in,1.600,0.759,0,0.500,0.715,0,elliptical,0,Balsa,1.491,oz,0.040,0
+SEMROC Astronautics,BC-719,Ogive,in,1.900,0.759,0,0.500,0.715,0,ogive,0,Balsa,1.704,oz,0.040,0
+SEMROC Astronautics,BC-720,Bezier,in,2.000,0.759,0,0.500,0.715,0,elliptical,0,Balsa,1.775,oz,0.040,0
+SEMROC Astronautics,BC-721,Ogive,in,2.100,0.759,0,0.500,0.715,0,ogive,0,Balsa,1.846,oz,0.040,0
+SEMROC Astronautics,BC-722,Rounded Ogive,in,2.200,0.759,0,0.500,0.715,0,elliptical,0,Balsa,1.917,oz,0.040,0
+SEMROC Astronautics,BC-723,Ogive,in,2.300,0.759,0,0.500,0.715,0,ogive,0,Balsa,1.988,oz,0.040,0
+SEMROC Astronautics,BC-723P,Rounded Ogive,in,2.300,0.759,0,0.500,0.715,0,elliptical,0,Balsa,1.988,oz,0.050,0
+SEMROC Astronautics,BC-727,Ogive,in,2.700,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.272,oz,0.050,0
+SEMROC Astronautics,BC-728,Conical,in,2.800,0.759,0,0.500,0.715,0,cone,0,Balsa,2.343,oz,0.050,0
+SEMROC Astronautics,BC-728F,Elliptical,in,2.800,0.759,0,0.500,0.715,0,elliptical,0,Balsa,2.343,oz,0.050,0
+SEMROC Astronautics,BC-730,Ogive,in,3.000,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.485,oz,0.060,0
+SEMROC Astronautics,BC-730P,Rounded Ogive,in,3.000,0.759,0,0.500,0.715,0,elliptical,0,Balsa,2.485,oz,0.060,0
+SEMROC Astronautics,BC-731,Rounded Ogive,in,3.100,0.759,0,0.500,0.715,0,elliptical,0,Balsa,2.556,oz,0.060,0
+SEMROC Astronautics,BC-731F,Ogive,in,3.100,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.556,oz,0.060,0
+SEMROC Astronautics,BC-733,Ogive,in,3.300,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.698,oz,0.060,0
+SEMROC Astronautics,BC-734P,Pointed Ogive,in,3.400,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.769,oz,0.060,0
+SEMROC Astronautics,BC-735,Ogive,in,3.500,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.840,oz,0.060,0
+SEMROC Astronautics,BC-736,Conical,in,3.600,0.759,0,0.500,0.715,0,cone,0,Balsa,2.911,oz,0.060,0
+SEMROC Astronautics,BC-737,Ogive,in,3.700,0.759,0,0.500,0.715,0,ogive,0,Balsa,2.982,oz,0.060,0
+SEMROC Astronautics,BC-739,Conical,in,3.900,0.759,0,0.500,0.715,0,cone,0,Balsa,3.124,oz,0.060,0
+SEMROC Astronautics,BC-739O,Ogive,in,3.900,0.759,0,0.500,0.715,0,ogive,0,Balsa,3.124,oz,0.070,0
+SEMROC Astronautics,BC-744,Ogive,in,4.400,0.759,0,0.500,0.715,0,ogive,0,Balsa,3.479,oz,0.070,0
+SEMROC Astronautics,BC-812,Conical,in,1.200,0.908,0,0.500,0.865,0,cone,0,Balsa,1.207,oz,0.040,0
+SEMROC Astronautics,BC-813,Elliptical,in,1.300,0.908,0,0.500,0.865,0,elliptical,0,Balsa,1.278,oz,0.050,0
+SEMROC Astronautics,BC-814,Elliptical,in,1.400,0.908,0,0.500,0.865,0,elliptical,0,Balsa,1.349,oz,0.070,0
+SEMROC Astronautics,BC-815,Ogive,in,1.500,0.908,0,0.500,0.865,0,ogive,0,Balsa,1.420,oz,0.070,0
+SEMROC Astronautics,BC-817,Ogive,in,1.700,0.908,0,0.500,0.865,0,ogive,0,Balsa,1.562,oz,0.080,0
+SEMROC Astronautics,BC-818,Bezier,in,1.800,0.908,0,0.500,0.865,0,elliptical,0,Balsa,1.633,oz,0.080,0
+SEMROC Astronautics,BC-818L,Ogive,in,1.800,0.908,0,0.500,0.865,0,ogive,0,Balsa,1.633,oz,0.080,0
+SEMROC Astronautics,BC-819,Ogive,in,1.900,0.908,0,0.500,0.865,0,ogive,0,Balsa,1.704,oz,0.080,0
+SEMROC Astronautics,BC-820,Bezier,in,2.000,0.908,0,0.500,0.865,0,elliptical,0,Balsa,1.775,oz,0.080,0
+SEMROC Astronautics,BC-821,Elliptical,in,2.100,0.908,0,0.500,0.865,0,elliptical,0,Balsa,1.846,oz,0.090,0
+SEMROC Astronautics,BC-823,Ogive,in,2.300,0.908,0,0.500,0.865,0,ogive,0,Balsa,1.988,oz,0.100,0
+SEMROC Astronautics,BC-823E,Fat Ogive,in,2.300,0.908,0,0.500,0.865,0,elliptical,0,Balsa,1.988,oz,0.100,0
+SEMROC Astronautics,BC-826,Rounded Ogive,in,2.600,0.908,0,0.500,0.865,0,elliptical,0,Balsa,2.201,oz,0.110,0
+SEMROC Astronautics,BC-830,Ogive,in,3.000,0.908,0,0.500,0.865,0,ogive,0,Balsa,2.485,oz,0.120,0
+SEMROC Astronautics,BC-832,Bezier,in,3.200,0.908,0,0.500,0.865,0,elliptical,0,Balsa,2.627,oz,0.130,0
+SEMROC Astronautics,BC-832C,Conical,in,3.200,0.908,0,0.500,0.865,0,cone,0,Balsa,2.627,oz,0.110,0
+SEMROC Astronautics,BC-833,Elliptical,in,3.300,0.908,0,0.500,0.865,0,elliptical,0,Balsa,2.698,oz,0.130,0
+SEMROC Astronautics,BC-834C,Bezier,in,3.400,0.908,0,0.500,0.865,0,elliptical,0,Balsa,2.769,oz,0.120,0
+SEMROC Astronautics,BC-836,Secant-Ogive,in,3.600,0.908,0,0.500,0.865,0,Sears-Haack,0,Balsa,2.911,oz,0.130,0
+SEMROC Astronautics,BC-837,Ogive,in,3.700,0.908,0,0.500,0.865,0,ogive,0,Balsa,2.982,oz,0.130,0
+SEMROC Astronautics,BC-840,Elliptical,in,4.000,0.908,0,0.500,0.865,0,elliptical,0,Balsa,3.195,oz,0.150,0
+SEMROC Astronautics,BC-845,Ogive,in,4.500,0.908,0,0.500,0.865,0,ogive,0,Balsa,3.550,oz,0.160,0
+SEMROC Astronautics,BC-845P,Rounded Ogive,in,4.500,0.908,0,0.500,0.865,0,elliptical,0,Balsa,3.550,oz,0.170,0
+SEMROC Astronautics,BC-846,Rounded Ogive,in,4.600,0.908,0,0.500,0.865,0,elliptical,0,Balsa,3.621,oz,0.160,0
+SEMROC Astronautics,BC-847,Conical,in,4.700,0.908,0,0.500,0.865,0,cone,0,Balsa,3.692,oz,0.190,0
+SEMROC Astronautics,BC-847W,Ogive,in,4.700,0.908,0,0.500,0.865,0,ogive,0,Balsa,3.692,oz,0.190,0
+SEMROC Astronautics,BC-848,Ogive,in,4.800,0.908,0,0.500,0.865,0,ogive,0,Balsa,3.763,oz,0.200,0
+SEMROC Astronautics,BC-853,Ogive,in,5.300,0.908,0,0.500,0.865,0,ogive,0,Balsa,4.118,oz,0.270,0
+SEMROC Astronautics,BC-8F28,Ogive,in,2.750,0.921,0,0.500,0.865,0,ogive,0,Balsa,2.308,oz,0.120,0
+SEMROC Astronautics,BC-927,Ogive,in,2.700,0.998,0,0.600,0.950,0,ogive,0,Balsa,2.343,oz,0.130,0
+SEMROC Astronautics,BC-932,Elliptical,in,3.200,0.998,0,0.600,0.950,0,elliptical,0,Balsa,2.698,oz,0.150,0
+SEMROC Astronautics,BC-940,Bezier,in,4.000,0.998,0,0.600,0.950,0,elliptical,0,Balsa,3.266,oz,0.160,0
+SEMROC Astronautics,BC-944,Ogive,in,4.400,0.998,0,0.600,0.950,0,ogive,0,Balsa,3.550,oz,0.160,0
+SEMROC Astronautics,BNC-3A,Conical,in,0.750,0.375,0,0.250,0.349,0,cone,0,Balsa,0.710,oz,0.010,0
+SEMROC Astronautics,BNC-5AW,Elliptical,in,2.250,0.541,0,0.250,0.515,0,elliptical,0,Balsa,1.775,oz,0.210,0
+SEMROC Astronautics,BNC-5AX,Ogive,in,2.250,0.541,0,0.250,0.515,0,ogive,0,Balsa,1.775,oz,0.200,0
+SEMROC Astronautics,BNC-5E,Ogive,in,1.380,0.541,0,0.250,0.515,0,ogive,0,Balsa,1.157,oz,0.020,0
+SEMROC Astronautics,BNC-5S,Conical,in,1.500,0.541,0,0.250,0.515,0,cone,0,Balsa,1.243,oz,0.016,0
+SEMROC Astronautics,BNC-5V,Elliptical,in,0.750,0.541,0,0.250,0.515,0,elliptical,0,Balsa,0.710,oz,0.013,0
+SEMROC Astronautics,BNC-5W,Ogive,in,2.870,0.541,0,0.250,0.515,0,ogive,0,Balsa,2.215,oz,0.040,0
+SEMROC Astronautics,BNC-10A,Blunt Ogive,in,0.810,0.720,0,0.250,0.710,0,elliptical,0,Balsa,0.753,oz,0.030,0
+SEMROC Astronautics,BNC-10B,Elliptical,in,1.700,0.720,0,0.250,0.710,0,elliptical,0,Balsa,1.385,oz,0.050,0
+SEMROC Astronautics,BNC-20A,Blunt Ogive,in,0.810,0.736,0,0.375,0.710,0,elliptical,0,Balsa,0.841,oz,0.030,0
+SEMROC Astronautics,BNC-20AZ,Ogive,in,2.500,0.736,0,0.375,0.710,0,ogive,0,Balsa,2.041,oz,0.070,0
+SEMROC Astronautics,BNC-20B,Elliptical,in,1.700,0.736,0,0.375,0.710,0,elliptical,0,Balsa,1.473,oz,0.050,0
+SEMROC Astronautics,BNC-20CB,Ogive,in,1.750,0.736,0,0.375,0.710,0,ogive,0,Balsa,1.509,oz,0.050,0
+SEMROC Astronautics,BNC-20H,Elliptical,in,0.800,0.736,0,0.375,0.710,0,elliptical,0,Balsa,0.834,oz,0.030,0
+SEMROC Astronautics,BNC-20L,Ogive,in,1.400,0.736,0,0.375,0.710,0,ogive,0,Balsa,1.260,oz,0.040,0
+SEMROC Astronautics,BNC-20N,Ogive,in,2.750,0.736,0,0.375,0.710,0,ogive,0,Balsa,2.219,oz,0.080,0
+SEMROC Astronautics,BNC-20R,Conical,in,2.750,0.736,0,0.375,0.710,0,cone,0,Balsa,2.219,oz,0.070,0
+SEMROC Astronautics,BNC-20SP,Elliptical,in,0.250,0.736,0,0.375,0.710,0,elliptical,0,Balsa,0.444,oz,0.010,0
+SEMROC Astronautics,BNC-20Y,Conical,in,1.000,0.736,0,0.375,0.710,0,cone,0,Balsa,0.976,oz,0.020,0
+SEMROC Astronautics,BNC-30C,Blunt Ogive,in,0.750,0.765,0,0.375,0.725,0,elliptical,0,Balsa,0.799,oz,0.040,0
+SEMROC Astronautics,BNC-30D,Ogive,in,1.500,0.765,0,0.375,0.725,0,ogive,0,Balsa,1.331,oz,0.060,0
+SEMROC Astronautics,BNC-30DE,Ogive,in,1.380,0.765,0,0.375,0.725,0,ogive,0,Balsa,1.246,oz,0.060,0
+SEMROC Astronautics,BNC-30E,Ogive,in,2.300,0.765,0,0.375,0.725,0,ogive,0,Balsa,1.899,oz,0.070,0
+SEMROC Astronautics,BNC-40D,Ogive,in,1.500,0.825,0,0.400,0.765,0,ogive,0,Balsa,1.349,oz,0.040,0
+SEMROC Astronautics,BNC-40F,Conical,in,1.900,0.825,0,0.400,0.765,0,cone,0,Balsa,1.633,oz,0.070,0
+SEMROC Astronautics,BNC-40G,Ogive,in,4.500,0.825,0,0.400,0.765,0,ogive,0,Balsa,3.479,oz,0.160,0
+SEMROC Astronautics,BNC-50C,Conical,in,1.270,0.976,0,0.500,0.950,0,cone,0,Balsa,1.257,oz,0.060,0
+SEMROC Astronautics,BNC-50G,Ogive,in,5.700,0.976,0,0.500,0.950,0,ogive,0,Balsa,4.402,oz,0.230,0
+SEMROC Astronautics,BNC-50J,Blunt Ogive,in,1.375,0.976,0,0.500,0.950,0,elliptical,0,Balsa,1.331,oz,0.080,0
+SEMROC Astronautics,BNC-50K,Fat Ogive,in,2.750,0.976,0,0.500,0.950,0,ogive,0,Balsa,2.308,oz,0.130,0
+SEMROC Astronautics,BNC-50KP,Parabolic,in,2.750,0.976,0,0.500,0.950,0,elliptical,0,Balsa,2.308,oz,0.130,0
+SEMROC Astronautics,BNC-50V,Conical,in,5.750,0.976,0,0.500,0.950,0,cone,0,Balsa,4.438,oz,0.190,0
+SEMROC Astronautics,BNC-50X,Elliptical,in,3.250,0.976,0,0.500,0.950,0,elliptical,0,Balsa,2.663,oz,0.150,0
+SEMROC Astronautics,BNC-50Y,Ogive,in,4.375,0.976,0,0.500,0.950,0,ogive,0,Balsa,3.461,oz,0.160,0
+SEMROC Astronautics,BNC-50YP,Ogive,in,4.280,0.976,0,0.500,0.950,0,ogive,0,Balsa,3.394,oz,0.160,0
+SEMROC Astronautics,BNC-55AA,Ogive,in,3.125,1.325,0,0.600,1.283,0,ogive,0,Balsa,2.645,oz,0.150,0
+SEMROC Astronautics,BNC-55AC,Secant-Ogive,in,5.375,1.325,0,0.600,1.283,0,Sears-haack,0,Balsa,4.242,oz,0.320,0
+SEMROC Astronautics,BNC-55ACP,Secant-Ogive,in,5.750,1.325,0,0.600,1.283,0,Sears-haack,0,Balsa,4.509,oz,0.330,0
+SEMROC Astronautics,BNC-55AO,Elliptical,in,5.000,1.325,0,0.600,1.283,0,elliptical,0,Balsa,3.976,oz,0.430,0
+SEMROC Astronautics,BNC55B,Elliptical,in,3.000,1.325,0,0.600,1.283,0,elliptical,0,Balsa,2.556,oz,0.270,0
+SEMROC Astronautics,BNC-55CT,Rounded Ogive,in,2.900,1.325,0,0.600,1.283,0,elliptical,0,Balsa,2.485,oz,0.240,0
+SEMROC Astronautics,BNC-55EX,Fat Ogive,in,3.400,1.325,0,0.600,1.283,0,ogive,0,Balsa,2.840,oz,0.290,0
+SEMROC Astronautics,BNC-55F,Ogive,in,4.200,1.325,0,0.600,1.283,0,ogive,0,Balsa,3.408,oz,0.360,0
+SEMROC Astronautics,BNC-55FD,Base-Drilled Ogive,in,4.200,1.325,0,0.600,1.283,0,ogive,0,Balsa,3.408,oz,0.210,0
+SEMROC Astronautics,BNC-55PT,Conical,in,6.150,1.325,0,0.600,1.283,0,cone,0,Balsa,4.793,oz,0.560,0
+SEMROC Astronautics,BNC-55X,Elliptical,in,4.100,1.325,0,0.600,1.283,0,elliptical,0,Balsa,3.337,oz,0.370,0
+SEMROC Astronautics,BNC-55Z,Ogive,in,3.000,1.325,0,0.600,1.283,0,ogive,0,Balsa,2.556,oz,0.250,0
+SEMROC Astronautics,BNC-60AH,Elliptical,in,6.625,1.637,0,0.800,1.595,0,elliptical,0,Balsa,5.272,oz,0.800,0
+SEMROC Astronautics,BNC-60L,Elliptical,in,3.125,1.637,0,0.800,1.595,0,elliptical,0,Balsa,2.787,oz,0.340,0
+SEMROC Astronautics,BNC-60LP,Elliptical,in,2.750,1.637,0,0.800,1.595,0,elliptical,0,Balsa,2.521,oz,0.240,0
+SEMROC Astronautics,BNC-60MS,Elliptical,in,2.600,1.637,0,0.800,1.595,0,elliptical,0,Balsa,2.414,oz,0.210,0
+SEMROC Astronautics,BNC-60NA,Rounded Ogive,in,4.800,1.637,0,0.800,1.595,0,elliptical,0,Balsa,3.976,oz,0.370,0
+SEMROC Astronautics,BNC-60NS,Conical,in,10.000,1.637,0,0.800,1.595,0,cone,0,Balsa,7.668,oz,0.456,0
+SEMROC Astronautics,BNC-60RL,Ogive,in,8.375,1.637,0,0.800,1.595,0,ogive,0,Balsa,6.514,oz,0.810,0
+SEMROC Astronautics,BNC-60X,Elliptical,in,5.460,1.637,0,0.800,1.595,0,elliptical,0,Balsa,4.445,oz,0.620,0
+SEMROC Astronautics,BNC-60Y,Ogive,in,7.250,1.637,0,0.800,1.595,0,ogive,0,Balsa,5.716,oz,0.730,0
+SEMROC Astronautics,BNC-65AF,Elliptical,in,4.000,1.796,0,0.800,1.750,0,elliptical,0,Balsa,3.408,oz,0.520,0
+SEMROC Astronautics,BNC-65L,Elliptical,in,3.250,1.796,0,0.800,1.750,0,elliptical,0,Balsa,2.876,oz,0.410,0
+SEMROC Astronautics,BNC-70AJ,Elliptical,in,4.250,2.217,0,0.800,2.175,0,elliptical,0,Balsa,3.586,oz,0.850,0
+SEMROC Astronautics,BNC-70CT,Bezier,in,4.500,2.217,0,0.800,2.175,0,elliptical,0,Balsa,3.763,oz,0.900,0
+SEMROC Astronautics,BNC-70D,Ogive,in,4.250,2.217,0,0.800,2.175,0,ogive,0,Balsa,3.586,oz,0.900,0
+SEMROC Astronautics,BNC-70MS,Elliptical,in,3.540,2.217,0,0.800,2.175,0,elliptical,0,Balsa,3.081,oz,1.000,0
+SEMROC Astronautics,BNC-70NH,Elliptical,in,9.750,2.217,0,0.800,2.175,0,elliptical,0,Balsa,7.491,oz,1.480,0
+SEMROC Astronautics,BNC-70HAC,Secant-Ogive,in,9.160,2.247,0,0.800,2.175,0,Sears-haack,0,Balsa,7.072,oz,2.000,0
+SEMROC Astronautics,BNC-70HAJ,Elliptical,in,4.250,2.247,0,0.800,2.175,0,elliptical,0,Balsa,3.586,oz,0.850,0
+SEMROC Astronautics,BNC-70HB,Ogive,in,7.000,2.247,0,0.800,2.175,0,ogive,0,Balsa,5.538,oz,1.130,0
+SEMROC Astronautics,BNC-70HCT,Bezier,in,4.500,2.247,0,0.800,2.175,0,elliptical,0,Balsa,3.763,oz,0.900,0
+SEMROC Astronautics,BNC-70HD,Ogive,in,4.330,2.247,0,0.800,2.175,0,ogive,0,Balsa,3.642,oz,0.880,0
+SEMROC Astronautics,BNC-80AH,Ogive,in,10.500,2.600,0,1.000,2.558,0,ogive,0,Balsa,8.165,oz,2.810,0
+SEMROC Astronautics,BNC-80AO,Ogive,in,9.900,2.600,0,1.000,2.558,0,ogive,0,Balsa,7.739,oz,1.340,0
+SEMROC Astronautics,BNC-80BB,Elliptical,in,4.000,2.600,0,1.000,2.558,0,elliptical,0,Balsa,3.550,oz,1.100,0
+SEMROC Astronautics,BNC-80D,Ogive,in,5.000,2.600,0,1.000,2.558,0,ogive,0,Balsa,4.260,oz,0.980,0
+SEMROC Astronautics,BNC-80K,Ogive,in,8.200,2.600,0,1.000,2.558,0,ogive,0,Balsa,6.532,oz,1.230,0
+SEMROC Astronautics,BNC-80KA,Ogive,in,7.330,2.600,0,1.000,2.558,0,ogive,0,Balsa,5.914,oz,1.130,0
+SEMROC Astronautics,BNC-80KP,Rounded Ogive,in,6.930,2.600,0,1.000,2.558,0,elliptical,0,Balsa,5.630,oz,1.120,0
+SEMROC Astronautics,BNC-80L,Elliptical,in,5.000,2.600,0,1.000,2.558,0,elliptical,0,Balsa,4.260,oz,1.300,0
+SEMROC Astronautics,BNC-80VE,Ogive,in,4.900,2.600,0,1.000,2.558,0,ogive,0,Balsa,4.189,oz,1.300,0
+SEMROC Astronautics,BNC-80HAH,Ogive,in,10.500,2.640,0,1.000,2.558,0,ogive,0,Balsa,8.165,oz,2.810,0
+SEMROC Astronautics,BNC-80HAO,Ogive,in,9.900,2.640,0,1.000,2.558,0,ogive,0,Balsa,7.739,oz,1.340,0
+SEMROC Astronautics,BNC-80HBB,Elliptical,in,4.000,2.640,0,1.000,2.558,0,elliptical,0,Balsa,3.550,oz,1.100,0
+SEMROC Astronautics,BNC-80HD,Ogive,in,5.000,2.640,0,1.000,2.558,0,ogive,0,Balsa,4.260,oz,0.980,0
+SEMROC Astronautics,BNC-80HK,Ogive,in,8.200,2.640,0,1.000,2.558,0,ogive,0,Balsa,6.532,oz,1.230,0
+SEMROC Astronautics,BNC-80HKA,Ogive,in,7.330,2.640,0,1.000,2.558,0,ogive,0,Balsa,5.914,oz,1.130,0
+SEMROC Astronautics,BNC-80HKP,Rounded Ogive,in,6.930,2.640,0,1.000,2.558,0,elliptical,0,Balsa,5.630,oz,1.120,0
+SEMROC Astronautics,BNC-80HL,Ogive,in,5.000,2.640,0,1.000,2.558,0,ogive,0,Balsa,4.260,oz,1.300,0
