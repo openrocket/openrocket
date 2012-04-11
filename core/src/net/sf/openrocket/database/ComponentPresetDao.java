@@ -26,4 +26,6 @@ public interface ComponentPresetDao {
 
 	public void setFavorite( ComponentPreset preset, boolean favorite );
 	
+	public List<ComponentPreset> find( String manufacturer, String partNo );
+	
 }

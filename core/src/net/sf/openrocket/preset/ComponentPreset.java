@@ -1,6 +1,13 @@
 package net.sf.openrocket.preset;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.openrocket.material.Material;
@@ -9,6 +16,7 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.TextUtil;
 
 
 /**
@@ -21,37 +29,38 @@ import net.sf.openrocket.util.BugException;
  */
 // FIXME - Implement clone.
 public class ComponentPreset implements Comparable<ComponentPreset> {
-	
+
 	private final TypedPropertyMap properties = new TypedPropertyMap();
-	
+
 	private boolean favorite = false;
-	
+	private String digest = "";
+
 	public enum Type {
 		BODY_TUBE,
 		NOSE_CONE;
 
 		Type[] compatibleTypes;
-		
+
 		Type () {
 			compatibleTypes = new Type[1];
 			compatibleTypes[0] = this;
 		}
-		
+
 		Type( Type ... t ) {
-			
+
 			compatibleTypes = new Type[t.length+1];
 			compatibleTypes[0] = this;
 			for( int i=0; i<t.length; i++ ) {
 				compatibleTypes[i+1] = t[i];
 			}
 		}
-		
+
 		public Type[] getCompatibleTypes() {
 			return compatibleTypes;
 		}
-		
+
 	}
-	
+
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
 	public final static TypedKey<String> PARTNO = new TypedKey<String>("PartNo",String.class);
 	public final static TypedKey<Type> TYPE = new TypedKey<Type>("Type",Type.class);
@@ -63,7 +72,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Boolean> FILLED = new TypedKey<Boolean>("Filled", Boolean.class);
 	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
-	
+
 	public final static Map<String, TypedKey<?>> keyMap = new HashMap<String, TypedKey<?>>();
 	static {
 		keyMap.put(MANUFACTURER.getName(), MANUFACTURER);
@@ -78,15 +87,15 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(FILLED.getName(), FILLED);
 		keyMap.put(MASS.getName(), MASS);
 	}
-	
+
 	public static ComponentPreset create( TypedPropertyMap props ) throws InvalidComponentPresetException {
-		
+
 		ComponentPreset preset = new ComponentPreset();
 		// First do validation.
 		if ( !props.containsKey(TYPE)) {
 			throw new InvalidComponentPresetException("No Type specified " + props.toString() );
 		}
-		
+
 		if (!props.containsKey(MANUFACTURER)) {
 			throw new InvalidComponentPresetException("No Manufacturer specified " + props.toString() );
 		}
@@ -96,25 +105,25 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		}
 
 		preset.properties.putAll(props);
-		
+
 		// Should check for various bits of each of the types.
 		Type t = props.get(TYPE);
 		switch ( t ) {
 		case BODY_TUBE: {
-			
+
 			if ( !props.containsKey(LENGTH) ) {
 				throw new InvalidComponentPresetException( "No Length specified for body tube preset " + props.toString());
 			}
-			
+
 			BodyTube bt = new BodyTube();
-			
+
 			bt.setLength(props.get(LENGTH));
-			
+
 			// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
 			boolean hasOd = props.containsKey(OUTER_DIAMETER);
 			boolean hasId = props.containsKey(INNER_DIAMETER);
 			boolean hasThickness = props.containsKey(THICKNESS);
-			
+
 			if ( hasOd ) {
 				double outerRadius = props.get(OUTER_DIAMETER)/2.0;
 				double thickness = 0;
@@ -140,7 +149,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			preset.properties.put(OUTER_DIAMETER, bt.getOuterRadius() *2.0);
 			preset.properties.put(INNER_DIAMETER, bt.getInnerRadius() *2.0);
 			preset.properties.put(THICKNESS, bt.getThickness());
-			
+
 			// Need to translate Mass to Density.
 			if ( props.containsKey(MASS) ) {
 				String materialName = "TubeCustom";
@@ -150,35 +159,57 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				Material m = Material.newMaterial(Material.Type.BULK, materialName, props.get(MASS)/bt.getComponentVolume(), false);
 				preset.properties.put(MATERIAL, m);
 			}
-			
+
 			break;
 		}
 		case NOSE_CONE: {
 			break;
 		}
 		}
-		
+
+		preset.computeDigest();
+
 		return preset;
 
 	}
 
 	// Private constructor to encourage use of factory.
 	private ComponentPreset() {
-		
 	}
-	
+
+	/**
+	 * Convenience method to retrieve the Type of this ComponentPreset.
+	 * 
+	 * @return
+	 */
+	public Type getType() {
+		return properties.get(TYPE);
+	}
+
+	/**
+	 * Convenience method to retrieve the Manufacturer of this ComponentPreset.
+	 * @return
+	 */
 	public Manufacturer getManufacturer() {
 		return properties.get(MANUFACTURER);
 	}
-	
+
+	/**
+	 * Convenience method to retrieve the PartNo of this ComponentPreset.
+	 * @return
+	 */
 	public String getPartNo() {
 		return properties.get(PARTNO);
 	}
-	
+
+	public String getDigest() {
+		return digest;
+	}
+
 	public boolean has(Object key) {
 		return properties.containsKey(key);
 	}
-	
+
 	public <T> T get(TypedKey<T> key) {
 		T value = properties.get(key);
 		if (value == null) {
@@ -186,7 +217,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		}
 		return (T) value;
 	}
-	
+
 	public boolean isFavorite() {
 		return favorite;
 	}
@@ -200,7 +231,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		int manuCompare = this.getManufacturer().getSimpleName().compareTo(p2.getManufacturer().getSimpleName());
 		if ( manuCompare != 0 )
 			return manuCompare;
-		
+
 		int partNoCompare = this.getPartNo().compareTo(p2.getPartNo());
 		return partNoCompare;
 	}
@@ -209,9 +240,63 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public String toString() {
 		return get(MANUFACTURER).toString() + " " + get(PARTNO);
 	}
-	
+
 	public String preferenceKey() {
 		return get(MANUFACTURER).toString() + "|" + get(PARTNO);
 	}
-	
+
+	private void computeDigest() {
+
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataOutputStream os = new DataOutputStream(bos);
+
+			List<TypedKey<?>> keys = new ArrayList<TypedKey<?>>( properties.keySet());
+
+			Collections.sort(keys, new Comparator<TypedKey<?>>() {
+				@Override
+				public int compare( TypedKey<?> a, TypedKey<?> b ) {
+					return a.getName().compareTo(b.getName());
+				}
+			});
+
+			for ( TypedKey<?> key : keys  ) {
+
+				Object value = properties.get(key);
+
+				os.writeBytes(key.getName());
+
+				if ( key.getType() == Double.class ) {
+					Double d = (Double) value;
+					os.writeDouble(d);
+				} else if (key.getType() == String.class ) {
+					String s = (String) value;
+					os.writeBytes(s);
+				} else if (key.getType() == Manufacturer.class ) {
+					String s = ((Manufacturer)value).getSimpleName();
+					os.writeBytes(s);
+				} else if ( key.getType() == Finish.class ) {
+					String s = ((Finish)value).name();
+					os.writeBytes(s);
+				} else if ( key.getType() == Type.class ) {
+					String s = ((Type)value).name();
+					os.writeBytes(s);
+				} else if ( key.getType() == Boolean.class ) {
+					Boolean b = (Boolean) value;
+					os.writeBoolean(b);
+				} else if ( key.getType() == Material.class ) {
+					double d = ((Material)value).getDensity();
+					os.writeDouble(d);
+				}
+
+			}
+
+			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			digest = TextUtil.hexString(md5.digest( bos.toByteArray() ));
+		}
+		catch ( Exception e ) {
+			throw new BugException(e);
+		}
+	}
+
 }

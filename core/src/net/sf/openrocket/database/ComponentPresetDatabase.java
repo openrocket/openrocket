@@ -130,6 +130,17 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 	}
 
 	@Override
+	public List<ComponentPreset> find(String manufacturer, String partNo) {
+		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
+		for( ComponentPreset preset : list ) {
+			if ( preset.getManufacturer().getSimpleName().equals(manufacturer) && preset.getPartNo().equals(partNo) ) {
+				presets.add(preset);
+			}
+		}
+		return presets;
+	}
+
+	@Override
 	public void setFavorite( ComponentPreset preset, boolean favorite ) {
 		preset.setFavorite(favorite);
 		Application.getPreferences().setComponentFavorite( preset, favorite );

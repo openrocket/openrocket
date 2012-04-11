@@ -184,6 +184,9 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
+		 * File version 1.5 is requires for:
+		 *  - saving designs using ComponentPrests
+		 *  
 		 * File version 1.4 is required for:
 		 *  - saving simulation data
 		 *  - saving motor data
@@ -194,6 +197,22 @@ public class OpenRocketSaver extends RocketSaver {
 		 * 
 		 * Otherwise use version 1.0.
 		 */
+		
+		// Search the rocket for any ComponentPrests
+		{
+			Rocket r = document.getRocket();
+			Iterator<RocketComponent> componentIterator = r.iterator();
+			boolean usesComponentPreset = false;
+			while ( !usesComponentPreset && componentIterator.hasNext() ) {
+				RocketComponent c = componentIterator.next();
+				if ( c.getPresetComponent() != null ) {
+					usesComponentPreset = true;
+				}
+			}
+			if ( usesComponentPreset ) {
+				return FILE_VERSION_DIVISOR + 5;
+			}
+		}
 		
 		// Check if design has simulations defined (version 1.4)
 		if (document.getSimulationCount() > 0) {
