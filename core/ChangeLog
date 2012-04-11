@@ -1,3 +1,7 @@
+2012-04-11  Doug Pedrick
+
+    * [BUG] Printed simulation did not honor launch conditions
+
 2012-04-09  Sampo Niskanen
 
 	* [BUG] Cancelling simulation causes later simulations to fail
