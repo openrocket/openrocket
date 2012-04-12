@@ -19,19 +19,19 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset> {
-	
+
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private static final String NONE_SELECTED = "";
 	private static final String SELECT_DATABASE = trans.get("lbl.database");
-	
+
 	private final Component parent;
 	private final RocketComponent component;
 	private ComponentPreset previousPreset;
-	
+
 	private List<ComponentPreset> presets;
-	
+
 	public PresetModel(Component parent, RocketComponent component) {
 		this.parent = parent;
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
@@ -39,12 +39,12 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		previousPreset = component.getPresetComponent();
 		component.addComponentChangeListener(this);
 	}
-	
+
 	@Override
 	public int getSize() {
 		return presets.size() + 2;
 	}
-	
+
 	@Override
 	public Object getElementAt(int index) {
 		if (index == 0) {
@@ -55,30 +55,34 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		}
 		return presets.get(index - 1);
 	}
-	
+
 	@Override
 	public void setSelectedItem(Object item) {
 		log.user("User selected preset item '" + item + "' for component " + component);
-		
+
 		if (item == null) {
 			// FIXME:  What to do?
 		} else if (item.equals(NONE_SELECTED)) {
 			component.clearPreset();
 		} else if (item.equals(SELECT_DATABASE)) {
-			// FIXME - when the dialog first appears, the preset drop down still is open and has focus.
-			// we need to force focus to the new dialog.
-			ComponentPresetChooserDialog dialog = 
-					new ComponentPresetChooserDialog( SwingUtilities.getWindowAncestor(PresetModel.this.parent),
-							PresetModel.this.component);
-			dialog.setVisible(true);
-			ComponentPreset preset = dialog.getSelectedComponentPreset();
-			setSelectedItem(preset);
+			SwingUtilities.invokeLater( new Runnable() {
+				@Override
+				public void run() {
+					ComponentPresetChooserDialog dialog = 
+							new ComponentPresetChooserDialog( SwingUtilities.getWindowAncestor(PresetModel.this.parent),
+									PresetModel.this.component);
+					dialog.setVisible(true);
+					ComponentPreset preset = dialog.getSelectedComponentPreset();
+					setSelectedItem(preset);
+
+				}
+			});
 		} else {
 			// FIXME: Add undo point here
 			component.loadPreset((ComponentPreset) item);
 		}
 	}
-	
+
 	@Override
 	public Object getSelectedItem() {
 		ComponentPreset preset = component.getPresetComponent();
@@ -88,7 +92,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 			return preset;
 		}
 	}
-	
+
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (previousPreset != component.getPresetComponent()) {
@@ -96,7 +100,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 			fireContentsChanged(this, 0, getSize());
 		}
 	}
-	
+
 	@Override
 	public void elementAdded(ComponentPreset element, Database<ComponentPreset> source) {
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
