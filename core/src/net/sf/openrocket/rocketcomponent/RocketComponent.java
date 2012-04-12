@@ -745,7 +745,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param preset	the preset to load from
 	 */
 	protected void loadFromPreset(ComponentPreset preset) {
-		// No-op
+		if ( preset.has(ComponentPreset.MASS) ) {
+			double mass = preset.get(ComponentPreset.MASS);
+			setMassOverridden(true);
+			setOverrideMass(mass);
+		}
+		if ( preset.has(ComponentPreset.CG_OVERRIDE) ) {
+			double cg = preset.get(ComponentPreset.CG_OVERRIDE);
+			setCGOverridden(true);
+			setOverrideCGX(cg);
+		}
 	}
 	
 	

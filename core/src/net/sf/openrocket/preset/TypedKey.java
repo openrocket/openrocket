@@ -1,10 +1,11 @@
 package net.sf.openrocket.preset;
 
-import net.sf.openrocket.database.Databases;
+import org.jfree.util.StringUtils;
+
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class TypedKey<T> {
@@ -21,6 +22,11 @@ public class TypedKey<T> {
 		this.name = name;
 		this.type = type;
 		this.unitGroup = unitGroup;
+	}
+
+	@Override
+	public String toString() {
+		return "TypedKey [name=" + name + "]";
 	}
 
 	public String getName() {
@@ -57,7 +63,9 @@ public class TypedKey<T> {
 			return Finish.valueOf(value);
 		}
 		if ( type.equals(Material.class) ) {
-			// need to translate the value first!
+			// FIXME - cannot parse Materials just yet.  Need a way to do it without worrying about locale.
+			return null;
+			/*
 			String translated_value = Application.getTranslator().get(value);
 			Material material;
 			material = Databases.findMaterial(Material.Type.BULK, translated_value);
@@ -73,6 +81,29 @@ public class TypedKey<T> {
 				return material;
 			}
 			throw new IllegalArgumentException("Invalid material " + value + " in component preset.");
+			*/
+		}
+		if ( type.equals(Shape.class) ) {
+			//FIXME - ignore case!
+			if ( "ogive".equalsIgnoreCase(value) ) {
+				return Shape.OGIVE;
+			}
+			if ( "cone".equalsIgnoreCase(value) ) {
+				return Shape.CONICAL;
+			}
+			if ( "elliptical".equalsIgnoreCase(value) ) {
+				return Shape.ELLIPSOID;
+			}
+			if ( "parabolic".equalsIgnoreCase(value) ) {
+				return Shape.PARABOLIC;
+			}
+			if ( "sears-haack".equalsIgnoreCase(value) ) {
+				return Shape.HAACK;
+			}
+			if ( "power-series".equalsIgnoreCase(value) ) {
+				return Shape.POWER;
+			}
+			throw new IllegalArgumentException("Invalid shape " + value + " in component preset.");
 		}
 		throw new IllegalArgumentException("Inavlid type " + type.getName() + " for component preset parameter " + name);
 	}

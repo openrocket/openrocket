@@ -14,6 +14,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.TextUtil;
@@ -46,8 +47,8 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		NOSE_CONE( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
+				ComponentPreset.SHAPE,
 				ComponentPreset.OUTER_DIAMETER,
-				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.LENGTH} ) ;
 
 		Type[] compatibleTypes;
@@ -82,14 +83,19 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
 	public final static TypedKey<String> PARTNO = new TypedKey<String>("PartNo",String.class);
+	public final static TypedKey<String> DESCRIPTION = new TypedKey<String>("Description", String.class);
 	public final static TypedKey<Type> TYPE = new TypedKey<Type>("Type",Type.class);
 	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> SHOULDER_LENGTH = new TypedKey<Double>("ShoulderLength", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> SHOULDER_DIAMETER = new TypedKey<Double>("ShoulderDiameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Shape> SHAPE = new TypedKey<Shape>("Shape", Shape.class);
 	public final static TypedKey<Material> MATERIAL = new TypedKey<Material>("Material", Material.class);
 	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish", Finish.class);
 	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Boolean> FILLED = new TypedKey<Boolean>("Filled", Boolean.class);
+	public final static TypedKey<Double> CG_OVERRIDE = new TypedKey<Double>("CGOverride", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
 
 	public final static Map<String, TypedKey<?>> keyMap = new HashMap<String, TypedKey<?>>();
@@ -97,13 +103,18 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(MANUFACTURER.getName(), MANUFACTURER);
 		keyMap.put(PARTNO.getName(), PARTNO);
 		keyMap.put(TYPE.getName(), TYPE);
+		keyMap.put(DESCRIPTION.getName(), DESCRIPTION);
 		keyMap.put(LENGTH.getName(), LENGTH);
 		keyMap.put(INNER_DIAMETER.getName(), INNER_DIAMETER);
 		keyMap.put(OUTER_DIAMETER.getName(), OUTER_DIAMETER);
+		keyMap.put(SHOULDER_LENGTH.getName(), SHOULDER_LENGTH);
+		keyMap.put(SHOULDER_DIAMETER.getName(), SHOULDER_DIAMETER);
+		keyMap.put(SHAPE.getName(), SHAPE);
 		keyMap.put(MATERIAL.getName(), MATERIAL);
 		keyMap.put(FINISH.getName(), FINISH);
 		keyMap.put(THICKNESS.getName(), THICKNESS);
 		keyMap.put(FILLED.getName(), FILLED);
+		keyMap.put(CG_OVERRIDE.getName(), CG_OVERRIDE);
 		keyMap.put(MASS.getName(), MASS);
 	}
 
@@ -182,6 +193,15 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			break;
 		}
 		case NOSE_CONE: {
+			if ( !props.containsKey(LENGTH) ) {
+				throw new InvalidComponentPresetException( "No Length specified for nose cone preset " + props.toString());
+			}
+			if ( !props.containsKey(SHAPE) ) {
+				throw new InvalidComponentPresetException( "No Shape specified for nose cone preset " + props.toString());
+			}
+			if ( !props.containsKey(OUTER_DIAMETER) ) {
+				throw new InvalidComponentPresetException( "No Outer Diameter specified for nose cone preset " + props.toString());
+			}
 			break;
 		}
 		}
@@ -306,6 +326,10 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				} else if ( key.getType() == Material.class ) {
 					double d = ((Material)value).getDensity();
 					os.writeDouble(d);
+				} else if ( key.getType() == Shape.class ) {
+					// FIXME - this is ugly to use the ordinal but what else?
+					int i = ((Shape)value).ordinal();
+					os.writeInt(i);
 				}
 
 			}

@@ -50,7 +50,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		final TypedKey<?>[] columnKeys = component.getPresetType().getDisplayedColumns();
 		
-		presets = Application.getComponentPresetDao().listAll();
+		presets = Application.getComponentPresetDao().listForType(component.getPresetType());
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JLabel filterLabel = new JLabel(trans.get("ComponentPresetChooserDialog.filter.label"));

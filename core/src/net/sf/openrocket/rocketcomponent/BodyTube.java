@@ -154,8 +154,8 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		super.loadFromPreset(preset);
 
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		
 	}
+	
 	@Override
 	public double getAftRadius() {
 		return getOuterRadius();

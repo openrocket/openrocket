@@ -1,6 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -111,6 +113,36 @@ public class NoseCone extends Transition {
 
 	/********** RocketComponent methods **********/
 	
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.NOSE_CONE;
+	}
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.has(ComponentPreset.SHAPE) ) {
+			Shape s = preset.get(ComponentPreset.SHAPE);
+			this.setType(s);
+		}
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.setAftRadiusAutomatic(false);
+			this.setAftRadius(outerDiameter/2.0);
+		}
+		if ( preset.has(ComponentPreset.SHOULDER_LENGTH) ) {
+			double length = preset.get(ComponentPreset.SHOULDER_LENGTH);
+			this.setAftShoulderLength(length);
+		}
+		if ( preset.has(ComponentPreset.SHOULDER_DIAMETER) ) {
+			double d = preset.get(ComponentPreset.SHOULDER_DIAMETER);
+			this.setAftShoulderRadius(d/2.0);
+		}
+
+		super.loadFromPreset(preset);
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
 	/**
 	 * Return component name.
 	 */

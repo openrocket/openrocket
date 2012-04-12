@@ -10,6 +10,8 @@ public class ColumnDefinition<T> {
 	}
 	public void setProperty( TypedPropertyMap preset, String value ) {
 		T o = (T) key.parseFromString(value);
-		preset.put(key, o);
+		if ( o != null ) {
+			preset.put(key, o);
+		}
 	}
 }
