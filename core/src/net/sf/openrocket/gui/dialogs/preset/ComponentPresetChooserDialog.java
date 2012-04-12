@@ -155,6 +155,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		if (!okClicked)
 			return null;
 		int row = componentSelectionTable.getSelectedRow();
+		row = componentSelectionTable.convertRowIndexToModel(row);
 		return presets.get(row);
 	}
 	
