@@ -9,10 +9,15 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -32,6 +37,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	
 	private final JTable componentSelectionTable;
+	private final TableRowSorter<TableModel> sorter;
+	private final JTextField filterText;
+	
 	private final List<ComponentPreset> presets;
 	
 	private boolean okClicked = false;
@@ -45,6 +53,24 @@ public class ComponentPresetChooserDialog extends JDialog {
 		presets = Application.getComponentPresetDao().listAll();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
+		JLabel filterLabel = new JLabel(trans.get("ComponentPresetChooserDialog.filter.label"));
+		panel.add(filterLabel);
+		filterText = new JTextField(15);
+		panel.add(filterText,"growx, growy 0, wrap");
+		filterText.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				newFilter(filterText.getText());
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				newFilter(filterText.getText());
+			}
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				newFilter(filterText.getText());
+			}
+		});
 		
 		final Column[] columns = new Column[columnKeys.length+1];
 		
@@ -97,12 +123,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		componentSelectionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
-		// FIXME we might need some custom sorters.
-		/*for (int i = 0; i < columnKeys.length; i++) {
-			TypedKey<?> column = columnKeys[i];
-			sorter.setComparator(i, column.getComparator());
-		}*/
+		sorter = new TableRowSorter<TableModel>(tableModel);
 		componentSelectionTable.setRowSorter(sorter);
 
 		JScrollPane scrollpane = new JScrollPane();
@@ -164,4 +185,15 @@ public class ComponentPresetChooserDialog extends JDialog {
 		this.setVisible(false);
 	}
 	
+	private void newFilter(String regex) {
+		RowFilter<TableModel,Object> filter = null;
+		try {
+			// The "(?iu)" magic turns on case insensitivity with unicode chars
+			filter = RowFilter.regexFilter("(?iu)"+regex);
+		} catch ( java.util.regex.PatternSyntaxException e ) {
+			// FIXME - do we want to remove the filter?
+			return;
+		}
+		sorter.setRowFilter(filter);
+	}
 }
