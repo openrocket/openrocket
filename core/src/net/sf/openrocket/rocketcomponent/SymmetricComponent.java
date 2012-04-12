@@ -149,11 +149,11 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 		if ( preset.has(ComponentPreset.THICKNESS) ) {
-			this.setThickness(preset.get(ComponentPreset.THICKNESS));
+			this.thickness = preset.get(ComponentPreset.THICKNESS);
+			this.filled = false;
 		}
 		if ( preset.has(ComponentPreset.FILLED)) {
-			// FIXME - this doesn't seem to work for nose cones.
-			this.setFilled(preset.get(ComponentPreset.FILLED));
+			this.filled = true;
 		}
 		
 		super.loadFromPreset(preset);
