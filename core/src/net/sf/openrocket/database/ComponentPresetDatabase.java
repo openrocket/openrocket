@@ -27,9 +27,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 			
 			List<ComponentPreset> returnval = new ArrayList<ComponentPreset>();
 			
-			InputStream is = ComponentPresetDao.class.getResourceAsStream("/datafiles/bodytubepresets.csv");
-
-			PresetCSVReader parser = new PresetCSVReader(is);
+			PresetCSVReader parser = new PresetCSVReader(stream);
 			List<TypedPropertyMap> list = parser.parse();
 			for( TypedPropertyMap o : list ) {
 				try {
