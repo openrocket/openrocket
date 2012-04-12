@@ -1,12 +1,15 @@
 package net.sf.openrocket.gui.adaptors;
 
+import java.awt.Component;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
+import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
+import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -20,16 +23,17 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String SELECT_PRESET = trans.get("lbl.select");
+	private static final String NONE_SELECTED = "";
 	private static final String SELECT_DATABASE = trans.get("lbl.database");
 	
-	
+	private final Component parent;
 	private final RocketComponent component;
 	private ComponentPreset previousPreset;
 	
 	private List<ComponentPreset> presets;
 	
-	public PresetModel(RocketComponent component) {
+	public PresetModel(Component parent, RocketComponent component) {
+		this.parent = parent;
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
 		this.component = component;
 		previousPreset = component.getPresetComponent();
@@ -44,7 +48,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	@Override
 	public Object getElementAt(int index) {
 		if (index == 0) {
-			return SELECT_PRESET;
+			return NONE_SELECTED;
 		}
 		if (index == getSize() - 1) {
 			return SELECT_DATABASE;
@@ -58,10 +62,17 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		
 		if (item == null) {
 			// FIXME:  What to do?
-		} else if (item.equals(SELECT_PRESET)) {
+		} else if (item.equals(NONE_SELECTED)) {
 			component.clearPreset();
 		} else if (item.equals(SELECT_DATABASE)) {
-			// FIXME:  Open database dialog
+			// FIXME - when the dialog first appears, the preset drop down still is open and has focus.
+			// we need to force focus to the new dialog.
+			ComponentPresetChooserDialog dialog = 
+					new ComponentPresetChooserDialog( SwingUtilities.getWindowAncestor(PresetModel.this.parent),
+							PresetModel.this.component);
+			dialog.setVisible(true);
+			ComponentPreset preset = dialog.getSelectedComponentPreset();
+			setSelectedItem(preset);
 		} else {
 			// FIXME: Add undo point here
 			component.loadPreset((ComponentPreset) item);
@@ -72,7 +83,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	public Object getSelectedItem() {
 		ComponentPreset preset = component.getPresetComponent();
 		if (preset == null) {
-			return SELECT_PRESET;
+			return NONE_SELECTED;
 		} else {
 			return preset;
 		}

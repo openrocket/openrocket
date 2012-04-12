@@ -31,18 +31,16 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	//	private final ThrustCurveMotorSelectionPanel selectionPanel;
-	
-	private final RocketComponent component;
+	private final JTable componentSelectionTable;
 	private final List<ComponentPreset> presets;
 	
 	private boolean okClicked = false;
 	
 	
-	public ComponentPresetChooserDialog(Window owner, RocketComponent component, final TypedKey<?>... columnKeys) {
+	public ComponentPresetChooserDialog(Window owner, RocketComponent component) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
-		this.component = component;
+		final TypedKey<?>[] columnKeys = component.getPresetType().getDisplayedColumns();
 		
 		presets = Application.getComponentPresetDao().listAll();
 		
@@ -95,9 +93,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 			
 		};
 		
-		final JTable table = new JTable( tableModel );
+		componentSelectionTable = new JTable( tableModel );
 		
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		componentSelectionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 		// FIXME we might need some custom sorters.
@@ -105,10 +103,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 			TypedKey<?> column = columnKeys[i];
 			sorter.setComparator(i, column.getComparator());
 		}*/
-		table.setRowSorter(sorter);
+		componentSelectionTable.setRowSorter(sorter);
 
 		JScrollPane scrollpane = new JScrollPane();
-		scrollpane.setViewportView(table);
+		scrollpane.setViewportView(componentSelectionTable);
 		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
 
 		
@@ -156,18 +154,13 @@ public class ComponentPresetChooserDialog extends JDialog {
 	public ComponentPreset getSelectedComponentPreset() {
 		if (!okClicked)
 			return null;
-		//return selectionPanel.getSelectedMotor();
-		return null;
+		int row = componentSelectionTable.getSelectedRow();
+		return presets.get(row);
 	}
 	
 	public void close(boolean ok) {
 		okClicked = ok;
 		this.setVisible(false);
-		
-		ComponentPreset preset = getSelectedComponentPreset();
-		if (okClicked && preset != null) {
-			//selectionPanel.selectedMotor(selected);
-		}
 	}
 	
 }

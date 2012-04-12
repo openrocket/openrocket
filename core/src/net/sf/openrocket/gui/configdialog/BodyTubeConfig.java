@@ -1,16 +1,11 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ComponentPresetDatabase;
@@ -21,10 +16,8 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -48,34 +41,11 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		////  Body tube template
 		// FIXME: Move to proper location
 		panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
-		presetModel = new PresetModel(component);
+		presetModel = new PresetModel( this, component);
 		((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
 		presetComboBox = new JComboBox(presetModel);
 		presetComboBox.setEditable(false);
 		panel.add(presetComboBox, "wrap para");
-		//FIXME: temporarily put the select from table button in the config dialog.
-		{
-			JButton opendialog = new JButton("o");
-			opendialog.addActionListener(
-					new ActionListener() {
-
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							ComponentPresetChooserDialog dialog = 
-									new ComponentPresetChooserDialog( SwingUtilities.getWindowAncestor(BodyTubeConfig.this),
-											BodyTubeConfig.this.component,
-											ComponentPreset.MANUFACTURER,
-											ComponentPreset.PARTNO,
-											ComponentPreset.OUTER_DIAMETER,
-											ComponentPreset.INNER_DIAMETER,
-											ComponentPreset.LENGTH);
-							dialog.setVisible(true);
-							ComponentPreset preset = dialog.getSelectedComponentPreset();
-						}
-					});
-			panel.add( opendialog, "wrap" );
-		}
-
 
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));

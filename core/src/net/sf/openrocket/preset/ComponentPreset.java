@@ -36,27 +36,46 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	private String digest = "";
 
 	public enum Type {
-		BODY_TUBE,
-		NOSE_CONE;
+		BODY_TUBE( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.LENGTH} ),
+				
+		NOSE_CONE( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.LENGTH} ) ;
 
 		Type[] compatibleTypes;
+		TypedKey<?>[] displayedColumns;
 
-		Type () {
+		Type( TypedKey<?>[] displayedColumns) {
 			compatibleTypes = new Type[1];
 			compatibleTypes[0] = this;
+			this.displayedColumns = displayedColumns;
 		}
 
-		Type( Type ... t ) {
+		Type( Type[] t, TypedKey<?>[] displayedColumns ) {
 
 			compatibleTypes = new Type[t.length+1];
 			compatibleTypes[0] = this;
 			for( int i=0; i<t.length; i++ ) {
 				compatibleTypes[i+1] = t[i];
 			}
+
+			this.displayedColumns = displayedColumns;
 		}
 
 		public Type[] getCompatibleTypes() {
 			return compatibleTypes;
+		}
+
+		public TypedKey<?>[] getDisplayedColumns() {
+			return displayedColumns;
 		}
 
 	}
