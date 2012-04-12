@@ -96,11 +96,15 @@ public class ComponentPresetChooserDialog extends JDialog {
 			columns[i+1] = new Column(trans.get("table.column." + columnKeys[i].getName())) {
 				@Override
 				public Object getValueAt(int row) {
+					ComponentPreset preset = ComponentPresetChooserDialog.this.presets.get(row);
+					if ( ! preset.has(key) ) {
+						return null;
+					}
+					Object value = preset.get(key);
 					if (key.getType() == Double.class && key.getUnitGroup() != null) {
-						double v = (Double) ComponentPresetChooserDialog.this.presets.get(row).get(key);
-						return new Value( v, key.getUnitGroup() );
+						return new Value( (Double) value, key.getUnitGroup() );
 					} else {
-						return ComponentPresetChooserDialog.this.presets.get(row).get(key);
+						return value;
 					}
 				}
 			};
