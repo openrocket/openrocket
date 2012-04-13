@@ -10,6 +10,7 @@ import java.util.Set;
 
 import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.file.preset.PresetCSVReader;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
@@ -18,15 +19,20 @@ import net.sf.openrocket.util.BugException;
 
 public class ComponentPresetDatabase extends Database<ComponentPreset> implements ComponentPresetDao {
 
+	private static final LogHelper log = Application.getLogger();
+
 	private static class ComponentPresetLoader implements Loader<ComponentPreset> {
 
 		@Override
 		public Collection<ComponentPreset> load(InputStream stream,
 				String filename) throws IOException {
+
+			log.debug("Loading presets from file " + filename);
+
 			Set<String> favorites = Application.getPreferences().getComponentFavorites();
-			
+
 			List<ComponentPreset> returnval = new ArrayList<ComponentPreset>();
-			
+
 			PresetCSVReader parser = new PresetCSVReader(stream);
 			List<TypedPropertyMap> list = parser.parse();
 			for( TypedPropertyMap o : list ) {
@@ -42,13 +48,13 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 			}
 			return returnval;
 		}
-		
+
 	}
-	
+
 	public ComponentPresetDatabase() {
 		super(new ComponentPresetLoader());
 	}
-	
+
 	@Override
 	public List<ComponentPreset> listAll() {
 		return list;
@@ -64,7 +70,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 		if ( type == null ) {
 			return Collections.<ComponentPreset>emptyList();
 		}
-		
+
 		List<ComponentPreset> result = new ArrayList<ComponentPreset>(list.size()/6);
 
 		for( ComponentPreset preset : list ) {
