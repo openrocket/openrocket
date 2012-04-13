@@ -58,7 +58,7 @@ public class Startup {
 
 		// Must be done after localization is initialized
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
-		componentPresetDao.load("datafiles", ".*csv");
+		componentPresetDao.load("datafiles/presets", ".*csv");
 		Application.setComponentPresetDao( componentPresetDao );
 		
 		// Continue startup in Startup2 class (where Application is already set up)
