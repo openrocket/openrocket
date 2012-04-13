@@ -113,7 +113,6 @@ public abstract class ExternalComponent extends RocketComponent {
 		material = mat;
 		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
-		clearPreset();
 	}
 
 	public Finish getFinish() {
@@ -137,7 +136,7 @@ public abstract class ExternalComponent extends RocketComponent {
 		if ( preset.has(ComponentPreset.MATERIAL ) ) {
 			Material mat = preset.get(ComponentPreset.MATERIAL);
 			if ( mat != null ) {
-				setMaterial(mat);
+				material = mat;
 			} /*
 			TODO - 
 			else if (c.isMassOverridden()) {
