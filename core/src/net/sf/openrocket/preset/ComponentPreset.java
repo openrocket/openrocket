@@ -14,6 +14,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -95,7 +96,6 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish", Finish.class);
 	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Boolean> FILLED = new TypedKey<Boolean>("Filled", Boolean.class);
-	public final static TypedKey<Double> CG_OVERRIDE = new TypedKey<Double>("CGOverride", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
 
 	public final static Map<String, TypedKey<?>> keyMap = new HashMap<String, TypedKey<?>>();
@@ -114,7 +114,6 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(FINISH.getName(), FINISH);
 		keyMap.put(THICKNESS.getName(), THICKNESS);
 		keyMap.put(FILLED.getName(), FILLED);
-		keyMap.put(CG_OVERRIDE.getName(), CG_OVERRIDE);
 		keyMap.put(MASS.getName(), MASS);
 	}
 
@@ -201,6 +200,23 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			}
 			if ( !props.containsKey(OUTER_DIAMETER) ) {
 				throw new InvalidComponentPresetException( "No Outer Diameter specified for nose cone preset " + props.toString());
+			}
+			
+			if ( props.containsKey(MASS) ) {
+				// compute a density for this component
+				double mass = props.get(MASS);
+				NoseCone nc = new NoseCone();
+				nc.loadPreset(preset);
+				double density = mass / nc.getComponentVolume();
+
+				String materialName = "NoseConeCustom";
+				if ( props.containsKey(MATERIAL) ) {
+					materialName = props.get(MATERIAL).getName();
+				}
+				
+				Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
+				preset.properties.put(MATERIAL, m);
+
 			}
 			break;
 		}
