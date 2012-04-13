@@ -6,6 +6,8 @@ import static net.sf.openrocket.util.MathUtil.*;
 import java.util.Collection;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -514,7 +516,51 @@ public class Transition extends SymmetricComponent {
 		return false;
 	}
 	
-	
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.TRANSITION;
+	}
+
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+
+		if ( preset.has(ComponentPreset.SHAPE) ) {
+			Shape s = preset.get(ComponentPreset.SHAPE);
+			this.setType(s);
+		}
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.setAftRadiusAutomatic(false);
+			this.setAftRadius(outerDiameter/2.0);
+		}
+		if ( preset.has(ComponentPreset.SHOULDER_LENGTH) ) {
+			double d = preset.get(ComponentPreset.SHOULDER_LENGTH);
+			this.setAftShoulderLength(d);
+		}
+		if ( preset.has(ComponentPreset.SHOULDER_DIAMETER) ) {
+			double d = preset.get(ComponentPreset.SHOULDER_DIAMETER);
+			this.setAftShoulderRadius(d/2.0);
+		}
+		if ( preset.has(ComponentPreset.FORE_OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.FORE_OUTER_DIAMETER);
+			this.setForeRadiusAutomatic(false);
+			this.setForeRadius(outerDiameter/2.0);
+		}
+		if ( preset.has(ComponentPreset.FORE_SHOULDER_LENGTH) ) {
+			double d = preset.get(ComponentPreset.FORE_SHOULDER_LENGTH);
+			this.setForeShoulderLength(d);
+		}
+		if ( preset.has(ComponentPreset.FORE_SHOULDER_DIAMETER) ) {
+			double d = preset.get(ComponentPreset.FORE_SHOULDER_DIAMETER);
+			this.setForeShoulderRadius(d/2.0);
+		}
+
+		super.loadFromPreset(preset);
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+	}
 
 	/**
 	 * An enumeration listing the possible shapes of transitions.

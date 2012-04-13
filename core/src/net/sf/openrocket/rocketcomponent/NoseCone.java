@@ -120,27 +120,9 @@ public class NoseCone extends Transition {
 
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if ( preset.has(ComponentPreset.SHAPE) ) {
-			Shape s = preset.get(ComponentPreset.SHAPE);
-			this.setType(s);
-		}
-		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
-			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
-			this.setAftRadiusAutomatic(false);
-			this.setAftRadius(outerDiameter/2.0);
-		}
-		if ( preset.has(ComponentPreset.SHOULDER_LENGTH) ) {
-			double length = preset.get(ComponentPreset.SHOULDER_LENGTH);
-			this.setAftShoulderLength(length);
-		}
-		if ( preset.has(ComponentPreset.SHOULDER_DIAMETER) ) {
-			double d = preset.get(ComponentPreset.SHOULDER_DIAMETER);
-			this.setAftShoulderRadius(d/2.0);
-		}
-
+		
+		//Many parameters are handled by the super class Transition.loadFromPreset
 		super.loadFromPreset(preset);
-
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 
 	/**

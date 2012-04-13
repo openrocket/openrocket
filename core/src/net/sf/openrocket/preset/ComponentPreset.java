@@ -15,6 +15,7 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -48,9 +49,20 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		NOSE_CONE( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
 				ComponentPreset.SHAPE,
 				ComponentPreset.OUTER_DIAMETER,
-				ComponentPreset.LENGTH} ) ;
+				ComponentPreset.LENGTH} ),
+
+		TRANSITION( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.SHAPE,
+				ComponentPreset.FORE_OUTER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH
+				} ) ;
 
 		Type[] compatibleTypes;
 		TypedKey<?>[] displayedColumns;
@@ -91,6 +103,9 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> SHOULDER_LENGTH = new TypedKey<Double>("ShoulderLength", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> SHOULDER_DIAMETER = new TypedKey<Double>("ShoulderDiameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> FORE_SHOULDER_LENGTH = new TypedKey<Double>("ForeShoulderLength",Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> FORE_SHOULDER_DIAMETER = new TypedKey<Double>("ForeShoulderDiameter",Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> FORE_OUTER_DIAMETER = new TypedKey<Double>("ForeOuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Shape> SHAPE = new TypedKey<Shape>("Shape", Shape.class);
 	public final static TypedKey<Material> MATERIAL = new TypedKey<Material>("Material", Material.class);
 	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish", Finish.class);
@@ -109,6 +124,9 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(OUTER_DIAMETER.getName(), OUTER_DIAMETER);
 		keyMap.put(SHOULDER_LENGTH.getName(), SHOULDER_LENGTH);
 		keyMap.put(SHOULDER_DIAMETER.getName(), SHOULDER_DIAMETER);
+		keyMap.put(FORE_SHOULDER_LENGTH.getName(), FORE_SHOULDER_LENGTH);
+		keyMap.put(FORE_SHOULDER_DIAMETER.getName(), FORE_SHOULDER_DIAMETER);
+		keyMap.put(FORE_OUTER_DIAMETER.getName(), FORE_OUTER_DIAMETER);
 		keyMap.put(SHAPE.getName(), SHAPE);
 		keyMap.put(MATERIAL.getName(), MATERIAL);
 		keyMap.put(FINISH.getName(), FINISH);
@@ -192,6 +210,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			break;
 		}
 		case NOSE_CONE: {
+			
 			if ( !props.containsKey(LENGTH) ) {
 				throw new InvalidComponentPresetException( "No Length specified for nose cone preset " + props.toString());
 			}
@@ -210,6 +229,36 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				double density = mass / nc.getComponentVolume();
 
 				String materialName = "NoseConeCustom";
+				if ( props.containsKey(MATERIAL) ) {
+					materialName = props.get(MATERIAL).getName();
+				}
+				
+				Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
+				preset.properties.put(MATERIAL, m);
+
+			}
+			break;
+		}
+		case TRANSITION: {
+			
+			if ( !props.containsKey(LENGTH) ) {
+				throw new InvalidComponentPresetException( "No Length specified for transition preset " + props.toString());
+			}
+			if ( !props.containsKey(OUTER_DIAMETER) ) {
+				throw new InvalidComponentPresetException( "No Outer Diameter specified for transition preset " + props.toString());
+			}
+			if ( !props.containsKey(FORE_OUTER_DIAMETER) ) {
+				throw new InvalidComponentPresetException( "No Fore Outer Diameter specified for transition preset " + props.toString());
+			}
+			
+			if ( props.containsKey(MASS) ) {
+				// compute a density for this component
+				double mass = props.get(MASS);
+				Transition tr = new Transition();
+				tr.loadPreset(preset);
+				double density = mass / tr.getComponentVolume();
+
+				String materialName = "TransitionCustom";
 				if ( props.containsKey(MATERIAL) ) {
 					materialName = props.get(MATERIAL).getName();
 				}
