@@ -27,8 +27,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 
 	private MotorConfig motorConfigPane = null;
 	private DoubleModel maxLength;
-	private JComboBox presetComboBox;
-	private PresetModel presetModel;
 	private static final Translator trans = Application.getTranslator();
 
 	public BodyTubeConfig(OpenRocketDocument d, RocketComponent c) {
@@ -37,15 +35,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 
 
-
-		////  Body tube template
-		// FIXME: Move to proper location
-		panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
-		presetModel = new PresetModel( this, component);
-		((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
-		presetComboBox = new JComboBox(presetModel);
-		presetComboBox.setEditable(false);
-		panel.add(presetComboBox, "wrap para");
 
 		////  Body tube length
 		panel.add(new JLabel(trans.get("BodyTubecfg.lbl.Bodytubelength")));
@@ -135,12 +124,5 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		if (motorConfigPane != null)
 			motorConfigPane.updateFields();
 	}
-
-	@Override
-	public void invalidateModels() {
-		super.invalidateModels();
-		((ComponentPresetDatabase)Application.getComponentPresetDao()).removeChangeListener(presetModel);
-	}
-
 
 }

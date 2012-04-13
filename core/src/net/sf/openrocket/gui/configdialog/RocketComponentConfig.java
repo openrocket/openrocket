@@ -25,12 +25,14 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
+import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -61,7 +63,9 @@ public class RocketComponentConfig extends JPanel {
 	
 	private final List<Invalidatable> invalidatables = new ArrayList<Invalidatable>();
 	
-	
+	private JComboBox presetComboBox;
+	private PresetModel presetModel;
+
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
@@ -198,6 +202,18 @@ public class RocketComponentConfig extends JPanel {
 	
 	protected JPanel materialPanel(JPanel panel, Material.Type type,
 			String materialString, String finishString) {
+		
+		if ( component.getPresetType() != null ) {
+			////  Body tube template
+			// FIXME: Move to proper location
+			panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
+			presetModel = new PresetModel( this, component);
+			((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
+			presetComboBox = new JComboBox(presetModel);
+			presetComboBox.setEditable(false);
+			panel.add(presetComboBox, "wrap para");
+		}
+		
 		JLabel label = new JLabel(materialString);
 		//// The component material affects the weight of the component.
 		label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
@@ -636,6 +652,8 @@ public class RocketComponentConfig extends JPanel {
 		for (Invalidatable i : invalidatables) {
 			i.invalidate();
 		}
+		((ComponentPresetDatabase)Application.getComponentPresetDao()).removeChangeListener(presetModel);
+
 	}
 	
 }

@@ -35,9 +35,6 @@ public class NoseConeConfig extends RocketComponentConfig {
 	
 	private DescriptionArea description;
 	
-	private JComboBox presetComboBox;
-	private PresetModel presetModel;
-
 	private JLabel shapeLabel;
 	private JSpinner shapeSpinner;
 	private JSlider shapeSlider;
@@ -52,16 +49,6 @@ public class NoseConeConfig extends RocketComponentConfig {
 		DoubleModel m;
 		JPanel panel = new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
 		
-
-		// FIXME: Move to proper location
-		panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
-		presetModel = new PresetModel( this, component);
-		((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
-		presetComboBox = new JComboBox(presetModel);
-		presetComboBox.setEditable(false);
-		panel.add(presetComboBox, "wrap para");
-
-
 		////  Shape selection
 		//// Nose cone shape:
 		panel.add(new JLabel(trans.get("NoseConeCfg.lbl.Noseconeshape")));
