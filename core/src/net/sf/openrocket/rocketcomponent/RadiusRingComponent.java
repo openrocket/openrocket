@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -15,6 +16,22 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 
 	protected double outerRadius = 0;
 	protected double innerRadius = 0;
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		super.loadFromPreset(preset);
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER)) {
+			this.outerRadius = preset.get(ComponentPreset.OUTER_DIAMETER) / 2.0;
+			this.outerRadiusAutomatic = false;
+		}
+		this.innerRadiusAutomatic = false;
+		if ( preset.has(ComponentPreset.INNER_DIAMETER)) {
+			this.innerRadius = preset.get(ComponentPreset.INNER_DIAMETER) / 2.0;
+		}
+
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+	}
 
 	@Override
 	public double getOuterRadius() {

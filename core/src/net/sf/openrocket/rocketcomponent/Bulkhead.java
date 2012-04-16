@@ -1,6 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 
 
@@ -12,6 +14,11 @@ public class Bulkhead extends RadiusRingComponent {
 		setLength(0.002);
 	}
 	
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.BULK_HEAD;
+	}
+
 	@Override
 	public double getInnerRadius() {
 		return 0;
