@@ -63,6 +63,13 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH} ),
 				
+		TUBE_COUPLER( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.LENGTH} ),
+						
 		BULK_HEAD( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,

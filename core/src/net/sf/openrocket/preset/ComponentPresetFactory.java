@@ -57,6 +57,10 @@ public abstract class ComponentPresetFactory {
 			makeBulkHead(preset);
 			break;
 		}
+		case TUBE_COUPLER: {
+			makeTubeCoupler(preset);
+			break;
+		}
 		}
 
 		preset.computeDigest();
@@ -188,6 +192,59 @@ public abstract class ComponentPresetFactory {
 
 	}
 
+	private static void makeTubeCoupler( ComponentPreset preset ) throws InvalidComponentPresetException {
+		
+		checkRequiredFields( preset, LENGTH );
+
+		// FIXME - TubeCoupler does not have getComponentVolume.  So we use a BodyTube for this.
+		BodyTube bt = new BodyTube();
+
+		bt.setLength(preset.get(LENGTH));
+
+		// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
+		boolean hasOd = preset.has(OUTER_DIAMETER);
+		boolean hasId = preset.has(INNER_DIAMETER);
+		boolean hasThickness = preset.has(THICKNESS);
+
+		if ( hasOd ) {
+			double outerRadius = preset.get(OUTER_DIAMETER)/2.0;
+			double thickness = 0;
+			bt.setOuterRadius( outerRadius );
+			if ( hasId ) {
+				thickness = outerRadius - preset.get(INNER_DIAMETER)/2.0;
+			} else if ( hasThickness ) {
+				thickness = preset.get(THICKNESS);
+			} else {
+				throw new InvalidComponentPresetException("Body tube preset underspecified " + preset.toString());
+			}
+			bt.setThickness( thickness );
+		} else {
+			if ( ! hasId && ! hasThickness ) {
+				throw new InvalidComponentPresetException("Body tube preset underspecified " + preset.toString());
+			}
+			double innerRadius = preset.get(INNER_DIAMETER)/2.0;
+			double thickness = preset.get(THICKNESS);
+			bt.setOuterRadius(innerRadius + thickness);
+			bt.setThickness(thickness);
+		}
+
+		preset.put(OUTER_DIAMETER, bt.getOuterRadius() *2.0);
+		preset.put(INNER_DIAMETER, bt.getInnerRadius() *2.0);
+		preset.put(THICKNESS, bt.getThickness());
+
+		// Need to translate Mass to Density.
+		if ( preset.has(MASS) ) {
+			String materialName = "TubeCustom";
+			if ( preset.has(MATERIAL) ) {
+				materialName = preset.get(MATERIAL).getName();
+			}
+			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/bt.getComponentVolume(), false);
+			preset.put(MATERIAL, m);
+		}
+
+
+	}
+	
 	private static void checkRequiredFields( ComponentPreset preset, TypedKey<?> ... keys ) throws InvalidComponentPresetException {
 		for( TypedKey<?> key: keys ) {
 			if (! preset.has(key) ) {

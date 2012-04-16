@@ -48,6 +48,10 @@ public class ColumnDefinition<T> {
 				String translated_value = Application.getTranslator().get("Databases.materials.Balsa");
 				return getMaterialFor(translated_value);
 			}
+			if ( "paper".equalsIgnoreCase(value) ) {
+				String translated_value = Application.getTranslator().get("Databases.materials.Paperoffice");
+				return getMaterialFor(translated_value);
+			}
 			throw new IllegalArgumentException("Invalid material " + value + " in component preset.");
 		}
 		if ( type.equals(Shape.class) ) {

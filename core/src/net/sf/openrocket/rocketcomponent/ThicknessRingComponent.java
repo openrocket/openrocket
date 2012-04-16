@@ -1,5 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -16,7 +17,24 @@ public abstract class ThicknessRingComponent extends RingComponent {
 	protected double outerRadius = 0;
 	protected double thickness = 0;
 	
-	
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
+			this.outerRadiusAutomatic = false;
+			this.innerRadiusAutomatic = false;
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.outerRadius = outerDiameter/2.0;
+			if ( preset.has(ComponentPreset.INNER_DIAMETER) ) {
+				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+				this.thickness = (outerDiameter-innerDiameter) / 2.0;
+			}
+		}
+		super.loadFromPreset(preset);
+
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+
+	}
+
 	@Override
 	public double getOuterRadius() {
 		if (isOuterRadiusAutomatic() && getParent() instanceof RadialParent) {
