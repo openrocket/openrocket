@@ -61,8 +61,14 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.SHAPE,
 				ComponentPreset.FORE_OUTER_DIAMETER,
 				ComponentPreset.OUTER_DIAMETER,
-				ComponentPreset.LENGTH
-				} ) ;
+				ComponentPreset.LENGTH} ),
+				
+		BULK_HEAD( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH} );
 
 		Type[] compatibleTypes;
 		TypedKey<?>[] displayedColumns;
@@ -135,150 +141,8 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(MASS.getName(), MASS);
 	}
 
-	public static ComponentPreset create( TypedPropertyMap props ) throws InvalidComponentPresetException {
-
-		ComponentPreset preset = new ComponentPreset();
-		// First do validation.
-		if ( !props.containsKey(TYPE)) {
-			throw new InvalidComponentPresetException("No Type specified " + props.toString() );
-		}
-
-		if (!props.containsKey(MANUFACTURER)) {
-			throw new InvalidComponentPresetException("No Manufacturer specified " + props.toString() );
-		}
-
-		if (!props.containsKey(PARTNO)) {
-			throw new InvalidComponentPresetException("No PartNo specified " + props.toString() );
-		}
-
-		preset.properties.putAll(props);
-
-		// Should check for various bits of each of the types.
-		Type t = props.get(TYPE);
-		switch ( t ) {
-		case BODY_TUBE: {
-
-			if ( !props.containsKey(LENGTH) ) {
-				throw new InvalidComponentPresetException( "No Length specified for body tube preset " + props.toString());
-			}
-
-			BodyTube bt = new BodyTube();
-
-			bt.setLength(props.get(LENGTH));
-
-			// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
-			boolean hasOd = props.containsKey(OUTER_DIAMETER);
-			boolean hasId = props.containsKey(INNER_DIAMETER);
-			boolean hasThickness = props.containsKey(THICKNESS);
-
-			if ( hasOd ) {
-				double outerRadius = props.get(OUTER_DIAMETER)/2.0;
-				double thickness = 0;
-				bt.setOuterRadius( outerRadius );
-				if ( hasId ) {
-					thickness = outerRadius - props.get(INNER_DIAMETER)/2.0;
-				} else if ( hasThickness ) {
-					thickness = props.get(THICKNESS);
-				} else {
-					throw new InvalidComponentPresetException("Body tube preset underspecified " + props.toString());
-				}
-				bt.setThickness( thickness );
-			} else {
-				if ( ! hasId && ! hasThickness ) {
-					throw new InvalidComponentPresetException("Body tube preset underspecified " + props.toString());
-				}
-				double innerRadius = props.get(INNER_DIAMETER)/2.0;
-				double thickness = props.get(THICKNESS);
-				bt.setOuterRadius(innerRadius + thickness);
-				bt.setThickness(thickness);
-			}
-
-			preset.properties.put(OUTER_DIAMETER, bt.getOuterRadius() *2.0);
-			preset.properties.put(INNER_DIAMETER, bt.getInnerRadius() *2.0);
-			preset.properties.put(THICKNESS, bt.getThickness());
-
-			// Need to translate Mass to Density.
-			if ( props.containsKey(MASS) ) {
-				String materialName = "TubeCustom";
-				if ( props.containsKey(MATERIAL) ) {
-					materialName = props.get(MATERIAL).getName();
-				}
-				Material m = Material.newMaterial(Material.Type.BULK, materialName, props.get(MASS)/bt.getComponentVolume(), false);
-				preset.properties.put(MATERIAL, m);
-			}
-
-			break;
-		}
-		case NOSE_CONE: {
-			
-			if ( !props.containsKey(LENGTH) ) {
-				throw new InvalidComponentPresetException( "No Length specified for nose cone preset " + props.toString());
-			}
-			if ( !props.containsKey(SHAPE) ) {
-				throw new InvalidComponentPresetException( "No Shape specified for nose cone preset " + props.toString());
-			}
-			if ( !props.containsKey(OUTER_DIAMETER) ) {
-				throw new InvalidComponentPresetException( "No Outer Diameter specified for nose cone preset " + props.toString());
-			}
-			
-			if ( props.containsKey(MASS) ) {
-				// compute a density for this component
-				double mass = props.get(MASS);
-				NoseCone nc = new NoseCone();
-				nc.loadPreset(preset);
-				double density = mass / nc.getComponentVolume();
-
-				String materialName = "NoseConeCustom";
-				if ( props.containsKey(MATERIAL) ) {
-					materialName = props.get(MATERIAL).getName();
-				}
-				
-				Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
-				preset.properties.put(MATERIAL, m);
-
-			}
-			break;
-		}
-		case TRANSITION: {
-			
-			if ( !props.containsKey(LENGTH) ) {
-				throw new InvalidComponentPresetException( "No Length specified for transition preset " + props.toString());
-			}
-			if ( !props.containsKey(OUTER_DIAMETER) ) {
-				throw new InvalidComponentPresetException( "No Outer Diameter specified for transition preset " + props.toString());
-			}
-			if ( !props.containsKey(FORE_OUTER_DIAMETER) ) {
-				throw new InvalidComponentPresetException( "No Fore Outer Diameter specified for transition preset " + props.toString());
-			}
-			
-			if ( props.containsKey(MASS) ) {
-				// compute a density for this component
-				double mass = props.get(MASS);
-				Transition tr = new Transition();
-				tr.loadPreset(preset);
-				double density = mass / tr.getComponentVolume();
-
-				String materialName = "TransitionCustom";
-				if ( props.containsKey(MATERIAL) ) {
-					materialName = props.get(MATERIAL).getName();
-				}
-				
-				Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
-				preset.properties.put(MATERIAL, m);
-
-			}
-			break;
-		}
-		}
-
-		preset.computeDigest();
-
-		return preset;
-
-	}
-
-	// Private constructor to encourage use of factory.
-	private ComponentPreset() {
+	// package scope constructor to encourage use of factory.
+	ComponentPreset() {
 	}
 
 	/**
@@ -314,6 +178,26 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		return properties.containsKey(key);
 	}
 
+	/**
+	 * Package scope so the ComponentPresetFactory can call it.
+	 * @param other
+	 */
+	void putAll(TypedPropertyMap other) {
+		if (other == null) {
+			return;
+		}
+		properties.putAll(other);
+	}
+
+	/**
+	 * Package scope so the ComponentPresetFactory can call it.
+	 * @param key
+	 * @param value
+	 */
+	<T> void put( TypedKey<T> key, T value ) {
+		properties.put(key, value);
+	}
+	
 	public <T> T get(TypedKey<T> key) {
 		T value = properties.get(key);
 		if (value == null) {
@@ -349,7 +233,10 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		return get(MANUFACTURER).toString() + "|" + get(PARTNO);
 	}
 
-	private void computeDigest() {
+	/**
+	 * Package scope so the factory can call it.
+	 */
+	void computeDigest() {
 
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();

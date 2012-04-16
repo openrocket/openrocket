@@ -12,6 +12,7 @@ import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.file.preset.PresetCSVReader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.startup.Application;
@@ -37,7 +38,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 			List<TypedPropertyMap> list = parser.parse();
 			for( TypedPropertyMap o : list ) {
 				try {
-					ComponentPreset preset = ComponentPreset.create(o);
+					ComponentPreset preset = ComponentPresetFactory.create(o);
 					if ( favorites.contains(preset.preferenceKey())) {
 						preset.setFavorite(true);
 					}
