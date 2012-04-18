@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -44,8 +45,8 @@ public class ComponentPresetChooserDialog extends JDialog {
 	
 	private final RocketComponent component;
 	
-	private final JTable componentSelectionTable;
-	private final TableRowSorter<TableModel> sorter;
+	private ComponentPresetTable componentSelectionTable;
+//	private final JTable componentSelectionTable;
 	private final JTextField filterText;
 	private final JCheckBox foreDiameterFilterCheckBox;
 	private final JCheckBox aftDiameterFilterCheckBox;
@@ -70,29 +71,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType());
 
-		/*
-		 * Set up the Column Table model
-		 */
-		final Column[] columns = new Column[columnKeys.length+1];
-		
-		columns[0] = new Column(trans.get("table.column.Favorite") ) {
-			@Override
-			public Object getValueAt(int row) {
-				return Boolean.valueOf(ComponentPresetChooserDialog.this.presets.get(row).isFavorite());
-			}
-			
-			@Override
-			public void setValueAt(int row, Object value) {
-				Application.getComponentPresetDao().setFavorite(ComponentPresetChooserDialog.this.presets.get(row), (Boolean) value);
-			}
-
-			@Override
-			public Class<?> getColumnClass() {
-				return Boolean.class;
-			}
-			
-		};
-
 		for (int i = 0; i < columnKeys.length; i++) {
 			final TypedKey<?> key = columnKeys[i];
 			if ( key == ComponentPreset.OUTER_DIAMETER ) {
@@ -103,21 +81,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 				// magic +1 is because we have inserted the column for favorites above.
 				foreDiameterColumnIndex = i+1;
 			}
-			columns[i+1] = new Column(trans.get("table.column." + key.getName())) {
-				@Override
-				public Object getValueAt(int row) {
-					ComponentPreset preset = ComponentPresetChooserDialog.this.presets.get(row);
-					if ( ! preset.has(key) ) {
-						return null;
-					}
-					Object value = preset.get(key);
-					if (key.getType() == Double.class && key.getUnitGroup() != null) {
-						return new Value( (Double) value, key.getUnitGroup() );
-					} else {
-						return value;
-					}
-				}
-			};
 		}
 		
 		/*
@@ -132,20 +95,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 			foreDiameterColumnIndex = aftDiameterColumnIndex;
 		}
 		
-		ColumnTableModel tableModel = new ColumnTableModel(columns) {
-			@Override
-			public int getRowCount() {
-				return ComponentPresetChooserDialog.this.presets.size();
-			}
-
-			@Override
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return columnIndex == 0;
-			}
-			
-		};
-		
-
 		/*
 		 * Add filter by text.
 		 */
@@ -205,12 +154,8 @@ public class ComponentPresetChooserDialog extends JDialog {
 			aftDiameterFilterCheckBox.setVisible(false);
 		}
 		
-		componentSelectionTable = new JTable( tableModel );
+		componentSelectionTable = new ComponentPresetTable( presets, Arrays.<TypedKey<?>>asList(columnKeys) );
 		
-		componentSelectionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		sorter = new TableRowSorter<TableModel>(tableModel);
-		componentSelectionTable.setRowSorter(sorter);
 
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
@@ -319,6 +264,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		}
 		
-		sorter.setRowFilter( RowFilter.andFilter(filters) );
+		componentSelectionTable.setRowFilter( RowFilter.andFilter(filters) );
 	}
 }

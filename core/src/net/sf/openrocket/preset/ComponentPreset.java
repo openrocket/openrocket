@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -148,6 +149,26 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(MASS.getName(), MASS);
 	}
 
+	public final static List<TypedKey<?>> orderedKeyList = Arrays.<TypedKey<?>>asList(
+			MANUFACTURER,
+			PARTNO,
+			DESCRIPTION,
+			OUTER_DIAMETER,
+			INNER_DIAMETER,
+			LENGTH,
+			SHOULDER_DIAMETER,
+			SHOULDER_LENGTH,
+			FORE_SHOULDER_DIAMETER,
+			FORE_SHOULDER_LENGTH,
+			SHAPE,
+			THICKNESS,
+			FILLED,
+			MASS,
+			FINISH,
+			MATERIAL
+			);
+	
+	
 	// package scope constructor to encourage use of factory.
 	ComponentPreset() {
 	}
