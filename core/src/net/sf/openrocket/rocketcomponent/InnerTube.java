@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -77,7 +78,27 @@ public class InnerTube extends ThicknessRingComponent
 		return InternalComponent.class.isAssignableFrom(type);
 	}
 	
-	
+	@Override
+	public ComponentPreset.Type getPresetType() {
+		return ComponentPreset.Type.BODY_TUBE;
+	}
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.outerRadius = outerDiameter/2.0;
+			if ( preset.has(ComponentPreset.INNER_DIAMETER) ) {
+				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+				this.thickness = (outerDiameter-innerDiameter) / 2.0;
+			}
+		}
+
+		super.loadFromPreset(preset);
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
 
 	/////////////  Cluster methods  //////////////
 	
