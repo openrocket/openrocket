@@ -61,6 +61,14 @@ public abstract class ComponentPresetFactory {
 			makeTubeCoupler(preset);
 			break;
 		}
+		case CENTERING_RING: {
+			makeCenteringRing(preset);
+			break;
+		}
+		case ENGINE_BLOCK: {
+			makeEngineBlock(preset);
+			break;
+		}
 		}
 
 		preset.computeDigest();
@@ -73,48 +81,17 @@ public abstract class ComponentPresetFactory {
 		
 		checkRequiredFields( preset, LENGTH );
 
-		BodyTube bt = new BodyTube();
-
-		bt.setLength(preset.get(LENGTH));
-
-		// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
-		boolean hasOd = preset.has(OUTER_DIAMETER);
-		boolean hasId = preset.has(INNER_DIAMETER);
-		boolean hasThickness = preset.has(THICKNESS);
-
-		if ( hasOd ) {
-			double outerRadius = preset.get(OUTER_DIAMETER)/2.0;
-			double thickness = 0;
-			bt.setOuterRadius( outerRadius );
-			if ( hasId ) {
-				thickness = outerRadius - preset.get(INNER_DIAMETER)/2.0;
-			} else if ( hasThickness ) {
-				thickness = preset.get(THICKNESS);
-			} else {
-				throw new InvalidComponentPresetException("Body tube preset underspecified " + preset.toString());
-			}
-			bt.setThickness( thickness );
-		} else {
-			if ( ! hasId && ! hasThickness ) {
-				throw new InvalidComponentPresetException("Body tube preset underspecified " + preset.toString());
-			}
-			double innerRadius = preset.get(INNER_DIAMETER)/2.0;
-			double thickness = preset.get(THICKNESS);
-			bt.setOuterRadius(innerRadius + thickness);
-			bt.setThickness(thickness);
-		}
-
-		preset.put(OUTER_DIAMETER, bt.getOuterRadius() *2.0);
-		preset.put(INNER_DIAMETER, bt.getInnerRadius() *2.0);
-		preset.put(THICKNESS, bt.getThickness());
-
+		checkDiametersAndThickness(preset);
+		
+		double volume = computeVolumeOfTube( preset );
+		
 		// Need to translate Mass to Density.
 		if ( preset.has(MASS) ) {
 			String materialName = "TubeCustom";
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
-			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/bt.getComponentVolume(), false);
+			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
 			preset.put(MATERIAL, m);
 		}
 
@@ -172,15 +149,13 @@ public abstract class ComponentPresetFactory {
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
 			double mass = preset.get(MASS);
-			Bulkhead tr = new Bulkhead();
-			tr.loadPreset(preset);
 			// FIXME - Bulkhead.getComponentVolume does not exist!
 			// double density = mass / tr.getComponentVolume();
 
 			double volume = Math.pow(preset.get(OUTER_DIAMETER),2) * Math.PI / 4.0;
 			double density = mass / volume;
 
-			String materialName = "TransitionCustom";
+			String materialName = "BulkHeadCustom";
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
@@ -196,52 +171,56 @@ public abstract class ComponentPresetFactory {
 		
 		checkRequiredFields( preset, LENGTH );
 
-		// FIXME - TubeCoupler does not have getComponentVolume.  So we use a BodyTube for this.
-		BodyTube bt = new BodyTube();
-
-		bt.setLength(preset.get(LENGTH));
-
-		// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
-		boolean hasOd = preset.has(OUTER_DIAMETER);
-		boolean hasId = preset.has(INNER_DIAMETER);
-		boolean hasThickness = preset.has(THICKNESS);
-
-		if ( hasOd ) {
-			double outerRadius = preset.get(OUTER_DIAMETER)/2.0;
-			double thickness = 0;
-			bt.setOuterRadius( outerRadius );
-			if ( hasId ) {
-				thickness = outerRadius - preset.get(INNER_DIAMETER)/2.0;
-			} else if ( hasThickness ) {
-				thickness = preset.get(THICKNESS);
-			} else {
-				throw new InvalidComponentPresetException("Body tube preset underspecified " + preset.toString());
-			}
-			bt.setThickness( thickness );
-		} else {
-			if ( ! hasId && ! hasThickness ) {
-				throw new InvalidComponentPresetException("Body tube preset underspecified " + preset.toString());
-			}
-			double innerRadius = preset.get(INNER_DIAMETER)/2.0;
-			double thickness = preset.get(THICKNESS);
-			bt.setOuterRadius(innerRadius + thickness);
-			bt.setThickness(thickness);
-		}
-
-		preset.put(OUTER_DIAMETER, bt.getOuterRadius() *2.0);
-		preset.put(INNER_DIAMETER, bt.getInnerRadius() *2.0);
-		preset.put(THICKNESS, bt.getThickness());
+		checkDiametersAndThickness( preset );
+		
+		double volume = computeVolumeOfTube( preset );
 
 		// Need to translate Mass to Density.
 		if ( preset.has(MASS) ) {
-			String materialName = "TubeCustom";
+			String materialName = "TubeCouplerCustom";
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
-			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/bt.getComponentVolume(), false);
+			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
+			preset.put(MATERIAL, m);
+		}
+	}
+
+	private static void makeCenteringRing( ComponentPreset preset ) throws InvalidComponentPresetException {
+		checkRequiredFields( preset, LENGTH );
+
+		checkDiametersAndThickness( preset );
+
+		double volume = computeVolumeOfTube( preset );
+
+		// Need to translate Mass to Density.
+		if ( preset.has(MASS) ) {
+			String materialName = "TubeCouplerCustom";
+			if ( preset.has(MATERIAL) ) {
+				materialName = preset.get(MATERIAL).getName();
+			}
+			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
 			preset.put(MATERIAL, m);
 		}
 
+	}
+	
+	private static void makeEngineBlock( ComponentPreset preset ) throws InvalidComponentPresetException {
+		checkRequiredFields( preset, LENGTH );
+
+		checkDiametersAndThickness( preset );
+
+		double volume = computeVolumeOfTube( preset );
+
+		// Need to translate Mass to Density.
+		if ( preset.has(MASS) ) {
+			String materialName = "TubeCouplerCustom";
+			if ( preset.has(MATERIAL) ) {
+				materialName = preset.get(MATERIAL).getName();
+			}
+			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
+			preset.put(MATERIAL, m);
+		}
 
 	}
 	
@@ -253,4 +232,49 @@ public abstract class ComponentPresetFactory {
 		}
 	}
 
+	private static void checkDiametersAndThickness( ComponentPreset preset ) throws InvalidComponentPresetException {
+		// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
+		boolean hasOd = preset.has(OUTER_DIAMETER);
+		boolean hasId = preset.has(INNER_DIAMETER);
+		boolean hasThickness = preset.has(THICKNESS);
+
+		double outerRadius;
+		double innerRadius;
+		double thickness;
+		
+		if ( hasOd ) {
+			outerRadius = preset.get(OUTER_DIAMETER)/2.0;
+			thickness = 0;
+			if ( hasId ) {
+				innerRadius = preset.get(INNER_DIAMETER)/2.0;
+				thickness = outerRadius - innerRadius;
+			} else if ( hasThickness ) {
+				thickness = preset.get(THICKNESS);
+				innerRadius = outerRadius - thickness;
+			} else {
+				throw new InvalidComponentPresetException("Preset underspecified " + preset.toString());
+			}
+		} else {
+			if ( ! hasId && ! hasThickness ) {
+				throw new InvalidComponentPresetException("Preset underspecified " + preset.toString());
+			}
+			innerRadius = preset.get(INNER_DIAMETER)/2.0;
+			thickness = preset.get(THICKNESS);
+			outerRadius = innerRadius + thickness;
+		}
+
+		preset.put(OUTER_DIAMETER, outerRadius *2.0);
+		preset.put(INNER_DIAMETER, innerRadius *2.0);
+		preset.put(THICKNESS, thickness );
+
+	}
+	
+	private static double computeVolumeOfTube(ComponentPreset preset) {
+		double or = preset.get(OUTER_DIAMETER)/2.0;
+		double ir = preset.get(INNER_DIAMETER)/2.0;
+		double l = preset.get(LENGTH);
+		return Math.PI * (or*or - ir*ir) * l;
+	}
+
+	
 }

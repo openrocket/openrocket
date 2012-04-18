@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -65,6 +67,11 @@ public class CenteringRing extends RadiusRingComponent {
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
+	}
+
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.CENTERING_RING;
 	}
 
 }

@@ -1,5 +1,8 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
+
 
 public class EngineBlock extends ThicknessRingComponent {
 	
@@ -30,4 +33,9 @@ public class EngineBlock extends ThicknessRingComponent {
 		return false;
 	}
 	
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.ENGINE_BLOCK;
+	}
+
 }

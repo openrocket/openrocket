@@ -13,10 +13,7 @@ import java.util.Map;
 
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -43,8 +40,9 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		BODY_TUBE( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
-				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.DESCRIPTION,
 				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH} ),
 				
 		NOSE_CONE( new TypedKey<?>[] {
@@ -53,6 +51,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.SHAPE,
 				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.SHOULDER_DIAMETER,
 				ComponentPreset.LENGTH} ),
 
 		TRANSITION( new TypedKey<?>[] {
@@ -76,7 +75,24 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH} ),
+
+		CENTERING_RING( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH} ),
+
+		ENGINE_BLOCK( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH} );
+
 
 		Type[] compatibleTypes;
 		TypedKey<?>[] displayedColumns;
