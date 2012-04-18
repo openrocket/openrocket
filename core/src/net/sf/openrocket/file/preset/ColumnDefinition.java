@@ -52,7 +52,14 @@ public class ColumnDefinition<T> {
 				String translated_value = Application.getTranslator().get("Databases.materials.Paperoffice");
 				return getMaterialFor(translated_value);
 			}
-			throw new IllegalArgumentException("Invalid material " + value + " in component preset.");
+			try {
+				return getMaterialFor(value);
+			}
+			catch (IllegalArgumentException ex ) {
+				// FIXME - what can we do if the material in the file is not defined?
+				Material m = new Material.Bulk(value, 0, true);
+				return m;
+			}
 		}
 		if ( type.equals(Shape.class) ) {
 			//FIXME - ignore case!
