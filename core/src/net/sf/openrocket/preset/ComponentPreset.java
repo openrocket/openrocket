@@ -93,35 +93,29 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH} );
 
-
-		Type[] compatibleTypes;
 		TypedKey<?>[] displayedColumns;
 
 		Type( TypedKey<?>[] displayedColumns) {
-			compatibleTypes = new Type[1];
-			compatibleTypes[0] = this;
 			this.displayedColumns = displayedColumns;
 		}
 
-		Type( Type[] t, TypedKey<?>[] displayedColumns ) {
-
-			compatibleTypes = new Type[t.length+1];
-			compatibleTypes[0] = this;
-			for( int i=0; i<t.length; i++ ) {
-				compatibleTypes[i+1] = t[i];
-			}
-
-			this.displayedColumns = displayedColumns;
-		}
-
-		public Type[] getCompatibleTypes() {
-			return compatibleTypes;
+		public List<Type> getCompatibleTypes() {
+			return compatibleTypeMap.get(Type.this);
 		}
 
 		public TypedKey<?>[] getDisplayedColumns() {
 			return displayedColumns;
 		}
+		
+		private static Map<Type,List<Type>> compatibleTypeMap = new HashMap<Type,List<Type>>();
 
+		static {
+			compatibleTypeMap.put( BODY_TUBE, Arrays.asList( BODY_TUBE, TUBE_COUPLER) );
+			compatibleTypeMap.put( TUBE_COUPLER, Arrays.asList( BODY_TUBE,TUBE_COUPLER) );
+			compatibleTypeMap.put( CENTERING_RING, Arrays.asList( CENTERING_RING, ENGINE_BLOCK ) );
+			compatibleTypeMap.put( NOSE_CONE, Arrays.asList( NOSE_CONE, TRANSITION));
+		}
+		
 	}
 
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
