@@ -1,6 +1,10 @@
+2012-04-19  Sampo Niskanen
+
+	* Allow opening recovery device on stage separation
+
 2012-04-11  Doug Pedrick
 
-    * [BUG] Printed simulation did not honor launch conditions
+	* [BUG] Printed simulation did not honor launch conditions
 
 2012-04-09  Sampo Niskanen
 
@@ -17,7 +21,7 @@
 
 2012-03-25  Doug Pedrick
 
-    * Printed rocket figure in design report now honors rotation angle of main figure; fixed bug in layout where the
+	* Printed rocket figure in design report now honors rotation angle of main figure; fixed bug in layout where the
       figure was clipped in the page margin.
 
 2012-03-18  Jason Blood

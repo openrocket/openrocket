@@ -19,6 +19,8 @@ import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
@@ -186,6 +188,7 @@ public class OpenRocketSaver extends RocketSaver {
 		/*
 		 * File version 1.5 is requires for:
 		 *  - saving designs using ComponentPrests
+		 *  - recovery device deployment on lower stage separation
 		 *  
 		 * File version 1.4 is required for:
 		 *  - saving simulation data
@@ -198,19 +201,19 @@ public class OpenRocketSaver extends RocketSaver {
 		 * Otherwise use version 1.0.
 		 */
 		
-		// Search the rocket for any ComponentPrests
-		{
-			Rocket r = document.getRocket();
-			Iterator<RocketComponent> componentIterator = r.iterator();
-			boolean usesComponentPreset = false;
-			while ( !usesComponentPreset && componentIterator.hasNext() ) {
-				RocketComponent c = componentIterator.next();
-				if ( c.getPresetComponent() != null ) {
-					usesComponentPreset = true;
-				}
-			}
-			if ( usesComponentPreset ) {
+		// Search the rocket for any ComponentPresets (version 1.5)
+		for (RocketComponent c : document.getRocket()) {
+			if (c.getPresetComponent() != null) {
 				return FILE_VERSION_DIVISOR + 5;
+			}
+		}
+		
+		// Search for recovery device deployment type LOWER_STAGE_SEPARATION (version 1.5)
+		for (RocketComponent c : document.getRocket()) {
+			if (c instanceof RecoveryDevice) {
+				if (((RecoveryDevice) c).getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
+					return FILE_VERSION_DIVISOR + 5;
+				}
 			}
 		}
 		
@@ -220,9 +223,7 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		
 		// Check for motor definitions (version 1.4)
-		Iterator<RocketComponent> iterator = document.getRocket().iterator();
-		while (iterator.hasNext()) {
-			RocketComponent c = iterator.next();
+		for (RocketComponent c : document.getRocket()) {
 			if (!(c instanceof MotorMount))
 				continue;
 			
@@ -235,10 +236,7 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		
 		// Check for fin tabs (version 1.1)
-		iterator = document.getRocket().iterator();
-		while (iterator.hasNext()) {
-			RocketComponent c = iterator.next();
-			
+		for (RocketComponent c : document.getRocket()) {
 			// Check for fin tabs
 			if (c instanceof FinSet) {
 				FinSet fin = (FinSet) c;

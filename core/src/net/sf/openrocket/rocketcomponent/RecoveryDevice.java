@@ -22,16 +22,14 @@ import net.sf.openrocket.util.Pair;
  */
 public abstract class RecoveryDevice extends MassObject {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public static enum DeployEvent {
-		//// Launch (plus NN seconds)
 		LAUNCH(trans.get("RecoveryDevice.DeployEvent.LAUNCH")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return e.getType() == FlightEvent.Type.LAUNCH;
 			}
 		},
-		//// First ejection charge of this stage
 		EJECTION(trans.get("RecoveryDevice.DeployEvent.EJECTION")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
@@ -41,35 +39,42 @@ public abstract class RecoveryDevice extends MassObject {
 				return charge.getStageNumber() == source.getStageNumber();
 			}
 		},
-		//// Apogee
 		APOGEE(trans.get("RecoveryDevice.DeployEvent.APOGEE")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return e.getType() == FlightEvent.Type.APOGEE;
 			}
 		},
-		//// Specific altitude during descent
 		ALTITUDE(trans.get("RecoveryDevice.DeployEvent.ALTITUDE")) {
 			@SuppressWarnings("unchecked")
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				if (e.getType() != FlightEvent.Type.ALTITUDE)
 					return false;
-
-				double alt = ((RecoveryDevice)source).getDeployAltitude();
-				Pair<Double,Double> altitude = (Pair<Double,Double>)e.getData();
+				
+				double alt = ((RecoveryDevice) source).getDeployAltitude();
+				Pair<Double, Double> altitude = (Pair<Double, Double>) e.getData();
 				
 				return (altitude.getU() >= alt) && (altitude.getV() <= alt);
 			}
 		},
-		//// Never
+		LOWER_STAGE_SEPARATION(trans.get("RecoveryDevice.DeployEvent.LOWER_STAGE_SEPARATION")) {
+			@Override
+			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
+				if (e.getType() != FlightEvent.Type.STAGE_SEPARATION)
+					return false;
+				
+				int separation = e.getSource().getStageNumber();
+				int current = source.getStageNumber();
+				return (current + 1 == separation);
+			}
+		},
 		NEVER(trans.get("RecoveryDevice.DeployEvent.NEVER")) {
 			@Override
 			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
 				return false;
 			}
-		}
-		;
+		};
 		
 		private final String description;
 		
@@ -83,7 +88,7 @@ public abstract class RecoveryDevice extends MassObject {
 		public String toString() {
 			return description;
 		}
-
+		
 	}
 	
 	
@@ -96,7 +101,7 @@ public abstract class RecoveryDevice extends MassObject {
 	
 	
 	private Material.Surface material;
-
+	
 	
 	public RecoveryDevice() {
 		this(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
@@ -106,19 +111,19 @@ public abstract class RecoveryDevice extends MassObject {
 		super();
 		setMaterial(material);
 	}
-
+	
 	public RecoveryDevice(double length, double radius, Material material) {
 		super(length, radius);
 		setMaterial(material);
 	}
 	
 	
-
+	
 	
 	public abstract double getArea();
 	
 	public abstract double getComponentCD(double mach);
-
+	
 	
 	
 	public double getCD() {
@@ -130,7 +135,7 @@ public abstract class RecoveryDevice extends MassObject {
 			cd = getComponentCD(mach);
 		return cd;
 	}
-
+	
 	public void setCD(double cd) {
 		if (MathUtil.equals(this.cd, cd) && !isCDAutomatic())
 			return;
@@ -138,7 +143,7 @@ public abstract class RecoveryDevice extends MassObject {
 		this.cdAutomatic = false;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
-
+	
 	
 	public boolean isCDAutomatic() {
 		return cdAutomatic;
@@ -159,11 +164,11 @@ public abstract class RecoveryDevice extends MassObject {
 	
 	public final void setMaterial(Material mat) {
 		if (!(mat instanceof Material.Surface)) {
-			throw new IllegalArgumentException("Attempted to set non-surface material "+mat);
+			throw new IllegalArgumentException("Attempted to set non-surface material " + mat);
 		}
 		if (mat.equals(material))
 			return;
-		this.material = (Material.Surface)mat;
+		this.material = (Material.Surface) mat;
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -173,7 +178,7 @@ public abstract class RecoveryDevice extends MassObject {
 	public DeployEvent getDeployEvent() {
 		return deployEvent;
 	}
-
+	
 	public void setDeployEvent(DeployEvent deployEvent) {
 		if (this.deployEvent == deployEvent)
 			return;
@@ -181,11 +186,11 @@ public abstract class RecoveryDevice extends MassObject {
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
-
+	
 	public double getDeployAltitude() {
 		return deployAltitude;
 	}
-
+	
 	public void setDeployAltitude(double deployAltitude) {
 		if (MathUtil.equals(this.deployAltitude, deployAltitude))
 			return;
@@ -210,10 +215,10 @@ public abstract class RecoveryDevice extends MassObject {
 	}
 	
 	
-
+	
 	@Override
 	public double getComponentMass() {
 		return getArea() * getMaterial().getDensity();
 	}
-
+	
 }

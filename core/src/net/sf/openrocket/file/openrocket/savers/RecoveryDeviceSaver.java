@@ -19,7 +19,7 @@ public class RecoveryDeviceSaver extends MassObjectSaver {
 		else
 			elements.add("<cd>" + dev.getCD() + "</cd>");
 		
-		elements.add("<deployevent>" + dev.getDeployEvent().name().toLowerCase(Locale.ENGLISH) + "</deployevent>");
+		elements.add("<deployevent>" + dev.getDeployEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</deployevent>");
 		elements.add("<deployaltitude>" + dev.getDeployAltitude() + "</deployaltitude>");
 		elements.add("<deploydelay>" + dev.getDeployDelay() + "</deploydelay>");
 		elements.add(materialParam(dev.getMaterial()));
