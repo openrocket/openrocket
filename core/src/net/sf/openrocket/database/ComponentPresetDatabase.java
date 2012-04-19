@@ -124,7 +124,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 		for( ComponentPreset preset : list ) {
 			ComponentPreset.Type presetType = preset.get(ComponentPreset.TYPE);
 			typeLoop: for( int i=0; i<type.length; i++ ) {
-				if ( !presetType.equals(type) ) {
+				if ( presetType.equals(type[i]) ) {
 					result.add(preset);
 					break typeLoop; // from inner loop.
 				}
@@ -134,6 +134,11 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 		return result;
 	}
 
+	@Override
+	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types ) {
+		return listForTypes( (ComponentPreset.Type[]) types.toArray() );
+	}
+	
 	@Override
 	public List<ComponentPreset> find(String manufacturer, String partNo) {
 		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();

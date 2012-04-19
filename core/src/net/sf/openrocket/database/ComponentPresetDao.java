@@ -23,6 +23,8 @@ public interface ComponentPresetDao {
 	public List<ComponentPreset> listForType( ComponentPreset.Type type, boolean favorite );
 
 	public List<ComponentPreset> listForTypes( ComponentPreset.Type ... type );
+	
+	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types );
 
 	public void setFavorite( ComponentPreset preset, boolean favorite );
 	
