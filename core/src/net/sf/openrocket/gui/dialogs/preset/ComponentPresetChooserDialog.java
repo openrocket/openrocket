@@ -17,27 +17,22 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.adaptors.Column;
-import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.Value;
 
 public class ComponentPresetChooserDialog extends JDialog {
 	
@@ -46,7 +41,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 	private final RocketComponent component;
 	
 	private ComponentPresetTable componentSelectionTable;
-//	private final JTable componentSelectionTable;
 	private final JTextField filterText;
 	private final JCheckBox foreDiameterFilterCheckBox;
 	private final JCheckBox aftDiameterFilterCheckBox;
@@ -58,7 +52,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	int aftDiameterColumnIndex = -1;
 	int foreDiameterColumnIndex = -1;
 
-	private final List<ComponentPreset> presets;
+	private List<ComponentPreset> presets;
 	
 	private boolean okClicked = false;
 	
@@ -117,6 +111,30 @@ public class ComponentPresetChooserDialog extends JDialog {
 				updateFilters();
 			}
 		});
+
+		/*
+		 * Add show all compatible check box.
+		 */
+		final List<ComponentPreset.Type> compatibleTypes = component.getPresetType().getCompatibleTypes();
+		final ComponentPreset.Type nativeType = component.getPresetType();
+		if ( compatibleTypes != null && compatibleTypes.size() >  0 ) {
+			JCheckBox showAll = new JCheckBox();
+			showAll.setText(trans.get("ComponentPresetChooserDialog.checkbox.showAllCompatible"));
+			panel.add(showAll, "skip, span 2");
+			showAll.addItemListener( new ItemListener () {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if ( ((JCheckBox)e.getItem()).isSelected()  ) {
+						presets = Application.getComponentPresetDao().listForTypes(compatibleTypes);
+					} else {
+						presets = Application.getComponentPresetDao().listForType(nativeType);
+					}
+					componentSelectionTable.updateData( presets );
+				}
+			});
+			
+			
+		}
 		
 		/*
 		 * Add filter by fore diameter
@@ -131,8 +149,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 
+		RocketComponent previousComponent = component.getPreviousComponent(); 
 		/* hide the fore diameter filter if it is not applicable */
-		if ( foreDiameterColumnIndex < 0 || component.getPreviousComponent() == null ) {
+		if ( foreDiameterColumnIndex < 0 || previousComponent == null ) {
+			if ( !(previousComponent instanceof ExternalComponent) && !(previousComponent instanceof InternalComponent) )
 			foreDiameterFilterCheckBox.setVisible(false);
 		}
 		
@@ -156,7 +176,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		componentSelectionTable = new ComponentPresetTable( presets, Arrays.<TypedKey<?>>asList(columnKeys) );
 		
-
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
 		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
@@ -189,13 +208,6 @@ public class ComponentPresetChooserDialog extends JDialog {
 		this.setLocationByPlatform(true);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
 		
-		//JComponent focus = selectionPanel.getDefaultFocus();
-		//if (focus != null) {
-		//	focus.grabFocus();
-		//}
-		
-		// Set the closeable dialog after all initialization
-		//selectionPanel.setCloseableDialog(this);
 	}
 	
 	/**

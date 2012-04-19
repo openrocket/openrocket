@@ -36,7 +36,7 @@ public class ComponentPresetTable extends JTable {
 	private static final Translator trans = Application.getTranslator();
 
 	private final TableRowSorter<TableModel> sorter;
-	private final List<ComponentPreset> presets;
+	private List<ComponentPreset> presets;
 	private final AbstractTableModel tableModel;
 	private final XTableColumnModel tableColumnModel;
 	private final ComponentPresetTableColumn[] columns;
@@ -148,6 +148,11 @@ public class ComponentPresetTable extends JTable {
 		sorter.setRowFilter( filter );
 	}
 
+	public void updateData( List<ComponentPreset> presets ) {
+		this.presets = presets;
+		this.tableModel.fireTableDataChanged();
+	}
+	
 	private void doPopup(MouseEvent evt ) {
 		
 		// Figure out what column header was clicked on.
@@ -248,6 +253,5 @@ public class ComponentPresetTable extends JTable {
 			}
 
 		}
-		
 	}
 }
