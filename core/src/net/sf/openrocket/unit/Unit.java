@@ -70,42 +70,6 @@ public abstract class Unit {
 		return true;
 	}
 	
-	
-	// Testcases for toString(double)
-	public static void main(String arg[]) {
-		System.out.println(NOUNIT2.toString(0.0049));
-		System.out.println(NOUNIT2.toString(0.0050));
-		System.out.println(NOUNIT2.toString(0.0051));
-		System.out.println(NOUNIT2.toString(0.00123));
-		System.out.println(NOUNIT2.toString(0.0123));
-		System.out.println(NOUNIT2.toString(0.1234));
-		System.out.println(NOUNIT2.toString(1.2345));
-		System.out.println(NOUNIT2.toString(12.345));
-		System.out.println(NOUNIT2.toString(123.456));
-		System.out.println(NOUNIT2.toString(1234.5678));
-		System.out.println(NOUNIT2.toString(12345.6789));
-		System.out.println(NOUNIT2.toString(123456.789));
-		System.out.println(NOUNIT2.toString(1234567.89));
-		System.out.println(NOUNIT2.toString(12345678.9));
-		
-		System.out.println(NOUNIT2.toString(-0.0049));
-		System.out.println(NOUNIT2.toString(-0.0050));
-		System.out.println(NOUNIT2.toString(-0.0051));
-		System.out.println(NOUNIT2.toString(-0.00123));
-		System.out.println(NOUNIT2.toString(-0.0123));
-		System.out.println(NOUNIT2.toString(-0.1234));
-		System.out.println(NOUNIT2.toString(-1.2345));
-		System.out.println(NOUNIT2.toString(-12.345));
-		System.out.println(NOUNIT2.toString(-123.456));
-		System.out.println(NOUNIT2.toString(-1234.5678));
-		System.out.println(NOUNIT2.toString(-12345.6789));
-		System.out.println(NOUNIT2.toString(-123456.789));
-		System.out.println(NOUNIT2.toString(-1234567.89));
-		System.out.println(NOUNIT2.toString(-12345678.9));
-		
-	}
-	
-	
 	@Override
 	public String toString() {
 		return unit;
@@ -115,6 +79,7 @@ public abstract class Unit {
 	
 	private static final DecimalFormat intFormat = new DecimalFormat("#");
 	private static final DecimalFormat decFormat = new DecimalFormat("0.##");
+	private static final DecimalFormat smallFormat = new DecimalFormat("0.###");
 	private static final DecimalFormat expFormat = new DecimalFormat("0.00E0");
 	
 	/**
@@ -134,8 +99,11 @@ public abstract class Unit {
 		if (Math.abs(val) >= 100) {
 			return intFormat.format(val);
 		}
-		if (Math.abs(val) <= 0.005) {
+		if (Math.abs(val) <= 0.0005) {
 			return "0";
+		}
+		if ( Math.abs(val) < 0.095) {
+			return smallFormat.format(val);
 		}
 		
 		double sign = Math.signum(val);
@@ -146,7 +114,6 @@ public abstract class Unit {
 			val *= 10;
 		}
 		val = Math.rint(val) / mul * sign;
-		
 		return decFormat.format(val);
 	}
 	
