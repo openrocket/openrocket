@@ -152,7 +152,7 @@ public abstract class ComponentPresetFactory {
 			// FIXME - Bulkhead.getComponentVolume does not exist!
 			// double density = mass / tr.getComponentVolume();
 
-			double volume = Math.pow(preset.get(OUTER_DIAMETER),2) * Math.PI / 4.0;
+			double volume = computeVolumeOfTube(preset);
 			double density = mass / volume;
 
 			String materialName = "BulkHeadCustom";
@@ -271,7 +271,7 @@ public abstract class ComponentPresetFactory {
 	
 	private static double computeVolumeOfTube(ComponentPreset preset) {
 		double or = preset.get(OUTER_DIAMETER)/2.0;
-		double ir = preset.get(INNER_DIAMETER)/2.0;
+		double ir = preset.has(INNER_DIAMETER) ? preset.get(INNER_DIAMETER)/2.0 : 0.0;
 		double l = preset.get(LENGTH);
 		return Math.PI * (or*or - ir*ir) * l;
 	}
