@@ -70,6 +70,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		TUBE_COUPLER( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
+                ComponentPreset.DESCRIPTION,
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.LENGTH} ),
