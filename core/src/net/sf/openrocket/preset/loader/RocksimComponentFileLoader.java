@@ -40,15 +40,39 @@ public class RocksimComponentFileLoader {
      */
     public final static TypedKey<String> UNITS_OF_MEASURE = new TypedKey<String>("Units", String.class);
 
-
+    /**
+     * Read a comma separated component file and return the parsed contents as a list of string arrays.  Not for
+     * production use - just here for smoke testing.
+     *
+     * @param type the type of component file to read; uses the default file name
+     * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
+     *         component data file; the element in the list itself is an array of String, where each item in the array
+     *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
+     */
     public static List<String[]> load(RocksimComponentFileType type) {
         return load(RocksimComponentFileLoader.class.getResourceAsStream("/performancerocketry/" + type.getDefaultFileName()));
     }
 
+    /**
+     * Read a comma separated component file and return the parsed contents as a list of string arrays.
+     *
+     * @param file the file to read and parse
+     * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
+     *         component data file; the element in the list itself is an array of String, where each item in the array
+     *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
+     */
     public static List<String[]> load(File file) throws FileNotFoundException {
         return load(new FileInputStream(file));
     }
 
+    /**
+     * Read a comma separated component file and return the parsed contents as a list of string arrays.
+     *
+     * @param is the stream to read and parse
+     * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
+     *         component data file; the element in the list itself is an array of String, where each item in the array
+     *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
+     */
     public static List<String[]> load(InputStream is) {
         if (is == null) {
             return new ArrayList<String[]>();
@@ -142,8 +166,8 @@ public class RocksimComponentFileLoader {
         StringBuilder sb = new StringBuilder();
         String[] t = target.split("[ ]");
         if (t != null && t.length > 0) {
-            for (int i = 0; i < t.length; i++) {
-                String s = t[i];
+            for (String aT : t) {
+                String s = aT;
                 s = s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
                 sb.append(s).append(" ");
             }
@@ -154,6 +178,16 @@ public class RocksimComponentFileLoader {
         }
     }
 
+    /**
+     * The core loading method, shared by all component types.
+     *
+     * @param theData     the data as read from the CSV file
+     * @param keyMap      the list of typed keys that specify the preset's expected columns
+     * @param materialMap a map of material name to OR Material; this is sourced from a MATERIAL.CSV file that must
+     *                    accompany the component CSV file.
+     * @param type        the kind of component
+     * @return a collection of preset's
+     */
     private static Collection<ComponentPreset> commonLoader(final List<String[]> theData,
                                                             final List<TypedKey<?>> keyMap,
                                                             final Map<String, Material> materialMap,
@@ -168,9 +202,9 @@ public class RocksimComponentFileLoader {
             TypedKey key = keyMap.get(i);
             if (key != null) {
                 columns[i] = new ColumnDefinition(key);
-            }
-            if (key.getName().equals("Units")) {
-                uom = i;
+                if (key.getName().equals("Units")) {
+                    uom = i;
+                }
             }
         }
 
@@ -190,13 +224,17 @@ public class RocksimComponentFileLoader {
                         continue;
                     }
                     final TypedKey typedKey = columns[j].getKey();
+                    //If it's the material, then pull it out of our internal map.  The map references the
+                    //data from the associated MATERIAL.CSV file that is mandatory.
                     if (typedKey.equals(ComponentPreset.MATERIAL)) {
                         preset.put(ComponentPreset.MATERIAL, materialMap.get(value));
                     }
+                    //The shape of a nosecone or transition must get mapped from Rocksim to OR.
                     else if (typedKey.equals(ComponentPreset.SHAPE)) {
                         preset.put(ComponentPreset.SHAPE, RocksimNoseConeCode.fromShapeNameOrCode(value).asOpenRocket());
                     }
                     else {
+                        //Rocksim allows different types of length units.  They must be converted and normalized to OR.
                         final UnitGroup unitGroup = typedKey.getUnitGroup();
                         if (unitGroup != null && unitGroup.equals(UnitGroup.UNITS_LENGTH)) {
                             columns[j].setProperty(preset, convertLength(item[uom], Double.valueOf(value)));
@@ -207,7 +245,9 @@ public class RocksimComponentFileLoader {
                     }
                 }
             }
+            //Set what kind of component this is.
             preset.put(ComponentPreset.TYPE, type);
+            //Add to the collection.
             templates.add(preset);
         }
 
