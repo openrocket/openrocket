@@ -22,6 +22,16 @@ public class ColumnDefinition<T> {
 		}
 	}
 
+    public void setProperty(TypedPropertyMap preset, T value) {
+        if (value != null) {
+            preset.put(key, value);
+        }
+    }
+
+    public TypedKey<T> getKey() {
+        return key;
+    }
+
 	private static Object parseFromString( Class<?> type, String value ) {
 		if ( type.equals(Manufacturer.class)) {
 			Manufacturer m = Manufacturer.getManufacturer(value);
@@ -35,7 +45,12 @@ public class ColumnDefinition<T> {
 			return Boolean.parseBoolean(value);
 		}
 		if ( type.isAssignableFrom(Double.class) ) {
-			return Double.parseDouble(value);
+            try {
+  			    return Double.parseDouble(value);
+            }
+            catch (NumberFormatException nfe) {
+                return 0d;
+            }
 		}
 		if ( type.equals(String.class ) ) {
 			return value;
@@ -85,7 +100,7 @@ public class ColumnDefinition<T> {
 		}
 		throw new IllegalArgumentException("Invalid type " + type.getName() + " for component preset parameter." );
 	}
-	
+
 	private static Material getMaterialFor( String translatedName ) {
 		Material material;
 		material = Databases.findMaterial(Material.Type.BULK, translatedName);

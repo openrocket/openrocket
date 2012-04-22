@@ -1,0 +1,7 @@
+Material Name,Units,Density,Low,High,Class,Rocketry Use,Body Tubes,Fin Sets,Launch Lugs,Cords,Nose,Chute,Stream,Trans,Ring,Bulkhead,Engine Block,Sleeve,Tube Coupler,spare,spare,spare,spare,spare,spare,spare,Known Dim type,Known Dim Units,Known Dim Value
+Balsa,lb/ft3,8,,,Wood,1,1,1,0,0,1,0,0,1,1,1,1,0,0,,,,,,,,None,0,0
+Polycarbonate,lb/ft3,74.9,,,,1,1,1,1,0,1,0,0,1,1,1,1,1,1,,,,,,,,None,0,0
+Spiral/Glassine,lb/ft3,53,,,,1,1,1,1,0,1,0,0,1,1,1,1,1,1,,,,,,,,None,0,0
+Fiber,lb/ft3,41,,,,1,0,0,0,0,0,0,0,0,1,1,0,0,0,,,,,,,,None,0,0
+lite ply,lb/ft3,22,,,Composite,1,0,1,0,0,0,0,0,0,1,1,1,0,0,,,,,,,,None,0,0
+Paper,lb/ft3,70,,,,1,1,1,1,0,1,0,1,1,1,1,1,1,1,,,,,,,,None,0,0

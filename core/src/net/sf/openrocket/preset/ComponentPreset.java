@@ -1,5 +1,13 @@
 package net.sf.openrocket.preset;
 
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.TextUtil;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.security.MessageDigest;
@@ -11,21 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.openrocket.material.Material;
-import net.sf.openrocket.motor.Manufacturer;
-import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
-import net.sf.openrocket.rocketcomponent.Transition.Shape;
-import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.TextUtil;
-
 
 /**
  * A model for a preset component.
  * <p>
  * A preset component contains a component class type, manufacturer information,
  * part information, and a method that returns a prototype of the preset component.
- * 
+ *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 // FIXME - Implement clone.
@@ -44,7 +44,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH} ),
-				
+
 		NOSE_CONE( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
@@ -60,16 +60,20 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.SHAPE,
 				ComponentPreset.FORE_OUTER_DIAMETER,
-				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.FORE_SHOULDER_DIAMETER,
+				ComponentPreset.FORE_SHOULDER_LENGTH,
+				ComponentPreset.AFT_OUTER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_LENGTH,
 				ComponentPreset.LENGTH} ),
-				
+
 		TUBE_COUPLER( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.LENGTH} ),
-						
+
 		BULK_HEAD( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
@@ -106,7 +110,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		public TypedKey<?>[] getDisplayedColumns() {
 			return displayedColumns;
 		}
-		
+
 		private static Map<Type,List<Type>> compatibleTypeMap = new HashMap<Type,List<Type>>();
 
 		static {
@@ -115,7 +119,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			compatibleTypeMap.put( CENTERING_RING, Arrays.asList( CENTERING_RING, ENGINE_BLOCK ) );
 			compatibleTypeMap.put( NOSE_CONE, Arrays.asList( NOSE_CONE, TRANSITION));
 		}
-		
+
 	}
 
 	public final static TypedKey<Manufacturer> MANUFACTURER = new TypedKey<Manufacturer>("Manufacturer", Manufacturer.class);
@@ -130,6 +134,9 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Double> FORE_SHOULDER_LENGTH = new TypedKey<Double>("ForeShoulderLength",Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FORE_SHOULDER_DIAMETER = new TypedKey<Double>("ForeShoulderDiameter",Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FORE_OUTER_DIAMETER = new TypedKey<Double>("ForeOuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> AFT_SHOULDER_LENGTH = new TypedKey<Double>("AftShoulderLength",Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> AFT_SHOULDER_DIAMETER = new TypedKey<Double>("AftShoulderDiameter",Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> AFT_OUTER_DIAMETER = new TypedKey<Double>("AftOuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Shape> SHAPE = new TypedKey<Shape>("Shape", Shape.class);
 	public final static TypedKey<Material> MATERIAL = new TypedKey<Material>("Material", Material.class);
 	public final static TypedKey<Finish> FINISH = new TypedKey<Finish>("Finish", Finish.class);
@@ -177,15 +184,15 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			FINISH,
 			MATERIAL
 			);
-	
-	
+
+
 	// package scope constructor to encourage use of factory.
 	ComponentPreset() {
 	}
 
 	/**
 	 * Convenience method to retrieve the Type of this ComponentPreset.
-	 * 
+	 *
 	 * @return
 	 */
 	public Type getType() {
@@ -235,7 +242,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	<T> void put( TypedKey<T> key, T value ) {
 		properties.put(key, value);
 	}
-	
+
 	public <T> T get(TypedKey<T> key) {
 		T value = properties.get(key);
 		if (value == null) {
@@ -328,6 +335,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			digest = TextUtil.hexString(md5.digest( bos.toByteArray() ));
 		}
 		catch ( Exception e ) {
+            e.printStackTrace();
 			throw new BugException(e);
 		}
 	}

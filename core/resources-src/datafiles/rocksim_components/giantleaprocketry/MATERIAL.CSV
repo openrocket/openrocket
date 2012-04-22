@@ -1,0 +1,5 @@
+Material Name,Units,Density,Low,High,Class,Rocketry Use,Body Tubes,Fin Sets,Launch Lugs,Cords,Nose,Chute,Stream,Trans,Ring,Bulkhead,Engine Block,Sleeve,Tube Coupler,spare,spare,spare,spare,spare,spare,spare,Known Dim type,Known Dim Units,Known Dim Value
+Cardboard,lb/ft3,43,,,,1,1,1,1,0,1,0,0,1,1,1,1,1,1,,,,,,,,None,0,0
+Birch,lb/ft3,42.5,,,Wood,1,0,1,0,0,1,0,1,1,1,1,1,0,0,,,,,,,,None,0,0
+Kraft phenolic,lb/ft3,59.85,,,,1,1,0,0,0,0,0,0,0,1,0,0,1,1,,,,,,,,None,0,0
+Polycarbonate,lb/ft3,74.9,,,,1,1,1,1,0,1,0,0,1,1,1,1,1,1,,,,,,,,None,0,0
