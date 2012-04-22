@@ -3,17 +3,45 @@
  */
 package net.sf.openrocket.gui.print.visitor;
 
-import com.itextpdf.text.*;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.VerticalPositionMark;
 import net.sf.openrocket.gui.main.ComponentIcons;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintUtilities;
 import net.sf.openrocket.gui.print.PrintableFinSet;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.BodyComponent;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.Bulkhead;
+import net.sf.openrocket.rocketcomponent.Coaxial;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.NoseCone;
+import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.RingComponent;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.ShockCord;
+import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.Streamer;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -142,7 +170,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof LaunchLug) {
             LaunchLug ll = (LaunchLug) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
 
             grid.addCell(createMaterialCell(ll.getMaterial()));
             grid.addCell(createOuterInnerDiaCell(ll));
@@ -152,7 +180,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof NoseCone) {
             NoseCone nc = (NoseCone) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(nc.getMaterial()));
             grid.addCell(ITextHelper.createCell(nc.getType().getName(), PdfPCell.BOTTOM));
             grid.addCell(createLengthCell(component.getLength()));
@@ -163,7 +191,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof Transition) {
             Transition tran = (Transition) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(tran.getMaterial()));
 
             Chunk fore = new Chunk(FORE_DIAMETER + toLength(tran.getForeRadius() * 2));
@@ -183,7 +211,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof BodyTube) {
             BodyTube bt = (BodyTube) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(bt.getMaterial()));
             grid.addCell(createOuterInnerDiaCell(bt));
             grid.addCell(createLengthCell(component.getLength()));
@@ -203,7 +231,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof ExternalComponent) {
             ExternalComponent ext = (ExternalComponent) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
 
             grid.addCell(createMaterialCell(ext.getMaterial()));
             grid.addCell(ITextHelper.createCell());
@@ -216,7 +244,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof InnerTube) {
             InnerTube it = (InnerTube) component;
             grid.addCell(iconToImage(component));
-            final PdfPCell pCell = createNameCell(component.getName(), true);
+            final PdfPCell pCell = createNameCell(component.getName(), true, component.getPresetComponent());
             grid.addCell(pCell);
             grid.addCell(createMaterialCell(it.getMaterial()));
             grid.addCell(createOuterInnerDiaCell(it));
@@ -229,7 +257,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof RadiusRingComponent) {
             RadiusRingComponent rrc = (RadiusRingComponent) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(rrc.getMaterial()));
             if (component instanceof Bulkhead) {
                 grid.addCell(createDiaCell(rrc.getOuterRadius()*2));
@@ -245,7 +273,7 @@ public class PartsDetailVisitorStrategy {
         else if (component instanceof RingComponent) {
             RingComponent ring = (RingComponent) component;
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(ring.getMaterial()));
             grid.addCell(createOuterInnerDiaCell(ring));
             grid.addCell(createLengthCell(component.getLength()));
@@ -260,7 +288,7 @@ public class PartsDetailVisitorStrategy {
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
             cell.setPaddingBottom(12f);
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(ring.getMaterial()));
             grid.addCell(cell);
             grid.addCell(createLengthCell(ring.getCordLength()));
@@ -272,14 +300,19 @@ public class PartsDetailVisitorStrategy {
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
             cell.setPaddingBottom(12f);
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(chute.getMaterial()));
+//            if (chute.hasSpillHole()) {
+//                grid.addCell(createOuterInnerDiaCell(chute.getDiameter()/2, chute.getSpillHoleDiameter()/2));
+//        }
+//        else {
             grid.addCell(createDiaCell(chute.getDiameter()));
+//        }
             grid.addCell(createLengthCell(component.getLength()));
             grid.addCell(createMassCell(component.getMass()));
 
             grid.addCell(iconToImage(null));
-            grid.addCell(createNameCell(SHROUD_LINES, true));
+            grid.addCell(createNameCell(SHROUD_LINES, true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(chute.getLineMaterial()));
             grid.addCell(createLinesCell(chute.getLineCount()));
             grid.addCell(createLengthCell(chute.getLineLength()));
@@ -291,7 +324,7 @@ public class PartsDetailVisitorStrategy {
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
             cell.setPaddingBottom(12f);
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(ring.getMaterial()));
             grid.addCell(createStrip(ring));
             grid.addCell(createLengthCell(component.getLength()));
@@ -303,7 +336,7 @@ public class PartsDetailVisitorStrategy {
             cell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
             cell.setPaddingBottom(12f);
             grid.addCell(iconToImage(component));
-            grid.addCell(createNameCell(component.getName(), true));
+            grid.addCell(createNameCell(component.getName(), true, component.getPresetComponent()));
             grid.addCell(createMaterialCell(device.getMaterial()));
             grid.addCell(cell);
             grid.addCell(createLengthCell(component.getLength()));
@@ -315,7 +348,7 @@ public class PartsDetailVisitorStrategy {
             cell.setPaddingBottom(12f);
 
             grid.addCell(iconToImage(component));
-            final PdfPCell nameCell = createNameCell(component.getName(), true);
+            final PdfPCell nameCell = createNameCell(component.getName(), true, component.getPresetComponent());
             nameCell.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
             nameCell.setPaddingBottom(12f);
             grid.addCell(nameCell);
@@ -415,9 +448,36 @@ public class PartsDetailVisitorStrategy {
      * Create a PDF cell that documents both an outer and an inner diameter of a component.
      *
      * @param component  a component that is a Coaxial
+     *
      * @return  the PDF cell that has the outer and inner diameters documented
      */
     private PdfPCell createOuterInnerDiaCell (final Coaxial component) {
+        return createOuterInnerDiaCell(component, INNER);
+    }
+
+    /**
+     * Create a PDF cell that documents both an outer and an inner diameter of a component.
+     *
+     * @param component  a component that is a Coaxial
+     * @param innerLabel the label to use for the inner label subscript
+     *
+     * @return  the PDF cell that has the outer and inner diameters documented
+     */
+    private PdfPCell createOuterInnerDiaCell (final Coaxial component, final String innerLabel) {
+        return createOuterInnerDiaCell(component.getOuterRadius(), component.getInnerRadius(), innerLabel);
+    }
+
+    /**
+     * Create a PDF cell that documents both an outer and an inner diameter of a component.
+     *
+     * @param outerRadius the outer radius
+     * @param innerRadius the inner radius
+     * @param innerLabel the label to use for the inner label subscript
+     *
+     * @return  the PDF cell that has the outer and inner diameters documented
+     */
+    private PdfPCell createOuterInnerDiaCell (final double outerRadius, final double innerRadius, final String innerLabel) {
+
         PdfPCell result = new PdfPCell();
         Phrase p = new Phrase();
         p.setLeading(12f);
@@ -435,9 +495,9 @@ public class PartsDetailVisitorStrategy {
 
         c = new Chunk();
         c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
-        c.append(" " + toLength(component.getOuterRadius() * 2));
+        c.append(" " + toLength(outerRadius * 2));
         p.add(c);
-        createInnerDiaCell(component, result);
+        createInnerDiaCell(innerRadius, result, innerLabel);
         result.addElement(p);
         return result;
     }
@@ -445,10 +505,11 @@ public class PartsDetailVisitorStrategy {
     /**
      * Add inner diameter data to a cell.
      *
-     * @param component  a component that is a Coaxial
+     * @param innerRadius the inner radius
      * @param cell       the PDF cell to add the inner diameter data to
+     * @param innerLabel the label to use for the inner label subscript
      */
-    private void createInnerDiaCell (final Coaxial component, PdfPCell cell) {
+    private void createInnerDiaCell (final double innerRadius, PdfPCell cell, final String innerLabel) {
         Phrase p = new Phrase();
         p.setLeading(14f);
         Chunk c = new Chunk();
@@ -458,12 +519,12 @@ public class PartsDetailVisitorStrategy {
 
         c = new Chunk();
         c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
-        c.append(INNER);
+        c.append(innerLabel);
         p.add(c);
 
         c = new Chunk();
         c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
-        c.append("  " + toLength(component.getInnerRadius() * 2));
+        c.append("  " + toLength(innerRadius * 2));
         p.add(c);
         cell.addElement(p);
     }
@@ -544,18 +605,47 @@ public class PartsDetailVisitorStrategy {
      * @return a PdfPCell that is formatted with the string <code>v</code>
      */
     protected PdfPCell createNameCell (String v, boolean withIndent) {
+        return createNameCell(v, withIndent, null);
+    }
+
+    /**
+     * Create a cell formatted for a name (or any string for that matter).
+     *
+     * @param v  the string to format into a PDF cell
+     * @param withIndent  if true, then an indention is made scaled to the level of the part in the parent hierarchy
+     * @param preset  the component's preset, if it has one
+     *
+     * @return a PdfPCell that is formatted with the string <code>v</code>
+     */
+    protected PdfPCell createNameCell (String v, boolean withIndent, ComponentPreset preset) {
         PdfPCell result = new PdfPCell();
+        result.setColspan(2);
         result.setBorder(Rectangle.BOTTOM);
+        Paragraph para = new Paragraph();
+        para.setLeading(12f, 0);
         Chunk c = new Chunk();
         c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        Chunk tab1 =
+          new Chunk(new VerticalPositionMark(), (level - 2) * 10, true);
+
         if (withIndent) {
-            for (int x = 0; x < (level - 2) * 10; x++) {
-                c.append(" ");
-            }
+            para.add(new Chunk(tab1));
         }
         c.append(v);
-        result.setColspan(2);
-        result.addElement(c);
+        para.add(c);
+
+        //Add the preset's manufacturer and part no in a subscript font.
+        if (preset != null) {
+            para.add(Chunk.NEWLINE);
+            c = new Chunk();
+            if (withIndent) {
+                para.add(new Chunk(tab1));
+            }
+            c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
+            c.append(preset.toString());
+            para.add(c);
+        }
+        result.addElement(para);
         return result;
     }
 
