@@ -63,6 +63,8 @@ public abstract class ThicknessRingComponent extends RingComponent {
 		if (thickness > outerRadius)
 			thickness = outerRadius;
 		
+		clearPreset();
+		
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -82,6 +84,8 @@ public abstract class ThicknessRingComponent extends RingComponent {
 		
 		this.thickness = thickness;
 		
+		clearPreset();
+
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 

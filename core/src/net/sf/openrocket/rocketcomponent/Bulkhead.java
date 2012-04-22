@@ -32,6 +32,7 @@ public class Bulkhead extends RadiusRingComponent {
 	@Override
 	public void setOuterRadiusAutomatic(boolean auto) {
 		super.setOuterRadiusAutomatic(auto);
+		clearPreset();
 	}
 	
 	@Override

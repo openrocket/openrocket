@@ -1,4 +1,4 @@
-Manufacturer,PartNo,Description,Type,Length,OuterDiameter,ShoulderLength,ShoulderDiameter,Filled,Shape,Material,Mass
+Manufacturer,PartNo,Description,Type,Length,AftOuterDiameter,AftShoulderLength,AftShoulderDiameter,Filled,Shape,Material,Mass
 Semroc,BC-08542,Ogive,NOSE_CONE,0.10668,0.023876,0.0127,0.02159,1,ogive,Balsa,0.004252428
 Semroc,BC-1016,Ogive,NOSE_CONE,0.04064,0.026416,0.0127,0.0254,1,ogive,Balsa,0.003401943
 Semroc,BC-1019,Ogive,NOSE_CONE,0.04826,0.026416,0.0127,0.0254,1,ogive,Balsa,0.003685438

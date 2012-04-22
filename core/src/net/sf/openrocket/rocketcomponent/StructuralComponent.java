@@ -49,6 +49,7 @@ public abstract class StructuralComponent extends InternalComponent {
 		if (mat.equals(material))
 			return;
 		this.material = mat;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 }

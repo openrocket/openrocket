@@ -1,20 +1,8 @@
 package net.sf.openrocket.preset;
 
-import static net.sf.openrocket.preset.ComponentPreset.FORE_OUTER_DIAMETER;
-import static net.sf.openrocket.preset.ComponentPreset.INNER_DIAMETER;
-import static net.sf.openrocket.preset.ComponentPreset.LENGTH;
-import static net.sf.openrocket.preset.ComponentPreset.MANUFACTURER;
-import static net.sf.openrocket.preset.ComponentPreset.MASS;
-import static net.sf.openrocket.preset.ComponentPreset.MATERIAL;
-import static net.sf.openrocket.preset.ComponentPreset.OUTER_DIAMETER;
-import static net.sf.openrocket.preset.ComponentPreset.PARTNO;
-import static net.sf.openrocket.preset.ComponentPreset.SHAPE;
-import static net.sf.openrocket.preset.ComponentPreset.THICKNESS;
-import static net.sf.openrocket.preset.ComponentPreset.TYPE;
+import static net.sf.openrocket.preset.ComponentPreset.*;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset.Type;
-import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Transition;
 
@@ -58,7 +46,8 @@ public abstract class ComponentPresetFactory {
 			break;
 		}
 		case TUBE_COUPLER: {
-			makeTubeCoupler(preset);
+			// For now TUBE_COUPLER is the same as BODY_TUBE
+			makeBodyTube(preset);
 			break;
 		}
 		case CENTERING_RING: {
@@ -100,7 +89,7 @@ public abstract class ComponentPresetFactory {
 
 	private static void makeNoseCone( ComponentPreset preset ) throws InvalidComponentPresetException {
 
-		checkRequiredFields( preset, LENGTH, SHAPE, OUTER_DIAMETER );
+		checkRequiredFields( preset, LENGTH, SHAPE, AFT_OUTER_DIAMETER );
 
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
@@ -122,7 +111,7 @@ public abstract class ComponentPresetFactory {
 	}
 
 	private static void makeTransition( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields(preset, LENGTH, OUTER_DIAMETER, FORE_OUTER_DIAMETER);
+		checkRequiredFields(preset, LENGTH, AFT_OUTER_DIAMETER, FORE_OUTER_DIAMETER);
 
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
@@ -167,25 +156,6 @@ public abstract class ComponentPresetFactory {
 
 	}
 
-	private static void makeTubeCoupler( ComponentPreset preset ) throws InvalidComponentPresetException {
-		
-		checkRequiredFields( preset, LENGTH );
-
-		checkDiametersAndThickness( preset );
-		
-		double volume = computeVolumeOfTube( preset );
-
-		// Need to translate Mass to Density.
-		if ( preset.has(MASS) ) {
-			String materialName = "TubeCouplerCustom";
-			if ( preset.has(MATERIAL) ) {
-				materialName = preset.get(MATERIAL).getName();
-			}
-			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
-			preset.put(MATERIAL, m);
-		}
-	}
-
 	private static void makeCenteringRing( ComponentPreset preset ) throws InvalidComponentPresetException {
 		checkRequiredFields( preset, LENGTH );
 
@@ -195,7 +165,7 @@ public abstract class ComponentPresetFactory {
 
 		// Need to translate Mass to Density.
 		if ( preset.has(MASS) ) {
-			String materialName = "TubeCouplerCustom";
+			String materialName = "CenteringRingCustom";
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
@@ -214,7 +184,7 @@ public abstract class ComponentPresetFactory {
 
 		// Need to translate Mass to Density.
 		if ( preset.has(MASS) ) {
-			String materialName = "TubeCouplerCustom";
+			String materialName = "EngineBlockCustom";
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
@@ -255,7 +225,7 @@ public abstract class ComponentPresetFactory {
 				throw new InvalidComponentPresetException("Preset underspecified " + preset.toString());
 			}
 		} else {
-			if ( ! hasId && ! hasThickness ) {
+			if ( ! hasId || ! hasThickness ) {
 				throw new InvalidComponentPresetException("Preset underspecified " + preset.toString());
 			}
 			innerRadius = preset.get(INNER_DIAMETER)/2.0;

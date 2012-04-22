@@ -61,6 +61,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 			innerRadiusAutomatic = false;
 		}
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 
@@ -82,6 +83,7 @@ public abstract class RadiusRingComponent extends RingComponent implements Coaxi
 			outerRadiusAutomatic = false;
 		}
 
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 

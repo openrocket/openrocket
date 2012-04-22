@@ -395,10 +395,10 @@ public class RocksimComponentFileLoader {
             keyMap.add(DESCRIPTION_INDEX, ComponentPreset.DESCRIPTION);
             keyMap.add(UNITS_INDEX, UNITS_OF_MEASURE);
             keyMap.add(LENGTH_INDEX, ComponentPreset.LENGTH);
-            keyMap.add(OUTER_DIA_INDEX, ComponentPreset.OUTER_DIAMETER);
+            keyMap.add(OUTER_DIA_INDEX, ComponentPreset.AFT_OUTER_DIAMETER);
             keyMap.add(LD_RATIO_INDEX, LD_RATIO);
-            keyMap.add(INSERT_LENGTH_INDEX, ComponentPreset.SHOULDER_LENGTH);
-            keyMap.add(INSERT_OD_INDEX, ComponentPreset.SHOULDER_DIAMETER);
+            keyMap.add(INSERT_LENGTH_INDEX, ComponentPreset.AFT_SHOULDER_LENGTH);
+            keyMap.add(INSERT_OD_INDEX, ComponentPreset.AFT_SHOULDER_DIAMETER);
             keyMap.add(THICKNESS_INDEX, ComponentPreset.THICKNESS);
             keyMap.add(SHAPE_INDEX, ComponentPreset.SHAPE);
             keyMap.add(CONFIG_INDEX, CONFIG);
@@ -456,10 +456,10 @@ public class RocksimComponentFileLoader {
             keyMap.add(FRONT_INSERT_OD_INDEX, ComponentPreset.FORE_SHOULDER_DIAMETER);
             keyMap.add(FRONT_OD_INDEX, ComponentPreset.FORE_OUTER_DIAMETER);
             keyMap.add(LENGTH_INDEX, ComponentPreset.LENGTH);
-            keyMap.add(REAR_OD_INDEX, ComponentPreset.OUTER_DIAMETER);
+            keyMap.add(REAR_OD_INDEX, ComponentPreset.AFT_OUTER_DIAMETER);
             keyMap.add(CORE_DIA_INDEX, IGNORE);
-            keyMap.add(REAR_INSERT_LENGTH_INDEX, ComponentPreset.SHOULDER_LENGTH);
-            keyMap.add(REAR_INSERT_OD_INDEX, ComponentPreset.SHOULDER_DIAMETER);
+            keyMap.add(REAR_INSERT_LENGTH_INDEX, ComponentPreset.AFT_SHOULDER_LENGTH);
+            keyMap.add(REAR_INSERT_OD_INDEX, ComponentPreset.AFT_SHOULDER_DIAMETER);
             keyMap.add(THICKNESS_INDEX, ComponentPreset.THICKNESS);
             keyMap.add(CONFIG_INDEX, CONFIG);
             keyMap.add(MATERIAL_INDEX, ComponentPreset.MATERIAL);

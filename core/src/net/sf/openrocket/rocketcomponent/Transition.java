@@ -53,7 +53,16 @@ public class Transition extends SymmetricComponent {
 		this.clipped = true;
 	}
 	
-	
+	////////  Length  ////////
+	@Override
+	public void setLength( double length ) {
+		if ( this.length == length ) {
+			return;
+		}
+		// Need to clearPreset when length changes.
+		clearPreset();
+		super.setLength( length );
+	}
 
 
 	////////  Fore radius  ////////
@@ -84,6 +93,8 @@ public class Transition extends SymmetricComponent {
 		
 		if (this.thickness > this.radius1 && this.thickness > this.radius2)
 			this.thickness = Math.max(this.radius1, this.radius2);
+		
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -97,6 +108,8 @@ public class Transition extends SymmetricComponent {
 			return;
 		
 		autoRadius1 = auto;
+
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -130,6 +143,8 @@ public class Transition extends SymmetricComponent {
 		
 		if (this.thickness > this.radius1 && this.thickness > this.radius2)
 			this.thickness = Math.max(this.radius1, this.radius2);
+
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -143,6 +158,8 @@ public class Transition extends SymmetricComponent {
 			return;
 		
 		autoRadius2 = auto;
+
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -233,6 +250,7 @@ public class Transition extends SymmetricComponent {
 		if (MathUtil.equals(this.foreShoulderRadius, foreShoulderRadius))
 			return;
 		this.foreShoulderRadius = foreShoulderRadius;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -280,6 +298,7 @@ public class Transition extends SymmetricComponent {
 		if (MathUtil.equals(this.aftShoulderRadius, aftShoulderRadius))
 			return;
 		this.aftShoulderRadius = aftShoulderRadius;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -529,17 +548,17 @@ public class Transition extends SymmetricComponent {
 			Shape s = preset.get(ComponentPreset.SHAPE);
 			this.setType(s);
 		}
-		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
-			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+		if ( preset.has(ComponentPreset.AFT_OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.AFT_OUTER_DIAMETER);
 			this.setAftRadiusAutomatic(false);
 			this.setAftRadius(outerDiameter/2.0);
 		}
-		if ( preset.has(ComponentPreset.SHOULDER_LENGTH) ) {
-			double d = preset.get(ComponentPreset.SHOULDER_LENGTH);
+		if ( preset.has(ComponentPreset.AFT_SHOULDER_LENGTH) ) {
+			double d = preset.get(ComponentPreset.AFT_SHOULDER_LENGTH);
 			this.setAftShoulderLength(d);
 		}
-		if ( preset.has(ComponentPreset.SHOULDER_DIAMETER) ) {
-			double d = preset.get(ComponentPreset.SHOULDER_DIAMETER);
+		if ( preset.has(ComponentPreset.AFT_SHOULDER_DIAMETER) ) {
+			double d = preset.get(ComponentPreset.AFT_SHOULDER_DIAMETER);
 			this.setAftShoulderRadius(d/2.0);
 		}
 		if ( preset.has(ComponentPreset.FORE_OUTER_DIAMETER) )  {

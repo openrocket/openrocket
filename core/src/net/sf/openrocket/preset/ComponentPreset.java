@@ -50,8 +50,8 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.PARTNO,
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.SHAPE,
-				ComponentPreset.OUTER_DIAMETER,
-				ComponentPreset.SHOULDER_DIAMETER,
+				ComponentPreset.AFT_OUTER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_DIAMETER,
 				ComponentPreset.LENGTH} ),
 
 		TRANSITION( new TypedKey<?>[] {
@@ -129,8 +129,6 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
-	public final static TypedKey<Double> SHOULDER_LENGTH = new TypedKey<Double>("ShoulderLength", Double.class, UnitGroup.UNITS_LENGTH);
-	public final static TypedKey<Double> SHOULDER_DIAMETER = new TypedKey<Double>("ShoulderDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FORE_SHOULDER_LENGTH = new TypedKey<Double>("ForeShoulderLength",Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FORE_SHOULDER_DIAMETER = new TypedKey<Double>("ForeShoulderDiameter",Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FORE_OUTER_DIAMETER = new TypedKey<Double>("ForeOuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
@@ -153,11 +151,12 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		keyMap.put(LENGTH.getName(), LENGTH);
 		keyMap.put(INNER_DIAMETER.getName(), INNER_DIAMETER);
 		keyMap.put(OUTER_DIAMETER.getName(), OUTER_DIAMETER);
-		keyMap.put(SHOULDER_LENGTH.getName(), SHOULDER_LENGTH);
-		keyMap.put(SHOULDER_DIAMETER.getName(), SHOULDER_DIAMETER);
 		keyMap.put(FORE_SHOULDER_LENGTH.getName(), FORE_SHOULDER_LENGTH);
 		keyMap.put(FORE_SHOULDER_DIAMETER.getName(), FORE_SHOULDER_DIAMETER);
 		keyMap.put(FORE_OUTER_DIAMETER.getName(), FORE_OUTER_DIAMETER);
+		keyMap.put(AFT_SHOULDER_LENGTH.getName(), AFT_SHOULDER_LENGTH);
+		keyMap.put(AFT_SHOULDER_DIAMETER.getName(), AFT_SHOULDER_DIAMETER);
+		keyMap.put(AFT_OUTER_DIAMETER.getName(), AFT_OUTER_DIAMETER);
 		keyMap.put(SHAPE.getName(), SHAPE);
 		keyMap.put(MATERIAL.getName(), MATERIAL);
 		keyMap.put(FINISH.getName(), FINISH);
@@ -171,10 +170,12 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			PARTNO,
 			DESCRIPTION,
 			OUTER_DIAMETER,
+			FORE_OUTER_DIAMETER,
+			AFT_OUTER_DIAMETER,
 			INNER_DIAMETER,
 			LENGTH,
-			SHOULDER_DIAMETER,
-			SHOULDER_LENGTH,
+			AFT_SHOULDER_DIAMETER,
+			AFT_SHOULDER_LENGTH,
 			FORE_SHOULDER_DIAMETER,
 			FORE_SHOULDER_LENGTH,
 			SHAPE,
