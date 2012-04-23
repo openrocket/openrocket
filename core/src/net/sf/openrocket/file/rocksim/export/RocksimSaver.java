@@ -48,7 +48,7 @@ public class RocksimSaver extends RocketSaver {
             marshaller.marshal(toRocksimDocumentDTO(doc), sw);
             return sw.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Could not marshall a design to Rocksim format. " + e.getMessage());
         }
 
         return null;

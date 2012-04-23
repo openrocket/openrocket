@@ -44,7 +44,7 @@ public class OpenRocketComponentSaver {
             return sw.toString();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error("Could not marshall a preset list. " + e.getMessage());
         }
 
         return null;
