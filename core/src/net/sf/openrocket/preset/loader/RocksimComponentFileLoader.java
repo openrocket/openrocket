@@ -12,6 +12,7 @@ import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
@@ -25,7 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class RocksimComponentFileLoader {
      *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
      */
     public static List<String[]> load(RocksimComponentFileType type) {
-        return load(RocksimComponentFileLoader.class.getResourceAsStream("/performancerocketry/" + type.getDefaultFileName()));
+        return load(RocksimComponentFileLoader.class.getResourceAsStream("/giantleaprocketry/" + type.getDefaultFileName()));
     }
 
     /**
@@ -571,7 +571,7 @@ public class RocksimComponentFileLoader {
         Collection<ComponentPreset> presetTC = new TubeCouplerLoader().load(materialMap);
         Collection<ComponentPreset> presetTR = new TransitionLoader().load(materialMap);
         Collection<ComponentPreset> presetEB = new EngineBlockLoader().load(materialMap);
-
+/*
         for (Iterator<ComponentPreset> iterator = presetNC.iterator(); iterator.hasNext(); ) {
             ComponentPreset next = iterator.next();
             System.err.println(next);
@@ -600,6 +600,18 @@ public class RocksimComponentFileLoader {
             ComponentPreset next = iterator.next();
             System.err.println(next);
         }
+*/
+        List<ComponentPreset> allPresets = new ArrayList<ComponentPreset>();
+        allPresets.addAll(presetBC);
+        allPresets.addAll(presetBH);
+        allPresets.addAll(presetCR);
+        allPresets.addAll(presetEB);
+        allPresets.addAll(presetNC);
+        allPresets.addAll(presetTC);
+        allPresets.addAll(presetTR);
+
+        String xml = new OpenRocketComponentSaver().marshalToOpenRocketComponent(new ArrayList<Material>(materialMap.values()), allPresets);
+        System.err.println(xml);
     }
 }
 
