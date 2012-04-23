@@ -298,9 +298,8 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 
 		// Integrate for volume, CG, wetted area and planform area
 		
-		final double l = length / DIVISIONS;
-		final double pil = Math.PI * l; // PI * l
-		final double pil3 = Math.PI * l / 3; // PI * l/3
+		final double step = length / DIVISIONS;
+		final double pi3 = Math.PI / 3.0;
 		r1 = getRadius(0);
 		x = 0;
 		wetArea = 0;
@@ -317,25 +316,44 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			 * hyp is the length of the hypotenuse from r1 to r2
 			 * height if the y-axis height of the component if not filled
 			 */
+			/*
+			 * l is the step size for the current loop.  Could also be called delta-x.
+			 * 
+			 * to account for accumulated errors in the x position during the loop
+			 * during the last iteration (n== DIVISIONS) we recompute l to be
+			 * whatever is left.
+			 */
+			double l = (n==DIVISIONS) ? length -x : step;
 
-			r2 = getRadius(x + l);
+			// Further to prevent round off error from the previous statement,
+			// we clamp r2 to length at the last iteration.
+			r2 = getRadius((n==DIVISIONS) ? length : x + l);
+			
 			final double hyp = MathUtil.hypot(r2 - r1, l);
 			
-
 			// Volume differential elements
 			final double dV;
 			final double dFullV;
 			
-			dFullV = pil3 * (r1 * r1 + r1 * r2 + r2 * r2);
-			if (filled || r1 < thickness || r2 < thickness) {
-				// Filled piece
+			dFullV = pi3 * l * (r1 * r1 + r1 * r2 + r2 * r2);
+			
+			if ( filled ) {
 				dV = dFullV;
 			} else {
-				// Hollow piece
-				final double height = thickness * hyp / l;
-				dV = MathUtil.max(pil * height * (r1 + r2 - height), 0);
+				// hollow
+				// Thickness is normal to the surface of the component
+				// here we use simple trig to project the Thickness
+				// on to the y dimension (radius).
+				double height = thickness * hyp / l;
+				if (r1 < height || r2 < height) {
+					// Filled portion of piece
+					dV = dFullV;
+				} else {
+					// Hollow portion of piece
+					dV = MathUtil.max(Math.PI* l * height * (r1 + r2 - height), 0);
+				}
 			}
-			
+
 			// Add to the volume-related components
 			volume += dV;
 			fullVolume += dFullV;
@@ -348,7 +366,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			final double p = l * (r1 + r2);
 			planArea += p;
 			planCenter += (x + l / 2) * p;
-			
+
 			// Update for next iteration
 			r1 = r2;
 			x += l;

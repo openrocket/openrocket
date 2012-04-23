@@ -105,10 +105,8 @@ public class NoseConePresetTests extends BaseTestCase {
 		double density = 100.0 / volume;
 		
 		assertEquals("NoseConeCustom",preset.get(ComponentPreset.MATERIAL).getName());
-		// FIXME - I would expect the nc volume computation to be closer for such a simple shape.
-		// simple math yields 47.74648
-		// 100.0/nc.getComponentVolume yields 48.7159
-		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),1.0);
+		// note - epsilon is 1% of the simple computation of density
+		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.01*density);
 	}
 
 	@Test
@@ -149,8 +147,8 @@ public class NoseConePresetTests extends BaseTestCase {
 		double density = 100.0 / volume;
 		
 		assertEquals("test",preset.get(ComponentPreset.MATERIAL).getName());
-		// FIXME - I would expect the nc volume computation to be closer for such a simple shape.
-		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),1.5);
+		// note - epsilon is 1% of the simple computation of density
+		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.01*density);
 	}
 
 }

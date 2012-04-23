@@ -110,10 +110,8 @@ public class TransitionPresetTests extends BaseTestCase {
 		double density = 100.0 / volume;
 		
 		assertEquals("TransitionCustom",preset.get(ComponentPreset.MATERIAL).getName());
-		// FIXME - I would expect the nc volume computation to be closer for such a simple shape.
-		// simple math yields 27.2837
-		// 100/nc.getComponentVolume yields 27.59832
-		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.5);
+
+		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.01*density);
 	}
 
 	@Test
@@ -163,8 +161,8 @@ public class TransitionPresetTests extends BaseTestCase {
 		double density = 100.0 / volume;
 		
 		assertEquals("test",preset.get(ComponentPreset.MATERIAL).getName());
-		// FIXME - I would expect the nc volume computation to be closer for such a simple shape.
-		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),1.5);
+
+		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.01*density);
 	}
 
 }
