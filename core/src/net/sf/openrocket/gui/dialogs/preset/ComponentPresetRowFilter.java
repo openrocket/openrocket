@@ -9,8 +9,9 @@ public class ComponentPresetRowFilter extends RowFilter<TableModel, Object> {
 	
 	private final double value;
 	private final int column;
-	// FIXME - what should epsilon be?
-	private final double epsilon = .0001;
+	// I chose epsilon to be 0.001 units.  Since this is mostly used with lengths, it represents
+	// 1 mm.
+	private final double epsilon = .001;
 	
 	ComponentPresetRowFilter( double value, int column ) {
 		this.value = value;
