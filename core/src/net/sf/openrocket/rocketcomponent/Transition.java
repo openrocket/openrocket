@@ -544,6 +544,11 @@ public class Transition extends SymmetricComponent {
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
 
+		boolean presetFilled = false;
+		if ( preset.has(ComponentPreset.FILLED ) ) {
+			presetFilled = preset.get( ComponentPreset.FILLED);
+		}
+		
 		if ( preset.has(ComponentPreset.SHAPE) ) {
 			Shape s = preset.get(ComponentPreset.SHAPE);
 			this.setType(s);
@@ -560,6 +565,9 @@ public class Transition extends SymmetricComponent {
 		if ( preset.has(ComponentPreset.AFT_SHOULDER_DIAMETER) ) {
 			double d = preset.get(ComponentPreset.AFT_SHOULDER_DIAMETER);
 			this.setAftShoulderRadius(d/2.0);
+			if ( presetFilled ) {
+				this.setAftShoulderThickness(d/2.0);
+			}
 		}
 		if ( preset.has(ComponentPreset.FORE_OUTER_DIAMETER) )  {
 			double outerDiameter = preset.get(ComponentPreset.FORE_OUTER_DIAMETER);
@@ -573,6 +581,9 @@ public class Transition extends SymmetricComponent {
 		if ( preset.has(ComponentPreset.FORE_SHOULDER_DIAMETER) ) {
 			double d = preset.get(ComponentPreset.FORE_SHOULDER_DIAMETER);
 			this.setForeShoulderRadius(d/2.0);
+			if ( presetFilled ) {
+				this.setForeShoulderThickness(d/2.0);
+			}
 		}
 
 		super.loadFromPreset(preset);

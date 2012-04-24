@@ -61,6 +61,7 @@ public class NoseConeComponentTests extends BaseTestCase {
 		assertEquals( 0.0, nc.getForeShoulderRadius(), 0.0 );
 		assertEquals( 1.0, nc.getAftShoulderLength(), 0.0 );
 		assertEquals( 0.5, nc.getAftShoulderRadius(), 0.0 );
+		assertEquals( 0.5, nc.getAftShoulderThickness(), 0.0 );
 
 		assertFalse( nc.isForeRadiusAutomatic() );
 		assertFalse( nc.isAftRadiusAutomatic() );

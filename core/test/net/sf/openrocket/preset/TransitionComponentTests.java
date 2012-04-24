@@ -30,7 +30,7 @@ public class TransitionComponentTests extends BaseTestCase {
 	@Before
 	public void createPreset() throws Exception {
 		TypedPropertyMap presetspec = new TypedPropertyMap();
-		presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.NOSE_CONE);
+		presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.TRANSITION);
 		presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 		presetspec.put( ComponentPreset.PARTNO, "partno");
 		presetspec.put( ComponentPreset.LENGTH, 2.0);
@@ -65,16 +65,17 @@ public class TransitionComponentTests extends BaseTestCase {
 		assertEquals( 1.0, tr.getAftRadius(), 0.0 );
 		assertEquals( 1.0, tr.getForeShoulderLength(), 0.0 );
 		assertEquals( 0.25, tr.getForeShoulderRadius(), 0.0 );
+		assertEquals( 0.25, tr.getForeShoulderThickness(), 0.0 );
 		assertEquals( 1.0, tr.getAftShoulderLength(), 0.0 );
 		assertEquals( 0.5, tr.getAftShoulderRadius(), 0.0 );
+		assertEquals( 0.5, tr.getAftShoulderThickness(), 0.0 );
 
 		assertFalse( tr.isForeRadiusAutomatic() );
 		assertFalse( tr.isAftRadiusAutomatic() );
 		assertTrue( tr.isFilled() );
 		
 		assertSame( preset.get( ComponentPreset.MATERIAL), tr.getMaterial() );
-		// FIXME - WOW - off by 76g! tr.getMass returns 176.518
-		//assertEquals( 100.0, tr.getMass());
+		assertEquals( 100.0, tr.getMass(), 1.0);
 	}
 	
 	@Test
