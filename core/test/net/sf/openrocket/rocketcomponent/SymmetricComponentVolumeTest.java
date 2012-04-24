@@ -59,8 +59,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 		System.out.println( volume + "\t" + mass );
 
-		// FIXME
-		//assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
+		assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals( mass, nc.getMass(), epsilonPercent * mass );
 	}
 
@@ -133,8 +132,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 
 		System.out.println( volume );
 		
-		// FIXME
-		//assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
+		assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals( mass, nc.getMass(), epsilonPercent * mass );
 	}
 
@@ -196,8 +194,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		System.out.println( volume );
 		
-		// FIXME
-		//assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
+		assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals( mass, nc.getMass(), epsilonPercent * mass );
 	}
 
@@ -290,8 +287,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		System.out.println( volume );
 		
-		// FIXME
-		//assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
+		assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals( mass, nc.getMass(), epsilonPercent * mass );
 	}
 
@@ -386,8 +382,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		System.out.println( volume );
 		
-		// FIXME
-		//assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
+		assertEquals( volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals( mass, nc.getMass(), epsilonPercent * mass );
 	}
 

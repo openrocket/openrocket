@@ -441,33 +441,33 @@ public class Transition extends SymmetricComponent {
 			addBound(bounds, getLength() + aftShoulderLength, aftShoulderRadius);
 		return bounds;
 	}
-	
+
 	@Override
-	public double getComponentMass() {
-		double mass = super.getComponentMass();
+	public double getComponentVolume() {
+		double volume =  super.getComponentVolume();
 		if (getForeShoulderLength() > 0.001) {
 			final double or = getForeShoulderRadius();
 			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
-			mass += ringMass(or, ir, getForeShoulderLength(), getMaterial().getDensity());
+			volume += ringVolume( or, ir, getForeShoulderLength() );
 		}
 		if (isForeShoulderCapped()) {
 			final double ir = Math.max(getForeShoulderRadius() - getForeShoulderThickness(), 0);
-			mass += ringMass(ir, 0, getForeShoulderThickness(), getMaterial().getDensity());
+			volume += ringVolume(ir, 0, getForeShoulderThickness() );
 		}
 		
 		if (getAftShoulderLength() > 0.001) {
 			final double or = getAftShoulderRadius();
 			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
-			mass += ringMass(or, ir, getAftShoulderLength(), getMaterial().getDensity());
+			volume += ringVolume(or, ir, getAftShoulderLength() );
 		}
 		if (isAftShoulderCapped()) {
 			final double ir = Math.max(getAftShoulderRadius() - getAftShoulderThickness(), 0);
-			mass += ringMass(ir, 0, getAftShoulderThickness(), getMaterial().getDensity());
+			volume += ringVolume(ir, 0, getAftShoulderThickness() );
 		}
 		
-		return mass;
+		return volume;
 	}
-	
+
 	@Override
 	public Coordinate getComponentCG() {
 		Coordinate cg = super.getComponentCG();

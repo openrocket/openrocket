@@ -1722,6 +1722,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				ringMass(outerRadius, innerRadius, x2 - x1, density));
 	}
 	
+	protected static final double ringVolume( double outerRadius, double innerRadius, double length ) {
+		return ringMass( outerRadius, innerRadius, length, 1.0 );
+	}
+	
 	protected static final double ringMass(double outerRadius, double innerRadius,
 			double length, double density) {
 		return Math.PI * (MathUtil.pow2(outerRadius) - MathUtil.pow2(innerRadius)) *
