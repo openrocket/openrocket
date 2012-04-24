@@ -204,8 +204,7 @@ public class RocketComponentConfig extends JPanel {
 			String materialString, String finishString) {
 		
 		if ( component.getPresetType() != null ) {
-			////  Body tube template
-			// FIXME: Move to proper location
+			// If the component supports a preset, show the preset selection box.
 			panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
 			presetModel = new PresetModel( this, component);
 			((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
