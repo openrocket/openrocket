@@ -138,8 +138,6 @@ public abstract class ComponentPresetFactory {
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
 			double mass = preset.get(MASS);
-			// FIXME - Bulkhead.getComponentVolume does not exist!
-			// double density = mass / tr.getComponentVolume();
 
 			double volume = computeVolumeOfTube(preset);
 			double density = mass / volume;
