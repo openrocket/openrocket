@@ -326,7 +326,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 					double d = ((Material)value).getDensity();
 					os.writeDouble(d);
 				} else if ( key.getType() == Shape.class ) {
-					// FIXME - this is ugly to use the ordinal but what else?
+					// this is ugly to use the ordinal but what else?
 					int i = ((Shape)value).ordinal();
 					os.writeInt(i);
 				}
