@@ -2,10 +2,12 @@
 package net.sf.openrocket.preset.xml;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Engine block preset XML handler.
@@ -31,4 +33,8 @@ public class EngineBlockDTO extends CenteringRingDTO {
         super(thePreset);
     }
 
+    @Override
+    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return super.asComponentPreset(ComponentPreset.Type.ENGINE_BLOCK, materials);
+    }
 }

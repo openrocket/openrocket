@@ -280,7 +280,30 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		return get(MANUFACTURER).toString() + "|" + get(PARTNO);
 	}
 
-	/**
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ComponentPreset that = (ComponentPreset) o;
+
+        if (digest != null ? !digest.equals(that.digest) : that.digest != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return digest != null ? digest.hashCode() : 0;
+    }
+
+    /**
 	 * Package scope so the factory can call it.
 	 */
 	void computeDigest() {

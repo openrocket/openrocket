@@ -34,4 +34,8 @@ public enum ShapeDTO {
         }
         return ELLIPSOID; //default
     }
+
+    public Transition.Shape getORShape() {
+        return corollary;
+    }
 }

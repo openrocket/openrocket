@@ -3,14 +3,18 @@ package net.sf.openrocket.preset.xml;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.startup.Application;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.util.List;
 
@@ -44,9 +48,26 @@ public class OpenRocketComponentSaver {
             return sw.toString();
         }
         catch (Exception e) {
-            log.error("Could not marshall a preset list. " + e.getMessage());
+            log.error("Could not marshal a preset list. " + e.getMessage());
         }
 
+        return null;
+    }
+
+    public List<ComponentPreset> unmarshalFromOpenRocketComponent(Reader is) throws InvalidComponentPresetException {
+        return fromOpenRocketComponent(is).asComponentPresets();
+    }
+
+    private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) {
+        try {
+            JAXBContext bind = JAXBContext.newInstance(OpenRocketComponentDTO.class);
+            Unmarshaller unmarshaller = bind.createUnmarshaller();
+            return (OpenRocketComponentDTO)unmarshaller.unmarshal(is);
+        }
+        catch (JAXBException e) {
+            e.printStackTrace();
+            log.error("Could not unmarshal the .orc file. " + e.getMessage());
+        }
         return null;
     }
 
@@ -88,6 +109,10 @@ public class OpenRocketComponentSaver {
             }
         }
         return rsd;
+    }
+
+    public List<ComponentPreset> fromOpenRocketComponentDTO(OpenRocketComponentDTO dto) {
+        return null;
     }
 
     /**

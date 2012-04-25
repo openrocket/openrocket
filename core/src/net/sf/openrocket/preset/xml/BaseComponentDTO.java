@@ -1,11 +1,19 @@
 
 package net.sf.openrocket.preset.xml;
 
+import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.preset.TypedPropertyMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlValue;
+import java.util.List;
 
 /**
  * Base class for the external representation of all component presets.
@@ -20,7 +28,7 @@ public abstract class BaseComponentDTO {
     @XmlElement(name = "Description")
     private String description;
     @XmlElement(name = "Material")
-    private String material;
+    private AnnotatedMaterialDTO material;
     @XmlElement(name = "Mass")
     private double mass;
 
@@ -41,7 +49,7 @@ public abstract class BaseComponentDTO {
         setManufacturer(preset.getManufacturer().getSimpleName());
         setPartNo(preset.getPartNo());
         setDescription(preset.get(ComponentPreset.DESCRIPTION));
-        setMaterial(preset.get(ComponentPreset.MATERIAL).getName());
+        setMaterial(new AnnotatedMaterialDTO(preset.get(ComponentPreset.MATERIAL)));
         if (preset.has(ComponentPreset.MASS)) {
             setMass(preset.get(ComponentPreset.MASS));
         }
@@ -71,11 +79,11 @@ public abstract class BaseComponentDTO {
         description = theDescription;
     }
 
-    public String getMaterial() {
+    public AnnotatedMaterialDTO getMaterial() {
         return material;
     }
 
-    public void setMaterial(final String theMaterial) {
+    public void setMaterial(final AnnotatedMaterialDTO theMaterial) {
         material = theMaterial;
     }
 
@@ -85,5 +93,40 @@ public abstract class BaseComponentDTO {
 
     public void setMass(final double theMass) {
         mass = theMass;
+    }
+
+    public abstract ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException;
+
+    void addProps(TypedPropertyMap props, List<MaterialDTO> materialList) {
+        props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(manufacturer));
+        props.put(ComponentPreset.PARTNO, partNo);
+        props.put(ComponentPreset.DESCRIPTION, description);
+        props.put(ComponentPreset.MATERIAL, find(materialList, material));
+        props.put(ComponentPreset.MASS, mass);
+    }
+
+    private Material find(List<MaterialDTO> materialList, AnnotatedMaterialDTO dto) {
+        for (int i = 0; i < materialList.size(); i++) {
+            MaterialDTO materialDTO =  materialList.get(i);
+            if (materialDTO.getType().name().equals(dto.type) && materialDTO.getName().equals(dto.material)) {
+                return materialDTO.asMaterial();
+            }
+        }
+        //Otherwise fallback and look at factory default materials.
+        return Databases.findMaterial(Material.Type.valueOf(material.type), material.material);
+    }
+
+    static class AnnotatedMaterialDTO {
+        @XmlAttribute(name = "Type")
+        private String type;
+        @XmlValue
+        private String material;
+
+        AnnotatedMaterialDTO() {}
+
+        AnnotatedMaterialDTO(Material theMaterial) {
+            type = theMaterial.getType().name();
+            material = theMaterial.getName();
+        }
     }
 }

@@ -2,11 +2,15 @@
 package net.sf.openrocket.preset.xml;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPresetFactory;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.preset.TypedPropertyMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Transition preset XML handler.
@@ -123,5 +127,21 @@ public class TransitionDTO extends BaseComponentDTO {
 
     public void setLength(final double theLength) {
         length = theLength;
+    }
+
+    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        TypedPropertyMap props = new TypedPropertyMap();
+        addProps(props, materials);
+        props.put(ComponentPreset.SHAPE, shape.getORShape());
+        props.put(ComponentPreset.FORE_OUTER_DIAMETER, this.getForeOutsideDiameter());
+        props.put(ComponentPreset.FORE_SHOULDER_DIAMETER, this.getForeShoulderDiameter());
+        props.put(ComponentPreset.FORE_SHOULDER_LENGTH, this.getForeShoulderLength());
+        props.put(ComponentPreset.AFT_OUTER_DIAMETER, this.getAftOutsideDiameter());
+        props.put(ComponentPreset.AFT_SHOULDER_DIAMETER, this.getAftShoulderDiameter());
+        props.put(ComponentPreset.AFT_SHOULDER_LENGTH, this.getAftShoulderLength());
+        props.put(ComponentPreset.LENGTH, this.getLength());
+        props.put(ComponentPreset.TYPE, ComponentPreset.Type.TRANSITION);
+
+        return ComponentPresetFactory.create(props);
     }
 }

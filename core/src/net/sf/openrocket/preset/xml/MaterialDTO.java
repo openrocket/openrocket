@@ -1,6 +1,7 @@
 
 package net.sf.openrocket.preset.xml;
 
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -73,5 +74,9 @@ public class MaterialDTO {
 
     public void setUom(final String theUom) {
         uom = theUom;
+    }
+
+    Material asMaterial() {
+        return Databases.findMaterial(type.getORMaterialType(), name, density, false);
     }
 }

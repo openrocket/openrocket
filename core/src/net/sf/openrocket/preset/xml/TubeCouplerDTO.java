@@ -2,10 +2,12 @@
 package net.sf.openrocket.preset.xml;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Tube coupler preset XML handler.
@@ -29,5 +31,10 @@ public class TubeCouplerDTO extends BodyTubeDTO {
      */
     public TubeCouplerDTO(ComponentPreset thePreset) {
         super(thePreset);
+    }
+
+    @Override
+    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return super.asComponentPreset(ComponentPreset.Type.TUBE_COUPLER, materials);
     }
 }

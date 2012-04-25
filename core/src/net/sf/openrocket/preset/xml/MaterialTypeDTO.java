@@ -29,4 +29,7 @@ public enum MaterialTypeDTO {
         return BULK; //default
     }
 
+    public Material.Type getORMaterialType() {
+        return corollary;
+    }
 }

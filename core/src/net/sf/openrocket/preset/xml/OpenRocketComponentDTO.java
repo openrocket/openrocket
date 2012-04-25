@@ -1,5 +1,8 @@
 package net.sf.openrocket.preset.xml;
 
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -21,7 +24,7 @@ public class OpenRocketComponentDTO {
     private final String version = "0.1";
 
     @XmlElementWrapper(name = "Materials")
-            @XmlElement(name = "Material")
+    @XmlElement(name = "Material")
     List<MaterialDTO> materials = new ArrayList<MaterialDTO>();
 
     @XmlElementWrapper(name = "Components")
@@ -65,5 +68,13 @@ public class OpenRocketComponentDTO {
 
     public void setComponents(final List<BaseComponentDTO> theComponents) {
         components = theComponents;
+    }
+
+    public List<ComponentPreset> asComponentPresets() throws InvalidComponentPresetException {
+        List<ComponentPreset> result = new ArrayList<ComponentPreset>();
+        for (int i = 0; i < components.size(); i++) {
+            result.add(components.get(i).asComponentPreset(materials));
+        }
+        return result;
     }
 }

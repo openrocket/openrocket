@@ -2,11 +2,15 @@
 package net.sf.openrocket.preset.xml;
 
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPresetFactory;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.preset.TypedPropertyMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Centering ring preset XML handler.
@@ -64,5 +68,20 @@ public class CenteringRingDTO extends BaseComponentDTO {
 
     public void setLength(final double theLength) {
         length = theLength;
+    }
+
+    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        return asComponentPreset(ComponentPreset.Type.CENTERING_RING, materials);
+    }
+
+    public ComponentPreset asComponentPreset(ComponentPreset.Type type, List<MaterialDTO> materials) throws InvalidComponentPresetException {
+        TypedPropertyMap props = new TypedPropertyMap();
+        addProps(props, materials);
+        props.put(ComponentPreset.INNER_DIAMETER, this.getInsideDiameter());
+        props.put(ComponentPreset.OUTER_DIAMETER, this.getOutsideDiameter());
+        props.put(ComponentPreset.LENGTH, this.getLength());
+        props.put(ComponentPreset.TYPE, type);
+
+        return ComponentPresetFactory.create(props);
     }
 }
