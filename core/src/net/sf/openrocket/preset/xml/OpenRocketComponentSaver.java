@@ -54,39 +54,58 @@ public class OpenRocketComponentSaver {
         return null;
     }
 
+    /**
+     * This method unmarshals from a Reader that is presumed to be open on an XML file in .orc format.
+     *
+     * @param is an open reader; StringBufferInputStream could not be used because it's deprecated and does not handle
+     *           UTF characters correctly
+     *
+     * @return a list of ComponentPresets
+     *
+     * @throws InvalidComponentPresetException
+     *
+     */
     public List<ComponentPreset> unmarshalFromOpenRocketComponent(Reader is) throws InvalidComponentPresetException {
         return fromOpenRocketComponent(is).asComponentPresets();
-    }
-
-    private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) {
-        try {
-            JAXBContext bind = JAXBContext.newInstance(OpenRocketComponentDTO.class);
-            Unmarshaller unmarshaller = bind.createUnmarshaller();
-            return (OpenRocketComponentDTO)unmarshaller.unmarshal(is);
-        }
-        catch (JAXBException e) {
-            e.printStackTrace();
-            log.error("Could not unmarshal the .orc file. " + e.getMessage());
-        }
-        return null;
     }
 
     /**
      * Write an XML representation of a list of presets.
      *
-     * @param dest  the stream to write the data to
+     * @param dest            the stream to write the data to
      * @param theMaterialList the list of materials to be included
      * @param thePresetList   the list of presets to be included
      *
      * @throws IOException thrown if the stream could not be written
      */
-    public void save(OutputStream dest, List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws IOException {
+    public void save(OutputStream dest, List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
+                                                                                                             IOException {
         log.info("Saving .orc file");
 
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, "UTF-8"));
         writer.write(marshalToOpenRocketComponent(theMaterialList, thePresetList));
         writer.flush();
         writer.close();
+    }
+
+    /**
+     * Read from an open Reader instance XML in .orc format and reconstruct an OpenRocketComponentDTO instance.
+     *
+     * @param is an open Reader; assumed to be opened on a file of XML in .orc format
+     *
+     * @return the OpenRocketComponentDTO that is a POJO representation of the XML; null if the data could not be read
+     *         or was in an invalid format
+     */
+    private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) {
+        try {
+            JAXBContext bind = JAXBContext.newInstance(OpenRocketComponentDTO.class);
+            Unmarshaller unmarshaller = bind.createUnmarshaller();
+            return (OpenRocketComponentDTO) unmarshaller.unmarshal(is);
+        }
+        catch (JAXBException e) {
+            log.error("Could not unmarshal the .orc file. ", e);
+        }
+        return null;
     }
 
     /**
@@ -111,17 +130,13 @@ public class OpenRocketComponentSaver {
         return rsd;
     }
 
-    public List<ComponentPreset> fromOpenRocketComponentDTO(OpenRocketComponentDTO dto) {
-        return null;
-    }
-
     /**
      * Factory method that maps a preset to the corresponding DTO handler.
      *
-     * @param thePreset  the preset for which a handler will be found
+     * @param thePreset the preset for which a handler will be found
      *
      * @return a subclass of BaseComponentDTO that can be used for marshalling/unmarshalling a preset; null if not found
-     * for the preset type
+     *         for the preset type
      */
     private static BaseComponentDTO toComponentDTO(ComponentPreset thePreset) {
         switch (thePreset.getType()) {
