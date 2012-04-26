@@ -2,19 +2,20 @@ package net.sf.openrocket.database;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import net.sf.openrocket.file.Loader;
-import net.sf.openrocket.file.preset.PresetCSVReader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
-import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
@@ -32,22 +33,22 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 
 			Set<String> favorites = Application.getPreferences().getComponentFavorites();
 
-			List<ComponentPreset> returnval = new ArrayList<ComponentPreset>();
-
-			PresetCSVReader parser = new PresetCSVReader(stream);
-			List<TypedPropertyMap> list = parser.parse();
-			for( TypedPropertyMap o : list ) {
-				try {
-					ComponentPreset preset = ComponentPresetFactory.create(o);
+			try {
+				List<ComponentPreset> presets;
+				presets = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent( new InputStreamReader (stream));
+				for( ComponentPreset preset : presets ) {
 					if ( favorites.contains(preset.preferenceKey())) {
 						preset.setFavorite(true);
 					}
-					returnval.add(preset);
-				} catch ( InvalidComponentPresetException ex ) {
-					throw new BugException( ex );
-				}
+				}				
+
+				return presets;
+			} catch (JAXBException e) {
+				throw new BugException("Unable to parser file: "+ filename, e);
+			} catch (InvalidComponentPresetException e) {
+				throw new BugException("Unable to parser file: "+ filename, e);
 			}
-			return returnval;
+
 		}
 
 	}
@@ -138,7 +139,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types ) {
 		return listForTypes( (ComponentPreset.Type[]) types.toArray() );
 	}
-	
+
 	@Override
 	public List<ComponentPreset> find(String manufacturer, String partNo) {
 		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
