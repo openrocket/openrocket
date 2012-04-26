@@ -38,11 +38,23 @@
 		<pathelement location="${src-test.dir}"/>
 		<fileset dir="lib-test/" includes="*.jar"/>
 	</path>
-	
+
+	<path id="run-classpath">
+		<path refid="classpath"/>
+		<pathelement location="${basedir}/resources"/>
+		<pathelement location="${classes.dir}"/>
+	</path>
+
+	<!-- Add Ant-contrib tasks so we can use for loop -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="lib-extra/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
 
 	
 	<!-- CLEAN -->
-	<target name="clean">
+	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
 		<delete dir="tmp/"/>
 	</target>
@@ -76,7 +88,41 @@
 			<zipfileset src="lib/opencsv-2.3.jar" />
 		</jar>
 	</target>
-	
+
+	<!-- CONVERT vendor csv to ORC files -->
+	<macrodef name="build-orc-file">
+		<attribute name="dir"/>
+		<attribute name="vendor"/>
+		<sequential>
+			<echo>Generating ORC file for vendor @{vendor}</echo>
+			<java classname="net.sf.openrocket.preset.loader.RocksimComponentFileTranslator"
+				fork="true"
+				classpathref="run-classpath"
+				failonerror="true">
+				<arg value="@{dir}"/>
+				<arg value="resources/datafiles/presets/@{vendor}.orc"/>
+			</java>
+		</sequential>
+	</macrodef>
+
+	<target name="generate-orc-files"
+		description="Generate ORC file from vendor csv"
+		depends="build">
+
+		<for param="vendor-dir">
+			<dirset dir="resources-src/datafiles/rocksim_components"
+				includes="*"
+				excludes="giantleaprocketry"/>
+			<sequential>
+				<propertyregex property="vendor"
+					override="true"
+					input="@{vendor-dir}"
+					select="\1"
+					regexp=".*[/\\]([^/\\]*)$"/>
+				<build-orc-file dir="@{vendor-dir}" vendor="${vendor}"/>
+			</sequential>
+		</for>
+	</target>
 	
 	<!-- DIST-SRC -->
 	<target name="dist-src">
