@@ -419,6 +419,14 @@ public class UnitGroup {
 		throw new IllegalArgumentException("name=" + name);
 	}
 	
+	public Unit getUnit( String name ) throws IllegalArgumentException {
+		for (int i = 0; i < units.size(); i++) {
+			if (units.get(i).getUnit().equals(name)) {
+				return units.get(i);
+			}
+		}
+		throw new IllegalArgumentException("name=" + name);
+	}
 	
 	public Unit getUnit(int n) {
 		return units.get(n);
