@@ -38,6 +38,9 @@ public class TransitionDTO extends BaseComponentDTO {
 
     @XmlElement(name = "Length")
     private double length;
+    
+    @XmlElement(name = "Thickness")
+    private Double thickness;
 
 
     /**
@@ -63,6 +66,9 @@ public class TransitionDTO extends BaseComponentDTO {
         setAftShoulderDiameter(thePreset.get(ComponentPreset.AFT_SHOULDER_DIAMETER));
         setAftShoulderLength(thePreset.get(ComponentPreset.AFT_SHOULDER_LENGTH));
         setLength(thePreset.get(ComponentPreset.LENGTH));
+        if ( thePreset.has(ComponentPreset.THICKNESS)) {
+        	setThickness(thePreset.get(ComponentPreset.THICKNESS));
+        }
     }
 
     public ShapeDTO getShape() {
@@ -129,7 +135,15 @@ public class TransitionDTO extends BaseComponentDTO {
         length = theLength;
     }
 
-    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+    public Double getThickness() {
+		return thickness;
+	}
+
+	public void setThickness(Double thickness) {
+		this.thickness = thickness;
+	}
+
+	public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
         addProps(props, materials);
         props.put(ComponentPreset.SHAPE, shape.getORShape());
@@ -141,6 +155,9 @@ public class TransitionDTO extends BaseComponentDTO {
         props.put(ComponentPreset.AFT_SHOULDER_LENGTH, this.getAftShoulderLength());
         props.put(ComponentPreset.LENGTH, this.getLength());
         props.put(ComponentPreset.TYPE, ComponentPreset.Type.TRANSITION);
+        if ( thickness != null ) {
+        	props.put(ComponentPreset.THICKNESS, thickness);
+        }
 
         return ComponentPresetFactory.create(props);
     }
