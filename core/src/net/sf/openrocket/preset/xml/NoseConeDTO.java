@@ -27,6 +27,9 @@ public class NoseConeDTO extends BaseComponentDTO {
     @XmlElement(name = "Length")
     private double length;
 
+    @XmlElement(name = "Thickness")
+    private Double thickness;
+    
     /**
      * Default constructor.
      */
@@ -46,6 +49,9 @@ public class NoseConeDTO extends BaseComponentDTO {
         setOutsideDiameter(thePreset.get(ComponentPreset.AFT_OUTER_DIAMETER));
         setShoulderDiameter(thePreset.get(ComponentPreset.AFT_SHOULDER_DIAMETER));
         setLength(thePreset.get(ComponentPreset.LENGTH));
+        if ( thePreset.has(ComponentPreset.THICKNESS)) {
+        	setThickness(thePreset.get(ComponentPreset.THICKNESS));
+        }
     }
 
     public ShapeDTO getShape() {
@@ -80,7 +86,15 @@ public class NoseConeDTO extends BaseComponentDTO {
         length = theLength;
     }
 
-    public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
+    public Double getThickness() {
+		return thickness;
+	}
+
+	public void setThickness(Double thickness) {
+		this.thickness = thickness;
+	}
+
+	public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
         addProps(props, materials);
         props.put(ComponentPreset.SHAPE, shape.getORShape());
@@ -88,6 +102,9 @@ public class NoseConeDTO extends BaseComponentDTO {
         props.put(ComponentPreset.AFT_SHOULDER_DIAMETER, this.getOutsideDiameter());
         props.put(ComponentPreset.LENGTH, this.getLength());
         props.put(ComponentPreset.TYPE, ComponentPreset.Type.NOSE_CONE);
+        if ( thickness != null ) {
+        	props.put(ComponentPreset.THICKNESS, thickness);
+        }
 
         return ComponentPresetFactory.create(props);
     }
