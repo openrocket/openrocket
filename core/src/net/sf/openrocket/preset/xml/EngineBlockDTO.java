@@ -14,7 +14,7 @@ import java.util.List;
  */
 @XmlRootElement(name = "EngineBlock")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class EngineBlockDTO extends CenteringRingDTO {
+public class EngineBlockDTO extends BodyTubeDTO {
 
     /**
      * Default constructor.

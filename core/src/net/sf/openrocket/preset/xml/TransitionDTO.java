@@ -23,24 +23,24 @@ public class TransitionDTO extends BaseComponentDTO {
     private ShapeDTO shape;
 
     @XmlElement(name = "ForeOutsideDiameter")
-    private double foreOutsideDiameter;
+    private AnnotatedLengthDTO foreOutsideDiameter;
     @XmlElement(name = "ForeShoulderDiameter")
-    private double foreShoulderDiameter;
+    private AnnotatedLengthDTO foreShoulderDiameter;
     @XmlElement(name = "ForeShoulderLength")
-    private double foreShoulderLength;
+    private AnnotatedLengthDTO foreShoulderLength;
 
     @XmlElement(name = "AftOutsideDiameter")
-    private double aftOutsideDiameter;
+    private AnnotatedLengthDTO aftOutsideDiameter;
     @XmlElement(name = "AftShoulderDiameter")
-    private double aftShoulderDiameter;
+    private AnnotatedLengthDTO aftShoulderDiameter;
     @XmlElement(name = "AftShoulderLength")
-    private double aftShoulderLength;
+    private AnnotatedLengthDTO aftShoulderLength;
 
     @XmlElement(name = "Length")
-    private double length;
+    private AnnotatedLengthDTO length;
     
     @XmlElement(name = "Thickness")
-    private Double thickness;
+    private AnnotatedLengthDTO thickness;
 
 
     /**
@@ -80,69 +80,102 @@ public class TransitionDTO extends BaseComponentDTO {
     }
 
     public double getForeOutsideDiameter() {
-        return foreOutsideDiameter;
+        return foreOutsideDiameter.getValue();
     }
 
-    public void setForeOutsideDiameter(final double theForeOutsideDiameter) {
+    public void setForeOutsideDiameter(final AnnotatedLengthDTO theForeOutsideDiameter) {
         foreOutsideDiameter = theForeOutsideDiameter;
     }
 
-    public double getForeShoulderDiameter() {
-        return foreShoulderDiameter;
+    public void setForeOutsideDiameter(final double theForeOutsideDiameter) {
+        foreOutsideDiameter = new AnnotatedLengthDTO(theForeOutsideDiameter);
     }
 
-    public void setForeShoulderDiameter(final double theForeShoulderDiameter) {
+    public double getForeShoulderDiameter() {
+        return foreShoulderDiameter.getValue();
+    }
+
+    public void setForeShoulderDiameter(final AnnotatedLengthDTO theForeShoulderDiameter) {
         foreShoulderDiameter = theForeShoulderDiameter;
     }
 
-    public double getForeShoulderLength() {
-        return foreShoulderLength;
+    public void setForeShoulderDiameter(final double theForeShoulderDiameter) {
+        foreShoulderDiameter = new AnnotatedLengthDTO(theForeShoulderDiameter);
     }
 
-    public void setForeShoulderLength(final double theForeShoulderLength) {
+    public double getForeShoulderLength() {
+        return foreShoulderLength.getValue();
+    }
+
+    public void setForeShoulderLength(final AnnotatedLengthDTO theForeShoulderLength) {
         foreShoulderLength = theForeShoulderLength;
     }
 
-    public double getAftOutsideDiameter() {
-        return aftOutsideDiameter;
+    public void setForeShoulderLength(final double theForeShoulderLength) {
+        foreShoulderLength = new AnnotatedLengthDTO(theForeShoulderLength);
     }
 
-    public void setAftOutsideDiameter(final double theAftOutsideDiameter) {
+    public double getAftOutsideDiameter() {
+        return aftOutsideDiameter.getValue();
+    }
+
+    public void setAftOutsideDiameter(final AnnotatedLengthDTO theAftOutsideDiameter) {
         aftOutsideDiameter = theAftOutsideDiameter;
     }
 
-    public double getAftShoulderDiameter() {
-        return aftShoulderDiameter;
+    public void setAftOutsideDiameter(final double theAftOutsideDiameter) {
+        aftOutsideDiameter = new AnnotatedLengthDTO(theAftOutsideDiameter);
     }
 
-    public void setAftShoulderDiameter(final double theAftShoulderDiameter) {
+    public double getAftShoulderDiameter() {
+        return aftShoulderDiameter.getValue();
+    }
+
+    public void setAftShoulderDiameter(final AnnotatedLengthDTO theAftShoulderDiameter) {
         aftShoulderDiameter = theAftShoulderDiameter;
     }
 
-    public double getAftShoulderLength() {
-        return aftShoulderLength;
+    public void setAftShoulderDiameter(final double theAftShoulderDiameter) {
+        aftShoulderDiameter = new AnnotatedLengthDTO(theAftShoulderDiameter);
     }
 
-    public void setAftShoulderLength(final double theAftShoulderLength) {
+    public double getAftShoulderLength() {
+        return aftShoulderLength.getValue();
+    }
+
+    public void setAftShoulderLength(final AnnotatedLengthDTO theAftShoulderLength) {
         aftShoulderLength = theAftShoulderLength;
     }
 
-    public double getLength() {
-        return length;
+    public void setAftShoulderLength(final double theAftShoulderLength) {
+        aftShoulderLength = new AnnotatedLengthDTO(theAftShoulderLength);
     }
 
-    public void setLength(final double theLength) {
+    public double getLength() {
+        return length.getValue();
+    }
+
+    public void setLength(final AnnotatedLengthDTO theLength) {
         length = theLength;
     }
 
-    public Double getThickness() {
-		return thickness;
+    public void setLength(final double theLength) {
+        length = new AnnotatedLengthDTO(theLength);
+    }
+
+    public double getThickness() {
+		return thickness.getValue();
 	}
 
-	public void setThickness(Double thickness) {
+	public void setThickness(AnnotatedLengthDTO thickness) {
 		this.thickness = thickness;
 	}
 
+	public void setThickness(double thickness) {
+		this.thickness = new AnnotatedLengthDTO(thickness);
+	}
+
+	@Override
 	public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
         addProps(props, materials);
@@ -156,7 +189,7 @@ public class TransitionDTO extends BaseComponentDTO {
         props.put(ComponentPreset.LENGTH, this.getLength());
         props.put(ComponentPreset.TYPE, ComponentPreset.Type.TRANSITION);
         if ( thickness != null ) {
-        	props.put(ComponentPreset.THICKNESS, thickness);
+        	props.put(ComponentPreset.THICKNESS, this.getThickness());
         }
 
         return ComponentPresetFactory.create(props);

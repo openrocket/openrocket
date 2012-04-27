@@ -1,19 +1,21 @@
 
 package net.sf.openrocket.preset.xml;
 
-import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.material.Material;
-import net.sf.openrocket.motor.Manufacturer;
-import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.InvalidComponentPresetException;
-import net.sf.openrocket.preset.TypedPropertyMap;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlValue;
-import java.util.List;
+
+import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.unit.UnitGroup;
 
 /**
  * Base class for the external representation of all component presets.
@@ -30,7 +32,7 @@ public abstract class BaseComponentDTO {
 	@XmlElement(name = "Material")
 	private AnnotatedMaterialDTO material;
 	@XmlElement(name = "Mass")
-	private Double mass;
+	private AnnotatedMassDTO mass;
 	@XmlElement(name="Filled")
 	private Boolean filled;
 
@@ -97,11 +99,15 @@ public abstract class BaseComponentDTO {
 	}
 
 	public double getMass() {
-		return mass;
+		return mass.getValue();
+	}
+
+	public void setMass(final AnnotatedMassDTO theMass) {
+		mass = theMass;
 	}
 
 	public void setMass(final double theMass) {
-		mass = theMass;
+		mass = new AnnotatedMassDTO(theMass);
 	}
 
 	public Boolean getFilled() {
@@ -125,10 +131,10 @@ public abstract class BaseComponentDTO {
 			props.put(ComponentPreset.MATERIAL, find(materialList, material));
 		}
 		if ( mass != null ) {
-			props.put(ComponentPreset.MASS, mass);
+			props.put(ComponentPreset.MASS, getMass());
 		}
 		if ( filled != null ) {
-			props.put(ComponentPreset.FILLED, filled);
+			props.put(ComponentPreset.FILLED, getFilled());
 		}
 	}
 
@@ -154,6 +160,40 @@ public abstract class BaseComponentDTO {
 		AnnotatedMaterialDTO(Material theMaterial) {
 			type = theMaterial.getType().name();
 			material = theMaterial.getName();
+		}
+	}
+	
+	static class AnnotatedLengthDTO {
+		@XmlAttribute(name="Unit", required=false)
+		private String unitName = "m";
+		@XmlValue
+		private double length;
+		
+		AnnotatedLengthDTO() {}
+		
+		AnnotatedLengthDTO( double length ) {
+			this.length = length;
+		}
+
+		public double getValue() {
+			return UnitGroup.UNITS_LENGTH.getUnit(unitName).fromUnit(length);
+		}
+	}
+	
+	static class AnnotatedMassDTO {
+		@XmlAttribute(name="Unit", required=false)
+		private String unitName = "kg";
+		@XmlValue
+		private double mass;
+		
+		AnnotatedMassDTO() {}
+		
+		AnnotatedMassDTO( double mass ) {
+			this.mass = mass;
+		}
+		
+		public double getValue() {
+			return UnitGroup.UNITS_MASS.getUnit(unitName).fromUnit(mass);
 		}
 	}
 }

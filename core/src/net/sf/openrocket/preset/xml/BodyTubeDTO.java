@@ -20,11 +20,11 @@ import java.util.List;
 public class BodyTubeDTO extends BaseComponentDTO {
 
     @XmlElement(name = "InsideDiameter")
-    private double insideDiameter;
+    private AnnotatedLengthDTO insideDiameter;
     @XmlElement(name = "OutsideDiameter")
-    private double outsideDiameter;
+    private AnnotatedLengthDTO outsideDiameter;
     @XmlElement(name = "Length")
-    private double length;
+    private AnnotatedLengthDTO length;
 
     /**
      * Default constructor.
@@ -47,29 +47,42 @@ public class BodyTubeDTO extends BaseComponentDTO {
     }
 
     public double getInsideDiameter() {
-        return insideDiameter;
+        return insideDiameter.getValue();
     }
 
+    public void setInsideDiameter( final AnnotatedLengthDTO theLength ) {
+    	insideDiameter = theLength;
+    }
+    
     public void setInsideDiameter(final double theId) {
-        insideDiameter = theId;
+        insideDiameter = new AnnotatedLengthDTO(theId);
     }
 
     public double getOutsideDiameter() {
-        return outsideDiameter;
+        return outsideDiameter.getValue();
     }
 
-    public void setOutsideDiameter(final double theOd) {
+    public void setOutsideDiameter(final AnnotatedLengthDTO theOd) {
         outsideDiameter = theOd;
     }
 
-    public double getLength() {
-        return length;
+    public void setOutsideDiameter(final double theOd) {
+        outsideDiameter = new AnnotatedLengthDTO(theOd);
     }
 
-    public void setLength(final double theLength) {
+    public double getLength() {
+        return length.getValue();
+    }
+
+    public void setLength(final AnnotatedLengthDTO theLength) {
         length = theLength;
     }
 
+    public void setLength(final double theLength) {
+        length = new AnnotatedLengthDTO(theLength);
+    }
+
+    @Override
     public ComponentPreset asComponentPreset(java.util.List<MaterialDTO> materials) throws InvalidComponentPresetException {
         return asComponentPreset(ComponentPreset.Type.BODY_TUBE, materials);
     }

@@ -20,9 +20,9 @@ import java.util.List;
 public class BulkHeadDTO extends BaseComponentDTO {
 
     @XmlElement(name = "OutsideDiameter")
-    private double outsideDiameter;
+    private AnnotatedLengthDTO outsideDiameter;
     @XmlElement(name = "Length")
-    private double length;
+    private AnnotatedLengthDTO length;
 
     public BulkHeadDTO() {
     }
@@ -41,21 +41,30 @@ public class BulkHeadDTO extends BaseComponentDTO {
     }
 
     public double getOutsideDiameter() {
-        return outsideDiameter;
+        return outsideDiameter.getValue();
     }
 
-    public void setOutsideDiameter(final double theOutsideDiameter) {
+    public void setOutsideDiameter(final AnnotatedLengthDTO theOutsideDiameter) {
         outsideDiameter = theOutsideDiameter;
     }
 
-    public double getLength() {
-        return length;
+    public void setOutsideDiameter(final double theOutsideDiameter) {
+        outsideDiameter = new AnnotatedLengthDTO(theOutsideDiameter);
     }
 
-    public void setLength(final double theLength) {
+    public double getLength() {
+        return length.getValue();
+    }
+
+    public void setLength(final AnnotatedLengthDTO theLength) {
         length = theLength;
     }
 
+    public void setLength(final double theLength) {
+        length = new AnnotatedLengthDTO(theLength);
+    }
+
+    @Override
     public ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
         addProps(props, materials);
