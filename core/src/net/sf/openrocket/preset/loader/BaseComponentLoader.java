@@ -22,7 +22,7 @@ public abstract class BaseComponentLoader extends RocksimComponentFileLoader {
 		fileColumns.add( new StringColumnParser("Part No.", ComponentPreset.PARTNO));
 		fileColumns.add( new StringColumnParser("Desc.", ComponentPreset.DESCRIPTION));
 		fileColumns.add(new MaterialColumnParser(materials));
-		fileColumns.add(new DoubleUnitColumnParser("Mass","Mass units",ComponentPreset.MASS));
+		fileColumns.add(new MassColumnParser("Mass","Mass units"));
 
 	}
 
