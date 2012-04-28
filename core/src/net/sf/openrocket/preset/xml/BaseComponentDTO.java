@@ -1,14 +1,6 @@
 
 package net.sf.openrocket.preset.xml;
 
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlValue;
-
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
@@ -16,6 +8,22 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.unit.UnitGroup;
+
+import javax.imageio.ImageIO;
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlInlineBinaryData;
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Base class for the external representation of all component presets.
@@ -35,6 +43,10 @@ public abstract class BaseComponentDTO {
 	private AnnotatedMassDTO mass;
 	@XmlElement(name="Filled")
 	private Boolean filled;
+    @XmlInlineBinaryData
+    @XmlJavaTypeAdapter(Base64Adapter.class)
+    @XmlElement(name = "Thumbnail")
+    private byte[] image;
 
 	/**
 	 * Default constructor.
@@ -118,7 +130,30 @@ public abstract class BaseComponentDTO {
 		this.filled = filled;
 	}
 
-	public abstract ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException;
+    public byte[] getImageData() {
+        return image;
+    }
+
+    public void setImageData(final byte[] theImage) {
+        image = theImage;
+    }
+
+    public BufferedImage getImage() throws IOException {
+        if (image != null) {
+            return ImageIO.read(new ByteArrayInputStream(image));
+        }
+        return null;
+    }
+
+    public void setImage(BufferedImage theImage) throws IOException {
+        if (theImage != null) {
+            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(theImage, "png", byteArrayOutputStream);
+            image = byteArrayOutputStream.toByteArray();
+        }
+    }
+
+    public abstract ComponentPreset asComponentPreset(List<MaterialDTO> materials) throws InvalidComponentPresetException;
 
 	void addProps(TypedPropertyMap props, List<MaterialDTO> materialList) {
 		props.put(ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer(manufacturer));
@@ -162,15 +197,15 @@ public abstract class BaseComponentDTO {
 			material = theMaterial.getName();
 		}
 	}
-	
+
 	static class AnnotatedLengthDTO {
 		@XmlAttribute(name="Unit", required=false)
 		private String unitName = "m";
 		@XmlValue
 		private double length;
-		
+
 		AnnotatedLengthDTO() {}
-		
+
 		AnnotatedLengthDTO( double length ) {
 			this.length = length;
 		}
@@ -179,21 +214,37 @@ public abstract class BaseComponentDTO {
 			return UnitGroup.UNITS_LENGTH.getUnit(unitName).fromUnit(length);
 		}
 	}
-	
+
 	static class AnnotatedMassDTO {
 		@XmlAttribute(name="Unit", required=false)
 		private String unitName = "kg";
 		@XmlValue
 		private double mass;
-		
+
 		AnnotatedMassDTO() {}
-		
+
 		AnnotatedMassDTO( double mass ) {
 			this.mass = mass;
 		}
-		
+
 		public double getValue() {
 			return UnitGroup.UNITS_MASS.getUnit(unitName).fromUnit(mass);
 		}
 	}
+
+    static class Base64Adapter extends XmlAdapter<String, byte[]> {
+        public byte[] unmarshal(String s) {
+            if (s == null) {
+                return null;
+            }
+            return DatatypeConverter.parseBase64Binary(s);
+        }
+
+        public String marshal(byte[] bytes) {
+            if (bytes == null) {
+                return null;
+            }
+            return DatatypeConverter.printBase64Binary(bytes);
+        }
+    }
 }

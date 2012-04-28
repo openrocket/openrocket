@@ -3,6 +3,7 @@ package net.sf.openrocket.preset.xml;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.startup.Application;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -22,6 +23,20 @@ import java.util.List;
 public class OpenRocketComponentSaver {
 
     /**
+     * The JAXBContext.  JAXBContext is thread-safe.
+     */
+    private static JAXBContext context = null;
+
+    static {
+        try {
+            context = JAXBContext.newInstance(OpenRocketComponentDTO.class);
+        }
+        catch (JAXBException jaxb) {
+            Application.getLogger().error("Unable to create JAXBContext for loading of *.orc files.", jaxb);
+        }
+    }
+
+    /**
      * This method marshals a list of materials and ComponentPresets into an .orc formatted XML string.
      *
      * @param theMaterialList the list of materials to be included
@@ -33,9 +48,8 @@ public class OpenRocketComponentSaver {
      */
     public String marshalToOpenRocketComponent(List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
                                                                                                                     JAXBException {
-
-        JAXBContext binder = JAXBContext.newInstance(OpenRocketComponentDTO.class);
-        Marshaller marshaller = binder.createMarshaller();
+        /** The context is thread-safe, but marshallers are not.  Create a local one. */
+        Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         StringWriter sw = new StringWriter();
 
@@ -88,8 +102,8 @@ public class OpenRocketComponentSaver {
      *         was in an invalid format
      */
     private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) throws JAXBException {
-        JAXBContext bind = JAXBContext.newInstance(OpenRocketComponentDTO.class);
-        Unmarshaller unmarshaller = bind.createUnmarshaller();
+        /** The context is thread-safe, but unmarshallers are not.  Create a local one. */
+        Unmarshaller unmarshaller = context.createUnmarshaller();
         return (OpenRocketComponentDTO) unmarshaller.unmarshal(is);
     }
 
