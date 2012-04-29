@@ -111,8 +111,7 @@
 
 		<for param="vendor-dir">
 			<dirset dir="resources-src/datafiles/rocksim_components"
-				includes="*"
-				excludes="giantleaprocketry"/>
+				includes="*"/>
 			<sequential>
 				<propertyregex property="vendor"
 					override="true"
