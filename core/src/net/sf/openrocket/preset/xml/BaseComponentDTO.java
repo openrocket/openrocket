@@ -173,15 +173,33 @@ public abstract class BaseComponentDTO {
 		}
 	}
 
-	private Material find(List<MaterialDTO> materialList, AnnotatedMaterialDTO dto) {
+	protected Material find(List<MaterialDTO> materialList, AnnotatedMaterialDTO dto) {
+		if ( dto == null ) {
+			return null;
+		}
 		for (int i = 0; i < materialList.size(); i++) {
 			MaterialDTO materialDTO =  materialList.get(i);
 			if (materialDTO.getType().name().equals(dto.type) && materialDTO.getName().equals(dto.material)) {
 				return materialDTO.asMaterial();
 			}
 		}
-		//Otherwise fallback and look at factory default materials.
-		return Databases.findMaterial(Material.Type.valueOf(material.type), material.material);
+		// Check for the material in the default database.
+		Material defaultMaterial = Databases.findMaterial(Material.Type.valueOf(material.type), material.material);
+		if ( defaultMaterial != null ) {
+			return defaultMaterial;
+		}
+		// Don't have one, build one.
+
+		if ( "BULK".equals( dto.type ) ) {
+			return new Material.Bulk(dto.material, 0.0, true);
+		} else if ( "SURFACE".equals( dto.type ) ) {
+			return new Material.Surface(dto.material, 0.0, true);
+		} else if ( "LINE".equals( dto.type ) ) {
+			return new Material.Line(dto.material, 0.0, true);
+		} else {
+			return null;
+		}
+		
 	}
 
 	static class AnnotatedMaterialDTO {

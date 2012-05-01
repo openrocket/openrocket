@@ -1283,5 +1283,239 @@
             <Length Unit="m">0.30479999999999996</Length>
             <Thickness Unit="m">0.0016002</Thickness>
         </Transition>
+        <LaunchLug>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML LL-25</PartNumber>
+            <Description>1/4 brass launch lug</Description>
+            <Material Type="BULK">Brass</Material>
+            <InsideDiameter Unit="m">0.005715</InsideDiameter>
+            <OutsideDiameter Unit="m">0.00635</OutsideDiameter>
+            <Length Unit="m">0.30479999999999996</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML LL-38</PartNumber>
+            <Description>3/8 brass launch lug</Description>
+            <Material Type="BULK">Brass</Material>
+            <InsideDiameter Unit="m">0.0085725</InsideDiameter>
+            <OutsideDiameter Unit="m">0.009524999999999999</OutsideDiameter>
+            <Length Unit="m">0.30479999999999996</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML LL-50</PartNumber>
+            <Description>1/2 brass launch lug</Description>
+            <Material Type="BULK">Brass</Material>
+            <InsideDiameter Unit="m">0.01143</InsideDiameter>
+            <OutsideDiameter Unit="m">0.0127</OutsideDiameter>
+            <Length Unit="m">0.30479999999999996</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML LL-75</PartNumber>
+            <Description>3/4 copper launch lug</Description>
+            <Material Type="BULK">Copper (rolled)</Material>
+            <InsideDiameter Unit="m">0.017145</InsideDiameter>
+            <OutsideDiameter Unit="m">0.019049999999999997</OutsideDiameter>
+            <Length Unit="m">0.30479999999999996</Length>
+        </LaunchLug>
+        <Streamer>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML TBD123</PartNumber>
+            <Description>Streamer</Description>
+            <Material Type="SURFACE">Polyethylene LDPE</Material>
+            <Length Unit="m">3.048</Length>
+            <Width Unit="m">0.07619999999999999</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>STREAMER</PartNumber>
+            <Description>F111 streamer</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Length Unit="m">3.6576</Length>
+            <Width Unit="m">0.1016</Width>
+            <Thickness Unit="m">1.27E-5</Thickness>
+        </Streamer>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML Xform</PartNumber>
+            <Description>12 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.008504856929999999</Mass>
+            <Diameter Unit="m">0.30479999999999996</Diameter>
+            <Sides>4</Sides>
+            <LineCount>4</LineCount>
+            <LineLength Unit="m">0.30479999999999996</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-18-F111</PartNumber>
+            <Description>18 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.017009713859999998</Mass>
+            <Diameter Unit="m">0.4572</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.3302</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-24R</PartNumber>
+            <Description>24 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.04535923696</Mass>
+            <Diameter Unit="m">0.6095999999999999</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.508</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-30R</PartNumber>
+            <Description>30 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.06803885543999999</Mass>
+            <Diameter Unit="m">0.762</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.6095999999999999</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-34R</PartNumber>
+            <Description>34 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.08221361699</Mass>
+            <Diameter Unit="m">0.8635999999999999</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.635</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-36R</PartNumber>
+            <Description>36 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.08788352161</Mass>
+            <Diameter Unit="m">0.9144</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.6858</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-44R</PartNumber>
+            <Description>44 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.11623304470999998</Mass>
+            <Diameter Unit="m">1.1176</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.8128</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-48R</PartNumber>
+            <Description>48 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.12473790164000001</Mass>
+            <Diameter Unit="m">1.2191999999999998</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.9144</LineLength>
+            <LineMaterial Type="LINE">Thin poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-54R</PartNumber>
+            <Description>54 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.13607771087999998</Mass>
+            <Diameter Unit="m">1.3716</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">1.0413999999999999</LineLength>
+            <LineMaterial Type="LINE">Medium poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-60R</PartNumber>
+            <Description>60 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.22396123249</Mass>
+            <Diameter Unit="m">1.524</Diameter>
+            <Sides>8</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">1.0668</LineLength>
+            <LineMaterial Type="LINE">Heavy poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-62R</PartNumber>
+            <Description>62 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.23530104173000002</Mass>
+            <Diameter Unit="m">1.5748</Diameter>
+            <Sides>8</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">1.1176</LineLength>
+            <LineMaterial Type="LINE">Heavy poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-72R</PartNumber>
+            <Description>72 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.2551457079</Mass>
+            <Diameter Unit="m">1.8288</Diameter>
+            <Sides>8</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">1.143</LineLength>
+            <LineMaterial Type="LINE">Heavy poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-74R</PartNumber>
+            <Description>74 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.26932046945</Mass>
+            <Diameter Unit="m">1.8796</Diameter>
+            <Sides>8</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">1.1938</LineLength>
+            <LineMaterial Type="LINE">Heavy poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-84R</PartNumber>
+            <Description>84 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.33735932489</Mass>
+            <Diameter Unit="m">2.1336</Diameter>
+            <Sides>8</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">1.524</LineLength>
+            <LineMaterial Type="LINE">Heavy poly</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Public Missiles</Manufacturer>
+            <PartNumber>PML PAR-96R</PartNumber>
+            <Description>96 in. nylon</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.72291283905</Mass>
+            <Diameter Unit="m">2.4383999999999997</Diameter>
+            <Sides>8</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">1.8288</LineLength>
+            <LineMaterial Type="LINE">Heavy poly</LineMaterial>
+        </Parachute>
     </Components>
 </OpenRocketComponent>

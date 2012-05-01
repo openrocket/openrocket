@@ -58,6 +58,19 @@ public abstract class ComponentPresetFactory {
 			makeEngineBlock(preset);
 			break;
 		}
+		case LAUNCH_LUG: {
+			// Same processing as BODY_TUBE
+			makeBodyTube(preset);
+			break;
+		}
+		case STREAMER: {
+			makeStreamer(preset);
+			break;
+		}
+		case PARACHUTE: {
+			makeParachute(preset);
+			break;
+		}
 		}
 
 		preset.computeDigest();
@@ -192,6 +205,15 @@ public abstract class ComponentPresetFactory {
 
 	}
 	
+	private static void makeStreamer( ComponentPreset preset ) throws InvalidComponentPresetException {
+		checkRequiredFields( preset, LENGTH, WIDTH );
+	}
+
+	private static void makeParachute( ComponentPreset preset ) throws InvalidComponentPresetException {
+		checkRequiredFields( preset, DIAMETER, LINE_COUNT, LINE_LENGTH );
+	}
+	
+
 	private static void checkRequiredFields( ComponentPreset preset, TypedKey<?> ... keys ) throws InvalidComponentPresetException {
 		for( TypedKey<?> key: keys ) {
 			if (! preset.has(key) ) {

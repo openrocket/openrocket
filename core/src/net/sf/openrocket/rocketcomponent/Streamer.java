@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.util.MathUtil;
 
 public class Streamer extends RecoveryDevice {
@@ -27,6 +29,7 @@ public class Streamer extends RecoveryDevice {
 		if (MathUtil.equals(this.stripLength, stripLength))
 			return;
 		this.stripLength = stripLength;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -39,6 +42,7 @@ public class Streamer extends RecoveryDevice {
 			return;
 		this.stripWidth = stripWidth;
 		this.length = stripWidth;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -82,6 +86,27 @@ public class Streamer extends RecoveryDevice {
 	}
 	
 	
+
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.STREAMER;
+	}
+
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.has(ComponentPreset.LENGTH)) {
+			this.stripLength = preset.get(ComponentPreset.LENGTH);
+		}
+		if ( preset.has(ComponentPreset.WIDTH)) {
+			this.stripWidth = preset.get(ComponentPreset.WIDTH);
+		}
+		super.loadFromPreset(preset);
+		// Fix the length to the stripWidth since RocketComponent assigns ComponentPreset.LENGTH to length.
+		this.length = this.stripWidth;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
 
 	@Override
 	public double getComponentCD(double mach) {

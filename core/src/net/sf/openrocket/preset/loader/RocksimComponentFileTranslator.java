@@ -11,6 +11,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Startup;
 import net.sf.openrocket.util.ArrayList;
 
 public class RocksimComponentFileTranslator {
@@ -36,6 +37,7 @@ public class RocksimComponentFileTranslator {
 		
 		System.err.println("Loading csv files from directory " + args[0]);
 		
+		Startup.initializeLogging();
 		Application.setPreferences(new SwingPreferences());
 
 		MaterialLoader mats = new MaterialLoader();
@@ -54,7 +56,7 @@ public class RocksimComponentFileTranslator {
 			BulkHeadLoader bhs = new BulkHeadLoader(materialMap);
 			bhs.load();
 			allPresets.addAll(bhs.getPresets());
-			System.err.println("\tBody Tubes loaded: " + bhs.getPresets().size());
+			System.err.println("\tBulkheads loaded: " + bhs.getPresets().size());
 		}
 		{
 			CenteringRingLoader crs = new CenteringRingLoader(materialMap);
@@ -85,6 +87,24 @@ public class RocksimComponentFileTranslator {
 			trs.load();
 			allPresets.addAll(trs.getPresets());
 			System.err.println("\tTransitions loaded: " + trs.getPresets().size());
+		}
+		{
+			LaunchLugLoader lls = new LaunchLugLoader(materialMap);
+			lls.load();
+			allPresets.addAll(lls.getPresets());
+			System.err.println("\tLaunch Lugs loaded: " + lls.getPresets().size());
+		}
+		{
+			StreamerLoader sts = new StreamerLoader(materialMap);
+			sts.load();
+			allPresets.addAll(sts.getPresets());
+			System.err.println("\tStreamers loaded: " + sts.getPresets().size());
+		}
+		{
+			ParachuteLoader pcs = new ParachuteLoader(materialMap);
+			pcs.load();
+			allPresets.addAll(pcs.getPresets());
+			System.err.println("Parachutes loaded: " + pcs.getPresets().size());
 		}
 		System.err.println("\tMarshalling to XML");
 		String xml = new OpenRocketComponentSaver().marshalToOpenRocketComponent(new ArrayList<Material>(materialMap.values()), allPresets);

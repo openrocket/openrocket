@@ -96,7 +96,35 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.DESCRIPTION,
 				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.OUTER_DIAMETER,
-				ComponentPreset.LENGTH} );
+				ComponentPreset.LENGTH} ),
+				
+		LAUNCH_LUG( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH} ),
+
+		STREAMER( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+                ComponentPreset.DESCRIPTION,
+				ComponentPreset.LENGTH,
+				ComponentPreset.WIDTH,
+				ComponentPreset.THICKNESS,
+				ComponentPreset.MATERIAL} ),
+				
+		PARACHUTE( new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+                ComponentPreset.DESCRIPTION,
+				ComponentPreset.DIAMETER,
+				ComponentPreset.SIDES,
+				ComponentPreset.LINE_COUNT,
+				ComponentPreset.LINE_LENGTH,
+				ComponentPreset.LINE_MATERIAL,
+				ComponentPreset.MATERIAL} );
 
 		TypedKey<?>[] displayedColumns;
 
@@ -115,8 +143,9 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 		private static Map<Type,List<Type>> compatibleTypeMap = new HashMap<Type,List<Type>>();
 
 		static {
-			compatibleTypeMap.put( BODY_TUBE, Arrays.asList( BODY_TUBE, TUBE_COUPLER) );
-			compatibleTypeMap.put( TUBE_COUPLER, Arrays.asList( BODY_TUBE,TUBE_COUPLER) );
+			compatibleTypeMap.put( BODY_TUBE, Arrays.asList( BODY_TUBE, TUBE_COUPLER, LAUNCH_LUG ) );
+			compatibleTypeMap.put( TUBE_COUPLER, Arrays.asList( BODY_TUBE,TUBE_COUPLER, LAUNCH_LUG ) );
+			compatibleTypeMap.put( LAUNCH_LUG, Arrays.asList( BODY_TUBE,TUBE_COUPLER, LAUNCH_LUG ) );
 			compatibleTypeMap.put( CENTERING_RING, Arrays.asList( CENTERING_RING, ENGINE_BLOCK ) );
 			compatibleTypeMap.put( NOSE_CONE, Arrays.asList( NOSE_CONE, TRANSITION));
 		}
@@ -128,6 +157,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<String> DESCRIPTION = new TypedKey<String>("Description", String.class);
 	public final static TypedKey<Type> TYPE = new TypedKey<Type>("Type",Type.class);
 	public final static TypedKey<Double> LENGTH = new TypedKey<Double>("Length", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Double> WIDTH = new TypedKey<Double>("Width", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> INNER_DIAMETER = new TypedKey<Double>("InnerDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> OUTER_DIAMETER = new TypedKey<Double>("OuterDiameter", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Double> FORE_SHOULDER_LENGTH = new TypedKey<Double>("ForeShoulderLength",Double.class, UnitGroup.UNITS_LENGTH);
@@ -142,29 +172,12 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Double> THICKNESS = new TypedKey<Double>("Thickness", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Boolean> FILLED = new TypedKey<Boolean>("Filled", Boolean.class);
 	public final static TypedKey<Double> MASS = new TypedKey<Double>("Mass", Double.class, UnitGroup.UNITS_MASS);
+	public final static TypedKey<Double> DIAMETER = new TypedKey<Double>("Diameter", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Integer> SIDES = new TypedKey<Integer>("Sides", Integer.class);
+	public final static TypedKey<Integer> LINE_COUNT = new TypedKey<Integer>("LineCount", Integer.class);
+	public final static TypedKey<Double> LINE_LENGTH = new TypedKey<Double>("LineLength", Double.class, UnitGroup.UNITS_LENGTH);
+	public final static TypedKey<Material> LINE_MATERIAL = new TypedKey<Material>("LineMaterial", Material.class);
 
-	public final static Map<String, TypedKey<?>> keyMap = new HashMap<String, TypedKey<?>>();
-	static {
-		keyMap.put(MANUFACTURER.getName(), MANUFACTURER);
-		keyMap.put(PARTNO.getName(), PARTNO);
-		keyMap.put(TYPE.getName(), TYPE);
-		keyMap.put(DESCRIPTION.getName(), DESCRIPTION);
-		keyMap.put(LENGTH.getName(), LENGTH);
-		keyMap.put(INNER_DIAMETER.getName(), INNER_DIAMETER);
-		keyMap.put(OUTER_DIAMETER.getName(), OUTER_DIAMETER);
-		keyMap.put(FORE_SHOULDER_LENGTH.getName(), FORE_SHOULDER_LENGTH);
-		keyMap.put(FORE_SHOULDER_DIAMETER.getName(), FORE_SHOULDER_DIAMETER);
-		keyMap.put(FORE_OUTER_DIAMETER.getName(), FORE_OUTER_DIAMETER);
-		keyMap.put(AFT_SHOULDER_LENGTH.getName(), AFT_SHOULDER_LENGTH);
-		keyMap.put(AFT_SHOULDER_DIAMETER.getName(), AFT_SHOULDER_DIAMETER);
-		keyMap.put(AFT_OUTER_DIAMETER.getName(), AFT_OUTER_DIAMETER);
-		keyMap.put(SHAPE.getName(), SHAPE);
-		keyMap.put(MATERIAL.getName(), MATERIAL);
-		keyMap.put(FINISH.getName(), FINISH);
-		keyMap.put(THICKNESS.getName(), THICKNESS);
-		keyMap.put(FILLED.getName(), FILLED);
-		keyMap.put(MASS.getName(), MASS);
-	}
 
 	public final static List<TypedKey<?>> orderedKeyList = Arrays.<TypedKey<?>>asList(
 			MANUFACTURER,
@@ -175,6 +188,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			AFT_OUTER_DIAMETER,
 			INNER_DIAMETER,
 			LENGTH,
+			WIDTH,
 			AFT_SHOULDER_DIAMETER,
 			AFT_SHOULDER_LENGTH,
 			FORE_SHOULDER_DIAMETER,
@@ -182,6 +196,11 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			SHAPE,
 			THICKNESS,
 			FILLED,
+			DIAMETER,
+			SIDES,
+			LINE_COUNT,
+			LINE_LENGTH,
+			LINE_MATERIAL,
 			MASS,
 			FINISH,
 			MATERIAL

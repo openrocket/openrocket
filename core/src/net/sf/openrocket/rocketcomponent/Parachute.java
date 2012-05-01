@@ -2,6 +2,8 @@ package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
@@ -32,6 +34,7 @@ public class Parachute extends RecoveryDevice {
 		if (MathUtil.equals(this.diameter, d))
 			return;
 		this.diameter = d;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -62,6 +65,7 @@ public class Parachute extends RecoveryDevice {
 		if (this.lineCount == n)
 			return;
 		this.lineCount = n;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -94,6 +98,7 @@ public class Parachute extends RecoveryDevice {
 		if (MathUtil.equals(getArea(), area))
 			return;
 		diameter = MathUtil.safeSqrt(area / Math.PI) * 2;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -117,6 +122,30 @@ public class Parachute extends RecoveryDevice {
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
 		return false;
+	}
+
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if( preset.has( ComponentPreset.DIAMETER )) {
+			this.diameter = preset.get( ComponentPreset.DIAMETER );
+		}
+		if( preset.has( ComponentPreset.LINE_COUNT )) {
+			this.lineCount = preset.get( ComponentPreset.LINE_COUNT );
+		}
+		if( preset.has( ComponentPreset.LINE_LENGTH )) {
+			this.lineLength = preset.get( ComponentPreset.LINE_LENGTH );
+		}
+		if( preset.has( ComponentPreset.LINE_MATERIAL )) {
+			this.lineMaterial = preset.get( ComponentPreset.LINE_MATERIAL );
+		}
+		super.loadFromPreset(preset);
+	}
+
+
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.PARACHUTE;
 	}
 	
 }

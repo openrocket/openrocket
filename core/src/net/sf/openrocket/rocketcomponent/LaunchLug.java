@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -43,6 +45,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 			return;
 		this.radius = radius;
 		this.thickness = Math.min(this.thickness, this.radius);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -65,6 +68,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 		if (MathUtil.equals(this.thickness, thickness))
 			return;
 		this.thickness = MathUtil.clamp(thickness, 0, radius);
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
@@ -108,6 +112,29 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	}
 	
 	
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
+			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
+			this.radius = outerDiameter/2.0;
+			if ( preset.has(ComponentPreset.INNER_DIAMETER) ) {
+				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
+				this.thickness = (outerDiameter-innerDiameter) / 2.0;
+			}
+		}
+
+		super.loadFromPreset(preset);
+
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+
+
+	@Override
+	public Type getPresetType() {
+		return ComponentPreset.Type.LAUNCH_LUG;
+	}
+
 
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] array) {

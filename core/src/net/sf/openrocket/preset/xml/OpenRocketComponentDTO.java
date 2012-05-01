@@ -35,7 +35,10 @@ public class OpenRocketComponentDTO {
             @XmlElementRef(name = "Transitions", type = TransitionDTO.class),
             @XmlElementRef(name = "BulkHeads", type = BulkHeadDTO.class),
             @XmlElementRef(name = "CenteringRings", type = CenteringRingDTO.class),
-            @XmlElementRef(name = "EngineBlocks", type = EngineBlockDTO.class)})
+            @XmlElementRef(name = "EngineBlocks", type = EngineBlockDTO.class),
+            @XmlElementRef(name = "LaunchLugs", type = LaunchLugDTO.class),
+            @XmlElementRef(name = "Streamers", type = StreamerDTO.class),
+            @XmlElementRef(name = "Parachutes", type = ParachuteDTO.class)})
     private List<BaseComponentDTO> components = new ArrayList<BaseComponentDTO>();
 
     public OpenRocketComponentDTO() {

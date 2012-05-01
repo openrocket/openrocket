@@ -2,6 +2,7 @@ package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
@@ -169,6 +170,7 @@ public abstract class RecoveryDevice extends MassObject {
 		if (mat.equals(material))
 			return;
 		this.material = (Material.Surface) mat;
+		clearPreset();
 		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
 	}
 	
@@ -220,5 +222,16 @@ public abstract class RecoveryDevice extends MassObject {
 	public double getComponentMass() {
 		return getArea() * getMaterial().getDensity();
 	}
-	
+
+	@Override
+	protected void loadFromPreset(ComponentPreset preset) {
+		if ( preset.has(ComponentPreset.MATERIAL)) {
+			Material m = preset.get(ComponentPreset.MATERIAL);
+			this.material = (Material.Surface)m;
+		}
+		super.loadFromPreset(preset);
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+
+	}
+
 }

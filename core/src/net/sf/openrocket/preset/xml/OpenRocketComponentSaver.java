@@ -153,6 +153,12 @@ public class OpenRocketComponentSaver {
                 return new CenteringRingDTO(thePreset);
             case ENGINE_BLOCK:
                 return new EngineBlockDTO(thePreset);
+            case LAUNCH_LUG:
+                return new LaunchLugDTO(thePreset);
+            case STREAMER:
+                return new StreamerDTO(thePreset);
+            case PARACHUTE:
+                return new ParachuteDTO(thePreset);
         }
 
         return null;

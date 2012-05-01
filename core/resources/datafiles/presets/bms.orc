@@ -1672,5 +1672,50 @@
             <AftShoulderLength Unit="m">0.035559999999999994</AftShoulderLength>
             <Length Unit="m">0.0508</Length>
         </Transition>
+        <LaunchLug>
+            <Manufacturer>BalsaMachining.com</Manufacturer>
+            <PartNumber>LL18-125</PartNumber>
+            <Description>1/8  x 1.25 inch LL</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.004064</InsideDiameter>
+            <OutsideDiameter Unit="m">0.0042926</OutsideDiameter>
+            <Length Unit="m">0.03175</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>BalsaMachining.com</Manufacturer>
+            <PartNumber>LL316-200</PartNumber>
+            <Description>3/16 x 2 inch LL</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0055626</InsideDiameter>
+            <OutsideDiameter Unit="m">0.006096</OutsideDiameter>
+            <Length Unit="m">0.0508</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>BalsaMachining.com</Manufacturer>
+            <PartNumber>LL316-1200</PartNumber>
+            <Description>3/16 x 12 inch LL</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0054356</InsideDiameter>
+            <OutsideDiameter Unit="m">0.006096</OutsideDiameter>
+            <Length Unit="m">0.0508</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>BalsaMachining.com</Manufacturer>
+            <PartNumber>LL14-300</PartNumber>
+            <Description>0.316x0.280x.018x34  1/4 inch Launch lug</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.007112</InsideDiameter>
+            <OutsideDiameter Unit="m">0.0080264</OutsideDiameter>
+            <Length Unit="m">0.07619999999999999</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>BalsaMachining.com</Manufacturer>
+            <PartNumber>LL14-3400</PartNumber>
+            <Description>0.316x0.280x.018x34  1/4 inch Launch lug</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.007112</InsideDiameter>
+            <OutsideDiameter Unit="m">0.0080264</OutsideDiameter>
+            <Length Unit="m">0.8635999999999999</Length>
+        </LaunchLug>
     </Components>
 </OpenRocketComponent>

@@ -642,5 +642,76 @@
             <Length Unit="m">0.41910000000000003</Length>
             <Thickness Unit="m">0.002032</Thickness>
         </NoseCone>
+        <LaunchLug>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>LL</PartNumber>
+            <Description>ACME Launch Lug</Description>
+            <InsideDiameter Unit="m">0.01016</InsideDiameter>
+            <OutsideDiameter Unit="m">0.012700000000000001</OutsideDiameter>
+            <Length Unit="m">0.025400000000000002</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>RG</PartNumber>
+            <Description>ACME Rail Guide</Description>
+            <InsideDiameter Unit="m">0.01016</InsideDiameter>
+            <OutsideDiameter Unit="m">0.012700000000000001</OutsideDiameter>
+            <Length Unit="m">0.025400000000000002</Length>
+        </LaunchLug>
+        <Parachute>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>TAC-24</PartNumber>
+            <Description>TAC-1 24 in. Parachute</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.153087</Mass>
+            <Diameter Unit="m">0.6096</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.0</LineLength>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>TAC-36</PartNumber>
+            <Description>TAC-1 36 in. Parachute</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.229631</Mass>
+            <Diameter Unit="m">0.9144</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.0</LineLength>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>TAC-48</PartNumber>
+            <Description>TAC-1 48 in. Parachute</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.30617500000000003</Mass>
+            <Diameter Unit="m">1.2192</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.0</LineLength>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>TAC-60</PartNumber>
+            <Description>TAC-1 60 in. Parachute</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.40539800000000004</Mass>
+            <Diameter Unit="m">1.524</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.0</LineLength>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>Giant Leap</Manufacturer>
+            <PartNumber>TAC-72</PartNumber>
+            <Description>TAC-1 72 in. Parachute</Description>
+            <Material Type="SURFACE">Rip stop nylon</Material>
+            <Mass Unit="kg">0.510291</Mass>
+            <Diameter Unit="m">1.8288</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.0</LineLength>
+        </Parachute>
     </Components>
 </OpenRocketComponent>

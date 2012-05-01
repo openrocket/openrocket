@@ -10219,5 +10219,349 @@
             <AftShoulderLength Unit="m">0.0</AftShoulderLength>
             <Length Unit="m">0.13208</Length>
         </Transition>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-2A</PartNumber>
+            <Description>Launch Lug 1/8 x 1.25</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.03175</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-2AM</PartNumber>
+            <Description>Launch Lug 1/8 x .375</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.009524999999999999</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-2B</PartNumber>
+            <Description>Launch Lug 1/8 x 2.375</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.060325</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-2C</PartNumber>
+            <Description>Launch Lug 1/8 x 5</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.127</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-2D</PartNumber>
+            <Description>Launch Lug 1/8 x 8</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.2032</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-2E</PartNumber>
+            <Description>Launch Lug 1/8 x 9.5</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.2413</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-3B</PartNumber>
+            <Description>Launch Lug 3/16 x 2</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0054356</InsideDiameter>
+            <OutsideDiameter Unit="m">0.006096</OutsideDiameter>
+            <Length Unit="m">0.0508</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-103</PartNumber>
+            <Description>Launch Lug 1/8 x .375</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.009524999999999999</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-110</PartNumber>
+            <Description>Launch Lug 1/8 x 1</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.0254</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-115</PartNumber>
+            <Description>Launch Lug 1/8 x 1.5</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.038099999999999995</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-117</PartNumber>
+            <Description>Launch Lug 1/8 x 1.75</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.044449999999999996</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-122</PartNumber>
+            <Description>Launch Lug 1/8 x 2.25</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.05715</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-130</PartNumber>
+            <Description>Launch Lug 1/8 x 3</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.07619999999999999</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-180</PartNumber>
+            <Description>Launch Lug 1/8 x 8</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.2032</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-195</PartNumber>
+            <Description>Launch Lug 1/8 x 9.5</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0038099999999999996</InsideDiameter>
+            <OutsideDiameter Unit="m">0.004470399999999999</OutsideDiameter>
+            <Length Unit="m">0.2413</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-310</PartNumber>
+            <Description>Launch Lug 3/16 x 1</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0054356</InsideDiameter>
+            <OutsideDiameter Unit="m">0.006096</OutsideDiameter>
+            <Length Unit="m">0.0254</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-320</PartNumber>
+            <Description>Launch Lug 3/16 x 2</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0054356</InsideDiameter>
+            <OutsideDiameter Unit="m">0.006096</OutsideDiameter>
+            <Length Unit="m">0.0508</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-330</PartNumber>
+            <Description>Launch Lug 3/16 x 3</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0054356</InsideDiameter>
+            <OutsideDiameter Unit="m">0.006096</OutsideDiameter>
+            <Length Unit="m">0.07619999999999999</Length>
+        </LaunchLug>
+        <LaunchLug>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>LL-423</PartNumber>
+            <Description>Launch Lug 1/4 x 2.25</Description>
+            <Material Type="BULK">Paper</Material>
+            <InsideDiameter Unit="m">0.0070104</InsideDiameter>
+            <OutsideDiameter Unit="m">0.007670799999999999</OutsideDiameter>
+            <Length Unit="m">0.05715</Length>
+        </LaunchLug>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>SM-1A</PartNumber>
+            <Description>Streamer 1 x 8</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.2032</Length>
+            <Width Unit="m">0.0254</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>RS-118</PartNumber>
+            <Description>Streamer 1 x 18</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.4572</Length>
+            <Width Unit="m">0.0254</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>RS-124</PartNumber>
+            <Description>Streamer 1 x 24</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.6095999999999999</Length>
+            <Width Unit="m">0.0254</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>RS-136</PartNumber>
+            <Description>Streamer 1 x 36</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.9144</Length>
+            <Width Unit="m">0.0254</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>RS-224</PartNumber>
+            <Description>Streamer 1.75 x 24</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.6095999999999999</Length>
+            <Width Unit="m">0.044449999999999996</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>RS-236</PartNumber>
+            <Description>Streamer 1.75 x 36</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.9144</Length>
+            <Width Unit="m">0.044449999999999996</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Streamer>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>RSW-36</PartNumber>
+            <Description>Streamer 3 x 36</Description>
+            <Material Type="SURFACE">Paper</Material>
+            <Length Unit="m">0.9144</Length>
+            <Width Unit="m">0.07619999999999999</Width>
+            <Thickness Unit="m">5.08E-5</Thickness>
+        </Streamer>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>CP-12</PartNumber>
+            <Description>12 in. Plastic Chute</Description>
+            <Material Type="SURFACE">Polyethylene LDPE</Material>
+            <Diameter Unit="m">0.30479999999999996</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.30479999999999996</LineLength>
+            <LineMaterial Type="LINE">30 Lb. kevlar</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>CP-16</PartNumber>
+            <Description>16 in. Plastic Chute</Description>
+            <Material Type="SURFACE">Polyethylene LDPE</Material>
+            <Diameter Unit="m">0.4064</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.4064</LineLength>
+            <LineMaterial Type="LINE">30 Lb. kevlar</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>CP-20</PartNumber>
+            <Description>20 in. Plastic Chute</Description>
+            <Material Type="SURFACE">Polyethylene LDPE</Material>
+            <Diameter Unit="m">0.508</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.508</LineLength>
+            <LineMaterial Type="LINE">30 Lb. kevlar</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>CP-24</PartNumber>
+            <Description>24 in. Plastic Chute</Description>
+            <Material Type="SURFACE">Polyethylene LDPE</Material>
+            <Diameter Unit="m">0.6095999999999999</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.6095999999999999</LineLength>
+            <LineMaterial Type="LINE">30 Lb. kevlar</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>CP-32</PartNumber>
+            <Description>32 in. Plastic Chute</Description>
+            <Material Type="SURFACE">Polyethylene LDPE</Material>
+            <Diameter Unit="m">0.8128</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.8128</LineLength>
+            <LineMaterial Type="LINE">30 Lb. kevlar</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>PN-14</PartNumber>
+            <Description>14 in. Nylon Chute</Description>
+            <Material Type="SURFACE">Rip Stop Nylon</Material>
+            <Diameter Unit="m">0.35559999999999997</Diameter>
+            <Sides>6</Sides>
+            <LineCount>6</LineCount>
+            <LineLength Unit="m">0.4064</LineLength>
+            <LineMaterial Type="LINE">1/16 In. braided nylon</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>PN-18</PartNumber>
+            <Description>18 In. Nylon Chute</Description>
+            <Material Type="SURFACE">Rip Stop Nylon</Material>
+            <Diameter Unit="m">0.4572</Diameter>
+            <Sides>8</Sides>
+            <LineCount>8</LineCount>
+            <LineLength Unit="m">0.508</LineLength>
+            <LineMaterial Type="LINE">1/16 In. braided nylon</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>PN-24</PartNumber>
+            <Description>24 In. Nylon Chute</Description>
+            <Material Type="SURFACE">Rip Stop Nylon</Material>
+            <Diameter Unit="m">0.6095999999999999</Diameter>
+            <Sides>0</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">0.6095999999999999</LineLength>
+            <LineMaterial Type="LINE">1/16 In. braided nylon</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>PN-30</PartNumber>
+            <Description>30 In. Nylon Chute</Description>
+            <Material Type="SURFACE">Rip Stop Nylon</Material>
+            <Diameter Unit="m">0.762</Diameter>
+            <Sides>0</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">0.762</LineLength>
+            <LineMaterial Type="LINE">1/16 In. braided nylon</LineMaterial>
+        </Parachute>
+        <Parachute>
+            <Manufacturer>SEMROC Astronautics</Manufacturer>
+            <PartNumber>PN-36</PartNumber>
+            <Description>36 In. Nylon Chute</Description>
+            <Material Type="SURFACE">Rip Stop Nylon</Material>
+            <Diameter Unit="m">0.9144</Diameter>
+            <Sides>0</Sides>
+            <LineCount>10</LineCount>
+            <LineLength Unit="m">0.9144</LineLength>
+            <LineMaterial Type="LINE">1/16 In. braided nylon</LineMaterial>
+        </Parachute>
     </Components>
 </OpenRocketComponent>
