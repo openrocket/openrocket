@@ -92,7 +92,7 @@ public class Startup {
 	/**
 	 * Initializes the loggins system.
 	 */
-	private static void initializeLogging() {
+	public static void initializeLogging() {
 		DelegatorLogger delegator = new DelegatorLogger();
 		
 		// Log buffer
