@@ -77,7 +77,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
-		setLayout(new MigLayout("fill", "[grow, fill]"));
+		setLayout(new MigLayout("fill", "[min,align right]:10[fill, grow]"));
 		this.document = document;
 		this.component = component;
 		
@@ -85,7 +85,7 @@ public class RocketComponentConfig extends JPanel {
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
 		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
-		this.add(label, "split, gapright 10");
+		this.add(label);
 		
 		componentNameField = new JTextField(15);
 		textFieldListener = new TextFieldListener();
@@ -93,11 +93,21 @@ public class RocketComponentConfig extends JPanel {
 		componentNameField.addFocusListener(textFieldListener);
 		//// The component name.
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
-		this.add(componentNameField, "growx, growy 0, wrap");
+		this.add(componentNameField, "wrap");
 		
+		if ( component.getPresetType() != null ) {
+			// If the component supports a preset, show the preset selection box.
+			this.add(new JLabel(trans.get("PresetModel.lbl.select")));
+			presetModel = new PresetModel( this, component);
+			((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
+			presetComboBox = new JComboBox(presetModel);
+			presetComboBox.setEditable(false);
+			this.add(presetComboBox, "wrap");
+		}
 		
+
 		tabbedPane = new JTabbedPane();
-		this.add(tabbedPane, "growx, growy 1, wrap");
+		this.add(tabbedPane, "span, growx, growy 1, wrap");
 		
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
@@ -202,16 +212,6 @@ public class RocketComponentConfig extends JPanel {
 	
 	protected JPanel materialPanel(JPanel panel, Material.Type type,
 			String materialString, String finishString) {
-		
-		if ( component.getPresetType() != null ) {
-			// If the component supports a preset, show the preset selection box.
-			panel.add(new JLabel(trans.get("PresetModel.lbl.select")));
-			presetModel = new PresetModel( this, component);
-			((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
-			presetComboBox = new JComboBox(presetModel);
-			presetComboBox.setEditable(false);
-			panel.add(presetComboBox, "wrap para");
-		}
 		
 		JLabel label = new JLabel(materialString);
 		//// The component material affects the weight of the component.
