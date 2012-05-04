@@ -43,7 +43,7 @@ public class RocksimComponentFileTranslator {
 		MaterialLoader mats = new MaterialLoader();
 		mats.load();
 
-		Map<String, Material> materialMap = mats.getMaterialMap();
+		MaterialHolder materialMap = mats.getMaterialMap();
 		System.err.println("\tMaterial types loaded: " + materialMap.size());
 		
 		{

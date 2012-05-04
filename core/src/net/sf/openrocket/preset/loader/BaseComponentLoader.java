@@ -14,7 +14,7 @@ public abstract class BaseComponentLoader extends RocksimComponentFileLoader {
 
 	List<ComponentPreset> presets;
 
-	public BaseComponentLoader(Map<String, Material> materials) {
+	public BaseComponentLoader(MaterialHolder materials) {
 		super();
 		presets = new ArrayList<ComponentPreset>();
 

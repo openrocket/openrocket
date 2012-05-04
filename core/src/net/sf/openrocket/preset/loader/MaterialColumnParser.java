@@ -10,17 +10,17 @@ import net.sf.openrocket.preset.TypedPropertyMap;
 
 public class MaterialColumnParser extends BaseColumnParser {
 
-	private Map<String,Material> materialMap = Collections.<String,Material>emptyMap();
+	private final MaterialHolder materialMap;
 
 	private final TypedKey<Material> param;
 	
-	public MaterialColumnParser(Map<String,Material> materialMap, String columnName, TypedKey<Material> param) {
+	public MaterialColumnParser(MaterialHolder materialMap, String columnName, TypedKey<Material> param) {
 		super(columnName);
 		this.param = param;
 		this.materialMap = materialMap;
 	}
 	
-	public MaterialColumnParser(Map<String,Material> materialMap) {
+	public MaterialColumnParser(MaterialHolder materialMap) {
 		this(materialMap, "Material", ComponentPreset.MATERIAL);
 	}
 	
@@ -32,10 +32,8 @@ public class MaterialColumnParser extends BaseColumnParser {
 			return;
 		}
 		
-		Material m = materialMap.get(columnData);
-		if ( m == null ) {
-			m = new Material.Bulk(columnData, 0.0, true);
-		}
+		Material.Bulk m = new Material.Bulk(columnData, 0.0, true);
+		m = materialMap.getBulkMaterial(m);
 		props.put(param, m);
 		
 	}

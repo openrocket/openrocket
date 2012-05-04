@@ -8,7 +8,7 @@ import net.sf.openrocket.preset.ComponentPreset.Type;
 
 public class TubeCouplerLoader extends BodyTubeLoader {
 
-	public TubeCouplerLoader(Map<String, Material> materials) {
+	public TubeCouplerLoader(MaterialHolder materials) {
 		super(materials);
 	}
 

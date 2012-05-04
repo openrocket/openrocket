@@ -8,7 +8,7 @@ import net.sf.openrocket.preset.ComponentPreset.Type;
 
 public class TransitionLoader extends NoseConeLoader {
 
-	public TransitionLoader(Map<String, Material> materials) {
+	public TransitionLoader(MaterialHolder materials) {
 		super(materials);
 		fileColumns.add(new DoubleUnitColumnParser("Front Insert Len","Units",ComponentPreset.FORE_SHOULDER_LENGTH));
 		fileColumns.add(new DoubleUnitColumnParser("Front Insert OD","Units",ComponentPreset.FORE_SHOULDER_DIAMETER));

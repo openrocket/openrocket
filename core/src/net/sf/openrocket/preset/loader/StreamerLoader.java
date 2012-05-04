@@ -1,18 +1,17 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.Map;
-
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.preset.TypedPropertyMap;
 
 public class StreamerLoader extends BaseComponentLoader {
 
-	Map<String,Material> materialMap;
-
-	public StreamerLoader(Map<String, Material> materials) {
+	private final MaterialHolder materials;
+	
+	public StreamerLoader(MaterialHolder materials) {
 		super(materials);
-		this.materialMap = materials;
+		this.materials = materials;
 		fileColumns.add(new SurfaceMaterialColumnParser(materials,"Material",ComponentPreset.MATERIAL));
 		fileColumns.add(new DoubleUnitColumnParser("Length","Units",ComponentPreset.LENGTH));
 		fileColumns.add(new DoubleUnitColumnParser("Width","Units",ComponentPreset.WIDTH));
@@ -29,6 +28,20 @@ public class StreamerLoader extends BaseComponentLoader {
 	@Override
 	protected RocksimComponentFileType getFileType() {
 		return RocksimComponentFileType.STREAMER;
+	}
+
+
+	@Override
+	protected void postProcess(TypedPropertyMap props) {
+		super.postProcess(props);
+		
+		// Fix the material since some files use bulk materials for streamers.
+		Double thickness = props.get( ComponentPreset.THICKNESS );
+		Material.Surface material = (Material.Surface) props.get( ComponentPreset.MATERIAL );
+		
+		material = materials.getSurfaceMaterial(material, thickness);
+		
+		props.put(ComponentPreset.MATERIAL, material);
 	}
 
 }

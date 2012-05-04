@@ -1,18 +1,17 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.Map;
-
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.preset.TypedPropertyMap;
 
 public class ParachuteLoader extends BaseComponentLoader {
 
-	Map<String,Material> materialMap;
-	
-	public ParachuteLoader(Map<String, Material> materials) {
+	private final MaterialHolder materials;
+
+	public ParachuteLoader(MaterialHolder materials) {
 		super(materials);
-		this.materialMap = materials;
+		this.materials = materials;
 		fileColumns.add(new IntegerColumnParser("n sides", ComponentPreset.SIDES));
 		fileColumns.add(new DoubleUnitColumnParser("OD","Units",ComponentPreset.DIAMETER));
 		fileColumns.add(new IntegerColumnParser("Shroud Count", ComponentPreset.LINE_COUNT));
@@ -32,6 +31,19 @@ public class ParachuteLoader extends BaseComponentLoader {
 	@Override
 	protected RocksimComponentFileType getFileType() {
 		return RocksimComponentFileType.PARACHUTE;
+	}
+
+
+	@Override
+	protected void postProcess(TypedPropertyMap props) {
+		super.postProcess(props);
+
+		// Fix the material since some files use bulk materials for streamers.
+		Double thickness = props.get( ComponentPreset.THICKNESS );
+		Material.Surface material = (Material.Surface) props.get( ComponentPreset.MATERIAL );
+		
+		material = materials.getSurfaceMaterial(material, thickness);
+		props.put(ComponentPreset.MATERIAL, material);
 	}
 
 }

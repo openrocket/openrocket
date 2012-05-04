@@ -1,14 +1,11 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.Map;
-
-import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 
 public class CenteringRingLoader extends BodyTubeLoader {
 
-	public CenteringRingLoader(Map<String, Material> materials) {
+	public CenteringRingLoader(MaterialHolder materials) {
 		super(materials);
 	}
 

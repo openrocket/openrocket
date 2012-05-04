@@ -8,7 +8,7 @@ import net.sf.openrocket.preset.ComponentPreset.Type;
 
 public class BodyTubeLoader extends BaseComponentLoader {
 
-	public BodyTubeLoader(Map<String, Material> materials) {
+	public BodyTubeLoader(MaterialHolder materials) {
 		super(materials);
 		fileColumns.add(new DoubleUnitColumnParser("ID","Units",ComponentPreset.INNER_DIAMETER));
 		fileColumns.add(new DoubleUnitColumnParser("OD","Units",ComponentPreset.OUTER_DIAMETER));
