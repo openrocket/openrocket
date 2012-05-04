@@ -183,11 +183,7 @@ public abstract class BaseComponentDTO {
 				return materialDTO.asMaterial();
 			}
 		}
-		// Check for the material in the default database.
-		Material defaultMaterial = Databases.findMaterial(Material.Type.valueOf(material.type), material.material);
-		if ( defaultMaterial != null ) {
-			return defaultMaterial;
-		}
+
 		// Don't have one, build one.
 
 		if ( "BULK".equals( dto.type ) ) {
