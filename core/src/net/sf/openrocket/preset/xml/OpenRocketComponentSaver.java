@@ -1,6 +1,17 @@
 package net.sf.openrocket.preset.xml;
 
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.startup.Application;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -9,16 +20,6 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
-import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.InvalidComponentPresetException;
-import net.sf.openrocket.startup.Application;
 
 /**
  * The active manager class that is the entry point for reading and writing *.orc files.
@@ -39,6 +40,16 @@ public class OpenRocketComponentSaver {
         }
     }
 
+    public boolean save(File file, List<Material> theMaterialList, List<ComponentPreset> thePresetList) throws
+                                                                                                     JAXBException,
+                                                                                                     IOException {
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+        writer.write(marshalToOpenRocketComponent(theMaterialList, thePresetList));
+        writer.flush();
+        writer.close();
+        return true;
+    }
+
     /**
      * This method marshals a list of materials and ComponentPresets into an .orc formatted XML string.
      *
@@ -57,31 +68,31 @@ public class OpenRocketComponentSaver {
         StringWriter sw = new StringWriter();
 
         // We're going to sort the initial data since that makes the output much easier on the eyes.
-        
+
         Collections.sort(theMaterialList, new Comparator<Material>() {
 
 			@Override
 			public int compare(Material o1, Material o2) {
 				return o1.getName().compareTo( o2.getName() );
 			}
-        	
+
         });
-        
+
         Collections.sort(thePresetList, new Comparator<ComponentPreset>() {
 
 			@Override
 			public int compare(ComponentPreset o1, ComponentPreset o2) {
 				int manucmp = o1.getManufacturer().getSimpleName().compareTo( o2.getManufacturer().getSimpleName() );
-				
+
 				if ( manucmp != 0 ) {
 					return manucmp;
 				}
-				
+
 				return o1.getPartNo().compareTo( o2.getPartNo());
 			}
-        	
+
         });
-        
+
         marshaller.marshal(toOpenRocketComponentDTO(theMaterialList, thePresetList), sw);
         return sw.toString();
 
@@ -90,8 +101,8 @@ public class OpenRocketComponentSaver {
     /**
      * This method unmarshals from a Reader that is presumed to be open on an XML file in .orc format.
      *
-     * @param is an open reader; StringBufferInputStream could not be used because it's deprecated and does not handle UTF
-     *           characters correctly
+     * @param is an open reader; StringBufferInputStream could not be used because it's deprecated and does not handle
+     *           UTF characters correctly
      *
      * @return a list of ComponentPresets
      *
@@ -127,13 +138,13 @@ public class OpenRocketComponentSaver {
      *
      * @param is an open Reader; assumed to be opened on a file of XML in .orc format
      *
-     * @return the OpenRocketComponentDTO that is a POJO representation of the XML; null if the data could not be read or
-     *         was in an invalid format
+     * @return the OpenRocketComponentDTO that is a POJO representation of the XML; null if the data could not be read
+     *         or was in an invalid format
      */
     private OpenRocketComponentDTO fromOpenRocketComponent(Reader is) throws JAXBException {
         /** The context is thread-safe, but unmarshallers are not.  Create a local one. */
         Unmarshaller unmarshaller = context.createUnmarshaller();
-        return (OpenRocketComponentDTO) unmarshaller.unmarshal(is);
+        return (OpenRocketComponentDTO) unmarshaller.unmarshal(is); //new StreamSource(is));
     }
 
     /**

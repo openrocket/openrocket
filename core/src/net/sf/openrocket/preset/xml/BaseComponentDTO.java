@@ -1,7 +1,6 @@
 
 package net.sf.openrocket.preset.xml;
 
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -76,6 +75,9 @@ public abstract class BaseComponentDTO {
 		if ( preset.has(ComponentPreset.FILLED) ) {
 			setFilled( preset.get(ComponentPreset.FILLED));
 		}
+        if (preset.has(ComponentPreset.IMAGE) ) {
+            setImageData(preset.get(ComponentPreset.IMAGE));
+        }
 	}
 
 	public String getManufacturer() {
@@ -171,6 +173,9 @@ public abstract class BaseComponentDTO {
 		if ( filled != null ) {
 			props.put(ComponentPreset.FILLED, getFilled());
 		}
+        if (image != null) {
+            props.put(ComponentPreset.IMAGE, image);
+        }
 	}
 
 	protected Material find(List<MaterialDTO> materialList, AnnotatedMaterialDTO dto) {
@@ -195,7 +200,7 @@ public abstract class BaseComponentDTO {
 		} else {
 			return null;
 		}
-		
+
 	}
 
 	static class AnnotatedMaterialDTO {

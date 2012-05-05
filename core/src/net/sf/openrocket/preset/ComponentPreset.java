@@ -52,6 +52,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.SHAPE,
 				ComponentPreset.AFT_OUTER_DIAMETER,
 				ComponentPreset.AFT_SHOULDER_DIAMETER,
+                ComponentPreset.AFT_SHOULDER_LENGTH,
 				ComponentPreset.LENGTH} ),
 
 		TRANSITION( new TypedKey<?>[] {
@@ -97,7 +98,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.INNER_DIAMETER,
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH} ),
-				
+
 		LAUNCH_LUG( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
@@ -114,7 +115,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 				ComponentPreset.WIDTH,
 				ComponentPreset.THICKNESS,
 				ComponentPreset.MATERIAL} ),
-				
+
 		PARACHUTE( new TypedKey<?>[] {
 				ComponentPreset.MANUFACTURER,
 				ComponentPreset.PARTNO,
@@ -177,7 +178,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	public final static TypedKey<Integer> LINE_COUNT = new TypedKey<Integer>("LineCount", Integer.class);
 	public final static TypedKey<Double> LINE_LENGTH = new TypedKey<Double>("LineLength", Double.class, UnitGroup.UNITS_LENGTH);
 	public final static TypedKey<Material> LINE_MATERIAL = new TypedKey<Material>("LineMaterial", Material.class);
-
+    public final static TypedKey<byte[]> IMAGE = new TypedKey<byte[]>("Image", byte[].class);
 
 	public final static List<TypedKey<?>> orderedKeyList = Arrays.<TypedKey<?>>asList(
 			MANUFACTURER,

@@ -7,6 +7,14 @@ package net.sf.openrocket.gui.print;
  * Utilities for print units.
  */
 public enum PrintUnit {
+    FOOT {
+        public double toInches(double d) { return d*12; }
+        public double toMillis(double d) { return d/FEET_PER_MM; }
+        public double toCentis(double d) { return d/(FEET_PER_MM*TEN); }
+        public double toMeters(double d) { return d/(FEET_PER_MM*TEN*TEN*TEN); }
+        public long   toPoints(double d) { return (long)(d * POINTS_PER_INCH * 12); }
+        public double convert(double d, PrintUnit u) { return u.toInches(d)/12; }
+    },
     INCHES {
         public double toInches(double d) { return d; }
         public double toMillis(double d) { return d/INCHES_PER_MM; }
@@ -50,13 +58,14 @@ public enum PrintUnit {
 
     // Handy constants for conversion methods
     public static final double INCHES_PER_MM = 0.0393700787d;
+    public static final double FEET_PER_MM = INCHES_PER_MM /12;
     public static final double MM_PER_INCH = 1.0d/INCHES_PER_MM;
     public static final long TEN = 10;
     /**
      * PPI is Postscript Point and is a standard of 72.  Java2D also uses this internally as a pixel-per-inch, so pixels
      * and points are for the most part interchangeable (unless the defaults are changed), which makes translating
      * between the screen and a print job easier.
-     * 
+     *
      * Not to be confused with Dots-Per-Inch, which is printer and print mode dependent.
      */
     public static final int POINTS_PER_INCH = 72;
