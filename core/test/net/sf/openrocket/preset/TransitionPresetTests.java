@@ -1,7 +1,6 @@
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -27,7 +26,22 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.TRANSITION);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Manufacturer specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.MANUFACTURER, 
+					ComponentPreset.PARTNO, 
+					ComponentPreset.LENGTH,
+					ComponentPreset.AFT_OUTER_DIAMETER,
+					ComponentPreset.FORE_OUTER_DIAMETER
+			},
+			new String[] {
+					"No Manufacturer specified",
+					"No PartNo specified",
+					"No Length specified",
+					"No AftOuterDiameter specified",
+					"No ForeOuterDiameter specified"
+			}
+					);
 		}
 	}
 
@@ -39,7 +53,20 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No PartNo specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.PARTNO, 
+					ComponentPreset.LENGTH,
+					ComponentPreset.AFT_OUTER_DIAMETER,
+					ComponentPreset.FORE_OUTER_DIAMETER
+			},
+			new String[] {
+					"No PartNo specified",
+					"No Length specified",
+					"No AftOuterDiameter specified",
+					"No ForeOuterDiameter specified"
+			}
+					);
 		}
 	}
 
@@ -52,7 +79,18 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Length specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.LENGTH,
+					ComponentPreset.AFT_OUTER_DIAMETER,
+					ComponentPreset.FORE_OUTER_DIAMETER
+			},
+			new String[] {
+					"No Length specified",
+					"No AftOuterDiameter specified",
+					"No ForeOuterDiameter specified"
+			}
+					);
 		}
 	}
 
@@ -67,7 +105,16 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.SHAPE, Transition.Shape.CONICAL);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No AftOuterDiameter"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.AFT_OUTER_DIAMETER,
+					ComponentPreset.FORE_OUTER_DIAMETER
+			},
+			new String[] {
+					"No AftOuterDiameter specified",
+					"No ForeOuterDiameter specified"
+			}
+					);
 		}
 	}
 
@@ -84,7 +131,14 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.AFT_OUTER_DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No ForeOuterDiameter"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.FORE_OUTER_DIAMETER
+			},
+			new String[] {
+					"No ForeOuterDiameter specified"
+			}
+					);
 		}
 	}
 

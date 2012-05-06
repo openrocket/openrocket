@@ -1,6 +1,5 @@
 package net.sf.openrocket.preset;
 
-import static org.junit.Assert.assertTrue;
 import net.sf.openrocket.motor.Manufacturer;
 
 import org.junit.Test;
@@ -23,7 +22,22 @@ public class ParachutePresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.PARACHUTE);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Manufacturer specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.MANUFACTURER, 
+					ComponentPreset.PARTNO, 
+					ComponentPreset.DIAMETER,
+					ComponentPreset.LINE_COUNT,
+					ComponentPreset.LINE_LENGTH
+			},
+			new String[] {
+					"No Manufacturer specified",
+					"No PartNo specified",
+					"No Diameter specified",
+					"No LineCount specified",
+					"No LineLength specified"
+			}
+					);
 		}
 	}
 
@@ -35,7 +49,20 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No PartNo specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.PARTNO, 
+					ComponentPreset.DIAMETER,
+					ComponentPreset.LINE_COUNT,
+					ComponentPreset.LINE_LENGTH
+			},
+			new String[] {
+					"No PartNo specified",
+					"No Diameter specified",
+					"No LineCount specified",
+					"No LineLength specified"
+			}
+					);
 		}
 	}
 
@@ -48,7 +75,18 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Diameter specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.DIAMETER,
+					ComponentPreset.LINE_COUNT,
+					ComponentPreset.LINE_LENGTH
+			},
+			new String[] {
+					"No Diameter specified",
+					"No LineCount specified",
+					"No LineLength specified"
+			}
+					);
 		}
 	}
 
@@ -62,7 +100,16 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No LineCount specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.LINE_COUNT,
+					ComponentPreset.LINE_LENGTH
+			},
+			new String[] {
+					"No LineCount specified",
+					"No LineLength specified"
+			}
+					);
 		}
 	}
 
@@ -77,7 +124,14 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.LINE_COUNT, 6);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No LineLength specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.LINE_LENGTH
+			},
+			new String[] {
+					"No LineLength specified"
+			}
+					);
 		}
 	}
 

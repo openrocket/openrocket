@@ -1,7 +1,6 @@
 package net.sf.openrocket.preset;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 
@@ -25,7 +24,19 @@ public class CenteringRingPresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.CENTERING_RING);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Manufacturer specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.MANUFACTURER, 
+					ComponentPreset.PARTNO, 
+					ComponentPreset.LENGTH
+			},
+			new String[] {
+					"No Manufacturer specified",
+					"No PartNo specified",
+					"No Length specified",
+					"Preset dimensions underspecified"
+			}
+					);
 		}
 	}
 
@@ -37,7 +48,17 @@ public class CenteringRingPresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No PartNo specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.PARTNO, 
+					ComponentPreset.LENGTH
+			},
+			new String[] {
+					"No PartNo specified",
+					"No Length specified",
+					"Preset dimensions underspecified"
+			}
+					);
 		}
 	}
 
@@ -50,7 +71,15 @@ public class CenteringRingPresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Length specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.LENGTH
+			},
+			new String[] {
+					"No Length specified",
+					"Preset dimensions underspecified"
+			}
+					);
 		}
 	}
 
@@ -65,7 +94,12 @@ public class CenteringRingPresetTests {
 			presetspec.put( ComponentPreset.OUTER_DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("Preset underspecified"));
+			PresetTest.assertInvalidPresetException( ex,
+					null,
+			new String[] {
+					"Preset dimensions underspecified"
+			}
+					);
 		}
 	}
 
@@ -80,7 +114,12 @@ public class CenteringRingPresetTests {
 			presetspec.put( ComponentPreset.INNER_DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("Preset underspecified"));
+			PresetTest.assertInvalidPresetException( ex,
+					null,
+			new String[] {
+					"Preset dimensions underspecified"
+			}
+					);
 		}
 	}
 
@@ -95,7 +134,12 @@ public class CenteringRingPresetTests {
 			presetspec.put( ComponentPreset.THICKNESS, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("Preset underspecified"));
+			PresetTest.assertInvalidPresetException( ex,
+					null,
+			new String[] {
+					"Preset dimensions underspecified"
+			}
+					);
 		}
 	}
 
@@ -175,9 +219,9 @@ public class CenteringRingPresetTests {
 		// constants put into the presetspec above.
 		double volume = /*outer area*/ (Math.PI * 1.0) - /* inner area */ (Math.PI * .25);
 		volume *= 2.0; /* times length */
-		
+
 		double density = 100.0 / volume;
-		
+
 		assertEquals("CenteringRingCustom",preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.0005);
 	}
@@ -196,7 +240,7 @@ public class CenteringRingPresetTests {
 
 		assertEquals("test",preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(2.0,preset.get(ComponentPreset.MATERIAL).getDensity(),0.0005);
-		
+
 	}
 
 	@Test
@@ -217,9 +261,9 @@ public class CenteringRingPresetTests {
 		// constants put into the presetspec above.
 		double volume = /*outer area*/ (Math.PI * 1.0) - /* inner area */ (Math.PI * .25);
 		volume *= 2.0; /* times length */
-		
+
 		double density = 100.0 / volume;
-		
+
 		assertEquals("test",preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(density,preset.get(ComponentPreset.MATERIAL).getDensity(),0.0005);
 	}

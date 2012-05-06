@@ -10,19 +10,22 @@ public abstract class ComponentPresetFactory {
 
 	public static ComponentPreset create( TypedPropertyMap props ) throws InvalidComponentPresetException {
 
+		InvalidComponentPresetException exceptions = new InvalidComponentPresetException("Invalid preset specification.");
+		
 		ComponentPreset preset = new ComponentPreset();
 		// First do validation.
-		if ( !props.containsKey(TYPE)) {
-			throw new InvalidComponentPresetException("No Type specified " + props.toString() );
-		}
-
 		if (!props.containsKey(MANUFACTURER)) {
-			throw new InvalidComponentPresetException("No Manufacturer specified " + props.toString() );
+			exceptions.addInvalidParameter(MANUFACTURER, "No Manufacturer specified"); 
+		}
+		if (!props.containsKey(PARTNO)) {
+			exceptions.addInvalidParameter(PARTNO,"No PartNo specified");
+		}
+		if ( !props.containsKey(TYPE)) {
+			exceptions.addInvalidParameter(TYPE, "No Type specified" );
+			// We can't do anything else without TYPE so throw immediately.
+			throw exceptions;
 		}
 
-		if (!props.containsKey(PARTNO)) {
-			throw new InvalidComponentPresetException("No PartNo specified " + props.toString() );
-		}
 
 		preset.putAll(props);
 
@@ -30,60 +33,64 @@ public abstract class ComponentPresetFactory {
 		Type t = props.get(TYPE);
 		switch ( t ) {
 		case BODY_TUBE: {
-			makeBodyTube(preset);
+			makeBodyTube(exceptions,preset);
 			break;
 		}
 		case NOSE_CONE: {
-			makeNoseCone(preset);
+			makeNoseCone(exceptions,preset);
 			break;
 		}
 		case TRANSITION: {
-			makeTransition(preset);
+			makeTransition(exceptions,preset);
 			break;
 		}
 		case BULK_HEAD: {
-			makeBulkHead(preset);
+			makeBulkHead(exceptions,preset);
 			break;
 		}
 		case TUBE_COUPLER: {
 			// For now TUBE_COUPLER is the same as BODY_TUBE
-			makeBodyTube(preset);
+			makeBodyTube(exceptions,preset);
 			break;
 		}
 		case CENTERING_RING: {
-			makeCenteringRing(preset);
+			makeCenteringRing(exceptions,preset);
 			break;
 		}
 		case ENGINE_BLOCK: {
-			makeEngineBlock(preset);
+			makeEngineBlock(exceptions,preset);
 			break;
 		}
 		case LAUNCH_LUG: {
 			// Same processing as BODY_TUBE
-			makeBodyTube(preset);
+			makeBodyTube(exceptions,preset);
 			break;
 		}
 		case STREAMER: {
-			makeStreamer(preset);
+			makeStreamer(exceptions,preset);
 			break;
 		}
 		case PARACHUTE: {
-			makeParachute(preset);
+			makeParachute(exceptions,preset);
 			break;
 		}
 		}
 
+		if ( exceptions.hasProblems() ) {
+			throw exceptions;
+		}
+		
 		preset.computeDigest();
 
 		return preset;
 
 	}
 
-	private static void makeBodyTube( ComponentPreset preset ) throws InvalidComponentPresetException {
+	private static void makeBodyTube( InvalidComponentPresetException exceptions, ComponentPreset preset ) throws InvalidComponentPresetException {
 		
-		checkRequiredFields( preset, LENGTH );
+		checkRequiredFields( exceptions, preset, LENGTH );
 
-		checkDiametersAndThickness(preset);
+		checkDiametersAndThickness(exceptions, preset);
 		
 		double volume = computeVolumeOfTube( preset );
 		
@@ -100,9 +107,9 @@ public abstract class ComponentPresetFactory {
 
 	}
 
-	private static void makeNoseCone( ComponentPreset preset ) throws InvalidComponentPresetException {
+	private static void makeNoseCone( InvalidComponentPresetException exceptions, ComponentPreset preset ) {
 
-		checkRequiredFields( preset, LENGTH, SHAPE, AFT_OUTER_DIAMETER );
+		checkRequiredFields( exceptions, preset, LENGTH, SHAPE, AFT_OUTER_DIAMETER );
 
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
@@ -123,8 +130,8 @@ public abstract class ComponentPresetFactory {
 
 	}
 
-	private static void makeTransition( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields(preset, LENGTH, AFT_OUTER_DIAMETER, FORE_OUTER_DIAMETER);
+	private static void makeTransition( InvalidComponentPresetException exceptions, ComponentPreset preset ) {
+		checkRequiredFields(exceptions, preset, LENGTH, AFT_OUTER_DIAMETER, FORE_OUTER_DIAMETER);
 
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
@@ -145,8 +152,8 @@ public abstract class ComponentPresetFactory {
 
 	}
 
-	private static void makeBulkHead( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields(preset, LENGTH, OUTER_DIAMETER );
+	private static void makeBulkHead( InvalidComponentPresetException exceptions, ComponentPreset preset ) {
+		checkRequiredFields(exceptions, preset, LENGTH, OUTER_DIAMETER );
 
 		if ( preset.has(MASS) ) {
 			// compute a density for this component
@@ -167,10 +174,10 @@ public abstract class ComponentPresetFactory {
 
 	}
 
-	private static void makeCenteringRing( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields( preset, LENGTH );
+	private static void makeCenteringRing( InvalidComponentPresetException exceptions, ComponentPreset preset ) throws InvalidComponentPresetException {
+		checkRequiredFields( exceptions, preset, LENGTH );
 
-		checkDiametersAndThickness( preset );
+		checkDiametersAndThickness( exceptions, preset );
 
 		double volume = computeVolumeOfTube( preset );
 
@@ -186,10 +193,10 @@ public abstract class ComponentPresetFactory {
 
 	}
 	
-	private static void makeEngineBlock( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields( preset, LENGTH );
+	private static void makeEngineBlock( InvalidComponentPresetException exceptions, ComponentPreset preset ) throws InvalidComponentPresetException {
+		checkRequiredFields( exceptions, preset, LENGTH );
 
-		checkDiametersAndThickness( preset );
+		checkDiametersAndThickness( exceptions, preset );
 
 		double volume = computeVolumeOfTube( preset );
 
@@ -205,24 +212,24 @@ public abstract class ComponentPresetFactory {
 
 	}
 	
-	private static void makeStreamer( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields( preset, LENGTH, WIDTH );
+	private static void makeStreamer( InvalidComponentPresetException exceptions, ComponentPreset preset ) {
+		checkRequiredFields( exceptions, preset, LENGTH, WIDTH );
 	}
 
-	private static void makeParachute( ComponentPreset preset ) throws InvalidComponentPresetException {
-		checkRequiredFields( preset, DIAMETER, LINE_COUNT, LINE_LENGTH );
+	private static void makeParachute( InvalidComponentPresetException exceptions, ComponentPreset preset ) {
+		checkRequiredFields( exceptions, preset, DIAMETER, LINE_COUNT, LINE_LENGTH );
 	}
 	
 
-	private static void checkRequiredFields( ComponentPreset preset, TypedKey<?> ... keys ) throws InvalidComponentPresetException {
+	private static void checkRequiredFields( InvalidComponentPresetException exceptions, ComponentPreset preset, TypedKey<?> ... keys ) {
 		for( TypedKey<?> key: keys ) {
 			if (! preset.has(key) ) {
-				throw new InvalidComponentPresetException( "No " + key.getName() + " specified for " + preset.getType().name() + " preset " + preset.toString());
+				exceptions.addInvalidParameter(key, "No " + key.getName() + " specified");
 			}
 		}
 	}
 
-	private static void checkDiametersAndThickness( ComponentPreset preset ) throws InvalidComponentPresetException {
+	private static void checkDiametersAndThickness( InvalidComponentPresetException exceptions, ComponentPreset preset ) throws InvalidComponentPresetException {
 		// Need to verify contains 2 of OD, thickness, ID.  Compute the third.
 		boolean hasOd = preset.has(OUTER_DIAMETER);
 		boolean hasId = preset.has(INNER_DIAMETER);
@@ -242,11 +249,13 @@ public abstract class ComponentPresetFactory {
 				thickness = preset.get(THICKNESS);
 				innerRadius = outerRadius - thickness;
 			} else {
-				throw new InvalidComponentPresetException("Preset underspecified " + preset.toString());
+				exceptions.addMessage("Preset dimensions underspecified");
+				throw exceptions;
 			}
 		} else {
 			if ( ! hasId || ! hasThickness ) {
-				throw new InvalidComponentPresetException("Preset underspecified " + preset.toString());
+				exceptions.addMessage("Preset dimensions underspecified");
+				throw exceptions;
 			}
 			innerRadius = preset.get(INNER_DIAMETER)/2.0;
 			thickness = preset.get(THICKNESS);

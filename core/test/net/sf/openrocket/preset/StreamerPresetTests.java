@@ -1,6 +1,5 @@
 package net.sf.openrocket.preset;
 
-import static org.junit.Assert.assertTrue;
 import net.sf.openrocket.motor.Manufacturer;
 
 import org.junit.Test;
@@ -23,7 +22,20 @@ public class StreamerPresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.STREAMER);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Manufacturer specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.MANUFACTURER, 
+					ComponentPreset.PARTNO, 
+					ComponentPreset.LENGTH,
+					ComponentPreset.WIDTH
+			},
+			new String[] {
+					"No Manufacturer specified",
+					"No PartNo specified",
+					"No Length specified",
+					"No Width specified"
+			}
+					);
 		}
 	}
 
@@ -35,7 +47,18 @@ public class StreamerPresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No PartNo specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.PARTNO, 
+					ComponentPreset.LENGTH,
+					ComponentPreset.WIDTH
+			},
+			new String[] {
+					"No PartNo specified",
+					"No Length specified",
+					"No Width specified"
+			}
+					);
 		}
 	}
 
@@ -48,7 +71,16 @@ public class StreamerPresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Length specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.LENGTH,
+					ComponentPreset.WIDTH
+			},
+			new String[] {
+					"No Length specified",
+					"No Width specified"
+			}
+					);
 		}
 	}
 
@@ -62,7 +94,14 @@ public class StreamerPresetTests {
 			presetspec.put( ComponentPreset.LENGTH, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			assertTrue("Wrong Exception Thrown", ex.getMessage().contains("No Width specified"));
+			PresetTest.assertInvalidPresetException( ex,
+					new TypedKey<?>[] {
+					ComponentPreset.WIDTH
+			},
+			new String[] {
+					"No Width specified"
+			}
+					);
 		}
 	}
 
