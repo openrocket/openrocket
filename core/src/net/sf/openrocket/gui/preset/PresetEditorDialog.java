@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.preset;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.print.PrintUnit;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
@@ -52,7 +51,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             new PresetInputVerifier(Pattern.compile(NON_NEGATIVE_DECIMAL_FIELD));
 
     private final JPanel contentPanel = new JPanel();
-    private JComboBox typeCombo;
+    private DeselectableComboBox typeCombo;
     private JTextField mfgTextField;
     private JComboBox materialChooser;
     private JComboBox massUnitCombo;
@@ -164,36 +163,20 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
     }
 
     /**
-     * Launch the application.
+     * Create the dialog.
+     *
+     * @param theCallback the listener that gets the results of editing the presets
      */
-    public static void main(String[] args) {
-        try {
-            Application.setPreferences(new SwingPreferences());
-            PresetEditorDialog dialog = new PresetEditorDialog();
-            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-            dialog.setVisible(true);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+    public PresetEditorDialog(PresetResultListener theCallback) {
+        this(theCallback, null);
     }
 
     /**
      * Create the dialog.
+     *
+     * @param theCallback the listener that gets the results of editing the presets
+     * @param toEdit      the ComponentPreset to be edited; or null if a new one is being added
      */
-    public PresetEditorDialog() {
-        this(new PresetResultListener() {
-            @Override
-            public void notifyResult(final ComponentPreset preset) {
-            }
-        });
-    }
-
-    public PresetEditorDialog(PresetResultListener theCallback) {
-        this(theCallback, null);
-        typeCombo.setEditable(true);
-    }
-
     public PresetEditorDialog(PresetResultListener theCallback, ComponentPreset toEdit) {
         resultListener = theCallback;
         getContentPane().setMinimumSize(new Dimension(200, 200));
@@ -219,11 +202,14 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
         JLabel typeLabel = new JLabel("Type:");
         contentPanel.add(typeLabel, "cell 2 1,alignx left,aligny center");
 
-        typeCombo = new JComboBox();
+        componentOverlayPanel = new JPanel();
+        contentPanel.add(componentOverlayPanel, "cell 1 3 5 2,grow");
+        componentOverlayPanel.setLayout(new CardLayout(0, 0));
+
+        typeCombo = new DeselectableComboBox();
         typeCombo.addItemListener(this);
-        typeCombo.setModel(new DefaultComboBoxModel(new String[]{
-                trans.get(NOSE_CONE_KEY), trans.get(BODY_TUBE_KEY), trans.get(TUBE_COUPLER_KEY), trans.get(TRANSITION_KEY),
-                trans.get(CR_KEY), trans.get(BULKHEAD_KEY), trans.get(EB_KEY)}));
+        typeCombo.setModel(new DefaultComboBoxModel());
+        setItems(typeCombo, toEdit);
         contentPanel.add(typeCombo, "cell 3 1,growx");
 
         JLabel massUnitLabel = new JLabel("Mass Unit:");
@@ -238,10 +224,6 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 
         materialChooser = new JComboBox(new MaterialModel(this, Material.Type.BULK));
         contentPanel.add(materialChooser, "cell 3 2,growx");
-
-        componentOverlayPanel = new JPanel();
-        contentPanel.add(componentOverlayPanel, "cell 1 3 5 2,grow");
-        componentOverlayPanel.setLayout(new CardLayout(0, 0));
 
         {
             JPanel ncPanel = new JPanel();
@@ -855,13 +837,31 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 
         if (toEdit != null) {
             fillEditor(toEdit);
-            typeCombo.setEditable(false);
-        }
-        else {
-            typeCombo.setEditable(true);
         }
     }
 
+    /**
+     * When an existing preset is edited, we want to disable the other types of presets.  If the user wants a different
+     * type of component, then they should delete this one and add a new one.
+     *
+     * @param cb
+     * @param preset
+     */
+    private void setItems(DeselectableComboBox cb, ComponentPreset preset) {
+        cb.addItem(trans.get(NOSE_CONE_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.NOSE_CONE));
+        cb.addItem(trans.get(BODY_TUBE_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.BODY_TUBE));
+        cb.addItem(trans.get(TUBE_COUPLER_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.TUBE_COUPLER));
+        cb.addItem(trans.get(TRANSITION_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.TRANSITION));
+        cb.addItem(trans.get(CR_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.CENTERING_RING));
+        cb.addItem(trans.get(BULKHEAD_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.BULK_HEAD));
+        cb.addItem(trans.get(EB_KEY), preset == null ? false : !preset.get(ComponentPreset.TYPE).equals(ComponentPreset.Type.ENGINE_BLOCK));
+    }
+
+    /**
+     * Create an image chooser.  Currently png and jpg are supported.
+     *
+     * @return
+     */
     private JFileChooser createImageChooser() {
         final JFileChooser chooser = new JFileChooser();
         ImagePreviewPanel preview = new ImagePreviewPanel();
@@ -1523,6 +1523,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
      * Convert an image to a byte array in png format.
      *
      * @param originalImage
+     *
      * @return
      */
     private byte[] imageToByteArray(Image originalImage) {
@@ -1613,7 +1614,30 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
          */
         public boolean verify(JComponent aComponent) {
             JTextComponent textComponent = (JTextComponent) aComponent;
-            matcher.reset(textComponent.getText());
+            String text = textComponent.getText();
+            boolean munged = false;
+            //Make sure there's a leading number
+            if (text.startsWith(".")) {
+                text = "0" + text;
+                munged = true;
+            }
+            //Make sure there's a trailing number
+            if (text.endsWith(".")) {
+                text = text + "0";
+                munged = true;
+            }
+            //Make sure if it's a decimal format
+            else if (text.length() > 0 && !text.contains(".")) {
+                text = text + ".0";
+                munged = true;
+            }
+
+            if (munged) {
+                textComponent.setInputVerifier(null);
+                textComponent.setText(text);
+                textComponent.setInputVerifier(this);
+            }
+            matcher.reset(text);
             return matcher.matches();
         }
 
