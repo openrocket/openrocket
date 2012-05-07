@@ -10,14 +10,12 @@ import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -30,6 +28,7 @@ import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.AlphanumComparator;
 
 public class ComponentPresetTable extends JTable {
 
@@ -45,31 +44,6 @@ public class ComponentPresetTable extends JTable {
 		super();
 		this.presets = presets;
 		this.columns = new ComponentPresetTableColumn[ComponentPreset.orderedKeyList.size()+1];
-
-		tableColumnModel = new XTableColumnModel();
-
-		/*
-		 * Set up the Column Table model
-		 */
-		columns[0] = new ComponentPresetTableColumn.Favorite(0);
-		tableColumnModel.addColumn(columns[0]);
-
-		List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
-		{
-			int index = 1;
-			for (final TypedKey<?> key: ComponentPreset.orderedKeyList ) {
-				if ( key.getType() == Double.class && key.getUnitGroup() != null ) {
-					columns[index] = new ComponentPresetTableColumn.DoubleWithUnit((TypedKey<Double>)key,index);
-				} else {
-					columns[index] = new ComponentPresetTableColumn.Parameter(key,index);
-				}
-				tableColumnModel.addColumn(columns[index]);
-				if ( visibleColumnKeys.indexOf(key) < 0 ) {
-					hiddenColumns.add(columns[index]);
-				}
-				index ++;
-			}
-		}
 
 
 		tableModel = new AbstractTableModel() {
@@ -111,17 +85,46 @@ public class ComponentPresetTable extends JTable {
 
 		};
 
+
+		sorter = new TableRowSorter<TableModel>(tableModel);
+
+		tableColumnModel = new XTableColumnModel();
+
+		/*
+		 * Set up the Column Table model, and customize the sorting.
+		 */
+		columns[0] = new ComponentPresetTableColumn.Favorite(0);
+		tableColumnModel.addColumn(columns[0]);
+
+		List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
+		{
+			int index = 1;
+			for (final TypedKey<?> key: ComponentPreset.orderedKeyList ) {
+				if ( key.getType() == Double.class && key.getUnitGroup() != null ) {
+					columns[index] = new ComponentPresetTableColumn.DoubleWithUnit((TypedKey<Double>)key,index);
+				} else {
+					columns[index] = new ComponentPresetTableColumn.Parameter(key,index);
+				}
+				tableColumnModel.addColumn(columns[index]);
+				if ( key == ComponentPreset.MANUFACTURER || key == ComponentPreset.PARTNO ) {
+					sorter.setComparator(index, new AlphanumComparator());
+				}
+				if ( visibleColumnKeys.indexOf(key) < 0 ) {
+					hiddenColumns.add(columns[index]);
+				}
+				index ++;
+			}
+		}
+
 		this.setAutoCreateColumnsFromModel(false);
 		this.setColumnModel( tableColumnModel );
 		this.setModel(tableModel);
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		this.setRowSorter(sorter);
 
 		for ( TableColumn hiddenColumn : hiddenColumns ) {
 			tableColumnModel.setColumnVisible(hiddenColumn, false);
 		}
-
-		sorter = new TableRowSorter<TableModel>(tableModel);
-		this.setRowSorter(sorter);
 
 		JTableHeader header = this.getTableHeader();
 		
