@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
-import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
@@ -39,7 +38,6 @@ public class Startup {
 	
 	private static final int LOG_BUFFER_LENGTH = 50;
 	
-	
 	/**
 	 * OpenRocket startup main method.
 	 */
@@ -56,16 +54,10 @@ public class Startup {
 		// Setup the translations
 		initializeL10n();
 
-		// Must be done after localization is initialized
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
-		componentPresetDao.load("datafiles/presets", "(?i).*orc");
-		Application.setComponentPresetDao( componentPresetDao );
-		
 		// Continue startup in Startup2 class (where Application is already set up)
 		Startup2.runMain(args);
 		
 	}
-	
 	
 
 	/**

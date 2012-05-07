@@ -5,6 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
@@ -13,6 +18,7 @@ import javax.swing.ToolTipManager;
 
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.database.ThrustCurveMotorSet;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
@@ -90,6 +96,25 @@ public class Startup2 {
 		log.info("Initializing the splash screen");
 		Splash.init();
 		
+		// Latch which counts the number of background loading processes we need to complete.
+		CountDownLatch loading = new CountDownLatch(1);
+		ExecutorService exec = Executors.newFixedThreadPool(2, new ThreadFactory() {
+
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread t = new Thread(r);
+				t.setPriority(Thread.MIN_PRIORITY);
+				return t;
+			}
+			
+		});
+
+		// Must be done after localization is initialized
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
+		exec.submit( new ComponentPresetLoader( loading, componentPresetDao));
+		
+		Application.setComponentPresetDao( componentPresetDao );
+		
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
 		SwingExceptionHandler exceptionHandler = new SwingExceptionHandler();
@@ -122,6 +147,12 @@ public class Startup2 {
 		loadMotor();
 		Databases.fakeMethod();
 		
+		try {
+			loading.await();
+		} catch ( InterruptedException iex) {
+			
+		}
+
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
@@ -268,6 +299,25 @@ public class Startup2 {
 		};
 		timer.addActionListener(listener);
 		timer.start();
+	}
+	
+	private static class ComponentPresetLoader implements Callable {
+
+		CountDownLatch latch;
+		ComponentPresetDatabase componentPresetDao;
+		
+		private ComponentPresetLoader( CountDownLatch latch, ComponentPresetDatabase componentPresetDao ) {
+			this.componentPresetDao = componentPresetDao;
+			this.latch = latch;
+		}
+		
+		@Override
+		public Object call() throws Exception {
+			componentPresetDao.load("datafiles/presets", "(?i).*orc");
+			latch.countDown();
+			return null;
+		}
+
 	}
 	
 	/**
