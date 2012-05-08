@@ -49,11 +49,6 @@ public class Startup2 {
 
 	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
 	
-	/** Block motor loading for this many milliseconds */
-	private static AtomicInteger blockLoading = new AtomicInteger(Integer.MAX_VALUE);
-	
-	
-
 	/**
 	 * Run when starting up OpenRocket after Application has been set up.
 	 * 
@@ -98,7 +93,7 @@ public class Startup2 {
 		
 		// Latch which counts the number of background loading processes we need to complete.
 		CountDownLatch loading = new CountDownLatch(1);
-		ExecutorService exec = Executors.newFixedThreadPool(2, new ThreadFactory() {
+		ExecutorService exec = Executors.newFixedThreadPool(1, new ThreadFactory() {
 
 			@Override
 			public Thread newThread(Runnable r) {
@@ -144,7 +139,11 @@ public class Startup2 {
 		
 		// Load motors etc.
 		log.info("Loading databases");
-		loadMotor();
+		
+		ConcurrentLoadingThrustCurveMotorSetDatabase motorLoader = new ConcurrentLoadingThrustCurveMotorSetDatabase(THRUSTCURVE_DIRECTORY);
+		motorLoader.startLoading();
+		Application.setMotorSetDatabase(motorLoader);
+
 		Databases.fakeMethod();
 		
 		try {
@@ -163,8 +162,6 @@ public class Startup2 {
 		log.info("Checking update status");
 		checkUpdateStatus(updateInfo);
 		
-		// Block motor loading for 1.5 seconds to allow window painting to be faster
-		blockLoading.set(1500);
 	}
 	
 	
@@ -184,78 +181,6 @@ public class Startup2 {
 		
 	}
 	
-	
-	private static void loadMotor() {
-		
-		log.info("Starting motor loading from " + THRUSTCURVE_DIRECTORY + " in background thread.");
-		ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(true) {
-			
-			@Override
-			protected void loadMotors() {
-				
-				// Block loading until timeout occurs or database is taken into use
-				log.info("Blocking motor loading while starting up");
-				while (!inUse && blockLoading.addAndGet(-100) > 0) {
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-					}
-				}
-				log.info("Blocking ended, inUse=" + inUse + " blockLoading=" + blockLoading.get());
-				
-				// Start loading
-				log.info("Loading motors from " + THRUSTCURVE_DIRECTORY);
-				long t0 = System.currentTimeMillis();
-				int fileCount;
-				int thrustCurveCount;
-				
-				// Load the packaged thrust curves
-				List<Motor> list;
-				FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY,
-								new SimpleFileFilter("", false, "eng", "rse"));
-				if (iterator == null) {
-					throw new IllegalStateException("Thrust curve directory " + THRUSTCURVE_DIRECTORY +
-							"not found, distribution built wrong");
-				}
-				list = MotorLoaderHelper.load(iterator);
-				for (Motor m : list) {
-					this.addMotor((ThrustCurveMotor) m);
-				}
-				fileCount = iterator.getFileCount();
-				
-				thrustCurveCount = list.size();
-				
-				// Load the user-defined thrust curves
-				for (File file : ((SwingPreferences) Application.getPreferences()).getUserThrustCurveFiles()) {
-					log.info("Loading motors from " + file);
-					list = MotorLoaderHelper.load(file);
-					for (Motor m : list) {
-						this.addMotor((ThrustCurveMotor) m);
-					}
-					fileCount++;
-					thrustCurveCount += list.size();
-				}
-				
-				long t1 = System.currentTimeMillis();
-				
-				// Count statistics
-				int distinctMotorCount = 0;
-				int distinctThrustCurveCount = 0;
-				distinctMotorCount = motorSets.size();
-				for (ThrustCurveMotorSet set : motorSets) {
-					distinctThrustCurveCount += set.getMotorCount();
-				}
-				log.info("Motor loading done, took " + (t1 - t0) + " ms to load "
-						+ fileCount + " files/directories containing "
-						+ thrustCurveCount + " thrust curves which contained "
-						+ distinctMotorCount + " distinct motors with "
-						+ distinctThrustCurveCount + " distinct thrust curves.");
-			}
-			
-		};
-		db.startLoading();
-		Application.setMotorSetDatabase(db);
-	}
 	
 	private static void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
 		if (updateInfo == null)
@@ -313,8 +238,11 @@ public class Startup2 {
 		
 		@Override
 		public Object call() throws Exception {
+			long start = System.currentTimeMillis();
 			componentPresetDao.load("datafiles/presets", "(?i).*orc");
 			latch.countDown();
+			long end = System.currentTimeMillis();
+			log.debug("Time to load presets: " + (end-start) + "ms");
 			return null;
 		}
 

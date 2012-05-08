@@ -96,8 +96,6 @@ public class ZipDirectoryIterator extends FileIterator {
 			}
 		}
 		
-		// No more elements exist
-		close();
 		return null;
 	}
 

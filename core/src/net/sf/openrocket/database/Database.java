@@ -150,6 +150,9 @@ public class Database<T extends Comparable<T>> extends AbstractSet<T> {
 				log.warn("Error loading file " + file + ": " + e.getMessage(), e);
 			}
 		}
+		if ( files != null ) {
+			files.close();
+		}
 	}
 
 	/**

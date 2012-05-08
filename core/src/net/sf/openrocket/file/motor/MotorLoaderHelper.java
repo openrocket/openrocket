@@ -19,13 +19,13 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
 public final class MotorLoaderHelper {
-	
+
 	private static final LogHelper log = Application.getLogger();
-	
+
 	private MotorLoaderHelper() {
 		// Prevent construction
 	}
-	
+
 	/**
 	 * Load a file or directory of thrust curves.  Directories are loaded
 	 * recursively.  Any errors during loading are logged, but otherwise ignored.
@@ -35,18 +35,18 @@ public final class MotorLoaderHelper {
 	 */
 	public static List<Motor> load(File target) {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		
+
 		if (target.isDirectory()) {
-			
+
 			try {
 				return load(new DirectoryIterator(target, new SimpleFileFilter("", loader.getSupportedExtensions()), true));
 			} catch (IOException e) {
 				log.warn("Could not read directory " + target, e);
 				return Collections.emptyList();
 			}
-			
+
 		} else {
-			
+
 			InputStream is = null;
 			try {
 				is = new FileInputStream(target);
@@ -63,11 +63,24 @@ public final class MotorLoaderHelper {
 					}
 				}
 			}
-			
+
 		}
 	}
-	
-	
+
+	public static List<Motor> load( InputStream is, String fileName ) {
+		GeneralMotorLoader loader = new GeneralMotorLoader();
+		try {
+			List<Motor> motors = loader.load(is, fileName);
+			if (motors.size() == 0) {
+				log.warn("No motors found in file " + fileName);
+			}
+			return motors;
+		} catch (IOException e) {
+			log.warn("IOException when loading motor file " + fileName, e);
+		}
+		return Collections.<Motor>emptyList();
+	}
+
 	/**
 	 * Load motors from files iterated over by a FileIterator.  Any errors during
 	 * loading are logged, but otherwise ignored.
@@ -78,22 +91,16 @@ public final class MotorLoaderHelper {
 	 * @return			a list of all motors loaded.
 	 */
 	public static List<Motor> load(FileIterator iterator) {
-		GeneralMotorLoader loader = new GeneralMotorLoader();
 		List<Motor> list = new ArrayList<Motor>();
-		
+
 		while (iterator.hasNext()) {
 			final Pair<String, InputStream> input = iterator.next();
 			log.debug("Loading motors from file " + input.getU());
 			try {
-				List<Motor> motors = loader.load(input.getV(), input.getU());
-				if (motors.size() == 0) {
-					log.warn("No motors found in file " + input.getU());
-				}
+				List<Motor> motors = load(input.getV(), input.getU());
 				for (Motor m : motors) {
 					list.add((ThrustCurveMotor) m);
 				}
-			} catch (IOException e) {
-				log.warn("IOException when loading motor file " + input.getU(), e);
 			} finally {
 				try {
 					input.getV().close();
@@ -103,8 +110,8 @@ public final class MotorLoaderHelper {
 			}
 		}
 		iterator.close();
-		
+
 		return list;
 	}
-	
+
 }
