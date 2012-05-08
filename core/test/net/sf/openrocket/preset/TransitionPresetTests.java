@@ -26,7 +26,7 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.TRANSITION);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.MANUFACTURER, 
 					ComponentPreset.PARTNO, 
@@ -53,7 +53,7 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.PARTNO, 
 					ComponentPreset.LENGTH,
@@ -79,7 +79,7 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.LENGTH,
 					ComponentPreset.AFT_OUTER_DIAMETER,
@@ -105,7 +105,7 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.SHAPE, Transition.Shape.CONICAL);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.AFT_OUTER_DIAMETER,
 					ComponentPreset.FORE_OUTER_DIAMETER
@@ -131,7 +131,7 @@ public class TransitionPresetTests extends BaseTestCase {
 			presetspec.put( ComponentPreset.AFT_OUTER_DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.FORE_OUTER_DIAMETER
 			},

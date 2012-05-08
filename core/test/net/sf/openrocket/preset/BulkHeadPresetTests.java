@@ -24,7 +24,7 @@ public class BulkHeadPresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.BULK_HEAD);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.MANUFACTURER, 
 					ComponentPreset.PARTNO, 
@@ -49,7 +49,7 @@ public class BulkHeadPresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.PARTNO, 
 					ComponentPreset.LENGTH,
@@ -73,7 +73,7 @@ public class BulkHeadPresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.LENGTH,
 					ComponentPreset.OUTER_DIAMETER
@@ -96,7 +96,7 @@ public class BulkHeadPresetTests {
 			presetspec.put( ComponentPreset.LENGTH, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.OUTER_DIAMETER
 			},

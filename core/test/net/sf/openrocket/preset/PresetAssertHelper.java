@@ -2,7 +2,7 @@ package net.sf.openrocket.preset;
 
 import static org.junit.Assert.*;
 
-public abstract class PresetTest {
+public abstract class PresetAssertHelper {
 
 	public static void assertInvalidPresetException( InvalidComponentPresetException exceptions, TypedKey<?>[] keys, String[] messages ) {
 		if ( keys != null ) {

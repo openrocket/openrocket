@@ -24,7 +24,7 @@ public class TubeCouplerPresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.TUBE_COUPLER);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.MANUFACTURER, 
 					ComponentPreset.PARTNO, 
@@ -48,7 +48,7 @@ public class TubeCouplerPresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.PARTNO, 
 					ComponentPreset.LENGTH
@@ -71,7 +71,7 @@ public class TubeCouplerPresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.LENGTH
 			},
@@ -94,7 +94,7 @@ public class TubeCouplerPresetTests {
 			presetspec.put( ComponentPreset.OUTER_DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					null,
 			new String[] {
 					"Preset dimensions underspecified"
@@ -114,7 +114,7 @@ public class TubeCouplerPresetTests {
 			presetspec.put( ComponentPreset.INNER_DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					null,
 			new String[] {
 					"Preset dimensions underspecified"
@@ -134,7 +134,7 @@ public class TubeCouplerPresetTests {
 			presetspec.put( ComponentPreset.THICKNESS, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					null,
 			new String[] {
 					"Preset dimensions underspecified"

@@ -22,7 +22,7 @@ public class ParachutePresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.PARACHUTE);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.MANUFACTURER, 
 					ComponentPreset.PARTNO, 
@@ -49,7 +49,7 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.PARTNO, 
 					ComponentPreset.DIAMETER,
@@ -75,7 +75,7 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.DIAMETER,
 					ComponentPreset.LINE_COUNT,
@@ -100,7 +100,7 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.DIAMETER, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.LINE_COUNT,
 					ComponentPreset.LINE_LENGTH
@@ -124,7 +124,7 @@ public class ParachutePresetTests {
 			presetspec.put( ComponentPreset.LINE_COUNT, 6);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.LINE_LENGTH
 			},

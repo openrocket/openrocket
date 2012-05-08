@@ -22,7 +22,7 @@ public class StreamerPresetTests {
 			presetspec.put(ComponentPreset.TYPE, ComponentPreset.Type.STREAMER);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.MANUFACTURER, 
 					ComponentPreset.PARTNO, 
@@ -47,7 +47,7 @@ public class StreamerPresetTests {
 			presetspec.put( ComponentPreset.MANUFACTURER, Manufacturer.getManufacturer("manufacturer"));
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.PARTNO, 
 					ComponentPreset.LENGTH,
@@ -71,7 +71,7 @@ public class StreamerPresetTests {
 			presetspec.put( ComponentPreset.PARTNO, "partno");
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.LENGTH,
 					ComponentPreset.WIDTH
@@ -94,7 +94,7 @@ public class StreamerPresetTests {
 			presetspec.put( ComponentPreset.LENGTH, 2.0);
 			ComponentPresetFactory.create(presetspec);
 		} catch ( InvalidComponentPresetException ex ) {
-			PresetTest.assertInvalidPresetException( ex,
+			PresetAssertHelper.assertInvalidPresetException( ex,
 					new TypedKey<?>[] {
 					ComponentPreset.WIDTH
 			},
