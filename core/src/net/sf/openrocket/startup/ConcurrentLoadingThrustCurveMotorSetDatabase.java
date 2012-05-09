@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.openrocket.database.ThrustCurveMotorSet;
@@ -122,9 +123,22 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 
 		private BookKeeping() {
 
-			writerThread = Executors.newSingleThreadExecutor();
+			writerThread = Executors.newSingleThreadExecutor( new ThreadFactory() {
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r,"MotorWriterThread");
+					return t;
+				}
+			});
 
-			loaderPool = Executors.newFixedThreadPool(25);
+			loaderPool = Executors.newFixedThreadPool(25, new ThreadFactory() {
+				int threadCount = 0;
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r,"MotorLoaderPool-" + threadCount++);
+					return t;
+				}
+			});
 
 			workGenerator = new WorkGenerator();
 
