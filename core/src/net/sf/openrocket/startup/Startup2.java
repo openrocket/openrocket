@@ -4,13 +4,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -20,21 +13,13 @@ import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.database.ThrustCurveMotorSet;
-import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.file.iterator.DirectoryIterator;
-import net.sf.openrocket.file.iterator.FileIterator;
-import net.sf.openrocket.file.motor.MotorLoaderHelper;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.BuildProperties;
 
 /**
@@ -91,22 +76,10 @@ public class Startup2 {
 		log.info("Initializing the splash screen");
 		Splash.init();
 		
-		// Latch which counts the number of background loading processes we need to complete.
-		CountDownLatch loading = new CountDownLatch(1);
-		ExecutorService exec = Executors.newFixedThreadPool(1, new ThreadFactory() {
-
-			@Override
-			public Thread newThread(Runnable r) {
-				Thread t = new Thread(r);
-				t.setPriority(Thread.MIN_PRIORITY);
-				return t;
-			}
-			
-		});
-
 		// Must be done after localization is initialized
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
-		exec.submit( new ComponentPresetLoader( loading, componentPresetDao));
+		ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader( componentPresetDao );
+		presetLoader.load();
 		
 		Application.setComponentPresetDao( componentPresetDao );
 		
@@ -147,7 +120,7 @@ public class Startup2 {
 		Databases.fakeMethod();
 		
 		try {
-			loading.await();
+			presetLoader.await();
 		} catch ( InterruptedException iex) {
 			
 		}
@@ -224,28 +197,6 @@ public class Startup2 {
 		};
 		timer.addActionListener(listener);
 		timer.start();
-	}
-	
-	private static class ComponentPresetLoader implements Callable {
-
-		CountDownLatch latch;
-		ComponentPresetDatabase componentPresetDao;
-		
-		private ComponentPresetLoader( CountDownLatch latch, ComponentPresetDatabase componentPresetDao ) {
-			this.componentPresetDao = componentPresetDao;
-			this.latch = latch;
-		}
-		
-		@Override
-		public Object call() throws Exception {
-			long start = System.currentTimeMillis();
-			componentPresetDao.load("datafiles/presets", "(?i).*orc");
-			latch.countDown();
-			long end = System.currentTimeMillis();
-			log.debug("Time to load presets: " + (end-start) + "ms");
-			return null;
-		}
-
 	}
 	
 	/**

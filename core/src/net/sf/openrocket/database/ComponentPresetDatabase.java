@@ -1,6 +1,5 @@
 package net.sf.openrocket.database;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -23,11 +22,10 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 
 	private static final LogHelper log = Application.getLogger();
 
-	private static class ComponentPresetLoader implements Loader<ComponentPreset> {
+	public static class ComponentPresetLoader implements Loader<ComponentPreset> {
 
 		@Override
-		public Collection<ComponentPreset> load(InputStream stream,
-				String filename) throws IOException {
+		public Collection<ComponentPreset> load(InputStream stream,	String filename) {
 
 			log.debug("Loading presets from file " + filename);
 
@@ -41,7 +39,7 @@ public class ComponentPresetDatabase extends Database<ComponentPreset> implement
 						preset.setFavorite(true);
 					}
 				}				
-
+				log.debug("ComponentPreset file " + filename + " contained " + presets.size() + " presets");
 				return presets;
 			} catch (JAXBException e) {
 				throw new BugException("Unable to parser file: "+ filename, e);
