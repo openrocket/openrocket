@@ -1,3 +1,14 @@
+2012-05-09  Kevin Ruland
+
+    * Add ComponentPreset functionality.  These are commercial components which can be used in rocket designs.
+    System currently support Body Tube, Nose Cone, Transition, Tube Coupler, Centering Ring, Engine Block, Bulk Head,
+    Launch Lug, Streamer and Parachutes.  Received permission from Always Ready Rocketry, Balsa Machining Service, Giant
+    Leap Rocketry, Public Missiles, Semroc and Fliskits to include their parts catalogs in OR.
+
+2012-05-09  Kevin Ruland
+
+    * Add fractional inch unit 'in/64' to Length unit group.
+
 2012-05-09  Jason Blood
 
 	* Add PageFitPrintStrategy and related files to print multiple fins, transitions, and nosecones onto the same page(s)
