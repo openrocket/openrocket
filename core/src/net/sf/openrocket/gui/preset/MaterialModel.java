@@ -8,8 +8,9 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
 
 /**
  * A material model specifically for presets.
@@ -22,9 +23,13 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
 
     private static final Translator trans = Application.getTranslator();
 
+    private Material.Type type;
+
     private Component parent;
+
     public MaterialModel(Component theParent, Material.Type type) {
         parent = theParent;
+        this.type = type;
 
         switch (type) {
             case LINE:
@@ -59,9 +64,7 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    CustomMaterialDialog dialog = new CustomMaterialDialog(
-                            SwingUtilities.getWindowAncestor(parent),
-                            (Material) getSelectedItem(), true,
+                    CustomMaterialDialog dialog = new CustomMaterialDialog(SwingUtilities.getWindowAncestor(parent), (Material) getSelectedItem(), true,
                             //// Define custom material
                             trans.get("MaterialModel.title.Defcustmat"));
 
@@ -117,4 +120,7 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
         this.fireContentsChanged(this, 0, database.size());
     }
 
+    public Material.Type getType() {
+        return type;
+    }
 }

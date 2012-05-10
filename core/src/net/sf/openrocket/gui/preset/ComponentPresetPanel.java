@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.preset;
 
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -11,7 +10,14 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
 import java.awt.event.ActionEvent;
@@ -25,27 +31,39 @@ import java.util.List;
 
 /**
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
- * TODO: Full I18n
- * TODO: Delete component
- * TODO: Open .orc for editing
- * TODO: Import .csv
- * TODO: Export .csv
- * TODO: proper mass unit conversion
+ * TODO: Full I18n TODO: Delete component TODO: Open .orc for editing TODO: Import .csv TODO: Export .csv TODO: Menu
  */
 public class ComponentPresetPanel extends JPanel implements PresetResultListener {
 
+    /**
+     * The logger.
+     */
     private static final LogHelper log = Application.getLogger();
 
+    /**
+     * The I18N translator.
+     */
     private static ResourceBundleTranslator trans = null;
+
+    /**
+     * The table of presets.
+     */
+    private JTable table;
+
+    /**
+     * The table's data model.
+     */
+    private DataTableModel model;
+
+    /**
+     * Flag that indicates if an existing Preset is currently being edited.
+     */
+    private boolean editingSelected = false;
 
     static {
         trans = new ResourceBundleTranslator("l10n.messages");
         net.sf.openrocket.startup.Application.setBaseTranslator(trans);
     }
-
-    private JTable table;
-    private DataTableModel model;
-    private boolean editingSelected = false;
 
     /**
      * Create the panel.
@@ -113,15 +131,23 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
 
     }
 
+    /**
+     * Callback method from the PresetEditorDialog to notify this class when a preset has been saved.  The 'save' is
+     * really just a call back here so the preset can be added to the master table.  It's not to be confused with the
+     * save to disk.
+     *
+     * @param preset the new or modified preset
+     */
     @Override
     public void notifyResult(final ComponentPreset preset) {
         if (preset != null) {
             DataTableModel model = (DataTableModel) table.getModel();
+            //Is this a new preset?
             if (!editingSelected) {
-                model.addRow(new String[]{preset.getManufacturer().getDisplayName(), preset.getType().name(), preset.getPartNo(), preset.get(ComponentPreset.DESCRIPTION)},
-                        preset);
+                model.addRow(new String[]{preset.getManufacturer().getDisplayName(), preset.getType().name(), preset.getPartNo(), preset.get(ComponentPreset.DESCRIPTION)}, preset);
             }
             else {
+                //This is a modified preset; update all of the columns and the stored associated instance.
                 int row = table.getSelectedRow();
                 model.setValueAt(preset.getManufacturer().getDisplayName(), row, 0);
                 model.setValueAt(preset.getType().name(), row, 1);
@@ -150,6 +176,9 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         }
     }
 
+    /**
+     * A table model that adds associated objects to each row, allowing for easy retrieval.
+     */
     class DataTableModel extends DefaultTableModel {
 
         private List<Object> associated = new ArrayList<Object>();
@@ -216,8 +245,8 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         List<Material> materials = new ArrayList<Material>();
         List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
 
-        for (int x = 0; x< model.getRowCount(); x++) {
-            ComponentPreset preset = (ComponentPreset)model.getAssociatedObject(x);
+        for (int x = 0; x < model.getRowCount(); x++) {
+            ComponentPreset preset = (ComponentPreset) model.getAssociatedObject(x);
             if (!materials.contains(preset.get(ComponentPreset.MATERIAL))) {
                 materials.add(preset.get(ComponentPreset.MATERIAL));
             }
