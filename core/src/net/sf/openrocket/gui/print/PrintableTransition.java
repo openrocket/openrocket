@@ -1,12 +1,16 @@
 package net.sf.openrocket.gui.print;
 
 import java.awt.BasicStroke;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Arc2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
 
 import net.sf.openrocket.rocketcomponent.Transition;
 

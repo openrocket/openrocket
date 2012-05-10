@@ -9,6 +9,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.ITextHelper;
+import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableFinSet;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -17,7 +18,9 @@ import net.sf.openrocket.startup.Application;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -46,16 +49,22 @@ public class FinSetPrintStrategy {
     protected Set<Integer> stages;
 
     /**
+     * Strategy for fitting multiple components onto a page.
+     */
+	protected PageFitPrintStrategy pageFitPrint;
+    
+    /**
      * Constructor.
      *
      * @param doc              The iText document
      * @param theWriter        The direct iText writer
      * @param theStages        The stages to be printed by this strategy
      */
-    public FinSetPrintStrategy(Document doc, PdfWriter theWriter, Set<Integer> theStages) {
+    public FinSetPrintStrategy(Document doc, PdfWriter theWriter, Set<Integer> theStages, PageFitPrintStrategy pageFit) {
         document = doc;
         writer = theWriter;
         stages = theStages;
+        pageFitPrint = pageFit;
     }
 
     /**
@@ -98,14 +107,14 @@ public class FinSetPrintStrategy {
                 java.awt.Dimension finSize = pfs.getSize();
                 final Dimension pageSize = getPageSize();
                 if (fitsOnOnePage(pageSize, finSize.getWidth(), finSize.getHeight())) {
-                    printOnOnePage(pfs);
+					pageFitPrint.addComponent(pfs);
                 }
                 else {
                     BufferedImage image = (BufferedImage) pfs.createImage();
                     ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
                             document, writer, image);
+                    document.newPage();
                 }
-                document.newPage();
             }
             catch (DocumentException e) {
                 log.error("Could not render fin.", e);
@@ -151,19 +160,6 @@ public class FinSetPrintStrategy {
         int hRatio = (int) Math.ceil(hImage / hPage);
 
         return wRatio <= 1.0d && hRatio <= 1.0d;
-    }
-
-    /**
-     * Print the fin set.
-     *
-     * @param thePfs the printable fin set
-     */
-    private void printOnOnePage (final PrintableFinSet thePfs) {
-        Dimension d = getPageSize();
-        PdfContentByte cb = writer.getDirectContent();
-        Graphics2D g2 = cb.createGraphics(d.width, d.height);
-        thePfs.print(g2);
-        g2.dispose();
     }
 
     /**

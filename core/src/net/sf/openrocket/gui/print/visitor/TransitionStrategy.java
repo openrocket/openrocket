@@ -46,16 +46,22 @@ public class TransitionStrategy {
     protected Set<Integer> stages;
 
     /**
+     * Strategy for fitting multiple components onto a page.
+     */
+	protected PageFitPrintStrategy pageFitPrint;
+
+    /**
      * Constructor.
      *
      * @param doc              The iText document
      * @param theWriter        The direct iText writer
      * @param theStagesToVisit The stages to be visited by this strategy
      */
-    public TransitionStrategy(Document doc, PdfWriter theWriter, Set<Integer> theStagesToVisit) {
+    public TransitionStrategy(Document doc, PdfWriter theWriter, Set<Integer> theStagesToVisit, PageFitPrintStrategy pageFit) {
         document = doc;
         writer = theWriter;
         stages = theStagesToVisit;
+        pageFitPrint = pageFit;
     }
 
     /**
@@ -107,7 +113,8 @@ public class TransitionStrategy {
             java.awt.Dimension size = pfs.getSize();
             final Dimension pageSize = getPageSize();
             if (fitsOnOnePage(pageSize, size.getWidth(), size.getHeight())) {
-                printOnOnePage(pfs);
+				pageFitPrint.addComponent(pfs);
+                //printOnOnePage(pfs);
             } else {
                 BufferedImage image = (BufferedImage) pfs.createImage();
                 ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
@@ -141,14 +148,14 @@ public class TransitionStrategy {
      *
      * @param theTransition the printable transition
      */
-    private void printOnOnePage(final AbstractPrintableTransition theTransition) {
+    /*private void printOnOnePage(final AbstractPrintableTransition theTransition) {
         Dimension d = getPageSize();
         PdfContentByte cb = writer.getDirectContent();
         Graphics2D g2 = cb.createGraphics(d.width, d.height);
         theTransition.print(g2);
         g2.dispose();
         document.newPage();
-    }
+    }*/
 
     /**
      * Get the dimensions of the paper page.

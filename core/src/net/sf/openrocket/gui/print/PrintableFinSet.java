@@ -19,7 +19,7 @@ import java.awt.print.PrinterException;
  * modified) and rendering it within a JPanel.  The JPanel is not actually visualized on a display, but instead renders
  * it to a print device.
  */
-public class PrintableFinSet extends JPanel implements Printable {
+public class PrintableFinSet extends PrintableComponent {
 
     /**
      * The object that represents the shape (outline) of the fin.  This gets drawn onto the Swing component.
@@ -58,9 +58,9 @@ public class PrintableFinSet extends JPanel implements Printable {
      * @param points an array of points.
      */
     public PrintableFinSet (Coordinate[] points) {
-        super(false);
+        //super(false);
         init(points);
-        setBackground(Color.white);
+        //setBackground(Color.white);
     }
 
     /**
@@ -109,42 +109,6 @@ public class PrintableFinSet extends JPanel implements Printable {
     }
 
     /**
-     * From the java.awt.print.Printable interface.
-     * <p/>
-     * Prints the page at the specified index into the specified {@link java.awt.Graphics} context in the specified
-     * format. A <code>PrinterJob</code> calls the <code>Printable</code> interface to request that a page be rendered
-     * into the context specified by <code>graphics</code>.  The format of the page to be drawn is specified by
-     * <code>pageFormat</code>.  The zero based index of the requested page is specified by <code>pageIndex</code>. If
-     * the requested page does not exist then this method returns NO_SUCH_PAGE; otherwise PAGE_EXISTS is returned. The
-     * <code>Graphics</code> class or subclass implements the {@link java.awt.print.PrinterGraphics} interface to
-     * provide additional information.  If the <code>Printable</code> object aborts the print job then it throws a
-     * {@link java.awt.print.PrinterException}.
-     * <p/>
-     * Note: This is not currently used in OpenRocket.  It's only here for reference.
-     *
-     * @param graphics   the context into which the page is drawn
-     * @param pageFormat the size and orientation of the page being drawn
-     * @param pageIndex  the zero based index of the page to be drawn
-     *
-     * @return PAGE_EXISTS if the page is rendered successfully or NO_SUCH_PAGE if <code>pageIndex</code> specifies a
-     *         non-existent page.
-     *
-     * @throws java.awt.print.PrinterException
-     *          thrown when the print job is terminated.
-     */
-    @Override
-    public int print (final Graphics graphics, final PageFormat pageFormat, final int pageIndex)
-            throws PrinterException {
-
-        Graphics2D g2d = (Graphics2D) graphics;
-        PrintUtilities.translateToJavaOrigin(g2d, pageFormat);
-        PrintUtilities.disableDoubleBuffering(this);
-        paint(g2d);
-        PrintUtilities.enableDoubleBuffering(this);
-        return Printable.PAGE_EXISTS;
-    }
-
-    /**
      * Returns a generated image of the fin set.  May then be used wherever AWT images can be used, or converted to
      * another image/picture format and used accordingly.
      *
@@ -174,8 +138,7 @@ public class PrintableFinSet extends JPanel implements Printable {
      * @param g the Java2D graphics context
      */
     @Override
-    public void paintComponent (Graphics g) {
-        super.paintComponent(g);
+    public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
         int x = 0;
@@ -189,11 +152,10 @@ public class PrintableFinSet extends JPanel implements Printable {
             y = marginY + Math.abs(minY);
         }
         // Reset the origin.
-        g2d.translate(x, y);
+        g2d.translate(x + getOffsetX(), y + getOffsetY());
         g2d.setPaint(TemplateProperties.getFillColor());
         g2d.fill(polygon);
         g2d.setPaint(TemplateProperties.getLineColor());
         g2d.draw(polygon);
     }
-
 }

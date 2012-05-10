@@ -1,3 +1,7 @@
+2012-05-09  Jason Blood
+
+	* Add PageFitPrintStrategy and related files to print multiple fins, transitions, and nosecones onto the same page(s)
+
 2012-04-19  Sampo Niskanen
 
 	* Allow opening recovery device on stage separation

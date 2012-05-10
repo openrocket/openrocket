@@ -1,8 +1,12 @@
 package net.sf.openrocket.gui.print;
 
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
 
 import net.sf.openrocket.gui.rocketfigure.TransitionShapes;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -48,7 +52,7 @@ public class PrintableNoseCone extends AbstractPrintableTransition {
 		
 		if (shapes != null && shapes.length > 0) {
 			Rectangle r = shapes[0].getBounds();
-			g2.translate(marginX + r.getHeight() / 2, marginY);
+			g2.translate(marginX + r.getHeight() / 2 + getOffsetX(), marginY + getOffsetY());
 			g2.rotate(Math.PI / 2);
 			for (Shape shape : shapes) {
 				g2.draw(shape);

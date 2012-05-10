@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public abstract class AbstractPrintableTransition extends JPanel {
+public abstract class AbstractPrintableTransition extends PrintableComponent {
     /**
      * The stroke of the transition arc.
      */
@@ -21,7 +21,7 @@ public abstract class AbstractPrintableTransition extends JPanel {
      * The Y margin.
      */
     protected int marginY = (int) PrintUnit.INCHES.toPoints(0.25f);
-
+    
     /**
      * Constructor. Initialize this printable with the component to be printed.
      *
@@ -29,8 +29,6 @@ public abstract class AbstractPrintableTransition extends JPanel {
      * @param transition  the component to be printed
      */
     public AbstractPrintableTransition(boolean isDoubleBuffered, Transition transition) {
-        super(isDoubleBuffered);
-        setBackground(Color.white);
         init(transition);
     }
 
@@ -49,7 +47,7 @@ public abstract class AbstractPrintableTransition extends JPanel {
      * @param g2 the graphics context
      */
     protected abstract void draw(Graphics2D g2);
-
+    
     /**
      * Returns a generated image of the transition.  May then be used wherever AWT images can be used, or converted to
      * another image/picture format and used accordingly.
@@ -80,6 +78,7 @@ public abstract class AbstractPrintableTransition extends JPanel {
 
         g2.setColor(Color.BLACK);
         g2.setStroke(thinStroke);
+		g2.translate(getOffsetX(), getOffsetY());
 
         draw(g2);
     }
