@@ -9,13 +9,13 @@ import javax.swing.JSpinner;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public class SpinnerEditor extends JSpinner.NumberEditor {
-//public class SpinnerEditor extends JSpinner.DefaultEditor {
+//public class SpinnerEditor extends JSpinner.NumberEditor {
+public class SpinnerEditor extends JSpinner.DefaultEditor {
 
 	public SpinnerEditor(JSpinner spinner) {
-		//super(spinner);
-		super(spinner,"0.0##");
-		//getTextField().setEditable(true);
+		super(spinner);
+		//super(spinner,"0.0##");
+		getTextField().setEditable(true);
 	}
 
 }

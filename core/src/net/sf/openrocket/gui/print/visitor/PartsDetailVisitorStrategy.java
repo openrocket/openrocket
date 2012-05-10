@@ -3,19 +3,11 @@
  */
 package net.sf.openrocket.gui.print.visitor;
 
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.draw.VerticalPositionMark;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.ImageIcon;
+
 import net.sf.openrocket.gui.main.ComponentIcons;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintUtilities;
@@ -45,13 +37,20 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Coordinate;
 
-import javax.swing.*;
-import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.VerticalPositionMark;
 
 /**
  * A visitor strategy for creating documentation about parts details.
@@ -539,8 +538,6 @@ public class PartsDetailVisitorStrategy {
         Image img = null;
         java.awt.Image awtImage = new PrintableFinSet(theFinSet).createImage();
 
-        Collection<Coordinate> x = theFinSet.getComponentBounds();
-
         try {
             img = Image.getInstance(writer, awtImage, 0.25f);
         }
@@ -714,7 +711,7 @@ public class PartsDetailVisitorStrategy {
      */
     protected String toLength (double length) {
         final Unit defaultUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
-        return NumberFormat.getNumberInstance().format(defaultUnit.toUnit(length)) + defaultUnit.toString();
+        return defaultUnit.toStringUnit(length);
     }
 
     /**
@@ -726,7 +723,7 @@ public class PartsDetailVisitorStrategy {
      */
     protected String toMass (double mass) {
         final Unit defaultUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-        return NumberFormat.getNumberInstance().format(defaultUnit.toUnit(mass)) + defaultUnit.toString();
+        return defaultUnit.toStringUnit(mass);
     }
 
     /**
