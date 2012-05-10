@@ -14,6 +14,7 @@ import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.util.Pair;
 
 public class ConcurrentComponentPresetDatabaseLoader {
@@ -115,7 +116,7 @@ public class ConcurrentComponentPresetDatabaseLoader {
 
 		@Override
 		public void run() {
-			ComponentPresetDatabase.ComponentPresetLoader loader = new ComponentPresetDatabase.ComponentPresetLoader();
+			OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
 			Collection<ComponentPreset> presets = loader.load(is, fileName);
 			PresetWriter writer = new PresetWriter(presets);
 			writerPool.execute(writer);
