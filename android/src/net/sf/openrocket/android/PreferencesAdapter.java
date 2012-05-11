@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
 
 public class PreferencesAdapter extends net.sf.openrocket.startup.Preferences {
 
@@ -89,8 +90,16 @@ public class PreferencesAdapter extends net.sf.openrocket.startup.Preferences {
 	 */
 	@Override
 	public void removeUserMaterial(Material m) {
-		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void setComponentFavorite(ComponentPreset preset, boolean favorite) {
 		
+	}
+
+	@Override
+	public Set<String> getComponentFavorites() {
+		return Collections.<String>emptySet();
 	}
 
 }
