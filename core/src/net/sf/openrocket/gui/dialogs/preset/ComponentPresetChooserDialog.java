@@ -35,16 +35,16 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 
 public class ComponentPresetChooserDialog extends JDialog {
-	
+
 	private static final Translator trans = Application.getTranslator();
-	
+
 	private final RocketComponent component;
-	
+
 	private ComponentPresetTable componentSelectionTable;
 	private final JTextField filterText;
 	private final JCheckBox foreDiameterFilterCheckBox;
 	private final JCheckBox aftDiameterFilterCheckBox;
-	
+
 	/*
 	 * outerDiamtereColumnIndex is the index of the column associated with the OUTER_DIAMETER
 	 * field.  This index is needed by the matchOuterDiameterCheckBox to implement filtering.
@@ -53,40 +53,35 @@ public class ComponentPresetChooserDialog extends JDialog {
 	int foreDiameterColumnIndex = -1;
 
 	private List<ComponentPreset> presets;
-	
+
 	private boolean okClicked = false;
-	
-	
+
+
 	public ComponentPresetChooserDialog(Window owner, RocketComponent component) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		this.component = component;
+		this.presets = Application.getComponentPresetDao().listForType(component.getPresetType());
 		
-		final TypedKey<?>[] columnKeys = component.getPresetType().getDisplayedColumns();
-
-		presets = Application.getComponentPresetDao().listForType(component.getPresetType());
-
-		for (int i = 0; i < columnKeys.length; i++) {
-			final TypedKey<?> key = columnKeys[i];
-			if ( key == ComponentPreset.OUTER_DIAMETER ) {
-				// magic +1 is because we have inserted the column for favorites above.
-				aftDiameterColumnIndex = i+1;
+		List<TypedKey<?>> displayedColumnKeys = Arrays.<TypedKey<?>>asList(component.getPresetType().getDisplayedColumns());
+		{
+			final List<TypedKey<?>> columnKeys = ComponentPreset.orderedKeyList;
+			int i=0;  // We start at 0 but use preincrement because the first column is favorite.
+			for (final TypedKey<?> key : columnKeys) {
+				// Note the increment early in the loop.  This really means that initial loop i=1
+				// we do it here so the continue below doesn't mess up the counting.
+				i++;
+				// Don't allow the matching filters if the column is not part of the default set for
+				// this kind of preset.
+				if ( ! displayedColumnKeys.contains(key) ) { 
+					continue;
+				}
+				if ( key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.AFT_OUTER_DIAMETER ) {
+					aftDiameterColumnIndex = i;
+				}
+				if ( key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.FORE_OUTER_DIAMETER ) {
+					foreDiameterColumnIndex = i;
+				}
 			}
-			if ( key == ComponentPreset.FORE_OUTER_DIAMETER ) {
-				// magic +1 is because we have inserted the column for favorites above.
-				foreDiameterColumnIndex = i+1;
-			}
-		}
-		
-		/*
-		 * perhaps there is a better way for this.
-		 * 
-		 * This check basically says that if a component does not have a fore diameter, use the
-		 * outer_diameter when filtering.  The problem this introduced is when this dialog is
-		 * created for nose cones (which are aft of a body tube), you will be given the option
-		 * to filter based on matching fore diameter.
-		 */
-		if ( foreDiameterColumnIndex < 0 ) {
-			foreDiameterColumnIndex = aftDiameterColumnIndex;
 		}
 		
 		/*
@@ -132,10 +127,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 					componentSelectionTable.updateData( presets );
 				}
 			});
-			
-			
+
+
 		}
-		
+
 		/*
 		 * Add filter by fore diameter
 		 */
@@ -151,11 +146,16 @@ public class ComponentPresetChooserDialog extends JDialog {
 
 		RocketComponent previousComponent = component.getPreviousComponent(); 
 		/* hide the fore diameter filter if it is not applicable */
-		if ( foreDiameterColumnIndex < 0 || previousComponent == null ) {
-			if ( !(previousComponent instanceof ExternalComponent) && !(previousComponent instanceof InternalComponent) )
+		if ( foreDiameterColumnIndex < 0 ) {
 			foreDiameterFilterCheckBox.setVisible(false);
 		}
-		
+		if ( previousComponent == null ) {
+			foreDiameterFilterCheckBox.setVisible(false);
+		} else {
+			if ( !(previousComponent instanceof ExternalComponent) && !(previousComponent instanceof InternalComponent) )
+				foreDiameterFilterCheckBox.setVisible(false);
+		}
+
 		/*
 		 * Add filter by aft diameter
 		 */
@@ -169,18 +169,24 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 
+		RocketComponent nextComponent = component.getNextComponent();
 		/* hide the aft diameter filter if it is not applicable */
-		if ( aftDiameterColumnIndex < 0 || component.getNextComponent() == null ) {
+		if ( aftDiameterColumnIndex < 0 ) {
 			aftDiameterFilterCheckBox.setVisible(false);
 		}
-		
-		componentSelectionTable = new ComponentPresetTable( presets, Arrays.<TypedKey<?>>asList(columnKeys) );
-		
+		if ( nextComponent == null ) {
+			aftDiameterFilterCheckBox.setVisible(false);
+		} else if ( !(nextComponent instanceof ExternalComponent) && !(nextComponent instanceof InternalComponent)) {
+			aftDiameterFilterCheckBox.setVisible(false);
+		}
+
+		componentSelectionTable = new ComponentPresetTable( presets, displayedColumnKeys );
+
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
 		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
 
-		
+
 		// OK / Cancel buttons
 		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
@@ -190,7 +196,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 		panel.add(okButton, "tag ok, spanx, split");
-		
+
 		//// Cancel button
 		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
@@ -200,16 +206,16 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 		panel.add(cancelButton, "tag cancel");
-		
+
 		this.add(panel);
-		
+
 		this.setModal(true);
 		this.pack();
 		this.setLocationByPlatform(true);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
-		
+
 	}
-	
+
 	/**
 	 * Return the motor selected by this chooser dialog, or <code>null</code> if the selection has been aborted.
 	 * 
@@ -222,12 +228,12 @@ public class ComponentPresetChooserDialog extends JDialog {
 		row = componentSelectionTable.convertRowIndexToModel(row);
 		return presets.get(row);
 	}
-	
+
 	public void close(boolean ok) {
 		okClicked = ok;
 		this.setVisible(false);
 	}
-	
+
 	private void updateFilters() {
 		List<RowFilter<TableModel,Object>> filters = new ArrayList<RowFilter<TableModel,Object>> (2);
 		String filterTextRegex = filterText.getText();
@@ -275,7 +281,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 				filters.add(outerDiameterFilter);
 			}
 		}
-		
+
 		componentSelectionTable.setRowFilter( RowFilter.andFilter(filters) );
 	}
 }
