@@ -6,14 +6,15 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.openrocket.database.ThrustCurveMotorSet;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
-import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.file.motor.MotorLoaderHelper;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -131,7 +132,9 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 				}
 			});
 
-			loaderPool = Executors.newFixedThreadPool(25, new ThreadFactory() {
+			loaderPool = new ThreadPoolExecutor(25,25, 2, TimeUnit.SECONDS,
+					new LinkedBlockingQueue<Runnable>(),
+					new ThreadFactory() {
 				int threadCount = 0;
 				@Override
 				public Thread newThread(Runnable r) {
