@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
+import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
@@ -30,6 +31,8 @@ public class Application extends android.app.Application {
 			net.sf.openrocket.startup.Application.setLogger( new AndroidLogWrapper.LogHelper() );
 			
 			net.sf.openrocket.startup.Application.setPreferences( new PreferencesAdapter() );
+			
+			net.sf.openrocket.startup.Application.setComponentPresetDao( new ComponentPresetDatabase() );
 			
 			MotorDatabaseAdapter db = new MotorDatabaseAdapter(this);
 
