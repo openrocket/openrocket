@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.preset;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.logging.LogHelper;
@@ -10,10 +11,14 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -31,7 +36,11 @@ import java.util.List;
 
 /**
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
- * TODO: Full I18n TODO: Delete component TODO: Open .orc for editing TODO: Import .csv TODO: Export .csv TODO: Menu
+ * TODO: Full I18n
+ * TODO: Open .orc for editing
+ * TODO: Open .csv
+ * TODO: Save As .csv
+ * TODO: Menu
  */
 public class ComponentPresetPanel extends JPanel implements PresetResultListener {
 
@@ -71,9 +80,22 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
     public ComponentPresetPanel() {
         setLayout(new MigLayout("", "[82.00px][168.00px][84px][117.00px][][222px]", "[346.00px][29px]"));
 
-        model = new DataTableModel(new String[]{"Manufacturer", "Type", "Part No", "Description"});
+        model = new DataTableModel(new String[]{"Manufacturer", "Type", "Part No", "Description", ""});
 
         table = new JTable(model);
+        table.getTableHeader().setFont(new JLabel().getFont());
+        //The action never gets called because the table MouseAdapter intercepts it first.  Still need an empty
+        // instance though.
+        Action action = new AbstractAction() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+            }
+        };
+        //Create a editor/renderer for the delete operation.  Instantiation self-registers into the table.
+        new ButtonColumn(table, action, 4);
+        table.getColumnModel().getColumn(4).setMaxWidth(Icons.EDIT_DELETE.getIconWidth());
+        table.getColumnModel().getColumn(4).setMinWidth(Icons.EDIT_DELETE.getIconWidth());
+
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
@@ -81,11 +103,21 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    JTable target = (JTable) e.getSource();
-                    int row = target.getSelectedRow();
-                    editingSelected = true;
-                    new PresetEditorDialog(ComponentPresetPanel.this, (ComponentPreset) model.getAssociatedObject(row)).setVisible(true);
+                JTable target = (JTable) e.getSource();
+                if (target.getSelectedColumn() == 4) {
+                    if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetPanel.this,
+                            "Do you want to delete this preset?",
+                            "Confirm Delete", JOptionPane.YES_OPTION,
+                            JOptionPane.QUESTION_MESSAGE)) {
+                        model.removeRow(target.getSelectedRow());
+                    }
+                }
+                else {
+                    if (e.getClickCount() == 2) {
+                        int row = target.getSelectedRow();
+                        editingSelected = true;
+                        new PresetEditorDialog(ComponentPresetPanel.this, (ComponentPreset) model.getAssociatedObject(row)).setVisible(true);
+                    }
                 }
             }
         });
@@ -108,13 +140,9 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
                 try {
                     saveAsORC();
                 }
-                catch (JAXBException e1) {
-                    //TODO
-                    e1.printStackTrace();
-                }
-                catch (IOException e1) {
-                    //TODO
-                    e1.printStackTrace();
+                catch (Exception e1) {
+                    JOptionPane.showMessageDialog(ComponentPresetPanel.this, e1.getLocalizedMessage(),
+                            "Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -144,7 +172,8 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             DataTableModel model = (DataTableModel) table.getModel();
             //Is this a new preset?
             if (!editingSelected) {
-                model.addRow(new String[]{preset.getManufacturer().getDisplayName(), preset.getType().name(), preset.getPartNo(), preset.get(ComponentPreset.DESCRIPTION)}, preset);
+                model.addRow(new Object[]{preset.getManufacturer().getDisplayName(), preset.getType().name(),
+                        preset.getPartNo(), preset.get(ComponentPreset.DESCRIPTION), Icons.EDIT_DELETE}, preset);
             }
             else {
                 //This is a modified preset; update all of the columns and the stored associated instance.
