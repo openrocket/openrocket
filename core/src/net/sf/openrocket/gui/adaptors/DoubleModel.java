@@ -118,17 +118,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 				d = min;
 			return d;
 		}
-/* FIXME - put min & max back
-		@Override
-		public Comparable<Double> getMinimum() {
-			return currentUnit.toUnit(minValue);
-		}
 
-		@Override
-		public Comparable<Double> getMaximum() {
-			return currentUnit.toUnit(maxValue);
-		}
-*/
 		@Override
 		public void addChangeListener(ChangeListener l) {
 			DoubleModel.this.addChangeListener(l);
