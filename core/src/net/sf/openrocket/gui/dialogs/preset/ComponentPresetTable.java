@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -28,6 +29,7 @@ import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.AlphanumComparator;
 
 public class ComponentPresetTable extends JTable {
@@ -108,6 +110,15 @@ public class ComponentPresetTable extends JTable {
 				tableColumnModel.addColumn(columns[index]);
 				if ( key == ComponentPreset.MANUFACTURER || key == ComponentPreset.PARTNO ) {
 					sorter.setComparator(index, new AlphanumComparator());
+				} else if ( key.getType() == Double.class ) {
+					sorter.setComparator(index,  new Comparator<Value>() {
+
+						@Override
+						public int compare(Value o1, Value o2) {
+							return Double.compare(o1.getValue(), o2.getValue());
+						}
+						
+					});
 				}
 				if ( visibleColumnKeys.indexOf(key) < 0 ) {
 					hiddenColumns.add(columns[index]);
