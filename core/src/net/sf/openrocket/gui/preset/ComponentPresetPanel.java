@@ -8,6 +8,7 @@ import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
 
@@ -18,11 +19,14 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
 import java.awt.event.ActionEvent;
@@ -30,17 +34,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
  * TODO: Full I18n
- * TODO: Open .orc for editing
  * TODO: Open .csv
  * TODO: Save As .csv
- * TODO: Menu
  */
 public class ComponentPresetPanel extends JPanel implements PresetResultListener {
 
@@ -53,6 +57,16 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
      * The I18N translator.
      */
     private static ResourceBundleTranslator trans = null;
+
+    /**
+     * State variable to keep track of which file was opened, in case it needs to be saved back to that file.
+     */
+    private File openedFile = null;
+
+    /**
+     * Last directory; file chooser is set here so user doesn't have to keep navigating to a common area.
+     */
+    private File lastDirectory = null;
 
     /**
      * The table of presets.
@@ -76,9 +90,12 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
 
     /**
      * Create the panel.
+     *
+     * @param frame the parent window
      */
-    public ComponentPresetPanel() {
-        setLayout(new MigLayout("", "[82.00px][168.00px][84px][117.00px][][222px]", "[346.00px][29px]"));
+    public ComponentPresetPanel(final JFrame frame) {
+        setLayout(new MigLayout("", "[82.00px, grow][168.00px, grow][84px, grow][117.00px, grow][][222px]",
+                "[346.00px, grow][29px]"));
 
         model = new DataTableModel(new String[]{"Manufacturer", "Type", "Part No", "Description", ""});
 
@@ -121,6 +138,81 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
                 }
             }
         });
+
+
+        JMenuBar menuBar = new JMenuBar();
+        frame.setJMenuBar(menuBar);
+
+        JMenu mnFile = new JMenu("File");
+        menuBar.add(mnFile);
+
+        JMenuItem mntmOpen = new JMenuItem("Open...");
+        mnFile.add(mntmOpen);
+        mntmOpen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if (model.getRowCount() > 0) {
+                    /*
+                     *  If the table model already contains presets, ask the user if they a) want to discard those
+                     *  presets, b) save them before reading in another component file, or c) merge the read component file
+                     *  with the current contents of the table model.
+                     */
+                    Object[] options = {"Save",
+                            "Merge",
+                            "Discard",
+                            "Cancel"};
+                    int n = JOptionPane.showOptionDialog(frame,
+                            "The editor contains existing component presets.  What would you like to do with them?",
+                            "Existing Component Presets",
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            options,
+                            options[0]);
+                    if (n == 0) { //Save.  Then remove existing rows and open.
+                        if (saveAndHandleError()) {
+                            model.removeAllRows();
+                        }
+                        else { //Save failed; bail out.
+                            return;
+                        }
+                    }
+                    else if (n == 2) { //Discard and open
+                        model.removeAllRows();
+                    }
+                    else if (n == 3) { //Cancel.  Bail out.
+                        return;
+                    }
+                }
+                //Open file dialog
+                openComponentFile();
+            }
+        });
+
+        JSeparator separator = new JSeparator();
+        mnFile.add(separator);
+
+        JMenuItem mntmSave = new JMenuItem("Save As...");
+        mnFile.add(mntmSave);
+        mntmSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                saveAndHandleError();
+            }
+        });
+
+        JSeparator separator_1 = new JSeparator();
+        mnFile.add(separator_1);
+
+        JMenuItem mntmExit = new JMenuItem("Exit");
+        mnFile.add(mntmExit);
+        mntmExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                System.exit(0);
+            }
+        });
+
+
         JButton addBtn = new JButton("Add");
         addBtn.addMouseListener(new MouseAdapter() {
             @Override
@@ -130,33 +222,17 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             }
         });
         add(addBtn, "cell 0 1,alignx left,aligny top");
+    }
 
-        JButton saveBtn = new JButton("Save...");
-        saveBtn.setHorizontalAlignment(SwingConstants.RIGHT);
-        add(saveBtn, "flowx,cell 5 1,alignx right,aligny center");
-        saveBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    saveAsORC();
-                }
-                catch (Exception e1) {
-                    JOptionPane.showMessageDialog(ComponentPresetPanel.this, e1.getLocalizedMessage(),
-                            "Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        JButton cancelBtn = new JButton("Cancel");
-        cancelBtn.setHorizontalAlignment(SwingConstants.RIGHT);
-        add(cancelBtn, "cell 5 1,alignx right,aligny top");
-        cancelBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                System.exit(0);
-            }
-        });
-
+    private boolean saveAndHandleError() {
+        try {
+            return saveAsORC();
+        }
+        catch (Exception e1) {
+            JOptionPane.showMessageDialog(ComponentPresetPanel.this, e1.getLocalizedMessage(),
+                    "Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     /**
@@ -195,7 +271,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         try {
             Application.setPreferences(new SwingPreferences());
             JFrame dialog = new JFrame();
-            dialog.getContentPane().add(new ComponentPresetPanel());
+            dialog.getContentPane().add(new ComponentPresetPanel(dialog));
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dialog.pack();
             dialog.setVisible(true);
@@ -232,6 +308,13 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             associated.add(getRowCount() - 1, associatedData);
         }
 
+        public void removeAllRows() {
+            for (int x = getRowCount(); x > 0; x--) {
+                super.removeRow(x - 1);
+            }
+            associated.clear();
+        }
+
         public void removeRow(int row) {
             super.removeRow(row);
             associated.remove(row);
@@ -246,6 +329,66 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         }
     }
 
+    /**
+     * Open the component file.  Present a chooser for the user to navigate to the file.
+     *
+     * @return true if the file was successfully opened; Note: side effect, is that the ComponentPresets read from the
+     *         file are written to the table model.
+     */
+    private boolean openComponentFile() {
+        final JFileChooser chooser = new JFileChooser();
+        chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
+
+        chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
+        if (lastDirectory != null) {
+            chooser.setCurrentDirectory(lastDirectory);
+        }
+        else {
+            chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+        }
+
+        int option = chooser.showOpenDialog(ComponentPresetPanel.this);
+        if (option != JFileChooser.APPROVE_OPTION) {
+            openedFile = null;
+            log.user("User decided not to open, option=" + option);
+            return false;
+        }
+
+        File file = chooser.getSelectedFile();
+        try {
+            if (file == null) {
+                log.user("User did not select a file");
+                return false;
+            }
+
+            lastDirectory = file.getParentFile();
+
+            Collection<ComponentPreset> presets = new OpenRocketComponentLoader().load(new FileInputStream(file),
+                    file.getName());
+            if (presets != null) {
+                for (ComponentPreset next : presets) {
+                    notifyResult(next);
+                }
+                openedFile = file;
+            }
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(ComponentPresetPanel.this, "Unable to open OpenRocket component file: " +
+                    file.getName() + " Invalid format. " + e.getMessage());
+            openedFile = null;
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Save the contents of the table model as XML in .orc format.
+     *
+     * @return true if the file was written
+     *
+     * @throws JAXBException thrown if the data could not be marshaled
+     * @throws IOException   thrown if there was a problem with writing the file
+     */
     private boolean saveAsORC() throws JAXBException, IOException {
         File file = null;
 
@@ -253,7 +396,12 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
 
         chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
-        chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+        if (openedFile != null) {
+            chooser.setSelectedFile(openedFile);
+        }
+        else {
+            chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+        }
 
         int option = chooser.showSaveDialog(ComponentPresetPanel.this);
         if (option != JFileChooser.APPROVE_OPTION) {

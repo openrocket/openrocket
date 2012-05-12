@@ -32,7 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -1186,7 +1186,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
         chooser.setAccessory(preview);
         chooser.addPropertyChangeListener(preview);
         chooser.setAcceptAllFileFilterUsed(false);
-        chooser.addChoosableFileFilter(new FileFilter() {
+        chooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"));
+        /*{
             @Override
             public boolean accept(final File f) {
                 return f.getName().endsWith(".png") || f.getName().endsWith(".jpg");
@@ -1196,7 +1197,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             public String getDescription() {
                 return "Image Files";
             }
-        });
+        });*/
         return chooser;
     }
 
