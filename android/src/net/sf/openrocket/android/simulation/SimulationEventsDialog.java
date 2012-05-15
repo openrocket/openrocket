@@ -1,22 +1,27 @@
 package net.sf.openrocket.android.simulation;
 
+import java.util.List;
+
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.Application;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.simulation.FlightDataBranch;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.MathUtil;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 public class SimulationEventsDialog extends DialogFragment {
 
 	private SimulationChart chart;
-	private ListView eventList;
+	private TableLayout eventList;
 
 	public static SimulationEventsDialog newInstance( SimulationChart chart ) {
 		SimulationEventsDialog d = new SimulationEventsDialog();
@@ -29,32 +34,29 @@ public class SimulationEventsDialog extends DialogFragment {
 
 		View v = inflater.inflate(R.layout.simulation_event_dialog, container, false);
 
-		eventList = (ListView) v.findViewById(R.id.simulationEventsList);
+		eventList = (TableLayout) v.findViewById(R.id.simulationEventsList);
+		eventList.setColumnShrinkable(0, true);
 
-		OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
-		// Initialize the eventList
-		ArrayAdapter<FlightEvent> events = new ArrayAdapter<FlightEvent>(
-				getActivity(),
-				android.R.layout.simple_list_item_1,
-				chart.getFlightDataBranch(rocketDocument).getEvents() ) {
+		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
 
-			@Override
-			public View getView(int position, View convertView,
-					ViewGroup parent) {
-				View v = convertView;
-				if ( v == null ) {
-					LayoutInflater li = inflater;
-					v = li.inflate(android.R.layout.simple_list_item_1,null);
-				}
-				FlightEvent event = this.getItem(position);
-				((TextView)v.findViewById(android.R.id.text1)).setText( event.getType().toString() + " " + event.getTime() + " (s)" );
-				return v;
-			}
+		List<FlightEvent> events = chart.getFlightDataBranch(rocketDocument).getEvents();
+		
+		for ( FlightEvent event : events ) {
 
-		};
-		// Events are not selectable for plotting right now.
-		//eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-		eventList.setAdapter(events);
+			View tableRow = inflater.inflate(R.layout.simulation_event_item,null);
+			((TextView)tableRow.findViewById(R.id.eventName)).setText( event.getType().toString() );
+			((TextView)tableRow.findViewById(R.id.eventTime)).setText( event.getTime() + " (s)" );
+			
+			FlightDataBranch data = chart.getFlightDataBranch(rocketDocument);
+			double vel = MathUtil.interpolate(data.get(FlightDataType.TYPE_TIME), data.get(FlightDataType.TYPE_VELOCITY_TOTAL), event.getTime());
+			((TextView)tableRow.findViewById(R.id.eventVelocity)).setText( UnitGroup.UNITS_VELOCITY.getDefaultUnit().toStringUnit(vel) );
+
+			double alt = MathUtil.interpolate(data.get(FlightDataType.TYPE_TIME), data.get(FlightDataType.TYPE_ALTITUDE), event.getTime());
+			((TextView)tableRow.findViewById(R.id.eventAltitude)).setText( UnitGroup.UNITS_DISTANCE.getDefaultUnit().toStringUnit(alt) );
+
+			eventList.addView( tableRow );
+		}
+		
 		return v;
 	}
 
