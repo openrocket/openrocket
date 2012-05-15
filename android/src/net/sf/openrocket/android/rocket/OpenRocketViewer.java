@@ -1,6 +1,8 @@
 package net.sf.openrocket.android.rocket;
 
 
+import java.io.IOException;
+
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.Application;
@@ -37,13 +39,13 @@ implements Simulations.OnSimulationSelectedListener
 		setContentView(R.layout.openrocketviewer);
 		ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
 		viewPager.setAdapter( new OpenRocketViewerPager( this.getSupportFragmentManager()));
-		
+
 		setTitle(app.getRocketDocument().getRocket().getName());
-		
+
 		getActionBarHelper().setDisplayHomeAsUpEnabled(true);
-		
+
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -55,6 +57,14 @@ implements Simulations.OnSimulationSelectedListener
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		AndroidLogWrapper.d(OpenRocketViewer.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
+		case R.id.menu_save:
+			// FIXME - Probably want to open a dialog here.
+			try {
+				((Application)getApplication()).saveOpenRocketDocument();
+			} catch ( IOException iex ) {
+				AndroidLogWrapper.d(OpenRocketViewer.class, iex.getMessage());
+			}
+			return true;
 		case android.R.id.home:
 			ActivityHelpers.goHome(this);
 			return true;
@@ -73,7 +83,7 @@ implements Simulations.OnSimulationSelectedListener
 
 	@Override
 	public void onSimulationSelected(int simulationId) {
-		
+
 		Simulation sim = app.getRocketDocument().getSimulation(simulationId);
 		// Check if there is data for this simulation.
 		if ( sim.getSimulatedData().getBranchCount() == 0 ) {
@@ -83,7 +93,7 @@ implements Simulations.OnSimulationSelectedListener
 			builder.show();
 			return;
 		}
-		
+
 		View sidepane = findViewById(R.id.sidepane);
 		if ( /* if multi pane */ sidepane != null ) {
 			SimulationChart chart = new SimulationChart(simulationId);

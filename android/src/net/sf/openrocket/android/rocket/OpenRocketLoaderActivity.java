@@ -46,6 +46,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	}
 
 	private void loadOrkFile( Uri file ) {
+		((Application)getApplication()).setFileUri( file );
 		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + file);
 		String path = file.getPath();
 		File orkFile = new File(path);
