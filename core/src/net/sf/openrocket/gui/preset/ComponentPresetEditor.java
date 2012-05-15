@@ -45,7 +45,7 @@ import java.util.List;
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
  * TODO: Full I18n TODO: Save As .csv
  */
-public class ComponentPresetPanel extends JPanel implements PresetResultListener {
+public class ComponentPresetEditor extends JPanel implements PresetResultListener {
 
     /**
      * The logger.
@@ -92,7 +92,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
      *
      * @param frame the parent window
      */
-    public ComponentPresetPanel(final JFrame frame) {
+    public ComponentPresetEditor(final JFrame frame) {
         setLayout(new MigLayout("", "[82.00px, grow][168.00px, grow][84px, grow][117.00px, grow][][222px]",
                 "[346.00px, grow][29px]"));
 
@@ -121,7 +121,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             public void mouseClicked(MouseEvent e) {
                 JTable target = (JTable) e.getSource();
                 if (target.getSelectedColumn() == 4) {
-                    if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetPanel.this,
+                    if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetEditor.this,
                             "Do you want to delete this preset?",
                             "Confirm Delete", JOptionPane.YES_OPTION,
                             JOptionPane.QUESTION_MESSAGE)) {
@@ -132,7 +132,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
                     if (e.getClickCount() == 2) {
                         int row = target.getSelectedRow();
                         editingSelected = true;
-                        new PresetEditorDialog(ComponentPresetPanel.this, (ComponentPreset) model.getAssociatedObject(row)).setVisible(true);
+                        new PresetEditorDialog(ComponentPresetEditor.this, (ComponentPreset) model.getAssociatedObject(row)).setVisible(true);
                     }
                 }
             }
@@ -217,7 +217,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             @Override
             public void mouseClicked(MouseEvent arg0) {
                 editingSelected = false;
-                new PresetEditorDialog(ComponentPresetPanel.this).setVisible(true);
+                new PresetEditorDialog(ComponentPresetEditor.this).setVisible(true);
             }
         });
         add(addBtn, "cell 0 1,alignx left,aligny top");
@@ -261,7 +261,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         try {
             Application.setPreferences(new SwingPreferences());
             JFrame dialog = new JFrame();
-            dialog.getContentPane().add(new ComponentPresetPanel(dialog));
+            dialog.getContentPane().add(new ComponentPresetEditor(dialog));
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dialog.pack();
             dialog.setVisible(true);
@@ -338,7 +338,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
         }
 
-        int option = chooser.showOpenDialog(ComponentPresetPanel.this);
+        int option = chooser.showOpenDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
             openedFile = null;
             log.user("User decided not to open, option=" + option);
@@ -374,7 +374,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         }
         catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(ComponentPresetPanel.this, "Unable to open OpenRocket component file: " +
+            JOptionPane.showMessageDialog(ComponentPresetEditor.this, "Unable to open OpenRocket component file: " +
                     file.getName() + " Invalid format. " + e.getMessage());
             openedFile = null;
             return false;
@@ -387,7 +387,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             return saveAsORC();
         }
         catch (Exception e1) {
-            JOptionPane.showMessageDialog(ComponentPresetPanel.this, e1.getLocalizedMessage(),
+            JOptionPane.showMessageDialog(ComponentPresetEditor.this, e1.getLocalizedMessage(),
                     "Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -415,7 +415,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
         }
 
-        int option = chooser.showSaveDialog(ComponentPresetPanel.this);
+        int option = chooser.showSaveDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
             log.user("User decided not to save, option=" + option);
             return false;
