@@ -32,7 +32,7 @@ public class BuildProperties {
 	
 	static {
 		try {
-			InputStream is = ClassLoader.getSystemResourceAsStream("build.properties");
+			InputStream is = BuildProperties.class.getClassLoader().getResourceAsStream("build.properties");
 			if (is == null) {
 				throw new MissingResourceException(
 						"build.properties not found, distribution built wrong" +
