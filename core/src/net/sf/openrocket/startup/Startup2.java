@@ -113,10 +113,8 @@ public class Startup2 {
 		// Load motors etc.
 		log.info("Loading databases");
 		
-		ConcurrentLoadingThrustCurveMotorSetDatabase motorLoader = new ConcurrentLoadingThrustCurveMotorSetDatabase(THRUSTCURVE_DIRECTORY);
-		motorLoader.startLoading();
-		Application.setMotorSetDatabase(motorLoader);
-
+		loadMotor();
+		
 		Databases.fakeMethod();
 		
 		try {
@@ -137,6 +135,14 @@ public class Startup2 {
 		
 	}
 	
+	/**
+	 * this method is useful for the python bindings.
+	 */
+	public static void loadMotor() {
+		ConcurrentLoadingThrustCurveMotorSetDatabase motorLoader = new ConcurrentLoadingThrustCurveMotorSetDatabase(THRUSTCURVE_DIRECTORY);
+		motorLoader.startLoading();
+		Application.setMotorSetDatabase(motorLoader);
+	}
 	
 	/**
 	 * Check that the JRE is not running headless.
