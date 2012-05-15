@@ -5,12 +5,14 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.preset.TypedPropertyMap;
 
+import java.io.File;
+
 public class ParachuteLoader extends BaseComponentLoader {
 
 	private final MaterialHolder materials;
 
-	public ParachuteLoader(MaterialHolder materials) {
-		super(materials);
+	public ParachuteLoader(MaterialHolder materials, File theBasePath) {
+		super(materials, theBasePath);
 		this.materials = materials;
 		fileColumns.add(new IntegerColumnParser("n sides", ComponentPreset.SIDES));
 		fileColumns.add(new DoubleUnitColumnParser("OD","Units",ComponentPreset.DIAMETER));
@@ -21,7 +23,7 @@ public class ParachuteLoader extends BaseComponentLoader {
 		fileColumns.add( new SurfaceMaterialColumnParser(materials,"Chute Material", ComponentPreset.MATERIAL));
 	}
 
-	
+
 	@Override
 	protected Type getComponentPresetType() {
 		return ComponentPreset.Type.PARACHUTE;
@@ -41,7 +43,7 @@ public class ParachuteLoader extends BaseComponentLoader {
 		// Fix the material since some files use bulk materials for streamers.
 		Double thickness = props.get( ComponentPreset.THICKNESS );
 		Material.Surface material = (Material.Surface) props.get( ComponentPreset.MATERIAL );
-		
+
 		material = materials.getSurfaceMaterial(material, thickness);
 		props.put(ComponentPreset.MATERIAL, material);
 	}

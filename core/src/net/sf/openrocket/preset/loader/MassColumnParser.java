@@ -17,7 +17,7 @@ public class MassColumnParser extends DoubleUnitColumnParser {
 
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
-		if ( columnData == null || "".equals(columnData.trim())) {
+		if ( columnData == null || "".equals(columnData.trim()) || "?".equals(columnData.trim())) {
 			return;
 		}
 		double d = Double.valueOf(columnData);

@@ -22,13 +22,13 @@ public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 				return;
 			}
 			double value = Double.valueOf(columnData);
-			
+
 			if ( unitConfigured ) {
 				String unitName = data[unitIndex];
-				
+
 				Unit unit = rocksimUnits.get(unitName);
 				if ( unit == null ) {
-					if ( unitName == null || "" .equals(unitName) ) {
+					if ( unitName == null || "" .equals(unitName) || "?".equals(unitName)) {
 						// Hmm no data...  Lets assume SI
 						if ( propKey.getUnitGroup() == UnitGroup.UNITS_LENGTH ) {
 							unit = UnitGroup.UNITS_LENGTH.getUnit("in");
@@ -41,14 +41,16 @@ public class DoubleUnitColumnParser extends BaseUnitColumnParser {
 						unit = group.getUnit(unitName);
 					}
 				}
-				
+
 				value = unit.fromUnit(value);
 			}
-			
+
 			props.put(propKey, value);
 		}
 		catch ( NumberFormatException nex) {
 		}
+        catch ( IllegalArgumentException iae) {
+        }
 	}
 
 

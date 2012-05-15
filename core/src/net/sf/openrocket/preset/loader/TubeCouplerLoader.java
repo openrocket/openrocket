@@ -1,15 +1,14 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.Map;
-
-import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 
+import java.io.File;
+
 public class TubeCouplerLoader extends BodyTubeLoader {
 
-	public TubeCouplerLoader(MaterialHolder materials) {
-		super(materials);
+	public TubeCouplerLoader(MaterialHolder materials, File theBasePath) {
+		super(materials, theBasePath);
 	}
 
 	@Override

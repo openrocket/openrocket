@@ -4,15 +4,17 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.preset.TypedPropertyMap;
 
+import java.io.File;
+
 public class BulkHeadLoader extends BaseComponentLoader {
 
-	public BulkHeadLoader(MaterialHolder materials) {
-		super(materials);
+	public BulkHeadLoader(MaterialHolder materials, File theBasePath) {
+		super(materials, theBasePath);
 		fileColumns.add(new DoubleUnitColumnParser("OD","Units",ComponentPreset.OUTER_DIAMETER));
 		fileColumns.add(new DoubleUnitColumnParser("Length","Units",ComponentPreset.LENGTH));
 
 	}
-	
+
 	@Override
 	protected Type getComponentPresetType() {
 		return ComponentPreset.Type.BULK_HEAD;

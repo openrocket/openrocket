@@ -8,6 +8,8 @@ import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.loader.MaterialHolder;
+import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
 import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
@@ -37,14 +39,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
- * TODO: Full I18n
- * TODO: Open .csv
- * TODO: Save As .csv
+ * TODO: Full I18n TODO: Save As .csv
  */
 public class ComponentPresetPanel extends JPanel implements PresetResultListener {
 
@@ -224,17 +223,6 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         add(addBtn, "cell 0 1,alignx left,aligny top");
     }
 
-    private boolean saveAndHandleError() {
-        try {
-            return saveAsORC();
-        }
-        catch (Exception e1) {
-            JOptionPane.showMessageDialog(ComponentPresetPanel.this, e1.getLocalizedMessage(),
-                    "Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-    }
-
     /**
      * Callback method from the PresetEditorDialog to notify this class when a preset has been saved.  The 'save' is
      * really just a call back here so the preset can be added to the master table.  It's not to be confused with the
@@ -247,9 +235,11 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
         if (preset != null) {
             DataTableModel model = (DataTableModel) table.getModel();
             //Is this a new preset?
+            String description = preset.has(ComponentPreset.DESCRIPTION) ? preset.get(ComponentPreset.DESCRIPTION) :
+                    preset.getPartNo();
             if (!editingSelected) {
                 model.addRow(new Object[]{preset.getManufacturer().getDisplayName(), preset.getType().name(),
-                        preset.getPartNo(), preset.get(ComponentPreset.DESCRIPTION), Icons.EDIT_DELETE}, preset);
+                        preset.getPartNo(), description, Icons.EDIT_DELETE}, preset);
             }
             else {
                 //This is a modified preset; update all of the columns and the stored associated instance.
@@ -257,7 +247,7 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
                 model.setValueAt(preset.getManufacturer().getDisplayName(), row, 0);
                 model.setValueAt(preset.getType().name(), row, 1);
                 model.setValueAt(preset.getPartNo(), row, 2);
-                model.setValueAt(preset.get(ComponentPreset.DESCRIPTION), row, 3);
+                model.setValueAt(description, row, 3);
                 model.associated.set(row, preset);
             }
         }
@@ -338,8 +328,9 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
     private boolean openComponentFile() {
         final JFileChooser chooser = new JFileChooser();
         chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
-
+        chooser.addChoosableFileFilter(FileHelper.CSV_FILE_FILTER);
         chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         if (lastDirectory != null) {
             chooser.setCurrentDirectory(lastDirectory);
         }
@@ -362,9 +353,18 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             }
 
             lastDirectory = file.getParentFile();
+            List<ComponentPreset> presets = null;
 
-            Collection<ComponentPreset> presets = new OpenRocketComponentLoader().load(new FileInputStream(file),
-                    file.getName());
+            if (file.getName().toLowerCase().endsWith(".orc")) {
+                presets = (List<ComponentPreset>) new OpenRocketComponentLoader().load(new FileInputStream(file), file.getName());
+            }
+            else {
+                if (file.getName().toLowerCase().endsWith(".csv")) {
+                    file = file.getParentFile();
+                }
+                presets = new ArrayList<ComponentPreset>();
+                MaterialHolder materialHolder = RocksimComponentFileTranslator.loadAll(presets, file);
+            }
             if (presets != null) {
                 for (ComponentPreset next : presets) {
                     notifyResult(next);
@@ -373,12 +373,24 @@ public class ComponentPresetPanel extends JPanel implements PresetResultListener
             }
         }
         catch (Exception e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(ComponentPresetPanel.this, "Unable to open OpenRocket component file: " +
                     file.getName() + " Invalid format. " + e.getMessage());
             openedFile = null;
             return false;
         }
         return true;
+    }
+
+    private boolean saveAndHandleError() {
+        try {
+            return saveAsORC();
+        }
+        catch (Exception e1) {
+            JOptionPane.showMessageDialog(ComponentPresetPanel.this, e1.getLocalizedMessage(),
+                    "Error saving ORC file.", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 
     /**

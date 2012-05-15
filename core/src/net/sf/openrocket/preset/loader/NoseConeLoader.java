@@ -4,10 +4,12 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
 import net.sf.openrocket.preset.TypedPropertyMap;
 
+import java.io.File;
+
 public class NoseConeLoader extends BaseComponentLoader {
 
-	public NoseConeLoader(MaterialHolder materials) {
-		super(materials);
+	public NoseConeLoader(MaterialHolder materials, File theBasePath) {
+		super(materials, theBasePath);
 		fileColumns.add(new DoubleUnitColumnParser("Outer Dia","Units",ComponentPreset.AFT_OUTER_DIAMETER));
 		fileColumns.add(new DoubleUnitColumnParser("Length","Units",ComponentPreset.LENGTH));
 		fileColumns.add(new DoubleUnitColumnParser("Insert Length","Units",ComponentPreset.AFT_SHOULDER_LENGTH));

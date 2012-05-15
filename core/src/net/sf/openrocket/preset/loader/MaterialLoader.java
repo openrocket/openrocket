@@ -1,23 +1,22 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.util.BugException;
 
+import java.io.File;
+
 public class MaterialLoader extends RocksimComponentFileLoader {
 
 	private MaterialHolder materialMap = new MaterialHolder();
-	
+
 	private final static TypedKey<String> MATERIALNAME = new TypedKey<String>("MaterialName", String.class);
 	private final static TypedKey<String> UNITS = new TypedKey<String>("Units", String.class);
 	private final static TypedKey<Double> DENSITY = new TypedKey<Double>("Density", Double.class);
-	
-	public MaterialLoader() {
-		super();
+
+	public MaterialLoader(File theBasePathToLoadFrom) {
+		super(theBasePathToLoadFrom);
 		fileColumns.add( new StringColumnParser("Material Name", MATERIALNAME) );
 		fileColumns.add( new StringColumnParser("Units", UNITS));
 		fileColumns.add( new DoubleColumnParser("Density", DENSITY));
@@ -37,9 +36,9 @@ public class MaterialLoader extends RocksimComponentFileLoader {
 		String name = props.get(MATERIALNAME);
 		String unit = props.get(UNITS);
 		double density = props.get(DENSITY);
-		
+
 		String cleanedMaterialName = stripAll(name, '"').trim();
-		
+
 		if ( "g/cm".equals( unit ) ) {
 			materialMap.put( new Material.Line(cleanedMaterialName, 0.1d * density, true));
 		} else if ( "g/cm2".equals(unit) ) {
