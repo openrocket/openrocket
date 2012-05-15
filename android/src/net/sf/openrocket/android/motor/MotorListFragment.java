@@ -26,10 +26,6 @@ import android.widget.ResourceCursorTreeAdapter;
 import android.widget.TextView;
 
 
-/*
- * TODO - make this work with PersistentExpandableListFragment.
- * 
- */
 public class MotorListFragment extends PersistentExpandableListFragment
 implements SharedPreferences.OnSharedPreferenceChangeListener
 {
