@@ -6,8 +6,8 @@ import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.Application;
 import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.simulation.SimulationChart;
-import net.sf.openrocket.android.simulation.SimulationFragment;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
+import net.sf.openrocket.android.simulation.SimulationViewFragment;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.Simulation;
 import android.app.AlertDialog;
@@ -88,7 +88,7 @@ implements Simulations.OnSimulationSelectedListener
 		if ( /* if multi pane */ sidepane != null ) {
 			SimulationChart chart = new SimulationChart(simulationId);
 
-			Fragment graph = SimulationFragment.newInstance(chart);
+			Fragment graph = SimulationViewFragment.newInstance(chart);
 
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

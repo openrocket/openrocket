@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 /**
  * An activity that encapsulates a graphical view of the chart.
  */
-public class SimulationFragment extends Fragment implements SimulationSeriesDialog.OnConfirmListener {
+public class SimulationViewFragment extends Fragment implements SimulationSeriesDialog.OnConfirmListener {
 	
 	SimulationChart chart;
 
@@ -31,8 +31,8 @@ public class SimulationFragment extends Fragment implements SimulationSeriesDial
 	/** The chart to be drawn. */
 	private XYChart mChart;
 
-	public static SimulationFragment newInstance( SimulationChart chart ) {
-		SimulationFragment frag = new SimulationFragment();
+	public static SimulationViewFragment newInstance( SimulationChart chart ) {
+		SimulationViewFragment frag = new SimulationViewFragment();
 		frag.chart = chart;
 		return frag;
 	}
