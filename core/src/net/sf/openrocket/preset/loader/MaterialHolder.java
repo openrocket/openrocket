@@ -5,17 +5,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import net.sf.openrocket.database.Database;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class MaterialHolder {
 
 	private final Map<String,Material.Bulk> bulkMaterials = new HashMap<String,Material.Bulk>();
-	
+
 	private final Map<String,Material.Surface> surfaceMaterials = new HashMap<String,Material.Surface>();
-	
+
 	private final Map<String, Material.Line> lineMaterials = new HashMap<String,Material.Line>();
-	
+
 	public void put( Material material ) {
 		switch ( material.getType() ) {
 		case BULK:
@@ -29,12 +30,12 @@ public class MaterialHolder {
 			break;
 		}
 	}
-	
+
 	public Material.Bulk getBulkMaterial( Material.Bulk material ) {
 		Material.Bulk m = bulkMaterials.get( material.getName() );
 		return (m==null) ? material : m;
 	}
-	
+
 	public Material.Surface getSurfaceMaterial( Material.Surface material, Double thickness ) {
 		Material.Surface m = surfaceMaterials.get(material.getName() );
 		if ( m != null ) {
@@ -52,39 +53,55 @@ public class MaterialHolder {
 			return m;
 		}
 		Material.Bulk bulk = bulkMaterials.get(material.getName() );
-		
+
 		if ( bulk == null ) {
 			return material;
 		}
-		
+
 		// Ok, now we have a thickness and a bulk material of the correct name,
 		// we can make our own surface material.
-		
+
 		Material.Surface surface = new Material.Surface( convertedMaterialName, bulk.getDensity() * thickness , true);
-		
+
 		this.put(surface);
 
 		return surface;
-		
+
 	}
-	
+
 	public Material.Line getLineMaterial( Material.Line material ) {
 		Material.Line m = lineMaterials.get( material.getName() );
 		return (m==null) ? material : m;
 	}
-	
+
 	public int size() {
 		return bulkMaterials.size() + surfaceMaterials.size() + lineMaterials.size();
 	}
 
 	public Collection<Material> values() {
-		
+
 		HashSet<Material> allMats = new HashSet<Material>();
 		allMats.addAll( bulkMaterials.values() );
 		allMats.addAll( surfaceMaterials.values() );
 		allMats.addAll( lineMaterials.values() );
-		
+
 		return allMats;
-		
+
 	}
+
+    public Database<Material> asDatabase(Material.Type theType) {
+        Database<Material> result = new Database<Material>();
+        switch (theType) {
+            case LINE:
+                result.addAll(lineMaterials.values());
+                break;
+            case SURFACE:
+                result.addAll(surfaceMaterials.values());
+                break;
+            case BULK:
+            default:
+                result.addAll(bulkMaterials.values());
+        }
+        return result;
+    }
 }

@@ -3,7 +3,6 @@
  */
 package net.sf.openrocket.gui.print;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
@@ -14,7 +13,7 @@ import javax.swing.JPanel;
 
 /**
  * Common interface for components we want to print. Used by PageFitPrintStrategy
- * 
+ *
  * @author Jason Blood <dyster2000@gmail.com>
  */
 public class PrintableComponent extends JPanel implements Printable {
@@ -24,7 +23,7 @@ public class PrintableComponent extends JPanel implements Printable {
      */
     private int offsetX = 0;
     private int offsetY = 0;
-	
+
     /**
      * Constructor.
      */
@@ -67,17 +66,17 @@ public class PrintableComponent extends JPanel implements Printable {
         PrintUtilities.enableDoubleBuffering(this);
         return Printable.PAGE_EXISTS;
     }
-	
+
 	/**
 	 * Set the offset this component will be printed to the page
 	 * @param x	X offset to print at.
-	 * @param x	Y offset to print at.
+	 * @param y	Y offset to print at.
 	 */
 	public void setPrintOffset(int x, int y) {
         offsetX = x;
         offsetY = y;
 	}
-	
+
 	/**
 	 * Get the X offset this component will be printed to the page
 	 * @return X offset to print at.
@@ -85,7 +84,7 @@ public class PrintableComponent extends JPanel implements Printable {
 	public int getOffsetX() {
 		return offsetX;
 	}
-	
+
 	/**
 	 * Get the Y offset this component will be printed to the page
 	 * @return Y offset to print at.

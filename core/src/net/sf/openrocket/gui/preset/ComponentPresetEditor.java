@@ -60,12 +60,12 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     /**
      * State variable to keep track of which file was opened, in case it needs to be saved back to that file.
      */
-    private File openedFile = null;
+//    private File openedFile = null;
 
     /**
      * Last directory; file chooser is set here so user doesn't have to keep navigating to a common area.
      */
-    private File lastDirectory = null;
+ //   private File lastDirectory = null;
 
     /**
      * The table of presets.
@@ -80,7 +80,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     /**
      * Flag that indicates if an existing Preset is currently being edited.
      */
-    private boolean editingSelected = false;
+ //   private boolean editingSelected = false;
+
+    private final OpenedFileContext editContext = new OpenedFileContext();
 
     static {
         trans = new ResourceBundleTranslator("l10n.messages");
@@ -131,8 +133,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
                 else {
                     if (e.getClickCount() == 2) {
                         int row = target.getSelectedRow();
-                        editingSelected = true;
-                        new PresetEditorDialog(ComponentPresetEditor.this, (ComponentPreset) model.getAssociatedObject(row)).setVisible(true);
+                        editContext.setEditingSelected(true);
+                        new PresetEditorDialog(ComponentPresetEditor.this,
+                                (ComponentPreset) model.getAssociatedObject(row), editContext.getMaterialsLoaded()).setVisible(true);
                     }
                 }
             }
@@ -216,7 +219,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         addBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent arg0) {
-                editingSelected = false;
+                editContext.setEditingSelected(false);
                 new PresetEditorDialog(ComponentPresetEditor.this).setVisible(true);
             }
         });
@@ -237,7 +240,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             //Is this a new preset?
             String description = preset.has(ComponentPreset.DESCRIPTION) ? preset.get(ComponentPreset.DESCRIPTION) :
                     preset.getPartNo();
-            if (!editingSelected) {
+            if (!editContext.isEditingSelected()|| table.getSelectedRow() == -1) {
                 model.addRow(new Object[]{preset.getManufacturer().getDisplayName(), preset.getType().name(),
                         preset.getPartNo(), description, Icons.EDIT_DELETE}, preset);
             }
@@ -251,7 +254,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
                 model.associated.set(row, preset);
             }
         }
-        editingSelected = false;
+        editContext.setEditingSelected(false);
     }
 
     /**
@@ -331,8 +334,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         chooser.addChoosableFileFilter(FileHelper.CSV_FILE_FILTER);
         chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        if (lastDirectory != null) {
-            chooser.setCurrentDirectory(lastDirectory);
+        if (editContext.getLastDirectory() != null) {
+            chooser.setCurrentDirectory(editContext.getLastDirectory());
         }
         else {
             chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
@@ -340,7 +343,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 
         int option = chooser.showOpenDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
-            openedFile = null;
+            editContext.setOpenedFile(null);
             log.user("User decided not to open, option=" + option);
             return false;
         }
@@ -352,7 +355,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
                 return false;
             }
 
-            lastDirectory = file.getParentFile();
+            editContext.setLastDirectory(file.getParentFile());
+            editContext.setMaterialsLoaded(null);
             List<ComponentPreset> presets = null;
 
             if (file.getName().toLowerCase().endsWith(".orc")) {
@@ -364,19 +368,20 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
                 }
                 presets = new ArrayList<ComponentPreset>();
                 MaterialHolder materialHolder = RocksimComponentFileTranslator.loadAll(presets, file);
+                editContext.setMaterialsLoaded(materialHolder);
             }
             if (presets != null) {
                 for (ComponentPreset next : presets) {
                     notifyResult(next);
                 }
-                openedFile = file;
+                editContext.setOpenedFile(file);
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(ComponentPresetEditor.this, "Unable to open OpenRocket component file: " +
                     file.getName() + " Invalid format. " + e.getMessage());
-            openedFile = null;
+            editContext.setOpenedFile(null);
+            editContext.setEditingSelected(false);
             return false;
         }
         return true;
@@ -408,8 +413,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         chooser.addChoosableFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
 
         chooser.setFileFilter(FileHelper.OPEN_ROCKET_COMPONENT_FILTER);
-        if (openedFile != null) {
-            chooser.setSelectedFile(openedFile);
+        if (editContext.getOpenedFile() != null) {
+            chooser.setSelectedFile(editContext.getOpenedFile());
         }
         else {
             chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
@@ -443,5 +448,57 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         }
 
         return FileHelper.confirmWrite(file, this) && new OpenRocketComponentSaver().save(file, materials, presets);
+    }
+
+    class OpenedFileContext {
+
+        /**
+         * State variable to keep track of which file was opened, in case it needs to be saved back to that file.
+         */
+        private File openedFile = null;
+
+        /**
+         * Last directory; file chooser is set here so user doesn't have to keep navigating to a common area.
+         */
+        private File lastDirectory = null;
+
+        private boolean editingSelected = false;
+
+        private MaterialHolder materialsLoaded = null;
+
+        OpenedFileContext() {
+        }
+
+        public File getOpenedFile() {
+            return openedFile;
+        }
+
+        public void setOpenedFile(final File theOpenedFile) {
+            openedFile = theOpenedFile;
+        }
+
+        public File getLastDirectory() {
+            return lastDirectory;
+        }
+
+        public void setLastDirectory(final File theLastDirectory) {
+            lastDirectory = theLastDirectory;
+        }
+
+        public boolean isEditingSelected() {
+            return editingSelected;
+        }
+
+        public void setEditingSelected(final boolean theEditingSelected) {
+            editingSelected = theEditingSelected;
+        }
+
+        public MaterialHolder getMaterialsLoaded() {
+            return materialsLoaded;
+        }
+
+        public void setMaterialsLoaded(final MaterialHolder theMaterialsLoaded) {
+            materialsLoaded = theMaterialsLoaded;
+        }
     }
 }

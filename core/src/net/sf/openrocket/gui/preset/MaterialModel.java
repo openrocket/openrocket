@@ -6,6 +6,7 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.loader.MaterialHolder;
 import net.sf.openrocket.startup.Application;
 
 import javax.swing.DefaultComboBoxModel;
@@ -27,9 +28,16 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
 
     private Component parent;
 
-    public MaterialModel(Component theParent, Material.Type type) {
+    public MaterialModel(Component theParent, Material.Type theType, Database<Material> materials) {
         parent = theParent;
-        this.type = type;
+        type = theType;
+        database = materials;
+        database.addDatabaseListener(this);
+    }
+
+    public MaterialModel(Component theParent, Material.Type theType) {
+        parent = theParent;
+        type = theType;
 
         switch (type) {
             case LINE:
@@ -122,5 +130,9 @@ public class MaterialModel extends DefaultComboBoxModel implements DatabaseListe
 
     public Material.Type getType() {
         return type;
+    }
+
+    public void removeListener() {
+        database.removeChangeListener(this);
     }
 }

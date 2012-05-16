@@ -11,12 +11,15 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
+import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.preset.loader.MaterialHolder;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 import javax.imageio.ImageIO;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
@@ -74,7 +77,8 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
     private final JPanel contentPanel = new JPanel();
     private DeselectableComboBox typeCombo;
     private JTextField mfgTextField;
-    private JComboBox materialChooser;
+    private MaterialChooser materialChooser;
+    private MaterialHolder holder = null;
 
     private JTextField ncPartNoTextField;
     private JTextField ncDescTextField;
@@ -171,7 +175,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
     private JTextField pcLineCount;
     private DoubleModel pcDiameter;
     private DoubleModel pcLineLength;
-    private JComboBox pcLineMaterialChooser;
+    private MaterialChooser pcLineMaterialChooser;
     private DoubleModel pcMass;
     private ImageIcon pcImage;
     private JButton pcImageBtn;
@@ -215,7 +219,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
      * @param theCallback the listener that gets the results of editing the presets
      */
     public PresetEditorDialog(PresetResultListener theCallback) {
-        this(theCallback, null);
+        this(theCallback, null, null);
     }
 
     /**
@@ -223,8 +227,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
      *
      * @param theCallback the listener that gets the results of editing the presets
      * @param toEdit      the ComponentPreset to be edited; or null if a new one is being added
+     * @param matHolder   the set of materials; if null then use system materials
      */
-    public PresetEditorDialog(PresetResultListener theCallback, ComponentPreset toEdit) {
+    public PresetEditorDialog(PresetResultListener theCallback, ComponentPreset toEdit, MaterialHolder matHolder) {
         resultListener = theCallback;
         getContentPane().setMinimumSize(new Dimension(200, 200));
         setBounds(100, 100, 825, 610);
@@ -255,7 +260,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
         JLabel bhMaterialLabel = new JLabel("Material:");
         contentPanel.add(bhMaterialLabel, "cell 2 2, alignx left");
 
-        materialChooser = new JComboBox(new MaterialModel(this, Material.Type.BULK));
+        materialChooser = new MaterialChooser(new MaterialModel(this, Material.Type.BULK));
 
         contentPanel.add(materialChooser, "cell 3 2,growx");
 
@@ -413,7 +418,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(trAftDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             trPanel.add(spin, "cell 1 3, growx");
-            trPanel.add(new UnitSelector(trAftDia));
+            trPanel.add(new UnitSelector(trAftDia), "growx");
 
             JLabel trForeDiaLabel = new JLabel("Fore Dia.:");
             trPanel.add(trForeDiaLabel, "cell 3 3,alignx left");
@@ -1028,7 +1033,6 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             JPanel pcPanel = new JPanel();
             componentOverlayPanel.add(pcPanel, "PARACHUTE");
             pcPanel.setLayout(new MigLayout("", "[][157.00,grow 79][65.00][grow][][]", "[][][][][][]"));
-            //pcPanel.setLayout(new MigLayout("", "[][grow][][grow]", "[][][][]"));
             JLabel pcPartNoLabel = new JLabel("Part No:");
             pcPanel.add(pcPartNoLabel, "cell 0 0,alignx left");
 
@@ -1089,7 +1093,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             JLabel pcLineMaterialLabel = new JLabel("Line Material:");
             pcPanel.add(pcLineMaterialLabel, "cell 3 4,alignx left, aligny top, pad 7 0 0 0 ");
 
-            pcLineMaterialChooser = new JComboBox();
+            pcLineMaterialChooser = new MaterialChooser();
             pcLineMaterialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.LINE));
             pcPanel.add(pcLineMaterialChooser, "cell 4 4, span 3 1, growx, aligny top");
 
@@ -1151,8 +1155,9 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
         buttonPane.add(cancelButton, "cell 6 0,alignx right,aligny top");
 
         if (toEdit != null) {
-            fillEditor(toEdit);
+            fillEditor(toEdit, matHolder);
         }
+        holder = matHolder;
     }
 
     /**
@@ -1187,17 +1192,6 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
         chooser.addPropertyChangeListener(preview);
         chooser.setAcceptAllFileFilterUsed(false);
         chooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", "png", "jpg", "jpeg"));
-        /*{
-            @Override
-            public boolean accept(final File f) {
-                return f.getName().endsWith(".png") || f.getName().endsWith(".jpg");
-            }
-
-            @Override
-            public String getDescription() {
-                return "Image Files";
-            }
-        });*/
         return chooser;
     }
 
@@ -1206,12 +1200,11 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
      *
      * @param preset the preset to edit
      */
-    private void fillEditor(ComponentPreset preset) {
+    private void fillEditor(ComponentPreset preset, MaterialHolder holder) {
         ComponentPreset.Type t = preset.getType();
 
         mfgTextField.setText(preset.get(ComponentPreset.MANUFACTURER).getDisplayName());
-        materialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.BULK));
-        materialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.MATERIAL));
+        setMaterial(materialChooser, preset, holder, Material.Type.BULK, ComponentPreset.MATERIAL);
         switch (t) {
             case BODY_TUBE:
                 typeCombo.setSelectedItem(trans.get(BODY_TUBE_KEY));
@@ -1443,8 +1436,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
                 }
                 break;
             case PARACHUTE:
-                materialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.SURFACE));
-                materialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.MATERIAL));
+                setMaterial(materialChooser, preset, holder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
                 typeCombo.setSelectedItem(trans.get(PARACHUTE_KEY));
                 pcDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
                 if (preset.has(ComponentPreset.LINE_COUNT)) {
@@ -1470,11 +1462,13 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
                     pcImage = new ImageIcon(byteArrayToImage(preset.get(ComponentPreset.IMAGE)));
                     pcImageBtn.setIcon(pcImage);
                 }
-                pcLineMaterialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.LINE_MATERIAL));
+                setMaterial(pcLineMaterialChooser, preset, holder, Material.Type.LINE, ComponentPreset.LINE_MATERIAL);
+//                pcLineMaterialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.LINE));
+
+//                pcLineMaterialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.LINE_MATERIAL));
                 break;
             case STREAMER:
-                materialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.SURFACE));
-                materialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.MATERIAL));
+                setMaterial(materialChooser, preset, holder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
                 typeCombo.setSelectedItem(trans.get(STREAMER_KEY));
                 stDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
                 if (preset.has(ComponentPreset.LENGTH)) {
@@ -1500,6 +1494,20 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
                 stPartNoTextField.setText(preset.get(ComponentPreset.PARTNO));
                 break;
             default:
+        }
+    }
+
+    private void setMaterial(final JComboBox chooser, final ComponentPreset preset, final MaterialHolder holder,
+                             final Material.Type theType, final TypedKey key) {
+        if (holder == null) {
+            chooser.setModel(new MaterialModel(PresetEditorDialog.this, theType));
+        }
+        else {
+            chooser.setModel(new MaterialModel(PresetEditorDialog.this, theType,
+                    holder.asDatabase(theType)));
+        }
+        if (preset != null) {
+            chooser.getModel().setSelectedItem(preset.get(key));
         }
     }
 
@@ -2053,12 +2061,12 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
         if (materialChooser != null && evt.getStateChange() == ItemEvent.SELECTED) {
             if (item.equals(trans.get(PARACHUTE_KEY)) || item.equals(trans.get(STREAMER_KEY))) {
                 if (!((MaterialModel) materialChooser.getModel()).getType().equals(Material.Type.SURFACE)) {
-                    materialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.SURFACE));
+                    setMaterial(materialChooser, null, holder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
                 }
             }
             else {
                 if (!((MaterialModel) materialChooser.getModel()).getType().equals(Material.Type.BULK)) {
-                    materialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.BULK));
+                    setMaterial(materialChooser, null, holder, Material.Type.BULK, ComponentPreset.MATERIAL);
                 }
             }
         }
@@ -2189,6 +2197,32 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
                 ((JTextComponent) aComponent).setText("");
             }
             return true;
+        }
+    }
+
+    class MaterialChooser extends JComboBox {
+
+        public MaterialChooser() {
+        }
+        public MaterialChooser(MaterialModel model) {
+            super(model);
+        }
+
+        /**
+         * Sets the data model that the <code>JComboBox</code> uses to obtain the list of items.
+         *
+         * @param aModel the <code>ComboBoxModel</code> that provides the displayed list of items
+         *
+         * @beaninfo bound: true description: Model that the combo box uses to get data to display.
+         */
+        @Override
+        public void setModel(final ComboBoxModel aModel) {
+            if (getModel() instanceof MaterialModel) {
+                MaterialModel old = (MaterialModel) getModel();
+                old.removeListener();
+            }
+            super.setModel(aModel);
+
         }
     }
 }
