@@ -43,6 +43,31 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 	private double averageThrust;
 	private double totalImpulse;
 	
+	/**
+	 * Deep copy constructor.
+	 * Constructs a new ThrustCurveMotor from an existing ThrustCurveMotor.
+	 * @param m
+	 */
+	protected ThrustCurveMotor( ThrustCurveMotor m ) {
+		this.digest = m.digest;
+		this.manufacturer = m.manufacturer;
+		this.designation = m.designation;
+		this.description = m.description;
+		this.type = m.type;
+		this.delays = Arrays.copyOf(m.delays, m.delays.length);
+		this.diameter = m.diameter;
+		this.length = m.length;
+		this.time = Arrays.copyOf(m.time, m.time.length);
+		this.thrust = Arrays.copyOf(m.thrust, m.thrust.length);
+		this.cg = new Coordinate[ m.cg.length ];
+		for( int i = 0; i< cg.length; i++ ) {
+			this.cg[i] = m.cg[i].clone();
+		}
+		this.maxThrust = m.maxThrust;
+		this.burnTime = m.burnTime;
+		this.averageThrust = m.averageThrust;
+		this.totalImpulse = m.totalImpulse;
+	}
 	
 	/**
 	 * Sole constructor.  Sets all the properties of the motor.
