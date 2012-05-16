@@ -12,8 +12,11 @@ import net.sf.openrocket.startup.Application;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public final class Coordinate implements Serializable {
+public final class Coordinate implements Cloneable, Serializable {
 	private static final LogHelper log = Application.getLogger();
+
+	// Defined for backwards compatibility after adding clone().
+	static final long serialVersionUID = 585574649794259293L;
 	
 	////////  Debug section
 	/*
@@ -68,8 +71,6 @@ public final class Coordinate implements Serializable {
 	private double length = -1; /* Cached when calculated */
 	
 	
-
-
 	public Coordinate() {
 		this(0, 0, 0, 0);
 	}
@@ -315,6 +316,10 @@ public final class Coordinate implements Serializable {
 		else
 			return String.format("(%.3f,%.3f,%.3f)", x, y, z);
 	}
-	
+
+	@Override
+	public Coordinate clone() {
+		return new Coordinate( 	this.x, this.y, this.z, this.weight );
+	}
 
 }
