@@ -388,7 +388,6 @@ public class PreferencesDialog extends JDialog {
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_TEMPERATURE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
-
 		//// Moment of inertia:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Momentofinertia")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
@@ -403,8 +402,14 @@ public class PreferencesDialog extends JDialog {
 		//// Stability:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
+		panel.add(combo, "sizegroup boxes");
+		
+		//// Windspeed:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Windspeed")));
+		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
 		panel.add(combo, "sizegroup boxes, wrap para");
 		
+
 
 
 		//// Default metric button

@@ -241,7 +241,7 @@ public class SimulationEditDialog extends JDialog {
 		label.setToolTipText(tip);
 		sub.add(label);
 		
-		m = new DoubleModel(conditions, "WindSpeedAverage", UnitGroup.UNITS_VELOCITY, 0);
+		m = new DoubleModel(conditions, "WindSpeedAverage", UnitGroup.UNITS_WINDSPEED, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -266,7 +266,7 @@ public class SimulationEditDialog extends JDialog {
 		label.setToolTipText(tip);
 		sub.add(label);
 		
-		m = new DoubleModel(conditions, "WindSpeedDeviation", UnitGroup.UNITS_VELOCITY, 0);
+		m = new DoubleModel(conditions, "WindSpeedDeviation", UnitGroup.UNITS_WINDSPEED, 0);
 		DoubleModel m2 = new DoubleModel(conditions, "WindSpeedAverage", 0.25,
 				UnitGroup.UNITS_COEFFICIENT, 0);
 		
