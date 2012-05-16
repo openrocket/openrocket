@@ -33,7 +33,7 @@ public class MotorDatabaseAdapter implements MotorDatabase {
 		try {
 			ExtendedThrustCurveMotor m = mDbHelper.getMotorDao().fetchMotor(manufacturer, designation);
 			if ( m != null ) {
-				return Collections.singletonList(m.getThrustCurveMotor());
+				return Collections.singletonList(m);
 			}
 		} catch ( Exception ex ) {
 

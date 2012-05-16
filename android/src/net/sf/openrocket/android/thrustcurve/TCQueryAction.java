@@ -101,9 +101,7 @@ public abstract class TCQueryAction extends Fragment {
 		DbAdapter mDbHelper = new DbAdapter(getActivity());
 		mDbHelper.open();
 		try {
-			ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor();
-
-			m.setThrustCurveMotor( thrustCurveMotor );
+			ExtendedThrustCurveMotor m = new ExtendedThrustCurveMotor(thrustCurveMotor);
 
 			// Convert impulse class.  ThrustCurve puts mmx, 1/4a and 1/2a as A.
 			m.setImpulseClass(mi.getImpulse_class());

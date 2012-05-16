@@ -2,12 +2,16 @@ package net.sf.openrocket.android.motor;
 
 import net.sf.openrocket.motor.ThrustCurveMotor;
 
-public class ExtendedThrustCurveMotor {
+public class ExtendedThrustCurveMotor extends ThrustCurveMotor {
 
 	private Long id;
 	private String caseInfo;
 	private String impulseClass;
-	private ThrustCurveMotor thrustCurveMotor;
+	
+	public ExtendedThrustCurveMotor( ThrustCurveMotor tcm ) {
+		super(tcm);
+	}
+	
 	/**
 	 * @return the id
 	 */
@@ -44,19 +48,6 @@ public class ExtendedThrustCurveMotor {
 	public void setImpulseClass(String impulseClass) {
 		this.impulseClass = impulseClass;
 	}
-	/**
-	 * @return the thrustCurveMotor
-	 */
-	public ThrustCurveMotor getThrustCurveMotor() {
-		return thrustCurveMotor;
-	}
-	/**
-	 * @param thrustCurveMotor the thrustCurveMotor to set
-	 */
-	public void setThrustCurveMotor(ThrustCurveMotor thrustCurveMotor) {
-		this.thrustCurveMotor = thrustCurveMotor;
-	}
-	
-	
+
 	
 }

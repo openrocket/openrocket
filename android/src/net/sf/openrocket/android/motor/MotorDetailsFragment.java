@@ -3,13 +3,12 @@ package net.sf.openrocket.android.motor;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.db.ConversionUtils;
 import net.sf.openrocket.android.db.DbAdapter;
-import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.unit.UnitGroup;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 public class MotorDetailsFragment extends DialogFragment {
@@ -84,14 +83,13 @@ public class MotorDetailsFragment extends DialogFragment {
 	}
 
 	private void init( ) {
-		ThrustCurveMotor tcm = motor.getThrustCurveMotor();
-		manuField.setText( tcm.getManufacturer().getDisplayName());
-		nameField.setText( tcm.getDesignation() );
-		delaysField.setText( ConversionUtils.delaysToString(tcm.getStandardDelays()) );
+		manuField.setText( motor.getManufacturer().getDisplayName());
+		nameField.setText( motor.getDesignation() );
+		delaysField.setText( ConversionUtils.delaysToString(motor.getStandardDelays()) );
 		caseField.setText( motor.getCaseInfo());
 		impulseClassField.setText( motor.getImpulseClass());
-		diameterField.setText( String.valueOf(tcm.getDiameter()*1000.0) );
-		lengthField.setText( String.valueOf(tcm.getLength()*1000.0) );
+		diameterField.setText( UnitGroup.UNITS_MOTOR_DIMENSIONS.toString(motor.getDiameter()) );
+		lengthField.setText( UnitGroup.UNITS_LENGTH.getUnit("mm").toString(motor.getLength()) );
 	}
 
 	private void saveChanges() {

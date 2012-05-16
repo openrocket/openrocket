@@ -98,7 +98,7 @@ public class BurnPlotFragment extends Fragment {
 		renderer.setAxesColor(Color.LTGRAY);
 		renderer.setLabelsColor(Color.LTGRAY);
 
-		renderer.setChartTitle(motor.getThrustCurveMotor().getManufacturer() + " " + motor.getThrustCurveMotor().getDesignation());
+		renderer.setChartTitle(motor.getManufacturer() + " " + motor.getDesignation());
 
 		renderer.setXTitle("time (s)");
 		renderer.setXLabelsAlign(Align.RIGHT);
@@ -122,10 +122,10 @@ public class BurnPlotFragment extends Fragment {
 
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 
-		XYSeries series = new XYSeries(motor.getThrustCurveMotor().getDesignation(), 0);
+		XYSeries series = new XYSeries(motor.getDesignation(), 0);
 		
-		double[] timePoints = motor.getThrustCurveMotor().getTimePoints();
-		double[] thrustPoints = motor.getThrustCurveMotor().getThrustPoints();
+		double[] timePoints = motor.getTimePoints();
+		double[] thrustPoints = motor.getThrustPoints();
 
 		// We are going to abuse this loop to also compute the Y axis max.
 		int maxy = 0;

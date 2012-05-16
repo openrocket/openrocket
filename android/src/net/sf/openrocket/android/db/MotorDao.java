@@ -2,6 +2,7 @@ package net.sf.openrocket.android.db;
 
 import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
+import net.sf.openrocket.android.util.AndroidLogWrapper.LogHelper;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
@@ -93,25 +94,24 @@ public class MotorDao {
 	
 	public long insertOrUpdateMotor(ExtendedThrustCurveMotor mi) throws Exception {
 		ContentValues initialValues = new ContentValues();
-		final ThrustCurveMotor tcm = mi.getThrustCurveMotor();
 		initialValues.put(ID, mi.getId());
-		initialValues.put(UNIQUE_NAME, tcm.getManufacturer() + tcm.getDesignation());
-		initialValues.put(DIGEST, tcm.getDigest());
-		initialValues.put(DESIGNATION, tcm.getDesignation());
-		initialValues.put(DELAYS, ConversionUtils.delaysToString(tcm.getStandardDelays()));
-		initialValues.put(DIAMETER, tcm.getDiameter());
-		initialValues.put(TOTAL_IMPULSE, tcm.getTotalImpulseEstimate());
-		initialValues.put(AVG_THRUST, tcm.getAverageThrustEstimate());
-		initialValues.put(MAX_THRUST, tcm.getMaxThrustEstimate());
-		initialValues.put(BURN_TIME, tcm.getBurnTimeEstimate());
-		initialValues.put(LENGTH, tcm.getLength());
+		initialValues.put(UNIQUE_NAME, mi.getManufacturer() + mi.getDesignation());
+		initialValues.put(DIGEST, mi.getDigest());
+		initialValues.put(DESIGNATION, mi.getDesignation());
+		initialValues.put(DELAYS, ConversionUtils.delaysToString(mi.getStandardDelays()));
+		initialValues.put(DIAMETER, mi.getDiameter());
+		initialValues.put(TOTAL_IMPULSE, mi.getTotalImpulseEstimate());
+		initialValues.put(AVG_THRUST, mi.getAverageThrustEstimate());
+		initialValues.put(MAX_THRUST, mi.getMaxThrustEstimate());
+		initialValues.put(BURN_TIME, mi.getBurnTimeEstimate());
+		initialValues.put(LENGTH, mi.getLength());
 		initialValues.put(CASE_INFO, mi.getCaseInfo());
-		initialValues.put(TYPE, tcm.getMotorType().name());
+		initialValues.put(TYPE, mi.getMotorType().name());
 		initialValues.put(IMPULSE_CLASS, mi.getImpulseClass());
-		initialValues.put(MANUFACTURER, tcm.getManufacturer().getSimpleName());
-		initialValues.put(THRUST_DATA, ConversionUtils.serializeArrayOfDouble(tcm.getThrustPoints()));
-		initialValues.put(TIME_DATA, ConversionUtils.serializeArrayOfDouble(tcm.getTimePoints()));
-		initialValues.put(CG_DATA, ConversionUtils.serializeArrayOfCoordinate(tcm.getCGPoints()));
+		initialValues.put(MANUFACTURER, mi.getManufacturer().getSimpleName());
+		initialValues.put(THRUST_DATA, ConversionUtils.serializeArrayOfDouble(mi.getThrustPoints()));
+		initialValues.put(TIME_DATA, ConversionUtils.serializeArrayOfDouble(mi.getTimePoints()));
+		initialValues.put(CG_DATA, ConversionUtils.serializeArrayOfCoordinate(mi.getCGPoints()));
 		
 		AndroidLogWrapper.d(MotorDao.class, "insertOrUpdate Motor");
 		long rv = mDb.insertWithOnConflict(DATABASE_TABLE, null, initialValues, SQLiteDatabase.CONFLICT_REPLACE);
@@ -183,12 +183,7 @@ public class MotorDao {
 	}
 	
 	private ExtendedThrustCurveMotor hydrateMotor(Cursor mCursor) throws Exception {
-		ExtendedThrustCurveMotor mi = new ExtendedThrustCurveMotor();
-		
-		mi.setId(mCursor.getLong(mCursor.getColumnIndex(ID)));
-		mi.setCaseInfo(mCursor.getString(mCursor.getColumnIndex(CASE_INFO)));
-		mi.setImpulseClass(mCursor.getString(mCursor.getColumnIndex(IMPULSE_CLASS)));
-		
+		ExtendedThrustCurveMotor mi;
 		{
 			String digest = mCursor.getString(mCursor.getColumnIndex(DIGEST));
 			String designation = mCursor.getString(mCursor.getColumnIndex(DESIGNATION));
@@ -222,7 +217,12 @@ public class MotorDao {
 					cgData,
 					digest
 					);
-			mi.setThrustCurveMotor(tcm);
+			mi = new ExtendedThrustCurveMotor(tcm);
+			
+			mi.setId(mCursor.getLong(mCursor.getColumnIndex(ID)));
+			mi.setCaseInfo(mCursor.getString(mCursor.getColumnIndex(CASE_INFO)));
+			mi.setImpulseClass(mCursor.getString(mCursor.getColumnIndex(IMPULSE_CLASS)));
+			
 		}
 		return mi;
 		
@@ -268,6 +268,9 @@ public class MotorDao {
 			}
 			mCursor.moveToFirst();
 			return hydrateMotor(mCursor);
+		} catch( Exception ex ) {
+			LogHelper.getInstance().debug("whoa!", ex);
+			throw ex;
 		} finally {
 			mCursor.close();
 		}
