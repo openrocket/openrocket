@@ -301,6 +301,7 @@ public class UnitGroup {
 		UNITS_FLIGHT_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
 		UNITS_TEMPERATURE.setDefaultUnit(DEGREE + "C");
+		UNITS_WINDSPEED.setDefaultUnit("m/s");
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit(MICRO + "m");
@@ -326,6 +327,7 @@ public class UnitGroup {
 		UNITS_FLIGHT_TIME.setDefaultUnit("s");
 		UNITS_ROLL.setDefaultUnit("r/s");
 		UNITS_TEMPERATURE.setDefaultUnit(DEGREE + "F");
+		UNITS_WINDSPEED.setDefaultUnit("mph");
 		UNITS_PRESSURE.setDefaultUnit("mbar");
 		UNITS_RELATIVE.setDefaultUnit("%");
 		UNITS_ROUGHNESS.setDefaultUnit("mil");
