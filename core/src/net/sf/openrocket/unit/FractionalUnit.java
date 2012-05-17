@@ -170,7 +170,7 @@ public class FractionalUnit extends Unit {
 		} else if (intPart == 0.0 ){
 			return intFormat.format(sign*frac) + "/" + intFormat.format(fracBase);
 		} else {
-			return intFormat.format(sign*intPart) + " " + intFormat.format(frac) + "/" + intFormat.format(fracBase);
+			return intFormat.format(sign*intPart) + " + " + intFormat.format(frac) + "/" + intFormat.format(fracBase);
 		}
 
 	}

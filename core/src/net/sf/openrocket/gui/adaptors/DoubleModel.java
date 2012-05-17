@@ -23,13 +23,16 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
-import net.sf.openrocket.util.FractionUtil;
 import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.util.exp4j.Calculable;
+import net.sf.openrocket.util.exp4j.ExpressionBuilder;
+import net.sf.openrocket.util.exp4j.UnknownFunctionException;
+import net.sf.openrocket.util.exp4j.UnparsableExpressionException;
 
 
 /**
@@ -55,8 +58,11 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	//////////// JSpinner Model ////////////
 
 	/**
-	 * Model suitable for JSpinner using JSpinner.NumberEditor.  It extends SpinnerNumberModel
+	 * Model suitable for JSpinner. 
+	 * Note: Previously used using JSpinner.NumberEditor and extended SpinnerNumberModel
 	 * to be compatible with the NumberEditor, but only has the necessary methods defined.
+	 * This is still the design, but now extends AbstractSpinnerModel to allow other characters
+	 * to be entered so that fractional units and expressions can be used.
 	 */
 	public class ValueSpinnerModel extends AbstractSpinnerModel implements Invalidatable {
 
@@ -73,26 +79,46 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 						" value=" + value + ", currently firing events");
 				return;
 			}
-			Number num = 0;
+			
+			Number num = Double.NaN;
+			
+			// Set num if possible
 			if ( value instanceof Number ) {
 				num = (Number)value;
-			} else if ( value instanceof String ) {
+			}
+			else if ( value instanceof String ) {
 				try {
 					String newValString = (String)value;
-					num = FractionUtil.parseFraction(newValString);
+					ExpressionBuilder builder=new ExpressionBuilder(newValString);
+					Calculable calc=builder.build();
+					num = calc.calculate();
 				}
-				catch ( java.lang.NumberFormatException nfex ) {
-					num = 0.0d;
-				}
+				catch ( java.lang.NumberFormatException e ) {
+				} catch (UnknownFunctionException e) {
+				} catch (UnparsableExpressionException e) {
+				} catch (java.util.EmptyStackException e) {
+				} 
 			}
 
-			double newValue = num.doubleValue();
-			double converted = currentUnit.fromUnit(newValue);
-
-			log.user("SpinnerModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
-					" converted=" + converted);
-			DoubleModel.this.setValue(converted);
-
+			// Update the doublemodel with the new number or return to the last number if not possible
+			if ( ((Double)num).isNaN() ) { 
+				DoubleModel.this.setValue( lastValue );
+				log.user("SpinnerModel could not set value for " + DoubleModel.this.toString() + ". Could not convert " + value.toString());
+			} 
+			else {			
+				double newValue = num.doubleValue();
+				double converted = currentUnit.fromUnit(newValue);
+	
+				log.user("SpinnerModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
+						" converted=" + converted);
+				DoubleModel.this.setValue(converted);
+			}
+			
+			// Force a refresh if text doesn't match up exactly with the stored value
+			if ( ! ((Double)lastValue).toString().equals( this.getValue().toString() ) )  {
+				DoubleModel.this.fireStateChanged();
+				log.debug("SpinnerModel "+DoubleModel.this.toString()+" refresh forced because string did not match actual value.");
+			}
 		}
 
 		@Override

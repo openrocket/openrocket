@@ -1,6 +1,8 @@
 package net.sf.openrocket.gui;
 
 import javax.swing.JSpinner;
+import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DefaultFormatterFactory;
 
 /**
  * Editable editor for a JSpinner.  Simply uses JSpinner.DefaultEditor, which has been made
@@ -16,6 +18,10 @@ public class SpinnerEditor extends JSpinner.DefaultEditor {
 		super(spinner);
 		//super(spinner,"0.0##");
 		getTextField().setEditable(true);
+		
+		DefaultFormatterFactory dff = (DefaultFormatterFactory) getTextField().getFormatterFactory();
+		DefaultFormatter formatter = (DefaultFormatter) dff.getDefaultFormatter();
+		formatter.setOverwriteMode(false);
 	}
 
 }

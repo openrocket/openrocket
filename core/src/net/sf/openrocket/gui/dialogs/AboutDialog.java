@@ -43,7 +43,8 @@ public class AboutDialog extends JDialog {
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
-			"iText (http://www.itextpdf.com/)";
+			"iText (http://www.itextpdf.com/)<br>" +
+			"exp4j (http://projects.congrace.de/exp4j/index.html)";
 	
 	
 	public AboutDialog(JFrame parent) {
