@@ -523,7 +523,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(btMass.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             btPanel.add(spin, "cell 4 1, growx");
-            btPanel.add(new UnitSelector(btMass), "growx");
+            btPanel.add(new UnitSelector(btMass), "w 34lp!");
 
             JLabel btInnerDiaLabel = new JLabel("Inner Dia.:");
             btPanel.add(btInnerDiaLabel, "cell 0 2,alignx left");
@@ -541,7 +541,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(btOuterDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             btPanel.add(spin, "cell 4 2, growx");
-            btPanel.add(new UnitSelector(btOuterDia), "growx");
+            btPanel.add(new UnitSelector(btOuterDia), "w 34lp!");
 
             JPanel panel = new JPanel();
             panel.setMinimumSize(new Dimension(200, 200));
@@ -601,7 +601,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(tcMass.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             tcPanel.add(spin, "cell 4 1, growx");
-            tcPanel.add(new UnitSelector(tcMass), "growx");
+            tcPanel.add(new UnitSelector(tcMass), "w 34lp!");
 
             JLabel tcInnerDiaLabel = new JLabel("Inner Dia.:");
             tcPanel.add(tcInnerDiaLabel, "cell 0 2,alignx left");
@@ -619,7 +619,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(tcOuterDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             tcPanel.add(spin, "cell 4 2, growx");
-            tcPanel.add(new UnitSelector(tcOuterDia), "growx");
+            tcPanel.add(new UnitSelector(tcOuterDia), "w 34lp!");
 
             JPanel panel = new JPanel();
             panel.setMinimumSize(new Dimension(200, 200));
@@ -672,7 +672,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             JSpinner spin = new JSpinner(bhLength.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             bhPanel.add(spin, "cell 1 1, growx");
-            bhPanel.add(new UnitSelector(bhLength), "growx");
+            bhPanel.add(new UnitSelector(bhLength), "w 34lp!");
 
             JLabel bhMassLabel = new JLabel("Mass:");
             bhPanel.add(bhMassLabel, "cell 3 1,alignx left");
@@ -690,7 +690,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(bhOuterDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             bhPanel.add(spin, "cell 1 2, growx, aligny top");
-            bhPanel.add(new UnitSelector(bhOuterDia), "growx, aligny top, pad 7 0 0 0");
+            bhPanel.add(new UnitSelector(bhOuterDia), "w 34lp!, h 27lp!, aligny top, pad 7 0 0 0");
 
             JPanel panel = new JPanel();
             panel.setMinimumSize(new Dimension(200, 200));
@@ -751,7 +751,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(crMass.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             crPanel.add(spin, "cell 4 1, growx");
-            crPanel.add(new UnitSelector(crMass), "growx");
+            crPanel.add(new UnitSelector(crMass), "w 34lp!");
 
             JLabel crOuterDiaLabel = new JLabel("Outer Dia.:");
             crPanel.add(crOuterDiaLabel, "cell 0 2,alignx left");
@@ -760,7 +760,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(crOuterDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             crPanel.add(spin, "cell 1 2, growx");
-            crPanel.add(new UnitSelector(crOuterDia), "growx");
+            crPanel.add(new UnitSelector(crOuterDia), "w 34lp!");
 
             JLabel crInnerDiaLabel = new JLabel("Inner Dia.:");
             crPanel.add(crInnerDiaLabel, "cell 3 2,alignx left");
@@ -769,7 +769,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(crInnerDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             crPanel.add(spin, "cell 4 2, growx");
-            crPanel.add(new UnitSelector(crInnerDia), "growx");
+            crPanel.add(new UnitSelector(crInnerDia), "w 34lp!");
 
             JPanel panel = new JPanel();
             panel.setMinimumSize(new Dimension(200, 200));
@@ -829,7 +829,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(ebMass.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             ebPanel.add(spin, "cell 4 1, growx");
-            ebPanel.add(new UnitSelector(ebMass), "growx");
+            ebPanel.add(new UnitSelector(ebMass), "w 34lp!");
 
             JLabel ebOuterDiaLabel = new JLabel("Outer Dia.:");
             ebPanel.add(ebOuterDiaLabel, "cell 0 2,alignx left");
@@ -847,7 +847,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(ebInnerDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             ebPanel.add(spin, "cell 4 2, growx");
-            ebPanel.add(new UnitSelector(ebInnerDia), "growx");
+            ebPanel.add(new UnitSelector(ebInnerDia), "w 34lp!");
 
             JPanel panel = new JPanel();
             panel.setMinimumSize(new Dimension(200, 200));
@@ -907,7 +907,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(llMass.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             llPanel.add(spin, "cell 4 1, growx");
-            llPanel.add(new UnitSelector(llMass), "growx");
+            llPanel.add(new UnitSelector(llMass), "w 34lp!");
 
             JLabel llOuterDiaLabel = new JLabel("Outer Dia.:");
             llPanel.add(llOuterDiaLabel, "cell 0 2,alignx left");
@@ -925,7 +925,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
             spin = new JSpinner(llInnerDia.getSpinnerModel());
             spin.setEditor(new SpinnerEditor(spin));
             llPanel.add(spin, "cell 4 2, growx");
-            llPanel.add(new UnitSelector(llInnerDia), "growx");
+            llPanel.add(new UnitSelector(llInnerDia), "w 34lp!");
 
             JPanel panel = new JPanel();
             panel.setMinimumSize(new Dimension(200, 200));

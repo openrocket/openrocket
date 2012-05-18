@@ -58,16 +58,6 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     private static ResourceBundleTranslator trans = null;
 
     /**
-     * State variable to keep track of which file was opened, in case it needs to be saved back to that file.
-     */
-//    private File openedFile = null;
-
-    /**
-     * Last directory; file chooser is set here so user doesn't have to keep navigating to a common area.
-     */
- //   private File lastDirectory = null;
-
-    /**
      * The table of presets.
      */
     private JTable table;
