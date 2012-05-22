@@ -105,8 +105,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Compute cg+cp + altitude
-		checkCgCp(0.248, 0.0645, 0.320, 12.0);
-		checkAlt(48.2);
+		checkCgCp(0.238, 0.0678, 0.320, 12.0);
+		checkAlt(44.2);
 		
 		
 		// Mass modification
@@ -117,8 +117,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.230, 0.0745, 0.320, 12.0);
-		checkAlt(37.2);
+		checkCgCp(0.223, 0.0778, 0.320, 12.0);
+		checkAlt(34.2);
 		
 		
 		// Non-change
@@ -134,7 +134,7 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp
-		checkCgCp(0.230, 0.0745, 0.320, 12.0);
+		checkCgCp(0.223, 0.0778, 0.320, 12.0);
 		
 		
 		// Aerodynamic modification
@@ -156,8 +156,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.230, 0.0745, 0.320, 12.0);
-		checkAlt(37.2);
+		checkCgCp(0.223, 0.0778, 0.320, 12.0);
+		checkAlt(34.0);
 		
 		
 		// Undo "Name change" change
@@ -167,7 +167,7 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp
-		checkCgCp(0.230, 0.0745, 0.320, 12.0);
+		checkCgCp(0.223, 0.0778, 0.320, 12.0);
 		
 		
 		// Undo "Modify mass" change
@@ -177,8 +177,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.248, 0.0645, 0.320, 12.0);
-		checkAlt(48.2);
+		checkCgCp(0.238, 0.0678, 0.320, 12.0);
+		checkAlt(44.3);
 		
 		
 		// Redo "Modify mass" change
@@ -188,8 +188,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.230, 0.0745, 0.320, 12.0);
-		checkAlt(37.2);
+		checkCgCp(0.223, 0.0778, 0.320, 12.0);
+		checkAlt(34.3);
 		
 		
 		// Mass modification
@@ -200,8 +200,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.223, 0.0795, 0.320, 12.0);
-		checkAlt(32.7);
+		checkCgCp(0.216, 0.0828, 0.320, 12.0);
+		checkAlt(30.2);
 		
 		
 		// Perform component movement
@@ -219,9 +219,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.221, 0.0797, 0.320, 12.0);
-		checkAlt(32.7);
-		
+		checkCgCp(0.215, 0.0830, 0.320, 12.0);
+		checkAlt(30.2);
 		
 		// Modify mass without setting undo description
 		massComponent().setComponentMass(0.020);
@@ -229,8 +228,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.215, 0.0847, 0.320, 12.0);
-		checkAlt(29.0);
+		checkCgCp(0.209, 0.088, 0.320, 12.0);
+		checkAlt(26.8);
 		
 		
 		// Undo "Modify mass2" change
@@ -240,8 +239,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.221, 0.0797, 0.320, 12.0);
-		checkAlt(32.7);
+		checkCgCp(0.215, 0.0830, 0.320, 12.0);
+		checkAlt(30.2);
 		
 		
 		// Undo "Move component" change
@@ -251,8 +250,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.223, 0.0795, 0.320, 12.0);
-		checkAlt(32.7);
+		checkCgCp(0.216, 0.0828, 0.320, 12.0);
+		checkAlt(30.4);
 		
 		
 		// Redo "Move component" change
@@ -262,8 +261,8 @@ public class IntegrationTest extends BaseTestCase {
 		
 		
 		// Check cg+cp + altitude
-		checkCgCp(0.221, 0.0797, 0.320, 12.0);
-		checkAlt(32.7);
+		checkCgCp(0.215, 0.0830, 0.320, 12.0);
+		checkAlt(30.2);
 		
 		
 	}
