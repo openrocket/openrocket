@@ -78,6 +78,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	
 	private void setup() {
 		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		// FIXME - here is the reason why the default configuration gets dorked with.
 		final Configuration rocketConfiguration = rocketDocument.getDefaultConfiguration();
 		Rocket rocket = rocketDocument.getRocket();
 
