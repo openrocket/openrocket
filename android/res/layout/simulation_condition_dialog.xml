@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/simulationConditionWind" />
+
+    <EditText
+        android:id="@+id/simulation_condition_windspeed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="right"
+        android:inputType="number"
+        android:text="0" >
+
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/simulationConditionsRodLength" />
+
+    <EditText
+        android:id="@+id/simulation_condition_rodlength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="right"
+        android:inputType="number"
+        android:text="0" />
+
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/simulationConditionsLaunchRodAngle" />
+
+    <EditText
+        android:id="@+id/simulation_condition_rodangle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="right"
+        android:inputType="number"
+        android:text="0" />
+
+    <Spinner
+        android:id="@+id/simulationConditionConfigurationSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:prompt="@string/simulationConditionSelectMotors" />
+
+</LinearLayout>

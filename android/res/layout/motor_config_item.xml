@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="false" >
+
+    <TextView
+        android:id="@+id/motor_config_motor_mount_name"
+        style="@style/labelTextStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:text="Stage" />
+
+    <Button
+        android:id="@+id/motor_config_motor_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/motor_config_motor_mount_name"
+        android:layout_margin="0dp"
+        android:layout_toLeftOf="@+id/motor_config_motor_dash"
+        android:text="@string/select_motor"
+        android:textAppearance="@style/valueTextStyle" />
+
+    <TextView
+        android:id="@+id/motor_config_motor_dash"
+        style="@style/valueTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/motor_config_motor_desc"
+        android:layout_below="@id/motor_config_motor_mount_name"
+        android:layout_toLeftOf="@+id/motor_config_motor_delay"
+        android:gravity="right"
+        android:text="-" />
+
+    <Button
+        android:id="@+id/motor_config_motor_delay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/motor_config_motor_desc"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/motor_config_motor_mount_name"
+        android:text="@string/select_delay"
+        android:textAppearance="@style/valueTextStyle" />
+
+</RelativeLayout>

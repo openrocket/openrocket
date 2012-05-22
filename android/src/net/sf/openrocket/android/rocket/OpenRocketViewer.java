@@ -123,7 +123,7 @@ implements Simulations.OnSimulationSelectedListener
 		}
 		@Override
 		public int getCount() {
-			return 3;
+			return 4;
 		}
 		@Override
 		public Fragment getItem( int position ) {
@@ -134,6 +134,8 @@ implements Simulations.OnSimulationSelectedListener
 				return new Component();
 			case 2:
 				return new Simulations();
+			case 3:
+				return new Configurations();
 			}
 			return null;
 		}
@@ -146,6 +148,8 @@ implements Simulations.OnSimulationSelectedListener
 				return "Components";
 			case 2:
 				return "Simulations";
+			case 3:
+				return "Configurations";
 			}
 			return null;
 		}

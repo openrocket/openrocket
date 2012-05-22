@@ -75,5 +75,11 @@
         <string name="motor_impulseclass">Impulse Class</string>
         <string name="motor_diameter">Diameter</string>
         <string name="motor_length">Length</string>
+        <string name="simulationConditionSelectMotors">Select Motors</string>
+        <string name="simulationConditionWind">Wind speed</string>
+        <string name="simulationConditionsRodLength">Launch Rod Length</string>
+        <string name="simulationConditionsLaunchRodAngle">Launch Rod Angle</string>
+        <string name="select_motor">Select Motor</string>
+        <string name="select_delay">Delay</string>
 
 </resources>
