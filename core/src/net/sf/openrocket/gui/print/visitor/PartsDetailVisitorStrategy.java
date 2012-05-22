@@ -194,9 +194,9 @@ public class PartsDetailVisitorStrategy {
             grid.addCell(createMaterialCell(tran.getMaterial()));
 
             Chunk fore = new Chunk(FORE_DIAMETER + toLength(tran.getForeRadius() * 2));
-            fore.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+            fore.setFont(PrintUtilities.NORMAL);
             Chunk aft = new Chunk(AFT_DIAMETER + toLength(tran.getAftRadius() * 2));
-            aft.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+            aft.setFont(PrintUtilities.NORMAL);
             final PdfPCell cell = ITextHelper.createCell();
             cell.addElement(fore);
             cell.addElement(aft);
@@ -387,17 +387,17 @@ public class PartsDetailVisitorStrategy {
         result.setVerticalAlignment(Element.ALIGN_TOP);
         result.setBorder(Rectangle.BOTTOM);
         Chunk c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(DIAMETER);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
+        c.setFont(PrintUtilities.SMALL);
         c.append(OUTER);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(" " + toLength(diameter));
         p.add(c);
         result.addElement(p);
@@ -417,12 +417,12 @@ public class PartsDetailVisitorStrategy {
         result.setVerticalAlignment(Element.ALIGN_TOP);
         result.setBorder(Rectangle.BOTTOM);
         Chunk c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(LENGTH);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(" " + toLength(component.getStripLength()));
         p.add(c);
         result.addElement(p);
@@ -430,12 +430,12 @@ public class PartsDetailVisitorStrategy {
         Phrase pw = new Phrase();
         pw.setLeading(14f);
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(WIDTH);
         pw.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append("  " + toLength(component.getStripWidth()));
         pw.add(c);
         result.addElement(pw);
@@ -483,17 +483,17 @@ public class PartsDetailVisitorStrategy {
         result.setVerticalAlignment(Element.ALIGN_TOP);
         result.setBorder(Rectangle.BOTTOM);
         Chunk c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(DIAMETER);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
+        c.setFont(PrintUtilities.SMALL);
         c.append(OUTER);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(" " + toLength(outerRadius * 2));
         p.add(c);
         createInnerDiaCell(innerRadius, result, innerLabel);
@@ -512,17 +512,17 @@ public class PartsDetailVisitorStrategy {
         Phrase p = new Phrase();
         p.setLeading(14f);
         Chunk c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(DIAMETER);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
+        c.setFont(PrintUtilities.SMALL);
         c.append(innerLabel);
         p.add(c);
 
         c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append("  " + toLength(innerRadius * 2));
         p.add(c);
         cell.addElement(p);
@@ -621,7 +621,7 @@ public class PartsDetailVisitorStrategy {
         Paragraph para = new Paragraph();
         para.setLeading(12f, 0);
         Chunk c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         Chunk tab1 =
           new Chunk(new VerticalPositionMark(), (level - 2) * 10, true);
 
@@ -638,7 +638,7 @@ public class PartsDetailVisitorStrategy {
             if (withIndent) {
                 para.add(new Chunk(tab1));
             }
-            c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
+            c.setFont(PrintUtilities.SMALL);
             c.append(preset.toString());
             para.add(c);
         }
@@ -658,11 +658,11 @@ public class PartsDetailVisitorStrategy {
         cell.setLeading(13f, 0);
 
         Chunk c = new Chunk();
-        c.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.NORMAL_FONT_SIZE));
+        c.setFont(PrintUtilities.NORMAL);
         c.append(toMaterialName(material));
         cell.addElement(c);
         Chunk density = new Chunk();
-        density.setFont(new Font(Font.FontFamily.HELVETICA, PrintUtilities.SMALL_FONT_SIZE));
+        density.setFont(PrintUtilities.SMALL);
         density.append(toMaterialDensity(material));
         cell.addElement(density);
         return cell;
