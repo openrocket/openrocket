@@ -18,7 +18,7 @@ public class ComponentCompare {
 			"getStageNumber", "getComponentName",
 			// Rocket specific methods:
 			"getModID", "getMassModID", "getAerodynamicModID", "getTreeModID", "getFunctionalModID",
-			"getMotorConfigurationIDs", "getDefaultConfiguration"
+			"getMotorConfigurationIDs", "getDefaultConfiguration", "getMotorMounts"
 	};
 	
 	

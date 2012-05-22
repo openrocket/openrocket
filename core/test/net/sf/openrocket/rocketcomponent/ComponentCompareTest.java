@@ -1,16 +1,19 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.util.Iterator;
 
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
 
-public class ComponentCompareTest {
+public class ComponentCompareTest extends BaseTestCase {
 
 	@Test
 	public void testComponentEquality() {
