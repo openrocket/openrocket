@@ -34,12 +34,12 @@ public class PrintUtilities implements Printable {
 	public static final int NORMAL_FONT_SIZE = Font.DEFAULTSIZE - 3;
 	public static final int SMALL_FONT_SIZE = NORMAL_FONT_SIZE - 3;
 	
-	public static final Font BOLD = new Font(Font.FontFamily.HELVETICA, NORMAL_FONT_SIZE, Font.BOLD);
-	public static final Font BIG_BOLD = new Font(Font.FontFamily.HELVETICA, NORMAL_FONT_SIZE + 3, Font.BOLD);
-	public static final Font BOLD_UNDERLINED = new Font(Font.FontFamily.HELVETICA, NORMAL_FONT_SIZE,
+	public static final Font BOLD = new Font(ITextHelper.getBaseFont(), NORMAL_FONT_SIZE, Font.BOLD);
+	public static final Font BIG_BOLD = new Font(ITextHelper.getBaseFont(), NORMAL_FONT_SIZE + 3, Font.BOLD);
+	public static final Font BOLD_UNDERLINED = new Font(ITextHelper.getBaseFont(), NORMAL_FONT_SIZE,
 														Font.BOLD | Font.UNDERLINE);
-	public static final Font NORMAL = new Font(Font.FontFamily.HELVETICA, NORMAL_FONT_SIZE);
-	public static final Font SMALL = new Font(Font.FontFamily.HELVETICA, SMALL_FONT_SIZE);
+	public static final Font NORMAL = new Font(ITextHelper.getBaseFont(), NORMAL_FONT_SIZE);
+	public static final Font SMALL = new Font(ITextHelper.getBaseFont(), SMALL_FONT_SIZE);
 	
 
 	private Component componentToBePrinted;

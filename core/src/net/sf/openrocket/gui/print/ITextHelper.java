@@ -3,6 +3,9 @@
  */
 package net.sf.openrocket.gui.print;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -10,19 +13,24 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
 
 /**
  * A bunch of helper methods for creating iText components.
  */
 public final class ITextHelper {
 
+	public static BaseFont getBaseFont(){
+		try {
+		return BaseFont.createFont("/dejavu-font/DejaVuSerif.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+		} catch (Exception ex ) {
+			throw new RuntimeException(ex);
+		}
+	}
     /**
      * Create a cell for an iText table.
      *

@@ -172,14 +172,7 @@ public class DesignReport {
 		double scale = paintRocketDiagram(pageImageableWidth, pageImageableHeight, canvas, figure, cp, cg);
 
 		canvas.beginText();
-		try {
-			canvas.setFontAndSize(BaseFont.createFont(PrintUtilities.NORMAL.getFamilyname(), BaseFont.CP1252,
-														BaseFont.EMBEDDED), PrintUtilities.NORMAL_FONT_SIZE);
-		} catch (DocumentException e) {
-			log.error("Could not set font.", e);
-		} catch (IOException e) {
-			log.error("Could not create font.", e);
-		}
+		canvas.setFontAndSize(ITextHelper.getBaseFont(), PrintUtilities.NORMAL_FONT_SIZE);
 		int figHeightPts = (int) (PrintUnit.METERS.toPoints(figure.getFigureHeight()) * 0.4 * (scale / PrintUnit.METERS
 				.toPoints(1)));
 		final int diagramHeight = pageImageableHeight * 2 - 70 - (figHeightPts);
@@ -312,17 +305,17 @@ public class DesignReport {
 		motorTable.setWidthPercentage(68);
 		motorTable.setHorizontalAlignment(Element.ALIGN_LEFT);
 
-		final PdfPCell motorCell = ITextHelper.createCell(MOTOR, PdfPCell.BOTTOM);
+		final PdfPCell motorCell = ITextHelper.createCell(MOTOR, PdfPCell.BOTTOM, PrintUtilities.SMALL);
 		final int mPad = 10;
 		motorCell.setPaddingLeft(mPad);
 		motorTable.addCell(motorCell);
-		motorTable.addCell(ITextHelper.createCell(AVG_THRUST, PdfPCell.BOTTOM));
-		motorTable.addCell(ITextHelper.createCell(BURN_TIME, PdfPCell.BOTTOM));
-		motorTable.addCell(ITextHelper.createCell(MAX_THRUST, PdfPCell.BOTTOM));
-		motorTable.addCell(ITextHelper.createCell(TOTAL_IMPULSE, PdfPCell.BOTTOM));
-		motorTable.addCell(ITextHelper.createCell(THRUST_TO_WT, PdfPCell.BOTTOM));
-		motorTable.addCell(ITextHelper.createCell(PROPELLANT_WT, PdfPCell.BOTTOM));
-		motorTable.addCell(ITextHelper.createCell(SIZE, PdfPCell.BOTTOM));
+		motorTable.addCell(ITextHelper.createCell(AVG_THRUST, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(BURN_TIME, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(MAX_THRUST, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(TOTAL_IMPULSE, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(THRUST_TO_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(PROPELLANT_WT, PdfPCell.BOTTOM, PrintUtilities.SMALL));
+		motorTable.addCell(ITextHelper.createCell(SIZE, PdfPCell.BOTTOM, PrintUtilities.SMALL));
 
 		DecimalFormat ttwFormat = new DecimalFormat("0.00");
 

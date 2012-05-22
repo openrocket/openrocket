@@ -6,6 +6,34 @@ import java.util.ArrayList;
 
 public class FractionalUnit extends Unit {
 
+	private final static String fraction = "\u2044";
+	
+	private final static String[] numerator = {
+		"\u2070",  // 0
+		"\u00B9",  // 1
+		"\u00B2",  // 2
+		"\u00B3",  // 3
+		"\u2074",  // 4
+		"\u2075",  // 5
+		"\u2076",  // 6
+		"\u2077",  // 7
+		"\u2078",  // 8
+		"\u2079"   // 9
+	};
+	
+	private final static String[] denominator = {
+		"\u2080",  // 0
+		"\u2081",  // 1
+		"\u2082",  // 2
+		"\u2083",  // 3
+		"\u2084",  // 4
+		"\u2085",  // 5
+		"\u2086",  // 6
+		"\u2087",  // 7
+		"\u2088",  // 8
+		"\u2089"   // 9
+	};
+	
 	// This is the base of the fractions.  ie, 16d for 1/16ths.
 	private final int fractionBase;
 	// This is 1d/fractionBase;
@@ -168,11 +196,38 @@ public class FractionalUnit extends Unit {
 		if ( frac == 0.0 )  {
 			return intFormat.format(posValue);
 		} else if (intPart == 0.0 ){
-			return intFormat.format(sign*frac) + "/" + intFormat.format(fracBase);
+			return (sign <0 ? "-" : "" ) + numeratorString(Double.valueOf(frac).intValue()) 
+					+ fraction + denominatorString(Double.valueOf(fracBase).intValue());
 		} else {
-			return intFormat.format(sign*intPart) + " + " + intFormat.format(frac) + "/" + intFormat.format(fracBase);
+			return intFormat.format(sign*intPart) + " " + numeratorString(Double.valueOf(frac).intValue())
+					+ fraction + denominatorString(Double.valueOf(fracBase).intValue());
 		}
 
+	}
+	
+	private String numeratorString( int value ) {
+
+		String rep = "";
+		if ( value == 0 ) {
+			return "0";
+		}
+		while ( value > 0 ) {
+			rep = numerator[ value % 10 ] + rep;
+			value = value /10;
+		}
+		return rep;
+	}
+	
+	private String denominatorString( int value ) {
+		String rep = "";
+		if ( value == 0 ) {
+			return "0";
+		}
+		while ( value > 0 ) {
+			rep = denominator[ value % 10 ] + rep;
+			value = value /10;
+		}
+		return rep;
 	}
 
 	@Override

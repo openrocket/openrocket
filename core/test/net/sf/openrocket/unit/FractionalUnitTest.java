@@ -106,17 +106,17 @@ public class FractionalUnitTest {
 
 		// default epsilon is 0.025
 		assertEquals("-1.2", testUnit.toString(-1.2)); 
-		assertEquals("-1 1/4", testUnit.toString(-1.225));
-		assertEquals("-1 1/4", testUnit.toString(-1.227));
-		assertEquals("-1 1/4", testUnit.toString(-1.25));
-		assertEquals("-1 1/4", testUnit.toString(-1.25));
-		assertEquals("-1 1/4", testUnit.toString(-1.275));
+		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.225));
+		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.227));
+		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.25));
+		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.25));
+		assertEquals("-1 \u00B9\u2044\u2084", testUnit.toString(-1.275));
 		assertEquals("-1.3", testUnit.toString(-1.3));
 
 		assertEquals("-0.2", testUnit.toString(-.2));
-		assertEquals("-1/4", testUnit.toString(-.225));
-		assertEquals("-1/4", testUnit.toString(-.25));
-		assertEquals("-1/4", testUnit.toString(-.274));
+		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.225));
+		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.25));
+		assertEquals("-\u00B9\u2044\u2084", testUnit.toString(-.274));
 		//assertEquals("-1/4", testUnit.toString(-.275)); // this has roundoff error which pushes it over epsilon
 		assertEquals("-0.3", testUnit.toString(-.3));
 
@@ -127,15 +127,15 @@ public class FractionalUnitTest {
 		assertEquals("0.1", testUnit.toString(.1));
 
 		assertEquals("0.2", testUnit.toString(.2));
-		assertEquals("1/4", testUnit.toString(.225));
-		assertEquals("1/4", testUnit.toString(.25));
-		assertEquals("1/4", testUnit.toString(.274));
+		assertEquals("\u00B9\u2044\u2084", testUnit.toString(.225));
+		assertEquals("\u00B9\u2044\u2084", testUnit.toString(.25));
+		assertEquals("\u00B9\u2044\u2084", testUnit.toString(.274));
 		assertEquals("0.3", testUnit.toString(.3));
 
 		assertEquals("1.2", testUnit.toString(1.2));
-		assertEquals("1 1/4", testUnit.toString(1.225));
-		assertEquals("1 1/4", testUnit.toString(1.25));
-		assertEquals("1 1/4", testUnit.toString(1.275));
+		assertEquals("1 \u00B9\u2044\u2084", testUnit.toString(1.225));
+		assertEquals("1 \u00B9\u2044\u2084", testUnit.toString(1.25));
+		assertEquals("1 \u00B9\u2044\u2084", testUnit.toString(1.275));
 		assertEquals("1.3", testUnit.toString(1.3));
 
 	}
@@ -144,17 +144,17 @@ public class FractionalUnitTest {
 	public void testToStringWithPrecision() {
 
 		// epsilon is .02
-		assertEquals("-1 3/16", testUnitApprox.toString(-1.2));
+		assertEquals("-1 \u00B3\u2044\u2081\u2086", testUnitApprox.toString(-1.2));
 		assertEquals("-1.225", testUnitApprox.toString(-1.225));
-		assertEquals("-1 1/4", testUnitApprox.toString(-1.25));
+		assertEquals("-1 \u00B9\u2044\u2084", testUnitApprox.toString(-1.25));
 		assertEquals("-1.275", testUnitApprox.toString(-1.275));
-		assertEquals("-1 5/16", testUnitApprox.toString(-1.3));
+		assertEquals("-1 \u2075\u2044\u2081\u2086", testUnitApprox.toString(-1.3));
 
-		assertEquals("-3/16", testUnitApprox.toString(-.2));
+		assertEquals("-\u00B3\u2044\u2081\u2086", testUnitApprox.toString(-.2));
 		assertEquals("-0.225", testUnitApprox.toString(-.225));
-		assertEquals("-1/4", testUnitApprox.toString(-.25));
+		assertEquals("-\u00B9\u2044\u2084", testUnitApprox.toString(-.25));
 		assertEquals("-0.275", testUnitApprox.toString(-.275));
-		assertEquals("-5/16", testUnitApprox.toString(-.3));
+		assertEquals("-\u2075\u2044\u2081\u2086", testUnitApprox.toString(-.3));
 
 		assertEquals("-0.1", testUnitApprox.toString(-.1));
 		assertEquals("-0.024", testUnitApprox.toString(-0.024));
@@ -162,17 +162,17 @@ public class FractionalUnitTest {
 		assertEquals("0.024", testUnitApprox.toString(.024));
 		assertEquals("0.1", testUnitApprox.toString(.1));
 
-		assertEquals("3/16", testUnitApprox.toString(.2));
+		assertEquals("\u00B3\u2044\u2081\u2086", testUnitApprox.toString(.2));
 		assertEquals("0.225", testUnitApprox.toString(.225));
-		assertEquals("1/4", testUnitApprox.toString(.25));
+		assertEquals("\u00B9\u2044\u2084", testUnitApprox.toString(.25));
 		assertEquals("0.275", testUnitApprox.toString(.275));
-		assertEquals("5/16", testUnitApprox.toString(.3));
+		assertEquals("\u2075\u2044\u2081\u2086", testUnitApprox.toString(.3));
 
-		assertEquals("1 3/16", testUnitApprox.toString(1.2));
+		assertEquals("1 \u00B3\u2044\u2081\u2086", testUnitApprox.toString(1.2));
 		assertEquals("1.225", testUnitApprox.toString(1.225));
-		assertEquals("1 1/4", testUnitApprox.toString(1.25));
+		assertEquals("1 \u00B9\u2044\u2084", testUnitApprox.toString(1.25));
 		assertEquals("1.275", testUnitApprox.toString(1.275));
-		assertEquals("1 5/16", testUnitApprox.toString(1.3));
+		assertEquals("1 \u2075\u2044\u2081\u2086", testUnitApprox.toString(1.3));
 
 	}
 	
@@ -180,18 +180,18 @@ public class FractionalUnitTest {
 	public void testInchToString() {
 		
 		// Just some random test points.
-		assertEquals( "1/64", inchUnit.toString( 1d/64d*0.0254));
+		assertEquals( "\u00B9\u2044\u2086\u2084", inchUnit.toString( 1d/64d*0.0254));
 		
-		assertEquals( "-5/64", inchUnit.toString( -5d/64d*0.0254));
+		assertEquals( "-\u2075\u2044\u2086\u2084", inchUnit.toString( -5d/64d*0.0254));
 		
-		assertEquals( "4 1/2", inchUnit.toString( 9d/2d*0.0254));
+		assertEquals( "4 \u00B9\u2044\u2082", inchUnit.toString( 9d/2d*0.0254));
 		
 		assertEquals( "0.002", inchUnit.toString( 0.002*0.0254));
 		
 		// default body tube length:
 		double length = 8d * 0.025;
 		
-		assertEquals( "7 7/8", inchUnit.toString( length) );
+		assertEquals( "7 \u2077\u2044\u2088", inchUnit.toString( length) );
 		
 		// had problems with roundoff in decrement.
 		

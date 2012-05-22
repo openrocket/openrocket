@@ -25,6 +25,17 @@ public class ExpressionParser {
 	}
 	
 	private String modify(String exp) throws InvalidExpressionException {
+		char[] chars = exp.toCharArray();
+		for( int i = 0; i< chars.length; i++ ) {
+			int value = Character.getNumericValue(chars[i]);
+			if ( value >= 0 && value < 10 ) {
+				chars[i] = Character.toChars(48 + value)[0];
+			}
+			if ( chars[i] == '\u2044') {
+				chars[i] = '/';
+			}
+		}
+		exp = String.copyValueOf(chars);
 		exp = exp.replaceAll("(\\d+)\\s+(\\d+)\\s*/\\s*(\\d+)", "($1+$2/$3)");
 		exp = exp.replace(',', '.');
 		// Disallow spaces between numbers - default is to remove spaces!
