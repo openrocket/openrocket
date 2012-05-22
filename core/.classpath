@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/jspf.core-1.0.2.jar" sourcepath="/home/sampo/Projects/lib/jspf/documentation/api"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/exp4j-0.2.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

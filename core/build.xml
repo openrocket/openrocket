@@ -86,6 +86,7 @@
 			<zipfileset src="lib/jfreechart-1.0.13.jar" />
 			<zipfileset src="lib/iText-5.0.2.jar" />
 			<zipfileset src="lib/opencsv-2.3.jar" />
+			<zipfileset src="lib/exp4j-0.2.9.jar" />
 		</jar>
 	</target>
 
