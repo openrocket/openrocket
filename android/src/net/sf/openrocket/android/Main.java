@@ -1,7 +1,6 @@
 package net.sf.openrocket.android;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.filebrowser.SimpleFileBrowser;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -10,13 +9,15 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-public class Main extends ActionBarFragmentActivity {
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class Main extends SherlockFragmentActivity {
 
 	private static final int PICK_ORK_FILE_RESULT = 1;
 
@@ -51,7 +52,7 @@ public class Main extends ActionBarFragmentActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.main_menu, menu);
 		return true;
 	}

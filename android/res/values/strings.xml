@@ -24,6 +24,7 @@
     <string name="simulationSeries2Label">Series 2</string>
 
     <string name="motorbrowsergrouptitle">Motor Browser Grouping</string>
+    <string name="motorbrowsertitle">Motor Browser</string>
     
     <string name="useinternalfilebrowsertitle">Use Internal File Browser</string>
     <string name="useinternalfilebrowsersummary">Check to use built in file browser instead of external file browser</string>

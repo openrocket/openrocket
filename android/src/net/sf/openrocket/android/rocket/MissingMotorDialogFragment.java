@@ -7,9 +7,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
-public class MissingMotorDialogFragment extends DialogFragment {
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
+public class MissingMotorDialogFragment extends SherlockDialogFragment {
 	
 	private final static String MESSAGE_ARG_KEY = "message";
 

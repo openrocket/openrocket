@@ -6,7 +6,6 @@ import java.util.Set;
 import net.sf.openrocket.R;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.Application;
-import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.thrustcurve.TCMissingMotorDownloadAction;
 import net.sf.openrocket.android.thrustcurve.TCQueryAction;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
@@ -19,7 +18,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-public class OpenRocketLoaderActivity extends ActionBarFragmentActivity
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
+public class OpenRocketLoaderActivity extends SherlockFragmentActivity
 implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnOpenRocketFileLoaded
 {
 

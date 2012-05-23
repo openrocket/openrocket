@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.actionbarcompat.ActionBarListActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -26,7 +25,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class SimpleFileBrowser extends ActionBarListActivity {
+import com.actionbarsherlock.app.SherlockListActivity;
+
+public class SimpleFileBrowser extends SherlockListActivity {
 
 	private List<File> path = null;
 	private final static File root = new File("/");

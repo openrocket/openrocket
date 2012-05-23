@@ -19,7 +19,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".android.Main"
-            android:theme="@style/AppTheme.Clean" >
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +28,7 @@
         </activity>
         <activity
             android:name=".android.rocket.OpenRocketLoaderActivity"
-            android:theme="@style/AppTheme.Clean" >
+            android:theme="@style/AppTheme.NoActionBar" >
 
             <!--
                  I don't understand why I need to have two different intent filters. 
@@ -72,11 +72,11 @@
         <activity android:name=".android.motor.MotorBrowserActivity" />
         <activity
             android:name=".android.motor.BurnPlotActivity"
-            android:theme="@style/AppTheme.NoTitleBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".android.thrustcurve.TCQueryActivity" />
         <activity
             android:name=".android.simulation.SimulationViewActivity"
-            android:theme="@style/AppTheme.NoTitleBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".android.filebrowser.SimpleFileBrowser" />
     </application>
 

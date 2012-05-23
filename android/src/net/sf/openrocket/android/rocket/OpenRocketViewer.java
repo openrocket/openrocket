@@ -6,7 +6,6 @@ import java.io.IOException;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.Application;
-import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.simulation.SimulationViewFragment;
@@ -20,12 +19,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
-public class OpenRocketViewer extends ActionBarFragmentActivity
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class OpenRocketViewer extends SherlockFragmentActivity
 implements Simulations.OnSimulationSelectedListener
 {
 
@@ -42,13 +43,13 @@ implements Simulations.OnSimulationSelectedListener
 
 		setTitle(app.getRocketDocument().getRocket().getName());
 
-		getActionBarHelper().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.rocket_viewer_option_menu, menu);
 		return true;
 	}

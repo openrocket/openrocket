@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 
-public class PreferencesActivity extends android.preference.PreferenceActivity 
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+
+public class PreferencesActivity extends SherlockPreferenceActivity 
 {
 
 	

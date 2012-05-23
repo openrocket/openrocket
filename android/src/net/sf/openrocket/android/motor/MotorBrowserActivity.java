@@ -3,18 +3,19 @@ package net.sf.openrocket.android.motor;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.PreferencesActivity;
-import net.sf.openrocket.android.actionbarcompat.ActionBarFragmentActivity;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
-public class MotorBrowserActivity extends ActionBarFragmentActivity
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class MotorBrowserActivity extends SherlockFragmentActivity
 implements MotorListFragment.OnMotorSelectedListener
 {
 
@@ -28,7 +29,8 @@ implements MotorListFragment.OnMotorSelectedListener
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.motorbrowser);
-		getActionBarHelper().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setTitle(R.string.motorbrowsertitle);
 		// Only create the motorBrowser fragment if it doesn't already exist.
 		Fragment motorBrowser = getSupportFragmentManager().findFragmentByTag(MOTOR_LIST_FRAGMENT);
 		if ( motorBrowser == null ) {
@@ -41,7 +43,7 @@ implements MotorListFragment.OnMotorSelectedListener
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
+		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.motor_browser_option_menu, menu);
 		return true;
 	}
