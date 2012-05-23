@@ -381,10 +381,10 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			volume = 0;
 			cg = new Coordinate(length / 2, 0, 0, 0);
 		} else {
-			// getComponentMass is safe now
-			// Use super.getComponentMass() to ensure only the transition shape mass
-			// is used, not the shoulders
-			cg = new Coordinate(cgx / volume, 0, 0, super.getComponentMass());
+			// the mass of this shape is the material density * volume.
+			// it cannot come from super.getComponentMass() since that 
+			// includes the shoulders
+			cg = new Coordinate(cgx / volume, 0, 0, getMaterial().getDensity() * volume );
 		}
 	}
 	
