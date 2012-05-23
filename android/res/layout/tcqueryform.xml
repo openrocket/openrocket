@@ -49,6 +49,7 @@
                 android:text="@string/motor_commonname" />
 
             <EditText
+                android:inputType="text"
                 android:id="@+id/TCMotorSearchFormCommonNameField"
                 android:text="" />
         </TableRow>

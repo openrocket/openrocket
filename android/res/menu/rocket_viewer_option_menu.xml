@@ -7,7 +7,7 @@
     <item
         android:id="@+id/motor_list_menu_option"
         android:icon="@drawable/ic_motorbrowser"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/viewmotorslabel"/>
     <item
         android:id="@+id/preference_menu_option"

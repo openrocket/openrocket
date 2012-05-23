@@ -132,7 +132,7 @@ public class BurnPlotFragment extends Fragment {
 		int datasize = timePoints.length;
 		for( int i = 0; i<datasize; i++ ) {
 			series.add(timePoints[i], thrustPoints[i]);
-			int ceil = new Double(Math.ceil(thrustPoints[i])).intValue();
+			int ceil =(int) Math.ceil(thrustPoints[i]);
 			if ( ceil > maxy ) {
 				maxy = ceil;
 			}
@@ -144,7 +144,7 @@ public class BurnPlotFragment extends Fragment {
 		if ( maxx >= 2.0 ) {
 			maxx = Math.ceil(maxx);
 		} else {
-			maxx = new Double( Math.ceil(maxx*10.0) ).intValue() /10.0;
+			maxx = Math.ceil(maxx*10.0) /10.0;
 		}
 		renderer.setXAxisMax(maxx);
 		
