@@ -1,3 +1,7 @@
+2012-05-23  Doug Pedrick
+
+    * Centering ring templates can now be chosen for printing.
+
 2012-05-09  Kevin Ruland
 
     * Add ComponentPreset functionality.  These are commercial components which can be used in rocket designs.
@@ -425,7 +429,7 @@
 2009-11-24  Sampo Niskanen
 
 	* Close original window when opening example design
-	
+
 2009-11-10  Sampo Niskanen
 
 	* [BUG] Fixed transition volume/mass computation
@@ -434,7 +438,7 @@
 2009-10-11  Sampo Niskanen
 
 	* [BUG] Sorting motor selection dialog with ',' decimal separator
-	
+
 2009-10-10  Sampo Niskanen
 
 	* Removed non-ASCII characters from source code files
@@ -494,7 +498,7 @@
 
 	* Added icon and source info to About dialog
 	* Finalized flight event plot icons
-	
+
 2009-08-27  Sampo Niskanen
 
 	* Allow clicking on label to toggle checkbox in two tables
@@ -514,7 +518,7 @@
 2009-08-14  Sampo Niskanen
 
 	* Plots ignore trailing NaN values
-	
+
 2009-08-13  Sampo Niskanen
 
 	* [BUG] Added fin cant for elliptical fins
@@ -552,7 +556,7 @@
 2009-07-28  Sampo Niskanen
 
 	* Opening of example rocket designs
-	
+
 2009-07-27  Sampo Niskanen
 
 	* [BUG] Launch lug radial position not correctly loaded
@@ -615,7 +619,7 @@
 	* Fixed file dialog directory browsing
 	* Initial shift-click selects second component from figure
 	* Allow adding body components without selecting stage
-	
+
 2009-05-24  Sampo Niskanen  <sampo.niskanen@iki.fi>
 
 	* Initial release 0.9.0
