@@ -1,16 +1,18 @@
 package net.sf.openrocket.gui.print;
 
-import net.sf.openrocket.rocketcomponent.Transition;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public abstract class AbstractPrintableTransition extends PrintableComponent {
+public abstract class AbstractPrintable<T> extends PrintableComponent {
     /**
-     * The stroke of the transition arc.
+     * A thin stroke.
      */
-    private final static BasicStroke thinStroke = new BasicStroke(1.0f);
+    public final static BasicStroke thinStroke = new BasicStroke(1.0f);
+
+    /**
+     * A thick stroke.
+     */
+    public final static BasicStroke thickStroke = new BasicStroke(4.0f);
 
     /**
      * The X margin.
@@ -21,14 +23,14 @@ public abstract class AbstractPrintableTransition extends PrintableComponent {
      * The Y margin.
      */
     protected int marginY = (int) PrintUnit.INCHES.toPoints(0.25f);
-    
+
     /**
      * Constructor. Initialize this printable with the component to be printed.
      *
      * @param isDoubleBuffered  a boolean, true for double-buffering
      * @param transition  the component to be printed
      */
-    public AbstractPrintableTransition(boolean isDoubleBuffered, Transition transition) {
+    public AbstractPrintable(boolean isDoubleBuffered, T transition) {
         init(transition);
     }
 
@@ -39,7 +41,7 @@ public abstract class AbstractPrintableTransition extends PrintableComponent {
      *
      * @param component the transition component
      */
-    protected abstract void init(Transition component);
+    protected abstract void init(T component);
 
     /**
      * Draw the component onto the graphics context.
@@ -47,12 +49,12 @@ public abstract class AbstractPrintableTransition extends PrintableComponent {
      * @param g2 the graphics context
      */
     protected abstract void draw(Graphics2D g2);
-    
+
     /**
      * Returns a generated image of the transition.  May then be used wherever AWT images can be used, or converted to
      * another image/picture format and used accordingly.
      *
-     * @return an awt image of the fin set
+     * @return an awt image of the transition
      */
     public Image createImage() {
         int width = getWidth() + marginX;

@@ -22,29 +22,31 @@ public enum OpenRocketPrintable {
 	NOSE_CONE_TEMPLATE("OpenRocketPrintable.Noseconetemplates", false, 3),
 	// Transition Templates
 	TRANSITION_TEMPLATE("OpenRocketPrintable.Transitiontemplates", false, 4),
+	// Centering Ring Templates
+	CENTERING_RING_TEMPLATE("OpenRocketPrintable.Centeringringtemplates", false, 5),
 	// Finset shape
-	FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 5),
+	FIN_TEMPLATE("OpenRocketPrintable.Fintemplates", true, 6),
 	// Fin marking guide.
-	FIN_MARKING_GUIDE("OpenRocketPrintable.Finmarkingguide", false, 6);
-	
+	FIN_MARKING_GUIDE("OpenRocketPrintable.Finmarkingguide", false, 7);
+
 
 	private static final Translator trans = Application.getTranslator();
-	
+
 	/**
 	 * The description - will be displayed in the JTree.
 	 */
 	private String description;
-	
+
 	/**
 	 * Flag that indicates if the enum value is different depending upon stage.
 	 */
 	private boolean stageSpecific;
-	
+
 	/**
 	 * The order of the item as it appears in the printed document.
 	 */
 	private int order;
-	
+
 	/**
 	 * Constructor.
 	 *
@@ -57,7 +59,7 @@ public enum OpenRocketPrintable {
 		stageSpecific = staged;
 		order = idx;
 	}
-	
+
 	/**
 	 * Get the description of this printable.
 	 *
@@ -66,7 +68,7 @@ public enum OpenRocketPrintable {
 	public String getDescription() {
 		return trans.get(description);
 	}
-	
+
 	/**
 	 * Answers if this enum value has different meaning depending upon the stage.
 	 *
@@ -75,7 +77,7 @@ public enum OpenRocketPrintable {
 	public boolean isStageSpecific() {
 		return stageSpecific;
 	}
-	
+
 	/**
 	 * Answer the print order.  This is relative to other enum values.  No two enum values will have the same print
 	 * order value.
@@ -85,7 +87,7 @@ public enum OpenRocketPrintable {
 	public int getPrintOrder() {
 		return order;
 	}
-	
+
 	/**
 	 * Look up an enum value based on the description.
 	 *
@@ -102,7 +104,7 @@ public enum OpenRocketPrintable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Get a list of ordered enum values that do not have stage affinity.
 	 *
