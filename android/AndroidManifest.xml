@@ -77,7 +77,8 @@
         <activity
             android:name=".android.simulation.SimulationViewActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".android.filebrowser.SimpleFileBrowser" />
+        <activity android:name=".android.filebrowser.SimpleFileBrowser"
+            android:theme="@style/Theme.Sherlock.Dialog" />
     </application>
 
 </manifest>
