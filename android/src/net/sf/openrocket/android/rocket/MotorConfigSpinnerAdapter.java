@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 public class MotorConfigSpinnerAdapter extends ArrayAdapter<String> {
 
 	public MotorConfigSpinnerAdapter(Context context, Rocket rocket) {
-		super(context, R.layout.simple_spinner_item);
+		super(context, android.R.layout.simple_spinner_item);
 		
 		String[] motorConfigs = rocket.getMotorConfigurationIDs();
 

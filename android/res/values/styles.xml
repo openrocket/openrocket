@@ -12,15 +12,17 @@
         <item name="android:gravity">right</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.Sherlock"/>
-    
+    <style name="AppTheme" parent="Theme.Sherlock">
+        <item name="android:spinnerItemStyle">@style/spinnerStyle</item>
+    </style>
+
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    
-    <style name="spinnerStyle" parent="@android:style/Widget.TextView.SpinnerItem">
-        <item name="android:textSize">22dp</item>
+
+    <style name="spinnerStyle" parent="Widget.Sherlock.TextView.SpinnerItem">
+        <item name="android:textSize">26dp</item>
         <item name="android:textColor">#000000</item>
         <item name="android:layout_height">30dp</item>
     </style>

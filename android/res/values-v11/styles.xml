@@ -1,0 +1,8 @@
+
+<resources>
+
+    <style name="spinnerStyle" parent="Widget.Sherlock.TextView.SpinnerItem">
+        <item name="android:textSize">22dp</item>
+    </style>
+
+</resources>
