@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -53,7 +52,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
+
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		prefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -67,7 +66,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
-}
+	}
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences arg0, String arg1) {
@@ -75,19 +74,36 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			setup();
 		}
 	}
-	
+
 	private void setup() {
 		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
-		// FIXME - here is the reason why the default configuration gets dorked with.
-		final Configuration rocketConfiguration = rocketDocument.getDefaultConfiguration();
 		Rocket rocket = rocketDocument.getRocket();
 
+		// Find the index of the default configuration so we can preselect it.
+		Configuration defaultConfiguration = rocketDocument.getDefaultConfiguration();
+		int selectedIndex = 0;
+		if ( defaultConfiguration != null ) {
+			String defaultConfigId = defaultConfiguration.getMotorConfigurationID();
+			if ( defaultConfigId != null ) {
+				for( String s : rocket.getMotorConfigurationIDs() ) {
+					// Note - s may be null since it is a valid id.
+					if ( defaultConfigId.equals(s) ) {
+						break;
+					}
+					selectedIndex++;
+				}
+			}
+		}
+		if( selectedIndex > rocket.getMotorConfigurationIDs().length ) {
+			selectedIndex = 0;
+		}
 		MotorConfigSpinnerAdapter spinnerAdapter = new MotorConfigSpinnerAdapter(getActivity(),rocket);
 
 		AndroidLogWrapper.d(Overview.class, "spinnerAdapter = " + spinnerAdapter);
 		AndroidLogWrapper.d(Overview.class, "configurationSpinner = " + configurationSpinner);
 
 		configurationSpinner.setAdapter(spinnerAdapter);
+		configurationSpinner.setSelection(selectedIndex);
 		configurationSpinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
 
 			/* (non-Javadoc)
@@ -98,16 +114,17 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 					int arg2, long arg3) {
 
 				String selectedConfigId = rocketDocument.getRocket().getMotorConfigurationIDs()[arg2];
-				rocketConfiguration.setMotorConfigurationID(selectedConfigId);
-				Coordinate cp = aerodynamicCalculator.getWorstCP(rocketConfiguration,
-						new FlightConditions(rocketConfiguration),
+				Configuration config = new Configuration(rocketDocument.getRocket());
+				config.setMotorConfigurationID(selectedConfigId);
+				Coordinate cp = aerodynamicCalculator.getWorstCP(config,
+						new FlightConditions(config),
 						new WarningSet());
 
-				Coordinate cg = massCalculator.getCG(rocketConfiguration, MassCalcType.LAUNCH_MASS);
+				Coordinate cg = massCalculator.getCG(config, MassCalcType.LAUNCH_MASS);
 
 				Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 				Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-				Unit stabilityUnit = UnitGroup.stabilityUnits(rocketConfiguration).getDefaultUnit();
+				Unit stabilityUnit = UnitGroup.stabilityUnits(config).getDefaultUnit();
 
 				((TextView)getActivity().findViewById(R.id.openrocketviewerCP)).setText(lengthUnit.toStringUnit(cp.x));
 				((TextView)getActivity().findViewById(R.id.openrocketviewerCG)).setText(lengthUnit.toStringUnit(cg.x));
@@ -131,7 +148,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		Unit lengthUnit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 		Unit massUnit = UnitGroup.UNITS_MASS.getDefaultUnit();
-		
+
 		Coordinate cg = RocketUtils.getCG(rocket, MassCalcType.NO_MOTORS);
 		double length = RocketUtils.getLength(rocket);
 		((TextView)getActivity().findViewById(R.id.openrocketviewerDesigner)).setText(rocket.getDesigner());
