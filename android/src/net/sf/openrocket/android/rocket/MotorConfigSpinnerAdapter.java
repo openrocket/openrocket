@@ -1,6 +1,5 @@
 package net.sf.openrocket.android.rocket;
 
-import net.sf.openrocket.R;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import android.content.Context;
 import android.widget.ArrayAdapter;

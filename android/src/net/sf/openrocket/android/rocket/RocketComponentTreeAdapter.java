@@ -4,13 +4,11 @@ import net.sf.openrocket.R;
 import net.sf.openrocket.android.rocket.RocketComponentTreeAdapter.RocketComponentWithId;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import pl.polidea.treeview.AbstractTreeViewAdapter;
-import pl.polidea.treeview.InMemoryTreeStateManager;
 import pl.polidea.treeview.TreeNodeInfo;
 import pl.polidea.treeview.TreeStateManager;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
