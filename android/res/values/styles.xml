@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="treeViewListStyle" parent="@android:attr/listViewStyle">
-        <item name="android:background">@android:color/white</item>
-        <item name="android:divider">@drawable/divider</item>
-    </style>
-
     <style name="labelTextStyle" parent="@android:style/TextAppearance.Medium" />
 
     <style name="valueTextStyle" parent="@android:style/TextAppearance.Large">
