@@ -1,0 +1,24 @@
+<html>
+<body>
+This is a small utility that provides quite configurable tree view list.
+It is based on standard android list view. It separates out different
+aspects of the tree: there is a separate list view, tree adapter, tree
+state manager and tree state builder.
+<p>
+<ul>
+	<li>Tree view provides the frame to display the view.</li>
+	<li>Adapter allows to create visual representation of each tree
+	node.</li>
+	<li>State manager provides storage for tree state (connections
+	between parents and children, collapsed/expanded state). It provides
+	all the low-level tree manipulation methods.</li>
+	<li>Tree builder allows to build tree easily providing higher
+	level methods. The tree can be build either from prepared sequentially
+	prepared list of nodes (node id, level) or using (parent/child
+	relationships).</li>
+	<p>For now only in-memory state manager is provided, but Tree State
+	Manger interface is done in the way that database tree manager even for
+	large trees is potentially supported.
+</ul>
+</body>
+</html>
