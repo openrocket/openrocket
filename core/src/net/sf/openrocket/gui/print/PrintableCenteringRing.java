@@ -19,16 +19,6 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
     private CenteringRing target;
 
     /**
-     * The X margin.
-     */
-    protected int marginX = (int) PrintUnit.INCHES.toPoints(0.25f);
-
-    /**
-     * The Y margin.
-     */
-    protected int marginY = (int) PrintUnit.INCHES.toPoints(0.25f);
-
-    /**
      * The line length of the cross hairs.
      */
     private final int lineLength = 10;
@@ -51,8 +41,8 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         target = component;
 
         double radius = target.getOuterRadius();
-        setSize((int) PrintUnit.METERS.toPoints(2 * radius) + marginX,
-                (int) PrintUnit.METERS.toPoints(2 * radius) + marginY);
+        setSize((int) PrintUnit.METERS.toPoints(2 * radius),
+                (int) PrintUnit.METERS.toPoints(2 * radius));
     }
 
     /**
@@ -65,8 +55,8 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         double radius = PrintUnit.METERS.toPoints(target.getOuterRadius());
 
         Color original = g2.getBackground();
-        double x = marginX;
-        double y = marginY;
+        double x = 0;
+        double y = 0;
         Shape outerCircle = new Ellipse2D.Double(x, y, radius * 2, radius * 2);
         g2.setColor(Color.lightGray);
         g2.fill(outerCircle);

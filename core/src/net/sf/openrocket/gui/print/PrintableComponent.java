@@ -3,23 +3,22 @@
  */
 package net.sf.openrocket.gui.print;
 
+import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 
-import javax.swing.JPanel;
-
 /**
  * Common interface for components we want to print. Used by PageFitPrintStrategy
  *
  * @author Jason Blood <dyster2000@gmail.com>
  */
-public class PrintableComponent extends JPanel implements Printable {
+public class PrintableComponent extends JPanel implements Printable, Comparable<PrintableComponent> {
 
     /**
-     * The printing offsets
+     * The printing offsets.
      */
     private int offsetX = 0;
     private int offsetY = 0;
@@ -68,7 +67,7 @@ public class PrintableComponent extends JPanel implements Printable {
     }
 
 	/**
-	 * Set the offset this component will be printed to the page
+	 * Set the offset this component will be printed to the page.
 	 * @param x	X offset to print at.
 	 * @param y	Y offset to print at.
 	 */
@@ -78,7 +77,7 @@ public class PrintableComponent extends JPanel implements Printable {
 	}
 
 	/**
-	 * Get the X offset this component will be printed to the page
+	 * Get the X offset this component will be printed to the page.
 	 * @return X offset to print at.
 	 */
 	public int getOffsetX() {
@@ -86,10 +85,38 @@ public class PrintableComponent extends JPanel implements Printable {
 	}
 
 	/**
-	 * Get the Y offset this component will be printed to the page
+	 * Get the Y offset this component will be printed to the page.
 	 * @return Y offset to print at.
 	 */
 	public int getOffsetY() {
 		return offsetY;
 	}
+
+
+    /**
+     * Compares this object with the specified object for order.  Returns a negative integer, zero, or a positive integer
+     * as this object is less than, equal to, or greater than the specified object.
+     *
+     * Bin packing theory says that trying to fit the biggest items first may have a better outcome. So this is sorted
+     * in size descending order, with width taking precedence over height.
+     *
+     * @param other the object to be compared.
+     *
+     * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the
+     *         specified object.
+     *
+     * @throws NullPointerException if the specified object is null
+     * @throws ClassCastException   if the specified object's type prevents it from being compared to this object.
+     */
+    @Override
+    public int compareTo(final PrintableComponent other) {
+        int widthDiff = other.getWidth() - getWidth();
+        if (widthDiff > 0) {
+            return 1;
+        }
+        else if (widthDiff < 0) {
+            return -1;
+        }
+        return other.getHeight() - getHeight();
+    }
 }

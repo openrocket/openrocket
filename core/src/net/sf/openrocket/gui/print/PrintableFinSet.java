@@ -6,13 +6,12 @@ package net.sf.openrocket.gui.print;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.util.Coordinate;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
 
 /**
  * This class allows for a FinSet to be printable.  It does so by decorating an existing finset (which will not be
@@ -26,14 +25,6 @@ public class PrintableFinSet extends PrintableComponent {
      */
     protected GeneralPath polygon = null;
 
-    /**
-     * The X margin.
-     */
-    private final int marginX = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
-    /**
-     * The Y margin.
-     */
-    private final int marginY = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
     /**
      * The minimum X coordinate.
      */
@@ -58,9 +49,7 @@ public class PrintableFinSet extends PrintableComponent {
      * @param points an array of points.
      */
     public PrintableFinSet (Coordinate[] points) {
-        //super(false);
         init(points);
-        //setBackground(Color.white);
     }
 
     /**
@@ -77,8 +66,8 @@ public class PrintableFinSet extends PrintableComponent {
         int maxY = 0;
 
         for (Coordinate point : points) {
-            final long x = PrintUnit.METERS.toPoints(point.x);
-            final long y = PrintUnit.METERS.toPoints(point.y);
+            final long x = (long)PrintUnit.METERS.toPoints(point.x);
+            final long y = (long)PrintUnit.METERS.toPoints(point.y);
             minX = (int) Math.min(x, minX);
             minY = (int) Math.min(y, minY);
             maxX = (int) Math.max(x, maxX);
@@ -91,41 +80,23 @@ public class PrintableFinSet extends PrintableComponent {
     }
 
     /**
-     * Get the X-axis margin value.
-     *
-     * @return margin, in points
-     */
-    protected double getMarginX () {
-        return marginX;
-    }
-
-    /**
-     * Get the Y-axis margin value.
-     *
-     * @return margin, in points
-     */
-    protected double getMarginY () {
-        return marginY;
-    }
-
-    /**
      * Returns a generated image of the fin set.  May then be used wherever AWT images can be used, or converted to
      * another image/picture format and used accordingly.
      *
      * @return an awt image of the fin set
      */
     public Image createImage () {
-        int width = getWidth() + marginX;
-        int height = getHeight() + marginY;
-        // Create a buffered image in which to draw 
+        int width = getWidth();
+        int height = getHeight();
+        // Create a buffered image in which to draw
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        // Create a graphics contents on the buffered image 
+        // Create a graphics contents on the buffered image
         Graphics2D g2d = bufferedImage.createGraphics();
-        // Draw graphics 
+        // Draw graphics
         g2d.setBackground(Color.white);
         g2d.clearRect(0, 0, width, height);
         paintComponent(g2d);
-        // Graphics context no longer needed so dispose it 
+        // Graphics context no longer needed so dispose it
         g2d.dispose();
         return bufferedImage;
     }
@@ -144,6 +115,9 @@ public class PrintableFinSet extends PrintableComponent {
         int x = 0;
         int y = 0;
 
+        int marginX = this.getOffsetX();
+        int marginY = this.getOffsetY();
+
         // The minimum X/Y can be negative (primarily only Y due to fin tabs; rarely (never) X, but protect both anyway).
         if (minX < marginX) {
             x = marginX + Math.abs(minX);
@@ -152,7 +126,7 @@ public class PrintableFinSet extends PrintableComponent {
             y = marginY + Math.abs(minY);
         }
         // Reset the origin.
-        g2d.translate(x + getOffsetX(), y + getOffsetY());
+        g2d.translate(x, y);
         g2d.setPaint(TemplateProperties.getFillColor());
         g2d.fill(polygon);
         g2d.setPaint(TemplateProperties.getLineColor());

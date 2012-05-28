@@ -6,7 +6,6 @@ package net.sf.openrocket.gui.print.visitor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintUnit;
@@ -16,11 +15,8 @@ import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -52,7 +48,7 @@ public class FinSetPrintStrategy {
      * Strategy for fitting multiple components onto a page.
      */
 	protected PageFitPrintStrategy pageFitPrint;
-    
+
     /**
      * Constructor.
      *
@@ -110,6 +106,8 @@ public class FinSetPrintStrategy {
 					pageFitPrint.addComponent(pfs);
                 }
                 else {
+                    int off = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
+                    pfs.setPrintOffset(off, off);
                     BufferedImage image = (BufferedImage) pfs.createImage();
                     ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
                             document, writer, image);

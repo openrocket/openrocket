@@ -32,12 +32,13 @@ public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
 		if (radius < target.getAftRadius()) {
 			radius = target.getAftRadius();
 		}
-		setSize((int) PrintUnit.METERS.toPoints(2 * radius) + marginX,
-				(int) PrintUnit.METERS.toPoints(target.getLength() + target.getAftShoulderLength()) + marginY);
+		setSize((int) PrintUnit.METERS.toPoints(2 * radius) + 4,
+				(int) PrintUnit.METERS.toPoints(target.getLength() + target.getAftShoulderLength()) + 4);
 	}
 
 	/**
-	 * Draw a nose cone.
+	 * Draw a nose cone.  Presumes that the graphics context has already had the x/y position translated based on
+     * where it should be drawn.
 	 *
 	 * @param g2 the graphics context
 	 */
@@ -47,7 +48,7 @@ public class PrintableNoseCone extends AbstractPrintable<NoseCone> {
 
 		if (shapes != null && shapes.length > 0) {
 			Rectangle r = shapes[0].getBounds();
-			g2.translate(marginX + r.getHeight() / 2 + getOffsetX(), marginY + getOffsetY());
+			g2.translate(r.getHeight() / 2, 0);
 			g2.rotate(Math.PI / 2);
 			for (Shape shape : shapes) {
 				g2.draw(shape);

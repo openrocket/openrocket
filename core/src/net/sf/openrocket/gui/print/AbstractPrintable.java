@@ -1,6 +1,11 @@
 package net.sf.openrocket.gui.print;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 public abstract class AbstractPrintable<T> extends PrintableComponent {
@@ -15,16 +20,6 @@ public abstract class AbstractPrintable<T> extends PrintableComponent {
     public final static BasicStroke thickStroke = new BasicStroke(4.0f);
 
     /**
-     * The X margin.
-     */
-    protected int marginX = (int) PrintUnit.INCHES.toPoints(0.25f);
-
-    /**
-     * The Y margin.
-     */
-    protected int marginY = (int) PrintUnit.INCHES.toPoints(0.25f);
-
-    /**
      * Constructor. Initialize this printable with the component to be printed.
      *
      * @param isDoubleBuffered  a boolean, true for double-buffering
@@ -35,11 +30,9 @@ public abstract class AbstractPrintable<T> extends PrintableComponent {
     }
 
     /**
-     * Compute the basic values of each arc of the transition/shroud.  This is adapted from
-     * <a href="http://www.rocketshoppe.com/info/Transitions.pdf">The Properties of
-     * Model Rocket Body Tube Transitions, by J.R. Brohm</a>
+     * Initialize the printable.
      *
-     * @param component the transition component
+     * @param component the component
      */
     protected abstract void init(T component);
 
@@ -51,14 +44,14 @@ public abstract class AbstractPrintable<T> extends PrintableComponent {
     protected abstract void draw(Graphics2D g2);
 
     /**
-     * Returns a generated image of the transition.  May then be used wherever AWT images can be used, or converted to
+     * Returns a generated image of the component.  May then be used wherever AWT images can be used, or converted to
      * another image/picture format and used accordingly.
      *
-     * @return an awt image of the transition
+     * @return an awt image of the printable component
      */
     public Image createImage() {
-        int width = getWidth() + marginX;
-        int height = getHeight() + marginY;
+        int width = getWidth() + getOffsetX();
+        int height = getHeight() + getOffsetY();
         // Create a buffered image in which to draw
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         // Create a graphics contents on the buffered image

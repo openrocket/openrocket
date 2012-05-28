@@ -12,7 +12,7 @@ public enum PrintUnit {
         public double toMillis(double d) { return d/FEET_PER_MM; }
         public double toCentis(double d) { return d/(FEET_PER_MM*TEN); }
         public double toMeters(double d) { return d/(FEET_PER_MM*TEN*TEN*TEN); }
-        public long   toPoints(double d) { return (long)(d * POINTS_PER_INCH * 12); }
+        public double toPoints(double d) { return (d * POINTS_PER_INCH * 12); }
         public double convert(double d, PrintUnit u) { return u.toInches(d)/12; }
     },
     INCHES {
@@ -20,7 +20,7 @@ public enum PrintUnit {
         public double toMillis(double d) { return d/INCHES_PER_MM; }
         public double toCentis(double d) { return d/(INCHES_PER_MM*TEN); }
         public double toMeters(double d) { return d/(INCHES_PER_MM*TEN*TEN*TEN); }
-        public long   toPoints(double d) { return (long)(d * POINTS_PER_INCH); }
+        public double toPoints(double d) { return (d * POINTS_PER_INCH); }
         public double convert(double d, PrintUnit u) { return u.toInches(d); }
     },
     MILLIMETERS {
@@ -28,7 +28,7 @@ public enum PrintUnit {
         public double toMillis(double d) { return d; }
         public double toCentis(double d) { return d/TEN; }
         public double toMeters(double d) { return d/(TEN*TEN*TEN); }
-        public long   toPoints(double d) { return INCHES.toPoints(toInches(d)); }
+        public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
         public double convert(double d, PrintUnit u) { return u.toMillis(d); }
     },
     CENTIMETERS {
@@ -36,7 +36,7 @@ public enum PrintUnit {
         public double toMillis(double d) { return d * TEN; }
         public double toCentis(double d) { return d; }
         public double toMeters(double d) { return d/(TEN*TEN); }
-        public long   toPoints(double d) { return INCHES.toPoints(toInches(d)); }
+        public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
         public double convert(double d, PrintUnit u) { return u.toCentis(d); }
     },
     METERS {
@@ -44,7 +44,7 @@ public enum PrintUnit {
         public double toMillis(double d) { return d * TEN * TEN * TEN; }
         public double toCentis(double d) { return d * TEN * TEN; }
         public double toMeters(double d) { return d; }
-        public long   toPoints(double d) { return INCHES.toPoints(toInches(d)); }
+        public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
         public double convert(double d, PrintUnit u) { return u.toMeters(d); }
     },
     POINTS {
@@ -52,7 +52,7 @@ public enum PrintUnit {
         public double toMillis(double d) { return d/(POINTS_PER_INCH * INCHES_PER_MM); }
         public double toCentis(double d) { return toMillis(d)/TEN; }
         public double toMeters(double d) { return toMillis(d)/(TEN*TEN*TEN); }
-        public long   toPoints(double d) { return (long)d; }
+        public double toPoints(double d) { return d; }
         public double convert(double d, PrintUnit u) { return u.toPoints(d); }
     };
 
@@ -160,7 +160,7 @@ public enum PrintUnit {
      * overflow, or <tt>Long.MAX_VALUE</tt> if it would positively overflow.
      * @see #convert
      */
-    public long toPoints(double length) {
+    public double toPoints(double length) {
         throw new AbstractMethodError();
     }
 

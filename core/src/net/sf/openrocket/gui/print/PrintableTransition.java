@@ -72,6 +72,13 @@ public class PrintableTransition extends AbstractPrintable<Transition> {
 		super(false, transition);
 	}
 
+    /**
+     * Compute the basic values of each arc of the transition/shroud.  This is adapted from
+     * <a href="http://www.rocketshoppe.com/info/Transitions.pdf">The Properties of
+     * Model Rocket Body Tube Transitions, by J.R. Brohm</a>
+     *
+     * @param component the component
+     */
 	@Override
 	protected void init(Transition component) {
 
@@ -93,9 +100,9 @@ public class PrintableTransition extends AbstractPrintable<Transition> {
 		int r1InPoints = (int) PrintUnit.METERS.toPoints(r1 * factor);
 		int r2InPoints = (int) PrintUnit.METERS.toPoints(r2 * factor);
 
-		int x = marginX;
+		int x = 0;
 		int tabOffset = 35;
-		int y = tabOffset + marginY;
+		int y = tabOffset;
 
 		Arc2D.Double outerArc = new Arc2D.Double();
 		Arc2D.Double innerArc = new Arc2D.Double();

@@ -12,14 +12,15 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ListIterator;
 import java.util.Set;
 
 /**
  * A strategy for drawing multiple rocket components onto as few pages as possible.
- * 
+ *
  * @author Jason Blood <dyster2000@gmail.com>
  */
 public class PageFitPrintStrategy {
@@ -45,20 +46,19 @@ public class PageFitPrintStrategy {
     protected Set<Integer> stages;
 
 	protected ArrayList<PrintableComponent> componentToPrint;
-    
+
     /**
      * Constructor.
      *
      * @param doc              The iText document
      * @param theWriter        The direct iText writer
-     * @param theStages        The stages to be printed by this strategy
      */
     public PageFitPrintStrategy(Document doc, PdfWriter theWriter) {
         document = doc;
         writer = theWriter;
     	componentToPrint = new ArrayList<PrintableComponent>();
     }
-    
+
     /**
      * Add a component we want to print.
      *
@@ -87,16 +87,18 @@ public class PageFitPrintStrategy {
         int marginX = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
         int marginY = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
         PdfContentByte cb = writer.getDirectContent();
-    	
+
+        Collections.sort(componentToPrint);
+
     	while (componentToPrint.size() > 0) {
-    		int pageY = 0;
+    		int pageY = marginY;
     		Boolean anyAddedToRow;
-    		
+
             Graphics2D g2 = cb.createGraphics(pageSize.width, pageSize.height);
-    		
+
     		do {
 	    		// Fill the row
-	    		int rowX = 0;
+	    		int rowX = marginX;
 	    		int rowY = pageY;
 	        	ListIterator<PrintableComponent> entry = componentToPrint.listIterator();
 	        	anyAddedToRow = false;
@@ -104,23 +106,25 @@ public class PageFitPrintStrategy {
 	        	while (entry.hasNext()) {
 		        	PrintableComponent component = entry.next();
 		        	java.awt.Dimension dim = component.getSize();
-		        	if ((rowX + dim.width < wPage) && (rowY + dim.height < hPage)) {
+		        	if ((rowX + dim.width + marginX < wPage) && (rowY + dim.height + marginY < hPage)) {
 		        		component.setPrintOffset(rowX, rowY);
 		        		rowX += dim.width + marginX;
-		        		if (rowY + dim.height + marginY > pageY)
+		        		if (rowY + dim.height + marginY > pageY) {
 		        			pageY = rowY + dim.height + marginY;
+                        }
 		        		entry.remove();
 		        		component.print(g2);
 		        		anyAddedToRow = true;
 		        	}
 		        }
+                pageY += marginY;
     		} while (anyAddedToRow);
-    		
+
         	g2.dispose();
         	document.newPage();
     	}
     }
-    
+
     /**
      * Get the dimensions of the paper page.
      *

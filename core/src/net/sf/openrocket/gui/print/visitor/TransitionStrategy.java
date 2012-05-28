@@ -6,6 +6,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.AbstractPrintable;
 import net.sf.openrocket.gui.print.ITextHelper;
+import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableNoseCone;
 import net.sf.openrocket.gui.print.PrintableTransition;
 import net.sf.openrocket.logging.LogHelper;
@@ -46,7 +47,7 @@ public class TransitionStrategy {
     /**
      * Strategy for fitting multiple components onto a page.
      */
-	protected PageFitPrintStrategy pageFitPrint;
+    protected PageFitPrintStrategy pageFitPrint;
 
     /**
      * Constructor.
@@ -67,10 +68,12 @@ public class TransitionStrategy {
      *
      * @param root      the root component; all children will be visited recursively
      * @param noseCones nose cones are a special form of a transition; if true, then print nose cones
+     *
+     * @return true if a transition/nosecone was rendered
      */
-    public void writeToDocument(final RocketComponent root, boolean noseCones) {
+    public boolean writeToDocument(final RocketComponent root, boolean noseCones) {
         List<RocketComponent> rc = root.getChildren();
-        goDeep(rc, noseCones);
+        return goDeep(rc, noseCones);
     }
 
 
@@ -79,48 +82,62 @@ public class TransitionStrategy {
      *
      * @param theRc     an array of rocket components; all children will be visited recursively
      * @param noseCones nose cones are a special form of a transition; if true, then print nose cones
+     *
+     * @return true if a transition/nosecone was rendered
      */
-    protected void goDeep(final List<RocketComponent> theRc, boolean noseCones) {
+    protected boolean goDeep(final List<RocketComponent> theRc, boolean noseCones) {
         for (RocketComponent rocketComponent : theRc) {
             if (rocketComponent instanceof NoseCone) {
                 if (noseCones) {
-                    render((Transition) rocketComponent);
+                    return render((Transition) rocketComponent);
                 }
-            } else if (rocketComponent instanceof Transition && !noseCones) {
-                render((Transition) rocketComponent);
-            } else if (rocketComponent.getChildCount() > 0) {
-                goDeep(rocketComponent.getChildren(), noseCones);
+            }
+            else if (rocketComponent instanceof Transition && !noseCones) {
+                return render((Transition) rocketComponent);
+            }
+            else if (rocketComponent.getChildCount() > 0) {
+                return goDeep(rocketComponent.getChildren(), noseCones);
             }
         }
+        return false;
     }
 
     /**
      * The core behavior of this visitor.
      *
-     * @param component the object to extract info about; a graphical image of the transition shape is drawn to the document
+     * @param component the object to extract info about; a graphical image of the transition shape is drawn to the
+     *                  document
+     *
+     * @return true, always
      */
-    private void render(final Transition component) {
+    private boolean render(final Transition component) {
         try {
             AbstractPrintable pfs;
             if (component instanceof NoseCone) {
-                pfs = new PrintableNoseCone((NoseCone)component);
-            } else {
+                pfs = new PrintableNoseCone((NoseCone) component);
+            }
+            else {
                 pfs = new PrintableTransition(component);
             }
 
             java.awt.Dimension size = pfs.getSize();
             final Dimension pageSize = getPageSize();
             if (fitsOnOnePage(pageSize, size.getWidth(), size.getHeight())) {
-				pageFitPrint.addComponent(pfs);
-                //printOnOnePage(pfs);
-            } else {
+                pageFitPrint.addComponent(pfs);
+            }
+            else {
+                int off = (int) (PrintUnit.POINTS_PER_INCH * 0.3f);
+                pfs.setPrintOffset(off, off);
                 BufferedImage image = (BufferedImage) pfs.createImage();
                 ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
                         document, writer, image);
+                document.newPage();
             }
-        } catch (DocumentException e) {
+        }
+        catch (DocumentException e) {
             log.error("Could not render the transition.", e);
         }
+        return true;
     }
 
     /**
@@ -129,6 +146,7 @@ public class TransitionStrategy {
      * @param pageSize the page size
      * @param wImage   the width of the thing to be printed
      * @param hImage   the height of the thing to be printed
+     *
      * @return true if the thing to be printed will fit on a single page
      */
     private boolean fitsOnOnePage(Dimension pageSize, double wImage, double hImage) {

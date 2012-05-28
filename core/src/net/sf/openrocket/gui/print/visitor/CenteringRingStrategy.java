@@ -6,6 +6,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.AbstractPrintable;
 import net.sf.openrocket.gui.print.ITextHelper;
+import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableCenteringRing;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
@@ -104,9 +105,12 @@ public class CenteringRingStrategy {
                 pageFitPrint.addComponent(pfs);
             }
             else {
+                int off = (int) (PrintUnit.POINTS_PER_INCH * 0.3f);
+                pfs.setPrintOffset(off, off);
                 BufferedImage image = (BufferedImage) pfs.createImage();
                 ITextHelper.renderImageAcrossPages(new Rectangle(pageSize.getWidth(), pageSize.getHeight()),
                         document, writer, image);
+                document.newPage();
             }
         }
         catch (DocumentException e) {

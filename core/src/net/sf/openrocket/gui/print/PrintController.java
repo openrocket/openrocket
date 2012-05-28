@@ -12,6 +12,7 @@ import com.itextpdf.text.pdf.PdfBoolean;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.print.components.Rule;
 import net.sf.openrocket.gui.print.visitor.CenteringRingStrategy;
 import net.sf.openrocket.gui.print.visitor.FinMarkingGuideStrategy;
 import net.sf.openrocket.gui.print.visitor.FinSetPrintStrategy;
@@ -60,6 +61,8 @@ public class PrintController {
             // Used to combine multiple components onto fewer sheets of paper
             PageFitPrintStrategy pageFitPrint = new PageFitPrintStrategy(idoc, writer);
 
+            boolean addRule = false;
+
             while (toBePrinted.hasNext()) {
                 PrintableContext printableContext = toBePrinted.next();
 
@@ -71,42 +74,55 @@ public class PrintController {
                         dp.writeToDocument(writer);
                         idoc.newPage();
                         break;
+
                     case FIN_TEMPLATE:
                         final FinSetPrintStrategy finWriter = new FinSetPrintStrategy(idoc, writer, stages, pageFitPrint);
                         finWriter.writeToDocument(doc.getRocket());
+                        addRule = true;
                         break;
+
                     case PARTS_DETAIL:
                         final PartsDetailVisitorStrategy detailVisitor = new PartsDetailVisitorStrategy(idoc, writer, stages);
                         detailVisitor.writeToDocument(doc.getRocket());
                         detailVisitor.close();
                         idoc.newPage();
                         break;
+
                     case TRANSITION_TEMPLATE:
                         final TransitionStrategy tranWriter = new TransitionStrategy(idoc, writer, stages, pageFitPrint);
-                        tranWriter.writeToDocument(doc.getRocket(), false);
-                        idoc.newPage();
+                        if (tranWriter.writeToDocument(doc.getRocket(), false)) {
+                            addRule = true;
+                        }
                         break;
 
                     case NOSE_CONE_TEMPLATE:
                         final TransitionStrategy coneWriter = new TransitionStrategy(idoc, writer, stages, pageFitPrint);
-                        coneWriter.writeToDocument(doc.getRocket(), true);
-                        idoc.newPage();
+                        if (coneWriter.writeToDocument(doc.getRocket(), true)) {
+                            addRule = true;
+                        }
                         break;
 
                     case CENTERING_RING_TEMPLATE:
                         final CenteringRingStrategy crWriter = new CenteringRingStrategy(idoc, writer, stages,
                                 pageFitPrint);
                         crWriter.writeToDocument(doc.getRocket());
-                        idoc.newPage();
+                        addRule = true;
                         break;
 
                     case FIN_MARKING_GUIDE:
                         final FinMarkingGuideStrategy fmg = new FinMarkingGuideStrategy(idoc, writer);
                         fmg.writeToDocument(doc.getRocket());
                         idoc.newPage();
+                        addRule = true;
                         break;
                 }
             }
+
+            if (addRule) {
+                //Add a ruler to the output.
+                pageFitPrint.addComponent(new Rule(Rule.Orientation.BOTTOM));
+            }
+
             // Write out parts that we are going to combine onto single sheets of paper
             pageFitPrint.writeToDocument(doc.getRocket());
             idoc.newPage();
