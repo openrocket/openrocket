@@ -9,8 +9,13 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
@@ -24,10 +29,10 @@ import java.util.Map;
 
 /**
  * This is the core Swing representation of a fin marking guide.  It can handle multiple fin sets on the same or
- * different body tubes. One marking guide will be created for any body tube that has a finset.  If a tube has
- * multiple finsets, then they are combined onto one marking guide. It also includes launch lug marking line(s) if lugs
- * are present. If (and only if) a launch lug exists, then the word 'Front' is affixed to the leading edge of the
- * guide to give orientation.
+ * different body tubes. One marking guide will be created for any body tube that has a finset.  If a tube has multiple
+ * finsets, then they are combined onto one marking guide. It also includes launch lug marking line(s) if lugs are
+ * present. If (and only if) a launch lug exists, then the word 'Front' is affixed to the leading edge of the guide to
+ * give orientation.
  * <p/>
  */
 public class FinMarkingGuide extends JPanel {
@@ -41,6 +46,13 @@ public class FinMarkingGuide extends JPanel {
      * The size of the arrow in points.
      */
     private static final int ARROW_SIZE = 10;
+
+    /**
+     * Typical thickness of a piece of printer paper (~20-24 lb paper). Wrapping paper around a tube results in the
+     * radius being increased by the thickness of the paper. The smaller the tube, the more pronounced this becomes as a
+     * percentage of circumference.  Using 1/10mm as an approximation here.
+     */
+    private static final double PAPER_THICKNESS_IN_METERS = PrintUnit.MILLIMETERS.toMeters(0.1d);
 
     /**
      * The default guide width in inches.
@@ -89,6 +101,7 @@ public class FinMarkingGuide extends JPanel {
      * Initialize the marking guide class by iterating over a rocket and finding all finsets.
      *
      * @param component the root rocket component - this is iterated to find all finset and launch lugs
+     *
      * @return a map of body tubes to lists of finsets and launch lugs.
      */
     private Map<BodyTube, java.util.List<ExternalComponent>> init(Rocket component) {
@@ -103,7 +116,8 @@ public class FinMarkingGuide extends JPanel {
             RocketComponent next = iter.next();
             if (next instanceof BodyTube) {
                 current = (BodyTube) next;
-            } else if (next instanceof FinSet || next instanceof LaunchLug) {
+            }
+            else if (next instanceof FinSet || next instanceof LaunchLug) {
                 java.util.List<ExternalComponent> list = results.get(current);
                 if (list == null && current != null) {
                     list = new ArrayList<ExternalComponent>();
@@ -198,9 +212,11 @@ public class FinMarkingGuide extends JPanel {
      *
      *                              |<-------- width ----------->|
      *
-     * yLLOffset is computed from the difference between the base rotation of the fin and the radial direction of the lug.
+     * yLLOffset is computed from the difference between the base rotation of the fin and the radial direction of the
+     * lug.
      *
-     * Note: There is a current limitation that a tube with multiple launch lugs may not render the lug lines correctly.
+     * Note: There is a current limitation that a tube with multiple launch lugs may not render the lug lines
+     * correctly.
      * </pre>
      *
      * @param g the Graphics context
@@ -224,13 +240,15 @@ public class FinMarkingGuide extends JPanel {
         int width = (int) PrintUnit.INCHES.toPoints(DEFAULT_GUIDE_WIDTH);
 
         int column = 0;
+
         for (BodyTube next : markingGuideItems.keySet()) {
-            double circumferenceInPoints = PrintUnit.METERS.toPoints(next.getOuterRadius() * TWO_PI);
+            double circumferenceInPoints = PrintUnit.METERS.toPoints((next.getOuterRadius() + PAPER_THICKNESS_IN_METERS) *
+                    TWO_PI);
             List<ExternalComponent> componentList = markingGuideItems.get(next);
             //Don't draw the lug if there are no fins.
             if (hasFins(componentList)) {
 
-                drawMarkingGuide(g2, x, y, (int) (circumferenceInPoints), width);
+                drawMarkingGuide(g2, x, y, (int) Math.ceil(circumferenceInPoints), width);
 
                 //Sort so that fins always precede lugs
                 sort(componentList);
@@ -258,7 +276,8 @@ public class FinMarkingGuide extends JPanel {
                                 baseRotation += TWO_PI / finCount;
                             }
                             offset = computeYOffset(y, circumferenceInPoints, baseSpacing, baseYOrigin, finRadial, baseRotation);
-                        } else {
+                        }
+                        else {
                             //baseYOrigin is the distance from the top of the marking guide to the first fin of the first fin set.
                             //This measurement is used to base all subsequent finsets and lugs off of.
                             baseYOrigin = baseSpacing / 2;
@@ -274,15 +293,17 @@ public class FinMarkingGuide extends JPanel {
                             if (fin > 0) {
                                 offset += baseSpacing;
                                 yLastFin = offset;
-                            } else {
+                            }
+                            else {
                                 yFirstFin = offset;
                             }
                             drawDoubleArrowLine(g2, x, offset, x + width, offset);
-                         //   if (hasMultipleComponents) {
-                                g2.drawString(externalComponent.getName(), x + (width / 3), offset - 2);
-                         //   }
+                            //   if (hasMultipleComponents) {
+                            g2.drawString(externalComponent.getName(), x + (width / 3), offset - 2);
+                            //   }
                         }
-                    } else if (externalComponent instanceof LaunchLug) {
+                    }
+                    else if (externalComponent instanceof LaunchLug) {
                         LaunchLug lug = (LaunchLug) externalComponent;
                         double yLLOffset = (lug.getRadialDirection() - finRadial) / TWO_PI;
                         //The placement of the lug line must respect the boundary of the outer marking guide.  In order
@@ -290,7 +311,8 @@ public class FinMarkingGuide extends JPanel {
                         //between their rotational directions.
                         if (yLLOffset < 0) {
                             yLLOffset = yLLOffset * circumferenceInPoints + yLastFin;
-                        } else {
+                        }
+                        else {
                             yLLOffset = yLLOffset * circumferenceInPoints + yFirstFin;
                         }
                         drawDoubleArrowLine(g2, x, (int) yLLOffset, x + width, (int) yLLOffset);
@@ -308,7 +330,8 @@ public class FinMarkingGuide extends JPanel {
                 if (column % 2 == 0) {
                     x = MARGIN;
                     y += circumferenceInPoints + MARGIN;
-                } else {
+                }
+                else {
                     x += MARGIN + width;
                 }
             }
@@ -318,12 +341,13 @@ public class FinMarkingGuide extends JPanel {
     /**
      * Compute the y offset for the next fin line.
      *
-     * @param y                       the top margin
-     * @param circumferenceInPoints   the circumference (height) of the guide
-     * @param baseSpacing             the circumference / fin count
-     * @param baseYOrigin             the offset from the top of the guide to the first fin of the first fin set drawn
-     * @param prevBaseRotation        the rotation of the previous finset
-     * @param baseRotation            the rotation of the current finset
+     * @param y                     the top margin
+     * @param circumferenceInPoints the circumference (height) of the guide
+     * @param baseSpacing           the circumference / fin count
+     * @param baseYOrigin           the offset from the top of the guide to the first fin of the first fin set drawn
+     * @param prevBaseRotation      the rotation of the previous finset
+     * @param baseRotation          the rotation of the current finset
+     *
      * @return number of points from the top of the marking guide to the line to be drawn
      */
     private int computeYOffset(int y, double circumferenceInPoints, double baseSpacing, double baseYOrigin, double prevBaseRotation, double baseRotation) {
@@ -332,9 +356,11 @@ public class FinMarkingGuide extends JPanel {
         //If the fin line would be off the top of the marking guide, then readjust.
         if (baseYOrigin + finRadialDifference * circumferenceInPoints < 0) {
             offset = (int) (baseYOrigin + baseSpacing + finRadialDifference * circumferenceInPoints) + y;
-        } else if (baseYOrigin - finRadialDifference * circumferenceInPoints > 0) {
+        }
+        else if (baseYOrigin - finRadialDifference * circumferenceInPoints > 0) {
             offset = (int) (finRadialDifference * circumferenceInPoints + baseYOrigin) + y;
-        } else {
+        }
+        else {
             offset = (int) (finRadialDifference * circumferenceInPoints - baseYOrigin) + y;
         }
         return offset;
@@ -344,6 +370,7 @@ public class FinMarkingGuide extends JPanel {
      * Determines if the list contains a FinSet.
      *
      * @param list a list of ExternalComponent
+     *
      * @return true if the list contains at least one FinSet
      */
     private boolean hasFins(List<ExternalComponent> list) {
@@ -381,7 +408,8 @@ public class FinMarkingGuide extends JPanel {
      * @param g2     the graphics context
      * @param x      the starting x coordinate
      * @param y      the starting y coordinate
-     * @param length the length, or height, in print units of the marking guide; should be equivalent to the outer tube circumference
+     * @param length the length, or height, in print units of the marking guide; should be equivalent to the outer tube
+     *               circumference
      * @param width  the width of the marking guide in print units; somewhat arbitrary
      */
     private void drawMarkingGuide(Graphics2D g2, int x, int y, int length, int width) {
@@ -407,14 +435,15 @@ public class FinMarkingGuide extends JPanel {
     }
 
     /**
-     * Draw a vertical string indicating the front of the rocket.  This is necessary when a launch lug exists to
-     * give proper orientation of the guide (assuming that the lug is asymmetrically positioned with respect to a fin).
+     * Draw a vertical string indicating the front of the rocket.  This is necessary when a launch lug exists to give
+     * proper orientation of the guide (assuming that the lug is asymmetrically positioned with respect to a fin).
      *
      * @param g2      the graphics context
      * @param x       the starting x coordinate
      * @param y       the starting y coordinate
      * @param spacing the space between fin lines
-     * @param length  the length, or height, in print units of the marking guide; should be equivalent to the outer tube circumference
+     * @param length  the length, or height, in print units of the marking guide; should be equivalent to the outer tube
+     *                circumference
      * @param width   the width of the marking guide in print units; somewhat arbitrary
      */
     private void drawFrontIndication(Graphics2D g2, int x, int y, int spacing, int length, int width) {
@@ -451,6 +480,4 @@ public class FinMarkingGuide extends JPanel {
         g2.fillPolygon(new int[]{x1, x1 + ARROW_SIZE, x1 + ARROW_SIZE, x1},
                 new int[]{y1, y1 - ARROW_SIZE / 2, y1 + ARROW_SIZE / 2, y1}, 4);
     }
-
-
 }
