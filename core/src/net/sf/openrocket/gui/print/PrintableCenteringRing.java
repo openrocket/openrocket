@@ -37,7 +37,8 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
     private Set<CenteringRingStrategy.Dimension> innerCenterPoints = new HashSet<CenteringRingStrategy.Dimension>();
 
     /**
-     * Construct a simple, non-clustered, printable centering ring.
+     * Construct a simple, non-clustered, printable centering ring, or if the motor mount represents a clustered
+     * configuration then get the cluster points to create the centering ring.
      *
      * @param theRing       the component to print
      * @param theMotorMount the motor mount if clustered, else null
@@ -46,17 +47,24 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         super(false, theRing);
         if (theMotorMount == null || theMotorMount.getClusterConfiguration().equals(ClusterConfiguration.SINGLE)) {
             //Single motor.
-            innerCenterPoints.add(new CenteringRingStrategy.Dimension((float) PrintUnit.METERS.toPoints(target.getOuterRadius()),
-                    (float) PrintUnit.METERS.toPoints(target.getOuterRadius())));
+            final float v = (float) PrintUnit.METERS.toPoints(target.getOuterRadius());
+            innerCenterPoints.add(
+                    new CenteringRingStrategy.Dimension(v, v,
+                            (float) PrintUnit.METERS.toPoints((target.getInnerRadius()))));
         }
         else {
             List<Coordinate> coords = theMotorMount.getClusterPoints();
-            populateCenterPoints(coords);
+            List<Coordinate> points = new ArrayList<Coordinate>();
+            for (Coordinate coordinate : coords) {
+                points.add(coordinate.setX(theMotorMount.getOuterRadius()));
+            }
+            populateCenterPoints(points);
         }
     }
 
     /**
-     * Constructor for a clustered centering ring.
+     * Constructor for a clustered centering ring.  This version is for a "split cluster", where each motor mount tube
+     * is a distinct entity.
      *
      * @param theRing        the centering ring component
      * @param theMotorMounts a list of the motor mount tubes that are physically supported by the centering ring
@@ -66,10 +74,18 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         List<Coordinate> points = new ArrayList<Coordinate>();
         //Transform the radial positions of the tubes.
         for (InnerTube it : theMotorMounts) {
-            double y = it.getRadialShiftY();
-            double z = it.getRadialShiftZ();
-            Coordinate coordinate = new Coordinate(0, y, z);
-            points.add(coordinate);
+            if (it.getClusterCount() > 1) {
+                List<Coordinate> c = it.getClusterPoints();
+                for (Coordinate coordinate : c) {
+                    points.add(coordinate.setX(it.getOuterRadius()));
+                }
+            }
+            else {
+                double y = it.getRadialShiftY();
+                double z = it.getRadialShiftZ();
+                Coordinate coordinate = new Coordinate(it.getOuterRadius(), y, z);
+                points.add(coordinate);
+            }
         }
         populateCenterPoints(points);
     }
@@ -101,9 +117,10 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
     private void populateCenterPoints(final List<Coordinate> theCoords) {
         float radius = (float) PrintUnit.METERS.toPoints(target.getOuterRadius());
         for (Coordinate coordinate : theCoords) {
-            innerCenterPoints.add(new CenteringRingStrategy.Dimension((float) PrintUnit.METERS.toPoints
-                    (coordinate.y) + radius,
-                    (float) PrintUnit.METERS.toPoints(coordinate.z) + radius));
+            innerCenterPoints.add(new CenteringRingStrategy.Dimension(
+                    (float) PrintUnit.METERS.toPoints(coordinate.y) + radius, //center point x
+                    (float) PrintUnit.METERS.toPoints(coordinate.z) + radius, //center point y
+                    (float) PrintUnit.METERS.toPoints(coordinate.x)));        //radius of motor mount
         }
     }
 
@@ -137,7 +154,7 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
         g2.draw(outerCircle);
 
         for (CenteringRingStrategy.Dimension next : innerCenterPoints) {
-            drawInnerCircle(g2, next.getWidth(), next.getHeight());
+            drawInnerCircle(g2, next.getWidth(), next.getHeight(), next.getBreadth());
         }
         g2.setColor(original);
     }
@@ -149,8 +166,8 @@ public class PrintableCenteringRing extends AbstractPrintable<CenteringRing> {
      * @param theCenterX the center x in points
      * @param theCenterY the center y in points
      */
-    private void drawInnerCircle(final Graphics2D g2, final double theCenterX, final double theCenterY) {
-        double innerRadius = PrintUnit.METERS.toPoints(target.getInnerRadius());
+    private void drawInnerCircle(final Graphics2D g2, final double theCenterX, final double theCenterY,
+                                 final double innerRadius) {
         Shape innerCircle = new Ellipse2D.Double(theCenterX - innerRadius, theCenterY - innerRadius, innerRadius * 2, innerRadius * 2);
         g2.setColor(Color.white);
         g2.fill(innerCircle);

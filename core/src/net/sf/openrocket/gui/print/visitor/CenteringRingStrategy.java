@@ -107,10 +107,8 @@ public class CenteringRingStrategy {
             if (rocketComponents != rc) {
                 if (rocketComponents instanceof InnerTube) {
                     InnerTube it = (InnerTube) rocketComponents;
-                    if (it.isMotorMount()) {
-                        if (overlaps(rc, it)) {
-                            mounts.add(it);
-                        }
+                    if (overlaps(rc, it)) {
+                        mounts.add(it);
                     }
                 }
             }
@@ -213,6 +211,10 @@ public class CenteringRingStrategy {
          * Height, in points.
          */
         public float height;
+        /**
+         * Breadth, in points.
+         */
+        public float breadth = 0f;
 
         /**
          * Constructor.
@@ -223,6 +225,19 @@ public class CenteringRingStrategy {
         public Dimension(float w, float h) {
             width = w;
             height = h;
+        }
+
+        /**
+         * Constructor.
+         *
+         * @param w width
+         * @param h height
+         * @param b breadth; optionally used to represent radius
+         */
+        public Dimension(float w, float h, float b) {
+            width = w;
+            height = h;
+            breadth = b;
         }
 
         /**
@@ -241,6 +256,15 @@ public class CenteringRingStrategy {
          */
         public float getHeight() {
             return height;
+        }
+
+        /**
+         * Get the breadth.
+         *
+         * @return the breadth
+         */
+        public float getBreadth() {
+            return breadth;
         }
     }
 }
