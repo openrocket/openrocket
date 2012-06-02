@@ -5,6 +5,7 @@
         android:id="@+id/menu_save"
         android:title="@string/save"/>
     <item
+        android:orderInCategory="10"
         android:id="@+id/motor_list_menu_option"
         android:icon="@drawable/ic_motorbrowser"
         android:showAsAction="ifRoom"

@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:text="" />
 
-        <Spinner
+        <net.sf.openrocket.android.rocket.MotorConfigSpinner
             android:id="@+id/openrocketviewerConfigurationSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

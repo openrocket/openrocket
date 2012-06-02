@@ -44,6 +44,21 @@
         android:text="@string/simulationConditionsLaunchRodAngle" />
 
     <EditText
+        android:id="@+id/simulation_condition_roddirection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="right"
+        android:inputType="number"
+        android:text="0" />
+
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/simulationConditionsLaunchRodDirection" />
+
+    <EditText
         android:id="@+id/simulation_condition_rodangle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,10 +67,22 @@
         android:inputType="number"
         android:text="0" />
 
-    <Spinner
+    <net.sf.openrocket.android.rocket.MotorConfigSpinner
         android:id="@+id/simulationConditionConfigurationSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:prompt="@string/simulationConditionSelectMotors" />
+
+    <Button
+        android:id="@+id/simulationConditionDelete"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/Delete"/>
+
+    <Button
+        android:id="@+id/simulationConditionRun"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:text="@string/Run" />
 
 </LinearLayout>

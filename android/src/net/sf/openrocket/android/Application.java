@@ -8,10 +8,13 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 
@@ -66,9 +69,17 @@ public class Application extends android.app.Application {
 	public void onCreate() {
 		super.onCreate();
 		initialize();
+		boolean isDebuggable = (0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+		AndroidLogWrapper.setLogEnabled(isDebuggable);
 		PreferencesActivity.initializePreferences(this, PreferenceManager.getDefaultSharedPreferences(this));
 	}
 
+	private RocketChangedEventHandler handler;
+	
+	public void setHandler( RocketChangedEventHandler handler ) {
+		this.handler = handler;
+	}
+	
 	/**
 	 * @return the rocketDocument
 	 */
@@ -76,6 +87,30 @@ public class Application extends android.app.Application {
 		return rocketDocument;
 	}
 
+	public void addNewSimulation() {
+		Rocket rocket = rocketDocument.getRocket();
+		Simulation newSim = new Simulation(rocket);
+		newSim.setName(rocketDocument.getNextSimulationName());
+		rocketDocument.addSimulation(newSim);
+		if ( handler != null ) {
+			handler.simsChangedMessage();
+		}
+	}
+	
+	public void deleteSimulation( int simulationPos ) {
+		rocketDocument.removeSimulation( simulationPos );
+		if ( handler != null ) {
+			handler.simsChangedMessage();
+		}
+	}
+	
+	public String addNewMotorConfig() {
+		String configId = rocketDocument.getRocket().newMotorConfigurationID();
+		if ( handler != null ) {
+			handler.configsChangedMessage();
+		}
+		return configId;
+	}
 	/**
 	 * @param rocketDocument the rocketDocument to set
 	 */

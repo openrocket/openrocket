@@ -5,25 +5,34 @@ import net.sf.openrocket.android.Application;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class Simulations extends Fragment
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class Simulations extends SherlockFragment
 implements SharedPreferences.OnSharedPreferenceChangeListener
 {
+
+	private final static String wizardFrag = "wizardFrag";
 
 	public interface OnSimulationSelectedListener {
 		public void onSimulationSelected( int simulationId );
@@ -35,10 +44,27 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		setHasOptionsMenu(true);
 		View v = inflater.inflate(R.layout.rocket_simulations, container, false);
 		simulationList = (ListView) v.findViewById(R.id.openrocketviewerSimulationList);
-
 		return v;
+	}
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.rocket_viewer_simulation_option_menu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId())
+		{
+		case R.id.menu_add:
+			addSimulation();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -81,6 +107,10 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 
+	public void refreshSimulationList() {
+		setup();
+	}
+	
 	private void setup() {
 		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
 		AndroidLogWrapper.d(Simulations.class,"activity = {0}", this.getActivity());
@@ -99,9 +129,14 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 				StringBuilder sb = new StringBuilder();
 				sb.append("motors: ").append(sim.getConfiguration().getMotorConfigurationDescription());
 				Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
-				sb.append(" apogee: ").append( distanceUnit.toStringUnit(sim.getSimulatedData().getMaxAltitude()));
-				sb.append(" time: ").append(sim.getSimulatedData().getFlightTime()).append("s");
-				((TextView)v.findViewById(android.R.id.text2)).setText( sb.toString() );
+				FlightData flightData  = sim.getSimulatedData();
+				if ( flightData != null ) {
+					sb.append(" apogee: ").append( distanceUnit.toStringUnit(flightData.getMaxAltitude()));
+					sb.append(" time: ").append(flightData.getFlightTime()).append("s");
+					((TextView)v.findViewById(android.R.id.text2)).setText( sb.toString() );
+				} else {
+					((TextView)v.findViewById(android.R.id.text2)).setText("No simulation data");
+				}
 				return v;
 			}
 
@@ -115,8 +150,26 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			}
 
 		});
+		simulationList.setOnItemLongClickListener( new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				final SimulationEditFragment f = SimulationEditFragment.newInstance(position);
+				FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+				ft.add(f, wizardFrag);
+				ft.commit();
+
+				return true;
+			}
+			
+		});
 		simulationList.setAdapter(sims);
 
 	}
 
+	private void addSimulation() {
+		((Application)getActivity().getApplication()).addNewSimulation();
+	}
+	
 }

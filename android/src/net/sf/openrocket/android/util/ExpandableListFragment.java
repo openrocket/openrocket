@@ -2,7 +2,6 @@ package net.sf.openrocket.android.util;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -19,6 +18,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragment;
+
 /**
  * 
  * Pulled from https://gist.github.com/1316903
@@ -30,7 +31,7 @@ import android.widget.TextView;
  *
  * All ASLv2 licensed.
  */
-public class ExpandableListFragment extends Fragment
+public class ExpandableListFragment extends SherlockFragment
 implements OnCreateContextMenuListener, ExpandableListView.OnChildClickListener,
 ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandListener
 {

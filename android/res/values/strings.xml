@@ -4,6 +4,7 @@
     <string name="app_name">OpenRocket</string>
     <string name="version">version 12.03</string>
     <string name="save">Save</string>
+    <string name="Add">Add</string>
     <string name="MotorListTitle">Motor List</string>
     <string name="Download">Download</string>
     <string name="About">About</string>
@@ -80,7 +81,10 @@
         <string name="simulationConditionWind">Wind speed</string>
         <string name="simulationConditionsRodLength">Launch Rod Length</string>
         <string name="simulationConditionsLaunchRodAngle">Launch Rod Angle</string>
+        <string name="simulationConditionsLaunchRodDirection">Launch Rod Direction</string>
         <string name="select_motor">Select Motor</string>
         <string name="select_delay">Delay</string>
+        <string name="Delete">Delete</string>
+        <string name="Run">Run</string>
 
 </resources>

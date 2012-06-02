@@ -32,19 +32,35 @@ implements Simulations.OnSimulationSelectedListener
 
 	private Application app;
 
+	private final static int OVERVIEW_POS = 0;
+	private final static int COMPONENT_POS = 1;
+	private final static int SIMS_POS = 2;
+	private final static int CONFIGS_POS = 3;
+	private final static int TABSIZE = 4;
+
+	private OpenRocketViewerPagerAdapter viewPagerAdapter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		app = (Application) this.getApplication();
-		setContentView(R.layout.openrocketviewer);
-		ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
-		viewPager.setAdapter( new OpenRocketViewerPager( this.getSupportFragmentManager()));
 
 		setTitle(app.getRocketDocument().getRocket().getName());
-
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+		setContentView(R.layout.openrocketviewer);
+		ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
+		viewPagerAdapter = new OpenRocketViewerPagerAdapter( this.getSupportFragmentManager() );
+		viewPager.setAdapter( viewPagerAdapter );
+
+		app.setHandler( new RocketChangedEventHandler( ) );
+	}
+
+	@Override
+	protected void onPause() {
+		app.setHandler(null);
+		super.onPause();
 	}
 
 	@Override
@@ -87,7 +103,7 @@ implements Simulations.OnSimulationSelectedListener
 
 		Simulation sim = app.getRocketDocument().getSimulation(simulationId);
 		// Check if there is data for this simulation.
-		if ( sim.getSimulatedData().getBranchCount() == 0 ) {
+		if ( sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0 ) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("The selected simulation does not have saved data.");
 			builder.setCancelable(true);
@@ -117,25 +133,47 @@ implements Simulations.OnSimulationSelectedListener
 		}
 	}
 
-	private class OpenRocketViewerPager extends FragmentPagerAdapter {
+	private class RocketChangedEventHandler extends net.sf.openrocket.android.RocketChangedEventHandler {
 
-		public OpenRocketViewerPager( FragmentManager fm ) {
+		
+		@Override
+		protected void doSimsChanged() {
+			Simulations sims = (Simulations) viewPagerAdapter.getFragmentAtPos(SIMS_POS);
+			if ( sims != null ) {
+				sims.refreshSimulationList();
+			}
+		}
+
+		@Override
+		protected void doMotorConfigsChanged() {
+			Configurations configs = (Configurations) viewPagerAdapter.getFragmentAtPos(CONFIGS_POS);
+			if ( configs != null ) {
+				configs.refreshConfigsList();
+			}
+		}
+
+	};
+
+
+	private class OpenRocketViewerPagerAdapter extends FragmentPagerAdapter {
+
+		public OpenRocketViewerPagerAdapter( FragmentManager fm ) {
 			super(fm);
 		}
 		@Override
 		public int getCount() {
-			return 4;
+			return TABSIZE;
 		}
 		@Override
 		public Fragment getItem( int position ) {
 			switch (position) {
-			case 0:
+			case OVERVIEW_POS:
 				return new Overview();
-			case 1:
+			case COMPONENT_POS:
 				return new Component();
-			case 2:
+			case SIMS_POS:
 				return new Simulations();
-			case 3:
+			case CONFIGS_POS:
 				return new Configurations();
 			}
 			return null;
@@ -143,16 +181,22 @@ implements Simulations.OnSimulationSelectedListener
 		@Override
 		public CharSequence getPageTitle(int position) {
 			switch (position) {
-			case 0:
+			case OVERVIEW_POS:
 				return "Overview";
-			case 1:
+			case COMPONENT_POS:
 				return "Components";
-			case 2:
+			case SIMS_POS:
 				return "Simulations";
-			case 3:
+			case CONFIGS_POS:
 				return "Configurations";
 			}
 			return null;
+		}
+
+		public Fragment getFragmentAtPos( int pos ) {
+			String tag = "android:switcher:"+R.id.pager+":"+pos;
+			Fragment f = OpenRocketViewer.this.getSupportFragmentManager().findFragmentByTag(tag);
+			return f;
 		}
 	}
 

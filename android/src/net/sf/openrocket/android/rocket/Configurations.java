@@ -25,6 +25,10 @@ import android.widget.Button;
 import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
 public class Configurations extends ExpandableListFragment {
 
 	private final static String wizardFrag = "wizardFrag";
@@ -32,20 +36,27 @@ public class Configurations extends ExpandableListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		setHasOptionsMenu(true);
 		View v = inflater.inflate(R.layout.rocket_configurations, container, false);
 
-		Button b = (Button) v.findViewById(R.id.openrocketviewerAddConfiguration);
-
-		b.setOnClickListener( new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				((Application)getActivity().getApplication()).getRocketDocument().getRocket().newMotorConfigurationID();
-				Configurations.this.setup();
-			}
-		});
-
 		return v;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.rocket_viewer_configurations_option_menu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId())
+		{
+		case R.id.menu_add:
+			addConfiguration();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -55,7 +66,15 @@ public class Configurations extends ExpandableListFragment {
 		setup();
 
 	}
+	
+	public void refreshConfigsList() {
+		setup();
+	}
 
+	private void addConfiguration() {
+		((Application)getActivity().getApplication()).addNewMotorConfig();
+	}
+	
 	private static class MotorMountInfo {
 
 		private RocketComponent mmt;

@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 public class Overview extends Fragment
@@ -36,7 +35,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	private AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
 	private MassCalculator massCalculator  = new BasicMassCalculator();
 
-	private Spinner configurationSpinner;
+	private MotorConfigSpinner configurationSpinner;
 
 
 	@Override
@@ -44,7 +43,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			Bundle savedInstanceState) {
 		AndroidLogWrapper.d(Overview.class, "Created View");
 		View v = inflater.inflate(R.layout.rocket_overview, container, false);
-		configurationSpinner = (Spinner) v.findViewById(R.id.openrocketviewerConfigurationSpinner);
+		configurationSpinner = (MotorConfigSpinner) v.findViewById(R.id.openrocketviewerConfigurationSpinner);
 
 		return v;
 	}
@@ -81,29 +80,12 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 		// Find the index of the default configuration so we can preselect it.
 		Configuration defaultConfiguration = rocketDocument.getDefaultConfiguration();
-		int selectedIndex = 0;
-		if ( defaultConfiguration != null ) {
-			String defaultConfigId = defaultConfiguration.getMotorConfigurationID();
-			if ( defaultConfigId != null ) {
-				for( String s : rocket.getMotorConfigurationIDs() ) {
-					// Note - s may be null since it is a valid id.
-					if ( defaultConfigId.equals(s) ) {
-						break;
-					}
-					selectedIndex++;
-				}
-			}
-		}
-		if( selectedIndex > rocket.getMotorConfigurationIDs().length ) {
-			selectedIndex = 0;
-		}
-		MotorConfigSpinnerAdapter spinnerAdapter = new MotorConfigSpinnerAdapter(getActivity(),rocket);
-
-		AndroidLogWrapper.d(Overview.class, "spinnerAdapter = " + spinnerAdapter);
+		configurationSpinner.createAdapter(rocket);
 		AndroidLogWrapper.d(Overview.class, "configurationSpinner = " + configurationSpinner);
 
-		configurationSpinner.setAdapter(spinnerAdapter);
-		configurationSpinner.setSelection(selectedIndex);
+		if ( defaultConfiguration != null ) {
+			configurationSpinner.setSelectedConfiguration(defaultConfiguration.getMotorConfigurationID());
+		}
 		configurationSpinner.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
 
 			/* (non-Javadoc)
