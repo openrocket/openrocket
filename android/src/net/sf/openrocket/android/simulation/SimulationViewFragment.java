@@ -3,6 +3,7 @@ package net.sf.openrocket.android.simulation;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
 
 import org.achartengine.GraphicalView;
@@ -41,7 +42,7 @@ public class SimulationViewFragment extends Fragment implements SimulationSeries
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
-		OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		this.container = container;
 		if (savedInstanceState != null ) {
@@ -77,7 +78,7 @@ public class SimulationViewFragment extends Fragment implements SimulationSeries
 
 	@Override
 	public void onConfirm() {
-		OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		mChart = chart.buildChart(rocketDocument);
 		ViewGroup parent = (ViewGroup) mView.getParent();

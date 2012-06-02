@@ -3,7 +3,7 @@ package net.sf.openrocket.android.simulation;
 import java.util.List;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -37,7 +37,7 @@ public class SimulationEventsDialog extends DialogFragment {
 		eventList = (TableLayout) v.findViewById(R.id.simulationEventsList);
 		eventList.setColumnShrinkable(0, true);
 
-		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		List<FlightEvent> events = chart.getFlightDataBranch(rocketDocument).getEvents();
 		

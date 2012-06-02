@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.simulation.SimulationViewFragment;
@@ -30,8 +30,6 @@ public class OpenRocketViewer extends SherlockFragmentActivity
 implements Simulations.OnSimulationSelectedListener
 {
 
-	private Application app;
-
 	private final static int OVERVIEW_POS = 0;
 	private final static int COMPONENT_POS = 1;
 	private final static int SIMS_POS = 2;
@@ -44,9 +42,7 @@ implements Simulations.OnSimulationSelectedListener
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		app = (Application) this.getApplication();
-
-		setTitle(app.getRocketDocument().getRocket().getName());
+		setTitle(CurrentRocketHolder.getCurrentRocket().getRocketDocument().getRocket().getName());
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		setContentView(R.layout.openrocketviewer);
@@ -54,12 +50,12 @@ implements Simulations.OnSimulationSelectedListener
 		viewPagerAdapter = new OpenRocketViewerPagerAdapter( this.getSupportFragmentManager() );
 		viewPager.setAdapter( viewPagerAdapter );
 
-		app.setHandler( new RocketChangedEventHandler( ) );
+		CurrentRocketHolder.getCurrentRocket().setHandler( new RocketChangedEventHandler( ) );
 	}
 
 	@Override
 	protected void onPause() {
-		app.setHandler(null);
+		CurrentRocketHolder.getCurrentRocket().setHandler(null);
 		super.onPause();
 	}
 
@@ -77,7 +73,7 @@ implements Simulations.OnSimulationSelectedListener
 		case R.id.menu_save:
 			// FIXME - Probably want to open a dialog here.
 			try {
-				((Application)getApplication()).saveOpenRocketDocument();
+				CurrentRocketHolder.getCurrentRocket().saveOpenRocketDocument();
 			} catch ( IOException iex ) {
 				AndroidLogWrapper.d(OpenRocketViewer.class, iex.getMessage());
 			}
@@ -101,7 +97,7 @@ implements Simulations.OnSimulationSelectedListener
 	@Override
 	public void onSimulationSelected(int simulationId) {
 
-		Simulation sim = app.getRocketDocument().getSimulation(simulationId);
+		Simulation sim = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getSimulation(simulationId);
 		// Check if there is data for this simulation.
 		if ( sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0 ) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);

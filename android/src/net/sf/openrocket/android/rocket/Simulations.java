@@ -1,7 +1,7 @@
 package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -112,7 +112,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 	
 	private void setup() {
-		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 		AndroidLogWrapper.d(Simulations.class,"activity = {0}", this.getActivity());
 
 		ArrayAdapter<Simulation> sims = new ArrayAdapter<Simulation>(this.getActivity(),android.R.layout.simple_list_item_2,rocketDocument.getSimulations()) {
@@ -169,7 +169,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	private void addSimulation() {
-		((Application)getActivity().getApplication()).addNewSimulation();
+		CurrentRocketHolder.getCurrentRocket().addNewSimulation();
 	}
 	
 }

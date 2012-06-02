@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.simulation.FlightDataType;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -59,7 +58,7 @@ public class SimulationSeriesDialog extends DialogFragment {
 
 		View v = inflater.inflate(R.layout.simulation_series_dialog, container, false);
 		
-		OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		Button okButton = (Button) v.findViewById(R.id.simulationOkButton);
 		okButton.setOnClickListener( new View.OnClickListener() {

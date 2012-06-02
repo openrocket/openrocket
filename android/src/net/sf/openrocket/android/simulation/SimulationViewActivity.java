@@ -2,7 +2,7 @@ package net.sf.openrocket.android.simulation;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import android.os.Bundle;
@@ -23,7 +23,7 @@ public class SimulationViewActivity extends FragmentActivity {
 		//setContentView(R.layout.simulation_graph_activity);
 		int simulationNumber = getIntent().getIntExtra("Simulation", 0);
 
-		final OpenRocketDocument rocketDocument = ((Application)getApplication()).getRocketDocument();
+		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		Simulation sim = rocketDocument.getSimulation(simulationNumber);
 

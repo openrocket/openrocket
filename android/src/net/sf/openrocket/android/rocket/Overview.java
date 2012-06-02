@@ -5,7 +5,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
@@ -75,7 +75,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	private void setup() {
-		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 		Rocket rocket = rocketDocument.getRocket();
 
 		// Find the index of the default configuration so we can preselect it.

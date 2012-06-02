@@ -5,7 +5,7 @@ import java.util.Set;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.thrustcurve.TCMissingMotorDownloadAction;
 import net.sf.openrocket.android.thrustcurve.TCQueryAction;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
@@ -47,7 +47,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	}
 
 	private void loadOrkFile( Uri file ) {
-		((Application)getApplication()).setFileUri( file );
+		CurrentRocketHolder.getCurrentRocket().setFileUri( file );
 		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + file);
 		String path = file.getPath();
 		File orkFile = new File(path);
@@ -77,15 +77,15 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 			dialogBuilder.create().show();
 
 		} else {
-			((Application)OpenRocketLoaderActivity.this.getApplication()).setRocketDocument( result.rocket );
-			((Application)OpenRocketLoaderActivity.this.getApplication()).setWarnings( result.warnings );
+			CurrentRocketHolder.getCurrentRocket().setRocketDocument( result.rocket );
+			CurrentRocketHolder.getCurrentRocket().setWarnings( result.warnings );
 
 			updateMissingMotors();
 		}
 	}
 
 	private void updateMissingMotors() {
-		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
+		Rocket rocket = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getRocket();
 		Set<ThrustCurveMotorPlaceholder> missingMotors = MissingMotorHelpers.findMissingMotors(rocket);
 
 		if ( missingMotors.size() > 0 ) {
@@ -103,8 +103,8 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	@Override
 	public void onTCQueryComplete(String message) {
 
-		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
-		WarningSet warnings = ((Application)OpenRocketLoaderActivity.this.getApplication()).getWarnings();
+		Rocket rocket = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getRocket();
+		WarningSet warnings = CurrentRocketHolder.getCurrentRocket().getWarnings();
 		// Need to update the motor references.
 		MissingMotorHelpers.updateMissingMotors(rocket, warnings);
 
@@ -112,7 +112,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	}
 
 	private void displayWarningDialog() {
-		WarningSet warnings = ((Application)OpenRocketLoaderActivity.this.getApplication()).getWarnings();
+		WarningSet warnings = CurrentRocketHolder.getCurrentRocket().getWarnings();
 		if (warnings == null || warnings.isEmpty()) {
 		} else {
 			DialogFragment newFragment = WarningDialogFragment.newInstance();
@@ -124,7 +124,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	}
 
 	public void doFixMissingMotors() {
-		Rocket rocket = ((Application)OpenRocketLoaderActivity.this.getApplication()).getRocketDocument().getRocket();
+		Rocket rocket = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getRocket();
 		Set<ThrustCurveMotorPlaceholder> missingMotors = MissingMotorHelpers.findMissingMotors(rocket);
 
 		TCMissingMotorDownloadAction motorfrag = TCMissingMotorDownloadAction.newInstance( missingMotors );

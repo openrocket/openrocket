@@ -2,7 +2,7 @@
 package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.SimulationOptions;
@@ -73,7 +73,7 @@ public class SimulationEditFragment extends SherlockDialogFragment {
 
 		motorSpinner = (MotorConfigSpinner) v.findViewById(R.id.simulationConditionConfigurationSpinner);
 
-		OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		motorSpinner.createAdapter(rocketDocument.getRocket());
 
@@ -99,7 +99,7 @@ public class SimulationEditFragment extends SherlockDialogFragment {
 	}
 
 	public void onDelete( ) {
-		((Application)getActivity().getApplication()).deleteSimulation(simulationId);
+		CurrentRocketHolder.getCurrentRocket().deleteSimulation(simulationId);
 		getDialog().dismiss();
 	}
 	

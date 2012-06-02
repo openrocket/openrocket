@@ -3,7 +3,7 @@ package net.sf.openrocket.android.rocket;
 import java.util.List;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import net.sf.openrocket.android.motor.MotorDelayDialogFragment;
@@ -72,7 +72,7 @@ public class Configurations extends ExpandableListFragment {
 	}
 
 	private void addConfiguration() {
-		((Application)getActivity().getApplication()).addNewMotorConfig();
+		CurrentRocketHolder.getCurrentRocket().addNewMotorConfig();
 	}
 	
 	private static class MotorMountInfo {
@@ -110,7 +110,7 @@ public class Configurations extends ExpandableListFragment {
 	}
 
 	private void setup() {
-		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		ExpandableListAdapter configurationAdapter = new BaseExpandableListAdapter() {
 

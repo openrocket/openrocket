@@ -1,7 +1,7 @@
 package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
+import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.rocket.RocketComponentTreeAdapter.RocketComponentWithId;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -34,7 +34,7 @@ public class Component extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		final OpenRocketDocument rocketDocument = ((Application)getActivity().getApplication()).getRocketDocument();
+		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 		componentTree.setAdapter( buildAdapter( rocketDocument.getRocket() ) );
 	}
 	
