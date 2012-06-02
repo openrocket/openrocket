@@ -24,6 +24,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.simulation.CustomExpression;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -322,10 +323,25 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeln("<name>" + escapeXML(simulation.getName()) + "</name>");
 		// TODO: MEDIUM: Other simulators/calculators
+		
 		writeln("<simulator>RK4Simulator</simulator>");
 		writeln("<calculator>BarrowmanCalculator</calculator>");
-		writeln("<conditions>");
-		indent++;
+		
+		// Write out custom expressions
+		if (!simulation.getCustomExpressions().isEmpty()){
+			writeln("<customexpressions>"); indent++;
+			for (CustomExpression expression : simulation.getCustomExpressions()){
+				writeln("<expression>"); indent++;
+				writeElement("name", expression.getName());
+				writeElement("symbol", expression.getSymbol());
+				writeElement("unit", expression.getUnit());
+				writeElement("expressionstring", expression.getExpressionString());
+				indent--; writeln("</expression>");
+			}
+			indent--; writeln("</customexpressions>");
+		}
+		
+		writeln("<conditions>"); indent++;
 		
 		writeElement("configid", cond.getMotorConfigurationID());
 		writeElement("launchrodlength", cond.getLaunchRodLength());
@@ -358,7 +374,6 @@ public class OpenRocketSaver extends RocketSaver {
 		for (String s : simulation.getSimulationListeners()) {
 			writeElement("listener", escapeXML(s));
 		}
-		
 		
 		// Write basic simulation data
 		

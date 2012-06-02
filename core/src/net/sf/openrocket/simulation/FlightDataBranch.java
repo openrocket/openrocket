@@ -68,7 +68,16 @@ public class FlightDataBranch implements Monitorable {
 		}
 	}
 	
-	
+	/**
+	 * Makes an 'empty' flight data branch which has no data but all built in data types are defined.
+	 */
+	public FlightDataBranch() {
+		branchName = "Empty branch";
+		for (FlightDataType type : FlightDataType.ALL_TYPES){
+			this.setValue(type, Double.NaN);
+		}
+		this.immute();
+	}
 
 	/**
 	 * Adds a new point into the data branch.  The value for all types is set to NaN by default.

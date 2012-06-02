@@ -20,6 +20,9 @@ edit-delete.png
 edit-paste.png
 edit-redo.png
 edit-undo.png
+down.png
+pencil.png
+up.png
 edit-scale.png (modified from edit-copy.png)
 
 

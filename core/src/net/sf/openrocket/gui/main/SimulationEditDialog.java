@@ -41,6 +41,7 @@ import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.SimulationExportPanel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
+import net.sf.openrocket.gui.customexpression.CustomExpressionPanel;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -77,7 +78,7 @@ public class SimulationEditDialog extends JDialog {
 	
 	public static final int DEFAULT = -1;
 	public static final int EDIT = 1;
-	public static final int PLOT = 2;
+	public static final int PLOT = 3;
 	
 
 	private final Window parentWindow;
@@ -138,6 +139,8 @@ public class SimulationEditDialog extends JDialog {
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), flightConditionsTab());
 		//// Simulation options
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), simulationOptionsTab());
+		//// Custom expressions tab
+		tabbedPane.addTab(trans.get("simedtdlg.tab.CustomExpressions"), customExpressionsTab());
 		//// Plot data
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Plotdata"), plotTab());
 		//// Export data
@@ -147,7 +150,7 @@ public class SimulationEditDialog extends JDialog {
 		if (tab == EDIT) {
 			tabbedPane.setSelectedIndex(0);
 		} else if (tab == PLOT) {
-			tabbedPane.setSelectedIndex(2);
+			tabbedPane.setSelectedIndex(3);
 		} else {
 			FlightData data = s.getSimulatedData();
 			if (data == null || data.getBranchCount() == 0)
@@ -835,7 +838,9 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	
-
+	private JPanel customExpressionsTab() {
+		return new CustomExpressionPanel(simulation);
+	}
 
 
 	/**

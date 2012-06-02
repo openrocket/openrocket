@@ -67,6 +67,7 @@ import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.simulation.CustomExpression;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -1201,6 +1202,8 @@ class SimulationsHandler extends AbstractElementHandler {
 }
 
 class SingleSimulationHandler extends AbstractElementHandler {
+	private static final LogHelper log = Application.getLogger();
+
 	private final DocumentLoadingContext context;
 
 	private final OpenRocketDocument doc;
@@ -1209,7 +1212,9 @@ class SingleSimulationHandler extends AbstractElementHandler {
 
 	private SimulationConditionsHandler conditionHandler;
 	private FlightDataHandler dataHandler;
-
+	private CustomExpressionsHandler customExpressionsHandler;
+	
+	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 	private final List<String> listeners = new ArrayList<String>();
 
 	public SingleSimulationHandler(OpenRocketDocument doc, DocumentLoadingContext context) {
@@ -1217,7 +1222,9 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		this.context = context;
 	}
 
-
+	public void setCustomExpressions(ArrayList<CustomExpression> expressions){
+		this.customExpressions = expressions;
+	}
 
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
@@ -1226,6 +1233,9 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		if (element.equals("name") || element.equals("simulator") ||
 				element.equals("calculator") || element.equals("listener")) {
 			return PlainTextHandler.INSTANCE;
+		} else if (element.equals("customexpressions")) {
+			customExpressionsHandler = new CustomExpressionsHandler(this, context);
+			return customExpressionsHandler;
 		} else if (element.equals("conditions")) {
 			conditionHandler = new SimulationConditionsHandler(doc.getRocket(), context);
 			return conditionHandler;
@@ -1288,13 +1298,70 @@ class SingleSimulationHandler extends AbstractElementHandler {
 
 		Simulation simulation = new Simulation(doc.getRocket(), status, name,
 				conditions, listeners, data);
-
+		
+		// Note : arraylist implementation in simulation different from standard one
+		for (CustomExpression exp : customExpressions){
+			exp.setSimulation(simulation);
+			if (exp.checkAll())
+				simulation.addCustomExpression(exp);
+		}
+				
 		doc.addSimulation(simulation);
 	}
 }
 
+class CustomExpressionsHandler extends AbstractElementHandler {
+	private final DocumentLoadingContext context;
+	private final SingleSimulationHandler simHandler;
+	public CustomExpression currentExpression = new CustomExpression();
+	private final ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 
+	
+	public CustomExpressionsHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
+		this.context = context;
+		this.simHandler = simHandler;
+	}
+	
+	@Override
+	public ElementHandler openElement(String element,
+			HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		
+		if (element.equals("expression")){
+			currentExpression = new CustomExpression();
+		}
+		
+		return this;
+	}
 
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes,
+		String content, WarningSet warnings) {
+		
+		if (element.equals("expression"))
+			customExpressions.add(currentExpression);
+		
+		if (element.equals("name"))
+			currentExpression.setName(content);
+		 
+		else if (element.equals("symbol"))
+			currentExpression.setSymbol(content);
+		
+		else if (element.equals("unit"))
+			currentExpression.setUnit(content);
+		
+		else if (element.equals("expressionstring"))
+			currentExpression.setExpression(content);
+		
+	}
+	
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes,
+			String content, WarningSet warnings) {
+		simHandler.setCustomExpressions(customExpressions);
+	}
+}
+	
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private SimulationOptions conditions;
@@ -1605,7 +1672,8 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		String[] split = typeList.split(",");
 		types = new FlightDataType[split.length];
 		for (int i = 0; i < split.length; i++) {
-			types[i] = FlightDataType.getType(split[i], UnitGroup.UNITS_NONE);
+			types[i] = FlightDataType.getType(split[i], "None ("+split[i]+")", UnitGroup.UNITS_NONE);
+			// TODO: HIGH: Deal with symbols
 		}
 
 		// TODO: LOW: May throw an IllegalArgumentException

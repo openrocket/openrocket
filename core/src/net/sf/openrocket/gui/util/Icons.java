@@ -73,6 +73,10 @@ public class Icons {
 	public static final Icon PREFERENCES = loadImageIcon("pix/icons/preferences.png", "Preferences");
 	
 	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
+	public static final Icon EDIT = loadImageIcon("pix/icons/pencil.png", "Edit");
+	public static final Icon UP = loadImageIcon("pix/icons/up.png", "Up");
+	public static final Icon DOWN = loadImageIcon("pix/icons/down.png", "Down");
+	
 	
 	static {
 		log.debug("Icons loaded");

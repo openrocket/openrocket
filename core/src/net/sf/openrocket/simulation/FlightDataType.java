@@ -33,152 +33,206 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	
 	//// Time
-	public static final FlightDataType TYPE_TIME = newType(trans.get("FlightDataType.TYPE_TIME"), UnitGroup.UNITS_FLIGHT_TIME, 1);
-	
+	public static final FlightDataType TYPE_TIME = newType(trans.get("FlightDataType.TYPE_TIME"), "t", UnitGroup.UNITS_FLIGHT_TIME, 1);
 	
 	//// Vertical position and motion
 	//// Altitude
-	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), UnitGroup.UNITS_DISTANCE, 10);
+	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), "a", UnitGroup.UNITS_DISTANCE, 10);
 	//// Vertical velocity
-	public static final FlightDataType TYPE_VELOCITY_Z = newType(trans.get("FlightDataType.TYPE_VELOCITY_Z"), UnitGroup.UNITS_VELOCITY, 11);
+	public static final FlightDataType TYPE_VELOCITY_Z = newType(trans.get("FlightDataType.TYPE_VELOCITY_Z"), "Vz", UnitGroup.UNITS_VELOCITY, 11);
 	//// Vertical acceleration
-	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"), UnitGroup.UNITS_ACCELERATION, 12);
+	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"), "Az", UnitGroup.UNITS_ACCELERATION, 12);
 	
 	
 	//// Total motion
 	//// Total velocity
-	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"), UnitGroup.UNITS_VELOCITY, 20);
+	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"), "Vt", UnitGroup.UNITS_VELOCITY, 20);
 	//// Total acceleration
-	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), UnitGroup.UNITS_ACCELERATION, 21);
+	public static final FlightDataType TYPE_ACCELERATION_TOTAL = newType(trans.get("FlightDataType.TYPE_ACCELERATION_TOTAL"), "At", UnitGroup.UNITS_ACCELERATION, 21);
 	
 	
 	//// Lateral position and motion
 	//// Position upwind
-	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), UnitGroup.UNITS_DISTANCE, 30);
+	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px", UnitGroup.UNITS_DISTANCE, 30);
 	//// Position parallel to wind
-	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), UnitGroup.UNITS_DISTANCE, 31);
+	public static final FlightDataType TYPE_POSITION_Y = newType(trans.get("FlightDataType.TYPE_POSITION_Y"), "Py", UnitGroup.UNITS_DISTANCE, 31);
 	//// Lateral distance
-	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), UnitGroup.UNITS_DISTANCE, 32);
+	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl", UnitGroup.UNITS_DISTANCE, 32);
 	//// Lateral direction
-	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), UnitGroup.UNITS_ANGLE, 33);
+	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "θl", UnitGroup.UNITS_ANGLE, 33);
 	//// Lateral velocity
-	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), UnitGroup.UNITS_VELOCITY, 34);
+	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl", UnitGroup.UNITS_VELOCITY, 34);
 	//// Lateral acceleration
-	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), UnitGroup.UNITS_ACCELERATION, 35);
+	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION, 35);
 	//// Latitude
-	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), UnitGroup.UNITS_ANGLE, 36);
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "φ", UnitGroup.UNITS_ANGLE, 36);
 	//// Longitude
-	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), UnitGroup.UNITS_ANGLE, 37);
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "λ", UnitGroup.UNITS_ANGLE, 37);
 	
 	//// Angular motion
 	//// Angle of attack
-	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), UnitGroup.UNITS_ANGLE, 40);
+	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), "α", UnitGroup.UNITS_ANGLE, 40);
 	//// Roll rate
-	public static final FlightDataType TYPE_ROLL_RATE = newType(trans.get("FlightDataType.TYPE_ROLL_RATE"), UnitGroup.UNITS_ROLL, 41);
+	public static final FlightDataType TYPE_ROLL_RATE = newType(trans.get("FlightDataType.TYPE_ROLL_RATE"), "dΦ", UnitGroup.UNITS_ROLL, 41);
 	//// Pitch rate
-	public static final FlightDataType TYPE_PITCH_RATE = newType(trans.get("FlightDataType.TYPE_PITCH_RATE"), UnitGroup.UNITS_ROLL, 42);
+	public static final FlightDataType TYPE_PITCH_RATE = newType(trans.get("FlightDataType.TYPE_PITCH_RATE"), "dθ", UnitGroup.UNITS_ROLL, 42);
 	//// Yaw rate
-	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), UnitGroup.UNITS_ROLL, 43);
+	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), "dΨ", UnitGroup.UNITS_ROLL, 43);
 	
 	
 	//// Stability information
 	//// Mass
-	public static final FlightDataType TYPE_MASS = newType(trans.get("FlightDataType.TYPE_MASS"), UnitGroup.UNITS_MASS, 50);
+	public static final FlightDataType TYPE_MASS = newType(trans.get("FlightDataType.TYPE_MASS"), "m", UnitGroup.UNITS_MASS, 50);
 	//// Longitudinal moment of inertia
-	public static final FlightDataType TYPE_LONGITUDINAL_INERTIA = newType(trans.get("FlightDataType.TYPE_LONGITUDINAL_INERTIA"), UnitGroup.UNITS_INERTIA, 51);
+	public static final FlightDataType TYPE_LONGITUDINAL_INERTIA = newType(trans.get("FlightDataType.TYPE_LONGITUDINAL_INERTIA"), "Il", UnitGroup.UNITS_INERTIA, 51);
 	//// Rotational moment of inertia
-	public static final FlightDataType TYPE_ROTATIONAL_INERTIA = newType(trans.get("FlightDataType.TYPE_ROTATIONAL_INERTIA"), UnitGroup.UNITS_INERTIA, 52);
+	public static final FlightDataType TYPE_ROTATIONAL_INERTIA = newType(trans.get("FlightDataType.TYPE_ROTATIONAL_INERTIA"), "Ir", UnitGroup.UNITS_INERTIA, 52);
 	//// CP location
-	public static final FlightDataType TYPE_CP_LOCATION = newType(trans.get("FlightDataType.TYPE_CP_LOCATION"), UnitGroup.UNITS_LENGTH, 53);
+	public static final FlightDataType TYPE_CP_LOCATION = newType(trans.get("FlightDataType.TYPE_CP_LOCATION"), "Cp", UnitGroup.UNITS_LENGTH, 53);
 	//// CG location
-	public static final FlightDataType TYPE_CG_LOCATION = newType(trans.get("FlightDataType.TYPE_CG_LOCATION"), UnitGroup.UNITS_LENGTH, 54);
+	public static final FlightDataType TYPE_CG_LOCATION = newType(trans.get("FlightDataType.TYPE_CG_LOCATION"), "Cg", UnitGroup.UNITS_LENGTH, 54);
 	//// Stability margin calibers
-	public static final FlightDataType TYPE_STABILITY = newType(trans.get("FlightDataType.TYPE_STABILITY"), UnitGroup.UNITS_COEFFICIENT, 55);
+	public static final FlightDataType TYPE_STABILITY = newType(trans.get("FlightDataType.TYPE_STABILITY"), "S", UnitGroup.UNITS_COEFFICIENT, 55);
 	
 	
 	//// Characteristic numbers
 	//// Mach number
-	public static final FlightDataType TYPE_MACH_NUMBER = newType(trans.get("FlightDataType.TYPE_MACH_NUMBER"), UnitGroup.UNITS_COEFFICIENT, 60);
+	public static final FlightDataType TYPE_MACH_NUMBER = newType(trans.get("FlightDataType.TYPE_MACH_NUMBER"), "M", UnitGroup.UNITS_COEFFICIENT, 60);
 	//// Reynolds number
-	public static final FlightDataType TYPE_REYNOLDS_NUMBER = newType(trans.get("FlightDataType.TYPE_REYNOLDS_NUMBER"), UnitGroup.UNITS_COEFFICIENT, 61);
+	public static final FlightDataType TYPE_REYNOLDS_NUMBER = newType(trans.get("FlightDataType.TYPE_REYNOLDS_NUMBER"), "R", UnitGroup.UNITS_COEFFICIENT, 61);
 	
 	
 	//// Thrust and drag
 	//// Thrust
-	public static final FlightDataType TYPE_THRUST_FORCE = newType(trans.get("FlightDataType.TYPE_THRUST_FORCE"), UnitGroup.UNITS_FORCE, 70);
+	public static final FlightDataType TYPE_THRUST_FORCE = newType(trans.get("FlightDataType.TYPE_THRUST_FORCE"), "Ft", UnitGroup.UNITS_FORCE, 70);
 	//// Drag force
-	public static final FlightDataType TYPE_DRAG_FORCE = newType(trans.get("FlightDataType.TYPE_DRAG_FORCE"), UnitGroup.UNITS_FORCE, 71);
+	public static final FlightDataType TYPE_DRAG_FORCE = newType(trans.get("FlightDataType.TYPE_DRAG_FORCE"), "Fd", UnitGroup.UNITS_FORCE, 71);
 	//// Drag coefficient
-	public static final FlightDataType TYPE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 72);
+	public static final FlightDataType TYPE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_DRAG_COEFF"), "Cd", UnitGroup.UNITS_COEFFICIENT, 72);
 	//// Axial drag coefficient
-	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_AXIAL_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 73);
+	public static final FlightDataType TYPE_AXIAL_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_AXIAL_DRAG_COEFF"), "Cda", UnitGroup.UNITS_COEFFICIENT, 73);
 	
 	
 	////  Component drag coefficients
 	//// Friction drag coefficient
-	public static final FlightDataType TYPE_FRICTION_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_FRICTION_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 80);
+	public static final FlightDataType TYPE_FRICTION_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_FRICTION_DRAG_COEFF"), "Cdf", UnitGroup.UNITS_COEFFICIENT, 80);
 	//// Pressure drag coefficient
-	public static final FlightDataType TYPE_PRESSURE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_PRESSURE_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 81);
+	public static final FlightDataType TYPE_PRESSURE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_PRESSURE_DRAG_COEFF"), "Cdp", UnitGroup.UNITS_COEFFICIENT, 81);
 	//// Base drag coefficient
-	public static final FlightDataType TYPE_BASE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_BASE_DRAG_COEFF"), UnitGroup.UNITS_COEFFICIENT, 82);
+	public static final FlightDataType TYPE_BASE_DRAG_COEFF = newType(trans.get("FlightDataType.TYPE_BASE_DRAG_COEFF"), "Cdb", UnitGroup.UNITS_COEFFICIENT, 82);
 	
 	
 	////  Other coefficients
 	//// Normal force coefficient
-	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_NORMAL_FORCE_COEFF"), UnitGroup.UNITS_COEFFICIENT, 90);
+	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_NORMAL_FORCE_COEFF"), "Cn", UnitGroup.UNITS_COEFFICIENT, 90);
 	//// Pitch moment coefficient
-	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_MOMENT_COEFF"), UnitGroup.UNITS_COEFFICIENT, 91);
+	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_MOMENT_COEFF"), "Cθ", UnitGroup.UNITS_COEFFICIENT, 91);
 	//// Yaw moment coefficient
-	public static final FlightDataType TYPE_YAW_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_MOMENT_COEFF"), UnitGroup.UNITS_COEFFICIENT, 92);
+	public static final FlightDataType TYPE_YAW_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_MOMENT_COEFF"), "CτΨ", UnitGroup.UNITS_COEFFICIENT, 92);
 	//// Side force coefficient
-	public static final FlightDataType TYPE_SIDE_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_SIDE_FORCE_COEFF"), UnitGroup.UNITS_COEFFICIENT, 93);
+	public static final FlightDataType TYPE_SIDE_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_SIDE_FORCE_COEFF"), "Cτs", UnitGroup.UNITS_COEFFICIENT, 93);
 	//// Roll moment coefficient
-	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_MOMENT_COEFF"), UnitGroup.UNITS_COEFFICIENT, 94);
+	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_MOMENT_COEFF"), "CτΦ", UnitGroup.UNITS_COEFFICIENT, 94);
 	//// Roll forcing coefficient
-	public static final FlightDataType TYPE_ROLL_FORCING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_FORCING_COEFF"), UnitGroup.UNITS_COEFFICIENT, 95);
+	public static final FlightDataType TYPE_ROLL_FORCING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_FORCING_COEFF"), "CfΦ", UnitGroup.UNITS_COEFFICIENT, 95);
 	//// Roll damping coefficient
-	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_DAMPING_COEFF"), UnitGroup.UNITS_COEFFICIENT, 96);
+	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_DAMPING_COEFF"), "CζΦ", UnitGroup.UNITS_COEFFICIENT, 96);
 	
 	//// Pitch damping coefficient
-	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF"), UnitGroup.UNITS_COEFFICIENT, 97);
+	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF"), "Cζθ", UnitGroup.UNITS_COEFFICIENT, 97);
 	//// Yaw damping coefficient
-	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_DAMPING_MOMENT_COEFF"), UnitGroup.UNITS_COEFFICIENT, 98);
+	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_DAMPING_MOMENT_COEFF"), "CζΨ", UnitGroup.UNITS_COEFFICIENT, 98);
 	
 	//// Coriolis acceleration
-	public static final FlightDataType TYPE_CORIOLIS_ACCELERATION = newType(trans.get("FlightDataType.TYPE_CORIOLIS_ACCELERATION"), UnitGroup.UNITS_ACCELERATION, 99);
+	public static final FlightDataType TYPE_CORIOLIS_ACCELERATION = newType(trans.get("FlightDataType.TYPE_CORIOLIS_ACCELERATION"), "Ac", UnitGroup.UNITS_ACCELERATION, 99);
 	
 	
 	////  Reference length + area
 	//// Reference length
-	public static final FlightDataType TYPE_REFERENCE_LENGTH = newType(trans.get("FlightDataType.TYPE_REFERENCE_LENGTH"), UnitGroup.UNITS_LENGTH, 100);
+	public static final FlightDataType TYPE_REFERENCE_LENGTH = newType(trans.get("FlightDataType.TYPE_REFERENCE_LENGTH"), "Lr", UnitGroup.UNITS_LENGTH, 100);
 	//// Reference area
-	public static final FlightDataType TYPE_REFERENCE_AREA = newType(trans.get("FlightDataType.TYPE_REFERENCE_AREA"), UnitGroup.UNITS_AREA, 101);
+	public static final FlightDataType TYPE_REFERENCE_AREA = newType(trans.get("FlightDataType.TYPE_REFERENCE_AREA"), "Ar", UnitGroup.UNITS_AREA, 101);
 	
 	
 	////  Orientation
 	//// Vertical orientation (zenith)
-	public static final FlightDataType TYPE_ORIENTATION_THETA = newType(trans.get("FlightDataType.TYPE_ORIENTATION_THETA"), UnitGroup.UNITS_ANGLE, 106);
+	public static final FlightDataType TYPE_ORIENTATION_THETA = newType(trans.get("FlightDataType.TYPE_ORIENTATION_THETA"), "Θ", UnitGroup.UNITS_ANGLE, 106);
 	//// Lateral orientation (azimuth)
-	public static final FlightDataType TYPE_ORIENTATION_PHI = newType(trans.get("FlightDataType.TYPE_ORIENTATION_PHI"), UnitGroup.UNITS_ANGLE, 107);
+	public static final FlightDataType TYPE_ORIENTATION_PHI = newType(trans.get("FlightDataType.TYPE_ORIENTATION_PHI"), "Φ", UnitGroup.UNITS_ANGLE, 107);
 	
 	
 	////  Atmospheric conditions
 	//// Wind velocity
-	public static final FlightDataType TYPE_WIND_VELOCITY = newType(trans.get("FlightDataType.TYPE_WIND_VELOCITY"), UnitGroup.UNITS_VELOCITY, 110);
+	public static final FlightDataType TYPE_WIND_VELOCITY = newType(trans.get("FlightDataType.TYPE_WIND_VELOCITY"), "Vw", UnitGroup.UNITS_VELOCITY, 110);
 	//// Air temperature
-	public static final FlightDataType TYPE_AIR_TEMPERATURE = newType(trans.get("FlightDataType.TYPE_AIR_TEMPERATURE"), UnitGroup.UNITS_TEMPERATURE, 111);
+	public static final FlightDataType TYPE_AIR_TEMPERATURE = newType(trans.get("FlightDataType.TYPE_AIR_TEMPERATURE"), "T", UnitGroup.UNITS_TEMPERATURE, 111);
 	//// Air pressure
-	public static final FlightDataType TYPE_AIR_PRESSURE = newType(trans.get("FlightDataType.TYPE_AIR_PRESSURE"), UnitGroup.UNITS_PRESSURE, 112);
+	public static final FlightDataType TYPE_AIR_PRESSURE = newType(trans.get("FlightDataType.TYPE_AIR_PRESSURE"), "p", UnitGroup.UNITS_PRESSURE, 112);
 	//// Speed of sound
-	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType(trans.get("FlightDataType.TYPE_SPEED_OF_SOUND"), UnitGroup.UNITS_VELOCITY, 113);
+	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType(trans.get("FlightDataType.TYPE_SPEED_OF_SOUND"), "Vs", UnitGroup.UNITS_VELOCITY, 113);
 	
 	////  Simulation information
 	//// Simulation time step
-	public static final FlightDataType TYPE_TIME_STEP = newType(trans.get("FlightDataType.TYPE_TIME_STEP"), UnitGroup.UNITS_TIME_STEP, 200);
+	public static final FlightDataType TYPE_TIME_STEP = newType(trans.get("FlightDataType.TYPE_TIME_STEP"), "dt", UnitGroup.UNITS_TIME_STEP, 200);
 	//// Computation time
-	public static final FlightDataType TYPE_COMPUTATION_TIME = newType(trans.get("FlightDataType.TYPE_COMPUTATION_TIME"), UnitGroup.UNITS_SHORT_TIME, 201);
+	public static final FlightDataType TYPE_COMPUTATION_TIME = newType(trans.get("FlightDataType.TYPE_COMPUTATION_TIME"), "tc", UnitGroup.UNITS_SHORT_TIME, 201);
 	
 	
+	// An array of all the built in types
+	public static final FlightDataType[] ALL_TYPES = { 
+		TYPE_ALTITUDE ,
+		TYPE_VELOCITY_Z ,
+		TYPE_ACCELERATION_Z, 
+		TYPE_VELOCITY_TOTAL, 
+		TYPE_ACCELERATION_TOTAL, 
+		TYPE_POSITION_X, 
+		TYPE_POSITION_Y,  
+		TYPE_POSITION_XY, 
+		TYPE_POSITION_DIRECTION, 
+		TYPE_VELOCITY_XY, 
+		TYPE_ACCELERATION_XY, 
+		TYPE_LATITUDE, 
+		TYPE_LONGITUDE, 
+		TYPE_AOA,
+		TYPE_ROLL_RATE,
+		TYPE_PITCH_RATE,
+		TYPE_YAW_RATE,
+		TYPE_MASS,
+		TYPE_LONGITUDINAL_INERTIA,
+		TYPE_ROTATIONAL_INERTIA,
+		TYPE_CP_LOCATION,
+		TYPE_CG_LOCATION,
+		TYPE_STABILITY,
+		TYPE_MACH_NUMBER,
+		TYPE_REYNOLDS_NUMBER,
+		TYPE_THRUST_FORCE,
+		TYPE_DRAG_FORCE,
+		TYPE_DRAG_COEFF,
+		TYPE_AXIAL_DRAG_COEFF,
+		TYPE_FRICTION_DRAG_COEFF,
+		TYPE_PRESSURE_DRAG_COEFF,
+		TYPE_BASE_DRAG_COEFF,
+		TYPE_NORMAL_FORCE_COEFF,
+		TYPE_PITCH_MOMENT_COEFF,
+		TYPE_YAW_MOMENT_COEFF,
+		TYPE_SIDE_FORCE_COEFF,
+		TYPE_ROLL_MOMENT_COEFF,
+		TYPE_ROLL_FORCING_COEFF,
+		TYPE_ROLL_DAMPING_COEFF,
+		TYPE_PITCH_DAMPING_MOMENT_COEFF,
+		TYPE_YAW_DAMPING_MOMENT_COEFF,
+		TYPE_CORIOLIS_ACCELERATION,
+		TYPE_REFERENCE_LENGTH,
+		TYPE_REFERENCE_AREA,
+		TYPE_ORIENTATION_THETA,
+		TYPE_ORIENTATION_PHI,
+		TYPE_WIND_VELOCITY,
+		TYPE_AIR_TEMPERATURE,
+		TYPE_AIR_PRESSURE,
+		TYPE_SPEED_OF_SOUND,
+		TYPE_TIME_STEP,
+		TYPE_COMPUTATION_TIME
+		};
 	
 	/**
 	 * Return a {@link FlightDataType} based on a string description.  This returns known data types
@@ -188,37 +242,39 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 * @param u		the unit group the new type should belong to if a new group is created.
 	 * @return		a data type.
 	 */
-	public static synchronized FlightDataType getType(String s, UnitGroup u) {
+	public static synchronized FlightDataType getType(String s, String symbol, UnitGroup u) {
 		FlightDataType type = EXISTING_TYPES.get(s.toLowerCase(Locale.ENGLISH));
 		if (type != null) {
 			return type;
 		}
-		type = newType(s, u, DEFAULT_PRIORITY);
+		type = newType(s, symbol, u, DEFAULT_PRIORITY);
 		return type;
 	}
 	
 	/**
 	 * Used while initializing the class.
 	 */
-	private static synchronized FlightDataType newType(String s, UnitGroup u, int priority) {
-		FlightDataType type = new FlightDataType(s, u, priority);
+	private static synchronized FlightDataType newType(String s, String symbol, UnitGroup u, int priority) {
+		FlightDataType type = new FlightDataType(s, symbol, u, priority);
 		EXISTING_TYPES.put(s.toLowerCase(Locale.ENGLISH), type);
 		return type;
 	}
 	
 	
 	private final String name;
+	private final String symbol;
 	private final UnitGroup units;
 	private final int priority;
 	private final int hashCode;
 	
 	
-	private FlightDataType(String typeName, UnitGroup units, int priority) {
+	private FlightDataType(String typeName, String symbol, UnitGroup units, int priority) {
 		if (typeName == null)
 			throw new IllegalArgumentException("typeName is null");
 		if (units == null)
 			throw new IllegalArgumentException("units is null");
 		this.name = typeName;
+		this.symbol = symbol;
 		this.units = units;
 		this.priority = priority;
 		this.hashCode = this.name.toLowerCase(Locale.ENGLISH).hashCode();
@@ -229,6 +285,10 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getSymbol(){
+		return symbol;
 	}
 	
 	public UnitGroup getUnitGroup() {

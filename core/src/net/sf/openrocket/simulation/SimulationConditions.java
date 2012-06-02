@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.gravity.GravityModel;
@@ -27,6 +28,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private Rocket rocket;
 	private String motorID = null;
 	
+	private Simulation simulation; // The parent simulation 
 
 	private double launchRodLength = 1;
 	
@@ -262,9 +264,14 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		this.modID++;
 	}
 	
+	public void setSimulation(Simulation sim) {
+		this.simulation = sim;
+	}
+
+	public Simulation getSimulation(){
+		return this.simulation;
+	}
 	
-
-
 	// TODO: HIGH: Make cleaner
 	public List<SimulationListener> getSimulationListenerList() {
 		return simulationListeners;

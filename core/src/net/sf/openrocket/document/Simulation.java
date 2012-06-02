@@ -13,6 +13,7 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
+import net.sf.openrocket.simulation.CustomExpression;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationConditions;
@@ -70,13 +71,12 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SimulationOptions options;
 	
 	private ArrayList<String> simulationListeners = new ArrayList<String>();
+	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 	
 	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
 	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
 	private Class<? extends AerodynamicCalculator> aerodynamicCalculatorClass = BarrowmanCalculator.class;
 	private Class<? extends MassCalculator> massCalculatorClass = BasicMassCalculator.class;
-	
-
 
 	/** Listeners for this object */
 	private List<EventListener> listeners = new ArrayList<EventListener>();
@@ -146,6 +146,20 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 		}
 		
+	}
+	
+	public void addCustomExpression(CustomExpression expression){
+		this.status = Simulation.Status.OUTDATED;
+		log.debug("Simulation must be run again to update custom expression.");
+		customExpressions.add(expression);
+	}
+	
+	public void removeCustomExpression(CustomExpression expression){
+		customExpressions.remove(expression);
+	}
+	
+	public ArrayList<CustomExpression> getCustomExpressions(){
+		return customExpressions;
 	}
 	
 	
@@ -280,6 +294,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 			
 			SimulationConditions simulationConditions = options.toSimulationConditions();
+			simulationConditions.setSimulation(this);
 			for (SimulationListener l : additionalListeners) {
 				simulationConditions.getSimulationListenerList().add(l);
 			}

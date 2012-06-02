@@ -5,8 +5,10 @@ import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
+import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
@@ -14,6 +16,7 @@ import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -30,6 +33,8 @@ import net.sf.openrocket.util.WorldCoordinate;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationOptions implements ChangeSource, Cloneable {
+	
+	private static final LogHelper log = Application.getLogger();
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
 	
@@ -92,7 +97,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	public SimulationOptions(Rocket rocket) {
 		this.rocket = rocket;
 	}
-	
 	
 	public Rocket getRocket() {
 		return rocket;

@@ -1,5 +1,6 @@
 package net.sf.openrocket.simulation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -88,6 +89,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				SimulationListenerHelper.firePostStep(status);
 				
+				// Calculate values for custom expressions
+				FlightDataBranch data = status.getFlightData();
+				ArrayList<CustomExpression> allExpressions = status.getSimulationConditions().getSimulation().getCustomExpressions();
+				for (CustomExpression expression : allExpressions ) {
+					data.setValue(expression.getType(), expression.evaluate(status));
+				}
 				
 				// Check for NaN values in the simulation status
 				checkNaN();
