@@ -1,11 +1,9 @@
 package net.sf.openrocket.simulation;
 
-import java.awt.Window;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.customexpression.ExpressionBuilderDialog;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.FixedUnitGroup;
@@ -77,18 +75,14 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	/*
-	 * Opens an ExpressionBuilderDialog for this expression 
-	 */
-	public void editExpression(Window parent){
-		log.debug("Opening window to edit an existing custom expression");
-		new ExpressionBuilderDialog(parent, sim, this).setVisible(true);
-	}
-	
-	/*
 	 * Use this to update the simulation this is associated with
 	 */
 	public void setSimulation(Simulation sim){
 		CustomExpression.sim = sim;
+	}
+	
+	public Simulation getSimulation() {
+		return CustomExpression.sim;
 	}
 	
 	/*

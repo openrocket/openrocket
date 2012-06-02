@@ -137,7 +137,7 @@ public class CustomExpressionPanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e){
 					Window parent = SwingUtilities.getWindowAncestor(CustomExpressionPanel.this);
-					expression.editExpression(parent);
+					new ExpressionBuilderDialog(parent, expression.getSimulation(), expression).setVisible(true);
 					updateExpressions();
 				}
 			});
