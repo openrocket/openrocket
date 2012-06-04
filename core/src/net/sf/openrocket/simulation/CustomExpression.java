@@ -90,7 +90,7 @@ public class CustomExpression implements Cloneable{
 	 * if no simulated data exists
 	 */
 	private FlightDataBranch getBranch() {
-		if ( 	sim == null || 	sim.getSimulatedData().getBranchCount() == 0){//sim.getSimulatedData().getBranch(0) == null) {
+		if ( 	sim == null || sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0){
 			return new FlightDataBranch();
 		}
 		else {
@@ -173,7 +173,7 @@ public class CustomExpression implements Cloneable{
 		
 		// No characters that could mess things up saving etc
 		for (char c : ",()[]{}<>".toCharArray())
-			if (symbol.indexOf(c) != -1 )
+			if (name.indexOf(c) != -1 )
 				return false;
 		
 		ArrayList<String> names = getAllNames().clone();
@@ -223,7 +223,6 @@ public class CustomExpression implements Cloneable{
 		
 		// Define the available variables as 0
 		for (FlightDataType type : getBranch().getTypes()){
-			System.out.println( " " + type.getSymbol() );
 			builder.withVariable(type.getSymbol(), 0.0);
 		}
 		
@@ -267,13 +266,17 @@ public class CustomExpression implements Cloneable{
 	 * Returns the new flight data type corresponding to this calculated data
 	 */
 	public FlightDataType getType(){
-		// Figure out priority from order in array so that customs expressions are always at the top
 		
-		int totalExpressions = sim.getCustomExpressions().size();
-		int p = -1*(totalExpressions-sim.getCustomExpressions().indexOf(this));
 		UnitGroup ug = new FixedUnitGroup(unit);
 		FlightDataType type =  FlightDataType.getType(name, symbol, ug);
-		type.setPriority(p);
+		
+		// If in a simulation, figure out priority from order in array so that customs expressions are always at the top
+		if (sim != null && sim.getCustomExpressions().contains(this)){
+			int totalExpressions = sim.getCustomExpressions().size();
+			int p = -1*(totalExpressions-sim.getCustomExpressions().indexOf(this));
+			type.setPriority(p);
+		}
+		
 		return type;
 	}
 	
