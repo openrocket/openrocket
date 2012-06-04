@@ -458,6 +458,17 @@ public class UnitGroup {
 		return units.toArray(new Unit[0]);
 	}
 	
+	/**
+	 * Return the value in SI units from the default unit of this group.
+	 * It is the same as calling <code>getDefaultUnit().fromUnit(value)</code>
+	 * 
+	 * @param value the default unit value to convert
+	 * @return the value in SI units.
+	 * @see Unit#fromUnit(double)
+	 */
+	public double fromUnit( double value ) {
+		return this.getDefaultUnit().fromUnit(value);
+	}
 	
 	/**
 	 * Return the value formatted by the default unit of this group.
