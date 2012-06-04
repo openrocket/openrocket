@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="SimulationServiceNotificationID"></string>
     <string name="PreferenceMotorBrowserGroupingOption">PreferenceMotorBrowserGroupingOption</string>
     <string name="PreferenceUseInternalFileBrowserOption">PreferenceUseInternalFileBrowserOpion</string>
     <string name="PreferenceFileBrowserBaseDirectory">PreferenceFileBrowserBaseDirectory</string>

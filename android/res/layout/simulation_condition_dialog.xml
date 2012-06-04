@@ -44,7 +44,7 @@
         android:text="@string/simulationConditionsLaunchRodAngle" />
 
     <EditText
-        android:id="@+id/simulation_condition_roddirection"
+        android:id="@+id/simulation_condition_rodangle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -59,7 +59,7 @@
         android:text="@string/simulationConditionsLaunchRodDirection" />
 
     <EditText
-        android:id="@+id/simulation_condition_rodangle"
+        android:id="@+id/simulation_condition_roddirection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

@@ -3,6 +3,8 @@ package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
+import net.sf.openrocket.android.simservice.SimulationService;
+import net.sf.openrocket.android.simservice.SimulationTask;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.SimulationOptions;
@@ -59,13 +61,20 @@ public class SimulationEditFragment extends SherlockDialogFragment {
 		
 		Button deleteButton = (Button) v.findViewById(R.id.simulationConditionDelete);
 		deleteButton.setOnClickListener( new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				onDelete();
 			}
-			
 		});
+		
+		Button runButton = (Button) v.findViewById(R.id.simulationConditionRun);
+		runButton.setOnClickListener( new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onRun();
+			}
+		});
+
 		windspeedField = (EditText) v.findViewById(R.id.simulation_condition_windspeed);
 		rodlengthField = (EditText) v.findViewById(R.id.simulation_condition_rodlength);
 		rodangleField = (EditText) v.findViewById(R.id.simulation_condition_rodangle);
@@ -83,8 +92,8 @@ public class SimulationEditFragment extends SherlockDialogFragment {
 		if ( options != null ) {
 			windspeedField.setText( UnitGroup.UNITS_VELOCITY.toString( options.getWindSpeedAverage() ));
 			rodlengthField.setText( UnitGroup.UNITS_LENGTH.toString( options.getLaunchRodLength() ));
-			rodangleField.setText( String.valueOf( options.getLaunchRodLength() ));
-			roddirectionField.setText( String.valueOf( options.getLaunchRodDirection() ));
+			rodangleField.setText( UnitGroup.UNITS_ANGLE.toString( options.getLaunchRodAngle() ));
+			roddirectionField.setText( UnitGroup.UNITS_ANGLE.toString( options.getLaunchRodDirection() ));
 			motorSpinner.setSelectedConfiguration(options.getMotorConfigurationID());
 		}
 
@@ -103,4 +112,20 @@ public class SimulationEditFragment extends SherlockDialogFragment {
 		getDialog().dismiss();
 	}
 	
+	public void onRun() {
+		
+		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
+		Simulation sim = rocketDocument.getSimulation(simulationId);
+		SimulationOptions options = sim.getOptions();
+
+		options.setWindSpeedAverage( UnitGroup.UNITS_VELOCITY.fromUnit(Double.parseDouble( windspeedField.getText().toString() )));
+		options.setLaunchRodLength( UnitGroup.UNITS_LENGTH.fromUnit(Double.parseDouble( rodlengthField.getText().toString() )));
+		options.setLaunchRodAngle( UnitGroup.UNITS_ANGLE.fromUnit(Double.parseDouble( rodangleField.getText().toString() )));
+		options.setLaunchRodDirection( UnitGroup.UNITS_ANGLE.fromUnit(Double.parseDouble( roddirectionField.getText().toString() )));
+		options.setMotorConfigurationID( motorSpinner.getSelectedConfiguration() );
+		
+		SimulationTask t = new SimulationTask(simulationId);
+		SimulationService.executeSimulationTask(getActivity(), t);
+		getDialog().dismiss();
+	}
 }
