@@ -24,7 +24,7 @@ public class CustomExpression implements Cloneable{
 	
 	private String name, symbol, unit, expression;
 	private ExpressionBuilder builder;
-	private static Simulation sim = null;
+	private Simulation sim = null;
 	
 	// A map of available operator strings (keys) and description of function (value)
 	public static final SortedMap<String, String> AVAILABLE_OPERATORS = new TreeMap<String, String>() {{
@@ -78,11 +78,11 @@ public class CustomExpression implements Cloneable{
 	 * Use this to update the simulation this is associated with
 	 */
 	public void setSimulation(Simulation sim){
-		CustomExpression.sim = sim;
+		this.sim = sim;
 	}
 	
 	public Simulation getSimulation() {
-		return CustomExpression.sim;
+		return this.sim;
 	}
 	
 	/*
@@ -90,10 +90,11 @@ public class CustomExpression implements Cloneable{
 	 * if no simulated data exists
 	 */
 	private FlightDataBranch getBranch() {
-		if ( sim == null || sim.getSimulatedData().getBranch(0) == null) {
+		if ( 	sim == null || 	sim.getSimulatedData().getBranchCount() == 0){//sim.getSimulatedData().getBranch(0) == null) {
 			return new FlightDataBranch();
 		}
 		else {
+			System.out.println("Using existing branch");
 			return sim.getSimulatedData().getBranch(0);
 		}
 	}
@@ -145,7 +146,7 @@ public class CustomExpression implements Cloneable{
 			return false;
 		
 		// No bad characters
-		for (char c : "0123456789.()[]{}".toCharArray())
+		for (char c : "0123456789.,()[]{}<> ".toCharArray())
 			if (symbol.indexOf(c) != -1 )
 				return false;
 		
@@ -169,6 +170,11 @@ public class CustomExpression implements Cloneable{
 	public boolean checkName(){
 		if (name.trim().isEmpty())
 			return false;
+		
+		// No characters that could mess things up saving etc
+		for (char c : ",()[]{}<>".toCharArray())
+			if (symbol.indexOf(c) != -1 )
+				return false;
 		
 		ArrayList<String> names = getAllNames().clone();
 		if (names.contains(name.trim())){
@@ -217,6 +223,7 @@ public class CustomExpression implements Cloneable{
 		
 		// Define the available variables as 0
 		for (FlightDataType type : getBranch().getTypes()){
+			System.out.println( " " + type.getSymbol() );
 			builder.withVariable(type.getSymbol(), 0.0);
 		}
 		
@@ -260,8 +267,14 @@ public class CustomExpression implements Cloneable{
 	 * Returns the new flight data type corresponding to this calculated data
 	 */
 	public FlightDataType getType(){
+		// Figure out priority from order in array so that customs expressions are always at the top
+		
+		int totalExpressions = sim.getCustomExpressions().size();
+		int p = -1*(totalExpressions-sim.getCustomExpressions().indexOf(this));
 		UnitGroup ug = new FixedUnitGroup(unit);
-		return FlightDataType.getType(name, symbol, ug);
+		FlightDataType type =  FlightDataType.getType(name, symbol, ug);
+		type.setPriority(p);
+		return type;
 	}
 	
 	/*

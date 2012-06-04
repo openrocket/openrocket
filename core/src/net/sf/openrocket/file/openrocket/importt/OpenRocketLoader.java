@@ -1202,7 +1202,6 @@ class SimulationsHandler extends AbstractElementHandler {
 }
 
 class SingleSimulationHandler extends AbstractElementHandler {
-	private static final LogHelper log = Application.getLogger();
 
 	private final DocumentLoadingContext context;
 
@@ -1225,6 +1224,10 @@ class SingleSimulationHandler extends AbstractElementHandler {
 	public void setCustomExpressions(ArrayList<CustomExpression> expressions){
 		this.customExpressions = expressions;
 	}
+	
+	public ArrayList<CustomExpression> getCustomExpressions(){
+		return customExpressions;
+	}
 
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
@@ -1240,7 +1243,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 			conditionHandler = new SimulationConditionsHandler(doc.getRocket(), context);
 			return conditionHandler;
 		} else if (element.equals("flightdata")) {
-			dataHandler = new FlightDataHandler(context);
+			dataHandler = new FlightDataHandler(this, context);
 			return dataHandler;
 		} else {
 			warnings.add("Unknown element '" + element + "', ignoring.");
@@ -1545,12 +1548,14 @@ class FlightDataHandler extends AbstractElementHandler {
 	private FlightDataBranchHandler dataHandler;
 	private WarningSet warningSet = new WarningSet();
 	private List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
-
+	
+	private SingleSimulationHandler simHandler;
 	private FlightData data;
 
 
-	public FlightDataHandler(DocumentLoadingContext context) {
+	public FlightDataHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
 		this.context = context;
+		this.simHandler = simHandler;
 	}
 
 	public FlightData getFlightData() {
@@ -1569,8 +1574,9 @@ class FlightDataHandler extends AbstractElementHandler {
 				warnings.add("Illegal flight data definition, ignoring.");
 				return null;
 			}
-			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
-					attributes.get("types"), context);
+			dataHandler = new FlightDataBranchHandler(	attributes.get("name"),
+														attributes.get("types"), 
+														simHandler, context);
 			return dataHandler;
 		}
 
@@ -1666,18 +1672,51 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
-
-	public FlightDataBranchHandler(String name, String typeList, DocumentLoadingContext context) {
+	
+	private static final LogHelper log = Application.getLogger();
+	private final SingleSimulationHandler simHandler;
+	
+	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {
+		this.simHandler = simHandler;
 		this.context = context;
 		String[] split = typeList.split(",");
 		types = new FlightDataType[split.length];
 		for (int i = 0; i < split.length; i++) {
-			types[i] = FlightDataType.getType(split[i], "None ("+split[i]+")", UnitGroup.UNITS_NONE);
-			// TODO: HIGH: Deal with symbols
+			String typeName = split[i];
+			FlightDataType matching = findFlightDataType(typeName);
+			types[i] = matching;
+			//types[i] = FlightDataType.getType(typeName, matching.getSymbol(), matching.getUnitGroup());
 		}
 
 		// TODO: LOW: May throw an IllegalArgumentException
 		branch = new FlightDataBranch(name, types);
+	}
+	
+	// Find the full flight data type given name only
+	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
+	// not the nicest but this is always the case anyway.
+	private FlightDataType findFlightDataType(String name){
+		
+		// Look in built in types
+		for (FlightDataType t : FlightDataType.ALL_TYPES){
+			if (t.getName().equals(name) ){
+				return t;
+			}
+		}
+		
+		// Look in custom expressions, meanwhile set priority based on order in file
+		int totalExpressions = simHandler.getCustomExpressions().size();
+		for (int i=0; i<totalExpressions; i++){
+			CustomExpression exp = simHandler.getCustomExpressions().get(i);			
+			if (exp.getName().equals(name) ){
+				FlightDataType t = exp.getType();
+				t.setPriority(-1*(totalExpressions-i));
+				return exp.getType();
+			}
+		}
+		
+		log.warn("Could not find the flight data type '"+name+"' used in the XML file. Substituted type with unknown symbol and units.");
+		return FlightDataType.getType(name, "Unknown", UnitGroup.UNITS_NONE);
 	}
 
 	public FlightDataBranch getBranch() {

@@ -106,8 +106,8 @@ public class FlightDataBranch implements Monitorable {
 		mutable.check();
 		
 		ArrayList<Double> list = values.get(type);
+		
 		if (list == null) {
-			
 			list = new ArrayList<Double>();
 			int n = getLength();
 			for (int i = 0; i < n; i++) {
@@ -115,10 +115,13 @@ public class FlightDataBranch implements Monitorable {
 			}
 			values.put(type, list);
 			minValues.put(type, value);
-			maxValues.put(type, value);
-			
+			maxValues.put(type, value);		
 		}
-		list.set(list.size() - 1, value);
+		
+		if (list.size() > 0){
+			list.set(list.size() - 1, value);
+		}
+		
 		double min = minValues.get(type);
 		double max = maxValues.get(type);
 		

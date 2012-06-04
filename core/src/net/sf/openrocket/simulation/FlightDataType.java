@@ -37,7 +37,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	//// Vertical position and motion
 	//// Altitude
-	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), "a", UnitGroup.UNITS_DISTANCE, 10);
+	public static final FlightDataType TYPE_ALTITUDE = newType(trans.get("FlightDataType.TYPE_ALTITUDE"), "h", UnitGroup.UNITS_DISTANCE, 10);
 	//// Vertical velocity
 	public static final FlightDataType TYPE_VELOCITY_Z = newType(trans.get("FlightDataType.TYPE_VELOCITY_Z"), "Vz", UnitGroup.UNITS_VELOCITY, 11);
 	//// Vertical acceleration
@@ -180,6 +180,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	// An array of all the built in types
 	public static final FlightDataType[] ALL_TYPES = { 
+		TYPE_TIME,
 		TYPE_ALTITUDE ,
 		TYPE_VELOCITY_Z ,
 		TYPE_ACCELERATION_Z, 
@@ -243,7 +244,15 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 * @return		a data type.
 	 */
 	public static synchronized FlightDataType getType(String s, String symbol, UnitGroup u) {
+		// modified to include the unit
 		FlightDataType type = EXISTING_TYPES.get(s.toLowerCase(Locale.ENGLISH));
+		
+		// added this for backward compatibility. Will update type if symbol undefined
+		//if (type != null && type.getSymbol() != symbol){
+		//	EXISTING_TYPES.remove(type);
+		//	type = null;
+		//}
+		
 		if (type != null) {
 			return type;
 		}
@@ -264,7 +273,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	private final String name;
 	private final String symbol;
 	private final UnitGroup units;
-	private final int priority;
+	private int priority;
 	private final int hashCode;
 	
 	
@@ -281,7 +290,9 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	}
 	
 	
-	
+	public void setPriority(int p){
+		this.priority = p;
+	}
 	
 	public String getName() {
 		return name;
@@ -297,7 +308,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	@Override
 	public String toString() {
-		return name;
+		return name; //+" ("+symbol+") "+units.getDefaultUnit().toString();
 	}
 	
 	@Override
