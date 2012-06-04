@@ -26,12 +26,12 @@ public abstract class RocketChangedEventHandler extends Handler {
 
 	public void simsChangedMessage() {
 		Message m = this.obtainMessage(SIMS_CHANGED);
-		this.dispatchMessage(m);
+		this.sendMessage(m);
 	}
 	
 	public void configsChangedMessage() {
 		Message m = this.obtainMessage(MOTOR_CONFIGS_CHANGED);
-		this.dispatchMessage(m);
+		this.sendMessage(m);
 	}
 
 	@Override
