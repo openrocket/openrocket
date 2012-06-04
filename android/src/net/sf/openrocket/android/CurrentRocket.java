@@ -30,21 +30,23 @@ public class CurrentRocket {
 		return rocketDocument;
 	}
 
+	public void notifySimsChanged() {
+		if ( handler != null ) {
+			handler.simsChangedMessage();
+		}
+	}
+
 	public void addNewSimulation() {
 		Rocket rocket = rocketDocument.getRocket();
 		Simulation newSim = new Simulation(rocket);
 		newSim.setName(rocketDocument.getNextSimulationName());
 		rocketDocument.addSimulation(newSim);
-		if ( handler != null ) {
-			handler.simsChangedMessage();
-		}
+		notifySimsChanged();
 	}
 	
 	public void deleteSimulation( int simulationPos ) {
 		rocketDocument.removeSimulation( simulationPos );
-		if ( handler != null ) {
-			handler.simsChangedMessage();
-		}
+		notifySimsChanged();
 	}
 	
 	public String addNewMotorConfig() {
