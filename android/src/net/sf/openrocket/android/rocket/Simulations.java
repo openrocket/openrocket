@@ -127,7 +127,8 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 				Simulation sim = this.getItem(position);
 				((TextView)v.findViewById(android.R.id.text1)).setText( sim.getName() );
 				StringBuilder sb = new StringBuilder();
-				sb.append("motors: ").append(sim.getConfiguration().getMotorConfigurationDescription());
+				String motorConfig = sim.getOptions().getMotorConfigurationID();
+				sb.append("motors: ").append(rocketDocument.getRocket().getMotorConfigurationNameOrDescription(motorConfig));
 				Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
 				FlightData flightData  = sim.getSimulatedData();
 				if ( flightData != null ) {
