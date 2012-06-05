@@ -2,7 +2,6 @@
 package net.sf.openrocket.android.simulation;
 
 import net.sf.openrocket.R;
-import net.sf.openrocket.android.Application;
 import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
 
@@ -10,18 +9,19 @@ import org.achartengine.GraphicalView;
 import org.achartengine.chart.XYChart;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 /**
  * An activity that encapsulates a graphical view of the chart.
  */
-public class SimulationViewFragment extends Fragment implements SimulationSeriesDialog.OnConfirmListener {
+public class SimulationViewFragment extends SherlockFragment implements SimulationSeriesDialog.OnConfirmListener {
 	
 	SimulationChart chart;
 
