@@ -39,11 +39,21 @@ public class ShapeColumnParser extends BaseColumnParser {
 		if ( "power-series".equals(lc) ) {
 			shape = Shape.POWER;
 		}
+		// guessing at what "ps" means.  I think it might be power series.
+		if ( "ps".equals(lc) ) {
+			shape = Shape.POWER;
+		}
 		if ( "1".equals(lc) ) {
 			shape = Shape.OGIVE;
 		}
 		if( "0". equals(lc) ) {
 			shape = Shape.CONICAL;
+		}
+		if( "". equals(lc) ) {
+			shape = Shape.CONICAL;
+		}
+		if ( "3".equals(lc) ) {
+			shape = Shape.ELLIPSOID;
 		}
 		if ( shape == null ) {
 			throw new BugException("Invalid shape parameter: " + columnData);
