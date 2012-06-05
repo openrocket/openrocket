@@ -25,7 +25,6 @@ public class Main extends SherlockFragmentActivity {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-		setTitle("");
 		setContentView(R.layout.main);
 		((Button) findViewById(R.id.main_open)).setOnClickListener(
 				new View.OnClickListener() {

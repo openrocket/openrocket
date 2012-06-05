@@ -30,7 +30,6 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTitle("");
 		setContentView(R.layout.main);
 		if ( savedInstanceState == null || savedInstanceState.getBoolean("isLoading", false) == false ) {
 			Intent i = getIntent();
