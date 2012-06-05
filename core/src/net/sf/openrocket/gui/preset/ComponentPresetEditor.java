@@ -112,20 +112,21 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 JTable target = (JTable) e.getSource();
-                if (target.getSelectedColumn() == 4) {
+                int selectedColumn = table.getColumnModel().getColumnIndexAtX( target.getSelectedColumn() );
+                int selectedRow = table.getRowSorter().convertRowIndexToModel( target.getSelectedRow() );
+                if (selectedColumn == 4) {
                     if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetEditor.this,
                             "Do you want to delete this preset?",
                             "Confirm Delete", JOptionPane.YES_OPTION,
                             JOptionPane.QUESTION_MESSAGE)) {
-                        model.removeRow(target.getSelectedRow());
+                        model.removeRow(selectedRow);
                     }
                 }
                 else {
                     if (e.getClickCount() == 2) {
-                        int row = target.getSelectedRow();
                         editContext.setEditingSelected(true);
                         new PresetEditorDialog(ComponentPresetEditor.this,
-                                (ComponentPreset) model.getAssociatedObject(row), editContext.getMaterialsLoaded()).setVisible(true);
+                                (ComponentPreset) model.getAssociatedObject(selectedRow), editContext.getMaterialsLoaded()).setVisible(true);
                     }
                 }
             }
@@ -431,9 +432,6 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 
         for (int x = 0; x < model.getRowCount(); x++) {
             ComponentPreset preset = (ComponentPreset) model.getAssociatedObject(x);
-            if (!materials.contains(preset.get(ComponentPreset.MATERIAL))) {
-                materials.add(preset.get(ComponentPreset.MATERIAL));
-            }
             presets.add(preset);
         }
 
