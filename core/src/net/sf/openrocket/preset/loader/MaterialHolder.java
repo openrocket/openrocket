@@ -3,6 +3,7 @@ package net.sf.openrocket.preset.loader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.openrocket.database.Database;
@@ -17,6 +18,17 @@ public class MaterialHolder {
 
 	private final Map<String, Material.Line> lineMaterials = new HashMap<String,Material.Line>();
 
+	public MaterialHolder() {}
+	
+	public MaterialHolder( List<Material> materials ) {
+		if (materials == null) {
+			return;
+		}
+		for (Material material : materials) {
+			this.put(material);
+		}
+	}
+	
 	public void put( Material material ) {
 		switch ( material.getType() ) {
 		case BULK:
