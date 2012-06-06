@@ -31,9 +31,22 @@ public class MaterialHolder {
 		}
 	}
 
+	public Material getMaterial ( Material material ) {
+		switch ( material.getType() ) {
+		case BULK:
+			return getBulkMaterial( (Material.Bulk)material );
+		case SURFACE:
+			return getSurfaceMaterial( (Material.Surface) material, null );
+		case LINE:
+			return getLineMaterial( (Material.Line) material );
+		default:
+			return null;
+		}
+	}
+
 	public Material.Bulk getBulkMaterial( Material.Bulk material ) {
 		Material.Bulk m = bulkMaterials.get( material.getName() );
-		return (m==null) ? material : m;
+		return m;
 	}
 
 	public Material.Surface getSurfaceMaterial( Material.Surface material, Double thickness ) {
@@ -44,7 +57,7 @@ public class MaterialHolder {
 		// Try to see if we can convert a bulk material.
 		if ( thickness == null ) {
 			// if we have no thickness, there is nothing we can do
-			return material;
+			return null;
 		}
 		String thicknessName = UnitGroup.UNITS_LENGTH.getUnit("mm").toString(thickness);
 		String convertedMaterialName = material.getName() + "(" + thicknessName + ")";
@@ -55,7 +68,7 @@ public class MaterialHolder {
 		Material.Bulk bulk = bulkMaterials.get(material.getName() );
 
 		if ( bulk == null ) {
-			return material;
+			return null;
 		}
 
 		// Ok, now we have a thickness and a bulk material of the correct name,
@@ -71,7 +84,7 @@ public class MaterialHolder {
 
 	public Material.Line getLineMaterial( Material.Line material ) {
 		Material.Line m = lineMaterials.get( material.getName() );
-		return (m==null) ? material : m;
+		return m;
 	}
 
 	public int size() {
@@ -89,19 +102,19 @@ public class MaterialHolder {
 
 	}
 
-    public Database<Material> asDatabase(Material.Type theType) {
-        Database<Material> result = new Database<Material>();
-        switch (theType) {
-            case LINE:
-                result.addAll(lineMaterials.values());
-                break;
-            case SURFACE:
-                result.addAll(surfaceMaterials.values());
-                break;
-            case BULK:
-            default:
-                result.addAll(bulkMaterials.values());
-        }
-        return result;
-    }
+	public Database<Material> asDatabase(Material.Type theType) {
+		Database<Material> result = new Database<Material>();
+		switch (theType) {
+		case LINE:
+			result.addAll(lineMaterials.values());
+			break;
+		case SURFACE:
+			result.addAll(surfaceMaterials.values());
+			break;
+		case BULK:
+		default:
+			result.addAll(bulkMaterials.values());
+		}
+		return result;
+	}
 }

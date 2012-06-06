@@ -25,8 +25,8 @@ public class SurfaceMaterialColumnParser extends BaseColumnParser {
 		}
 		
 		Material.Surface myMaterial = new Material.Surface(columnData, 0.0, true);
-		myMaterial = materialMap.getSurfaceMaterial(myMaterial, null);
-		props.put(param, myMaterial);
+		Material.Surface m = materialMap.getSurfaceMaterial(myMaterial, null);
+		props.put(param, m!=null ? m : myMaterial);
 
 	}
 

@@ -1,8 +1,5 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.Collections;
-import java.util.Map;
-
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
@@ -29,8 +26,8 @@ public class LineMaterialColumnParser extends BaseColumnParser {
 		
 		Material.Line myMaterial = new Material.Line(columnData, 0.0, true);
 
-		myMaterial = materialMap.getLineMaterial(myMaterial);
-		props.put(param, myMaterial);
+		Material.Line m = materialMap.getLineMaterial(myMaterial);
+		props.put(param, m!=null? m : myMaterial);
 
 	}
 

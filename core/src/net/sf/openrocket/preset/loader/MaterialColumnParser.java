@@ -1,8 +1,5 @@
 package net.sf.openrocket.preset.loader;
 
-import java.util.Collections;
-import java.util.Map;
-
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
@@ -32,9 +29,9 @@ public class MaterialColumnParser extends BaseColumnParser {
 			return;
 		}
 		
-		Material.Bulk m = new Material.Bulk(columnData, 0.0, true);
-		m = materialMap.getBulkMaterial(m);
-		props.put(param, m);
+		Material.Bulk tmpMaterial = new Material.Bulk(columnData, 0.0, true);
+		Material.Bulk m = materialMap.getBulkMaterial(tmpMaterial);
+		props.put(param, m!= null ? m : tmpMaterial);
 		
 	}
 

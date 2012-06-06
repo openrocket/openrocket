@@ -42,10 +42,10 @@ public class ParachuteLoader extends BaseComponentLoader {
 
 		// Fix the material since some files use bulk materials for streamers.
 		Double thickness = props.get( ComponentPreset.THICKNESS );
-		Material.Surface material = (Material.Surface) props.get( ComponentPreset.MATERIAL );
+		Material.Surface myMaterial = (Material.Surface) props.get( ComponentPreset.MATERIAL );
 
-		material = materials.getSurfaceMaterial(material, thickness);
-		props.put(ComponentPreset.MATERIAL, material);
+		Material.Surface m = materials.getSurfaceMaterial(myMaterial, thickness);
+		props.put(ComponentPreset.MATERIAL, m!=null ? m : myMaterial);
 	}
 
 }
