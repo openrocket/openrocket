@@ -1,7 +1,7 @@
 package net.sf.openrocket.preset.xml;
 
-import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.InvalidComponentPresetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,8 +10,10 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
+
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.InvalidComponentPresetException;
 
 /**
  * The real 'root' element in an XML document.
@@ -74,10 +76,18 @@ public class OpenRocketComponentDTO {
     }
 
     public List<ComponentPreset> asComponentPresets() throws InvalidComponentPresetException {
-        List<ComponentPreset> result = new ArrayList<ComponentPreset>();
+        List<ComponentPreset> result = new ArrayList<ComponentPreset>(components.size());
         for (int i = 0; i < components.size(); i++) {
             result.add(components.get(i).asComponentPreset(materials));
         }
         return result;
+    }
+    
+    public List<Material> asMaterialList() {
+    	List<Material> result = new ArrayList<Material>( materials.size() );
+    	for( MaterialDTO material : materials ) {
+    		result.add( material.asMaterial() );
+    	}
+    	return result;
     }
 }
