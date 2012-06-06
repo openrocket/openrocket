@@ -46,7 +46,8 @@ public class RocksimComponentFileTranslator {
 
         // Try parsing the file
         LOGGER.println("\tValidating XML");
-        List<ComponentPreset> presets = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new StringReader(xml));
+        // Throw away the result, we're just parsing for validation.
+        new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new StringReader(xml));
 
         LOGGER.println("\tWriting to file " + args[1]);
         File outfile = new File(args[1]);
