@@ -1,18 +1,14 @@
 package net.sf.openrocket.gui.preset;
 
-import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.util.FileHelper;
-import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.l10n.ResourceBundleTranslator;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.loader.MaterialHolder;
-import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
-import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
-import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
-import net.sf.openrocket.startup.Application;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -31,15 +27,20 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.l10n.ResourceBundleTranslator;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.loader.MaterialHolder;
+import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
+import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
+import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
+import net.sf.openrocket.startup.Application;
 
 /**
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
@@ -427,15 +428,25 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 
         file = FileHelper.forceExtension(file, "orc");
 
-        List<Material> materials = new ArrayList<Material>();
+        MaterialHolder materials = new MaterialHolder();
         List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
 
         for (int x = 0; x < model.getRowCount(); x++) {
             ComponentPreset preset = (ComponentPreset) model.getAssociatedObject(x);
+            // If we don't have a material already defined for saving...
+            if ( materials.getMaterial(preset.get(ComponentPreset.MATERIAL)) == null ) {
+            	// Check if we loaded a material with this name.
+            	Material m = editContext.getMaterialsLoaded().getMaterial(preset.get(ComponentPreset.MATERIAL));
+            	// If there was no material loaded with that name, use the component's material.
+            	if ( m == null ) {
+            		m = preset.get(ComponentPreset.MATERIAL);
+            	}
+                materials.put(m);
+            }
             presets.add(preset);
         }
 
-        return FileHelper.confirmWrite(file, this) && new OpenRocketComponentSaver().save(file, materials, presets);
+        return FileHelper.confirmWrite(file, this) && new OpenRocketComponentSaver().save(file, new ArrayList<Material>(materials.values()), presets);
     }
 
     class OpenedFileContext {
