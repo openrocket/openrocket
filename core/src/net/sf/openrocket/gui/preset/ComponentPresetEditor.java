@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.loader.MaterialHolder;
 import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
-import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
+import net.sf.openrocket.preset.xml.OpenRocketComponentDTO;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
 
@@ -352,7 +352,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             List<ComponentPreset> presets = null;
 
             if (file.getName().toLowerCase().endsWith(".orc")) {
-                presets = (List<ComponentPreset>) new OpenRocketComponentLoader().load(new FileInputStream(file), file.getName());
+            	OpenRocketComponentDTO fileContents = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new FileReader(file));
+            	editContext.setMaterialsLoaded( new MaterialHolder(fileContents.asMaterialList()) );
+            	presets = fileContents.asComponentPresets();
             }
             else {
                 if (file.getName().toLowerCase().endsWith(".csv")) {

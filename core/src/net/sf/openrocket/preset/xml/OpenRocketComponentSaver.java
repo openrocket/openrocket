@@ -109,9 +109,9 @@ public class OpenRocketComponentSaver {
      * @throws InvalidComponentPresetException
      *
      */
-    public List<ComponentPreset> unmarshalFromOpenRocketComponent(Reader is) throws JAXBException,
+    public OpenRocketComponentDTO unmarshalFromOpenRocketComponent(Reader is) throws JAXBException,
                                                                                     InvalidComponentPresetException {
-        return fromOpenRocketComponent(is).asComponentPresets();
+        return fromOpenRocketComponent(is);
     }
 
     /**

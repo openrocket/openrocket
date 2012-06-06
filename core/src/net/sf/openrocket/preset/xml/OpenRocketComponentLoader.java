@@ -28,7 +28,7 @@ public class OpenRocketComponentLoader  implements Loader<ComponentPreset> {
 
 		try {
 			List<ComponentPreset> presets;
-			presets = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent( new InputStreamReader (stream));
+			presets = (new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent( new InputStreamReader (stream))).asComponentPresets();
 			for( ComponentPreset preset : presets ) {
 				if ( favorites.contains(preset.preferenceKey())) {
 					preset.setFavorite(true);
