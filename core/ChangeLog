@@ -1,6 +1,11 @@
+2012-06-05  Doug Pedrick
+
+    * Most recently used design files added to File menu.
+
 2012-05-23  Doug Pedrick
 
     * Centering ring templates can now be chosen for printing.
+    * Calibration ruler added to printed templates.
 
 2012-05-09  Kevin Ruland
 

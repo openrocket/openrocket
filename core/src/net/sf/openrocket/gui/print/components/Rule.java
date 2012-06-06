@@ -76,10 +76,11 @@ public class Rule extends PrintableComponent {
             g.drawString("in", x + width + 6, y + width + 18);
             y += 6;
 
-            //Draw Inches first.
+            //Draw Inches first, with 1/2", 1/4", and 1/8" tick marks.
             drawVerticalRule(g2, false, inchOutSide, x, y, width, 0, div * 2, div * 4, div * 8);
             drawHorizontalRule(g2, true, inchOutSide, x, y + width, width, 0, div * 2, div * 4, div * 8);
             div = PrintUnit.MILLIMETERS.toPoints(1);  //mm increment
+            //Draw cm (10mm) and 1/2 cm (5mm) marks
             drawVerticalRule(g2, false, !inchOutSide, x, y, width, 0, 0, div * 5, div * 10);
             drawHorizontalRule(g2, true, !inchOutSide, x, y + width, width, 0, 0, div * 5, div * 10);
         }
