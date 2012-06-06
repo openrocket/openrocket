@@ -1,6 +1,7 @@
 
 package net.sf.openrocket.preset.xml;
 
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -189,17 +190,22 @@ public abstract class BaseComponentDTO {
 			}
 		}
 
-		// Don't have one, build one.
+		// Don't have one, first check OR's database
+        Material m = Databases.findMaterial(dto.getORMaterialType(), dto.material);
+        if ( m != null ) {
+        	return m;
+        }
 
-		if ( "BULK".equals( dto.type ) ) {
+        switch( dto.getORMaterialType() ) {
+        case BULK:
 			return new Material.Bulk(dto.material, 0.0, true);
-		} else if ( "SURFACE".equals( dto.type ) ) {
+        case SURFACE:
 			return new Material.Surface(dto.material, 0.0, true);
-		} else if ( "LINE".equals( dto.type ) ) {
+        case LINE:
 			return new Material.Line(dto.material, 0.0, true);
-		} else {
-			return null;
-		}
+        }
+        
+        return null;
 
 	}
 
@@ -214,6 +220,17 @@ public abstract class BaseComponentDTO {
 		AnnotatedMaterialDTO(Material theMaterial) {
 			type = theMaterial.getType().name();
 			material = theMaterial.getName();
+		}
+		
+		public Material.Type getORMaterialType() {
+			if ( "BULK".equals(type) ) {
+				return Material.Type.BULK;
+			} else if ( "SURFACE".equals(type) ) {
+				return Material.Type.SURFACE;
+			} else if ( "LINE".equals(type) ) {
+				return Material.Type.LINE;
+			}
+			throw new IllegalArgumentException( "Inavlid material type " + type +" specified for Component" );
 		}
 	}
 

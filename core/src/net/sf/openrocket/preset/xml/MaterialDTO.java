@@ -80,7 +80,7 @@ public class MaterialDTO {
     }
 
     Material asMaterial() {
-        return Databases.findMaterial(type.getORMaterialType(), name, density, false);
+        return Material.newMaterial(type.getORMaterialType(), name, density, true);
     }
 
 
