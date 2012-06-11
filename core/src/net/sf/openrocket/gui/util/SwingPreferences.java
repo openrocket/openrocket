@@ -15,6 +15,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
@@ -398,7 +399,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public Simulation getBackgroundSimulation(Rocket rocket) {
-		Simulation s = new Simulation(rocket);
+		Simulation s = new Simulation(new OpenRocketDocument(rocket), rocket);
 		SimulationOptions cond = s.getOptions();
 		
 		cond.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP * 2);

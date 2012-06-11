@@ -61,6 +61,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SafetyMutex mutex = SafetyMutex.newInstance();
 	
 	private final Rocket rocket;
+	private final OpenRocketDocument document;
 	
 	private String name = "";
 	
@@ -90,12 +91,16 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	/**
-	 * Create a new simulation for the rocket.  The initial motor configuration is
-	 * taken from the default rocket configuration.
+	 * Create a new simulation for the rocket. Parent document should also be provided.
+	 * The initial motor configuration is taken from the default rocket configuration.
 	 * 
 	 * @param rocket	the rocket associated with the simulation.
 	 */
-	public Simulation(Rocket rocket) {
+	public Simulation(OpenRocketDocument doc, Rocket rocket) {
+		// It may seem silly to pass in the document and rocket, since usually when called we 
+		// use doc.getRocket, but I guess there is some reason; when cloning a simulation + rocket we don't need
+		// to make a duplicate of the undo data etc stored in the document. --Richard
+		this.document = doc;
 		this.rocket = rocket;
 		this.status = Status.NOT_SIMULATED;
 		
@@ -106,7 +111,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 	
 	
-	public Simulation(Rocket rocket, Status status, String name, SimulationOptions options,
+	public Simulation(OpenRocketDocument doc, Rocket rocket, Status status, String name, SimulationOptions options,
 			List<String> listeners, FlightData data) {
 		
 		if (rocket == null)
@@ -119,6 +124,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			throw new IllegalArgumentException("options cannot be null");
 		
 		this.rocket = rocket;
+		this.document = doc;
 		
 		if (status == Status.UPTODATE) {
 			this.status = Status.LOADED;
@@ -146,6 +152,13 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 		}
 		
+	}
+	
+	/*
+	 * Return the parent document for this simulation
+	 */
+	public OpenRocketDocument getDocument(){
+		return document;
 	}
 	
 	public void addCustomExpression(CustomExpression expression){
@@ -427,7 +440,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	public Simulation duplicateSimulation(Rocket newRocket) {
 		mutex.lock("duplicateSimulation");
 		try {
-			Simulation copy = new Simulation(newRocket);
+			Simulation copy = new Simulation(document, newRocket);
 			
 			copy.name = this.name;
 			copy.options.copyFrom(this.options);

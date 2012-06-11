@@ -59,25 +59,25 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Lateral distance
 	public static final FlightDataType TYPE_POSITION_XY = newType(trans.get("FlightDataType.TYPE_POSITION_XY"), "Pl", UnitGroup.UNITS_DISTANCE, 32);
 	//// Lateral direction
-	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "θl", UnitGroup.UNITS_ANGLE, 33);
+	public static final FlightDataType TYPE_POSITION_DIRECTION = newType(trans.get("FlightDataType.TYPE_POSITION_DIRECTION"), "\u03b8l", UnitGroup.UNITS_ANGLE, 33);
 	//// Lateral velocity
 	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl", UnitGroup.UNITS_VELOCITY, 34);
 	//// Lateral acceleration
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION, 35);
 	//// Latitude
-	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "φ", UnitGroup.UNITS_ANGLE, 36);
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE, 36);
 	//// Longitude
-	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "λ", UnitGroup.UNITS_ANGLE, 37);
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE, 37);
 	
 	//// Angular motion
 	//// Angle of attack
-	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), "α", UnitGroup.UNITS_ANGLE, 40);
+	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), "\u03b1", UnitGroup.UNITS_ANGLE, 40);
 	//// Roll rate
-	public static final FlightDataType TYPE_ROLL_RATE = newType(trans.get("FlightDataType.TYPE_ROLL_RATE"), "dΦ", UnitGroup.UNITS_ROLL, 41);
+	public static final FlightDataType TYPE_ROLL_RATE = newType(trans.get("FlightDataType.TYPE_ROLL_RATE"), "d\u03a6", UnitGroup.UNITS_ROLL, 41);
 	//// Pitch rate
-	public static final FlightDataType TYPE_PITCH_RATE = newType(trans.get("FlightDataType.TYPE_PITCH_RATE"), "dθ", UnitGroup.UNITS_ROLL, 42);
+	public static final FlightDataType TYPE_PITCH_RATE = newType(trans.get("FlightDataType.TYPE_PITCH_RATE"), "d\u03b8", UnitGroup.UNITS_ROLL, 42);
 	//// Yaw rate
-	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), "dΨ", UnitGroup.UNITS_ROLL, 43);
+	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), "d\u03a8", UnitGroup.UNITS_ROLL, 43);
 	
 	
 	//// Stability information
@@ -126,22 +126,22 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Normal force coefficient
 	public static final FlightDataType TYPE_NORMAL_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_NORMAL_FORCE_COEFF"), "Cn", UnitGroup.UNITS_COEFFICIENT, 90);
 	//// Pitch moment coefficient
-	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_MOMENT_COEFF"), "Cθ", UnitGroup.UNITS_COEFFICIENT, 91);
+	public static final FlightDataType TYPE_PITCH_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_MOMENT_COEFF"), "C\u03b8", UnitGroup.UNITS_COEFFICIENT, 91);
 	//// Yaw moment coefficient
-	public static final FlightDataType TYPE_YAW_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_MOMENT_COEFF"), "CτΨ", UnitGroup.UNITS_COEFFICIENT, 92);
+	public static final FlightDataType TYPE_YAW_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_MOMENT_COEFF"), "C\u03c4\u03a8", UnitGroup.UNITS_COEFFICIENT, 92);
 	//// Side force coefficient
-	public static final FlightDataType TYPE_SIDE_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_SIDE_FORCE_COEFF"), "Cτs", UnitGroup.UNITS_COEFFICIENT, 93);
+	public static final FlightDataType TYPE_SIDE_FORCE_COEFF = newType(trans.get("FlightDataType.TYPE_SIDE_FORCE_COEFF"), "C\u03c4s", UnitGroup.UNITS_COEFFICIENT, 93);
 	//// Roll moment coefficient
-	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_MOMENT_COEFF"), "CτΦ", UnitGroup.UNITS_COEFFICIENT, 94);
+	public static final FlightDataType TYPE_ROLL_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_MOMENT_COEFF"), "C\u03c4\u03a6", UnitGroup.UNITS_COEFFICIENT, 94);
 	//// Roll forcing coefficient
-	public static final FlightDataType TYPE_ROLL_FORCING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_FORCING_COEFF"), "CfΦ", UnitGroup.UNITS_COEFFICIENT, 95);
+	public static final FlightDataType TYPE_ROLL_FORCING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_FORCING_COEFF"), "Cf\u03a6", UnitGroup.UNITS_COEFFICIENT, 95);
 	//// Roll damping coefficient
-	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_DAMPING_COEFF"), "CζΦ", UnitGroup.UNITS_COEFFICIENT, 96);
+	public static final FlightDataType TYPE_ROLL_DAMPING_COEFF = newType(trans.get("FlightDataType.TYPE_ROLL_DAMPING_COEFF"), "C\u03b6\u03a6", UnitGroup.UNITS_COEFFICIENT, 96);
 	
 	//// Pitch damping coefficient
-	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF"), "Cζθ", UnitGroup.UNITS_COEFFICIENT, 97);
+	public static final FlightDataType TYPE_PITCH_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_PITCH_DAMPING_MOMENT_COEFF"), "C\u03b6\u03b8", UnitGroup.UNITS_COEFFICIENT, 97);
 	//// Yaw damping coefficient
-	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_DAMPING_MOMENT_COEFF"), "CζΨ", UnitGroup.UNITS_COEFFICIENT, 98);
+	public static final FlightDataType TYPE_YAW_DAMPING_MOMENT_COEFF = newType(trans.get("FlightDataType.TYPE_YAW_DAMPING_MOMENT_COEFF"), "C\u03b6\u03a8", UnitGroup.UNITS_COEFFICIENT, 98);
 	
 	//// Coriolis acceleration
 	public static final FlightDataType TYPE_CORIOLIS_ACCELERATION = newType(trans.get("FlightDataType.TYPE_CORIOLIS_ACCELERATION"), "Ac", UnitGroup.UNITS_ACCELERATION, 99);
@@ -156,9 +156,9 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	////  Orientation
 	//// Vertical orientation (zenith)
-	public static final FlightDataType TYPE_ORIENTATION_THETA = newType(trans.get("FlightDataType.TYPE_ORIENTATION_THETA"), "Θ", UnitGroup.UNITS_ANGLE, 106);
+	public static final FlightDataType TYPE_ORIENTATION_THETA = newType(trans.get("FlightDataType.TYPE_ORIENTATION_THETA"), "\u0398", UnitGroup.UNITS_ANGLE, 106);
 	//// Lateral orientation (azimuth)
-	public static final FlightDataType TYPE_ORIENTATION_PHI = newType(trans.get("FlightDataType.TYPE_ORIENTATION_PHI"), "Φ", UnitGroup.UNITS_ANGLE, 107);
+	public static final FlightDataType TYPE_ORIENTATION_PHI = newType(trans.get("FlightDataType.TYPE_ORIENTATION_PHI"), "\u03a6", UnitGroup.UNITS_ANGLE, 107);
 	
 	
 	////  Atmospheric conditions
@@ -175,8 +175,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Simulation time step
 	public static final FlightDataType TYPE_TIME_STEP = newType(trans.get("FlightDataType.TYPE_TIME_STEP"), "dt", UnitGroup.UNITS_TIME_STEP, 200);
 	//// Computation time
-	public static final FlightDataType TYPE_COMPUTATION_TIME = newType(trans.get("FlightDataType.TYPE_COMPUTATION_TIME"), "tc", UnitGroup.UNITS_SHORT_TIME, 201);
-	
+	public static final FlightDataType TYPE_COMPUTATION_TIME = newType(trans.get("FlightDataType.TYPE_COMPUTATION_TIME"), "tc", UnitGroup.UNITS_SHORT_TIME, 201);	
 	
 	// An array of all the built in types
 	public static final FlightDataType[] ALL_TYPES = { 
@@ -273,7 +272,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	private final String name;
 	private final String symbol;
 	private final UnitGroup units;
-	private int priority;
+	private final int priority;
 	private final int hashCode;
 	
 	
@@ -289,10 +288,11 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		this.hashCode = this.name.toLowerCase(Locale.ENGLISH).hashCode();
 	}
 	
-	
+	/*
 	public void setPriority(int p){
 		this.priority = p;
 	}
+	*/
 	
 	public String getName() {
 		return name;

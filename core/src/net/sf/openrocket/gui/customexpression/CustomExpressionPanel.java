@@ -69,16 +69,15 @@ public class CustomExpressionPanel extends JPanel {
 	private void updateExpressions(){
 		
 		expressionSelectorPanel.removeAll();
-		for (CustomExpression expression : simulation.getCustomExpressions()){
-			SingleExpression se = new SingleExpression(expression);
+		int totalExpressions = simulation.getCustomExpressions().size();
+		for (int i=0; i<totalExpressions; i++){
+			SingleExpression se = new SingleExpression(simulation.getCustomExpressions().get(i), i != 0, i != totalExpressions-1);
 			expressionSelectorPanel.add(se, "wrap");
 		}
 
 		//TODO: High : Find out why repaint method not working properly here.
 		//expressionSelectorPanel.repaint();
 		expressionSelectorPanel.updateUI(); // Not the correct method to use but works
-		
-		
 	}
 	
 	private void deleteExpression(CustomExpression expression){
@@ -114,7 +113,7 @@ public class CustomExpressionPanel extends JPanel {
 			return l;
 		}
 		
-		private SingleExpression(final CustomExpression expression) {
+		private SingleExpression(final CustomExpression expression, boolean showUp, boolean showDown) {
 			super(new MigLayout("ins 0"));
 			//                      name:    aName    symbol:  a      Unit:  m/s
 			//super(new MigLayout("","[::100][:200:400][::100][:100:200][::100][:100:200]",""));
@@ -145,6 +144,7 @@ public class CustomExpressionPanel extends JPanel {
 			JButton upButton = new JButton(Icons.UP);
 			upButton.setToolTipText(trans.get("customExpression.Units.but.ttip.MoveUp"));
 			upButton.setBorderPainted(false);
+			upButton.setVisible(showUp);
 			upButton.addActionListener( new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -156,6 +156,7 @@ public class CustomExpressionPanel extends JPanel {
 			JButton downButton = new JButton(Icons.DOWN);
 			downButton.setToolTipText(trans.get("customExpression.Units.but.ttip.MoveDown"));
 			downButton.setBorderPainted(false);
+			downButton.setVisible(showDown);
 			downButton.addActionListener( new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

@@ -10,10 +10,12 @@ import java.awt.event.KeyListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
@@ -172,13 +174,23 @@ public class ExpressionBuilderDialog extends JDialog {
 			}
 		});
 		
+		//// Copy expression check box
+		final JCheckBox copyCheckBox = new JCheckBox(trans.get("ExpressionBuilderDialog.CopyToOtherSimulations"));
+		copyCheckBox.setHorizontalTextPosition(SwingConstants.LEFT);
+		copyCheckBox.setToolTipText(trans.get("ExpressionBuilderDialog.CopyToOtherSimulations.ttip"));
 		
 		//// OK Button
 		okButton.setEnabled(false);
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// add to this simulation
 				expression.addToSimulation();
+				if (copyCheckBox.isSelected()){
+					expression.copyToOtherSimulations();
+				}
+				
+				// close window
 				ExpressionBuilderDialog.this.dispose();
 			}
 		});
@@ -214,6 +226,7 @@ public class ExpressionBuilderDialog extends JDialog {
 		mainPanel.add(expressionCheck, "wrap, center");
 		mainPanel.add(insertOperatorButton, "span 2, right, split 2");
 		mainPanel.add(insertVariableButton, "right, wrap");
+		mainPanel.add(copyCheckBox, "span 2, right, wrap");
 		mainPanel.add(cancelButton, "span 2, right, width :50:100");
 		mainPanel.add(okButton, "right, width :50:100, wrap");
 

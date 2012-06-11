@@ -1299,7 +1299,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		else
 			data = dataHandler.getFlightData();
 
-		Simulation simulation = new Simulation(doc.getRocket(), status, name,
+		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
 				conditions, listeners, data);
 		
 		// Note : arraylist implementation in simulation different from standard one
@@ -1704,7 +1704,15 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			}
 		}
 		
+		// Look in custom expressions
+		for (CustomExpression exp : simHandler.getCustomExpressions()){
+			if (exp.getName().equals(name) ){
+				return exp.getType();
+			}
+		}
+		
 		// Look in custom expressions, meanwhile set priority based on order in file
+		/*
 		int totalExpressions = simHandler.getCustomExpressions().size();
 		for (int i=0; i<totalExpressions; i++){
 			CustomExpression exp = simHandler.getCustomExpressions().get(i);			
@@ -1714,6 +1722,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				return exp.getType();
 			}
 		}
+		*/
 		
 		log.warn("Could not find the flight data type '"+name+"' used in the XML file. Substituted type with unknown symbol and units.");
 		return FlightDataType.getType(name, "Unknown", UnitGroup.UNITS_NONE);

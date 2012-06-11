@@ -4,6 +4,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.FixedUnitGroup;
@@ -21,6 +22,7 @@ import de.congrace.exp4j.ExpressionBuilder;
 public class CustomExpression implements Cloneable{
 	
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
 	
 	private String name, symbol, unit, expression;
 	private ExpressionBuilder builder;
@@ -28,30 +30,29 @@ public class CustomExpression implements Cloneable{
 	
 	// A map of available operator strings (keys) and description of function (value)
 	public static final SortedMap<String, String> AVAILABLE_OPERATORS = new TreeMap<String, String>() {{
-	    put("+"       	, "Addition");
-	    put("-"			, "Subtraction");
-	    put("*"			, "Multiplication");
-	    put("/"			, "Divison");
-	    put("%"			, "Modulo");
-	    put("^"			, "Exponentiation");
-	    put("abs()"		, "Absolute value");
-	    put("ceil()"	, "Ceiling (next integer value");
-	    put("floor()"	, "Floor (previous integer value");
-	    put("sqrt()"	, "Square root");
-	    put("cbrt()"	, "Cubic root");
-	    put("exp()"		, "Euler\'s number raised to the value (e^x)");
-	    put("log()"		, "Natural logarithm");
-	    put("sin()"		, "Sine");
-	    put("cos()"		, "Cosine");
-	    put("tan()"		, "Tangent");
-	    put("asin()"	, "Arc sine");
-	    put("acos()"	, "Arc cosine");
-	    put("atan()"	, "Arc tangent");
-	    put("sinh()"	, "Hyerbolic sine");
-	    put("cosh()"	, "Hyperbolic cosine");
-	    put("tanh()"	, "Hyperbolic tangent");
+	    put("+"       	, trans.get("Operator.plus"));
+	    put("-"			, trans.get("Operator.minus"));
+	    put("*"			, trans.get("Operator.star"));
+	    put("/"			, trans.get("Operator.div"));
+	    put("%"			, trans.get("Operator.mod"));
+	    put("^"			, trans.get("Operator.pow"));
+	    put("abs()"		, trans.get("Operator.abs"));
+	    put("ceil()"	, trans.get("Operator.ceil"));
+	    put("floor()"	, trans.get("Operator.floor"));
+	    put("sqrt()"	, trans.get("Operator.sqrt"));
+	    put("cbrt()"	, trans.get("Operator.cbrt"));
+	    put("exp()"		, trans.get("Operator.exp"));
+	    put("log()"		, trans.get("Operator.ln"));
+	    put("sin()"		, trans.get("Operator.sin"));
+	    put("cos()"		, trans.get("Operator.cos"));
+	    put("tan()"		, trans.get("Operator.tan"));
+	    put("asin()"	, trans.get("Operator.asin"));
+	    put("acos()"	, trans.get("Operator.acos"));
+	    put("atan()"	, trans.get("Operator.atan"));
+	    put("sinh()"	, trans.get("Operator.hsin"));
+	    put("cosh()"	, trans.get("Operator.hcos"));
+	    put("tanh()"	, trans.get("Operator.htan"));
 	}};  
-	
 	
 	public CustomExpression(){
 		setName("");
@@ -94,7 +95,6 @@ public class CustomExpression implements Cloneable{
 			return new FlightDataBranch();
 		}
 		else {
-			System.out.println("Using existing branch");
 			return sim.getSimulatedData().getBranch(0);
 		}
 	}
@@ -179,7 +179,7 @@ public class CustomExpression implements Cloneable{
 		ArrayList<String> names = getAllNames().clone();
 		if (names.contains(name.trim())){
 			int index = names.indexOf(name.trim());
-			log.user("Symbol "+symbol+" already exists, found "+names.get(index));
+			log.user("Name "+name+" already exists, found "+names.get(index));
 			return false;
 		}
 		
@@ -271,21 +271,22 @@ public class CustomExpression implements Cloneable{
 		FlightDataType type =  FlightDataType.getType(name, symbol, ug);
 		
 		// If in a simulation, figure out priority from order in array so that customs expressions are always at the top
-		if (sim != null && sim.getCustomExpressions().contains(this)){
-			int totalExpressions = sim.getCustomExpressions().size();
-			int p = -1*(totalExpressions-sim.getCustomExpressions().indexOf(this));
-			type.setPriority(p);
-		}
+		//if (sim != null && sim.getCustomExpressions().contains(this)){
+		//	int totalExpressions = sim.getCustomExpressions().size();
+		//	int p = -1*(totalExpressions-sim.getCustomExpressions().indexOf(this));
+		//	type.setPriority(p);
+		//}
 		
 		return type;
 	}
 	
 	/*
-	 * Add this expression to the simulation if not already added
+	 * Add this expression to the simulation if valid and not already added
 	 */
 	public void addToSimulation(){
-		if (! sim.getCustomExpressions().contains(this))
-			sim.addCustomExpression( this );
+		// Abort if exact expression already in
+		if ( !sim.getCustomExpressions().contains(this) && this.checkAll() )
+			sim.addCustomExpression( this );	
 	}
 	
 	/*
@@ -300,6 +301,18 @@ public class CustomExpression implements Cloneable{
 		}
 	}
 	
+	/*
+	 * Add a copy to other simulations in this document if possible
+	 * Will not overwrite existing expressions
+	 */
+	public void copyToOtherSimulations(){			
+		for (Simulation s : this.getSimulation().getDocument().getSimulations()){
+				CustomExpression newExpression = (CustomExpression) this.clone();
+				newExpression.setSimulation(s);
+				newExpression.addToSimulation();
+		}
+	}
+	
 	@Override
 	public String toString(){
 		return "Custom expression : "+this.name.toString()+ " " + this.expression.toString();
@@ -307,7 +320,8 @@ public class CustomExpression implements Cloneable{
 	
 	@Override
 	/*
-	 * Clone method makes a deep copy of everything except the simulation
+	 * Clone method makes a deep copy of everything except the simulation.
+	 * If you want to apply this to another simulation, set simulation manually after cloning.
 	 * @see java.lang.Object#clone()
 	 */
 	public Object clone() {

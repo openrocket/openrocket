@@ -82,7 +82,7 @@ public class SimulationPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Simulation sim = new Simulation(document.getRocket());
+				Simulation sim = new Simulation(document, document.getRocket());
 				sim.setName(document.getNextSimulationName());
 				
 				int n = document.getSimulationCount();
