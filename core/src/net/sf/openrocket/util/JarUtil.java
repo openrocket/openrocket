@@ -18,8 +18,15 @@ public class JarUtil {
 	 */
 	public static File getCurrentJarFile() {
 		// Find the jar file this class is contained in
+		
 		URL jarUrl = null;
-		CodeSource codeSource = Database.class.getProtectionDomain().getCodeSource();
+		CodeSource codeSource;
+		try {
+			codeSource = new URL("rsrc:.").openConnection().getClass().getProtectionDomain().getCodeSource();
+		} catch (Throwable e) {
+			codeSource = Database.class.getProtectionDomain().getCodeSource();
+		}
+		
 		if (codeSource != null)
 			jarUrl = codeSource.getLocation();
 		

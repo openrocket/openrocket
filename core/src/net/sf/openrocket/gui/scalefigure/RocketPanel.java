@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.scalefigure;
 
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -18,6 +19,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,6 +45,7 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.Caret;
@@ -74,16 +77,28 @@ import net.sf.openrocket.util.StateChangeListener;
  * A JPanel that contains a RocketFigure and buttons to manipulate the figure. 
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class RocketPanel extends JPanel implements TreeSelectionListener, ChangeSource {
-	
+	private static final long serialVersionUID = 1L;
+
 	private static final Translator trans = Application.getTranslator();
+
+	private boolean is3d;
 	private final RocketFigure figure;
+	private final RocketFigure3d figure3d;
+	
+	
 	private final ScaleScrollPane scrollPane;
+	
+	private final JPanel figureHolder;
 	
 	private JLabel infoMessage;
 	
 	private TreeSelectionModel selectionModel = null;
+	
+	private BasicSlider rotationSlider;
+	ScaleSelector scaleSelector;
 	
 
 	/* Calculation of CP and CG */
@@ -147,8 +162,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		// Create figure and custom scroll pane
 		figure = new RocketFigure(configuration);
+		figure3d = new RocketFigure3d(configuration);
+		
+		figureHolder = new JPanel(new BorderLayout());
 		
 		scrollPane = new ScaleScrollPane(figure) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void mouseClicked(MouseEvent event) {
 				handleMouseClick(event);
@@ -159,16 +179,60 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		createPanel();
 		
+		is3d = true;
+		go2D();
+		
 		configuration.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				// System.out.println("Configuration changed, calling updateFigure");
 				updateExtras();
-				figure.updateFigure();
+				updateFigures();
+			}
+		});
+		
+		figure3d.addComponentSelectionListener(new RocketFigure3d.ComponentSelectionListener() {
+			@Override
+			public void componentClicked(RocketComponent clicked[], MouseEvent event) {
+				handleComponentClick(clicked, event);
 			}
 		});
 	}
 	
+	private void updateFigures() {
+		if (!is3d)
+			figure.updateFigure();
+		else
+			figure3d.updateFigure();
+	}
+
+	private void go3D() {
+		if (is3d)
+			return;
+		is3d = true;
+		figureHolder.remove(scrollPane);
+		figureHolder.add(figure3d, BorderLayout.CENTER);
+		rotationSlider.setEnabled(false);
+		scaleSelector.setEnabled(false);
+
+		revalidate();
+		figureHolder.revalidate();
+
+		figure3d.repaint();
+	}
+
+	private void go2D() {
+		if (!is3d)
+			return;
+		is3d = false;
+		figureHolder.remove(figure3d);
+		figureHolder.add(scrollPane, BorderLayout.CENTER);
+		rotationSlider.setEnabled(true);
+		scaleSelector.setEnabled(true);
+		revalidate();
+		figureHolder.revalidate();
+		figure.repaint();
+	}
 	
 	/**
 	 * Creates the layout and components of the panel.
@@ -181,6 +245,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		//// Create toolbar
 		
+		ButtonGroup bg = new ButtonGroup();
+		
 		// Side/back buttons
 		FigureTypeAction action = new FigureTypeAction(RocketFigure.TYPE_SIDE);
 		//// Side view
@@ -188,6 +254,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		//// Side view
 		action.putValue(Action.SHORT_DESCRIPTION, trans.get("RocketPanel.FigTypeAct.ttip.Sideview"));
 		JToggleButton toggle = new JToggleButton(action);
+		bg.add(toggle);
 		add(toggle, "spanx, split");
 		
 		action = new FigureTypeAction(RocketFigure.TYPE_BACK);
@@ -196,11 +263,31 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		//// Back view
 		action.putValue(Action.SHORT_DESCRIPTION, trans.get("RocketPanel.FigTypeAct.ttip.Backview"));
 		toggle = new JToggleButton(action);
+		bg.add(toggle);
 		add(toggle, "gap rel");
+		
+		//// 3d Toggle
+		final JToggleButton toggle3d = new JToggleButton(new AbstractAction("3D") {
+			private static final long serialVersionUID = 1L;
+			{
+				putValue(Action.NAME, "3D");//TODO
+				putValue(Action.SHORT_DESCRIPTION, "3D"); //TODO
+			}
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if ( ((JToggleButton)e.getSource()).isSelected() ){
+					go3D();
+				} else {
+					go2D();
+				}
+			}
+		});
+		bg.add(toggle3d);
+		add(toggle3d, "gap rel");
 		
 
 		// Zoom level selector
-		ScaleSelector scaleSelector = new ScaleSelector(scrollPane);
+		scaleSelector = new ScaleSelector(scrollPane);
 		add(scaleSelector);
 		
 
@@ -231,7 +318,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		add(us, "alignx 50%, growx");
 		
 		// Add the rocket figure
-		add(scrollPane, "grow, spany 2, wmin 300lp, hmin 100lp, wrap");
+		add(figureHolder, "grow, spany 2, wmin 300lp, hmin 100lp, wrap");
 		
 
 		// Add rotation slider
@@ -239,7 +326,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel l = new JLabel("360" + Chars.DEGREE);
 		Dimension d = l.getPreferredSize();
 		
-		add(new BasicSlider(theta.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
+		add(rotationSlider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI), JSlider.VERTICAL, true),
 				"ax 50%, wrap, width " + (d.width + 6) + "px:null:null, growy");
 		
 
@@ -324,7 +411,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		cpAOA = aoa;
 		updateExtras();
-		figure.updateFigure();
+		updateFigures();
 		fireChangeEvent();
 	}
 	
@@ -340,7 +427,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		if (!Double.isNaN(theta))
 			figure.setRotation(theta);
 		updateExtras();
-		figure.updateFigure();
+		updateFigures();
 		fireChangeEvent();
 	}
 	
@@ -354,7 +441,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		cpMach = mach;
 		updateExtras();
-		figure.updateFigure();
+		updateFigures();
 		fireChangeEvent();
 	}
 	
@@ -368,7 +455,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			return;
 		cpRoll = roll;
 		updateExtras();
-		figure.updateFigure();
+		updateFigures();
 		fireChangeEvent();
 	}
 	
@@ -416,6 +503,11 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		int y = p0.y + p1.y;
 		
 		RocketComponent[] clicked = figure.getComponentsByPoint(x, y);
+		
+		handleComponentClick(clicked, event);
+	}
+	
+	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event){
 		
 		// If no component is clicked, do nothing
 		if (clicked.length == 0)
@@ -516,6 +608,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			cgx = cg.x;
 		else
 			cgx = Double.NaN;
+		
+		figure3d.setCG(cg);
+		figure3d.setCP(cp);
 		
 		// Length bound is assumed to be tight
 		double length = 0, diameter = 0;
@@ -648,6 +743,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			extraText.setFlightData(simulation.getSimulatedData());
 			extraText.setCalculatingData(false);
 			figure.repaint();
+			figure3d.repaint();
 		}
 		
 		@Override
@@ -667,6 +763,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			extraText.setFlightData(FlightData.NaN_DATA);
 			extraText.setCalculatingData(false);
 			figure.repaint();
+			figure3d.repaint();
 		}
 	}
 	
@@ -676,14 +773,22 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * Adds the extra data to the figure.  Currently this includes the CP and CG carets.
 	 */
 	private void addExtras() {
-		figure.clearRelativeExtra();
 		extraCG = new CGCaret(0, 0);
 		extraCP = new CPCaret(0, 0);
 		extraText = new RocketInfo(configuration);
 		updateExtras();
+		
+		figure.clearRelativeExtra();
 		figure.addRelativeExtra(extraCP);
 		figure.addRelativeExtra(extraCG);
 		figure.addAbsoluteExtra(extraText);
+		
+		
+		figure3d.clearRelativeExtra();
+		//figure3d.addRelativeExtra(extraCP);
+		//figure3d.addRelativeExtra(extraCG);
+		figure3d.addAbsoluteExtra(extraText);
+		
 	}
 	
 	
@@ -703,6 +808,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		for (int i = 0; i < paths.length; i++)
 			components[i] = (RocketComponent) paths[i].getLastPathComponent();
 		figure.setSelection(components);
+		
+		figure3d.setSelection(components);
 	}
 	
 	
@@ -714,6 +821,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
 	 */
 	private class FigureTypeAction extends AbstractAction implements StateChangeListener {
+		private static final long serialVersionUID = 1L;
 		private final int type;
 		
 		public FigureTypeAction(int type) {
@@ -728,6 +836,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			if (state == true) {
 				// This view has been selected
 				figure.setType(type);
+				go2D();
 				updateExtras();
 			}
 			stateChanged(null);
@@ -735,7 +844,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		@Override
 		public void stateChanged(EventObject e) {
-			putValue(Action.SELECTED_KEY, figure.getType() == type);
+			putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.scalefigure;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -154,6 +155,14 @@ public class ScaleSelector extends JPanel {
 			return scale;
 		}
 		return scale * 1.5;
+	}
+	
+	@Override
+	public void setEnabled(boolean b){
+		for ( Component c : getComponents() ){
+			c.setEnabled(b);
+		}
+		super.setEnabled(b);
 	}
 	
 }
