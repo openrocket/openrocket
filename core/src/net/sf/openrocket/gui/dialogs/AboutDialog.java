@@ -40,6 +40,7 @@ public class AboutDialog extends JDialog {
 			"Tripoli Spain (Spanish)<br>" +
 			"Sky Dart Team (Russian)<br>" +
 			"Mauro Biasutti (Italian)<br><br>" +
+			"Vladimir Beran  (Czech)<br><br>" +
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
