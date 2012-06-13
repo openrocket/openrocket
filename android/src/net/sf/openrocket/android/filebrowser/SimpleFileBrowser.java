@@ -161,7 +161,7 @@ public class SimpleFileBrowser extends SherlockListActivity {
 		final File file = path.get(position);
 		if (file.isDirectory()) {
 			if (file.canRead())
-				getDir(path.get(position));
+				getDir(file);
 			else {
 				new AlertDialog.Builder(this).setIcon(R.drawable.or_launcher)
 				.setTitle("[" + file.getName() + "] folder can't be read!")
@@ -244,13 +244,10 @@ public class SimpleFileBrowser extends SherlockListActivity {
 				}
 			}
 
-			// Set the "base directory" thing.
+			// Set the "favorite directory" thing.
 			{
 				ImageView v = (ImageView) (convertView.findViewById(R.id.filebrowser_list_item_homeicon));
-				if ( !file.isDirectory() ) {
-					v.setVisibility(View.INVISIBLE);
-					v.setClickable(false);
-				} else {
+				if ( file.isDirectory() && hasUp && position > 1 ) {
 					v.setVisibility(View.VISIBLE);
 					if ( baseDirName.equals( file.getAbsolutePath() ) )  {
 						v.setSelected(true);
@@ -259,6 +256,9 @@ public class SimpleFileBrowser extends SherlockListActivity {
 						v.setClickable(true);
 						v.setOnClickListener( new ChangeBaseDirectory(file.getAbsolutePath()));
 					}
+				} else {
+					v.setVisibility(View.INVISIBLE);
+					v.setClickable(false);
 				}
 			}
 			return convertView;
@@ -279,7 +279,7 @@ public class SimpleFileBrowser extends SherlockListActivity {
 				SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(SimpleFileBrowser.this);
 				baseDirName = dirname;
 				pref.edit().putString(baseDirPrefKey, dirname).apply();
-				SimpleFileBrowser.this.getDir(new File(dirname));
+				((BaseAdapter)SimpleFileBrowser.this.getListAdapter()).notifyDataSetChanged();
 			}
 		}
 		
