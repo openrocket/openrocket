@@ -21,12 +21,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class OpenRocketViewer extends SherlockFragmentActivity
+public class OpenRocketViewer extends OpenRocketLoaderActivity
 implements Simulations.OnSimulationSelectedListener
 {
 
@@ -70,6 +69,10 @@ implements Simulations.OnSimulationSelectedListener
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		AndroidLogWrapper.d(OpenRocketViewer.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
+		case R.id.menu_load:
+			// FIXME - Might want to prompt for save here.
+			pickOrkFiles();
+			return true;
 		case R.id.menu_save:
 			// FIXME - Probably want to open a dialog here.
 			try {

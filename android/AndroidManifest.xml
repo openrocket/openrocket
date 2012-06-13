@@ -25,11 +25,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".android.rocket.OpenRocketLoaderActivity"
-            android:theme="@style/AppTheme.NoActionBar" >
-
             <!--
                  I don't understand why I need to have two different intent filters. 
 				Combining the <data> elements into a single field did not result in a working 

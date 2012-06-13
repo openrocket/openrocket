@@ -12,7 +12,7 @@
         android:title="@string/motorbrowsergrouptitle" />
 
     <CheckBoxPreference
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:title="@string/useinternalfilebrowsertitle"
         android:key="@string/PreferenceUseInternalFileBrowserOption"
         android:summary="@string/useinternalfilebrowsersummary"
