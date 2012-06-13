@@ -38,7 +38,8 @@ public class CurrentRocket {
 
 	public void addNewSimulation() {
 		Rocket rocket = rocketDocument.getRocket();
-		Simulation newSim = new Simulation(rocket);
+		// FIXME - hopefully the change to the Simulation object will be reverted soon.
+		Simulation newSim = new Simulation(rocketDocument, rocket);
 		newSim.setName(rocketDocument.getNextSimulationName());
 		rocketDocument.addSimulation(newSim);
 		notifySimsChanged();
