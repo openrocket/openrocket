@@ -34,7 +34,14 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	private final static String MISSING_MOTOR_DIAG_FRAGMENT_TAG = "missingmotordialog";
 	private final static String MISSING_MOTOR_DOWNLOAD_FRAGMENT_TAG = "missingmotortask";
 
+	/*
+	 * Set to true when we have started to load a file.  Is saved in InstanceState.
+	 */
 	private boolean isLoading = false;
+	/*
+	 * Set to the Uri of the file we are supposed to load.  Is saved in InstanceState.
+	 */
+	private Uri fileToLoad = null;
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -42,15 +49,40 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		Intent i = getIntent();
 		if (Intent.ACTION_VIEW.equals(i.getAction()) && i.getData() != null ) {
 			Uri file = i.getData();
-			loadOrkFile(file);
+			fileToLoad = file;
+			loadOrkFile();
 		} else {
 		}
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onSaveInstanceState");
 		outState.putBoolean("isLoading", isLoading);
+		if ( fileToLoad != null ) {
+			outState.putParcelable("fileToLoad", fileToLoad);
+		}
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onRestoreInstanceState");
+		isLoading = savedInstanceState.getBoolean("isLoading",false);
+		if ( savedInstanceState.containsKey("fileToLoad") ) {
+			fileToLoad = savedInstanceState.getParcelable("fileToLoad");
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+
+	@Override
+	protected void onResume() {
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onResume");
+		super.onResume();
+		// Start loading a file if we have a file and are not already loading one.
+		if ( fileToLoad != null && !isLoading ) {
+			loadOrkFile();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -58,11 +90,22 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onActivityResult");
 		switch ( requestCode ) {
 		case PICK_ORK_FILE_RESULT:
 			if(resultCode==RESULT_OK){
 				Uri file = data.getData();
-				loadOrkFile(file);
+				fileToLoad = file;
+				// It would be nice to just start loading the file - but that doesn't work correctly.
+				// I'm uncertain if it is a bug in Android 14/15 or a bug in the v4 support library.
+				// essentially what happens is, when the FileBrowserActivity is brought up,
+				// this activity goes through the saveInstanceState calls to push it to the background.
+				// When the FileBrowserActivity returns the result, this.onActivityResult is called
+				// prior to any of the other lifecycle methods (onRestoreInstanceState as documented, but onStart is
+				// a bug. Since onStart hasn't been called, this activity is not able to create fragments - which 
+				// are used to indicate progress etc.
+				// Instead of calling loadOrkFile() here, we push the file Uri into a member variable,
+				// then check the member variable in onResume to actuall kick off the work.
 			}
 			break;
 		default:
@@ -96,14 +139,21 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		}		
 	}
 
-	private void loadOrkFile( Uri file ) {
+	private void loadOrkFile( ) {
+		// a little protection.
+		if ( fileToLoad == null ) {
+			return;
+		}
 		isLoading = true;
-		CurrentRocketHolder.getCurrentRocket().setFileUri( file );
-		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + file);
-		String path = file.getPath();
+		CurrentRocketHolder.getCurrentRocket().setFileUri( fileToLoad );
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Use ork file: " + fileToLoad);
+		String path = fileToLoad.getPath();
 		File orkFile = new File(path);
 
-		getSupportFragmentManager().beginTransaction().add( OpenRocketLoaderFragment.newInstance(orkFile), "loader").commit();
+		// Also need commitAllowingState loss because of a bug in v4 dialog show.
+		getSupportFragmentManager().beginTransaction()
+		  .add( OpenRocketLoaderFragment.newInstance(orkFile), "loader")
+		  .commitAllowingStateLoss();
 
 	}
 
