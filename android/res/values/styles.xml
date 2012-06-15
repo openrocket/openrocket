@@ -12,8 +12,9 @@
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
-    </style>
+        </style>
 
     <style name="spinnerStyle" parent="Widget.Sherlock.TextView.SpinnerItem">
         <item name="android:textSize">26dp</item>

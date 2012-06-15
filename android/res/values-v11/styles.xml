@@ -6,16 +6,17 @@
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="android:actionBarStyle">@style/ActionBar.noBlueBar</item>
-        <item name="android:background">@android:color/transparent</item> <!-- transparent -->
-        <item name="background">@android:color/transparent</item> <!-- transparent -->
+        <item name="android:background">@android:color/transparent</item>
+        <item name="background">@android:color/transparent</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowNoTitle">true</item>
-        </style>
+    </style>
 
     <style name="ActionBar.noBlueBar" parent="Widget.Sherlock.ActionBar">
         <item name="android:background">@android:color/transparent</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="android:displayOptions"></item>
+        <item name="displayOptions"></item>
     </style>
 
 </resources>
