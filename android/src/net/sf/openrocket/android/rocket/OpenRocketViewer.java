@@ -48,14 +48,18 @@ implements Simulations.OnSimulationSelectedListener
 		ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
 		viewPagerAdapter = new OpenRocketViewerPagerAdapter( this.getSupportFragmentManager() );
 		viewPager.setAdapter( viewPagerAdapter );
-
-		CurrentRocketHolder.getCurrentRocket().setHandler( new RocketChangedEventHandler( ) );
 	}
 
 	@Override
 	protected void onPause() {
 		CurrentRocketHolder.getCurrentRocket().setHandler(null);
 		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		CurrentRocketHolder.getCurrentRocket().setHandler( new RocketChangedEventHandler( ) );
+		super.onResume();
 	}
 
 	@Override
