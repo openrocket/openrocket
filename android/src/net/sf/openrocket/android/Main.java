@@ -20,7 +20,7 @@ public class Main extends OpenRocketLoaderActivity {
 		// Rocket already loaded.  go to viewer.
 		if ( CurrentRocketHolder.getCurrentRocket().getRocketDocument() != null ) {
 			moveOnToViewer();
-			finish();
+			return;
 		}
 		setContentView(R.layout.main);
 		((Button) findViewById(R.id.main_open)).setOnClickListener(
