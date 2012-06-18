@@ -56,7 +56,9 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
-        <activity android:name=".android.rocket.OpenRocketViewer" />
+        <activity
+            android:name=".android.rocket.OpenRocketViewer"
+            android:finishOnTaskLaunch="true" />
         <activity android:name=".android.PreferencesActivity" >
             <intent-filter>
                 <action android:name="net.sf.openrocket.android.PreferencesActivity" />
