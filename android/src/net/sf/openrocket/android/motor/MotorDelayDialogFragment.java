@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -50,7 +51,8 @@ implements View.OnClickListener, TextView.OnEditorActionListener {
 
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		if ( event.getAction() == KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_ENTER ) {
+
+		if ( actionId == EditorInfo.IME_ACTION_DONE ) {
 			String s = v.getText().toString();
 			if ( s != null ) { // note requires ems=10
 				long value = Long.parseLong(s);

@@ -8,8 +8,11 @@
         android:id="@+id/motor_config_delay_diag_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
         android:ems="10"
-        android:inputType="number" >
+        android:imeOptions="actionDone"
+        android:inputType="phone"
+        android:digits="1234567890" >
 
         <requestFocus />
     </EditText>
