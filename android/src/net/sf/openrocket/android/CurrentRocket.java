@@ -6,6 +6,7 @@ import java.io.IOException;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import android.net.Uri;
@@ -82,7 +83,10 @@ public class CurrentRocket {
 
 	public void saveOpenRocketDocument() throws IOException {
 		OpenRocketSaver saver = new OpenRocketSaver();
-		saver.save(new File(fileUri.getPath()),rocketDocument);
+		StorageOptions options = new StorageOptions();
+		options.setCompressionEnabled(true);
+		options.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_ALL);
+		saver.save(new File(fileUri.getPath()),rocketDocument,options);
 
 	}
 
