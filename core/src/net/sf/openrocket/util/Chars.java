@@ -13,6 +13,8 @@ public class Chars {
 	public static final char FRAC14 = '\u00BC';
 	/** The fraction 3/4 */
 	public static final char FRAC34 = '\u00BE';
+	/** Fraction slash */
+	public static final char FRACTION = '\u2044';
 	
 	/** Degree sign */
 	public static final char DEGREE = '\u00B0';

@@ -45,7 +45,7 @@ public class ComponentPresetTable extends JTable {
 	public ComponentPresetTable(List<ComponentPreset> presets, List<TypedKey<?>> visibleColumnKeys) {
 		super();
 		this.presets = presets;
-		this.columns = new ComponentPresetTableColumn[ComponentPreset.orderedKeyList.size()+1];
+		this.columns = new ComponentPresetTableColumn[ComponentPreset.ORDERED_KEY_LIST.size()+1];
 
 
 		tableModel = new AbstractTableModel() {
@@ -101,7 +101,7 @@ public class ComponentPresetTable extends JTable {
 		List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
 		{
 			int index = 1;
-			for (final TypedKey<?> key: ComponentPreset.orderedKeyList ) {
+			for (final TypedKey<?> key: ComponentPreset.ORDERED_KEY_LIST ) {
 				if ( key.getType() == Double.class && key.getUnitGroup() != null ) {
 					columns[index] = new ComponentPresetTableColumn.DoubleWithUnit((TypedKey<Double>)key,index);
 				} else {

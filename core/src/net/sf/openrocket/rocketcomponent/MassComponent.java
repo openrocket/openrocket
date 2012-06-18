@@ -40,6 +40,27 @@ public class MassComponent extends MassObject {
 	}
 	
 	
+	public double getDensity() {
+		double d = getComponentMass() / getVolume();
+		if (Double.isNaN(d))
+			d = 0;
+		return d;
+	}
+	
+	public void setDensity(double density) {
+		double m = density * getVolume();
+		m = MathUtil.clamp(m, 0, 1000000);
+		if (Double.isNaN(m))
+			m = 0;
+		setComponentMass(m);
+	}
+	
+	
+	private double getVolume() {
+		return Math.PI * MathUtil.pow2(getRadius()) * getLength();
+	}
+	
+	
 	@Override
 	public String getComponentName() {
 		//// Mass component

@@ -43,6 +43,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -65,7 +66,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	private JComboBox presetComboBox;
 	private PresetModel presetModel;
-
+	
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
@@ -73,7 +74,7 @@ public class RocketComponentConfig extends JPanel {
 	private JCheckBox colorDefault;
 	private JPanel buttonPanel;
 	
-	private JLabel massLabel;
+	private JLabel infoLabel;
 	
 	
 	public RocketComponentConfig(OpenRocketDocument document, RocketComponent component) {
@@ -85,7 +86,7 @@ public class RocketComponentConfig extends JPanel {
 		JLabel label = new JLabel(trans.get("RocketCompCfg.lbl.Componentname"));
 		//// The component name.
 		label.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
-		this.add(label);
+		this.add(label, "spanx, split");
 		
 		componentNameField = new JTextField(15);
 		textFieldListener = new TextFieldListener();
@@ -93,21 +94,20 @@ public class RocketComponentConfig extends JPanel {
 		componentNameField.addFocusListener(textFieldListener);
 		//// The component name.
 		componentNameField.setToolTipText(trans.get("RocketCompCfg.ttip.Thecomponentname"));
-		this.add(componentNameField, "wrap");
+		this.add(componentNameField, "growx");
 		
-		if ( component.getPresetType() != null ) {
+		if (component.getPresetType() != null) {
 			// If the component supports a preset, show the preset selection box.
-			this.add(new JLabel(trans.get("PresetModel.lbl.select")));
-			presetModel = new PresetModel( this, component);
-			((ComponentPresetDatabase)Application.getComponentPresetDao()).addDatabaseListener(presetModel);
+			presetModel = new PresetModel(this, component);
+			((ComponentPresetDatabase) Application.getComponentPresetDao()).addDatabaseListener(presetModel);
 			presetComboBox = new JComboBox(presetModel);
 			presetComboBox.setEditable(false);
-			this.add(presetComboBox, "wrap");
+			this.add(presetComboBox, "");
 		}
 		
-
+		
 		tabbedPane = new JTabbedPane();
-		this.add(tabbedPane, "span, growx, growy 1, wrap");
+		this.add(tabbedPane, "newline, span, growx, growy 1, wrap");
 		
 		//// Override and Mass and CG override options
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
@@ -134,8 +134,8 @@ public class RocketComponentConfig extends JPanel {
 		buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
 		
 		//// Mass:
-		massLabel = new StyledLabel(trans.get("RocketCompCfg.lbl.Mass") + " ", -1);
-		buttonPanel.add(massLabel, "growx");
+		infoLabel = new StyledLabel(" ", -1);
+		buttonPanel.add(infoLabel, "growx");
 		
 		for (JButton b : buttons) {
 			buttonPanel.add(b, "right, gap para");
@@ -173,33 +173,38 @@ public class RocketComponentConfig extends JPanel {
 				colorDefault.setSelected(component.getColor() == null);
 		}
 		
-		// Mass label
+		// Info label
+		StringBuilder sb = new StringBuilder();
+		
+		if (component.getPresetComponent() != null) {
+			ComponentPreset preset = component.getPresetComponent();
+			sb.append(preset.getManufacturer() + " " + preset.getPartNo() + "      ");
+		}
+		
 		if (component.isMassive()) {
-			//// Component mass:
-			String text = trans.get("RocketCompCfg.lbl.Componentmass") + " ";
-			text += UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
-					component.getComponentMass());
+			sb.append(trans.get("RocketCompCfg.lbl.Componentmass") + " ");
+			sb.append(UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(
+					component.getComponentMass()));
 			
 			String overridetext = null;
 			if (component.isMassOverridden()) {
-				//// (overridden to 
 				overridetext = trans.get("RocketCompCfg.lbl.overriddento") + " " + UnitGroup.UNITS_MASS.getDefaultUnit().
 						toStringUnit(component.getOverrideMass()) + ")";
 			}
 			
 			for (RocketComponent c = component.getParent(); c != null; c = c.getParent()) {
 				if (c.isMassOverridden() && c.getOverrideSubcomponents()) {
-					///// (overridden by
 					overridetext = trans.get("RocketCompCfg.lbl.overriddenby") + " " + c.getName() + ")";
 				}
 			}
 			
-			if (overridetext != null)
-				text = text + " " + overridetext;
+			if (overridetext != null) {
+				sb.append(" " + overridetext);
+			}
 			
-			massLabel.setText(text);
+			infoLabel.setText(sb.toString());
 		} else {
-			massLabel.setText("");
+			infoLabel.setText("");
 		}
 	}
 	
@@ -651,8 +656,8 @@ public class RocketComponentConfig extends JPanel {
 		for (Invalidatable i : invalidatables) {
 			i.invalidate();
 		}
-		((ComponentPresetDatabase)Application.getComponentPresetDao()).removeChangeListener(presetModel);
-
+		((ComponentPresetDatabase) Application.getComponentPresetDao()).removeChangeListener(presetModel);
+		
 	}
 	
 }

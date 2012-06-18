@@ -348,6 +348,26 @@ public class GUIUtil {
 	}
 	
 	
+	public static void setAutomaticColumnTableWidths(JTable table, int max) {
+		int columns = table.getColumnCount();
+		int widths[] = new int[columns];
+		Arrays.fill(widths, 1);
+		
+		for (int row = 0; row < table.getRowCount(); row++) {
+			for (int col = 0; col < columns; col++) {
+				Object value = table.getValueAt(row, col);
+				System.out.println("row=" + row + " col=" + col + " : " + value);
+				widths[col] = Math.max(widths[col], value == null ? 0 : value.toString().length());
+			}
+		}
+		
+		
+		for (int col = 0; col < columns; col++) {
+			System.err.println("Setting column " + col + " to width " + widths[col]);
+			table.getColumnModel().getColumn(col).setPreferredWidth(Math.min(widths[col], max) * 100);
+		}
+	}
+	
 	/**
 	 * Changes the style of the font of the specified border.
 	 * 

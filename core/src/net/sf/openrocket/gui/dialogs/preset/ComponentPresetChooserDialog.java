@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
@@ -28,165 +29,116 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
-import net.sf.openrocket.rocketcomponent.ExternalComponent;
-import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
 
+/**
+ * Dialog shown for selecting a preset component.
+ */
 public class ComponentPresetChooserDialog extends JDialog {
-
+	
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private final RocketComponent component;
-
+	
 	private ComponentPresetTable componentSelectionTable;
-	private final JTextField filterText;
-	private final JCheckBox foreDiameterFilterCheckBox;
-	private final JCheckBox aftDiameterFilterCheckBox;
-
+	private JTextField filterText;
+	private JCheckBox foreDiameterFilterCheckBox;
+	private JCheckBox aftDiameterFilterCheckBox;
+	
+	private ComponentPresetRowFilter foreDiameterFilter;
+	private ComponentPresetRowFilter aftDiameterFilter;
+	
+	
 	/*
 	 * outerDiamtereColumnIndex is the index of the column associated with the OUTER_DIAMETER
 	 * field.  This index is needed by the matchOuterDiameterCheckBox to implement filtering.
 	 */
 	int aftDiameterColumnIndex = -1;
 	int foreDiameterColumnIndex = -1;
-
+	
 	private List<ComponentPreset> presets;
-
+	
 	private boolean okClicked = false;
-
-
+	
+	
 	public ComponentPresetChooserDialog(Window owner, RocketComponent component) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		this.component = component;
 		this.presets = Application.getComponentPresetDao().listForType(component.getPresetType());
 		
-		List<TypedKey<?>> displayedColumnKeys = Arrays.<TypedKey<?>>asList(component.getPresetType().getDisplayedColumns());
+		List<TypedKey<?>> displayedColumnKeys = Arrays.asList(component.getPresetType().getDisplayedColumns());
+		
 		{
-			final List<TypedKey<?>> columnKeys = ComponentPreset.orderedKeyList;
-			int i=0;  // We start at 0 but use preincrement because the first column is favorite.
+			final List<TypedKey<?>> columnKeys = ComponentPreset.ORDERED_KEY_LIST;
+			int i = 0; // We start at 0 but use preincrement because the first column is favorite.
 			for (final TypedKey<?> key : columnKeys) {
 				// Note the increment early in the loop.  This really means that initial loop i=1
 				// we do it here so the continue below doesn't mess up the counting.
 				i++;
 				// Don't allow the matching filters if the column is not part of the default set for
 				// this kind of preset.
-				if ( ! displayedColumnKeys.contains(key) ) { 
+				if (!displayedColumnKeys.contains(key)) {
 					continue;
 				}
-				if ( key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.AFT_OUTER_DIAMETER ) {
+				if (key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.AFT_OUTER_DIAMETER) {
 					aftDiameterColumnIndex = i;
 				}
-				if ( key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.FORE_OUTER_DIAMETER ) {
+				if (key == ComponentPreset.OUTER_DIAMETER || key == ComponentPreset.FORE_OUTER_DIAMETER) {
 					foreDiameterColumnIndex = i;
 				}
 			}
 		}
 		
+		
+		JPanel panel = new JPanel(new MigLayout("fill, ins para"));
+		
 		/*
 		 * Add filter by text.
 		 */
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel sub = new JPanel(new MigLayout("fill, ins 0"));
 		JLabel filterLabel = new JLabel(trans.get("ComponentPresetChooserDialog.filter.label"));
-		panel.add(filterLabel);
-		filterText = new JTextField(15);
-		panel.add(filterText,"growx, growy 0, wrap");
+		sub.add(filterLabel, "gapright para");
+		
+		filterText = new JTextField();
+		sub.add(filterText, "growx");
 		filterText.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				updateFilters();
 			}
+			
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				updateFilters();
 			}
+			
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				updateFilters();
 			}
 		});
-
-		/*
-		 * Add show all compatible check box.
-		 */
-		final List<ComponentPreset.Type> compatibleTypes = component.getPresetType().getCompatibleTypes();
-		final ComponentPreset.Type nativeType = component.getPresetType();
-		if ( compatibleTypes != null && compatibleTypes.size() >  0 ) {
-			JCheckBox showAll = new JCheckBox();
-			showAll.setText(trans.get("ComponentPresetChooserDialog.checkbox.showAllCompatible"));
-			panel.add(showAll, "skip, span 2");
-			showAll.addItemListener( new ItemListener () {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if ( ((JCheckBox)e.getItem()).isSelected()  ) {
-						presets = Application.getComponentPresetDao().listForTypes(compatibleTypes);
-					} else {
-						presets = Application.getComponentPresetDao().listForType(nativeType);
-					}
-					componentSelectionTable.updateData( presets );
-				}
-			});
-
-
-		}
-
-		/*
-		 * Add filter by fore diameter
-		 */
-		foreDiameterFilterCheckBox = new JCheckBox();
-		foreDiameterFilterCheckBox.setText(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
-		panel.add(foreDiameterFilterCheckBox, "skip, span 2");
-		foreDiameterFilterCheckBox.addItemListener( new ItemListener () {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				updateFilters();
-			}
-		});
-
-		RocketComponent previousComponent = component.getPreviousComponent(); 
-		/* hide the fore diameter filter if it is not applicable */
-		if ( foreDiameterColumnIndex < 0 ) {
-			foreDiameterFilterCheckBox.setVisible(false);
-		}
-		if ( previousComponent == null ) {
-			foreDiameterFilterCheckBox.setVisible(false);
-		} else {
-			if ( !(previousComponent instanceof ExternalComponent) && !(previousComponent instanceof InternalComponent) )
-				foreDiameterFilterCheckBox.setVisible(false);
-		}
-
-		/*
-		 * Add filter by aft diameter
-		 */
-		aftDiameterFilterCheckBox = new JCheckBox();
-		aftDiameterFilterCheckBox.setText(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
-		panel.add(aftDiameterFilterCheckBox, "skip, span 2, wrap");
-		aftDiameterFilterCheckBox.addItemListener( new ItemListener () {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				updateFilters();
-			}
-		});
-
-		RocketComponent nextComponent = component.getNextComponent();
-		/* hide the aft diameter filter if it is not applicable */
-		if ( aftDiameterColumnIndex < 0 ) {
-			aftDiameterFilterCheckBox.setVisible(false);
-		}
-		if ( nextComponent == null ) {
-			aftDiameterFilterCheckBox.setVisible(false);
-		} else if ( !(nextComponent instanceof ExternalComponent) && !(nextComponent instanceof InternalComponent)) {
-			aftDiameterFilterCheckBox.setVisible(false);
-		}
-
-		componentSelectionTable = new ComponentPresetTable( presets, displayedColumnKeys );
-
+		
+		panel.add(sub, "growx, ay 0, gapright para");
+		
+		
+		panel.add(getFilterCheckboxes(), "wrap para");
+		
+		
+		componentSelectionTable = new ComponentPresetTable(presets, displayedColumnKeys);
+		//		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
+		int w = componentSelectionTable.getRowHeight() + 4;
+		TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);
+		tc.setPreferredWidth(w);
+		tc.setMaxWidth(w);
+		tc.setMinWidth(w);
+		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
-		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
-
-
+		panel.add(scrollpane, "grow, width 700lp, height 300lp, spanx, wrap para");
+		
+		
 		// OK / Cancel buttons
 		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
@@ -196,7 +148,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 		panel.add(okButton, "tag ok, spanx, split");
-
+		
 		//// Cancel button
 		JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
@@ -206,16 +158,76 @@ public class ComponentPresetChooserDialog extends JDialog {
 			}
 		});
 		panel.add(cancelButton, "tag cancel");
-
+		
 		this.add(panel);
-
-		this.setModal(true);
-		this.pack();
-		this.setLocationByPlatform(true);
+		
+		GUIUtil.rememberWindowSize(this);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
-
 	}
-
+	
+	
+	private JPanel getFilterCheckboxes() {
+		SymmetricComponent sc;
+		
+		JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
+		
+		/*
+		 * Add show all compatible check box.
+		 */
+		final List<ComponentPreset.Type> compatibleTypes = component.getPresetType().getCompatibleTypes();
+		final ComponentPreset.Type nativeType = component.getPresetType();
+		if (compatibleTypes != null && compatibleTypes.size() > 0) {
+			JCheckBox showAll = new JCheckBox();
+			showAll.setText(trans.get("ComponentPresetChooserDialog.checkbox.showAllCompatible"));
+			panel.add(showAll, "wrap");
+			showAll.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (((JCheckBox) e.getItem()).isSelected()) {
+						presets = Application.getComponentPresetDao().listForTypes(compatibleTypes);
+					} else {
+						presets = Application.getComponentPresetDao().listForType(nativeType);
+					}
+					componentSelectionTable.updateData(presets);
+				}
+			});
+		}
+		
+		/*
+		 * Add filter by fore diameter
+		 */
+		foreDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterForeDiameter"));
+		sc = getPreviousSymmetricComponent();
+		if (sc != null && foreDiameterColumnIndex >= 0) {
+			foreDiameterFilter = new ComponentPresetRowFilter(sc.getAftRadius() * 2.0, foreDiameterColumnIndex);
+			panel.add(foreDiameterFilterCheckBox, "wrap");
+			foreDiameterFilterCheckBox.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					updateFilters();
+				}
+			});
+		}
+		
+		/*
+		 * Add filter by aft diameter
+		 */
+		aftDiameterFilterCheckBox = new JCheckBox(trans.get("ComponentPresetChooserDialog.checkbox.filterAftDiameter"));
+		sc = getNextSymmetricComponent();
+		if (sc != null && aftDiameterColumnIndex >= 0) {
+			aftDiameterFilter = new ComponentPresetRowFilter(sc.getForeRadius() * 2.0, aftDiameterColumnIndex);
+			panel.add(aftDiameterFilterCheckBox, "wrap");
+			aftDiameterFilterCheckBox.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					updateFilters();
+				}
+			});
+		}
+		
+		return panel;
+	}
+	
 	/**
 	 * Return the motor selected by this chooser dialog, or <code>null</code> if the selection has been aborted.
 	 * 
@@ -228,60 +240,54 @@ public class ComponentPresetChooserDialog extends JDialog {
 		row = componentSelectionTable.convertRowIndexToModel(row);
 		return presets.get(row);
 	}
-
+	
 	public void close(boolean ok) {
 		okClicked = ok;
 		this.setVisible(false);
 	}
-
+	
 	private void updateFilters() {
-		List<RowFilter<TableModel,Object>> filters = new ArrayList<RowFilter<TableModel,Object>> (2);
+		List<RowFilter<TableModel, Object>> filters = new ArrayList<RowFilter<TableModel, Object>>(2);
 		String filterTextRegex = filterText.getText();
-		if ( filterTextRegex != null ) {
+		if (filterTextRegex != null) {
 			try {
 				// The "(?iu)" magic turns on case insensitivity with unicode chars
-				RowFilter<TableModel,Object> regexFilter = RowFilter.regexFilter("(?iu)"+filterTextRegex);
+				RowFilter<TableModel, Object> regexFilter = RowFilter.regexFilter("(?iu)" + filterTextRegex);
 				filters.add(regexFilter);
-			} catch ( java.util.regex.PatternSyntaxException e ) {
+			} catch (java.util.regex.PatternSyntaxException e) {
 			}
 		}
-		if ( aftDiameterFilterCheckBox.isSelected() ) {
-			// FIXME - please verify this logic looks correct.
-			// Grab the next component.
-			// If this.component is an InternalComponent, then we want to filter the outer diameter field
-			// against the next component's inner diameter.
-			RocketComponent nextComponent = component.getNextComponent();
-			if ( nextComponent != null && nextComponent instanceof SymmetricComponent ) {
-				SymmetricComponent parent = (SymmetricComponent) nextComponent;
-				double nextDiameter;
-				if ( this.component instanceof InternalComponent ) {
-					nextDiameter = parent.getInnerRadius(0) * 2.0;
-				} else {
-					nextDiameter = parent.getForeRadius() * 2.0;
-				}
-				RowFilter<TableModel,Object> outerDiameterFilter = new ComponentPresetRowFilter( nextDiameter, aftDiameterColumnIndex);
-				filters.add(outerDiameterFilter);
+		if (aftDiameterFilterCheckBox.isSelected()) {
+			filters.add(aftDiameterFilter);
+		}
+		if (foreDiameterFilterCheckBox.isSelected()) {
+			filters.add(foreDiameterFilter);
+		}
+		
+		componentSelectionTable.setRowFilter(RowFilter.andFilter(filters));
+	}
+	
+	
+	private SymmetricComponent getPreviousSymmetricComponent() {
+		RocketComponent c = component;
+		while (c != null) {
+			c = c.getPreviousComponent();
+			if (c instanceof SymmetricComponent) {
+				return (SymmetricComponent) c;
 			}
 		}
-		if ( foreDiameterFilterCheckBox.isSelected() ) {
-			// FIXME - please verify this logic looks correct.
-			// Grab the previous component.
-			// If this.component is an InternalComponent, then we want to filter the outer diameter field
-			// against the previous component's inner diameter.
-			RocketComponent previousComponent = component.getPreviousComponent();
-			if ( previousComponent != null && previousComponent instanceof SymmetricComponent ) {
-				SymmetricComponent parent = (SymmetricComponent) previousComponent;
-				double previousDaimeter;
-				if ( this.component instanceof InternalComponent ) {
-					previousDaimeter = parent.getInnerRadius(parent.getLength()) * 2.0;
-				} else {
-					previousDaimeter = parent.getAftRadius() * 2.0;
-				}
-				RowFilter<TableModel,Object> outerDiameterFilter = new ComponentPresetRowFilter( previousDaimeter, foreDiameterColumnIndex);
-				filters.add(outerDiameterFilter);
+		return null;
+	}
+	
+	
+	private SymmetricComponent getNextSymmetricComponent() {
+		RocketComponent c = component;
+		while (c != null) {
+			c = c.getNextComponent();
+			if (c instanceof SymmetricComponent) {
+				return (SymmetricComponent) c;
 			}
 		}
-
-		componentSelectionTable.setRowFilter( RowFilter.andFilter(filters) );
+		return null;
 	}
 }

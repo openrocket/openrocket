@@ -47,6 +47,18 @@ public class MassComponentConfig extends RocketComponentConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.05, 0.5)), "w 100lp, wrap");
 		
 		
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Density")));
+		
+		m = new DoubleModel(component, "Density", UnitGroup.UNITS_DENSITY_BULK, 0);
+		
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+		
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(500, 2000, 10000)), "w 100lp, wrap");
+		
+		
 		
 		////  Mass length
 		//// Length

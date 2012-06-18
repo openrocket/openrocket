@@ -38,3 +38,5 @@ help-log.png
 help-about.png
 help-bug.png
 help-tours.png
+star_silver.png
+star_gold.png (modified from star_silver.png)

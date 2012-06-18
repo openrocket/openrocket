@@ -41,9 +41,19 @@ public class ExpressionParserTest {
 	@Test
 	public void testFraction() throws InvalidExpressionException {
 		assertEquals(1.5, parser.parse("1 1/2"), EPS);
+		assertEquals(11 + 11.0 / 22.0, parser.parse("11 11/22"), EPS);
+		assertEquals(-11 - 11.0 / 22.0, parser.parse("-11 11/22"), EPS);
 		assertEquals(1.5, parser.parse("  1    1 / 2"), EPS);
+		assertEquals(11 + 11.0 / 22.0, parser.parse("  11    11 / 22"), EPS);
 		assertEquals(2.0 + 3.0 / 7.0, parser.parse("1 + 1 3/7"), EPS);
-		assertEquals(3.0, parser.parse("1 1/2 * 2"), EPS);
+		assertEquals(2.0 + 3.0 / 7.0, parser.parse("1 + 1 3/7"), EPS);
+		assertEquals(3.0, parser.parse("1 1/2* 2"), EPS);
+		assertEquals(3.0, parser.parse("1 1/2* 2"), EPS);
+	}
+	
+	@Test
+	public void testCharConversion() throws InvalidExpressionException {
+		assertEquals(1 + 1.0 / 9.0, parser.parse("1 \u2081 \u2044 \u2089"), EPS);
 	}
 	
 	@Test
@@ -53,6 +63,12 @@ public class ExpressionParserTest {
 		expectInvalid("1 2");
 		expectInvalid("12 2.5");
 		expectInvalid("1 2.5/4");
+		expectInvalid("11 22.55/44");
+		expectInvalid("1 2/4.1");
+		expectInvalid("11 22/44.11");
+		expectInvalid("1.2 3/4");
+		expectInvalid("12.23 34/45");
+		
 		expectInvalid("1. 2");
 		expectInvalid("1 .2");
 	}

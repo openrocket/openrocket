@@ -85,7 +85,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.0254, "in"));
-		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d/16d, 0.5d/64d));
+		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		UNITS_LENGTH.setDefaultUnit(1);
 		
@@ -162,6 +162,7 @@ public class UnitGroup {
 		
 		UNITS_DENSITY_BULK = new UnitGroup();
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "g/cm" + CUBED));
+		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1000, "kg/dm" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1, "kg/m" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(1729.99404, "oz/in" + CUBED));
 		UNITS_DENSITY_BULK.addUnit(new GeneralUnit(16.0184634, "lb/ft" + CUBED));
@@ -429,7 +430,7 @@ public class UnitGroup {
 		throw new IllegalArgumentException("name=" + name);
 	}
 	
-	public Unit getUnit( String name ) throws IllegalArgumentException {
+	public Unit getUnit(String name) throws IllegalArgumentException {
 		for (int i = 0; i < units.size(); i++) {
 			if (units.get(i).getUnit().equals(name)) {
 				return units.get(i);

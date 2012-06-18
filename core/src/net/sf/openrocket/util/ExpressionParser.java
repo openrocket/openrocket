@@ -1,48 +1,67 @@
 package net.sf.openrocket.util;
 
+import java.text.DecimalFormatSymbols;
+
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
-import de.congrace.exp4j.UnknownFunctionException;
-import de.congrace.exp4j.UnparsableExpressionException;
 
 public class ExpressionParser {
+	private static final LogHelper log = Application.getLogger();
 	
+	private static final char DECIMAL_SEPARATOR;
+	private static final char MINUS_SIGN;
+	static {
+		DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+		DECIMAL_SEPARATOR = symbols.getDecimalSeparator();
+		MINUS_SIGN = symbols.getMinusSign();
+	}
 	
 	public double parse(String expression) throws InvalidExpressionException {
+		
+		String modified = null;
 		try {
-			ExpressionBuilder builder = new ExpressionBuilder(modify(expression));
+			modified = modify(expression);
+			ExpressionBuilder builder = new ExpressionBuilder(modified);
 			Calculable calc = builder.build();
-			return calc.calculate();
-		} catch (java.lang.NumberFormatException e) {
-			throw new InvalidExpressionException("Invalid expression: " + expression, e);
-		} catch (UnknownFunctionException e) {
-			throw new InvalidExpressionException("Invalid expression: " + expression, e);
-		} catch (UnparsableExpressionException e) {
-			throw new InvalidExpressionException("Invalid expression: " + expression, e);
-		} catch (java.util.EmptyStackException e) {
+			double n = calc.calculate();
+			log.debug("Evaluated expression '" + expression + "' (modified='" + modified + "') to " + n);
+			return n;
+		} catch (Exception e) {
+			log.warn("Unable to parse expression '" + expression + "' (modified='" + modified + "')", e);
 			throw new InvalidExpressionException("Invalid expression: " + expression, e);
 		}
 	}
 	
 	private String modify(String exp) throws InvalidExpressionException {
+		
+		// Normalize digit equivalents, fraction sign, decimal separators and minus sign
 		char[] chars = exp.toCharArray();
-		for( int i = 0; i< chars.length; i++ ) {
+		for (int i = 0; i < chars.length; i++) {
 			int value = Character.getNumericValue(chars[i]);
-			if ( value >= 0 && value < 10 ) {
+			if (value >= 0 && value < 10) {
 				chars[i] = Character.toChars(48 + value)[0];
 			}
-			if ( chars[i] == '\u2044') {
+			if (chars[i] == Chars.FRACTION) {
 				chars[i] = '/';
+			}
+			if (chars[i] == DECIMAL_SEPARATOR || chars[i] == ',') {
+				chars[i] = '.';
+			}
+			if (chars[i] == MINUS_SIGN) {
+				chars[i] = '-';
 			}
 		}
 		exp = String.copyValueOf(chars);
-		exp = exp.replaceAll("(\\d+)\\s+(\\d+)\\s*/\\s*(\\d+)", "($1+$2/$3)");
-		exp = exp.replace(',', '.');
+		
+		// Replace fraction equivalents "1 3/4" with "(1+3/4)"
+		exp = exp.replaceAll("(?<![\\d.])(\\d+)\\s+(\\d+)\\s*/\\s*(\\d+)(?![\\d.])", "($1+$2/$3)");
+		
 		// Disallow spaces between numbers - default is to remove spaces!
 		if (exp.matches(".*[0-9.]\\s+[0-9.].*")) {
-			throw new InvalidExpressionException("Invalid expression: " + exp);
+			throw new InvalidExpressionException("Expression contains excess space: " + exp);
 		}
 		return exp;
 	}
-	
 }
