@@ -42,7 +42,7 @@ implements Simulations.OnSimulationSelectedListener
 		super.onCreate(savedInstanceState);
 
 		setTitle(CurrentRocketHolder.getCurrentRocket().getRocketDocument().getRocket().getName());
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
 
 		setContentView(R.layout.openrocketviewer);
 		ViewPager viewPager = (ViewPager)findViewById(R.id.pager);

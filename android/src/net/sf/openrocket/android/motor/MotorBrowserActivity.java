@@ -53,7 +53,9 @@ implements MotorListFragment.OnMotorSelectedListener
 		AndroidLogWrapper.d(MotorBrowserActivity.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case android.R.id.home:
-			ActivityHelpers.goHome(this);
+			// we implement home in the motor browser as "back" since then it will return to
+			// either main or the viewer.
+			finish();
 			return true;
 		case R.id.download_from_thrustcurve_menu_option:
 			ActivityHelpers.downloadFromThrustcurve(this,DOWNLOAD_REQUEST_CODE);

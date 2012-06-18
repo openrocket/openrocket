@@ -2,6 +2,7 @@ package net.sf.openrocket.android;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.rocket.OpenRocketLoaderActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,15 +13,16 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class Main extends OpenRocketLoaderActivity {
 
+	public final static String restartFlag = "restart";
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-		// Rocket already loaded.  go to viewer.
-		if ( CurrentRocketHolder.getCurrentRocket().getRocketDocument() != null ) {
+		Intent i = getIntent();
+		// Rocket already loaded.  go to viewer unless we want to restart.
+		if ( ( i.getBooleanExtra(restartFlag, false) == false)  && CurrentRocketHolder.getCurrentRocket().getRocketDocument() != null ) {
 			moveOnToViewer();
-			return;
 		}
 		setContentView(R.layout.main);
 		((Button) findViewById(R.id.main_open)).setOnClickListener(
