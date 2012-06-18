@@ -10,6 +10,7 @@
     <item
         android:id="@+id/menu_about"
         android:title="@string/About"
+        android:icon="@drawable/ic_menu_info_details"
         android:showAsAction="never"/>
 
 </menu>

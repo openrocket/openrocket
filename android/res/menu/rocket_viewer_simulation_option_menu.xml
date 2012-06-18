@@ -2,8 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:orderInCategory="0"
         android:id="@+id/menu_add"
+        android:icon="@drawable/ic_menu_add"
+        android:orderInCategory="0"
         android:showAsAction="always"
         android:title="@string/Add"/>
 

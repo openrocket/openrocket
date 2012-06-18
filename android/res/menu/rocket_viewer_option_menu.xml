@@ -3,14 +3,20 @@
 
     <item
         android:id="@+id/menu_load"
+        android:icon="@drawable/ic_menu_archive"
+        android:orderInCategory="0"
+        android:showAsAction="always"
         android:title="@string/load"/>
     <item
         android:id="@+id/menu_save"
+        android:icon="@drawable/ic_menu_save"
+        android:orderInCategory="0"
+        android:showAsAction="ifRoom"
         android:title="@string/save"/>
     <item
-        android:orderInCategory="10"
         android:id="@+id/motor_list_menu_option"
         android:icon="@drawable/ic_motorbrowser"
+        android:orderInCategory="10"
         android:showAsAction="ifRoom"
         android:title="@string/viewmotorslabel"/>
     <item
@@ -20,6 +26,8 @@
     <item
         android:id="@+id/menu_about"
         android:showAsAction="never"
+                android:icon="@drawable/ic_menu_info_details"
+        
         android:title="@string/About"/>
 
 </menu>
