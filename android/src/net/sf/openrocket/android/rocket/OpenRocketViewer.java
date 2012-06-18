@@ -58,7 +58,11 @@ implements Simulations.OnSimulationSelectedListener
 
 	@Override
 	protected void onResume() {
-		CurrentRocketHolder.getCurrentRocket().setHandler( new RocketChangedEventHandler( ) );
+		RocketChangedEventHandler handler = new RocketChangedEventHandler();
+		// Fire change notices so the displayed lists get updated.
+		// This is primarily because simulations run in the background
+		handler.doSimsChanged();
+		CurrentRocketHolder.getCurrentRocket().setHandler( handler );
 		super.onResume();
 	}
 
