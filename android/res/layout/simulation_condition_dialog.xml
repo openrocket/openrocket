@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     android:orientation="vertical" >
 
     <TextView
@@ -72,13 +74,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:prompt="@string/simulationConditionSelectMotors" />
-
+
     <Button
         android:id="@+id/simulationConditionDelete"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:text="@string/Delete"/>
-
+        android:text="@string/Delete" />
+
     <Button
         android:id="@+id/simulationConditionRun"
         android:layout_width="250dp"
