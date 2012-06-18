@@ -1,4 +1,4 @@
-package net.sf.openrocket.plugin;
+package net.sf.openrocket.plugin.framework;
 
 import java.util.List;
 

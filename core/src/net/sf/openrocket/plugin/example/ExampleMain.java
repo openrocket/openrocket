@@ -1,7 +1,7 @@
 package net.sf.openrocket.plugin.example;
 
-import net.sf.openrocket.plugin.JSPFPluginFactory;
-import net.sf.openrocket.plugin.PluginFactory;
+import net.sf.openrocket.plugin.framework.JSPFPluginFactory;
+import net.sf.openrocket.plugin.framework.PluginFactory;
 
 public class ExampleMain {
 	

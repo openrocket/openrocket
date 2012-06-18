@@ -3,7 +3,7 @@ package net.sf.openrocket.plugin.example;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.openrocket.plugin.AbstractService;
+import net.sf.openrocket.plugin.framework.AbstractService;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 
 @PluginImplementation
