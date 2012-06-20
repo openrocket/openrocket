@@ -95,7 +95,7 @@
 			<zipfileset dir="${lib.dir}" prefix="lib">
 				<include name="*.jar"/>
 			</zipfileset>
-			<zipfileset dir="${lib.dir}/native" prefix="lib">
+			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
 				<include name="*.jar"/>
 			</zipfileset>
 			
