@@ -639,7 +639,9 @@ public class PartsDetailVisitorStrategy {
                 para.add(new Chunk(tab1));
             }
             c.setFont(PrintUtilities.SMALL);
-            c.append(preset.toString());
+            StringBuffer sb = new StringBuffer();
+            sb.append(preset.getManufacturer()).append(" ").append(preset.getPartNo());
+            c.append(sb.toString());
             para.add(c);
         }
         result.addElement(para);
