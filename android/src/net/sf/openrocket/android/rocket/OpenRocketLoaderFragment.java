@@ -105,7 +105,7 @@ public class OpenRocketLoaderFragment extends Fragment {
 			AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Finished loading " + OpenRocketLoaderTask.this);
 			Fragment progress = getActivity().getSupportFragmentManager().findFragmentByTag(PROGRESS_DIALOG_TAG);
 			if ( progress != null ) {
-				((DialogFragment)progress).dismiss();
+				((ProgressDialogFragment)progress).dismissAllowingStateLoss();
 			}
 			if ( listener != null ) {
 				listener.onOpenRocketFileLoaded(result);

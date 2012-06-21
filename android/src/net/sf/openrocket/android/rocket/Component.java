@@ -31,13 +31,12 @@ public class Component extends Fragment {
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
+	public void onResume() {
+		super.onResume();
 		final OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 		componentTree.setAdapter( buildAdapter( rocketDocument.getRocket() ) );
 	}
-	
+
 	private ListAdapter buildAdapter( Rocket rocket ) {
 
 		TreeStateManager<RocketComponentWithId> manager = new InMemoryTreeStateManager<RocketComponentWithId>();

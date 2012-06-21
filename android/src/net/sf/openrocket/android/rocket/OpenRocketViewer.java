@@ -10,6 +10,7 @@ import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.simulation.SimulationViewFragment;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -41,7 +42,17 @@ implements Simulations.OnSimulationSelectedListener
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setTitle(CurrentRocketHolder.getCurrentRocket().getRocketDocument().getRocket().getName());
+		// If the application sleeps for a long time, the CurrentRocketHolder might get cleaned
+		// up.  When this happens, we cannot restore this state, so instead we just
+		// go home.
+		OpenRocketDocument rocDoc = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
+		if ( rocDoc == null ) {
+			AndroidLogWrapper.d(OpenRocketViewer.class, "No document - go home");
+			ActivityHelpers.goHome(this);
+			finish();
+			return;
+		}
+		setTitle(rocDoc.getRocket().getName());
 		getSupportActionBar().setHomeButtonEnabled(true);
 
 		setContentView(R.layout.openrocketviewer);
@@ -59,10 +70,7 @@ implements Simulations.OnSimulationSelectedListener
 	@Override
 	protected void onResume() {
 		RocketChangedEventHandler handler = new RocketChangedEventHandler();
-		// Fire change notices so the displayed lists get updated.
-		// This is primarily because simulations run in the background
-		handler.doSimsChanged();
-		CurrentRocketHolder.getCurrentRocket().setHandler( handler );
+		CurrentRocketHolder.getCurrentRocket().setHandler(handler);
 		super.onResume();
 	}
 

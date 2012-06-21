@@ -43,6 +43,12 @@ public class Configurations extends ExpandableListFragment {
 	}
 
 	@Override
+	public void onResume() {
+		setup();
+		super.onResume();
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.rocket_viewer_configurations_option_menu, menu);
 	}
@@ -59,14 +65,6 @@ public class Configurations extends ExpandableListFragment {
 		}
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		setup();
-
-	}
-	
 	public void refreshConfigsList() {
 		setup();
 	}

@@ -55,6 +55,11 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		prefs.registerOnSharedPreferenceChangeListener(this);
 
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		setup();
 
 	}
