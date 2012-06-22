@@ -112,11 +112,15 @@ public class Configurations extends ExpandableListFragment {
 
 		ExpandableListAdapter configurationAdapter = new BaseExpandableListAdapter() {
 
+			// Note: the magic 1 you see below is so the "no motors" configuration
+			// does not appear in the configuration list.
 			List<MotorMount> mmts = rocketDocument.getRocket().getMotorMounts();
 
 			@Override
 			public int getGroupCount() {
-				return rocketDocument.getRocket().getMotorConfigurationIDs().length;
+				// don't show the "no motors" configuration, so we have one less than the
+				// array length.
+				return rocketDocument.getRocket().getMotorConfigurationIDs().length-1;
 			}
 
 			@Override
@@ -126,7 +130,8 @@ public class Configurations extends ExpandableListFragment {
 
 			@Override
 			public Object getGroup(int groupPosition) {
-				String config = rocketDocument.getRocket().getMotorConfigurationIDs()[groupPosition];
+				// Skip over the "no motors" configuration
+				String config = rocketDocument.getRocket().getMotorConfigurationIDs()[groupPosition+1];
 				return config;
 			}
 
