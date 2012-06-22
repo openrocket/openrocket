@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.Coordinate;
@@ -44,6 +46,25 @@ public abstract class ConversionUtils {
 			}
 		}
 		return s.toString();
+	}
+	
+	public static List<String> delaysToStringList( double[] delays ) {
+		ArrayList<String> list = new ArrayList<String>( delays.length );
+		for( double d: delays ) {
+			if ( d == Motor.PLUGGED ) {
+				list.add("P");
+			} else {
+				list.add(String.valueOf(Math.round(d)));
+			}
+		}
+		return list;
+	}
+	
+	public static double stringToDelay( String s ) {
+		if ( "P".equals(s) ) {
+			return Motor.PLUGGED;
+		}
+		return Long.parseLong(s);
 	}
 	
 	static double[] deserializeArrayOfDouble( byte[] bytes ) throws Exception {
