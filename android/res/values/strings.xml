@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">OpenRocket</string>
-    <string name="version">version 12.07-b4</string>
+    <string name="version">version 12.07-b5</string>
     <string name="load">Load</string>
     <string name="save">Save</string>
     <string name="Add">Add</string>
