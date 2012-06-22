@@ -1,8 +1,9 @@
 package net.sf.openrocket.android.motor;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.openrocket.R;
+import net.sf.openrocket.android.db.ConversionUtils;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -43,7 +44,7 @@ implements View.OnClickListener, TextView.OnEditorActionListener {
 	@Override
 	public void onClick(View v) {
 		String s = ((TextView)v).getText().toString();
-		long value = Long.parseLong(s);
+		double value = ConversionUtils.stringToDelay(s);
 		if ( delaySelectedListener != null ) {
 			delaySelectedListener.onDelaySelected(value);
 		}
@@ -72,10 +73,7 @@ implements View.OnClickListener, TextView.OnEditorActionListener {
 			savedInstanceState = getArguments();
 		}
 		double[] delays = savedInstanceState.getDoubleArray(delaysArg);
-		ArrayList<Long> delayList = new ArrayList<Long>(delays.length);
-		for( int i =0; i< delays.length; i++ ) {
-			delayList.add( Math.round(delays[i]) );
-		}
+		List<String> delayList = ConversionUtils.delaysToStringList(delays);
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle("Enter or Choose Delay");
@@ -84,7 +82,7 @@ implements View.OnClickListener, TextView.OnEditorActionListener {
 		View v = li.inflate(R.layout.motor_config_delay_dialog, null);
 		builder.setView(v);
 		
-		ArrayAdapter<Long> listAdapter = new ArrayAdapter<Long>(getActivity(),android.R.layout.simple_list_item_1,delayList) {
+		ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,delayList) {
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -92,7 +90,7 @@ implements View.OnClickListener, TextView.OnEditorActionListener {
 					convertView = getActivity().getLayoutInflater().inflate( android.R.layout.simple_list_item_1, null);
 				}
 				TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
-				tv.setText( String.valueOf(getItem(position)) );
+				tv.setText( getItem(position) );
 				tv.setOnClickListener( MotorDelayDialogFragment.this );
 				return convertView;
 			}
