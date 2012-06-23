@@ -45,7 +45,8 @@ public class AboutDialog extends JDialog {
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
 			"iText (http://www.itextpdf.com/)<br>" +
-			"exp4j (http://projects.congrace.de/exp4j/index.html)";
+			"exp4j (http://projects.congrace.de/exp4j/index.html)<br>" +
+			"JOGL (http://jogamp.org/jogl/www/)";
 	
 	
 	public AboutDialog(JFrame parent) {
