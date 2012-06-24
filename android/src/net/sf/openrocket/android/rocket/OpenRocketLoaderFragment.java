@@ -89,6 +89,7 @@ public class OpenRocketLoaderFragment extends Fragment {
 			OpenRocketLoaderResult result = new OpenRocketLoaderResult();
 			try {
 				OpenRocketDocument rocket = rocketLoader.load(arg0[0], new DatabaseMotorFinderWithMissingMotors());
+				rocket.getDefaultConfiguration().setAllStages();
 				result.rocket = rocket;
 				result.warnings = rocketLoader.getWarnings();
 			} catch (RocketLoadException ex) {
