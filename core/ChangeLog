@@ -4,6 +4,10 @@
     handlers. Stubs for the "Apple Java Extensions" to allow other platforms to compile provided
     by https://github.com/ymasory/OrangeExtensions.
 
+2012-06-11  Bill Kuker
+
+    * Added a 3D view of the rocket to the figure panel.
+    
 2012-06-05  Doug Pedrick
 
     * Most recently used design files added to File menu.
