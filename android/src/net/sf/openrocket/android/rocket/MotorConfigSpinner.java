@@ -49,7 +49,7 @@ public class MotorConfigSpinner extends Spinner {
 
 		public MotorConfigSpinnerAdapter(Context context, Rocket rocket) {
 			super(context, android.R.layout.simple_spinner_item);
-
+			setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			motorConfigs = rocket.getMotorConfigurationIDs();
 
 			for( String config: motorConfigs ) {
