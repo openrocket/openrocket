@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="lib/exp4j-0.2.9.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/jogl.all.jar"/>
+	<classpathentry kind="lib" path="lib/OrangeExtensions-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -9,6 +9,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
+import net.sf.openrocket.arch.SystemInfo;
+import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.database.ComponentPresetDatabase;
@@ -51,6 +53,11 @@ public class Startup2 {
 		log.info("Checking JRE compatibility");
 		VersionHelper.checkVersion();
 		VersionHelper.checkOpenJDK();
+		
+		// If running on a MAC set up OSX UI Elements.
+		if ( SystemInfo.getPlatform() == Platform.MAC_OS ){
+			OSXStartup.setupOSX();
+		}
 		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
 		log.info("Moving startup to EDT");

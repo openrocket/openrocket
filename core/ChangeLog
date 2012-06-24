@@ -1,3 +1,9 @@
+2012-06-24  Bill Kuker
+
+    * OSX UI Elements: Screen menu bar, Application name, Dock Icon, Quit, About & Preference
+    handlers. Stubs for the "Apple Java Extensions" to allow other platforms to compile provided
+    by https://github.com/ymasory/OrangeExtensions.
+
 2012-06-05  Doug Pedrick
 
     * Most recently used design files added to File menu.

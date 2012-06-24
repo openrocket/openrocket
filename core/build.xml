@@ -76,7 +76,7 @@
 				<attribute name="Rsrc-Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
 				<attribute name="Class-Path" value="." />
-				<attribute name="Rsrc-Class-Path" value="./ main/${ant.project.name}-Core.jar lib/jfreechart-1.0.13.jar lib/jcommon-1.0.16.jar lib/gluegen-rt.jar lib/miglayout15-swing.jar lib/iText-5.0.2.jar lib/jogl.all.jar lib/opencsv-2.3.jar" />
+				<attribute name="Rsrc-Class-Path" value="./ main/${ant.project.name}-Core.jar lib/jfreechart-1.0.13.jar lib/jcommon-1.0.16.jar lib/gluegen-rt.jar lib/miglayout15-swing.jar lib/iText-5.0.2.jar lib/jogl.all.jar lib/opencsv-2.3.jar lib/OrangeExtensions-1.2.jar" />
 			</manifest>
 
 			<!-- Unzip the Eclipse JIJ Loader -->
