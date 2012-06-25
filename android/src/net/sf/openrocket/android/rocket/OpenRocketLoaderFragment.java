@@ -103,10 +103,12 @@ public class OpenRocketLoaderFragment extends Fragment {
 		@Override
 		protected void onPostExecute(OpenRocketLoaderResult result) {
 			super.onPostExecute(result);
-			AndroidLogWrapper.d(OpenRocketLoaderActivity.class,"Finished loading " + OpenRocketLoaderTask.this);
+			AndroidLogWrapper.d(OpenRocketLoaderFragment.class,"Finished loading " + OpenRocketLoaderTask.this);
 			Fragment progress = getActivity().getSupportFragmentManager().findFragmentByTag(PROGRESS_DIALOG_TAG);
 			if ( progress != null ) {
-				((ProgressDialogFragment)progress).dismissAllowingStateLoss();
+				// Remove the fragment instead of trying to use DialogFragment.dismiss.
+				// If the dialog is now currently shown, dismiss fails.
+				getFragmentManager().beginTransaction().remove(progress).commitAllowingStateLoss();
 			}
 			if ( listener != null ) {
 				listener.onOpenRocketFileLoaded(result);

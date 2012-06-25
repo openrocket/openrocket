@@ -4,8 +4,8 @@
     <item
         android:id="@+id/menu_load"
         android:icon="@drawable/ic_menu_archive"
-        android:orderInCategory="0"
-        android:showAsAction="always"
+        android:orderInCategory="1"
+        android:showAsAction="ifRoom"
         android:title="@string/load"/>
     <item
         android:id="@+id/menu_save"
@@ -22,12 +22,13 @@
     <item
         android:id="@+id/preference_menu_option"
         android:icon="@drawable/ic_menu_preferences"
+        android:orderInCategory="10"
         android:title="@string/Preferences"/>
     <item
         android:id="@+id/menu_about"
+        android:icon="@drawable/ic_menu_info_details"
+        android:orderInCategory="10"
         android:showAsAction="never"
-                android:icon="@drawable/ic_menu_info_details"
-        
         android:title="@string/About"/>
 
 </menu>

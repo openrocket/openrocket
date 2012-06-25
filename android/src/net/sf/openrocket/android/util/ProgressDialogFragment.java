@@ -20,19 +20,6 @@ public class ProgressDialogFragment extends DialogFragment {
 		return fragment;
 	}
 
-	/**
-	 * Expose the private method to allow dismissing a dialog after saveInstanceState.
-	 */
-	public void dismissAllowingStateLoss() {
-		try {
-			Method dismissInternalMethod = ProgressDialogFragment.class.getMethod("dismissInternal", Boolean.class);
-			dismissInternalMethod.setAccessible(true);
-			dismissInternalMethod.invoke(this, true);
-		} catch (Exception ex ) {
-			AndroidLogWrapper.d(ProgressDialogFragment.class, "Exception calling dismissAllowingStateInteral");
-		}
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

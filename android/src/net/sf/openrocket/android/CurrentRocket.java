@@ -20,6 +20,8 @@ public class CurrentRocket {
 
 	private RocketChangedEventHandler handler;
 	
+	private boolean isModified = false;
+	
 	public void setHandler( RocketChangedEventHandler handler ) {
 		this.handler = handler;
 	}
@@ -32,6 +34,7 @@ public class CurrentRocket {
 	}
 
 	public void notifySimsChanged() {
+		isModified = true;
 		if ( handler != null ) {
 			handler.simsChangedMessage();
 		}
@@ -52,6 +55,7 @@ public class CurrentRocket {
 	}
 	
 	public String addNewMotorConfig() {
+		isModified = true;
 		String configId = rocketDocument.getRocket().newMotorConfigurationID();
 		if ( handler != null ) {
 			handler.configsChangedMessage();
@@ -63,6 +67,7 @@ public class CurrentRocket {
 	 */
 	public void setRocketDocument(OpenRocketDocument rocketDocument) {
 		this.rocketDocument = rocketDocument;
+		isModified = false;
 	}
 
 	public WarningSet getWarnings() {
@@ -81,14 +86,17 @@ public class CurrentRocket {
 		this.fileUri = fileUri;
 	}
 
+	public boolean isModified() {
+		return this.isModified;
+	}
+	
 	public void saveOpenRocketDocument() throws IOException {
 		OpenRocketSaver saver = new OpenRocketSaver();
 		StorageOptions options = new StorageOptions();
 		options.setCompressionEnabled(true);
 		options.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_ALL);
 		saver.save(new File(fileUri.getPath()),rocketDocument,options);
-
+		isModified = false;
 	}
-
 
 }

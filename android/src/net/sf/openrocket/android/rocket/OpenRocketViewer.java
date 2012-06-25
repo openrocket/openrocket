@@ -1,8 +1,6 @@
 package net.sf.openrocket.android.rocket;
 
 
-import java.io.IOException;
-
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.CurrentRocketHolder;
@@ -37,8 +35,6 @@ implements Simulations.OnSimulationSelectedListener
 	private final static int TABSIZE = 4;
 
 	private OpenRocketViewerPagerAdapter viewPagerAdapter;
-	
-	private MenuItem saveAction;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +76,14 @@ implements Simulations.OnSimulationSelectedListener
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.rocket_viewer_option_menu, menu);
-		saveAction = menu.findItem(R.id.menu_save);
+		MenuItem saveAction = menu.findItem(R.id.menu_save);
+		if ( CurrentRocketHolder.getCurrentRocket().isModified() ) {
+			saveAction.setVisible(true);
+			saveAction.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
+		} else {
+			saveAction.setVisible(false);
+			saveAction.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
+		}
 		return true;
 	}
 
@@ -94,13 +97,9 @@ implements Simulations.OnSimulationSelectedListener
 			return true;
 		case R.id.menu_save:
 			// FIXME - Probably want to open a dialog here.
-			try {
-				CurrentRocketHolder.getCurrentRocket().saveOpenRocketDocument();
-				saveAction.setVisible(false);
-				invalidateOptionsMenu();
-			} catch ( IOException iex ) {
-				AndroidLogWrapper.d(OpenRocketViewer.class, iex.getMessage());
-			}
+			getSupportFragmentManager().beginTransaction()
+			.add( OpenRocketSaverFragment.newInstance(), "saver")
+			.commitAllowingStateLoss();
 			return true;
 		case android.R.id.home:
 			ActivityHelpers.goHome(this);
@@ -154,13 +153,10 @@ implements Simulations.OnSimulationSelectedListener
 	}
 
 	private class RocketChangedEventHandler extends net.sf.openrocket.android.RocketChangedEventHandler {
-		
+
 		@Override
 		protected void doSimsChanged() {
-			if (saveAction != null ) {
-				saveAction.setVisible(true);
-				invalidateOptionsMenu();
-			}
+			invalidateOptionsMenu();
 			Simulations sims = (Simulations) viewPagerAdapter.getFragmentAtPos(SIMS_POS);
 			if ( sims != null ) {
 				sims.refreshSimulationList();
@@ -169,10 +165,7 @@ implements Simulations.OnSimulationSelectedListener
 
 		@Override
 		protected void doMotorConfigsChanged() {
-			if (saveAction != null ) {
-				saveAction.setVisible(true);
-				invalidateOptionsMenu();
-			}
+			invalidateOptionsMenu();
 			Configurations configs = (Configurations) viewPagerAdapter.getFragmentAtPos(CONFIGS_POS);
 			if ( configs != null ) {
 				configs.refreshConfigsList();
