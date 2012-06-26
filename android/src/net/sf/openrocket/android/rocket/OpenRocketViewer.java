@@ -7,6 +7,7 @@ import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.simulation.SimulationViewFragment;
+import net.sf.openrocket.android.simulation.Simulations;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;

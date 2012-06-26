@@ -1,8 +1,9 @@
 
-package net.sf.openrocket.android.rocket;
+package net.sf.openrocket.android.simulation;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
+import net.sf.openrocket.android.rocket.MotorConfigSpinner;
 import net.sf.openrocket.android.simservice.SimulationService;
 import net.sf.openrocket.android.simservice.SimulationTask;
 import net.sf.openrocket.document.OpenRocketDocument;

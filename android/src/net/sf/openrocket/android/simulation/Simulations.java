@@ -1,8 +1,7 @@
-package net.sf.openrocket.android.rocket;
+package net.sf.openrocket.android.simulation;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
-import net.sf.openrocket.android.simulation.SimulationListItem;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
