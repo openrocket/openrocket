@@ -25,7 +25,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class OpenRocketViewer extends OpenRocketLoaderActivity
-implements Simulations.OnSimulationSelectedListener
+implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnOpenRocketFileSaved
 {
 
 	private final static int OVERVIEW_POS = 0;
@@ -150,6 +150,11 @@ implements Simulations.OnSimulationSelectedListener
 			i.putExtra("Simulation",simulationId);
 			startActivity(i);
 		}
+	}
+
+	@Override
+	public void onOpenRocketFileSaved(Boolean result) {
+		invalidateOptionsMenu();
 	}
 
 	private class RocketChangedEventHandler extends net.sf.openrocket.android.RocketChangedEventHandler {
