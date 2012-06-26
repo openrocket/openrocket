@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="SimulationState">
+        <attr name="simulation_invalid" format="boolean"/>
+        <attr name="simulation_stale" format="boolean"/>
+    </declare-styleable>
+
+</resources>

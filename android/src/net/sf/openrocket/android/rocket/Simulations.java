@@ -2,12 +2,10 @@ package net.sf.openrocket.android.rocket;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
+import net.sf.openrocket.android.simulation.SimulationListItem;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.unit.Unit;
-import net.sf.openrocket.unit.UnitGroup;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,7 +19,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
@@ -124,26 +121,16 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 
 			@Override
 			public View getView(int position, View convertView,	ViewGroup parent) {
-				View v = convertView;
-				if ( v == null ) {
-					LayoutInflater li = getActivity().getLayoutInflater();
-					v = li.inflate(android.R.layout.simple_list_item_2,null);
-				}
+	            SimulationListItem listItemView = (SimulationListItem) convertView;
+
+	            if (listItemView == null) {
+	            	listItemView = new SimulationListItem(parent.getContext());
+	            }
+
 				Simulation sim = this.getItem(position);
-				((TextView)v.findViewById(android.R.id.text1)).setText( sim.getName() );
-				StringBuilder sb = new StringBuilder();
-				String motorConfig = sim.getOptions().getMotorConfigurationID();
-				sb.append("motors: ").append(rocketDocument.getRocket().getMotorConfigurationNameOrDescription(motorConfig));
-				Unit distanceUnit = UnitGroup.UNITS_DISTANCE.getDefaultUnit();
-				FlightData flightData  = sim.getSimulatedData();
-				if ( flightData != null ) {
-					sb.append(" apogee: ").append( distanceUnit.toStringUnit(flightData.getMaxAltitude()));
-					sb.append(" time: ").append(flightData.getFlightTime()).append("s");
-					((TextView)v.findViewById(android.R.id.text2)).setText( sb.toString() );
-				} else {
-					((TextView)v.findViewById(android.R.id.text2)).setText("No simulation data");
-				}
-				return v;
+				listItemView.setSimulation(sim);
+
+	            return listItemView;
 			}
 
 		};
