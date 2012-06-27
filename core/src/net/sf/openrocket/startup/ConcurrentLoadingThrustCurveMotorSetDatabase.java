@@ -9,6 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.openrocket.database.ThrustCurveMotorSet;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
@@ -47,6 +48,9 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 	private static final LogHelper log = Application.getLogger();
 	private final String thrustCurveDirectory;
 
+	/** Block motor loading for this many milliseconds */
+	// Block motor loading for 1.5 seconds to allow window painting to be faster
+	private static AtomicInteger blockLoading = new AtomicInteger(1500);
 
 	public ConcurrentLoadingThrustCurveMotorSetDatabase(String thrustCurveDirectory) {
 		// configure ThrustCurveMotorSetDatabase as true so we get our own thread in
@@ -57,6 +61,18 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 
 	@Override
 	protected void loadMotors() {
+
+		// Block loading until timeout occurs or database is taken into use
+		log.info("Blocking motor loading while starting up");
+		/*
+		while (!inUse && blockLoading.addAndGet(-100) > 0) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
+		*/
+		log.info("Blocking ended, inUse=" + inUse + " blockLoading=" + blockLoading.get());
 
 		BookKeeping keeper = new BookKeeping();
 		keeper.start();
@@ -162,9 +178,9 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 		private void waitForFinish() throws InterruptedException {
 			try {
 				loaderPool.shutdown();
-				loaderPool.awaitTermination(10, TimeUnit.SECONDS);
+				loaderPool.awaitTermination(30, TimeUnit.SECONDS);
 				writerThread.shutdown();
-				writerThread.awaitTermination(10, TimeUnit.SECONDS);
+				writerThread.awaitTermination(30, TimeUnit.SECONDS);
 			}
 			finally {
 				iterator.close();

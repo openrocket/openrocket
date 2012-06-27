@@ -84,11 +84,23 @@ public class Startup2 {
 		Splash.init();
 		
 		// Must be done after localization is initialized
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
-		ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader( componentPresetDao );
-		presetLoader.load();
-		
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
+
+			@Override
+			protected void load() {
+				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader( this );
+				presetLoader.load();
+				try {
+					presetLoader.await();
+				} catch ( InterruptedException iex) {
+					
+				}
+			}
+			
+		};
 		Application.setComponentPresetDao( componentPresetDao );
+
+		componentPresetDao.startLoading();
 		
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
@@ -124,11 +136,6 @@ public class Startup2 {
 		
 		Databases.fakeMethod();
 		
-		try {
-			presetLoader.await();
-		} catch ( InterruptedException iex) {
-			
-		}
 
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");

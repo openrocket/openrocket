@@ -41,8 +41,14 @@ public class Quick3dMain {
 		Application.setPreferences(new SwingPreferences());
 		
 		// Must be done after localization is initialized
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
-		componentPresetDao.load("datafiles", ".*csv");
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase() {
+
+			@Override
+			protected void load() {
+				// This test app doesn't need any presets loaded - just an empty database.
+			}
+			
+		};
 		Application.setComponentPresetDao( componentPresetDao );
 
 		OpenRocketDocument doc = new OpenRocketLoader().loadFromStream(
