@@ -21,7 +21,7 @@ import com.actionbarsherlock.view.MenuItem;
 /**
  * An activity that encapsulates a graphical view of the chart.
  */
-public class SimulationViewFragment extends SherlockFragment implements SimulationSeriesDialog.OnConfirmListener {
+public class SimulationViewFragment extends SherlockFragment implements SimulationPlotConfigDialog.OnConfirmListener {
 	
 	SimulationChart chart;
 
@@ -63,7 +63,7 @@ public class SimulationViewFragment extends SherlockFragment implements Simulati
 		switch (item.getItemId())
 		{
 		case R.id.simulation_select_series_menu_option:
-			SimulationSeriesDialog seriesDialog = SimulationSeriesDialog.newInstance(chart);
+			SimulationPlotConfigDialog seriesDialog = SimulationPlotConfigDialog.newInstance(chart);
 			seriesDialog.show(getFragmentManager(), "AbraCadaver");
 			seriesDialog.setOnConfirmListener(this);
 			return true;

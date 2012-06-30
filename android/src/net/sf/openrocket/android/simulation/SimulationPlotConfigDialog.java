@@ -25,7 +25,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SimulationSeriesDialog extends DialogFragment {
+public class SimulationPlotConfigDialog extends DialogFragment {
 	
 	public interface OnConfirmListener {
 		public void onConfirm();
@@ -38,8 +38,8 @@ public class SimulationSeriesDialog extends DialogFragment {
 	private SimulationChart chart;
 	private OnConfirmListener listener;
 
-	public static SimulationSeriesDialog newInstance( SimulationChart chart ) {
-		SimulationSeriesDialog d = new SimulationSeriesDialog();
+	public static SimulationPlotConfigDialog newInstance( SimulationChart chart ) {
+		SimulationPlotConfigDialog d = new SimulationPlotConfigDialog();
 		d.chart = chart;
 		return d;
 	}
@@ -58,7 +58,7 @@ public class SimulationSeriesDialog extends DialogFragment {
 		builder.setTitle(R.string.simulationPlotDialogTitle);
 		
 		final LayoutInflater inflater = getActivity().getLayoutInflater();
-		View v = inflater.inflate(R.layout.simulation_series_dialog, null);
+		View v = inflater.inflate(R.layout.simulation_plot_config_dialog, null);
 		builder.setView(v);
 
 		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
@@ -87,7 +87,7 @@ public class SimulationSeriesDialog extends DialogFragment {
 				if ( listener != null ) {
 					listener.onConfirm();
 				}
-				SimulationSeriesDialog.this.dismiss();
+				SimulationPlotConfigDialog.this.dismiss();
 			}
 			
 		});
