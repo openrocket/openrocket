@@ -4,12 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <!--  shim to get dialog correct size ?? -->
+    <!-- shim to get dialog correct size ?? -->
+    <!--
     <View
         android:layout_width="200dp"
         android:layout_height="0px"
         android:layout_margin="0px"
         android:orientation="horizontal" />
+    -->
 
     <TextView
         android:layout_width="match_parent"
@@ -33,10 +35,16 @@
         android:layout_height="wrap_content"
         android:drawSelectorOnTop="true" />
 
+    <ListView
+        android:id="@+id/simulationEventsList"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
     <Button
         android:id="@+id/simulationOkButton"
         android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_height="45dp"
         android:layout_gravity="center_horizontal"
         android:text="ok" />
 

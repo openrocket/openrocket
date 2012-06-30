@@ -17,13 +17,16 @@ package net.sf.openrocket.android.simulation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.unit.Unit;
 
 import org.achartengine.chart.LineChart;
@@ -55,6 +58,7 @@ public class SimulationChart implements Serializable {
 	private final int simulationIndex;
 	private transient FlightDataType series1;
 	private transient FlightDataType series2;
+	private transient Map<Double,String> events;
 	
 	// Define 4 different colors and point styles to use for the series.
 	// For now only 2 series are supported though.
@@ -79,6 +83,10 @@ public class SimulationChart implements Serializable {
 		this.series2 = series2;
 	}
 
+	public void setEvents( Map<Double,String> events ) {
+		this.events = events;
+	}
+	
 	public FlightDataBranch getFlightDataBranch( OpenRocketDocument rocketDocument ) {
 		Simulation sim = rocketDocument.getSimulation(simulationIndex);
 		FlightDataBranch flightDataBranch = sim.getSimulatedData().getBranch(0);
@@ -100,6 +108,13 @@ public class SimulationChart implements Serializable {
 		}
 		if (series2== null) {
 			series2 = flightDataBranch.getTypes()[2];
+		}
+		
+		if ( events == null ) {
+			events = new HashMap<Double,String>();
+			for ( FlightEvent event : flightDataBranch.getEvents() ) {
+				events.put(event.getTime(), event.getType().toString() );
+			}
 		}
 
 		/*
@@ -124,6 +139,12 @@ public class SimulationChart implements Serializable {
 		renderer.setShowGrid(true);
 		renderer.setZoomButtonsVisible(true);
 		renderer.setChartTitle(sim.getName());
+		renderer.setShowCustomTextGrid(true);
+		renderer.setXLabelsAlign(Align.RIGHT);
+		renderer.setXLabelsAngle(90);  // rotate right
+		for( Map.Entry<Double,String> event : events.entrySet() ) {
+			renderer.addXTextLabel(event.getKey(), event.getValue());
+		}
 
 		renderer.setMargins(new int[] { 50, 30, 0, 20 });
 		{

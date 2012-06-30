@@ -1,19 +1,27 @@
 package net.sf.openrocket.android.simulation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.FlightEvent;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -23,6 +31,7 @@ public class SimulationSeriesDialog extends DialogFragment {
 		public void onConfirm();
 	}
 
+	private ListView eventList;
 	private Spinner series1Spinner;
 	private Spinner series2Spinner;
 
@@ -40,24 +49,18 @@ public class SimulationSeriesDialog extends DialogFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		if (savedInstanceState != null ) {
 			chart = (SimulationChart) savedInstanceState.getSerializable("chart");
 		}
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle arg0) {
-		super.onSaveInstanceState(arg0);
-		arg0.putSerializable("chart", chart);
-	}
-
-	@Override
-	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-		View v = inflater.inflate(R.layout.simulation_series_dialog, container, false);
 		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.simulationPlotDialogTitle);
+		
+		final LayoutInflater inflater = getActivity().getLayoutInflater();
+		View v = inflater.inflate(R.layout.simulation_series_dialog, null);
+		builder.setView(v);
+
 		OpenRocketDocument rocketDocument = CurrentRocketHolder.getCurrentRocket().getRocketDocument();
 
 		Button okButton = (Button) v.findViewById(R.id.simulationOkButton);
@@ -65,6 +68,19 @@ public class SimulationSeriesDialog extends DialogFragment {
 
 			@Override
 			public void onClick(View v) {
+				Map<Double,String> eventsToShow = new HashMap<Double,String>();
+				{
+					SparseBooleanArray eventsSelected = eventList.getCheckedItemPositions();
+					List<FlightEvent> flightEvents = chart.getFlightDataBranch(CurrentRocketHolder.getCurrentRocket().getRocketDocument()).getEvents();
+					for( int i=0; i< flightEvents.size(); i++ ) {
+						if ( eventsSelected.get(i) ) {
+							FlightEvent event = flightEvents.get(i);
+							eventsToShow.put( event.getTime(), event.getType().toString());
+						}
+					}
+				}
+				chart.setEvents(eventsToShow);
+
 				chart.setSeries1((FlightDataType)series1Spinner.getSelectedItem());
 				chart.setSeries2((FlightDataType)series2Spinner.getSelectedItem());
 
@@ -103,10 +119,42 @@ public class SimulationSeriesDialog extends DialogFragment {
 
 		};
 		series1Spinner.setAdapter(serieses);
+		series1Spinner.setSelection(0);
 		series2Spinner.setAdapter(serieses);
+		series2Spinner.setSelection(1);
 
+		eventList = (ListView) v.findViewById(R.id.simulationEventsList);
 
-		return v;
+		FlightDataBranch data = chart.getFlightDataBranch(CurrentRocketHolder.getCurrentRocket().getRocketDocument());
+		// Initialize the eventList
+		
+		ArrayAdapter<FlightEvent> events = new ArrayAdapter<FlightEvent>(getActivity(),android.R.layout.simple_list_item_1,data.getEvents()) {
+
+			@Override
+			public View getView(int position, View convertView,
+					ViewGroup parent) {
+				View v = convertView;
+				if ( v == null ) {
+					LayoutInflater li = inflater;
+					v = li.inflate(android.R.layout.simple_list_item_multiple_choice,null);
+				}
+				FlightEvent event = this.getItem(position);
+				((TextView)v.findViewById(android.R.id.text1)).setText( event.getType().toString() + " " + event.getTime() + " (s)" );
+				return v;
+			}
+
+		};
+		eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		eventList.setAdapter(events);
+
+		return builder.create();
+
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle arg0) {
+		super.onSaveInstanceState(arg0);
+		arg0.putSerializable("chart", chart);
 	}
 
 }
