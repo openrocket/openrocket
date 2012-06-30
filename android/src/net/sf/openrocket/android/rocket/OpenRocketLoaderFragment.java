@@ -2,6 +2,7 @@ package net.sf.openrocket.android.rocket;
 
 import java.io.File;
 
+import net.sf.openrocket.R;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.ProgressDialogFragment;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -21,8 +22,6 @@ public class OpenRocketLoaderFragment extends Fragment {
 	
 	private final static String FILE_ARG_KEY = "file";
 	
-	private final static String LOADING_MESSAGE = "Loading file...";
-
 	public interface OnOpenRocketFileLoaded {
 		public void onOpenRocketFileLoaded( OpenRocketLoaderResult result );
 	}
@@ -74,7 +73,8 @@ public class OpenRocketLoaderFragment extends Fragment {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			DialogFragment newFragment = ProgressDialogFragment.newInstance("", LOADING_MESSAGE);
+			String loading = getActivity().getResources().getString(R.string.loading);
+			DialogFragment newFragment = ProgressDialogFragment.newInstance("", loading);
 			newFragment.show(getFragmentManager(), PROGRESS_DIALOG_TAG);
 		}
 

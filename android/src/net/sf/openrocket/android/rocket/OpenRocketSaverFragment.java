@@ -1,5 +1,6 @@
 package net.sf.openrocket.android.rocket;
 
+import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.ProgressDialogFragment;
@@ -14,8 +15,6 @@ import android.view.ViewGroup;
 
 public class OpenRocketSaverFragment extends Fragment {
 	
-	private final static String SAVING_MESSAGE = "Savinging file...";
-
 	public static OpenRocketSaverFragment newInstance() {
 		OpenRocketSaverFragment frag = new OpenRocketSaverFragment();
 		Bundle b = new Bundle();
@@ -64,7 +63,8 @@ public class OpenRocketSaverFragment extends Fragment {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			DialogFragment newFragment = ProgressDialogFragment.newInstance("", SAVING_MESSAGE);
+			String savingMessage = getActivity().getResources().getString(R.string.saving);
+			DialogFragment newFragment = ProgressDialogFragment.newInstance("", savingMessage);
 			newFragment.show(getFragmentManager(), PROGRESS_DIALOG_TAG);
 		}
 
