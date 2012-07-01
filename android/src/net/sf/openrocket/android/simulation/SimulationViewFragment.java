@@ -62,12 +62,12 @@ public class SimulationViewFragment extends SherlockFragment implements Simulati
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId())
 		{
-		case R.id.simulation_select_series_menu_option:
+		case R.id.simulation_config_plot_menu_option:
 			SimulationPlotConfigDialog seriesDialog = SimulationPlotConfigDialog.newInstance(chart);
 			seriesDialog.show(getFragmentManager(), "AbraCadaver");
 			seriesDialog.setOnConfirmListener(this);
 			return true;
-		case R.id.simulation_select_events_menu_option:
+		case R.id.simulation_view_events_menu_option:
 			SimulationEventsDialog eventsDialog = SimulationEventsDialog.newInstance(chart);
 			eventsDialog.show(getFragmentManager(), "AbraCadaver");
 			return true;

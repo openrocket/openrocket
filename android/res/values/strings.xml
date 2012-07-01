@@ -10,7 +10,7 @@
     <string name="Download">Download</string>
     <string name="About">About</string>
     <string name="Preferences">Preferences</string>
-    <string name="select_series">Change Plot</string>
+    <string name="configurePlot">Change Plot</string>
     <string name="view_events">View Events</string>
     <string name="simulationPlotDialogTitle">Select Series And Events</string>
     <string name="plot">Plot</string>
