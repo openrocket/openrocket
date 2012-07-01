@@ -153,6 +153,7 @@ public class AppearancePanel extends JPanel {
 		add(scaleV, "wrap, w 40");
 
 		add(new JLabel("Diffuse Color:"));
+		mDefault.addEnableComponent(diffuseColorButton, false);
 		add(diffuseColorButton);
 
 		add(new JLabel("Offset:"));
@@ -170,6 +171,7 @@ public class AppearancePanel extends JPanel {
 		add(offsetV, "wrap, w 40");
 
 		add(new JLabel("Ambient Color:"));
+		mDefault.addEnableComponent(ambientColorButton, false);
 		add(ambientColorButton);
 
 		add(new JLabel("Center:"));
@@ -187,6 +189,7 @@ public class AppearancePanel extends JPanel {
 		add(centerV, "wrap, w 40");
 
 		add(new JLabel("Specular Color:"));
+		mDefault.addEnableComponent(specularColorButton, false);
 		add(specularColorButton);
 
 		add(new JLabel("Rotation:"));
@@ -194,8 +197,12 @@ public class AppearancePanel extends JPanel {
 		JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
 		rotation.setEditor(new SpinnerEditor(rotation));
 		mDefault.addEnableComponent(rotation, false);
-		add(rotation, "split 2, w 50");
-		add(new UnitSelector(rotationModel), "wrap");
+		add(rotation, "split 3, w 50");
+		add(new UnitSelector(rotationModel));
+		BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(-Math.PI, Math.PI));
+		mDefault.addEnableComponent(bs, false);
+		add(bs, "w 100, wrap");
+		
 
 		add(new JLabel("Shine:"));
 		IntegerModel shineModel = new IntegerModel(ab, "Shininess", 0, 128);
