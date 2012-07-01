@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.figure3d;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,13 +27,14 @@ public class RealisticRenderStrategy extends RenderStrategy {
 
 	private final float[] color = new float[4];
 	private static final LogHelper log = Application.getLogger();
-	private Map<RocketComponent, Appearance> apMap = new HashMap<RocketComponent, Appearance>();
-	private Map<Decal, Texture> texCache = new HashMap<Decal, Texture>();
+
+	private boolean needClearCache = false;
+	private Map<URI, Texture> oldTexCache = new HashMap<URI, Texture>();
+	private Map<URI, Texture> texCache = new HashMap<URI, Texture>();
 
 	@Override
 	public void clearCaches() {
-		apMap.clear();
-		texCache.clear();
+		needClearCache = true;
 	}
 
 	@Override
@@ -45,6 +49,11 @@ public class RealisticRenderStrategy extends RenderStrategy {
 
 	@Override
 	public void preGeometry(GL2 gl, RocketComponent c, float alpha) {
+		if (needClearCache) {
+			clearCaches(gl);
+			needClearCache = false;
+		}
+
 		Appearance a = getAppearance(c);
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 
@@ -106,34 +115,58 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		}
 	}
 
+	private void clearCaches(GL2 gl) {
+		log.debug("ClearCaches");
+		for (Map.Entry<URI, Texture> e : oldTexCache.entrySet()) {
+			log.debug("Destroying Texture for " + e.getKey());
+			if ( e.getValue() != null )
+				e.getValue().destroy(gl);
+		}
+		oldTexCache = texCache;
+		texCache = new HashMap<URI, Texture>();
+	}
+
 	private Texture getTexture(Decal t) {
-		if (texCache.containsKey(t))
-			return texCache.get(t);
+		URL url = t.getImageURL();
+		URI uri; //NEVER use a URL as a key!
+		try {
+			uri = url.toURI();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		//Return the Cached value if available
+		if (texCache.containsKey(uri))
+			return texCache.get(uri);
+		
+		//If the texture is in the Old Cache, save it.
+		if (oldTexCache.containsKey(uri)) {
+			texCache.put(uri, oldTexCache.get(uri));
+			oldTexCache.remove(uri);
+			return texCache.get(uri);
+		}
+		
+		//Otherwise load it.
 		Texture tex = null;
 		try {
 			log.debug("Loading texture " + t);
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), t.getImageURL().openStream(), true,
-					null);
+			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), url.openStream(), true, null);
 			tex = TextureIO.newTexture(data);
 		} catch (Throwable e) {
 			log.error("Error loading Texture", e);
 		}
-		texCache.put(t, tex);
+		texCache.put(uri, tex);
+		
 		return tex;
+
 	}
 
 	private Appearance getAppearance(RocketComponent c) {
-		if (apMap.containsKey(c))
-			return apMap.get(c);
-
 		Appearance ret = c.getAppearance();
-
 		if (ret == null) {
 			ret = Appearance.MISSING;
 		}
-
-		apMap.put(c, ret);
-		System.out.println(c + ": " + ret);
 		return ret;
 	}
 
