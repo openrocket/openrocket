@@ -57,6 +57,7 @@ public class Quick3dMain {
 			
 		};
 		componentPresetDao.load("datafiles", ".*csv");
+		componentPresetDao.startLoading();
 		Application.setComponentPresetDao( componentPresetDao );
 
 		OpenRocketDocument doc = new OpenRocketLoader().loadFromStream(

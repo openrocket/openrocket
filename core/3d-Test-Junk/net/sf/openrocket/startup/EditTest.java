@@ -6,16 +6,12 @@ import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
-import net.sf.openrocket.gui.configdialog.NoseConeConfig;
 import net.sf.openrocket.gui.configdialog.RocketComponentConfig;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.ConcurrentComponentPresetDatabaseLoader;
-import net.sf.openrocket.startup.ExceptionHandler;
 
 /**
  * An application for quickly testing 3d figure witout all the OpenRocket user

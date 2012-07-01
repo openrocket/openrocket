@@ -10,13 +10,11 @@ import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
-import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import net.sf.openrocket.file.rocksim.importt.RocksimLoader;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
-import net.sf.openrocket.startup.Application;
 
 /**
  * An application for quickly testing 3d figure witout all the OpenRocket user
@@ -59,6 +57,7 @@ public class TextureTest {
 			
 		};
 		componentPresetDao.load("datafiles", ".*csv");
+		componentPresetDao.startLoading();
 		Application.setComponentPresetDao(componentPresetDao);
 		
 		OpenRocketDocument doc = new RocksimLoader().load(
