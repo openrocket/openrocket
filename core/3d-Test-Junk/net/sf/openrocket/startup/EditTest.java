@@ -84,6 +84,7 @@ public class EditTest {
 			
 		};
 		componentPresetDao.load("datafiles", ".*csv");
+		componentPresetDao.startLoading();
 		Application.setComponentPresetDao(componentPresetDao);
 
 		OpenRocketDocument doc = new OpenRocketLoader().loadFromStream(
