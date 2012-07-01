@@ -21,8 +21,8 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	public Appearance getAppearance() {
 		if (oneColor) {
 			setDiffuse(weight(getDiffuse(), diffuseW));
-			setAmbient(weight(getDiffuse(), ambientW));
-			setSpecular(weight(getDiffuse(), specularW));
+			setAmbient(weight(getDiffuse(), diffuseW));
+			setSpecular(weight(getDiffuse(), diffuseW));
 		} else {
 			setDiffuse(weight(getDiffuse(), diffuseW));
 			setAmbient(weight(getAmbient(), ambientW));
