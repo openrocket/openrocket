@@ -115,4 +115,15 @@ public class FigureRenderStrategy extends RenderStrategy {
 		return 20;
 	}
 
+	protected static void convertColor(Color color, float[] out) {
+		if ( color == null ){
+			out[0] = 1;
+			out[1] = 1;
+			out[2] = 0;
+		} else {
+			out[0] = Math.max(0.2f, (float) color.getRed() / 255f);
+			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f);
+			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f);
+		}
+	}
 }

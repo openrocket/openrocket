@@ -22,9 +22,11 @@ import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Color;
 
 public class RealisticRenderStrategy extends RenderStrategy {
 
+	private final float[] colorBlack = { 0, 0, 0, 1 };
 	private final float[] color = new float[4];
 	private static final LogHelper log = Application.getLogger();
 
@@ -60,20 +62,20 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		convertColor(a.getDiffuse(), color);
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
+		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 
 		convertColor(a.getAmbient(), color);
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
+		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 
 		convertColor(a.getSpecular(), color);
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, a.getShininess());
 
-		convertColor(a.getDiffuse(), color);
-		color[3] = alpha;
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
+		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
+		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
 
 		Decal t = a.getTexture();
 		Texture tex = null;
@@ -119,7 +121,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		log.debug("ClearCaches");
 		for (Map.Entry<URI, Texture> e : oldTexCache.entrySet()) {
 			log.debug("Destroying Texture for " + e.getKey());
-			if ( e.getValue() != null )
+			if (e.getValue() != null)
 				e.getValue().destroy(gl);
 		}
 		oldTexCache = texCache;
@@ -128,7 +130,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 
 	private Texture getTexture(Decal t) {
 		URL url = t.getImageURL();
-		URI uri; //NEVER use a URL as a key!
+		URI uri; // NEVER use a URL as a key!
 		try {
 			uri = url.toURI();
 		} catch (URISyntaxException e) {
@@ -136,18 +138,18 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			return null;
 		}
 
-		//Return the Cached value if available
+		// Return the Cached value if available
 		if (texCache.containsKey(uri))
 			return texCache.get(uri);
-		
-		//If the texture is in the Old Cache, save it.
+
+		// If the texture is in the Old Cache, save it.
 		if (oldTexCache.containsKey(uri)) {
 			texCache.put(uri, oldTexCache.get(uri));
 			oldTexCache.remove(uri);
 			return texCache.get(uri);
 		}
-		
-		//Otherwise load it.
+
+		// Otherwise load it.
 		Texture tex = null;
 		try {
 			log.debug("Loading texture " + t);
@@ -157,7 +159,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			log.error("Error loading Texture", e);
 		}
 		texCache.put(uri, tex);
-		
+
 		return tex;
 
 	}
@@ -183,4 +185,15 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		}
 	}
 
+	protected static void convertColor(Color color, float[] out) {
+		if (color == null) {
+			out[0] = 1;
+			out[1] = 1;
+			out[2] = 0;
+		} else {
+			out[0] = (float) color.getRed() / 255f;
+			out[1] = (float) color.getGreen() / 255f;
+			out[2] = (float) color.getBlue() / 255f;
+		}
+	}
 }
