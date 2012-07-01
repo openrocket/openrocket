@@ -4,6 +4,8 @@ import java.awt.Color;
 
 import javax.swing.Icon;
 
+import net.sf.openrocket.gui.util.ColorConversion;
+
 /**
  * An Icon that displays a specific color, suitable for drawing into a button.
  * 
@@ -14,6 +16,10 @@ public class ColorIcon implements Icon {
 	
 	public ColorIcon(Color c) {
 		this.color = c;
+	}
+	
+	public ColorIcon(net.sf.openrocket.util.Color c){
+		this.color = ColorConversion.toAwtColor(c);
 	}
 	
 	@Override
@@ -29,7 +35,7 @@ public class ColorIcon implements Icon {
 	@Override
 	public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
 		g.setColor(color);
-		g.fill3DRect(x, y, getIconWidth(), getIconHeight(), false);
+		g.fillRect(x, y, getIconWidth(), getIconHeight());
 	}
 	
 }
