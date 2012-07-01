@@ -113,9 +113,17 @@ public class RocketComponentConfig extends JPanel {
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (component.isMassive())
-			//// Figure and Figure style options
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Figure"), null, figureTab(),
-					trans.get("RocketCompCfg.tab.Figstyleopt"));
+		
+		//// Figure and Figure style options
+		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Figure"), null, figureTab(),
+				trans.get("RocketCompCfg.tab.Figstyleopt"));
+		
+		//// Appearance options
+		JPanel app;
+		tabbedPane.addTab("Appearance", null, app = new AppearancePanel(component),
+				"Appearance Tool Tip");
+		tabbedPane.setSelectedComponent(app); //TODO Remove this
+		
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
