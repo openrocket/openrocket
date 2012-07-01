@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -124,6 +125,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	// Preset component this component is based upon
 	private ComponentPreset presetComponent = null;
+
+        // The realistic appearance of this component
+        private Appearance appearance = null;
 	
 	
 	/**
@@ -402,6 +406,27 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	////////// Common parameter setting/getting //////////
+
+       /**
+        * Get the realistic appearance of this component.
+        *  <code>null</code> = use the default for this material
+        *
+        * @return The component's realistic appearance, or <code>null</code>
+        */
+       public Appearance getAppearance() {
+               return appearance;
+       }
+
+       /**
+        * Set the realistic appearance of this component.
+        * Use <code>null</code> for default.
+        *
+        * @param appearance
+        */
+       public void setAppearance(Appearance appearance) {
+               this.appearance = appearance;
+               fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+       }
 	
 	/**
 	 * Return the color of the object to use in 2D figures, or <code>null</code>
