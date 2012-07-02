@@ -34,8 +34,13 @@ public class ColorIcon implements Icon {
 	
 	@Override
 	public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
-		g.setColor(color);
-		g.fillRect(x, y, getIconWidth(), getIconHeight());
+		if ( c.isEnabled() ){
+			g.setColor(color);
+			g.fillRect(x, y, getIconWidth(), getIconHeight());
+		} else {
+			g.setColor(color);
+			g.drawRect(x, y, getIconWidth(), getIconHeight());
+		}
 	}
 	
 }
