@@ -85,6 +85,9 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			tex = getTexture(t);
 		}
 		if (t != null && tex != null) {
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+			
 			tex.enable(gl);
 			tex.bind(gl);
 			gl.glMatrixMode(GL.GL_TEXTURE);
