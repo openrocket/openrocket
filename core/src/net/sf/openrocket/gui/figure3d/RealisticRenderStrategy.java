@@ -58,6 +58,8 @@ public class RealisticRenderStrategy extends RenderStrategy {
 
 		Appearance a = getAppearance(c);
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
+		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL,GL2.GL_SEPARATE_SPECULAR_COLOR);
+
 
 		convertColor(a.getDiffuse(), color);
 		color[3] = alpha;
