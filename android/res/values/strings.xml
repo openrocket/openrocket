@@ -19,6 +19,7 @@
     <string name="loadWarnUnsaved">Would you like to save the changes to the current model?</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="autoSaveMessage">Automatically saving rocket</string>
 
     <string-array name="PreferenceMotorBrowserGroupingEntries">
         <item>Case</item>
@@ -32,7 +33,12 @@
     <string name="simulationSeries1Label">Series 1</string>
     <string name="simulationSeries2Label">Series 2</string>
 
+    <string name="autosavetitle">Autosave Rocket</string>
+    <string name="autosavesummary">Automatically save the rocket document after simulations</string>
+    
     <string name="motorbrowsergrouptitle">Motor Browser Grouping</string>
+    <string name="motorbrowsergroupsummary">Set the grouping in Motor Browser</string>
+    
     <string name="motorbrowsertitle">Motor Browser</string>
     
     <string name="useinternalfilebrowsertitle">Use Internal File Browser</string>

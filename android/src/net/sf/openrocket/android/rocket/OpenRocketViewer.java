@@ -14,20 +14,25 @@ import net.sf.openrocket.document.Simulation;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 public class OpenRocketViewer extends OpenRocketLoaderActivity
-implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnOpenRocketFileSaved
+implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnOpenRocketFileSaved, SharedPreferences.OnSharedPreferenceChangeListener
 {
 
 	private final static int OVERVIEW_POS = 0;
@@ -37,9 +42,11 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	private final static int TABSIZE = 4;
 
 	private OpenRocketViewerPagerAdapter viewPagerAdapter;
-	
+
 	private final static String LOAD_AFTER_SAVE = "net.sf.openrocket.android.loadAfterSave";
 	private boolean loadAfterSave = false;
+	private String autoSaveEnabledKey;
+	private boolean autoSaveEnabled = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,10 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 		if (savedInstanceState != null ) {
 			loadAfterSave = savedInstanceState.getBoolean(LOAD_AFTER_SAVE);
 		}
+		// Must use com.actionbarsherlock.view.Window.FEATURE_INDETERMINATE_PROGRESS
+		requestWindowFeature(Window.FEATURE_PROGRESS);
+		setSupportProgressBarIndeterminate(true);
+
 		setTitle(rocDoc.getRocket().getName());
 		getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -70,11 +81,20 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	@Override
 	protected void onPause() {
 		CurrentRocketHolder.getCurrentRocket().setHandler(null);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		pref.unregisterOnSharedPreferenceChangeListener(this);
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
+		Resources resources = this.getResources();
+		autoSaveEnabledKey = resources.getString(R.string.PreferenceAutoSaveOption);
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		autoSaveEnabled = pref.getBoolean(autoSaveEnabledKey, false);
+
+		pref.registerOnSharedPreferenceChangeListener(this);
+
 		RocketChangedEventHandler handler = new RocketChangedEventHandler();
 		CurrentRocketHolder.getCurrentRocket().setHandler(handler);
 		super.onResume();
@@ -119,9 +139,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						OpenRocketViewer.this.loadAfterSave = true;
-						getSupportFragmentManager().beginTransaction()
-						.add( OpenRocketSaverFragment.newInstance(), "saver")
-						.commitAllowingStateLoss();
+						OpenRocketViewer.this.saveRocketDocument();
 					}
 				});
 				builder.create().show();
@@ -130,9 +148,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 			}
 			return true;
 		case R.id.menu_save:
-			getSupportFragmentManager().beginTransaction()
-			.add( OpenRocketSaverFragment.newInstance(), "saver")
-			.commitAllowingStateLoss();
+			OpenRocketViewer.this.saveRocketDocument();
 			return true;
 		case android.R.id.home:
 			ActivityHelpers.goHome(this);
@@ -148,6 +164,13 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences arg0, String arg1) {
+		if ( autoSaveEnabledKey.equals(arg1) ) {
+			autoSaveEnabled = arg0.getBoolean(autoSaveEnabledKey, false);
+		}
 	}
 
 	@Override
@@ -185,6 +208,12 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 		}
 	}
 
+	private void saveRocketDocument() {
+		getSupportFragmentManager().beginTransaction()
+		.add( OpenRocketSaverFragment.newInstance(false), "saver")
+		.commitAllowingStateLoss();
+	}
+
 	@Override
 	public void onOpenRocketFileSaved(Boolean result) {
 		invalidateOptionsMenu();
@@ -198,6 +227,10 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 
 		@Override
 		protected void doSimsChanged() {
+			if ( autoSaveEnabled ) {
+				Toast.makeText(OpenRocketViewer.this, R.string.autoSaveMessage, Toast.LENGTH_SHORT).show();
+				OpenRocketViewer.this.saveRocketDocument();
+			}
 			invalidateOptionsMenu();
 			Simulations sims = (Simulations) viewPagerAdapter.getFragmentAtPos(SIMS_POS);
 			if ( sims != null ) {

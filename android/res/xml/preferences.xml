@@ -8,9 +8,15 @@
         android:entries="@array/PreferenceMotorBrowserGroupingEntries"
         android:entryValues="@array/PreferenceMotorBrowserGroupingValues"
         android:key="@string/PreferenceMotorBrowserGroupingOption"
-        android:summary="Set the grouping in Motor Browser"
+        android:summary="@string/motorbrowsergroupsummary"
         android:title="@string/motorbrowsergrouptitle" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:title="@string/autosavetitle"
+        android:key="@string/PreferenceAutoSaveOption"
+        android:summary="@string/autosavesummary"/>
+    
     <CheckBoxPreference
         android:defaultValue="true"
         android:title="@string/useinternalfilebrowsertitle"
