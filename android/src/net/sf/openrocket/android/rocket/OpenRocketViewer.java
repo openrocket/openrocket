@@ -12,6 +12,7 @@ import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,6 +37,9 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	private final static int TABSIZE = 4;
 
 	private OpenRocketViewerPagerAdapter viewPagerAdapter;
+	
+	private final static String LOAD_AFTER_SAVE = "net.sf.openrocket.android.loadAfterSave";
+	private boolean loadAfterSave = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,9 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 			ActivityHelpers.goHome(this);
 			finish();
 			return;
+		}
+		if (savedInstanceState != null ) {
+			loadAfterSave = savedInstanceState.getBoolean(LOAD_AFTER_SAVE);
 		}
 		setTitle(rocDoc.getRocket().getName());
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -74,6 +81,12 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	}
 
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(LOAD_AFTER_SAVE, loadAfterSave);
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.rocket_viewer_option_menu, menu);
@@ -93,11 +106,30 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 		AndroidLogWrapper.d(OpenRocketViewer.class,"onMenuItemSelected" + item.getItemId());
 		switch(item.getItemId()) {
 		case R.id.menu_load:
-			// FIXME - Might want to prompt for save here.
-			pickOrkFiles();
+			if ( CurrentRocketHolder.getCurrentRocket().isModified() ) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage(R.string.loadWarnUnsaved);
+				builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						pickOrkFiles();
+					}
+				});
+				builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						OpenRocketViewer.this.loadAfterSave = true;
+						getSupportFragmentManager().beginTransaction()
+						.add( OpenRocketSaverFragment.newInstance(), "saver")
+						.commitAllowingStateLoss();
+					}
+				});
+				builder.create().show();
+			} else {
+				pickOrkFiles();
+			}
 			return true;
 		case R.id.menu_save:
-			// FIXME - Probably want to open a dialog here.
 			getSupportFragmentManager().beginTransaction()
 			.add( OpenRocketSaverFragment.newInstance(), "saver")
 			.commitAllowingStateLoss();
@@ -156,6 +188,10 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	@Override
 	public void onOpenRocketFileSaved(Boolean result) {
 		invalidateOptionsMenu();
+		if ( loadAfterSave ) {
+			loadAfterSave = false;
+			pickOrkFiles();
+		}
 	}
 
 	private class RocketChangedEventHandler extends net.sf.openrocket.android.RocketChangedEventHandler {
