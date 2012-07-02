@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.figure3d;
 
 import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -13,8 +14,16 @@ public abstract class RenderStrategy {
 
 	public abstract void postGeometry(GL2 gl, RocketComponent c, float alpha);
 
-	public void clearCaches() {
+	public void updateFigure() {
 
+	}
+	
+	public void init(GLAutoDrawable drawable) {
+		
+	}
+	
+	public void dispose(GLAutoDrawable drawable) {
+		
 	}
 
 }
