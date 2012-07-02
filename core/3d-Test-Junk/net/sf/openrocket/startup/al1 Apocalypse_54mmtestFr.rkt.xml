@@ -292,7 +292,7 @@
 					<PartDesc><![CDATA[3.9" Airframe Tube]]></PartDesc>
 					<RadialLoc>0.</RadialLoc>
 					<RadialAngle>0.</RadialAngle>
-					<Texture>file=(3d-Test-Junk/net/sf/openrocket/startup/Apocalypse_logo_HAUT_fr2.jpg)|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(1,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(1)
+					<Texture>file=(3d-Test-Junk/net/sf/openrocket/startup/Apocalypse_logo_HAUT_fr2.jpg)|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(2,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(0)
 					</Texture>
 					<Opacity>1.</Opacity>
 					<Specular>0.</Specular>
@@ -460,7 +460,7 @@
 					<PartDesc><![CDATA[3.9" Airframe Tube]]></PartDesc>
 					<RadialLoc>0.</RadialLoc>
 					<RadialAngle>0.</RadialAngle>
-					<Texture>file=(3d-Test-Junk/net/sf/openrocket/startup/Apocalypse_logo_medium2.jpg)|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(1,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(1)
+					<Texture>file=(3d-Test-Junk/net/sf/openrocket/startup/Apocalypse_logo_medium2.jpg)|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(2,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(0))
 					</Texture>
 					<Opacity>1.</Opacity>
 					<Specular>0.</Specular>
@@ -571,7 +571,7 @@
 					<PartDesc><![CDATA[3.9" Airframe Tube]]></PartDesc>
 					<RadialLoc>0.</RadialLoc>
 					<RadialAngle>0.</RadialAngle>
-					<Texture>file=(3d-Test-Junk/net/sf/openrocket/startup/Apocalypse_logo_bas_coup2.jpg)|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(1,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(1)
+					<Texture>file=(3d-Test-Junk/net/sf/openrocket/startup/Apocalypse_logo_bas_coup2.jpg)|position=(0,0,0)|origin=(0.5,0.5,0.5)|scale=(2,1,1)|repeat=(1)|interpolate=(0)|flipr(0)|flips(0)|flipt=(0)|preventseam=(0)
 					</Texture>
 					<Opacity>1.</Opacity>
 					<Specular>0.</Specular>
