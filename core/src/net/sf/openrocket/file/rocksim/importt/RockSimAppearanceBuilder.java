@@ -50,7 +50,7 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 				setDiffuse(parseColor(content));
 			} else if ("SpecularColor".equals(element)) {
 				setSpecular(parseColor(content));
-			} else if ("UseSingleColor".equals(element)) {
+			} else if ("UseSingleColor".equals(element) || "SimpleColorModel".equals(element) ) {
 				if ("1".equals(content)) {
 					oneColor = true;
 				}
