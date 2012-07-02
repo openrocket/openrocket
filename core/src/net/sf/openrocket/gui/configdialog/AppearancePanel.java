@@ -35,10 +35,12 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.ColorConversion;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class AppearancePanel extends JPanel {
@@ -112,7 +114,11 @@ public class AppearancePanel extends JPanel {
 		c.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
-				figureColorButton.setIcon(new ColorIcon(c.getColor()));
+				net.sf.openrocket.util.Color col = c.getColor();
+				if (col == null) {
+					col = Application.getPreferences().getDefaultColor(c.getClass());
+				}
+				figureColorButton.setIcon(new ColorIcon(col));
 			}
 		});
 
@@ -121,42 +127,86 @@ public class AppearancePanel extends JPanel {
 		ambientColorButton.addActionListener(new ColorActionListener(ab, "Ambient"));
 		specularColorButton.addActionListener(new ColorActionListener(ab, "Specular"));
 
-		BooleanModel mDefault = new BooleanModel(false);
+		BooleanModel mDefault = new BooleanModel(c.getAppearance() == null);
+		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
+
 
 		{// Style Header Row
-			add(new StyledLabel("Figure Style", Style.BOLD));
-			add(new JCheckBox(), "split 2");
-			add(new JLabel("Use default"));
-			add(new JButton("Set Default"), "span 2, align right, wrap");
+			final JCheckBox colorDefault = new JCheckBox(fDefault);
+			colorDefault.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (colorDefault.isSelected()) {
+						c.setColor(null);
+						c.setLineStyle(null);
+					} else {
+						c.setColor(((SwingPreferences) Application.getPreferences()).getDefaultColor(c.getClass()));
+						c.setLineStyle(((SwingPreferences) Application.getPreferences()).getDefaultLineStyle(c.getClass()));
+					}
+				}
+			});
+			add(new StyledLabel(trans.get("RocketCompCfg.lbl.Figurestyle"), Style.BOLD));
+			add(colorDefault, "split 2");
+			
+			add(new JLabel(trans.get("RocketCompCfg.checkbox.Usedefaultcolor")));
+			
+			JButton button = new JButton(trans.get("RocketCompCfg.but.Saveasdefstyle"));
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (c.getColor() != null) {
+						((SwingPreferences) Application.getPreferences()).setDefaultColor(c.getClass(), c.getColor());
+						c.setColor(null);
+					}
+					if (c.getLineStyle() != null) {
+						Application.getPreferences().setDefaultLineStyle(c.getClass(), c.getLineStyle());
+						c.setLineStyle(null);
+					}
+				}
+			});
+			fDefault.addEnableComponent(button, false);
+			add(button, "span 2, align right, wrap");
 		}
 
 		{// Figure Color
-			add(new JLabel("Figure Color:"));
+			add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")));
+			fDefault.addEnableComponent(figureColorButton, false);
 			add(figureColorButton);
 		}
 
 		{// Line Style
-			add(new JLabel("Line Style:"));
-			add(new JLabel("[Default Style [v]]"), "wrap");
+			
+			add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")));
+			
+			LineStyle[] list = new LineStyle[LineStyle.values().length + 1];
+			System.arraycopy(LineStyle.values(), 0, list, 1, LineStyle.values().length);
+			
+			JComboBox combo = new JComboBox(new EnumModel<LineStyle>(c, "LineStyle",
+					//// Default style
+					list, trans.get("LineStyle.Defaultstyle")));
+			
+			fDefault.addEnableComponent(combo, false);
+			
+			add(combo, "wrap");
 		}
 
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
 		{// Texture Header Row
-			add(new StyledLabel("Appearance", Style.BOLD));
+			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD));
 			add(new JCheckBox(mDefault), "split 2");
-			add(new JLabel("Use default"));
-			JButton setMDefault = new JButton("Set Default");
+			add(new JLabel(trans.get("AppearanceCfg.lbl.Usedefault")));
+			JButton setMDefault = new JButton(trans.get("AppearanceCfg.but.savedefault"));
 			mDefault.addEnableComponent(setMDefault, false);
 			add(setMDefault, "span 2, align right, wrap");
 		}
 
 		{// Texture File
 			JButton choose;
-			add(new JLabel("Texture:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
 			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
 			p.add(uriTextField, "grow");
-			p.add(choose = new JButton("Choose"));
+			p.add(choose = new JButton(trans.get("AppearanceCfg.lbl.Choose")));
 			mDefault.addEnableComponent(uriTextField, false);
 			mDefault.addEnableComponent(choose, false);
 			add(p, "span 3, growx, wrap");
@@ -189,13 +239,13 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Diffuse
-			add(new JLabel("Diffuse Color:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.color.diffuse")));
 			mDefault.addEnableComponent(diffuseColorButton, false);
 			add(diffuseColorButton);
 		}
 
 		{ // Scale
-			add(new JLabel("Scale:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
 
 			add(new JLabel("x:"), "split 4");
 			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleU").getSpinnerModel());
@@ -211,13 +261,13 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Ambient
-			add(new JLabel("Ambient Color:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.color.ambient")));
 			mDefault.addEnableComponent(ambientColorButton, false);
 			add(ambientColorButton);
 		}
 
 		{ // Offset
-			add(new JLabel("Offset:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
 
 			add(new JLabel("x:"), "split 4");
 			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU").getSpinnerModel());
@@ -233,13 +283,13 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Specular
-			add(new JLabel("Specular Color:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.color.specular")));
 			mDefault.addEnableComponent(specularColorButton, false);
 			add(specularColorButton);
 		}
 
 		{ // Center
-			add(new JLabel("Center:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.center")));
 
 			add(new JLabel("x:"), "split 4");
 			JSpinner centerU = new JSpinner(new DoubleModel(ab, "CenterU").getSpinnerModel());
@@ -255,7 +305,7 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Shine
-			add(new JLabel("Shine:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
 			IntegerModel shineModel = new IntegerModel(ab, "Shininess", 0, 128);
 			JSpinner shine = new JSpinner(shineModel.getSpinnerModel());
 			mDefault.addEnableComponent(shine, false);
@@ -263,7 +313,7 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Rotation
-			add(new JLabel("Rotation:"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
 			DoubleModel rotationModel = new DoubleModel(ab, "Rotation", UnitGroup.UNITS_ANGLE);
 			JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
 			rotation.setEditor(new SpinnerEditor(rotation));
@@ -280,7 +330,7 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Repeat
-			add(new JLabel("Repeat:"));
+			new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation"));
 			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
 			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
 			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
