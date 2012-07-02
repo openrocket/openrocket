@@ -13,6 +13,7 @@ import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.rocksim.importt.RocksimLoader;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 
@@ -63,6 +64,8 @@ public class TextureTest {
 		OpenRocketDocument doc = new RocksimLoader().load(
 				TextureTest.class.getResourceAsStream("al1 Apocalypse_54mmtestFr.rkt.xml"), new DatabaseMotorFinder());
 
+		GUIUtil.setBestLAF();
+		
 		JFrame ff = new JFrame();
 		ff.setSize(1200, 400);
 		ff.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
