@@ -136,7 +136,11 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		simulationList.setOnItemClickListener( new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView l, View v, int position, long id) {
-				if (listener != null ) {
+				Simulation sim = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getSimulation(position);
+				// Check if there is data for this simulation.
+				if ( sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0 ) {
+					openEditor(position);
+				} else if (listener != null ) {
 					listener.onSimulationSelected(position);
 				}
 			}
@@ -147,10 +151,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				final SimulationEditFragment f = SimulationEditFragment.newInstance(position);
-				FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-				ft.add(f, wizardFrag);
-				ft.commit();
+				openEditor(position);
 
 				return true;
 			}
@@ -158,6 +159,13 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		});
 		simulationList.setAdapter(sims);
 
+	}
+	
+	private void openEditor( int position ) {
+		final SimulationEditFragment f = SimulationEditFragment.newInstance(position);
+		FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+		ft.add(f, wizardFrag);
+		ft.commit();
 	}
 
 	private void addSimulation() {

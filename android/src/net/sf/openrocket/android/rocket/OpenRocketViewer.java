@@ -179,10 +179,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 		Simulation sim = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getSimulation(simulationId);
 		// Check if there is data for this simulation.
 		if ( sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0 ) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("The selected simulation does not have saved data.");
-			builder.setCancelable(true);
-			builder.show();
+			// This shouldn't happen because the Simulations list does the check.
 			return;
 		}
 
