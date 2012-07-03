@@ -19,11 +19,6 @@ public class ProgressDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-	}
-
-	@Override
 	public ProgressDialog onCreateDialog(Bundle savedInstanceState) {
 		String title = null;
 		String message = null;
