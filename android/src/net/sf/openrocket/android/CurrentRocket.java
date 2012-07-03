@@ -91,11 +91,20 @@ public class CurrentRocket {
 	}
 	
 	public void saveOpenRocketDocument() throws IOException {
+		
+		// Translate the fileUri if it happens to be a .rkt file.
+
+		String filename = fileUri.getPath();
+		
+		if ( ! filename.endsWith(".ork") ) {
+			filename = filename.concat(".ork");
+		}
+		
 		OpenRocketSaver saver = new OpenRocketSaver();
 		StorageOptions options = new StorageOptions();
 		options.setCompressionEnabled(true);
 		options.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_ALL);
-		saver.save(new File(fileUri.getPath()),rocketDocument,options);
+		saver.save(new File(filename),rocketDocument,options);
 		isModified = false;
 	}
 
