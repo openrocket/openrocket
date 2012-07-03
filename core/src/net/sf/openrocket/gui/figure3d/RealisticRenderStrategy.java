@@ -113,6 +113,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			gl.glScaled(t.getScale().x, t.getScale().y, 0);
 			gl.glTranslated(t.getOffset().x, t.getOffset().y, 0);
 
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, toEdgeMode(t.getEdgeMode()));
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
 
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
