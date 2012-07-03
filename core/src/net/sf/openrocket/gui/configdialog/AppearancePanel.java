@@ -203,7 +203,20 @@ public class AppearancePanel extends JPanel {
 
 		{// Texture Header Row
 			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD));
-			add(new JCheckBox(mDefault), "split 2");
+			
+			final JCheckBox materialDefault = new JCheckBox(mDefault);
+			materialDefault.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (materialDefault.isSelected()) {
+						c.setAppearance(null);
+					} else {
+						c.setAppearance(ab.getAppearance());
+					}
+				}
+			});
+			
+			add(materialDefault, "split 2");
 			add(new JLabel(trans.get("AppearanceCfg.lbl.Usedefault")));
 			JButton setMDefault = new JButton(trans.get("AppearanceCfg.but.savedefault"));
 			mDefault.addEnableComponent(setMDefault, false);
