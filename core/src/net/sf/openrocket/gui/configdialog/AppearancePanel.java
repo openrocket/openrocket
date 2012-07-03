@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,6 +51,8 @@ public class AppearancePanel extends JPanel {
 
 	private static File lastImageDir = null;
 
+	private static final JColorChooser colorChooser = new JColorChooser();
+	
 	private class ColorActionListener implements ActionListener {
 		private final String valueName;
 		private final Object o;
@@ -60,26 +63,32 @@ public class AppearancePanel extends JPanel {
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent colorClickEvent) {
 			try {
-				Method getMethod = o.getClass().getMethod("get" + valueName);
-				Method setMethod = o.getClass().getMethod("set" + valueName, net.sf.openrocket.util.Color.class);
+				final Method getMethod = o.getClass().getMethod("get" + valueName);
+				final Method setMethod = o.getClass().getMethod("set" + valueName, net.sf.openrocket.util.Color.class);
 				net.sf.openrocket.util.Color c = (net.sf.openrocket.util.Color) getMethod.invoke(o);
 				Color awtColor = ColorConversion.toAwtColor(c);
-				awtColor = JColorChooser.showDialog( //
-						AppearancePanel.this, //
-						trans.get("RocketCompCfg.lbl.Choosecolor"), //
-						awtColor);
-				if (awtColor == null)
-					return;
-				setMethod.invoke(o, ColorConversion.fromAwtColor(awtColor));
+				colorChooser.setColor(awtColor);
+				JDialog d = JColorChooser.createDialog(AppearancePanel.this,
+						trans.get("RocketCompCfg.lbl.Choosecolor"), true, colorChooser, new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent okEvent) {
+								Color selected = colorChooser.getColor();
+								if (selected == null)
+									return;
+								try {
+									setMethod.invoke(o, ColorConversion.fromAwtColor(selected));
+								} catch (Throwable e1) {
+									Application.getExceptionHandler().handleErrorCondition(e1);
+								}
+							}
+						}, null);
+				d.setVisible(true);
 			} catch (Throwable e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				Application.getExceptionHandler().handleErrorCondition(e1);
 			}
-
 		}
-
 	}
 
 	public AppearancePanel(final RocketComponent c) {
