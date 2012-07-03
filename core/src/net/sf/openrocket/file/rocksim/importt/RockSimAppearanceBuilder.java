@@ -98,13 +98,13 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 				preventSeam = "1".equals(value);
 			} else if ("position".equals(name)) {
 				String[] c = value.split(",");
-				setOffset(-1 - Double.parseDouble(c[0]), -1 - Double.parseDouble(c[1]));
+				setOffset(Double.parseDouble(c[0]), Double.parseDouble(c[1]));
 			} else if ("origin".equals(name)) {
 				String[] c = value.split(",");
 				setCenter(Double.parseDouble(c[0]), Double.parseDouble(c[1]));
 			} else if ("scale".equals(name)) {
 				String[] c = value.split(",");
-				setScale(-Double.parseDouble(c[0]), -Double.parseDouble(c[1]));
+				setScale(Double.parseDouble(c[0]), Double.parseDouble(c[1]));
 			}
 		}
 
@@ -116,10 +116,17 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 			setEdgeMode(EdgeMode.MIRROR);
 		}
 		
+		if ( !flips ){
+			setScale(getScaleU(), getScaleV() * -1);
+			setOffset(getOffsetU(), -1 - getOffsetV());
+		}
+		if ( !flipr ){
+			setScale(getScaleU() * -1, getScaleV());
+			setOffset(-1 - getOffsetU(), getOffsetV());
+		}
+		
 		//TODO Make use of these values
 		System.out.println("Interpolate: " + interpolate);
-		System.out.println("FlipR: " + flipr);
-		System.out.println("FlipS: " + flips);
 		System.out.println("FlipT: " + flipt);;
 
 	}
