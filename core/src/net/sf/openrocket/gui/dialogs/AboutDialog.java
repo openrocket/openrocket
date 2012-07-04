@@ -41,7 +41,7 @@ public class AboutDialog extends JDialog {
 			"Sky Dart Team (Russian)<br>" +
 			"Mauro Biasutti (Italian)<br><br>" +
 			"Vladimir Beran  (Czech)<br><br>" +
-			"Polish Rocketry Society / Łukasz & Alex kazanski  (Polish)<br><br>" +
+			"Polish Rocketry Society / \u0141ukasz & Alex kazanski  (Polish)<br><br>" +
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
 			"JFreeChart (http://www.jfree.org/jfreechart/)<br>" +
