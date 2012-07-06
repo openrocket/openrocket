@@ -28,6 +28,33 @@ public class Quick3dMain {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
+		Application.setExceptionHandler(new ExceptionHandler() {
+
+			@Override
+			public void uncaughtException(Thread thread, Throwable throwable) {
+				throwable.printStackTrace();
+
+			}
+
+			@Override
+			public void handleErrorCondition(Throwable exception) {
+
+				exception.printStackTrace();
+			}
+
+			@Override
+			public void handleErrorCondition(String message, Throwable exception) {
+				exception.printStackTrace();
+
+			}
+
+			@Override
+			public void handleErrorCondition(String message) {
+				System.err.println(message);
+
+			}
+		});
+		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
 		Application.setBaseTranslator(new ResourceBundleTranslator(
 				"l10n.messages"));
 		Application.setMotorSetDatabase(new ThrustCurveMotorSetDatabase(false) {
@@ -40,7 +67,7 @@ public class Quick3dMain {
 			}
 		});
 		Application.setPreferences(new SwingPreferences());
-		
+
 		// Must be done after localization is initialized
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
 
@@ -51,10 +78,10 @@ public class Quick3dMain {
 				try {
 					presetLoader.await();
 				} catch ( InterruptedException iex) {
-					
+
 				}
 			}
-			
+
 		};
 		componentPresetDao.load("datafiles", ".*csv");
 		componentPresetDao.startLoading();
