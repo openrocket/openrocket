@@ -48,6 +48,10 @@ import com.jogamp.opengl.util.awt.Overlay;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class RocketFigure3d extends JPanel implements GLEventListener {
+	
+	public static final int TYPE_REALISTIC = 0;
+	public static final int TYPE_FIGURE = 1;
+	
 	private static final long serialVersionUID = 1L;
 	private static final LogHelper log = Application.getLogger();
 	
@@ -610,6 +614,14 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void addComponentSelectionListener(
 			ComponentSelectionListener newListener) {
 		this.csl = newListener;
+	}
+	
+	public void setType(int t){
+		if ( t == TYPE_FIGURE ){
+			rr.setRenderStrategy(new FigureRenderStrategy());
+		} else {
+			rr.setRenderStrategy(new RealisticRenderStrategy());
+		}
 	}
 	
 }

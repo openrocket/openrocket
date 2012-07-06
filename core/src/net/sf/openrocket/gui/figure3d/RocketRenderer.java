@@ -28,6 +28,7 @@ public class RocketRenderer {
 	private static final LogHelper log = Application.getLogger();
 	
 	RenderStrategy currentStrategy = new FigureRenderStrategy();
+	RenderStrategy nextStrategy;
 
 	ComponentRenderer cr;
 
@@ -35,6 +36,19 @@ public class RocketRenderer {
 	private final float[] colorBlack = { 0, 0, 0, 1 };
 
 
+	public void setRenderStrategy(RenderStrategy r){
+		nextStrategy = r;
+	}
+	
+	private void checkRenderStrategy(GLAutoDrawable drawable){
+		if ( nextStrategy == null )
+			return;
+		currentStrategy.dispose(drawable);
+		nextStrategy.init(drawable);
+		currentStrategy = nextStrategy;
+		nextStrategy = null;
+	}
+	
 	public void init(GLAutoDrawable drawable) {
 		cr = new ComponentRenderer();
 		cr.init(drawable);
@@ -52,6 +66,7 @@ public class RocketRenderer {
 
 	public RocketComponent pick(GLAutoDrawable drawable,
 			Configuration configuration, Point p, Set<RocketComponent> ignore) {
+		checkRenderStrategy(drawable);
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL.GL_DEPTH_TEST);
 
@@ -97,6 +112,8 @@ public class RocketRenderer {
 
 	public void render(GLAutoDrawable drawable, Configuration configuration,
 			Set<RocketComponent> selection) {
+		checkRenderStrategy(drawable);
+		
 		if (cr == null)
 			throw new IllegalStateException(this + " Not Initialized");
 
