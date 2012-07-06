@@ -17,7 +17,6 @@ import java.util.Set;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
@@ -387,25 +386,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
 		
 		gl.glDepthFunc(GL.GL_LEQUAL); // the type of depth test to do
-		
-		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
-                new float[] { 0,0,0 }, 0);
-		
-		float amb = 0.3f;
-		float dif = 1.0f - amb;
-		float spc = 1.0f;
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
-				new float[] { amb, amb, amb, 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
-				new float[] { dif, dif, dif, 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
-				new float[] { spc, spc, spc, 1 }, 0);
-		
-		gl.glEnable(GLLightingFunc.GL_LIGHT1);
-		gl.glEnable(GLLightingFunc.GL_LIGHTING);
-		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
-		
-		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
 		
 		extrasOverlay = new Overlay(drawable);
 		caretOverlay = new Overlay(drawable);

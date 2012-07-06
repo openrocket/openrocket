@@ -27,7 +27,7 @@ public class RocketRenderer {
 	@SuppressWarnings("unused")
 	private static final LogHelper log = Application.getLogger();
 	
-	RenderStrategy currentStrategy = new RealisticRenderStrategy();
+	RenderStrategy currentStrategy = new FigureRenderStrategy();
 
 	ComponentRenderer cr;
 
