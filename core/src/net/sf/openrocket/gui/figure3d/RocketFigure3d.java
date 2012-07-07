@@ -622,6 +622,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		} else {
 			rr.setRenderStrategy(new RealisticRenderStrategy());
 		}
+		repaint();
 	}
 	
 }
