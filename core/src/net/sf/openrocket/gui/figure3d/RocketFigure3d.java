@@ -423,31 +423,37 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		double rMax;
 	}
 	
+	private Bounds cachedBounds = null;
 	/**
 	 * Calculates the bounds for the current configuration
 	 * 
 	 * @return
 	 */
 	private Bounds calculateBounds() {
-		Bounds ret = new Bounds();
-		Collection<Coordinate> bounds = configuration.getBounds();
-		for (Coordinate c : bounds) {
-			ret.xMax = Math.max(ret.xMax, c.x);
-			ret.xMin = Math.min(ret.xMin, c.x);
-			
-			ret.yMax = Math.max(ret.yMax, c.y);
-			ret.yMin = Math.min(ret.yMin, c.y);
-			
-			ret.zMax = Math.max(ret.zMax, c.z);
-			ret.zMin = Math.min(ret.zMin, c.z);
-			
-			double r = MathUtil.hypot(c.y, c.z);
-			ret.rMax = Math.max(ret.rMax, r);
+		if ( cachedBounds != null ){
+			return cachedBounds;
+		} else {
+			Bounds b = new Bounds();
+			Collection<Coordinate> bounds = configuration.getBounds();
+			for (Coordinate c : bounds) {
+				b.xMax = Math.max(b.xMax, c.x);
+				b.xMin = Math.min(b.xMin, c.x);
+	
+				b.yMax = Math.max(b.yMax, c.y);
+				b.yMin = Math.min(b.yMin, c.y);
+	
+				b.zMax = Math.max(b.zMax, c.z);
+				b.zMin = Math.min(b.zMin, c.z);
+	
+				double r = MathUtil.hypot(c.y, c.z);
+				b.rMax = Math.max(b.rMax, r);
+			}
+			b.xSize = b.xMax - b.xMin;
+			b.ySize = b.yMax - b.yMin;
+			b.zSize = b.zMax - b.zMin;
+			cachedBounds = b;
+			return b;
 		}
-		ret.xSize = ret.xMax - ret.xMin;
-		ret.ySize = ret.yMax - ret.yMin;
-		ret.zSize = ret.zMax - ret.zMin;
-		return ret;
 	}
 	
 	private void setupView(GL2 gl, GLU glu) {
@@ -496,6 +502,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	 */
 	public void updateFigure() {
 		log.debug("3D Figure Updated");
+		cachedBounds = null;
 		rr.updateFigure();
 		internalRepaint();
 	}
