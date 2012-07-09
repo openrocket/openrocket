@@ -111,7 +111,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.rocket_viewer_option_menu, menu);
 		MenuItem saveAction = menu.findItem(R.id.menu_save);
-		if ( CurrentRocketHolder.getCurrentRocket().isModified() ) {
+		if ( CurrentRocketHolder.getCurrentRocket().canSave() ) {
 			saveAction.setVisible(true);
 			saveAction.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
 		} else {
@@ -207,7 +207,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 
 	private void saveRocketDocument() {
 		getSupportFragmentManager().beginTransaction()
-		.add( OpenRocketSaverFragment.newInstance(false), "saver")
+		.add( OpenRocketSaverFragment.newInstance(true), "saver")
 		.commitAllowingStateLoss();
 	}
 
@@ -223,11 +223,16 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	private class RocketChangedEventHandler extends net.sf.openrocket.android.RocketChangedEventHandler {
 
 		@Override
-		protected void doSimsChanged() {
+		protected void doSimComplete() {
 			if ( autoSaveEnabled ) {
 				Toast.makeText(OpenRocketViewer.this, R.string.autoSaveMessage, Toast.LENGTH_SHORT).show();
 				OpenRocketViewer.this.saveRocketDocument();
 			}
+			doSimsChanged();
+		}
+
+		@Override
+		protected void doSimsChanged() {
 			invalidateOptionsMenu();
 			Simulations sims = (Simulations) viewPagerAdapter.getFragmentAtPos(SIMS_POS);
 			if ( sims != null ) {

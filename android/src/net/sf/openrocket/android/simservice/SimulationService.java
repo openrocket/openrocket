@@ -39,6 +39,7 @@ public class SimulationService extends IntentService {
 			Simulation sim = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getSimulation(t.simulationId);
 			AndroidLogWrapper.d(SimulationService.class, "simulating " + t.simulationId );
 			sim.simulate();
+			CurrentRocketHolder.getCurrentRocket().unlockSimulation(t.simulationId);
 			CurrentRocketHolder.getCurrentRocket().notifySimsChanged();
 		}
 		catch (SimulationException simex) {

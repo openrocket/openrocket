@@ -23,7 +23,13 @@ public abstract class RocketChangedEventHandler extends Handler {
 
 	public static final int MOTOR_CONFIGS_CHANGED = 1;
 	public static final int SIMS_CHANGED = 2;
+	public static final int SIM_COMPLETE = 3;
 
+	public void simCompleteMessage() {
+		Message m = this.obtainMessage(SIM_COMPLETE);
+		this.sendMessage(m);
+	}
+	
 	public void simsChangedMessage() {
 		Message m = this.obtainMessage(SIMS_CHANGED);
 		this.sendMessage(m);
@@ -44,11 +50,16 @@ public abstract class RocketChangedEventHandler extends Handler {
 		case MOTOR_CONFIGS_CHANGED:
 			doMotorConfigsChanged();
 			break;
+		case SIM_COMPLETE:
+			doSimComplete();
+			break;
 		default:
 			super.handleMessage(msg);
 		}
 	}
 
+	protected abstract void doSimComplete();
+	
 	protected abstract void doSimsChanged();
 	
 	protected abstract void doMotorConfigsChanged();

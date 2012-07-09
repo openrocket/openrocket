@@ -2,6 +2,8 @@ package net.sf.openrocket.android;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -21,6 +23,7 @@ public class CurrentRocket {
 	private RocketChangedEventHandler handler;
 	
 	private boolean isModified = false;
+	private Set<Integer> runningSims = new HashSet<Integer>();
 	
 	public void setHandler( RocketChangedEventHandler handler ) {
 		this.handler = handler;
@@ -34,12 +37,35 @@ public class CurrentRocket {
 	}
 
 	public void notifySimsChanged() {
-		isModified = true;
+		synchronized ( this ) {
+			isModified = true;
+		}
 		if ( handler != null ) {
 			handler.simsChangedMessage();
 		}
 	}
 
+	public void notifySimComplete() {
+		synchronized ( this ) {
+			isModified = true;
+		}
+		if ( handler != null ) {
+			handler.simCompleteMessage();
+		}
+	}
+
+	public synchronized void lockSimulation( int simulationId ) {
+		runningSims.add(simulationId);
+	}
+	
+	public synchronized void unlockSimulation( int simulationId ) {
+		runningSims.remove(simulationId);
+	}
+	
+	public synchronized Set<Integer> lockedSimulations() {
+		return new HashSet<Integer>(runningSims);
+	}
+	
 	public void addNewSimulation() {
 		Rocket rocket = rocketDocument.getRocket();
 		// FIXME - hopefully the change to the Simulation object will be reverted soon.
@@ -55,7 +81,9 @@ public class CurrentRocket {
 	}
 	
 	public String addNewMotorConfig() {
-		isModified = true;
+		synchronized ( this ) {
+			isModified = true;
+		}
 		String configId = rocketDocument.getRocket().newMotorConfigurationID();
 		if ( handler != null ) {
 			handler.configsChangedMessage();
@@ -67,7 +95,9 @@ public class CurrentRocket {
 	 */
 	public void setRocketDocument(OpenRocketDocument rocketDocument) {
 		this.rocketDocument = rocketDocument;
-		isModified = false;
+		synchronized ( this ) {
+			isModified = false;
+		}
 	}
 
 	public WarningSet getWarnings() {
@@ -88,6 +118,10 @@ public class CurrentRocket {
 
 	public boolean isModified() {
 		return this.isModified;
+	}
+	
+	public boolean canSave() {
+		return this.isModified && this.runningSims.isEmpty();
 	}
 	
 	public void saveOpenRocketDocument() throws IOException {
