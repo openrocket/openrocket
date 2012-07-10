@@ -24,4 +24,14 @@ public class SpinnerEditor extends JSpinner.DefaultEditor {
 		formatter.setOverwriteMode(false);
 	}
 
+	/**
+	 * Constructor which sets the number of columns in the editor.
+	 * @param spinner
+	 * @param cols
+	 */
+	public SpinnerEditor(JSpinner spinner, int cols ) {
+		this(spinner);
+		getTextField().setColumns(cols);
+	}
+	
 }

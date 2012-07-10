@@ -131,7 +131,7 @@ public class MotorConfig extends JPanel {
 		
 		dm = new DoubleModel(mount, "IgnitionDelay", 0);
 		spin = new JSpinner(dm.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
+		spin.setEditor(new SpinnerEditor(spin,3));
 		panel.add(spin, "gap rel rel");
 		
 		//// seconds

@@ -202,7 +202,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		m = new DoubleModel(component, "DeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
+		spin.setEditor(new SpinnerEditor(spin,3));
 		panel.add(spin, "spanx, split");
 		
 		//// seconds
