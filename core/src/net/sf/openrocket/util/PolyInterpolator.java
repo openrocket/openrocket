@@ -228,35 +228,4 @@ public class PolyInterpolator {
 		}
 	}
 
-
-
-
-	public static void main(String[] arg) {
-
-		PolyInterpolator p0 = new PolyInterpolator(
-				new double[] {0.6, 1.1},
-				new double[] {0.6, 1.1}
-		);
-		double[] r0 = p0.interpolator(1.5, 1.6, 2, -3);
-		
-		PolyInterpolator p1 = new PolyInterpolator(
-				new double[] {0.6, 1.1},
-				new double[] {0.6, 1.1},
-				new double[] {0.6}
-		);
-		double[] r1 = p1.interpolator(1.5, 1.6, 2, -3, 0);
-		
-		PolyInterpolator p2 = new PolyInterpolator(
-				new double[] {0.6, 1.1},
-				new double[] {0.6, 1.1},
-				new double[] {0.6, 1.1}
-		);
-		double[] r2 = p2.interpolator(1.5, 1.6, 2, -3, 0, 0);
-		
-
-		for (double x=0.6; x <= 1.11; x += 0.01) {
-			System.out.println(x + " " + eval(x,r0) + " " + eval(x,r1) + " " + eval(x,r2));
-		}
-		
-	}
 }
