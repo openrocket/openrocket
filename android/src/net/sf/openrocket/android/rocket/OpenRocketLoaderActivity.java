@@ -13,8 +13,8 @@ import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -168,15 +168,12 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		if ( result.loadingError != null ) {
 
 			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-			dialogBuilder.setTitle("Error Loading File" );
+			dialogBuilder.setTitle( R.string.loadingErrorMessage );
 			dialogBuilder.setMessage( result.loadingError.getLocalizedMessage());
-			dialogBuilder.setOnCancelListener( new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					OpenRocketLoaderActivity.this.finish();
-				}
-			});
-			dialogBuilder.create().show();
+			dialogBuilder.setCancelable(true);
+			Dialog d = dialogBuilder.create();
+			d.setCanceledOnTouchOutside(true);
+			d.show();
 
 		} else {
 			CurrentRocketHolder.getCurrentRocket().setRocketDocument( result.rocket );

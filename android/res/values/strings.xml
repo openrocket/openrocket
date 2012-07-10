@@ -20,6 +20,7 @@
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="autoSaveMessage">Automatically saving rocket</string>
+    <string name="loadingErrorMessage">Error Loading File</string>
 
     <string-array name="PreferenceMotorBrowserGroupingEntries">
         <item>Case</item>
