@@ -113,16 +113,4 @@ public class LinearInterpolator implements Cloneable {
 		}
 	}
 
-	
-	public static void main(String[] args) {
-		LinearInterpolator interpolator = new LinearInterpolator(
-				new double[] {1, 1.5, 2, 4, 5},
-				new double[] {0, 1,   0, 2, 2}
-		);
-		
-		for (double x=0; x < 6; x+=0.1) {
-			System.out.printf("%.1f:  %.2f\n", x, interpolator.getValue(x));
-		}
-	}
-	
 }
