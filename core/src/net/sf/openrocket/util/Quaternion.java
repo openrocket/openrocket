@@ -318,39 +318,4 @@ public class Quaternion {
 		return String.format("Quaternion[%f,%f,%f,%f,norm=%f]", w, x, y, z, this.norm());
 	}
 	
-	public static void main(String[] arg) {
-		
-		Quaternion q = new Quaternion(Math.random() - 0.5, Math.random() - 0.5,
-				Math.random() - 0.5, Math.random() - 0.5);
-		q.normalize();
-		
-		q = new Quaternion(-0.998717, 0.000000, 0.050649, -0.000000);
-		
-		Coordinate coord = new Coordinate(10 * (Math.random() - 0.5),
-				10 * (Math.random() - 0.5), 10 * (Math.random() - 0.5));
-		
-		System.out.println("Quaternion: " + q);
-		System.out.println("Coordinate: " + coord);
-		coord = q.invRotate(coord);
-		System.out.println("Rotated: " + coord);
-		coord = q.rotate(coord);
-		System.out.println("Back:       " + coord);
-		
-
-		q = new Quaternion(0.237188, 0.570190, -0.514542, 0.594872);
-		q.normalize();
-		Coordinate c = new Coordinate(148578428.914, 8126778.954, -607.741);
-		
-		System.out.println("Rotated: " + q.rotate(c));
-		
-		//		Coordinate c = new Coordinate(0,1,0);
-		//		Coordinate rot = new Coordinate(Math.PI/4,0,0);
-		//		
-		//		System.out.println("Before: "+c);
-		//		c = rotation(rot).invRotate(c);
-		//		System.out.println("After: "+c);
-		
-
-	}
-	
 }
