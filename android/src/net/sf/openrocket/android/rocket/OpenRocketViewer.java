@@ -4,6 +4,7 @@ package net.sf.openrocket.android.rocket;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.CurrentRocketHolder;
+import net.sf.openrocket.android.events.ChangeEventBroadcastReceiver;
 import net.sf.openrocket.android.simulation.SimulationChart;
 import net.sf.openrocket.android.simulation.SimulationViewActivity;
 import net.sf.openrocket.android.simulation.SimulationViewFragment;
@@ -47,6 +48,9 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 	private boolean loadAfterSave = false;
 	private String autoSaveEnabledKey;
 	private boolean autoSaveEnabled = false;
+	
+	private RocketChangedEventHandler handler = new RocketChangedEventHandler();
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +84,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 
 	@Override
 	protected void onPause() {
-		CurrentRocketHolder.getCurrentRocket().setHandler(null);
+		handler.unregister(this);
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 		pref.unregisterOnSharedPreferenceChangeListener(this);
 		super.onPause();
@@ -95,8 +99,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 
 		pref.registerOnSharedPreferenceChangeListener(this);
 
-		RocketChangedEventHandler handler = new RocketChangedEventHandler();
-		CurrentRocketHolder.getCurrentRocket().setHandler(handler);
+		handler.register(this);
 		super.onResume();
 	}
 
@@ -220,7 +223,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 		}
 	}
 
-	private class RocketChangedEventHandler extends net.sf.openrocket.android.RocketChangedEventHandler {
+	private class RocketChangedEventHandler extends ChangeEventBroadcastReceiver {
 
 		@Override
 		protected void doSimComplete() {

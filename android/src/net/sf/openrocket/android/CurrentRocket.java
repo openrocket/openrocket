@@ -1,5 +1,7 @@
 package net.sf.openrocket.android;
 
+import static net.sf.openrocket.android.events.Events.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -11,7 +13,10 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class CurrentRocket {
 
@@ -20,15 +25,9 @@ public class CurrentRocket {
 	private OpenRocketDocument rocketDocument;
 	private WarningSet warnings;
 
-	private RocketChangedEventHandler handler;
-	
 	private boolean isModified = false;
 	private Set<Integer> runningSims = new HashSet<Integer>();
-	
-	public void setHandler( RocketChangedEventHandler handler ) {
-		this.handler = handler;
-	}
-	
+
 	/**
 	 * @return the rocketDocument
 	 */
@@ -36,60 +35,66 @@ public class CurrentRocket {
 		return rocketDocument;
 	}
 
-	public void notifySimsChanged() {
-		synchronized ( this ) {
-			isModified = true;
-		}
-		if ( handler != null ) {
-			handler.simsChangedMessage();
-		}
+	private void notifySimsChanged( Context context ) {
+		Intent msg = new Intent(MESSAGE_ACTION);
+		msg.putExtra(TYPE, SIMS_CHANGED);
+
+		LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
 	}
 
-	public void notifySimComplete() {
-		synchronized ( this ) {
-			isModified = true;
-		}
-		if ( handler != null ) {
-			handler.simCompleteMessage();
-		}
+	private void notifySimComplete( Context context ) {
+		Intent msg = new Intent(MESSAGE_ACTION);
+		msg.putExtra(TYPE, SIM_COMPLETE);
+
+		LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
 	}
 
-	public synchronized void lockSimulation( int simulationId ) {
+	private void notifyMotorConfigChanged( Context context ) {
+		Intent msg = new Intent(MESSAGE_ACTION);
+		msg.putExtra(TYPE, CONFIGS_CHANGED);
+
+		LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+	}
+
+	public synchronized void lockSimulation( Context context, int simulationId ) {
 		runningSims.add(simulationId);
+		// TODO - someday we might want to know about this:
+		// notifySimsChanged( context );
 	}
-	
-	public synchronized void unlockSimulation( int simulationId ) {
+
+	public synchronized void unlockSimulation( Context context, int simulationId ) {
+		this.isModified = true;
 		runningSims.remove(simulationId);
+		notifySimComplete(context);
 	}
-	
+
 	public synchronized Set<Integer> lockedSimulations() {
 		return new HashSet<Integer>(runningSims);
 	}
-	
-	public void addNewSimulation() {
+
+	public synchronized void addNewSimulation( Context context ) {
+		isModified = true;
 		Rocket rocket = rocketDocument.getRocket();
 		// FIXME - hopefully the change to the Simulation object will be reverted soon.
 		Simulation newSim = new Simulation(rocketDocument, rocket);
 		newSim.setName(rocketDocument.getNextSimulationName());
 		rocketDocument.addSimulation(newSim);
-		notifySimsChanged();
+		notifySimsChanged(context);
 	}
-	
-	public void deleteSimulation( int simulationPos ) {
+
+	public synchronized void deleteSimulation( Context context, int simulationPos ) {
+		isModified = true;
 		rocketDocument.removeSimulation( simulationPos );
-		notifySimsChanged();
+		notifySimsChanged(context);
 	}
-	
-	public String addNewMotorConfig() {
-		synchronized ( this ) {
-			isModified = true;
-		}
+
+	public synchronized String addNewMotorConfig( Context context ) {
+		isModified = true;
 		String configId = rocketDocument.getRocket().newMotorConfigurationID();
-		if ( handler != null ) {
-			handler.configsChangedMessage();
-		}
+		notifyMotorConfigChanged(context);
 		return configId;
 	}
+	
 	/**
 	 * @param rocketDocument the rocketDocument to set
 	 */
@@ -119,21 +124,21 @@ public class CurrentRocket {
 	public boolean isModified() {
 		return this.isModified;
 	}
-	
+
 	public boolean canSave() {
 		return this.isModified && this.runningSims.isEmpty();
 	}
-	
+
 	public void saveOpenRocketDocument() throws IOException {
-		
+
 		// Translate the fileUri if it happens to be a .rkt file.
 
 		String filename = fileUri.getPath();
-		
+
 		if ( ! filename.endsWith(".ork") ) {
 			filename = filename.concat(".ork");
 		}
-		
+
 		OpenRocketSaver saver = new OpenRocketSaver();
 		StorageOptions options = new StorageOptions();
 		options.setCompressionEnabled(true);

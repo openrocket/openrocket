@@ -23,6 +23,8 @@ public class SimulationService extends IntentService {
 	public static void executeSimulationTask( Context c, SimulationTask t ) {
 		AndroidLogWrapper.d(SimulationService.class, "Submitting simulation " + t.simulationId );
 
+		CurrentRocketHolder.getCurrentRocket().lockSimulation( c, t.simulationId );
+		
 		Intent intent = new Intent( c, SimulationService.class );
 		intent.putExtra("net.sf.openrocket.simulationtask", t);
 		c.startService(intent);
@@ -39,8 +41,7 @@ public class SimulationService extends IntentService {
 			Simulation sim = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getSimulation(t.simulationId);
 			AndroidLogWrapper.d(SimulationService.class, "simulating " + t.simulationId );
 			sim.simulate();
-			CurrentRocketHolder.getCurrentRocket().unlockSimulation(t.simulationId);
-			CurrentRocketHolder.getCurrentRocket().notifySimsChanged();
+			CurrentRocketHolder.getCurrentRocket().unlockSimulation(this, t.simulationId);
 		}
 		catch (SimulationException simex) {
 			Toast.makeText(this, "Error in simulation:" + simex.getMessage(), Toast.LENGTH_LONG ).show();

@@ -169,7 +169,7 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 	}
 
 	private void addSimulation() {
-		CurrentRocketHolder.getCurrentRocket().addNewSimulation();
+		CurrentRocketHolder.getCurrentRocket().addNewSimulation(getActivity());
 	}
 	
 }

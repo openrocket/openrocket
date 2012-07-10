@@ -109,7 +109,7 @@ public class SimulationEditFragment extends SherlockDialogFragment {
 	}
 
 	public void onDelete( ) {
-		CurrentRocketHolder.getCurrentRocket().deleteSimulation(simulationId);
+		CurrentRocketHolder.getCurrentRocket().deleteSimulation(getActivity(), simulationId);
 		getDialog().dismiss();
 	}
 	

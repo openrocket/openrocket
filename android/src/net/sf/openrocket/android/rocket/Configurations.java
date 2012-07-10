@@ -70,7 +70,7 @@ public class Configurations extends ExpandableListFragment {
 	}
 
 	private void addConfiguration() {
-		CurrentRocketHolder.getCurrentRocket().addNewMotorConfig();
+		CurrentRocketHolder.getCurrentRocket().addNewMotorConfig(getActivity());
 	}
 	
 	private static class MotorMountInfo {
