@@ -70,9 +70,9 @@ public class ConcurrentComponentPresetDatabaseLoader {
 	public void await() throws InterruptedException {
 		latch.await();
 		loaderPool.shutdown();
-		loaderPool.awaitTermination(10, TimeUnit.SECONDS);
+		loaderPool.awaitTermination(30, TimeUnit.SECONDS);
 		writerPool.shutdown();
-		writerPool.awaitTermination(10, TimeUnit.SECONDS);
+		writerPool.awaitTermination(30, TimeUnit.SECONDS);
 		iterator.close();
 		long end = System.currentTimeMillis();
 		log.debug("Time to load presets: " + (end-startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");
