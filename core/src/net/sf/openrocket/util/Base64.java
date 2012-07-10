@@ -81,7 +81,7 @@ public class Base64 {
 			if (p==0)
 				break;
 			if (p!=4) {
-				throw new IllegalArgumentException("Data ended when decoding Base64, p="+p);
+				throw new IllegalArgumentException("Data ended when decoding Base64, data=" + data + ", p="+p);
 			}
 			
 			int l = decodeGroup(block, array, length);
@@ -165,68 +165,5 @@ public class Base64 {
 		
 		return 3;
 	}
-	
-	
-	
-	public static void main(String[] arg) {
-		Random rnd = new Random();
-		
-		for (int round=0; round < 1000; round++) {
-			int n = rnd.nextInt(1000);
-			n = 100000;
-			
-			byte[] array = new byte[n];
-			rnd.nextBytes(array);
-
-			String encoded = encode(array);
-			
-			System.out.println(encoded);
-			System.exit(0);
-//			for (int i=0; i<1000; i++) {
-//				int pos = rnd.nextInt(encoded.length());
-//				String s1 = encoded.substring(0, pos);
-//				String s2 = encoded.substring(pos);
-//				switch (rnd.nextInt(15)) {
-//				case 0:
-//					encoded = s1 + " " + s2;
-//					break;
-//				case 1:
-//					encoded = s1 + "\u0009" + s2;
-//					break;
-//				case 2:
-//					encoded = s1 + "\n" + s2;
-//					break;
-//				case 3:
-//					encoded = s1 + "\u000B" + s2;
-//					break;
-//				case 4:
-//					encoded = s1 + "\r" + s2;
-//					break;
-//				case 5:
-//					encoded = s1 + "\u000C" + s2;
-//					break;
-//				case 6:
-//					encoded = s1 + "\u001C" + s2;
-//					break;
-//				}
-//			}
-			
-			byte[] decoded = null;
-			try {
-				decoded = decode(encoded);
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-				System.err.println("Bad data:\n"+encoded);
-				System.exit(1);
-			}
-			
-			if (!Arrays.equals(array, decoded)) {
-				System.err.println("Data differs!  n="+n);
-				System.exit(1);
-			}
-			System.out.println("n="+n+" ok!");
-		}
-	}
-	
 	
 }
