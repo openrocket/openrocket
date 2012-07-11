@@ -48,6 +48,9 @@ class TransitionHandler extends BaseHandler<Transition> {
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
+        if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
+            return new AttachedPartsHandler(transition);
+        }
         return PlainTextHandler.INSTANCE;
     }
 
