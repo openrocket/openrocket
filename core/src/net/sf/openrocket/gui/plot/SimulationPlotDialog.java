@@ -115,7 +115,7 @@ public class SimulationPlotDialog extends JDialog {
 		
 		is = ClassLoader.getSystemResourceAsStream(file);
 		if (is == null) {
-			System.out.println("ERROR: File " + file + " not found!");
+			//System.out.println("ERROR: File " + file + " not found!");
 			return;
 		}
 		

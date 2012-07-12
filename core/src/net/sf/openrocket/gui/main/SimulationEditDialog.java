@@ -126,7 +126,7 @@ public class SimulationEditDialog extends JDialog {
 				String name = field.getText();
 				if (name == null || name.equals(""))
 					return;
-				System.out.println("Setting name:" + name);
+				//System.out.println("Setting name:" + name);
 				simulation.setName(name);
 				
 			}

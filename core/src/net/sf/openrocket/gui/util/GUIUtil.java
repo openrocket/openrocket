@@ -356,7 +356,7 @@ public class GUIUtil {
 		for (int row = 0; row < table.getRowCount(); row++) {
 			for (int col = 0; col < columns; col++) {
 				Object value = table.getValueAt(row, col);
-				System.out.println("row=" + row + " col=" + col + " : " + value);
+				//System.out.println("row=" + row + " col=" + col + " : " + value);
 				widths[col] = Math.max(widths[col], value == null ? 0 : value.toString().length());
 			}
 		}

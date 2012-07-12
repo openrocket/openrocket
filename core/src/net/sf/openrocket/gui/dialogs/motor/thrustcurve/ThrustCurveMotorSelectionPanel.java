@@ -777,7 +777,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private void scrollSelectionVisible() {
 		if (selectedMotorSet != null) {
 			int index = table.convertRowIndexToView(model.getIndex(selectedMotorSet));
-			System.out.println("index=" + index);
+			//System.out.println("index=" + index);
 			table.getSelectionModel().setSelectionInterval(index, index);
 			Rectangle rect = table.getCellRect(index, 0, true);
 			rect = new Rectangle(rect.x, rect.y - 100, rect.width, rect.height + 200);

@@ -235,8 +235,8 @@ public class FinPointFigure extends AbstractScaleFigure {
 		double y0 = p.y / EXTRA_SCALE;
 		double delta = BOX_SIZE / scale;
 		
-		System.out.println("Point: " + x0 + "," + y0);
-		System.out.println("delta: " + (BOX_SIZE / scale));
+		//System.out.println("Point: " + x0 + "," + y0);
+		//System.out.println("delta: " + (BOX_SIZE / scale));
 		
 		Coordinate[] points = finset.getFinPoints();
 		for (int i = 1; i < points.length; i++) {
@@ -249,7 +249,7 @@ public class FinPointFigure extends AbstractScaleFigure {
 			
 			double u = Math.abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1)) /
 						MathUtil.hypot(x2 - x1, y2 - y1);
-			System.out.println("Distance of segment " + i + " is " + u);
+			//System.out.println("Distance of segment " + i + " is " + u);
 			if (u < delta)
 				return i;
 		}

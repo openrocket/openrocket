@@ -90,8 +90,8 @@ public class StyledLabel extends JLabel {
 		if (str.startsWith("<html>") && str.indexOf("<br") < 0) {
 			StyledLabel label = new StyledLabel("plaintext", size, style);
 			label.validate();
-			System.out.println("Plain-text label: " + label.getPreferredSize());
-			System.out.println("HTML label: " + this.getPreferredSize());
+			//System.out.println("Plain-text label: " + label.getPreferredSize());
+			//System.out.println("HTML label: " + this.getPreferredSize());
 		}
 	}
 	

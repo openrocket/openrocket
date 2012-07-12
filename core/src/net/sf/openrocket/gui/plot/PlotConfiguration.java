@@ -358,7 +358,7 @@ public class PlotConfiguration implements Cloneable {
 	 */
 	public PlotConfiguration fillAutoAxes(FlightDataBranch data) {
 		PlotConfiguration config = recursiveFillAutoAxes(data).getU();
-		System.out.println("BEST FOUND, fitting");
+		//System.out.println("BEST FOUND, fitting");
 		config.fitAxes(data);
 		return config;
 	}
@@ -483,13 +483,13 @@ public class PlotConfiguration implements Cloneable {
 		double scale = Math.max(left.getRangeLength(), right.getRangeLength()) /
 						Math.min(left.getRangeLength(), right.getRangeLength());
 		
-		System.out.println("Scale: " + scale);
+		//System.out.println("Scale: " + scale);
 		
 		scale = roundScale(scale);
 		if (right.getRangeLength() > left.getRangeLength()) {
 			scale = 1 / scale;
 		}
-		System.out.println("Rounded scale: " + scale);
+		//System.out.println("Rounded scale: " + scale);
 		
 		// Scale right axis, enlarge axes if necessary and scale back
 		min2 *= scale;

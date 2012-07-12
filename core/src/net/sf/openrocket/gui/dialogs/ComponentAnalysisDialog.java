@@ -407,13 +407,13 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				System.out.println("Closing method called: " + this);
+				//System.out.println("Closing method called: " + this);
 				theta.removeChangeListener(ComponentAnalysisDialog.this);
 				aoa.removeChangeListener(ComponentAnalysisDialog.this);
 				mach.removeChangeListener(ComponentAnalysisDialog.this);
 				roll.removeChangeListener(ComponentAnalysisDialog.this);
 				configuration.removeChangeListener(ComponentAnalysisDialog.this);
-				System.out.println("SETTING NAN VALUES");
+				//System.out.println("SETTING NAN VALUES");
 				rocketPanel.setCPAOA(Double.NaN);
 				rocketPanel.setCPTheta(Double.NaN);
 				rocketPanel.setCPMach(Double.NaN);

@@ -258,7 +258,7 @@ public class FreeformFinSet extends FinSet {
 		
 		if (index == 0) {
 			
-			System.out.println("Set point zero to x:" + x);
+			//System.out.println("Set point zero to x:" + x);
 			for (int i = 1; i < points.size(); i++) {
 				Coordinate c = points.get(i);
 				points.set(i, c.setX(c.x - x));

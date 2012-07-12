@@ -115,8 +115,7 @@ public class ExtendedISAModel extends InterpolatingAtmosphericModel {
 			AtmosphericConditions diff = new AtmosphericConditions();
 			diff.setPressure((cond2.getPressure() - cond1.getPressure()) / cond1.getPressure() * 100);
 			diff.setTemperature((cond2.getTemperature() - cond1.getTemperature()) / cond1.getTemperature() * 100);
-			System.out.println("alt=" + alt +
-					": std:" + cond1 + " mod:" + cond2 + " diff:" + diff);
+			//System.out.println("alt=" + alt +	": std:" + cond1 + " mod:" + cond2 + " diff:" + diff);
 		}
 	}
 	
