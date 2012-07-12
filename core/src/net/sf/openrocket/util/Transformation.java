@@ -257,23 +257,4 @@ public class Transformation implements java.io.Serializable {
 		return this.translate.equals(o.translate);
 	}
 	
-	public static void main(String[] arg) {
-		Transformation t;
-		
-		t = new Transformation();
-		t.print("Empty");
-		t = new Transformation(1,2,3);
-		t.print("1,2,3");
-		t = new Transformation(new Coordinate(2,3,4));
-		t.print("coord 2,3 4");
-		
-		t = Transformation.rotate_y(0.01);
-		t.print("rotate_y 0.01");
-		
-		t = new Transformation(-1,0,0);
-		t = t.applyTransformation(Transformation.rotate_y(0.01));
-		t = t.applyTransformation(new Transformation(1,0,0));
-		t.print("shift-rotate-shift");
-	}
-	
 }
