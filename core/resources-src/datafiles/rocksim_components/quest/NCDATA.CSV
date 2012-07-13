@@ -1,0 +1,11 @@
+Mfg.,Part No.,Desc.,Units,Length,Outer Dia,L/D Ratio,Insert Length,Insert OD,Thickness,Shape,Config,Material,CG Loc,Mass Units,Mass,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len,Base Ext. Len
+Quest,19990,MMX ,in,1,0.392,0,0.375,0.372,0,ogive,solid,Balsa,,oz,0.5,0,,,,,,,,,,,,,
+Quest,PNC15,15mm Plastic Nose Cone,in,1,0.59,0,0.25,0.54,0.125,ogive,hollow,Polystyrene PS,0.625,oz,0.08,0,,,,,,,,,,,,,
+Quest,PNC20,20mm Plastic Nose Cone,in,2.53,0.787,0,0.5,0.75,0.125,ogive,hollow,Polystyrene PS,1.51,oz,0.1,0,,,,,,,,,,,,,
+Quest,PNC25,25mm Plastic Nose Cone,in,3.15,0.984,0,0.5,0.934,0.125,ogive,hollow,Polystyrene PS,1.82,oz,0.25,0,,,,,,,,,,,,,
+Quest,PNC30,30mm Plastic Nose Cone,in,3.25,1.18,0,0.75,1.13,0.125,ogive,hollow,Polystyrene PS,0,oz,0.5,0,,,,,,,,,,,,,
+Quest,PNC35,35mm Plastic Nose Cone,in,4.12,1.38,0,0.75,1.33,0.125,ogive,hollow,Polystyrene PS,2.44,oz,0.36,0,,,,,,,,,,,,,
+Quest,PNC35N,35mm Plastic Nike Nose Cone,in,8,1.38,0,0.75,1.33,0.125,cone,hollow,Polystyrene PS,4.53,oz,0.9,0,,,,,,,,,,,,,
+Quest,PNC35B2,35mm Plastic X-15 Nose Cone,in,4.5,1.38,0,0.75,1.33,0.125,ogive,hollow,Polystyrene PS,0,oz,0.43,0,,,,,,,,,,,,,
+Quest,PNC40,40mm Plastic Nose Cone,in,2.5,1.57,0,0.75,1.5,0.125,elliptical,hollow,Polystyrene PS,1.75,oz,0.4,0,,,,,,,,,,,,,
+Quest,PNC50,50mm Plastic Nose Cone,mm,152.40000000000001,50.038000000000004,0.,57.150000000000006,48.260000000000005,3.175,ogive,hollow,Polystyrene PS,134.36600000000001,g,42.524000000000001,0.
