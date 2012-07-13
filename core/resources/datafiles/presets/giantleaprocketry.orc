@@ -22,6 +22,11 @@
             <Density>1199.7829086600002</Density>
             <Type>BULK</Type>
         </Material>
+        <Material UnitsOfMeasure="g/m2">
+            <Name>Rip stop nylon</Name>
+            <Density>0.06684999999999999</Density>
+            <Type>SURFACE</Type>
+        </Material>
     </Materials>
     <Components>
         <BodyTube>

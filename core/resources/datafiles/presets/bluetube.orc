@@ -21,6 +21,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-139C</PartNumber>
+            <Description>BT20-139C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.131826</InsideDiameter>
             <OutsideDiameter Unit="m">0.1355852</OutsideDiameter>
@@ -29,6 +30,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-139C</PartNumber>
+            <Description>BT20-139C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.131826</InsideDiameter>
             <OutsideDiameter Unit="m">0.1355852</OutsideDiameter>
@@ -46,6 +48,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-152C</PartNumber>
+            <Description>BT20-152C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.14820899999999998</InsideDiameter>
             <OutsideDiameter Unit="m">0.1517904</OutsideDiameter>
@@ -54,6 +57,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-152CL</PartNumber>
+            <Description>BT20-152CL</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.14820899999999998</InsideDiameter>
             <OutsideDiameter Unit="m">0.1517904</OutsideDiameter>
@@ -71,6 +75,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-191C</PartNumber>
+            <Description>BT20-191C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.18669</InsideDiameter>
             <OutsideDiameter Unit="m">0.1900682</OutsideDiameter>
@@ -79,6 +84,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-191CL</PartNumber>
+            <Description>BT20-191CL</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.18669</InsideDiameter>
             <OutsideDiameter Unit="m">0.1900682</OutsideDiameter>
@@ -96,6 +102,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-29C</PartNumber>
+            <Description>BT20-29C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.025831799999999995</InsideDiameter>
             <OutsideDiameter Unit="m">0.0289814</OutsideDiameter>
@@ -113,6 +120,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-38C</PartNumber>
+            <Description>BT20-38C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.0354076</InsideDiameter>
             <OutsideDiameter Unit="m">0.038480999999999994</OutsideDiameter>
@@ -130,6 +138,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-54C</PartNumber>
+            <Description>BT20-54C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.0508</InsideDiameter>
             <OutsideDiameter Unit="m">0.0539496</OutsideDiameter>
@@ -147,6 +156,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-63C</PartNumber>
+            <Description>BT20-63C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.0614172</InsideDiameter>
             <OutsideDiameter Unit="m">0.0645668</OutsideDiameter>
@@ -164,6 +174,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-75C</PartNumber>
+            <Description>BT20-75C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.0729742</InsideDiameter>
             <OutsideDiameter Unit="m">0.07612379999999999</OutsideDiameter>
@@ -181,6 +192,7 @@
         <TubeCoupler>
             <Manufacturer>Always Ready Rocketry</Manufacturer>
             <PartNumber>BT20-98C</PartNumber>
+            <Description>BT20-98C</Description>
             <Material Type="BULK">Vulcanized Fiber</Material>
             <InsideDiameter Unit="m">0.09560559999999999</InsideDiameter>
             <OutsideDiameter Unit="m">0.09875519999999999</OutsideDiameter>

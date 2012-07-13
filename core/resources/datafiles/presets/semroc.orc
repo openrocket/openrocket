@@ -2,6 +2,16 @@
 <OpenRocketComponent>
     <Version>0.1</Version>
     <Materials>
+        <Material UnitsOfMeasure="g/m">
+            <Name>1/16 In. braided nylon</Name>
+            <Density>0.00102</Density>
+            <Type>LINE</Type>
+        </Material>
+        <Material UnitsOfMeasure="g/m">
+            <Name>30 Lb. kevlar</Name>
+            <Density>1.78E-4</Density>
+            <Type>LINE</Type>
+        </Material>
         <Material UnitsOfMeasure="g/cm3">
             <Name>Balsa</Name>
             <Density>128.1477072</Density>
@@ -26,6 +36,21 @@
             <Name>Polycarbonate</Name>
             <Density>1199.7829086600002</Density>
             <Type>BULK</Type>
+        </Material>
+        <Material UnitsOfMeasure="g/cm3">
+            <Name>Polyethylene LDPE</Name>
+            <Density>924.2653381800002</Density>
+            <Type>BULK</Type>
+        </Material>
+        <Material UnitsOfMeasure="g/m2">
+            <Name>Polyethylene LDPE(0.025)</Name>
+            <Density>0.023476339589772004</Density>
+            <Type>SURFACE</Type>
+        </Material>
+        <Material UnitsOfMeasure="g/m2">
+            <Name>Rip stop nylon</Name>
+            <Density>0.06684999999999999</Density>
+            <Type>SURFACE</Type>
         </Material>
         <Material UnitsOfMeasure="g/cm3">
             <Name>Spiral/Glassine</Name>
