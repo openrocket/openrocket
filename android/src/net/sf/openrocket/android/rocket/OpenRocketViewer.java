@@ -227,7 +227,7 @@ implements Simulations.OnSimulationSelectedListener, OpenRocketSaverFragment.OnO
 
 		@Override
 		protected void doSimComplete() {
-			if ( autoSaveEnabled ) {
+			if ( autoSaveEnabled && CurrentRocketHolder.getCurrentRocket().canSave() ) {
 				Toast.makeText(OpenRocketViewer.this, R.string.autoSaveMessage, Toast.LENGTH_SHORT).show();
 				OpenRocketViewer.this.saveRocketDocument();
 			}
