@@ -154,10 +154,9 @@ public class AppearancePanel extends JPanel {
 					}
 				}
 			});
+			colorDefault.setText(trans.get("RocketCompCfg.checkbox.Usedefaultcolor"));
 			add(new StyledLabel(trans.get("RocketCompCfg.lbl.Figurestyle"), Style.BOLD));
-			add(colorDefault, "split 2");
-			
-			add(new JLabel(trans.get("RocketCompCfg.checkbox.Usedefaultcolor")));
+			add(colorDefault);
 			
 			JButton button = new JButton(trans.get("RocketCompCfg.but.Saveasdefstyle"));
 			button.addActionListener(new ActionListener() {
@@ -215,9 +214,8 @@ public class AppearancePanel extends JPanel {
 					}
 				}
 			});
-			
-			add(materialDefault, "split 2");
-			add(new JLabel(trans.get("AppearanceCfg.lbl.Usedefault")));
+			materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
+			add(materialDefault);
 			JButton setMDefault = new JButton(trans.get("AppearanceCfg.but.savedefault"));
 			mDefault.addEnableComponent(setMDefault, false);
 			add(setMDefault, "span 2, align right, wrap");
