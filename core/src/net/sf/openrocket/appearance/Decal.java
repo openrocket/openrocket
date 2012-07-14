@@ -2,6 +2,7 @@ package net.sf.openrocket.appearance;
 
 import java.net.URL;
 
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 /**
@@ -12,7 +13,15 @@ import net.sf.openrocket.util.Coordinate;
 public class Decal {
 
 	public static enum EdgeMode {
-		REPEAT, MIRROR, CLAMP;
+		REPEAT("TextureWrap.Repeat"), MIRROR("TextureWrap.Mirror"), CLAMP("TextureWrap.Clamp");
+		private final String transName;
+		EdgeMode(final String name){
+			this.transName = name;
+		}
+		@Override
+		public String toString(){
+			return Application.getTranslator().get(transName);
+		}
 	}
 
 	private final Coordinate offset, center, scale;

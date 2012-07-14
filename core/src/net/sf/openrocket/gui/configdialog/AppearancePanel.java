@@ -352,7 +352,7 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{ // Repeat
-			new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
 			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
 			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
 			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
