@@ -7,6 +7,7 @@ import java.util.Locale;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
@@ -54,11 +55,11 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		this.designation = m.designation;
 		this.description = m.description;
 		this.type = m.type;
-		this.delays = Arrays.copyOf(m.delays, m.delays.length);
+		this.delays = ArrayUtils.copyOf(m.delays, m.delays.length);
 		this.diameter = m.diameter;
 		this.length = m.length;
-		this.time = Arrays.copyOf(m.time, m.time.length);
-		this.thrust = Arrays.copyOf(m.thrust, m.thrust.length);
+		this.time = ArrayUtils.copyOf(m.time, m.time.length);
+		this.thrust = ArrayUtils.copyOf(m.thrust, m.thrust.length);
 		this.cg = new Coordinate[ m.cg.length ];
 		for( int i = 0; i< cg.length; i++ ) {
 			this.cg[i] = m.cg[i].clone();
