@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OpenRocket</string>
+    <string name="version">version 12.07-b7</string>
+    <string name="load">Charger</string>
+    <string name="save">Sauvegarder</string>
+    <string name="Add">Ajouter</string>
+    <string name="MotorListTitle">Liste de moteur</string>
+    <string name="Download">Télécharger</string>
+    <string name="About">A propos</string>
+    <string name="Preferences">Préférences</string>
+    <string name="configurePlot">Changer le tracé</string>
+    <string name="view_events">Voir les événements</string>
+    <string name="simulationPlotDialogTitle">Sélectionner les Séries et Evénements</string>
+    <string name="plot">Tracer</string>
+    <string name="saving">Sauvegarder le fichierâ…</string>
+    <string name="loading">Charger le fichierâ…</string>
+    <string name="loadWarnUnsaved">Voulez vous sauvegarder les changements dans le modèle courant?</string>
+    <string name="no">Non</string>
+    <string name="yes">Oui</string>
+    <string name="autoSaveMessage">Sauvegarde automatique de la fusée</string>
+    <string name="loadingErrorMessage">Erreur en chargeant le fichier</string>
+
+    <string-array name="PreferenceMotorBrowserGroupingEntries">
+        <item>Boitier</item>
+        <item>Diamètre</item>
+        <item>Impulsion</item>
+        <item>Fabriquant</item>
+    </string-array>
+
+    <string name="TCMotorSearchFormSubmit">Soumettre</string>
+    <string name="overviewConfigurationSpinnerPrompt">Choisir la Configuration</string>
+    <string name="simulationSeries1Label">Séries 1</string>
+    <string name="simulationSeries2Label">Séries 2</string>
+
+    <string name="autosavetitle">Sauvegarde auto de la fusée</string>
+    <string name="autosavesummary">Sauvegarde automatique du document fusée après avoir fait les simulations</string>
+    
+    <string name="motorbrowsergrouptitle">Motor Browser Grouping</string>
+    <string name="motorbrowsergroupsummary">Set the grouping in Motor Browser</string>
+    
+    <string name="motorbrowsertitle">Motor Browser</string>
+    
+    <string name="useinternalfilebrowsertitle">Utiliser le gestionnaire de fichiers interne</string>
+    <string name="useinternalfilebrowsersummary">Vérification pour Utiliser le gestionnaire de fichiers interne à la place d\'un gestionnaire de fichiers externe</string>
+    
+    <string name="showonlyorkfiles">Montrer seulement les fichiers ORK avec le gestionnaire de fichiers interne</string>
+    <string name="showonlyorkfilessummary">Check to show only .ork files in internal file browser</string>
+    
+    <string-array name="PreferenceUnitLengthEntries">
+        <item>Millimètres</item>
+        <item>Centimètres</item>
+        <item>Mètres</item>
+        <item>Pouces</item>
+        <item>Pieds</item>
+    </string-array>
+    <string-array name="PreferenceUnitMassEntries">
+        <item>Grammes</item>
+        <item>Kilogrammes</item>
+        <item>Onces</item>
+        <item>Livres</item>
+    </string-array>
+    <string-array name="PreferenceUnitVelocityEntries">
+        <item>Mètres/Seconde</item>
+        <item>Kilomètres/Heure</item>
+        <item>Pied/Seconde</item>
+        <item>Miles/Heure</item>
+    </string-array>
+    <string-array name="PreferenceUnitDistanceEntries">
+        <item>Mètres</item>
+        <item>Kilomètres</item>
+        <item>Pieds</item>
+        <item>Yards</item>
+        <item>Miles</item>
+        <item>Miles Nautiques</item>
+    </string-array>
+        <string name="rocket_cg">CG</string>
+        <string name="rocket_designer">Concepteur</string>
+        <string name="rocket_length">Longueur</string>
+        <string name="rocket_emptymass">Masse à vide</string>
+        <string name="rocket_stagecount">Nombre d\'étages</string>
+        <string name="rocket_liftoffweight">Poids au décollage</string>
+        <string name="rocket_cp">CP</string>
+        <string name="rocket_stabilitymargin">Marge de stabilité</string>
+        <string name="openfilelabel">Ouvrir le fichier ork</string>
+        <string name="viewmotorslabel">Voir les moteurs</string>
+        <string name="motor_manufacturer">Fabriquant</string>
+        <string name="motor_commonname">Nom commun</string>
+        <string name="motor_delays">Retards</string>
+        <string name="motor_caseinfo">Info boitier</string>
+        <string name="motor_impulseclass">Class de l\'impulsion</string>
+        <string name="motor_diameter">Diamètre</string>
+        <string name="motor_length">Longueur</string>
+        <string name="simulationConditionSelectMotors">Choisir les Moteurs</string>
+        <string name="simulationConditionWind">Vitesse du vent</string>
+        <string name="simulationConditionsRodLength">Longueur de la rampe</string>
+        <string name="simulationConditionsLaunchRodAngle">Angle de la rampe</string>
+        <string name="simulationConditionsLaunchRodDirection">Direction de la rampe</string>
+        <string name="select_motor">Choisir le moteur</string>
+        <string name="select_delay">Retard</string>
+        <string name="Delete">Effacer</string>
+        <string name="Run">Lancer</string>
+
+</resources>
