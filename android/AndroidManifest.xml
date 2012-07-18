@@ -30,7 +30,7 @@
 				Combining the <data> elements into a single field did not result in a working 
 				application. The first intent-filter (with mimeType wildcard) convinces the 
 				file browser to associate the correct launcher icon. the second intent-filter 
-				is actually invoked when a file is selected.
+				is actually invoked when a file is selected.
             -->
             <!-- this intent filter convinces the file browser to display icons -->
             <intent-filter>
@@ -56,7 +56,8 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
-        <activity android:name=".android.rocket.OpenRocketViewer"
+        <activity
+            android:name=".android.rocket.OpenRocketViewer"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".android.PreferencesActivity" >
             <intent-filter>
@@ -69,7 +70,9 @@
         <activity
             android:name=".android.motor.BurnPlotActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".android.thrustcurve.TCQueryActivity" />
+        <activity
+            android:name=".android.thrustcurve.TCQueryActivity"
+            android:theme="@style/Theme.Sherlock.Dialog" />
         <activity
             android:name=".android.simulation.SimulationViewActivity"
             android:theme="@style/AppTheme.NoActionBar" />
