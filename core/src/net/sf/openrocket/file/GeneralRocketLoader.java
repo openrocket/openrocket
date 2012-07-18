@@ -12,6 +12,7 @@ import java.util.zip.ZipInputStream;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import net.sf.openrocket.file.rocksim.importt.RocksimLoader;
+import net.sf.openrocket.util.TextUtil;
 
 
 /**
@@ -26,9 +27,9 @@ public class GeneralRocketLoader extends AbstractRocketLoader {
 	private static final int READ_BYTES = 300;
 	
 	private static final byte[] GZIP_SIGNATURE = { 31, -117 }; // 0x1f, 0x8b
-	private static final byte[] ZIP_SIGNATURE = "PK".getBytes(Charset.forName("US-ASCII"));
-	private static final byte[] OPENROCKET_SIGNATURE = "<openrocket".getBytes(Charset.forName("US-ASCII"));
-	private static final byte[] ROCKSIM_SIGNATURE = "<RockSimDoc".getBytes(Charset.forName("US-ASCII"));
+	private static final byte[] ZIP_SIGNATURE = TextUtil.convertStringToBytes("PK",Charset.forName("US-ASCII"));
+	private static final byte[] OPENROCKET_SIGNATURE = TextUtil.convertStringToBytes("<openrocket",Charset.forName("US-ASCII"));
+	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.convertStringToBytes("<RockSimDoc",Charset.forName("US-ASCII"));
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
 	

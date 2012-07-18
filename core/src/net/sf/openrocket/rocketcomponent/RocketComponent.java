@@ -1,8 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.EventListener;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +19,7 @@ import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.SafetyMutex;
+import net.sf.openrocket.util.SimpleStack;
 import net.sf.openrocket.util.UniqueID;
 
 
@@ -1853,7 +1852,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	private static class RocketComponentIterator implements Iterator<RocketComponent> {
 		// Stack holds iterators which still have some components left.
-		private final Deque<Iterator<RocketComponent>> iteratorStack = new ArrayDeque<Iterator<RocketComponent>>();
+		private final SimpleStack<Iterator<RocketComponent>> iteratorStack = new SimpleStack<Iterator<RocketComponent>>();
 
 		private final Rocket root;
 		private final int treeModID;

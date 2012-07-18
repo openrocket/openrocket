@@ -1,12 +1,32 @@
 package net.sf.openrocket.util;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
 
 public class TextUtil {
+
+	
 	private static final char[] HEX = {
 			'0', '1', '2', '3', '4', '5', '6', '7',
 			'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 	};
-	
+
+	/**
+	 * Return the byte array for the string in the given charset.
+	 * 
+	 * This function is implemented because Froyo (Android API 8) does not support
+	 * String.getBytes(Charset)
+	 * 
+	 * @param string
+	 * @param charSet
+	 * @return
+	 */
+	public static byte[] convertStringToBytes( String string, Charset charSet ) {
+		ByteBuffer encoded = charSet.encode(string);
+		return encoded.array();
+	}
+
 	
 	/**
 	 * Return the bytes formatted as a hexadecimal string.  The length of the

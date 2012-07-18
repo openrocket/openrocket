@@ -2,12 +2,35 @@ package net.sf.openrocket.util;
 
 import static java.lang.Math.PI;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
+import java.nio.charset.Charset;
 import java.util.Random;
 
 import org.junit.Test;
 
 public class TextUtilTest {
+	
+	@Test
+	public void testConvertStringToBytes() {
+		
+		Charset us_ascii = Charset.forName("US-ASCII");
+		
+		byte[] ZIP_SIGNATURE_CORRECT = "PK".getBytes(us_ascii);
+		byte[] ZIP_SIGNATURE_TEST = TextUtil.convertStringToBytes( "PK", us_ascii);
+		
+		assertArrayEquals( ZIP_SIGNATURE_CORRECT, ZIP_SIGNATURE_TEST );
+		
+		byte[] OPENROCKET_SIGNATURE_CORRECT = "<openrocket".getBytes(us_ascii);
+		byte[] OPENROCKET_SIGNATURE_TEST = TextUtil.convertStringToBytes( "<openrocket", us_ascii);
+
+		assertArrayEquals( OPENROCKET_SIGNATURE_CORRECT, OPENROCKET_SIGNATURE_TEST);
+		
+		byte[] ROCKSIM_SIGNATURE_CORRECT = "<RockSimDoc".getBytes(us_ascii);
+		byte[] ROCKSIM_SIGNATURE_TEST = TextUtil.convertStringToBytes( "<RockSimDoc", us_ascii);
+		
+		assertArrayEquals( ROCKSIM_SIGNATURE_CORRECT, ROCKSIM_SIGNATURE_TEST );
+	}
 	
 	@Test
 	public void testHexString() {

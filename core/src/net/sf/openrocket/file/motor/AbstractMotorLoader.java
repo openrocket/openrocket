@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.MathUtil;
 
 public abstract class AbstractMotorLoader implements MotorLoader {
@@ -136,7 +136,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 		String[] pieces = str.split(delim);
 		if (pieces.length == 0 || !pieces[0].equals(""))
 			return pieces;
-		return Arrays.copyOfRange(pieces, 1, pieces.length);
+		return ArrayUtils.copyOfRange(pieces, 1, pieces.length);
 	}
 	
 	
