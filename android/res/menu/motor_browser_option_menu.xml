@@ -3,7 +3,9 @@
 
     <item
         android:id="@+id/download_from_thrustcurve_menu_option"
-        android:title="@string/Download"/>
+        android:title="@string/Download"
+        android:icon="@drawable/ic_menu_search"
+        android:showAsAction="always"/>
     <item
         android:id="@+id/preference_menu_option"
         android:icon="@drawable/ic_menu_preferences"
