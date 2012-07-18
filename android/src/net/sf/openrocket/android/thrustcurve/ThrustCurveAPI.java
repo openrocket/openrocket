@@ -25,7 +25,7 @@ public abstract class ThrustCurveAPI {
 		AndroidLogWrapper.d(ThrustCurveAPI.class, "doSearch: " + requestString);
 		// Froyo has troubles resolving URLS constructed with protocols.  Because of this
 		// we need to do it in parts.
-		URL url = new URL("http", "www.thurustcurve.org", "servlets/search");
+		URL url = new URL("http", "www.thrustcurve.org", "/servlets/search");
 
         OutputStream  stream;
 
@@ -60,7 +60,7 @@ public abstract class ThrustCurveAPI {
 		AndroidLogWrapper.d(ThrustCurveAPI.class, "downloadData: " + requestString);
 		// Froyo has troubles resolving URLS constructed with protocols.  Because of this
 		// we need to do it in parts.
-		URL url = new URL("http", "www.thurustcurve.org", "servlets/download");
+		URL url = new URL("http", "www.thrustcurve.org", "/servlets/download");
 
 		OutputStream  stream;
 
