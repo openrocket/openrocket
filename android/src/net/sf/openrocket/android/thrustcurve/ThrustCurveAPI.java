@@ -18,13 +18,13 @@ import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
 
 public abstract class ThrustCurveAPI {
 
-	//private static String url_base = "http://www.thrustcurve.org/servlets/";
-	
 	public static SearchResponse doSearch( SearchRequest request ) throws MalformedURLException, IOException {
 		
 		String requestString = request.toString();
 		
 		AndroidLogWrapper.d(ThrustCurveAPI.class, "doSearch: " + requestString);
+		// Froyo has troubles resolving URLS constructed with protocols.  Because of this
+		// we need to do it in parts.
 		URL url = new URL("http", "www.thurustcurve.org", "servlets/search");
 
         OutputStream  stream;
@@ -58,6 +58,8 @@ public abstract class ThrustCurveAPI {
 		String requestString = dr.toString();
 
 		AndroidLogWrapper.d(ThrustCurveAPI.class, "downloadData: " + requestString);
+		// Froyo has troubles resolving URLS constructed with protocols.  Because of this
+		// we need to do it in parts.
 		URL url = new URL("http", "www.thurustcurve.org", "servlets/download");
 
 		OutputStream  stream;
