@@ -161,7 +161,7 @@ public class MotorDao {
 				/* selection args*/null,
 				/* groupby */null,
 				/* having*/null,
-				/* orderby*/null,
+				/* orderby*/groupCol,
 				/* limit*/null);
 		
 	}
