@@ -10,13 +10,14 @@ import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ResourceCursorTreeAdapter;
 import android.widget.TextView;
 
-public class MotorListDialogFragment extends DialogFragment 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
+public class MotorListDialogFragment extends SherlockDialogFragment 
 implements ExpandableListView.OnChildClickListener
 {
 
@@ -77,7 +78,9 @@ implements ExpandableListView.OnChildClickListener
 			builder.setTitle("No Motors Found");
 			builder.setMessage("Motors can be downloaded from thrustcurve");
 			builder.setCancelable(true);
-			builder.create().show();
+			AlertDialog dialog = builder.create();
+			dialog.setCanceledOnTouchOutside(true);
+			dialog.show();
 		}
 
 		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
