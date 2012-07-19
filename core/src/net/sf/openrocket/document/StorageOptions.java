@@ -7,12 +7,21 @@ public class StorageOptions implements Cloneable {
 	public static final double SIMULATION_DATA_NONE = Double.POSITIVE_INFINITY;
 	public static final double SIMULATION_DATA_ALL = 0;
 	
+	private boolean includeDecals = false;
+	
 	private boolean compressionEnabled = true;
 	
 	private double simulationTimeSkip = SIMULATION_DATA_NONE;
 
 	private boolean explicitlySet = false;
 	
+	public boolean isIncludeDecals() {
+		return includeDecals;
+	}
+
+	public void setIncludeDecals(boolean includeDecals) {
+		this.includeDecals = includeDecals;
+	}
 
 	public boolean isCompressionEnabled() {
 		return compressionEnabled;
