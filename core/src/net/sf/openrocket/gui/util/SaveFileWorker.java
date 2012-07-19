@@ -41,8 +41,10 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 			
 		};
 		
+		String rawFilename = file.getName();
+		
 		try {
-			saver.save(os, document);
+			saver.save(rawFilename, os, document);
 		} finally {
 			try {
 				os.close();

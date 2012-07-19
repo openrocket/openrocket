@@ -3,9 +3,17 @@ package net.sf.openrocket.gui.figure3d;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public abstract class RenderStrategy {
+	
+	protected final OpenRocketDocument document;
+	
+	public RenderStrategy( OpenRocketDocument document ) {
+		this.document = document;
+	}
+	
 	public abstract boolean isDrawn(RocketComponent c);
 
 	public abstract boolean isDrawnTransparent(RocketComponent c);

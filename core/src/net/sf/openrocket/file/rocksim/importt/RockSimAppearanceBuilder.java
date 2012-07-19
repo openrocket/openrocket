@@ -82,7 +82,7 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 						//Find out how to get path of current rocksim file
 						//so I can look in it's directory
 					}
-					setImage(f.toURI().toURL());
+					setImage(value);
 				}
 			} else if ("repeat".equals(name)) {
 				repeat = "1".equals(value);
@@ -136,6 +136,23 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	}
 
 	static Color parseColor(String s) {
+		// blue and white came from a real file.
+		if ( "blue".equals(s) ) {
+			return new Color(0,0,255);
+		}
+		if ( "white".equals(s) ) {
+			return new Color(255,255,255);
+		}
+		// I guessed these are valid color names in Rksim.
+		if ( "red".equals(s) ) {
+			return new Color(255,0,0);
+		}
+		if( "green".equals(s) ) {
+			return new Color(0,255,0);
+		}
+		if ( "black".equals(s) ) {
+			return new Color(0,0,0);
+		}
 		s = s.replace("rgb(", "");
 		s = s.replace(")", "");
 		String ss[] = s.split(",");

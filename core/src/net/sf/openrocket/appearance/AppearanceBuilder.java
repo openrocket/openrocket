@@ -1,7 +1,5 @@
 package net.sf.openrocket.appearance;
 
-import java.net.URL;
-
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.Color;
@@ -26,7 +24,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	private double centerU, centerV;
 	private double scaleU, scaleV;
 	private double rotation;
-	private URL image;
+	private String image;
 	private Decal.EdgeMode edgeMode;
 
 	public AppearanceBuilder() {
@@ -47,7 +45,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 				setScale(d.getScale().x, d.getScale().y);
 				setRotation(d.getRotation());
 				setEdgeMode(d.getEdgeMode());
-				setImage(d.getImageURL());
+				setImage(d.getImage());
 			}
 		// TODO Critical the rest of this!
 		}
@@ -199,11 +197,11 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		fireChangeEvent();
 	}
 
-	public URL getImage() {
+	public String getImage() {
 		return image;
 	}
 
-	public void setImage(URL image) {
+	public void setImage(String image) {
 		this.image = image;
 		fireChangeEvent();
 	}

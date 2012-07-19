@@ -59,8 +59,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
-
-
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
 	 */
@@ -85,6 +83,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private String nextDescription = null;
 	private String storedDescription = null;
 	
+	private DecalRegistry decalRegistry = new DecalRegistry();
 
 	private ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
 	
@@ -176,6 +175,15 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
+	public DecalRegistry getDecalRegistry() {
+		return decalRegistry;
+	}
+
+
+	public void setDecalRegistry(DecalRegistry decalRegistry) {
+		this.decalRegistry = decalRegistry;
+	}
+
 	public File getFile() {
 		return file;
 	}

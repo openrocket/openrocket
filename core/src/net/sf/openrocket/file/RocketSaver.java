@@ -36,7 +36,7 @@ public abstract class RocketSaver {
 	throws IOException {
 		OutputStream s = new BufferedOutputStream(new FileOutputStream(dest));
 		try {
-			save(s, document, options);
+			save(dest.getName(), s, document, options);
 		} finally {
 			s.close();
 		}
@@ -50,8 +50,8 @@ public abstract class RocketSaver {
 	 * @param doc			the document to save.
 	 * @throws IOException	in case of an I/O error.
 	 */
-	public final void save(OutputStream dest, OpenRocketDocument doc) throws IOException {
-		save(dest, doc, doc.getDefaultStorageOptions());
+	public final void save(String fileName, OutputStream dest, OpenRocketDocument doc) throws IOException {
+		save(fileName, dest, doc, doc.getDefaultStorageOptions());
 	}
 	
 	
@@ -63,7 +63,7 @@ public abstract class RocketSaver {
 	 * @param options		the storage options.
 	 * @throws IOException	in case of an I/O error.
 	 */
-	public abstract void save(OutputStream dest, OpenRocketDocument doc, 
+	public abstract void save(String fileName, OutputStream dest, OpenRocketDocument doc, 
 			StorageOptions options) throws IOException;
 	
 	

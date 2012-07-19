@@ -12,7 +12,7 @@ import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
-import net.sf.openrocket.file.RocketLoader;
+import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
@@ -28,22 +28,22 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	
 	private final File file;
 	private final InputStream stream;
-	private final RocketLoader loader;
+	private final GeneralRocketLoader loader;
 	
-	public OpenFileWorker(File file, RocketLoader loader) {
+	public OpenFileWorker(File file, GeneralRocketLoader loader) {
 		this.file = file;
 		this.stream = null;
 		this.loader = loader;
 	}
 	
 	
-	public OpenFileWorker(InputStream stream, RocketLoader loader) {
+	public OpenFileWorker(InputStream stream, GeneralRocketLoader loader) {
 		this.stream = stream;
 		this.file = null;
 		this.loader = loader;
 	}
 	
-	public RocketLoader getRocketLoader() {
+	public GeneralRocketLoader getRocketLoader() {
 		return loader;
 	}
 	
@@ -67,7 +67,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			return loader.load(is, new DatabaseMotorFinder());
+			return loader.load(is, file, new DatabaseMotorFinder());
 		} finally {
 			try {
 				is.close();

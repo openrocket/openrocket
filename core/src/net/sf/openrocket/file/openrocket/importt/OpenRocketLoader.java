@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.appearance.AppearanceBuilder;
+import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -166,7 +168,7 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6"};
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
@@ -744,6 +746,7 @@ class DatatypeHandler extends AbstractElementHandler {
 }
 
 class CustomExpressionHandler extends AbstractElementHandler {
+	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final OpenRocketContentHandler contentHandler;
 	public CustomExpression currentExpression;
@@ -854,6 +857,9 @@ class ComponentParameterHandler extends AbstractElementHandler {
 		if (element.equals("subcomponents")) {
 			return new ComponentHandler(component, context);
 		}
+		if ( element.equals("appearance")) {
+			return new AppearanceHandler(component,context);
+		}
 		if (element.equals("motormount")) {
 			if (!(component instanceof MotorMount)) {
 				warnings.add(Warning.fromString("Illegal component defined as motor mount."));
@@ -885,7 +891,8 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			String content, WarningSet warnings) {
 		
 		if (element.equals("subcomponents") || element.equals("motormount") ||
-				element.equals("finpoints") || element.equals("motorconfiguration")) {
+				element.equals("finpoints") || element.equals("motorconfiguration") ||
+				element.equals("appearance")) {
 			return;
 		}
 		
@@ -911,6 +918,95 @@ class ComponentParameterHandler extends AbstractElementHandler {
 					+ component.getComponentName() + ", ignoring."));
 		}
 	}
+}
+
+class AppearanceHandler extends AbstractElementHandler {
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
+	private final RocketComponent component;
+	
+	private final AppearanceBuilder builder = new AppearanceBuilder();
+	private boolean isInDecal = false;
+	public AppearanceHandler( RocketComponent component, DocumentLoadingContext context ) {
+		this.context = context;
+		this.component = component;
+	}
+	@Override
+	public ElementHandler openElement(String element,HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		if ( "decal".equals(element) ) {
+			String name = attributes.remove("name");
+			builder.setImage(name);
+			double rotation = Double.parseDouble(attributes.remove("rotation"));
+			builder.setRotation(rotation);
+			String edgeModeName = attributes.remove("edgemode");
+			EdgeMode edgeMode = EdgeMode.valueOf(edgeModeName);
+			builder.setEdgeMode(edgeMode);
+			isInDecal = true;
+			return this;
+		}
+		return PlainTextHandler.INSTANCE;
+	}
+	@Override
+	public void closeElement(String element,HashMap<String, String> attributes, String content,	WarningSet warnings) throws SAXException {
+		if ( "ambient".equals(element) ) {
+			int red = Integer.parseInt(attributes.get("red"));
+			int green = Integer.parseInt(attributes.get("green"));
+			int blue = Integer.parseInt(attributes.get("blue"));
+			builder.setAmbient( new Color(red,green,blue));
+			return;
+		}
+		if ( "diffuse".equals(element) ) {
+			int red = Integer.parseInt(attributes.get("red"));
+			int green = Integer.parseInt(attributes.get("green"));
+			int blue = Integer.parseInt(attributes.get("blue"));
+			builder.setDiffuse( new Color(red,green,blue));
+			return;
+		}
+		if ( "specular".equals(element) ) {
+			int red = Integer.parseInt(attributes.get("red"));
+			int green = Integer.parseInt(attributes.get("green"));
+			int blue = Integer.parseInt(attributes.get("blue"));
+			builder.setSpecular( new Color(red,green,blue));
+			return;
+		}
+		if ( isInDecal && "center".equals(element) ) {
+			double x = Double.parseDouble(attributes.get("x"));
+			double y = Double.parseDouble(attributes.get("y"));
+			builder.setCenter(x,y);
+			return;
+		}
+		if ( isInDecal && "offset".equals(element) ) {
+			double x = Double.parseDouble(attributes.get("x"));
+			double y = Double.parseDouble(attributes.get("y"));
+			builder.setOffset(x,y);
+			return;
+		}
+		if ( isInDecal && "scale".equals(element) ) {
+			double x = Double.parseDouble(attributes.get("x"));
+			double y = Double.parseDouble(attributes.get("y"));
+			builder.setScale(x,y);
+			return;
+		}
+		if( isInDecal && "decal".equals(element) ) {
+			isInDecal = false;
+			return;
+		}
+		
+		super.closeElement(element, attributes, content, warnings);
+	}
+	
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes,
+			String content, WarningSet warnings) throws SAXException {
+		if ( "decal".equals(element) ) {
+			isInDecal = false;
+			return;
+		}
+		component.setAppearance(builder.getAppearance());
+		super.endHandler(element, attributes, content, warnings);
+	}
+	
 }
 
 

@@ -164,7 +164,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Create figure and custom scroll pane
 		figure = new RocketFigure(configuration);
-		figure3d = new RocketFigure3d(configuration);
+		figure3d = new RocketFigure3d(document, configuration);
 
 		figureHolder = new JPanel(new BorderLayout());
 

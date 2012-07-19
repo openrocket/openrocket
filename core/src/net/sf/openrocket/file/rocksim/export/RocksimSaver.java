@@ -1,5 +1,14 @@
 package net.sf.openrocket.file.rocksim.export;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
@@ -11,14 +20,6 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 
 /**
  * This class is responsible for converting an OpenRocket design to a Rocksim design.
@@ -55,7 +56,7 @@ public class RocksimSaver extends RocketSaver {
     }
 
     @Override
-    public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException {
+    public void save(String fileName, OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException {
         log.info("Saving .rkt file");
 
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, "UTF-8"));

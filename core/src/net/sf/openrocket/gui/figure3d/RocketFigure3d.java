@@ -31,6 +31,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
@@ -65,6 +66,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static double fovX = Double.NaN;
 	private static final int CARET_SIZE = 20;
 	
+	private OpenRocketDocument document;
 	private Configuration configuration;
 	private GLCanvas canvas;
 	
@@ -87,7 +89,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	RocketRenderer rr = new RocketRenderer();
 	
-	public RocketFigure3d(Configuration config) {
+	public RocketFigure3d(OpenRocketDocument document, Configuration config) {
+		this.document = document;
 		this.configuration = config;
 		this.setLayout(new BorderLayout());
 		
@@ -627,7 +630,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		if ( t == TYPE_FIGURE ){
 			rr.setRenderStrategy(new FigureRenderStrategy());
 		} else {
-			rr.setRenderStrategy(new RealisticRenderStrategy());
+			rr.setRenderStrategy(new RealisticRenderStrategy(document));
 		}
 		repaint();
 	}

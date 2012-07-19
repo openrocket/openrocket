@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.EventObject;
 
 import javax.swing.JButton;
@@ -233,25 +231,12 @@ public class AppearancePanel extends JPanel {
 			choose.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					URL u = ab.getImage();
 					File current = lastImageDir;
-					if (u != null && u.getProtocol().equals("file")) {
-						try {
-							current = new File(u.toURI()).getParentFile();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-					}
 					lastImageDir = current;
 
 					JFileChooser fc = new JFileChooser(current);
 					if (fc.showOpenDialog(AppearancePanel.this) == JFileChooser.APPROVE_OPTION) {
-						try {
-							ab.setImage(fc.getSelectedFile().toURI().toURL());
-						} catch (MalformedURLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+						ab.setImage(fc.getSelectedFile().getAbsolutePath());
 					}
 
 				}

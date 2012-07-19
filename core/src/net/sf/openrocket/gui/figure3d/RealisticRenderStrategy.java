@@ -1,8 +1,7 @@
 package net.sf.openrocket.gui.figure3d;
 
+import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,16 +13,18 @@ import javax.media.opengl.GLProfile;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.fixedfunc.GLMatrixFunc;
 
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureData;
-import com.jogamp.opengl.util.texture.TextureIO;
-
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.document.DecalRegistry;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Color;
+
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureData;
+import com.jogamp.opengl.util.texture.TextureIO;
 
 public class RealisticRenderStrategy extends RenderStrategy {
 
@@ -31,9 +32,15 @@ public class RealisticRenderStrategy extends RenderStrategy {
 	private final float[] color = new float[4];
 	private static final LogHelper log = Application.getLogger();
 
+	private final DecalRegistry decalLoader;
 	private boolean needClearCache = false;
-	private Map<URI, Texture> oldTexCache = new HashMap<URI, Texture>();
-	private Map<URI, Texture> texCache = new HashMap<URI, Texture>();
+	private Map<String, Texture> oldTexCache = new HashMap<String, Texture>();
+	private Map<String, Texture> texCache = new HashMap<String, Texture>();
+
+	public RealisticRenderStrategy(OpenRocketDocument document) {
+		super(document);
+		this.decalLoader = document.getDecalRegistry();
+	}
 
 	@Override
 	public void updateFigure() {
@@ -42,8 +49,8 @@ public class RealisticRenderStrategy extends RenderStrategy {
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
-		oldTexCache = new HashMap<URI,Texture>();
-		texCache = new HashMap<URI,Texture>();
+		oldTexCache = new HashMap<String,Texture>();
+		texCache = new HashMap<String,Texture>();
 	}
 
 	@Override
@@ -100,7 +107,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		if (t != null && tex != null) {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-			
+
 			tex.enable(gl);
 			tex.bind(gl);
 			gl.glMatrixMode(GL.GL_TEXTURE);
@@ -138,46 +145,40 @@ public class RealisticRenderStrategy extends RenderStrategy {
 
 	private void clearCaches(GL2 gl) {
 		log.debug("ClearCaches");
-		for (Map.Entry<URI, Texture> e : oldTexCache.entrySet()) {
+		for (Map.Entry<String, Texture> e : oldTexCache.entrySet()) {
 			log.debug("Destroying Texture for " + e.getKey());
 			if (e.getValue() != null)
 				e.getValue().destroy(gl);
 		}
 		oldTexCache = texCache;
-		texCache = new HashMap<URI, Texture>();
+		texCache = new HashMap<String, Texture>();
 	}
 
 	private Texture getTexture(Decal t) {
-		URL url = t.getImageURL();
-		URI uri; // NEVER use a URL as a key!
-		try {
-			uri = url.toURI();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return null;
-		}
+		String imageName = t.getImage();
 
 		// Return the Cached value if available
-		if (texCache.containsKey(uri))
-			return texCache.get(uri);
+		if (texCache.containsKey(imageName))
+			return texCache.get(imageName);
 
 		// If the texture is in the Old Cache, save it.
-		if (oldTexCache.containsKey(uri)) {
-			texCache.put(uri, oldTexCache.get(uri));
-			oldTexCache.remove(uri);
-			return texCache.get(uri);
+		if (oldTexCache.containsKey(imageName)) {
+			texCache.put(imageName, oldTexCache.get(imageName));
+			oldTexCache.remove(imageName);
+			return texCache.get(imageName);
 		}
 
 		// Otherwise load it.
 		Texture tex = null;
 		try {
 			log.debug("Loading texture " + t);
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), url.openStream(), true, null);
+			InputStream is = decalLoader.getDecal(imageName);
+			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, true, null);
 			tex = TextureIO.newTexture(data);
 		} catch (Throwable e) {
 			log.error("Error loading Texture", e);
 		}
-		texCache.put(uri, tex);
+		texCache.put(imageName, tex);
 
 		return tex;
 

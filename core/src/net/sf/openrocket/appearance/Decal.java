@@ -1,7 +1,5 @@
 package net.sf.openrocket.appearance;
 
-import java.net.URL;
-
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
@@ -26,11 +24,11 @@ public class Decal {
 
 	private final Coordinate offset, center, scale;
 	private final double rotation;
-	private final URL image;
+	private final String image;
 	private final EdgeMode mode;
-
+	
 	Decal(final Coordinate offset, final Coordinate center, final Coordinate scale, final double rotation,
-			final URL image, final EdgeMode mode) {
+			final String image, final EdgeMode mode) {
 		this.offset = offset;
 		this.center = center;
 		this.scale = scale;
@@ -59,7 +57,7 @@ public class Decal {
 		return mode;
 	}
 
-	public URL getImageURL() {
+	public String getImage() {
 		return image;
 	}
 

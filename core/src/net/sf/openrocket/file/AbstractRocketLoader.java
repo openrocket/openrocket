@@ -16,32 +16,6 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	
 	
 	/**
-	 * Loads a rocket from the specified File object.
-	 */
-	@Override
-	public final OpenRocketDocument load(File source, MotorFinder motorFinder) throws RocketLoadException {
-		warnings.clear();
-		InputStream stream = null;
-		
-		try {
-			
-			stream = new BufferedInputStream(new FileInputStream(source));
-			return load(stream, motorFinder);
-			
-		} catch (FileNotFoundException e) {
-			throw new RocketLoadException("File not found: " + source);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	/**
 	 * Loads a rocket from the specified InputStream.
 	 */
 	@Override
