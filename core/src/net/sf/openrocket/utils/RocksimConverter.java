@@ -7,8 +7,8 @@ import java.util.Locale;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketLoader;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -32,7 +32,7 @@ public class RocksimConverter {
 		
 		setup();
 		
-		RocketLoader loader = new net.sf.openrocket.file.rocksim.importt.RocksimLoader();
+		GeneralRocketLoader loader = new GeneralRocketLoader();
 		RocketSaver saver = new OpenRocketSaver();
 		
 		for (String inputFile : args) {
