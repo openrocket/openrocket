@@ -2,83 +2,64 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:minWidth="250dp"
     android:orientation="vertical" >
 
-    <!-- this is just here so the edittext doesn't get focus -->
-
-    <LinearLayout
-        android:layout_width="0px"
-        android:layout_height="0px"
-        android:focusable="true"
-        android:focusableInTouchMode="true" />
-
-    <TableLayout
-        android:id="@+id/tableLayout1"
-        android:layout_width="fill_parent"
+    <TextView
+        android:id="@+id/textView1"
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-       >
+        android:text="@string/motor_manufacturer" />
 
-        <TableRow>
+    <Spinner
+        android:id="@+id/TCMotorSearchFormManufacturerField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/TCMotorSearchManufacturerList" />
 
-            <TextView
-                android:id="@+id/textView1"
-                android:text="@string/motor_manufacturer"
-                android:layout_weight="0" />
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/motor_impulseclass" />
 
-            <Spinner
-                android:id="@+id/TCMotorSearchFormManufacturerField"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:entries="@array/TCMotorSearchManufacturerList" />
-        </TableRow>
+    <Spinner
+        android:id="@+id/TCMotorSearchFormImpulseField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/TCMotorSearchImpulseList" />
 
-        <TableRow>
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/motor_commonname" />
 
-            <TextView
-                android:text="@string/motor_impulseclass" 
-                android:layout_weight="0"/>
+    <EditText
+        android:id="@+id/TCMotorSearchFormCommonNameField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:text="" />
 
-            <Spinner
-                android:id="@+id/TCMotorSearchFormImpulseField"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:entries="@array/TCMotorSearchImpulseList" />
-        </TableRow>
+    <TextView
+        style="@style/labelTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/motor_diameter" />
 
-        <TableRow>
-
-            <TextView
-                android:text="@string/motor_commonname" 
-                android:layout_weight="0"/>
-
-            <EditText
-                android:inputType="text"
-                android:id="@+id/TCMotorSearchFormCommonNameField"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:text="" />
-        </TableRow>
-
-        <TableRow>
-
-            <TextView
-                android:text="@string/motor_diameter" 
-                android:layout_weight="0"/>
-
-            <Spinner
-                android:id="@+id/TCMotorSearchFormDiameterField"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:entries="@array/TCMotorSearchDiameterList" />
-        </TableRow>
-    </TableLayout>
+    <Spinner
+        android:id="@+id/TCMotorSearchFormDiameterField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/TCMotorSearchDiameterList" />
 
     <Button
         android:id="@+id/TCMotorSearchFromSubmitButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="@string/TCMotorSearchFormSubmit" />

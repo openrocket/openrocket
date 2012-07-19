@@ -4,19 +4,21 @@ import net.sf.openrocket.R;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.android.util.ErrorDialogFragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class TCQueryActivity extends FragmentActivity
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
+public class TCQueryActivity extends SherlockFragmentActivity
 implements TCQueryAction.OnTCQueryCompleteListener
 {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setTitle(R.string.TCMotorSearchFormTitle);
 		setContentView(R.layout.tcqueryform);
 
 		final Spinner manufacturerField = (Spinner) findViewById(R.id.TCMotorSearchFormManufacturerField);
