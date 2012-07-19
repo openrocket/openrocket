@@ -30,7 +30,7 @@
     </string-array>
 
     <string name="TCMotorSearchFormSubmit">Submit</string>
-    <string name="TCMotorSearchFormTitle">Thrustcurve.org Search Criteria</string>
+    <string name="TCMotorSearchFormTitle">Search Thrustcurve.org</string>
     <string name="overviewConfigurationSpinnerPrompt">Select Configuration</string>
     <string name="simulationSeries1Label">Series 1</string>
     <string name="simulationSeries2Label">Series 2</string>
