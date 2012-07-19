@@ -278,7 +278,7 @@ public class SimpleFileBrowser extends SherlockListActivity {
 			if ( v.isSelected() == false ) {
 				SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(SimpleFileBrowser.this);
 				baseDirName = dirname;
-				pref.edit().putString(baseDirPrefKey, dirname).apply();
+				pref.edit().putString(baseDirPrefKey, dirname).commit();
 				((BaseAdapter)SimpleFileBrowser.this.getListAdapter()).notifyDataSetChanged();
 			}
 		}
