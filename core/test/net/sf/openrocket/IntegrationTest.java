@@ -20,6 +20,7 @@ import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.FileInfo;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
@@ -96,7 +97,7 @@ public class IntegrationTest extends BaseTestCase {
 		GeneralRocketLoader loader = new GeneralRocketLoader();
 		InputStream is = this.getClass().getResourceAsStream("simplerocket.ork");
 		assertNotNull("Problem in unit test, cannot find simplerocket.ork", is);
-		document = loader.load(is, new File("simplerocket.ork"), new DatabaseMotorFinder());
+		document = loader.load(is, new FileInfo(new File("simplerocket.ork")), new DatabaseMotorFinder());
 		is.close();
 		
 		undoAction = UndoRedoAction.newUndoAction(document);
