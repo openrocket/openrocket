@@ -1082,27 +1082,50 @@ public class BasicFrame extends JFrame {
 	 * @return			<code>true</code> if opened successfully.
 	 */
 	private static boolean open(URL url, BasicFrame parent) {
-		String filename = null;
+		String displayName = null;
 
-		if ( filename == null ) {
-			filename = "";
+		// First figure out the file name from the URL
+
+		// Try using URI.getPath();
+		try {
+			URI uri = url.toURI();
+			displayName = uri.getPath();
+		} catch (URISyntaxException ignore) {
+		}
+
+		// Try URL-decoding the URL
+		if (displayName == null) {
+			try {
+				displayName = URLDecoder.decode(url.toString(), "UTF-8");
+			} catch (UnsupportedEncodingException ignore) {
+			}
+		}
+
+		if ( displayName == null ) {
+			displayName = "";
 		}
 
 		// Remove path from filename
-		if (filename.lastIndexOf('/') >= 0) {
-			filename = filename.substring(filename.lastIndexOf('/') + 1);
+		if (displayName.lastIndexOf('/') >= 0) {
+			displayName = displayName.substring(displayName.lastIndexOf('/') + 1);
 		}
 
 
 		// Open the file
-		log.info("Opening file from url=" + url + " filename=" + filename);
+		log.info("Opening file from url=" + url + " filename=" + displayName);
 		try {
 			InputStream is = url.openStream();
-			open(is, filename, url, parent);
+			if (open(is, displayName, url, parent)) {
+				// Close previous window if replacing
+				if (parent.replaceable && parent.document.isSaved()) {
+					parent.closeAction();
+					parent.replaceable = false;
+				}
+			}
 		} catch (IOException e) {
 			log.warn("Error opening file" + e);
 			JOptionPane.showMessageDialog(parent,
-					"An error occurred while opening the file " + filename,
+					"An error occurred while opening the file " + displayName,
 					"Error loading file", JOptionPane.ERROR_MESSAGE);
 		}
 
@@ -1115,13 +1138,13 @@ public class BasicFrame extends JFrame {
 	 * occurs, an error dialog is shown and <code>false</code> is returned.
 	 *
 	 * @param stream	the stream to load from.
-	 * @param filename	the file name to display in dialogs (not set to the document).
+	 * @param displayName	the file name to display in dialogs (not set to the document).
 	 * @param parent	the parent component for which a progress dialog is opened.
 	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(InputStream stream, String filename, URL fileURL, Window parent) {
+	private static boolean open(InputStream stream, String displayName, URL fileURL, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(stream, fileURL, ROCKET_LOADER);
-		return open(worker, filename, null, parent);
+		return open(worker, displayName, parent);
 	}
 
 
@@ -1135,7 +1158,7 @@ public class BasicFrame extends JFrame {
 	 */
 	public static boolean open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file, ROCKET_LOADER);
-		return open(worker, file.getName(), file, parent);
+		return open(worker, file.getName(), parent);
 	}
 
 
@@ -1143,18 +1166,18 @@ public class BasicFrame extends JFrame {
 	 * Open the specified file using the provided worker.
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
-	 * @param filename	the file name to display in dialogs.
+	 * @param displayName	the file name to display in dialogs.
 	 * @param file		the File to set the document to (may be null).
 	 * @param parent
 	 * @return
 	 */
-	private static boolean open(OpenFileWorker worker, String filename, File file, Window parent) {
+	private static boolean open(OpenFileWorker worker, String displayName, Window parent) {
 
 		MotorDatabaseLoadingDialog.check(parent);
 
 		// Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
-		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + filename + "...", worker)) {
+		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
 			// User cancelled the operation
 			log.info("User cancelled the OpenFileWorker");
 			return false;
@@ -1175,7 +1198,7 @@ public class BasicFrame extends JFrame {
 
 				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
-						"File not found: " + filename,
+						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
 
@@ -1183,7 +1206,7 @@ public class BasicFrame extends JFrame {
 
 				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
-						"Unable to open file '" + filename + "': "
+						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 								"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
@@ -1209,20 +1232,14 @@ public class BasicFrame extends JFrame {
 			log.info("Warnings while reading file: " + warnings);
 			WarningDialog.showWarnings(parent,
 					new Object[] {
-					//// The following problems were encountered while opening
-					trans.get("BasicFrame.WarningDialog.txt1") + " " + filename + ".",
-					//// Some design features may not have been loaded correctly.
-					trans.get("BasicFrame.WarningDialog.txt2")
-			},
-			//// Warnings while opening file
-			trans.get("BasicFrame.WarningDialog.title"), warnings);
+							//// The following problems were encountered while opening
+							trans.get("BasicFrame.WarningDialog.txt1") + " " + displayName + ".",
+							//// Some design features may not have been loaded correctly.
+							trans.get("BasicFrame.WarningDialog.txt2")
+					},
+					//// Warnings while opening file
+					trans.get("BasicFrame.WarningDialog.title"), warnings);
 		}
-
-
-		// Set document state
-		doc.setFile(file);
-		doc.setSaved(true);
-
 
 		// Open the frame
 		log.debug("Opening new frame with the document");

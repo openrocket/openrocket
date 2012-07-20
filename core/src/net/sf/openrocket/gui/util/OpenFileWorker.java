@@ -75,7 +75,13 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			return loader.load(is, fileInfo, new DatabaseMotorFinder());
+			OpenRocketDocument document = loader.load(is, fileInfo, new DatabaseMotorFinder());
+
+			// Set document state
+			document.setFile(file);
+			document.setSaved(true);
+
+			return document;
 		} finally {
 			try {
 				is.close();
