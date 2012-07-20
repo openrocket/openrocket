@@ -4,7 +4,7 @@
     <name>Roll-stabilized rocket</name>
     <comment>Canting the fins may increase the flight stability of a rocket.
 
-Be cautios when flying rockets with marginal or neurtal static stability!!</comment>
+Be cautious when flying rockets with marginal or neutral static stability!!</comment>
     <designer>Sampo Niskanen</designer>
     <motorconfiguration configid="e1dc7488-77c0-403a-b54f-c01db07aba2f"/>
     <motorconfiguration configid="d33813f0-2563-41f7-8bb3-96eae598f567" default="true"/>
