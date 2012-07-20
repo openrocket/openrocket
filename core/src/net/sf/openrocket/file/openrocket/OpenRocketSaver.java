@@ -1,26 +1,17 @@
 package net.sf.openrocket.file.openrocket;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import net.sf.openrocket.aerodynamics.Warning;
-import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.AppearanceBuilder;
-import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
@@ -78,127 +69,7 @@ public class OpenRocketSaver extends RocketSaver {
 	private Writer dest;
 
 	@Override
-	public void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options)
-			throws IOException {
-
-		if (!options.isIncludeDecals()) {
-			saveInternal(output,document,options);
-			return;
-		}
-
-		// tweak the options - no need to double compress:
-		options.setCompressionEnabled(false);
-
-		ZipOutputStream zos = new ZipOutputStream(output);
-		zos.setLevel(9);
-
-		/* if we want a directory ...
-		String path = fileName;
-		int dotlocation = fileName.lastIndexOf('.');
-		if ( dotlocation > 1 ) {
-			path = fileName.substring(dotlocation);
-		}
-		 */
-
-		// grab the set of decal images.
-		Map<String,InputStream> decals = new HashMap<String,InputStream>();
-		Map<String,String> decalNameNormalization = new HashMap<String,String>();
-		try {
-			for( RocketComponent c : document.getRocket() ) {
-
-				if ( c.getAppearance() == null ) {
-					continue;
-				}
-
-				Appearance ap = c.getAppearance();
-
-				if ( ap.getTexture() == null ) {
-					continue;
-				}
-
-				Decal decal = ap.getTexture();
-
-				String decalName = decal.getImage();
-				
-				if ( decals.containsKey(decalName) ) {
-					continue;
-				}
-
-				InputStream is = document.getDecalRegistry().getDecal(decalName);
-
-				decals.put(decalName, is);
-				
-				// Normalize the name:
-				File fname = new File(decalName);
-				String newName = "decals/" + fname.getName();
-				
-				decalNameNormalization.put(decalName, newName);
-				
-			}
-		}
-		catch (IOException ex) {
-			for ( InputStream is: decals.values() ) {
-				try {
-					is.close();
-				}
-				catch ( Throwable t ) {
-				}
-			}
-			throw ex;
-		}
-		
-		// Now we have to loop through all the components and update their names.
-
-		for( RocketComponent c : document.getRocket() ) {
-
-			if ( c.getAppearance() == null ) {
-				continue;
-			}
-
-			Appearance ap = c.getAppearance();
-
-			if ( ap.getTexture() == null ) {
-				continue;
-			}
-			
-			AppearanceBuilder builder = new AppearanceBuilder(ap);
-			
-			builder.setImage( decalNameNormalization.get(ap.getTexture().getImage()));
-			
-			c.setAppearance(builder.getAppearance());
-
-		}
-		
-		// Fixme - should probably be the same name?  Should we put everything in a directory?
-		ZipEntry mainFile = new ZipEntry("rocket.ork");
-		zos.putNextEntry(mainFile);
-		saveInternal(zos,document,options);
-		zos.closeEntry();
-		
-		// Now we write out all the decal images files.
-		
-		for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
-			
-			String newName = decalNameNormalization.get(image.getKey());
-			ZipEntry decal = new ZipEntry(newName);
-			zos.putNextEntry(decal);
-			
-			InputStream is = image.getValue();
-			int bytesRead = 0;
-			byte[] buffer = new byte[2048];
-			while( (bytesRead = is.read(buffer)) > 0  ) {
-				zos.write(buffer, 0, bytesRead);
-			}
-			zos.closeEntry();
-		}
-		
-		zos.flush();
-		zos.close();
-
-	}
-
-	public void saveInternal(OutputStream output, OpenRocketDocument document, StorageOptions options)
-			throws IOException {
+	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options) throws IOException {
 
 		log.info("Saving .ork file");
 

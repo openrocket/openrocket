@@ -4,8 +4,15 @@ import net.sf.openrocket.util.BugException;
 
 public class StorageOptions implements Cloneable {
 	
+	public enum FileType {
+		OPENROCKET,
+		ROCKSIM
+	}
+	
 	public static final double SIMULATION_DATA_NONE = Double.POSITIVE_INFINITY;
 	public static final double SIMULATION_DATA_ALL = 0;
+	
+	private FileType fileType = FileType.OPENROCKET;
 	
 	private boolean includeDecals = false;
 	
@@ -15,6 +22,14 @@ public class StorageOptions implements Cloneable {
 
 	private boolean explicitlySet = false;
 	
+	public FileType getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(FileType fileType) {
+		this.fileType = fileType;
+	}
+
 	public boolean isIncludeDecals() {
 		return includeDecals;
 	}
@@ -39,8 +54,6 @@ public class StorageOptions implements Cloneable {
 		this.simulationTimeSkip = simulationTimeSkip;
 	}
 	
-	
-	
 	public boolean isExplicitlySet() {
 		return explicitlySet;
 	}
@@ -49,8 +62,6 @@ public class StorageOptions implements Cloneable {
 		this.explicitlySet = explicitlySet;
 	}
 
-	
-	
 	@Override
 	public StorageOptions clone() {
 		try {

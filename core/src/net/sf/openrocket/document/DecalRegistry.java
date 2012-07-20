@@ -45,11 +45,21 @@ public class DecalRegistry {
 			}
 		}
 
+		// Check absolute file name:
+		{
+			File decal = new File(name);
+			if ( decal.isAbsolute() ) {
+				return new FileInputStream(decal);
+			}
+		}
+		
+		// Try relative to the model file directory.
 		if( fileInfo.getDirectory() != null ) {
 			File decal = new File(fileInfo.getDirectory(), name);
 			// FIXME - update cache
 			return new FileInputStream(decal);
 		}
+		
 		throw new FileNotFoundException( "Unable to locate decal for name " + name );
 	}
 

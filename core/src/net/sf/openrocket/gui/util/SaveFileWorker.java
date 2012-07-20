@@ -7,16 +7,16 @@ import java.io.FileOutputStream;
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.RocketSaver;
+import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.startup.Application;
 
 public class SaveFileWorker extends SwingWorker<Void, Void> {
 
 	private final OpenRocketDocument document;
 	private final File file;
-	private final RocketSaver saver;
+	private final GeneralRocketSaver saver;
 	
-	public SaveFileWorker(OpenRocketDocument document, File file, RocketSaver saver) {
+	public SaveFileWorker(OpenRocketDocument document, File file, GeneralRocketSaver saver) {
 		this.document = document;
 		this.file = file;
 		this.saver = saver;

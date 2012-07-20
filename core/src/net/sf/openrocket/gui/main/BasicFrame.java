@@ -61,11 +61,10 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
@@ -115,7 +114,7 @@ public class BasicFrame extends JFrame {
 	 */
 	private static final GeneralRocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 
-	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
+	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 
 	private static final Translator trans = Application.getTranslator();
 
@@ -619,20 +618,20 @@ public class BasicFrame extends JFrame {
 
 		//// Edit Component Preset File
 
-        if (System.getProperty("openrocket.preseteditor.menu") != null) {
-		    item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
-		    item.addActionListener( new ActionListener() {
-			    @Override
-			    public void actionPerformed(ActionEvent e) {
-	                JFrame dialog = new JFrame();
-	                dialog.getContentPane().add(new ComponentPresetEditor(dialog));
-	                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-	                dialog.pack();
-	                dialog.setVisible(true);
-		        }
-		    });
-		    menu.add(item);
-        }
+		if (System.getProperty("openrocket.preseteditor.menu") != null) {
+			item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
+			item.addActionListener( new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JFrame dialog = new JFrame();
+					dialog.getContentPane().add(new ComponentPresetEditor(dialog));
+					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.pack();
+					dialog.setVisible(true);
+				}
+			});
+			menu.add(item);
+		}
 
 		////  Analyze
 		menu = new JMenu(trans.get("main.menu.analyze"));
@@ -791,12 +790,12 @@ public class BasicFrame extends JFrame {
 				log.user("What is this menu? selected");
 				JOptionPane.showMessageDialog(BasicFrame.this,
 						new Object[] {
-								"The 'Debug' menu includes actions for testing and debugging " +
-										"OpenRocket.", " ",
+						"The 'Debug' menu includes actions for testing and debugging " +
+								"OpenRocket.", " ",
 								"The menu is made visible by defining the system property " +
 										"'openrocket.debug.menu' when starting OpenRocket.",
-								"It should not be visible by default." },
-						"Debug menu", JOptionPane.INFORMATION_MESSAGE);
+				"It should not be visible by default." },
+				"Debug menu", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		menu.add(item);
@@ -814,9 +813,9 @@ public class BasicFrame extends JFrame {
 						"Input text key to generate random rocket:",
 						field
 				}, "Generate random test rocket", JOptionPane.DEFAULT_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, new Object[] {
-								"Random", "OK"
-						}, "OK");
+				JOptionPane.QUESTION_MESSAGE, null, new Object[] {
+						"Random", "OK"
+				}, "OK");
 
 				Rocket r;
 				if (sel == 0) {
@@ -885,7 +884,7 @@ public class BasicFrame extends JFrame {
 					if (o == null)
 						continue;
 					sb.append("Age ").append(System.currentTimeMillis() - data.getRegistrationTime())
-							.append(" ms:  ").append(o).append('\n');
+					.append(" ms:  ").append(o).append('\n');
 					count++;
 					// Explicitly null the strong reference to avoid possibility of invisible references
 					o = null;
@@ -1058,8 +1057,8 @@ public class BasicFrame extends JFrame {
 		for (File file : files) {
 			log.info("Opening file: " + file);
 			if (open(file, this)) {
-                MRUDesignFile opts = MRUDesignFile.getInstance();
-                opts.addFile(file.getAbsolutePath());
+				MRUDesignFile opts = MRUDesignFile.getInstance();
+				opts.addFile(file.getAbsolutePath());
 			}
 		}
 	}
@@ -1085,13 +1084,21 @@ public class BasicFrame extends JFrame {
 	private static boolean open(URL url, BasicFrame parent) {
 		String filename = null;
 
-		// First figure out the file name from the URL
+		if ( filename == null ) {
+			filename = "";
+		}
+
+		// Remove path from filename
+		if (filename.lastIndexOf('/') >= 0) {
+			filename = filename.substring(filename.lastIndexOf('/') + 1);
+		}
+
 
 		// Open the file
 		log.info("Opening file from url=" + url + " filename=" + filename);
 		try {
 			InputStream is = url.openStream();
-			open(is, url, parent);
+			open(is, filename, url, parent);
 		} catch (IOException e) {
 			log.warn("Error opening file" + e);
 			JOptionPane.showMessageDialog(parent,
@@ -1112,9 +1119,9 @@ public class BasicFrame extends JFrame {
 	 * @param parent	the parent component for which a progress dialog is opened.
 	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(InputStream stream, URL fileURL, Window parent) {
+	private static boolean open(InputStream stream, String filename, URL fileURL, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(stream, fileURL, ROCKET_LOADER);
-		return open(worker, fileURL.getFile(), null, parent);
+		return open(worker, filename, null, parent);
 	}
 
 
@@ -1178,7 +1185,7 @@ public class BasicFrame extends JFrame {
 				JOptionPane.showMessageDialog(parent,
 						"Unable to open file '" + filename + "': "
 								+ cause.getMessage(),
-						"Error opening file", JOptionPane.ERROR_MESSAGE);
+								"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
 
 			} else {
@@ -1202,13 +1209,13 @@ public class BasicFrame extends JFrame {
 			log.info("Warnings while reading file: " + warnings);
 			WarningDialog.showWarnings(parent,
 					new Object[] {
-							//// The following problems were encountered while opening
-							trans.get("BasicFrame.WarningDialog.txt1") + " " + filename + ".",
-							//// Some design features may not have been loaded correctly.
-							trans.get("BasicFrame.WarningDialog.txt2")
-					},
-					//// Warnings while opening file
-					trans.get("BasicFrame.WarningDialog.title"), warnings);
+					//// The following problems were encountered while opening
+					trans.get("BasicFrame.WarningDialog.txt1") + " " + filename + ".",
+					//// Some design features may not have been loaded correctly.
+					trans.get("BasicFrame.WarningDialog.txt2")
+			},
+			//// Warnings while opening file
+			trans.get("BasicFrame.WarningDialog.title"), warnings);
 		}
 
 
@@ -1316,13 +1323,16 @@ public class BasicFrame extends JFrame {
 	 * @return true if the file was written
 	 */
 	private boolean saveAsRocksim(File file) {
+		// FIME - this function can probably go away since the Worker thread can handle rocksim files.
 		file = FileHelper.forceExtension(file, "rkt");
 		if (!FileHelper.confirmWrite(file, this)) {
 			return false;
 		}
 
 		try {
-			new RocksimSaver().save(file, document);
+			StorageOptions options = new StorageOptions();
+			options.setFileType(StorageOptions.FileType.ROCKSIM);
+			ROCKET_SAVER.save(file,document,options);
 			return true;
 		} catch (IOException e) {
 			return false;
@@ -1392,8 +1402,8 @@ public class BasicFrame extends JFrame {
 			ComponentConfigDialog.hideDialog();
 			int result = JOptionPane.showConfirmDialog(this,
 					trans.get("BasicFrame.dlg.lbl1") + rocket.getName() +
-							trans.get("BasicFrame.dlg.lbl2") + "  " +
-							trans.get("BasicFrame.dlg.lbl3"),
+					trans.get("BasicFrame.dlg.lbl2") + "  " +
+					trans.get("BasicFrame.dlg.lbl3"),
 					trans.get("BasicFrame.dlg.title"), JOptionPane.YES_NO_CANCEL_OPTION,
 					JOptionPane.QUESTION_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
@@ -1434,10 +1444,10 @@ public class BasicFrame extends JFrame {
 	 *
 	 */
 	public void printAction() {
-        Double rotation = rocketpanel.getFigure().getRotation();
-        if (rotation == null) {
-            rotation = 0d;
-        }
+		Double rotation = rocketpanel.getFigure().getRotation();
+		if (rotation == null) {
+			rotation = 0d;
+		}
 		new PrintDialog(this, document, rotation).setVisible(true);
 	}
 

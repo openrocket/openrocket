@@ -7,7 +7,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 
@@ -51,9 +51,10 @@ public class TextureOutputTest {
 				new DatabaseMotorFinder());
 
 		StorageOptions saver = new StorageOptions();
+		saver.setFileType(StorageOptions.FileType.OPENROCKET);
 		saver.setIncludeDecals(true);
 		
-		new OpenRocketSaver().save(new File("3d-Test-Junk/net/sf/openrocket/startup/Apocalypse-ork.zip"), doc, saver);
+		new GeneralRocketSaver().save(new File("3d-Test-Junk/net/sf/openrocket/startup/Apocalypse-ork.zip"), doc, saver);
 
 	}
 }

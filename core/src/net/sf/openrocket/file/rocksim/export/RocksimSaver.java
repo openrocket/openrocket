@@ -56,7 +56,7 @@ public class RocksimSaver extends RocketSaver {
     }
 
     @Override
-    public void save(String fileName, OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException {
+    public void save(OutputStream dest, OpenRocketDocument doc, StorageOptions options) throws IOException {
         log.info("Saving .rkt file");
 
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, "UTF-8"));
