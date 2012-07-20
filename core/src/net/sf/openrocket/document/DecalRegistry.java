@@ -8,32 +8,34 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import net.sf.openrocket.file.FileInfo;
+
 public class DecalRegistry {
 
-	private File baseFile;
+	private FileInfo fileInfo;
 	private boolean isZipFile = false;
-	
+
 	/* FIXME - Caching ?
 	private Map<String,byte[]> cache = new HashMap<String,byte[]>();
-	*/
-	
-	public void setBaseFile(File baseFile) {
-		this.baseFile = baseFile;
+	 */
+
+	public void setBaseFile(FileInfo fileInfo) {
+		this.fileInfo = fileInfo;
 	}
 
 	public void setIsZipFile( boolean isZipFile ) {
 		this.isZipFile = isZipFile;
 	}
-	
+
 	public InputStream getDecal( String name ) throws FileNotFoundException, IOException {
 		/* FIXME - Caching?
 		byte[] bytes = cache.get(name);
 		if ( bytes != null ) {
 			return new ByteArrayInputStream(bytes);
 		} 
-		*/
+		 */
 		if ( isZipFile ) {
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(baseFile));
+			ZipInputStream zis = new ZipInputStream(fileInfo.fileURL.openStream());
 			ZipEntry entry = zis.getNextEntry();
 			while ( entry != null ) {
 				if ( entry.getName().equals(name) ) {
@@ -42,13 +44,13 @@ public class DecalRegistry {
 				entry = zis.getNextEntry();
 			}
 		}
-		
-		if ( baseFile != null ) {
-			File decal = new File(baseFile.getParentFile(), name);
+
+		if( fileInfo.getDirectory() != null ) {
+			File decal = new File(fileInfo.getDirectory(), name);
 			// FIXME - update cache
 			return new FileInputStream(decal);
 		}
 		throw new FileNotFoundException( "Unable to locate decal for name " + name );
 	}
-	
+
 }

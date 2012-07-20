@@ -7,11 +7,13 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.net.URL;
 
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.FileInfo;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -27,18 +29,21 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	private static final LogHelper log = Application.getLogger();
 	
 	private final File file;
+	private final URL jarURL;
 	private final InputStream stream;
 	private final GeneralRocketLoader loader;
 	
 	public OpenFileWorker(File file, GeneralRocketLoader loader) {
 		this.file = file;
+		this.jarURL = null;
 		this.stream = null;
 		this.loader = loader;
 	}
 	
 	
-	public OpenFileWorker(InputStream stream, GeneralRocketLoader loader) {
+	public OpenFileWorker(InputStream stream, URL fileURL, GeneralRocketLoader loader) {
 		this.stream = stream;
+		this.jarURL = fileURL;
 		this.file = null;
 		this.loader = loader;
 	}
@@ -50,12 +55,15 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	@Override
 	protected OpenRocketDocument doInBackground() throws Exception {
 		InputStream is;
-		
+
+		FileInfo fileInfo = null;
 		// Get the correct input stream
 		if (file != null) {
 			is = new FileInputStream(file);
+			fileInfo = new FileInfo(file);
 		} else {
 			is = stream;
+			fileInfo = new FileInfo(jarURL);
 		}
 		
 		// Buffer stream unless already buffered
@@ -67,7 +75,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			return loader.load(is, file, new DatabaseMotorFinder());
+			return loader.load(is, fileInfo, new DatabaseMotorFinder());
 		} finally {
 			try {
 				is.close();
