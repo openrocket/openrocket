@@ -1,14 +1,12 @@
 package net.sf.openrocket.gui.util;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketSaver;
-import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.file.GeneralRocketSaver.SavingProgress;
 
 public class SaveFileWorker extends SwingWorker<Void, Void> {
 
@@ -26,32 +24,17 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 	@Override
 	protected Void doInBackground() throws Exception {
 		
-		int estimate = (int)saver.estimateFileSize(document, 
-				document.getDefaultStorageOptions());
-		
 		// Create the ProgressOutputStream that provides progress estimates
-		ProgressOutputStream os = new ProgressOutputStream(
-				new BufferedOutputStream(new FileOutputStream(file)), 
-				estimate, this) {
+		SavingProgress progressCallback = new GeneralRocketSaver.SavingProgress() {
 			
 			@Override
-			protected void setProgress(int progress) {
+			public void setProgress(int progress) {
 				SaveFileWorker.this.setProgress(progress);
+				
 			}
-			
 		};
 		
-		String rawFilename = file.getName();
-		
-		try {
-			saver.save(rawFilename, os, document);
-		} finally {
-			try {
-				os.close();
-			} catch (Exception e) {
-				Application.getExceptionHandler().handleErrorCondition("Error closing file", e);
-			}
-		}
+		saver.save(file, document, progressCallback);
 		return null;
 	}
 	

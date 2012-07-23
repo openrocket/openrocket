@@ -3,6 +3,7 @@ package net.sf.openrocket.file;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,8 +21,28 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.MathUtil;
 
 public class GeneralRocketSaver {
+
+	/**
+	 * Interface which can be implemented by the caller to receive progress information.
+	 * 
+	 */
+	public interface SavingProgress {
+
+		/**
+		 * Inform the callback of the current progress.
+		 * It is guaranteed that the value will be an integer between 0 and 100 representing
+		 * percent complete.  The SavingProgress object might not be notified the through
+		 * setProgress when the save is complete.  When called with the value 100, the saving process
+		 * may not be complete, do not use this as an indication of completion.
+		 * 
+		 * @param progress  int value between 0 and 100 representing percent complete.
+		 */
+		public void setProgress( int progress );
+
+	}
 
 	/**
 	 * Save the document to the specified file using the default storage options.
@@ -42,26 +63,70 @@ public class GeneralRocketSaver {
 	 * @param options		the storage options.
 	 * @throws IOException	in case of an I/O error.
 	 */
-	public void save(File dest, OpenRocketDocument document, StorageOptions options) throws IOException {
-		OutputStream s = new BufferedOutputStream(new FileOutputStream(dest));
-		try {
-			save(dest.getName(), s, document, options);
-		} finally {
-			s.close();
-		}
+	public final void save(File dest, OpenRocketDocument document, StorageOptions options) throws IOException {
+		save( dest, document, options, null );
 	}
 
 	/**
-	 * Save the document to the specified output stream using the default storage options.
+	 * Save the document to a file with default StorageOptions and a SavingProgress callback object.
 	 * 
 	 * @param dest			the destination stream.
 	 * @param doc			the document to save.
+	 * @param progress      a SavingProgress object used to provide progress information
 	 * @throws IOException	in case of an I/O error.
 	 */
-	public final void save(String fileName, OutputStream dest, OpenRocketDocument doc) throws IOException {
-		save(fileName, dest, doc, doc.getDefaultStorageOptions());
+	public final void save(File dest, OpenRocketDocument doc, SavingProgress progress ) throws IOException {
+		save( dest, doc, doc.getDefaultStorageOptions(), progress );
 	}
 
+	/**
+	 * Save the document to a file with the given StorageOptions and a SavingProgress callback object.
+	 * 
+	 * @param dest			the destination stream.
+	 * @param doc			the document to save.
+	 * @param options		the storage options.
+	 * @param progress      a SavingProgress object used to provide progress information
+	 * @throws IOException	in case of an I/O error.
+	 */
+	public final void save(File dest, OpenRocketDocument doc, StorageOptions opts, SavingProgress progress ) throws IOException {
+
+		// This method is the core operational method.  It saves the document into a new (hopefully unique)
+		// file, then if the save is successful, it will copy the file over the old one.
+		
+		// Write to a temporary file in the same directory as the specified file.
+		File temporaryNewFile = File.createTempFile("ORSave", ".tmp", dest.getParentFile() );
+		
+		OutputStream s = new BufferedOutputStream( new FileOutputStream(temporaryNewFile));
+		
+		if ( progress != null ) {
+			long estimatedSize = this.estimateFileSize(doc, opts);
+			s = new ProgressOutputStream( s, estimatedSize, progress );
+		}
+		try {
+			save(dest.getName(), s, doc, doc.getDefaultStorageOptions());
+		} finally {
+			s.close();
+		}
+
+		// Move the temporary new file over the specified file.
+		
+		boolean destExists = dest.exists();
+		File oldBackupFile = new File( dest.getParentFile(), dest.getName() + "-bak");
+		
+		if ( destExists ) {
+			dest.renameTo(oldBackupFile);
+		}
+		// since we created the temporary new file in the same directory as the dest file,
+		// it is on the same filesystem, so File.renameTo will work just fine.
+		boolean success = temporaryNewFile.renameTo(dest);
+		
+		if ( success ) {
+			if ( destExists ) {
+				oldBackupFile.delete();
+			}
+		}
+	}
+	
 	/**
 	 * Provide an estimate of the file size when saving the document with the
 	 * specified options.  This is used as an indication to the user and when estimating
@@ -79,7 +144,7 @@ public class GeneralRocketSaver {
 		}
 	}
 
-	public void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options)	throws IOException {
+	private void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options)	throws IOException {
 
 		// If we don't include decals, just write the simple file.
 		if (!options.isIncludeDecals()) {
@@ -91,10 +156,6 @@ public class GeneralRocketSaver {
 		// need to gzip the rocket model file in the archive.
 		options.setCompressionEnabled(false);
 
-		// Open a zip stream to write to.
-		ZipOutputStream zos = new ZipOutputStream(output);
-		zos.setLevel(9);
-
 		/* if we want a directory ...
 		String path = fileName;
 		int dotlocation = fileName.lastIndexOf('.');
@@ -103,103 +164,107 @@ public class GeneralRocketSaver {
 		}
 		 */
 
-		// big try block to close the zos.
+		// grab the set of decal images.  We do this up front
+		// so we can fail early if some resource is missing.
+
+		// decalNameNormalization maps the current decal file name
+		// to the name used in the zip file.
+		Map<String,String> decalNameNormalization = new HashMap<String,String>();
+
+		// decals maintains a mapping from decal file name to an input stream.
+		Map<String,InputStream> decals = new HashMap<String,InputStream>();
+		// try block to close streams held in decals if something goes wrong.
 		try {
-			
-			// grab the set of decal images.  We do this up front
-			// so we can fail early if some resource is missing.
 
-			// decalNameNormalization maps the current decal file name
-			// to the name used in the zip file.
-			Map<String,String> decalNameNormalization = new HashMap<String,String>();
-
-			// decals maintains a mapping from decal file name to an input stream.
-			Map<String,InputStream> decals = new HashMap<String,InputStream>();
-			// try block to close streams held in decals if something goes wrong.
-			try {
-				
-				// Look for all decals used in the rocket.
-				for( RocketComponent c : document.getRocket() ) {
-					if ( c.getAppearance() == null ) {
-						continue;
-					}
-					Appearance ap = c.getAppearance();
-					if ( ap.getTexture() == null ) {
-						continue;
-					}
-
-					Decal decal = ap.getTexture();
-
-					String decalName = decal.getImage();
-
-					// If the decal name is already in the decals map, we've already
-					// seen it attached to another component.
-					if ( decals.containsKey(decalName) ) {
-						continue;
-					}
-
-					// Use the DecalRegistry to get the input stream.
-					InputStream is = document.getDecalRegistry().getDecal(decalName);
-
-					// Add it to the decals map.
-					decals.put(decalName, is);
-
-					// Normalize the name:
-					File fname = new File(decalName);
-					String newName = "decals/" + fname.getName();
-
-					// If the normalized name is already used, it represents a different
-					// decal name.  We need to change the name slightly to find one which works.
-					if ( decalNameNormalization.values().contains(newName) ) {
-						// We'll append integers to the names until we get something which works.
-						// so if newName is "decals/foo.jpg", we will try "decals/foo (1).jpg"
-						// "decals/foo (2).jpg", etc.
-						String newNameTemplate = buildFilenameTemplate(newName);
-						int i=1;
-						while( true ) {
-							newName = MessageFormat.format(newNameTemplate, i);
-							if ( ! decalNameNormalization.values().contains(newName) ) {
-								break;
-							}
-							i++;
-						}
-					}
-
-					decalNameNormalization.put(decalName, newName);
-
-				}
-			}
-			catch (IOException ex) {
-				for ( InputStream is: decals.values() ) {
-					try {
-						is.close();
-					}
-					catch ( Throwable t ) {
-					}
-				}
-				throw ex;
-			}
-
-			// Now we have to loop through all the components and update their names.
+			// Look for all decals used in the rocket.
 			for( RocketComponent c : document.getRocket() ) {
-
 				if ( c.getAppearance() == null ) {
 					continue;
 				}
-
 				Appearance ap = c.getAppearance();
-
 				if ( ap.getTexture() == null ) {
 					continue;
 				}
 
-				AppearanceBuilder builder = new AppearanceBuilder(ap);
+				Decal decal = ap.getTexture();
 
-				builder.setImage( decalNameNormalization.get(ap.getTexture().getImage()));
+				String decalName = decal.getImage();
 
-				c.setAppearance(builder.getAppearance());
+				// If the decal name is already in the decals map, we've already
+				// seen it attached to another component.
+				if ( decals.containsKey(decalName) ) {
+					continue;
+				}
+
+				// Use the DecalRegistry to get the input stream.
+				InputStream is = document.getDecalRegistry().getDecal(decalName);
+
+				// Add it to the decals map.
+				decals.put(decalName, is);
+
+				// Normalize the name:
+				File fname = new File(decalName);
+				String newName = "decals/" + fname.getName();
+
+				// If the normalized name is already used, it represents a different
+				// decal name.  We need to change the name slightly to find one which works.
+				if ( decalNameNormalization.values().contains(newName) ) {
+					// We'll append integers to the names until we get something which works.
+					// so if newName is "decals/foo.jpg", we will try "decals/foo (1).jpg"
+					// "decals/foo (2).jpg", etc.
+					String newNameTemplate = buildFilenameTemplate(newName);
+					int i=1;
+					while( true ) {
+						newName = MessageFormat.format(newNameTemplate, i);
+						if ( ! decalNameNormalization.values().contains(newName) ) {
+							break;
+						}
+						i++;
+					}
+				}
+
+				decalNameNormalization.put(decalName, newName);
 
 			}
+		}
+		catch (IOException ex) {
+			for ( InputStream is: decals.values() ) {
+				try {
+					is.close();
+				}
+				catch ( Throwable t ) {
+				}
+			}
+			throw ex;
+		}
+
+		// Now we have to loop through all the components and update their names.
+		for( RocketComponent c : document.getRocket() ) {
+
+			if ( c.getAppearance() == null ) {
+				continue;
+			}
+
+			Appearance ap = c.getAppearance();
+
+			if ( ap.getTexture() == null ) {
+				continue;
+			}
+
+			AppearanceBuilder builder = new AppearanceBuilder(ap);
+
+			builder.setImage( decalNameNormalization.get(ap.getTexture().getImage()));
+
+			c.setAppearance(builder.getAppearance());
+
+		}
+
+		// Open a zip stream to write to.
+		ZipOutputStream zos = new ZipOutputStream(output);
+		zos.setLevel(9);
+		// big try block to close the zos.
+		try {
+
 
 			// Fixme - should probably be the same name?  Should we put everything in a directory?
 			ZipEntry mainFile = new ZipEntry("rocket.ork");
@@ -248,7 +313,7 @@ public class GeneralRocketSaver {
 
 		return nameTemplate;
 	}
-	
+
 	private void saveInternal(OutputStream output, OpenRocketDocument document, StorageOptions options)
 			throws IOException {
 
@@ -257,5 +322,51 @@ public class GeneralRocketSaver {
 		} else {
 			new OpenRocketSaver().save(output, document, options);
 		}
+	}
+
+	private static class ProgressOutputStream extends FilterOutputStream {
+
+		private long estimatedSize;
+		private long bytesWritten = 0;
+		private SavingProgress progressCallback;
+
+		ProgressOutputStream( OutputStream ostream, long estimatedSize, SavingProgress progressCallback ) {
+			super(ostream);
+			this.estimatedSize = estimatedSize;
+			this.progressCallback = progressCallback;
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			super.write(b);
+			bytesWritten++;
+			updateProgress();
+		}
+
+		@Override
+		public void write(byte[] b) throws IOException {
+			super.write(b);
+			bytesWritten += b.length;
+			updateProgress();
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			super.write(b, off, len);
+			bytesWritten += len;
+			updateProgress();
+		}
+
+		private void updateProgress() {
+			if (progressCallback != null) {
+				int p = 50;
+				if ( estimatedSize > 0 ) {
+					p = (int) Math.floor( bytesWritten * 100.0 / estimatedSize );
+					p = MathUtil.clamp(p, 0, 100);
+				}
+				progressCallback.setProgress(p);
+			}
+		}
+
 	}
 }
