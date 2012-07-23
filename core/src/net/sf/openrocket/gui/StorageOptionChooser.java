@@ -176,6 +176,7 @@ public class StorageOptionChooser extends JPanel {
 		
 		// Compression checkbox
 		compressButton.setSelected(opts.isCompressionEnabled());
+		decalButton.setSelected(opts.isIncludeDecals());
 		
 		updateEstimate();
 	}
