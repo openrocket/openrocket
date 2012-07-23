@@ -54,7 +54,7 @@ public class TextureOutputTest {
 		saver.setFileType(StorageOptions.FileType.OPENROCKET);
 		saver.setIncludeDecals(true);
 		
-		new GeneralRocketSaver().save(new File("3d-Test-Junk/net/sf/openrocket/startup/Apocalypse-ork.zip"), doc, saver);
+		new GeneralRocketSaver().save(new File("3d-Test-Junk/net/sf/openrocket/startup/Apocalypse with decals.ork"), doc, saver);
 
 	}
 }
