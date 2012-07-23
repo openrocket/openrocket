@@ -123,6 +123,7 @@ public class GeneralRocketLoader {
 				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
 					doc.getDefaultStorageOptions().setCompressionEnabled(true);
+					doc.getDefaultStorageOptions().setIncludeDecals(true);
 					doc.getDecalRegistry().setIsZipFile(true);
 					return doc;
 				} else if ( entry.getName().matches(".*\\.[rR][kK][tT]$")) {
