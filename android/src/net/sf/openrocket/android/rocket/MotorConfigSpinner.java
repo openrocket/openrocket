@@ -73,7 +73,7 @@ public class MotorConfigSpinner extends Spinner {
 				}
 				selectedIndex++;
 			}
-			if( selectedIndex > motorConfigs.length ) {
+			if( selectedIndex >= motorConfigs.length ) {
 				selectedIndex = 0;
 			}
 
