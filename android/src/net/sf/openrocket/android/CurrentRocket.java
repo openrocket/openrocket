@@ -95,6 +95,11 @@ public class CurrentRocket {
 		return configId;
 	}
 	
+	public synchronized void deleteMotorConfig( Context context, String config ) {
+		rocketDocument.getRocket().removeMotorConfigurationID(config);
+		notifyMotorConfigChanged(context);
+	}
+	
 	/**
 	 * @param rocketDocument the rocketDocument to set
 	 */

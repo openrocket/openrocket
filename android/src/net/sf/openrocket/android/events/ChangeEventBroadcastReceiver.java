@@ -24,6 +24,7 @@ public abstract class ChangeEventBroadcastReceiver extends BroadcastReceiver {
 		switch( type ) {
 		case Events.CONFIGS_CHANGED:
 			doMotorConfigsChanged();
+			doSimsChanged();
 			break;
 		case Events.SIMS_CHANGED:
 			doSimsChanged();

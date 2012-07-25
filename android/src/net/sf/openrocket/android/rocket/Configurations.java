@@ -15,6 +15,9 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.unit.UnitGroup;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -23,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
@@ -71,6 +75,10 @@ public class Configurations extends ExpandableListFragment {
 
 	private void addConfiguration() {
 		CurrentRocketHolder.getCurrentRocket().addNewMotorConfig(getActivity());
+	}
+	
+	private void removeConfiguration( String config ) {
+		CurrentRocketHolder.getCurrentRocket().deleteMotorConfig( getActivity(), config );
 	}
 	
 	private static class MotorMountInfo {
@@ -172,11 +180,11 @@ public class Configurations extends ExpandableListFragment {
 			}
 
 			@Override
-			public View getGroupView(int groupPosition, boolean isExpanded,
-					View convertView, ViewGroup parent) {
+			public View getGroupView(int groupPosition, boolean isExpanded,	View convertView, ViewGroup parent) {
 				if ( convertView == null ) {
 					convertView = getActivity().getLayoutInflater().inflate(android.R.layout.simple_expandable_list_item_1,null);
 				}
+
 				String configDescription = rocketDocument.getRocket().getMotorConfigurationNameOrDescription((String) getGroup(groupPosition));
 				((TextView)convertView.findViewById(android.R.id.text1)).setText( configDescription );
 				return convertView;
@@ -222,15 +230,41 @@ public class Configurations extends ExpandableListFragment {
 			}
 
 			@Override
-			public boolean isChildSelectable(int groupPosition,
-					int childPosition) {
-				// TODO Auto-generated method stub
+			public boolean isChildSelectable(int groupPosition,	int childPosition) {
 				return false;
 			}
 
 		};
 
 		setListAdapter(configurationAdapter);
+	}
+
+	@Override
+	public boolean onListItemLongClick(ListView l, View v, int position, long id) {
+		
+		Object o = getExpandableListAdapter().getGroup(position);
+		
+		if ( o == null || ! (o instanceof String) ) {
+			return false;
+		}
+		final String motorConfigId = (String)o;
+		
+		AlertDialog.Builder b = new AlertDialog.Builder( getActivity() );
+		b.setTitle(R.string.DeleteConfigTitle);
+		b.setCancelable(true);
+		b.setPositiveButton(R.string.Delete, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Configurations.this.removeConfiguration(motorConfigId);
+			}
+			
+		});
+		
+		Dialog dialog = b.create();
+		
+		dialog.setCanceledOnTouchOutside(true);
+		dialog.show();
+		return true;
 	}
 
 	private class MotorWizardOnClickListener implements View.OnClickListener {

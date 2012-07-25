@@ -13,6 +13,8 @@
     <string name="configurePlot">Change Plot</string>
     <string name="view_events">View Events</string>
     <string name="simulationPlotDialogTitle">Select Series And Events</string>
+    <string name="DeleteConfigTitle">Delete Motor Configuration</string>
+    
     <string name="plot">Plot</string>
     <string name="saving">Saving file…</string>
     <string name="loading">Loading file…</string>

@@ -51,6 +51,14 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 			onListItemClick((ListView) parent, v, position, id);
 		}
 	};
+	
+	final private AdapterView.OnItemLongClickListener mOnLongClickListener = new AdapterView.OnItemLongClickListener() {
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			return onListItemLongClick( (ListView) parent, view, position, id);
+		}
+		
+	};
 
 	ExpandableListAdapter mAdapter;
 	ExpandableListView mList;
@@ -135,6 +143,10 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 	public void onListItemClick(ListView l, View v, int position, long id) {
 	}
 
+	public boolean onListItemLongClick(ListView l, View v, int position, long id ) {
+		return false;
+	}
+	
 	/** Provide the cursor for the list view. */
 	public void setListAdapter(ExpandableListAdapter adapter) {
 		boolean hadAdapter = mAdapter != null;
@@ -283,6 +295,7 @@ ExpandableListView.OnGroupCollapseListener, ExpandableListView.OnGroupExpandList
 		}
 		mListShown = true;
 		mList.setOnItemClickListener(mOnClickListener);
+		mList.setOnItemLongClickListener(mOnLongClickListener);
 		if (mAdapter != null) {
 			setListAdapter(mAdapter);
 		} else {
