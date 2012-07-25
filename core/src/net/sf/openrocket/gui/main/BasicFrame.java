@@ -65,6 +65,7 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.gui.ExportDecalDialog;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
@@ -486,6 +487,16 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.user("Save as... selected");
 				saveAsAction();
+			}
+		});
+		menu.add(item);
+		
+		//// Export decal...
+		item = new JMenuItem("Export Decal");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportDecalAction();
 			}
 		});
 		menu.add(item);
@@ -1455,7 +1466,9 @@ public class BasicFrame extends JFrame {
 		return true;
 	}
 
-
+	public void exportDecalAction() {
+		new ExportDecalDialog(this, document).setVisible(true);
+	}
 
 	/**
 	 *
