@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
@@ -12,19 +11,19 @@ import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
+import net.sf.openrocket.gui.adaptors.DecalModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
@@ -46,8 +45,6 @@ public class AppearancePanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
 	private AppearanceBuilder ab;
-
-	private static File lastImageDir = null;
 
 	private static final JColorChooser colorChooser = new JColorChooser();
 	
@@ -89,7 +86,7 @@ public class AppearancePanel extends JPanel {
 		}
 	}
 
-	public AppearancePanel(final RocketComponent c) {
+	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
 		ab = new AppearanceBuilder(c.getAppearance());
@@ -103,8 +100,7 @@ public class AppearancePanel extends JPanel {
 		final JButton ambientColorButton = new JButton(new ColorIcon(ab.getAmbient()));
 		final JButton specularColorButton = new JButton(new ColorIcon(ab.getSpecular()));
 
-		final JTextField uriTextField = new JTextField(ab.getImage() != null ? ab.getImage().toString() : "");
-		uriTextField.setEditable(false);
+		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
 
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
@@ -114,7 +110,6 @@ public class AppearancePanel extends JPanel {
 				ambientColorButton.setIcon(new ColorIcon(ab.getAmbient()));
 				specularColorButton.setIcon(new ColorIcon(ab.getSpecular()));
 				c.setAppearance(ab.getAppearance());
-				uriTextField.setText(ab.getImage() != null ? ab.getImage().toString() : "");
 			}
 		});
 
@@ -220,27 +215,11 @@ public class AppearancePanel extends JPanel {
 		}
 
 		{// Texture File
-			JButton choose;
 			add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
 			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
-			p.add(uriTextField, "grow");
-			p.add(choose = new JButton(trans.get("AppearanceCfg.lbl.Choose")));
-			mDefault.addEnableComponent(uriTextField, false);
-			mDefault.addEnableComponent(choose, false);
+			mDefault.addEnableComponent(textureDropDown, false);
+			p.add(textureDropDown, "grow");
 			add(p, "span 3, growx, wrap");
-			choose.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					File current = lastImageDir;
-					lastImageDir = current;
-
-					JFileChooser fc = new JFileChooser(current);
-					if (fc.showOpenDialog(AppearancePanel.this) == JFileChooser.APPROVE_OPTION) {
-						ab.setImage(fc.getSelectedFile().getAbsolutePath());
-					}
-
-				}
-			});
 		}
 
 		{ // Diffuse
@@ -344,5 +323,5 @@ public class AppearancePanel extends JPanel {
 		}
 
 	}
-
+	
 }

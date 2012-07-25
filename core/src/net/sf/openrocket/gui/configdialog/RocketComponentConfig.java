@@ -108,7 +108,7 @@ public class RocketComponentConfig extends JPanel {
 		if (component.isMassive())
 		
 		//// Appearance options
-		tabbedPane.addTab("Appearance", null, new AppearancePanel(component),
+		tabbedPane.addTab("Appearance", null, new AppearancePanel(document,component),
 				"Appearance Tool Tip");
 		
 		//// Comment and Specify a comment for the component
