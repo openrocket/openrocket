@@ -3,12 +3,8 @@ package net.sf.openrocket.gui;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +20,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
-import net.sf.openrocket.util.FileUtils;
 
 public class ExportDecalDialog extends JDialog {
 
@@ -66,13 +61,13 @@ public class ExportDecalDialog extends JDialog {
 		chooser.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = (JFileChooser) e.getSource();
 				String command = e.getActionCommand();
 				if ( command.equals(JFileChooser.CANCEL_SELECTION) ) {
 					ExportDecalDialog.this.dispose();
 				} else if ( command.equals(JFileChooser.APPROVE_SELECTION)) {
 					// Here we copy the bits out.
 
+					// FIXME - confirm overwrite?
 					String selectedDecal = (String) decalComboBox.getSelectedItem();
 					File selectedFile = chooser.getSelectedFile();
 
