@@ -103,7 +103,7 @@ public class GeneralRocketSaver {
 			s = new ProgressOutputStream( s, estimatedSize, progress );
 		}
 		try {
-			save(dest.getName(), s, doc, doc.getDefaultStorageOptions());
+			save(dest.getName(), s, doc, opts);
 		} finally {
 			s.close();
 		}
