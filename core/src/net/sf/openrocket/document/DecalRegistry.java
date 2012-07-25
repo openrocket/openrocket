@@ -15,7 +15,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.sf.openrocket.file.FileInfo;
-import net.sf.openrocket.gui.ExportDecalDialog;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.FileUtils;
 
@@ -87,7 +86,13 @@ public class DecalRegistry {
 		{
 			File exportedFile= exportedDecalMap.get(name);
 			if ( exportedFile != null  ) {
-				rawIs = new FileInputStream(exportedFile);
+				try {
+					rawIs = new FileInputStream(exportedFile);
+				} catch (FileNotFoundException ex) {
+					// If we can no longer find the file, we'll try to resort to using a different loading
+					// strategy.
+					exportedDecalMap.remove(name);
+				}
 			}
 		}
 
