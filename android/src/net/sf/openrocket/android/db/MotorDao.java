@@ -143,7 +143,7 @@ public class MotorDao {
 				/* selection args*/new String[] { groupVal },
 				/* groupby */null,
 				/* having*/null,
-				/* orderby*/DESIGNATION);
+				/* orderby*/TOTAL_IMPULSE);
 		
 	}
 	
