@@ -12,6 +12,7 @@ import java.util.zip.ZipInputStream;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import net.sf.openrocket.file.rocksim.importt.RocksimLoader;
+import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.TextUtil;
 
 
@@ -94,7 +95,7 @@ public class GeneralRocketLoader extends AbstractRocketLoader {
 			}
 		}
 		
-		byte[] typeIdentifier = Arrays.copyOf(buffer, ROCKSIM_SIGNATURE.length);
+		byte[] typeIdentifier = ArrayUtils.copyOf(buffer, ROCKSIM_SIGNATURE.length);
 		if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
 			return loadUsing(source, rocksimLoader, motorFinder);
 		}

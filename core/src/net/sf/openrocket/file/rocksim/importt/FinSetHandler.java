@@ -330,7 +330,7 @@ class FinSetHandler extends AbstractElementHandler {
      */
     private Coordinate[] toCoordinates (String pointList, WarningSet warnings) {
         List<Coordinate> result = new ArrayList<Coordinate>();
-        if (pointList != null && !pointList.isEmpty()) {
+        if (pointList != null && pointList.length() > 0) {
             String[] points = pointList.split("\\Q|\\E");
             for (String point : points) {
                 String[] aPoint = point.split(",");

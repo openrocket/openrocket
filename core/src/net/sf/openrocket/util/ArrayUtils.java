@@ -80,4 +80,37 @@ public class ArrayUtils {
 		
 	}
 
+	public static byte[] copyOf( byte[] original, int length ) {
+		return copyOfRange(original,0,length);
+	}
+	
+	public static byte[] copyOfRange( byte[] original, int start, int end ) {
+		
+		if ( original == null ) {
+			throw new NullPointerException();
+		}
+		
+		if ( start < 0 || start > original.length ) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		
+		if ( start > end ) {
+			throw new IllegalArgumentException();
+		}
+		
+		byte[] result = new byte[(end-start)];
+		
+		int index = 0;
+		int stop = original.length < end ? original.length : end;
+		for ( int i = start; i < stop; i ++ ) {
+			if ( i < original.length ) {
+				result[index] = original[i];
+			}
+			index++;
+		}
+		
+		return result;
+		
+	}
+
 }
