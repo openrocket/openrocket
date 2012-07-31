@@ -119,8 +119,16 @@ public class SimulationPlotPanel extends JPanel {
 		}
 		
 		configurationSelector.addItemListener(new ItemListener() {
+			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				// We are only concerned with ItemEvent.SELECTED to update
+				// the UI when the selected item changes.
+				// TODO - this should probably be implemented as an ActionListener instead
+				// of ItemStateListener.
+				if ( e.getStateChange() == ItemEvent.DESELECTED) {
+					return;
+				}
 				if (modifying > 0)
 					return;
 				PlotConfiguration conf = (PlotConfiguration) configurationSelector.getSelectedItem();
@@ -357,7 +365,9 @@ public class SimulationPlotPanel extends JPanel {
 			typeSelectorPanel.add(new PlotTypeSelector(i, type, unit, axis), "wrap");
 		}
 		
-		typeSelectorPanel.repaint();
+		// In order to consistantly update the ui, we need to validate before repaint.
+		typeSelectorPanel.validate();
+		typeSelectorPanel.repaint();	
 		
 		eventTableModel.fireTableDataChanged();
 	}
