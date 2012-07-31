@@ -1,6 +1,5 @@
 package net.sf.openrocket.database;
 
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.MaterialStorage;
@@ -15,7 +14,6 @@ import net.sf.openrocket.util.MathUtil;
  */
 public class Databases {
 	private static final LogHelper log = Application.getLogger();
-	private static final Translator trans = Application.getTranslator();
 	
 	/* Static implementations of specific databases: */
 	
@@ -37,65 +35,65 @@ public class Databases {
 	static {
 		
 		// Add default materials
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Acrylic"), 1190, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Aluminum"), 2700, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Balsa"), 170, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Basswood"), 500, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Birch"), 670, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Brass"), 8600, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Cardboard"), 680, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Carbonfiber"), 1780, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Cork"), 240, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.DepronXPS"), 40, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Fiberglass"), 1850, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Kraftphenolic"), 950, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Maple"), 755, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Paperoffice"), 820, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Pine"), 530, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Plywoodbirch"), 630, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.PolycarbonateLexan"), 1200, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Polystyrene"), 1050, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.PVC"), 1390, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Spruce"), 450, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Steel"), 7850, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.StyrofoamgenericEPS"), 20, false));
-		//		BULK_MATERIAL.add(new Material.Bulk("Styrofoam (Blue foam, XPS)", 32, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.StyrofoamBluefoamXPS"), 32, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Titanium"), 4500, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.Quantumtubing"), 1050, false));
-		BULK_MATERIAL.add(new Material.Bulk(trans.get("Databases.materials.BlueTube"), 1300, false));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Acrylic", 1190));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Aluminum", 2700));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Balsa", 170));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Basswood", 500));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Birch", 670));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Brass", 8600));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Cardboard", 680));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Carbonfiber", 1780));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Cork", 240));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"DepronXPS", 40));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Fiberglass", 1850));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Kraftphenolic", 950));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Maple", 755));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Paperoffice", 820));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Pine", 530));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Plywoodbirch", 630));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"PolycarbonateLexan", 1200));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Polystyrene", 1050));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"PVC", 1390));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Spruce", 450));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Steel", 7850));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"StyrofoamgenericEPS", 20));
+		//		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Styrofoam (Blue foam, XPS)", 32));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"StyrofoamBluefoamXPS", 32));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Titanium", 4500));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Quantumtubing", 1050));
+		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"BlueTube", 1300));
 		
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Ripstopnylon"), 0.067, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Mylar"), 0.021, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Polyethylenethin"), 0.015, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Polyethyleneheavy"), 0.040, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Silk"), 0.060, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Paperoffice"), 0.080, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Cellophane"), 0.018, false));
-		SURFACE_MATERIAL.add(new Material.Surface(trans.get("Databases.materials.Crepepaper"), 0.025, false));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Ripstopnylon", 0.067));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Mylar", 0.021));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Polyethylenethin", 0.015));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Polyethyleneheavy", 0.040));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Silk", 0.060));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Paperoffice", 0.080));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Cellophane", 0.018));
+		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Crepepaper", 0.025));
 		
 		//// Thread (heavy-duty)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Threadheavy-duty"), 0.0003, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Threadheavy-duty", 0.0003));
 		//// Elastic cord (round 2mm, 1/16 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Elasticcordround2mm"), 0.0018, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Elasticcordround2mm", 0.0018));
 		//// Elastic cord (flat  6mm, 1/4 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Elasticcordflat6mm"), 0.0043, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Elasticcordflat6mm", 0.0043));
 		//// Elastic cord (flat 12mm, 1/2 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Elasticcordflat12mm"), 0.008, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Elasticcordflat12mm", 0.008));
 		//// Elastic cord (flat 19mm, 3/4 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Elasticcordflat19mm"), 0.0012, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Elasticcordflat19mm", 0.0012));
 		//// Elastic cord (flat 25mm, 1 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Elasticcordflat25mm"), 0.0016, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Elasticcordflat25mm", 0.0016));
 		//// Braided nylon (2 mm, 1/16 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Braidednylon2mm"), 0.001, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Braidednylon2mm", 0.001));
 		//// Braided nylon (3 mm, 1/8 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Braidednylon3mm"), 0.0035, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Braidednylon3mm", 0.0035));
 		//// Tubular nylon (11 mm, 7/16 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Tubularnylon11mm"), 0.013, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Tubularnylon11mm", 0.013));
 		//// Tubular nylon (14 mm, 9/16 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Tubularnylon14mm"), 0.016, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Tubularnylon14mm", 0.016));
 		//// Tubular nylon (25 mm, 1 in)
-		LINE_MATERIAL.add(new Material.Line(trans.get("Databases.materials.Tubularnylon25mm"), 0.029, false));
+		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Tubularnylon25mm", 0.029));
 		
 		
 		// Add user-defined materials
@@ -168,17 +166,15 @@ public class Databases {
 	
 	
 	/**
-	 * Find a material from the database or return a new material if the specified
+	 * Find a material from the database or return a new user defined material if the specified
 	 * material with the specified density is not found.
 	 * 
 	 * @param type			the material type.
 	 * @param name			the material name.
 	 * @param density		the density of the material.
-	 * @param userDefined	whether a newly created material should be user-defined.
 	 * @return				the material object from the database or a new material.
 	 */
-	public static Material findMaterial(Material.Type type, String name, double density,
-			boolean userDefined) {
+	public static Material findMaterial(Material.Type type, String key, String name, double density) {
 		Database<Material> db;
 		switch (type) {
 		case BULK:
@@ -194,12 +190,25 @@ public class Databases {
 			throw new IllegalArgumentException("Illegal material type: " + type);
 		}
 		
+		Material bestMatch = null;
+		
+		// Alter the search mechanism to handle older specifications.
+		// If a key is specified, then we match on key, if one is found.
+		// Otherwise we return the material which matches on name.
+		// this requires us to loop through the entire db at least once to look for the key.
 		for (Material m : db) {
-			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
+			// perfect match based on key.
+			if ( key != null && m.getKey().equals(key) && MathUtil.equals(m.getDensity(), density) ) {
 				return m;
 			}
+			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
+				bestMatch = m;
+			}
 		}
-		return Material.newMaterial(type, name, density, userDefined);
+		if ( bestMatch != null ) {
+			return bestMatch;
+		}
+		return Material.newUserMaterial(type, name, density);
 	}
 	
 	

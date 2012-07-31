@@ -161,7 +161,7 @@ public class CustomMaterialDialog extends JDialog {
 		
 		density = this.density.getValue();
 		
-		return Material.newMaterial(type, name, density, true);
+		return Material.newUserMaterial(type, name, density);
 	}
 	
 	

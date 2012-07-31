@@ -86,7 +86,7 @@ public class MaterialHolder {
 		// Ok, now we have a thickness and a bulk material of the correct name,
 		// we can make our own surface material.
 
-		Material.Surface surface = new Material.Surface( convertedMaterialName, bulk.getDensity() * thickness , true);
+		Material.Surface surface = (Material.Surface) Material.newUserMaterial(Material.Type.SURFACE, convertedMaterialName, bulk.getDensity() * thickness);
 
 		this.put(surface);
 

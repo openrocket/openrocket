@@ -196,16 +196,7 @@ public abstract class BaseComponentDTO {
         	return m;
         }
 
-        switch( dto.getORMaterialType() ) {
-        case BULK:
-			return new Material.Bulk(dto.material, 0.0, true);
-        case SURFACE:
-			return new Material.Surface(dto.material, 0.0, true);
-        case LINE:
-			return new Material.Line(dto.material, 0.0, true);
-        }
-        
-        return null;
+        return Material.newUserMaterial(dto.getORMaterialType(), dto.material, 0.0);
 
 	}
 
@@ -269,6 +260,7 @@ public abstract class BaseComponentDTO {
 	}
 
     static class Base64Adapter extends XmlAdapter<String, byte[]> {
+    	@Override
         public byte[] unmarshal(String s) {
             if (s == null) {
                 return null;
@@ -276,6 +268,7 @@ public abstract class BaseComponentDTO {
             return DatatypeConverter.parseBase64Binary(s);
         }
 
+    	@Override
         public String marshal(byte[] bytes) {
             if (bytes == null) {
                 return null;

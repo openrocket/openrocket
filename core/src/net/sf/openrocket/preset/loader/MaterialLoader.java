@@ -40,19 +40,19 @@ public class MaterialLoader extends RocksimComponentFileLoader {
 		String cleanedMaterialName = stripAll(name, '"').trim();
 
 		if ( "g/cm".equals( unit ) ) {
-			materialMap.put( new Material.Line(cleanedMaterialName, 0.1d * density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.LINE,cleanedMaterialName, 0.1d * density));
 		} else if ( "g/cm2".equals(unit) ) {
-			materialMap.put( new Material.Surface(cleanedMaterialName, 10.0d * density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.SURFACE,cleanedMaterialName, 10.0d * density));
 		} else if ( "g/cm3".equals(unit) ) {
-			materialMap.put( new Material.Bulk(cleanedMaterialName, 1000.0d * density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.BULK,cleanedMaterialName, 1000.0d * density));
 		} else if ( "kg/m3".equals(unit) ) {
-			materialMap.put( new Material.Bulk(cleanedMaterialName, density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.BULK,cleanedMaterialName, density));
 		} else if ( "lb/ft3".equals(unit) ) {
-			materialMap.put( new Material.Bulk(cleanedMaterialName, 16.0184634d * density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.BULK,cleanedMaterialName, 16.0184634d * density));
 		} else if ( "oz/in".equals(unit) ) {
-			materialMap.put( new Material.Line(cleanedMaterialName, 1.11612296d * density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.LINE,cleanedMaterialName, 1.11612296d * density));
 		} else if ( "oz/in2".equals(unit ) ) {
-			materialMap.put( new Material.Surface(cleanedMaterialName, 43.94184876d * density, true));
+			materialMap.put( Material.newUserMaterial(Material.Type.SURFACE,cleanedMaterialName, 43.94184876d * density));
 		} else {
 			throw new BugException("Unknown unit in Materials file: " + unit);
 		}

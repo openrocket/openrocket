@@ -24,7 +24,7 @@ public class LineMaterialColumnParser extends BaseColumnParser {
 			return;
 		}
 		
-		Material.Line myMaterial = new Material.Line(columnData, 0.0, true);
+		Material.Line myMaterial = (Material.Line) Material.newUserMaterial(Material.Type.LINE, columnData, 0.0);
 
 		Material.Line m = materialMap.getLineMaterial(myMaterial);
 		props.put(param, m!=null? m : myMaterial);

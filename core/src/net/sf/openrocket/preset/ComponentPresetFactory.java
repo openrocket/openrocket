@@ -100,7 +100,7 @@ public abstract class ComponentPresetFactory {
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
-			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
+			Material m = Material.newUserMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume);
 			preset.put(MATERIAL, m);
 		}
 
@@ -123,7 +123,7 @@ public abstract class ComponentPresetFactory {
 				materialName = preset.get(MATERIAL).getName();
 			}
 
-			Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
+			Material m = Material.newUserMaterial(Material.Type.BULK, materialName,density);
 			preset.put(MATERIAL, m);
 
 		}
@@ -145,7 +145,7 @@ public abstract class ComponentPresetFactory {
 				materialName = preset.get(MATERIAL).getName();
 			}
 
-			Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
+			Material m = Material.newUserMaterial(Material.Type.BULK, materialName,density);
 			preset.put(MATERIAL, m);
 
 		}
@@ -167,7 +167,7 @@ public abstract class ComponentPresetFactory {
 				materialName = preset.get(MATERIAL).getName();
 			}
 
-			Material m = Material.newMaterial(Material.Type.BULK, materialName,density, false);
+			Material m = Material.newUserMaterial(Material.Type.BULK, materialName,density);
 			preset.put(MATERIAL, m);
 
 		}
@@ -187,7 +187,7 @@ public abstract class ComponentPresetFactory {
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
-			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
+			Material m = Material.newUserMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume);
 			preset.put(MATERIAL, m);
 		}
 
@@ -206,7 +206,7 @@ public abstract class ComponentPresetFactory {
 			if ( preset.has(MATERIAL) ) {
 				materialName = preset.get(MATERIAL).getName();
 			}
-			Material m = Material.newMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume, false);
+			Material m = Material.newUserMaterial(Material.Type.BULK, materialName, preset.get(MASS)/volume);
 			preset.put(MATERIAL, m);
 		}
 

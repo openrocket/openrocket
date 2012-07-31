@@ -234,7 +234,7 @@ public abstract class Preferences {
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
-				Material m = Material.fromStorableString(material, false);
+				Material m = Material.fromStorableString(material);
 				if (m.getType() == type)
 					return m;
 			} catch (IllegalArgumentException ignore) {
@@ -385,14 +385,13 @@ public abstract class Preferences {
 		
 		//// Elastic cord (round 2mm, 1/16 in)
 		private static final Material DEFAULT_LINE_MATERIAL =
-				Databases.findMaterial(Material.Type.LINE, trans.get("Databases.materials.Elasticcordround2mm"),
-						0.0018, false);
+				Databases.findMaterial(Material.Type.LINE, "Elasticcordround2mm", trans.get("Databases.materials.Elasticcordround2mm"),0.0018);
 		//// Ripstop nylon
 		private static final Material DEFAULT_SURFACE_MATERIAL =
-				Databases.findMaterial(Material.Type.SURFACE, trans.get("Databases.materials.Ripstopnylon"), 0.067, false);
+				Databases.findMaterial(Material.Type.SURFACE, "Ripstopnylon", trans.get("Databases.materials.Ripstopnylon"), 0.067);
 		//// Cardboard
 		private static final Material DEFAULT_BULK_MATERIAL =
-				Databases.findMaterial(Material.Type.BULK, trans.get("Databases.materials.Cardboard"), 680, false);
+				Databases.findMaterial(Material.Type.BULK, "Cardboard", trans.get("Databases.materials.Cardboard"), 680);
 	}
 	
 	private static final HashMap<Class<?>, String> DEFAULT_COLORS =

@@ -32,7 +32,7 @@ public class StreamerComponentTests extends BaseTestCase {
 		presetspec.put( ComponentPreset.PARTNO, "partno");
 		presetspec.put( ComponentPreset.LENGTH, 20.0);
 		presetspec.put( ComponentPreset.WIDTH, 2.0);
-		Material m = new Material.Surface("testMaterial", 2.0, true);
+		Material m = Material.newUserMaterial(Material.Type.SURFACE,"testMaterial", 2.0);
 		presetspec.put( ComponentPreset.MATERIAL, m);
 		preset = ComponentPresetFactory.create(presetspec);
 	}
@@ -86,7 +86,7 @@ public class StreamerComponentTests extends BaseTestCase {
 		
 		cr.loadPreset(preset);
 
-		cr.setMaterial( new Material.Surface("new", 1.0, true));
+		cr.setMaterial( Material.newUserMaterial(Material.Type.SURFACE,"new", 1.0));
 		
 		assertNull( cr.getPresetComponent() );
 	}

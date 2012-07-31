@@ -246,7 +246,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
      * @return a Material instance
      */
     public static Material createCustomMaterial(Material.Type type, String name, double density) {
-        return Material.newMaterial(type, ROCKSIM_MATERIAL_PREFIX + name, density, true);
+        return Material.newUserMaterial(type, ROCKSIM_MATERIAL_PREFIX + name, density);
     }
 
     /**

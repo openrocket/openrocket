@@ -109,7 +109,7 @@ public class TubeCouplerComponentTests extends BaseTestCase {
 		
 		tc.loadPreset(preset);
 
-		tc.setMaterial( new Material.Bulk("new", 1.0, true));
+		tc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"new", 1.0));
 		
 		assertNull( tc.getPresetComponent() );
 	}

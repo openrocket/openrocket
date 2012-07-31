@@ -43,7 +43,7 @@ public class TransitionComponentTests extends BaseTestCase {
 		presetspec.put( ComponentPreset.FORE_SHOULDER_DIAMETER, 0.5);
 		presetspec.put( ComponentPreset.FILLED, true);
 		presetspec.put( ComponentPreset.MASS, 100.0);
-		presetspec.put( ComponentPreset.MATERIAL, new Material.Bulk("test", 2.0, true));
+		presetspec.put( ComponentPreset.MATERIAL, Material.newUserMaterial(Material.Type.BULK,"test", 2.0));
 		preset = ComponentPresetFactory.create(presetspec);
 	}
 
@@ -195,7 +195,7 @@ public class TransitionComponentTests extends BaseTestCase {
 		
 		tr.loadPreset(preset);
 
-		tr.setMaterial( new Material.Bulk("new", 1.0, true));
+		tr.setMaterial( Material.newUserMaterial(Material.Type.BULK,"new", 1.0));
 		
 		assertNull( tr.getPresetComponent() );
 	}

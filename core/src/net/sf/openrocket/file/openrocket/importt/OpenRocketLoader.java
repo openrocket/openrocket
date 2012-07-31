@@ -1212,7 +1212,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 	private SimulationConditionsHandler conditionHandler;
 	private FlightDataHandler dataHandler;
 	private CustomExpressionsHandler customExpressionsHandler;
-	
+
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 	private final List<String> listeners = new ArrayList<String>();
 
@@ -1224,7 +1224,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 	public void setCustomExpressions(ArrayList<CustomExpression> expressions){
 		this.customExpressions = expressions;
 	}
-	
+
 	public ArrayList<CustomExpression> getCustomExpressions(){
 		return customExpressions;
 	}
@@ -1301,14 +1301,14 @@ class SingleSimulationHandler extends AbstractElementHandler {
 
 		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
 				conditions, listeners, data);
-		
+
 		// Note : arraylist implementation in simulation different from standard one
 		for (CustomExpression exp : customExpressions){
 			exp.setSimulation(simulation);
 			if (exp.checkAll())
 				simulation.addCustomExpression(exp);
 		}
-				
+
 		doc.addSimulation(simulation);
 	}
 }
@@ -1319,52 +1319,52 @@ class CustomExpressionsHandler extends AbstractElementHandler {
 	public CustomExpression currentExpression = new CustomExpression();
 	private final ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 
-	
+
 	public CustomExpressionsHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
 		this.context = context;
 		this.simHandler = simHandler;
 	}
-	
+
 	@Override
 	public ElementHandler openElement(String element,
 			HashMap<String, String> attributes, WarningSet warnings)
-			throws SAXException {
-		
+					throws SAXException {
+
 		if (element.equals("expression")){
 			currentExpression = new CustomExpression();
 		}
-		
+
 		return this;
 	}
 
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
-		String content, WarningSet warnings) {
-		
+			String content, WarningSet warnings) {
+
 		if (element.equals("expression"))
 			customExpressions.add(currentExpression);
-		
+
 		if (element.equals("name"))
 			currentExpression.setName(content);
-		 
+
 		else if (element.equals("symbol"))
 			currentExpression.setSymbol(content);
-		
+
 		else if (element.equals("unit"))
 			currentExpression.setUnit(content);
-		
+
 		else if (element.equals("expressionstring"))
 			currentExpression.setExpression(content);
-		
+
 	}
-	
+
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) {
 		simHandler.setCustomExpressions(customExpressions);
 	}
 }
-	
+
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private SimulationOptions conditions;
@@ -1548,7 +1548,7 @@ class FlightDataHandler extends AbstractElementHandler {
 	private FlightDataBranchHandler dataHandler;
 	private WarningSet warningSet = new WarningSet();
 	private List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
-	
+
 	private SingleSimulationHandler simHandler;
 	private FlightData data;
 
@@ -1575,8 +1575,9 @@ class FlightDataHandler extends AbstractElementHandler {
 				return null;
 			}
 			dataHandler = new FlightDataBranchHandler(	attributes.get("name"),
-														attributes.get("types"), 
-														simHandler, context);
+					attributes.get("typekeys"),
+					attributes.get("types"), 
+					simHandler, context);
 			return dataHandler;
 		}
 
@@ -1672,18 +1673,23 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
-	
+
 	private static final LogHelper log = Application.getLogger();
 	private final SingleSimulationHandler simHandler;
-	
-	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {
+
+	public FlightDataBranchHandler(String name, String typeKeyList, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {
 		this.simHandler = simHandler;
 		this.context = context;
-		String[] split = typeList.split(",");
-		types = new FlightDataType[split.length];
-		for (int i = 0; i < split.length; i++) {
-			String typeName = split[i];
-			FlightDataType matching = findFlightDataType(typeName);
+		String[] typeNames = typeList.split(",");
+		String[] typeKeys = null;
+		if ( typeKeyList != null ) {
+			typeKeys = typeKeyList.split(",");
+		}
+		types = new FlightDataType[typeNames.length];
+		for (int i = 0; i < typeNames.length; i++) {
+			String typeName = typeNames[i];
+			String typeKey = (typeKeys != null ) ? typeKeys[i] : null ;
+			FlightDataType matching = findFlightDataType(typeKey, typeName);
 			types[i] = matching;
 			//types[i] = FlightDataType.getType(typeName, matching.getSymbol(), matching.getUnitGroup());
 		}
@@ -1691,26 +1697,34 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		// TODO: LOW: May throw an IllegalArgumentException
 		branch = new FlightDataBranch(name, types);
 	}
-	
+
 	// Find the full flight data type given name only
 	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
 	// not the nicest but this is always the case anyway.
-	private FlightDataType findFlightDataType(String name){
-		
-		// Look in built in types
+	private FlightDataType findFlightDataType(String key, String name){
+
+		// Look in built in types by key.
+		if ( key != null ) {
+			for (FlightDataType t : FlightDataType.ALL_TYPES){
+				if (t.getKey().equals(key) ){
+					return t;
+				}
+			}
+		}
+		// Look in built in types by name.
 		for (FlightDataType t : FlightDataType.ALL_TYPES){
 			if (t.getName().equals(name) ){
 				return t;
 			}
 		}
-		
+
 		// Look in custom expressions
 		for (CustomExpression exp : simHandler.getCustomExpressions()){
 			if (exp.getName().equals(name) ){
 				return exp.getType();
 			}
 		}
-		
+
 		// Look in custom expressions, meanwhile set priority based on order in file
 		/*
 		int totalExpressions = simHandler.getCustomExpressions().size();
@@ -1722,8 +1736,8 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				return exp.getType();
 			}
 		}
-		*/
-		
+		 */
+
 		log.warn("Could not find the flight data type '"+name+"' used in the XML file. Substituted type with unknown symbol and units.");
 		return FlightDataType.getType(name, "Unknown", UnitGroup.UNITS_NONE);
 	}
@@ -2064,7 +2078,7 @@ class ComponentPresetSetter implements Setter {
 	@Override
 	public void set(RocketComponent c, String name, HashMap<String, String> attributes,
 			WarningSet warnings) {
-// FIXME - probably need more data in the warning messages - like what component preset...
+		// FIXME - probably need more data in the warning messages - like what component preset...
 		String manufacturerName = attributes.get("manufacturer");
 		if ( manufacturerName == null ) {
 			warnings.add(Warning.fromString("Invalid ComponentPreset, no manufacturer specified.  Ignored"));
@@ -2105,10 +2119,10 @@ class ComponentPresetSetter implements Setter {
 
 		// Was any found?
 		if ( matchingPreset == null ) {
-			warnings.add(Warning.fromString("No matching ComponentPreset found"));
+			warnings.add(Warning.fromString("No matching ComponentPreset found " + manufacturerName + " " + productNo));
 			return;
 		}
-		
+
 		if ( digest != null && !matchingPreset.getDigest().equals(digest) ) {
 			warnings.add(Warning.fromString("ComponentPreset has wrong digest"));
 		}
@@ -2174,7 +2188,9 @@ class MaterialSetter implements Setter {
 			return;
 		}
 
-		mat = Databases.findMaterial(type, name, density, false);
+		String key = attributes.remove("key");
+
+		mat = Databases.findMaterial(type, key, name, density);
 
 		setMethod.invoke(c, mat);
 	}

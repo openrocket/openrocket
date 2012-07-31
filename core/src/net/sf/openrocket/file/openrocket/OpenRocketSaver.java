@@ -452,6 +452,14 @@ public class OpenRocketSaver extends RocketSaver {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<databranch name=\"");
 		sb.append(escapeXML(branch.getBranchName()));
+		
+		
+		sb.append("\" typekeys=\"");
+		for (int i = 0; i < types.length; i++) {
+			if (i > 0)
+				sb.append(",");
+			sb.append(types[i].getKey());
+		}
 		sb.append("\" types=\"");
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)

@@ -471,6 +471,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * 
 	 * @param m		the material to add.
 	 */
+	@Override
 	public void addUserMaterial(Material m) {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
@@ -498,6 +499,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * 
 	 * @param m		the material to remove.
 	 */
+	@Override
 	public void removeUserMaterial(Material m) {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
@@ -508,7 +510,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 				String value = prefs.get(key, null);
 				try {
 					
-					Material existing = Material.fromStorableString(value, true);
+					Material existing = Material.fromStorableString(value);
 					if (existing.equals(m)) {
 						prefs.remove(key);
 					}
@@ -530,6 +532,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * 
 	 * @return	a set of all user-defined materials.
 	 */
+	@Override
 	public Set<Material> getUserMaterials() {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
@@ -540,7 +543,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 				String value = prefs.get(key, null);
 				try {
 					
-					Material m = Material.fromStorableString(value, true);
+					Material m = Material.fromStorableString(value);
 					materials.add(m);
 					
 				} catch (IllegalArgumentException e) {
@@ -556,6 +559,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		return materials;
 	}
 	
+	@Override
 	public void setComponentFavorite( ComponentPreset preset, boolean favorite ) {
 		Preferences prefs = PREFNODE.node("favoritePresets");
 		if ( favorite ) {
@@ -565,6 +569,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		}
 	}
 	
+	@Override
 	public Set<String> getComponentFavorites( ) {
 		Preferences prefs = PREFNODE.node("favoritePresets");
 		Set<String> collection = new HashSet<String>();

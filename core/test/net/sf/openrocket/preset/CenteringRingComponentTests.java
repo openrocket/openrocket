@@ -111,7 +111,7 @@ public class CenteringRingComponentTests extends BaseTestCase {
 		
 		cr.loadPreset(preset);
 
-		cr.setMaterial( new Material.Bulk("new", 1.0, true));
+		cr.setMaterial( Material.newUserMaterial(Material.Type.BULK,"new", 1.0));
 		
 		assertNull( cr.getPresetComponent() );
 	}

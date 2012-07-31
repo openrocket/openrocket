@@ -31,7 +31,7 @@ public class FinSetTest extends BaseTestCase {
 	
 	private void testFreeformConvert(FinSet fin) {
 		FreeformFinSet converted;
-		Material mat = Material.newMaterial(Type.BULK, "foo", 0.1, true);
+		Material mat = Material.newUserMaterial(Type.BULK, "foo", 0.1);
 		
 		fin.setBaseRotation(1.1);
 		fin.setCantAngle(0.001);

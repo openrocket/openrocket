@@ -235,7 +235,7 @@ public class EngineBlockPresetTests {
 		presetspec.put( ComponentPreset.LENGTH, 2.0);
 		presetspec.put( ComponentPreset.OUTER_DIAMETER, 2.0);
 		presetspec.put( ComponentPreset.INNER_DIAMETER, 1.0);
-		presetspec.put( ComponentPreset.MATERIAL, new Material.Bulk("test", 2.0, true));
+		presetspec.put( ComponentPreset.MATERIAL, Material.newUserMaterial(Material.Type.BULK,"test", 2.0));
 		ComponentPreset preset = ComponentPresetFactory.create(presetspec);
 
 		assertEquals("test",preset.get(ComponentPreset.MATERIAL).getName());
@@ -253,7 +253,7 @@ public class EngineBlockPresetTests {
 		presetspec.put( ComponentPreset.OUTER_DIAMETER, 2.0);
 		presetspec.put( ComponentPreset.INNER_DIAMETER, 1.0);
 		presetspec.put( ComponentPreset.MASS, 100.0);
-		presetspec.put( ComponentPreset.MATERIAL, new Material.Bulk("test", 2.0, true));
+		presetspec.put( ComponentPreset.MATERIAL, Material.newUserMaterial(Material.Type.BULK,"test", 2.0));
 		ComponentPreset preset = ComponentPresetFactory.create(presetspec);
 
 		// Compute the volume by hand here using a slightly different formula from

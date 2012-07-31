@@ -29,7 +29,7 @@ public class MaterialColumnParser extends BaseColumnParser {
 			return;
 		}
 		
-		Material.Bulk tmpMaterial = new Material.Bulk(columnData, 0.0, true);
+		Material.Bulk tmpMaterial = (Material.Bulk) Material.newUserMaterial( Material.Type.BULK,columnData, 0.0);
 		Material.Bulk m = materialMap.getBulkMaterial(tmpMaterial);
 		props.put(param, m!= null ? m : tmpMaterial);
 		

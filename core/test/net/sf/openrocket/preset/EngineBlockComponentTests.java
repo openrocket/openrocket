@@ -111,7 +111,7 @@ public class EngineBlockComponentTests extends BaseTestCase {
 		
 		eb.loadPreset(preset);
 
-		eb.setMaterial( new Material.Bulk("new", 1.0, true));
+		eb.setMaterial( Material.newUserMaterial(Material.Type.BULK,"new", 1.0));
 		
 		assertNull( eb.getPresetComponent() );
 	}

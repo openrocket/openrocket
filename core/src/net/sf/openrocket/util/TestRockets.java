@@ -203,7 +203,7 @@ public class TestRockets {
 			ExternalComponent e = (ExternalComponent) c;
 			e.setFinish((Finish) randomEnum(Finish.class));
 			double d = rnd(100);
-			e.setMaterial(Material.newMaterial(Type.BULK, "Testmat " + d, d, rnd.nextBoolean()));
+			e.setMaterial(Material.newUserMaterial(Type.BULK, "Testmat " + d, d));
 		}
 		
 		if (c instanceof InternalComponent) {

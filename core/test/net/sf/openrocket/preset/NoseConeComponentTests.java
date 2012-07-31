@@ -37,7 +37,7 @@ public class NoseConeComponentTests extends BaseTestCase {
 		presetspec.put( ComponentPreset.AFT_SHOULDER_DIAMETER, 1.0);
 		presetspec.put( ComponentPreset.FILLED, true);
 		presetspec.put( ComponentPreset.MASS, 100.0);
-		presetspec.put( ComponentPreset.MATERIAL, new Material.Bulk("test", 2.0, true));
+		presetspec.put( ComponentPreset.MATERIAL, Material.newUserMaterial(Material.Type.BULK,"test", 2.0));
 		preset = ComponentPresetFactory.create(presetspec);
 	}
 
@@ -155,7 +155,7 @@ public class NoseConeComponentTests extends BaseTestCase {
 		
 		nc.loadPreset(preset);
 
-		nc.setMaterial( new Material.Bulk("new", 1.0, true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"new", 1.0));
 		
 		assertNull( nc.getPresetComponent() );
 	}

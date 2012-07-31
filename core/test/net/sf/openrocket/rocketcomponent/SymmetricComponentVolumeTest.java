@@ -20,7 +20,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setFilled(true);
 		nc.setType( Transition.Shape.CONICAL );
 		nc.setAftRadius(1.0);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 
 		Coordinate cg = nc.getCG();
 
@@ -54,7 +54,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftShoulderRadius(1.0);
 		nc.setAftShoulderLength(1.0);
 		nc.setAftShoulderThickness(1.0);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 
 		Coordinate cg = nc.getCG();
 
@@ -86,7 +86,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.5);
 		nc.setType( Transition.Shape.CONICAL );
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 
@@ -128,7 +128,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setAftShoulderRadius(1.0);
 		nc.setAftShoulderLength(1.0);
 		nc.setAftShoulderThickness(0.5);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 
 		Coordinate cg = nc.getCG();
 
@@ -171,7 +171,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setType( Transition.Shape.CONICAL );
 		nc.setForeRadius(1.0);
 		nc.setAftRadius(2.0);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 
@@ -209,7 +209,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeShoulderLength(1.0);
 		nc.setForeShoulderRadius(1.0);
 		nc.setForeShoulderThickness(1.0);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 
@@ -245,7 +245,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeRadius(0.5);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.5);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 
@@ -298,7 +298,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeShoulderLength(1.0);
 		nc.setForeShoulderRadius(0.5);
 		nc.setForeShoulderThickness(0.5);  // note this means fore shoulder is filled.
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 
@@ -350,7 +350,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeRadius(0.5);
 		nc.setAftRadius(1.0);
 		nc.setThickness(0.25);
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 
@@ -404,7 +404,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		nc.setForeShoulderRadius(0.5);
 		nc.setForeShoulderThickness(0.25);
 		
-		nc.setMaterial( new Material.Bulk("test",density,true));
+		nc.setMaterial( Material.newUserMaterial(Material.Type.BULK,"test",density));
 		
 		Coordinate cg = nc.getCG();
 

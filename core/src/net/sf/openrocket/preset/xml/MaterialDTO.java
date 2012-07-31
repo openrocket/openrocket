@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.util.Chars;
 
@@ -80,7 +79,7 @@ public class MaterialDTO {
     }
 
     Material asMaterial() {
-        return Material.newMaterial(type.getORMaterialType(), name, density, true);
+        return Material.newUserMaterial(type.getORMaterialType(), name, density);
     }
 
 

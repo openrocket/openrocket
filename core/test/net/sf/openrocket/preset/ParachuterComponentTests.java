@@ -33,9 +33,9 @@ public class ParachuterComponentTests extends BaseTestCase {
 		presetspec.put( ComponentPreset.DIAMETER, 20.0);
 		presetspec.put( ComponentPreset.LINE_COUNT, 8);
 		presetspec.put( ComponentPreset.LINE_LENGTH, 12.0);
-		Material m = new Material.Surface("testMaterial", 2.0, true);
+		Material m = Material.newUserMaterial(Material.Type.SURFACE,"testMaterial", 2.0);
 		presetspec.put( ComponentPreset.MATERIAL, m);
-		m = new Material.Line("testLineMaterial", 3, true);
+		m = Material.newUserMaterial(Material.Type.LINE,"testLineMaterial", 3);
 		presetspec.put( ComponentPreset.LINE_MATERIAL, m);
 		preset = ComponentPresetFactory.create(presetspec);
 	}
@@ -111,7 +111,7 @@ public class ParachuterComponentTests extends BaseTestCase {
 		
 		cr.loadPreset(preset);
 
-		cr.setMaterial( new Material.Surface("new", 1.0, true));
+		cr.setMaterial( Material.newUserMaterial(Material.Type.SURFACE,"new", 1.0));
 		
 		assertNull( cr.getPresetComponent() );
 	}
@@ -122,7 +122,7 @@ public class ParachuterComponentTests extends BaseTestCase {
 		
 		cr.loadPreset(preset);
 
-		cr.setLineMaterial( new Material.Line("new", 1.0, true));
+		cr.setLineMaterial( Material.newUserMaterial(Material.Type.LINE,"new", 1.0));
 		
 		assertSame( preset, cr.getPresetComponent() );
 	}

@@ -98,7 +98,7 @@ public class BulkHeadComponentTests extends BaseTestCase {
 		
 		bt.loadPreset(preset);
 
-		bt.setMaterial( new Material.Bulk("new", 1.0, true));
+		bt.setMaterial( Material.newUserMaterial(Material.Type.BULK,"new", 1.0));
 		
 		assertNull( bt.getPresetComponent() );
 	}
