@@ -1,3 +1,9 @@
+2012-07-31 Kevin Ruland
+
+   * Changed the ORK file format to save "keys" for materials and flight data as well as the localized
+   names.  This allows, for example, file saved in english locale to be loaded in a german locale
+   and have all the references established correctly.
+
 2012-06-24  Bill Kuker
 
     * OSX UI Elements: Screen menu bar, Application name, Dock Icon, Quit, About & Preference
