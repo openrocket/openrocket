@@ -78,6 +78,9 @@ public class GeneralRocketLoader extends AbstractRocketLoader {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
 					doc.getDefaultStorageOptions().setCompressionEnabled(true);
 					return doc;
+				} else if ( entry.getName().matches(".*\\.[rR][kK][tT]$")) {
+					OpenRocketDocument doc = loadFromStream(in, motorFinder);
+					return doc;
 				}
 			}
 		}

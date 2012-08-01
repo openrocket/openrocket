@@ -1,3 +1,12 @@
+2012-08-01 Kevin Ruland
+
+   * Changed the loader to pull *.rkt files from zip containers.
+   
+   * Modified the BasicFrame so it doesn't automatically open the Rocket configuration dialog when opening a new rocket.
+   
+   * Unified the behavior for replacing (automatically closing) the base frame when opening a file, loading an example,
+   or picking from the Most-recently-used list.
+
 2012-07-31 Kevin Ruland
 
    * Changed the ORK file format to save "keys" for materials and flight data as well as the localized

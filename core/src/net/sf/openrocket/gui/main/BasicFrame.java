@@ -165,17 +165,6 @@ public class BasicFrame extends JFrame {
 		this.rocket = document.getRocket();
 		this.rocket.getDefaultConfiguration().setAllStages();
 
-
-		// Set replaceable flag to false at first modification
-		rocket.addComponentChangeListener(new ComponentChangeListener() {
-			@Override
-			public void componentChanged(ComponentChangeEvent e) {
-				replaceable = false;
-				BasicFrame.this.rocket.removeComponentChangeListener(this);
-			}
-		});
-
-
 		// Create the component tree selection model that will be used
 		componentSelectionModel = new DefaultTreeSelectionModel();
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -417,10 +406,7 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.user("New... selected");
 				newAction();
-				if (replaceable) {
-					log.info("Closing previous window");
-					closeAction();
-				}
+				closeIfReplaceable();
 			}
 		});
 		menu.add(item);
@@ -1045,23 +1031,24 @@ public class BasicFrame extends JFrame {
 		for (File file : files) {
 			log.info("Opening file: " + file);
 			if (open(file, this)) {
-
-				// Close previous window if replacing
-				if (replaceable && document.isSaved()) {
-					// We are replacing the frame, make new window have current location
-					BasicFrame newFrame = frames.get(frames.size() - 1);
-					newFrame.setLocation(this.getLocation());
-
-					log.info("Closing window because it is replaceable");
-					closeAction();
-					replaceable = false;
-				}
                 MRUDesignFile opts = MRUDesignFile.getInstance();
                 opts.addFile(file.getAbsolutePath());
 			}
 		}
 	}
 
+	void closeIfReplaceable() {
+		// Close previous window if replacing
+		if (replaceable && document.isSaved()) {
+			// We are replacing the frame, make new window have current location
+			BasicFrame newFrame = frames.get(frames.size() - 1);
+			newFrame.setLocation(this.getLocation());
+
+			log.info("Closing window because it is replaceable");
+			closeAction();
+		}
+		
+	}
 	/**
 	 * Open a file based on a URL.
 	 * @param url		the file to open.
@@ -1103,13 +1090,7 @@ public class BasicFrame extends JFrame {
 		log.info("Opening file from url=" + url + " filename=" + filename);
 		try {
 			InputStream is = url.openStream();
-			if (open(is, filename, parent)) {
-				// Close previous window if replacing
-				if (parent.replaceable && parent.document.isSaved()) {
-					parent.closeAction();
-					parent.replaceable = false;
-				}
-			}
+			open(is, filename, parent);
 		} catch (IOException e) {
 			log.warn("Error opening file" + e);
 			JOptionPane.showMessageDialog(parent,
@@ -1240,6 +1221,9 @@ public class BasicFrame extends JFrame {
 		BasicFrame frame = new BasicFrame(doc);
 		frame.setVisible(true);
 
+		if ( parent != null && parent instanceof BasicFrame ) {
+			((BasicFrame)parent).closeIfReplaceable();
+		}
 		return true;
 	}
 
@@ -1473,7 +1457,8 @@ public class BasicFrame extends JFrame {
 		BasicFrame frame = new BasicFrame(doc);
 		frame.replaceable = true;
 		frame.setVisible(true);
-		ComponentConfigDialog.showDialog(frame, doc, rocket);
+		// FIXME - kruland commented this out - I don't like it.
+		//ComponentConfigDialog.showDialog(frame, doc, rocket);
 	}
 
 	/**
