@@ -13,6 +13,13 @@ while echo "$1" | grep -q "^-" ; do
     shift
 done
 
+LIBS="bin/"
+LIBS="$LIBS:resources/"
+for i in lib/*.jar ; do
+    LIBS="$LIBS:$i"
+done
+LIBS="$LIBS:lib/jogl/gluegen-rt.jar"
+LIBS="$LIBS:lib/jogl/jogl.all.jar"
 
-java -cp bin/:resources/:lib/miglayout15-swing.jar:lib/jcommon-1.0.16.jar:lib/jfreechart-1.0.13.jar:lib/iText-5.0.2.jar:lib/opencsv-2.3.jar $JAVAOPTS net.sf.openrocket.startup.Startup "$@"
+java -cp $LIBS $JAVAOPTS net.sf.openrocket.startup.Startup "$@"
 
