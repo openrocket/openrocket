@@ -108,7 +108,7 @@ public class RocketComponentSaver {
 			throw new BugException("Unknown material type: " + mat.getType());
 		}
 
-		return str + " density=\"" + mat.getDensity() + "\" key=\"" + mat.getKey() + "\">" + RocketSaver.escapeXML(mat.getName()) + "</" + tag + ">";
+		return str + " density=\"" + mat.getDensity() + "\" key=\"" + RocketSaver.escapeXML(mat.getKey()) + "\">" + RocketSaver.escapeXML(mat.getName()) + "</" + tag + ">";
 	}
 
 
