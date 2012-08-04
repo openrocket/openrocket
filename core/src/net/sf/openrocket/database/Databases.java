@@ -14,9 +14,9 @@ import net.sf.openrocket.util.MathUtil;
  */
 public class Databases {
 	private static final LogHelper log = Application.getLogger();
-	
+
 	/* Static implementations of specific databases: */
-	
+
 	/**
 	 * A database of bulk materials (with bulk densities).
 	 */
@@ -29,11 +29,11 @@ public class Databases {
 	 * A database of linear material (with length densities).
 	 */
 	public static final Database<Material> LINE_MATERIAL = new Database<Material>();
-	
-	
-	
+
+
+
 	static {
-		
+
 		// Add default materials
 		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Acrylic", 1190));
 		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Aluminum", 2700));
@@ -62,7 +62,7 @@ public class Databases {
 		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Titanium", 4500));
 		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"Quantumtubing", 1050));
 		BULK_MATERIAL.add(Material.newSystemMaterial(Material.Type.BULK,"BlueTube", 1300));
-		
+
 		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Ripstopnylon", 0.067));
 		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Mylar", 0.021));
 		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Polyethylenethin", 0.015));
@@ -71,7 +71,7 @@ public class Databases {
 		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Paperoffice", 0.080));
 		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Cellophane", 0.018));
 		SURFACE_MATERIAL.add(Material.newSystemMaterial(Material.Type.SURFACE,"Crepepaper", 0.025));
-		
+
 		//// Thread (heavy-duty)
 		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Threadheavy-duty", 0.0003));
 		//// Elastic cord (round 2mm, 1/16 in)
@@ -94,44 +94,44 @@ public class Databases {
 		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Tubularnylon14mm", 0.016));
 		//// Tubular nylon (25 mm, 1 in)
 		LINE_MATERIAL.add(Material.newSystemMaterial(Material.Type.LINE,"Tubularnylon25mm", 0.029));
-		
-		
+
+
 		// Add user-defined materials
 		for (Material m : Application.getPreferences().getUserMaterials()) {
 			switch (m.getType()) {
 			case LINE:
 				LINE_MATERIAL.add(m);
 				break;
-			
+
 			case SURFACE:
 				SURFACE_MATERIAL.add(m);
 				break;
-			
+
 			case BULK:
 				BULK_MATERIAL.add(m);
 				break;
-			
+
 			default:
 				log.warn("ERROR: Unknown material type " + m);
 			}
 		}
-		
+
 		// Add database storage listener
 		MaterialStorage listener = new MaterialStorage();
 		LINE_MATERIAL.addDatabaseListener(listener);
 		SURFACE_MATERIAL.addDatabaseListener(listener);
 		BULK_MATERIAL.addDatabaseListener(listener);
 	}
-	
-	
+
+
 	/*
 	 * Used just for ensuring initialization of the class.
 	 */
 	public static void fakeMethod() {
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Find a material from the database with the specified type and name.  Returns
 	 * <code>null</code> if the specified material could not be found.
@@ -155,7 +155,7 @@ public class Databases {
 		default:
 			throw new IllegalArgumentException("Illegal material type: " + type);
 		}
-		
+
 		for (Material m : db) {
 			if (m.getName().equalsIgnoreCase(name)) {
 				return m;
@@ -163,8 +163,8 @@ public class Databases {
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Find a material from the database or return a new user defined material if the specified
 	 * material with the specified density is not found.
@@ -189,17 +189,22 @@ public class Databases {
 		default:
 			throw new IllegalArgumentException("Illegal material type: " + type);
 		}
-		
+
 		Material bestMatch = null;
-		
+
 		// Alter the search mechanism to handle older specifications.
 		// If a key is specified, then we match on key, if one is found.
 		// Otherwise we return the material which matches on name.
 		// this requires us to loop through the entire db at least once to look for the key.
 		for (Material m : db) {
 			// perfect match based on key.
-			if ( key != null && m.getKey().equals(key) && MathUtil.equals(m.getDensity(), density) ) {
-				return m;
+			if ( key != null && m.getKey().equals(key) ) {
+				// Exact match
+				if ( MathUtil.equals(m.getDensity(), density) ) {
+					return m;
+				}
+				// Custom material with standard name
+				return Material.newUserMaterialWithKey(type, key, m.getName(), density);
 			}
 			if (m.getName().equalsIgnoreCase(name) && MathUtil.equals(m.getDensity(), density)) {
 				bestMatch = m;
@@ -210,6 +215,6 @@ public class Databases {
 		}
 		return Material.newUserMaterial(type, name, density);
 	}
-	
-	
+
+
 }

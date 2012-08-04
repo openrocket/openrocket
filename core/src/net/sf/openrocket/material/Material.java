@@ -218,16 +218,16 @@ public abstract class Material implements Comparable<Material> {
 	/**
 	 * Return a new user defined material of the specified type and localizable key.
 	 */
-	public static Material newUserMaterialWithKey(Type type, String key, double density) {
+	public static Material newUserMaterialWithKey(Type type, String key, String name, double density) {
 		switch (type) {
 		case LINE:
-			return new Material.Line(null, key, density, true);
+			return new Material.Line(name, key, density, true);
 			
 		case SURFACE:
-			return new Material.Surface(null, key, density, true);
+			return new Material.Surface(name, key, density, true);
 			
 		case BULK:
-			return new Material.Bulk(null, key, density, true);
+			return new Material.Bulk(name, key, density, true);
 			
 		default:
 			throw new IllegalArgumentException("Unknown material type: " + type);
