@@ -215,6 +215,26 @@ public abstract class Material implements Comparable<Material> {
 		}
 	}
 	
+	/**
+	 * Return a new user defined material of the specified type and localizable key.
+	 */
+	public static Material newUserMaterialWithKey(Type type, String key, double density) {
+		switch (type) {
+		case LINE:
+			return new Material.Line(null, key, density, true);
+			
+		case SURFACE:
+			return new Material.Surface(null, key, density, true);
+			
+		case BULK:
+			return new Material.Bulk(null, key, density, true);
+			
+		default:
+			throw new IllegalArgumentException("Unknown material type: " + type);
+		}
+	}
+	
+	
 	
 	public String toStorableString() {
 		return getType().name() + "|" + key + "|" + name.replace('|', ' ') + '|' + density;
