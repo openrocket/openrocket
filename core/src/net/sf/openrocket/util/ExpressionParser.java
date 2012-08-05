@@ -25,7 +25,7 @@ public class ExpressionParser {
 			modified = modify(expression);
 			ExpressionBuilder builder = new ExpressionBuilder(modified);
 			Calculable calc = builder.build();
-			double n = calc.calculate();
+			double n = calc.calculate().getDoubleValue();
 			log.debug("Evaluated expression '" + expression + "' (modified='" + modified + "') to " + n);
 			return n;
 		} catch (Exception e) {

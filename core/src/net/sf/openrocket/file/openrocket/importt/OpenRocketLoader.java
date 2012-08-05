@@ -67,7 +67,7 @@ import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.simulation.CustomExpression;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -649,13 +649,13 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 
 	private boolean rocketDefined = false;
 	private boolean simulationsDefined = false;
+	private boolean datatypesDefined = false;
 
 	public OpenRocketContentHandler(DocumentLoadingContext context) {
 		this.context = context;
 		this.rocket = new Rocket();
 		this.doc = new OpenRocketDocument(rocket);
 	}
-
 
 	public OpenRocketDocument getDocument() {
 		if (!rocketDefined)
@@ -677,6 +677,15 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 			rocketDefined = true;
 			return new ComponentParameterHandler(rocket, context);
 		}
+		
+		if (element.equals("datatypes")){
+			if (datatypesDefined) {
+				warnings.add(Warning.fromString("Multiple datatype blocks. Ignoring later ones."));
+				return null;
+			}
+			datatypesDefined = true;
+			return new DatatypeHandler(this, context);
+		}
 
 		if (element.equals("simulations")) {
 			if (simulationsDefined) {
@@ -697,6 +706,90 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 
 
 
+class DatatypeHandler extends AbstractElementHandler {
+	private final DocumentLoadingContext context;
+	private final OpenRocketContentHandler contentHandler;
+	private CustomExpressionHandler customExpressionHandler = null;
+	
+	public DatatypeHandler(OpenRocketContentHandler contentHandler, DocumentLoadingContext context) {
+		this.context = context;
+		this.contentHandler = contentHandler;
+	}
+	
+	@Override
+	public ElementHandler openElement(String element,
+			HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		
+		if (element.equals("type") && attributes.get("source").equals("customexpression") ){
+			customExpressionHandler = new CustomExpressionHandler(contentHandler, context);
+			return customExpressionHandler;
+		}
+		else {
+			warnings.add(Warning.fromString("Unknown datatype " + element + " defined, ignoring"));
+		}
+		
+		return this;
+	}
+	
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		attributes.remove("source");
+		super.closeElement(element, attributes, content, warnings);
+		
+		if (customExpressionHandler != null){
+			contentHandler.getDocument().addCustomExpression(customExpressionHandler.currentExpression);
+		}
+		
+	}
+	
+}
+
+class CustomExpressionHandler extends AbstractElementHandler{
+	private final DocumentLoadingContext context;
+	private final OpenRocketContentHandler contentHandler;
+	public CustomExpression currentExpression;
+	
+	public CustomExpressionHandler(OpenRocketContentHandler contentHandler, DocumentLoadingContext context) {
+		this.context = context;
+		this.contentHandler = contentHandler;
+		currentExpression = new CustomExpression(contentHandler.getDocument());
+
+	}
+	
+	@Override
+	public ElementHandler openElement(String element,
+			HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+				
+		return this;
+	}
+	
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes,
+		String content, WarningSet warnings) throws SAXException {
+				
+		if (element.equals("type")) {
+			contentHandler.getDocument().addCustomExpression(currentExpression);
+		}
+			
+		if (element.equals("name")) {
+			currentExpression.setName(content);
+		}
+		 
+		if (element.equals("symbol")) {
+			currentExpression.setSymbol(content);
+		}
+		
+		if (element.equals("unit") && attributes.get("unittype").equals("auto")) {
+			currentExpression.setUnit(content);
+		}
+		
+		if (element.equals("expression")){
+			currentExpression.setExpression(content);
+		}
+	}	
+}
 
 /**
  * A handler that creates components from the corresponding elements.  The control of the
@@ -1211,9 +1304,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 
 	private SimulationConditionsHandler conditionHandler;
 	private FlightDataHandler dataHandler;
-	private CustomExpressionsHandler customExpressionsHandler;
-
-	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
+	
 	private final List<String> listeners = new ArrayList<String>();
 
 	public SingleSimulationHandler(OpenRocketDocument doc, DocumentLoadingContext context) {
@@ -1221,14 +1312,10 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		this.context = context;
 	}
 
-	public void setCustomExpressions(ArrayList<CustomExpression> expressions){
-		this.customExpressions = expressions;
+	public OpenRocketDocument getDocument(){
+		return doc;
 	}
-
-	public ArrayList<CustomExpression> getCustomExpressions(){
-		return customExpressions;
-	}
-
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
@@ -1236,9 +1323,6 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		if (element.equals("name") || element.equals("simulator") ||
 				element.equals("calculator") || element.equals("listener")) {
 			return PlainTextHandler.INSTANCE;
-		} else if (element.equals("customexpressions")) {
-			customExpressionsHandler = new CustomExpressionsHandler(this, context);
-			return customExpressionsHandler;
 		} else if (element.equals("conditions")) {
 			conditionHandler = new SimulationConditionsHandler(doc.getRocket(), context);
 			return conditionHandler;
@@ -1301,70 +1385,11 @@ class SingleSimulationHandler extends AbstractElementHandler {
 
 		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
 				conditions, listeners, data);
-
-		// Note : arraylist implementation in simulation different from standard one
-		for (CustomExpression exp : customExpressions){
-			exp.setSimulation(simulation);
-			if (exp.checkAll())
-				simulation.addCustomExpression(exp);
-		}
-
+				
 		doc.addSimulation(simulation);
 	}
 }
-
-class CustomExpressionsHandler extends AbstractElementHandler {
-	private final DocumentLoadingContext context;
-	private final SingleSimulationHandler simHandler;
-	public CustomExpression currentExpression = new CustomExpression();
-	private final ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
-
-
-	public CustomExpressionsHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
-		this.context = context;
-		this.simHandler = simHandler;
-	}
-
-	@Override
-	public ElementHandler openElement(String element,
-			HashMap<String, String> attributes, WarningSet warnings)
-					throws SAXException {
-
-		if (element.equals("expression")){
-			currentExpression = new CustomExpression();
-		}
-
-		return this;
-	}
-
-	@Override
-	public void closeElement(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
-
-		if (element.equals("expression"))
-			customExpressions.add(currentExpression);
-
-		if (element.equals("name"))
-			currentExpression.setName(content);
-
-		else if (element.equals("symbol"))
-			currentExpression.setSymbol(content);
-
-		else if (element.equals("unit"))
-			currentExpression.setUnit(content);
-
-		else if (element.equals("expressionstring"))
-			currentExpression.setExpression(content);
-
-	}
-
-	@Override
-	public void endHandler(String element, HashMap<String, String> attributes,
-			String content, WarningSet warnings) {
-		simHandler.setCustomExpressions(customExpressions);
-	}
-}
-
+	
 class SimulationConditionsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private SimulationOptions conditions;
@@ -1548,7 +1573,7 @@ class FlightDataHandler extends AbstractElementHandler {
 	private FlightDataBranchHandler dataHandler;
 	private WarningSet warningSet = new WarningSet();
 	private List<FlightDataBranch> branches = new ArrayList<FlightDataBranch>();
-
+	
 	private SingleSimulationHandler simHandler;
 	private FlightData data;
 
@@ -1575,9 +1600,8 @@ class FlightDataHandler extends AbstractElementHandler {
 				return null;
 			}
 			dataHandler = new FlightDataBranchHandler(	attributes.get("name"),
-					attributes.get("typekeys"),
-					attributes.get("types"), 
-					simHandler, context);
+														attributes.get("types"), 
+														simHandler, context);
 			return dataHandler;
 		}
 
@@ -1673,23 +1697,18 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
-
+	
 	private static final LogHelper log = Application.getLogger();
 	private final SingleSimulationHandler simHandler;
-
-	public FlightDataBranchHandler(String name, String typeKeyList, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {
+	
+	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {
 		this.simHandler = simHandler;
 		this.context = context;
-		String[] typeNames = typeList.split(",");
-		String[] typeKeys = null;
-		if ( typeKeyList != null ) {
-			typeKeys = typeKeyList.split(",");
-		}
-		types = new FlightDataType[typeNames.length];
-		for (int i = 0; i < typeNames.length; i++) {
-			String typeName = typeNames[i];
-			String typeKey = (typeKeys != null ) ? typeKeys[i] : null ;
-			FlightDataType matching = findFlightDataType(typeKey, typeName);
+		String[] split = typeList.split(",");
+		types = new FlightDataType[split.length];
+		for (int i = 0; i < split.length; i++) {
+			String typeName = split[i];
+			FlightDataType matching = findFlightDataType(typeName);
 			types[i] = matching;
 			//types[i] = FlightDataType.getType(typeName, matching.getSymbol(), matching.getUnitGroup());
 		}
@@ -1697,13 +1716,14 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		// TODO: LOW: May throw an IllegalArgumentException
 		branch = new FlightDataBranch(name, types);
 	}
-
+	
 	// Find the full flight data type given name only
 	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
 	// not the nicest but this is always the case anyway.
-	private FlightDataType findFlightDataType(String key, String name){
-
-		// Look in built in types by key.
+	private FlightDataType findFlightDataType(String name){
+		
+        // Kevins version with lookup by key. Not using right now
+		/*
 		if ( key != null ) {
 			for (FlightDataType t : FlightDataType.ALL_TYPES){
 				if (t.getKey().equals(key) ){
@@ -1711,33 +1731,22 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 				}
 			}
 		}
-		// Look in built in types by name.
+		*/
+        
+		// Look in built in types
 		for (FlightDataType t : FlightDataType.ALL_TYPES){
 			if (t.getName().equals(name) ){
 				return t;
 			}
 		}
-
+		
 		// Look in custom expressions
-		for (CustomExpression exp : simHandler.getCustomExpressions()){
+		for (CustomExpression exp : simHandler.getDocument().getCustomExpressions()){
 			if (exp.getName().equals(name) ){
 				return exp.getType();
 			}
 		}
-
-		// Look in custom expressions, meanwhile set priority based on order in file
-		/*
-		int totalExpressions = simHandler.getCustomExpressions().size();
-		for (int i=0; i<totalExpressions; i++){
-			CustomExpression exp = simHandler.getCustomExpressions().get(i);			
-			if (exp.getName().equals(name) ){
-				FlightDataType t = exp.getType();
-				t.setPriority(-1*(totalExpressions-i));
-				return exp.getType();
-			}
-		}
-		 */
-
+		
 		log.warn("Could not find the flight data type '"+name+"' used in the XML file. Substituted type with unknown symbol and units.");
 		return FlightDataType.getType(name, "Unknown", UnitGroup.UNITS_NONE);
 	}
@@ -2069,132 +2078,133 @@ class ColorSetter implements Setter {
 
 ////ComponentPresetSetter  -  sets a ComponentPreset value
 class ComponentPresetSetter implements Setter {
-	private final Reflection.Method setMethod;
+private final Reflection.Method setMethod;
 
-	public ComponentPresetSetter(Reflection.Method set) {
-		this.setMethod = set;
+public ComponentPresetSetter(Reflection.Method set) {
+	this.setMethod = set;
+}
+
+@Override
+public void set(RocketComponent c, String name, HashMap<String, String> attributes,
+		WarningSet warnings) {
+	// FIXME - probably need more data in the warning messages - like what component preset...
+	String manufacturerName = attributes.get("manufacturer");
+	if ( manufacturerName == null ) {
+		warnings.add(Warning.fromString("Invalid ComponentPreset, no manufacturer specified.  Ignored"));
+		return;
 	}
 
-	@Override
-	public void set(RocketComponent c, String name, HashMap<String, String> attributes,
-			WarningSet warnings) {
-		// FIXME - probably need more data in the warning messages - like what component preset...
-		String manufacturerName = attributes.get("manufacturer");
-		if ( manufacturerName == null ) {
-			warnings.add(Warning.fromString("Invalid ComponentPreset, no manufacturer specified.  Ignored"));
-			return;
-		}
-
-		String productNo = attributes.get("partno");
-		if ( productNo == null ) {
-			warnings.add(Warning.fromString("Invalid ComponentPreset, no partno specified.  Ignored"));
-			return;
-		}
-
-		String digest = attributes.get("digest");
-		if ( digest == null ) {
-			warnings.add(Warning.fromString("Invalid ComponentPreset, no digest specified."));
-		}
-
-		String type = attributes.get("type");
-		if ( type == null ) {
-			warnings.add(Warning.fromString("Invalid ComponentPreset, no type specified."));
-		}
-
-		List<ComponentPreset> presets = Application.getComponentPresetDao().find( manufacturerName, productNo );
-
-		ComponentPreset matchingPreset = null;
-
-		for( ComponentPreset preset: presets ) {
-			if ( digest != null && preset.getDigest().equals(digest) ) {
-				// Found one with matching digest.  Take it.
-				matchingPreset = preset;
-				break;
-			}
-			if ( type != null && preset.getType().name().equals(type) && matchingPreset != null) {
-				// Found the first one with matching type.
-				matchingPreset = preset;
-			}
-		}
-
-		// Was any found?
-		if ( matchingPreset == null ) {
-			warnings.add(Warning.fromString("No matching ComponentPreset found " + manufacturerName + " " + productNo));
-			return;
-		}
-
-		if ( digest != null && !matchingPreset.getDigest().equals(digest) ) {
-			warnings.add(Warning.fromString("ComponentPreset has wrong digest"));
-		}
-
-		setMethod.invoke(c, matchingPreset);
+	String productNo = attributes.get("partno");
+	if ( productNo == null ) {
+		warnings.add(Warning.fromString("Invalid ComponentPreset, no partno specified.  Ignored"));
+		return;
 	}
+
+	String digest = attributes.get("digest");
+	if ( digest == null ) {
+		warnings.add(Warning.fromString("Invalid ComponentPreset, no digest specified."));
+	}
+
+	String type = attributes.get("type");
+	if ( type == null ) {
+		warnings.add(Warning.fromString("Invalid ComponentPreset, no type specified."));
+	}
+
+	List<ComponentPreset> presets = Application.getComponentPresetDao().find( manufacturerName, productNo );
+
+	ComponentPreset matchingPreset = null;
+
+	for( ComponentPreset preset: presets ) {
+		if ( digest != null && preset.getDigest().equals(digest) ) {
+			// Found one with matching digest.  Take it.
+			matchingPreset = preset;
+			break;
+		}
+		if ( type != null && preset.getType().name().equals(type) && matchingPreset != null) {
+			// Found the first one with matching type.
+			matchingPreset = preset;
+		}
+	}
+
+	// Was any found?
+	if ( matchingPreset == null ) {
+		warnings.add(Warning.fromString("No matching ComponentPreset found " + manufacturerName + " " + productNo));
+		return;
+	}
+
+	if ( digest != null && !matchingPreset.getDigest().equals(digest) ) {
+		warnings.add(Warning.fromString("ComponentPreset has wrong digest"));
+	}
+
+	setMethod.invoke(c, matchingPreset);
+}
 }
 
 
 ////MaterialSetter  -  sets a Material value
 class MaterialSetter implements Setter {
-	private final Reflection.Method setMethod;
-	private final Material.Type type;
+private final Reflection.Method setMethod;
+private final Material.Type type;
 
-	public MaterialSetter(Reflection.Method set, Material.Type type) {
-		this.setMethod = set;
-		this.type = type;
-	}
-
-	@Override
-	public void set(RocketComponent c, String name, HashMap<String, String> attributes,
-			WarningSet warnings) {
-
-		Material mat;
-
-		// Check name != ""
-		name = name.trim();
-		if (name.equals("")) {
-			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
-			return;
-		}
-
-		// Parse density
-		double density;
-		String str;
-		str = attributes.remove("density");
-		if (str == null) {
-			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
-			return;
-		}
-		try {
-			density = Double.parseDouble(str);
-		} catch (NumberFormatException e) {
-			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
-			return;
-		}
-
-		// Parse thickness
-		//		double thickness = 0;
-		//		str = attributes.remove("thickness");
-		//		try {
-		//			if (str != null)
-		//				thickness = Double.parseDouble(str);
-		//		} catch (NumberFormatException e){
-		//			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
-		//			return;
-		//		}
-
-		// Check type if specified
-		str = attributes.remove("type");
-		if (str != null && !type.name().toLowerCase(Locale.ENGLISH).equals(str)) {
-			warnings.add(Warning.fromString("Illegal material type specified, ignoring."));
-			return;
-		}
-
-		String key = attributes.remove("key");
-
-		mat = Databases.findMaterial(type, key, name, density);
-
-		setMethod.invoke(c, mat);
-	}
+public MaterialSetter(Reflection.Method set, Material.Type type) {
+	this.setMethod = set;
+	this.type = type;
 }
+
+@Override
+public void set(RocketComponent c, String name, HashMap<String, String> attributes,
+		WarningSet warnings) {
+
+	Material mat;
+
+	// Check name != ""
+	name = name.trim();
+	if (name.equals("")) {
+		warnings.add(Warning.fromString("Illegal material specification, ignoring."));
+		return;
+	}
+
+	// Parse density
+	double density;
+	String str;
+	str = attributes.remove("density");
+	if (str == null) {
+		warnings.add(Warning.fromString("Illegal material specification, ignoring."));
+		return;
+	}
+	try {
+		density = Double.parseDouble(str);
+	} catch (NumberFormatException e) {
+		warnings.add(Warning.fromString("Illegal material specification, ignoring."));
+		return;
+	}
+
+	// Parse thickness
+	//		double thickness = 0;
+	//		str = attributes.remove("thickness");
+	//		try {
+	//			if (str != null)
+	//				thickness = Double.parseDouble(str);
+	//		} catch (NumberFormatException e){
+	//			warnings.add(Warning.fromString("Illegal material specification, ignoring."));
+	//			return;
+	//		}
+
+	// Check type if specified
+	str = attributes.remove("type");
+	if (str != null && !type.name().toLowerCase(Locale.ENGLISH).equals(str)) {
+		warnings.add(Warning.fromString("Illegal material type specified, ignoring."));
+		return;
+	}
+
+	String key = attributes.remove("key");
+
+	mat = Databases.findMaterial(type, key, name, density);
+
+	setMethod.invoke(c, mat);
+}
+}
+
 
 
 

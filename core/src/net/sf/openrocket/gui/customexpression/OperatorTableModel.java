@@ -3,7 +3,7 @@ package net.sf.openrocket.gui.customexpression;
 import javax.swing.table.AbstractTableModel;
 
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.simulation.CustomExpression;
+import net.sf.openrocket.simulation.customexpression.Functions;
 import net.sf.openrocket.startup.Application;
 
 public class OperatorTableModel extends AbstractTableModel {
@@ -12,8 +12,8 @@ public class OperatorTableModel extends AbstractTableModel {
 	
 	private static final String[] columnNames = {trans.get("customExpression.Operator"), trans.get("customExpression.Description")};
 	
-	private final Object[] operators = CustomExpression.AVAILABLE_OPERATORS.keySet().toArray();
-	private final Object[] descriptions = CustomExpression.AVAILABLE_OPERATORS.values().toArray();
+	private final Object[] operators = Functions.AVAILABLE_OPERATORS.keySet().toArray();
+	private final Object[] descriptions = Functions.AVAILABLE_OPERATORS.values().toArray();
 	
 	public OperatorTableModel(){
 		
@@ -26,7 +26,7 @@ public class OperatorTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return CustomExpression.AVAILABLE_OPERATORS.size();
+		return Functions.AVAILABLE_OPERATORS.size();
 	}
 
 	@Override

@@ -3,19 +3,31 @@ package net.sf.openrocket.gui.customexpression;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.JTableHeader;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -25,50 +37,82 @@ import net.sf.openrocket.startup.Application;
  */
 
 public class VariableSelector extends JDialog {
-	
+
 	private static final Translator trans = Application.getTranslator();
 	private static final LogHelper log = Application.getLogger();
-
-	private final Window parentWindow;
-	private final Simulation simulation;
 	
-	public VariableSelector(Window parent, final ExpressionBuilderDialog parentBuilder, final Simulation simulation){
-		
+	private final JTable table;
+	private final VariableTableModel tableModel;
+	private final ExpressionBuilderDialog parentBuilder;
+
+	public VariableSelector(Window parent, final ExpressionBuilderDialog parentBuilder, final OpenRocketDocument doc){
+
 		super(parent, trans.get("CustomVariableSelector.title"), JDialog.ModalityType.DOCUMENT_MODAL);
-		
-		this.parentWindow = parent;
-		this.simulation = simulation;
-		
+
+		this.parentBuilder = parentBuilder;
 		final JButton insertButton = new JButton(trans.get("ExpressionBuilderDialog.InsertVariable"));
-		
+
 		JPanel mainPanel = new JPanel(new MigLayout());
-		
+
 		//// Table of variables and model
-		final VariableTableModel tableModel = new VariableTableModel(simulation);
-		final JTable table = new JTable(tableModel);
+		tableModel = new VariableTableModel(doc);
+		table = new JTable(tableModel);
 		
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		int width = table.getColumnModel().getTotalColumnWidth();
 		table.getColumnModel().getColumn(0).setPreferredWidth( (int) (.7 * width));
 		table.getColumnModel().getColumn(1).setPreferredWidth( (int) (.15 * width));
 		table.getColumnModel().getColumn(2).setPreferredWidth( (int) (.15 * width));
+		table.setAutoCreateRowSorter(true);
+
+		table.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				if (e.getClickCount() == 2){
+					log.debug("Selected variable by double clicking.");
+					selectVariable();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+		} );
 		
+		InputMap inputMap = table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		ActionMap actionMap = table.getActionMap();
+		KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+		inputMap.put(enter, "select");
+		actionMap.put("select", new AbstractAction(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				log.debug("Selected variable by enter key");
+				selectVariable();
+			}
+		});
+		
+
 		JScrollPane scrollPane = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-				@Override
-				public void valueChanged(ListSelectionEvent e){
-					if (table.getSelectedRowCount() == 1){
-						insertButton.setEnabled(true);
-					}
-					else {
-						insertButton.setEnabled(false);
-					}
+			@Override
+			public void valueChanged(ListSelectionEvent e){
+				if (table.getSelectedRowCount() == 1){
+					insertButton.setEnabled(true);
 				}
-			});
-		
-		mainPanel.add(scrollPane, "wrap");
-		
+				else {
+					insertButton.setEnabled(false);
+				}
+			}
+		});
+
+		mainPanel.add(scrollPane, "wrap, push, grow");
+
 		//// Cancel button
 		final JButton cancelButton = new JButton(trans.get("dlg.but.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
@@ -78,15 +122,12 @@ public class VariableSelector extends JDialog {
 			}
 		});
 		mainPanel.add(cancelButton, "right, width :100:200, split 2");
-		
+
 		//// Insert button
 		insertButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int row = table.getSelectedRow();
-				String str = tableModel.getSymbolAt(row);
-				parentBuilder.pasteIntoExpression(str);
-				VariableSelector.this.dispose();
+				selectVariable();
 			}
 		});
 		insertButton.setEnabled(false); // disabled by default, only enable when a variable selected
@@ -97,4 +138,12 @@ public class VariableSelector extends JDialog {
 		this.pack();
 		this.setLocationByPlatform(true);	
 	}
+	
+	private void selectVariable(){
+		int row = table.getSelectedRow();
+		String str = tableModel.getSymbolAt(row);
+		parentBuilder.pasteIntoExpression(str);
+		VariableSelector.this.dispose();
+	}
+	
 }

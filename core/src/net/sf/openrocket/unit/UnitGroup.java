@@ -27,6 +27,7 @@ public class UnitGroup {
 	
 	public static final UnitGroup UNITS_MOTOR_DIMENSIONS;
 	public static final UnitGroup UNITS_LENGTH;
+	public static final UnitGroup UNITS_ALL_LENGTHS;
 	public static final UnitGroup UNITS_DISTANCE;
 	
 	public static final UnitGroup UNITS_AREA;
@@ -63,11 +64,17 @@ public class UnitGroup {
 	public static final UnitGroup UNITS_ROUGHNESS;
 	
 	public static final UnitGroup UNITS_COEFFICIENT;
+	public static final UnitGroup UNITS_FREQUENCY;
 	
-	//	public static final UnitGroup UNITS_FREQUENCY;
+	public static final UnitGroup UNITS_ENERGY;
+	public static final UnitGroup UNITS_POWER;
+	public static final UnitGroup UNITS_MOMENTUM;
+	public static final UnitGroup UNITS_VOLTAGE;
+	public static final UnitGroup UNITS_CURRENT;
 	
 	
-	public static final Map<String, UnitGroup> UNITS;
+	public static final Map<String, UnitGroup> UNITS; // keys such as "LENGTH", "VELOCITY"
+	public static final Map<String, UnitGroup> SIUNITS; // keys such a "m", "m/s"
 	
 	
 	/*
@@ -80,6 +87,36 @@ public class UnitGroup {
 		UNITS_NONE = new UnitGroup();
 		UNITS_NONE.addUnit(Unit.NOUNIT2);
 		
+		UNITS_ENERGY = new UnitGroup();
+		UNITS_ENERGY.addUnit(new GeneralUnit(1, "J"));
+		UNITS_ENERGY.addUnit(new GeneralUnit(1e-7, "erg"));
+		UNITS_ENERGY.addUnit(new GeneralUnit(1.055, "BTU"));
+		UNITS_ENERGY.addUnit(new GeneralUnit(4.184, "cal"));
+		UNITS_ENERGY.addUnit(new GeneralUnit(1.3558179483314, "ft"+DOT+"lbf"));
+		UNITS_ENERGY.setDefaultUnit(0);
+		
+		UNITS_POWER = new UnitGroup();
+		UNITS_POWER.addUnit(new GeneralUnit(1e-3, "mW"));
+		UNITS_POWER.addUnit(new GeneralUnit(1, "W"));
+		UNITS_POWER.addUnit(new GeneralUnit(1e3, "kW"));
+		UNITS_POWER.addUnit(new GeneralUnit(1e-7, "ergs"));
+		UNITS_POWER.addUnit(new GeneralUnit(745.699872, "hp"));
+		UNITS_POWER.setDefaultUnit(1);
+		
+		UNITS_MOMENTUM = new UnitGroup();
+		UNITS_MOMENTUM.addUnit(new GeneralUnit(1, "kg"+DOT+"m/s"));
+		UNITS_MOMENTUM.setDefaultUnit(0);
+		
+		UNITS_VOLTAGE = new UnitGroup();
+		UNITS_VOLTAGE.addUnit(new GeneralUnit(1e-3, "mV"));
+		UNITS_VOLTAGE.addUnit(new GeneralUnit(1, "V"));
+		UNITS_VOLTAGE.setDefaultUnit(1);
+		
+		UNITS_CURRENT = new UnitGroup();
+		UNITS_CURRENT.addUnit(new GeneralUnit(1e-3, "mA"));
+		UNITS_CURRENT.addUnit(new GeneralUnit(1, "A"));
+		UNITS_CURRENT.setDefaultUnit(1);
+		
 		UNITS_LENGTH = new UnitGroup();
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
@@ -90,6 +127,7 @@ public class UnitGroup {
 		UNITS_LENGTH.setDefaultUnit(1);
 		
 		UNITS_MOTOR_DIMENSIONS = new UnitGroup();
+		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(1, "m")); // just added
 		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_MOTOR_DIMENSIONS.addUnit(new GeneralUnit(0.0254, "in"));
@@ -103,6 +141,19 @@ public class UnitGroup {
 		UNITS_DISTANCE.addUnit(new GeneralUnit(1609.344, "mi"));
 		UNITS_DISTANCE.addUnit(new GeneralUnit(1852, "nmi"));
 		
+		UNITS_ALL_LENGTHS = new UnitGroup();
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.001, "mm"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.01, "cm"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1, "m"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1000, "km"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.0254, "in"));
+		UNITS_ALL_LENGTHS.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.3048, "ft"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(0.9144, "yd"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1609.344, "mi"));
+		UNITS_ALL_LENGTHS.addUnit(new GeneralUnit(1852, "nmi"));
+		UNITS_ALL_LENGTHS.setDefaultUnit(2);
+		
 		UNITS_AREA = new UnitGroup();
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.001), "mm" + SQUARED));
 		UNITS_AREA.addUnit(new GeneralUnit(pow2(0.01), "cm" + SQUARED));
@@ -113,6 +164,7 @@ public class UnitGroup {
 		
 		
 		UNITS_STABILITY = new UnitGroup();
+		UNITS_STABILITY.addUnit(new GeneralUnit(1, "m"));
 		UNITS_STABILITY.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_STABILITY.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_STABILITY.addUnit(new GeneralUnit(0.0254, "in"));
@@ -234,6 +286,7 @@ public class UnitGroup {
 		
 		
 		UNITS_ROUGHNESS = new UnitGroup();
+		UNITS_ROUGHNESS.addUnit(new GeneralUnit(1, "m")); // just added
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.000001, MICRO + "m"));
 		UNITS_ROUGHNESS.addUnit(new GeneralUnit(0.0000254, "mil"));
 		
@@ -243,18 +296,20 @@ public class UnitGroup {
 		
 		
 		// This is not used by OpenRocket, and not extensively tested:
-		//		UNITS_FREQUENCY = new UnitGroup();
+		UNITS_FREQUENCY = new UnitGroup();
 		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(1, "s"));
 		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.001, "ms"));
 		//		UNITS_FREQUENCY.addUnit(new GeneralUnit(0.000001, MICRO + "s"));
-		//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1, "Hz"));
-		//		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
-		//		UNITS_FREQUENCY.setDefaultUnit(3);
+		UNITS_FREQUENCY.addUnit(new FrequencyUnit(.001, "mHz"));
+		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1, "Hz"));
+		UNITS_FREQUENCY.addUnit(new FrequencyUnit(1000, "kHz"));
+		UNITS_FREQUENCY.setDefaultUnit(1);
 		
 		
 		HashMap<String, UnitGroup> map = new HashMap<String, UnitGroup>();
 		map.put("NONE", UNITS_NONE);
 		map.put("LENGTH", UNITS_LENGTH);
+		map.put("ALL_LENGTHS", UNITS_ALL_LENGTHS);
 		map.put("MOTOR_DIMENSIONS", UNITS_MOTOR_DIMENSIONS);
 		map.put("DISTANCE", UNITS_DISTANCE);
 		map.put("VELOCITY", UNITS_VELOCITY);
@@ -278,8 +333,36 @@ public class UnitGroup {
 		map.put("RELATIVE", UNITS_RELATIVE);
 		map.put("ROUGHNESS", UNITS_ROUGHNESS);
 		map.put("COEFFICIENT", UNITS_COEFFICIENT);
+		map.put("VOLTAGE", UNITS_VOLTAGE);
+		map.put("CURRENT", UNITS_CURRENT);
+		map.put("ENERGY", UNITS_ENERGY);
+		map.put("POWER", UNITS_POWER);
+		map.put("MOMENTUM", UNITS_MOMENTUM);
+		map.put("FREQUENCY", UNITS_FREQUENCY);
 		
 		UNITS = Collections.unmodifiableMap(map);
+		
+		HashMap<String, UnitGroup> simap = new HashMap<String, UnitGroup>();
+		simap.put("m", UNITS_ALL_LENGTHS);
+		simap.put("m^2", UNITS_AREA);
+		simap.put("m/s", UNITS_VELOCITY);
+		simap.put("m/s^2", UNITS_ACCELERATION); 
+		simap.put("kg", UNITS_MASS);
+		simap.put("kg m^2", UNITS_INERTIA);
+		simap.put("kg/m^3", UNITS_DENSITY_BULK);
+		simap.put("N", UNITS_FORCE);
+		simap.put("Ns", UNITS_IMPULSE);
+		simap.put("s", UNITS_FLIGHT_TIME);
+		simap.put("Pa", UNITS_PRESSURE);
+		simap.put("V", UNITS_VOLTAGE);
+		simap.put("A", UNITS_CURRENT);
+		simap.put("J", UNITS_ENERGY);
+		simap.put("W", UNITS_POWER);
+		simap.put("kg m/s", UNITS_MOMENTUM);
+		simap.put("Hz", UNITS_FREQUENCY);
+		simap.put("K", UNITS_TEMPERATURE);
+		
+		SIUNITS = Collections.unmodifiableMap(simap);
 	}
 	
 	public static void setDefaultMetricUnits() {
@@ -393,7 +476,14 @@ public class UnitGroup {
 		defaultUnit = n;
 	}
 	
-	
+	public Unit getSIUnit(){
+		for (Unit u : units){
+			if (u.multiplier == 1){
+				return u;
+			}
+		}
+		return UNITS_NONE.getDefaultUnit();
+	}
 	
 	/**
 	 * Find a unit by approximate unit name.  Only letters and (ordinary) numbers are
@@ -510,7 +600,28 @@ public class UnitGroup {
 		return this.getDefaultUnit().toValue(value);
 	}
 	
+	@Override
+	public String toString(){
+		return this.getClass().getSimpleName()+":"+this.getSIUnit().toString();
+	}
 	
+	@Override
+	public boolean equals(Object o){
+		UnitGroup u = (UnitGroup) o;
+		int size = units.size();
+		if (size != u.units.size()){
+			return false;
+		}
+		
+		for (int i=0; i<size; i++){
+			if ( !units.get(i).equals(u.units.get(i)) ){
+				return false;
+			}
+		}
+		
+		return true;
+			
+	}
 	
 	
 	private static final Pattern STRING_PATTERN = Pattern.compile("^\\s*([0-9.,-]+)(.*?)$");
@@ -561,6 +672,15 @@ public class UnitGroup {
 	///////////////////////////
 	
 	
+	@Override
+	public int hashCode() {
+		int code = 0;
+		for (Unit u : units){
+			code = code + u.hashCode();
+		}
+		return code;
+	}
+
 	/**
 	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.

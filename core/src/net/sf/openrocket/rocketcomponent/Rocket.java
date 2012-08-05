@@ -42,7 +42,7 @@ public class Rocket extends RocketComponent {
 	 * List of component change listeners.
 	 */
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
-	
+		
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
 	 * When the structure is thawed, a single combined event will be fired.
@@ -121,9 +121,6 @@ public class Rocket extends RocketComponent {
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
-	
-
-
 	/**
 	 * Return the number of stages in this rocket.
 	 *

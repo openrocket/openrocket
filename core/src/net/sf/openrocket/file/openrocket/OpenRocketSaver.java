@@ -24,7 +24,7 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.simulation.CustomExpression;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -101,6 +101,9 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeln("");
 		
+		// Save custom expressions;
+		saveCustomDatatypes(document);
+		
 		// Save all simulations
 		writeln("<simulations>");
 		indent++;
@@ -124,7 +127,37 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 	}
 	
+	/*
+	 * Save all the custom expressions
+	 */
+	private void saveCustomDatatypes(OpenRocketDocument doc) throws IOException {
+		
+		if (doc.getCustomExpressions().isEmpty())
+			return;
+		
+		writeln("<datatypes>"); indent++;
+		
+		for (CustomExpression exp : doc.getCustomExpressions()){
+			saveCustomExpressionDatatype(exp);
+		}
+		
+		indent--; writeln("</datatypes>");
+		writeln("");
+	}
 	
+	/*
+	 * Save one custom expression datatype
+	 */
+	private void saveCustomExpressionDatatype(CustomExpression exp) throws IOException {						
+		// Write out custom expression
+		
+		writeln("<type source=\"customexpression\">"); indent++;
+			writeln("<name>"	         + exp.getName()			 + "</name>");
+			writeln("<symbol>"           + exp.getSymbol()			 + "</symbol>");
+			writeln("<unit unittype=\"auto\">" + exp.getUnit()		 + "</unit>"); // auto unit type means it will be determined from string
+			writeln("<expression>" + exp.getExpressionString() + "</expression>");
+		indent--; writeln("</type>");
+	}
 	
 	@Override
 	public long estimateFileSize(OpenRocketDocument doc, StorageOptions options) {
@@ -327,20 +360,6 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<simulator>RK4Simulator</simulator>");
 		writeln("<calculator>BarrowmanCalculator</calculator>");
 		
-		// Write out custom expressions
-		if (!simulation.getCustomExpressions().isEmpty()){
-			writeln("<customexpressions>"); indent++;
-			for (CustomExpression expression : simulation.getCustomExpressions()){
-				writeln("<expression>"); indent++;
-				writeElement("name", expression.getName());
-				writeElement("symbol", expression.getSymbol());
-				writeElement("unit", expression.getUnit());
-				writeElement("expressionstring", expression.getExpressionString());
-				indent--; writeln("</expression>");
-			}
-			indent--; writeln("</customexpressions>");
-		}
-		
 		writeln("<conditions>"); indent++;
 		
 		writeElement("configid", cond.getMotorConfigurationID());
@@ -453,13 +472,16 @@ public class OpenRocketSaver extends RocketSaver {
 		sb.append("<databranch name=\"");
 		sb.append(escapeXML(branch.getBranchName()));
 		
-		
+		// Kevins version where typekeys are used
+		/*
 		sb.append("\" typekeys=\"");
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)
 				sb.append(",");
 			sb.append(escapeXML(types[i].getKey()));
 		}
+		*/
+		
 		sb.append("\" types=\"");
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)

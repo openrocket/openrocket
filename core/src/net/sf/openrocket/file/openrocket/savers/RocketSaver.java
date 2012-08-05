@@ -7,7 +7,6 @@ import java.util.Locale;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 
-
 public class RocketSaver extends RocketComponentSaver {
 	
 	private static final RocketSaver instance = new RocketSaver();
@@ -21,8 +20,6 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		return list;
 	}
-	
-	
 	
 	@Override
 	protected void addParams(net.sf.openrocket.rocketcomponent.RocketComponent c, List<String> elements) {

@@ -24,6 +24,10 @@ public class FixedUnitGroup extends UnitGroup {
 		return new GeneralUnit(1, unitString);
 	}
 	
+	public Unit getSIUnit(){
+		return new GeneralUnit(1, unitString);
+	}
+	
 	public boolean contains(Unit u){
 		return true;
 	}

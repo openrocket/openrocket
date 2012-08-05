@@ -3,15 +3,20 @@
  */
 package net.sf.openrocket.gui.customexpression;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Vector;
 
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.simulation.CustomExpression;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.startup.Application;
 
@@ -29,14 +34,13 @@ public class VariableTableModel extends AbstractTableModel {
 	/*
 	 * Table model will be constructed with all the built in variables and any custom variables defined
 	 */
-	public VariableTableModel(Simulation sim){
+	public VariableTableModel(OpenRocketDocument doc){
 		
 		Collections.addAll(types, FlightDataType.ALL_TYPES);
 		
-		for (CustomExpression expression : sim.getCustomExpressions()){
+		for (CustomExpression expression : doc.getCustomExpressions()){
 			types.add(expression.getType());
 		}
-		
 	}
 	
 	@Override
@@ -56,7 +60,7 @@ public class VariableTableModel extends AbstractTableModel {
 		else if (col == 1)
 			return types.get(row).getSymbol();
 		else if (col == 2)
-			return types.get(row).getUnitGroup().getDefaultUnit().toString();
+			return types.get(row).getUnitGroup().getSIUnit().toString();
 		
 		return null;
 	}

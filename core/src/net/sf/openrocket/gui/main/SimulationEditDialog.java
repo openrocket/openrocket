@@ -78,7 +78,7 @@ public class SimulationEditDialog extends JDialog {
 	
 	public static final int DEFAULT = -1;
 	public static final int EDIT = 1;
-	public static final int PLOT = 3;
+	public static final int PLOT = 2;
 	
 
 	private final Window parentWindow;
@@ -139,8 +139,6 @@ public class SimulationEditDialog extends JDialog {
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), flightConditionsTab());
 		//// Simulation options
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), simulationOptionsTab());
-		//// Custom expressions tab
-		tabbedPane.addTab(trans.get("simedtdlg.tab.CustomExpressions"), customExpressionsTab());
 		//// Plot data
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Plotdata"), plotTab());
 		//// Export data
@@ -150,7 +148,7 @@ public class SimulationEditDialog extends JDialog {
 		if (tab == EDIT) {
 			tabbedPane.setSelectedIndex(0);
 		} else if (tab == PLOT) {
-			tabbedPane.setSelectedIndex(3);
+			tabbedPane.setSelectedIndex(2);
 		} else {
 			FlightData data = s.getSimulatedData();
 			if (data == null || data.getBranchCount() == 0)
@@ -837,11 +835,6 @@ public class SimulationEditDialog extends JDialog {
 		return new SimulationExportPanel(simulation);
 	}
 	
-	
-	private JPanel customExpressionsTab() {
-		return new CustomExpressionPanel(simulation);
-	}
-
 
 	/**
 	 * Return a panel stating that there is no data available, and that the user

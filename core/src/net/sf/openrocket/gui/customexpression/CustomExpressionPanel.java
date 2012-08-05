@@ -4,17 +4,28 @@ import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.MotorFinder;
+import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -22,7 +33,8 @@ import net.sf.openrocket.gui.customexpression.ExpressionBuilderDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.simulation.CustomExpression;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 
 public class CustomExpressionPanel extends JPanel {
@@ -31,34 +43,91 @@ public class CustomExpressionPanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 	
 	private JPanel expressionSelectorPanel;
-	private Simulation simulation;
+	private OpenRocketDocument doc;
 	
-	public CustomExpressionPanel(final Simulation simulation) {
+	public CustomExpressionPanel(final OpenRocketDocument doc, final JDialog parentDialog) {
 		super(new MigLayout("fill"));
-		this.simulation = simulation;
+		this.doc = doc;
 
 		expressionSelectorPanel = new JPanel(new MigLayout("gapy rel"));
-		JScrollPane scroll = new JScrollPane(expressionSelectorPanel);
-		this.add(scroll, "spany 2, height 10px, wmin 400lp, grow 100, gapright para");
+		expressionSelectorPanel.setToolTipText(trans.get("customExpressionPanel.lbl.CalcNote"));
 		
-		DescriptionArea desc = new DescriptionArea(trans.get("customExpressionPanel.lbl.UpdateNote")+"\n\n"+trans.get("customExpressionPanel.lbl.CalcNote"), 8, -2f);
-		desc.setViewportBorder(BorderFactory.createEmptyBorder());
-		this.add(desc, "width 1px, growx 1, wrap unrel");
+		JScrollPane scroll = new JScrollPane();
+		Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
+
+		expressionSelectorPanel.setBorder(bdr);
+		expressionSelectorPanel.add(scroll);
+		
+		//this.add(expressionSelectorPanel, "spany 1, height 10px, wmin 600lp, grow 100, gapright para");
+		this.add(expressionSelectorPanel, "hmin 200lp, wmin 700lp, grow 100, wrap");
+		
+		//DescriptionArea desc = new DescriptionArea(trans.get("customExpressionPanel.lbl.UpdateNote")+"\n\n"+trans.get("customExpressionPanel.lbl.CalcNote"), 8, -2f);
+		//desc.setViewportBorder(BorderFactory.createEmptyBorder());
+		//this.add(desc, "width 1px, growx 1, wrap unrel, wrap");
 		
 		//// New expression
 		JButton button = new JButton(trans.get("customExpressionPanel.but.NewExpression"));
+		button.setToolTipText(trans.get("customExpressionPanel.but.ttip.NewExpression"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Open window to configure expression
-				log.debug("Opening window to configure new expression");
+				log.info("Opening window to configure new expression");
 				Window parent = SwingUtilities.getWindowAncestor(CustomExpressionPanel.this);
-				new ExpressionBuilderDialog(parent, simulation).setVisible(true);
+				new ExpressionBuilderDialog(parent, doc).setVisible(true);
 				updateExpressions();
 			}
 		});
+		this.add(button, "split 4, width :100:200");
+		
+		//// Import
+		final JButton importButton = new JButton(trans.get("customExpressionPanel.but.Import"));
+		importButton.setToolTipText(trans.get("customExpressionPanel.but.ttip.Import"));
+		importButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				
-		this.add(button, "left");
+				//Create a file chooser
+				final JFileChooser fc = new JFileChooser();
+				if (doc.getFile() != null){
+					fc.setCurrentDirectory(doc.getFile().getParentFile());
+				}
+				fc.setFileFilter(new FileNameExtensionFilter("Openrocket file", "ork"));
+				fc.setAcceptAllFileFilterUsed(false);
+				
+				int returnVal = fc.showOpenDialog(CustomExpressionPanel.this);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File importFile = fc.getSelectedFile();
+					log.info("User selected a file to import expressions from "+fc.getSelectedFile().toString());
+					
+					//TODO: This should probably be somewhere else and ideally we would use an alternative minimal rocket loader. Still, it doesn't seem particularly slow this way.
+					
+					// Load expressions from selected document
+					GeneralRocketLoader loader = new GeneralRocketLoader();
+					try {
+						OpenRocketDocument importedDocument = loader.load(importFile, new DatabaseMotorFinder());
+						for (CustomExpression exp : importedDocument.getCustomExpressions()){
+							doc.addCustomExpression(exp);
+						}
+					} catch (RocketLoadException e1) {
+						log.user("Error opening document to import expressions from.");
+					}
+					updateExpressions();
+				}
+			}
+		});
+		this.add(importButton, "width :100:200");
+		
+		//// Close button
+		final JButton closeButton = new JButton(trans.get("dlg.but.close"));
+		closeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				parentDialog.dispose();
+			}
+		});
+		this.add(new JPanel(), "growx");
+		this.add(closeButton, "width :100:200");
 		
 		updateExpressions();
 	}
@@ -69,19 +138,18 @@ public class CustomExpressionPanel extends JPanel {
 	private void updateExpressions(){
 		
 		expressionSelectorPanel.removeAll();
-		int totalExpressions = simulation.getCustomExpressions().size();
+		int totalExpressions = doc.getCustomExpressions().size();
 		for (int i=0; i<totalExpressions; i++){
-			SingleExpression se = new SingleExpression(simulation.getCustomExpressions().get(i), i != 0, i != totalExpressions-1);
+			SingleExpression se = new SingleExpression(doc.getCustomExpressions().get(i), i != 0, i != totalExpressions-1);
 			expressionSelectorPanel.add(se, "wrap");
 		}
 
-		//TODO: High : Find out why repaint method not working properly here.
-		//expressionSelectorPanel.repaint();
-		expressionSelectorPanel.updateUI(); // Not the correct method to use but works
+		expressionSelectorPanel.revalidate();
+		expressionSelectorPanel.repaint();
 	}
 	
 	private void deleteExpression(CustomExpression expression){
-		simulation.getCustomExpressions().remove(expression);
+		doc.getCustomExpressions().remove(expression);
 	}
 	
 	/**
@@ -90,7 +158,7 @@ public class CustomExpressionPanel extends JPanel {
 	 * @param move integer - +1 to move down, -1 to move up
 	 */
 	private void moveExpression(CustomExpression expression, int move){
-		ArrayList<CustomExpression> expressions = simulation.getCustomExpressions();
+		ArrayList<CustomExpression> expressions = doc.getCustomExpressions();
 		int i = expressions.indexOf(expression);
 		if (i+move == expressions.size() || i+move < 0)
 			return;
@@ -128,6 +196,9 @@ public class CustomExpressionPanel extends JPanel {
 			
 			JLabel unitLabel = new JLabel( trans.get("customExpression.Units")+ " :");
 			UnitSelector unitSelector = new UnitSelector(expression.getType().getUnitGroup());
+			//JLabel unitSelector = new JLabel ( expression.getUnit() );
+			//unitSelector = setLabelStyle(unitSelector);
+			//unitSelector.setBackground(Color.WHITE);
 			
 			JButton editButton = new JButton(Icons.EDIT);
 			editButton.setToolTipText(trans.get("customExpression.Units.but.ttip.Edit"));
@@ -136,7 +207,7 @@ public class CustomExpressionPanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e){
 					Window parent = SwingUtilities.getWindowAncestor(CustomExpressionPanel.this);
-					new ExpressionBuilderDialog(parent, expression.getSimulation(), expression).setVisible(true);
+					new ExpressionBuilderDialog(parent, doc, expression).setVisible(true);
 					updateExpressions();
 				}
 			});

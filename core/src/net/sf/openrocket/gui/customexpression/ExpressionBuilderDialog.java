@@ -19,11 +19,13 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.simulation.CustomExpression;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -44,7 +46,7 @@ public class ExpressionBuilderDialog extends JDialog {
 	private CustomExpression previousExpressionCopy;
 	
 	private final Window parentWindow;
-	private final Simulation simulation;
+	private final OpenRocketDocument doc;
 	
 	// Define these check indicators to show if fields are OK
 	private final JLabel nameCheck = new JLabel(RedIcon);
@@ -53,16 +55,16 @@ public class ExpressionBuilderDialog extends JDialog {
 	private final JButton okButton = new JButton(trans.get("dlg.but.ok"));
 	private final JTextField expressionField = new JTextField(20);
 	
-	public ExpressionBuilderDialog(Window parent, Simulation simulation){
-		this(parent, simulation, new CustomExpression(simulation));
+	public ExpressionBuilderDialog(Window parent, OpenRocketDocument doc){
+		this(parent, doc, new CustomExpression(doc));
 	}
 	
-	public ExpressionBuilderDialog(Window parent, final Simulation simulation, final CustomExpression previousExpression){
+	public ExpressionBuilderDialog(Window parent, final OpenRocketDocument doc, final CustomExpression previousExpression){
 		
 		super(parent, trans.get("ExpressionBuilderDialog.title"), JDialog.ModalityType.DOCUMENT_MODAL);
 		
+		this.doc = doc;
 		this.parentWindow = parent;
-		this.simulation = simulation;
 		this.previousExpressionCopy = (CustomExpression) previousExpression.clone();
 		this.expression = previousExpression;
 					
@@ -159,7 +161,7 @@ public class ExpressionBuilderDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				log.debug("Opening insert variable window");
 				Window parentWindow = SwingUtilities.getWindowAncestor(ExpressionBuilderDialog.this);
-				new VariableSelector(parentWindow, ExpressionBuilderDialog.this, simulation).setVisible(true);
+				new VariableSelector(parentWindow, ExpressionBuilderDialog.this, doc).setVisible(true);
 			}
 		});
 		
@@ -174,21 +176,13 @@ public class ExpressionBuilderDialog extends JDialog {
 			}
 		});
 		
-		//// Copy expression check box
-		final JCheckBox copyCheckBox = new JCheckBox(trans.get("ExpressionBuilderDialog.CopyToOtherSimulations"));
-		copyCheckBox.setHorizontalTextPosition(SwingConstants.LEFT);
-		copyCheckBox.setToolTipText(trans.get("ExpressionBuilderDialog.CopyToOtherSimulations.ttip"));
-		
 		//// OK Button
 		okButton.setEnabled(false);
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// add to this simulation
-				expression.addToSimulation();
-				if (copyCheckBox.isSelected()){
-					expression.copyToOtherSimulations();
-				}
+				expression.addToDocument();
 				
 				// close window
 				ExpressionBuilderDialog.this.dispose();
@@ -226,7 +220,6 @@ public class ExpressionBuilderDialog extends JDialog {
 		mainPanel.add(expressionCheck, "wrap, center");
 		mainPanel.add(insertOperatorButton, "span 2, right, split 2");
 		mainPanel.add(insertVariableButton, "right, wrap");
-		mainPanel.add(copyCheckBox, "span 2, right, wrap");
 		mainPanel.add(cancelButton, "span 2, right, width :50:100");
 		mainPanel.add(okButton, "right, width :50:100, wrap");
 

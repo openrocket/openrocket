@@ -13,6 +13,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 
@@ -50,7 +51,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final Configuration configuration;
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
-	
+	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
+
 
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
@@ -103,7 +105,22 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-
+	public void addCustomExpression(CustomExpression expression){
+		if (customExpressions.contains(expression)){
+			log.user("Could not add custom expression "+expression.getName()+" to document as document alerady has a matching expression.");
+		} else {
+			customExpressions.add(expression);
+		}
+	}
+	
+	public void removeCustomExpression(CustomExpression expression){
+		customExpressions.remove(expression);
+	}
+	
+	public ArrayList<CustomExpression> getCustomExpressions(){
+		return customExpressions;
+	}
+	
 
 	public Rocket getRocket() {
 		return rocket;

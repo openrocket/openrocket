@@ -1,7 +1,9 @@
 package net.sf.openrocket.util;
 
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.SortedMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class LinearInterpolator implements Cloneable {
@@ -14,7 +16,7 @@ public class LinearInterpolator implements Cloneable {
 	 */
 	public LinearInterpolator() {
 	}
-
+	
 	/**
 	 * Construct a <code>LinearInterpolator</code> with the given points.
 	 * 
@@ -27,8 +29,11 @@ public class LinearInterpolator implements Cloneable {
 	public LinearInterpolator(double[] x, double[] y) {
 		addPoints(x,y);
 	}
-
-
+	
+	public LinearInterpolator(List<Double> x, List<Double> y) {
+		addPoints(x,y);
+	}
+	
 	/**
 	 * Add the point to the linear interpolation.
 	 * 
@@ -38,7 +43,7 @@ public class LinearInterpolator implements Cloneable {
 	public void addPoint(double x, double y) {
 		sortMap.put(x, y);
 	}
-
+	
 	/**
 	 * Add the points to the linear interpolation.
 	 * 
@@ -56,66 +61,50 @@ public class LinearInterpolator implements Cloneable {
 			sortMap.put(x[i],y[i]);
 		}
 	}
-
-
-
+	
+	public void addPoints(List<Double> x, List<Double> y){
+		if (x.size() != y.size()) {
+			throw new IllegalArgumentException("Array lengths do not match, x="+x.size() +
+					" y="+y.size());
+		}
+		for (int i=0; i < x.size(); i++) {
+			sortMap.put( (Double) x.toArray()[i], (Double) y.toArray()[i]);
+		}
+	}
+	
+	
 	public double getValue(double x) {
+		Map.Entry<Double,Double> e1, e2;
 		double x1, x2;
-		Double y1, y2;
-		// Froyo does not support floorEntry, firstEntry or higherEntry.  We instead have to
-		// resort to using other more awkward methods.
-
-		y1 = sortMap.get(x);
-
-		if ( y1 != null ) {
-			// Wow, x was a key in the map.  Such luck.
-			return y1.doubleValue();
-		}
-
-		// we now know that x is not in the map, so we need to find the lower and higher keys.
+		double y1, y2;
 		
-		// let's just make certain that our map is not empty.
-		if ( sortMap.isEmpty() ) {
-			throw new IllegalStateException("No points added yet to the interpolator.");
+		e1 = sortMap.floorEntry(x);
+		
+		if (e1 == null) {
+			// x smaller than any value in the set
+			e1 = sortMap.firstEntry();
+			if (e1 == null) {
+				throw new IllegalStateException("No points added yet to the interpolator.");
+			}
+			return e1.getValue();
 		}
 		
-		// firstKey in the map - cannot be null since the map is not empty.
-		Double firstKey = sortMap.firstKey();
+		x1 = e1.getKey();
+		e2 = sortMap.higherEntry(x1);
 
-		// x is smaller than the first entry in the map.
-		if ( x < firstKey.doubleValue() ) {
-			y1 = sortMap.get(firstKey);
-			return y1.doubleValue();
+		if (e2 == null) {
+			// x larger than any value in the set
+			return e1.getValue();
 		}
 		
-		// floor key is the largest key smaller than x - since we have at least one key,
-		// and x>=firstKey, we know that floorKey != null.
-		Double floorKey = sortMap.subMap(firstKey, x).lastKey();
-
-		x1 = floorKey.doubleValue();
-		y1 = sortMap.get(floorKey);
-
-		// Now we need to find the key that is greater or equal to x
-		SortedMap<Double,Double> tailMap = sortMap.tailMap(x);
-
-		// Check if x is bigger than all the entries.
-		if ( tailMap.isEmpty() ) {
-			return y1.doubleValue();
-		}
-		Double ceilKey = tailMap.firstKey();
+		x2 = e2.getKey();
+		y1 = e1.getValue();
+		y2 = e2.getValue();
 		
-		// Check if x is bigger than all the entries.
-		if ( ceilKey == null ) {
-			return y1.doubleValue();
-		}
-		
-		x2 = ceilKey.doubleValue();
-		y2 = sortMap.get(ceilKey);
-
 		return (x - x1)/(x2-x1) * (y2-y1) + y1;
 	}
-
-
+	
+	
 	public double[] getXPoints() {
 		double[] x = new double[sortMap.size()];
 		Iterator<Double> iter = sortMap.keySet().iterator();
@@ -124,8 +113,8 @@ public class LinearInterpolator implements Cloneable {
 		}
 		return x;
 	}
-
-
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public LinearInterpolator clone() {
@@ -138,4 +127,25 @@ public class LinearInterpolator implements Cloneable {
 		}
 	}
 
+	
+	public static void main(String[] args) {
+		LinearInterpolator interpolator = new LinearInterpolator(
+				new double[] {1, 1.5, 2, 4, 5},
+				new double[] {0, 1,   0, 2, 2}
+		);
+		
+		for (double x=0; x < 6; x+=0.1) {
+			System.out.printf("%.1f:  %.2f\n", x, interpolator.getValue(x));
+		}
+		
+		// Should be the same
+		
+		ArrayList<Double> time = new ArrayList<Double>( Arrays.asList( new Double[] {1.0, 1.5, 2.0, 4.0, 5.0} ));
+		ArrayList<Double> y = new ArrayList<Double>( Arrays.asList( new Double[] {0.0, 1.0, 0.0, 2.0, 2.0} ));
+		
+		LinearInterpolator interpolator2 = new LinearInterpolator(time,y);
+		for (double x=0; x < 6; x+=0.1) {
+			System.out.printf("%.1f:  %.2f\n", x, interpolator2.getValue(x));
+		}
+	}	
 }

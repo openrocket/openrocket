@@ -18,6 +18,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
@@ -91,9 +92,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// Calculate values for custom expressions
 				FlightDataBranch data = status.getFlightData();
-				ArrayList<CustomExpression> allExpressions = status.getSimulationConditions().getSimulation().getCustomExpressions();
+				ArrayList<CustomExpression> allExpressions = status.getSimulationConditions().getSimulation().getDocument().getCustomExpressions();
 				for (CustomExpression expression : allExpressions ) {
-					data.setValue(expression.getType(), expression.evaluate(status));
+					data.setValue(expression.getType(), expression.evaluateDouble(status));
 				}
 				
 				// Check for NaN values in the simulation status

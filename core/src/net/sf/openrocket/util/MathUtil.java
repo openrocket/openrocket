@@ -310,7 +310,7 @@ public class MathUtil {
 			return sorted.get(n / 2).doubleValue();
 		}
 	}
-
+	
 	/**
 	 * Use interpolation to determine the value of the function at point t.
 	 * Current implementation uses simple linear interpolation.   The domain

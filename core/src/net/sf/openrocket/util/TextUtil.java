@@ -184,4 +184,17 @@ public class TextUtil {
 		s = s.replace(">", "&gt;");
 		return s;
 	}
+	
+	/*
+	 * Returns a word-wrapped version of given input string using HTML syntax, wrapped to len characters.
+	 */
+	public static String wrap(String in,int len) {
+		in=in.trim();
+		if(in.length()<len) return in;
+		if(in.substring(0, len).contains("\n"))
+			return in.substring(0, in.indexOf("\n")).trim() + "\n\n" + wrap(in.substring(in.indexOf("\n") + 1), len);
+		int place=Math.max(Math.max(in.lastIndexOf(" ",len),in.lastIndexOf("\t",len)),in.lastIndexOf("-",len));
+		return "<html>"+in.substring(0,place).trim()+"<br>"+wrap(in.substring(place),len);
+	}
+
 }

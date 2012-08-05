@@ -11,6 +11,7 @@ import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
+import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
@@ -637,7 +638,7 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
+		//// Optimize
 		item = new JMenuItem(trans.get("main.menu.analyze.optimization"), KeyEvent.VK_O);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.optimization.desc"));
 		item.addActionListener(new ActionListener() {
@@ -649,7 +650,17 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
+		//// Custom expressions
+		item = new JMenuItem(trans.get("main.menu.analyze.customExpressions"), KeyEvent.VK_E);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.customExpressions.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.debug("Custom expressions selected");
+				new CustomExpressionDialog(document, BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
 
 		////  Debug
 		// (shown if openrocket.debug.menu is defined)

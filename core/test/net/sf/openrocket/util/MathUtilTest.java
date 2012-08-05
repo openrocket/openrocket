@@ -13,6 +13,23 @@ public class MathUtilTest {
 	
 	public static final double EPS = 0.00000000001;
 	
+	/*
+	@Test 
+	public void rangeTest() {
+		double[] a;
+		
+		a = MathUtil.range(0, 10, 2);
+		assertEquals(0, a[0], 0);
+		assertEquals(10, a[5], 0);
+		assertEquals(6, a.length, 0);
+		
+		a = MathUtil.range(1, 2, 2);
+		assertEquals(1, a[0], 0);
+		assertEquals(1, a.length, 0);
+		
+	}
+	*/
+	
 	@Test
 	public void miscMathTest() {
 		
