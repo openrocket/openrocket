@@ -27,9 +27,9 @@
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/jspf.core-1.0.2.jar" sourcepath="/home/sampo/Projects/lib/jspf/documentation/api"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/exp4j-0.2.9.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/jogl.all.jar"/>
 	<classpathentry kind="lib" path="lib/OrangeExtensions-1.2.jar"/>
+	<classpathentry kind="lib" path="/home/rdg/projects/exp4j-patch2/exp4j-rdg.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
