@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -38,13 +39,17 @@ public class ComponentPresetTable extends JTable {
 
 	private final TableRowSorter<TableModel> sorter;
 	private List<ComponentPreset> presets;
+	private final ComponentPreset.Type presetType;
+	private Set<String> favorites;
 	private final AbstractTableModel tableModel;
 	private final XTableColumnModel tableColumnModel;
 	private final ComponentPresetTableColumn[] columns;
 
-	public ComponentPresetTable(List<ComponentPreset> presets, List<TypedKey<?>> visibleColumnKeys) {
+	public ComponentPresetTable(final ComponentPreset.Type presetType, List<ComponentPreset> presets, List<TypedKey<?>> visibleColumnKeys) {
 		super();
 		this.presets = presets;
+		this.presetType = presetType;
+		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
 		this.columns = new ComponentPresetTableColumn[ComponentPreset.ORDERED_KEY_LIST.size()+1];
 
 
@@ -62,7 +67,7 @@ public class ComponentPresetTable extends JTable {
 
 			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
-				return myColumns[columnIndex].getValueFromPreset(ComponentPresetTable.this.presets.get(rowIndex));
+				return myColumns[columnIndex].getValueFromPreset(favorites,ComponentPresetTable.this.presets.get(rowIndex));
 			}
 
 			@Override
@@ -72,7 +77,8 @@ public class ComponentPresetTable extends JTable {
 					return;
 				}
 				ComponentPreset preset = ComponentPresetTable.this.presets.get(rowIndex);
-				Application.getComponentPresetDao().setFavorite(preset, (Boolean) aValue);
+				Application.getComponentPresetDao().setFavorite(preset, presetType, (Boolean) aValue);
+				ComponentPresetTable.this.updateFavorites();
 			}
 
 			@Override
@@ -164,9 +170,15 @@ public class ComponentPresetTable extends JTable {
 
 	public void updateData( List<ComponentPreset> presets ) {
 		this.presets = presets;
+		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
 		this.tableModel.fireTableDataChanged();
 	}
 	
+	public void updateFavorites() {
+		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
+		this.tableModel.fireTableDataChanged();
+	}
+
 	private void doPopup(MouseEvent evt ) {
 		
 		// Figure out what column header was clicked on.

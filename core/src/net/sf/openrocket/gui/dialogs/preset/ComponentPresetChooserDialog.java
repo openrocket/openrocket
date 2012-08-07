@@ -59,6 +59,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	int foreDiameterColumnIndex = -1;
 	
 	private List<ComponentPreset> presets;
+	private ComponentPreset.Type presetType;
 	
 	private boolean okClicked = false;
 	
@@ -66,6 +67,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 	public ComponentPresetChooserDialog(Window owner, RocketComponent component) {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		this.component = component;
+		this.presetType = component.getPresetType();
 		this.presets = Application.getComponentPresetDao().listForType(component.getPresetType());
 		
 		List<TypedKey<?>> displayedColumnKeys = Arrays.asList(component.getPresetType().getDisplayedColumns());
@@ -125,8 +127,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		panel.add(getFilterCheckboxes(), "wrap para");
 		
-		
-		componentSelectionTable = new ComponentPresetTable(presets, displayedColumnKeys);
+		componentSelectionTable = new ComponentPresetTable(presetType, presets, displayedColumnKeys);
 		//		GUIUtil.setAutomaticColumnTableWidths(componentSelectionTable, 20);
 		int w = componentSelectionTable.getRowHeight() + 4;
 		TableColumn tc = componentSelectionTable.getColumnModel().getColumn(0);

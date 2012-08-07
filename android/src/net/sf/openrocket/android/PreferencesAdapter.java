@@ -5,6 +5,7 @@ import java.util.Set;
 
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.ComponentPreset.Type;
 
 public class PreferencesAdapter extends net.sf.openrocket.startup.Preferences {
 
@@ -93,12 +94,11 @@ public class PreferencesAdapter extends net.sf.openrocket.startup.Preferences {
 	}
 
 	@Override
-	public void setComponentFavorite(ComponentPreset preset, boolean favorite) {
-		
+	public void setComponentFavorite(ComponentPreset preset, Type type,	boolean favorite) {
 	}
 
 	@Override
-	public Set<String> getComponentFavorites() {
+	public Set<String> getComponentFavorites(Type type) {
 		return Collections.<String>emptySet();
 	}
 

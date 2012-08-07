@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -24,16 +23,9 @@ public class OpenRocketComponentLoader  implements Loader<ComponentPreset> {
 
 		log.debug("Loading presets from file " + filename);
 
-		Set<String> favorites = Application.getPreferences().getComponentFavorites();
-
 		try {
 			List<ComponentPreset> presets;
 			presets = (new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent( new InputStreamReader (stream))).asComponentPresets();
-			for( ComponentPreset preset : presets ) {
-				if ( favorites.contains(preset.preferenceKey())) {
-					preset.setFavorite(true);
-				}
-			}				
 			log.debug("ComponentPreset file " + filename + " contained " + presets.size() + " presets");
 			return presets;
 		} catch (JAXBException e) {

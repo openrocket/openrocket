@@ -560,8 +560,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public void setComponentFavorite( ComponentPreset preset, boolean favorite ) {
-		Preferences prefs = PREFNODE.node("favoritePresets");
+	public void setComponentFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite ) {
+		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
 		if ( favorite ) {
 			prefs.putBoolean(preset.preferenceKey(), true);
 		} else {
@@ -570,8 +570,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public Set<String> getComponentFavorites( ) {
-		Preferences prefs = PREFNODE.node("favoritePresets");
+	public Set<String> getComponentFavorites( ComponentPreset.Type type) {
+		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
 		Set<String> collection = new HashSet<String>();
 		try {
 			collection.addAll( Arrays.asList(prefs.keys()));

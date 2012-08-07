@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs.preset;
 
-import javax.swing.table.TableCellEditor;
+import java.util.Set;
+
 import javax.swing.table.TableColumn;
 
 import net.sf.openrocket.l10n.Translator;
@@ -21,7 +22,7 @@ public abstract class ComponentPresetTableColumn extends TableColumn {
 	
 	}
 	
-	public abstract Object getValueFromPreset( ComponentPreset preset );
+	public abstract Object getValueFromPreset( Set<String> favorites, ComponentPreset preset );
 	
 	public static class Favorite extends ComponentPresetTableColumn {
 
@@ -30,8 +31,8 @@ public abstract class ComponentPresetTableColumn extends TableColumn {
 		}
 		
 		@Override
-		public Object getValueFromPreset( ComponentPreset preset ) {
-			return Boolean.valueOf(preset.isFavorite());
+		public Object getValueFromPreset( Set<String> favorites, ComponentPreset preset ) {
+			return Boolean.valueOf(favorites.contains(preset.preferenceKey()));
 		}
 
 	}
@@ -46,7 +47,7 @@ public abstract class ComponentPresetTableColumn extends TableColumn {
 		}
 
 		@Override
-		public Object getValueFromPreset(ComponentPreset preset) {
+		public Object getValueFromPreset(Set<String> favorites, ComponentPreset preset) {
 			return preset.has(key) ? preset.get(key) : null;
 		}
 		
@@ -65,10 +66,10 @@ public abstract class ComponentPresetTableColumn extends TableColumn {
 		}
 
 		@Override
-		public Object getValueFromPreset(ComponentPreset preset) {
-			Double value = (Double) super.getValueFromPreset(preset);
+		public Object getValueFromPreset(Set<String> favorites, ComponentPreset preset) {
+			Double value = (Double) super.getValueFromPreset(favorites, preset);
 			if ( value != null ) {
-				return new Value((Double)super.getValueFromPreset(preset),selectedUnit);
+				return new Value((Double)super.getValueFromPreset(favorites, preset),selectedUnit);
 			} else {
 				return null;
 			}

@@ -33,7 +33,6 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	
 	private final TypedPropertyMap properties = new TypedPropertyMap();
 	
-	private boolean favorite = false;
 	private String digest = "";
 	
 	public enum Type {
@@ -271,14 +270,6 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 			throw new BugException("Preset did not contain key " + key + " " + properties.toString());
 		}
 		return value;
-	}
-	
-	public boolean isFavorite() {
-		return favorite;
-	}
-	
-	public void setFavorite(boolean favorite) {
-		this.favorite = favorite;
 	}
 	
 	@Override

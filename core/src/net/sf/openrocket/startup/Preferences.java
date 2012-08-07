@@ -364,8 +364,8 @@ public abstract class Preferences {
 	public abstract Set<Material> getUserMaterials();
 	public abstract void removeUserMaterial(Material m);
 
-	public abstract void setComponentFavorite( ComponentPreset preset, boolean favorite );
-	public abstract Set<String> getComponentFavorites( );
+	public abstract void setComponentFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite );
+	public abstract Set<String> getComponentFavorites( ComponentPreset.Type type );
 
 	/*
 	 * Map of default line styles

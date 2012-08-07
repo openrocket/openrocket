@@ -26,7 +26,7 @@ public interface ComponentPresetDao {
 	
 	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types );
 
-	public void setFavorite( ComponentPreset preset, boolean favorite );
+	public void setFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite );
 	
 	public List<ComponentPreset> find( String manufacturer, String partNo );
 	

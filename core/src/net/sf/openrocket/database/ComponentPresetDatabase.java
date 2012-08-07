@@ -3,6 +3,7 @@ package net.sf.openrocket.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -76,8 +77,10 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 
 		List<ComponentPreset> result = new ArrayList<ComponentPreset>(list.size()/6);
 
+		Set<String> favorites = Application.getPreferences().getComponentFavorites(type);
+
 		for( ComponentPreset preset : list ) {
-			if ( preset.isFavorite() && preset.get(ComponentPreset.TYPE).equals(type) ) {
+			if ( preset.get(ComponentPreset.TYPE).equals(type) && favorites.contains(preset.preferenceKey())) {
 				result.add(preset);
 			}
 		}
@@ -130,10 +133,9 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 	}
 
 	@Override
-	public void setFavorite( ComponentPreset preset, boolean favorite ) {
+	public void setFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite ) {
 		blockUntilLoaded();
-		preset.setFavorite(favorite);
-		Application.getPreferences().setComponentFavorite( preset, favorite );
+		Application.getPreferences().setComponentFavorite( preset, type, favorite );
 		this.fireAddEvent(preset);
 	}
 
