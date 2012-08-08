@@ -5,8 +5,8 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,23 +17,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
-import net.sf.openrocket.file.MotorFinder;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.customexpression.ExpressionBuilderDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 
@@ -158,7 +152,7 @@ public class CustomExpressionPanel extends JPanel {
 	 * @param move integer - +1 to move down, -1 to move up
 	 */
 	private void moveExpression(CustomExpression expression, int move){
-		ArrayList<CustomExpression> expressions = doc.getCustomExpressions();
+		List<CustomExpression> expressions = doc.getCustomExpressions();
 		int i = expressions.indexOf(expression);
 		if (i+move == expressions.size() || i+move < 0)
 			return;

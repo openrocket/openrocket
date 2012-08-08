@@ -1000,14 +1000,14 @@ public class GeneralOptimizationDialog extends JDialog {
 			if (id == null) {
 				continue;
 			}
-			Simulation sim = new Simulation(documentCopy, rocket);
+			Simulation sim = new Simulation(rocket);
 			sim.getConfiguration().setMotorConfigurationID(id);
 			String name = createSimulationName(trans.get("basicSimulationName"), rocket.getMotorConfigurationNameOrDescription(id));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		
 		
-		Simulation sim = new Simulation(documentCopy, rocket);
+		Simulation sim = new Simulation(rocket);
 		sim.getConfiguration().setMotorConfigurationID(null);
 		String name = createSimulationName(trans.get("noSimulationName"), rocket.getMotorConfigurationNameOrDescription(null));
 		simulations.add(new Named<Simulation>(sim, name));

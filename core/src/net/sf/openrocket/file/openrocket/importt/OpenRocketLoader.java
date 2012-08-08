@@ -1383,7 +1383,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 		else
 			data = dataHandler.getFlightData();
 
-		Simulation simulation = new Simulation(doc, doc.getRocket(), status, name,
+		Simulation simulation = new Simulation(doc.getRocket(), status, name,
 				conditions, listeners, data);
 				
 		doc.addSimulation(simulation);

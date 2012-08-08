@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -35,6 +36,8 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationStatus;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
+import net.sf.openrocket.simulation.customexpression.CustomExpressionSimulationListener;
 import net.sf.openrocket.simulation.exception.SimulationCancelledException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
@@ -95,6 +98,7 @@ public class SimulationRunDialog extends JDialog {
 	 * will result in an exception being thrown!
 	 */
 	private final Simulation[] simulations;
+	private final OpenRocketDocument document;
 	private final String[] simulationNames;
 	private final SimulationWorker[] simulationWorkers;
 	private final SimulationStatus[] simulationStatuses;
@@ -102,9 +106,10 @@ public class SimulationRunDialog extends JDialog {
 	private final double[] simulationMaxVelocity;
 	private final boolean[] simulationDone;
 	
-	public SimulationRunDialog(Window window, Simulation... simulations) {
+	public SimulationRunDialog(Window window, OpenRocketDocument document, Simulation... simulations) {
 		//// Running simulations...
 		super(window, trans.get("SimuRunDlg.title.RunSim"), Dialog.ModalityType.APPLICATION_MODAL);
+		this.document = document;
 		
 		if (simulations.length == 0) {
 			throw new IllegalArgumentException("Called with no simulations to run");
@@ -129,7 +134,7 @@ public class SimulationRunDialog extends JDialog {
 		
 		for (int i = 0; i < n; i++) {
 			simulationNames[i] = simulations[i].getName();
-			simulationWorkers[i] = new InteractiveSimulationWorker(simulations[i], i);
+			simulationWorkers[i] = new InteractiveSimulationWorker(document, simulations[i], i);
 			executor.execute(simulationWorkers[i]);
 		}
 		
@@ -208,8 +213,8 @@ public class SimulationRunDialog extends JDialog {
 	 * @param parent		the parent Window of the dialog to use.
 	 * @param simulations	the simulations to run.
 	 */
-	public static void runSimulations(Window parent, Simulation... simulations) {
-		new SimulationRunDialog(parent, simulations).setVisible(true);
+	public static void runSimulations(Window parent, OpenRocketDocument document, Simulation... simulations) {
+		new SimulationRunDialog(parent, document, simulations).setVisible(true);
 	}
 	
 	
@@ -277,6 +282,8 @@ public class SimulationRunDialog extends JDialog {
 		private volatile double burnoutVelocity;
 		private volatile double apogeeAltitude;
 		
+		private final CustomExpressionSimulationListener exprListener;
+		
 		/*
 		 * -2 = time from 0 ... burnoutTimeEstimate
 		 * -1 = velocity from v(burnoutTimeEstimate) ... 0
@@ -287,8 +294,10 @@ public class SimulationRunDialog extends JDialog {
 		private int progress = 0;
 		
 		
-		public InteractiveSimulationWorker(Simulation sim, int index) {
+		public InteractiveSimulationWorker(OpenRocketDocument doc, Simulation sim, int index) {
 			super(sim);
+			List<CustomExpression> exprs = doc.getCustomExpressions();
+			exprListener = new CustomExpressionSimulationListener(exprs);
 			this.index = index;
 			
 			// Calculate estimate of motor burn time
@@ -314,7 +323,7 @@ public class SimulationRunDialog extends JDialog {
 		 */
 		@Override
 		protected SimulationListener[] getExtraListeners() {
-			return new SimulationListener[] { new SimulationProgressListener() };
+			return new SimulationListener[] { new SimulationProgressListener(), exprListener };
 		}
 		
 		

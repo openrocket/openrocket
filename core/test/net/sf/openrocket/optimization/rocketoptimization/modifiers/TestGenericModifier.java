@@ -2,7 +2,6 @@ package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
 import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static org.junit.Assert.assertEquals;
-import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -21,9 +20,7 @@ public class TestGenericModifier {
 	@Before
 	public void setup() {
 		value = new TestValue();
-		Rocket rocket = new Rocket();
-		
-		sim = new Simulation(new OpenRocketDocument(rocket), rocket);
+		sim = new Simulation(new Rocket());
 		
 		Object related = new Object();
 		

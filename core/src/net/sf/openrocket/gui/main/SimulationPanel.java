@@ -82,7 +82,7 @@ public class SimulationPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Simulation sim = new Simulation(document, document.getRocket());
+				Simulation sim = new Simulation(document.getRocket());
 				sim.setName(document.getNextSimulationName());
 				
 				int n = document.getSimulationCount();
@@ -135,7 +135,7 @@ public class SimulationPanel extends JPanel {
 				
 				long t = System.currentTimeMillis();
 				new SimulationRunDialog(SwingUtilities.getWindowAncestor(
-							SimulationPanel.this), sims).setVisible(true);
+							SimulationPanel.this), document, sims).setVisible(true);
 				log.info("Running simulations took " + (System.currentTimeMillis() - t) + " ms");
 				fireMaintainSelection();
 			}
@@ -514,7 +514,7 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	private void openDialog(final Simulation sim, int position) {
-		new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), sim, position)
+		new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sim, position)
 				.setVisible(true);
 		fireMaintainSelection();
 	}

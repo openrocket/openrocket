@@ -90,12 +90,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				SimulationListenerHelper.firePostStep(status);
 				
-				// Calculate values for custom expressions
-				FlightDataBranch data = status.getFlightData();
-				ArrayList<CustomExpression> allExpressions = status.getSimulationConditions().getSimulation().getDocument().getCustomExpressions();
-				for (CustomExpression expression : allExpressions ) {
-					data.setValue(expression.getType(), expression.evaluateDouble(status));
-				}
 				
 				// Check for NaN values in the simulation status
 				checkNaN();

@@ -75,8 +75,7 @@ public class CurrentRocket {
 	public synchronized void addNewSimulation( Context context ) {
 		isModified = true;
 		Rocket rocket = rocketDocument.getRocket();
-		// FIXME - hopefully the change to the Simulation object will be reverted soon.
-		Simulation newSim = new Simulation(rocketDocument, rocket);
+		Simulation newSim = new Simulation(rocket);
 		newSim.setName(rocketDocument.getNextSimulationName());
 		rocketDocument.addSimulation(newSim);
 		notifySimsChanged(context);

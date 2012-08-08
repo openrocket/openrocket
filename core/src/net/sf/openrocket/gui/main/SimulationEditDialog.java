@@ -30,6 +30,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -41,7 +42,6 @@ import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.SimulationExportPanel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.plot.Axis;
-import net.sf.openrocket.gui.customexpression.CustomExpressionPanel;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -83,19 +83,20 @@ public class SimulationEditDialog extends JDialog {
 
 	private final Window parentWindow;
 	private final Simulation simulation;
+	private final OpenRocketDocument document;
 	private final SimulationOptions conditions;
 	private final Configuration configuration;
 	private static final Translator trans = Application.getTranslator();
 	
 	
-	public SimulationEditDialog(Window parent, Simulation s) {
-		this(parent, s, 0);
+	public SimulationEditDialog(Window parent, OpenRocketDocument document, Simulation s) {
+		this(parent, document, s, 0);
 	}
 	
-	public SimulationEditDialog(Window parent, Simulation s, int tab) {
+	public SimulationEditDialog(Window parent, OpenRocketDocument document, Simulation s, int tab) {
 		//// Edit simulation
 		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
-		
+		this.document = document;
 		this.parentWindow = parent;
 		this.simulation = s;
 		this.conditions = simulation.getOptions();
@@ -170,7 +171,7 @@ public class SimulationEditDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				SimulationEditDialog.this.dispose();
-				SimulationRunDialog.runSimulations(parentWindow, simulation);
+				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
 			}
 		});
 		mainPanel.add(button, "gapright para");

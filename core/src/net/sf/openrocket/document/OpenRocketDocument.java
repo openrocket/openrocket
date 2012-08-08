@@ -117,7 +117,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		customExpressions.remove(expression);
 	}
 	
-	public ArrayList<CustomExpression> getCustomExpressions(){
+	public List<CustomExpression> getCustomExpressions(){
 		return customExpressions;
 	}
 	

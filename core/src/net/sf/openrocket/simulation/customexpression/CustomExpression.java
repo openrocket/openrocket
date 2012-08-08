@@ -175,7 +175,7 @@ public class CustomExpression implements Cloneable{
 			names.add(type.getName());
 
 		if (doc != null){
-			ArrayList<CustomExpression> expressions = doc.getCustomExpressions();
+			List<CustomExpression> expressions = doc.getCustomExpressions();
 			for (CustomExpression exp : expressions ){
 				if (exp != this)
 					names.add(exp.getName());
@@ -412,7 +412,7 @@ public class CustomExpression implements Cloneable{
 	 */
 	public void addToDocument(){
 		// Abort if exact expression already in
-		ArrayList<CustomExpression> expressions = doc.getCustomExpressions();
+		List<CustomExpression> expressions = doc.getCustomExpressions();
 		if ( !expressions.isEmpty() ) {
 			// check if expression already exists
 			if ( expressions.contains(this) ){

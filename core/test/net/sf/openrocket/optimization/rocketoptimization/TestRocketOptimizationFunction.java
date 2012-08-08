@@ -1,7 +1,6 @@
 package net.sf.openrocket.optimization.rocketoptimization;
 
 import static org.junit.Assert.*;
-import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
@@ -40,7 +39,7 @@ public class TestRocketOptimizationFunction {
 	@Test
 	public void testNormalEvaluation() throws InterruptedException, OptimizationException {
 		final Rocket rocket = new Rocket();
-		final Simulation simulation = new Simulation(new OpenRocketDocument(rocket), rocket);
+		final Simulation simulation = new Simulation(rocket);
 		
 		final double p1 = 0.4;
 		final double p2 = 0.7;
@@ -86,7 +85,7 @@ public class TestRocketOptimizationFunction {
 	@Test
 	public void testNaNValue() throws InterruptedException, OptimizationException {
 		final Rocket rocket = new Rocket();
-		final Simulation simulation = new Simulation(new OpenRocketDocument(rocket), rocket);
+		final Simulation simulation = new Simulation(rocket);
 		
 		final double p1 = 0.4;
 		final double p2 = 0.7;
@@ -123,7 +122,7 @@ public class TestRocketOptimizationFunction {
 	@Test
 	public void testOutsideDomain() throws InterruptedException, OptimizationException {
 		final Rocket rocket = new Rocket();
-		final Simulation simulation = new Simulation(new OpenRocketDocument(rocket), rocket);
+		final Simulation simulation = new Simulation(rocket);
 		
 		final double p1 = 0.4;
 		final double p2 = 0.7;
@@ -164,7 +163,7 @@ public class TestRocketOptimizationFunction {
 	@Test
 	public void testOutsideDomain2() throws InterruptedException, OptimizationException {
 		final Rocket rocket = new Rocket();
-		final Simulation simulation = new Simulation(new OpenRocketDocument(rocket), rocket);
+		final Simulation simulation = new Simulation(rocket);
 		
 		final double p1 = 0.4;
 		final double p2 = 0.7;
@@ -197,7 +196,7 @@ public class TestRocketOptimizationFunction {
 	public void testNewSimulationInstance() {
 		final Rocket rocket = new Rocket();
 		rocket.setName("Foobar");
-		final Simulation simulation = new Simulation(new OpenRocketDocument(rocket), rocket);
+		final Simulation simulation = new Simulation(rocket);
 		simulation.setName("MySim");
 		
 		RocketOptimizationFunction function = new RocketOptimizationFunction(simulation,
