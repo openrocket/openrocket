@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
@@ -675,7 +676,7 @@ public abstract class FinSet extends ExternalComponent {
 		double y = -getTabHeight();
 		
 		int n = points.length;
-		points = Arrays.copyOf(points, points.length + 4);
+		points = ArrayUtils.copyOf(points, points.length + 4);
 		points[n] = new Coordinate(x2, 0);
 		points[n + 1] = new Coordinate(x2, y);
 		points[n + 2] = new Coordinate(x1, y);

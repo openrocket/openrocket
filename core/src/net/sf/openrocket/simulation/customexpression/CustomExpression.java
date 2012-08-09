@@ -200,7 +200,7 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	public boolean checkSymbol(){
-		if (symbol.trim().isEmpty())
+		if ("".equals(symbol.trim()))
 			return false;
 		
 		// No bad characters
@@ -226,7 +226,7 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	public boolean checkName(){
-		if (name.trim().isEmpty())
+		if ("".equals(name.trim()))
 			return false;
 		
 		// No characters that could mess things up saving etc
@@ -275,7 +275,7 @@ public class CustomExpression implements Cloneable{
 	 * building the expression.
 	 */
 	public boolean checkExpression(){
-		if (expression.trim().isEmpty()){
+		if ("".equals(expression.trim())){
 			return false;
 		}
 		
