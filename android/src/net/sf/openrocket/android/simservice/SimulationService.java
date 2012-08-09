@@ -1,10 +1,15 @@
 package net.sf.openrocket.android.simservice;
 
+import java.util.List;
+
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
+import net.sf.openrocket.simulation.customexpression.CustomExpressionSimulationListener;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -39,8 +44,12 @@ public class SimulationService extends IntentService {
 		SimulationTask t = (SimulationTask) intent.getSerializableExtra("net.sf.openrocket.simulationtask");
 		try {
 			Simulation sim = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getSimulation(t.simulationId);
+
+			List<CustomExpression> exprs = CurrentRocketHolder.getCurrentRocket().getRocketDocument().getCustomExpressions();
+			SimulationListener exprListener = new CustomExpressionSimulationListener(exprs);
+
 			AndroidLogWrapper.d(SimulationService.class, "simulating " + t.simulationId );
-			sim.simulate();
+			sim.simulate(exprListener);
 			CurrentRocketHolder.getCurrentRocket().unlockSimulation(this, t.simulationId);
 		}
 		catch (SimulationException simex) {

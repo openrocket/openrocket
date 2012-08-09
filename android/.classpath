@@ -2,11 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry excluding="**/.svn/**/*" including="l10n/**/*" kind="src" path="core-resources"/>
-	<classpathentry excluding="**/.svn/**/*|net/sf/openrocket/file/CSVExport.java|net/sf/openrocket/file/motor/MotorLoaderHelper.java|net/sf/openrocket/file/rocksim/export/|net/sf/openrocket/gui/|net/sf/openrocket/plugin/|net/sf/openrocket/preset/loader/|net/sf/openrocket/preset/xml/|net/sf/openrocket/startup/ConcurrentComponentPresetDatabaseLoader.java|net/sf/openrocket/startup/ConcurrentLoadingThrustCurveMotorSetDatabase.java|net/sf/openrocket/startup/Startup.java|net/sf/openrocket/startup/Startup2.java|net/sf/openrocket/startup/VersionHelper.java|net/sf/openrocket/utils/|net/sf/openrocket/startup/OSXStartup.java" kind="src" path="core"/>
+	<classpathentry excluding="**/.svn/**/*|net/sf/openrocket/file/CSVExport.java|net/sf/openrocket/file/motor/MotorLoaderHelper.java|net/sf/openrocket/file/rocksim/export/|net/sf/openrocket/gui/|net/sf/openrocket/plugin/|net/sf/openrocket/preset/loader/|net/sf/openrocket/preset/xml/|net/sf/openrocket/startup/ConcurrentComponentPresetDatabaseLoader.java|net/sf/openrocket/startup/ConcurrentLoadingThrustCurveMotorSetDatabase.java|net/sf/openrocket/startup/OSXStartup.java|net/sf/openrocket/startup/Startup.java|net/sf/openrocket/startup/Startup2.java|net/sf/openrocket/startup/VersionHelper.java|net/sf/openrocket/util/ExpressionParser.java|net/sf/openrocket/utils/" kind="src" path="core"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/android-support-v4.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket/lib/exp4j-0.2.9.jar"/>
+	<classpathentry kind="lib" path="libs/exp4j-rdg.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
