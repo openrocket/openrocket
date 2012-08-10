@@ -112,7 +112,6 @@
 				<attribute name="Main-Class" value="${main-class}"/>
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png"/>
 			</manifest>
-			<zipfileset src="lib/exp4j-rdg.jar" />
 		</jar>
 	</target>
 
