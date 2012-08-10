@@ -27,10 +27,10 @@ public class RangeExpression extends CustomExpression {
 	public RangeExpression(OpenRocketDocument doc, String startTime, String endTime, String variableType) {
 		super(doc);
 		
-		if (startTime.isEmpty()){
+		if ("".equals(startTime.trim())){
 			startTime = "0";
 		}
-		if (endTime.isEmpty()){
+		if ("".equals(endTime.trim())){
 			endTime = "t";
 		}
 		
