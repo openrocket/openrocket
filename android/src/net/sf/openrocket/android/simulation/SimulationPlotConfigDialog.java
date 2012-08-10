@@ -1,9 +1,7 @@
 package net.sf.openrocket.android.simulation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.CurrentRocketHolder;
@@ -68,14 +66,14 @@ public class SimulationPlotConfigDialog extends DialogFragment {
 
 			@Override
 			public void onClick(View v) {
-				Map<Double,String> eventsToShow = new HashMap<Double,String>();
+				List<FlightEvent> eventsToShow = new ArrayList<FlightEvent>();
 				{
 					SparseBooleanArray eventsSelected = eventList.getCheckedItemPositions();
 					List<FlightEvent> flightEvents = chart.getFlightDataBranch(CurrentRocketHolder.getCurrentRocket().getRocketDocument()).getEvents();
 					for( int i=0; i< flightEvents.size(); i++ ) {
 						if ( eventsSelected.get(i) ) {
 							FlightEvent event = flightEvents.get(i);
-							eventsToShow.put( event.getTime(), event.getType().toString());
+							eventsToShow.add( event );
 						}
 					}
 				}
@@ -96,12 +94,13 @@ public class SimulationPlotConfigDialog extends DialogFragment {
 		series2Spinner = (Spinner) v.findViewById(R.id.simulationSeries2);
 
 		List<FlightDataType> selectableSeries = new ArrayList<FlightDataType>();
+		int index = 0;
 		for( FlightDataType fdt : chart.getFlightDataBranch(rocketDocument).getTypes() ) {
 			if ( fdt == FlightDataType.TYPE_TIME ) { 
-
 			} else {
 				selectableSeries.add(fdt);
 			}
+			index++;
 		}
 		ArrayAdapter<FlightDataType> serieses = new ArrayAdapter<FlightDataType>(getActivity(),android.R.layout.simple_spinner_item,selectableSeries) {
 
@@ -118,10 +117,13 @@ public class SimulationPlotConfigDialog extends DialogFragment {
 			}
 
 		};
+		
 		series1Spinner.setAdapter(serieses);
-		series1Spinner.setSelection(0);
+		int selection1 = serieses.getPosition(chart.getSeries1());
+		series1Spinner.setSelection(selection1);
 		series2Spinner.setAdapter(serieses);
-		series2Spinner.setSelection(1);
+		int selection2 = serieses.getPosition(chart.getSeries2());
+		series2Spinner.setSelection(selection2);
 
 		eventList = (ListView) v.findViewById(R.id.simulationEventsList);
 
@@ -147,6 +149,10 @@ public class SimulationPlotConfigDialog extends DialogFragment {
 		eventList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		eventList.setAdapter(events);
 
+		for( FlightEvent evt : chart.getEvents() ) {
+			eventList.setItemChecked( events.getPosition(evt), true);
+		}
+		
 		return builder.create();
 
 	}
