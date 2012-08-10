@@ -6,16 +6,11 @@ public class ArrayUtils {
 
 	/**
 	 * Returns a double array with values from start to end with given step.
-	 * Starts exactly at start and stops at the step before stop is reached. 
+	 * Starts exactly at start and stops at the multiple of step <= stop. 
 	 */
 	public static double[] range(double start, double stop, double step){
 		
-		int size = 0 ;
-		if ( stop <= start ) {
-			size = 0;
-		} else {
-			size = (int) Math.ceil(((stop - start) / step));
-		}
+		int size = (int) Math.floor(((stop - start) / step)) + 1;
 		
 		//System.out.println("Range from "+start+" to "+stop+" step "+step+" has length "+size);
 		

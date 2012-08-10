@@ -81,6 +81,13 @@ public class ArrayUtilsTest {
 	}
 
 	@Test
+	public void testRante0() {
+		double[] ary = ArrayUtils.range(0., 0., 1.0);
+		assertEquals(1, ary.length);
+		assertEquals( 0.0, ary[0], 0.0 );
+	}
+
+	@Test
 	public void testRange1() {
 		double[] ary = ArrayUtils.range(0.0, 0.5, 1.0);
 		assertEquals(1, ary.length);
@@ -90,9 +97,10 @@ public class ArrayUtilsTest {
 	@Test
 	public void testRange2() {
 		double[] ary = ArrayUtils.range(0.0, 1.0, 0.5);
-		assertEquals(2, ary.length);
+		assertEquals(3, ary.length);
 		assertEquals( 0.0, ary[0], 0.0 );
 		assertEquals( 0.5, ary[1], 0.0 );
+		assertEquals( 1.0, ary[2], 0.0 );
 	}
 	
 	@Test
@@ -107,9 +115,9 @@ public class ArrayUtilsTest {
 	@Test
 	public void testRange4() {
 		double[] ary = ArrayUtils.range(0.0,10.0, 0.5);
-		assertEquals( 20, ary.length );
+		assertEquals( 21, ary.length );
 		int i =0;
-		for( double d = 0.0; d < 10.0; d+=0.5){
+		for( double d = 0.0; d < 10.2; d+=0.5){
 			assertEquals(d,ary[i++],0.0);
 		}
 		assertEquals( i, ary.length );
