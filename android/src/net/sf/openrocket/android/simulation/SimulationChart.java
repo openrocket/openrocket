@@ -52,12 +52,12 @@ import android.graphics.Paint.Align;
  * 
  */
 public class SimulationChart implements Serializable {
-	
+
 	private final int simulationIndex;
 	private transient FlightDataType series1;
 	private transient FlightDataType series2;
 	private transient List<FlightEvent> events;
-	
+
 	// Define 4 different colors and point styles to use for the series.
 	// For now only 2 series are supported though.
 	private final static int[] colors = new int[] { Color.BLUE, Color.YELLOW, Color.GREEN, Color.RED };
@@ -92,7 +92,7 @@ public class SimulationChart implements Serializable {
 	public void setEvents( List<FlightEvent> events ) {
 		this.events = events;
 	}
-	
+
 	public List<FlightEvent> getEvents() {
 		return events;
 	}
@@ -119,11 +119,19 @@ public class SimulationChart implements Serializable {
 		if (series2== null) {
 			series2 = flightDataBranch.getTypes()[2];
 		}
-		
+
 		if ( events == null ) {
 			events = new ArrayList<FlightEvent>();
 			for ( FlightEvent event : flightDataBranch.getEvents() ) {
-				events.add(event);
+				switch( event.getType()) {
+				case LAUNCHROD:
+				case APOGEE:
+				case BURNOUT:
+				case EJECTION_CHARGE:
+					events.add(event);
+				default:
+					break;
+				}
 			}
 		}
 
@@ -203,7 +211,7 @@ public class SimulationChart implements Serializable {
 
 		double ymax = computeMaxValueWithPadding( series1values );
 		double xmax = Math.ceil( timevalues.get( timevalues.size()-1));
-		
+
 		AndroidLogWrapper.d(SimulationChart.class,"ymax = " + ymax);
 		renderer.setXAxisMax(xmax);
 		renderer.setYAxisMax(ymax);
@@ -228,7 +236,7 @@ public class SimulationChart implements Serializable {
 			addXYSeries(dataset, series2.getName(), timevalues, series2values, 1);
 		}
 		XYChart chart = new LineChart(dataset, renderer);
-		
+
 		return chart;
 	}
 
@@ -258,7 +266,7 @@ public class SimulationChart implements Serializable {
 		//  next 100 if 1000 < max < 10,000
 		//  next 1000 if max >= 10,000
 		double numdigits = Math.floor(Math.log10(max));
-		
+
 		if ( numdigits <= 1.0 ) {
 			return 10.0;
 		} else if ( numdigits <= 3.0 ) {
@@ -268,7 +276,7 @@ public class SimulationChart implements Serializable {
 		} else {
 			return 1000.0 * ( Math.ceil( max / 1000.0 ));
 		}
-		
+
 	}
-	
+
 }
