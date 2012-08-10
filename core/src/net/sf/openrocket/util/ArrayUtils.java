@@ -10,7 +10,12 @@ public class ArrayUtils {
 	 */
 	public static double[] range(double start, double stop, double step){
 		
-		int size = (int) Math.floor(((stop - start) / step));
+		int size = 0 ;
+		if ( stop <= start ) {
+			size = 0;
+		} else {
+			size = (int) Math.ceil(((stop - start) / step));
+		}
 		
 		//System.out.println("Range from "+start+" to "+stop+" step "+step+" has length "+size);
 		
