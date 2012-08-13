@@ -20,6 +20,16 @@ public class ExpressionParserTest {
 		assertEquals(1.2, parser.parse("01.200"), EPS);
 	}
 	
+	@Test
+	public void testNegativeNumber() throws InvalidExpressionException {
+		assertEquals(-1.0, parser.parse("-1"), EPS);
+		assertEquals(-15.0, parser.parse("-15"), EPS);
+		assertEquals(-0.9, parser.parse("-.9"), EPS);
+		assertEquals(-1.0, parser.parse("-1."), EPS);
+		assertEquals(-1.2, parser.parse("-1.2"), EPS);
+		assertEquals(-1.2, parser.parse("-01.200"), EPS);
+	}
+	
 	
 	@Test
 	public void testDecimalComma() throws InvalidExpressionException {
