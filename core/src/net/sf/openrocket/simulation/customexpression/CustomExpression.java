@@ -204,7 +204,7 @@ public class CustomExpression implements Cloneable{
 			return false;
 		
 		// No bad characters
-		for (char c : "0123456789.,()[]{}<>:#@%^&* ".toCharArray())
+		for (char c : "0123456789.,()[]{}<>:#@%^&*$ ".toCharArray())
 			if (symbol.indexOf(c) != -1 )
 				return false;
 		
@@ -230,7 +230,7 @@ public class CustomExpression implements Cloneable{
 			return false;
 		
 		// No characters that could mess things up saving etc
-		for (char c : ",()[]{}<>#".toCharArray())
+		for (char c : ",()[]{}<>#$".toCharArray())
 			if (name.indexOf(c) != -1 )
 				return false;
 		
@@ -293,6 +293,7 @@ public class CustomExpression implements Cloneable{
 					}
 					else break;
 				case '#' : return false;
+				case '$' : return false;
 				case '=' : return false;
 			}
 		}
@@ -465,12 +466,12 @@ public class CustomExpression implements Cloneable{
 	} 
 	
 	/*
-	 * Returns a simple all upper case string hash code with a proceeding # mark.
+	 * Returns a simple all upper case string hash code with a proceeding $ mark.
 	 * Used for temporary substitution when evaluating index and range expressions.
 	 */
 	public String hash(){
 		Integer hashint = new Integer(this.getExpressionString().hashCode());
-		String hash = "#";
+		String hash = "$";
 		for (char c : hashint.toString().toCharArray()){
 			char newc = (char) (c + 17);
 			hash = hash + newc;

@@ -166,6 +166,7 @@ class Tokenizer {
 		Token lastToken;
 		for (int i = 0; i < chars.length; i++) {
 			char c = chars[i];
+			
 			if (c == ' ')
 				continue;
 			if (isDigit(c)) {
@@ -179,12 +180,12 @@ class Tokenizer {
 				}
 				i += numberLen - 1;
 				lastToken = new NumberToken(valueBuilder.toString());
-			} else if (Character.isLetter(c) || c == '_' || c == '#') {
+			} else if (Character.isLetter(c) || c == '_' || c == '$') {				
 				// can be a variable or function
 				final StringBuilder nameBuilder = new StringBuilder();
 				nameBuilder.append(c);
 				int offset = 1;
-				while (chars.length > i + offset && (Character.isLetter(chars[i + offset]) || Character.isDigit(chars[i + offset]) || chars[i + offset] == '_' || chars[i + offset] == '#')) {
+				while (chars.length > i + offset && (Character.isLetter(chars[i + offset]) || Character.isDigit(chars[i + offset]) || chars[i + offset] == '_' || chars[i + offset] == '$')) {
 					nameBuilder.append(chars[i + offset++]);
 				}
 				String name = nameBuilder.toString();
