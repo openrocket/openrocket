@@ -95,7 +95,7 @@ public class ArrayUtils {
 	 * dt is the time step between each array value
 	 */
 	public static double trapz(double[] y, double dt){
-		double stop = y.length * dt;
+		double stop = (y.length -1) * dt;
 		
 		if (y.length <= 1 || dt <= 0) return 0;
 		
