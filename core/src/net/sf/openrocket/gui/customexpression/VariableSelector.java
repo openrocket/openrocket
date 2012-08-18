@@ -141,7 +141,7 @@ public class VariableSelector extends JDialog {
 	
 	private void selectVariable(){
 		int row = table.getSelectedRow();
-		String str = tableModel.getSymbolAt(row);
+		String str = table.getValueAt(row, 1).toString();
 		parentBuilder.pasteIntoExpression(str);
 		VariableSelector.this.dispose();
 	}

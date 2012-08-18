@@ -150,7 +150,7 @@ public class OperatorSelector extends JDialog {
 	
 	private void selectOperator(){
 		int row = table.getSelectedRow();
-		String str = tableModel.getOperatorAt(row);
+		String str = table.getValueAt(row, 0).toString();
 		parentBuilder.pasteIntoExpression(str);
 		OperatorSelector.this.dispose();
 	}
