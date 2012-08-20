@@ -1,7 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
 public class Streamer extends RecoveryDevice {
@@ -10,6 +12,7 @@ public class Streamer extends RecoveryDevice {
 	
 	public static final double MAX_COMPUTED_CD = 0.4;
 	
+	private static final Translator trans = Application.getTranslator();
 
 	private double stripLength;
 	private double stripWidth;
@@ -120,7 +123,7 @@ public class Streamer extends RecoveryDevice {
 	
 	@Override
 	public String getComponentName() {
-		return "Streamer";
+		return trans.get ("Streamer.Streamer");
 	}
 	
 	@Override

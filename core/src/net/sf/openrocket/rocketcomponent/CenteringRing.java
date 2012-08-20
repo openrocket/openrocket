@@ -1,7 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -12,6 +14,8 @@ public class CenteringRing extends RadiusRingComponent {
 		setInnerRadiusAutomatic(true);
 		setLength(0.002);
 	}
+	
+	private static final Translator trans = Application.getTranslator();
 
 
 	@Override
@@ -56,7 +60,7 @@ public class CenteringRing extends RadiusRingComponent {
 
 	@Override
 	public String getComponentName() {
-		return "Centering ring";
+		return trans.get ("CenteringRing.CenteringRing");
 	}
 
 	@Override

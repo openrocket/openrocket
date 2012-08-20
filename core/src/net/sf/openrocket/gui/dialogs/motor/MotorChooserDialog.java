@@ -29,7 +29,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 
 	
 	public MotorChooserDialog(Motor current, double delay, double diameter, Window owner) {
-		super(owner, "Select a rocket motor", Dialog.ModalityType.APPLICATION_MODAL);
+		super(owner, trans.get ("MotorChooserDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		// Check that the motor database has been loaded properly
 		MotorDatabaseLoadingDialog.check(null);

@@ -63,7 +63,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Stability vs. time
-		config = new PlotConfiguration("Stability vs. time");
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Stability"));
 		config.addPlotDataType(FlightDataType.TYPE_STABILITY, 0);
 		config.addPlotDataType(FlightDataType.TYPE_CP_LOCATION, 1);
 		config.addPlotDataType(FlightDataType.TYPE_CG_LOCATION, 1);
@@ -76,7 +76,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Drag coefficients vs. Mach number
-		config = new PlotConfiguration("Drag coefficients vs. Mach number",
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Dragcoef"),
 				FlightDataType.TYPE_MACH_NUMBER);
 		config.addPlotDataType(FlightDataType.TYPE_DRAG_COEFF, 0);
 		config.addPlotDataType(FlightDataType.TYPE_FRICTION_DRAG_COEFF, 0);
@@ -85,7 +85,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Roll characteristics
-		config = new PlotConfiguration("Roll characteristics");
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Rollcharacteristics"));
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_RATE, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_MOMENT_COEFF, 1);
 		config.addPlotDataType(FlightDataType.TYPE_ROLL_FORCING_COEFF, 1);
@@ -100,7 +100,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Angle of attack and orientation vs. time
-		config = new PlotConfiguration("Angle of attack and orientation vs. time");
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Angleofattack"));
 		config.addPlotDataType(FlightDataType.TYPE_AOA, 0);
 		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_PHI);
 		config.addPlotDataType(FlightDataType.TYPE_ORIENTATION_THETA);
@@ -113,7 +113,7 @@ public class PlotConfiguration implements Cloneable {
 		configs.add(config);
 		
 		//// Simulation time step and computation time
-		config = new PlotConfiguration("Simulation time step and computation time");
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Simulationtime"));
 		config.addPlotDataType(FlightDataType.TYPE_TIME_STEP);
 		config.addPlotDataType(FlightDataType.TYPE_COMPUTATION_TIME);
 		config.setEvent(FlightEvent.Type.IGNITION, true);

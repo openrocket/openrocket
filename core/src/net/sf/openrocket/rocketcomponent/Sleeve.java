@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -12,6 +14,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Sleeve extends RingComponent {
+	private static final Translator trans = Application.getTranslator();
 	
 	protected double innerRadius = 0;
 	protected double thickness = 0;
@@ -91,7 +94,7 @@ public class Sleeve extends RingComponent {
 	
 	@Override
 	public String getComponentName() {
-		return "Sleeve";
+		return trans.get ("Sleeve.Sleeve");
 	}
 	
 	@Override

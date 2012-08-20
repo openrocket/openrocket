@@ -30,7 +30,7 @@ public abstract class Material implements Comparable<Material> {
 		private final UnitGroup units;
 		
 		private Type(String name, UnitGroup units) {
-			this.name = name;
+			this.name = trans.get ("Databases.materials.types." + name);
 			this.units = units;
 		}
 		

@@ -22,7 +22,7 @@ import net.sf.openrocket.util.Reflection;
 public class MaterialModel extends AbstractListModel implements
 		ComboBoxModel, ComponentChangeListener, DatabaseListener<Material> {
 	
-	private static final String CUSTOM = "Custom";
+	private final String custom;
 
 	
 	private final Component parentComponent;
@@ -47,6 +47,7 @@ public class MaterialModel extends AbstractListModel implements
 		this.parentComponent = parent;
 		this.component = component;
 		this.type = type;
+		this.custom = trans.get ("Material.CUSTOM");
 		
 		switch (type) {
 		case LINE:
@@ -90,7 +91,7 @@ public class MaterialModel extends AbstractListModel implements
 			return;
 		}
 
-		if (item == CUSTOM) {
+		if (item == custom) {
 			
 			// Open custom material dialog in the future, after combo box has closed
 			SwingUtilities.invokeLater(new Runnable() {
@@ -129,7 +130,7 @@ public class MaterialModel extends AbstractListModel implements
 	@Override
 	public Object getElementAt(int index) {
 		if (index == database.size()) {
-			return CUSTOM;
+			return custom;
 		} else if (index >= database.size()+1) {
 			return null;
 		}

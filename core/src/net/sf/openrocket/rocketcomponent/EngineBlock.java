@@ -1,11 +1,15 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPreset.Type;
+import net.sf.openrocket.startup.Application;
 
 
 public class EngineBlock extends ThicknessRingComponent {
 	
+	private static final Translator trans = Application.getTranslator();
+
 	public EngineBlock() {
 		super();
 		setOuterRadiusAutomatic(true);
@@ -20,7 +24,7 @@ public class EngineBlock extends ThicknessRingComponent {
 	
 	@Override
 	public String getComponentName() {
-		return "Engine block";
+		return trans.get ("EngineBlock.EngineBlock");
 	}
 	
 	@Override
