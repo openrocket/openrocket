@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">OpenRocket</string>
-    <string name="version">version 12.07-b7</string>
+    <string name="version">version 12.07-b8</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="dismiss">Dismiss</string>
