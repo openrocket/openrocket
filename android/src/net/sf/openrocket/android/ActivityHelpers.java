@@ -11,7 +11,6 @@ public abstract class ActivityHelpers {
 
 	public static void goHome( Activity parent ) {
 		Intent i = new Intent(parent, Main.class);
-		i.putExtra(Main.restartFlag, true);
 		i.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP + Intent.FLAG_ACTIVITY_NEW_TASK );
 		parent.startActivity(i);
 	}

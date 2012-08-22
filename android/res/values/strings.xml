@@ -3,6 +3,9 @@
 
     <string name="app_name">OpenRocket</string>
     <string name="version">version 12.07-b7</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="dismiss">Dismiss</string>
     <string name="load">Load</string>
     <string name="save">Save</string>
     <string name="Add">Add</string>
@@ -10,6 +13,9 @@
     <string name="Download">Download</string>
     <string name="About">About</string>
     <string name="Preferences">Preferences</string>
+    <string name="missingMotors">Missing Motors</string>
+    <string name="missingMotorsMessageStart">The following motors are missing:</string>
+    <string name="missingMotorsMessageEnd">Would you like to download them from Thrustcurve?</string>
     <string name="configurePlot">Change Plot</string>
     <string name="view_events">View Events</string>
     <string name="simulationPlotDialogTitle">Select Series And Events</string>

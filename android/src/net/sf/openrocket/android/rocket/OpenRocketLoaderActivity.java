@@ -12,8 +12,6 @@ import net.sf.openrocket.android.thrustcurve.TCQueryAction;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import net.sf.openrocket.motor.ThrustCurveMotorPlaceholder;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,6 +40,12 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	 * Set to the Uri of the file we are supposed to load.  Is saved in InstanceState.
 	 */
 	private Uri fileToLoad = null;
+	
+	protected boolean isLoading() {
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "isLoading " + this.hashCode());
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "isLoading = " + isLoading);
+		return isLoading;
+	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -57,7 +61,8 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onSaveInstanceState");
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onSaveInstanceState " + this.hashCode());
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "isLoading = " + isLoading);
 		outState.putBoolean("isLoading", isLoading);
 		if ( fileToLoad != null ) {
 			outState.putParcelable("fileToLoad", fileToLoad);
@@ -69,6 +74,7 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "onRestoreInstanceState");
 		isLoading = savedInstanceState.getBoolean("isLoading",false);
+		AndroidLogWrapper.d(OpenRocketLoaderActivity.class, "isLoading = " + isLoading);
 		if ( savedInstanceState.containsKey("fileToLoad") ) {
 			fileToLoad = savedInstanceState.getParcelable("fileToLoad");
 		}
@@ -164,16 +170,10 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 	 * @param result
 	 */
 	public void onOpenRocketFileLoaded(OpenRocketLoaderResult result) {
-		isLoading = false;
 		if ( result.loadingError != null ) {
 
-			AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-			dialogBuilder.setTitle( R.string.loadingErrorMessage );
-			dialogBuilder.setMessage( result.loadingError.getLocalizedMessage());
-			dialogBuilder.setCancelable(true);
-			Dialog d = dialogBuilder.create();
-			d.setCanceledOnTouchOutside(true);
-			d.show();
+			ErrorLoadingFileDialogFragment errorDialog = ErrorLoadingFileDialogFragment.newInstance(R.string.loadingErrorMessage, result.loadingError.getLocalizedMessage());
+			errorDialog.show(getSupportFragmentManager(),"errorDialog");
 
 		} else {
 			CurrentRocketHolder.getCurrentRocket().setRocketDocument( result.rocket );
@@ -188,8 +188,8 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		Set<ThrustCurveMotorPlaceholder> missingMotors = MissingMotorHelpers.findMissingMotors(rocket);
 
 		if ( missingMotors.size() > 0 ) {
-			DialogFragment missingMotorDialog = MissingMotorDialogFragment.newInstance( missingMotors );
-			getSupportFragmentManager().beginTransaction().add(missingMotorDialog, MISSING_MOTOR_DIAG_FRAGMENT_TAG).commit();
+			MissingMotorDialogFragment missingMotorDialog = MissingMotorDialogFragment.newInstance( missingMotors );
+			missingMotorDialog.show(getSupportFragmentManager(), MISSING_MOTOR_DIAG_FRAGMENT_TAG);
 			return;
 		}
 
@@ -235,7 +235,13 @@ implements TCQueryAction.OnTCQueryCompleteListener, OpenRocketLoaderFragment.OnO
 		displayWarningDialog();
 	}
 
+	public void doDismissErrorDialog() {
+		isLoading = false;
+		fileToLoad = null;
+	}
+	
 	public void moveOnToViewer() {
+		isLoading = false;
 		Intent i = new Intent(this,OpenRocketViewer.class);
 		startActivity(i);
 		finish();

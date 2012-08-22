@@ -15,6 +15,7 @@ public class WarningDialogFragment extends DialogFragment {
 		WarningDialogFragment frag = new WarningDialogFragment();
 		Bundle args = new Bundle();
 		frag.setArguments(args);
+		frag.setCancelable(false);
 		return frag;
 	}
 
@@ -35,11 +36,7 @@ public class WarningDialogFragment extends DialogFragment {
 				((OpenRocketLoaderActivity)getActivity()).moveOnToViewer();
 			}
 		});
-		builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-			public void onCancel(DialogInterface dialog) {
-				((OpenRocketLoaderActivity)getActivity()).moveOnToViewer();
-			}
-		});
-		return builder.create();
+		Dialog dialog = builder.create();
+		return dialog;
 	}
 }

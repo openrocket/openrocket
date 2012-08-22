@@ -18,7 +18,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class OpenRocketLoaderFragment extends Fragment {
+import com.actionbarsherlock.app.SherlockFragment;
+
+public class OpenRocketLoaderFragment extends SherlockFragment {
 	
 	private final static String FILE_ARG_KEY = "file";
 	
