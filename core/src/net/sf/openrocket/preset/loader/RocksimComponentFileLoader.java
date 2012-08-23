@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -20,250 +21,251 @@ import java.util.List;
  */
 public abstract class RocksimComponentFileLoader {
 
-    private String basePath = "";
+    private static final PrintStream LOGGER = System.err;
 
-    private File dir;
+	private String basePath = "";
 
-    protected List<RocksimComponentFileColumnParser> fileColumns = new ArrayList<RocksimComponentFileColumnParser>();
+	private File dir;
 
-    /**
-     * Constructor.
-     *
-     * @param theBasePathToLoadFrom base path
-     */
-    public RocksimComponentFileLoader(File theBasePathToLoadFrom) {
-        dir = theBasePathToLoadFrom;
-        basePath = dir.getAbsolutePath();
-    }
+	protected List<RocksimComponentFileColumnParser> fileColumns = new ArrayList<RocksimComponentFileColumnParser>();
 
-    /**
-     * Constructor.
-     *
-     * @param theBasePathToLoadFrom base path
-     */
-    public RocksimComponentFileLoader(String theBasePathToLoadFrom) {
-        dir = new File(basePath);
-        basePath = theBasePathToLoadFrom;
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param theBasePathToLoadFrom base path
+	 */
+	public RocksimComponentFileLoader(File theBasePathToLoadFrom) {
+		dir = theBasePathToLoadFrom;
+		basePath = dir.getAbsolutePath();
+	}
 
-    protected abstract RocksimComponentFileType getFileType();
+	/**
+	 * Constructor.
+	 *
+	 * @param theBasePathToLoadFrom base path
+	 */
+	public RocksimComponentFileLoader(String theBasePathToLoadFrom) {
+		dir = new File(basePath);
+		basePath = theBasePathToLoadFrom;
+	}
 
-    public void load() {
-        load(getFileType());
-    }
+	protected abstract RocksimComponentFileType getFileType();
 
-    /**
-     * Read a comma separated component file and return the parsed contents as a list of string arrays.  Not for
-     * production use - just here for smoke testing.
-     *
-     * @param type the type of component file to read; uses the default file name
-     *
-     * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
-     *         component data file; the element in the list itself is an array of String, where each item in the array
-     *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
-     */
-    private void load(RocksimComponentFileType type) {
-        if (!dir.exists()) {
-            throw new IllegalArgumentException(basePath + " does not exist");
-        }
-        if (!dir.isDirectory()) {
-            throw new IllegalArgumentException(basePath + " is not directory");
-        }
-        if (!dir.canRead()) {
-            throw new IllegalArgumentException(basePath + " is not readable");
-        }
-        try {
-            FileInputStream fis = new FileInputStream(new File(dir, type.getDefaultFileName()));
-            load(fis);
-        }
-        catch (FileNotFoundException ex) {
-            // FIXME?
-        }
-    }
+	public void load() {
+		try {
+		load(getFileType());
+		} catch (FileNotFoundException fex ) {
+	        LOGGER.println( fex.getLocalizedMessage() );
+		}
+	}
 
-    /**
-     * Read a comma separated component file and return the parsed contents as a list of string arrays.
-     *
-     * @param file the file to read and parse
-     *
-     * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
-     *         component data file; the element in the list itself is an array of String, where each item in the array
-     *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
-     */
-    private void load(File file) throws FileNotFoundException {
-        load(new FileInputStream(file));
-    }
+	/**
+	 * Read a comma separated component file and return the parsed contents as a list of string arrays.  Not for
+	 * production use - just here for smoke testing.
+	 *
+	 * @param type the type of component file to read; uses the default file name
+	 *
+	 * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
+	 *         component data file; the element in the list itself is an array of String, where each item in the array
+	 *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
+	 */
+	private void load(RocksimComponentFileType type) throws FileNotFoundException {
+		if (!dir.exists()) {
+			throw new IllegalArgumentException(basePath + " does not exist");
+		}
+		if (!dir.isDirectory()) {
+			throw new IllegalArgumentException(basePath + " is not directory");
+		}
+		if (!dir.canRead()) {
+			throw new IllegalArgumentException(basePath + " is not readable");
+		}
+		FileInputStream fis = new FileInputStream(new File(dir, type.getDefaultFileName()));
+		load(fis);
+	}
 
-    /**
-     * Read a comma separated component file and return the parsed contents as a list of string arrays.
-     *
-     * @param is the stream to read and parse
-     *
-     * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
-     *         component data file; the element in the list itself is an array of String, where each item in the array
-     *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
-     */
-    private void load(InputStream is) {
-        if (is == null) {
-            return;
-        }
-        InputStreamReader r = null;
-        try {
-            r = new InputStreamReader(is);
+	/**
+	 * Read a comma separated component file and return the parsed contents as a list of string arrays.
+	 *
+	 * @param file the file to read and parse
+	 *
+	 * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
+	 *         component data file; the element in the list itself is an array of String, where each item in the array
+	 *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
+	 */
+	private void load(File file) throws FileNotFoundException {
+		load(new FileInputStream(file));
+	}
 
-            // Create the CSV reader.  Use comma separator.
-            CSVReader reader = new CSVReader(r, ',', '\'', '\\');
+	/**
+	 * Read a comma separated component file and return the parsed contents as a list of string arrays.
+	 *
+	 * @param is the stream to read and parse
+	 *
+	 * @return a list (guaranteed never to be null) of string arrays.  Each element of the list represents a row in the
+	 *         component data file; the element in the list itself is an array of String, where each item in the array
+	 *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
+	 */
+	private void load(InputStream is) {
+		if (is == null) {
+			return;
+		}
+		InputStreamReader r = null;
+		try {
+			r = new InputStreamReader(is);
 
-            //Read and throw away the header row.
-            parseHeaders(reader.readNext());
+			// Create the CSV reader.  Use comma separator.
+			CSVReader reader = new CSVReader(r, ',', '\'', '\\');
 
-            String[] data = null;
-            while ((data = reader.readNext()) != null) {
-                // detect empty lines and skip:
-                if (data.length == 0) {
-                    continue;
-                }
-                if (data.length == 1 && "".equals(data[0].trim())) {
-                    continue;
-                }
-                parseData(data);
-            }
-            //Read the rest of the file as data rows.
-            return;
-        }
-        catch (IOException e) {
-        }
-        finally {
-            if (r != null) {
-                try {
-                    r.close();
-                }
-                catch (IOException e) {
-                }
-            }
-        }
+			//Read and throw away the header row.
+			parseHeaders(reader.readNext());
 
-    }
+			String[] data = null;
+			while ((data = reader.readNext()) != null) {
+				// detect empty lines and skip:
+				if (data.length == 0) {
+					continue;
+				}
+				if (data.length == 1 && "".equals(data[0].trim())) {
+					continue;
+				}
+				parseData(data);
+			}
+			//Read the rest of the file as data rows.
+			return;
+		}
+		catch (IOException e) {
+		}
+		finally {
+			if (r != null) {
+				try {
+					r.close();
+				}
+				catch (IOException e) {
+				}
+			}
+		}
 
-    protected void parseHeaders(String[] headers) {
-        for (RocksimComponentFileColumnParser column : fileColumns) {
-            column.configure(headers);
-        }
-    }
+	}
 
-    protected void parseData(String[] data) {
-        if (data == null || data.length == 0) {
-            return;
-        }
-        TypedPropertyMap props = new TypedPropertyMap();
+	protected void parseHeaders(String[] headers) {
+		for (RocksimComponentFileColumnParser column : fileColumns) {
+			column.configure(headers);
+		}
+	}
 
-        preProcess(data);
+	protected void parseData(String[] data) {
+		if (data == null || data.length == 0) {
+			return;
+		}
+		TypedPropertyMap props = new TypedPropertyMap();
 
-        for (RocksimComponentFileColumnParser column : fileColumns) {
-            column.parse(data, props);
-        }
-        postProcess(props);
-    }
+		preProcess(data);
 
-    protected void preProcess(String[] data) {
-        for (int i = 0; i < data.length; i++) {
-            String d = data[i];
-            if (d == null) {
-                continue;
-            }
-            d = d.trim();
-            d = stripAll(d, '"');
+		for (RocksimComponentFileColumnParser column : fileColumns) {
+			column.parse(data, props);
+		}
+		postProcess(props);
+	}
 
-            data[i] = d;
-        }
-    }
+	protected void preProcess(String[] data) {
+		for (int i = 0; i < data.length; i++) {
+			String d = data[i];
+			if (d == null) {
+				continue;
+			}
+			d = d.trim();
+			d = stripAll(d, '"');
 
-    protected abstract void postProcess(TypedPropertyMap props);
+			data[i] = d;
+		}
+	}
 
-    /**
-     * Rocksim CSV units are either inches or mm.  A value of 0 or "in." indicate inches.  A value of 1 or "mm" indicate
-     * millimeters.
-     *
-     * @param units the value from the file
-     *
-     * @return true if it's inches
-     */
-    protected static boolean isInches(String units) {
-        String tmp = units.trim().toLowerCase();
-        return "0".equals(tmp) || tmp.startsWith("in");
-    }
+	protected abstract void postProcess(TypedPropertyMap props);
 
-    /**
-     * Convert inches or millimeters to meters.
-     *
-     * @param units a Rocksim CSV string representing the kind of units.
-     * @param value the original value within the CSV file
-     *
-     * @return the value in meters
-     */
-    protected static double convertLength(String units, double value) {
-        if (isInches(units)) {
-            return PrintUnit.INCHES.toMeters(value);
-        }
-        else {
-            return PrintUnit.MILLIMETERS.toMeters(value);
-        }
-    }
+	/**
+	 * Rocksim CSV units are either inches or mm.  A value of 0 or "in." indicate inches.  A value of 1 or "mm" indicate
+	 * millimeters.
+	 *
+	 * @param units the value from the file
+	 *
+	 * @return true if it's inches
+	 */
+	protected static boolean isInches(String units) {
+		String tmp = units.trim().toLowerCase();
+		return "0".equals(tmp) || tmp.startsWith("in");
+	}
 
-    protected static double convertMass(String units, double value) {
-        if ("oz".equals(units)) {
-            Unit u = UnitGroup.UNITS_MASS.getUnit(2);
-            return u.fromUnit(value);
-        }
-        return value;
-    }
+	/**
+	 * Convert inches or millimeters to meters.
+	 *
+	 * @param units a Rocksim CSV string representing the kind of units.
+	 * @param value the original value within the CSV file
+	 *
+	 * @return the value in meters
+	 */
+	protected static double convertLength(String units, double value) {
+		if (isInches(units)) {
+			return PrintUnit.INCHES.toMeters(value);
+		}
+		else {
+			return PrintUnit.MILLIMETERS.toMeters(value);
+		}
+	}
 
-    /**
-     * Remove all occurrences of the given character.  Note: this is done because some manufacturers embed double quotes
-     * in their descriptions or material names.  Those are stripped away because they cause all sorts of matching/lookup
-     * issues.
-     *
-     * @param target      the target string to be operated upon
-     * @param toBeRemoved the character to remove
-     *
-     * @return target, minus every occurrence of toBeRemoved
-     */
-    protected static String stripAll(String target, Character toBeRemoved) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < target.length(); i++) {
-            Character c = target.charAt(i);
-            if (!c.equals(toBeRemoved)) {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
+	protected static double convertMass(String units, double value) {
+		if ("oz".equals(units)) {
+			Unit u = UnitGroup.UNITS_MASS.getUnit(2);
+			return u.fromUnit(value);
+		}
+		return value;
+	}
 
-    /**
-     * Convert all words in a given string to Camel Case (first letter capitalized). Words are assumed to be separated
-     * by a space.  Note: this is done because some manufacturers define their material name in Camel Case but the
-     * component part references the material in lower case.  That causes matching/lookup issues that's easiest handled
-     * this way (rather than converting everything to lower case.
-     *
-     * @param target the target string to be operated upon
-     *
-     * @return target, with the first letter of each word in uppercase
-     */
-    protected static String toCamelCase(String target) {
-        StringBuilder sb = new StringBuilder();
-        String[] t = target.split("[ ]");
-        if (t != null && t.length > 0) {
-            for (String aT : t) {
-                String s = aT;
-                s = s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
-                sb.append(s).append(" ");
-            }
-            return sb.toString().trim();
-        }
-        else {
-            return target;
-        }
-    }
+	/**
+	 * Remove all occurrences of the given character.  Note: this is done because some manufacturers embed double quotes
+	 * in their descriptions or material names.  Those are stripped away because they cause all sorts of matching/lookup
+	 * issues.
+	 *
+	 * @param target      the target string to be operated upon
+	 * @param toBeRemoved the character to remove
+	 *
+	 * @return target, minus every occurrence of toBeRemoved
+	 */
+	protected static String stripAll(String target, Character toBeRemoved) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < target.length(); i++) {
+			Character c = target.charAt(i);
+			if (!c.equals(toBeRemoved)) {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Convert all words in a given string to Camel Case (first letter capitalized). Words are assumed to be separated
+	 * by a space.  Note: this is done because some manufacturers define their material name in Camel Case but the
+	 * component part references the material in lower case.  That causes matching/lookup issues that's easiest handled
+	 * this way (rather than converting everything to lower case.
+	 *
+	 * @param target the target string to be operated upon
+	 *
+	 * @return target, with the first letter of each word in uppercase
+	 */
+	protected static String toCamelCase(String target) {
+		StringBuilder sb = new StringBuilder();
+		String[] t = target.split("[ ]");
+		if (t != null && t.length > 0) {
+			for (String aT : t) {
+				String s = aT;
+				s = s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+				sb.append(s).append(" ");
+			}
+			return sb.toString().trim();
+		}
+		else {
+			return target;
+		}
+	}
 
 }
 
