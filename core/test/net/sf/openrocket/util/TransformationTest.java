@@ -40,7 +40,6 @@ public class TransformationTest {
 			assertEquals( new Coordinate(2,3,5), a );
 		}
 
-		// FIXME - is this correct?  shouldn't a rotation preserve coordinate length?
 		t = Transformation.rotate_y(0.01);
 		{
 			Coordinate a = t.transform( new Coordinate(1,0,0) );
