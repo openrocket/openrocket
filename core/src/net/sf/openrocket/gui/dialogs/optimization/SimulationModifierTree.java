@@ -16,9 +16,11 @@ import javax.swing.tree.TreePath;
 
 import net.sf.openrocket.gui.components.BasicTree;
 import net.sf.openrocket.gui.main.ComponentIcons;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.TextUtil;
 
 /**
@@ -32,6 +34,7 @@ import net.sf.openrocket.util.TextUtil;
 public class SimulationModifierTree extends BasicTree {
 	
 	private final List<SimulationModifier> selectedModifiers;
+	private static final Translator trans = Application.getTranslator();
 	
 	/**
 	 * Sole constructor.
@@ -76,7 +79,7 @@ public class SimulationModifierTree extends BasicTree {
 			DefaultMutableTreeNode modifierNode;
 			
 			if (component.getChildCount() > 0) {
-				modifierNode = new DefaultMutableTreeNode("Optimization parameters");
+				modifierNode = new DefaultMutableTreeNode(trans.get("SimulationModifierTree.OptimizationParameters"));
 				node.add(modifierNode);
 			} else {
 				modifierNode = node;

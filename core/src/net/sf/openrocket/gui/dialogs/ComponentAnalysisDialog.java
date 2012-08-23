@@ -203,7 +203,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 				return 200;
 			}
 		},
-				new Column("CG / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.CG") + " / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 					
 					@Override
@@ -211,7 +211,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 						return unit.toString(cgData.get(row).x);
 					}
 				},
-				new Column("Mass / " + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit()) {
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.Mass") + " / " + UnitGroup.UNITS_MASS.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_MASS.getDefaultUnit();
 					
 					@Override
@@ -219,7 +219,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 						return unit.toString(cgData.get(row).weight);
 					}
 				},
-				new Column("CP / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.CP") + " / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 					
 					@Override
