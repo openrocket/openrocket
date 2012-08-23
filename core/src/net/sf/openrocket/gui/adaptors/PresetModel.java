@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -29,12 +30,14 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	
 	private final Component parent;
 	private final RocketComponent component;
+	private final OpenRocketDocument document;
 	private ComponentPreset previousPreset;
 	
 	private List<ComponentPreset> presets;
 	
-	public PresetModel(Component parent, RocketComponent component) {
+	public PresetModel(Component parent, OpenRocketDocument document, RocketComponent component) {
 		this.parent = parent;
+		this.document = document;
 		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
 		this.component = component;
 		previousPreset = component.getPresetComponent();
@@ -62,7 +65,6 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 		log.user("User selected preset item '" + item + "' for component " + component);
 		
 		if (item == null) {
-			// FIXME:  What to do?
 			throw new BugException("item is null");
 		} else if (item.equals(NONE_SELECTED)) {
 			component.clearPreset();
@@ -80,7 +82,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 				}
 			});
 		} else {
-			// FIXME: Add undo point here
+			document.addUndoPosition("Use Preset " + component.getComponentName());
 			component.loadPreset((ComponentPreset) item);
 		}
 	}
