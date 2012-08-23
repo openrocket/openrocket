@@ -49,7 +49,7 @@ public class ConcurrentComponentPresetDatabaseLoader {
 			}
 		});
 
-		loaderPool = Executors.newFixedThreadPool(15, new ThreadFactory() {
+		loaderPool = Executors.newFixedThreadPool(3, new ThreadFactory() {
 			int threadCount = 0;
 			@Override
 			public Thread newThread(Runnable r) {
@@ -70,9 +70,9 @@ public class ConcurrentComponentPresetDatabaseLoader {
 	public void await() throws InterruptedException {
 		latch.await();
 		loaderPool.shutdown();
-		loaderPool.awaitTermination(30, TimeUnit.SECONDS);
+		loaderPool.awaitTermination(90, TimeUnit.SECONDS);
 		writerPool.shutdown();
-		writerPool.awaitTermination(30, TimeUnit.SECONDS);
+		writerPool.awaitTermination(90, TimeUnit.SECONDS);
 		iterator.close();
 		long end = System.currentTimeMillis();
 		log.debug("Time to load presets: " + (end-startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");

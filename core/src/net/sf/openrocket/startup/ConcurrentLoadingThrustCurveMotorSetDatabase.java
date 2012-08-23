@@ -149,7 +149,7 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 				}
 			});
 
-			loaderPool = new ThreadPoolExecutor(25,25, 2, TimeUnit.SECONDS,
+			loaderPool = new ThreadPoolExecutor(10,10, 2, TimeUnit.SECONDS,
 					new LinkedBlockingQueue<Runnable>(),
 					new ThreadFactory() {
 				int threadCount = 0;
@@ -178,9 +178,9 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 		private void waitForFinish() throws InterruptedException {
 			try {
 				loaderPool.shutdown();
-				loaderPool.awaitTermination(30, TimeUnit.SECONDS);
+				loaderPool.awaitTermination(90, TimeUnit.SECONDS);
 				writerThread.shutdown();
-				writerThread.awaitTermination(30, TimeUnit.SECONDS);
+				writerThread.awaitTermination(90, TimeUnit.SECONDS);
 			}
 			finally {
 				iterator.close();
