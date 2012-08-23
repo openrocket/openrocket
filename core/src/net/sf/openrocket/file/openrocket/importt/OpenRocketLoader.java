@@ -2087,27 +2087,26 @@ public ComponentPresetSetter(Reflection.Method set) {
 @Override
 public void set(RocketComponent c, String name, HashMap<String, String> attributes,
 		WarningSet warnings) {
-	// FIXME - probably need more data in the warning messages - like what component preset...
 	String manufacturerName = attributes.get("manufacturer");
 	if ( manufacturerName == null ) {
-		warnings.add(Warning.fromString("Invalid ComponentPreset, no manufacturer specified.  Ignored"));
+		warnings.add(Warning.fromString("Invalid ComponentPreset for component " + c.getName() + ", no manufacturer specified.  Ignored"));
 		return;
 	}
 
 	String productNo = attributes.get("partno");
 	if ( productNo == null ) {
-		warnings.add(Warning.fromString("Invalid ComponentPreset, no partno specified.  Ignored"));
+		warnings.add(Warning.fromString("Invalid ComponentPreset for component " + c.getName() + ", no partno specified.  Ignored"));
 		return;
 	}
 
 	String digest = attributes.get("digest");
 	if ( digest == null ) {
-		warnings.add(Warning.fromString("Invalid ComponentPreset, no digest specified."));
+		warnings.add(Warning.fromString("Invalid ComponentPreset for component " + c.getName() + ", no digest specified."));
 	}
 
 	String type = attributes.get("type");
 	if ( type == null ) {
-		warnings.add(Warning.fromString("Invalid ComponentPreset, no type specified."));
+		warnings.add(Warning.fromString("Invalid ComponentPreset for component " + c.getName() + ", no type specified."));
 	}
 
 	List<ComponentPreset> presets = Application.getComponentPresetDao().find( manufacturerName, productNo );
@@ -2128,12 +2127,12 @@ public void set(RocketComponent c, String name, HashMap<String, String> attribut
 
 	// Was any found?
 	if ( matchingPreset == null ) {
-		warnings.add(Warning.fromString("No matching ComponentPreset found " + manufacturerName + " " + productNo));
+		warnings.add(Warning.fromString("No matching ComponentPreset for component " + c.getName() + " found matching " + manufacturerName + " " + productNo));
 		return;
 	}
 
 	if ( digest != null && !matchingPreset.getDigest().equals(digest) ) {
-		warnings.add(Warning.fromString("ComponentPreset has wrong digest"));
+		warnings.add(Warning.fromString("ComponentPreset for component " + c.getName() + " has wrong digest"));
 	}
 
 	setMethod.invoke(c, matchingPreset);
