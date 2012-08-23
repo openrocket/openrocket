@@ -28,7 +28,6 @@ import net.sf.openrocket.util.TextUtil;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-// FIXME - Implement clone.
 public class ComponentPreset implements Comparable<ComponentPreset> {
 	
 	private final TypedPropertyMap properties = new TypedPropertyMap();
