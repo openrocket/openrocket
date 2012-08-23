@@ -1468,7 +1468,7 @@ public class BasicFrame extends JFrame {
 		BasicFrame frame = new BasicFrame(doc);
 		frame.replaceable = true;
 		frame.setVisible(true);
-		// FIXME - kruland commented this out - I don't like it.
+		// kruland commented this out - I don't like it.
 		//ComponentConfigDialog.showDialog(frame, doc, rocket);
 	}
 
