@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class containing information about motor manufacturers.
@@ -13,8 +14,22 @@ import java.util.Set;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Manufacturer {
-	
-	private static Set<Manufacturer> manufacturers = new HashSet<Manufacturer>();
+
+	private static class ManufacturerList extends ConcurrentHashMap<String,Manufacturer> {
+		
+		void add( Manufacturer m ) {
+			for( String s : m.getAllNames() ) {
+				Manufacturer previousRegistered;
+				if ( (previousRegistered = putIfAbsent( s, m )) != null ) {
+					throw new IllegalStateException("Manufacturer name clash between " +
+							"manufacturers " + previousRegistered + " and " + m + " name " + s);
+				}
+			}
+		}
+		
+	}
+	private static ManufacturerList manufacturers = new ManufacturerList();
+
 	static {
 		
 		// AeroTech has many name combinations...
@@ -99,20 +114,6 @@ public class Manufacturer {
 				"WECO", "WECO FEUERWERKS", "SF", "SACHSEN", "SACHSEN FEUERWERK",
 				"SACHSEN FEUERWERKS"));
 		
-		
-		// Check that no duplicates have appeared
-		for (Manufacturer m1 : manufacturers) {
-			for (Manufacturer m2 : manufacturers) {
-				if (m1 == m2)
-					continue;
-				for (String name : m1.getAllNames()) {
-					if (m2.matches(name)) {
-						throw new IllegalStateException("Manufacturer name clash between " +
-								"manufacturers " + m1 + " and " + m2 + " name " + name);
-					}
-				}
-			}
-		}
 	}
 	
 	
@@ -229,15 +230,16 @@ public class Manufacturer {
 	 * @param name	the manufacturer name to search for.
 	 * @return		the Manufacturer object corresponding the name.
 	 */
-	public static synchronized Manufacturer getManufacturer(String name) {
-		for (Manufacturer m : manufacturers) {
-			if (m.matches(name))
-				return m;
+	public static Manufacturer getManufacturer(String name) {
+		Manufacturer m = manufacturers.get(name);
+		if ( m != null ) {
+			return m;
 		}
-		
-		Manufacturer m = new Manufacturer(name.trim(), name.trim(), Motor.Type.UNKNOWN);
-		manufacturers.add(m);
-		return m;
+
+		m = new Manufacturer(name.trim(), name.trim(), Motor.Type.UNKNOWN);
+
+		Manufacturer oldManu = manufacturers.putIfAbsent(name, m);
+		return  (oldManu != null) ? oldManu : m;
 	}
 	
 	
