@@ -117,7 +117,7 @@ public class ParachuteDTO extends BaseComponentDTO {
     public ComponentPreset asComponentPreset(ComponentPreset.Type type, List<MaterialDTO> materials) throws InvalidComponentPresetException {
         TypedPropertyMap props = new TypedPropertyMap();
         addProps(props, materials);
-        // FIXME - seems some vendors use a bulk material for the sheet along with a Thickness.
+        // TODO - seems some vendors use a bulk material for the sheet along with a Thickness.
         // need to fix the MATERIAL packed into the componentpreset.
         props.put(ComponentPreset.TYPE, type);
         props.put(ComponentPreset.DIAMETER, this.getDiameter());
