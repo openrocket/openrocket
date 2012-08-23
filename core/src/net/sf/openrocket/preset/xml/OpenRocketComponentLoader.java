@@ -1,5 +1,6 @@
 package net.sf.openrocket.preset.xml;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
@@ -22,6 +23,10 @@ public class OpenRocketComponentLoader  implements Loader<ComponentPreset> {
 	public Collection<ComponentPreset> load(InputStream stream,	String filename) {
 
 		log.debug("Loading presets from file " + filename);
+		
+		if ( ! (stream instanceof BufferedInputStream) ) {
+			stream = new BufferedInputStream(stream);
+		}
 
 		try {
 			List<ComponentPreset> presets;
