@@ -29,9 +29,9 @@ public class OpenRocketComponentSaver {
     /**
      * The JAXBContext.  JAXBContext is thread-safe.
      */
-    private static JAXBContext context = null;
+    private JAXBContext context = null;
 
-    static {
+    public OpenRocketComponentSaver() {
         try {
             context = JAXBContext.newInstance(OpenRocketComponentDTO.class);
         }
