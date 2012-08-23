@@ -73,7 +73,9 @@ public class ConcurrentComponentPresetDatabaseLoader {
 		loaderPool.awaitTermination(90, TimeUnit.SECONDS);
 		writerPool.shutdown();
 		writerPool.awaitTermination(90, TimeUnit.SECONDS);
-		iterator.close();
+		if ( iterator != null ) {
+			iterator.close();
+		}
 		long end = System.currentTimeMillis();
 		log.debug("Time to load presets: " + (end-startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");
 	}
@@ -88,18 +90,14 @@ public class ConcurrentComponentPresetDatabaseLoader {
 			iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR,
 					new SimpleFileFilter("", false, "orc"));
 
-			if (iterator == null) {
-				throw new IllegalStateException("Component preset directory " + SYSTEM_PRESET_DIR +
-						" not found, distribution built wrong");
+			if (iterator != null) {
+				while( iterator.hasNext() ) {
+					Pair<String,InputStream> f = iterator.next();
+					FileLoader loader = new FileLoader( f.getV(), f.getU() );
+					loaderPool.execute(loader);
+					fileCount ++;
+				}
 			}
-
-			while( iterator.hasNext() ) {
-				Pair<String,InputStream> f = iterator.next();
-				FileLoader loader = new FileLoader( f.getV(), f.getU() );
-				loaderPool.execute(loader);
-				fileCount ++;
-			}
-
 			latch.countDown();
 		}
 	}
