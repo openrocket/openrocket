@@ -22,7 +22,7 @@ public class RollControlListener extends AbstractSimulationListener {
 	private static final String CONTROL_FIN_NAME = "CONTROL";
 	
 	// Define custom flight data type
-	private static final FlightDataType FIN_CANT_TYPE = FlightDataType.getType("Control fin cant", "αfc", UnitGroup.UNITS_ANGLE);
+	private static final FlightDataType FIN_CANT_TYPE = FlightDataType.getType("Control fin cant", "\u03B1fc", UnitGroup.UNITS_ANGLE);
 	
 	// Simulation time at which PID controller is activated
 	private static final double START_TIME = 0.5;
