@@ -204,6 +204,10 @@ public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	 * marks the database as loaded and notifies any blocked threads.
 	 */
 	private class LoadingThread extends Thread {
+		private LoadingThread() {
+			this.setName("MotorLoadingThread");
+			this.setPriority(MIN_PRIORITY);
+		}
 		@Override
 		public void run() {
 			performMotorLoading();
