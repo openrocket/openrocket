@@ -24,6 +24,18 @@ public class ManufacturerTest {
 		
 	}
 	
+	public void testContrail() {
+		Manufacturer c1, c2;
+		
+		c1 = Manufacturer.getManufacturer("Contrail" );
+		
+		// Used in rsp files.
+		c2 = Manufacturer.getManufacturer("Contrail_Rockets");
+		
+		assertNotNull(c1);
+		assertEquals(c1,c2);
+	}
+	
 	@Test
 	public void testNew() {
 		

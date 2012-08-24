@@ -18,7 +18,7 @@ public class Manufacturer {
 	private static class ManufacturerList extends ConcurrentHashMap<String,Manufacturer> {
 		
 		void add( Manufacturer m ) {
-			for( String s : m.getAllNames() ) {
+			for( String s : m.getSearchNames() ) {
 				Manufacturer previousRegistered;
 				if ( (previousRegistered = putIfAbsent( s, m )) != null ) {
 					throw new IllegalStateException("Manufacturer name clash between " +
@@ -183,6 +183,9 @@ public class Manufacturer {
 		return allNames;
 	}
 	
+	Set<String> getSearchNames() {
+		return searchNames;
+	}
 	
 	/**
 	 * Return the motor type that this manufacturer produces if it produces only one motor type.
@@ -231,21 +234,27 @@ public class Manufacturer {
 	 * @return		the Manufacturer object corresponding the name.
 	 */
 	public static Manufacturer getManufacturer(String name) {
-		Manufacturer m = manufacturers.get(name);
+		String searchString = generateSearchString(name);
+		Manufacturer m = manufacturers.get(searchString);
 		if ( m != null ) {
 			return m;
 		}
 
 		m = new Manufacturer(name.trim(), name.trim(), Motor.Type.UNKNOWN);
 
-		Manufacturer oldManu = manufacturers.putIfAbsent(name, m);
-		return  (oldManu != null) ? oldManu : m;
+		// We need some additional external synchronization here so we lock on the manufacturers.
+		synchronized( manufacturers ) {
+			Manufacturer retest = manufacturers.get(searchString);
+			if ( retest != null ) {
+				// it exists now.
+				return retest;
+			}
+			manufacturers.add(m);
+		}
+		return m;
 	}
 	
-	
-	
-	
-	private String generateSearchString(String str) {
+	private static String generateSearchString(String str) {
 		return str.toLowerCase(Locale.getDefault()).replaceAll("[^a-zA-Z0-9]+", " ").trim();
 	}
 	
