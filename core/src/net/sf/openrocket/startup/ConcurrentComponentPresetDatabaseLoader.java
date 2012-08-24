@@ -54,6 +54,7 @@ public class ConcurrentComponentPresetDatabaseLoader {
 			@Override
 			public Thread newThread(Runnable r) {
 				Thread t = new Thread(r,"PresetLoaderPool-" + threadCount++);
+				t.setPriority(Thread.MIN_PRIORITY);
 				return t;
 			}
 
