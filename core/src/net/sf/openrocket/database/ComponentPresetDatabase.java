@@ -171,6 +171,11 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 	 * Background thread for loading the presets. 
 	 */
 	private class LoadingThread extends Thread {
+		
+		private LoadingThread() {
+			this.setName("PresetLoadingThread");
+			this.setPriority(MIN_PRIORITY);
+		}
 		@Override
 		public void run() {
 			load();
