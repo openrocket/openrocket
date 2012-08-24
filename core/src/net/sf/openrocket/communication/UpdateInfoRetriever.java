@@ -28,6 +28,7 @@ public class UpdateInfoRetriever {
 	 */
 	public void start() {
 		fetcher = new UpdateInfoFetcher();
+		fetcher.setName("UpdateInfoFetcher");
 		fetcher.setDaemon(true);
 		fetcher.start();
 	}
