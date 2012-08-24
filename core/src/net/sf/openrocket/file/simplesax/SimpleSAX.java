@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.simplesax;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 
@@ -23,7 +25,9 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimpleSAX {
-	
+
+	static final XMLReaderCache cache = new XMLReaderCache(10);
+
 	/**
 	 * Read a simple XML file.
 	 * 
@@ -35,13 +39,35 @@ public class SimpleSAX {
 	 */
 	public static void readXML(InputSource source, ElementHandler initialHandler,
 			WarningSet warnings) throws IOException, SAXException {
-		
+
 		DelegatorHandler xmlhandler = new DelegatorHandler(initialHandler, warnings);
-		
-		XMLReader reader = XMLReaderFactory.createXMLReader();
+
+		XMLReader reader = cache.createXMLReader();
 		reader.setContentHandler(xmlhandler);
 		reader.setErrorHandler(xmlhandler);
 		reader.parse(source);
+		cache.releaseXMLReader(reader);
 	}
-	
+
+	private static class XMLReaderCache {
+
+		private final BlockingQueue<XMLReader> queue;
+		private XMLReaderCache( int maxSize ) {
+			this.queue = new LinkedBlockingQueue<XMLReader>(maxSize);
+		}
+
+		private XMLReader createXMLReader() throws SAXException {
+
+			XMLReader reader = queue.poll();
+			if ( reader == null ) {
+				reader = XMLReaderFactory.createXMLReader();
+			}
+			return reader;
+		}
+
+		private void releaseXMLReader( XMLReader reader ) {
+			queue.offer( reader );
+		}
+	}
+
 }
