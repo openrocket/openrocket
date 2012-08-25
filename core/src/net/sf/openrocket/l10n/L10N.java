@@ -1,7 +1,10 @@
 package net.sf.openrocket.l10n;
 
+import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import net.sf.openrocket.util.Chars;
 
 /**
  * Helper methods for localization needs.
@@ -52,6 +55,29 @@ public final class L10N {
 			l = new Locale(split[0], split[1], split[2]);
 		}
 		return l;
+	}
+	
+	
+	public static String normalize(String text) {
+		text = Normalizer.normalize(text, Normalizer.Form.NFKD);
+		text = text.toLowerCase();
+		text = text.replaceAll("\\s+", " ");
+		text = text.trim();
+		
+		StringBuilder sb = new StringBuilder(text.length());
+		for (char c : text.toCharArray()) {
+			if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+				sb.append(c);
+			} else if (c == ' ' || c == '/' || c == Chars.FRACTION) {
+				sb.append('_');
+			}
+		}
+		text = sb.toString();
+		
+		text = text.replaceAll("^_+", "");
+		text = text.replaceAll("_+$", "");
+		
+		return text;
 	}
 	
 }

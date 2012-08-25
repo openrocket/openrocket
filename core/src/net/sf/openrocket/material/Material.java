@@ -1,6 +1,5 @@
 package net.sf.openrocket.material;
 
-import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
@@ -20,17 +19,17 @@ import net.sf.openrocket.util.MathUtil;
 public abstract class Material implements Comparable<Material> {
 	
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public enum Type {
-		LINE("Line", UnitGroup.UNITS_DENSITY_LINE),
-		SURFACE("Surface", UnitGroup.UNITS_DENSITY_SURFACE),
-		BULK("Bulk", UnitGroup.UNITS_DENSITY_BULK);
+		LINE("Databases.materials.types.Line", UnitGroup.UNITS_DENSITY_LINE),
+		SURFACE("Databases.materials.types.Surface", UnitGroup.UNITS_DENSITY_SURFACE),
+		BULK("Databases.materials.types.Bulk", UnitGroup.UNITS_DENSITY_BULK);
 		
 		private final String name;
 		private final UnitGroup units;
 		
-		private Type(String name, UnitGroup units) {
-			this.name = trans.get ("Databases.materials.types." + name);
+		private Type(String nameKey, UnitGroup units) {
+			this.name = trans.get(nameKey);
 			this.units = units;
 		}
 		
@@ -48,10 +47,10 @@ public abstract class Material implements Comparable<Material> {
 	/////  Definitions of different material types  /////
 	
 	public static class Line extends Material {
-		Line(String name, String key, double density, boolean userDefined) {
-			super(name, key, density, userDefined);
+		Line(String name, double density, boolean userDefined) {
+			super(name, density, userDefined);
 		}
-
+		
 		@Override
 		public Type getType() {
 			return Type.LINE;
@@ -60,10 +59,10 @@ public abstract class Material implements Comparable<Material> {
 	
 	public static class Surface extends Material {
 		
-		Surface(String name, String key, double density, boolean userDefined) {
-			super(name, key, density, userDefined);
+		Surface(String name, double density, boolean userDefined) {
+			super(name, density, userDefined);
 		}
-
+		
 		@Override
 		public Type getType() {
 			return Type.SURFACE;
@@ -76,10 +75,10 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	public static class Bulk extends Material {
-		Bulk(String name, String key, double density, boolean userDefined) {
-			super(name, key, density, userDefined);
+		Bulk(String name, double density, boolean userDefined) {
+			super(name, density, userDefined);
 		}
-
+		
 		@Override
 		public Type getType() {
 			return Type.BULK;
@@ -87,9 +86,8 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	
-
+	
 	private final String name;
-	private final String key;
 	private final double density;
 	private final boolean userDefined;
 	
@@ -102,20 +100,10 @@ public abstract class Material implements Comparable<Material> {
 	 * @param density
 	 * @param userDefined true if this is a user defined material, false if it is a system material.
 	 */
-	private Material(String name, String key, double density, boolean userDefined) {
-		if ( userDefined ) {
-			this.key = "UserDefined."+name;
-			this.name = name;
-		} else {
-			this.key = key;
-			this.name = trans.get("Databases.materials." + key);
-		}
+	private Material(String name, double density, boolean userDefined) {
+		this.name = name;
 		this.userDefined = userDefined;
 		this.density = density;
-	}
-
-	public String getKey() {
-		return key;
 	}
 	
 	public double getDensity() {
@@ -180,64 +168,33 @@ public abstract class Material implements Comparable<Material> {
 	}
 	
 	
-	public static Material newSystemMaterial(Type type, String key, double density ) {
-		switch (type) {
-		case LINE:
-			return new Material.Line(null, key, density, false);
-			
-		case SURFACE:
-			return new Material.Surface(null,key, density, false);
-			
-		case BULK:
-			return new Material.Bulk(null, key, density, false);
-			
-		default:
-			throw new IllegalArgumentException("Unknown material type: " + type);
-		}
-	}
-	
 	/**
-	 * Return a new user defined material of the specified type.
+	 * Return a new material.  The name is used as-is, without any translation.
+	 * 
+	 * @param type			the material type
+	 * @param name			the material name
+	 * @param density		the material density
+	 * @param userDefined	whether the material is user-defined or not
+	 * @return				the new material
 	 */
-	public static Material newUserMaterial(Type type, String name, double density) {
+	public static Material newMaterial(Type type, String name, double density, boolean userDefined) {
 		switch (type) {
 		case LINE:
-			return new Material.Line(name, null, density, true);
+			return new Material.Line(name, density, userDefined);
 			
 		case SURFACE:
-			return new Material.Surface(name, null, density, true);
+			return new Material.Surface(name, density, userDefined);
 			
 		case BULK:
-			return new Material.Bulk(name, null, density, true);
+			return new Material.Bulk(name, density, userDefined);
 			
 		default:
 			throw new IllegalArgumentException("Unknown material type: " + type);
 		}
 	}
-	
-	/**
-	 * Return a new user defined material of the specified type and localizable key.
-	 */
-	public static Material newUserMaterialWithKey(Type type, String key, String name, double density) {
-		switch (type) {
-		case LINE:
-			return new Material.Line(name, key, density, true);
-			
-		case SURFACE:
-			return new Material.Surface(name, key, density, true);
-			
-		case BULK:
-			return new Material.Bulk(name, key, density, true);
-			
-		default:
-			throw new IllegalArgumentException("Unknown material type: " + type);
-		}
-	}
-	
-	
 	
 	public String toStorableString() {
-		return getType().name() + "|" + key + "|" + name.replace('|', ' ') + '|' + density;
+		return getType().name() + "|" + name.replace('|', ' ') + '|' + density;
 	}
 	
 	
@@ -249,18 +206,17 @@ public abstract class Material implements Comparable<Material> {
 	 * @return				a new <code>Material</code> object.
 	 * @throws IllegalArgumentException		if <code>str</code> is invalid or null.
 	 */
-	public static Material fromStorableString(String str) {
+	public static Material fromStorableString(String str, boolean userDefined) {
 		if (str == null)
 			throw new IllegalArgumentException("Material string is null");
 		
-		String[] split = str.split("\\|");
+		String[] split = str.split("\\|", 3);
 		if (split.length < 3)
 			throw new IllegalArgumentException("Illegal material string: " + str);
 		
 		Type type = null;
-		String name = null;
-		String key= null;
-		String densityString;
+		String name;
+		double density;
 		
 		try {
 			type = Type.valueOf(split[0]);
@@ -268,25 +224,27 @@ public abstract class Material implements Comparable<Material> {
 			throw new IllegalArgumentException("Illegal material string: " + str, e);
 		}
 		
-		if ( split.length == 3 ) {
-			name = split[1];
-			densityString =split[2];
-		} else {
-			key = split[1];
-			name = split[2];
-			densityString=split[3];
-		}
+		name = split[1];
 		
-		
-		double density;
-
 		try {
-			density = Double.parseDouble(densityString);
+			density = Double.parseDouble(split[2]);
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("Illegal material string: " + str, e);
 		}
 		
-		return Databases.findMaterial(type, key, name, density);
+		switch (type) {
+		case BULK:
+			return new Material.Bulk(name, density, userDefined);
+			
+		case SURFACE:
+			return new Material.Surface(name, density, userDefined);
+			
+		case LINE:
+			return new Material.Line(name, density, userDefined);
+			
+		default:
+			throw new IllegalArgumentException("Illegal material string: " + str);
+		}
 	}
 	
 }

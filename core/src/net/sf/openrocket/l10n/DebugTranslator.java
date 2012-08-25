@@ -22,7 +22,7 @@ public class DebugTranslator implements Translator {
 	}
 	
 	
-
+	
 	@Override
 	public String get(String key) {
 		if (translator != null) {
@@ -30,5 +30,23 @@ public class DebugTranslator implements Translator {
 		}
 		return "[" + key + "]";
 	}
+	
+	
+	
+	@Override
+	public String get(String base, String text) {
+		return "[" + base + ":" + text + "]";
+	}
+	
+	
+	
+	@Override
+	public String getBaseText(String base, String translation) {
+		if (translation.startsWith("[" + base + ":") && translation.endsWith("]")) {
+			return translation.substring(base.length() + 2, translation.length() - 1);
+		}
+		return translation;
+	}
+	
 	
 }

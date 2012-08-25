@@ -2,6 +2,7 @@ package net.sf.openrocket.util;
 
 import java.util.Random;
 
+import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Motor;
@@ -81,12 +82,12 @@ public class TestRockets {
 		rocket.setRevision("Rocket revision " + key);
 		rocket.setName(key);
 		
-
+		
 		Stage stage = new Stage();
 		setBasics(stage);
 		rocket.addChild(stage);
 		
-
+		
 		NoseCone nose = new NoseCone();
 		setBasics(stage);
 		nose.setAftRadius(rnd(0.03));
@@ -104,7 +105,7 @@ public class TestRockets {
 		nose.setType((Shape) randomEnum(Shape.class));
 		stage.addChild(nose);
 		
-
+		
 		Transition shoulder = new Transition();
 		setBasics(shoulder);
 		shoulder.setAftRadius(rnd(0.06));
@@ -128,7 +129,7 @@ public class TestRockets {
 		shoulder.setType((Shape) randomEnum(Shape.class));
 		stage.addChild(shoulder);
 		
-
+		
 		BodyTube body = new BodyTube();
 		setBasics(body);
 		body.setThickness(rnd(0.002));
@@ -142,7 +143,7 @@ public class TestRockets {
 		body.setOuterRadiusAutomatic(rnd.nextBoolean());
 		stage.addChild(body);
 		
-
+		
 		Transition boattail = new Transition();
 		setBasics(boattail);
 		boattail.setAftRadius(rnd(0.03));
@@ -166,7 +167,7 @@ public class TestRockets {
 		boattail.setType((Shape) randomEnum(Shape.class));
 		stage.addChild(boattail);
 		
-
+		
 		MassComponent mass = new MassComponent();
 		setBasics(mass);
 		mass.setComponentMass(rnd(0.05));
@@ -176,9 +177,9 @@ public class TestRockets {
 		mass.setRadius(rnd(0.05));
 		nose.addChild(mass);
 		
-
-
-
+		
+		
+		
 		return rocket;
 	}
 	
@@ -203,7 +204,7 @@ public class TestRockets {
 			ExternalComponent e = (ExternalComponent) c;
 			e.setFinish((Finish) randomEnum(Finish.class));
 			double d = rnd(100);
-			e.setMaterial(Material.newUserMaterial(Type.BULK, "Testmat " + d, d));
+			e.setMaterial(Databases.findMaterial(Type.BULK, "Testmat " + d, d));
 		}
 		
 		if (c instanceof InternalComponent) {
@@ -214,7 +215,7 @@ public class TestRockets {
 	}
 	
 	
-
+	
 	private double rnd(double scale) {
 		return (rnd.nextDouble() * 0.2 + 0.9) * scale;
 	}
@@ -232,9 +233,9 @@ public class TestRockets {
 	}
 	
 	
-
-
-
+	
+	
+	
 	public Rocket makeSmallFlyable() {
 		double noseconeLength = 0.10, noseconeRadius = 0.01;
 		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;
@@ -242,7 +243,7 @@ public class TestRockets {
 		int finCount = 3;
 		double finRootChord = 0.04, finTipChord = 0.05, finSweep = 0.01, finThickness = 0.003, finHeight = 0.03;
 		
-
+		
 		Rocket rocket;
 		Stage stage;
 		NoseCone nosecone;
@@ -258,11 +259,11 @@ public class TestRockets {
 		
 		finset = new TrapezoidFinSet(finCount, finRootChord, finTipChord, finSweep, finHeight);
 		
-
+		
 		// Stage construction
 		rocket.addChild(stage);
 		
-
+		
 		// Component construction
 		stage.addChild(nosecone);
 		stage.addChild(bodytube);
@@ -284,7 +285,7 @@ public class TestRockets {
 		
 		rocket.getDefaultConfiguration().setAllStages();
 		
-
+		
 		return rocket;
 	}
 	
@@ -331,7 +332,7 @@ public class TestRockets {
 		rocket.addChild(stage);
 		rocket.setPerfectFinish(false);
 		
-
+		
 		// Component construction
 		stage.addChild(nosecone);
 		stage.addChild(bodytube);
@@ -355,12 +356,12 @@ public class TestRockets {
 		
 		rocket.getDefaultConfiguration().setAllStages();
 		
-
+		
 		return rocket;
 	}
 	
 	
-
+	
 	public static Rocket makeIsoHaisu() {
 		Rocket rocket;
 		Stage stage;
@@ -397,7 +398,7 @@ public class TestRockets {
 		tube3.setOverrideMass(0.730);
 		stage.addChild(tube3);
 		
-
+		
 		LaunchLug lug = new LaunchLug();
 		tube1.addChild(lug);
 		
@@ -411,7 +412,7 @@ public class TestRockets {
 		coupler.setPositionValue(-0.14);
 		tube1.addChild(coupler);
 		
-
+		
 		// Parachute
 		MassComponent mass = new MassComponent(0.05, 0.05, 0.280);
 		mass.setRelativePosition(Position.TOP);
@@ -430,7 +431,7 @@ public class TestRockets {
 		mass.setPositionValue(0.25);
 		tube1.addChild(mass);
 		
-
+		
 		auxfinset = new TrapezoidFinSet();
 		auxfinset.setName("CONTROL");
 		auxfinset.setFinCount(2);
@@ -445,9 +446,9 @@ public class TestRockets {
 		auxfinset.setBaseRotation(Math.PI / 2);
 		tube1.addChild(auxfinset);
 		
-
-
-
+		
+		
+		
 		coupler = new TubeCoupler();
 		coupler.setOuterRadiusAutomatic(true);
 		coupler.setLength(0.28);
@@ -457,8 +458,8 @@ public class TestRockets {
 		coupler.setOverrideMass(0.360);
 		tube2.addChild(coupler);
 		
-
-
+		
+		
 		// Parachute
 		mass = new MassComponent(0.1, 0.05, 0.028);
 		mass.setRelativePosition(Position.TOP);
@@ -479,8 +480,8 @@ public class TestRockets {
 		mass.setPositionValue(0.19);
 		tube2.addChild(mass);
 		
-
-
+		
+		
 		InnerTube inner = new InnerTube();
 		inner.setOuterRadius(0.08 / 2);
 		inner.setInnerRadius(0.0762 / 2);
@@ -489,7 +490,7 @@ public class TestRockets {
 		inner.setOverrideMass(0.388);
 		tube3.addChild(inner);
 		
-
+		
 		CenteringRing center = new CenteringRing();
 		center.setInnerRadiusAutomatic(true);
 		center.setOuterRadiusAutomatic(true);
@@ -500,7 +501,7 @@ public class TestRockets {
 		center.setPositionValue(0);
 		tube3.addChild(center);
 		
-
+		
 		center = new CenteringRing();
 		center.setInnerRadiusAutomatic(true);
 		center.setOuterRadiusAutomatic(true);
@@ -511,7 +512,7 @@ public class TestRockets {
 		center.setPositionValue(0.28);
 		tube3.addChild(center);
 		
-
+		
 		center = new CenteringRing();
 		center.setInnerRadiusAutomatic(true);
 		center.setOuterRadiusAutomatic(true);
@@ -522,10 +523,10 @@ public class TestRockets {
 		center.setPositionValue(0.83);
 		tube3.addChild(center);
 		
-
-
-
-
+		
+		
+		
+		
 		finset = new TrapezoidFinSet();
 		finset.setRootChord(0.495);
 		finset.setTipChord(0.1);
@@ -537,17 +538,17 @@ public class TestRockets {
 		finset.setBaseRotation(Math.PI / 2);
 		tube3.addChild(finset);
 		
-
+		
 		finset.setCantAngle(0 * Math.PI / 180);
 		System.err.println("Fin cant angle: " + (finset.getCantAngle() * 180 / Math.PI));
 		
-
+		
 		// Stage construction
 		rocket.addChild(stage);
 		rocket.setPerfectFinish(false);
 		
-
-
+		
+		
 		String id = rocket.newMotorConfigurationID();
 		tube3.setMotorMount(true);
 		
@@ -560,10 +561,10 @@ public class TestRockets {
 		
 		rocket.getDefaultConfiguration().setAllStages();
 		
-
+		
 		return rocket;
 	}
 	
-
-
+	
+	
 }

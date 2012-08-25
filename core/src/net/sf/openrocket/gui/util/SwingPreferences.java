@@ -34,17 +34,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	private static final String SPLIT_CHARACTER = "|";
 	
-
+	
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
 		List<Locale> list = new ArrayList<Locale>();
-		for (String lang : new String[] { "en", "de", "es", "fr", "it", "ru","cs","pl" }) {
+		for (String lang : new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl" }) {
 			list.add(new Locale(lang));
 		}
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
 	
-
+	
 	/**
 	 * Whether to use the debug-node instead of the normal node.
 	 */
@@ -64,9 +64,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 */
 	private static final String NODENAME = (DEBUG ? "OpenRocket-debug" : "OpenRocket");
 	
-	private  final Preferences PREFNODE;
+	private final Preferences PREFNODE;
 	
-
+	
 	public SwingPreferences() {
 		Preferences root = Preferences.userRoot();
 		if (DEBUG && CLEARPREFS) {
@@ -81,13 +81,13 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		PREFNODE = root.node(NODENAME);
 	}
 	
-
-
+	
+	
 	
 	//////////////////////
 	
-
-
+	
+	
 	/**
 	 * Store the current OpenRocket version into the preferences to allow for preferences migration.
 	 */
@@ -108,9 +108,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public String getString( String directory, String key, String defaultValue ) {
+	public String getString(String directory, String key, String defaultValue) {
 		Preferences p = PREFNODE.node(directory);
-		return p.get(key,defaultValue);
+		return p.get(key, defaultValue);
 	}
 	
 	/**
@@ -130,12 +130,12 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public void putString(String directory, String key, String value ) {
+	public void putString(String directory, String key, String value) {
 		Preferences p = PREFNODE.node(directory);
-		if ( value == null ) {
+		if (value == null) {
 			p.remove(key);
 		} else {
-			p.put(key,value);
+			p.put(key, value);
 		}
 		storeVersion();
 	}
@@ -165,29 +165,29 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public int getInt( String key, int defaultValue ) {
+	public int getInt(String key, int defaultValue) {
 		return PREFNODE.getInt(key, defaultValue);
 	}
 	
 	@Override
-	public void putInt( String key , int value ) {
-		PREFNODE.putInt(key, value );
+	public void putInt(String key, int value) {
+		PREFNODE.putInt(key, value);
 		storeVersion();
 	}
 	
 	@Override
 	public double getDouble(String key, double defaultValue) {
-		return PREFNODE.getDouble(key,  defaultValue );
+		return PREFNODE.getDouble(key, defaultValue);
 	}
-
+	
 	@Override
 	public void putDouble(String key, double value) {
-		PREFNODE.putDouble(key,value);
+		PREFNODE.putDouble(key, value);
 		storeVersion();
 	}
-
-
-
+	
+	
+	
 	/**
 	 * Return a preferences object for the specified node name.
 	 * 
@@ -201,7 +201,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	
 	//////////////////
 	
-
+	
 	public static List<Locale> getSupportedLocales() {
 		return SUPPORTED_LOCALES;
 	}
@@ -330,8 +330,8 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	
-
-
+	
+	
 	public Dimension getWindowSize(Class<?> c) {
 		int x, y;
 		String pref = PREFNODE.node("windows").get("size." + c.getCanonicalName(), null);
@@ -372,9 +372,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	 * you can pass (java.awt.Color) null to the second argument to
 	 * disambiguate
 	 */
-	public Color getColor( String key, Color defaultValue ) {
+	public Color getColor(String key, Color defaultValue) {
 		net.sf.openrocket.util.Color c = super.getColor(key, (net.sf.openrocket.util.Color) null);
-		if ( c == null ) {
+		if (c == null) {
 			return defaultValue;
 		}
 		return ColorConversion.toAwtColor(c);
@@ -383,9 +383,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	/**
 	 * 
 	 */
-	public void putColor( String key, Color value ) {
+	public void putColor(String key, Color value) {
 		net.sf.openrocket.util.Color c = ColorConversion.fromAwtColor(value);
-		super.putColor(key,  c); 
+		super.putColor(key, c);
 	}
 	
 	////  Printing
@@ -409,7 +409,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	
-
+	
 	/////////  Export variables
 	
 	public boolean isExportSelected(FlightDataType type) {
@@ -423,7 +423,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	
-
+	
 	/////////  Default unit storage
 	
 	public void loadDefaultUnits() {
@@ -459,10 +459,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	
-
+	
 	////  Material storage
 	
-
+	
 	/**
 	 * Add a user-defined material to the preferences.  The preferences are
 	 * first checked for an existing material matching the provided one using
@@ -474,7 +474,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	public void addUserMaterial(Material m) {
 		Preferences prefs = PREFNODE.node("userMaterials");
 		
-
+		
 		// Check whether material already exists
 		if (getUserMaterials().contains(m)) {
 			return;
@@ -509,7 +509,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 				String value = prefs.get(key, null);
 				try {
 					
-					Material existing = Material.fromStorableString(value);
+					Material existing = Material.fromStorableString(value, true);
 					if (existing.equals(m)) {
 						prefs.remove(key);
 					}
@@ -542,7 +542,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 				String value = prefs.get(key, null);
 				try {
 					
-					Material m = Material.fromStorableString(value);
+					Material m = Material.fromStorableString(value, true);
 					materials.add(m);
 					
 				} catch (IllegalArgumentException e) {
@@ -559,9 +559,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public void setComponentFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite ) {
+	public void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite) {
 		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
-		if ( favorite ) {
+		if (favorite) {
 			prefs.putBoolean(preset.preferenceKey(), true);
 		} else {
 			prefs.remove(preset.preferenceKey());
@@ -569,12 +569,12 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	@Override
-	public Set<String> getComponentFavorites( ComponentPreset.Type type) {
+	public Set<String> getComponentFavorites(ComponentPreset.Type type) {
 		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
 		Set<String> collection = new HashSet<String>();
 		try {
-			collection.addAll( Arrays.asList(prefs.keys()));
-		} catch ( BackingStoreException bex ) {
+			collection.addAll(Arrays.asList(prefs.keys()));
+		} catch (BackingStoreException bex) {
 			
 		}
 		return collection;

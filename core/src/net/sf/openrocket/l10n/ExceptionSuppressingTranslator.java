@@ -29,7 +29,7 @@ public class ExceptionSuppressingTranslator implements Translator {
 	}
 	
 	
-
+	
 	@Override
 	public String get(String key) {
 		try {
@@ -42,12 +42,25 @@ public class ExceptionSuppressingTranslator implements Translator {
 	}
 	
 	
-
+	@Override
+	public String get(String base, String text) {
+		return translator.get(base, text);
+	}
+	
+	
+	@Override
+	public String getBaseText(String base, String translation) {
+		return translator.getBaseText(base, translation);
+	}
+	
+	
 	private static synchronized void handleError(String key, MissingResourceException e) {
 		if (!errorReported) {
 			errorReported = true;
 			Application.getExceptionHandler().handleErrorCondition("Can not find translation for '" + key + "' locale=" + Locale.getDefault(), e);
 		}
 	}
+	
+	
 	
 }

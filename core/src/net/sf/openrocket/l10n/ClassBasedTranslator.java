@@ -15,7 +15,7 @@ import net.sf.openrocket.util.BugException;
  */
 public class ClassBasedTranslator implements Translator {
 	
-
+	
 	private final Translator translator;
 	private final String className;
 	
@@ -41,7 +41,7 @@ public class ClassBasedTranslator implements Translator {
 	}
 	
 	
-
+	
 	@Override
 	public String get(String key) {
 		String classKey = className + "." + key;
@@ -63,7 +63,20 @@ public class ClassBasedTranslator implements Translator {
 	}
 	
 	
-
+	
+	@Override
+	public String get(String base, String text) {
+		return translator.get(base, text);
+	}
+	
+	@Override
+	public String getBaseText(String base, String translation) {
+		return translator.getBaseText(base, translation);
+	}
+	
+	
+	
+	
 	private static String getStackClass(int levels) {
 		TraceException trace = new TraceException();
 		StackTraceElement stack[] = trace.getStackTrace();
@@ -82,11 +95,10 @@ public class ClassBasedTranslator implements Translator {
 	}
 	
 	
-
-
+	
+	
 	// For unit testing purposes
 	String getClassName() {
 		return className;
 	}
-	
 }

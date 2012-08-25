@@ -1,8 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.awt.Color;
 
@@ -20,7 +18,7 @@ import org.junit.Test;
 
 public class FinSetTest extends BaseTestCase {
 	
-
+	
 	@Test
 	public void testFreeformConvert() {
 		testFreeformConvert(new TrapezoidFinSet());
@@ -31,7 +29,7 @@ public class FinSetTest extends BaseTestCase {
 	
 	private void testFreeformConvert(FinSet fin) {
 		FreeformFinSet converted;
-		Material mat = Material.newUserMaterial(Type.BULK, "foo", 0.1);
+		Material mat = Material.newMaterial(Type.BULK, "foo", 0.1, true);
 		
 		fin.setBaseRotation(1.1);
 		fin.setCantAngle(0.001);
@@ -55,14 +53,14 @@ public class FinSetTest extends BaseTestCase {
 		fin.setTabShift(0.015);
 		fin.setThickness(0.005);
 		
-
+		
 		converted = FreeformFinSet.convertFinSet((FinSet) fin.copy());
 		
 		ComponentCompare.assertSimilarity(fin, converted, true);
 		
 		assertEquals(converted.getComponentName(), converted.getName());
 		
-
+		
 		// Create test rocket
 		Rocket rocket = new Rocket();
 		Stage stage = new Stage();
@@ -79,7 +77,7 @@ public class FinSetTest extends BaseTestCase {
 		assertTrue(l1.changed);
 		assertEquals(ComponentChangeEvent.NONFUNCTIONAL_CHANGE, l1.changetype);
 		
-
+		
 		// Create copy
 		RocketComponent rocketcopy = rocket.copy();
 		

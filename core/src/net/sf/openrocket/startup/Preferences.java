@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
@@ -23,7 +22,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.UniqueID;
 
 public abstract class Preferences {
-
+	
 	/*
 	 * Well known string keys to preferences.
 	 * There are other strings out there in the source as well.
@@ -46,26 +45,30 @@ public abstract class Preferences {
 	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
-
+	
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
-
+	
 	/*
 	 * ******************************************************************************************
 	 * 
 	 * Abstract methods which must be implemented by any derived class.
 	 */
-	public abstract boolean getBoolean( String key, boolean defaultValue );
-	public abstract void putBoolean( String key, boolean value );
-
-	public abstract int getInt( String key, int defaultValue);
-	public abstract void putInt( String key, int value );
-
-	public abstract double getDouble( String key, double defaultValue );
-	public abstract void putDouble( String key, double value );
-
-	public abstract String getString( String key, String defaultValue );
-	public abstract void putString( String key, String value );
+	public abstract boolean getBoolean(String key, boolean defaultValue);
+	
+	public abstract void putBoolean(String key, boolean value);
+	
+	public abstract int getInt(String key, int defaultValue);
+	
+	public abstract void putInt(String key, int value);
+	
+	public abstract double getDouble(String key, double defaultValue);
+	
+	public abstract void putDouble(String key, double value);
+	
+	public abstract String getString(String key, String defaultValue);
+	
+	public abstract void putString(String key, String value);
 	
 	/**
 	 * Directory represents a way to collect multiple keys together.  Implementors may
@@ -75,10 +78,10 @@ public abstract class Preferences {
 	 * @param defaultValue
 	 * @return
 	 */
-	public abstract String getString( String directory, String key, String defaultValue);
-
-	public abstract void putString( String directory, String key, String value );
-
+	public abstract String getString(String directory, String key, String defaultValue);
+	
+	public abstract void putString(String directory, String key, String value);
+	
 	/*
 	 * ******************************************************************************************
 	 */
@@ -174,7 +177,7 @@ public abstract class Preferences {
 			putString(key, value.name());
 		}
 	}
-
+	
 	public Color getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, DEFAULT_COLORS);
 		if (color == null)
@@ -193,8 +196,8 @@ public abstract class Preferences {
 			return;
 		putString("componentColors", c.getSimpleName(), stringifyColor(color));
 	}
-
-
+	
+	
 	/**
 	 * Retrieve a Line style for the given component.
 	 * @param c
@@ -234,7 +237,7 @@ public abstract class Preferences {
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
-				Material m = Material.fromStorableString(material);
+				Material m = Material.fromStorableString(material, false);
 				if (m.getType() == type)
 					return m;
 			} catch (IllegalArgumentException ignore) {
@@ -263,16 +266,16 @@ public abstract class Preferences {
 		putString("componentMaterials", componentClass.getSimpleName(),
 				material == null ? null : material.toStorableString());
 	}
-
+	
 	/**
 	 * get a net.sf.openrocket.util.Color object for the given key.
 	 * @param key
 	 * @param defaultValue
 	 * @return
 	 */
-	public final Color getColor( String key, Color defaultValue ) {
-		Color c = parseColor( getString(key,null) );
-		if ( c == null ) {
+	public final Color getColor(String key, Color defaultValue) {
+		Color c = parseColor(getString(key, null));
+		if (c == null) {
 			return defaultValue;
 		}
 		return c;
@@ -283,10 +286,10 @@ public abstract class Preferences {
 	 * @param key
 	 * @param value
 	 */
-	public final void putColor( String key, Color value ) {
-		putString( key, stringifyColor(value) );
+	public final void putColor(String key, Color value) {
+		putString(key, stringifyColor(value));
 	}
-
+	
 	/**
 	 * Helper function to convert a string representation into a net.sf.openrocket.util.Color object.
 	 * @param color
@@ -320,7 +323,7 @@ public abstract class Preferences {
 		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 		return string;
 	}
-
+	
 	/**
 	 * Special helper function which allows for a map of default values.
 	 * 
@@ -359,14 +362,17 @@ public abstract class Preferences {
 		
 		return null;
 	}
-
+	
 	public abstract void addUserMaterial(Material m);
+	
 	public abstract Set<Material> getUserMaterials();
+	
 	public abstract void removeUserMaterial(Material m);
-
-	public abstract void setComponentFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite );
-	public abstract Set<String> getComponentFavorites( ComponentPreset.Type type );
-
+	
+	public abstract void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite);
+	
+	public abstract Set<String> getComponentFavorites(ComponentPreset.Type type);
+	
 	/*
 	 * Map of default line styles
 	 */
@@ -381,17 +387,9 @@ public abstract class Preferences {
 	 * Within a holder class so they will load only when needed.
 	 */
 	private static class DefaultMaterialHolder {
-		private static final Translator trans = Application.getTranslator();
-		
-		//// Elastic cord (round 2mm, 1/16 in)
-		private static final Material DEFAULT_LINE_MATERIAL =
-				Databases.findMaterial(Material.Type.LINE, "Elasticcordround2mm", trans.get("Databases.materials.Elasticcordround2mm"),0.0018);
-		//// Ripstop nylon
-		private static final Material DEFAULT_SURFACE_MATERIAL =
-				Databases.findMaterial(Material.Type.SURFACE, "Ripstopnylon", trans.get("Databases.materials.Ripstopnylon"), 0.067);
-		//// Cardboard
-		private static final Material DEFAULT_BULK_MATERIAL =
-				Databases.findMaterial(Material.Type.BULK, "Cardboard", trans.get("Databases.materials.Cardboard"), 680);
+		private static final Material DEFAULT_LINE_MATERIAL = Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2 mm, 1/16 in)");
+		private static final Material DEFAULT_SURFACE_MATERIAL = Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon");
+		private static final Material DEFAULT_BULK_MATERIAL = Databases.findMaterial(Material.Type.BULK, "Cardboard");
 	}
 	
 	private static final HashMap<Class<?>, String> DEFAULT_COLORS =
@@ -405,6 +403,6 @@ public abstract class Preferences {
 		DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
 	}
 	
-
-
+	
+	
 }
