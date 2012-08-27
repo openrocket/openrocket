@@ -2,6 +2,9 @@
 
 # Usage:
 # ./rename <file-containing-rename-keys> <files_to_modify ...>
+#
+# Rename keys file contains space-separated lines:
+#    <old.key> <new.key>
 
 RENAME="$1"
 shift
