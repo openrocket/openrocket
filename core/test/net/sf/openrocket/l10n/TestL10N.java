@@ -25,6 +25,5 @@ public class TestL10N {
 		assertEquals("m2", L10N.normalize("m" + Chars.SQUARED));
 		assertEquals("a_b", L10N.normalize("a" + Chars.NBSP + "b"));
 		assertEquals("1_2a", L10N.normalize(Chars.FRAC12 + "A"));
-		
 	}
 }
