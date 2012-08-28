@@ -6,8 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
+import java.awt.SplashScreen;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -86,20 +85,25 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public RocketFigure3d(Configuration config) {
 		this.configuration = config;
 		this.setLayout(new BorderLayout());
-
-		/**
-		 * This achieves late GL initialization, so that if there is a crash
-		 * it does not occur until user selects 3D view, so as to not render
-		 * the application unusable.
-		 */
-		addHierarchyListener(new HierarchyListener() {
-			@Override
-			public void hierarchyChanged(HierarchyEvent e) {
-				log.verbose("GL - Calling initGLCanvas on hierarchy change");
-				initGLCanvas();
-				RocketFigure3d.this.removeHierarchyListener(this);
-			}
-		});
+		
+		//Only initizlize GL if 3d is enabled.
+		if ( is3dEnabled() ){
+			//Fixes a linux / X bug: Splash must be closed before GL Init
+			SplashScreen splash = SplashScreen.getSplashScreen();
+			if ( splash != null )
+				splash.close();
+			
+			initGLCanvas();
+		}
+	}
+	
+	/**
+	 * Return true if 3d view is enabled. This may be toggled by the user at
+	 * launch time.
+	 * @return
+	 */
+	public static boolean is3dEnabled(){
+		return System.getProperty("openrocket.3d.disable") == null;
 	}
 	
 	private void initGLCanvas(){

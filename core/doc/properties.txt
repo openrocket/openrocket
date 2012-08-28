@@ -9,7 +9,8 @@ openrocket.locale
 	Select the default locale to be used, for example "en_US".
 	If set to "xx", the logical keys will be displayed instead of the translated strings.
 
-
+openrocket.3d.disable
+	Disables all OpenGL calls if set.
 
 Logging options
 ---------------

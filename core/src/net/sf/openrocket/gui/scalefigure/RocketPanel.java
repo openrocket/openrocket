@@ -285,8 +285,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			}
 		});
 		bg.add(toggle3d);
+		toggle3d.setEnabled(RocketFigure3d.is3dEnabled());
 		add(toggle3d, "gap rel");
-
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);

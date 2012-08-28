@@ -1,3 +1,9 @@
+2012-08-28 Bill Kuker
+
+   * Removed late GL initialization, was causing issues with Java 7.
+   
+   * Added -Dopenrocket.3d.disable option for anyone experiencing crashes as a result of OpenGL.
+
 2012-08-01 Kevin Ruland
 
    * Changed the loader to pull *.rkt files from zip containers.
