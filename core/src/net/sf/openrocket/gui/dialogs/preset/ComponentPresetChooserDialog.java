@@ -238,6 +238,10 @@ public class ComponentPresetChooserDialog extends JDialog {
 		if (!okClicked)
 			return null;
 		int row = componentSelectionTable.getSelectedRow();
+		if ( row < 0 ) {
+			// Nothing selected.
+			return null;
+		}
 		row = componentSelectionTable.convertRowIndexToModel(row);
 		return presets.get(row);
 	}
