@@ -382,10 +382,10 @@ public class GUIUtil {
 		 */
 		Font font = border.getTitleFont();
 		if (font == null) {
-			log.error("Border font is null, reverting to JLabel font");
+			log.warn("JRE bug workaround : Border font is null, reverting to JLabel font");
 			font = new JLabel().getFont();
 			if (font == null) {
-				log.error("JLabel font is null, not modifying font");
+				log.warn("JRE bug workaround : JLabel font is null, not modifying font");
 				return;
 			}
 		}
