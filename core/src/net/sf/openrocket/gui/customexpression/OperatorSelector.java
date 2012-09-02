@@ -66,7 +66,7 @@ public class OperatorSelector extends JDialog {
 				Point p = e.getPoint();
 				int row = table.rowAtPoint(p);
 				int col = table.columnAtPoint(p);
-				if (col == 1){
+				if (col == 1 && row > -1){
 					String description = String.valueOf(table.getValueAt(row, 1));
 					description = TextUtil.wrap(description, 60);
 					table.setToolTipText(description);
