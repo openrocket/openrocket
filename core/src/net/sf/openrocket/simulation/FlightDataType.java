@@ -169,7 +169,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Air temperature
 	public static final FlightDataType TYPE_AIR_TEMPERATURE = newType(trans.get("FlightDataType.TYPE_AIR_TEMPERATURE"), "T", UnitGroup.UNITS_TEMPERATURE, 111);
 	//// Air pressure
-	public static final FlightDataType TYPE_AIR_PRESSURE = newType(trans.get("FlightDataType.TYPE_AIR_PRESSURE"), "p", UnitGroup.UNITS_PRESSURE, 112);
+	public static final FlightDataType TYPE_AIR_PRESSURE = newType(trans.get("FlightDataType.TYPE_AIR_PRESSURE"), "P", UnitGroup.UNITS_PRESSURE, 112);
 	//// Speed of sound
 	public static final FlightDataType TYPE_SPEED_OF_SOUND = newType(trans.get("FlightDataType.TYPE_SPEED_OF_SOUND"), "Vs", UnitGroup.UNITS_VELOCITY, 113);
 	
