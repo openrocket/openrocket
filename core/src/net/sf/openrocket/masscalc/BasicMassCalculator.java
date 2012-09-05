@@ -2,8 +2,10 @@ package net.sf.openrocket.masscalc;
 
 import static net.sf.openrocket.util.MathUtil.pow2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.openrocket.motor.Motor;
@@ -38,6 +40,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	 * Return the CG of the rocket with the specified motor status (no motors,
 	 * ignition, burnout).
 	 */
+	@Override
 	public Coordinate getCG(Configuration configuration, MassCalcType type) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
@@ -80,6 +83,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	/**
 	 * Return the CG of the rocket with the provided motor configuration.
 	 */
+	@Override
 	public Coordinate getCG(Configuration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
@@ -103,7 +107,6 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 		return totalCG;
 	}
 	
-	
 	/**
 	 * Return the longitudinal inertia of the rocket with the specified motor instance
 	 * configuration.
@@ -111,6 +114,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	 * @param configuration		the current motor instance configuration
 	 * @return					the longitudinal inertia of the rocket
 	 */
+	@Override
 	public double getLongitudinalInertia(Configuration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
@@ -154,6 +158,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	 * @param configuration		the current motor instance configuration
 	 * @return					the rotational inertia of the rocket
 	 */
+	@Override
 	public double getRotationalInertia(Configuration configuration, MotorInstanceConfiguration motors) {
 		checkCache(configuration);
 		calculateStageCache(configuration);
@@ -190,8 +195,26 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 		return totalInertia;
 	}
 	
+	/**
+	 * Return the total mass of the motors
+	 * 
+	 * @param configuration		the current motor instance configuration
+	 * @return					the total mass of all motors
+	 */
+	@Override
+	public double getPropellantMass(Configuration configuration, MotorInstanceConfiguration motors){
+		double mass = 0;
+				
+		// add up the masses of all motors in the rocket
+		if (motors != null) {
+			for (MotorId id : motors.getMotorIDs()) {
+				MotorInstance motor = motors.getMotorInstance(id);					
+				mass = mass + motor.getCG().weight - motor.getParentMotor().getEmptyCG().weight;
+			}
+		}
+		return mass;
+	}
 	
-
 	@Override
 	public Map<RocketComponent, Coordinate> getCGAnalysis(Configuration configuration, MassCalcType type) {
 		checkCache(configuration);

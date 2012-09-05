@@ -56,5 +56,8 @@ public interface MotorInstance extends Cloneable, Monitorable {
 	 * identical to this instance and can be used independently from this one.
 	 */
 	public MotorInstance clone();
+
+
+	public Motor getParentMotor();
 	
 }

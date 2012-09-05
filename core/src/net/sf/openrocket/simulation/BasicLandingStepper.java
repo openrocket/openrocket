@@ -109,6 +109,8 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 
 		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
 		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
+		data.setValue(FlightDataType.TYPE_GRAVITY, gravity);
+		
 		if (status.getSimulationConditions().getGeodeticComputation() != GeodeticComputationStrategy.FLAT) {
 			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
 		}
@@ -121,6 +123,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_MACH_NUMBER, mach);
 		
 		data.setValue(FlightDataType.TYPE_MASS, mass);
+		data.setValue(FlightDataType.TYPE_PROPELLANT_MASS, 0.0); // Is this a reasonable assumption? Probably.
 		
 		data.setValue(FlightDataType.TYPE_THRUST_FORCE, 0);
 		data.setValue(FlightDataType.TYPE_DRAG_FORCE, dragForce);

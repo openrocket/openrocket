@@ -71,6 +71,9 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Longitude
 	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE, 37);
 	
+	//// Gravity
+	public static final FlightDataType TYPE_GRAVITY = newType(trans.get("FlightDataType.TYPE_GRAVITY"), "g", UnitGroup.UNITS_ACCELERATION, 38);
+	
 	//// Angular motion
 	//// Angle of attack
 	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), "\u03b1", UnitGroup.UNITS_ANGLE, 40);
@@ -85,16 +88,18 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Stability information
 	//// Mass
 	public static final FlightDataType TYPE_MASS = newType(trans.get("FlightDataType.TYPE_MASS"), "m", UnitGroup.UNITS_MASS, 50);
+	//// Propellant mass
+	public static final FlightDataType TYPE_PROPELLANT_MASS = newType(trans.get("FlightDataType.TYPE_PROPELLANT_MASS"), "mp", UnitGroup.UNITS_MASS, 51);
 	//// Longitudinal moment of inertia
-	public static final FlightDataType TYPE_LONGITUDINAL_INERTIA = newType(trans.get("FlightDataType.TYPE_LONGITUDINAL_INERTIA"), "Il", UnitGroup.UNITS_INERTIA, 51);
+	public static final FlightDataType TYPE_LONGITUDINAL_INERTIA = newType(trans.get("FlightDataType.TYPE_LONGITUDINAL_INERTIA"), "Il", UnitGroup.UNITS_INERTIA, 52);
 	//// Rotational moment of inertia
-	public static final FlightDataType TYPE_ROTATIONAL_INERTIA = newType(trans.get("FlightDataType.TYPE_ROTATIONAL_INERTIA"), "Ir", UnitGroup.UNITS_INERTIA, 52);
+	public static final FlightDataType TYPE_ROTATIONAL_INERTIA = newType(trans.get("FlightDataType.TYPE_ROTATIONAL_INERTIA"), "Ir", UnitGroup.UNITS_INERTIA, 53);
 	//// CP location
-	public static final FlightDataType TYPE_CP_LOCATION = newType(trans.get("FlightDataType.TYPE_CP_LOCATION"), "Cp", UnitGroup.UNITS_LENGTH, 53);
+	public static final FlightDataType TYPE_CP_LOCATION = newType(trans.get("FlightDataType.TYPE_CP_LOCATION"), "Cp", UnitGroup.UNITS_LENGTH, 54);
 	//// CG location
-	public static final FlightDataType TYPE_CG_LOCATION = newType(trans.get("FlightDataType.TYPE_CG_LOCATION"), "Cg", UnitGroup.UNITS_LENGTH, 54);
+	public static final FlightDataType TYPE_CG_LOCATION = newType(trans.get("FlightDataType.TYPE_CG_LOCATION"), "Cg", UnitGroup.UNITS_LENGTH, 55);
 	//// Stability margin calibers
-	public static final FlightDataType TYPE_STABILITY = newType(trans.get("FlightDataType.TYPE_STABILITY"), "S", UnitGroup.UNITS_COEFFICIENT, 55);
+	public static final FlightDataType TYPE_STABILITY = newType(trans.get("FlightDataType.TYPE_STABILITY"), "S", UnitGroup.UNITS_COEFFICIENT, 56);
 	
 	
 	//// Characteristic numbers
@@ -194,12 +199,14 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		TYPE_VELOCITY_XY, 
 		TYPE_ACCELERATION_XY, 
 		TYPE_LATITUDE, 
-		TYPE_LONGITUDE, 
+		TYPE_LONGITUDE,
+		TYPE_GRAVITY,
 		TYPE_AOA,
 		TYPE_ROLL_RATE,
 		TYPE_PITCH_RATE,
 		TYPE_YAW_RATE,
 		TYPE_MASS,
+		TYPE_PROPELLANT_MASS,
 		TYPE_LONGITUDINAL_INERTIA,
 		TYPE_ROTATIONAL_INERTIA,
 		TYPE_CP_LOCATION,

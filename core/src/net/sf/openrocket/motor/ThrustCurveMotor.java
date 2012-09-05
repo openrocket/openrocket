@@ -424,6 +424,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 		
 		private final double unitRotationalInertia;
 		private final double unitLongitudinalInertia;
+		private final Motor parentMotor;
 		
 		private int modID = 0;
 		
@@ -437,6 +438,12 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
 			stepCG = cg[0];
 			unitRotationalInertia = Inertia.filledCylinderRotational(getDiameter() / 2);
 			unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(getDiameter() / 2, getLength());
+			parentMotor = ThrustCurveMotor.this;
+		}
+		
+		@Override
+		public Motor getParentMotor(){
+			return parentMotor;
 		}
 		
 		@Override

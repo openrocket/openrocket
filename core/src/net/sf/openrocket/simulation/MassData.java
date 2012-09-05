@@ -13,15 +13,17 @@ public class MassData {
 	private final Coordinate cg;
 	private final double longitudinalInertia;
 	private final double rotationalInertia;
+	private final double propellantMass;
 	
 	
-	public MassData(Coordinate cg, double longitudinalInertia, double rotationalInertia) {
+	public MassData(Coordinate cg, double longitudinalInertia, double rotationalInertia, double propellantMass) {
 		if (cg == null) {
 			throw new IllegalArgumentException("cg is null");
 		}
 		this.cg = cg;
 		this.longitudinalInertia = longitudinalInertia;
 		this.rotationalInertia = rotationalInertia;
+		this.propellantMass = propellantMass;
 	}
 
 	
@@ -39,6 +41,9 @@ public class MassData {
 		return rotationalInertia;
 	}
 
+	public double getPropellantMass() {
+		return propellantMass;
+	}
 	
 	
 	@Override
@@ -50,20 +55,20 @@ public class MassData {
 		
 		MassData other = (MassData) obj;
 		return (this.cg.equals(other.cg) && MathUtil.equals(this.longitudinalInertia, other.longitudinalInertia) &&
-				MathUtil.equals(this.rotationalInertia, other.rotationalInertia));
+				MathUtil.equals(this.rotationalInertia, other.rotationalInertia)) && MathUtil.equals(this.propellantMass, other.propellantMass) ;
 	}
 
 	
 	@Override
 	public int hashCode() {
-		return (int) (cg.hashCode() ^ Double.doubleToLongBits(longitudinalInertia) ^ Double.doubleToLongBits(rotationalInertia));
+		return (int) (cg.hashCode() ^ Double.doubleToLongBits(longitudinalInertia) ^ Double.doubleToLongBits(rotationalInertia) ^ Double.doubleToLongBits(propellantMass) );
 	}
 
 
 	@Override
 	public String toString() {
 		return "MassData [cg=" + cg + ", longitudinalInertia=" + longitudinalInertia
-				+ ", rotationalInertia=" + rotationalInertia + "]";
+				+ ", rotationalInertia=" + rotationalInertia + ", propellantMass="+propellantMass + "]";
 	}
 	
 }

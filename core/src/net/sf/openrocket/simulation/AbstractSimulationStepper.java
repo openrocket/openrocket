@@ -115,7 +115,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	protected MassData calculateMassData(SimulationStatus status) throws SimulationException {
 		MassData mass;
 		Coordinate cg;
-		double longitudinalInertia, rotationalInertia;
+		double longitudinalInertia, rotationalInertia, propellantMass;
 		
 		// Call pre-listener
 		mass = SimulationListenerHelper.firePreMassCalculation(status);
@@ -127,7 +127,8 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		cg = calc.getCG(status.getConfiguration(), status.getMotorConfiguration());
 		longitudinalInertia = calc.getLongitudinalInertia(status.getConfiguration(), status.getMotorConfiguration());
 		rotationalInertia = calc.getRotationalInertia(status.getConfiguration(), status.getMotorConfiguration());
-		mass = new MassData(cg, longitudinalInertia, rotationalInertia);
+		propellantMass = calc.getPropellantMass(status.getConfiguration(), status.getMotorConfiguration());
+		mass = new MassData(cg, longitudinalInertia, rotationalInertia, propellantMass);
 		
 		// Call post-listener
 		mass = SimulationListenerHelper.firePostMassCalculation(status, mass);
@@ -135,6 +136,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		checkNaN(mass.getCG());
 		checkNaN(mass.getLongitudinalInertia());
 		checkNaN(mass.getRotationalInertia());
+		checkNaN(mass.getPropellantMass());
 		
 		return mass;
 	}

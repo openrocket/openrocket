@@ -70,6 +70,14 @@ public interface MassCalculator extends Monitorable {
 	 */
 	public double getRotationalInertia(Configuration configuration, MotorInstanceConfiguration motors);
 	
+	/**
+	 * Return the total mass of the motors
+	 * 
+	 * @param motors			the motor configuration
+	 * @param configuration		the current motor instance configuration
+	 * @return					the total mass of all motors
+	 */
+	public double getPropellantMass(Configuration configuration, MotorInstanceConfiguration motors);	
 	
 	/**
 	 * Compute an analysis of the per-component CG's of the provided configuration.
