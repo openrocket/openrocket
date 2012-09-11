@@ -163,7 +163,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		default:
 			// Assume 75% efficiency
 			cna *= 0.75;
-			warnings.add("Too many parallel fins");
+			warnings.add(Warning.PARALLEL_FINS);
 			break;
 		}
 		

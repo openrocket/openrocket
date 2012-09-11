@@ -571,42 +571,38 @@ public class SimulationPanel extends JPanel {
 			tip = "<html><b>" + sim.getName() + "</b><br>";
 			switch (sim.getStatus()) {
 			case UPTODATE:
-				//// <i>Up to date</i><br>
-				tip += "<i>Up to date</i><br>";
+				tip += trans.get ("simpanel.ttip.uptodate") + "<br>";
 				break;
 			
 			case LOADED:
-				//// <i>Data loaded from a file</i><br>
-				tip += "<i>Data loaded from a file</i><br>";
+				tip += trans.get ("simpanel.ttip.loaded") + "<br>";
 				break;
 			
 			case OUTDATED:
-				tip += "<i><font color=\"red\">Data is out of date</font></i><br>";
-				tip += "Click <i><b>Run simulations</b></i> to simulate.<br>";
+				tip += trans.get ("simpanel.ttip.outdated") + "<br>";
 				break;
 			
 			case EXTERNAL:
-				tip += "<i>Imported data</i><br>";
+				tip += trans.get ("simpanel.ttip.external") + "<br>";
 				return tip;
 				
 			case NOT_SIMULATED:
-				tip += "<i>Not simulated yet</i><br>";
-				tip += "Click <i><b>Run simulations</b></i> to simulate.";
+				tip += trans.get ("simpanel.ttip.notSimulated");
 				return tip;
 			}
 			
 			if (data == null) {
-				tip += "No simulation data available.";
+				tip += trans.get ("simpanel.ttip.noData");
 				return tip;
 			}
 			WarningSet warnings = data.getWarningSet();
 			
 			if (warnings.isEmpty()) {
-				tip += "<font color=\"gray\">No warnings.</font>";
+				tip += trans.get ("simpanel.ttip.noWarnings");
 				return tip;
 			}
 			
-			tip += "<font color=\"red\">Warnings:</font>";
+			tip += trans.get ("simpanel.ttip.warnings");
 			for (Warning w : warnings) {
 				tip += "<br>" + w.toString();
 			}

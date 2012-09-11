@@ -5,6 +5,7 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -140,7 +141,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 
 		// Add warning on supersonic flight
 		if (conditions.getMach() > 1.1) {
-			warnings.add("Body calculations may not be entirely accurate at supersonic speeds.");
+			warnings.add(Warning.SUPERSONIC);
 		}
 		
 	}

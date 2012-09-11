@@ -102,6 +102,7 @@ public abstract class Warning {
 		private double length = Double.NaN;
 		private double delay = Double.NaN;
 
+		@Override
 		public String toString() {
 			String str = "No motor with designation '" + designation + "'";
 			if (manufacturer != null)
@@ -315,4 +316,13 @@ public abstract class Warning {
 	//// Invalid parameter encountered, ignoring.
 	public static final Warning FILE_INVALID_PARAMETER =
 		new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
+
+	public static final Warning PARALLEL_FINS =
+		new Other(trans.get("Warning.PARALLEL_FINS"));
+	
+	public static final Warning SUPERSONIC =
+		new Other(trans.get("Warning.SUPERSONIC"));
+
+	public static final Warning RECOVERY_LAUNCH_ROD =
+		new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
 }

@@ -1,12 +1,12 @@
 package net.sf.openrocket.simulation;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorId;
@@ -18,7 +18,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
@@ -33,6 +32,7 @@ import net.sf.openrocket.util.Quaternion;
 
 public class BasicEventSimulationEngine implements SimulationEngine {
 	
+	private static final Translator trans = Application.getTranslator();
 	private static final LogHelper log = Application.getLogger();
 	
 	// TODO: MEDIUM: Allow selecting steppers
@@ -470,15 +470,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// Check for launch rod
 					if (!status.isLaunchRodCleared()) {
-						status.getWarnings().add(Warning.fromString("Recovery device device deployed while on " +
-								"the launch guide."));
+						status.getWarnings().add(Warning.RECOVERY_LAUNCH_ROD);
 					}
 					
 					// Check current velocity
 					if (status.getRocketVelocity().length() > 20) {
 						// TODO: LOW: Custom warning.
-						status.getWarnings().add(Warning.fromString("Recovery device deployment at high " +
-								"speed ("
+						status.getWarnings().add(Warning.fromString(trans.get("Warning.RECOVERY_HIGH_SPEED") +
+								" ("
 								+ UnitGroup.UNITS_VELOCITY.toStringUnit(status.getRocketVelocity().length())
 								+ ")."));
 					}
