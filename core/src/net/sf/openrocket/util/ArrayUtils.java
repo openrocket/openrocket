@@ -32,7 +32,9 @@ public class ArrayUtils {
 	public static double mean(double[] vals){
 		double subtotal = 0;
 		for (int i = 0; i < vals.length; i++ ){
-			subtotal += vals[i];
+			if (!Double.isNaN(vals[i])){
+				subtotal += vals[i];
+			}
 		}
 		subtotal = subtotal / vals.length;
 		return subtotal;
@@ -68,8 +70,10 @@ public class ArrayUtils {
 		double sumsq = 0.0;
 		double temp = 0;
 		for (int i = 0; i < vals.length; i++){
-			temp = (mu - vals[i]);
-			sumsq += temp*temp;
+			if (!Double.isNaN(vals[i])){
+				temp = (mu - vals[i]);
+				sumsq += temp*temp;
+			}
 		}
 		return sumsq / (vals.length);
 	}
@@ -92,7 +96,7 @@ public class ArrayUtils {
 	
 	/**
 	 * Returns the integral of a given array calculated by the trapezoidal rule
-	 * dt is the time step between each array value
+	 * dt is the time step between each array value. Any NaN values are treated as zero
 	 */
 	public static double trapz(double[] y, double dt){
 		double stop = (y.length -1) * dt;
@@ -103,7 +107,10 @@ public class ArrayUtils {
 	    
 	    double sum = 0.0;
 	    for (int i = 1; i < x.length; i++) {
-	        sum += (x[i] - x[i-1]) * (y[i] + y[i-1]);
+	        double temp = (x[i] - x[i-1]) * (y[i] + y[i-1]);
+	        if (!Double.isNaN(temp)){
+	        	sum += temp;
+	        }
 	    }
 	    return sum * 0.5;
 	}
