@@ -1,0 +1,30 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="3300-L3200-VM-P" Type="unspecified" dia="75." len="486."
+initWt="3263.7" propWt="1658.4" delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="3127.56" peakThrust="3711.92" throatDia="0." exitDia="0."
+Itot="3299.58" burn-time="1.05" massFrac="50.81" Isp="202.88" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>VMax 75mm 3G
+3300-L3200-VM-P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1658.4" cg="243."/>
+      <eng-data  t="0.008" f="3315.23" m="1651.73" cg="243."/>
+      <eng-data  t="0.024" f="2672.96" m="1627.66" cg="243."/>
+      <eng-data  t="0.108" f="2975.21" m="1508.43" cg="243."/>
+      <eng-data  t="0.415" f="3669.42" m="995.789" cg="243."/>
+      <eng-data  t="0.524" f="3711.92" m="793.598" cg="243."/>
+      <eng-data  t="0.644" f="3669.42" m="571.002" cg="243."/>
+      <eng-data  t="0.819" f="3225.5" m="267.774" cg="243."/>
+      <eng-data  t="0.911" f="3022.43" m="123.322" cg="243."/>
+      <eng-data  t="0.937" f="3050.77" m="83.6397" cg="243."/>
+      <eng-data  t="0.957" f="2899.65" m="53.7324" cg="243."/>
+      <eng-data  t="1.022" f="288.076" m="1.66152" cg="243."/>
+      <eng-data  t="1.039" f="51.948" m="0.208877" cg="243."/>
+      <eng-data  t="1.055" f="0." m="0." cg="243."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,6 +1,6 @@
-;This file is identical to Tim Van Milligan's L339 file except the motor and
-; propellant weights have been corrected.  Total weight was about 50% too high.
-L339N 98 309 4 1.355 3.15 Aerotech
+; Entered by Tim Van Milligan. Used John Coker's ThrustCurve Tracer software and
+; data supplied by Aerotech thrust stand data. The total weight is a guess.
+L339N 98 309 4 1.796 4.5 Aerotech
    0.049 2.884
    0.074 373.449
    0.123 399.403

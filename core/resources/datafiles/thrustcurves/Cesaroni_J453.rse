@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="1013-J453-WH-16A" Type="unspecified" dia="38." len="500."
+initWt="964.3" propWt="613.2" delays="16,13,11,9,7" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="430.622" peakThrust="725.18" throatDia="0."
+exitDia="0." Itot="1017.99" burn-time="2.36" massFrac="63.59" Isp="169.29"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>White 38mm 6GXL
+1013-J453-WH-16A
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="613.2" cg="250."/>
+      <eng-data  t="0.018" f="663.789" m="609.601" cg="250."/>
+      <eng-data  t="0.04" f="725.18" m="600.398" cg="250."/>
+      <eng-data  t="0.105" f="630.216" m="573.864" cg="250."/>
+      <eng-data  t="0.23" f="578.417" m="528.362" cg="250."/>
+      <eng-data  t="0.451" f="543.885" m="453.66" cg="250."/>
+      <eng-data  t="1.454" f="535.252" m="127.669" cg="250."/>
+      <eng-data  t="1.797" f="291.607" m="42.2501" cg="250."/>
+      <eng-data  t="1.91" f="188.969" m="25.8944" cg="250."/>
+      <eng-data  t="2.088" f="128.537" m="8.87281" cg="250."/>
+      <eng-data  t="2.276" f="19.185" m="0.508479" cg="250."/>
+      <eng-data  t="2.364" f="0." m="0." cg="250."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

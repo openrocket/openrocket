@@ -1,0 +1,30 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="17907-N2540-GR-P" Type="unspecified" dia="98." len="1239."
+initWt="16280.5" propWt="10704.2" delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="2479.42" peakThrust="2894.98" throatDia="0." exitDia="0."
+Itot="17906.4" burn-time="7.22" massFrac="65.75" Isp="170.58" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Green 98mm 6GXL
+17907-N2540-GR-P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="10704.2" cg="619.5"/>
+      <eng-data  t="0.073" f="2586.93" m="10647.8" cg="619.5"/>
+      <eng-data  t="0.11" f="2789.97" m="10588.3" cg="619.5"/>
+      <eng-data  t="0.398" f="2761.96" m="10110.4" cg="619.5"/>
+      <eng-data  t="1.14" f="2761.96" m="8885.29" cg="619.5"/>
+      <eng-data  t="1.73" f="2828.47" m="7899.43" cg="619.5"/>
+      <eng-data  t="2.613" f="2894.98" m="6388.88" cg="619.5"/>
+      <eng-data  t="4.16" f="2747.96" m="3779.65" cg="619.5"/>
+      <eng-data  t="5.666" f="2565.93" m="1387.7" cg="619.5"/>
+      <eng-data  t="5.972" f="2415.4" m="932.099" cg="619.5"/>
+      <eng-data  t="6.338" f="1953.33" m="454.182" cg="619.5"/>
+      <eng-data  t="6.819" f="745.624" m="66.1607" cg="619.5"/>
+      <eng-data  t="7.061" f="101.517" m="4.88518" cg="619.5"/>
+      <eng-data  t="7.222" f="0." m="0." cg="619.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

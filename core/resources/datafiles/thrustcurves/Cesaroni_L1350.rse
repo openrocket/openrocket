@@ -1,0 +1,32 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="4263-L1350-CS-P" Type="unspecified" dia="75." len="486."
+initWt="3570.7" propWt="2024.5" delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1303.34" peakThrust="1540.73" throatDia="0." exitDia="0."
+Itot="4280.17" burn-time="3.28" massFrac="56.7" Isp="215.59" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>C-Star 75mm 3G
+4263-L1350-CS-P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="2024.5" cg="243."/>
+      <eng-data  t="0.016" f="1421.72" m="2019.12" cg="243."/>
+      <eng-data  t="0.034" f="1345.22" m="2007.34" cg="243."/>
+      <eng-data  t="0.049" f="1502.48" m="1997.24" cg="243."/>
+      <eng-data  t="0.081" f="1415.35" m="1975.16" cg="243."/>
+      <eng-data  t="0.21" f="1432.35" m="1888.28" cg="243."/>
+      <eng-data  t="0.453" f="1432.35" m="1723.65" cg="243."/>
+      <eng-data  t="0.809" f="1462.1" m="1479.96" cg="243."/>
+      <eng-data  t="1.07" f="1534.36" m="1295." cg="243."/>
+      <eng-data  t="1.28" f="1540.73" m="1142.27" cg="243."/>
+      <eng-data  t="2.661" f="1283.59" m="219.84" cg="243."/>
+      <eng-data  t="2.843" f="1277.21" m="109.616" cg="243."/>
+      <eng-data  t="2.932" f="1115.7" m="59.2496" cg="243."/>
+      <eng-data  t="3.037" f="488.784" m="19.4066" cg="243."/>
+      <eng-data  t="3.163" f="82.881" m="2.37174" cg="243."/>
+      <eng-data  t="3.284" f="0." m="0." cg="243."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

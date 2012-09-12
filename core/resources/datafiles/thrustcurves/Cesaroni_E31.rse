@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="26-E31-WH-15A" Type="unspecified" dia="24." len="69."
+initWt="52." propWt="16.9" delays="15,12,10,8,6" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="29.982" peakThrust="43.824" throatDia="0."
+exitDia="0." Itot="26.084" burn-time="0.87" massFrac="32.5" Isp="157.39"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>White 24mm 1G
+26-E31-WH-15A
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="16.9" cg="34.5"/>
+      <eng-data  t="0.02" f="43.824" m="16.6161" cg="34.5"/>
+      <eng-data  t="0.027" f="39.964" m="16.4261" cg="34.5"/>
+      <eng-data  t="0.049" f="26.781" m="15.9504" cg="34.5"/>
+      <eng-data  t="0.113" f="32.601" m="14.7192" cg="34.5"/>
+      <eng-data  t="0.193" f="34.739" m="12.974" cg="34.5"/>
+      <eng-data  t="0.282" f="35.808" m="10.94" cg="34.5"/>
+      <eng-data  t="0.5" f="34.442" m="5.97881" cg="34.5"/>
+      <eng-data  t="0.727" f="29.276" m="1.29315" cg="34.5"/>
+      <eng-data  t="0.771" f="22.743" m="0.551669" cg="34.5"/>
+      <eng-data  t="0.807" f="9.561" m="0.174929" cg="34.5"/>
+      <eng-data  t="0.84" f="3.563" m="0.0346274" cg="34.5"/>
+      <eng-data  t="0.87" f="0." m="0." cg="34.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

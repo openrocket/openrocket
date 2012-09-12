@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="9977-M2245-IM-P" Type="unspecified" dia="75." len="1025."
+initWt="8182." propWt="5309." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="2282.85" peakThrust="3045.66" throatDia="0." exitDia="0."
+Itot="9978.32" burn-time="4.37" massFrac="64.89" Isp="191.66" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Imax Pro75 6GXL
+9977 M2245-IM-P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="5309." cg="512.5"/>
+      <eng-data  t="0.043" f="3045.66" m="5274.16" cg="512.5"/>
+      <eng-data  t="0.136" f="2629.81" m="5133.75" cg="512.5"/>
+      <eng-data  t="1.393" f="3003.3" m="3250.06" cg="512.5"/>
+      <eng-data  t="2.168" f="3007.15" m="2010.88" cg="512.5"/>
+      <eng-data  t="2.708" f="2972.5" m="1151.88" cg="512.5"/>
+      <eng-data  t="2.837" f="2883.94" m="950.898" cg="512.5"/>
+      <eng-data  t="3.152" f="1956." m="545.32" cg="512.5"/>
+      <eng-data  t="3.397" f="1409.24" m="325.985" cg="512.5"/>
+      <eng-data  t="3.878" f="562.156" m="73.7274" cg="512.5"/>
+      <eng-data  t="4.371" f="0." m="0." cg="512.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

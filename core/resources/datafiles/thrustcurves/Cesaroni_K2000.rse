@@ -1,0 +1,30 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="2330-K2000-VM-P" Type="unspecified" dia="75." len="350."
+initWt="2464.5" propWt="1164.2" delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1957.59" peakThrust="2473.68" throatDia="0." exitDia="0."
+Itot="2331.49" burn-time="1.19" massFrac="47.24" Isp="204.21" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>VMax 75mm 2G
+2330-K2000-VM-P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1164.2" cg="175."/>
+      <eng-data  t="0.01" f="1979.53" m="1159.26" cg="175."/>
+      <eng-data  t="0.029" f="1634.5" m="1142.11" cg="175."/>
+      <eng-data  t="0.161" f="1947.37" m="1024.07" cg="175."/>
+      <eng-data  t="0.321" f="2190.06" m="858.791" cg="175."/>
+      <eng-data  t="0.457" f="2397.66" m="703.015" cg="175."/>
+      <eng-data  t="0.548" f="2473.68" m="592.339" cg="175."/>
+      <eng-data  t="0.678" f="2383.04" m="434.704" cg="175."/>
+      <eng-data  t="0.768" f="2263.16" m="330.303" cg="175."/>
+      <eng-data  t="0.977" f="1923.98" m="111.815" cg="175."/>
+      <eng-data  t="1.027" f="1883.04" m="64.2905" cg="175."/>
+      <eng-data  t="1.104" f="859.649" m="11.5636" cg="175."/>
+      <eng-data  t="1.149" f="87.719" m="0.91983" cg="175."/>
+      <eng-data  t="1.191" f="0." m="0." cg="175."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

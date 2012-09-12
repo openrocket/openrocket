@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="24-E22-SS-13A" Type="unspecified" dia="24." len="69."
+initWt="56.5" propWt="20.3" delays="13,10,8,6,4" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="22.327" peakThrust="30.792" throatDia="0."
+exitDia="0." Itot="24.27" burn-time="1.09" massFrac="35.93" Isp="121.91"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Smoky Sam 24mm 1G
+24-E22-SS-13A
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="20.3" cg="34.5"/>
+      <eng-data  t="0.008" f="18.292" m="20.2388" cg="34.5"/>
+      <eng-data  t="0.026" f="30." m="19.8753" cg="34.5"/>
+      <eng-data  t="0.038" f="30.792" m="19.5702" cg="34.5"/>
+      <eng-data  t="0.067" f="18.708" m="18.9698" cg="34.5"/>
+      <eng-data  t="0.101" f="21.875" m="18.3927" cg="34.5"/>
+      <eng-data  t="0.33" f="26.083" m="13.7997" cg="34.5"/>
+      <eng-data  t="0.528" f="28.042" m="9.31773" cg="34.5"/>
+      <eng-data  t="0.716" f="27.875" m="4.92123" cg="34.5"/>
+      <eng-data  t="0.841" f="23.542" m="2.23328" cg="34.5"/>
+      <eng-data  t="0.912" f="17.833" m="1.00471" cg="34.5"/>
+      <eng-data  t="0.987" f="7." m="0.225783" cg="34.5"/>
+      <eng-data  t="1.016" f="3.333" m="0.100461" cg="34.5"/>
+      <eng-data  t="1.065" f="1.083" m="0.00996451" cg="34.5"/>
+      <eng-data  t="1.087" f="0." m="0." cg="34.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

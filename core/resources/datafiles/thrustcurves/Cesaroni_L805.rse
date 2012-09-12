@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="2833-L805-WH-P" Type="unspecified" dia="54." len="649."
+initWt="2502.5" propWt="1675.2" delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="746.357" peakThrust="1618.1" throatDia="0." exitDia="0."
+Itot="2856.31" burn-time="3.83" massFrac="66.94" Isp="173.87" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>White 54mm 6GXL
+2833-L805-WH-P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1675.2" cg="324.5"/>
+      <eng-data  t="0.012" f="1618.1" m="1669.51" cg="324.5"/>
+      <eng-data  t="0.037" f="1171.8" m="1649.05" cg="324.5"/>
+      <eng-data  t="0.173" f="1027.97" m="1561.32" cg="324.5"/>
+      <eng-data  t="0.388" f="994.125" m="1433.83" cg="324.5"/>
+      <eng-data  t="0.626" f="985.664" m="1295.66" cg="324.5"/>
+      <eng-data  t="2.318" f="886.251" m="366.868" cg="324.5"/>
+      <eng-data  t="3.054" f="448.414" m="78.8087" cg="324.5"/>
+      <eng-data  t="3.464" f="126.91" m="9.63702" cg="324.5"/>
+      <eng-data  t="3.608" f="40.188" m="2.58091" cg="324.5"/>
+      <eng-data  t="3.827" f="0." m="0." cg="324.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

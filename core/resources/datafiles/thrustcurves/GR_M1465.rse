@@ -1,0 +1,22 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Rocket_Motors" code="M1465BL" Type="reloadable" dia="98."
+len="869.95" initWt="9801." propWt="4992." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1449.69" peakThrust="2219." throatDia="0."
+exitDia="0." Itot="7538.4" burn-time="5.2" massFrac="50.93" Isp="153.99"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="4992." cg="434.975"/>
+      <eng-data  t="0.33" f="1113." m="4870.39" cg="434.975"/>
+      <eng-data  t="1.64957" f="1752.05" m="3618.6" cg="434.975"/>
+      <eng-data  t="3." f="2219." m="1843.01" cg="434.975"/>
+      <eng-data  t="3.51282" f="2100.41" m="1109.59" cg="434.975"/>
+      <eng-data  t="3.98291" f="1823.77" m="498.8" cg="434.975"/>
+      <eng-data  t="4.3" f="1335." m="167.156" cg="434.975"/>
+      <eng-data  t="4.45299" f="334." m="82.6109" cg="434.975"/>
+      <eng-data  t="5.2" f="0." m="0." cg="434.975"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,19 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Gorilla_Rocket_Motors" code="M1025WC" Type="reloadable" dia="98."
+len="869.95" initWt="10138." propWt="5329." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1024.39" peakThrust="1780." throatDia="0."
+exitDia="0." Itot="9590.88" burn-time="9.36" massFrac="52.56" Isp="183.52"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <data>
+      <eng-data  t="0." f="0." m="5329." cg="434.975"/>
+      <eng-data  t="0.1" f="1780." m="5279.55" cg="434.975"/>
+      <eng-data  t="0.5" f="1558." m="4908.61" cg="434.975"/>
+      <eng-data  t="3.25641" f="1500." m="2566.87" cg="434.975"/>
+      <eng-data  t="6.17949" f="795.082" m="703.085" cg="434.975"/>
+      <eng-data  t="9.3625" f="0." m="0." cg="434.975"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="K650SS" Type="reloadable" dia="54."
+len="488." initWt="1989.9" propWt="1281." delays="16" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="657.68" peakThrust="728.7" throatDia="0."
+exitDia="0." Itot="1749.43" burn-time="2.66" massFrac="64.38" Isp="139.26"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<data>
+<eng-data  t="0." f="0." m="1281." cg="244."/>
+<eng-data  t="0.04" f="664.52" m="1271.27" cg="244."/>
+<eng-data  t="0.12" f="645.9" m="1232.89" cg="244."/>
+<eng-data  t="0.31" f="642.24" m="1143.28" cg="244."/>
+<eng-data  t="0.6" f="664.78" m="1004.51" cg="244."/>
+<eng-data  t="0.91" f="684.59" m="851.358" cg="244."/>
+<eng-data  t="1.22" f="712.82" m="692.757" cg="244."/>
+<eng-data  t="1.5" f="723.41" m="545.524" cg="244."/>
+<eng-data  t="1.8" f="728.7" m="386.03" cg="244."/>
+<eng-data  t="2.1" f="664.52" m="233.005" cg="244."/>
+<eng-data  t="2.4" f="614.68" m="92.5027" cg="244."/>
+<eng-data  t="2.51" f="680.53" m="40.3405" cg="244."/>
+<eng-data  t="2.55" f="534.62" m="22.5449" cg="244."/>
+<eng-data  t="2.61" f="268.19" m="4.90948" cg="244."/>
+<eng-data  t="2.66" f="0." m="0." cg="244."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>
