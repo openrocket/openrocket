@@ -7,6 +7,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JTable;
@@ -28,7 +30,7 @@ public class VariableTableModel extends AbstractTableModel {
 
 	private static final Translator trans = Application.getTranslator();
 
-	private ArrayList<FlightDataType> types = new ArrayList<FlightDataType>();
+	private List<FlightDataType> types; // = new ArrayList<FlightDataType>();
 	private static final String[] columnNames = {trans.get("customExpression.Name"), trans.get("customExpression.Symbol"), trans.get("customExpression.Units")};
 	
 	/*
@@ -36,11 +38,12 @@ public class VariableTableModel extends AbstractTableModel {
 	 */
 	public VariableTableModel(OpenRocketDocument doc){
 		
-		Collections.addAll(types, FlightDataType.ALL_TYPES);
+		types = new ArrayList<FlightDataType>( doc.getFlightDataTypes() );
 		
-		for (CustomExpression expression : doc.getCustomExpressions()){
-			types.add(expression.getType());
-		}
+		//Collections.addAll(types, FlightDataType.ALL_TYPES);
+		//for (CustomExpression expression : doc.getCustomExpressions()){
+		//	types.add(expression.getType());
+		//}
 	}
 	
 	@Override

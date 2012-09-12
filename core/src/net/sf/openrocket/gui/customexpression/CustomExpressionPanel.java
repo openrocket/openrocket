@@ -46,14 +46,14 @@ public class CustomExpressionPanel extends JPanel {
 		expressionSelectorPanel = new JPanel(new MigLayout("gapy rel"));
 		expressionSelectorPanel.setToolTipText(trans.get("customExpressionPanel.lbl.CalcNote"));
 		
-		JScrollPane scroll = new JScrollPane();
-		Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
-
-		expressionSelectorPanel.setBorder(bdr);
-		expressionSelectorPanel.add(scroll);
+		JScrollPane scroll = new JScrollPane(expressionSelectorPanel);
+		
+		//Border bdr = BorderFactory.createTitledBorder(trans.get("customExpressionPanel.lbl.CustomExpressions"));
+		//scroll.setBorder(bdr);
+		//expressionSelectorPanel.add(scroll);
 		
 		//this.add(expressionSelectorPanel, "spany 1, height 10px, wmin 600lp, grow 100, gapright para");
-		this.add(expressionSelectorPanel, "hmin 200lp, wmin 700lp, grow 100, wrap");
+		this.add(scroll, "hmin 200lp, wmin 700lp, grow 100, wrap");
 		
 		//DescriptionArea desc = new DescriptionArea(trans.get("customExpressionPanel.lbl.UpdateNote")+"\n\n"+trans.get("customExpressionPanel.lbl.CalcNote"), 8, -2f);
 		//desc.setViewportBorder(BorderFactory.createEmptyBorder());
