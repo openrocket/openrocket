@@ -23,7 +23,6 @@ public class IndexExpression extends CustomExpression {
 		setExpression(indexText);
 		this.setName("");
 		this.setSymbol(typeText);
-		
 	}
 	
 	@Override
@@ -35,7 +34,10 @@ public class IndexExpression extends CustomExpression {
 		}
 		
 		// From the given datatype, get the time and function values and make an interpolator
-		FlightDataType type = getType();
+
+		//Note: must get in a way that flight data system will figure out units. Otherwise there will be a type conflict when we get the new data.
+		FlightDataType type = FlightDataType.getType(null, getSymbol(), null);  
+				
 		List<Double> data = status.getFlightData().get(type);
 		List<Double> time = status.getFlightData().get(FlightDataType.TYPE_TIME);
 		LinearInterpolator interp = new LinearInterpolator(time, data); 

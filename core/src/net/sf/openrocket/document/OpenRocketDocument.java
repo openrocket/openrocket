@@ -1,8 +1,12 @@
 package net.sf.openrocket.document;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
@@ -13,7 +17,10 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
+import net.sf.openrocket.simulation.exception.SimulationListenerException;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 
@@ -119,6 +126,43 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	public List<CustomExpression> getCustomExpressions(){
 		return customExpressions;
+	}
+	
+	/*
+	 * Returns a set of all the flight data types defined or available in any way in the rocket document
+	 */
+	public Set<FlightDataType> getFlightDataTypes(){
+		Set<FlightDataType> allTypes = new LinkedHashSet<FlightDataType>();
+		
+		// built in
+		Collections.addAll(allTypes, FlightDataType.ALL_TYPES);
+		
+		// custom expressions
+		for (CustomExpression exp : customExpressions){
+			allTypes.add(exp.getType());
+		}
+		
+		// simulation listeners
+		for (Simulation sim : simulations){
+			for (String className : sim.getSimulationListeners()) {
+				SimulationListener l = null;
+				try {
+					Class<?> c = Class.forName(className);
+					l = (SimulationListener) c.newInstance();
+					
+					Collections.addAll(allTypes, l.getFlightDataTypes());
+					//System.out.println("This document has expression datatype from "+l.getName());
+				} catch (Exception e) {
+					log.error("Could not instantiate listener: " + className);
+				}
+			}			
+		}
+		
+		// imported data
+		/// not implemented yet
+		
+		
+		return allTypes;
 	}
 	
 

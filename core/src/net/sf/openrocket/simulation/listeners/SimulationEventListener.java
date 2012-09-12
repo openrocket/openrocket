@@ -1,9 +1,12 @@
 package net.sf.openrocket.simulation.listeners;
 
+import java.util.List;
+
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -56,6 +59,10 @@ public interface SimulationEventListener {
 	 */
 	public boolean recoveryDeviceDeployment(SimulationStatus status, RecoveryDevice recoveryDevice)
 			throws SimulationException;
+
+
+
+	public FlightDataType[] getFlightDataTypes();
 	
 
 }

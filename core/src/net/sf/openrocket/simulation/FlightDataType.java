@@ -269,8 +269,8 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		if (type != null) {
 			// found it from symbol
 			
-			// if name was not give (empty string), can use the one we found name
-			if ( s.equals("") || s == null ){
+			// if name was not given (empty string), can use the one we found
+			if ( s == null || s.isEmpty()){
 				s = type.getName();
 			}
 			if ( u == null ){
@@ -279,14 +279,19 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			
 			// if something has changed, then we need to remove the old one
 			// otherwise, just return what we found
-			if ( !u.equals(type.getUnitGroup()) ||
-				 !s.equals(type.getName())
-				)
+			if ( !u.equals(type.getUnitGroup()) )
 			   {
 				oldPriority = type.priority;
-				
 				EXISTING_TYPES.remove(type);
-				log.info("Something changed with the type "+type.getName()+", removed old version.");
+				log.info("Unitgroup of type "+type.getName() + 
+						 ", has changed from "+type.getUnitGroup().toString() + 
+						 " to "+u.toString() +
+						 ". Removing old version.");
+			}
+			else if (!s.equals(type.getName())) {
+				oldPriority = type.priority;
+				EXISTING_TYPES.remove(type);
+				log.info("Name of type "+type.getName()+", has changed to "+s+". Removing old version.");
 			}
 			else{
 				return type;

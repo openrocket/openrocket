@@ -34,11 +34,12 @@ public class CustomExpression implements Cloneable{
 	private List<CustomExpression> subExpressions = new ArrayList<CustomExpression>();
 	
 	public CustomExpression(OpenRocketDocument doc){
+		this.doc = doc;
+		
 		setName("");
 		setSymbol("");
 		setUnit("");
 		setExpression("");
-		this.doc = doc;
 	}
 	
 	public CustomExpression(OpenRocketDocument doc, 
@@ -171,6 +172,7 @@ public class CustomExpression implements Cloneable{
 	// get a list of all the names of all the available variables
 	protected ArrayList<String> getAllNames(){
 		ArrayList<String> names = new ArrayList<String>();
+		/*
 		for (FlightDataType type : FlightDataType.ALL_TYPES)
 			names.add(type.getName());
 
@@ -181,12 +183,22 @@ public class CustomExpression implements Cloneable{
 					names.add(exp.getName());
 			}
 		}
+		*/
+		for (FlightDataType type : doc.getFlightDataTypes()){
+			String symb = type.getName();
+			if (name == null) continue;
+			
+			if (!name.equals( this.getName() )){
+				names.add(symb);
+			}
+		}
 		return names;
 	}
 	
 	// get a list of all the symbols of the available variables ignoring this one
 	protected ArrayList<String> getAllSymbols(){
 		ArrayList<String> symbols = new ArrayList<String>();
+		/*
 		for (FlightDataType type : FlightDataType.ALL_TYPES)
 			symbols.add(type.getSymbol());
 		
@@ -196,6 +208,14 @@ public class CustomExpression implements Cloneable{
 					symbols.add(exp.getSymbol());
 			}
 		}
+		*/
+		for (FlightDataType type : doc.getFlightDataTypes()){
+			String symb = type.getSymbol();			
+			if (!symb.equals( this.getSymbol() )){
+				symbols.add(symb);
+			}
+		}
+		
 		return symbols;
 	}
 	
@@ -305,6 +325,7 @@ public class CustomExpression implements Cloneable{
 		
 		//// Define the available variables as empty
 		// The built in data types
+		/*
 		for (FlightDataType type : FlightDataType.ALL_TYPES){
 			builder.withVariable(new Variable(type.getSymbol()));
 		}
@@ -312,12 +333,16 @@ public class CustomExpression implements Cloneable{
 		for (String symb : getAllSymbols()){
 			builder.withVariable(new Variable(symb));
 		}
+		*/
+		for (FlightDataType type : doc.getFlightDataTypes()){
+			builder.withVariable(new Variable(type.getSymbol()));
+		}
 		
 		// Try to build
 		try {
 			builder.build();
 		} catch (Exception e) {
-			log.user("Custom expression invalid : " + e.toString());
+			log.user("Custom expression " + this.toString() + " invalid : " + e.toString());
 			return false;
 		}
 		
@@ -341,14 +366,14 @@ public class CustomExpression implements Cloneable{
 	 * Builds a specified expression, log any errors and returns null in case of error.
 	 */
 	protected Calculable buildExpression(ExpressionBuilder b){
-		Calculable calc;
+		Calculable calc = null;
 		try {
 			calc = b.build();
 		} catch (UnknownFunctionException e1) {
-			log.user("Unknown function. Could not build custom expression "+name);
+			log.user("Unknown function. Could not build custom expression "+this.toString());
 			return null;
 		} catch (UnparsableExpressionException e1) {
-			log.user("Unparsable expression. Could not build custom expression "+name+". "+e1.getMessage());
+			log.user("Unparsable expression. Could not build custom expression "+this.toString()+". "+e1.getMessage());
 			return null;
 		}
 		
@@ -396,10 +421,13 @@ public class CustomExpression implements Cloneable{
 	 */
 	public FlightDataType getType(){
 		
+		
 		UnitGroup ug = UnitGroup.SIUNITS.get(unit); 
 		if ( ug == null ){
+			log.debug("SI unit not found for "+unit+" in expression "+toString()+". Making a new fixed unit.");
 			ug = new FixedUnitGroup(unit);
 		}
+		//UnitGroup ug = new FixedUnitGroup(unit);
 		
 		FlightDataType type = FlightDataType.getType(name, symbol, ug);
 		
@@ -442,7 +470,7 @@ public class CustomExpression implements Cloneable{
 	
 	@Override
 	public String toString(){
-		return "Custom expression : "+this.name.toString()+ " " + this.expression.toString();
+		return "[Expression name="+this.name.toString()+ " expression=" + this.expression+" unit="+this.unit+"]";
 	}
 	
 	@Override

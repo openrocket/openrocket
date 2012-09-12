@@ -1,9 +1,12 @@
 package net.sf.openrocket.simulation.listeners;
 
+import java.util.List;
+
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.AccelerationData;
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -64,4 +67,5 @@ public interface SimulationComputationListener extends SimulationListener {
 	
 	public double postSimpleThrustCalculation(SimulationStatus status, double thrust) throws SimulationException;
 
+	public FlightDataType[] getFlightDataTypes();
 }

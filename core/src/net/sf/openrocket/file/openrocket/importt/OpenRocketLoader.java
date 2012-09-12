@@ -704,8 +704,6 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 	}
 }
 
-
-
 class DatatypeHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final OpenRocketContentHandler contentHandler;
@@ -1288,10 +1286,14 @@ class SimulationsHandler extends AbstractElementHandler {
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
 		attributes.remove("status");
+		
+		//Finished loading. Rebuilding custom expressions in case something has changed such as listener variable come available.
+		for (CustomExpression exp : doc.getCustomExpressions()){
+			exp.setExpression(exp.getExpressionString());
+		}
+		
 		super.closeElement(element, attributes, content, warnings);
 	}
-	
-	
 }
 
 class SingleSimulationHandler extends AbstractElementHandler {

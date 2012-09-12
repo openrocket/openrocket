@@ -1,5 +1,8 @@
 package net.sf.openrocket.simulation.listeners;
 
+import java.util.List;
+
+import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 
@@ -75,5 +78,12 @@ public interface SimulationListener {
 	 * @return		whether this is a system listener
 	 */
 	public boolean isSystemListener();
+	
+	
+	/**
+	 * Return a list of any flight data types this listener creates.
+	 */
+	public FlightDataType[] getFlightDataTypes();
+	
 	
 }

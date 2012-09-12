@@ -40,7 +40,6 @@ public class RangeExpression extends CustomExpression {
 		this.expression = variableType+startTime+endTime; // this is used just for generating the hash
 		
 		log.info("New range expression, "+startTime + " to "+endTime);
-		
 	}
 	
 	/*
@@ -73,7 +72,9 @@ public class RangeExpression extends CustomExpression {
 		}		
 		
 		// From the given datatype, get the time and function values and make an interpolator
-		FlightDataType type = getType();
+
+		//Note: must get in a way that flight data system will figure out units. Otherwise there will be a type conflict when we get the new data.
+		FlightDataType type = FlightDataType.getType(null, getSymbol(), null);
 		
 		List<Double> data = status.getFlightData().get(type);
 		List<Double> time = status.getFlightData().get(FlightDataType.TYPE_TIME);
