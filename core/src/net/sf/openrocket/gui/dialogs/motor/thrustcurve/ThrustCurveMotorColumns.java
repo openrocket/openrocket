@@ -116,28 +116,28 @@ enum ThrustCurveMotorColumns {
 			tip += "<i>" + desc.replace("\n", "<br>") + "</i><br><hr>";
 		}
 		
-		tip += ("Diameter: " +
+		tip += (trans.get("TCurveMotor.ttip.diameter") + " " +
 				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(m.getDiameter()) +
 				"<br>");
-		tip += ("Length: " +
+		tip += (trans.get("TCurveMotor.ttip.length") + " " +
 				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(m.getLength()) +
 				"<br>");
-		tip += ("Maximum thrust: " +
+		tip += (trans.get("TCurveMotor.ttip.maxThrust") + " " +
 				UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(m.getMaxThrustEstimate()) +
 				"<br>");
-		tip += ("Average thrust: " +
+		tip += (trans.get("TCurveMotor.ttip.avgThrust") + " " +
 				UnitGroup.UNITS_FORCE.getDefaultUnit().toStringUnit(m.getAverageThrustEstimate()) +
 				"<br>");
-		tip += ("Burn time: " +
+		tip += (trans.get("TCurveMotor.ttip.burnTime") + " " +
 				UnitGroup.UNITS_SHORT_TIME.getDefaultUnit()
 						.toStringUnit(m.getBurnTimeEstimate()) + "<br>");
-		tip += ("Total impulse: " +
+		tip += (trans.get("TCurveMotor.ttip.totalImpulse") + " " +
 				UnitGroup.UNITS_IMPULSE.getDefaultUnit()
 						.toStringUnit(m.getTotalImpulseEstimate()) + "<br>");
-		tip += ("Launch mass: " +
+		tip += (trans.get("TCurveMotor.ttip.launchMass") + " " +
 				UnitGroup.UNITS_MASS.getDefaultUnit().toStringUnit(m.getLaunchCG().weight) +
 				"<br>");
-		tip += ("Empty mass: " +
+		tip += (trans.get("TCurveMotor.ttip.emptyMass") + " " +
 				UnitGroup.UNITS_MASS.getDefaultUnit()
 						.toStringUnit(m.getEmptyCG().weight));
 		return tip;

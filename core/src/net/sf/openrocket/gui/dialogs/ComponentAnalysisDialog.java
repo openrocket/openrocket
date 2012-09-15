@@ -119,7 +119,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		roll = new DoubleModel(rocketPanel, "CPRoll", UnitGroup.UNITS_ROLL);
 		
 		//// Wind direction:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")), "width 100lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.winddir")), "width 120lp!");
 		panel.add(new UnitSelector(theta, true), "width 50lp!");
 		BasicSlider slider = new BasicSlider(theta.getSliderModel(0, 2 * Math.PI));
 		panel.add(slider, "growx, split 2");
@@ -149,17 +149,17 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		panel.add(scrollPane, "gap paragraph, spany 4, width 300lp!, growy 1, height :100lp:, wrap");
 		
 		////Angle of attack:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 100lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.angleofattack")), "width 120lp!");
 		panel.add(new UnitSelector(aoa, true), "width 50lp!");
 		panel.add(new BasicSlider(aoa.getSliderModel(0, Math.PI)), "growx, wrap");
 		
 		//// Mach number:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")), "width 100lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.machnumber")), "width 120lp!");
 		panel.add(new UnitSelector(mach, true), "width 50lp!");
 		panel.add(new BasicSlider(mach.getSliderModel(0, 3)), "growx, wrap");
 		
 		//// Roll rate:
-		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")), "width 100lp!");
+		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.rollrate")), "width 120lp!");
 		panel.add(new UnitSelector(roll, true), "width 50lp!");
 		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap paragraph");
@@ -193,7 +193,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 			public Object getValueAt(int row) {
 				RocketComponent c = cpData.get(row).getComponent();
 				if (c instanceof Rocket) {
-					return "Total";
+					return trans.get("componentanalysisdlg.TOTAL");
 				}
 				return c.toString();
 			}
@@ -268,7 +268,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 					public Object getValueAt(int row) {
 						RocketComponent c = dragData.get(row).getComponent();
 						if (c instanceof Rocket) {
-							return "Total";
+							return trans.get("componentanalysisdlg.TOTAL");
 						}
 						return c.toString();
 					}
@@ -342,7 +342,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 					public Object getValueAt(int row) {
 						RocketComponent c = rollData.get(row).getComponent();
 						if (c instanceof Rocket) {
-							return "Total";
+							return trans.get("componentanalysisdlg.TOTAL");
 						}
 						return c.toString();
 					}
@@ -541,7 +541,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		// Set warnings
 		if (set.isEmpty()) {
 			warningList.setListData(new String[] {
-					"<html><i><font color=\"gray\">No warnings.</font></i>"
+					trans.get("componentanalysisdlg.noWarnings")
 			});
 		} else {
 			warningList.setListData(new Vector<Warning>(set));

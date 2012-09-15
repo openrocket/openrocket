@@ -763,7 +763,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		s = s.trim();
 		if (s.length() == 0) {
 			//// No description available.
-			comment.setText("No description available.");
+			comment.setText(trans.get("TCMotorSelPan.noDescription"));
 			comment.setFont(noCommentFont);
 			comment.setForeground(NO_COMMENT_COLOR);
 		} else {
