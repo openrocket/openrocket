@@ -1,3 +1,22 @@
+OpenRocket 12.09  (2012-09-16):
+-------------------------------
+
+Numerous new features by many contributors:
+
+- 3D rocket design view
+- Component Presets
+- Custom expressions in simulations
+- Printing for centering ring and clustered centering ring components.
+- Support simple arthmatic in dimension entry
+- Support deploying recovery device at stage separation
+- Support for fractional inches (1/64) for unit length
+- Added preference for windspeed units separately
+- Added "most recently used files" in File Menu.
+- Improved printed accurracy in fin marking guide
+- Calibration rulers added to printed templates
+- Translations in Czech and Polish, numerous updates
+
+
 OpenRocket 12.03  (2012-03-17):
 -------------------------------
 

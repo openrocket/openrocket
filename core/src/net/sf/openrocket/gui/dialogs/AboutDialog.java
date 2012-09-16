@@ -31,6 +31,7 @@ public class AboutDialog extends JDialog {
 			"Sampo Niskanen (main developer)<br>" +
 			"Doug Pedrick (RockSim file format, printing)<br>" +
 			"Kevin Ruland (Android version)<br>" +
+			"Bill Kuker (3D visualization)<br>" +
 			"Boris du Reau (internationalization, translation lead)<br>" +
 			"Richard Graham (geodetic computations)<br>" +
 			"Jason Blood (finset import)<br><br>" +

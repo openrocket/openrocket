@@ -27,6 +27,7 @@ Contributions have been made by:
 Sampo Niskanen, main developer
 Doug Pedrick, support for RockSim designs, printing
 Kevin Ruland, Android version
+Bill Kuker, 3D visualization
 Richard Graham, geodetic computations
 Jason Blood, freeform fin set import
 Boris du Reau, internationalization
@@ -37,4 +38,6 @@ Tripoli Spain
 Stefan Lobas / ERIG
 Mauro Biasutti
 Sky Dart Team
+Vladimir Beran
+Polish Rocketry Society / Łukasz & Alex Kazanski
 

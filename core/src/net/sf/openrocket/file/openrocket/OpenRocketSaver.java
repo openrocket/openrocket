@@ -24,12 +24,12 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationOptions;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
@@ -135,28 +135,32 @@ public class OpenRocketSaver extends RocketSaver {
 		if (doc.getCustomExpressions().isEmpty())
 			return;
 		
-		writeln("<datatypes>"); indent++;
+		writeln("<datatypes>");
+		indent++;
 		
-		for (CustomExpression exp : doc.getCustomExpressions()){
+		for (CustomExpression exp : doc.getCustomExpressions()) {
 			saveCustomExpressionDatatype(exp);
 		}
 		
-		indent--; writeln("</datatypes>");
+		indent--;
+		writeln("</datatypes>");
 		writeln("");
 	}
 	
 	/*
 	 * Save one custom expression datatype
 	 */
-	private void saveCustomExpressionDatatype(CustomExpression exp) throws IOException {						
+	private void saveCustomExpressionDatatype(CustomExpression exp) throws IOException {
 		// Write out custom expression
 		
-		writeln("<type source=\"customexpression\">"); indent++;
-			writeln("<name>"	         + exp.getName()			 + "</name>");
-			writeln("<symbol>"           + exp.getSymbol()			 + "</symbol>");
-			writeln("<unit unittype=\"auto\">" + exp.getUnit()		 + "</unit>"); // auto unit type means it will be determined from string
-			writeln("<expression>" + exp.getExpressionString() + "</expression>");
-		indent--; writeln("</type>");
+		writeln("<type source=\"customexpression\">");
+		indent++;
+		writeln("<name>" + exp.getName() + "</name>");
+		writeln("<symbol>" + exp.getSymbol() + "</symbol>");
+		writeln("<unit unittype=\"auto\">" + exp.getUnit() + "</unit>"); // auto unit type means it will be determined from string
+		writeln("<expression>" + exp.getExpressionString() + "</expression>");
+		indent--;
+		writeln("</type>");
 	}
 	
 	@Override
@@ -223,6 +227,7 @@ public class OpenRocketSaver extends RocketSaver {
 		 * File version 1.5 is requires for:
 		 *  - saving designs using ComponentPrests
 		 *  - recovery device deployment on lower stage separation
+		 *  - custom expressions
 		 *  
 		 * File version 1.4 is required for:
 		 *  - saving simulation data
@@ -249,6 +254,11 @@ public class OpenRocketSaver extends RocketSaver {
 					return FILE_VERSION_DIVISOR + 5;
 				}
 			}
+		}
+		
+		// Check for custom expressions
+		if (!document.getCustomExpressions().isEmpty()) {
+			return FILE_VERSION_DIVISOR + 5;
 		}
 		
 		// Check if design has simulations defined (version 1.4)
@@ -360,7 +370,8 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<simulator>RK4Simulator</simulator>");
 		writeln("<calculator>BarrowmanCalculator</calculator>");
 		
-		writeln("<conditions>"); indent++;
+		writeln("<conditions>");
+		indent++;
 		
 		writeElement("configid", cond.getMotorConfigurationID());
 		writeElement("launchrodlength", cond.getLaunchRodLength());

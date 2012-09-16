@@ -62,7 +62,7 @@
         <ol>
           <li>Go to <em>Settings</em> &rarr; <em>Applications</em> and
             check <em>Unknown sources</em>.</li>
-  	  <li>Download <a href="https://sourceforge.net/projects/openrocket/files/openrocket/${version}/OpenRocket-Android-${version}.apk/download">OpenRocket-Android-<use version>.apk</a>
+  	  <li>Download <a href="https://sourceforge.net/projects/openrocket/files/openrocket/${androidversion}/OpenRocket-Android-${androidversion}.apk/download">OpenRocket-Android-<use androidversion>.apk</a>
 	    on your device and accept installation.</li>
 
         </ol>

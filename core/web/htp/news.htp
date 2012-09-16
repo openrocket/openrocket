@@ -9,6 +9,27 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">16.9.2012:</span> Version 12.09 is
+   <a href="download.html">released</a>!</p>
+
+  <p>This version contains a huge number of new features by many contributors:</p>
+
+  <ul>
+    <li>3D rocket design view</li>
+    <li>Component Presets</li>
+    <li>Custom expressions in simulations</li>
+    <li>Printing for centering ring and clustered centering ring components</li>
+    <li>Support simple arthmatic in dimension entry</li>
+    <li>Support deploying recovery device at stage separation</li>
+    <li>Support for fractional inches (1/64) for unit length</li>
+    <li>Added preference for windspeed units separately</li>
+    <li>Added "most recently used files" in File Menu</li>
+    <li>Improved printed accurracy in fin marking guide</li>
+    <li>Calibration rulers added to printed templates</li>
+    <li>Translations in Czech and Polish, numerous updates</li>
+  </ul>
+
+
   <p><span class="date">10.3.2012:</span> Version 12.03 for desktop
     and Android is <a href="download.html">released</a>!</p>
 
@@ -28,6 +49,10 @@
     events, guided help tours and displaying the computed motor
     designation class.  The application has also been translated to
     Italian by Mauro Biasutti and Russian by the Sky Dart Team.</p>
+
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
 
   <p><span class="date">24.11.2011:</span> Version 1.1.9 is 
     <a href="download.html">released</a>!</p>
@@ -55,9 +80,6 @@
     created <a href="http://openrocket.trans.free.fr/">a separate site</a>
     for coordinating the localization efforts for OpenRocket.</p>
   
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">12.8.2011:</span> Version 1.1.7 is 
     <a href="download.html">released</a>!</p>
