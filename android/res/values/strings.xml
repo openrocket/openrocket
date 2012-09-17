@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">OpenRocket</string>
-    <string name="version">version 12.07-b8</string>
+    <string name="version">version 12.09</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="dismiss">Dismiss</string>
@@ -110,5 +110,6 @@
         <string name="select_delay">Delay</string>
         <string name="Delete">Delete</string>
         <string name="Run">Run</string>
+        <string name="Edit">Edit</string>
 
 </resources>
