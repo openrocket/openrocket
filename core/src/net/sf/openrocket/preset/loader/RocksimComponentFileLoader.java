@@ -6,6 +6,7 @@ import net.sf.openrocket.preset.TypedPropertyMap;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.StringUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +126,7 @@ public abstract class RocksimComponentFileLoader {
 				if (data.length == 0) {
 					continue;
 				}
-				if (data.length == 1 && "".equals(data[0].trim())) {
+				if (data.length == 1 && StringUtil.isEmpty(data[0]) {
 					continue;
 				}
 				parseData(data);

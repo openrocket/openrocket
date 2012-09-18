@@ -8,6 +8,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.StringUtil;
 
 /**
  * A class defining a storable simulation variable type.  This class defined numerous ready
@@ -270,7 +271,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			// found it from symbol
 			
 			// if name was not given (empty string), can use the one we found
-			if ( s == null || s.isEmpty()){
+			if ( s == null || StringUtil.isEmpty(s)){
 				s = type.getName();
 			}
 			if ( u == null ){

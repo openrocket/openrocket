@@ -5,6 +5,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.util.StringUtil;
 
 public class MaterialColumnParser extends BaseColumnParser {
 	
@@ -26,7 +27,7 @@ public class MaterialColumnParser extends BaseColumnParser {
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
 		
-		if (columnData == null || "".equals(columnData.trim())) {
+		if (StringUtil.isEmpty(columnData) {
 			return;
 		}
 		

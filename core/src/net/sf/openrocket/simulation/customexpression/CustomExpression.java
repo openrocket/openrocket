@@ -11,6 +11,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.FixedUnitGroup;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.StringUtil;
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.UnknownFunctionException;
@@ -220,7 +221,7 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	public boolean checkSymbol(){
-		if ("".equals(symbol.trim()))
+		if (StringUtil.isEmpty(symbol)
 			return false;
 		
 		// No bad characters
@@ -246,7 +247,7 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	public boolean checkName(){
-		if ("".equals(name.trim()))
+		if (StringUtil.isEmpty(name)
 			return false;
 		
 		// No characters that could mess things up saving etc
@@ -295,7 +296,7 @@ public class CustomExpression implements Cloneable{
 	 * building the expression.
 	 */
 	public boolean checkExpression(){
-		if ("".equals(expression.trim())){
+		if (StringUtil.isEmpty(expression)){
 			return false;
 		}
 		

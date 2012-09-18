@@ -18,6 +18,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StringUtil;
 
 public class RangeExpression extends CustomExpression {
 	private static final LogHelper log = Application.getLogger();
@@ -27,10 +28,10 @@ public class RangeExpression extends CustomExpression {
 	public RangeExpression(OpenRocketDocument doc, String startTime, String endTime, String variableType) {
 		super(doc);
 		
-		if ("".equals(startTime.trim())){
+		if (StringUtil.isEmpty(startTime)){
 			startTime = "0";
 		}
-		if ("".equals(endTime.trim())){
+		if (StringUtil.isEmpty(endTime)){
 			endTime = "t";
 		}
 		

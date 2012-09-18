@@ -2,6 +2,7 @@ package net.sf.openrocket.preset.loader;
 
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.util.StringUtil;
 
 /**
  * Special DoubleUnitColumnParser for Mass column.  Here we assume that if a mass of 0 is
@@ -17,7 +18,7 @@ public class MassColumnParser extends DoubleUnitColumnParser {
 
 	@Override
 	protected void doParse(String columnData, String[] data, TypedPropertyMap props) {
-		if ( columnData == null || "".equals(columnData.trim()) || "?".equals(columnData.trim())) {
+		if ( StringUtil.isEmpty(columnData) || "?".equals(columnData.trim())) {
 			return;
 		}
 		double d = Double.valueOf(columnData);
