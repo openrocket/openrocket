@@ -114,7 +114,7 @@ public class ComponentPresetTable extends JTable {
 					columns[index] = new ComponentPresetTableColumn.Parameter(key,index);
 				}
 				tableColumnModel.addColumn(columns[index]);
-				if ( key == ComponentPreset.MANUFACTURER || key == ComponentPreset.PARTNO ) {
+				if ( key == ComponentPreset.PARTNO ) {
 					sorter.setComparator(index, new AlphanumComparator());
 				} else if ( key.getType() == Double.class ) {
 					sorter.setComparator(index,  new Comparator<Value>() {
