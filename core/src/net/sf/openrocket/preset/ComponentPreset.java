@@ -287,7 +287,7 @@ public class ComponentPreset implements Comparable<ComponentPreset> {
 	}
 	
 	public String preferenceKey() {
-		return get(MANUFACTURER).toString() + "|" + get(PARTNO);
+		return String.valueOf(get(MANUFACTURER)) + "|" + String.valueOf(get(PARTNO));
 	}
 	
 	@Override
