@@ -221,8 +221,9 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	public boolean checkSymbol(){
-		if (StringUtil.isEmpty(symbol)
+		if (StringUtil.isEmpty(symbol)) {
 			return false;
+		}
 		
 		// No bad characters
 		for (char c : "0123456789.,()[]{}<>:#@%^&*$ ".toCharArray())
@@ -247,8 +248,9 @@ public class CustomExpression implements Cloneable{
 	}
 	
 	public boolean checkName(){
-		if (StringUtil.isEmpty(name)
+		if (StringUtil.isEmpty(name)) {
 			return false;
+		}
 		
 		// No characters that could mess things up saving etc
 		for (char c : ",()[]{}<>#$".toCharArray())
