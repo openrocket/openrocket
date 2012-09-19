@@ -29,8 +29,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
-
-import org.uispec4j.utils.Utils;
+import net.sf.openrocket.util.Utils;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
