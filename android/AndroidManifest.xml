@@ -72,7 +72,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".android.thrustcurve.TCQueryActivity"
-            android:theme="@style/Theme.Sherlock.Dialog" />
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.Dialog" />
         <activity
             android:name=".android.simulation.SimulationViewActivity"
             android:theme="@style/AppTheme.NoActionBar" />

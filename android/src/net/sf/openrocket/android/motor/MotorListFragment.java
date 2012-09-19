@@ -237,18 +237,6 @@ implements SharedPreferences.OnSharedPreferenceChangeListener
 		}
 		mDbHelper.open();
 
-		Cursor motorCounter = mDbHelper.getMotorDao().fetchAllMotors();
-		int motorCount = motorCounter.getCount();
-		motorCounter.close();
-		
-		if ( motorCount == 0 ) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setTitle("No Motors Found");
-			builder.setMessage("Motors can be downloaded from thrustcurve");
-			builder.setCancelable(true);
-			builder.create().show();
-		}
-
 		Cursor motorCursor = mDbHelper.getMotorDao().fetchGroups(groupColumn);
 		MotorHierarchicalListAdapter mAdapter = new MotorHierarchicalListAdapter( 
 				getActivity(),

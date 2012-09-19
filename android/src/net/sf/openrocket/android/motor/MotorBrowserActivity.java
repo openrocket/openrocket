@@ -3,8 +3,10 @@ package net.sf.openrocket.android.motor;
 import net.sf.openrocket.R;
 import net.sf.openrocket.android.ActivityHelpers;
 import net.sf.openrocket.android.PreferencesActivity;
+import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -39,6 +41,29 @@ implements MotorListFragment.OnMotorSelectedListener
 			.add( R.id.motorBrowserList, new MotorListFragment(), MOTOR_LIST_FRAGMENT)
 			.commit();
 		}
+
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		int motorCount = 0;
+
+		DbAdapter mDbHelper = new DbAdapter(this);
+		mDbHelper.open();
+		try {
+			Cursor motorCounter = mDbHelper.getMotorDao().fetchAllMotors();
+			motorCount = motorCounter.getCount();
+			motorCounter.close();
+		} finally {
+			mDbHelper.close();
+		}
+
+		if ( motorCount == 0 ) {
+			ActivityHelpers.downloadFromThrustcurve(this,DOWNLOAD_REQUEST_CODE);
+		}
+
+
 	}
 
 	@Override
