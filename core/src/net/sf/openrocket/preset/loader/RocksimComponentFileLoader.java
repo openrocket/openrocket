@@ -126,7 +126,7 @@ public abstract class RocksimComponentFileLoader {
 				if (data.length == 0) {
 					continue;
 				}
-				if (data.length == 1 && StringUtil.isEmpty(data[0]) {
+				if (data.length == 1 && StringUtil.isEmpty(data[0])) {
 					continue;
 				}
 				parseData(data);
