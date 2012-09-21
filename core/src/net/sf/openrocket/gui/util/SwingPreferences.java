@@ -224,6 +224,22 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		storeVersion();
 	}
 	
+	public File getDefaultUserComponentDirectory() {
+
+		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
+
+		if (!compdir.isDirectory()) {
+			compdir.mkdirs();
+		}
+		
+		if( !compdir.isDirectory() ) {
+			return null;
+		}
+		if( !compdir.canRead() ) {
+			return null;
+		}
+		return compdir;
+	}
 	
 	/**
 	 * Return a list of files/directories to be loaded as custom thrust curves.
