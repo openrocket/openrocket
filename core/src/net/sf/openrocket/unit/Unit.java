@@ -78,8 +78,7 @@ public abstract class Unit {
 	// TODO: Should this use grouping separator ("#,##0.##")?
 	
 	private static final DecimalFormat intFormat = new DecimalFormat("#");
-	private static final DecimalFormat decFormat = new DecimalFormat("0.##");
-	private static final DecimalFormat smallFormat = new DecimalFormat("0.###");
+	private static final DecimalFormat decFormat = new DecimalFormat("0.0##");
 	private static final DecimalFormat expFormat = new DecimalFormat("0.00E0");
 	
 	/**
@@ -102,18 +101,10 @@ public abstract class Unit {
 		if (Math.abs(val) <= 0.0005) {
 			return "0";
 		}
-		if ( Math.abs(val) < 0.095) {
-			return smallFormat.format(val);
-		}
-		
 		double sign = Math.signum(val);
+		double mul = 1000.0;
 		val = Math.abs(val);
-		double mul = 1.0;
-		while (val < 100) {
-			mul *= 10;
-			val *= 10;
-		}
-		val = Math.rint(val) / mul * sign;
+		val = Math.rint(val*mul) / mul * sign;
 		return decFormat.format(val);
 	}
 	
