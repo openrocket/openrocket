@@ -1058,7 +1058,7 @@ public class BasicFrame extends JFrame {
 			log.info("Closing window because it is replaceable");
 			closeAction();
 		}
-		
+
 	}
 	/**
 	 * Open a file based on a URL.

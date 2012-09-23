@@ -57,6 +57,20 @@ public class MRUDesignFile {
     }
 
     /**
+     * Get the last edited design file.
+     *
+     * @return an absolute file name, or null
+     */
+    public String getLastEditedDesignFile() {
+        if (!mruFileList.isEmpty()) {
+            return mruFileList.get(0);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
      * Set the most-recently-used list to the given parameter and fire change events.
      *
      * @param list
