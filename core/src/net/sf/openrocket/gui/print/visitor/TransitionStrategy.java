@@ -86,20 +86,21 @@ public class TransitionStrategy {
      * @return true if a transition/nosecone was rendered
      */
     protected boolean goDeep(final List<RocketComponent> theRc, boolean noseCones) {
+        boolean result = false;
         for (RocketComponent rocketComponent : theRc) {
             if (rocketComponent instanceof NoseCone) {
                 if (noseCones) {
-                    return render((Transition) rocketComponent);
+                    result |= render((Transition) rocketComponent);
                 }
             }
             else if (rocketComponent instanceof Transition && !noseCones) {
-                return render((Transition) rocketComponent);
+                result |= render((Transition) rocketComponent);
             }
             else if (rocketComponent.getChildCount() > 0) {
-                return goDeep(rocketComponent.getChildren(), noseCones);
+                result |= goDeep(rocketComponent.getChildren(), noseCones);
             }
         }
-        return false;
+        return result;
     }
 
     /**
