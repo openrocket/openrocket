@@ -119,7 +119,7 @@ public class ComponentConfigDialog extends JDialog implements ComponentChangeLis
 		if (e.isTreeChange() || e.isUndoChange()) {
 			
 			// Hide dialog in case of tree or undo change
-			dialog.closeDialog();
+			hideDialog();
 			
 		} else {
 			/*
