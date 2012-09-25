@@ -12,6 +12,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
@@ -180,5 +181,6 @@ public class CustomMaterialDialog extends JDialog {
 			densitySpinner.setModel(density.getSpinnerModel());
 			densityUnit.setModel(density);
 		}
+		((DefaultEditor) densitySpinner.getEditor()).getTextField().setEditable(true);
 	}
 }
