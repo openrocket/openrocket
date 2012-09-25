@@ -45,8 +45,13 @@ public class SimpleSAX {
 		XMLReader reader = cache.createXMLReader();
 		reader.setContentHandler(xmlhandler);
 		reader.setErrorHandler(xmlhandler);
-		reader.parse(source);
-		cache.releaseXMLReader(reader);
+		try {
+			reader.parse(source);
+		} finally {
+			reader.setContentHandler(null);
+			reader.setErrorHandler(null);
+			cache.releaseXMLReader(reader);
+		}
 	}
 
 	private static class XMLReaderCache {
@@ -66,6 +71,9 @@ public class SimpleSAX {
 		}
 
 		private void releaseXMLReader( XMLReader reader ) {
+			// force references to null to encourage garbage collection.
+			reader.setContentHandler(null);
+			reader.setErrorHandler(null);
 			queue.offer( reader );
 		}
 	}
