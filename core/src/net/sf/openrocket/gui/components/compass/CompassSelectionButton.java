@@ -16,6 +16,7 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.Resettable;
+import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.FlatButton;
 import net.sf.openrocket.l10n.Translator;
@@ -137,6 +138,7 @@ public class CompassSelectionButton extends FlatButton implements Resettable {
 			panel.add(new JPanel(), "growy, wrap");
 			
 			JSpinner spin = new JSpinner(model.getSpinnerModel());
+			spin.setEditor( new SpinnerEditor( spin ) );
 			panel.add(spin, "wmin 50lp, growx, gapright 0, aligny bottom");
 			
 			panel.add(new JLabel("" + Chars.DEGREE), "wrap para");

@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -173,14 +174,15 @@ public class CustomMaterialDialog extends JDialog {
 				density = new DoubleModel(originalMaterial.getDensity(),
 						originalMaterial.getType().getUnitGroup(), 0);
 				densitySpinner.setModel(density.getSpinnerModel());
+				densitySpinner.setEditor(new SpinnerEditor(densitySpinner));
 				densityUnit.setModel(density);
 			}
 		} else {
 			Material.Type type = (Material.Type) typeBox.getSelectedItem();
 			density = new DoubleModel(0, type.getUnitGroup(), 0);
 			densitySpinner.setModel(density.getSpinnerModel());
+			densitySpinner.setEditor(new SpinnerEditor(densitySpinner));
 			densityUnit.setModel(density);
 		}
-		((DefaultEditor) densitySpinner.getEditor()).getTextField().setEditable(true);
 	}
 }
