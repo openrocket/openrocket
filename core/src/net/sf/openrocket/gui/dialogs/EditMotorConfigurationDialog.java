@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -20,6 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -46,19 +48,19 @@ public class EditMotorConfigurationDialog extends JDialog {
 	private final JTable configurationTable;
 	private final MotorConfigurationTableModel configurationTableModel;
 	
-
+	
 	private final JButton newConfButton, removeConfButton;
 	private final JButton selectMotorButton, removeMotorButton;
 	private final JTextField configurationNameField;
 	
-
+	
 	private String currentID = null;
 	private MotorMount currentMount = null;
 	
 	// Positive when user is modifying configuration name
 	private int configurationNameModification = 0;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	public EditMotorConfigurationDialog(final Rocket rocket, Window parent) {
 		//// Edit motor configurations
 		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"));
@@ -70,13 +72,13 @@ public class EditMotorConfigurationDialog extends JDialog {
 		
 		this.rocket = rocket;
 		
-		mounts = rocket.getMotorMounts().toArray( new MotorMount[0]) ;
+		mounts = getPotentialMotorMounts();
 		
-
-
+		
+		
 		JPanel panel = new JPanel(new MigLayout("fill, flowy"));
 		
-
+		
 		////  Motor mount selection
 		//// <html><b>Motor mounts:</b>
 		JLabel label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motormounts"));
@@ -86,7 +88,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 		label = new JLabel(trans.get("edtmotorconfdlg.selectcomp"));
 		panel.add(label, "ay 100%, w 1px, growx");
 		
-
+		
 		JTable table = new JTable(new MotorMountTableModel());
 		table.setTableHeader(null);
 		table.setShowVerticalLines(false);
@@ -105,10 +107,10 @@ public class EditMotorConfigurationDialog extends JDialog {
 		JScrollPane scroll = new JScrollPane(table);
 		panel.add(scroll, "w 200lp, h 150lp, grow, wrap 20lp");
 		
-
-
-
-
+		
+		
+		
+		
 		//// Motor selection
 		//// <html><b>Motor configurations:</b>
 		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motorconfig"));
@@ -184,13 +186,23 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(removeConfButton, "cell 4 1");
 		
-
-
-
+		
+		
+		
 		configurationTableModel = new MotorConfigurationTableModel();
 		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setCellSelectionEnabled(true);
+		configurationTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				int column = configurationTable.getSelectedColumn();
+				System.err.println("column=" + column);
+				if (column == 0 && configurationTable.getColumnCount() > 1) {
+					configurationTable.setColumnSelectionInterval(1, 1);
+				}
+			}
+		});
 		
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
@@ -211,7 +223,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 			}
 		});
 		
-
+		
 		scroll = new JScrollPane(configurationTable);
 		panel.add(scroll, "cell 1 2, spanx, w 500lp, h 150lp, grow");
 		
@@ -235,8 +247,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 		});
 		panel.add(removeMotorButton, "ax 50%");
 		
-
-
+		
+		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -271,8 +283,19 @@ public class EditMotorConfigurationDialog extends JDialog {
 	}
 	
 	
-
-
+	private MotorMount[] getPotentialMotorMounts() {
+		List<MotorMount> list = new ArrayList<MotorMount>();
+		for (RocketComponent c : rocket) {
+			if (c instanceof MotorMount) {
+				list.add((MotorMount) c);
+			}
+		}
+		return list.toArray(new MotorMount[0]);
+	}
+	
+	
+	
+	
 	private void updateEnabled() {
 		int column = configurationTable.getSelectedColumn();
 		int row = configurationTable.getSelectedRow();
@@ -311,8 +334,8 @@ public class EditMotorConfigurationDialog extends JDialog {
 	}
 	
 	
-
-
+	
+	
 	private void selectMotor() {
 		if (currentID == null || currentMount == null)
 			return;
@@ -432,7 +455,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 	}
 	
 	
-
+	
 	/**
 	 * The table model for selecting and editing the motor configurations.
 	 */
