@@ -1,15 +1,19 @@
 package net.sf.openrocket.gui.preset;
 
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.FileHelper;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.l10n.ResourceBundleTranslator;
+import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.loader.MaterialHolder;
+import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
+import net.sf.openrocket.preset.xml.OpenRocketComponentDTO;
+import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
+import net.sf.openrocket.startup.Application;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -29,20 +33,16 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
-
-import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.util.FileHelper;
-import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.l10n.ResourceBundleTranslator;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.loader.MaterialHolder;
-import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
-import net.sf.openrocket.preset.xml.OpenRocketComponentDTO;
-import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
-import net.sf.openrocket.startup.Application;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A UI for editing component presets.  Currently this is a standalone application - run the main within this class.
@@ -58,7 +58,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     /**
      * The I18N translator.
      */
-    private static ResourceBundleTranslator trans = null;
+    private static Translator trans = null;
 
     /**
      * The table of presets.
@@ -70,16 +70,10 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
      */
     private DataTableModel model;
 
-    /**
-     * Flag that indicates if an existing Preset is currently being edited.
-     */
- //   private boolean editingSelected = false;
-
     private final OpenedFileContext editContext = new OpenedFileContext();
 
     static {
-        trans = new ResourceBundleTranslator("l10n.messages");
-        net.sf.openrocket.startup.Application.setBaseTranslator(trans);
+        trans = Application.getTranslator();
     }
 
     /**
@@ -115,21 +109,24 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 JTable target = (JTable) e.getSource();
-                int selectedColumn = table.getColumnModel().getColumnIndexAtX( target.getSelectedColumn() );
-                int selectedRow = table.getRowSorter().convertRowIndexToModel( target.getSelectedRow() );
-                if (selectedColumn == 4) {
-                    if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetEditor.this,
-                            "Do you want to delete this preset?",
-                            "Confirm Delete", JOptionPane.YES_OPTION,
-                            JOptionPane.QUESTION_MESSAGE)) {
-                        model.removeRow(selectedRow);
+                int selectedColumn = table.getColumnModel().getColumnIndexAtX(target.getSelectedColumn());
+                final int targetSelectedRow = target.getSelectedRow();
+                if (targetSelectedRow > -1 && targetSelectedRow < model.getRowCount()) {
+                    int selectedRow = table.getRowSorter().convertRowIndexToModel(targetSelectedRow);
+                    if (selectedColumn == 4) {
+                        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ComponentPresetEditor.this,
+                                "Do you want to delete this preset?",
+                                "Confirm Delete", JOptionPane.YES_OPTION,
+                                JOptionPane.QUESTION_MESSAGE)) {
+                            model.removeRow(selectedRow);
+                        }
                     }
-                }
-                else {
-                    if (e.getClickCount() == 2) {
-                        editContext.setEditingSelected(true);
-                        new PresetEditorDialog(ComponentPresetEditor.this,
-                                (ComponentPreset) model.getAssociatedObject(selectedRow), editContext.getMaterialsLoaded()).setVisible(true);
+                    else {
+                        if (e.getClickCount() == 2) {
+                            editContext.setEditingSelected(true);
+                            new PresetEditorDialog(ComponentPresetEditor.this,
+                                    (ComponentPreset) model.getAssociatedObject(selectedRow), editContext.getMaterialsLoaded()).setVisible(true);
+                        }
                     }
                 }
             }
@@ -204,8 +201,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         mnFile.add(mntmExit);
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-            	Window w = SwingUtilities.getWindowAncestor(ComponentPresetEditor.this);
-            	w.dispose();
+                Window w = SwingUtilities.getWindowAncestor(ComponentPresetEditor.this);
+                w.dispose();
             }
         });
 
@@ -235,7 +232,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             //Is this a new preset?
             String description = preset.has(ComponentPreset.DESCRIPTION) ? preset.get(ComponentPreset.DESCRIPTION) :
                     preset.getPartNo();
-            if (!editContext.isEditingSelected()|| table.getSelectedRow() == -1) {
+            if (!editContext.isEditingSelected() || table.getSelectedRow() == -1) {
                 model.addRow(new Object[]{preset.getManufacturer().getDisplayName(), preset.getType().name(),
                         preset.getPartNo(), description, Icons.EDIT_DELETE}, preset);
             }
@@ -257,6 +254,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
      */
     public static void main(String[] args) {
         try {
+            trans = new ResourceBundleTranslator("l10n.messages");
+            net.sf.openrocket.startup.Application.setBaseTranslator(trans);
+
             Application.setPreferences(new SwingPreferences());
             JFrame dialog = new JFrame();
             dialog.getContentPane().add(new ComponentPresetEditor(dialog));
@@ -355,9 +355,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             List<ComponentPreset> presets = null;
 
             if (file.getName().toLowerCase().endsWith(".orc")) {
-            	OpenRocketComponentDTO fileContents = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new FileReader(file));
-            	editContext.setMaterialsLoaded( new MaterialHolder(fileContents.asMaterialList()) );
-            	presets = fileContents.asComponentPresets();
+                OpenRocketComponentDTO fileContents = new OpenRocketComponentSaver().unmarshalFromOpenRocketComponent(new FileReader(file));
+                editContext.setMaterialsLoaded(new MaterialHolder(fileContents.asMaterialList()));
+                presets = fileContents.asComponentPresets();
             }
             else {
                 if (file.getName().toLowerCase().endsWith(".csv")) {
@@ -429,8 +429,6 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             return false;
         }
 
-        ((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
-
         file = FileHelper.forceExtension(file, "orc");
 
         MaterialHolder materials = new MaterialHolder();
@@ -439,13 +437,17 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         for (int x = 0; x < model.getRowCount(); x++) {
             ComponentPreset preset = (ComponentPreset) model.getAssociatedObject(x);
             // If we don't have a material already defined for saving...
-            if ( materials.getMaterial(preset.get(ComponentPreset.MATERIAL)) == null ) {
-            	// Check if we loaded a material with this name.
-            	Material m = editContext.getMaterialsLoaded().getMaterial(preset.get(ComponentPreset.MATERIAL));
-            	// If there was no material loaded with that name, use the component's material.
-            	if ( m == null ) {
-            		m = preset.get(ComponentPreset.MATERIAL);
-            	}
+            if (materials.getMaterial(preset.get(ComponentPreset.MATERIAL)) == null) {
+                // Check if we loaded a material with this name.
+                Material m = null;
+                if (editContext.getMaterialsLoaded() != null) {
+                    m = editContext.getMaterialsLoaded().getMaterial(preset.get
+                            (ComponentPreset.MATERIAL));
+                }
+                // If there was no material loaded with that name, use the component's material.
+                if (m == null) {
+                    m = preset.get(ComponentPreset.MATERIAL);
+                }
                 materials.put(m);
             }
             presets.add(preset);
