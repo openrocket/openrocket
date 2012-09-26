@@ -38,7 +38,7 @@ public class Splash {
 	 */
 	public static boolean init() {
 		// Get the splash screen
-		SplashScreen s = getSplash();
+		SplashScreen s = getSplashScreen();
 		if (s == null)
 			return false;
 		
@@ -75,14 +75,19 @@ public class Splash {
 	
 	
 	/**
-	 * Return the current splash screen or <code>null</code> if not available.
+	 * Return the current splash screen or <code>null</code> if not available or already closed.
 	 * This method catches the possible exceptions and returns null if they occur.
 	 * 
-	 * @return	the current splash screen, or <code>null</code>.
+	 * @return	the current (visible) splash screen, or <code>null</code>.
 	 */
-	private static SplashScreen getSplash() {
+	public static SplashScreen getSplashScreen() {
 		try {
-			return SplashScreen.getSplashScreen();
+			SplashScreen splash = SplashScreen.getSplashScreen();
+			if (splash != null && splash.isVisible()) {
+				return splash;
+			} else {
+				return null;
+			}
 		} catch (RuntimeException e) {
 			return null;
 		}
