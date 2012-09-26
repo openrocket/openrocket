@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.preset;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -25,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
 
@@ -198,11 +200,12 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         JSeparator separator_1 = new JSeparator();
         mnFile.add(separator_1);
 
-        JMenuItem mntmExit = new JMenuItem("Exit");
+        JMenuItem mntmExit = new JMenuItem("Close");
         mnFile.add(mntmExit);
         mntmExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                System.exit(0);
+            	Window w = SwingUtilities.getWindowAncestor(ComponentPresetEditor.this);
+            	w.dispose();
             }
         });
 

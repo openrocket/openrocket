@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
+import net.sf.openrocket.gui.preset.ComponentPresetEditor;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -54,6 +55,7 @@ import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -523,7 +525,7 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		menu.addSeparator();
-
+		
 		//// Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
@@ -615,9 +617,22 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 
-
-
-
+		//// Edit Component Preset File
+		/*
+		item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
+		item.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+	            JFrame dialog = new JFrame();
+	            dialog.getContentPane().add(new ComponentPresetEditor(dialog));
+	            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	            dialog.pack();
+	            dialog.setVisible(true);
+			}
+		});
+		menu.add(item);
+		*/
+		
 		////  Analyze
 		menu = new JMenu(trans.get("main.menu.analyze"));
 		menu.setMnemonic(KeyEvent.VK_A);
