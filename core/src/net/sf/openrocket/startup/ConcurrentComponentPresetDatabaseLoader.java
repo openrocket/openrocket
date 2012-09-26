@@ -73,9 +73,9 @@ public class ConcurrentComponentPresetDatabaseLoader {
 	public void await() throws InterruptedException {
 		latch.await();
 		loaderPool.shutdown();
-		loaderPool.awaitTermination(90, TimeUnit.SECONDS);
+		loaderPool.awaitTermination(200, TimeUnit.SECONDS);
 		writerPool.shutdown();
-		writerPool.awaitTermination(90, TimeUnit.SECONDS);
+		writerPool.awaitTermination(200, TimeUnit.SECONDS);
 		if ( iterator != null ) {
 			iterator.close();
 		}
