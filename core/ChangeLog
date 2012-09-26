@@ -1,15 +1,23 @@
+2012-09-25 Doug Pedrick
+
+   * Added preference to open last edited design file upon startup.
+
+   * [BUG] Fixed printing of transitions bug where the transition is deeply parented.
+
+   * Cleaned up Swing listeners of Configuration (memory leak).
+
 2012-08-28 Bill Kuker
 
    * Removed late GL initialization, was causing issues with Java 7.
-   
+
    * Added -Dopenrocket.3d.disable option for anyone experiencing crashes as a result of OpenGL.
 
 2012-08-01 Kevin Ruland
 
    * Changed the loader to pull *.rkt files from zip containers.
-   
+
    * Modified the BasicFrame so it doesn't automatically open the Rocket configuration dialog when opening a new rocket.
-   
+
    * Unified the behavior for replacing (automatically closing) the base frame when opening a file, loading an example,
    or picking from the Most-recently-used list.
 
@@ -22,7 +30,7 @@
 2012-06-11  Bill Kuker
 
     * Added a 3D view of the rocket to the figure panel.
-    
+
 2012-06-05  Doug Pedrick
 
     * Most recently used design files added to File menu.
