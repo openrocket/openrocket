@@ -525,7 +525,7 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		menu.addSeparator();
-		
+
 		//// Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
@@ -618,21 +618,22 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		//// Edit Component Preset File
-		/*
-		item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
-		item.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-	            JFrame dialog = new JFrame();
-	            dialog.getContentPane().add(new ComponentPresetEditor(dialog));
-	            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-	            dialog.pack();
-	            dialog.setVisible(true);
-			}
-		});
-		menu.add(item);
-		*/
-		
+
+        if (System.getProperty("openrocket.preseteditor.menu") != null) {
+		    item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
+		    item.addActionListener( new ActionListener() {
+			    @Override
+			    public void actionPerformed(ActionEvent e) {
+	                JFrame dialog = new JFrame();
+	                dialog.getContentPane().add(new ComponentPresetEditor(dialog));
+	                dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	                dialog.pack();
+	                dialog.setVisible(true);
+		        }
+		    });
+		    menu.add(item);
+        }
+
 		////  Analyze
 		menu = new JMenu(trans.get("main.menu.analyze"));
 		menu.setMnemonic(KeyEvent.VK_A);
