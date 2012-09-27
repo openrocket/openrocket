@@ -298,7 +298,19 @@ public class PreferencesDialog extends JDialog {
         				Application.getPreferences().setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
         			}
         		});
-        panel.add(autoOpenDesignFile);
+        panel.add(autoOpenDesignFile, "wrap");
+        
+        
+        final JCheckBox enable3D = new JCheckBox(trans.get("pref.dlg.but.enable3d"));
+        enable3D.setSelected(Application.getPreferences().is3dEnabled());
+        enable3D.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						Application.getPreferences().set3dEnabled(enable3D.isSelected());
+					}
+				});
+        panel.add(enable3D);
+        
 
         return panel;
 	}

@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
+import net.sf.openrocket.gui.figure3d.OpenGLUtils;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
@@ -50,6 +51,8 @@ public class Startup {
 		initializeLogging();
 		
 		Application.setPreferences( new SwingPreferences() );
+		
+		OpenGLUtils.earlyInitialize();
 		
 		// Setup the translations
 		initializeL10n();

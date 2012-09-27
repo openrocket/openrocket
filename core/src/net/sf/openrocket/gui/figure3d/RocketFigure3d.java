@@ -6,7 +6,10 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.SplashScreen;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -25,16 +28,18 @@ import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import javax.media.opengl.glu.GLU;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
-import net.sf.openrocket.gui.main.Splash;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -50,6 +55,7 @@ import com.jogamp.opengl.util.awt.Overlay;
 public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static final long serialVersionUID = 1L;
 	private static final LogHelper log = Application.getLogger();
+	private static final Translator trans = Application.getTranslator();
 	
 	static {
 		//this allows the GL canvas and things like the motor selection
@@ -63,8 +69,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	private Configuration configuration;
 	private GLCanvas canvas;
-	
-	
 	
 	private Overlay extrasOverlay, caretOverlay;
 	private BufferedImage cgCaretRaster, cpCaretRaster;
@@ -88,27 +92,49 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		this.setLayout(new BorderLayout());
 		
 		//Only initizlize GL if 3d is enabled.
-		if (is3dEnabled()) {
-			//Fixes a linux / X bug: Splash must be closed before GL Init
-			SplashScreen splash = Splash.getSplashScreen();
-			if (splash != null && splash.isVisible())
-				splash.close();
-			
+		if ( OpenGLUtils.is3dEnabled() ){			
 			initGLCanvas();
+			addHierarchyListener(new HierarchyListener(){
+				@Override
+				public void hierarchyChanged(HierarchyEvent e) {
+					OpenGLUtils.enterDangerZone();
+					RocketFigure3d.this.removeHierarchyListener(this);
+				}
+			});
+		} else {
+			setupDisabledUI();
 		}
 	}
 	
 	/**
-	 * Return true if 3d view is enabled. This may be toggled by the user at
-	 * launch time.
-	 * @return
+	 * Draws a pretty primitive UI that explains that 3D is not enabled.
 	 */
-	public static boolean is3dEnabled() {
-		return System.getProperty("openrocket.3d.disable") == null;
+	private void setupDisabledUI(){
+		canvas = null;
+		final JPanel panel = new JPanel(new MigLayout("filly"));
+		panel.add(new JLabel(trans.get("RocketPanel.3DDisabledMessage")));
+		
+		if ( !Application.getPreferences().is3dEnabled() ){
+			//this button lets them turn GL on without going to the preference menu.
+			final JButton enable = new JButton(trans.get("RocketPanel.3DDisabledMessageButton"));
+			enable.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					Application.getPreferences().set3dEnabled(true);
+					panel.remove(enable);
+					panel.revalidate();
+					panel.repaint();
+				}
+			});
+			panel.add(enable);
+		}
+		
+		this.add(panel);
 	}
 	
 	private void initGLCanvas() {
 		log.debug("Initializing RocketFigure3D OpenGL Canvas");
+		OpenGLUtils.enterDangerZone();
 		try {
 			log.debug("Setting up GL capabilities...");
 			
@@ -139,7 +165,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			log.verbose("GL - Setting up mouse listeners");
 			setupMouseListeners();
 			
-			log.verbose("GL - Rasterizine Carets"); //reticulating splines?
+			log.verbose("GL - Rasterizing Carets"); //reticulating splines?
 			rasterizeCarets();
 			
 		} catch (Throwable t) {
@@ -147,6 +173,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			canvas = null;
 			this.add(new JLabel("Unable to load 3d Libraries: "
 					+ t.getMessage()));
+		} finally {
+			OpenGLUtils.exitDangerZone();
 		}
 	}
 	
@@ -285,6 +313,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		drawExtras(gl, glu);
 		drawCarets(gl, glu);
+		
+		OpenGLUtils.exitDangerZone();
 	}
 	
 	
@@ -567,7 +597,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		glu.gluProject(c.x, c.y, c.z, mvmatrix, 0, projmatrix, 0, viewport, 0,
 				out, 0);
 		
-		log.verbose("GL - peoject() complete");
+		log.verbose("GL - project() complete");
 		return new Coordinate(out[0], out[1], out[2]);
 		
 	}
