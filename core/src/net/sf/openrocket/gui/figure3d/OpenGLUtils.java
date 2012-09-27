@@ -116,6 +116,9 @@ public class OpenGLUtils {
 	static void timedDangerZone(final String where, final long milliseconds){
 		enterDangerZone(where + " - timed");
 		final Thread onShutdown = new Thread(){
+			{
+				setName("GL Danger Shutdown Thread - " + where);
+			}
 			@Override
 			public void run(){
 				exitDangerZone(where + " - shutdown hook");
@@ -123,6 +126,9 @@ public class OpenGLUtils {
 		};
 		Runtime.getRuntime().addShutdownHook(onShutdown);
 		new Thread(){
+			{
+				setName("GL Danger Timer Thread - " + where);
+			}
 			@Override
 			public void run(){
 				try {
