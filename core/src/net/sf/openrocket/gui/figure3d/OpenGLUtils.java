@@ -41,7 +41,7 @@ public class OpenGLUtils {
 			log.debug("OpenGL is disabled");
 		} else {
 			log.debug("Initializing OpenGL");
-			enterDangerZone();
+			enterDangerZone("earlyInitialize");
 			if (SystemInfo.getPlatform() == Platform.UNIX) {
 				log.debug("Dismissing splash screen (Linux/Java/JOGL bug)");
 				// Fixes a linux / X bug: Splash must be closed before GL Init
@@ -56,7 +56,7 @@ public class OpenGLUtils {
 			}
 			log.debug("Calling GLProfile.initSingleton()");
 			GLProfile.initSingleton();
-			exitDangerZone();
+			exitDangerZone("earlyInitialize");
 		}
 	}
 
@@ -76,8 +76,8 @@ public class OpenGLUtils {
 	 * exitDangerZone is not called after this the 3D user preference will be
 	 * disabled at the next startup.
 	 */
-	static void enterDangerZone() {
-		log.verbose("Entering GL DangerZone");
+	static void enterDangerZone(String where) {
+		log.verbose("Entering GL DangerZone: " + where);
 		inTheDangerZone = true;
 		Application.getPreferences().set3dEnabled(false);
 		try {
@@ -93,11 +93,11 @@ public class OpenGLUtils {
 	 * 
 	 * Safe to call when not in the danger-zone. Safe to call quite often
 	 */
-	static void exitDangerZone() {
+	static void exitDangerZone(String where) {
 		if (!inTheDangerZone)
 			return;
 		inTheDangerZone = false;
-		log.verbose("Exiting GL DangerZone");
+		log.verbose("Exiting GL DangerZone: " + where);
 		Application.getPreferences().set3dEnabled(true);
 		try {
 			Preferences.userRoot().flush();

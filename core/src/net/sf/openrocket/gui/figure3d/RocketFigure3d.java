@@ -97,7 +97,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			addHierarchyListener(new HierarchyListener(){
 				@Override
 				public void hierarchyChanged(HierarchyEvent e) {
-					OpenGLUtils.enterDangerZone();
+					OpenGLUtils.enterDangerZone("RocketFigure3d added to parent container");
 					RocketFigure3d.this.removeHierarchyListener(this);
 				}
 			});
@@ -134,7 +134,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	private void initGLCanvas() {
 		log.debug("Initializing RocketFigure3D OpenGL Canvas");
-		OpenGLUtils.enterDangerZone();
+		OpenGLUtils.enterDangerZone("initGLCanvas");
 		try {
 			log.debug("Setting up GL capabilities...");
 			
@@ -174,7 +174,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			this.add(new JLabel("Unable to load 3d Libraries: "
 					+ t.getMessage()));
 		} finally {
-			OpenGLUtils.exitDangerZone();
+			OpenGLUtils.exitDangerZone("initGLCanvas");
 		}
 	}
 	
@@ -314,7 +314,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		drawExtras(gl, glu);
 		drawCarets(gl, glu);
 		
-		OpenGLUtils.exitDangerZone();
+		OpenGLUtils.exitDangerZone("display()");
 	}
 	
 	
