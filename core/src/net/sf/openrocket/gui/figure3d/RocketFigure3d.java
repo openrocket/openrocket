@@ -176,6 +176,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		} finally {
 			OpenGLUtils.exitDangerZone("initGLCanvas");
 		}
+		OpenGLUtils.timedDangerZone("after initGLCanvas", 5000);
 	}
 	
 	/**

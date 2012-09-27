@@ -76,7 +76,7 @@ public class OpenGLUtils {
 	 * exitDangerZone is not called after this the 3D user preference will be
 	 * disabled at the next startup.
 	 */
-	static void enterDangerZone(String where) {
+	static void enterDangerZone(final String where) {
 		log.verbose("Entering GL DangerZone: " + where);
 		inTheDangerZone = true;
 		Application.getPreferences().set3dEnabled(false);
@@ -93,7 +93,7 @@ public class OpenGLUtils {
 	 * 
 	 * Safe to call when not in the danger-zone. Safe to call quite often
 	 */
-	static void exitDangerZone(String where) {
+	static void exitDangerZone(final String where) {
 		if (!inTheDangerZone)
 			return;
 		inTheDangerZone = false;
@@ -104,6 +104,38 @@ public class OpenGLUtils {
 		} catch (BackingStoreException e) {
 			log.warn("Unable to flush prefs in exitDangerZone()");
 		}
+	}
+	
+	/**
+	 * Enter a DangerZone for a set amount of time. If the app crashes before
+	 * expiration, disable 3D.
+	 * 
+	 * @param where
+	 * @param milliseconds
+	 */
+	static void timedDangerZone(final String where, final long milliseconds){
+		enterDangerZone(where + " - timed");
+		final Thread onShutdown = new Thread(){
+			@Override
+			public void run(){
+				exitDangerZone(where + " - shutdown hook");
+			}
+		};
+		Runtime.getRuntime().addShutdownHook(onShutdown);
+		new Thread(){
+			@Override
+			public void run(){
+				try {
+					Thread.sleep(milliseconds);
+				} catch (InterruptedException e) {
+					log.warn("timedDangerZone sleep interrupted.");
+				} finally {
+					exitDangerZone(where + " - time expired");
+					Runtime.getRuntime().removeShutdownHook(onShutdown);
+				}
+			}
+		}.start();
+
 	}
 	
 	/**
