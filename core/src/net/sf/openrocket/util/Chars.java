@@ -57,5 +57,7 @@ public class Chars {
 	public static final char LEFT_ARROW = '\u2190';
 	/** Right arrow (light) */
 	public static final char RIGHT_ARROW = '\u2192';
+	/** Up arrow (light) */
+	public static final char UP_ARROW = '\u2191';
 	
 }

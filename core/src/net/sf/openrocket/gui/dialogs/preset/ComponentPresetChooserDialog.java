@@ -32,6 +32,7 @@ import net.sf.openrocket.preset.TypedKey;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Chars;
 
 /**
  * Dialog shown for selecting a preset component.
@@ -137,7 +138,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 		
 		JScrollPane scrollpane = new JScrollPane();
 		scrollpane.setViewportView(componentSelectionTable);
-		panel.add(scrollpane, "grow, width 700lp, height 300lp, spanx, wrap para");
+		panel.add(scrollpane, "grow, width 700lp, height 300lp, spanx, wrap rel");
+		
+		panel.add(new JLabel(Chars.UP_ARROW + " " + trans.get("lbl.favorites")), "spanx, gapleft 5px, wrap para");
 		
 		
 		// OK / Cancel buttons
@@ -238,7 +241,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		if (!okClicked)
 			return null;
 		int row = componentSelectionTable.getSelectedRow();
-		if ( row < 0 ) {
+		if (row < 0) {
 			// Nothing selected.
 			return null;
 		}
