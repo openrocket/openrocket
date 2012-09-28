@@ -49,7 +49,6 @@ public abstract class Preferences {
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
     private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
-    private static final String THREE_D_ENABLED = "THREE_D_ENABLED";
 
     /*
       * ******************************************************************************************
@@ -116,22 +115,6 @@ public abstract class Preferences {
         return this.getBoolean(AUTO_OPEN_LAST_DESIGN, false);
     }
 
-    /**
-     * Enable/Disable the 3d functionality
-     * @param enabled
-     */
-    public final void set3dEnabled(boolean enabled){
-    	this.putBoolean(THREE_D_ENABLED, enabled);
-    }
-    
-    /**
-     * 
-     * @return true if 3d is enabled.
-     */
-    public final boolean is3dEnabled(){
-    	return this.getBoolean(THREE_D_ENABLED, true);
-    }
-    
 	/**
 	 * Return the OpenRocket unique ID.
 	 *
