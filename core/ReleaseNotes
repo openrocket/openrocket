@@ -1,3 +1,11 @@
+OpenRocket 12.09.1 (2012-06-28):
+--------------------------------
+
+Bug-fix release for 12.09, fixing numerous bugs.  Only new feature is
+the possiblity to automatically open the latest design file on startup
+(in Edit -> Preferences -> Options).
+
+
 OpenRocket 12.09  (2012-09-16):
 -------------------------------
 

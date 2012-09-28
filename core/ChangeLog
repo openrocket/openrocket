@@ -1,3 +1,6 @@
+2012-09-28 Sampo Niskane
+	* Released version 12.09.1
+
 2012-09-25 Doug Pedrick
 
    * Added preference to open last edited design file upon startup.
@@ -5,6 +8,9 @@
    * [BUG] Fixed printing of transitions bug where the transition is deeply parented.
 
    * Cleaned up Swing listeners of Configuration (memory leak).
+
+2012-09-16 Sampo Niskanen
+	* Released version 12.09
 
 2012-08-28 Bill Kuker
 

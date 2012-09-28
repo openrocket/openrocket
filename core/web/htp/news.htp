@@ -9,6 +9,12 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">28.9.2012:</span> Version 12.09.1 is
+   <a href="download.html">released</a>!  This is a bug-fix release,
+   fixing numerous bugs introduced in 12.09.  The only new feature is
+   the option to automatically open the latest design file on startup
+   (in <em>Edit</em> &rarr; <em>Preferences</em> &rarr; <em>Options</em>).
+
   <p><span class="date">23.9.2012:</span> Version 12.09 for Android is
    <a href="download.html">released</a>!  The major improvement is the
    possibility to edit simulation parameters, thanks to work by Kevin
@@ -35,6 +41,10 @@
   </ul>
 
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">10.3.2012:</span> Version 12.03 for desktop
     and Android is <a href="download.html">released</a>!</p>
 
@@ -54,10 +64,6 @@
     events, guided help tours and displaying the computed motor
     designation class.  The application has also been translated to
     Italian by Mauro Biasutti and Russian by the Sky Dart Team.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">24.11.2011:</span> Version 1.1.9 is 
     <a href="download.html">released</a>!</p>
