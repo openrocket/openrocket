@@ -202,7 +202,7 @@ public class GeneralUnit extends Unit {
 	///// TESTING:
 	
 	private static void printTicks(double start, double end, double minor, double major) {
-		Tick[] ticks = Unit.NOUNIT2.getTicks(start, end, minor, major);
+		Tick[] ticks = Unit.NOUNIT.getTicks(start, end, minor, major);
 		String str = "Ticks for ("+start+","+end+","+minor+","+major+"):";
 		for (int i=0; i<ticks.length; i++) {
 			str += " "+ticks[i].value;

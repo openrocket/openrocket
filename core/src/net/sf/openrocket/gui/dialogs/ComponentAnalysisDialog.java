@@ -1,6 +1,6 @@
 package net.sf.openrocket.gui.dialogs;
 
-import static net.sf.openrocket.unit.Unit.NOUNIT2;
+import static net.sf.openrocket.unit.Unit.NOUNIT;
 import static net.sf.openrocket.util.Chars.ALPHA;
 
 import java.awt.Color;
@@ -230,7 +230,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 				new Column("<html>C<sub>N<sub>" + ALPHA + "</sub></sub>") {
 					@Override
 					public Object getValueAt(int row) {
-						return NOUNIT2.toString(cpData.get(row).getCP().weight);
+						return NOUNIT.toString(cpData.get(row).getCP().weight);
 					}
 				}
 

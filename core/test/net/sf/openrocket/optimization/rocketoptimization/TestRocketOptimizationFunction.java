@@ -44,9 +44,9 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = -0.43;
-		final Value dref = new Value(ddist, Unit.NOUNIT2);
+		final Value dref = new Value(ddist, Unit.NOUNIT);
 		final double pvalue = 9.81;
-		final Value pvalueValue = new Value(9.81, Unit.NOUNIT2);
+		final Value pvalueValue = new Value(9.81, Unit.NOUNIT);
 		final double gvalue = 8.81;
 		final Point point = new Point(p1, p2);
 		
@@ -90,7 +90,7 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = -0.43;
-		final Value dref = new Value(0.33, Unit.NOUNIT2);
+		final Value dref = new Value(0.33, Unit.NOUNIT);
 		final double pvalue = 9.81;
 		
 		// @formatter:off
@@ -127,7 +127,7 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = 0.98;
-		final Value dref = new Value(ddist, Unit.NOUNIT2);
+		final Value dref = new Value(ddist, Unit.NOUNIT);
 		final Point point = new Point(p1, p2);
 		
 		// @formatter:off
@@ -168,7 +168,7 @@ public class TestRocketOptimizationFunction {
 		final double p1 = 0.4;
 		final double p2 = 0.7;
 		final double ddist = Double.NaN;
-		final Value dref = new Value(0.33, Unit.NOUNIT2);
+		final Value dref = new Value(0.33, Unit.NOUNIT);
 		
 		// @formatter:off
 		context.checking(new Expectations() {{

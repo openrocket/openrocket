@@ -85,14 +85,14 @@ public class UnitGroup {
 	 */
 	static {
 		UNITS_NONE = new UnitGroup();
-		UNITS_NONE.addUnit(Unit.NOUNIT2);
+		UNITS_NONE.addUnit(Unit.NOUNIT);
 		
 		UNITS_ENERGY = new UnitGroup();
 		UNITS_ENERGY.addUnit(new GeneralUnit(1, "J"));
 		UNITS_ENERGY.addUnit(new GeneralUnit(1e-7, "erg"));
 		UNITS_ENERGY.addUnit(new GeneralUnit(1.055, "BTU"));
 		UNITS_ENERGY.addUnit(new GeneralUnit(4.184, "cal"));
-		UNITS_ENERGY.addUnit(new GeneralUnit(1.3558179483314, "ft"+DOT+"lbf"));
+		UNITS_ENERGY.addUnit(new GeneralUnit(1.3558179483314, "ft" + DOT + "lbf"));
 		UNITS_ENERGY.setDefaultUnit(0);
 		
 		UNITS_POWER = new UnitGroup();
@@ -104,7 +104,7 @@ public class UnitGroup {
 		UNITS_POWER.setDefaultUnit(1);
 		
 		UNITS_MOMENTUM = new UnitGroup();
-		UNITS_MOMENTUM.addUnit(new GeneralUnit(1, "kg"+DOT+"m/s"));
+		UNITS_MOMENTUM.addUnit(new GeneralUnit(1, "kg" + DOT + "m/s"));
 		UNITS_MOMENTUM.setDefaultUnit(0);
 		
 		UNITS_VOLTAGE = new UnitGroup();
@@ -121,7 +121,7 @@ public class UnitGroup {
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.001, "mm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.01, "cm"));
 		UNITS_LENGTH.addUnit(new GeneralUnit(1, "m"));
-		UNITS_LENGTH.addUnit(new GeneralUnit(0.0254, "in"));
+		UNITS_LENGTH.addUnit(new InchUnit(0.0254, "in"));
 		UNITS_LENGTH.addUnit(new FractionalUnit(0.0254, "in/64", "in", 64, 1d / 16d, 0.5d / 64d));
 		UNITS_LENGTH.addUnit(new GeneralUnit(0.3048, "ft"));
 		UNITS_LENGTH.setDefaultUnit(1);
@@ -346,7 +346,7 @@ public class UnitGroup {
 		simap.put("m", UNITS_ALL_LENGTHS);
 		simap.put("m^2", UNITS_AREA);
 		simap.put("m/s", UNITS_VELOCITY);
-		simap.put("m/s^2", UNITS_ACCELERATION); 
+		simap.put("m/s^2", UNITS_ACCELERATION);
 		simap.put("kg", UNITS_MASS);
 		simap.put("kg m^2", UNITS_INERTIA);
 		simap.put("kg/m^3", UNITS_DENSITY_BULK);
@@ -476,9 +476,9 @@ public class UnitGroup {
 		defaultUnit = n;
 	}
 	
-	public Unit getSIUnit(){
-		for (Unit u : units){
-			if (u.multiplier == 1){
+	public Unit getSIUnit() {
+		for (Unit u : units) {
+			if (u.multiplier == 1) {
 				return u;
 			}
 		}
@@ -557,7 +557,7 @@ public class UnitGroup {
 	 * @return the value in SI units.
 	 * @see Unit#fromUnit(double)
 	 */
-	public double fromUnit( double value ) {
+	public double fromUnit(double value) {
 		return this.getDefaultUnit().fromUnit(value);
 	}
 	
@@ -601,26 +601,26 @@ public class UnitGroup {
 	}
 	
 	@Override
-	public String toString(){
-		return this.getClass().getSimpleName()+":"+this.getSIUnit().toString();
+	public String toString() {
+		return this.getClass().getSimpleName() + ":" + this.getSIUnit().toString();
 	}
 	
 	@Override
-	public boolean equals(Object o){
+	public boolean equals(Object o) {
 		UnitGroup u = (UnitGroup) o;
 		int size = units.size();
-		if (size != u.units.size()){
+		if (size != u.units.size()) {
 			return false;
 		}
 		
-		for (int i=0; i<size; i++){
-			if ( !units.get(i).equals(u.units.get(i)) ){
+		for (int i = 0; i < size; i++) {
+			if (!units.get(i).equals(u.units.get(i))) {
 				return false;
 			}
 		}
 		
 		return true;
-			
+		
 	}
 	
 	
@@ -675,12 +675,12 @@ public class UnitGroup {
 	@Override
 	public int hashCode() {
 		int code = 0;
-		for (Unit u : units){
+		for (Unit u : units) {
 			code = code + u.hashCode();
 		}
 		return code;
 	}
-
+	
 	/**
 	 * A private class that switches the CaliberUnit to a rocket-specific CaliberUnit.
 	 * All other methods are passed through to UNITS_STABILITY.

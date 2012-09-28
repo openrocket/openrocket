@@ -6,8 +6,8 @@ import net.sf.openrocket.util.Chars;
 
 public abstract class Unit {
 	
-	/** No unit with 2 digit precision */
-	public static final Unit NOUNIT2 = new GeneralUnit(1, "" + Chars.ZWSP, 2);
+	/** No unit */
+	public static final Unit NOUNIT = new GeneralUnit(1, "" + Chars.ZWSP, 2);
 	
 	protected final double multiplier; // meters = units * multiplier
 	protected final String unit;
@@ -101,11 +101,21 @@ public abstract class Unit {
 		if (Math.abs(val) <= 0.0005) {
 			return "0";
 		}
-		double sign = Math.signum(val);
-		double mul = 1000.0;
-		val = Math.abs(val);
-		val = Math.rint(val*mul) / mul * sign;
+		
+		val = roundForDecimalFormat(val);
 		return decFormat.format(val);
+	}
+	
+	protected double roundForDecimalFormat(double val) {
+		double sign = Math.signum(val);
+		val = Math.abs(val);
+		double mul = 1.0;
+		while (val < 100) {
+			mul *= 10;
+			val *= 10;
+		}
+		val = Math.rint(val) / mul * sign;
+		return val;
 	}
 	
 	
@@ -128,7 +138,7 @@ public abstract class Unit {
 	}
 	
 	
-
+	
 	/**
 	 * Creates a new Value object with the specified value and this unit.
 	 * 
@@ -140,7 +150,7 @@ public abstract class Unit {
 	}
 	
 	
-
+	
 	/**
 	 * Round the value (in the current units) to a precision suitable for rough valuing
 	 * (approximately 2 significant numbers).

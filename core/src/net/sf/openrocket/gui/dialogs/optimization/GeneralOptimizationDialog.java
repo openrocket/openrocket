@@ -179,7 +179,7 @@ public class GeneralOptimizationDialog extends JDialog {
 	
 	
 	private double bestValue = Double.NaN;
-	private Unit bestValueUnit = Unit.NOUNIT2;
+	private Unit bestValueUnit = Unit.NOUNIT;
 	private int stepCount = 0;
 	private int evaluationCount = 0;
 	private double stepSize = 0;
