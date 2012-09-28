@@ -30,7 +30,7 @@ public class OpenGLUtils {
 	/**
 	 * Call this method as early as possible.
 	 */
-	public static void earlyInitialize() {
+	public static void initialize() {
 		// If crash detection fails this will allow someone to disable
 		// the 3d preference from the command line.
 		if (System.getProperty("openrocket.3d.disable") != null) {

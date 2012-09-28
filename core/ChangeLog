@@ -1,8 +1,6 @@
-2012-09-27 Bill Kuker
+2012-09-28 Bill Kuker
 
    * Added user preference to enable/disable 3D, and crash detection to disable 3D on a crash
-   
-   * Moved JOGL GL initialization earlier in initialization.
  
 2012-09-25 Doug Pedrick
 

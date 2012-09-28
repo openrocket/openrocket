@@ -16,7 +16,6 @@ import net.sf.openrocket.communication.UpdateInfoRetriever;
 import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
-import net.sf.openrocket.gui.figure3d.OpenGLUtils;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.MRUDesignFile;
 import net.sf.openrocket.gui.main.Splash;
@@ -60,8 +59,6 @@ public class Startup2 {
 		if ( SystemInfo.getPlatform() == Platform.MAC_OS ){
 			OSXStartup.setupOSX();
 		}
-
-		OpenGLUtils.earlyInitialize();
 
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
 		log.info("Moving startup to EDT");

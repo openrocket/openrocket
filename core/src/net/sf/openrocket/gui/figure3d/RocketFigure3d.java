@@ -91,6 +91,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		this.configuration = config;
 		this.setLayout(new BorderLayout());
 		
+		OpenGLUtils.initialize();
+		
 		//Only initizlize GL if 3d is enabled.
 		if ( OpenGLUtils.is3dEnabled() ){			
 			initGLCanvas();
