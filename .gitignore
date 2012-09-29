@@ -1,0 +1,37 @@
+
+# /
+/bin
+/build
+/data
+/dists
+/misc
+/stuff
+/thesis
+/rawdump
+/tmp
+/loganalysis
+
+# /android/
+/android/bin
+
+# /android-libraries/achartengine/
+/android-libraries/achartengine/gen
+/android-libraries/achartengine/bin
+/android-libraries/achartengine/lint.xml
+
+# /core/
+/core/loganalysis
+/core/build
+/core/tmp
+/core/misc
+
+# /core/doc/techdoc/
+/core/doc/techdoc/*.aux
+/core/doc/techdoc/*.dvi
+/core/doc/techdoc/*.out
+/core/doc/techdoc/*.toc
+
+# /core/resources-src/pix/
+/core/resources-src/pix/sormus.xcf.gz
+/core/resources-src/pix/splashscreen-sormus.png
+/core/resources-src/pix/splashscreen-sormus.xcf.gz
