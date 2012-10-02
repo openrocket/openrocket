@@ -19,8 +19,9 @@ public final class MRUDesignFileAction extends JMenu {
     /**
      * The window to which an open design file action will be parented to (typically an instance of BasicFrame).
      */
-    private Window parent;
+    private final Window parent;
 
+    private final PropertyChangeListener myListener;
     /**
      * Constructor.
      *
@@ -32,17 +33,23 @@ public final class MRUDesignFileAction extends JMenu {
         super(s);
 
         parent = theParent;
-        MRUDesignFile opts = MRUDesignFile.getInstance();
-        opts.addPropertyChangeListener(new PropertyChangeListener() {
+        myListener = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!evt.getPropertyName().equals(MRUDesignFile.MRU_FILE_LIST_PROPERTY)) {
                     return;
                 }
                 updateMenu();
             }
-        });
+        };
 
+        MRUDesignFile opts = MRUDesignFile.getInstance();
+        opts.addPropertyChangeListener(myListener);
         updateMenu();
+    }
+    
+    public void deregister() {
+        MRUDesignFile opts = MRUDesignFile.getInstance();
+        opts.removePropertyChangeListener(myListener);
     }
 
     /**

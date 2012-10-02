@@ -102,7 +102,11 @@ public class RocketActions {
 		});
 	}
 
+	public void dispose() {
+		OpenRocketClipboard.removeClipboardListener(this.pasteAction);
+	}
 	/**
+	 * 
 	 * Update the state of all of the actions.
 	 */
 	private void updateActions() {
