@@ -120,8 +120,8 @@ public class FinSetTest extends BaseTestCase {
 			Coordinate coords = fins.getCG();
 			assertEquals(3.0, fins.getFinArea(), 0.001);
 			// FIXME - this computes NaN
-			//assertEquals(3.5/3.0, coords.x, 0.001);
-			//assertEquals(0.5/3.0, coords.y, 0.001);
+			assertEquals(3.5/3.0, coords.x, 0.001);
+			assertEquals(0.5/3.0, coords.y, 0.001);
 		}
 
 	}
