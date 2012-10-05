@@ -673,7 +673,7 @@ public class SimulationEditDialog extends JDialog {
 		label.setToolTipText(tip);
 		sub.add(label);
 		
-		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP, 0, 1);
+		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP, RK4SimulationStepper.MIN_TIME_STEP, 1);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
