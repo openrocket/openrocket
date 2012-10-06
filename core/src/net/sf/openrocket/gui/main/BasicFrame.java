@@ -1,5 +1,65 @@
 package net.sf.openrocket.gui.main;
 
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.MenuSelectionManager;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -50,63 +110,6 @@ import net.sf.openrocket.util.MemoryManagement.MemoryData;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TestRockets;
 
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeSelectionModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 public class BasicFrame extends JFrame {
 	private static final LogHelper log = Application.getLogger();
 
@@ -136,9 +139,7 @@ public class BasicFrame extends JFrame {
 	 */
 	private boolean replaceable = false;
 
-
-
-	private final OpenRocketDocument document;
+	private OpenRocketDocument document;
 	private final Rocket rocket;
 
 	private JTabbedPane tabbedPane;
@@ -150,10 +151,11 @@ public class BasicFrame extends JFrame {
 	private final ListSelectionModel simulationSelectionModel;
 
 	/** Actions available for rocket modifications */
-	private final RocketActions actions;
+	private RocketActions actions;
 
-
-
+	private MRUDesignFileAction mruAction;
+	
+	private JMenuBar menubar;
 
 	/**
 	 * Sole constructor.  Creates a new frame based on the supplied document
@@ -239,6 +241,9 @@ public class BasicFrame extends JFrame {
 
 		GUIUtil.setWindowIcons(this);
 
+		// Reinitialize the LAF in order to free resources pointing to the old frame's window.
+		GUIUtil.setBestLAF();
+
 		this.validate();
 		vertical.setDividerLocation(0.4);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -253,6 +258,30 @@ public class BasicFrame extends JFrame {
 		log.debug("BasicFrame instantiation complete");
 	}
 
+
+	@Override
+	public void dispose() {
+		menubar.enableInputMethods(false);
+		int menuCount = menubar.getComponentCount();
+		for( int i = 0; i < menuCount; i++ ) {
+			JMenu m = (JMenu) menubar.getComponent(i);
+			m.removeAll();
+		}
+		menubar.removeAll();
+		this.setJMenuBar(null);
+
+		MenuSelectionManager msm = MenuSelectionManager.defaultManager();
+		for ( ChangeListener l : msm.getChangeListeners() ) {
+			msm.removeChangeListener(l);
+		}
+		
+		actions.dispose();
+		actions = null;
+
+		mruAction.deregister();
+
+		super.dispose();
+	}
 
 	/**
 	 * Construct the "Rocket design" tab.  This contains a horizontal split pane
@@ -386,7 +415,7 @@ public class BasicFrame extends JFrame {
 	 * Creates the menu for the window.
 	 */
 	private void createMenu() {
-		JMenuBar menubar = new JMenuBar();
+		menubar = new JMenuBar();
 		JMenu menu;
 		JMenuItem item;
 
@@ -430,11 +459,11 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 
 		//// Open Recent...
-		item = new MRUDesignFileAction(trans.get("main.menu.file.openRecent"), this);
+		mruAction = new MRUDesignFileAction(trans.get("main.menu.file.openRecent"), this);
 		//// Open a recent rocket design
-		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrecentrocketdesign"));
-		item.setIcon(Icons.FILE_OPEN);
-		menu.add(item);
+		mruAction.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrecentrocketdesign"));
+		mruAction.setIcon(Icons.FILE_OPEN);
+		menu.add(mruAction);
 
 		//// Open example...
 		item = new JMenuItem(trans.get("main.menu.file.openExample"));
@@ -559,6 +588,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
 
 		menu.add(item);
+
 
 		action = UndoRedoAction.newRedoAction(document);
 		item = new JMenuItem(action);
@@ -1561,4 +1591,5 @@ public class BasicFrame extends JFrame {
 			return null;
 		}
 	}
+	
 }
