@@ -22,9 +22,10 @@ import org.junit.Test;
 public class FinSetTest extends BaseTestCase {
 
 	@Test
-	public void testCGComputation() throws Exception {
+	public void testTrapezoidCGComputation() {
 
 		{
+			// This is a simple square fin with sides of 1.0.
 			TrapezoidFinSet fins = new TrapezoidFinSet();
 			fins.setFinCount(1);
 			fins.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
@@ -36,6 +37,12 @@ public class FinSetTest extends BaseTestCase {
 		}
 
 		{
+			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
+			// It can be decomposed into a rectangle followed by a triangle
+			//  +---+
+			//  |    \
+			//  |     \
+			//  +------+
 			TrapezoidFinSet fins = new TrapezoidFinSet();
 			fins.setFinCount(1);
 			fins.setFinShape(1.0, 0.5, 0.0, 1.0, .005);
@@ -45,83 +52,117 @@ public class FinSetTest extends BaseTestCase {
 			assertEquals(0.3889, coords.x, 0.001);
 			assertEquals(0.4444, coords.y, 0.001);
 		}
+
+	}
+
+	@Test
+	public void testFreeformCGComputation() throws Exception {
+
+		{
+			// This is a trapezoid.  Height 1, root 1, tip 1/2 no sweep.
+			// It can be decomposed into a rectangle followed by a triangle
+			//  +---+
+			//  |    \
+			//  |     \
+			//  +------+
+			FreeformFinSet fins = new FreeformFinSet();
+			fins.setFinCount(1);
+			Coordinate[] points = new Coordinate[] {
+					new Coordinate(0,0),
+					new Coordinate(0,1),
+					new Coordinate(.5,1),
+					new Coordinate(1,0)
+			};
+			fins.setPoints(points);
+			Coordinate coords = fins.getCG();
+			assertEquals(0.75, fins.getFinArea(), 0.001);
+			assertEquals(0.3889, coords.x, 0.001);
+			assertEquals(0.4444, coords.y, 0.001);
+		}
+
+		{
+			// This is the same trapezoid as previous free form, but it has
+			// some extra points along the lines.
+			FreeformFinSet fins = new FreeformFinSet();
+			fins.setFinCount(1);
+			Coordinate[] points = new Coordinate[] {
+					new Coordinate(0,0),
+					new Coordinate(0,.5),
+					new Coordinate(0,1),
+					new Coordinate(.25,1),
+					new Coordinate(.5,1),
+					new Coordinate(.75,.5),
+					new Coordinate(1,0)
+			};
+			fins.setPoints(points);
+			Coordinate coords = fins.getCG();
+			assertEquals(0.75, fins.getFinArea(), 0.001);
+			assertEquals(0.3889, coords.x, 0.001);
+			assertEquals(0.4444, coords.y, 0.001);
+		}
+
+		{
+			// This is the same trapezoid as previous free form, but it has
+			// some extra points which are very close to previous points.
+			// in particular for points 0 & 1,
+			// y0 + y1 is very small.
+			FreeformFinSet fins = new FreeformFinSet();
+			fins.setFinCount(1);
+			Coordinate[] points = new Coordinate[] {
+					new Coordinate(0,0),
+					new Coordinate(0,1E-15),
+					new Coordinate(0,1),
+					new Coordinate(1E-15,1),
+					new Coordinate(.5,1),
+					new Coordinate(.5,1-1E-15),
+					new Coordinate(1,1E-15),
+					new Coordinate(1,0)
+			};
+			fins.setPoints(points);
+			Coordinate coords = fins.getCG();
+			assertEquals(0.75, fins.getFinArea(), 0.001);
+			assertEquals(0.3889, coords.x, 0.001);
+			assertEquals(0.4444, coords.y, 0.001);
+		}
+
+	}
+
+	@Test
+	public void testFreeFormCGWithNegativeY() throws Exception {
+		// This particular fin shape is currently not allowed in OR since the y values are negative
+		// however, it is possible to convert RockSim files and end up with fins which
+		// have negative y values.
 		
-		{
-			// This is the same shape as the previous TrapezoidFinSet.
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
-				new Coordinate(0,0),
-				new Coordinate(0,1),
-				new Coordinate(.5,1),
-				new Coordinate(1,0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-
-		{
-			// Add some superfluous points which are on the outline but "far apart"
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
-				new Coordinate(0,0),
-				new Coordinate(0,.5),
-				new Coordinate(0,1),
-				new Coordinate(.25,1),
-				new Coordinate(.5,1),
-				new Coordinate(.75,.5),
-				new Coordinate(1,0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-
-		{
-			// add some points which are close
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
-				new Coordinate(0,0),
-				new Coordinate(0,1E-15),
-				new Coordinate(0,1),
-				new Coordinate(1E-15,1),
-				new Coordinate(.5,1),
-				new Coordinate(.5,1-1E-15),
-				new Coordinate(1,1E-15),
-				new Coordinate(1,0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(0.75, fins.getFinArea(), 0.001);
-			assertEquals(0.3889, coords.x, 0.001);
-			assertEquals(0.4444, coords.y, 0.001);
-		}
-
-		{
-			// Different shaped figure.  Two rectangles crafted so two pairs of points y_0 = - y_1
-			FreeformFinSet fins = new FreeformFinSet();
-			fins.setFinCount(1);
-			Coordinate[] points = new Coordinate[] {
+		// A user submitted an ork file which could not be simulated because the fin
+		// was constructed on a tail cone.  It so happened that for one pair of points
+		// y_n = - y_(n+1) which caused a divide by zero and resulted in CGx = NaN.
+		
+		// This Fin set is constructed to have the same problem.  It is a square and rectagle
+		// where the two trailing edge corners of the rectangle satisfy y_0 = -y_1
+		//
+		// +---------+
+		// |         |
+		// |         |
+		// +----+    |
+		//      |    |
+		//      |    |
+		//      +----+
+		
+		FreeformFinSet fins = new FreeformFinSet();
+		fins.setFinCount(1);
+		Coordinate[] points = new Coordinate[] {
 				new Coordinate(0,0),
 				new Coordinate(0,1),
 				new Coordinate(2,1),
 				new Coordinate(2,-1),
 				new Coordinate(1,-1),
 				new Coordinate(1,0)
-			};
-			fins.setPoints(points);
-			Coordinate coords = fins.getCG();
-			assertEquals(3.0, fins.getFinArea(), 0.001);
-			assertEquals(3.5/3.0, coords.x, 0.001);
-			assertEquals(0.5/3.0, coords.y, 0.001);
-		}
+		};
+		fins.setPoints(points);
+		Coordinate coords = fins.getCG();
+		assertEquals(3.0, fins.getFinArea(), 0.001);
+		assertEquals(3.5/3.0, coords.x, 0.001);
+		assertEquals(0.5/3.0, coords.y, 0.001);
 
 	}
 
