@@ -138,8 +138,9 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		 */
 		double[] dt = new double[8];
 		Arrays.fill(dt, Double.MAX_VALUE);
-		
-		dt[0] = status.getSimulationConditions().getTimeStep();
+
+		// If the user selected a really small timestep, use MIN_TIME_STEP instead.
+		dt[0] = MathUtil.max(status.getSimulationConditions().getTimeStep(),MIN_TIME_STEP);
 		dt[1] = maxTimeStep;
 		dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
 		dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
@@ -159,7 +160,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 				limitingValue = i;
 			}
 		}
-		
+
 		double minTimeStep = status.getSimulationConditions().getTimeStep() / 20;
 		if (store.timestep < minTimeStep) {
 			log.verbose("Too small time step " + store.timestep + " (limiting factor " + limitingValue + "), using " +

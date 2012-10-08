@@ -440,7 +440,7 @@ public abstract class FinSet extends ExternalComponent {
 			
 			double da = (y0 + y1) * (x1 - x0) / 2;
 			finArea += da;
-			if (Math.abs(y0 - y1) < 0.00001) {
+			if (Math.abs(y0 + y1) < 0.00001) {
 				finCGx += (x0 + x1) / 2 * da;
 				finCGy += y0 / 2 * da;
 			} else {
