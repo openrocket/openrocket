@@ -1494,7 +1494,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		} else if (element.equals("atmosphere")) {
 			atmosphereHandler.storeSettings(conditions, warnings);
 		} else if (element.equals("timestep")) {
-			if (Double.isNaN(d)) {
+			if (Double.isNaN(d) || d <= 0 ) {
 				warnings.add("Illegal time step defined, ignoring.");
 			} else {
 				conditions.setTimeStep(d);
