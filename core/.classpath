@@ -25,7 +25,6 @@
 	<classpathentry kind="lib" path="lib-test/junit-dep-4.8.2.jar"/>
 	<classpathentry kind="lib" path="lib-test/uispec4j-2.3-jdk16.jar"/>
 	<classpathentry kind="lib" path="resources"/>
-	<classpathentry kind="lib" path="lib/jspf.core-1.0.2.jar" sourcepath="/home/sampo/Projects/lib/jspf/documentation/api"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/jogl.all.jar"/>

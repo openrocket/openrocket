@@ -25,41 +25,45 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.util.BuildProperties;
 
+import com.google.inject.Inject;
+
 /**
  * The second class in the OpenRocket startup sequence.  This class can assume the
  * Application class to be properly set up, and can use any classes safely.
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Startup2 {
-	private static final LogHelper log = Application.getLogger();
-
-
+public class ApplicationStartup {
+	
+	@Inject
+	private LogHelper log;
+	
+	
 	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
-
+	
 	/**
 	 * Run when starting up OpenRocket after Application has been set up.
 	 *
 	 * @param args	command line arguments
 	 */
-	static void runMain(final String[] args) throws Exception {
-
+	public void runMain(final String[] args) throws Exception {
+		
 		log.info("Starting up OpenRocket version " + BuildProperties.getVersion());
-
+		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");
 		checkHead();
-
+		
 		// Check that we're running a good version of a JRE
 		log.info("Checking JRE compatibility");
 		VersionHelper.checkVersion();
 		VersionHelper.checkOpenJDK();
-
+		
 		// If running on a MAC set up OSX UI Elements.
-		if ( SystemInfo.getPlatform() == Platform.MAC_OS ){
+		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
 			OSXStartup.setupOSX();
 		}
-
+		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
 		log.info("Moving startup to EDT");
 		SwingUtilities.invokeAndWait(new Runnable() {
@@ -68,50 +72,50 @@ public class Startup2 {
 				runInEDT(args);
 			}
 		});
-
+		
 		log.info("Startup complete");
 	}
-
-
+	
+	
 	/**
 	 * Run in the EDT when starting up OpenRocket.
 	 *
 	 * @param args	command line arguments
 	 */
-	private static void runInEDT(String[] args) {
-
+	private void runInEDT(String[] args) {
+		
 		// Initialize the splash screen with version info
 		log.info("Initializing the splash screen");
 		Splash.init();
-
+		
 		// Must be done after localization is initialized
 		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
-
+			
 			@Override
 			protected void load() {
-				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader( this );
+				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader(this);
 				presetLoader.load();
 				try {
 					presetLoader.await();
-				} catch ( InterruptedException iex) {
-
+				} catch (InterruptedException iex) {
+					
 				}
 			}
-
+			
 		};
-		Application.setComponentPresetDao( componentPresetDao );
-
+		Application.setComponentPresetDao(componentPresetDao);
+		
 		componentPresetDao.startLoading();
-
+		
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
 		SwingExceptionHandler exceptionHandler = new SwingExceptionHandler();
 		Application.setExceptionHandler(exceptionHandler);
 		exceptionHandler.registerExceptionHandler();
-
+		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;
-		if ( Application.getPreferences().getCheckUpdates()) {
+		if (Application.getPreferences().getCheckUpdates()) {
 			log.info("Starting update check");
 			updateInfo = new UpdateInfoRetriever();
 			updateInfo.start();
@@ -119,68 +123,68 @@ public class Startup2 {
 			log.info("Update check disabled");
 			updateInfo = null;
 		}
-
+		
 		// Set the best available look-and-feel
 		log.info("Setting best LAF");
 		GUIUtil.setBestLAF();
-
+		
 		// Set tooltip delay time.  Tooltips are used in MotorChooserDialog extensively.
 		ToolTipManager.sharedInstance().setDismissDelay(30000);
-
+		
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
-
+		
 		// Load motors etc.
 		log.info("Loading databases");
-
+		
 		loadMotor();
-
+		
 		Databases.fakeMethod();
-
-
+		
+		
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
 		if (!handleCommandLine(args)) {
-            if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
-    			BasicFrame.newAction();
-            }
-            else {
-                String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
-                if (lastFile != null) {
-                    if (!BasicFrame.open(new File(lastFile), null)) {
-                        MRUDesignFile.getInstance().removeFile(lastFile);
-                        BasicFrame.newAction();
-                    }
-                    else {
-                        MRUDesignFile.getInstance().addFile(lastFile);
-                    }
-                }
-                else {
-                    BasicFrame.newAction();
-                }
-            }
-        }
-
+			if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
+				BasicFrame.newAction();
+			}
+			else {
+				String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
+				if (lastFile != null) {
+					if (!BasicFrame.open(new File(lastFile), null)) {
+						MRUDesignFile.getInstance().removeFile(lastFile);
+						BasicFrame.newAction();
+					}
+					else {
+						MRUDesignFile.getInstance().addFile(lastFile);
+					}
+				}
+				else {
+					BasicFrame.newAction();
+				}
+			}
+		}
+		
 		// Check whether update info has been fetched or whether it needs more time
 		log.info("Checking update status");
 		checkUpdateStatus(updateInfo);
-
+		
 	}
-
+	
 	/**
 	 * this method is useful for the python bindings.
 	 */
-	public static void loadMotor() {
+	public void loadMotor() {
 		ConcurrentLoadingThrustCurveMotorSetDatabase motorLoader = new ConcurrentLoadingThrustCurveMotorSetDatabase(THRUSTCURVE_DIRECTORY);
 		motorLoader.startLoading();
 		Application.setMotorSetDatabase(motorLoader);
 	}
-
+	
 	/**
 	 * Check that the JRE is not running headless.
 	 */
-	private static void checkHead() {
-
+	private void checkHead() {
+		
 		if (GraphicsEnvironment.isHeadless()) {
 			log.error("Application is headless.");
 			System.err.println();
@@ -189,36 +193,36 @@ public class Startup2 {
 			System.err.println();
 			System.exit(1);
 		}
-
+		
 	}
-
-
-	private static void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
+	
+	
+	private void checkUpdateStatus(final UpdateInfoRetriever updateInfo) {
 		if (updateInfo == null)
 			return;
-
+		
 		int delay = 1000;
 		if (!updateInfo.isRunning())
 			delay = 100;
-
+		
 		final Timer timer = new Timer(delay, null);
-
+		
 		ActionListener listener = new ActionListener() {
 			private int count = 5;
-
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!updateInfo.isRunning()) {
 					timer.stop();
-
+					
 					String current = BuildProperties.getVersion();
 					String last = Application.getPreferences().getString(Preferences.LAST_UPDATE, "");
-
+					
 					UpdateInfo info = updateInfo.getUpdateInfo();
 					if (info != null && info.getLatestVersion() != null &&
 							!current.equals(info.getLatestVersion()) &&
 							!last.equals(info.getLatestVersion())) {
-
+						
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
 						if (infoDialog.isReminderSelected()) {
@@ -236,7 +240,7 @@ public class Startup2 {
 		timer.addActionListener(listener);
 		timer.start();
 	}
-
+	
 	/**
 	 * Handles arguments passed from the command line.  This may be used either
 	 * when starting the first instance of OpenRocket or later when OpenRocket is
@@ -246,8 +250,8 @@ public class Startup2 {
 	 * @return		whether a new frame was opened or similar user desired action was
 	 * 				performed as a result.
 	 */
-	private static boolean handleCommandLine(String[] args) {
-
+	private boolean handleCommandLine(String[] args) {
+		
 		// Check command-line for files
 		boolean opened = false;
 		for (String file : args) {
@@ -257,5 +261,5 @@ public class Startup2 {
 		}
 		return opened;
 	}
-
+	
 }

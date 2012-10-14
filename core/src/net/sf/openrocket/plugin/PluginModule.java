@@ -21,7 +21,7 @@ import com.google.inject.multibindings.Multibinder;
  */
 public class PluginModule extends AbstractModule {
 	
-	private final File[] jars;
+	private final List<File> jars;
 	private final ClassLoader classLoader;
 	
 	private Map<Class<?>, Multibinder<?>> binders = new HashMap<Class<?>, Multibinder<?>>();
@@ -33,8 +33,8 @@ public class PluginModule extends AbstractModule {
 	 * @param jars			the JAR files to search for plugins
 	 * @param classLoader	the class loader used to load classes from the JAR files
 	 */
-	public PluginModule(File[] jars, ClassLoader classLoader) {
-		this.jars = jars.clone();
+	public PluginModule(List<File> jars, ClassLoader classLoader) {
+		this.jars = jars;
 		this.classLoader = classLoader;
 	}
 	

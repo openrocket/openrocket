@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import com.google.inject.Guice;
@@ -25,10 +27,20 @@ public class Test {
 	
 	
 	public static void main(String[] args) throws MalformedURLException {
+		//		Properties p = System.getProperties();
+		//		Enumeration<Object> e = p.keys();
+		//		while (e.hasMoreElements()) {
+		//			Object key = e.nextElement();
+		//			Object value = p.get(key);
+		//			System.out.println(key + " = " + value);
+		//		}
 		
-		File[] jars = { new File("/home/sampo/Projects/OpenRocket/core/example.jar") };
+		List<File> jars = Arrays.asList(new File("/home/sampo/Projects/OpenRocket/core/example.jar"));
 		URL[] urls = { new File("/home/sampo/Projects/OpenRocket/core/example.jar").toURL() };
-		URLClassLoader classLoader = new URLClassLoader(urls);
+		ClassLoader classLoader = new URLClassLoader(urls);
+		
+		classLoader = Test.class.getClassLoader();
+		
 		Injector injector = Guice.createInjector(new PluginModule(jars, classLoader));
 		injector.getInstance(Test.class).run();
 	}

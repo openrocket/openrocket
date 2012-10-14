@@ -5,7 +5,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.Startup;
+import net.sf.openrocket.startup.GuiceStartup;
 import net.sf.openrocket.util.ArrayList;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class RocksimComponentFileTranslator {
 
         LOGGER.println("Loading csv files from directory " + args[0]);
 
-        Startup.initializeLogging();
+        GuiceStartup.initializeLogging();
         Application.setPreferences(new SwingPreferences());
 
         MaterialHolder materialMap = loadAll(allPresets, new File(args[0]));
