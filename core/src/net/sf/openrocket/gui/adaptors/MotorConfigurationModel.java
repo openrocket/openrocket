@@ -11,7 +11,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import net.sf.openrocket.gui.dialogs.EditMotorConfigurationDialog;
+import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -76,7 +76,7 @@ public class MotorConfigurationModel implements ComboBoxModel, StateChangeListen
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					new EditMotorConfigurationDialog(rocket, BasicFrame.findFrame(rocket))
+					new FlightConfigurationDialog(rocket, BasicFrame.findFrame(rocket))
 						.setVisible(true);
 				}
 			});

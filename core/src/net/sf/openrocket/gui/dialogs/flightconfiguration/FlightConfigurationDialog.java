@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.dialogs;
+package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -22,7 +22,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -37,31 +36,26 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Chars;
 
-public class EditMotorConfigurationDialog extends JDialog {
+public class FlightConfigurationDialog extends JDialog {
 	
-	private final Rocket rocket;
+	final Rocket rocket;
 	
-	private final MotorMount[] mounts;
+	final MotorMount[] mounts;
 	
 	private final JTable configurationTable;
-	private final MotorConfigurationTableModel configurationTableModel;
+	final MotorConfigurationTableModel configurationTableModel;
 	
 	
 	private final JButton newConfButton, removeConfButton;
 	private final JButton selectMotorButton, removeMotorButton;
-	private final JTextField configurationNameField;
-	
 	
 	private String currentID = null;
 	private MotorMount currentMount = null;
 	
-	// Positive when user is modifying configuration name
-	private int configurationNameModification = 0;
-	private static final Translator trans = Application.getTranslator();
+	static final Translator trans = Application.getTranslator();
 	
-	public EditMotorConfigurationDialog(final Rocket rocket, Window parent) {
+	public FlightConfigurationDialog(final Rocket rocket, Window parent) {
 		//// Edit motor configurations
 		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"));
 		
@@ -74,22 +68,24 @@ public class EditMotorConfigurationDialog extends JDialog {
 		
 		mounts = getPotentialMotorMounts();
 		
-		
-		
-		JPanel panel = new JPanel(new MigLayout("fill, flowy"));
-		
-		
+		JPanel panel = new JPanel(new MigLayout("fill, wrap 5"));
+
 		////  Motor mount selection
 		//// <html><b>Motor mounts:</b>
 		JLabel label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motormounts"));
 		panel.add(label, "gapbottom para");
 		
+		//// Motor selection
+		//// <html><b>Motor configurations:</b>
+		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motorconfig"));
+		panel.add(label, "span 4, gapbottom para");
+
 		//// <html>Select which components function as motor mounts:
 		label = new JLabel(trans.get("edtmotorconfdlg.selectcomp"));
-		panel.add(label, "ay 100%, w 1px, growx");
+		panel.add(label, "ay 100%, w 1px, growx, wrap");
 		
-		
-		JTable table = new JTable(new MotorMountTableModel());
+		//// Motor Mount selection 
+		JTable table = new JTable(new MotorMountTableModel(this));
 		table.setTableHeader(null);
 		table.setShowVerticalLines(false);
 		table.setRowSelectionAllowed(false);
@@ -103,106 +99,14 @@ public class EditMotorConfigurationDialog extends JDialog {
 		col0.setMaxWidth(w);
 		
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
-		
 		JScrollPane scroll = new JScrollPane(table);
-		panel.add(scroll, "w 200lp, h 150lp, grow, wrap 20lp");
+		panel.add(scroll, "w 200lp, h 150lp, grow");
 		
-		
-		
-		
-		
-		//// Motor selection
-		//// <html><b>Motor configurations:</b>
-		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motorconfig"));
-		panel.add(label, "spanx, gapbottom para");
-		
-		//// Configuration name:
-		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Configname"));
-		//// Leave name empty for default.
-		String tip = trans.get("edtmotorconfdlg.lbl.Leavenamedefault");
-		label.setToolTipText(tip);
-		panel.add(label, "");
-		
-		configurationNameField = new JTextField(10);
-		configurationNameField.setToolTipText(tip);
-		configurationNameField.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				update();
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				update();
-			}
-			
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				update();
-			}
-			
-			private void update() {
-				if (configurationNameModification != 0)
-					return;
-				
-				String text = configurationNameField.getText();
-				if (currentID != null) {
-					configurationNameModification++;
-					rocket.setMotorConfigurationName(currentID, text);
-					int row = configurationTable.getSelectedRow();
-					configurationTableModel.fireTableCellUpdated(row, 0);
-					updateEnabled();
-					configurationNameModification--;
-				}
-			}
-		});
-		panel.add(configurationNameField, "cell 2 1, gapright para");
-		
-		//// New configuration
-		newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
-		newConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String id = rocket.newMotorConfigurationID();
-				rocket.getDefaultConfiguration().setMotorConfigurationID(id);
-				configurationTableModel.fireTableDataChanged();
-				updateEnabled();
-			}
-		});
-		panel.add(newConfButton, "cell 3 1");
-		
-		//// Remove configuration
-		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
-		removeConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (currentID == null)
-					return;
-				rocket.removeMotorConfigurationID(currentID);
-				rocket.getDefaultConfiguration().setMotorConfigurationID(null);
-				configurationTableModel.fireTableDataChanged();
-				updateEnabled();
-			}
-		});
-		panel.add(removeConfButton, "cell 4 1");
-		
-		
-		
-		
-		configurationTableModel = new MotorConfigurationTableModel();
+		//// Motor selection table.
+		configurationTableModel = new MotorConfigurationTableModel(this);
 		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setCellSelectionEnabled(true);
-		configurationTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				int column = configurationTable.getSelectedColumn();
-				System.err.println("column=" + column);
-				if (column == 0 && configurationTable.getColumnCount() > 1) {
-					configurationTable.setColumnSelectionInterval(1, 1);
-				}
-			}
-		});
 		
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
@@ -223,10 +127,37 @@ public class EditMotorConfigurationDialog extends JDialog {
 			}
 		});
 		
-		
 		scroll = new JScrollPane(configurationTable);
-		panel.add(scroll, "cell 1 2, spanx, w 500lp, h 150lp, grow");
+		panel.add(scroll, "span 4, w 500lp, h 150lp, grow");
+
+		//// New configuration
+		newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
+		newConfButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String id = rocket.newMotorConfigurationID();
+				rocket.getDefaultConfiguration().setMotorConfigurationID(id);
+				configurationTableModel.fireTableDataChanged();
+				updateEnabled();
+			}
+		});
+		panel.add(newConfButton, "skip, sizegroup button");
 		
+		//// Remove configuration
+		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+		removeConfButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (currentID == null)
+					return;
+				rocket.removeMotorConfigurationID(currentID);
+				rocket.getDefaultConfiguration().setMotorConfigurationID(null);
+				configurationTableModel.fireTableDataChanged();
+				updateEnabled();
+			}
+		});
+		panel.add(removeConfButton, "sizegroup button");
+
 		//// Select motor
 		selectMotorButton = new JButton(trans.get("edtmotorconfdlg.but.Selectmotor"));
 		selectMotorButton.addActionListener(new ActionListener() {
@@ -235,7 +166,7 @@ public class EditMotorConfigurationDialog extends JDialog {
 				selectMotor();
 			}
 		});
-		panel.add(selectMotorButton, "spanx, flowx, split 2, ax 50%");
+		panel.add(selectMotorButton, "sizegroup button");
 		
 		//// Remove motor button
 		removeMotorButton = new JButton(trans.get("edtmotorconfdlg.but.removemotor"));
@@ -245,16 +176,14 @@ public class EditMotorConfigurationDialog extends JDialog {
 				removeMotor();
 			}
 		});
-		panel.add(removeMotorButton, "ax 50%");
-		
-		
+		panel.add(removeMotorButton,"sizegroup button, wrap");
 		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				EditMotorConfigurationDialog.this.dispose();
+				FlightConfigurationDialog.this.dispose();
 			}
 		});
 		panel.add(close, "spanx, right");
@@ -294,9 +223,15 @@ public class EditMotorConfigurationDialog extends JDialog {
 	}
 	
 	
+	void updateConfigurationName( String newName ) {
+
+		int row = configurationTable.getSelectedRow();
+		String currentID = findID( row );
+		rocket.setMotorConfigurationName(currentID, newName);
+
+	}
 	
-	
-	private void updateEnabled() {
+	void updateEnabled() {
 		int column = configurationTable.getSelectedColumn();
 		int row = configurationTable.getSelectedRow();
 		
@@ -315,19 +250,6 @@ public class EditMotorConfigurationDialog extends JDialog {
 			
 		}
 		
-		if (configurationNameModification == 0) {
-			// Don't update name field when user is modifying it
-			configurationNameModification++;
-			
-			configurationNameField.setEnabled(currentID != null);
-			if (currentID == null) {
-				configurationNameField.setText("");
-			} else {
-				configurationNameField.setText(rocket.getMotorConfigurationName(currentID));
-			}
-			
-			configurationNameModification--;
-		}
 		removeConfButton.setEnabled(currentID != null);
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);
 		removeMotorButton.setEnabled(currentMount != null && currentID != null);
@@ -369,12 +291,12 @@ public class EditMotorConfigurationDialog extends JDialog {
 	}
 	
 	
-	private String findID(int row) {
+	String findID(int row) {
 		return rocket.getMotorConfigurationIDs()[row + 1];
 	}
 	
 	
-	private MotorMount findMount(int column) {
+	MotorMount findMount(int column) {
 		MotorMount mount = null;
 		
 		int count = column;
@@ -391,131 +313,6 @@ public class EditMotorConfigurationDialog extends JDialog {
 			throw new IndexOutOfBoundsException("motor mount not found, column=" + column);
 		}
 		return mount;
-	}
-	
-	
-	/**
-	 * The table model for selecting whether components are motor mounts or not.
-	 */
-	private class MotorMountTableModel extends AbstractTableModel {
-		
-		@Override
-		public int getColumnCount() {
-			return 2;
-		}
-		
-		@Override
-		public int getRowCount() {
-			return mounts.length;
-		}
-		
-		@Override
-		public Class<?> getColumnClass(int column) {
-			switch (column) {
-			case 0:
-				return Boolean.class;
-				
-			case 1:
-				return String.class;
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
-		}
-		
-		@Override
-		public Object getValueAt(int row, int column) {
-			switch (column) {
-			case 0:
-				return new Boolean(mounts[row].isMotorMount());
-				
-			case 1:
-				return mounts[row].toString();
-				
-			default:
-				throw new IndexOutOfBoundsException("column=" + column);
-			}
-		}
-		
-		@Override
-		public boolean isCellEditable(int row, int column) {
-			return column == 0;
-		}
-		
-		@Override
-		public void setValueAt(Object value, int row, int column) {
-			if (column != 0 || !(value instanceof Boolean)) {
-				throw new IllegalArgumentException("column=" + column + ", value=" + value);
-			}
-			
-			mounts[row].setMotorMount((Boolean) value);
-			configurationTableModel.fireTableStructureChanged();
-			updateEnabled();
-		}
-	}
-	
-	
-	
-	/**
-	 * The table model for selecting and editing the motor configurations.
-	 */
-	private class MotorConfigurationTableModel extends AbstractTableModel {
-		
-		@Override
-		public int getColumnCount() {
-			int count = 1;
-			for (MotorMount m : mounts) {
-				if (m.isMotorMount())
-					count++;
-			}
-			return count;
-		}
-		
-		@Override
-		public int getRowCount() {
-			return rocket.getMotorConfigurationIDs().length - 1;
-		}
-		
-		@Override
-		public Object getValueAt(int row, int column) {
-			
-			String id = findID(row);
-			
-			if (column == 0) {
-				return rocket.getMotorConfigurationNameOrDescription(id);
-			}
-			
-			MotorMount mount = findMount(column);
-			Motor motor = mount.getMotor(id);
-			if (motor == null)
-				//// None
-				return "None";
-			
-			String str = motor.getDesignation(mount.getMotorDelay(id));
-			int count = mount.getMotorCount();
-			if (count > 1) {
-				str = "" + count + Chars.TIMES + " " + str;
-			}
-			return str;
-		}
-		
-		
-		@Override
-		public String getColumnName(int column) {
-			if (column == 0) {
-				//// Configuration name
-				return trans.get("edtmotorconfdlg.lbl.Configname");
-			}
-			
-			MotorMount mount = findMount(column);
-			String name = mount.toString();
-			int count = mount.getMotorCount();
-			if (count > 1) {
-				name = name + " (" + Chars.TIMES + count + ")";
-			}
-			return name;
-		}
-		
 	}
 	
 }
