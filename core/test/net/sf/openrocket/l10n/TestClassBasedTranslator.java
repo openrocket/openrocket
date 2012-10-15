@@ -22,10 +22,17 @@ public class TestClassBasedTranslator {
 	
 	@Test
 	public void testClassName() {
-		ClassBasedTranslator cbt = new ClassBasedTranslator(null, 0);
+		// @formatter:off
+		context.checking(new Expectations() {{
+				oneOf(translator).get("TestClassBasedTranslator.fake.key1"); will(returnValue("foobar")); 
+		}});
+		// @formatter:on
+		
+		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
+		cbt.get("fake.key1");
 		assertEquals("TestClassBasedTranslator", cbt.getClassName());
 		
-		cbt = new ClassBasedTranslator(null, "foobar");
+		cbt = new ClassBasedTranslator(translator, "foobar");
 		assertEquals("foobar", cbt.getClassName());
 	}
 	
@@ -74,6 +81,28 @@ public class TestClassBasedTranslator {
 		} catch (MissingResourceException e) {
 			assertEquals("Neither key 'TestClassBasedTranslator.fake.key3' nor 'fake.key3' could be found", e.getMessage());
 		}
+	}
+	
+	
+	
+	@Test
+	public void testGetWithSubClass() {
+		ClassBasedTranslator cbt = new ClassBasedTranslator(translator, 0);
 		
+		// @formatter:off
+		context.checking(new Expectations() {{
+				oneOf(translator).get("TestClassBasedTranslator.fake.key1"); will(returnValue("foobar")); 
+		}});
+		// @formatter:on
+		
+		assertEquals("foobar", new Subclass().get(cbt, "fake.key1"));
+		assertEquals("TestClassBasedTranslator", cbt.getClassName());
+	}
+	
+	
+	private class Subclass {
+		private String get(Translator trans, String key) {
+			return trans.get(key);
+		}
 	}
 }

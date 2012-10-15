@@ -26,11 +26,11 @@ public final class Application {
 	private static MotorDatabase motorSetDatabase;
 	
 	private static ComponentPresetDao componentPresetDao;
-
+	
 	private static Preferences preferences;
 	
 	private static ExceptionHandler exceptionHandler;
-
+	
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
 		setLogOutputLevel(LogLevel.DEBUG);
@@ -66,7 +66,7 @@ public final class Application {
 	}
 	
 	
-
+	
 	/**
 	 * Return the log buffer.
 	 * 
@@ -120,35 +120,35 @@ public final class Application {
 		Application.baseTranslator = translator;
 	}
 	
-
+	
 	/**
 	 * @return the preferences
 	 */
 	public static Preferences getPreferences() {
 		return preferences;
 	}
-
+	
 	/**
 	 * @param preferences the preferences to set
 	 */
 	public static void setPreferences(Preferences preferences) {
 		Application.preferences = preferences;
 	}
-
+	
 	/**
 	 * @return the exceptionHandler
 	 */
 	public static ExceptionHandler getExceptionHandler() {
 		return exceptionHandler;
 	}
-
+	
 	/**
 	 * @param exceptionHandler the exceptionHandler to set
 	 */
 	public static void setExceptionHandler(ExceptionHandler exceptionHandler) {
 		Application.exceptionHandler = exceptionHandler;
 	}
-
+	
 	/**
 	 * Return the database of all thrust curves loaded into the system.
 	 */
@@ -162,15 +162,15 @@ public final class Application {
 	public static void setMotorSetDatabase(MotorDatabase motorSetDatabase) {
 		Application.motorSetDatabase = motorSetDatabase;
 	}
-
+	
 	public static ComponentPresetDao getComponentPresetDao() {
 		return componentPresetDao;
 		
 	}
-
+	
 	public static void setComponentPresetDao(ComponentPresetDao componentPresetDao) {
 		Application.componentPresetDao = componentPresetDao;
 	}
 	
-
+	
 }
