@@ -68,8 +68,6 @@ class MotorMountTableModel extends AbstractTableModel {
 			throw new IllegalArgumentException("column=" + column + ", value=" + value);
 		}
 		
-		this.flightConfigurationDialog.mounts[row].setMotorMount((Boolean) value);
-		this.flightConfigurationDialog.configurationTableModel.fireTableStructureChanged();
-		this.flightConfigurationDialog.updateButtonState();
+		this.flightConfigurationDialog.makeMotorMount( this.flightConfigurationDialog.mounts[row], (Boolean) value);
 	}
 }

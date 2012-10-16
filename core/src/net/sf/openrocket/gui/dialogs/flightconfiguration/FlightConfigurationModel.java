@@ -15,7 +15,10 @@ public class FlightConfigurationModel extends DefaultComboBoxModel {
 	
 	private Map<String, ID> map = new HashMap<String, ID>();
 	
-	public FlightConfigurationModel(Configuration config) {
+	private final FlightConfigurationDialog flightConfigurationDialog;
+	
+	public FlightConfigurationModel(FlightConfigurationDialog flightConfigurationDialog, Configuration config) {
+		this.flightConfigurationDialog = flightConfigurationDialog;
 		this.config = config;
 		this.rocket = config.getRocket();
 	}
@@ -54,7 +57,7 @@ public class FlightConfigurationModel extends DefaultComboBoxModel {
 		}
 		
 		ID idObject = (ID) item;
-		config.setMotorConfigurationID(idObject.getID());
+		flightConfigurationDialog.selectConfiguration(idObject.getID());
 	}
 
 	/*

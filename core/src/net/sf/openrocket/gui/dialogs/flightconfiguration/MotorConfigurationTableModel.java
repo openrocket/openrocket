@@ -2,9 +2,7 @@ package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.util.Chars;
 
 /**
@@ -12,6 +10,11 @@ import net.sf.openrocket.util.Chars;
  */
 class MotorConfigurationTableModel extends AbstractTableModel {
 
+	private final static String NONE = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.None");
+	private final static String MOTOR_MOUNT = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Mountheader");
+	private final static String MOTOR = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Motorheader");
+	private final static String IGNITION = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Ignitionheader");
+	
 	/**
 	 * 
 	 */
@@ -46,8 +49,6 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int column) {
 
-		String id = this.flightConfigurationDialog.currentID;
-
 		switch( column ) {
 		case 0:
 		{
@@ -61,28 +62,21 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 		}
 		case 1:
 		{
-			MotorMount mount = this.flightConfigurationDialog.findMount(row);
-			Motor motor = mount.getMotor(id);
-			if (motor == null)
+			String str = this.flightConfigurationDialog.findMotorForDisplay(row);
+			if (str == null)
 				//// None
-				return "None";
+				return NONE;
 
-			String str = motor.getDesignation(mount.getMotorDelay(id));
-			int count = mount.getMotorCount();
-			if (count > 1) {
-				str = "" + count + Chars.TIMES + " " + str;
-			}
 			return str;
 		}
 		case 2:
 		{
-			MotorMount mount = this.flightConfigurationDialog.findMount(row);
-			Motor motor = mount.getMotor(id);
-			if (motor == null)
+			String str = this.flightConfigurationDialog.findIgnitionForDisplay(row);
+			if (str == null)
 				//// None
-				return "None";
-			IgnitionEvent ignition = mount.getIgnitionEvent();
-			return ignition.toString();
+				return NONE;
+
+			return str;
 		}
 		default:
 			return "";
@@ -94,11 +88,11 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	public String getColumnName(int column) {
 		switch (column ) {
 		case 0:
-			return "Motor Mount";
+			return MOTOR_MOUNT;
 		case 1:
-			return "Motor";
+			return MOTOR;
 		case 2:
-			return "Ignition";
+			return IGNITION;
 		default:
 			return "";
 		}

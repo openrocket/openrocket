@@ -33,21 +33,23 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Chars;
 
 public class FlightConfigurationDialog extends JDialog {
 
-	final Rocket rocket;
+	private final Rocket rocket;
 
 	final MotorMount[] mounts;
 	
-	MotorConfigurationTableModel configurationTableModel;
-	FlightConfigurationModel flightConfigurationModel;
+	private MotorConfigurationTableModel configurationTableModel;
+	private FlightConfigurationModel flightConfigurationModel;
 	
 	private final JButton renameConfButton, removeConfButton, copyConfButton;
 	private JButton selectMotorButton, removeMotorButton;
 	
-	String currentID = null;
+	private String currentID = null;
 	private MotorMount currentMount = null;
 
 	static final Translator trans = Application.getTranslator();
@@ -72,7 +74,7 @@ public class FlightConfigurationDialog extends JDialog {
 		JLabel label = new JLabel("Selected Configuration: ");
 		panel.add(label);
 
-		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration());
+		flightConfigurationModel = new FlightConfigurationModel(this, rocket.getDefaultConfiguration());
 		JComboBox configSelector = new JComboBox(flightConfigurationModel);
 
 		panel.add(configSelector,"gapright para");
@@ -200,7 +202,7 @@ public class FlightConfigurationDialog extends JDialog {
 		updateButtonState();
 	}
 
-	void updateButtonState() {
+	private void updateButtonState() {
 		removeConfButton.setEnabled(currentID != null);
 		renameConfButton.setEnabled(currentID != null);
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);
@@ -237,12 +239,12 @@ public class FlightConfigurationDialog extends JDialog {
 		updateButtonState();
 	}
 
-
-	String findID(int row) {
-		return rocket.getMotorConfigurationIDs()[row + 1];
+	void makeMotorMount( MotorMount mount, boolean isMotorMount ) {
+		mount.setMotorMount( isMotorMount );
+		configurationTableModel.fireTableStructureChanged();
+		updateButtonState();
 	}
-
-
+	
 	MotorMount findMount(int column) {
 		MotorMount mount = null;
 
@@ -262,6 +264,32 @@ public class FlightConfigurationDialog extends JDialog {
 		return mount;
 	}
 
+	String findMotorForDisplay( int column ) {
+		String id = currentID;
+		MotorMount mount = findMount(column);
+		Motor motor = mount.getMotor(id);
+		if (motor == null)
+			return null;
+
+		String str = motor.getDesignation(mount.getMotorDelay(id));
+		int count = mount.getMotorCount();
+		if (count > 1) {
+			str = "" + count + Chars.TIMES + " " + str;
+		}
+		return str;
+	}
+
+	String findIgnitionForDisplay( int column ) {
+		String id = currentID;
+		MotorMount mount = findMount(column);
+		Motor motor = mount.getMotor(id);
+		if (motor == null)
+			//// None
+			return null;
+		IgnitionEvent ignition = mount.getIgnitionEvent();
+		return ignition.toString();
+	}
+	
 	private JComponent makeMotorTab( ) {
 
 		JPanel panel = new JPanel(new MigLayout("fill"));
