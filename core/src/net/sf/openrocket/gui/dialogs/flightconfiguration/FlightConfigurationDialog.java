@@ -11,17 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListDataEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -45,12 +42,12 @@ public class FlightConfigurationDialog extends JDialog {
 	
 	private final JTable configurationTable;
 	final MotorConfigurationTableModel configurationTableModel;
+	final FlightConfigurationModel flightConfigurationModel;
 	
-	
-	private final JButton newConfButton, removeConfButton;
+	private final JButton renameConfButton, removeConfButton;
 	private final JButton selectMotorButton, removeMotorButton;
 	
-	private String currentID = null;
+	String currentID = null;
 	private MotorMount currentMount = null;
 	
 	static final Translator trans = Application.getTranslator();
@@ -58,6 +55,8 @@ public class FlightConfigurationDialog extends JDialog {
 	public FlightConfigurationDialog(final Rocket rocket, Window parent) {
 		//// Edit motor configurations
 		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"));
+		
+		currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
 		
 		if (parent != null)
 			this.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -70,9 +69,47 @@ public class FlightConfigurationDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 5"));
 
+		JLabel label = new JLabel("Selected Configuration: ");
+		panel.add(label,"gapbottom para");
+		
+		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration());
+		JComboBox configSelector = new JComboBox(flightConfigurationModel);
+		
+		panel.add(configSelector,"gapright para");
+		
+		JButton newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
+		newConfButton.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FlightConfigurationDialog.this.addConfiguration();
+			}
+			
+		});
+
+		panel.add(newConfButton);
+		
+		renameConfButton = new JButton("Rename Configuration");
+		renameConfButton.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new RenameConfigDialog( rocket, FlightConfigurationDialog.this).setVisible(true);
+			}
+		});
+		panel.add(renameConfButton);
+		
+		//// Remove configuration
+		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
+		removeConfButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				removeConfiguration();
+			}
+		});
+		panel.add(removeConfButton,"wrap");
+
 		////  Motor mount selection
 		//// <html><b>Motor mounts:</b>
-		JLabel label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motormounts"));
+		label = new JLabel(trans.get("edtmotorconfdlg.lbl.Motormounts"));
 		panel.add(label, "gapbottom para");
 		
 		//// Motor selection
@@ -115,7 +152,7 @@ public class FlightConfigurationDialog extends JDialog {
 				if (e.getClickCount() == 1) {
 					
 					// Single click updates selection
-					updateEnabled();
+					updateButtonState();
 					
 				} else if (e.getClickCount() == 2) {
 					
@@ -129,34 +166,6 @@ public class FlightConfigurationDialog extends JDialog {
 		
 		scroll = new JScrollPane(configurationTable);
 		panel.add(scroll, "span 4, w 500lp, h 150lp, grow");
-
-		//// New configuration
-		newConfButton = new JButton(trans.get("edtmotorconfdlg.but.Newconfiguration"));
-		newConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String id = rocket.newMotorConfigurationID();
-				rocket.getDefaultConfiguration().setMotorConfigurationID(id);
-				configurationTableModel.fireTableDataChanged();
-				updateEnabled();
-			}
-		});
-		panel.add(newConfButton, "skip, sizegroup button");
-		
-		//// Remove configuration
-		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
-		removeConfButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (currentID == null)
-					return;
-				rocket.removeMotorConfigurationID(currentID);
-				rocket.getDefaultConfiguration().setMotorConfigurationID(null);
-				configurationTableModel.fireTableDataChanged();
-				updateEnabled();
-			}
-		});
-		panel.add(removeConfButton, "sizegroup button");
 
 		//// Select motor
 		selectMotorButton = new JButton(trans.get("edtmotorconfdlg.but.Selectmotor"));
@@ -192,7 +201,7 @@ public class FlightConfigurationDialog extends JDialog {
 		this.validate();
 		this.pack();
 		
-		updateEnabled();
+		updateButtonState();
 		
 		this.setLocationByPlatform(true);
 		GUIUtil.setDisposableDialogOptions(this, close);
@@ -221,42 +230,44 @@ public class FlightConfigurationDialog extends JDialog {
 		}
 		return list.toArray(new MotorMount[0]);
 	}
-	
-	
-	void updateConfigurationName( String newName ) {
 
-		int row = configurationTable.getSelectedRow();
-		String currentID = findID( row );
-		rocket.setMotorConfigurationName(currentID, newName);
-
+	void selectConfiguration( String id ) {
+		currentID = id;
+		rocket.getDefaultConfiguration().setMotorConfigurationID(currentID);
+		configurationTableModel.fireTableDataChanged();
+		updateButtonState();
 	}
 	
-	void updateEnabled() {
-		int column = configurationTable.getSelectedColumn();
-		int row = configurationTable.getSelectedRow();
-		
-		if (column < 0 || row < 0) {
-			currentID = null;
-			currentMount = null;
-		} else {
-			
-			currentID = findID(row);
-			if (column == 0) {
-				currentMount = null;
-			} else {
-				currentMount = findMount(column);
-			}
-			rocket.getDefaultConfiguration().setMotorConfigurationID(currentID);
-			
-		}
-		
+	public void addConfiguration() {
+		currentID = rocket.newMotorConfigurationID();
+		rocket.getDefaultConfiguration().setMotorConfigurationID(currentID);
+		configurationTableModel.fireTableDataChanged();
+		flightConfigurationModel.fireContentsUpdated();
+		updateButtonState();
+	}
+	
+	public void changeConfigurationName( String newName ) {
+		rocket.setMotorConfigurationName(currentID, newName);
+		configurationTableModel.fireTableDataChanged();
+		flightConfigurationModel.fireContentsUpdated();
+	}
+	
+	public void removeConfiguration() {
+		if (currentID == null)
+			return;
+		rocket.removeMotorConfigurationID(currentID);
+		rocket.getDefaultConfiguration().setMotorConfigurationID(null);
+		configurationTableModel.fireTableDataChanged();
+		flightConfigurationModel.fireContentsUpdated();
+		updateButtonState();
+	}
+	
+	void updateButtonState() {
 		removeConfButton.setEnabled(currentID != null);
+		renameConfButton.setEnabled(currentID != null);
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);
 		removeMotorButton.setEnabled(currentMount != null && currentID != null);
 	}
-	
-	
-	
 	
 	private void selectMotor() {
 		if (currentID == null || currentMount == null)
@@ -275,7 +286,7 @@ public class FlightConfigurationDialog extends JDialog {
 		
 		int row = configurationTable.getSelectedRow();
 		configurationTableModel.fireTableRowsUpdated(row, row);
-		updateEnabled();
+		updateButtonState();
 	}
 	
 	
@@ -287,7 +298,7 @@ public class FlightConfigurationDialog extends JDialog {
 		
 		int row = configurationTable.getSelectedRow();
 		configurationTableModel.fireTableRowsUpdated(row, row);
-		updateEnabled();
+		updateButtonState();
 	}
 	
 	
@@ -303,7 +314,7 @@ public class FlightConfigurationDialog extends JDialog {
 		for (MotorMount m : mounts) {
 			if (m.isMotorMount())
 				count--;
-			if (count <= 0) {
+			if (count < 0) {
 				mount = m;
 				break;
 			}

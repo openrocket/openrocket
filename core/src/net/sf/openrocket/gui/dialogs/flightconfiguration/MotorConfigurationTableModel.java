@@ -25,21 +25,14 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	}
 
 	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == 0;
-	}
-
-	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		if ( columnIndex == 0 ) {
-			// Set description:
-			flightConfigurationDialog.updateConfigurationName( (String) aValue );
-		}
-	}
-
-	@Override
 	public int getColumnCount() {
-		int count = 1;
+		int count = 2;
+		return count;
+	}
+	
+	@Override
+	public int getRowCount() {
+		int count = 0;
 		for (MotorMount m : this.flightConfigurationDialog.mounts) {
 			if (m.isMotorMount())
 				count++;
@@ -48,20 +41,20 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	}
 	
 	@Override
-	public int getRowCount() {
-		return this.flightConfigurationDialog.rocket.getMotorConfigurationIDs().length - 1;
-	}
-	
-	@Override
 	public Object getValueAt(int row, int column) {
 		
-		String id = this.flightConfigurationDialog.findID(row);
+		String id = this.flightConfigurationDialog.currentID;
 		
 		if (column == 0) {
-			return this.flightConfigurationDialog.rocket.getMotorConfigurationNameOrDescription(id);
-		}
-		
-		MotorMount mount = this.flightConfigurationDialog.findMount(column);
+			MotorMount mount = this.flightConfigurationDialog.findMount(row);
+			String name = mount.toString();
+			int count = mount.getMotorCount();
+			if (count > 1) {
+				name = name + " (" + Chars.TIMES + count + ")";
+			}
+			return name;
+		} else {
+		MotorMount mount = this.flightConfigurationDialog.findMount(row);
 		Motor motor = mount.getMotor(id);
 		if (motor == null)
 			//// None
@@ -73,23 +66,18 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 			str = "" + count + Chars.TIMES + " " + str;
 		}
 		return str;
+		}
 	}
 	
 	
 	@Override
 	public String getColumnName(int column) {
 		if (column == 0) {
-			//// Configuration name
-			return FlightConfigurationDialog.trans.get("edtmotorconfdlg.lbl.Configname");
+			return "Motor Mount";
+		} else {
+			return "Motor";
 		}
 		
-		MotorMount mount = this.flightConfigurationDialog.findMount(column);
-		String name = mount.toString();
-		int count = mount.getMotorCount();
-		if (count > 1) {
-			name = name + " (" + Chars.TIMES + count + ")";
-		}
-		return name;
 	}
 	
 }

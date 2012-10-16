@@ -70,6 +70,6 @@ class MotorMountTableModel extends AbstractTableModel {
 		
 		this.flightConfigurationDialog.mounts[row].setMotorMount((Boolean) value);
 		this.flightConfigurationDialog.configurationTableModel.fireTableStructureChanged();
-		this.flightConfigurationDialog.updateEnabled();
+		this.flightConfigurationDialog.updateButtonState();
 	}
 }
