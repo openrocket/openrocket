@@ -63,6 +63,8 @@ public class RenameConfigDialog extends JDialog {
 		panel.add( cancel );
 
 		this.setContentPane(panel);
+		this.validate();
+		this.pack();
 	}
 
 }
