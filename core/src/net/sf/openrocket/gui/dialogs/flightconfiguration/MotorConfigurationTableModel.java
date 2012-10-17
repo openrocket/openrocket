@@ -18,15 +18,15 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	/**
 	 * 
 	 */
-	private final FlightConfigurationDialog flightConfigurationDialog;
+	private final MotorConfigurationPanel motorConfigurationPanel;
 
 	private final boolean advanced;
 
 	/**
-	 * @param flightConfigurationDialog
+	 * @param motorConfigurationPanel
 	 */
-	MotorConfigurationTableModel( FlightConfigurationDialog flightConfigurationDialog, boolean advanced) {
-		this.flightConfigurationDialog = flightConfigurationDialog;
+	MotorConfigurationTableModel( MotorConfigurationPanel motorConfigurationPanel, boolean advanced) {
+		this.motorConfigurationPanel = motorConfigurationPanel;
 		this.advanced = advanced;
 	}
 
@@ -39,7 +39,7 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	@Override
 	public int getRowCount() {
 		int count = 0;
-		for (MotorMount m : this.flightConfigurationDialog.mounts) {
+		for (MotorMount m : this.motorConfigurationPanel.mounts) {
 			if (m.isMotorMount())
 				count++;
 		}
@@ -52,7 +52,7 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 		switch( column ) {
 		case 0:
 		{
-			MotorMount mount = this.flightConfigurationDialog.findMount(row);
+			MotorMount mount = this.motorConfigurationPanel.findMount(row);
 			String name = mount.toString();
 			int count = mount.getMotorCount();
 			if (count > 1) {
@@ -62,7 +62,7 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 		}
 		case 1:
 		{
-			String str = this.flightConfigurationDialog.findMotorForDisplay(row);
+			String str = this.motorConfigurationPanel.findMotorForDisplay(row);
 			if (str == null)
 				//// None
 				return NONE;
@@ -71,7 +71,7 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 		}
 		case 2:
 		{
-			String str = this.flightConfigurationDialog.findIgnitionForDisplay(row);
+			String str = this.motorConfigurationPanel.findIgnitionForDisplay(row);
 			if (str == null)
 				//// None
 				return NONE;

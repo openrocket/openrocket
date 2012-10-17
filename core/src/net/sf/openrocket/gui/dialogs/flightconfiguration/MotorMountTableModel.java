@@ -10,13 +10,13 @@ class MotorMountTableModel extends AbstractTableModel {
 	/**
 	 * 
 	 */
-	private final FlightConfigurationDialog flightConfigurationDialog;
+	private final MotorConfigurationPanel motorConfigurationPanel;
 
 	/**
-	 * @param flightConfigurationDialog
+	 * @param motorConfigurationPanel
 	 */
-	MotorMountTableModel(FlightConfigurationDialog flightConfigurationDialog) {
-		this.flightConfigurationDialog = flightConfigurationDialog;
+	MotorMountTableModel(MotorConfigurationPanel motorConfigurationPanel) {
+		this.motorConfigurationPanel = motorConfigurationPanel;
 	}
 
 	@Override
@@ -26,7 +26,7 @@ class MotorMountTableModel extends AbstractTableModel {
 	
 	@Override
 	public int getRowCount() {
-		return this.flightConfigurationDialog.mounts.length;
+		return this.motorConfigurationPanel.mounts.length;
 	}
 	
 	@Override
@@ -47,10 +47,10 @@ class MotorMountTableModel extends AbstractTableModel {
 	public Object getValueAt(int row, int column) {
 		switch (column) {
 		case 0:
-			return new Boolean(this.flightConfigurationDialog.mounts[row].isMotorMount());
+			return new Boolean(this.motorConfigurationPanel.mounts[row].isMotorMount());
 			
 		case 1:
-			return this.flightConfigurationDialog.mounts[row].toString();
+			return this.motorConfigurationPanel.mounts[row].toString();
 			
 		default:
 			throw new IndexOutOfBoundsException("column=" + column);
@@ -68,6 +68,6 @@ class MotorMountTableModel extends AbstractTableModel {
 			throw new IllegalArgumentException("column=" + column + ", value=" + value);
 		}
 		
-		this.flightConfigurationDialog.makeMotorMount( this.flightConfigurationDialog.mounts[row], (Boolean) value);
+		this.motorConfigurationPanel.makeMotorMount( this.motorConfigurationPanel.mounts[row], (Boolean) value);
 	}
 }
