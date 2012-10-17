@@ -32,9 +32,9 @@ public class SelectDeploymentConfigDialog extends JDialog {
 		super.setModal(true);
 		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
-		newConfiguration = component.getDeploymentConfiguration(configId);
+		newConfiguration = component.getFlightConfiguration(configId);
 		if ( newConfiguration == null ) {
-			newConfiguration = component.getDefaultDeploymentConfiguration().clone();
+			newConfiguration = component.getDefaultFlightConfiguration().clone();
 		} else {
 			// Clone the existing so cancel works.  When the user selects OK, this configuration
 			// is put back in there.
@@ -113,7 +113,7 @@ public class SelectDeploymentConfigDialog extends JDialog {
 				double deployAltitude = alt.getCurrentUnit().fromUnit( alt.getValue() );
 				newConfiguration.setDeployAltitude(deployAltitude);
 				
-				component.setDeploymentConfiguration(configId, newConfiguration);
+				component.setFlightConfiguration(configId, newConfiguration);
 				
 				SelectDeploymentConfigDialog.this.setVisible(false);
 			}

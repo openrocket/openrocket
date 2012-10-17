@@ -23,7 +23,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RecoveryDevice extends MassObject {
+public abstract class RecoveryDevice extends MassObject implements SupportsFlightConfiguration<DeploymentConfiguration> {
 	private static final Translator trans = Application.getTranslator();
 	
 	private Map<String,DeploymentConfiguration> deploymentConfigurations = new HashMap<String,DeploymentConfiguration>();
@@ -114,22 +114,36 @@ public abstract class RecoveryDevice extends MassObject {
 	 * @param configID
 	 * @return
 	 */
-	public DeploymentConfiguration getDeploymentConfiguration( String configID ) {
+	@Override
+	public DeploymentConfiguration getFlightConfiguration( String configID ) {
 		DeploymentConfiguration config = deploymentConfigurations.get(configID);
 		return config;
 	}
 	
-	public DeploymentConfiguration getDefaultDeploymentConfiguration() {
-		return defaultDeploymentConfig;
-	}
-	
-	public void setDeploymentConfiguration( String configID, DeploymentConfiguration config ) {
+	@Override
+	public void setFlightConfiguration( String configID, DeploymentConfiguration config ) {
 		if ( config == null ) {
 			deploymentConfigurations.remove(configID);
 		} else {
 			deploymentConfigurations.put(configID, config);
 			
 		}
+	}
+
+	@Override
+	public DeploymentConfiguration getDefaultFlightConfiguration() {
+		return defaultDeploymentConfig;
+	}
+	
+	@Override
+	public void setDefaultFlightConfiguration( DeploymentConfiguration config ) {
+		this.defaultDeploymentConfig = config;
+	}
+	
+	@Override
+	public void cloneFlightConfiguration( String oldConfigId, String newConfigId ) {
+		DeploymentConfiguration oldConfig = getFlightConfiguration(oldConfigId);
+		setFlightConfiguration( newConfigId, oldConfig.clone() );
 	}
 	
 	public DeployEvent getDefaultDeployEvent() {
@@ -170,8 +184,6 @@ public abstract class RecoveryDevice extends MassObject {
 		defaultDeploymentConfig.setDeployDelay(delay);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-	
-	
 	
 	@Override
 	public double getComponentMass() {

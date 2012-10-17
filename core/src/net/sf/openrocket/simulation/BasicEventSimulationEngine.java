@@ -375,9 +375,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				RocketComponent c = rci.next();
 				if (!(c instanceof RecoveryDevice))
 					continue;
-				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfiguration(flightConfigurationId);
+				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getFlightConfiguration(flightConfigurationId);
 				if ( deployConfig == null ) {
-				   deployConfig = ((RecoveryDevice) c).getDefaultDeploymentConfiguration();
+				   deployConfig = ((RecoveryDevice) c).getDefaultFlightConfiguration();
 				}
 				if (deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
