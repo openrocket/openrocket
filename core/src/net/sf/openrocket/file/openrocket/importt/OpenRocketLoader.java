@@ -35,6 +35,7 @@ import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
@@ -876,6 +877,13 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			}
 			return new MotorConfigurationHandler((Rocket) component, context);
 		}
+		if ( element.equals("deploymentconfiguration")) {
+			if ( !(component instanceof RecoveryDevice) ) {
+				warnings.add(Warning.fromString("Illegal component defined as recovery device."));
+				return null;
+			}
+			return new DeploymentConfigurationHandler( (RecoveryDevice) component, context );
+		}
 		
 		return PlainTextHandler.INSTANCE;
 	}
@@ -885,7 +893,8 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			String content, WarningSet warnings) {
 		
 		if (element.equals("subcomponents") || element.equals("motormount") ||
-				element.equals("finpoints") || element.equals("motorconfiguration")) {
+				element.equals("finpoints") || element.equals("motorconfiguration") ||
+				element.equals("deploymentconfiguration")) {
 			return;
 		}
 		
@@ -1257,7 +1266,56 @@ class MotorHandler extends AbstractElementHandler {
 	
 }
 
+class DeploymentConfigurationHandler extends AbstractElementHandler {
+	private final DocumentLoadingContext context;
+	private final RecoveryDevice recoveryDevice;
+	private DeploymentConfiguration config;
+	private String configId;
 
+	public DeploymentConfigurationHandler( RecoveryDevice recoveryDevice, DocumentLoadingContext context ) {
+		this.recoveryDevice = recoveryDevice;
+		this.context = context;
+		config = new DeploymentConfiguration();
+	}
+
+	@Override
+	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		return PlainTextHandler.INSTANCE;
+	}
+
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes, String content,
+			WarningSet warnings) throws SAXException {
+		
+		content = content.trim();
+		
+		if ( "deployevent".equals(element) ) {
+			DeployEvent type = (DeployEvent) DocumentConfig.findEnum(content, DeployEvent.class);
+			if ( type == null ) {
+				warnings.add(Warning.FILE_INVALID_PARAMETER);
+				return;
+			}
+			config.setDeployEvent( type );
+			return;
+		} else if ( "deployaltitude".equals(element) ) {
+			config.setDeployAltitude( Double.parseDouble(content));
+			return;
+		} else if ( "deploydelay".equals(element) ) {
+			config.setDeployDelay( Double.parseDouble(content));
+			return;
+		}
+		super.closeElement(element, attributes, content, warnings);
+
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		String configId = attributes.get("configid");
+		recoveryDevice.setFlightConfiguration(configId, config);
+	}
+	
+}
 
 class SimulationsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
