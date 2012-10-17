@@ -36,7 +36,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
-import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
+import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.SimulationExportPanel;
@@ -215,13 +215,13 @@ public class SimulationEditDialog extends JDialog {
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Motorcfg"));
 		panel.add(label, "shrinkx, spanx, split 2");
 		
-		JComboBox combo = new JComboBox(new MotorConfigurationModel(configuration));
+		JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
 		//// Select the motor configuration to use.
 		combo.setToolTipText(trans.get("simedtdlg.combo.ttip.motorconf"));
 		combo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				conditions.setMotorConfigurationID(configuration.getMotorConfigurationID());
+				conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
 			}
 		});
 		panel.add(combo, "growx, wrap para");

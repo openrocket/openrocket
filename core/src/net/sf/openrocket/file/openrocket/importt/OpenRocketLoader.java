@@ -1113,11 +1113,11 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		}
 		
 		if (name != null && name.trim().length() > 0) {
-			rocket.setMotorConfigurationName(configid, name);
+			rocket.setFlightConfigurationName(configid, name);
 		}
 		
 		if ("true".equals(attributes.remove("default"))) {
-			rocket.getDefaultConfiguration().setMotorConfigurationID(configid);
+			rocket.getDefaultConfiguration().setFlightConfigurationID(configid);
 		}
 		
 		super.closeElement(element, attributes, content, warnings);

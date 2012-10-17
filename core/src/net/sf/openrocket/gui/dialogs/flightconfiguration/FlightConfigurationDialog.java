@@ -39,7 +39,7 @@ public class FlightConfigurationDialog extends JDialog {
 		//// Edit motor configurations
 		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"));
 
-		currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 
 		if (parent != null)
 			this.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -145,15 +145,15 @@ public class FlightConfigurationDialog extends JDialog {
 
 	public void selectConfiguration( String id ) {
 		currentID = id;
-		rocket.getDefaultConfiguration().setMotorConfigurationID(currentID);
+		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
 		motorConfigurationPanel.fireTableDataChanged();
 		// FIXME - update data in recovery configuration panel
 		updateButtonState();
 	}
 
 	public void addConfiguration() {
-		currentID = rocket.newMotorConfigurationID();
-		rocket.getDefaultConfiguration().setMotorConfigurationID(currentID);
+		currentID = rocket.newFlightConfigurationID();
+		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
 		motorConfigurationPanel.fireTableDataChanged();
 		// FIXME - update data in recovery configuration panel
 		flightConfigurationModel.fireContentsUpdated();
@@ -161,7 +161,7 @@ public class FlightConfigurationDialog extends JDialog {
 	}
 
 	public void changeConfigurationName( String newName ) {
-		rocket.setMotorConfigurationName(currentID, newName);
+		rocket.setFlightConfigurationName(currentID, newName);
 		motorConfigurationPanel.fireTableDataChanged();
 		// FIXME - update data in recovery configuration panel
 		flightConfigurationModel.fireContentsUpdated();
@@ -170,8 +170,8 @@ public class FlightConfigurationDialog extends JDialog {
 	public void removeConfiguration() {
 		if (currentID == null)
 			return;
-		rocket.removeMotorConfigurationID(currentID);
-		rocket.getDefaultConfiguration().setMotorConfigurationID(null);
+		rocket.removeFlightConfigurationID(currentID);
+		rocket.getDefaultConfiguration().setFlightConfigurationID(null);
 		motorConfigurationPanel.fireTableDataChanged();
 		// FIXME - update data in recovery configuration panel
 		flightConfigurationModel.fireContentsUpdated();

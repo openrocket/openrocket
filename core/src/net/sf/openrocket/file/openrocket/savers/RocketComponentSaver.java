@@ -121,7 +121,7 @@ public class RocketComponentSaver {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
 		
-		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getMotorConfigurationIDs();
+		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
 		List<String> elements = new ArrayList<String>();
 		
 		elements.add("<motormount>");

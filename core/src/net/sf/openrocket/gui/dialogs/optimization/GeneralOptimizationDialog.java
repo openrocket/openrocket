@@ -991,25 +991,25 @@ public class GeneralOptimizationDialog extends JDialog {
 		Rocket rocket = documentCopy.getRocket();
 		
 		for (Simulation s : documentCopy.getSimulations()) {
-			String id = s.getConfiguration().getMotorConfigurationID();
-			String name = createSimulationName(s.getName(), rocket.getMotorConfigurationNameOrDescription(id));
+			String id = s.getConfiguration().getFlightConfigurationID();
+			String name = createSimulationName(s.getName(), rocket.getFlightConfigurationNameOrDescription(id));
 			simulations.add(new Named<Simulation>(s, name));
 		}
 		
-		for (String id : rocket.getMotorConfigurationIDs()) {
+		for (String id : rocket.getFlightConfigurationIDs()) {
 			if (id == null) {
 				continue;
 			}
 			Simulation sim = new Simulation(rocket);
-			sim.getConfiguration().setMotorConfigurationID(id);
-			String name = createSimulationName(trans.get("basicSimulationName"), rocket.getMotorConfigurationNameOrDescription(id));
+			sim.getConfiguration().setFlightConfigurationID(id);
+			String name = createSimulationName(trans.get("basicSimulationName"), rocket.getFlightConfigurationNameOrDescription(id));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		
 		
 		Simulation sim = new Simulation(rocket);
-		sim.getConfiguration().setMotorConfigurationID(null);
-		String name = createSimulationName(trans.get("noSimulationName"), rocket.getMotorConfigurationNameOrDescription(null));
+		sim.getConfiguration().setFlightConfigurationID(null);
+		String name = createSimulationName(trans.get("noSimulationName"), rocket.getFlightConfigurationNameOrDescription(null));
 		simulations.add(new Named<Simulation>(sim, name));
 		
 		

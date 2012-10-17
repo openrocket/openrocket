@@ -22,7 +22,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
-import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
+import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -71,7 +71,7 @@ public class MotorConfig extends JPanel {
 		//// Motor configuration:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Motorcfg")), "shrink");
 		
-		JComboBox combo = new JComboBox(new MotorConfigurationModel(configuration));
+		JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
 		panel.add(combo, "growx");
 		
 		configuration.addChangeListener(new ChangeListener() {
@@ -86,8 +86,8 @@ public class MotorConfig extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String id = rocket.newMotorConfigurationID();
-				configuration.setMotorConfigurationID(id);
+				String id = rocket.newFlightConfigurationID();
+				configuration.setFlightConfigurationID(id);
 			}
 		});
 		panel.add(button, "wrap unrel");
@@ -166,7 +166,7 @@ public class MotorConfig extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String id = configuration.getMotorConfigurationID();
+				String id = configuration.getFlightConfigurationID();
 				
 				MotorChooserDialog dialog = new MotorChooserDialog(mount.getMotor(id),
 						mount.getMotorDelay(id), mount.getMotorMountDiameter(),
@@ -177,8 +177,8 @@ public class MotorConfig extends JPanel {
 				
 				if (m != null) {
 					if (id == null) {
-						id = rocket.newMotorConfigurationID();
-						configuration.setMotorConfigurationID(id);
+						id = rocket.newFlightConfigurationID();
+						configuration.setFlightConfigurationID(id);
 					}
 					mount.setMotor(id, m);
 					mount.setMotorDelay(id, d);
@@ -193,7 +193,7 @@ public class MotorConfig extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mount.setMotor(configuration.getMotorConfigurationID(), null);
+				mount.setMotor(configuration.getFlightConfigurationID(), null);
 				updateFields();
 			}
 		});
@@ -216,7 +216,7 @@ public class MotorConfig extends JPanel {
 	}
 	
 	public void updateFields() {
-		String id = configuration.getMotorConfigurationID();
+		String id = configuration.getFlightConfigurationID();
 		Motor m = mount.getMotor(id);
 		if (m == null) {
 			//// None

@@ -56,7 +56,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Set up rocket configuration
 		Configuration configuration = setupConfiguration(simulationConditions);
-		flightConfigurationId = configuration.getMotorConfigurationID();
+		flightConfigurationId = configuration.getFlightConfigurationID();
 		MotorInstanceConfiguration motorConfiguration = setupMotorConfiguration(configuration);
 		if (motorConfiguration.getMotorIDs().isEmpty()) {
 			throw new MotorIgnitionException("No motors defined in the simulation.");
@@ -264,7 +264,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private Configuration setupConfiguration(SimulationConditions simulation) {
 		Configuration configuration = new Configuration(simulation.getRocket());
 		configuration.setAllStages();
-		configuration.setMotorConfigurationID(simulation.getMotorConfigurationID());
+		configuration.setFlightConfigurationID(simulation.getMotorConfigurationID());
 
 		return configuration;
 	}
@@ -279,7 +279,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 */
 	private MotorInstanceConfiguration setupMotorConfiguration(Configuration configuration) {
 		MotorInstanceConfiguration motors = new MotorInstanceConfiguration();
-		final String motorId = configuration.getMotorConfigurationID();
+		final String motorId = configuration.getFlightConfigurationID();
 
 		Iterator<MotorMount> iterator = configuration.motorIterator();
 		while (iterator.hasNext()) {
@@ -428,7 +428,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					throw new SimulationLaunchException("Motor burnout without liftoff.");
 				}
 				// Add ejection charge event
-				String id = status.getConfiguration().getMotorConfigurationID();
+				String id = status.getConfiguration().getFlightConfigurationID();
 				MotorMount mount = (MotorMount) event.getSource();
 				double delay = mount.getMotorDelay(id);
 				if (delay != Motor.PLUGGED) {

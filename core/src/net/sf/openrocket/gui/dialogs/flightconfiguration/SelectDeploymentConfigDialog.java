@@ -31,7 +31,7 @@ public class SelectDeploymentConfigDialog extends JDialog {
 	SelectDeploymentConfigDialog( JDialog parent, final Rocket rocket, final RecoveryDevice component ) {
 		super(parent);
 		super.setModal(true);
-		final String configId = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
 		newConfiguration = component.getDeploymentConfiguration(configId);
 		if ( newConfiguration == null ) {

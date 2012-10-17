@@ -24,12 +24,12 @@ public class FlightConfigurationModel extends DefaultComboBoxModel {
 	}
 	
 	void fireContentsUpdated() {
-		fireContentsChanged(this, 0, rocket.getMotorConfigurationIDs().length);
+		fireContentsChanged(this, 0, rocket.getFlightConfigurationIDs().length);
 	}
 	
 	@Override
 	public Object getElementAt(int index) {
-		String[] ids = rocket.getMotorConfigurationIDs();
+		String[] ids = rocket.getFlightConfigurationIDs();
 		if (index < 0  ||  index >= ids.length)
 			return null;
 		
@@ -38,12 +38,12 @@ public class FlightConfigurationModel extends DefaultComboBoxModel {
 
 	@Override
 	public int getSize() {
-		return rocket.getMotorConfigurationIDs().length;
+		return rocket.getFlightConfigurationIDs().length;
 	}
 
 	@Override
 	public Object getSelectedItem() {
-		return get(config.getMotorConfigurationID());
+		return get(config.getFlightConfigurationID());
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class FlightConfigurationModel extends DefaultComboBoxModel {
 		
 		@Override
 		public String toString() {
-			return rocket.getMotorConfigurationNameOrDescription(id);
+			return rocket.getFlightConfigurationNameOrDescription(id);
 		}
 	}
 	

@@ -127,7 +127,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		
 		// Simulation is used to calculate default min/max values
 		Simulation simulation = new Simulation(rocket);
-		simulation.getConfiguration().setMotorConfigurationID(null);
+		simulation.getConfiguration().setFlightConfigurationID(null);
 		
 		for (RocketComponent c : rocket) {
 			

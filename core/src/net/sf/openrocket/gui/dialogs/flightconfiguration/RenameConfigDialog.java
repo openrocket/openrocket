@@ -21,7 +21,7 @@ public class RenameConfigDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		final JTextArea textbox = new JTextArea( config.getMotorConfigurationDescription() );
+		final JTextArea textbox = new JTextArea( config.getFlightConfigurationDescription() );
 		panel.add(textbox, "span, w 200lp, wrap");
 		
 		JButton okButton = new JButton("Ok");

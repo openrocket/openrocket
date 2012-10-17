@@ -95,7 +95,7 @@ public class RecoveryConfigurationPanel extends JPanel {
 	}
 	
 	private void resetDeployment() {
-		selectedComponent.setDeploymentConfiguration(rocket.getDefaultConfiguration().getMotorConfigurationID(), null);
+		selectedComponent.setDeploymentConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID(), null);
 	}
 	
 	private void updateButtonState() {
@@ -144,7 +144,7 @@ public class RecoveryConfigurationPanel extends JPanel {
 			case 0:
 				return d.getName();
 			case 1:
-				DeploymentConfiguration deployConfig = d.getDeploymentConfiguration(rocket.getDefaultConfiguration().getMotorConfigurationID());
+				DeploymentConfiguration deployConfig = d.getDeploymentConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID());
 				if ( deployConfig == null ) {
 					return "[" + d.getDefaultDeploymentConfiguration().toString() + "]";
 				} else {

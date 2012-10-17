@@ -360,7 +360,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		RocketComponent root = this.getRoot();
 		if (!(root instanceof Rocket))
 			return null;
-		if (!((Rocket) root).isMotorConfigurationID(id))
+		if (!((Rocket) root).isFlightConfigurationID(id))
 			return null;
 		
 		return motors.get(id);

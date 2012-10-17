@@ -139,14 +139,14 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	public void updateButtonState() {
-		String currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);
 		removeMotorButton.setEnabled(currentMount != null && currentID != null);
 	}
 
 	
 	private void selectMotor() {
-		String currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		if (currentID == null || currentMount == null)
 			return;
 
@@ -170,7 +170,7 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 
 	private void removeMotor() {
-		String currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		if (currentID == null || currentMount == null)
 			return;
 
@@ -217,7 +217,7 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 
 	public String findMotorForDisplay( int column ) {
-		String currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount mount = findMount(column);
 		Motor motor = mount.getMotor(currentID);
 		if (motor == null)
@@ -232,7 +232,7 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 
 	public String findIgnitionForDisplay( int column ) {
-		String currentID = rocket.getDefaultConfiguration().getMotorConfigurationID();
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount mount = findMount(column);
 		Motor motor = mount.getMotor(currentID);
 		if (motor == null)

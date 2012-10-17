@@ -20,7 +20,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
-public class MotorConfigurationModel implements ComboBoxModel, StateChangeListener {
+public class FlightConfigurationModel implements ComboBoxModel, StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 
 	private static final String EDIT = trans.get("MotorCfgModel.Editcfg");
@@ -34,7 +34,7 @@ public class MotorConfigurationModel implements ComboBoxModel, StateChangeListen
 	private Map<String, ID> map = new HashMap<String, ID>();
 	
 
-	public MotorConfigurationModel(Configuration config) {
+	public FlightConfigurationModel(Configuration config) {
 		this.config = config;
 		this.rocket = config.getRocket();
 		config.addChangeListener(this);
@@ -44,7 +44,7 @@ public class MotorConfigurationModel implements ComboBoxModel, StateChangeListen
 	
 	@Override
 	public Object getElementAt(int index) {
-		String[] ids = rocket.getMotorConfigurationIDs();
+		String[] ids = rocket.getFlightConfigurationIDs();
 		if (index < 0  ||  index > ids.length)
 			return null;
 		
@@ -56,12 +56,12 @@ public class MotorConfigurationModel implements ComboBoxModel, StateChangeListen
 
 	@Override
 	public int getSize() {
-		return rocket.getMotorConfigurationIDs().length + 1;
+		return rocket.getFlightConfigurationIDs().length + 1;
 	}
 
 	@Override
 	public Object getSelectedItem() {
-		return get(config.getMotorConfigurationID());
+		return get(config.getFlightConfigurationID());
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class MotorConfigurationModel implements ComboBoxModel, StateChangeListen
 		}
 		
 		ID idObject = (ID) item;
-		config.setMotorConfigurationID(idObject.getID());
+		config.setFlightConfigurationID(idObject.getID());
 	}
 
 
@@ -162,7 +162,7 @@ public class MotorConfigurationModel implements ComboBoxModel, StateChangeListen
 		
 		@Override
 		public String toString() {
-			return rocket.getMotorConfigurationNameOrDescription(id);
+			return rocket.getFlightConfigurationNameOrDescription(id);
 		}
 	}
 	
