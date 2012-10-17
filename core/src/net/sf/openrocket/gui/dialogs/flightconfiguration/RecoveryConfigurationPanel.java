@@ -82,7 +82,7 @@ public class RecoveryConfigurationPanel extends JPanel {
 		resetDeploymentButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//resetDeployment;
+				resetDeployment();
 			}
 		});
 		this.add(resetDeploymentButton,"sizegroup button, wrap");
@@ -92,6 +92,10 @@ public class RecoveryConfigurationPanel extends JPanel {
 	private void selectDeployment() {
 		JDialog d = new SelectDeploymentConfigDialog( flightConfigurationDialog, rocket, selectedComponent );
 		d.setVisible(true);
+	}
+	
+	private void resetDeployment() {
+		selectedComponent.setDeploymentConfiguration(rocket.getDefaultConfiguration().getMotorConfigurationID(), null);
 	}
 	
 	private void updateButtonState() {

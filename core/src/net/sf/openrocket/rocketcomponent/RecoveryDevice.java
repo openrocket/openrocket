@@ -124,7 +124,12 @@ public abstract class RecoveryDevice extends MassObject {
 	}
 	
 	public void setDeploymentConfiguration( String configID, DeploymentConfiguration config ) {
-		deploymentConfigurations.put(configID, config);
+		if ( config == null ) {
+			deploymentConfigurations.remove(configID);
+		} else {
+			deploymentConfigurations.put(configID, config);
+			
+		}
 	}
 	
 	public DeployEvent getDefaultDeployEvent() {
