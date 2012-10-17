@@ -18,7 +18,6 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.unit.UnitGroup;
@@ -111,8 +110,8 @@ public class SelectDeploymentConfigDialog extends JDialog {
 				newConfiguration.setDeployDelay(deployDelay);
 				
 				//// extract altitude;
-				double deployAltitude = alt.getValue();
-				newConfiguration.setDeployDelay(deployAltitude);
+				double deployAltitude = alt.getCurrentUnit().fromUnit( alt.getValue() );
+				newConfiguration.setDeployAltitude(deployAltitude);
 				
 				component.setDeploymentConfiguration(configId, newConfiguration);
 				
