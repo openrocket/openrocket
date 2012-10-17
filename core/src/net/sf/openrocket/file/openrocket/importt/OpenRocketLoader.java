@@ -35,6 +35,7 @@ import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -445,13 +446,13 @@ class DocumentConfig {
 				Reflection.findMethod(RecoveryDevice.class, "setCD", double.class),
 				"auto",
 				Reflection.findMethod(RecoveryDevice.class, "setCDAutomatic", boolean.class)));
-		setters.put("RecoveryDevice:deployevent", new EnumSetter<RecoveryDevice.DeployEvent>(
-				Reflection.findMethod(RecoveryDevice.class, "setDeployEvent", RecoveryDevice.DeployEvent.class),
-				RecoveryDevice.DeployEvent.class));
+		setters.put("RecoveryDevice:deployevent", new EnumSetter<DeployEvent>(
+				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployEvent", DeployEvent.class),
+				DeployEvent.class));
 		setters.put("RecoveryDevice:deployaltitude", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "setDeployAltitude", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployAltitude", double.class)));
 		setters.put("RecoveryDevice:deploydelay", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "setDeployDelay", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployDelay", double.class)));
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
@@ -875,7 +876,6 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			}
 			return new MotorConfigurationHandler((Rocket) component, context);
 		}
-		
 		
 		return PlainTextHandler.INSTANCE;
 	}

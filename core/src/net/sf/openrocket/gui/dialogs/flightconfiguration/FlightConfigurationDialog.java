@@ -122,11 +122,14 @@ public class FlightConfigurationDialog extends JDialog {
 
 		//// Tabs for advanced view.
 		JTabbedPane tabs = new JTabbedPane();
+		panel.add( tabs, "spanx, w 700lp, h 500lp, wrap");
 
 		//// Motor tabs
 		JComponent motorTab = makeMotorTab();
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorTab);
-		panel.add( tabs, "spanx, w 700lp, h 500lp, wrap");
+		
+		//// Recovery tab
+		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), new RecoveryConfigurationPanel(this,rocket));
 		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -386,5 +389,5 @@ public class FlightConfigurationDialog extends JDialog {
 		return panel;
 
 	}
-
+	
 }

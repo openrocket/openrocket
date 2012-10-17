@@ -193,14 +193,14 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat")), "");
 		
-		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DeployEvent"));
+		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DefaultDeployEvent"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plusdelay")), "right");
 		
-		m = new DoubleModel(component, "DeployDelay", 0);
+		m = new DoubleModel(component, "DefaultDeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin,3));
 		panel.add(spin, "spanx, split");
@@ -213,7 +213,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(label);
 		panel.add(label);
 		
-		m = new DoubleModel(component, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(component, "DefaultDeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

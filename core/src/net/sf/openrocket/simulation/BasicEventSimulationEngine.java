@@ -13,6 +13,7 @@ import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -42,6 +43,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private SimulationStepper currentStepper;
 
 	private SimulationStatus status;
+	
+	private String flightConfigurationId;
 
 
 	@Override
@@ -53,6 +56,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		// Set up rocket configuration
 		Configuration configuration = setupConfiguration(simulationConditions);
+		flightConfigurationId = configuration.getMotorConfigurationID();
 		MotorInstanceConfiguration motorConfiguration = setupMotorConfiguration(configuration);
 		if (motorConfiguration.getMotorIDs().isEmpty()) {
 			throw new MotorIgnitionException("No motors defined in the simulation.");
@@ -371,10 +375,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				RocketComponent c = rci.next();
 				if (!(c instanceof RecoveryDevice))
 					continue;
-				if (((RecoveryDevice) c).getDeployEvent().isActivationEvent(event, c)) {
+				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfiguration(flightConfigurationId);
+				if ( deployConfig == null ) {
+				   deployConfig = ((RecoveryDevice) c).getDefaultDeploymentConfiguration();
+				}
+				if (deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
 					addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
-							event.getTime() + Math.max(0.001, ((RecoveryDevice) c).getDeployDelay()), c));
+							event.getTime() + Math.max(0.001, deployConfig.getDeployDelay()), c));
 				}
 			}
 

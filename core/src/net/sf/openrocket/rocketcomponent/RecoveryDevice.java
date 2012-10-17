@@ -1,12 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Pair;
 
 
 /**
@@ -24,78 +26,9 @@ import net.sf.openrocket.util.Pair;
 public abstract class RecoveryDevice extends MassObject {
 	private static final Translator trans = Application.getTranslator();
 	
-	public static enum DeployEvent {
-		LAUNCH(trans.get("RecoveryDevice.DeployEvent.LAUNCH")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return e.getType() == FlightEvent.Type.LAUNCH;
-			}
-		},
-		EJECTION(trans.get("RecoveryDevice.DeployEvent.EJECTION")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
-					return false;
-				RocketComponent charge = e.getSource();
-				return charge.getStageNumber() == source.getStageNumber();
-			}
-		},
-		APOGEE(trans.get("RecoveryDevice.DeployEvent.APOGEE")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return e.getType() == FlightEvent.Type.APOGEE;
-			}
-		},
-		ALTITUDE(trans.get("RecoveryDevice.DeployEvent.ALTITUDE")) {
-			@SuppressWarnings("unchecked")
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.ALTITUDE)
-					return false;
-				
-				double alt = ((RecoveryDevice) source).getDeployAltitude();
-				Pair<Double, Double> altitude = (Pair<Double, Double>) e.getData();
-				
-				return (altitude.getU() >= alt) && (altitude.getV() <= alt);
-			}
-		},
-		LOWER_STAGE_SEPARATION(trans.get("RecoveryDevice.DeployEvent.LOWER_STAGE_SEPARATION")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.STAGE_SEPARATION)
-					return false;
-				
-				int separation = e.getSource().getStageNumber();
-				int current = source.getStageNumber();
-				return (current + 1 == separation);
-			}
-		},
-		NEVER(trans.get("RecoveryDevice.DeployEvent.NEVER")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return false;
-			}
-		};
-		
-		private final String description;
-		
-		DeployEvent(String description) {
-			this.description = description;
-		}
-		
-		public abstract boolean isActivationEvent(FlightEvent e, RocketComponent source);
-		
-		@Override
-		public String toString() {
-			return description;
-		}
-		
-	}
+	private Map<String,DeploymentConfiguration> deploymentConfigurations = new HashMap<String,DeploymentConfiguration>();
 	
-	
-	private DeployEvent deployEvent = DeployEvent.EJECTION;
-	private double deployAltitude = 200;
-	private double deployDelay = 0;
+	private DeploymentConfiguration defaultDeploymentConfig = new DeploymentConfiguration();
 	
 	private double cd = Parachute.DEFAULT_CD;
 	private boolean cdAutomatic = true;
@@ -175,44 +108,61 @@ public abstract class RecoveryDevice extends MassObject {
 	}
 	
 	
-	
-	
-	public DeployEvent getDeployEvent() {
-		return deployEvent;
+	/** 
+	 * Return the deployment configuration for this configurationId or null if using default.
+	 * 
+	 * @param configID
+	 * @return
+	 */
+	public DeploymentConfiguration getDeploymentConfiguration( String configID ) {
+		DeploymentConfiguration config = deploymentConfigurations.get(configID);
+		return config;
 	}
 	
-	public void setDeployEvent(DeployEvent deployEvent) {
-		if (this.deployEvent == deployEvent)
+	public DeploymentConfiguration getDefaultDeploymentConfiguration() {
+		return defaultDeploymentConfig;
+	}
+	
+	public void setDeploymentConfiguration( String configID, DeploymentConfiguration config ) {
+		deploymentConfigurations.put(configID, config);
+	}
+	
+	public DeployEvent getDefaultDeployEvent() {
+		return defaultDeploymentConfig.getDeployEvent();
+	}
+	
+	public void setDefaultDeployEvent(DeployEvent deployEvent) {
+		if (this.defaultDeploymentConfig.getDeployEvent() == deployEvent)
 			return;
-		this.deployEvent = deployEvent;
+		this.defaultDeploymentConfig.setDeployEvent(deployEvent);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
 	
-	public double getDeployAltitude() {
-		return deployAltitude;
+	public double getDefaultDeployAltitude() {
+		return defaultDeploymentConfig.getDeployAltitude();
 	}
 	
-	public void setDeployAltitude(double deployAltitude) {
-		if (MathUtil.equals(this.deployAltitude, deployAltitude))
+	public void setDefaultDeployAltitude(double deployAltitude) {
+		if (MathUtil.equals(getDefaultDeployAltitude(), deployAltitude))
 			return;
-		this.deployAltitude = deployAltitude;
-		if (getDeployEvent() == DeployEvent.ALTITUDE)
+		defaultDeploymentConfig.setDeployAltitude(deployAltitude);
+		if (getDefaultDeployEvent() == DeployEvent.ALTITUDE)
 			fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 		else
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	
-	public double getDeployDelay() {
-		return deployDelay;
+	public double getDefaultDeployDelay() {
+		return defaultDeploymentConfig.getDeployDelay();
 	}
 	
-	public void setDeployDelay(double delay) {
+	public void setDefaultDeployDelay(double delay) {
 		delay = MathUtil.max(delay, 0);
-		if (MathUtil.equals(this.deployDelay, delay))
+		if (MathUtil.equals(getDefaultDeployDelay(), delay))
 			return;
-		this.deployDelay = delay;
+		defaultDeploymentConfig.setDeployDelay(delay);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
