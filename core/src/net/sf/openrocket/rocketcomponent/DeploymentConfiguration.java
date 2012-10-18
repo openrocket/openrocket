@@ -49,7 +49,7 @@ public class DeploymentConfiguration implements Cloneable {
 			description += " + " + deployDelay + "s";
 		}
 		if ( deployEvent == DeployEvent.ALTITUDE && deployAltitude != 0 ) {
-			description += " " + UnitGroup.UNITS_DISTANCE.fromUnit(deployAltitude);
+			description += " " + UnitGroup.UNITS_DISTANCE.toString(deployAltitude);
 		}
 		return description;
 	}

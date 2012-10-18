@@ -31,8 +31,9 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -122,7 +123,7 @@ public class MotorConfig extends JPanel {
 		//// Ignition at:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
 		
-		combo = new JComboBox(new EnumModel<IgnitionEvent>(mount, "IgnitionEvent"));
+		combo = new JComboBox(new EnumModel<MotorConfiguration.IgnitionEvent>(mount, "IgnitionEvent"));
 		panel.add(combo, "growx, wrap");
 		
 		// ... and delay

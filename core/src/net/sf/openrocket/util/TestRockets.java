@@ -18,7 +18,8 @@ import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -135,7 +136,7 @@ public class TestRockets {
 		body.setThickness(rnd(0.002));
 		body.setFilled(rnd.nextBoolean());
 		body.setIgnitionDelay(rnd.nextDouble() * 3);
-		body.setIgnitionEvent((IgnitionEvent) randomEnum(IgnitionEvent.class));
+		body.setIgnitionEvent((MotorConfiguration.IgnitionEvent) randomEnum(MotorConfiguration.IgnitionEvent.class));
 		body.setLength(rnd(0.3));
 		body.setMotorMount(rnd.nextBoolean());
 		body.setMotorOverhang(rnd.nextGaussian() * 0.03);

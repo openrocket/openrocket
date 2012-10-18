@@ -50,6 +50,7 @@ import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
@@ -1029,8 +1030,8 @@ class MotorMountHandler extends AbstractElementHandler {
 		}
 		
 		if (element.equals("ignitionevent")) {
-			MotorMount.IgnitionEvent event = null;
-			for (MotorMount.IgnitionEvent e : MotorMount.IgnitionEvent.values()) {
+			MotorConfiguration.IgnitionEvent event = null;
+			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
 				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					event = e;
 					break;

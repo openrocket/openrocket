@@ -27,13 +27,9 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	// When changing the inner radius, thickness is modified
 	
 	private boolean motorMount = false;
-	private HashMap<String, Double> ejectionDelays = new HashMap<String, Double>();
-	private HashMap<String, Motor> motors = new HashMap<String, Motor>();
-	private IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
-	private double ignitionDelay = 0;
 	private double overhang = 0;
 	
-	
+	private BaseMotorMount baseMotorMount = new BaseMotorMount();
 
 	public BodyTube() {
 		super();
@@ -339,6 +335,56 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	////////////////  Motor mount  /////////////////
 	
 	@Override
+	public MotorConfiguration getFlightConfiguration(String configId) {
+		return baseMotorMount.getFlightConfiguration(configId);
+	}
+
+	@Override
+	public void setFlightConfiguration(String configId,
+			MotorConfiguration config) {
+		baseMotorMount.setFlightConfiguration(configId, config);
+	}
+
+	@Override
+	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
+		baseMotorMount.cloneFlightConfiguration(oldConfigId, newConfigId);
+	}
+
+	@Override
+	public MotorConfiguration getDefaultFlightConfiguration() {
+		return baseMotorMount.getDefaultFlightConfiguration();
+	}
+
+	@Override
+	public void setDefaultFlightConfiguration(MotorConfiguration config) {
+		baseMotorMount.setDefaultFlightConfiguration(config);
+	}
+
+	@Override
+	public Motor getMotor(String id) {
+		return baseMotorMount.getMotor(id);
+	}
+
+	@Override
+	public void setMotor(String id, Motor motor) {
+		if (baseMotorMount.setMotor(id, motor)) {
+			fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		}
+	}
+
+	@Override
+	public double getMotorDelay(String id) {
+		return baseMotorMount.getMotorDelay(id);
+	}
+
+	@Override
+	public void setMotorDelay(String id, double delay) {
+		if (baseMotorMount.setMotorDelay(id, delay)) {
+			fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		}
+	}
+
+	@Override
 	public boolean isMotorMount() {
 		return motorMount;
 	}
@@ -352,50 +398,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 	
 	@Override
-	public Motor getMotor(String id) {
-		if (id == null)
-			return null;
-		
-		// Check whether the id is valid for the current rocket
-		RocketComponent root = this.getRoot();
-		if (!(root instanceof Rocket))
-			return null;
-		if (!((Rocket) root).isFlightConfigurationID(id))
-			return null;
-		
-		return motors.get(id);
-	}
-	
-	@Override
-	public void setMotor(String id, Motor motor) {
-		if (id == null) {
-			if (motor != null) {
-				throw new IllegalArgumentException("Cannot set non-null motor for id null");
-			}
-		}
-		Motor current = motors.get(id);
-		if ((motor == null && current == null) ||
-				(motor != null && motor.equals(current)))
-			return;
-		motors.put(id, motor);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
-	
-	@Override
-	public double getMotorDelay(String id) {
-		Double delay = ejectionDelays.get(id);
-		if (delay == null)
-			return Motor.PLUGGED;
-		return delay;
-	}
-	
-	@Override
-	public void setMotorDelay(String id, double delay) {
-		ejectionDelays.put(id, delay);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
-	
-	@Override
 	public int getMotorCount() {
 		return 1;
 	}
@@ -404,34 +406,37 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
 	}
-	
+	// FIXME - rename to getDefaultIgnitionEvent
 	@Override
-	public IgnitionEvent getIgnitionEvent() {
-		return ignitionEvent;
+	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
+		return getDefaultFlightConfiguration().getIgnitionEvent();
 	}
 	
+	// FIXME
 	@Override
-	public void setIgnitionEvent(IgnitionEvent event) {
+	public void setIgnitionEvent(MotorConfiguration.IgnitionEvent event) {
+		MotorConfiguration.IgnitionEvent ignitionEvent = getIgnitionEvent();
 		if (ignitionEvent == event)
 			return;
-		ignitionEvent = event;
+		getDefaultFlightConfiguration().setIgnitionEvent(event);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
-	
+	// FIXME
 	@Override
 	public double getIgnitionDelay() {
-		return ignitionDelay;
+		return getDefaultFlightConfiguration().getIgnitionDelay();
 	}
 	
+	// FIXME
 	@Override
 	public void setIgnitionDelay(double delay) {
+		double ignitionDelay = getIgnitionDelay();
 		if (MathUtil.equals(delay, ignitionDelay))
 			return;
-		ignitionDelay = delay;
+		getDefaultFlightConfiguration().setIgnitionDelay(delay);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
-	
 	
 	@Override
 	public double getMotorOverhang() {
@@ -449,7 +454,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	@Override
 	public Coordinate getMotorPosition(String id) {
-		Motor motor = motors.get(id);
+		Motor motor = getMotor(id);
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
@@ -470,8 +475,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();
-		((BodyTube) c).motors = (HashMap<String, Motor>) motors.clone();
-		((BodyTube) c).ejectionDelays = (HashMap<String, Double>) ejectionDelays.clone();
+		((BodyTube) c).baseMotorMount = baseMotorMount.clone();
 		return c;
 	}
 }
