@@ -102,7 +102,7 @@ public class FlightConfigurationDialog extends JDialog {
 
 		//// Tabs for advanced view.
 		JTabbedPane tabs = new JTabbedPane();
-		panel.add( tabs, "spanx, w 700lp, h 500lp, wrap");
+		panel.add( tabs, "grow, spanx, w 700lp, h 500lp, wrap");
 
 		//// Motor tabs
 		motorConfigurationPanel = new MotorConfigurationPanel(this,rocket);
