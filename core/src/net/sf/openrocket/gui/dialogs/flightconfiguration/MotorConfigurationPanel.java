@@ -20,10 +20,10 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.util.Chars;
 
 public class MotorConfigurationPanel extends JPanel {
@@ -135,7 +135,9 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	public void fireTableDataChanged() {
+		currentMount = null;
 		configurationTableModel.fireTableDataChanged();
+		updateButtonState();
 	}
 	
 	public void updateButtonState() {
@@ -238,7 +240,7 @@ public class MotorConfigurationPanel extends JPanel {
 		if (motor == null)
 			//// None
 			return null;
-		IgnitionEvent ignition = mount.getIgnitionEvent();
+		MotorConfiguration.IgnitionEvent ignition = mount.getIgnitionEvent();
 		return ignition.toString();
 	}
 	

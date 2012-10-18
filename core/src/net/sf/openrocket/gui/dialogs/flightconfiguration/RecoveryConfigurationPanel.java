@@ -24,6 +24,8 @@ public class RecoveryConfigurationPanel extends JPanel {
 
 	private final FlightConfigurationDialog flightConfigurationDialog;
 	private final Rocket rocket;
+	
+	private final RecoveryTableModel recoveryTableModel;
 	private final JButton selectDeploymentButton;
 	private final JButton resetDeploymentButton;
 	
@@ -35,7 +37,8 @@ public class RecoveryConfigurationPanel extends JPanel {
 		this.rocket = rocket;
 
 		//// Recovery selection 
-		JTable table = new JTable( new RecoveryTableModel() );
+		recoveryTableModel = new RecoveryTableModel();
+		JTable table = new JTable( recoveryTableModel );
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setCellSelectionEnabled(true);
 		table.addMouseListener(new MouseAdapter() {
@@ -89,19 +92,31 @@ public class RecoveryConfigurationPanel extends JPanel {
 
 	}
 	
+	public void fireTableDataChanged() {
+		selectedComponent = null;
+		recoveryTableModel.fireTableDataChanged();
+		updateButtonState();
+	}
+	
 	private void selectDeployment() {
 		JDialog d = new SelectDeploymentConfigDialog( flightConfigurationDialog, rocket, selectedComponent );
 		d.setVisible(true);
+		fireTableDataChanged();
 	}
 	
 	private void resetDeployment() {
 		selectedComponent.setFlightConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID(), null);
+		fireTableDataChanged();
 	}
 	
-	private void updateButtonState() {
-		boolean buttonsEnabled = selectedComponent != null;
-		selectDeploymentButton.setEnabled(buttonsEnabled);
-		resetDeploymentButton.setEnabled(buttonsEnabled);
+	public void updateButtonState() {
+		boolean componentSelected = selectedComponent != null;
+		boolean isDefaulted = true;
+		if ( componentSelected ) {
+			isDefaulted = selectedComponent.getFlightConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID()) == null;
+		}
+		selectDeploymentButton.setEnabled(componentSelected);
+		resetDeploymentButton.setEnabled(componentSelected & ! isDefaulted);
 	}
 	
 	private RecoveryDevice findRecoveryDevice( int count ) {

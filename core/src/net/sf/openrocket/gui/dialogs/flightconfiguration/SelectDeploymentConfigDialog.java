@@ -110,7 +110,7 @@ public class SelectDeploymentConfigDialog extends JDialog {
 				newConfiguration.setDeployDelay(deployDelay);
 				
 				//// extract altitude;
-				double deployAltitude = alt.getCurrentUnit().fromUnit( alt.getValue() );
+				double deployAltitude = alt.getValue();
 				newConfiguration.setDeployAltitude(deployAltitude);
 				
 				component.setFlightConfiguration(configId, newConfiguration);

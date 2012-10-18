@@ -32,6 +32,7 @@ public class FlightConfigurationDialog extends JDialog {
 	private final JButton renameConfButton, removeConfButton, copyConfButton;
 	
 	private final MotorConfigurationPanel motorConfigurationPanel;
+	private final RecoveryConfigurationPanel recoveryConfigurationPanel;
 	
 	private String currentID = null;
 
@@ -108,7 +109,8 @@ public class FlightConfigurationDialog extends JDialog {
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
 		
 		//// Recovery tab
-		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), new RecoveryConfigurationPanel(this,rocket));
+		recoveryConfigurationPanel = new RecoveryConfigurationPanel(this,rocket);
+		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel );
 		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -147,7 +149,7 @@ public class FlightConfigurationDialog extends JDialog {
 		currentID = id;
 		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
 		motorConfigurationPanel.fireTableDataChanged();
-		// FIXME - update data in recovery configuration panel
+		recoveryConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
@@ -155,15 +157,13 @@ public class FlightConfigurationDialog extends JDialog {
 		currentID = rocket.newFlightConfigurationID();
 		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
 		motorConfigurationPanel.fireTableDataChanged();
-		// FIXME - update data in recovery configuration panel
 		flightConfigurationModel.fireContentsUpdated();
+		recoveryConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
 	public void changeConfigurationName( String newName ) {
 		rocket.setFlightConfigurationName(currentID, newName);
-		motorConfigurationPanel.fireTableDataChanged();
-		// FIXME - update data in recovery configuration panel
 		flightConfigurationModel.fireContentsUpdated();
 	}
 
@@ -173,8 +173,8 @@ public class FlightConfigurationDialog extends JDialog {
 		rocket.removeFlightConfigurationID(currentID);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(null);
 		motorConfigurationPanel.fireTableDataChanged();
-		// FIXME - update data in recovery configuration panel
 		flightConfigurationModel.fireContentsUpdated();
+		recoveryConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
@@ -189,7 +189,7 @@ public class FlightConfigurationDialog extends JDialog {
 		removeConfButton.setEnabled(currentID != null);
 		renameConfButton.setEnabled(currentID != null);
 		motorConfigurationPanel.updateButtonState();
-		// FIXME - update button state in recovery configuration panel
+		recoveryConfigurationPanel.updateButtonState();
 	}
 
 
