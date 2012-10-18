@@ -199,10 +199,10 @@ public class MotorConfigurationPanel extends JPanel {
 		return list.toArray(new MotorMount[0]);
 	}
 
-	public MotorMount findMount(int column) {
+	public MotorMount findMount(int row) {
 		MotorMount mount = null;
 
-		int count = column;
+		int count = row;
 		for (MotorMount m : mounts) {
 			if (m.isMotorMount())
 				count--;
@@ -213,14 +213,14 @@ public class MotorConfigurationPanel extends JPanel {
 		}
 
 		if (mount == null) {
-			throw new IndexOutOfBoundsException("motor mount not found, column=" + column);
+			throw new IndexOutOfBoundsException("motor mount not found, row=" + row);
 		}
 		return mount;
 	}
 
-	public String findMotorForDisplay( int column ) {
+	public String findMotorForDisplay( int row ) {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount mount = findMount(column);
+		MotorMount mount = findMount(row);
 		Motor motor = mount.getMotor(currentID);
 		if (motor == null)
 			return null;
@@ -233,15 +233,30 @@ public class MotorConfigurationPanel extends JPanel {
 		return str;
 	}
 
-	public String findIgnitionForDisplay( int column ) {
+	public String findIgnitionForDisplay( int row ) {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount mount = findMount(column);
-		Motor motor = mount.getMotor(currentID);
-		if (motor == null)
+		MotorMount mount = findMount(row);
+		MotorConfiguration motorConfig = mount.getFlightConfiguration(currentID);
+		if (motorConfig == null)
 			//// None
 			return null;
-		MotorConfiguration.IgnitionEvent ignition = mount.getDefaultIgnitionEvent();
-		return ignition.toString();
+		StringBuilder sb = new StringBuilder();
+		MotorConfiguration.IgnitionEvent ignition = motorConfig.getIgnitionEvent();
+		if ( ignition == null ) {
+			sb.append("[").append(mount.getDefaultIgnitionEvent().toString()).append("]");
+		} else {
+			sb.append(ignition.toString());
+		}
+		Double ignitionDelay = motorConfig.getIgnitionDelay();
+		if ( ignitionDelay == null ) {
+			double defaultdelay = mount.getDefaultIgnitionDelay();
+			if ( defaultdelay > 0 ) {
+				sb.append(" + [").append(defaultdelay).append("s]");
+			}
+		} else {
+			sb.append(" + ").append(ignitionDelay).append("s");
+		}
+		return sb.toString();
 	}
 	
 
