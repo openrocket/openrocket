@@ -54,11 +54,6 @@ public class ApplicationStartup {
 		log.info("Checking for graphics head");
 		checkHead();
 		
-		// Check that we're running a good version of a JRE
-		log.info("Checking JRE compatibility");
-		VersionHelper.checkVersion();
-		VersionHelper.checkOpenJDK();
-		
 		// If running on a MAC set up OSX UI Elements.
 		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
 			OSXStartup.setupOSX();
@@ -88,24 +83,6 @@ public class ApplicationStartup {
 		log.info("Initializing the splash screen");
 		Splash.init();
 		
-		// Must be done after localization is initialized
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
-			
-			@Override
-			protected void load() {
-				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader(this);
-				presetLoader.load();
-				try {
-					presetLoader.await();
-				} catch (InterruptedException iex) {
-					
-				}
-			}
-			
-		};
-		Application.setComponentPresetDao(componentPresetDao);
-		
-		componentPresetDao.startLoading();
 		
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
@@ -134,9 +111,11 @@ public class ApplicationStartup {
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
 		
+		
+		
 		// Load motors etc.
 		log.info("Loading databases");
-		
+		loadPresetComponents();
 		loadMotor();
 		
 		Databases.fakeMethod();
@@ -147,8 +126,7 @@ public class ApplicationStartup {
 		if (!handleCommandLine(args)) {
 			if (!Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled()) {
 				BasicFrame.newAction();
-			}
-			else {
+			} else {
 				String lastFile = MRUDesignFile.getInstance().getLastEditedDesignFile();
 				if (lastFile != null) {
 					if (!BasicFrame.open(new File(lastFile), null)) {
@@ -171,8 +149,33 @@ public class ApplicationStartup {
 		
 	}
 	
+	
 	/**
-	 * this method is useful for the python bindings.
+	 * Start loading preset components in background thread.
+	 * 
+	 * Public for Python bindings.
+	 */
+	public void loadPresetComponents() {
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
+			@Override
+			protected void load() {
+				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader(this);
+				presetLoader.load();
+				try {
+					presetLoader.await();
+				} catch (InterruptedException iex) {
+					
+				}
+			}
+		};
+		Application.setComponentPresetDao(componentPresetDao);
+		componentPresetDao.startLoading();
+	}
+	
+	/**
+	 * Start loading motors in background thread.
+	 * 
+	 * Public for Python bindings.
 	 */
 	public void loadMotor() {
 		ConcurrentLoadingThrustCurveMotorSetDatabase motorLoader = new ConcurrentLoadingThrustCurveMotorSetDatabase(THRUSTCURVE_DIRECTORY);
