@@ -77,14 +77,14 @@ public interface MotorMount extends ChangeSource, SupportsFlightConfiguration<Mo
 	 * 
 	 * @return   the {@link MotorConfiguration.IgnitionEvent} that ignites this motor.
 	 */
-	public MotorConfiguration.IgnitionEvent getIgnitionEvent();
+	public MotorConfiguration.IgnitionEvent getDefaultIgnitionEvent();
 	
 	/**
 	 * Sets the event that ignites this motor.
 	 * 
 	 * @param event   the {@link MotorConfiguration.IgnitionEvent} that ignites this motor.
 	 */
-	public void setIgnitionEvent(MotorConfiguration.IgnitionEvent event);
+	public void setDefaultIgnitionEvent(MotorConfiguration.IgnitionEvent event);
 	
 	
 	/**
@@ -92,14 +92,14 @@ public interface MotorMount extends ChangeSource, SupportsFlightConfiguration<Mo
 	 * 
 	 * @return  the ignition delay
 	 */
-	public double getIgnitionDelay();
+	public double getDefaultIgnitionDelay();
 	
 	/**
 	 * Sets the ignition delay of this motor.
 	 * 
 	 * @param delay   the ignition delay.
 	 */
-	public void setIgnitionDelay(double delay);
+	public void setDefaultIgnitionDelay(double delay);
 	
 	
 	/**

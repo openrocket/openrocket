@@ -309,7 +309,7 @@ public class SimulationRunDialog extends JDialog {
 			Iterator<MotorMount> iterator = config.motorIterator();
 			while (iterator.hasNext()) {
 				MotorMount m = iterator.next();
-				if (m.getIgnitionEvent() == MotorConfiguration.IgnitionEvent.LAUNCH)
+				if (m.getDefaultIgnitionEvent() == MotorConfiguration.IgnitionEvent.LAUNCH)
 					launchBurn = MathUtil.max(launchBurn, m.getMotor(id).getBurnTimeEstimate());
 				else
 					otherBurn = otherBurn + m.getMotor(id).getBurnTimeEstimate();

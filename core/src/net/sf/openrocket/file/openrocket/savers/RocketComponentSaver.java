@@ -158,10 +158,10 @@ public class RocketComponentSaver {
 		}
 		
 		elements.add("  <ignitionevent>"
-				+ mount.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
+				+ mount.getDefaultIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</ignitionevent>");
 		
-		elements.add("  <ignitiondelay>" + mount.getIgnitionDelay() + "</ignitiondelay>");
+		elements.add("  <ignitiondelay>" + mount.getDefaultIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
 		elements.add("</motormount>");

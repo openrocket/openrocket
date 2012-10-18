@@ -7,10 +7,33 @@ import net.sf.openrocket.startup.Application;
 
 public class MotorConfiguration implements Cloneable {
 
-	private MotorConfiguration.IgnitionEvent ignitionEvent = MotorConfiguration.IgnitionEvent.AUTOMATIC;
-	private double ignitionDelay = 0;
+	private MotorConfiguration.IgnitionEvent ignitionEvent;
+	private Double ignitionDelay;
 	private Motor motor = null;
 	private Double ejectionDelay = 0d;
+	
+	/**
+	 * Factory method which constructs a MotorConfiguration object which is suitable for
+	 * use as the defaults for the MotorMount.  In particular, it has Automatic ignitionEvent
+	 * and 0 ignitionDelay.
+
+	 * @return
+	 */
+	static MotorConfiguration makeDefaultMotorConfiguration() {
+		MotorConfiguration defaults = new MotorConfiguration();
+		defaults.ignitionDelay = 0d;
+		defaults.ignitionEvent = MotorConfiguration.IgnitionEvent.AUTOMATIC;
+		return defaults;
+	}
+	
+
+	/**
+	 * Construct a MotorConfiguration object which is suitable for use by per flight configuration
+	 * scenarios.  ignitionEvent and ignitionDelay are null to indicate that one should rely on the
+	 * default value.
+	 */
+	MotorConfiguration() {
+	}
 	
 	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
 		return ignitionEvent;
@@ -20,11 +43,11 @@ public class MotorConfiguration implements Cloneable {
 		this.ignitionEvent = ignitionEvent;
 	}
 
-	public double getIgnitionDelay() {
+	public Double getIgnitionDelay() {
 		return ignitionDelay;
 	}
 
-	public void setIgnitionDelay(double ignitionDelay) {
+	public void setIgnitionDelay(Double ignitionDelay) {
 		this.ignitionDelay = ignitionDelay;
 	}
 

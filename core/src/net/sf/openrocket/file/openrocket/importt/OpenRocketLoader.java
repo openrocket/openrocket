@@ -1041,7 +1041,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
 				return;
 			}
-			mount.setIgnitionEvent(event);
+			mount.setDefaultIgnitionEvent(event);
 			return;
 		}
 		
@@ -1053,7 +1053,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
 				return;
 			}
-			mount.setIgnitionDelay(d);
+			mount.setDefaultIgnitionDelay(d);
 			return;
 		}
 		

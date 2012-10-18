@@ -4,10 +4,10 @@ import java.util.HashMap;
 
 import net.sf.openrocket.motor.Motor;
 
-public class BaseMotorMount implements SupportsFlightConfiguration<MotorConfiguration>, Cloneable {
+class BaseMotorMount implements SupportsFlightConfiguration<MotorConfiguration>, Cloneable {
 
 	private HashMap<String, MotorConfiguration > motors = new HashMap<String,MotorConfiguration>();
-	private MotorConfiguration defaultConfiguration = new MotorConfiguration();
+	private MotorConfiguration defaultConfiguration = MotorConfiguration.makeDefaultMotorConfiguration();
 	
 	@Override
 	public MotorConfiguration getFlightConfiguration(String configId) {
@@ -39,7 +39,7 @@ public class BaseMotorMount implements SupportsFlightConfiguration<MotorConfigur
 		defaultConfiguration = config;
 	}
 
-	public Motor getMotor(String id) {
+	Motor getMotor(String id) {
 		if (id == null)
 			return null;
 		
@@ -57,7 +57,7 @@ public class BaseMotorMount implements SupportsFlightConfiguration<MotorConfigur
 	 * @param motor
 	 * @return true if the new motor is different from the old motor.
 	 */
-	public boolean setMotor(String id, Motor motor) {
+	boolean setMotor(String id, Motor motor) {
 		if (id == null) {
 			if (motor != null) {
 				throw new IllegalArgumentException("Cannot set non-null motor for id null");
@@ -79,7 +79,7 @@ public class BaseMotorMount implements SupportsFlightConfiguration<MotorConfigur
 		return true;
 	}
 	
-	public double getMotorDelay(String id) {
+	double getMotorDelay(String id) {
 		MotorConfiguration current = getFlightConfiguration(id);
 		Double delay = ( current == null ) ? null : current.getEjectionDelay();
 		if (delay == null)
@@ -94,7 +94,7 @@ public class BaseMotorMount implements SupportsFlightConfiguration<MotorConfigur
 	 * @param delay
 	 * @return true if the new value for the delay is different from the old
 	 */
-	public boolean setMotorDelay(String id, double delay) {
+	boolean setMotorDelay(String id, double delay) {
 		MotorConfiguration current = getFlightConfiguration(id);
 		if ( current == null ) {
 			current = new MotorConfiguration();

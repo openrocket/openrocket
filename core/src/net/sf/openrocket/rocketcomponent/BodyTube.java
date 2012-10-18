@@ -2,7 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
@@ -406,32 +405,29 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
 	}
-	// FIXME - rename to getDefaultIgnitionEvent
+
 	@Override
-	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
+	public MotorConfiguration.IgnitionEvent getDefaultIgnitionEvent() {
 		return getDefaultFlightConfiguration().getIgnitionEvent();
 	}
 	
-	// FIXME
 	@Override
-	public void setIgnitionEvent(MotorConfiguration.IgnitionEvent event) {
-		MotorConfiguration.IgnitionEvent ignitionEvent = getIgnitionEvent();
+	public void setDefaultIgnitionEvent(MotorConfiguration.IgnitionEvent event) {
+		MotorConfiguration.IgnitionEvent ignitionEvent = getDefaultIgnitionEvent();
 		if (ignitionEvent == event)
 			return;
 		getDefaultFlightConfiguration().setIgnitionEvent(event);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
-	// FIXME
 	@Override
-	public double getIgnitionDelay() {
+	public double getDefaultIgnitionDelay() {
 		return getDefaultFlightConfiguration().getIgnitionDelay();
 	}
 	
-	// FIXME
 	@Override
-	public void setIgnitionDelay(double delay) {
-		double ignitionDelay = getIgnitionDelay();
+	public void setDefaultIgnitionDelay(double delay) {
+		double ignitionDelay = getDefaultIgnitionDelay();
 		if (MathUtil.equals(delay, ignitionDelay))
 			return;
 		getDefaultFlightConfiguration().setIgnitionDelay(delay);
@@ -462,8 +458,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		return new Coordinate(this.getLength() - motor.getLength() + this.getMotorOverhang());
 	}
 	
-	
-
 
 	/*
 	 * (non-Javadoc)
@@ -471,7 +465,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	 *
 	 * @see rocketcomponent.RocketComponent#copy()
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();

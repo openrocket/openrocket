@@ -135,8 +135,8 @@ public class TestRockets {
 		setBasics(body);
 		body.setThickness(rnd(0.002));
 		body.setFilled(rnd.nextBoolean());
-		body.setIgnitionDelay(rnd.nextDouble() * 3);
-		body.setIgnitionEvent((MotorConfiguration.IgnitionEvent) randomEnum(MotorConfiguration.IgnitionEvent.class));
+		body.setDefaultIgnitionDelay(rnd.nextDouble() * 3);
+		body.setDefaultIgnitionEvent((MotorConfiguration.IgnitionEvent) randomEnum(MotorConfiguration.IgnitionEvent.class));
 		body.setLength(rnd(0.3));
 		body.setMotorMount(rnd.nextBoolean());
 		body.setMotorOverhang(rnd.nextGaussian() * 0.03);

@@ -1,7 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
@@ -273,32 +272,28 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return getInnerRadius() * 2;
 	}
 	
-	// FIXME - rename to getDefaultIgnitionEvent
 	@Override
-	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
+	public MotorConfiguration.IgnitionEvent getDefaultIgnitionEvent() {
 		return getDefaultFlightConfiguration().getIgnitionEvent();
 	}
 	
-	// FIXME
 	@Override
-	public void setIgnitionEvent(MotorConfiguration.IgnitionEvent event) {
-		MotorConfiguration.IgnitionEvent ignitionEvent = getIgnitionEvent();
+	public void setDefaultIgnitionEvent(MotorConfiguration.IgnitionEvent event) {
+		MotorConfiguration.IgnitionEvent ignitionEvent = getDefaultIgnitionEvent();
 		if (ignitionEvent == event)
 			return;
 		getDefaultFlightConfiguration().setIgnitionEvent(event);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
-	// FIXME
 	@Override
-	public double getIgnitionDelay() {
+	public double getDefaultIgnitionDelay() {
 		return getDefaultFlightConfiguration().getIgnitionDelay();
 	}
 	
-	// FIXME
 	@Override
-	public void setIgnitionDelay(double delay) {
-		double ignitionDelay = getIgnitionDelay();
+	public void setDefaultIgnitionDelay(double delay) {
+		double ignitionDelay = getDefaultIgnitionDelay();
 		if (MathUtil.equals(delay, ignitionDelay))
 			return;
 		getDefaultFlightConfiguration().setIgnitionDelay(delay);
@@ -317,12 +312,12 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		}
 	}
 
-
+	@Override
 	public double getMotorDelay(String id) {
 		return baseMotorMount.getMotorDelay(id);
 	}
 
-
+	@Override
 	public void setMotorDelay(String id, double delay) {
 		if (baseMotorMount.setMotorDelay(id, delay) ) {
 			fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
@@ -342,7 +337,6 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
 	@Override
 	public Coordinate getMotorPosition(String id) {
 		Motor motor = getMotor(id);
@@ -359,7 +353,6 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	 *
 	 * @see rocketcomponent.RocketComponent#copy()
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();

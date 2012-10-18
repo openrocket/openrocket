@@ -240,7 +240,7 @@ public class MotorConfigurationPanel extends JPanel {
 		if (motor == null)
 			//// None
 			return null;
-		MotorConfiguration.IgnitionEvent ignition = mount.getIgnitionEvent();
+		MotorConfiguration.IgnitionEvent ignition = mount.getDefaultIgnitionEvent();
 		return ignition.toString();
 	}
 	

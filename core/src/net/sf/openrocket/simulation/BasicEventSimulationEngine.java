@@ -348,9 +348,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				MotorMount mount = status.getMotorConfiguration().getMotorMount(id);
 				RocketComponent component = (RocketComponent) mount;
 
-				if (mount.getIgnitionEvent().isActivationEvent(event, component)) {
+				if (mount.getDefaultIgnitionEvent().isActivationEvent(event, component)) {
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
-							status.getSimulationTime() + mount.getIgnitionDelay(),
+							status.getSimulationTime() + mount.getDefaultIgnitionDelay(),
 							component, id));
 				}
 			}
