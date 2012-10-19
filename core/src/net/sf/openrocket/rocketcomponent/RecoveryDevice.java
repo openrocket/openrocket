@@ -143,7 +143,10 @@ public abstract class RecoveryDevice extends MassObject implements SupportsFligh
 	@Override
 	public void cloneFlightConfiguration( String oldConfigId, String newConfigId ) {
 		DeploymentConfiguration oldConfig = getFlightConfiguration(oldConfigId);
-		setFlightConfiguration( newConfigId, oldConfig.clone() );
+		if ( oldConfig != null ) {
+			oldConfig = oldConfig.clone();
+		}
+		setFlightConfiguration( newConfigId, oldConfig );
 	}
 	
 	public DeployEvent getDefaultDeployEvent() {

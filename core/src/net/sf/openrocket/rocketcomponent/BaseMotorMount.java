@@ -26,7 +26,10 @@ class BaseMotorMount implements SupportsFlightConfiguration<MotorConfiguration>,
 	@Override
 	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
 		MotorConfiguration oldConfig = getFlightConfiguration(oldConfigId);
-		setFlightConfiguration(newConfigId, oldConfig.clone());
+		if ( oldConfig != null ) {
+			oldConfig = oldConfig.clone();
+		}
+		setFlightConfiguration(newConfigId, oldConfig);
 	}
 
 	@Override
