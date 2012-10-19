@@ -23,7 +23,7 @@ import net.sf.openrocket.util.SimpleStack;
 import net.sf.openrocket.util.UniqueID;
 
 
-public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
+public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent>, Visitable<RocketComponentVisitor,RocketComponent> {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
@@ -1691,8 +1691,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return id.hashCode();
 	}
 	
-	
-	
+	///////////// Visitor pattern implementation
+	@Override
+	public void accept(RocketComponentVisitor visitor) {
+		visitor.visit(this);
+	}
+
 	////////////  Helper methods for subclasses
 	
 	
