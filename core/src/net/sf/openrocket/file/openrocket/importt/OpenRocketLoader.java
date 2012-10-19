@@ -1026,6 +1026,9 @@ class MotorMountHandler extends AbstractElementHandler {
 			Motor motor = motorHandler.getMotor(warnings);
 			mount.setMotor(id, motor);
 			mount.setMotorDelay(id, motorHandler.getDelay(warnings));
+			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
+			motorConfig.setIgnitionEvent( motorHandler.getIgnitionEvent());
+			motorConfig.setIgnitionDelay( motorHandler.getIgnitionDelay());
 			return;
 		}
 		
@@ -1148,6 +1151,9 @@ class MotorHandler extends AbstractElementHandler {
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
 	
+	private Double ignitionDelay = null;
+	private MotorConfiguration.IgnitionEvent ignitionEvent = null;
+	
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
 	}
@@ -1178,7 +1184,14 @@ class MotorHandler extends AbstractElementHandler {
 		return delay;
 	}
 	
-	
+	public Double getIgnitionDelay() {
+		return ignitionDelay;
+	}
+
+	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
+		return ignitionEvent;
+	}
+
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -1260,6 +1273,24 @@ class MotorHandler extends AbstractElementHandler {
 				
 			}
 			
+		} else if ( element.equals("ignitionevent")) {
+			
+			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
+				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
+					ignitionEvent = e;
+					break;
+				}
+			}
+			if (ignitionEvent == null) {
+				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
+			}
+			
+		} else if ( element.equals("ignitiondelay")) {
+			try {
+				ignitionDelay = Double.parseDouble(content);
+			} catch (NumberFormatException nfe) {
+				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
+			}
 		} else {
 			super.closeElement(element, attributes, content, warnings);
 		}
