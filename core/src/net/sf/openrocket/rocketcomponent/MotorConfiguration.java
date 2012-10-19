@@ -68,7 +68,7 @@ public class MotorConfiguration implements Cloneable {
 	}
 
 	@Override
-	protected MotorConfiguration clone() {
+	public MotorConfiguration clone() {
 		MotorConfiguration clone = new MotorConfiguration();
 		clone.motor = motor;
 		clone.ejectionDelay = ejectionDelay;

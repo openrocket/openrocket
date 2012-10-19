@@ -15,6 +15,7 @@ import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -285,14 +286,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		while (iterator.hasNext()) {
 			MotorMount mount = iterator.next();
 			RocketComponent component = (RocketComponent) mount;
-			Motor motor = mount.getMotor(motorId);
+			MotorConfiguration motorConfig = mount.getFlightConfiguration(motorId);
+			MotorConfiguration defaultConfig = mount.getDefaultFlightConfiguration();
+			Motor motor = motorConfig.getMotor();
 
 			if (motor != null) {
 				Coordinate[] positions = component.toAbsolute(mount.getMotorPosition(motorId));
 				for (int i = 0; i < positions.length; i++) {
 					Coordinate position = positions[i];
 					MotorId id = new MotorId(component.getID(), i + 1);
-					motors.addMotor(id, motor.getInstance(), mount, position);
+					motors.addMotor(id, motorConfig, defaultConfig, mount, position);
 				}
 			}
 		}
@@ -345,12 +348,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 			// Check for motor ignition events, add ignition events to queue
 			for (MotorId id : status.getMotorConfiguration().getMotorIDs()) {
+				MotorConfiguration.IgnitionEvent ignitionEvent = status.getMotorConfiguration().getMotorIgnitionEvent(id);
 				MotorMount mount = status.getMotorConfiguration().getMotorMount(id);
 				RocketComponent component = (RocketComponent) mount;
 
-				if (mount.getDefaultIgnitionEvent().isActivationEvent(event, component)) {
+				if (ignitionEvent.isActivationEvent(event, component)) {
+					double ignitionDelay = status.getMotorConfiguration().getMotorIgnitionDelay(id);
 					addEvent(new FlightEvent(FlightEvent.Type.IGNITION,
-							status.getSimulationTime() + mount.getDefaultIgnitionDelay(),
+							status.getSimulationTime() + ignitionDelay,
 							component, id));
 				}
 			}
