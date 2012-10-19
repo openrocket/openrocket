@@ -123,14 +123,14 @@ public class MotorConfig extends JPanel {
 		//// Ignition at:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
 		
-		combo = new JComboBox(new EnumModel<MotorConfiguration.IgnitionEvent>(mount, "IgnitionEvent"));
+		combo = new JComboBox(new EnumModel<MotorConfiguration.IgnitionEvent>(mount, "DefaultIgnitionEvent"));
 		panel.add(combo, "growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
-		dm = new DoubleModel(mount, "IgnitionDelay", 0);
+		dm = new DoubleModel(mount, "DefaultIgnitionDelay", 0);
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin,3));
 		panel.add(spin, "gap rel rel");
