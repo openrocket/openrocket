@@ -48,6 +48,7 @@ public class SelectDeploymentConfigDialog extends JDialog {
 		panel.add(new JLabel(FlightConfigurationDialog.trans.get("ParachuteCfg.lbl.Deploysat")), "");
 		
 		final JComboBox event = new JComboBox(new BasicEnumModel<DeployEvent>(DeployEvent.class));
+		event.setSelectedItem( newConfiguration.getDeployEvent() );
 		panel.add(event, "spanx 3, growx, wrap");
 		
 		// ... and delay
@@ -95,7 +96,7 @@ public class SelectDeploymentConfigDialog extends JDialog {
 		// Set the value of the combo box at the end to take advantage of the action listener above.
 		event.setSelectedItem( newConfiguration.getDeployEvent() );
 		
-		JButton okButton = new JButton("Ok");
+		JButton okButton = new JButton(FlightConfigurationDialog.trans.get("button.ok"));
 		okButton.addActionListener( new ActionListener() {
 
 			@Override
@@ -122,7 +123,7 @@ public class SelectDeploymentConfigDialog extends JDialog {
 		
 		panel.add( okButton );
 		
-		JButton cancel = new JButton("Cancel");
+		JButton cancel = new JButton(FlightConfigurationDialog.trans.get("button.cancel"));
 		cancel.addActionListener( new ActionListener() {
 
 			@Override
