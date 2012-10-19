@@ -32,7 +32,7 @@ public class MotorConfigurationPanel extends JPanel {
 	private final Rocket rocket;
 
 	private final MotorConfigurationTableModel configurationTableModel;
-	private final JButton selectMotorButton, removeMotorButton;
+	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton;
 
 	private MotorMount currentMount = null;
 	final MotorMount[] mounts;
@@ -86,9 +86,8 @@ public class MotorConfigurationPanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int row = configurationTable.getSelectedRow();
-				int column = configurationTable.getSelectedColumn();
 
-				if ( row >= 0 & column == 1) {
+				if ( row >= 0 ) {
 					currentMount = findMount(row);
 				} else { 
 					currentMount = null;
@@ -130,7 +129,17 @@ public class MotorConfigurationPanel extends JPanel {
 				removeMotor();
 			}
 		});
-		this.add(removeMotorButton,"sizegroup button, wrap");
+		this.add(removeMotorButton,"sizegroup button");
+
+		//// Select Ignition button
+		selectIgnitionButton = new JButton(FlightConfigurationDialog.trans.get("edtmotorconfdlg.but.Selectignition"));
+		selectIgnitionButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectIgnition();
+			}
+		});
+		this.add(selectIgnitionButton,"sizegroup button, wrap");
 
 	}
 	
@@ -144,6 +153,7 @@ public class MotorConfigurationPanel extends JPanel {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);
 		removeMotorButton.setEnabled(currentMount != null && currentID != null);
+		selectIgnitionButton.setEnabled(currentMount != null && currentID != null);
 	}
 
 	
@@ -177,6 +187,22 @@ public class MotorConfigurationPanel extends JPanel {
 			return;
 
 		currentMount.setMotor(currentID, null);
+
+		flightConfigurationDialog.fireContentsUpdated();
+		configurationTableModel.fireTableDataChanged();
+		updateButtonState();
+	}
+	
+	private void selectIgnition() {
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		if (currentID == null || currentMount == null)
+			return;
+
+		SelectIgnitionConfigDialog dialog = new SelectIgnitionConfigDialog(
+				this.flightConfigurationDialog,
+				rocket,
+				currentMount );
+		dialog.setVisible(true);
 
 		flightConfigurationDialog.fireContentsUpdated();
 		configurationTableModel.fireTableDataChanged();
