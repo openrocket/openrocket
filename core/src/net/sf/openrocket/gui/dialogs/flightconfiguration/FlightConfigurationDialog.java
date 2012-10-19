@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketvisitors.CopyFlightConfigurationVisitor;
 import net.sf.openrocket.startup.Application;
 
 public class FlightConfigurationDialog extends JDialog {
@@ -63,7 +64,7 @@ public class FlightConfigurationDialog extends JDialog {
 		newConfButton.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				FlightConfigurationDialog.this.addConfiguration();
+				addConfiguration();
 			}
 
 		});
@@ -94,7 +95,7 @@ public class FlightConfigurationDialog extends JDialog {
 		copyConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// FIXME - !
+				copyConfiguration();
 			}
 		});
 		panel.add(copyConfButton,"wrap");
@@ -156,6 +157,17 @@ public class FlightConfigurationDialog extends JDialog {
 	public void addConfiguration() {
 		currentID = rocket.newFlightConfigurationID();
 		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
+		motorConfigurationPanel.fireTableDataChanged();
+		flightConfigurationModel.fireContentsUpdated();
+		recoveryConfigurationPanel.fireTableDataChanged();
+		updateButtonState();
+	}
+
+	public void copyConfiguration() {
+		// currentID is the currently selected configuration.
+		String newConfigId = rocket.newFlightConfigurationID();
+		CopyFlightConfigurationVisitor v = new CopyFlightConfigurationVisitor(currentID, newConfigId);
+		v.visit(rocket);
 		motorConfigurationPanel.fireTableDataChanged();
 		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
