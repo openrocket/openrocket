@@ -32,6 +32,7 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Utils;
 
 /**
@@ -107,7 +108,18 @@ public class SimulationPlotPanel extends JPanel {
 		types = branch.getTypes();
 		
 		setConfiguration(defaultConfiguration);
+
+		// FIXME - hard coding selected branches:
+		{
+			int branchCount = simulation.getSimulatedData().getBranchCount();
+			ArrayList<Integer> selectedBranches = new ArrayList<Integer>(branchCount);
+			for( int i=0; i< branchCount; i++ ) {
+				selectedBranches.add(i);
+			}
+			configuration.setSelectedBranches(selectedBranches);
+		}
 		
+
 		////  Configuration selector
 		
 		// Setup the combo box
@@ -313,6 +325,8 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(button, "right");
 		
+		
+		// FIXME - add list & check boxes for data branches.
 
 		updatePlots();
 	}

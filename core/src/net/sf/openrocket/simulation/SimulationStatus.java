@@ -1,10 +1,12 @@
 package net.sf.openrocket.simulation;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -44,6 +46,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	
 	private double effectiveLaunchRodLength;
 	
+	// Set of burnt out motors
+	Set<MotorId> motorBurntOut = new HashSet<MotorId>();
+
 
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
@@ -168,7 +173,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	}
 	
 	
-
+	public boolean addBurntOutMotor( MotorId motor ) {
+		return motorBurntOut.add(motor);
+	}
 
 
 	public Quaternion getRocketOrientationQuaternion() {
@@ -361,6 +368,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		this.liftoff = orig.liftoff;
 		this.launchRodCleared = orig.launchRodCleared;
 		this.apogeeReached = orig.apogeeReached;
+		this.motorBurntOut = orig.motorBurntOut;
 		
 		this.deployedRecoveryDevices.clear();
 		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);
