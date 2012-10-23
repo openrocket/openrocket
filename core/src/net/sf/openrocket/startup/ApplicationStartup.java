@@ -26,6 +26,7 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.util.BuildProperties;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 /**
  * The second class in the OpenRocket startup sequence.  This class can assume the
@@ -37,6 +38,8 @@ public class ApplicationStartup {
 	
 	@Inject
 	private LogHelper log;
+	@Inject
+	private Injector injector;
 	
 	
 	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
@@ -49,6 +52,10 @@ public class ApplicationStartup {
 	public void runMain(final String[] args) throws Exception {
 		
 		log.info("Starting up OpenRocket version " + BuildProperties.getVersion());
+		
+		Application.setInjector(injector);
+		
+		Thread.sleep(1000);
 		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");

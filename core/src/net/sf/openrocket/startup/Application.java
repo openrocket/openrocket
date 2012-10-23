@@ -11,6 +11,8 @@ import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.PrintStreamLogger;
 
+import com.google.inject.Injector;
+
 /**
  * A class that provides singleton instances / beans for other classes to utilize.
  * 
@@ -30,6 +32,8 @@ public final class Application {
 	private static Preferences preferences;
 	
 	private static ExceptionHandler exceptionHandler;
+	
+	private static Injector injector;
 	
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
@@ -171,6 +175,16 @@ public final class Application {
 	public static void setComponentPresetDao(ComponentPresetDao componentPresetDao) {
 		Application.componentPresetDao = componentPresetDao;
 	}
+	
+	public static Injector getInjector() {
+		return injector;
+	}
+	
+	public static void setInjector(Injector injector) {
+		Application.injector = injector;
+	}
+	
+	
 	
 	
 }
