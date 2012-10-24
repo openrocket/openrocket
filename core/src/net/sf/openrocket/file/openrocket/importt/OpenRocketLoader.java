@@ -35,6 +35,8 @@ import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -48,6 +50,7 @@ import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
@@ -60,6 +63,8 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -445,13 +450,13 @@ class DocumentConfig {
 				Reflection.findMethod(RecoveryDevice.class, "setCD", double.class),
 				"auto",
 				Reflection.findMethod(RecoveryDevice.class, "setCDAutomatic", boolean.class)));
-		setters.put("RecoveryDevice:deployevent", new EnumSetter<RecoveryDevice.DeployEvent>(
-				Reflection.findMethod(RecoveryDevice.class, "setDeployEvent", RecoveryDevice.DeployEvent.class),
-				RecoveryDevice.DeployEvent.class));
+		setters.put("RecoveryDevice:deployevent", new EnumSetter<DeployEvent>(
+				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployEvent", DeployEvent.class),
+				DeployEvent.class));
 		setters.put("RecoveryDevice:deployaltitude", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "setDeployAltitude", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployAltitude", double.class)));
 		setters.put("RecoveryDevice:deploydelay", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "setDeployDelay", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployDelay", double.class)));
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
@@ -486,11 +491,11 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
 		
 		// Stage
-		setters.put("Stage:separationevent", new EnumSetter<Stage.SeparationEvent>(
-				Reflection.findMethod(Stage.class, "setSeparationEvent", Stage.SeparationEvent.class),
-				Stage.SeparationEvent.class));
+		setters.put("Stage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
+				Reflection.findMethod(Stage.class, "setDefaultSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
+				StageSeparationConfiguration.SeparationEvent.class));
 		setters.put("Stage:separationdelay", new DoubleSetter(
-				Reflection.findMethod(Stage.class, "setSeparationDelay", double.class)));
+				Reflection.findMethod(Stage.class, "setDefaultSeparationDelay", double.class)));
 		
 	}
 	
@@ -875,7 +880,20 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			}
 			return new MotorConfigurationHandler((Rocket) component, context);
 		}
-		
+		if ( element.equals("deploymentconfiguration")) {
+			if ( !(component instanceof RecoveryDevice) ) {
+				warnings.add(Warning.fromString("Illegal component defined as recovery device."));
+				return null;
+			}
+			return new DeploymentConfigurationHandler( (RecoveryDevice) component, context );
+		}
+		if ( element.equals("separationconfiguration")) {
+			if ( !(component instanceof Stage) ) {
+				warnings.add(Warning.fromString("Illegal component defined as stage."));
+				return null;
+			}
+			return new StageSeparationConfigurationHandler( (Stage) component, context );
+		}
 		
 		return PlainTextHandler.INSTANCE;
 	}
@@ -885,7 +903,8 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			String content, WarningSet warnings) {
 		
 		if (element.equals("subcomponents") || element.equals("motormount") ||
-				element.equals("finpoints") || element.equals("motorconfiguration")) {
+				element.equals("finpoints") || element.equals("motorconfiguration") ||
+				element.equals("deploymentconfiguration") || element.equals("separationconfiguration")) {
 			return;
 		}
 		
@@ -1016,12 +1035,15 @@ class MotorMountHandler extends AbstractElementHandler {
 			Motor motor = motorHandler.getMotor(warnings);
 			mount.setMotor(id, motor);
 			mount.setMotorDelay(id, motorHandler.getDelay(warnings));
+			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
+			motorConfig.setIgnitionEvent( motorHandler.getIgnitionEvent());
+			motorConfig.setIgnitionDelay( motorHandler.getIgnitionDelay());
 			return;
 		}
 		
 		if (element.equals("ignitionevent")) {
-			MotorMount.IgnitionEvent event = null;
-			for (MotorMount.IgnitionEvent e : MotorMount.IgnitionEvent.values()) {
+			MotorConfiguration.IgnitionEvent event = null;
+			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
 				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					event = e;
 					break;
@@ -1031,7 +1053,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
 				return;
 			}
-			mount.setIgnitionEvent(event);
+			mount.setDefaultIgnitionEvent(event);
 			return;
 		}
 		
@@ -1043,7 +1065,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
 				return;
 			}
-			mount.setIgnitionDelay(d);
+			mount.setDefaultIgnitionDelay(d);
 			return;
 		}
 		
@@ -1113,11 +1135,11 @@ class MotorConfigurationHandler extends AbstractElementHandler {
 		}
 		
 		if (name != null && name.trim().length() > 0) {
-			rocket.setMotorConfigurationName(configid, name);
+			rocket.setFlightConfigurationName(configid, name);
 		}
 		
 		if ("true".equals(attributes.remove("default"))) {
-			rocket.getDefaultConfiguration().setMotorConfigurationID(configid);
+			rocket.getDefaultConfiguration().setFlightConfigurationID(configid);
 		}
 		
 		super.closeElement(element, attributes, content, warnings);
@@ -1137,6 +1159,9 @@ class MotorHandler extends AbstractElementHandler {
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
+	
+	private Double ignitionDelay = null;
+	private MotorConfiguration.IgnitionEvent ignitionEvent = null;
 	
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
@@ -1168,7 +1193,14 @@ class MotorHandler extends AbstractElementHandler {
 		return delay;
 	}
 	
-	
+	public Double getIgnitionDelay() {
+		return ignitionDelay;
+	}
+
+	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
+		return ignitionEvent;
+	}
+
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -1250,6 +1282,24 @@ class MotorHandler extends AbstractElementHandler {
 				
 			}
 			
+		} else if ( element.equals("ignitionevent")) {
+			
+			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
+				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
+					ignitionEvent = e;
+					break;
+				}
+			}
+			if (ignitionEvent == null) {
+				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
+			}
+			
+		} else if ( element.equals("ignitiondelay")) {
+			try {
+				ignitionDelay = Double.parseDouble(content);
+			} catch (NumberFormatException nfe) {
+				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
+			}
 		} else {
 			super.closeElement(element, attributes, content, warnings);
 		}
@@ -1257,7 +1307,101 @@ class MotorHandler extends AbstractElementHandler {
 	
 }
 
+class DeploymentConfigurationHandler extends AbstractElementHandler {
+	private final DocumentLoadingContext context;
+	private final RecoveryDevice recoveryDevice;
+	private DeploymentConfiguration config;
+	private String configId;
 
+	public DeploymentConfigurationHandler( RecoveryDevice recoveryDevice, DocumentLoadingContext context ) {
+		this.recoveryDevice = recoveryDevice;
+		this.context = context;
+		config = new DeploymentConfiguration();
+	}
+
+	@Override
+	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		return PlainTextHandler.INSTANCE;
+	}
+
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes, String content,
+			WarningSet warnings) throws SAXException {
+		
+		content = content.trim();
+		
+		if ( "deployevent".equals(element) ) {
+			DeployEvent type = (DeployEvent) DocumentConfig.findEnum(content, DeployEvent.class);
+			if ( type == null ) {
+				warnings.add(Warning.FILE_INVALID_PARAMETER);
+				return;
+			}
+			config.setDeployEvent( type );
+			return;
+		} else if ( "deployaltitude".equals(element) ) {
+			config.setDeployAltitude( Double.parseDouble(content));
+			return;
+		} else if ( "deploydelay".equals(element) ) {
+			config.setDeployDelay( Double.parseDouble(content));
+			return;
+		}
+		super.closeElement(element, attributes, content, warnings);
+
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		String configId = attributes.get("configid");
+		recoveryDevice.setFlightConfiguration(configId, config);
+	}
+	
+}
+
+class StageSeparationConfigurationHandler extends AbstractElementHandler {
+	private final Stage stage;
+	private StageSeparationConfiguration config;
+
+	public StageSeparationConfigurationHandler( Stage stage, DocumentLoadingContext context ) {
+		this.stage = stage;
+		config = new StageSeparationConfiguration();
+	}
+
+	@Override
+	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		return PlainTextHandler.INSTANCE;
+	}
+
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes, String content,
+			WarningSet warnings) throws SAXException {
+		
+		content = content.trim();
+		
+		if ( "separationevent".equals(element) ) {
+			SeparationEvent type = (SeparationEvent) DocumentConfig.findEnum(content, SeparationEvent.class);
+			if ( type == null ) {
+				warnings.add(Warning.FILE_INVALID_PARAMETER);
+				return;
+			}
+			config.setSeparationEvent( type );
+			return;
+		} else if ( "separationdelay".equals(element) ) {
+			config.setSeparationDelay( Double.parseDouble(content));
+			return;
+		}
+		super.closeElement(element, attributes, content, warnings);
+
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		String configId = attributes.get("configid");
+		stage.setFlightConfiguration(configId, config);
+	}
+	
+}
 
 class SimulationsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;

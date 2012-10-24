@@ -14,6 +14,7 @@ import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
 import net.sf.openrocket.optimization.rocketoptimization.modifiers.GenericComponentModifier;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FreeformFinSet;
@@ -24,7 +25,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
@@ -127,7 +127,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 		
 		// Simulation is used to calculate default min/max values
 		Simulation simulation = new Simulation(rocket);
-		simulation.getConfiguration().setMotorConfigurationID(null);
+		simulation.getConfiguration().setFlightConfigurationID(null);
 		
 		for (RocketComponent c : rocket) {
 			
@@ -256,7 +256,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 				mod.setMaxValue(10);
 				modifiers.add(mod);
 				
-				if (device.getDeployEvent() == DeployEvent.ALTITUDE) {
+				if (device.getDefaultDeployEvent() == DeployEvent.ALTITUDE) {
 					mod = new GenericComponentModifier(
 							trans.get("optimization.modifier.recoverydevice.deployAltitude"),
 							trans.get("optimization.modifier.recoverydevice.deployAltitude.desc"),

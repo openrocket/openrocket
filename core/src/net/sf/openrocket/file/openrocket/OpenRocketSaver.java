@@ -17,10 +17,10 @@ import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice.DeployEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
@@ -250,7 +250,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Search for recovery device deployment type LOWER_STAGE_SEPARATION (version 1.5)
 		for (RocketComponent c : document.getRocket()) {
 			if (c instanceof RecoveryDevice) {
-				if (((RecoveryDevice) c).getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
+				if (((RecoveryDevice) c).getDefaultDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
 					return FILE_VERSION_DIVISOR + 5;
 				}
 			}
@@ -272,7 +272,7 @@ public class OpenRocketSaver extends RocketSaver {
 				continue;
 			
 			MotorMount mount = (MotorMount) c;
-			for (String id : document.getRocket().getMotorConfigurationIDs()) {
+			for (String id : document.getRocket().getFlightConfigurationIDs()) {
 				if (mount.getMotor(id) != null) {
 					return FILE_VERSION_DIVISOR + 4;
 				}

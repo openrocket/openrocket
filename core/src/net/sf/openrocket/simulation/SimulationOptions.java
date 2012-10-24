@@ -116,7 +116,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	public void setMotorConfigurationID(String id) {
 		if (id != null)
 			id = id.intern();
-		if (!rocket.isMotorConfigurationID(id))
+		if (!rocket.isFlightConfigurationID(id))
 			id = null;
 		if (id == motorID)
 			return;
@@ -408,11 +408,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			
 			if (src.rocket.hasMotors(src.motorID)) {
 				// Try to find a matching motor ID
-				String motorDesc = src.rocket.getMotorConfigurationDescription(src.motorID);
+				String motorDesc = src.rocket.getFlightConfigurationDescription(src.motorID);
 				String matchID = null;
 				
-				for (String id : this.rocket.getMotorConfigurationIDs()) {
-					if (motorDesc.equals(this.rocket.getMotorConfigurationDescription(id))) {
+				for (String id : this.rocket.getFlightConfigurationIDs()) {
+					if (motorDesc.equals(this.rocket.getFlightConfigurationDescription(id))) {
 						matchID = id;
 						break;
 					}

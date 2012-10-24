@@ -205,7 +205,7 @@ public class RocketRenderer {
 	}
 
 	private void renderMotors(GL2 gl, Configuration configuration) {
-		String motorID = configuration.getMotorConfigurationID();
+		String motorID = configuration.getFlightConfigurationID();
 		Iterator<MotorMount> iterator = configuration.motorIterator();
 		while (iterator.hasNext()) {
 			MotorMount mount = iterator.next();

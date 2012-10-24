@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.JComponent;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
@@ -27,8 +28,7 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 		if (altitudeComponents == null)
 			return;
 		
-		boolean enabled = (((RecoveryDevice) component).getDeployEvent()
-				== RecoveryDevice.DeployEvent.ALTITUDE);
+		boolean enabled = (((RecoveryDevice) component).getDefaultDeployEvent() == DeployEvent.ALTITUDE);
 		
 		for (JComponent c : altitudeComponents) {
 			c.setEnabled(enabled);

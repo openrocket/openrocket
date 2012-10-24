@@ -69,11 +69,11 @@ public class Rocket extends RocketComponent {
 	private String revision = "";
 	
 
-	// Motor configuration list
-	private ArrayList<String> motorConfigurationIDs = new ArrayList<String>();
-	private HashMap<String, String> motorConfigurationNames = new HashMap<String, String>();
+	// Flight configuration list
+	private ArrayList<String> flightConfigurationIDs = new ArrayList<String>();
+	private HashMap<String, String> flightConfigurationNames = new HashMap<String, String>();
 	{
-		motorConfigurationIDs.add(null);
+		flightConfigurationIDs.add(null);
 	}
 	
 
@@ -266,9 +266,9 @@ public class Rocket extends RocketComponent {
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.motorConfigurationIDs = this.motorConfigurationIDs.clone();
-		copy.motorConfigurationNames =
-				(HashMap<String, String>) this.motorConfigurationNames.clone();
+		copy.flightConfigurationIDs = this.flightConfigurationIDs.clone();
+		copy.flightConfigurationNames =
+				(HashMap<String, String>) this.flightConfigurationNames.clone();
 		copy.resetListeners();
 		
 		return copy;
@@ -306,14 +306,14 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.motorConfigurationIDs = r.motorConfigurationIDs.clone();
-		this.motorConfigurationNames =
-				(HashMap<String, String>) r.motorConfigurationNames.clone();
+		this.flightConfigurationIDs = r.flightConfigurationIDs.clone();
+		this.flightConfigurationNames =
+				(HashMap<String, String>) r.flightConfigurationNames.clone();
 		this.perfectFinish = r.perfectFinish;
 		
-		String id = defaultConfiguration.getMotorConfigurationID();
-		if (!this.motorConfigurationIDs.contains(id))
-			defaultConfiguration.setMotorConfigurationID(null);
+		String id = defaultConfiguration.getFlightConfigurationID();
+		if (!this.flightConfigurationIDs.contains(id))
+			defaultConfiguration.setFlightConfigurationID(null);
 		
 		this.checkComponentStructure();
 		
@@ -512,26 +512,26 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Return an array of the motor configuration IDs.  This array is guaranteed
+	 * Return an array of the flight configuration IDs.  This array is guaranteed
 	 * to contain the <code>null</code> ID as the first element.
 	 *
-	 * @return  an array of the motor configuration IDs.
+	 * @return  an array of the flight configuration IDs.
 	 */
-	public String[] getMotorConfigurationIDs() {
+	public String[] getFlightConfigurationIDs() {
 		checkState();
-		return motorConfigurationIDs.toArray(new String[0]);
+		return flightConfigurationIDs.toArray(new String[0]);
 	}
 	
 	/**
-	 * Add a new motor configuration ID to the motor configurations.  The new ID
+	 * Add a new flight configuration ID to the flight configurations.  The new ID
 	 * is returned.
 	 *
-	 * @return  the new motor configuration ID.
+	 * @return  the new flight configuration ID.
 	 */
-	public String newMotorConfigurationID() {
+	public String newFlightConfigurationID() {
 		checkState();
 		String id = UUID.randomUUID().toString();
-		motorConfigurationIDs.add(id);
+		flightConfigurationIDs.add(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 		return id;
 	}
@@ -544,24 +544,24 @@ public class Rocket extends RocketComponent {
 	 */
 	public boolean addMotorConfigurationID(String id) {
 		checkState();
-		if (id == null || motorConfigurationIDs.contains(id))
+		if (id == null || flightConfigurationIDs.contains(id))
 			return false;
-		motorConfigurationIDs.add(id);
+		flightConfigurationIDs.add(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 		return true;
 	}
 	
 	/**
-	 * Remove a motor configuration ID from the configuration IDs.  The <code>null</code>
+	 * Remove a flight configuration ID from the configuration IDs.  The <code>null</code>
 	 * ID cannot be removed, and an attempt to remove it will be silently ignored.
 	 *
-	 * @param id   the motor configuration ID to remove
+	 * @param id   the flight configuration ID to remove
 	 */
-	public void removeMotorConfigurationID(String id) {
+	public void removeFlightConfigurationID(String id) {
 		checkState();
 		if (id == null)
 			return;
-		motorConfigurationIDs.remove(id);
+		flightConfigurationIDs.remove(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
@@ -572,9 +572,9 @@ public class Rocket extends RocketComponent {
 	 * @param id	the configuration ID.
 	 * @return		whether a motor configuration with that ID exists.
 	 */
-	public boolean isMotorConfigurationID(String id) {
+	public boolean isFlightConfigurationID(String id) {
 		checkState();
-		return motorConfigurationIDs.contains(id);
+		return flightConfigurationIDs.contains(id);
 	}
 	
 	
@@ -608,17 +608,17 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Return the user-set name of the motor configuration.  If no name has been set,
+	 * Return the user-set name of the flight configuration.  If no name has been set,
 	 * returns an empty string (not null).
 	 *
-	 * @param id   the motor configuration id
+	 * @param id   the flight configuration id
 	 * @return	   the configuration name
 	 */
-	public String getMotorConfigurationName(String id) {
+	public String getFlightConfigurationName(String id) {
 		checkState();
-		if (!isMotorConfigurationID(id))
+		if (!isFlightConfigurationID(id))
 			return "";
-		String s = motorConfigurationNames.get(id);
+		String s = flightConfigurationNames.get(id);
 		if (s == null)
 			return "";
 		return s;
@@ -626,45 +626,45 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Set the name of the motor configuration.  A name can be unset by passing
+	 * Set the name of the flight configuration.  A name can be unset by passing
 	 * <code>null</code> or an empty string.
 	 *
-	 * @param id	the motor configuration id
-	 * @param name	the name for the motor configuration
+	 * @param id	the flight configuration id
+	 * @param name	the name for the flight configuration
 	 */
-	public void setMotorConfigurationName(String id, String name) {
+	public void setFlightConfigurationName(String id, String name) {
 		checkState();
-		motorConfigurationNames.put(id, name);
+		flightConfigurationNames.put(id, name);
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	
 	/**
-	 * Return either the motor configuration name (if set) or its description.
+	 * Return either the flight configuration name (if set) or its description.
 	 *
-	 * @param id  the motor configuration ID.
+	 * @param id  the flight configuration ID.
 	 * @return    a textual representation of the configuration
 	 */
-	public String getMotorConfigurationNameOrDescription(String id) {
+	public String getFlightConfigurationNameOrDescription(String id) {
 		checkState();
 		String name;
 		
-		name = getMotorConfigurationName(id);
+		name = getFlightConfigurationName(id);
 		if (name != null && !name.equals(""))
 			return name;
 		
-		return getMotorConfigurationDescription(id);
+		return getFlightConfigurationDescription(id);
 	}
 	
 	/**
-	 * Return a description for the motor configuration, generated from the motor
+	 * Return a description for the flight configuration, generated from the motor
 	 * designations of the components.
 	 *
-	 * @param id  the motor configuration ID.
+	 * @param id  the flight configuration ID.
 	 * @return    a textual representation of the configuration
 	 */
 	@SuppressWarnings("null")
-	public String getMotorConfigurationDescription(String id) {
+	public String getFlightConfigurationDescription(String id) {
 		checkState();
 		String name;
 		int motorCount = 0;

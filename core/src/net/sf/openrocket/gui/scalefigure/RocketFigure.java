@@ -347,7 +347,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 
 		// Draw motors
-		String motorID = configuration.getMotorConfigurationID();
+		String motorID = configuration.getFlightConfigurationID();
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
 		Iterator<MotorMount> iterator = configuration.motorIterator();
