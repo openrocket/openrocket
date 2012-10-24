@@ -23,7 +23,7 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RecoveryDevice extends MassObject implements SupportsFlightConfiguration<DeploymentConfiguration> {
+public abstract class RecoveryDevice extends MassObject implements FlightConfigurable<DeploymentConfiguration> {
 	private static final Translator trans = Application.getTranslator();
 	
 	private Map<String,DeploymentConfiguration> deploymentConfigurations = new HashMap<String,DeploymentConfiguration>();
