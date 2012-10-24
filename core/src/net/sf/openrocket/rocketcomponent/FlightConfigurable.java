@@ -1,6 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
-public interface SupportsFlightConfiguration<T> {
+public interface FlightConfigurable<T> {
 
 	public T getFlightConfiguration( String configId );
 	

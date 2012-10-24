@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketvisitors.CopyFlightConfigurationVisitor;
 import net.sf.openrocket.startup.Application;
 
@@ -29,12 +30,13 @@ public class FlightConfigurationDialog extends JDialog {
 	private final Rocket rocket;
 
 	private FlightConfigurationModel flightConfigurationModel;
-	
+
 	private final JButton renameConfButton, removeConfButton, copyConfButton;
-	
+
 	private final MotorConfigurationPanel motorConfigurationPanel;
 	private final RecoveryConfigurationPanel recoveryConfigurationPanel;
-	
+	private final SeparationConfigurationPanel separationConfigurationPanel;
+
 	private String currentID = null;
 
 	public FlightConfigurationDialog(final Rocket rocket, Window parent) {
@@ -108,11 +110,17 @@ public class FlightConfigurationDialog extends JDialog {
 		//// Motor tabs
 		motorConfigurationPanel = new MotorConfigurationPanel(this,rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
-		
+
 		//// Recovery tab
 		recoveryConfigurationPanel = new RecoveryConfigurationPanel(this,rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel );
-		
+
+		//// Stage tab
+		separationConfigurationPanel = new SeparationConfigurationPanel(this,rocket);
+		if ( rocket.getStageCount() > 1 ) {
+			tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel );
+		}
+
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -151,6 +159,7 @@ public class FlightConfigurationDialog extends JDialog {
 		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
 		motorConfigurationPanel.fireTableDataChanged();
 		recoveryConfigurationPanel.fireTableDataChanged();
+		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
@@ -160,6 +169,7 @@ public class FlightConfigurationDialog extends JDialog {
 		motorConfigurationPanel.fireTableDataChanged();
 		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
+		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
@@ -171,6 +181,7 @@ public class FlightConfigurationDialog extends JDialog {
 		motorConfigurationPanel.fireTableDataChanged();
 		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
+		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
@@ -187,6 +198,7 @@ public class FlightConfigurationDialog extends JDialog {
 		motorConfigurationPanel.fireTableDataChanged();
 		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
+		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
 	}
 
@@ -202,6 +214,7 @@ public class FlightConfigurationDialog extends JDialog {
 		renameConfButton.setEnabled(currentID != null);
 		motorConfigurationPanel.updateButtonState();
 		recoveryConfigurationPanel.updateButtonState();
+		separationConfigurationPanel.updateButtonState();
 	}
 
 

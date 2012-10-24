@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import net.sf.openrocket.motor.Motor;
 
-class BaseMotorMount implements SupportsFlightConfiguration<MotorConfiguration>, Cloneable {
+class BaseMotorMount implements FlightConfigurable<MotorConfiguration>, Cloneable {
 
 	private HashMap<String, MotorConfiguration > motors = new HashMap<String,MotorConfiguration>();
 	private MotorConfiguration defaultConfiguration = MotorConfiguration.makeDefaultMotorConfiguration();

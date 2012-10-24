@@ -4,7 +4,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Coordinate;
 
-public interface MotorMount extends ChangeSource, SupportsFlightConfiguration<MotorConfiguration> {
+public interface MotorMount extends ChangeSource, FlightConfigurable<MotorConfiguration> {
 	
 	/**
 	 * Is the component currently a motor mount.
