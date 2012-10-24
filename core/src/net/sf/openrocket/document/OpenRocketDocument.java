@@ -578,7 +578,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public OpenRocketDocument copy() {
 		Rocket rocketCopy = rocket.copyWithOriginalID();
 		OpenRocketDocument documentCopy = new OpenRocketDocument(rocketCopy);
-		documentCopy.getDefaultConfiguration().setMotorConfigurationID(configuration.getMotorConfigurationID());
+		documentCopy.getDefaultConfiguration().setFlightConfigurationID(configuration.getFlightConfigurationID());
 		for (Simulation s : simulations) {
 			documentCopy.addSimulation(s.duplicateSimulation(rocketCopy));
 		}

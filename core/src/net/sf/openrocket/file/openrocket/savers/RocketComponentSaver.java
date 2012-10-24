@@ -15,6 +15,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -145,15 +146,17 @@ public class RocketComponentSaver {
 	protected final List<String> motorMountParams(MotorMount mount) {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
-
-		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getMotorConfigurationIDs();
+		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
 		List<String> elements = new ArrayList<String>();
 
 		elements.add("<motormount>");
 
 		for (String id : motorConfigIDs) {
-			Motor motor = mount.getMotor(id);
-
+			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
+			if ( motorConfig == null ) {
+				continue;
+			}
+			Motor motor = motorConfig.getMotor();
 			// Nothing is stored if no motor loaded
 			if (motor == null)
 				continue;
@@ -173,20 +176,26 @@ public class RocketComponentSaver {
 			elements.add("    <length>" + motor.getLength() + "</length>");
 
 			// Motor delay
-			if (mount.getMotorDelay(id) == Motor.PLUGGED) {
+			if (motorConfig.getEjectionDelay() == Motor.PLUGGED) {
 				elements.add("    <delay>none</delay>");
 			} else {
-				elements.add("    <delay>" + mount.getMotorDelay(id) + "</delay>");
+				elements.add("    <delay>" + motorConfig.getEjectionDelay() + "</delay>");
+			}
+			
+			if ( motorConfig.getIgnitionEvent() != null ) {
+				elements.add("    <ignitionevent>" + motorConfig.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
+			}
+			if ( motorConfig.getIgnitionDelay() != null ) {
+				elements.add("    <ignitiondelay>" + motorConfig.getIgnitionDelay() + "</ignitiondelay>");
 			}
 
 			elements.add("  </motor>");
 		}
 
 		elements.add("  <ignitionevent>"
-				+ mount.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
+				+ mount.getDefaultIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</ignitionevent>");
-
-		elements.add("  <ignitiondelay>" + mount.getIgnitionDelay() + "</ignitiondelay>");
+		elements.add("  <ignitiondelay>" + mount.getDefaultIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 
 		elements.add("</motormount>");

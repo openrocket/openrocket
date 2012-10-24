@@ -216,7 +216,7 @@ public class DesignReport {
 			paragraph.setSpacingAfter(heightOfDiagramAndText);
 			document.add(paragraph);
 
-			String[] motorIds = rocket.getMotorConfigurationIDs();
+			String[] motorIds = rocket.getFlightConfigurationIDs();
 			List<Simulation> simulations = rocketDocument.getSimulations();
 
 			for (int j = 0; j < motorIds.length; j++) {
@@ -321,7 +321,7 @@ public class DesignReport {
 		MassCalculator massCalc = new BasicMassCalculator();
 
 		Configuration config = new Configuration(rocket);
-		config.setMotorConfigurationID(motorId);
+		config.setFlightConfigurationID(motorId);
 
 		int totalMotorCount = 0;
 		double totalPropMass = 0;
@@ -444,7 +444,7 @@ public class DesignReport {
 				PdfPTable labelTable = new PdfPTable(2);
 				labelTable.setWidths(new int[] { 3, 2 });
 				final Paragraph chunk = ITextHelper.createParagraph(stripBrackets(
-						theRocket.getMotorConfigurationNameOrDescription(motorId)), PrintUtilities.BOLD);
+						theRocket.getFlightConfigurationNameOrDescription(motorId)), PrintUtilities.BOLD);
 				chunk.setLeading(leading);
 				chunk.setSpacingAfter(3f);
 

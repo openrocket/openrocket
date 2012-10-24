@@ -23,8 +23,8 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -193,14 +193,14 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat")), "");
 		
-		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DeployEvent"));
+		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(component, "DefaultDeployEvent"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plusdelay")), "right");
 		
-		m = new DoubleModel(component, "DeployDelay", 0);
+		m = new DoubleModel(component, "DefaultDeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin,3));
 		panel.add(spin, "spanx, split");
@@ -213,7 +213,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(label);
 		panel.add(label);
 		
-		m = new DoubleModel(component, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(component, "DefaultDeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

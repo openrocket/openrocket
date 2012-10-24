@@ -40,7 +40,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
+import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -309,7 +309,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Motorcfg"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
-		add(new JComboBox(new MotorConfigurationModel(configuration)), "wrap");
+		add(new JComboBox(new FlightConfigurationModel(configuration)), "wrap");
 
 
 
@@ -674,12 +674,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Check whether data is already up to date
 		if (flightDataFunctionalID == configuration.getRocket().getFunctionalModID() &&
-				flightDataMotorID == configuration.getMotorConfigurationID()) {
+				flightDataMotorID == configuration.getFlightConfigurationID()) {
 			return;
 		}
 
 		flightDataFunctionalID = configuration.getRocket().getFunctionalModID();
-		flightDataMotorID = configuration.getMotorConfigurationID();
+		flightDataMotorID = configuration.getFlightConfigurationID();
 
 		// Stop previous computation (if any)
 		stopBackgroundSimulation();
@@ -697,7 +697,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		Rocket duplicate = (Rocket) configuration.getRocket().copy();
 		Simulation simulation = ((SwingPreferences)Application.getPreferences()).getBackgroundSimulation(duplicate);
 		simulation.getOptions().setMotorConfigurationID(
-				configuration.getMotorConfigurationID());
+				configuration.getFlightConfigurationID());
 
 		backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
 		backgroundSimulationExecutor.execute(backgroundSimulationWorker);

@@ -99,7 +99,7 @@ public class Simulation implements ChangeSource, Cloneable {
 
 		options = new SimulationOptions(rocket);
 		options.setMotorConfigurationID(
-				rocket.getDefaultConfiguration().getMotorConfigurationID());
+				rocket.getDefaultConfiguration().getFlightConfigurationID());
 		options.addChangeListener(new ConditionListener());
 	}
 
@@ -166,7 +166,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	public Configuration getConfiguration() {
 		mutex.verify();
 		Configuration c = new Configuration(rocket);
-		c.setMotorConfigurationID(options.getMotorConfigurationID());
+		c.setFlightConfigurationID(options.getMotorConfigurationID());
 		c.setAllStages();
 		return c;
 	}
@@ -304,7 +304,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			// Set simulated info after simulation, will not be set in case of exception
 			simulatedConditions = options.clone();
             final Configuration configuration = getConfiguration();
-            simulatedMotors = configuration.getMotorConfigurationDescription();
+            simulatedMotors = configuration.getFlightConfigurationDescription();
 			simulatedRocketID = rocket.getFunctionalModID();
 
 			status = Status.UPTODATE;
@@ -349,7 +349,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	 *
 	 * @return	a description of the motor configuration of the previous simulation, or
 	 * 			<code>null</code>.
-	 * @see		Rocket#getMotorConfigurationNameOrDescription(String)
+	 * @see		Rocket#getFlightConfigurationNameOrDescription(String)
 	 */
 	public String getSimulatedMotorDescription() {
 		mutex.verify();

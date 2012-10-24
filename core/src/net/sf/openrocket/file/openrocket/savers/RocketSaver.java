@@ -40,8 +40,8 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		
 		// Motor configurations
-		String defId = rocket.getDefaultConfiguration().getMotorConfigurationID();
-		for (String id : rocket.getMotorConfigurationIDs()) {
+		String defId = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		for (String id : rocket.getFlightConfigurationIDs()) {
 			if (id == null)
 				continue;
 			
@@ -49,10 +49,10 @@ public class RocketSaver extends RocketComponentSaver {
 			if (id.equals(defId))
 				str += " default=\"true\"";
 			
-			if (rocket.getMotorConfigurationName(id) == "") {
+			if (rocket.getFlightConfigurationName(id) == "") {
 				str += "/>";
 			} else {
-				str += "><name>" + net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getMotorConfigurationName(id))
+				str += "><name>" + net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getFlightConfigurationName(id))
 						+ "</name></motorconfiguration>";
 			}
 			elements.add(str);

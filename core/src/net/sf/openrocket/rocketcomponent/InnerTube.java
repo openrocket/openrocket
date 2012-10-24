@@ -1,7 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
@@ -19,22 +18,17 @@ import net.sf.openrocket.util.MathUtil;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class InnerTube extends ThicknessRingComponent
-		implements Clusterable, RadialParent, MotorMount {
+public class InnerTube extends ThicknessRingComponent implements Clusterable, RadialParent, MotorMount {
 	private static final Translator trans = Application.getTranslator();
 	
 	private ClusterConfiguration cluster = ClusterConfiguration.SINGLE;
 	private double clusterScale = 1.0;
 	private double clusterRotation = 0.0;
 	
-
 	private boolean motorMount = false;
-	private HashMap<String, Double> ejectionDelays = new HashMap<String, Double>();
-	private HashMap<String, Motor> motors = new HashMap<String, Motor>();
-	private IgnitionEvent ignitionEvent = IgnitionEvent.AUTOMATIC;
-	private double ignitionDelay = 0;
 	private double overhang = 0;
-	
+
+	private BaseMotorMount baseMotorMount = new BaseMotorMount();
 	
 	/**
 	 * Main constructor.
@@ -217,16 +211,47 @@ public class InnerTube extends ThicknessRingComponent
 		return newArray;
 	}
 	
-	
-
-
 	////////////////  Motor mount  /////////////////
 	
+
+	@Override
+	public MotorConfiguration getFlightConfiguration(String configId) {
+		return baseMotorMount.getFlightConfiguration(configId);
+	}
+
+
+	@Override
+	public void setFlightConfiguration(String configId,	MotorConfiguration config) {
+		baseMotorMount.setFlightConfiguration(configId, config);
+		fireComponentChangeEvent(ComponentChangeEvent.ALL_CHANGE);
+	}
+
+
+	@Override
+	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
+		baseMotorMount.cloneFlightConfiguration(oldConfigId, newConfigId);
+	}
+
+
+	@Override
+	public MotorConfiguration getDefaultFlightConfiguration() {
+		return baseMotorMount.getDefaultFlightConfiguration();
+	}
+
+
+	@Override
+	public void setDefaultFlightConfiguration(MotorConfiguration config) {
+		baseMotorMount.setDefaultFlightConfiguration(config);
+		fireComponentChangeEvent(ComponentChangeEvent.ALL_CHANGE);
+	}
+
+
 	@Override
 	public boolean isMotorMount() {
 		return motorMount;
 	}
 	
+
 	@Override
 	public void setMotorMount(boolean mount) {
 		if (motorMount == mount)
@@ -235,49 +260,6 @@ public class InnerTube extends ThicknessRingComponent
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
-	@Override
-	public Motor getMotor(String id) {
-		if (id == null)
-			return null;
-		
-		// Check whether the id is valid for the current rocket
-		RocketComponent root = this.getRoot();
-		if (!(root instanceof Rocket))
-			return null;
-		if (!((Rocket) root).isMotorConfigurationID(id))
-			return null;
-		
-		return motors.get(id);
-	}
-	
-	@Override
-	public void setMotor(String id, Motor motor) {
-		if (id == null) {
-			if (motor != null) {
-				throw new IllegalArgumentException("Cannot set non-null motor for id null");
-			}
-		}
-		Motor current = motors.get(id);
-		if ((motor == null && current == null) ||
-				(motor != null && motor.equals(current)))
-			return;
-		motors.put(id, motor);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
-	
-	@Override
-	public double getMotorDelay(String id) {
-		Double delay = ejectionDelays.get(id);
-		if (delay == null)
-			return Motor.PLUGGED;
-		return delay;
-	}
-	
-	@Override
-	public void setMotorDelay(String id, double delay) {
-		ejectionDelays.put(id, delay);
-		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
-	}
 	
 	@Deprecated
 	@Override
@@ -291,33 +273,57 @@ public class InnerTube extends ThicknessRingComponent
 	}
 	
 	@Override
-	public IgnitionEvent getIgnitionEvent() {
-		return ignitionEvent;
+	public MotorConfiguration.IgnitionEvent getDefaultIgnitionEvent() {
+		return getDefaultFlightConfiguration().getIgnitionEvent();
 	}
 	
 	@Override
-	public void setIgnitionEvent(IgnitionEvent event) {
+	public void setDefaultIgnitionEvent(MotorConfiguration.IgnitionEvent event) {
+		MotorConfiguration.IgnitionEvent ignitionEvent = getDefaultIgnitionEvent();
 		if (ignitionEvent == event)
 			return;
-		ignitionEvent = event;
+		getDefaultFlightConfiguration().setIgnitionEvent(event);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
-	
 	@Override
-	public double getIgnitionDelay() {
-		return ignitionDelay;
+	public double getDefaultIgnitionDelay() {
+		return getDefaultFlightConfiguration().getIgnitionDelay();
 	}
 	
 	@Override
-	public void setIgnitionDelay(double delay) {
+	public void setDefaultIgnitionDelay(double delay) {
+		double ignitionDelay = getDefaultIgnitionDelay();
 		if (MathUtil.equals(delay, ignitionDelay))
 			return;
-		ignitionDelay = delay;
+		getDefaultFlightConfiguration().setIgnitionDelay(delay);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
-	
+	@Override
+	public Motor getMotor(String id) {
+		return baseMotorMount.getMotor(id);
+	}
+
+	@Override
+	public void setMotor(String id, Motor motor) {
+		if (baseMotorMount.setMotor(id, motor) ) {
+			fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		}
+	}
+
+	@Override
+	public double getMotorDelay(String id) {
+		return baseMotorMount.getMotorDelay(id);
+	}
+
+	@Override
+	public void setMotorDelay(String id, double delay) {
+		if (baseMotorMount.setMotorDelay(id, delay) ) {
+			fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
+		}
+	}
+
 	@Override
 	public double getMotorOverhang() {
 		return overhang;
@@ -331,10 +337,9 @@ public class InnerTube extends ThicknessRingComponent
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	
 	@Override
 	public Coordinate getMotorPosition(String id) {
-		Motor motor = motors.get(id);
+		Motor motor = getMotor(id);
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
@@ -348,12 +353,10 @@ public class InnerTube extends ThicknessRingComponent
 	 *
 	 * @see rocketcomponent.RocketComponent#copy()
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected RocketComponent copyWithOriginalID() {
 		RocketComponent c = super.copyWithOriginalID();
-		((InnerTube) c).motors = (HashMap<String, Motor>) motors.clone();
-		((InnerTube) c).ejectionDelays = (HashMap<String, Double>) ejectionDelays.clone();
+		((InnerTube) c).baseMotorMount = baseMotorMount.clone();
 		return c;
 	}
 	
