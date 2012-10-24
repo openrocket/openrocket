@@ -87,6 +87,11 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		fireChangeEvent();
 	}
 	
+	public void setOnlyStage(int stage) {
+		stages.clear();
+		stages.set(stage, stage+1, true);
+		fireChangeEvent();
+	}
 	
 	/**
 	 * Check whether the up-most stage of the rocket is in this configuration.
