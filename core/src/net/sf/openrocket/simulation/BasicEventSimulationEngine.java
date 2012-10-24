@@ -20,6 +20,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
@@ -367,9 +368,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					continue;
 
 				Stage stage = (Stage) status.getConfiguration().getRocket().getChild(stageNo);
-				if (stage.getDefaultSeparationEvent().isSeparationEvent(event, stage)) {
+				StageSeparationConfiguration separationConfig = stage.getFlightConfiguration(flightConfigurationId);
+				if ( separationConfig == null ) {
+					separationConfig = stage.getDefaultFlightConfiguration();
+				}
+				if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
 					addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
-							event.getTime() + stage.getDefaultSeparationDelay(), stage));
+							event.getTime() + separationConfig.getSeparationDelay(), stage));
 				}
 			}
 

@@ -1,15 +1,19 @@
 package net.sf.openrocket.rocketcomponent;
 
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
+import net.sf.openrocket.startup.Application;
 
-public class StageSeparationConfiguration {
+public class StageSeparationConfiguration implements Cloneable {
+
+	private static final Translator trans = Application.getTranslator();
 
 	private StageSeparationConfiguration.SeparationEvent separationEvent = StageSeparationConfiguration.SeparationEvent.UPPER_IGNITION;
 	private double separationDelay = 0;
 
 	public static enum SeparationEvent {
 		//// Upper stage motor ignition
-		UPPER_IGNITION("Stage.SeparationEvent.UPPER_IGNITION") {
+		UPPER_IGNITION(trans.get("Stage.SeparationEvent.UPPER_IGNITION")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
@@ -21,7 +25,7 @@ public class StageSeparationConfiguration {
 			}
 		},
 		//// Current stage motor ignition
-		IGNITION("Stage.SeparationEvent.IGNITION") {
+		IGNITION(trans.get("Stage.SeparationEvent.IGNITION")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
 				if (e.getType() != FlightEvent.Type.IGNITION)
@@ -33,7 +37,7 @@ public class StageSeparationConfiguration {
 			}
 		},
 		//// Current stage motor burnout
-		BURNOUT("Stage.SeparationEvent.BURNOUT") {
+		BURNOUT(trans.get("Stage.SeparationEvent.BURNOUT")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
 				if (e.getType() != FlightEvent.Type.BURNOUT)
@@ -45,7 +49,7 @@ public class StageSeparationConfiguration {
 			}
 		},
 		//// Current stage ejection charge
-		EJECTION("Stage.SeparationEvent.EJECTION") {
+		EJECTION(trans.get("Stage.SeparationEvent.EJECTION")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
 				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
@@ -57,14 +61,14 @@ public class StageSeparationConfiguration {
 			}
 		},
 		//// Launch
-		LAUNCH("Stage.SeparationEvent.LAUNCH") {
+		LAUNCH(trans.get("Stage.SeparationEvent.LAUNCH")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
 				return e.getType() == FlightEvent.Type.LAUNCH;
 			}
 		},
 		//// Never
-		NEVER("Stage.SeparationEvent.NEVER") {
+		NEVER(trans.get("Stage.SeparationEvent.NEVER")) {
 			@Override
 			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
 				return false;
@@ -86,7 +90,7 @@ public class StageSeparationConfiguration {
 		
 		@Override
 		public String toString() {
-			return Stage.trans.get(description);
+			return description;
 		}
 	}
 
@@ -105,6 +109,23 @@ public class StageSeparationConfiguration {
 
 	public void setSeparationDelay(double separationDelay) {
 		this.separationDelay = separationDelay;
+	}
+
+	@Override
+	public String toString() {
+		if ( separationDelay > 0 ) {
+			return separationEvent.toString() + " +" + separationDelay + "s";
+		} else {
+			return separationEvent.toString();
+		}
+	}
+
+	@Override
+	public StageSeparationConfiguration clone() {
+		StageSeparationConfiguration clone = new StageSeparationConfiguration();
+		clone.separationEvent = this.separationEvent;
+		clone.separationDelay = this.separationDelay;
+		return clone;
 	}
 
 }

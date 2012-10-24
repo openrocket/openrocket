@@ -64,6 +64,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -886,6 +887,13 @@ class ComponentParameterHandler extends AbstractElementHandler {
 			}
 			return new DeploymentConfigurationHandler( (RecoveryDevice) component, context );
 		}
+		if ( element.equals("separationconfiguration")) {
+			if ( !(component instanceof Stage) ) {
+				warnings.add(Warning.fromString("Illegal component defined as stage."));
+				return null;
+			}
+			return new StageSeparationConfigurationHandler( (Stage) component, context );
+		}
 		
 		return PlainTextHandler.INSTANCE;
 	}
@@ -896,7 +904,7 @@ class ComponentParameterHandler extends AbstractElementHandler {
 		
 		if (element.equals("subcomponents") || element.equals("motormount") ||
 				element.equals("finpoints") || element.equals("motorconfiguration") ||
-				element.equals("deploymentconfiguration")) {
+				element.equals("deploymentconfiguration") || element.equals("separationconfiguration")) {
 			return;
 		}
 		
@@ -1346,6 +1354,51 @@ class DeploymentConfigurationHandler extends AbstractElementHandler {
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
 		String configId = attributes.get("configid");
 		recoveryDevice.setFlightConfiguration(configId, config);
+	}
+	
+}
+
+class StageSeparationConfigurationHandler extends AbstractElementHandler {
+	private final Stage stage;
+	private StageSeparationConfiguration config;
+
+	public StageSeparationConfigurationHandler( Stage stage, DocumentLoadingContext context ) {
+		this.stage = stage;
+		config = new StageSeparationConfiguration();
+	}
+
+	@Override
+	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		return PlainTextHandler.INSTANCE;
+	}
+
+	@Override
+	public void closeElement(String element, HashMap<String, String> attributes, String content,
+			WarningSet warnings) throws SAXException {
+		
+		content = content.trim();
+		
+		if ( "separationevent".equals(element) ) {
+			SeparationEvent type = (SeparationEvent) DocumentConfig.findEnum(content, SeparationEvent.class);
+			if ( type == null ) {
+				warnings.add(Warning.FILE_INVALID_PARAMETER);
+				return;
+			}
+			config.setSeparationEvent( type );
+			return;
+		} else if ( "separationdelay".equals(element) ) {
+			config.setSeparationDelay( Double.parseDouble(content));
+			return;
+		}
+		super.closeElement(element, attributes, content, warnings);
+
+	}
+
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		String configId = attributes.get("configid");
+		stage.setFlightConfiguration(configId, config);
 	}
 	
 }
