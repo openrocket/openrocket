@@ -1,102 +1,14 @@
 package net.sf.openrocket.rocketcomponent;
 
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
 public class Stage extends ComponentAssembly {
 	
-	private static final Translator trans = Application.getTranslator();
+	static final Translator trans = Application.getTranslator();
 	
-	
-	public static enum SeparationEvent {
-		//// Upper stage motor ignition
-		UPPER_IGNITION("Stage.SeparationEvent.UPPER_IGNITION") {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
-				if (e.getType() != FlightEvent.Type.IGNITION)
-					return false;
-				
-				int ignition = e.getSource().getStageNumber();
-				int mount = stage.getStageNumber();
-				return (mount == ignition + 1);
-			}
-		},
-		//// Current stage motor ignition
-		IGNITION("Stage.SeparationEvent.IGNITION") {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
-				if (e.getType() != FlightEvent.Type.IGNITION)
-					return false;
-				
-				int ignition = e.getSource().getStageNumber();
-				int mount = stage.getStageNumber();
-				return (mount == ignition);
-			}
-		},
-		//// Current stage motor burnout
-		BURNOUT("Stage.SeparationEvent.BURNOUT") {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
-				if (e.getType() != FlightEvent.Type.BURNOUT)
-					return false;
-				
-				int ignition = e.getSource().getStageNumber();
-				int mount = stage.getStageNumber();
-				return (mount == ignition);
-			}
-		},
-		//// Current stage ejection charge
-		EJECTION("Stage.SeparationEvent.EJECTION") {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
-				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
-					return false;
-				
-				int ignition = e.getSource().getStageNumber();
-				int mount = stage.getStageNumber();
-				return (mount == ignition);
-			}
-		},
-		//// Launch
-		LAUNCH("Stage.SeparationEvent.LAUNCH") {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
-				return e.getType() == FlightEvent.Type.LAUNCH;
-			}
-		},
-		//// Never
-		NEVER("Stage.SeparationEvent.NEVER") {
-			@Override
-			public boolean isSeparationEvent(FlightEvent e, Stage stage) {
-				return false;
-			}
-		},
-		;
-		
-		
-		private final String description;
-		
-		SeparationEvent(String description) {
-			this.description = description;
-		}
-		
-		/**
-		 * Test whether a specific event is a stage separation event.
-		 */
-		public abstract boolean isSeparationEvent(FlightEvent e, Stage stage);
-		
-		@Override
-		public String toString() {
-			return trans.get(description);
-		}
-	};
-	
-	
-	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
-	private double separationDelay = 0;
-	
+	private final StageSeparationConfiguration defaultConfiguration = new StageSeparationConfiguration();
 	
 	@Override
 	public String getComponentName() {
@@ -105,28 +17,28 @@ public class Stage extends ComponentAssembly {
 	}
 	
 	
-	public SeparationEvent getSeparationEvent() {
-		return separationEvent;
+	public StageSeparationConfiguration.SeparationEvent getDefaultSeparationEvent() {
+		return defaultConfiguration.getSeparationEvent();
 	}
 	
 	
-	public void setSeparationEvent(SeparationEvent separationEvent) {
-		if (separationEvent == this.separationEvent)
+	public void setDefaultSeparationEvent(StageSeparationConfiguration.SeparationEvent separationEvent) {
+		if (separationEvent == defaultConfiguration.getSeparationEvent())
 			return;
-		this.separationEvent = separationEvent;
+		defaultConfiguration.setSeparationEvent(separationEvent);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	
 	
-	public double getSeparationDelay() {
-		return separationDelay;
+	public double getDefaultSeparationDelay() {
+		return defaultConfiguration.getSeparationDelay();
 	}
 	
 	
-	public void setSeparationDelay(double separationDelay) {
-		if (MathUtil.equals(separationDelay, this.separationDelay))
+	public void setDefaultSeparationDelay(double separationDelay) {
+		if (MathUtil.equals(separationDelay, defaultConfiguration.getSeparationDelay()))
 			return;
-		this.separationDelay = separationDelay;
+		defaultConfiguration.setSeparationDelay(separationDelay);
 		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 	}
 	

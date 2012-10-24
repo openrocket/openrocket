@@ -28,9 +28,9 @@ public class StageSaver extends ComponentAssemblySaver {
 		
 		if (stage.getStageNumber() > 0) {
 			elements.add("<separationevent>"
-					+ stage.getSeparationEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
+					+ stage.getDefaultSeparationEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 					+ "</separationevent>");
-			elements.add("<separationdelay>" + stage.getSeparationDelay() + "</separationdelay>");
+			elements.add("<separationdelay>" + stage.getDefaultSeparationDelay() + "</separationdelay>");
 		}
 	}
 }

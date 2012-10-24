@@ -63,6 +63,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
@@ -489,11 +490,11 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
 		
 		// Stage
-		setters.put("Stage:separationevent", new EnumSetter<Stage.SeparationEvent>(
-				Reflection.findMethod(Stage.class, "setSeparationEvent", Stage.SeparationEvent.class),
-				Stage.SeparationEvent.class));
+		setters.put("Stage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
+				Reflection.findMethod(Stage.class, "setDefaultSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
+				StageSeparationConfiguration.SeparationEvent.class));
 		setters.put("Stage:separationdelay", new DoubleSetter(
-				Reflection.findMethod(Stage.class, "setSeparationDelay", double.class)));
+				Reflection.findMethod(Stage.class, "setDefaultSeparationDelay", double.class)));
 		
 	}
 	

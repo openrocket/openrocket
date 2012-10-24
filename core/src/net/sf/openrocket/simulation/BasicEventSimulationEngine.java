@@ -367,9 +367,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					continue;
 
 				Stage stage = (Stage) status.getConfiguration().getRocket().getChild(stageNo);
-				if (stage.getSeparationEvent().isSeparationEvent(event, stage)) {
+				if (stage.getDefaultSeparationEvent().isSeparationEvent(event, stage)) {
 					addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
-							event.getTime() + stage.getSeparationDelay(), stage));
+							event.getTime() + stage.getDefaultSeparationDelay(), stage));
 				}
 			}
 
