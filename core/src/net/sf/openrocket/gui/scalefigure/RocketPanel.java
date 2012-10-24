@@ -19,12 +19,12 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ButtonGroup;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JToggleButton;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
@@ -86,6 +86,23 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 	private static final Translator trans = Application.getTranslator();
 
+	/*RocketPanel.FigTypeAct.Sideview = Side view
+			RocketPanel.FigTypeAct.Backview = Back view
+			RocketPanel.FigViewAct.3DFigure = 3D Figure
+			RocketPanel.FigViewAct.3DRealistic = 3D Realistic*/
+			
+	private static enum VIEW_TYPE {
+		Sideview,
+		Backview,
+		Figure3D,
+		Realistic3D;
+		@Override
+		public String toString(){
+			return trans.get("RocketPanel.FigTypeAct." + super.toString());
+		}
+		
+	}
+
 	private boolean is3d;
 	private final RocketFigure figure;
 	private final RocketFigure3d figure3d;
@@ -100,7 +117,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private TreeSelectionModel selectionModel = null;
 
 	private BasicSlider rotationSlider;
-	ScaleSelector scaleSelector;
+	private ScaleSelector scaleSelector;
 
 
 	/* Calculation of CP and CG */
@@ -245,48 +262,35 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		setPreferredSize(new Dimension(800, 300));
 
 
-		//// Create toolbar
-
-		ButtonGroup bg = new ButtonGroup();
-
-		// Side/back buttons
-		FigureTypeAction action = new FigureTypeAction(RocketFigure.TYPE_SIDE);
-		//// Side view
-		action.putValue(Action.NAME, trans.get("RocketPanel.FigTypeAct.Sideview"));
-		//// Side view
-		action.putValue(Action.SHORT_DESCRIPTION, trans.get("RocketPanel.FigTypeAct.ttip.Sideview"));
-		JToggleButton toggle = new JToggleButton(action);
-		bg.add(toggle);
-		add(toggle, "spanx, split");
-
-		action = new FigureTypeAction(RocketFigure.TYPE_BACK);
-		//// Back view
-		action.putValue(Action.NAME, trans.get("RocketPanel.FigTypeAct.Backview"));
-		//// Back view
-		action.putValue(Action.SHORT_DESCRIPTION, trans.get("RocketPanel.FigTypeAct.ttip.Backview"));
-		toggle = new JToggleButton(action);
-		bg.add(toggle);
-		add(toggle, "gap rel");
-
-		//// 3d Toggle
-		final JToggleButton toggle3d = new JToggleButton(new AbstractAction("3D") {
-			private static final long serialVersionUID = 1L;
-			{
-				putValue(Action.NAME, "3D");//TODO
-				putValue(Action.SHORT_DESCRIPTION, "3D"); //TODO
-			}
+		// View Type Dropdown
+		ComboBoxModel cm = new DefaultComboBoxModel(VIEW_TYPE.values()) {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				if ( ((JToggleButton)e.getSource()).isSelected() ){
-					go3D();
-				} else {
+			public void setSelectedItem(Object o) {
+				super.setSelectedItem(o);
+				VIEW_TYPE v = (VIEW_TYPE) o;
+				switch (v) {
+				case Sideview:
+					figure.setType(RocketFigure.TYPE_SIDE);
 					go2D();
+					break;
+				case Backview:
+					figure.setType(RocketFigure.TYPE_BACK);
+					go2D();
+					break;
+				case Realistic3D:
+					figure3d.setType(RocketFigure3d.TYPE_REALISTIC);
+					go3D();
+					break;
+				case Figure3D:
+					figure3d.setType(RocketFigure3d.TYPE_FIGURE);
+					go3D();
+					break;
 				}
 			}
-		});
-		bg.add(toggle3d);
-		toggle3d.setEnabled(RocketFigure3d.is3dEnabled());
-		add(toggle3d, "gap rel");
+		};
+		add(new JLabel("View Type:"), "spanx, split");
+		add(new JComboBox(cm));
+		
 
 		// Zoom level selector
 		scaleSelector = new ScaleSelector(scrollPane);
@@ -296,7 +300,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Stage selector
 		StageSelector stageSelector = new StageSelector(configuration);
-		add(stageSelector, "");
+		add(stageSelector);
 
 
 

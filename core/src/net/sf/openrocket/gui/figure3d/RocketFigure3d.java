@@ -394,6 +394,21 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		gl.glDepthFunc(GL.GL_LEQUAL); // the type of depth test to do
 		
+		float amb = 0.5f;
+		float dif = 1.0f;
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
+				new float[] { amb, amb, amb, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
+				new float[] { dif, dif, dif, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
+				new float[] { dif, dif, dif, 1 }, 0);
+		
+		gl.glEnable(GLLightingFunc.GL_LIGHT1);
+		gl.glEnable(GLLightingFunc.GL_LIGHTING);
+		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
+		
+		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+		
 		extrasOverlay = new Overlay(drawable);
 		caretOverlay = new Overlay(drawable);
 		

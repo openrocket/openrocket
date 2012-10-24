@@ -51,6 +51,27 @@ public class RealisticRenderStrategy extends RenderStrategy {
 	public void init(GLAutoDrawable drawable) {
 		oldTexCache = new HashMap<String,Texture>();
 		texCache = new HashMap<String,Texture>();
+		
+		GL2 gl = drawable.getGL().getGL2();
+		
+		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
+                new float[] { 0,0,0 }, 0);
+
+		float amb = 0.3f;
+		float dif = 1.0f - amb;
+		float spc = 1.0f;
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
+				new float[] { amb, amb, amb, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
+				new float[] { dif, dif, dif, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
+				new float[] { spc, spc, spc, 1 }, 0);
+
+		gl.glEnable(GLLightingFunc.GL_LIGHT1);
+		gl.glEnable(GLLightingFunc.GL_LIGHTING);
+		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
+
+		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
 	}
 
 	@Override
