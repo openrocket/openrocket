@@ -5,11 +5,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
@@ -22,7 +25,7 @@ import net.sf.openrocket.util.WorldCoordinate;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SimulationStatus implements Cloneable, Monitorable {
+public class SimulationStatus implements Monitorable {
 	
 	/*
 	 * NOTE!  All fields must be added to copyFrom() method!!
@@ -81,6 +84,115 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private int modID = 0;
 	private int modIDadd = 0;
 	
+	public SimulationStatus( Configuration configuration,
+			MotorInstanceConfiguration motorConfiguration,
+			SimulationConditions simulationConditions, WarningSet warnings ) {
+		
+		this.setSimulationConditions(simulationConditions);
+		this.setConfiguration(configuration);
+		this.setMotorConfiguration(motorConfiguration);
+
+		this.setSimulationTime(0);
+		this.setPreviousTimeStep(simulationConditions.getTimeStep());
+		this.setRocketPosition(Coordinate.NUL);
+		this.setRocketVelocity(Coordinate.NUL);
+		this.setRocketWorldPosition(simulationConditions.getLaunchSite());
+
+		// Initialize to roll angle with least stability w.r.t. the wind
+		Quaternion o;
+		FlightConditions cond = new FlightConditions(configuration);
+		simulationConditions.getAerodynamicCalculator().getWorstCP(configuration, cond, null);
+		double angle = -cond.getTheta() - simulationConditions.getLaunchRodDirection();
+		o = Quaternion.rotation(new Coordinate(0, 0, angle));
+
+		// Launch rod angle and direction
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, simulationConditions.getLaunchRodAngle(), 0)));
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, simulationConditions.getLaunchRodDirection())));
+
+		this.setRocketOrientationQuaternion(o);
+		this.setRocketRotationVelocity(Coordinate.NUL);
+
+
+		/*
+		 * Calculate the effective launch rod length taking into account launch lugs.
+		 * If no lugs are found, assume a tower launcher of full length.
+		 */
+		double length = simulationConditions.getLaunchRodLength();
+		double lugPosition = Double.NaN;
+		for (RocketComponent c : configuration) {
+			if (c instanceof LaunchLug) {
+				double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
+				if (Double.isNaN(lugPosition) || pos > lugPosition) {
+					lugPosition = pos;
+				}
+			}
+		}
+		if (!Double.isNaN(lugPosition)) {
+			double maxX = 0;
+			for (Coordinate c : configuration.getBounds()) {
+				if (c.x > maxX)
+					maxX = c.x;
+			}
+			if (maxX >= lugPosition) {
+				length = Math.max(0, length - (maxX - lugPosition));
+			}
+		}
+		this.setEffectiveLaunchRodLength(length);
+
+		this.setSimulationStartWallTime(System.nanoTime());
+
+		this.setMotorIgnited(false);
+		this.setLiftoff(false);
+		this.setLaunchRodCleared(false);
+		this.setApogeeReached(false);
+
+		this.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
+
+		this.setFlightData(new FlightDataBranch("MAIN", FlightDataType.TYPE_TIME));
+		this.setWarnings(warnings);
+
+	}
+	
+	/**
+	 * Copies the data from the provided object to this object.  Most included object are
+	 * deep-cloned, except for the flight data object.
+	 * 
+	 * @param orig	the object from which to copy
+	 */
+	public SimulationStatus( SimulationStatus orig ) {
+		this.simulationConditions = orig.simulationConditions.clone();
+		this.configuration = orig.configuration.clone();
+		this.motorConfiguration = orig.motorConfiguration.clone();
+		this.flightData = orig.flightData;
+		this.time = orig.time;
+		this.previousTimeStep = orig.previousTimeStep;
+		this.position = orig.position;
+		this.worldPosition = orig.worldPosition;
+		this.velocity = orig.velocity;
+		this.orientation = orig.orientation;
+		this.rotationVelocity = orig.rotationVelocity;
+		this.effectiveLaunchRodLength = orig.effectiveLaunchRodLength;
+		this.simulationStartWallTime = orig.simulationStartWallTime;
+		this.motorIgnited = orig.motorIgnited;
+		this.liftoff = orig.liftoff;
+		this.launchRodCleared = orig.launchRodCleared;
+		this.apogeeReached = orig.apogeeReached;
+		this.motorBurntOut = orig.motorBurntOut;
+		
+		this.deployedRecoveryDevices.clear();
+		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);
+		
+		this.eventQueue.clear();
+		this.eventQueue.addAll(orig.eventQueue);
+		
+		this.warnings = orig.warnings;
+		
+		this.extraData.clear();
+		this.extraData.putAll(orig.extraData);
+		
+		this.modID = orig.modID;
+		this.modIDadd = orig.modIDadd;
+	}
 	
 	public void setSimulationTime(double time) {
 		this.time = time;
@@ -323,7 +435,6 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		return extraData.get(key);
 	}
 	
-	
 	/**
 	 * Returns a copy of this object.  The general purpose is that the conditions,
 	 * rocket configuration, flight data etc. point to the same objects.  However,
@@ -331,7 +442,6 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	 * to the current orientation of the rocket.  The purpose is to allow creating intermediate
 	 * copies of this object used during step computation.
 	 * 
-	 * TODO: HIGH: Deep cloning required for branch saving.
 	 */
 	@Override
 	public SimulationStatus clone() {
@@ -341,48 +451,6 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("CloneNotSupportedException?!?", e);
 		}
-	}
-	
-	
-	/**
-	 * Copies the data from the provided object to this object.  Most included object are
-	 * deep-cloned, except for the flight data object.
-	 * 
-	 * @param orig	the object from which to copy
-	 */
-	public void copyFrom(SimulationStatus orig) {
-		this.simulationConditions = orig.simulationConditions.clone();
-		this.configuration = orig.configuration.clone();
-		this.motorConfiguration = orig.motorConfiguration.clone();
-		this.flightData = orig.flightData;
-		this.time = orig.time;
-		this.previousTimeStep = orig.previousTimeStep;
-		this.position = orig.position;
-		this.worldPosition = orig.worldPosition;
-		this.velocity = orig.velocity;
-		this.orientation = orig.orientation;
-		this.rotationVelocity = orig.rotationVelocity;
-		this.effectiveLaunchRodLength = orig.effectiveLaunchRodLength;
-		this.simulationStartWallTime = orig.simulationStartWallTime;
-		this.motorIgnited = orig.motorIgnited;
-		this.liftoff = orig.liftoff;
-		this.launchRodCleared = orig.launchRodCleared;
-		this.apogeeReached = orig.apogeeReached;
-		this.motorBurntOut = orig.motorBurntOut;
-		
-		this.deployedRecoveryDevices.clear();
-		this.deployedRecoveryDevices.addAll(orig.deployedRecoveryDevices);
-		
-		this.eventQueue.clear();
-		this.eventQueue.addAll(orig.eventQueue);
-		
-		this.warnings = orig.warnings;
-		
-		this.extraData.clear();
-		this.extraData.putAll(orig.extraData);
-		
-		this.modID = orig.modID;
-		this.modIDadd = orig.modIDadd;
 	}
 	
 	

@@ -66,9 +66,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	@Override
 	public RK4SimulationStatus initialize(SimulationStatus original) {
 		
-		RK4SimulationStatus status = new RK4SimulationStatus();
-		
-		status.copyFrom(original);
+		RK4SimulationStatus status = new RK4SimulationStatus(original);
 		
 		SimulationConditions sim = original.getSimulationConditions();
 		

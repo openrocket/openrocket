@@ -66,7 +66,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			throw new MotorIgnitionException("No motors defined in the simulation.");
 		}
 
-		status = initialStatus(configuration, motorConfiguration, simulationConditions, flightData);
+		status = new SimulationStatus(configuration, motorConfiguration, simulationConditions, flightData.getWarningSet());
 		stages.add(status);
 
 		SimulationListenerHelper.fireStartSimulation(status);
@@ -199,83 +199,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 		return status.getFlightData();
 	}
-
-
-
-	private SimulationStatus initialStatus(Configuration configuration,
-			MotorInstanceConfiguration motorConfiguration,
-			SimulationConditions simulationConditions, FlightData flightData) {
-
-		SimulationStatus init = new SimulationStatus();
-		init.setSimulationConditions(simulationConditions);
-		init.setConfiguration(configuration);
-		init.setMotorConfiguration(motorConfiguration);
-
-		init.setSimulationTime(0);
-		init.setPreviousTimeStep(simulationConditions.getTimeStep());
-		init.setRocketPosition(Coordinate.NUL);
-		init.setRocketVelocity(Coordinate.NUL);
-		init.setRocketWorldPosition(simulationConditions.getLaunchSite());
-
-		// Initialize to roll angle with least stability w.r.t. the wind
-		Quaternion o;
-		FlightConditions cond = new FlightConditions(configuration);
-		simulationConditions.getAerodynamicCalculator().getWorstCP(configuration, cond, null);
-		double angle = -cond.getTheta() - simulationConditions.getLaunchRodDirection();
-		o = Quaternion.rotation(new Coordinate(0, 0, angle));
-
-		// Launch rod angle and direction
-		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, simulationConditions.getLaunchRodAngle(), 0)));
-		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, simulationConditions.getLaunchRodDirection())));
-
-		init.setRocketOrientationQuaternion(o);
-		init.setRocketRotationVelocity(Coordinate.NUL);
-
-
-		/*
-		 * Calculate the effective launch rod length taking into account launch lugs.
-		 * If no lugs are found, assume a tower launcher of full length.
-		 */
-		double length = simulationConditions.getLaunchRodLength();
-		double lugPosition = Double.NaN;
-		for (RocketComponent c : configuration) {
-			if (c instanceof LaunchLug) {
-				double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
-				if (Double.isNaN(lugPosition) || pos > lugPosition) {
-					lugPosition = pos;
-				}
-			}
-		}
-		if (!Double.isNaN(lugPosition)) {
-			double maxX = 0;
-			for (Coordinate c : configuration.getBounds()) {
-				if (c.x > maxX)
-					maxX = c.x;
-			}
-			if (maxX >= lugPosition) {
-				length = Math.max(0, length - (maxX - lugPosition));
-			}
-		}
-		init.setEffectiveLaunchRodLength(length);
-
-
-
-		init.setSimulationStartWallTime(System.nanoTime());
-
-		init.setMotorIgnited(false);
-		init.setLiftoff(false);
-		init.setLaunchRodCleared(false);
-		init.setApogeeReached(false);
-
-		init.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
-
-		init.setFlightData(new FlightDataBranch("MAIN", FlightDataType.TYPE_TIME));
-		init.setWarnings(flightData.getWarningSet());
-
-		return init;
-	}
-
-
 
 	/**
 	 * Create a rocket configuration from the launch conditions.
@@ -484,8 +407,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				int n = stage.getStageNumber();
 
 				// Prepare the booster status for simulation.
-				SimulationStatus boosterStatus = new SimulationStatus();
-				boosterStatus.copyFrom(status);
+				SimulationStatus boosterStatus = new SimulationStatus(status);
 				FlightDataBranch boosterFlightData = new FlightDataBranch( "Stage-" + n, FlightDataType.TYPE_TIME);
 				boosterStatus.setFlightData(boosterFlightData);
 				
