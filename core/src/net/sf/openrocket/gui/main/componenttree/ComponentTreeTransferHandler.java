@@ -88,13 +88,13 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		}
 		
 		boolean allowed = data.destParent.isCompatible(data.child);
-		log.verbose("Checking validity of drag-drop " + data.toString() + " allowed:" + allowed);
+		log.trace("Checking validity of drag-drop " + data.toString() + " allowed:" + allowed);
 		
 		// Ensure we're not dropping a component onto a child component
 		RocketComponent path = data.destParent;
 		while (path != null) {
 			if (path.equals(data.child)) {
-				log.verbose("Drop would cause cycle in tree, disallowing.");
+				log.trace("Drop would cause cycle in tree, disallowing.");
 				allowed = false;
 				break;
 			}
@@ -348,7 +348,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		int correctInsertIndex = model.getIndexOfChild(correctInsertPath.getLastPathComponent(),
 				dropPath.getLastPathComponent()) + 1;
 		
-		log.verbose("Working around Sun JRE bug 6560955: " +
+		log.trace("Working around Sun JRE bug 6560955: " +
 				"converted path=" + ComponentTreeModel.pathToString(originalPath) + " index=" + originalIndex +
 				" into path=" + ComponentTreeModel.pathToString(correctInsertPath) +
 				" index=" + correctInsertIndex);

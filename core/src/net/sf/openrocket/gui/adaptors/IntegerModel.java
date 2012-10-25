@@ -35,7 +35,7 @@ public class IntegerModel implements StateChangeListener {
 		public void setValue(Object value) {
 			if (firing > 0) {
 				// Ignore, if called when model is sending events
-				log.verbose("Ignoring call to SpinnerModel setValue for " + IntegerModel.this.toString() +
+				log.trace("Ignoring call to SpinnerModel setValue for " + IntegerModel.this.toString() +
 						" value=" + value + ", currently firing events");
 				return;
 				
@@ -194,7 +194,7 @@ public class IntegerModel implements StateChangeListener {
 		}
 		
 		listeners.add(l);
-		log.verbose(this + " adding listener (total " + listeners.size() + "): " + l);
+		log.trace(this + " adding listener (total " + listeners.size() + "): " + l);
 	}
 	
 	/**
@@ -207,7 +207,7 @@ public class IntegerModel implements StateChangeListener {
 		if (listeners.isEmpty()) {
 			source.removeChangeListener(this);
 		}
-		log.verbose(this + " removing listener (total " + listeners.size() + "): " + l);
+		log.trace(this + " removing listener (total " + listeners.size() + "): " + l);
 	}
 	
 	

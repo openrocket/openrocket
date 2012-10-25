@@ -117,7 +117,7 @@ public class RocketOptimizationFunction implements Function {
 			goalValue = Double.MAX_VALUE;
 		}
 		
-		log.verbose("Parameter value at point " + point + " is " + parameterValue + ", goal function value=" + goalValue);
+		log.trace("Parameter value at point " + point + " is " + parameterValue + ", goal function value=" + goalValue);
 		
 		fireEvent(simulation, point, referenceValue, new Value(parameterValue, parameter.getUnitGroup().getDefaultUnit()),
 				goalValue);

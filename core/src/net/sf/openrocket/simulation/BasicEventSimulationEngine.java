@@ -85,7 +85,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - status.getSimulationTime(), 0.001);
 					}
-					log.verbose("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
+					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
 					currentStepper.step(status, maxStepTime);
 				}
 				SimulationListenerHelper.firePostStep(status);
@@ -318,7 +318,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 
 			if (event.getType() != FlightEvent.Type.ALTITUDE) {
-				log.verbose("BasicEventSimulationEngine:  Handling event " + event);
+				log.trace("BasicEventSimulationEngine:  Handling event " + event);
 			}
 
 			if (event.getType() == FlightEvent.Type.IGNITION) {

@@ -353,14 +353,14 @@ public class Rocket extends RocketComponent {
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
 		listenerList.add(l);
-		log.verbose("Added ComponentChangeListener " + l + ", current number of listeners is " +
+		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
 		listenerList.remove(l);
-		log.verbose("Removed ComponentChangeListener " + l + ", current number of listeners is " +
+		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
 	
@@ -369,14 +369,14 @@ public class Rocket extends RocketComponent {
 	public void addChangeListener(EventListener l) {
 		checkState();
 		listenerList.add(l);
-		log.verbose("Added ChangeListener " + l + ", current number of listeners is " +
+		log.trace("Added ChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
 	
 	@Override
 	public void removeChangeListener(EventListener l) {
 		listenerList.remove(l);
-		log.verbose("Removed ChangeListener " + l + ", current number of listeners is " +
+		log.trace("Removed ChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
 	

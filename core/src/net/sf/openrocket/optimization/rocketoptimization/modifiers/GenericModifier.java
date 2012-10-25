@@ -84,7 +84,7 @@ public abstract class GenericModifier<T> extends AbstractSimulationModifier {
 			throw new OptimizationException("BUG: getModifiedObject() returned null");
 		}
 		double siValue = toBaseValue(scaledValue) / multiplier;
-		log.verbose("Setting setter=" + setter + " modifiable=" + modifiable + " siValue=" + siValue + "scaledValue=" + scaledValue);
+		log.trace("Setting setter=" + setter + " modifiable=" + modifiable + " siValue=" + siValue + "scaledValue=" + scaledValue);
 		setter.invoke(modifiable, siValue);
 	}
 	

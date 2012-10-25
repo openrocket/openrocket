@@ -75,7 +75,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		public void setValue(Object value) {
 			if (firing > 0) {
 				// Ignore, if called when model is sending events
-				log.verbose("Ignoring call to SpinnerModel setValue for " + DoubleModel.this.toString() +
+				log.trace("Ignoring call to SpinnerModel setValue for " + DoubleModel.this.toString() +
 						" value=" + value + ", currently firing events");
 				return;
 			}
@@ -311,7 +311,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		public void setValue(int newValue) {
 			if (firing > 0) {
 				// Ignore loops
-				log.verbose("Ignoring call to SliderModel setValue for " + DoubleModel.this.toString() +
+				log.trace("Ignoring call to SliderModel setValue for " + DoubleModel.this.toString() +
 						" value=" + newValue + ", currently firing events");
 				return;
 			}
@@ -467,7 +467,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		@Override
 		public void putValue(String key, Object value) {
 			if (firing > 0) {
-				log.verbose("Ignoring call to ActionModel putValue for " + DoubleModel.this.toString() +
+				log.trace("Ignoring call to ActionModel putValue for " + DoubleModel.this.toString() +
 						" key=" + key + " value=" + value + ", currently firing events");
 				return;
 			}
@@ -875,7 +875,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		}
 		
 		listeners.add(l);
-		log.verbose(this + " adding listener (total " + listeners.size() + "): " + l);
+		log.trace(this + " adding listener (total " + listeners.size() + "): " + l);
 	}
 	
 	/**
@@ -891,7 +891,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		if (listeners.isEmpty() && source != null) {
 			source.removeChangeListener(this);
 		}
-		log.verbose(this + " removing listener (total " + listeners.size() + "): " + l);
+		log.trace(this + " removing listener (total " + listeners.size() + "): " + l);
 	}
 	
 	
@@ -902,7 +902,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 */
 	@Override
 	public void invalidate() {
-		log.verbose("Invalidating " + this);
+		log.trace("Invalidating " + this);
 		invalidator.invalidate();
 		
 		if (!listeners.isEmpty()) {
