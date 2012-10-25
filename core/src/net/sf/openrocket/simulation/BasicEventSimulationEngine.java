@@ -1,10 +1,7 @@
 package net.sf.openrocket.simulation;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
-import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -14,7 +11,6 @@ import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -30,7 +26,6 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
-import net.sf.openrocket.util.Quaternion;
 import net.sf.openrocket.util.SimpleStack;
 
 
@@ -66,7 +61,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			throw new MotorIgnitionException("No motors defined in the simulation.");
 		}
 
-		status = new SimulationStatus(configuration, motorConfiguration, simulationConditions, flightData.getWarningSet());
+		status = new SimulationStatus(configuration, motorConfiguration, simulationConditions);
+		status.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
+		{
+			// main sustainer stage
+			RocketComponent sustainer = configuration.getRocket().getChild(0);
+			status.setFlightData( new FlightDataBranch( sustainer.getName(), FlightDataType.TYPE_TIME));
+		}
 		stages.add(status);
 
 		SimulationListenerHelper.fireStartSimulation(status);
@@ -82,6 +83,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			status = stageStatus;
 			FlightDataBranch dataBranch = simulateLoop();
 			flightData.addBranch(dataBranch);
+			flightData.getWarningSet().addAll( status.getWarnings() );
 		}
 		
 		SimulationListenerHelper.fireEndSimulation(status, null);
@@ -352,8 +354,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 			case IGNITION: {
 				// Ignite the motor
-				MotorMount mount = (MotorMount) event.getSource();
-				RocketComponent component = (RocketComponent) mount;
 				MotorId motorId = (MotorId) event.getData();
 				MotorInstanceConfiguration config = status.getMotorConfiguration();
 				config.setMotorIgnitionTime(motorId, event.getTime());
@@ -408,8 +408,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 
 				// Prepare the booster status for simulation.
 				SimulationStatus boosterStatus = new SimulationStatus(status);
-				FlightDataBranch boosterFlightData = new FlightDataBranch( "Stage-" + n, FlightDataType.TYPE_TIME);
-				boosterStatus.setFlightData(boosterFlightData);
+				boosterStatus.setFlightData(new FlightDataBranch( stage.getName(), FlightDataType.TYPE_TIME));
 				
 				stages.add(boosterStatus);
 				

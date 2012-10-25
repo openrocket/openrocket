@@ -52,6 +52,7 @@ public class EventQueue extends PriorityQueue<FlightEvent> implements Monitorabl
 		return super.remove(o);
 	}
 
+	@Override
 	public int getModID() {
 		return modID;
 	}

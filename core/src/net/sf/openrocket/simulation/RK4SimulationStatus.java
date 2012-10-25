@@ -1,6 +1,5 @@
 package net.sf.openrocket.simulation;
 
-import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -18,8 +17,8 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	
 	public RK4SimulationStatus(Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
-			SimulationConditions simulationConditions, WarningSet warnings) {
-		super(configuration, motorConfiguration, simulationConditions, warnings);
+			SimulationConditions simulationConditions ) {
+		super(configuration, motorConfiguration, simulationConditions);
 	}
 
 	public RK4SimulationStatus( SimulationStatus other ) {
@@ -83,6 +82,7 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 		this.startWarningTime = startWarningTime;
 	}
 	
+	@Override
 	public RK4SimulationStatus clone() {
 		return (RK4SimulationStatus) super.clone();
 	}

@@ -86,40 +86,39 @@ public class SimulationStatus implements Monitorable {
 	
 	public SimulationStatus( Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
-			SimulationConditions simulationConditions, WarningSet warnings ) {
+			SimulationConditions simulationConditions ) {
 		
-		this.setSimulationConditions(simulationConditions);
-		this.setConfiguration(configuration);
-		this.setMotorConfiguration(motorConfiguration);
+		this.simulationConditions = simulationConditions;
+		this.configuration = configuration;
+		this.motorConfiguration = motorConfiguration;
 
-		this.setSimulationTime(0);
-		this.setPreviousTimeStep(simulationConditions.getTimeStep());
-		this.setRocketPosition(Coordinate.NUL);
-		this.setRocketVelocity(Coordinate.NUL);
-		this.setRocketWorldPosition(simulationConditions.getLaunchSite());
+		this.time = 0;
+		this.previousTimeStep = this.simulationConditions.getTimeStep();
+		this.position = Coordinate.NUL;
+		this.velocity = Coordinate.NUL;
+		this.worldPosition = this.simulationConditions.getLaunchSite();
 
 		// Initialize to roll angle with least stability w.r.t. the wind
 		Quaternion o;
-		FlightConditions cond = new FlightConditions(configuration);
-		simulationConditions.getAerodynamicCalculator().getWorstCP(configuration, cond, null);
-		double angle = -cond.getTheta() - simulationConditions.getLaunchRodDirection();
+		FlightConditions cond = new FlightConditions(this.configuration);
+		this.simulationConditions.getAerodynamicCalculator().getWorstCP(this.configuration, cond, null);
+		double angle = -cond.getTheta() - this.simulationConditions.getLaunchRodDirection();
 		o = Quaternion.rotation(new Coordinate(0, 0, angle));
 
 		// Launch rod angle and direction
-		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, simulationConditions.getLaunchRodAngle(), 0)));
-		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, simulationConditions.getLaunchRodDirection())));
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, this.simulationConditions.getLaunchRodDirection())));
 
-		this.setRocketOrientationQuaternion(o);
-		this.setRocketRotationVelocity(Coordinate.NUL);
-
+		this.orientation = o;
+		this.rotationVelocity = Coordinate.NUL;
 
 		/*
 		 * Calculate the effective launch rod length taking into account launch lugs.
 		 * If no lugs are found, assume a tower launcher of full length.
 		 */
-		double length = simulationConditions.getLaunchRodLength();
+		double length = this.simulationConditions.getLaunchRodLength();
 		double lugPosition = Double.NaN;
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : this.configuration) {
 			if (c instanceof LaunchLug) {
 				double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
 				if (Double.isNaN(lugPosition) || pos > lugPosition) {
@@ -129,7 +128,7 @@ public class SimulationStatus implements Monitorable {
 		}
 		if (!Double.isNaN(lugPosition)) {
 			double maxX = 0;
-			for (Coordinate c : configuration.getBounds()) {
+			for (Coordinate c : this.configuration.getBounds()) {
 				if (c.x > maxX)
 					maxX = c.x;
 			}
@@ -137,25 +136,27 @@ public class SimulationStatus implements Monitorable {
 				length = Math.max(0, length - (maxX - lugPosition));
 			}
 		}
-		this.setEffectiveLaunchRodLength(length);
+		this.effectiveLaunchRodLength = length;
 
-		this.setSimulationStartWallTime(System.nanoTime());
+		this.simulationStartWallTime = System.nanoTime();
 
-		this.setMotorIgnited(false);
-		this.setLiftoff(false);
-		this.setLaunchRodCleared(false);
-		this.setApogeeReached(false);
+		this.motorIgnited = false;
+		this.liftoff = false;
+		this.launchRodCleared = false;
+		this.apogeeReached = false;
 
-		this.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
-
-		this.setFlightData(new FlightDataBranch("MAIN", FlightDataType.TYPE_TIME));
-		this.setWarnings(warnings);
+		this.warnings = new WarningSet();
 
 	}
 	
 	/**
-	 * Copies the data from the provided object to this object.  Most included object are
-	 * deep-cloned, except for the flight data object.
+	 * Performs a deep copy of the on SimulationStatus object.
+	 * Most included object are deep-cloned, except for the flight data object (which is shallow copied)
+	 * and the WarningSet (which is initialized to a new WarningSet).
+	 * The intention of this constructor is to be used for conversion from one type
+	 * of SimulationStatus to another, or when simulating multiple stages.
+	 * When used for simulating multiple stages, a new FlightDataBranch object
+	 * needs to be associated with the new object.
 	 * 
 	 * @param orig	the object from which to copy
 	 */
@@ -163,6 +164,7 @@ public class SimulationStatus implements Monitorable {
 		this.simulationConditions = orig.simulationConditions.clone();
 		this.configuration = orig.configuration.clone();
 		this.motorConfiguration = orig.motorConfiguration.clone();
+		// FlightData is not cloned.
 		this.flightData = orig.flightData;
 		this.time = orig.time;
 		this.previousTimeStep = orig.previousTimeStep;
@@ -185,7 +187,8 @@ public class SimulationStatus implements Monitorable {
 		this.eventQueue.clear();
 		this.eventQueue.addAll(orig.eventQueue);
 		
-		this.warnings = orig.warnings;
+		// WarningSet is not cloned.
+		this.warnings = new WarningSet();
 		
 		this.extraData.clear();
 		this.extraData.putAll(orig.extraData);

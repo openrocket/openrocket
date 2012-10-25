@@ -67,6 +67,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	public RK4SimulationStatus initialize(SimulationStatus original) {
 		
 		RK4SimulationStatus status = new RK4SimulationStatus(original);
+		// Copy the existing warnings
+		status.setWarnings( original.getWarnings() );
 		
 		SimulationConditions sim = original.getSimulationConditions();
 		

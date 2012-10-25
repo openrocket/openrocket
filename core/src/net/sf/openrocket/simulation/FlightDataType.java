@@ -257,7 +257,6 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	 * @param u		the unit group the new type should belong to if a new group is created.
 	 * @return		a data type.
 	 */
-	@SuppressWarnings("null")
 	public static synchronized FlightDataType getType(String s, String symbol, UnitGroup u) {
 
 		// if symbol is null : try finding by name
