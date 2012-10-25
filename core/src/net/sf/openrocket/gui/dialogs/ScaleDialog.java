@@ -28,6 +28,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -434,14 +435,14 @@ public class ScaleDialog extends JDialog {
 		
 		if (MathUtil.equals(mul, 1.0)) {
 			// Nothing to do
-			log.user("Scaling by value 1.0 - nothing to do");
+			log.info(Markers.USER_MARKER, "Scaling by value 1.0 - nothing to do");
 			return;
 		}
 		
 		boolean scaleMass = scaleMassValues.isSelected();
 		
 		Object item = selectionOption.getSelectedItem();
-		log.user("Scaling design by factor " + mul + ", option=" + item);
+		log.info(Markers.USER_MARKER, "Scaling design by factor " + mul + ", option=" + item);
 		if (SCALE_ROCKET.equals(item)) {
 			
 			// Scale the entire rocket design

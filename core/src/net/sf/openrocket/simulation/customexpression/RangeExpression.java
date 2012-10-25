@@ -11,6 +11,7 @@ import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
@@ -91,7 +92,7 @@ public class RangeExpression extends CustomExpression {
 			endTime = MathUtil.clamp(endTime, 0, time.get(time.size()-1));
 		}
 		catch (java.util.EmptyStackException e){
-			log.user("Unable to calculate time index for range expression "+getSymbol()+" due to empty stack exception");
+			log.info(Markers.USER_MARKER, "Unable to calculate time index for range expression "+getSymbol()+" due to empty stack exception");
 			return new Variable("Unknown");
 		}
 		

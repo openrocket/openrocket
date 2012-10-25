@@ -18,6 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
@@ -98,13 +99,13 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			// Update the doublemodel with the new number or return to the last number if not possible
 			if (((Double) num).isNaN()) {
 				DoubleModel.this.setValue(lastValue);
-				log.user("SpinnerModel could not set value for " + DoubleModel.this.toString() + ". Could not convert " + value.toString());
+				log.info(Markers.USER_MARKER, "SpinnerModel could not set value for " + DoubleModel.this.toString() + ". Could not convert " + value.toString());
 			}
 			else {
 				double newValue = num.doubleValue();
 				double converted = currentUnit.fromUnit(newValue);
 				
-				log.user("SpinnerModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
+				log.info(Markers.USER_MARKER, "SpinnerModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
 						" converted=" + converted);
 				DoubleModel.this.setValue(converted);
 			}
@@ -331,7 +332,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 			}
 			
 			double converted = currentUnit.fromUnit(currentUnit.round(currentUnit.toUnit(scaledValue)));
-			log.user("SliderModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
+			log.info(Markers.USER_MARKER, "SliderModel setValue called for " + DoubleModel.this.toString() + " newValue=" + newValue +
 					" scaledValue=" + scaledValue + " converted=" + converted);
 			DoubleModel.this.setValue(converted);
 		}
@@ -472,7 +473,7 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 				return;
 			}
 			if (key.equals(Action.SELECTED_KEY) && (value instanceof Boolean)) {
-				log.user("ActionModel putValue called for " + DoubleModel.this.toString() +
+				log.info(Markers.USER_MARKER, "ActionModel putValue called for " + DoubleModel.this.toString() +
 						" key=" + key + " value=" + value);
 				oldValue = (Boolean) value;
 				setAutomatic((Boolean) value);

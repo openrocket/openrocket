@@ -12,6 +12,7 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -114,7 +115,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	public void addCustomExpression(CustomExpression expression){
 		if (customExpressions.contains(expression)){
-			log.user("Could not add custom expression "+expression.getName()+" to document as document alerady has a matching expression.");
+			log.info(Markers.USER_MARKER, "Could not add custom expression "+expression.getName()+" to document as document alerady has a matching expression.");
 		} else {
 			customExpressions.add(expression);
 		}

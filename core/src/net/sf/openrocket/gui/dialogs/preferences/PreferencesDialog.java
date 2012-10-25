@@ -42,6 +42,7 @@ import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
@@ -232,7 +233,7 @@ public class PreferencesDialog extends JDialog {
 				//// Add
 				int returnVal = chooser.showDialog(PreferencesDialog.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					log.user("Adding user thrust curve: " + chooser.getSelectedFile());
+					log.info(Markers.USER_MARKER, "Adding user thrust curve: " + chooser.getSelectedFile());
 					defaultDirectory = chooser.getCurrentDirectory();
 					String text = field.getText().trim();
 					if (text.length() > 0) {

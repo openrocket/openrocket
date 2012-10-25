@@ -6,6 +6,7 @@ import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
@@ -48,7 +49,7 @@ public class IndexExpression extends CustomExpression {
 			return new Variable(hash(), interp.getValue( tvalue ) );
 		}
 		catch (java.util.EmptyStackException e){
-			log.user("Unable to calculate time index for indexed expression "+getExpressionString()+" due to empty stack exception");
+			log.info(Markers.USER_MARKER, "Unable to calculate time index for indexed expression "+getExpressionString()+" due to empty stack exception");
 			return new Variable("Unknown");
 		}
 		

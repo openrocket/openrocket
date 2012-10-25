@@ -7,6 +7,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.loader.MaterialHolder;
@@ -339,14 +340,14 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         int option = chooser.showOpenDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
             editContext.setOpenedFile(null);
-            log.user("User decided not to open, option=" + option);
+            log.info(Markers.USER_MARKER, "User decided not to open, option=" + option);
             return false;
         }
 
         File file = chooser.getSelectedFile();
         try {
             if (file == null) {
-                log.user("User did not select a file");
+                log.info(Markers.USER_MARKER, "User did not select a file");
                 return false;
             }
 
@@ -419,13 +420,13 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 
         int option = chooser.showSaveDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
-            log.user("User decided not to save, option=" + option);
+            log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
             return false;
         }
 
         file = chooser.getSelectedFile();
         if (file == null) {
-            log.user("User did not select a file");
+            log.info(Markers.USER_MARKER, "User did not select a file");
             return false;
         }
 

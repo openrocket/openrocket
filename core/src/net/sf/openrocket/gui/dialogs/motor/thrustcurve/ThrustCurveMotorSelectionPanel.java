@@ -54,6 +54,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
@@ -271,12 +272,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				if (row >= 0) {
 					row = table.convertRowIndexToModel(row);
 					ThrustCurveMotorSet motorSet = model.getMotorSet(row);
-					log.user("Selected table row " + row + ": " + motorSet);
+					log.info(Markers.USER_MARKER, "Selected table row " + row + ": " + motorSet);
 					if (motorSet != selectedMotorSet) {
 						select(selectMotor(motorSet));
 					}
 				} else {
-					log.user("Selected table row " + row + ", nothing selected");
+					log.info(Markers.USER_MARKER, "Selected table row " + row + ", nothing selected");
 				}
 			}
 		});

@@ -22,6 +22,7 @@ import net.sf.openrocket.gui.print.PrintSettings;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -91,7 +92,7 @@ public class PrintSettingsDialog extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Resetting print setting values to defaults");
+				log.info(Markers.USER_MARKER, "Resetting print setting values to defaults");
 				PrintSettings defaults = new PrintSettings();
 				settings.loadFrom(defaults);
 				fillColorButton.setSelectedColor(settings.getTemplateFillColor());

@@ -17,6 +17,7 @@ import javax.swing.SwingWorker;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
@@ -72,7 +73,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("User cancelled SwingWorker operation");
+				log.info(Markers.USER_MARKER, "User cancelled SwingWorker operation");
 				cancel();
 			}
 		});

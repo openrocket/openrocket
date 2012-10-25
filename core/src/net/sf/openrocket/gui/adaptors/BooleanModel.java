@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
@@ -267,7 +268,7 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 		}
 		
 		boolean v = (Boolean) this.getValue(SELECTED_KEY);
-		log.user("Value of " + this + " changed to " + v + " oldValue=" + oldValue);
+		log.info(Markers.USER_MARKER, "Value of " + this + " changed to " + v + " oldValue=" + oldValue);
 		if (v != oldValue) {
 			firing++;
 			setValue(v);

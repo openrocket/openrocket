@@ -32,6 +32,7 @@ import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
@@ -387,7 +388,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		@Override
 		protected void fireActionPerformed(ActionEvent event) {
 			super.fireActionPerformed(event);
-			log.user("Adding component of type " + componentClass.getSimpleName());
+			log.info(Markers.USER_MARKER, "Adding component of type " + componentClass.getSimpleName());
 			RocketComponent c = null;
 			Integer position = null;
 			

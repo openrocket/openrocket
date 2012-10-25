@@ -73,6 +73,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Invalidatable;
@@ -164,7 +165,7 @@ public class GUIUtil {
 		Action dispatchClosing = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				log.user("Closing dialog " + dialog);
+				log.info(Markers.USER_MARKER, "Closing dialog " + dialog);
 				dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
 			}
 		};

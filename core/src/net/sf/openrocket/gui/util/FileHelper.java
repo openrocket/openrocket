@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.util;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 
 import javax.imageio.ImageIO;
@@ -140,7 +141,7 @@ public final class FileHelper {
 	 */
 	public static boolean confirmWrite(File file, Component parent) {
 		if (file.exists()) {
-			log.info(1, "File " + file + " exists, confirming overwrite from user");
+			log.user(1, "File " + file + " exists, confirming overwrite from user");
 			int result = JOptionPane.showConfirmDialog(parent,
 					L10N.replace(trans.get("error.fileExists.desc"), "{filename}", file.getName()),
 					trans.get("error.fileExists.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);

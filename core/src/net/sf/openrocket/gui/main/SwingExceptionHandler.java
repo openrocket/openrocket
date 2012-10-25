@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.ExceptionHandler;
@@ -210,12 +211,12 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 		
 		if (selection != 0) {
 			// User cancelled
-			log.user("User chose not to fill bug report");
+			log.info(Markers.USER_MARKER, "User chose not to fill bug report");
 			return;
 		}
 		
 		// Show bug report dialog
-		log.user("User requested sending bug report");
+		log.info(Markers.USER_MARKER, "User requested sending bug report");
 		BugReportDialog.showExceptionDialog(null, t, e);
 	}
 	

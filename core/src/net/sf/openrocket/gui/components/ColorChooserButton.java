@@ -11,6 +11,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -34,7 +35,7 @@ public class ColorChooserButton extends JButton {
 		this.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Activating color chooser");
+				log.info(Markers.USER_MARKER, "Activating color chooser");
 				final JColorChooser chooser = new JColorChooser(getSelectedColor());
 				chooser.setPreviewPanel(new JPanel());
 				final JDialog dialog = JColorChooser.createDialog(ColorChooserButton.this, "Select color", true,
@@ -42,7 +43,7 @@ public class ColorChooserButton extends JButton {
 							@Override
 							public void actionPerformed(ActionEvent e2) {
 								Color c = chooser.getColor();
-								log.user("User selected color " + c);
+								log.info(Markers.USER_MARKER, "User selected color " + c);
 								setSelectedColor(chooser.getColor());
 							}
 						}, null);

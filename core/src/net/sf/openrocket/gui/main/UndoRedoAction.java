@@ -9,6 +9,7 @@ import net.sf.openrocket.document.UndoRedoListener;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
@@ -57,12 +58,12 @@ public class UndoRedoAction extends AbstractAction implements UndoRedoListener {
 	public void actionPerformed(ActionEvent e) {
 		switch (type) {
 		case UNDO:
-			log.user("Performing undo, event=" + e);
+			log.info(Markers.USER_MARKER, "Performing undo, event=" + e);
 			document.undo();
 			break;
 		
 		case REDO:
-			log.user("Performing redo, event=" + e);
+			log.info(Markers.USER_MARKER, "Performing redo, event=" + e);
 			document.redo();
 			break;
 		}

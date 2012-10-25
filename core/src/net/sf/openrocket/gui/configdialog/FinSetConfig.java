@@ -11,6 +11,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.Coaxial;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -57,7 +58,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			convert.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					log.user("Converting " + component.getComponentName() + " into freeform fin set");
+					log.info(Markers.USER_MARKER, "Converting " + component.getComponentName() + " into freeform fin set");
 					
 					// Do change in future for overall safety
 					SwingUtilities.invokeLater(new Runnable() {
@@ -83,7 +84,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		split.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Splitting " + component.getComponentName() + " into separate fins, fin count=" +
+				log.info(Markers.USER_MARKER, "Splitting " + component.getComponentName() + " into separate fins, fin count=" +
 						((FinSet) component).getFinCount());
 				
 				// Do change in future for overall safety
@@ -214,7 +215,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		autoCalc.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Computing " + component.getComponentName() + " tab height.");
+				log.info(Markers.USER_MARKER, "Computing " + component.getComponentName() + " tab height.");
 				
 				RocketComponent parent = component.getParent();
 				if (parent instanceof Coaxial) {

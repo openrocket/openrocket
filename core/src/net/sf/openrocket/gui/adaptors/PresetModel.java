@@ -13,6 +13,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -62,7 +63,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	
 	@Override
 	public void setSelectedItem(Object item) {
-		log.user("User selected preset item '" + item + "' for component " + component);
+		log.info(Markers.USER_MARKER, "User selected preset item '" + item + "' for component " + component);
 		
 		if (item == null) {
 			throw new BugException("item is null");

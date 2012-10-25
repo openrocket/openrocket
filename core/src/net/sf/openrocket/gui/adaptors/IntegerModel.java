@@ -12,6 +12,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
@@ -42,7 +43,7 @@ public class IntegerModel implements StateChangeListener {
 			}
 			Number num = (Number) value;
 			int newValue = num.intValue();
-			log.user("SpinnerModel setValue called for " + IntegerModel.this.toString() + " newValue=" + newValue);
+			log.info(Markers.USER_MARKER, "SpinnerModel setValue called for " + IntegerModel.this.toString() + " newValue=" + newValue);
 			IntegerModel.this.setValue(newValue);
 		}
 		

@@ -38,6 +38,7 @@ import net.sf.openrocket.gui.util.SaveFileWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -407,7 +408,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("New... selected");
+				log.info(Markers.USER_MARKER, "New... selected");
 				newAction();
 				closeIfReplaceable();
 			}
@@ -423,7 +424,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Open... selected");
+				log.info(Markers.USER_MARKER, "Open... selected");
 				openAction();
 			}
 		});
@@ -446,11 +447,11 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Open example... selected");
+				log.info(Markers.USER_MARKER, "Open example... selected");
 				URL[] urls = ExampleDesignDialog.selectExampleDesigns(BasicFrame.this);
 				if (urls != null) {
 					for (URL u : urls) {
-						log.user("Opening example " + u);
+						log.info(Markers.USER_MARKER, "Opening example " + u);
 						open(u, BasicFrame.this);
 					}
 				}
@@ -469,7 +470,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Save selected");
+				log.info(Markers.USER_MARKER, "Save selected");
 				saveAction();
 			}
 		});
@@ -485,7 +486,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Save as... selected");
+				log.info(Markers.USER_MARKER, "Save as... selected");
 				saveAsAction();
 			}
 		});
@@ -500,7 +501,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Print action selected");
+				log.info(Markers.USER_MARKER, "Print action selected");
 				printAction();
 			}
 		});
@@ -518,7 +519,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Close selected");
+				log.info(Markers.USER_MARKER, "Close selected");
 				closeAction();
 			}
 		});
@@ -535,7 +536,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Quit selected");
+				log.info(Markers.USER_MARKER, "Quit selected");
 				quitAction();
 			}
 		});
@@ -593,7 +594,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Scale... selected");
+				log.info(Markers.USER_MARKER, "Scale... selected");
 				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponent(), BasicFrame.this);
 				dialog.setVisible(true);
 				dialog.dispose();
@@ -611,7 +612,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Preferences selected");
+				log.info(Markers.USER_MARKER, "Preferences selected");
 				PreferencesDialog.showPreferences(BasicFrame.this);
 			}
 		});
@@ -648,7 +649,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Component analysis selected");
+				log.info(Markers.USER_MARKER, "Component analysis selected");
 				ComponentAnalysisDialog.showDialog(rocketpanel);
 			}
 		});
@@ -660,7 +661,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Rocket optimization selected");
+				log.info(Markers.USER_MARKER, "Rocket optimization selected");
 				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
 			}
 		});
@@ -702,7 +703,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Guided tours selected");
+				log.info(Markers.USER_MARKER, "Guided tours selected");
 				GuidedTourSelectionDialog.showDialog(BasicFrame.this);
 			}
 		});
@@ -717,7 +718,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Bug report selected");
+				log.info(Markers.USER_MARKER, "Bug report selected");
 				BugReportDialog.showBugReportDialog(BasicFrame.this);
 			}
 		});
@@ -730,7 +731,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Debug log selected");
+				log.info(Markers.USER_MARKER, "Debug log selected");
 				new DebugLogDialog(BasicFrame.this).setVisible(true);
 			}
 		});
@@ -746,7 +747,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("License selected");
+				log.info(Markers.USER_MARKER, "License selected");
 				new LicenseDialog(BasicFrame.this).setVisible(true);
 			}
 		});
@@ -760,7 +761,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("About selected");
+				log.info(Markers.USER_MARKER, "About selected");
 				new AboutDialog(BasicFrame.this).setVisible(true);
 			}
 		});
@@ -788,7 +789,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("What is this menu? selected");
+				log.info(Markers.USER_MARKER, "What is this menu? selected");
 				JOptionPane.showMessageDialog(BasicFrame.this,
 						new Object[] {
 								"The 'Debug' menu includes actions for testing and debugging " +
@@ -808,7 +809,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Create test rocket selected");
+				log.info(Markers.USER_MARKER, "Create test rocket selected");
 				JTextField field = new JTextField();
 				int sel = JOptionPane.showOptionDialog(BasicFrame.this, new Object[] {
 						"Input text key to generate random rocket:",
@@ -841,7 +842,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Create Iso-Haisu selected");
+				log.info(Markers.USER_MARKER, "Create Iso-Haisu selected");
 				Rocket r = TestRockets.makeIsoHaisu();
 				OpenRocketDocument doc = new OpenRocketDocument(r);
 				doc.setSaved(true);
@@ -856,7 +857,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Create Big Blue selected");
+				log.info(Markers.USER_MARKER, "Create Big Blue selected");
 				Rocket r = TestRockets.makeBigBlue();
 				OpenRocketDocument doc = new OpenRocketDocument(r);
 				doc.setSaved(true);
@@ -873,7 +874,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Memory statistics selected");
+				log.info(Markers.USER_MARKER, "Memory statistics selected");
 
 				// Get discarded but remaining objects (this also runs System.gc multiple times)
 				List<MemoryData> objects = MemoryManagement.getRemainingCollectableObjects();
@@ -915,7 +916,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Exhaust memory selected");
+				log.info(Markers.USER_MARKER, "Exhaust memory selected");
 				LinkedList<byte[]> data = new LinkedList<byte[]>();
 				int count = 0;
 				final int bytesPerArray = 10240;
@@ -948,7 +949,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Exception here selected");
+				log.info(Markers.USER_MARKER, "Exception here selected");
 				throw new RuntimeException("Testing exception from menu action listener");
 			}
 		});
@@ -958,7 +959,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Exception from EDT selected");
+				log.info(Markers.USER_MARKER, "Exception from EDT selected");
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
@@ -974,7 +975,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Exception from other thread selected");
+				log.info(Markers.USER_MARKER, "Exception from other thread selected");
 				new Thread() {
 					@Override
 					public void run() {
@@ -989,7 +990,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("OutOfMemoryError here selected");
+				log.info(Markers.USER_MARKER, "OutOfMemoryError here selected");
 				throw new OutOfMemoryError("Testing OutOfMemoryError from menu action listener");
 			}
 		});
@@ -1003,7 +1004,7 @@ public class BasicFrame extends JFrame {
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Test popup selected");
+				log.info(Markers.USER_MARKER, "Test popup selected");
 				JPanel panel = new JPanel();
 				panel.add(new JTextField(40));
 				panel.add(new JSpinner());
@@ -1046,14 +1047,14 @@ public class BasicFrame extends JFrame {
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		int option = chooser.showOpenDialog(this);
 		if (option != JFileChooser.APPROVE_OPTION) {
-			log.user("Decided not to open files, option=" + option);
+			log.info(Markers.USER_MARKER, "Decided not to open files, option=" + option);
 			return;
 		}
 
 		((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 
 		File[] files = chooser.getSelectedFiles();
-		log.user("Opening files " + Arrays.toString(files));
+		log.info(Markers.USER_MARKER, "Opening files " + Arrays.toString(files));
 
 		for (File file : files) {
 			log.info("Opening file: " + file);
@@ -1312,13 +1313,13 @@ public class BasicFrame extends JFrame {
 
 		int option = chooser.showSaveDialog(BasicFrame.this);
 		if (option != JFileChooser.APPROVE_OPTION) {
-			log.user("User decided not to save, option=" + option);
+			log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
 			return false;
 		}
 
 		file = chooser.getSelectedFile();
 		if (file == null) {
-			log.user("User did not select a file");
+			log.info(Markers.USER_MARKER, "User did not select a file");
 			return false;
 		}
 
@@ -1368,7 +1369,7 @@ public class BasicFrame extends JFrame {
 
 		if (!StorageOptionChooser.verifyStorageOptions(document, this)) {
 			// User cancelled the dialog
-			log.user("User cancelled saving in storage options dialog");
+			log.info(Markers.USER_MARKER, "User cancelled saving in storage options dialog");
 			return false;
 		}
 
@@ -1379,7 +1380,7 @@ public class BasicFrame extends JFrame {
 				"Writing " + file.getName() + "...", worker)) {
 
 			// User cancelled the save
-			log.user("User cancelled the save, deleting the file");
+			log.info(Markers.USER_MARKER, "User cancelled the save, deleting the file");
 			file.delete();
 			return false;
 		}
@@ -1424,17 +1425,17 @@ public class BasicFrame extends JFrame {
 					JOptionPane.QUESTION_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
 				// Save
-				log.user("User requested file save");
+				log.info(Markers.USER_MARKER, "User requested file save");
 				if (!saveAction()) {
 					log.info("File save was interrupted, not closing");
 					return false;
 				}
 			} else if (result == JOptionPane.NO_OPTION) {
 				// Don't save: No-op
-				log.user("User requested to discard design");
+				log.info(Markers.USER_MARKER, "User requested to discard design");
 			} else {
 				// Cancel or close
-				log.user("User cancelled closing, result=" + result);
+				log.info(Markers.USER_MARKER, "User cancelled closing, result=" + result);
 				return false;
 			}
 		}
