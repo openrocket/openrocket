@@ -8,8 +8,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.FinMarkingGuide;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.startup.Application;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 

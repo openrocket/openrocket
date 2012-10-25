@@ -18,7 +18,6 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 import org.slf4j.Logger;

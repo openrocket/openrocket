@@ -25,7 +25,6 @@ import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
 /*

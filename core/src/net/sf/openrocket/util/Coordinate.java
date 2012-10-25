@@ -5,8 +5,6 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.startup.Application;
-
 /**
  * An immutable class of weighted coordinates.  The weights are non-negative.
  * 

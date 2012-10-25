@@ -12,8 +12,6 @@ import net.sf.openrocket.gui.print.PrintableTransition;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
-import net.sf.openrocket.startup.Application;
-
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;

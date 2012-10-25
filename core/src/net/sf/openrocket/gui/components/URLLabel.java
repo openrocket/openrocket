@@ -15,7 +15,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
 /**

@@ -9,8 +9,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.startup.Application;
-
 /**
  * A class that performs certain memory-management operations for debugging purposes.
  * For example, complex objects that are being discarded and that should be garbage-collectable

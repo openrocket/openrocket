@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
 public class OpenRocketComponentLoader  implements Loader<ComponentPreset> {

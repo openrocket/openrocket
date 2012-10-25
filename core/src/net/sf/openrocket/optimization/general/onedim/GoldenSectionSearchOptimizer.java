@@ -9,7 +9,6 @@ import net.sf.openrocket.optimization.general.OptimizationController;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.ParallelFunctionCache;
 import net.sf.openrocket.optimization.general.Point;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Statistics;
 

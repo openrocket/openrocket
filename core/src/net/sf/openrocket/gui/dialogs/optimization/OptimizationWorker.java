@@ -24,7 +24,6 @@ import net.sf.openrocket.optimization.rocketoptimization.RocketOptimizationFunct
 import net.sf.openrocket.optimization.rocketoptimization.RocketOptimizationListener;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationDomain;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.BugException;
 

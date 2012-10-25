@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.file.UnknownFileTypeException;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.UncloseableInputStream;
 
 /**

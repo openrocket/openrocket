@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
 
 /**
  * A database containing ThrustCurveMotorSet objects and allowing adding a motor

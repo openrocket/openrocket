@@ -11,7 +11,6 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.Pair;
 

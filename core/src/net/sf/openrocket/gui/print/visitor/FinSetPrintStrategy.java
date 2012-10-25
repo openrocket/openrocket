@@ -12,8 +12,6 @@ import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
-
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;

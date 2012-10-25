@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.startup.Application;
 
 /**
  * Abstract base for mass calculators.  Provides functionality for cacheing mass data.

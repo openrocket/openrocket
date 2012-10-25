@@ -9,8 +9,6 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.startup.Application;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 

@@ -11,7 +11,6 @@ import net.sf.openrocket.gui.print.PrintableCenteringRing;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 
 import java.awt.image.BufferedImage;

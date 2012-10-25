@@ -17,7 +17,6 @@ import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
 public final class MotorLoaderHelper {

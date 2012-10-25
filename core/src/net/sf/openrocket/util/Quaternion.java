@@ -3,8 +3,6 @@ package net.sf.openrocket.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.openrocket.startup.Application;
-
 /**
  * An immutable quaternion class.
  * 

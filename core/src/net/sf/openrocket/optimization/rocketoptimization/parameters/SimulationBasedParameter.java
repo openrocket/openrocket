@@ -16,7 +16,6 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
-import net.sf.openrocket.startup.Application;
 
 /**
  * An abstract optimization parameter that simulates a rocket flight and obtains

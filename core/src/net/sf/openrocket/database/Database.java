@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.Pair;
 
