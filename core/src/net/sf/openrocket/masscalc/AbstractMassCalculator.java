@@ -1,6 +1,8 @@
 package net.sf.openrocket.masscalc;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.startup.Application;
 
@@ -10,7 +12,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class AbstractMassCalculator implements MassCalculator {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(AbstractMassCalculator.class);
 	
 	private int rocketMassModID = -1;
 	private int rocketTreeModID = -1;

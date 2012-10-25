@@ -8,14 +8,16 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 
 
 public class Icons {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(Icons.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	static {

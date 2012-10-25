@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.optimization.general.FunctionCache;
 import net.sf.openrocket.optimization.general.FunctionOptimizer;
 import net.sf.openrocket.optimization.general.OptimizationController;
@@ -25,7 +27,7 @@ import net.sf.openrocket.util.Statistics;
  * The optimization can be aborted by interrupting the current thread.
  */
 public class MultidirectionalSearchOptimizer implements FunctionOptimizer, Statistics {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(MultidirectionalSearchOptimizer.class);
 	
 	private List<Point> simplex = new ArrayList<Point>();
 	

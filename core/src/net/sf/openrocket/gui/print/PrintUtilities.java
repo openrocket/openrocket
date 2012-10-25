@@ -12,7 +12,9 @@ import java.awt.print.Printable;
 
 import javax.swing.RepaintManager;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.startup.Application;
 
 import com.itextpdf.text.Chunk;
@@ -29,7 +31,7 @@ public class PrintUtilities implements Printable {
 	/**
 	 * The logger.
 	 */
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(PrintUtilities.class);
 	
 	public static final int NORMAL_FONT_SIZE = Font.DEFAULTSIZE - 3;
 	public static final int SMALL_FONT_SIZE = NORMAL_FONT_SIZE - 3;

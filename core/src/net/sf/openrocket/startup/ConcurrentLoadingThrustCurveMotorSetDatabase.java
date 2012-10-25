@@ -11,6 +11,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.database.ThrustCurveMotorSet;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
@@ -18,7 +21,6 @@ import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.file.motor.MotorLoaderHelper;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.util.BugException;
@@ -45,7 +47,7 @@ import net.sf.openrocket.util.Pair;
  */
 public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMotorSetDatabase {
 
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ConcurrentLoadingThrustCurveMotorSetDatabase.class);
 	private final String thrustCurveDirectory;
 
 	/** Block motor loading for this many milliseconds */

@@ -83,6 +83,8 @@ import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.Reflection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -98,7 +100,7 @@ import org.xml.sax.SAXException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenRocketLoader extends AbstractRocketLoader {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketLoader.class);
 	
 	
 	@Override

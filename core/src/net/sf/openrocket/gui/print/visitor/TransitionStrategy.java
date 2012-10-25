@@ -9,7 +9,6 @@ import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableNoseCone;
 import net.sf.openrocket.gui.print.PrintableTransition;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -19,6 +18,9 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A strategy for drawing transition/shroud/nose cone templates.
  */
@@ -27,7 +29,7 @@ public class TransitionStrategy {
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(TransitionStrategy.class);
 
     /**
      * The iText document.

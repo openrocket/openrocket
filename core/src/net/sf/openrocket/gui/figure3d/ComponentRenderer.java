@@ -14,7 +14,9 @@ import javax.media.opengl.glu.GLUtessellator;
 import javax.media.opengl.glu.GLUtessellatorCallback;
 import javax.media.opengl.glu.GLUtessellatorCallbackAdapter;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -30,7 +32,7 @@ import net.sf.openrocket.util.Coordinate;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class ComponentRenderer {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ComponentRenderer.class);
 	
 	private int LOD = 80;
 

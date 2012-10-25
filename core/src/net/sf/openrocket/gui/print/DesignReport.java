@@ -7,12 +7,14 @@ import java.awt.Graphics2D;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -78,7 +80,7 @@ public class DesignReport {
 	/**
 	 * The logger.
 	 */
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(DesignReport.class);
 	public static final double SCALE_FUDGE_FACTOR = 0.4d;
 
 	/**

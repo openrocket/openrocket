@@ -10,10 +10,12 @@ import java.io.InterruptedIOException;
 
 import javax.swing.SwingWorker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
@@ -24,7 +26,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OpenFileWorker.class);
 	
 	private final File file;
 	private final InputStream stream;

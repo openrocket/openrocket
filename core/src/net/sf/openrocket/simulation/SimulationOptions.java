@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
@@ -34,7 +36,7 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 public class SimulationOptions implements ChangeSource, Cloneable {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
 	

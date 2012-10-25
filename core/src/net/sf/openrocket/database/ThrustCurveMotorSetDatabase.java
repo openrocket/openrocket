@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
@@ -17,7 +19,7 @@ import net.sf.openrocket.startup.Application;
  */
 public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	
-	private static final LogHelper logger = Application.getLogger();
+	private static final Logger logger = LoggerFactory.getLogger(ThrustCurveMotorSetDatabase.class);
 	
 	protected List<ThrustCurveMotorSet> motorSets;
 	

@@ -23,6 +23,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -36,7 +39,6 @@ import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.simulation.FlightData;
@@ -45,7 +47,7 @@ import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class SimulationPanel extends JPanel {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
 	private static final Translator trans = Application.getTranslator();
 
 	

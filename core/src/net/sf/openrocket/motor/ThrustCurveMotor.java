@@ -4,7 +4,9 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
@@ -15,7 +17,7 @@ import net.sf.openrocket.util.MathUtil;
 
 
 public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotor.class);
 	
 	public static final double MAX_THRUST = 10e6;
 	

@@ -8,7 +8,6 @@ import net.sf.openrocket.gui.print.AbstractPrintable;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableCenteringRing;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -19,6 +18,9 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A strategy for printing a centering ring to iText.
  */
@@ -27,7 +29,7 @@ public class CenteringRingStrategy {
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+   private static final Logger log = LoggerFactory.getLogger(CenteringRingStrategy.class);
 
     /**
      * The iText document.

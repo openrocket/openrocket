@@ -6,8 +6,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.FunctionOptimizer;
 import net.sf.openrocket.optimization.general.OptimizationController;
 import net.sf.openrocket.optimization.general.OptimizationException;
@@ -46,7 +48,7 @@ public abstract class OptimizationWorker extends Thread implements OptimizationC
 	 * Nothing of this is documented, of course...
 	 */
 
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OptimizationWorker.class);
 	
 	/** Notify listeners every this many milliseconds */
 	private static final long PURGE_TIMEOUT = 500;

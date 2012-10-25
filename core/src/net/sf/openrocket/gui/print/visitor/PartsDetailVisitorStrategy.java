@@ -8,11 +8,13 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.main.ComponentIcons;
 import net.sf.openrocket.gui.print.ITextHelper;
 import net.sf.openrocket.gui.print.PrintUtilities;
 import net.sf.openrocket.gui.print.PrintableFinSet;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
@@ -60,7 +62,7 @@ public class PartsDetailVisitorStrategy {
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(PartsDetailVisitorStrategy.class);
 
     /**
      * The number of columns in the table.

@@ -9,6 +9,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,6 +30,7 @@ import java.util.List;
  */
 public class OpenRocketComponentSaver {
 
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketComponentSaver.class);
     /**
      * The JAXBContext.  JAXBContext is thread-safe.
      */
@@ -36,7 +41,7 @@ public class OpenRocketComponentSaver {
             context = JAXBContext.newInstance(OpenRocketComponentDTO.class);
         }
         catch (JAXBException jaxb) {
-            Application.getLogger().error("Unable to create JAXBContext for loading of *.orc files.", jaxb);
+           log.error("Unable to create JAXBContext for loading of *.orc files.", jaxb);
         }
     }
 

@@ -4,10 +4,12 @@ import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -38,7 +40,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Simulation implements ChangeSource, Cloneable {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(Simulation.class);
 
 	public static enum Status {
 		/** Up-to-date */

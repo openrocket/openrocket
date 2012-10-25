@@ -44,12 +44,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -69,7 +71,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	
 	private static Translator trans = Application.getTranslator();
 	
-	private static LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(PresetEditorDialog.class);
 	
 	private static final String NON_NEGATIVE_INTEGER_FIELD = "(\\d){0,10}";
 	

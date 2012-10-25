@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
@@ -38,8 +40,7 @@ import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
 
 public class OpenRocketSaver extends RocketSaver {
-	private static final LogHelper log = Application.getLogger();
-	
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketSaver.class);
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.

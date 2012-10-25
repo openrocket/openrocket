@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.file.Loader;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.Pair;
@@ -33,7 +35,7 @@ import net.sf.openrocket.util.Pair;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class Database<T extends Comparable<T>> extends AbstractSet<T> {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(Database.class);
 	
 	protected final List<T> list = new ArrayList<T>();
 	private final ArrayList<DatabaseListener<T>> listeners =

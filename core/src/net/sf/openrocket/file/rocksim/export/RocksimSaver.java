@@ -4,7 +4,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -14,6 +13,10 @@ import net.sf.openrocket.startup.Application;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,8 +31,8 @@ public class RocksimSaver extends RocketSaver {
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
-
+    private static final Logger log = LoggerFactory.getLogger(RocksimSaver.class);
+    
     /**
      * This method marshals an OpenRocketDocument (OR design) to Rocksim-compliant XML.
      *

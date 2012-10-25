@@ -5,7 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.startup.Application;
 
 import com.itextpdf.text.PageSize;
@@ -39,7 +41,7 @@ public enum PaperSize {
 	
 	//////////////////////////
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(PaperSize.class);
 	private static PaperSize defaultSize = null;
 	
 	/**
