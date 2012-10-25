@@ -6,7 +6,7 @@ import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.util.Coordinate;
 
-public class RK4SimulationStatus extends SimulationStatus {
+public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	private Coordinate launchRodDirection;
 	
 	private double previousAcceleration = 0;
