@@ -24,6 +24,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -41,9 +42,11 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.SimulationExportPanel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.plot.Axis;
 import net.sf.openrocket.gui.plot.PlotConfiguration;
 import net.sf.openrocket.gui.plot.SimulationPlotPanel;
+import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
@@ -208,24 +211,34 @@ public class SimulationEditDialog extends JDialog {
 		DoubleModel m;
 		JSpinner spin;
 		
-		//// Motor selector
-		//// Motor configuration:
-		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Motorcfg"));
+		//// Flight selector
+		//// Flight configuration:
+		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
 		//// Select the motor configuration to use.
-		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Motorcfg"));
+		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
 		panel.add(label, "shrinkx, spanx, split 2");
 		
 		JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
 		//// Select the motor configuration to use.
-		combo.setToolTipText(trans.get("simedtdlg.combo.ttip.motorconf"));
+		combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
 		combo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
 			}
 		});
-		panel.add(combo, "growx, wrap para");
+		panel.add(combo, "");
 		
+		//// Edit button
+		JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JDialog configDialog = new FlightConfigurationDialog(document.getRocket(),SwingUtilities.windowForComponent(SimulationEditDialog.this));
+				configDialog.show();
+			}
+		});
+		panel.add(button, "wrap");
 
 		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
