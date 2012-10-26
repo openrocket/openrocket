@@ -75,12 +75,12 @@ public class MotorConfig extends JPanel {
 
 		JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
 		panel.add(combo, "growx");
-
-		configuration.addChangeListener(new ChangeListener() {
+		combo.addActionListener( new ActionListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				updateFields();
 			}
+			
 		});
 
 		//// Edit button
