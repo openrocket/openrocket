@@ -48,7 +48,6 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
-import net.sf.openrocket.gui.configdialog.MotorConfig;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
