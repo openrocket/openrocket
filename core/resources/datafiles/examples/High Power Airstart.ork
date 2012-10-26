@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <openrocket version="1.5" creator="OpenRocket 12.09.1dev">
   <rocket>
-    <name>Rocket</name>
+    <name>High Power Airstart</name>
+    <comment>This file demonstrates the effect of different airstart timings on overall altitude.</comment>
+    <designer>Kevin Ruland</designer>
     <motorconfiguration configid="99b8d6a6-1379-4621-8b01-5d6dd55d686f"/>
     <motorconfiguration configid="bc7de2d0-b362-463a-9853-0200700175c7"><name>Airstart @1s</name></motorconfiguration>
     <motorconfiguration configid="bbf39580-3dab-4987-9c86-4b3932934a28"><name>Airstart @2s</name></motorconfiguration>
@@ -324,7 +326,7 @@
   </rocket>
 
   <simulations>
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 1</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -342,7 +344,7 @@
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="1327.1" maxvelocity="224.97" maxacceleration="151.44" maxmach="0.66314" timetoapogee="14.549" flighttime="81.111" groundhitvelocity="8.8741" launchrodvelocity="16.903" deploymentvelocity="24.13">
+      <flightdata maxaltitude="1327.1" maxvelocity="224.97" maxacceleration="151.44" maxmach="0.66314" timetoapogee="14.499" flighttime="81.111" groundhitvelocity="8.8741" launchrodvelocity="16.903" deploymentvelocity="24.13">
         <warning>Recovery device deployment at high speed (79.3 ft/s).</warning>
         <databranch name="MAIN" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Latitude,Longitude,Gravitational acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,Propellant mass,Longitudinal moment of inertia,Rotational moment of inertia,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Coriolis acceleration,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
@@ -871,7 +873,7 @@
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 2</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -1433,7 +1435,7 @@
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 3</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -2012,7 +2014,7 @@
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 4</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -2030,7 +2032,7 @@
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="1440.1" maxvelocity="186.46" maxacceleration="102.76" maxmach="0.5521" timetoapogee="17.25" flighttime="88.375" groundhitvelocity="8.8754" launchrodvelocity="10.729" deploymentvelocity="24.126">
+      <flightdata maxaltitude="1440.1" maxvelocity="186.46" maxacceleration="102.76" maxmach="0.5521" timetoapogee="17.2" flighttime="88.375" groundhitvelocity="8.8754" launchrodvelocity="10.729" deploymentvelocity="24.126">
         <warning>Recovery device deployment at high speed (79.3 ft/s).</warning>
         <databranch name="MAIN" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Latitude,Longitude,Gravitational acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,Propellant mass,Longitudinal moment of inertia,Rotational moment of inertia,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Coriolis acceleration,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
@@ -2629,7 +2631,7 @@
       </flightdata>
     </simulation>
 
-    <simulation status="uptodate">
+    <simulation status="loaded">
       <name>Simulation 5</name>
       <simulator>RK4Simulator</simulator>
       <calculator>BarrowmanCalculator</calculator>
@@ -2647,7 +2649,7 @@
         <atmosphere model="isa"/>
         <timestep>0.05</timestep>
       </conditions>
-      <flightdata maxaltitude="1479.1" maxvelocity="167.83" maxacceleration="107.5" maxmach="0.49774" timetoapogee="18.8" flighttime="92.082" groundhitvelocity="8.8695" launchrodvelocity="10.729" deploymentvelocity="24.136">
+      <flightdata maxaltitude="1479.1" maxvelocity="167.83" maxacceleration="107.5" maxmach="0.49774" timetoapogee="18.7" flighttime="92.082" groundhitvelocity="8.8695" launchrodvelocity="10.729" deploymentvelocity="24.136">
         <warning>Recovery device deployment at high speed (79.4 ft/s).</warning>
         <databranch name="MAIN" types="Time,Altitude,Vertical velocity,Vertical acceleration,Total velocity,Total acceleration,Position upwind,Position parallel to wind,Lateral distance,Lateral direction,Lateral velocity,Lateral acceleration,Latitude,Longitude,Gravitational acceleration,Angle of attack,Roll rate,Pitch rate,Yaw rate,Mass,Propellant mass,Longitudinal moment of inertia,Rotational moment of inertia,CP location,CG location,Stability margin calibers,Mach number,Reynolds number,Thrust,Drag force,Drag coefficient,Axial drag coefficient,Friction drag coefficient,Pressure drag coefficient,Base drag coefficient,Normal force coefficient,Pitch moment coefficient,Yaw moment coefficient,Side force coefficient,Roll moment coefficient,Roll forcing coefficient,Roll damping coefficient,Pitch damping coefficient,Coriolis acceleration,Reference length,Reference area,Vertical orientation (zenith),Lateral orientation (azimuth),Wind velocity,Air temperature,Air pressure,Speed of sound,Simulation time step,Computation time">
           <event time="0" type="launch"/>
