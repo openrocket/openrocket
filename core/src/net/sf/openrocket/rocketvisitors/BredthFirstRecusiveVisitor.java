@@ -8,12 +8,17 @@ public abstract class BredthFirstRecusiveVisitor implements RocketComponentVisit
 	@Override
 	public final void visit(RocketComponent visitable) {
 
+		this.doAction(visitable);
+
+		for ( RocketComponent child: visitable.getChildren() ) {
+			this.doAction(child);
+		}
+
 		for ( RocketComponent child: visitable.getChildren() ) {
 			this.visit(child);
 		}
-		
-		this.doAction(visitable);
-		
+
+
 	}
 	
 	protected abstract void doAction( RocketComponent visitable );
