@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -25,8 +26,7 @@ public class SelectIgnitionConfigDialog extends JDialog {
 	MotorConfiguration newConfiguration;
 
 	SelectIgnitionConfigDialog(JDialog parent,final Rocket rocket, final MotorMount component ) {
-		super(parent);
-		super.setModal(true);
+		super(parent, FlightConfigurationDialog.trans.get("edtmotorconfdlg.title.Selectignitionconf"),Dialog.ModalityType.APPLICATION_MODAL);
 		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 
 		newConfiguration = component.getFlightConfiguration(configId);
@@ -37,6 +37,15 @@ public class SelectIgnitionConfigDialog extends JDialog {
 			// is put back in there.
 			newConfiguration = newConfiguration.clone();
 		}
+		// MotorConfiguration is a little wierd.  It is possible for the MotorConfiguration
+		// to be non-null (for example, a motor is selected) but the ignition spec is null
+		// (ignition is not overridden).  In order to accomodate this, we need to test
+		// for IgnitionEvent and copy from the default config.
+		if ( newConfiguration.getIgnitionEvent() == null ) {
+			MotorConfiguration oldConfig = component.getDefaultFlightConfiguration();
+			newConfiguration.setIgnitionDelay( oldConfig.getIgnitionDelay() );
+			newConfiguration.setIgnitionEvent(oldConfig.getIgnitionEvent() );
+		}
 
 		JPanel panel = new JPanel(new MigLayout("fill"));
 
@@ -46,7 +55,6 @@ public class SelectIgnitionConfigDialog extends JDialog {
 		
 		final JComboBox<IgnitionEvent> event = new JComboBox<IgnitionEvent>(new BasicEnumModel<IgnitionEvent>(IgnitionEvent.class));
 		event.setSelectedItem( newConfiguration.getIgnitionEvent() );
-		//FIXME set selection based on newConfiguration.getIgnitionEvent();
 		panel.add(event, "growx, wrap");
 		
 		// ... and delay
@@ -76,6 +84,7 @@ public class SelectIgnitionConfigDialog extends JDialog {
 				double ignitionDelay = delay.getValue();
 				newConfiguration.setIgnitionDelay(ignitionDelay);
 				
+				
 				component.setFlightConfiguration(configId, newConfiguration);
 				
 				SelectIgnitionConfigDialog.this.setVisible(false);
@@ -100,6 +109,7 @@ public class SelectIgnitionConfigDialog extends JDialog {
 		this.setContentPane(panel);
 		this.validate();
 		this.pack();
+		this.setLocationByPlatform(true);
 
 	}
 }

@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -27,8 +28,7 @@ public class SelectSeparationConfigDialog extends JDialog {
 	StageSeparationConfiguration newConfiguration;
 
 	SelectSeparationConfigDialog( JDialog parent, final Rocket rocket, final Stage component ) {
-		super(parent);
-		super.setModal(true);
+		super(parent, FlightConfigurationDialog.trans.get("edtmotorconfdlg.title.Selectseparationconf"),Dialog.ModalityType.APPLICATION_MODAL);
 		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
 		newConfiguration = component.getFlightConfiguration(configId);
@@ -99,6 +99,8 @@ public class SelectSeparationConfigDialog extends JDialog {
 		this.setContentPane(panel);
 		this.validate();
 		this.pack();
+		this.setLocationByPlatform(true);
+
 	}
 
 

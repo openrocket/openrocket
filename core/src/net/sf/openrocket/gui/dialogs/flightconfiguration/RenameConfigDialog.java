@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,8 +16,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 public class RenameConfigDialog extends JDialog {
 	
 	RenameConfigDialog( final Rocket rocket, final FlightConfigurationDialog parent ) {
-		super(parent);
-		super.setModal(true);
+		super(parent, FlightConfigurationDialog.trans.get("edtmotorconfdlg.title.Renameconf"),Dialog.ModalityType.APPLICATION_MODAL);
 		final Configuration config = rocket.getDefaultConfiguration();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -65,6 +65,8 @@ public class RenameConfigDialog extends JDialog {
 		this.setContentPane(panel);
 		this.validate();
 		this.pack();
+		this.setLocationByPlatform(true);
+
 	}
 
 }

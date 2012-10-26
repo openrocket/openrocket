@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,7 +42,7 @@ public class FlightConfigurationDialog extends JDialog {
 
 	public FlightConfigurationDialog(final Rocket rocket, Window parent) {
 		//// Edit motor configurations
-		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"));
+		super(parent, trans.get("edtmotorconfdlg.title.Editmotorconf"), Dialog.ModalityType.APPLICATION_MODAL);
 
 		currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
 
