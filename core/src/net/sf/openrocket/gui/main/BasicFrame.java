@@ -436,6 +436,11 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_OPEN);
 		menu.add(item);
 
+		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), this);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
+		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
+		menu.add(item);
+
 		//// Open example...
 		item = new JMenuItem(trans.get("main.menu.file.openExample"));
 		//// Open an example rocket design
@@ -490,7 +495,7 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		menu.add(item);
-		
+
 		//// Export decal...
 		item = new JMenuItem("Export Decal");
 		item.addActionListener(new ActionListener() {
@@ -1092,7 +1097,7 @@ public class BasicFrame extends JFrame {
 	 * @param parent	the parent window for dialogs.
 	 * @return			<code>true</code> if opened successfully.
 	 */
-	private static boolean open(URL url, BasicFrame parent) {
+	public static boolean open(URL url, BasicFrame parent) {
 		String displayName = null;
 
 		// First figure out the file name from the URL
@@ -1126,13 +1131,7 @@ public class BasicFrame extends JFrame {
 		log.info("Opening file from url=" + url + " filename=" + displayName);
 		try {
 			InputStream is = url.openStream();
-			if (open(is, displayName, url, parent)) {
-				// Close previous window if replacing
-				if (parent.replaceable && parent.document.isSaved()) {
-					parent.closeAction();
-					parent.replaceable = false;
-				}
-			}
+			open(is, displayName, url, parent, true);
 		} catch (IOException e) {
 			log.warn("Error opening file" + e);
 			JOptionPane.showMessageDialog(parent,
@@ -1151,11 +1150,12 @@ public class BasicFrame extends JFrame {
 	 * @param stream	the stream to load from.
 	 * @param displayName	the file name to display in dialogs (not set to the document).
 	 * @param parent	the parent component for which a progress dialog is opened.
+	 * @param openRocketConfigDialog if true will open the rocket configuration dialog
 	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(InputStream stream, String displayName, URL fileURL, Window parent) {
+	private static boolean open(InputStream stream, String displayName, URL fileURL, Window parent, boolean openRocketConfigDialog) {
 		OpenFileWorker worker = new OpenFileWorker(stream, fileURL, ROCKET_LOADER);
-		return open(worker, displayName, parent);
+		return open(worker, displayName, parent, openRocketConfigDialog);
 	}
 
 
@@ -1169,7 +1169,7 @@ public class BasicFrame extends JFrame {
 	 */
 	public static boolean open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file, ROCKET_LOADER);
-		return open(worker, file.getName(), parent);
+		return open(worker, file.getName(), parent, false);
 	}
 
 
@@ -1180,9 +1180,10 @@ public class BasicFrame extends JFrame {
 	 * @param displayName	the file name to display in dialogs.
 	 * @param file		the File to set the document to (may be null).
 	 * @param parent
+	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return
 	 */
-	private static boolean open(OpenFileWorker worker, String displayName, Window parent) {
+	private static boolean open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
 
 		MotorDatabaseLoadingDialog.check(parent);
 
@@ -1243,13 +1244,13 @@ public class BasicFrame extends JFrame {
 			log.info("Warnings while reading file: " + warnings);
 			WarningDialog.showWarnings(parent,
 					new Object[] {
-							//// The following problems were encountered while opening
-							trans.get("BasicFrame.WarningDialog.txt1") + " " + displayName + ".",
-							//// Some design features may not have been loaded correctly.
-							trans.get("BasicFrame.WarningDialog.txt2")
-					},
-					//// Warnings while opening file
-					trans.get("BasicFrame.WarningDialog.title"), warnings);
+					//// The following problems were encountered while opening
+					trans.get("BasicFrame.WarningDialog.txt1") + " " + displayName + ".",
+					//// Some design features may not have been loaded correctly.
+					trans.get("BasicFrame.WarningDialog.txt2")
+			},
+			//// Warnings while opening file
+			trans.get("BasicFrame.WarningDialog.title"), warnings);
 		}
 
 		// Open the frame
@@ -1260,6 +1261,10 @@ public class BasicFrame extends JFrame {
 		if ( parent != null && parent instanceof BasicFrame ) {
 			((BasicFrame)parent).closeIfReplaceable();
 		}
+		if( openRocketConfigDialog ) {
+			ComponentConfigDialog.showDialog(frame, doc, doc.getRocket());
+		}
+
 		return true;
 	}
 
