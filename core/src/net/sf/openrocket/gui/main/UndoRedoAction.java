@@ -4,11 +4,13 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.UndoRedoListener;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -32,7 +34,7 @@ public class UndoRedoAction extends AbstractAction implements UndoRedoListener {
 		return redo;
 	}
 
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(UndoRedoAction.class);
 	private static final Translator trans = Application.getTranslator();
 
 	private static final int UNDO = 1;

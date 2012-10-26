@@ -10,9 +10,10 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.startup.Application;
 
 /**
  * A color chooser button.  The currently selected color can be queried or set using the
@@ -22,7 +23,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class ColorChooserButton extends JButton {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ColorChooserButton.class);
 	
 	public static final String COLOR_KEY = "selectedColor";
 	

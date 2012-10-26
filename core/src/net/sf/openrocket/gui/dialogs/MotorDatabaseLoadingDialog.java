@@ -11,12 +11,14 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -25,7 +27,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class MotorDatabaseLoadingDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(MotorDatabaseLoadingDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	
@@ -65,7 +67,7 @@ public class MotorDatabaseLoadingDialog extends JDialog {
 		SplashScreen splash = Splash.getSplashScreen();
 		if (splash == null || !splash.isVisible()) {
 			
-			log.info(1, "Motor database not loaded yet, displaying dialog");
+			log.info("Motor database not loaded yet, displaying dialog");
 			
 			final MotorDatabaseLoadingDialog dialog = new MotorDatabaseLoadingDialog(parent);
 			
@@ -91,7 +93,7 @@ public class MotorDatabaseLoadingDialog extends JDialog {
 			
 		} else {
 			
-			log.info(1, "Motor database not loaded yet, splash screen still present, delaying until loaded");
+			log.info("Motor database not loaded yet, splash screen still present, delaying until loaded");
 			
 			db.setInUse();
 			int count = 0;

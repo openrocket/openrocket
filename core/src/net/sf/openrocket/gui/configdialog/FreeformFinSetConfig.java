@@ -24,6 +24,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -42,7 +45,6 @@ import net.sf.openrocket.gui.util.CustomFinImporter;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -55,7 +57,7 @@ import net.sf.openrocket.util.Coordinate;
 
 public class FreeformFinSetConfig extends FinSetConfig {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(FreeformFinSetConfig.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private final FreeformFinSet finset;

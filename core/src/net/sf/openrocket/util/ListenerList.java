@@ -2,9 +2,10 @@ package net.sf.openrocket.util;
 
 import java.util.Iterator;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.logging.TraceException;
-import net.sf.openrocket.startup.Application;
 
 /**
  * A list of listeners of a specific type.  This class contains various utility,
@@ -19,7 +20,7 @@ import net.sf.openrocket.startup.Application;
  * @param <T>	the type of the listeners.
  */
 public class ListenerList<T> implements Invalidatable, Iterable<T> {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ListenerList.class);
 	
 	private final ArrayList<ListenerData<T>> listeners = new ArrayList<ListenerData<T>>();
 	private final TraceException instantiationLocation;
@@ -49,7 +50,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 		
 		ListenerData<T> data = new ListenerData<T>(listener);
 		if (listeners.contains(data)) {
-			log.warn(1, "Attempting to add duplicate listener " + listener);
+			log.warn("Attempting to add duplicate listener " + listener);
 			return false;
 		}
 		listeners.add(data);
@@ -71,11 +72,11 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 		while (iterator.hasNext()) {
 			if (iterator.next().listener == listener) {
 				iterator.remove();
-				log.verbose(1, "Removing listener " + listener);
+				log.trace("Removing listener " + listener);
 				return true;
 			}
 		}
-		log.info(1, "Attempting to remove non-existant listener " + listener);
+		log.info("Attempting to remove non-existant listener " + listener);
 		return false;
 	}
 	
@@ -134,7 +135,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 			if (error) {
 				throw new BugException(this + ": this ListenerList has been invalidated", invalidated);
 			} else {
-				log.warn(1, this + ": this ListenerList has been invalidated",
+				log.warn(this + ": this ListenerList has been invalidated",
 						new TraceException("ListenerList was attempted to be used here", invalidated));
 			}
 		}

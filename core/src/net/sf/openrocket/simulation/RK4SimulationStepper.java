@@ -3,11 +3,13 @@ package net.sf.openrocket.simulation;
 import java.util.Arrays;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.simulation.exception.SimulationCalculationException;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -22,7 +24,7 @@ import net.sf.openrocket.util.WorldCoordinate;
 
 public class RK4SimulationStepper extends AbstractSimulationStepper {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(RK4SimulationStepper.class);
 	private static final Translator trans = Application.getTranslator();
 	
 

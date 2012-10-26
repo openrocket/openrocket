@@ -11,9 +11,10 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Invalidatable;
@@ -39,7 +40,7 @@ import net.sf.openrocket.util.StateChangeListener;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class BooleanModel extends AbstractAction implements StateChangeListener, Invalidatable {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(BooleanModel.class);
 	
 	private final ChangeSource source;
 	private final String valueName;

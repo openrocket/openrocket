@@ -17,9 +17,10 @@ import javax.swing.SpinnerModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -49,7 +50,7 @@ import net.sf.openrocket.util.StateChangeListener;
  */
 
 public class DoubleModel implements StateChangeListener, ChangeSource, Invalidatable {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(DoubleModel.class);
 	
 	
 	public static final DoubleModel ZERO = new DoubleModel(0);

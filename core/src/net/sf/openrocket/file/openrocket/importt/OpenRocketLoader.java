@@ -25,7 +25,6 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -1702,7 +1701,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(FlightDataBranchHandler.class);
 	private final SingleSimulationHandler simHandler;
 	
 	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {

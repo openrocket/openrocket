@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.Function;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Pair;
@@ -22,7 +23,7 @@ import net.sf.openrocket.util.Pair;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class RocketOptimizationFunction implements Function {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(RocketOptimizationFunction.class);
 	
 	private static final double OUTSIDE_DOMAIN_SCALE = 1.0e200;
 	

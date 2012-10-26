@@ -38,6 +38,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
@@ -56,7 +59,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.NumericComparator;
 
 public class DebugLogDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(DebugLogDialog.class);
 	
 	private static final int POLL_TIME = 250;
 	private static final String STACK_TRACE_MARK = "\uFF01";

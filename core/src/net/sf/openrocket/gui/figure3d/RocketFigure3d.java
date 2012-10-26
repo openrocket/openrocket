@@ -31,14 +31,15 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.main.Splash;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
@@ -49,7 +50,7 @@ import com.jogamp.opengl.util.awt.Overlay;
  */
 public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static final long serialVersionUID = 1L;
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
 	
 	static {
 		//this allows the GL canvas and things like the motor selection

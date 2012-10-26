@@ -14,10 +14,12 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -25,7 +27,7 @@ import net.sf.openrocket.util.Chars;
 
 public class SlideShowDialog extends JDialog {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SlideShowDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private SlideShowComponent slideShowComponent;

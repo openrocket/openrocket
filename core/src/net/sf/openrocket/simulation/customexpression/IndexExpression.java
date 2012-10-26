@@ -2,21 +2,22 @@ package net.sf.openrocket.simulation.customexpression;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.LinearInterpolator;
 
 public class IndexExpression extends CustomExpression {
 
 	FlightDataType type;
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(IndexExpression.class);
 	
 	public IndexExpression(OpenRocketDocument doc, String indexText, String typeText){
 		super(doc);

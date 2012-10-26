@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MathUtil {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(MathUtil.class);
 
 	public static final double EPSILON = 0.00000001; // 10mm^3 in m^3
 
@@ -219,7 +219,7 @@ public class MathUtil {
 	public static double safeSqrt(double d) {
 		if (d < 0) {
 			if (d < 0.01) {
-				log.warn(1, "Attempting to compute sqrt(" + d + ")");
+				log.warn("Attempting to compute sqrt(" + d + ")");
 			}
 			return 0;
 		}

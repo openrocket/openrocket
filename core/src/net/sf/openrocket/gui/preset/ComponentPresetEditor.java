@@ -6,7 +6,6 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -34,6 +33,10 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -54,7 +57,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(ComponentPresetEditor.class);
 
     /**
      * The I18N translator.

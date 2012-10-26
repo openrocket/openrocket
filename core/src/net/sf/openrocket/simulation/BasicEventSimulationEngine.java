@@ -4,10 +4,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
@@ -33,7 +35,7 @@ import net.sf.openrocket.util.Quaternion;
 public class BasicEventSimulationEngine implements SimulationEngine {
 
 	private static final Translator trans = Application.getTranslator();
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 
 	// TODO: MEDIUM: Allow selecting steppers
 	private SimulationStepper flightStepper = new RK4SimulationStepper();

@@ -29,6 +29,9 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
@@ -41,7 +44,6 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
@@ -53,7 +55,7 @@ import net.sf.openrocket.util.Utils;
 
 
 public class PreferencesDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(PreferencesDialog.class);
 
 	private final List<DefaultUnitSelector> unitSelectors = new ArrayList<DefaultUnitSelector>();
 

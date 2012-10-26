@@ -2,10 +2,11 @@ package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.OptimizationException;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
@@ -19,7 +20,7 @@ import net.sf.openrocket.util.Reflection.Method;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class GenericModifier<T> extends AbstractSimulationModifier {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(GenericModifier.class);
 	
 	private final double multiplier;
 	

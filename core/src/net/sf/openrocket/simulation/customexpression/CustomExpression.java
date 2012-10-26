@@ -3,12 +3,13 @@ package net.sf.openrocket.simulation.customexpression;
 import java.util.List;
 import java.util.regex.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.FixedUnitGroup;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.ArrayList;
@@ -26,7 +27,7 @@ import de.congrace.exp4j.Variable;
  */
 public class CustomExpression implements Cloneable{
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(CustomExpression.class);
 	
 	private OpenRocketDocument doc;
 	private String name, symbol, unit;

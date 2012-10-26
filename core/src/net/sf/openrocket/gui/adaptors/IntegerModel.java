@@ -11,9 +11,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
@@ -21,7 +22,7 @@ import net.sf.openrocket.util.StateChangeListener;
 
 
 public class IntegerModel implements StateChangeListener {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(IntegerModel.class);
 	
 	
 	//////////// JSpinner Model ////////////

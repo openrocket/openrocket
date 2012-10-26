@@ -13,8 +13,10 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -29,7 +31,7 @@ import net.sf.openrocket.util.BugException;
  */
 public class ComponentTreeTransferHandler extends TransferHandler {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ComponentTreeTransferHandler.class);
 	
 	private final OpenRocketDocument document;
 	
