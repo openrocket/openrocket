@@ -54,87 +54,87 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 				ComponentPreset.OUTER_DIAMETER,
 				ComponentPreset.LENGTH }),
 
-				NOSE_CONE(new TypedKey<?>[] {
-						ComponentPreset.MANUFACTURER,
-						ComponentPreset.PARTNO,
-						ComponentPreset.DESCRIPTION,
-						ComponentPreset.SHAPE,
-						ComponentPreset.AFT_OUTER_DIAMETER,
-						ComponentPreset.AFT_SHOULDER_DIAMETER,
-						ComponentPreset.AFT_SHOULDER_LENGTH,
-						ComponentPreset.LENGTH }),
+		NOSE_CONE(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.SHAPE,
+				ComponentPreset.AFT_OUTER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_LENGTH,
+				ComponentPreset.LENGTH }),
 
-						TRANSITION(new TypedKey<?>[] {
-								ComponentPreset.MANUFACTURER,
-								ComponentPreset.PARTNO,
-								ComponentPreset.DESCRIPTION,
-								ComponentPreset.SHAPE,
-								ComponentPreset.FORE_OUTER_DIAMETER,
-								ComponentPreset.FORE_SHOULDER_DIAMETER,
-								ComponentPreset.FORE_SHOULDER_LENGTH,
-								ComponentPreset.AFT_OUTER_DIAMETER,
-								ComponentPreset.AFT_SHOULDER_DIAMETER,
-								ComponentPreset.AFT_SHOULDER_LENGTH,
-								ComponentPreset.LENGTH }),
+		TRANSITION(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.SHAPE,
+				ComponentPreset.FORE_OUTER_DIAMETER,
+				ComponentPreset.FORE_SHOULDER_DIAMETER,
+				ComponentPreset.FORE_SHOULDER_LENGTH,
+				ComponentPreset.AFT_OUTER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_DIAMETER,
+				ComponentPreset.AFT_SHOULDER_LENGTH,
+				ComponentPreset.LENGTH }),
 
-								TUBE_COUPLER(new TypedKey<?>[] {
-										ComponentPreset.MANUFACTURER,
-										ComponentPreset.PARTNO,
-										ComponentPreset.DESCRIPTION,
-										ComponentPreset.OUTER_DIAMETER,
-										ComponentPreset.INNER_DIAMETER,
-										ComponentPreset.LENGTH }),
+		TUBE_COUPLER(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.LENGTH }),
 
-										BULK_HEAD(new TypedKey<?>[] {
-												ComponentPreset.MANUFACTURER,
-												ComponentPreset.PARTNO,
-												ComponentPreset.DESCRIPTION,
-												ComponentPreset.OUTER_DIAMETER,
-												ComponentPreset.LENGTH }),
+		BULK_HEAD(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH }),
 
-												CENTERING_RING(new TypedKey<?>[] {
-														ComponentPreset.MANUFACTURER,
-														ComponentPreset.PARTNO,
-														ComponentPreset.DESCRIPTION,
-														ComponentPreset.INNER_DIAMETER,
-														ComponentPreset.OUTER_DIAMETER,
-														ComponentPreset.LENGTH }),
+		CENTERING_RING(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH }),
 
-														ENGINE_BLOCK(new TypedKey<?>[] {
-																ComponentPreset.MANUFACTURER,
-																ComponentPreset.PARTNO,
-																ComponentPreset.DESCRIPTION,
-																ComponentPreset.INNER_DIAMETER,
-																ComponentPreset.OUTER_DIAMETER,
-																ComponentPreset.LENGTH }),
+		ENGINE_BLOCK(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH }),
 
-																LAUNCH_LUG(new TypedKey<?>[] {
-																		ComponentPreset.MANUFACTURER,
-																		ComponentPreset.PARTNO,
-																		ComponentPreset.DESCRIPTION,
-																		ComponentPreset.INNER_DIAMETER,
-																		ComponentPreset.OUTER_DIAMETER,
-																		ComponentPreset.LENGTH }),
+		LAUNCH_LUG(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.INNER_DIAMETER,
+				ComponentPreset.OUTER_DIAMETER,
+				ComponentPreset.LENGTH }),
 
-																		STREAMER(new TypedKey<?>[] {
-																				ComponentPreset.MANUFACTURER,
-																				ComponentPreset.PARTNO,
-																				ComponentPreset.DESCRIPTION,
-																				ComponentPreset.LENGTH,
-																				ComponentPreset.WIDTH,
-																				ComponentPreset.THICKNESS,
-																				ComponentPreset.MATERIAL }),
+		STREAMER(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.LENGTH,
+				ComponentPreset.WIDTH,
+				ComponentPreset.THICKNESS,
+				ComponentPreset.MATERIAL }),
 
-																				PARACHUTE(new TypedKey<?>[] {
-																						ComponentPreset.MANUFACTURER,
-																						ComponentPreset.PARTNO,
-																						ComponentPreset.DESCRIPTION,
-																						ComponentPreset.DIAMETER,
-																						ComponentPreset.SIDES,
-																						ComponentPreset.LINE_COUNT,
-																						ComponentPreset.LINE_LENGTH,
-																						ComponentPreset.LINE_MATERIAL,
-																						ComponentPreset.MATERIAL });
+		PARACHUTE(new TypedKey<?>[] {
+				ComponentPreset.MANUFACTURER,
+				ComponentPreset.PARTNO,
+				ComponentPreset.DESCRIPTION,
+				ComponentPreset.DIAMETER,
+				ComponentPreset.SIDES,
+				ComponentPreset.LINE_COUNT,
+				ComponentPreset.LINE_LENGTH,
+				ComponentPreset.LINE_MATERIAL,
+				ComponentPreset.MATERIAL });
 
 		TypedKey<?>[] displayedColumns;
 
@@ -386,7 +386,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 	}
 
 	private static class MaterialSerializationProxy implements Serializable {
-		
+
 		/**
 		 * 
 		 */
@@ -422,6 +422,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 		oos.writeObject(DTO);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void readObject( ObjectInputStream ois ) throws IOException, ClassNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 		Map<String,Object> DTO = (Map<String,Object>) ois.readObject();
 
@@ -440,7 +441,7 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			if ( TYPE.getName().equals(keyName)) {
 				this.properties.put(TYPE, (ComponentPreset.Type) value);
 			} else {
-				for( TypedKey k : ORDERED_KEY_LIST ) {
+				for( @SuppressWarnings("rawtypes") TypedKey k : ORDERED_KEY_LIST ) {
 					if ( k.getName().equals(keyName)) {
 						this.properties.put( k, value );
 						break;
