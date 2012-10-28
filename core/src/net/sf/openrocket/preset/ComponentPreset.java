@@ -36,6 +36,11 @@ import net.sf.openrocket.util.TextUtil;
  */
 public class ComponentPreset implements Comparable<ComponentPreset>, Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3199781221967306617L;
+
 	private final TypedPropertyMap properties = new TypedPropertyMap();
 
 	private String digest = "";
@@ -380,7 +385,12 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 		}
 	}
 
-	private static class MaterialDTO implements Serializable {
+	private static class MaterialSerializationProxy implements Serializable {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8704894438168047622L;
 		String name;
 		String type;
 		boolean userDefined;
@@ -396,11 +406,9 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			Object value = entry.getValue();
 
 			String keyName = key.getName();
-			if ( MANUFACTURER.getName().equals(keyName) ) {
-				value = ((Manufacturer) value).getDisplayName();
-			} else if ( value instanceof Material ) {
+			if ( value instanceof Material ) {
 				Material material = (Material) value;
-				MaterialDTO m = new MaterialDTO();
+				MaterialSerializationProxy m = new MaterialSerializationProxy();
 				m.name = material.getName();
 				m.type = material.getType().name();
 				m.density = material.getDensity();
@@ -425,10 +433,8 @@ public class ComponentPreset implements Comparable<ComponentPreset>, Serializabl
 			String keyName = entry.getKey();
 			Object value = entry.getValue();
 
-			if ( MANUFACTURER.getName().equals(keyName)) {
-				value = Manufacturer.getManufacturer((String) value);
-			} else if ( value instanceof MaterialDTO ) {
-				MaterialDTO m = (MaterialDTO) value;
+			if ( value instanceof MaterialSerializationProxy ) {
+				MaterialSerializationProxy m = (MaterialSerializationProxy) value;
 				value = Material.newMaterial(Material.Type.valueOf(m.type), m.name, m.density, m.userDefined);
 			}
 			if ( TYPE.getName().equals(keyName)) {

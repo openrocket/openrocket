@@ -1,8 +1,11 @@
 package net.sf.openrocket.startup;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -71,7 +74,7 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 			} catch (InterruptedException e) {
 			}
 		}
-		*/
+		 */
 		log.info("Blocking ended, inUse=" + inUse + " blockLoading=" + blockLoading.get());
 
 		BookKeeping keeper = new BookKeeping();
@@ -211,8 +214,7 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 				// Start loading
 				log.info("Loading motors from " + thrustCurveDirectory);
 
-				iterator = DirectoryIterator.findDirectory(thrustCurveDirectory,
-						new SimpleFileFilter("", false, "eng", "rse"));
+				iterator = DirectoryIterator.findDirectory(thrustCurveDirectory, new SimpleFileFilter("",false,"ser"));
 
 				// Load the packaged thrust curves
 				if (iterator == null) {
@@ -222,13 +224,21 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 
 				while( iterator.hasNext() ) {
 					Pair<String,InputStream> f = iterator.next();
-					MotorLoader loader = new MotorLoader( f.getV(), f.getU() );
-					loaderPool.execute(loader);
-					fileCount ++;
+					try {
+						ObjectInputStream ois = new ObjectInputStream(f.getV());
+						List<Motor> m = (List<Motor>) ois.readObject();
+						writerThread.submit( new MotorInserter(m));
+					}
+					catch ( Exception ex ) {
+						throw new BugException(ex);
+					}
 				}
 
 				// Load the user-defined thrust curves
 				for (File file : ((SwingPreferences) Application.getPreferences()).getUserThrustCurveFiles()) {
+					if ( file == null ) {
+						continue;
+					}
 					log.info("Loading motors from " + file);
 					MotorLoader loader = new MotorLoader( file );
 					loaderPool.execute(loader);
@@ -260,7 +270,9 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 
 			@Override
 			public void run() {
-				log.debug("Loading motor from " + fileName);
+				if ( fileName != null ) {
+					log.debug("Loading motor from " + fileName);
+				}
 
 				try {
 					List<Motor> motors;
@@ -286,6 +298,9 @@ public class ConcurrentLoadingThrustCurveMotorSetDatabase extends ThrustCurveMot
 
 			private final List<Motor> motors;
 
+			MotorInserter( Motor motor ) {
+				this.motors = Collections.singletonList(motor);
+			}
 			MotorInserter( List<Motor> motors ) {
 				this.motors = motors;
 			}
