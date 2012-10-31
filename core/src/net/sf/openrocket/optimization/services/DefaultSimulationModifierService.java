@@ -192,7 +192,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 							trans.get("optimization.modifier.motormount.delay"),
 							trans.get("optimization.modifier.motormount.delay.desc"),
 							c, UnitGroup.UNITS_SHORT_TIME,
-							1.0, c.getClass(), c.getID(), "IgnitionDelay");
+							1.0, c.getClass(), c.getID(), "DefaultIgnitionDelay");
 					mod.setMinValue(0);
 					mod.setMaxValue(5);
 					modifiers.add(mod);
@@ -251,7 +251,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 						trans.get("optimization.modifier.recoverydevice.deployDelay"),
 						trans.get("optimization.modifier.recoverydevice.deployDelay.desc"),
 						c, UnitGroup.UNITS_SHORT_TIME,
-						1.0, c.getClass(), c.getID(), "DeployDelay");
+						1.0, c.getClass(), c.getID(), "DefaultDeployDelay");
 				mod.setMinValue(0);
 				mod.setMaxValue(10);
 				modifiers.add(mod);
@@ -261,7 +261,7 @@ public class DefaultSimulationModifierService implements SimulationModifierServi
 							trans.get("optimization.modifier.recoverydevice.deployAltitude"),
 							trans.get("optimization.modifier.recoverydevice.deployAltitude.desc"),
 							c, UnitGroup.UNITS_DISTANCE,
-							1.0, c.getClass(), c.getID(), "DeployAltitude");
+							1.0, c.getClass(), c.getID(), "DefaultDeployAltitude");
 					setDefaultMinMax(mod, simulation);
 					modifiers.add(mod);
 				}
