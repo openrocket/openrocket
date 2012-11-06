@@ -80,8 +80,7 @@ public class SimulationPlotDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 
 	private static final Color DEFAULT_EVENT_COLOR = new Color(0, 0, 0);
-	private static final Map<FlightEvent.Type, Color> EVENT_COLORS =
-			new HashMap<FlightEvent.Type, Color>();
+	private static final Map<FlightEvent.Type, Color> EVENT_COLORS = new HashMap<FlightEvent.Type, Color>();
 	static {
 		EVENT_COLORS.put(FlightEvent.Type.LAUNCH, new Color(255, 0, 0));
 		EVENT_COLORS.put(FlightEvent.Type.LIFTOFF, new Color(0, 80, 196));
@@ -96,8 +95,7 @@ public class SimulationPlotDialog extends JDialog {
 		EVENT_COLORS.put(FlightEvent.Type.SIMULATION_END, new Color(128, 0, 0));
 	}
 
-	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES =
-			new HashMap<FlightEvent.Type, Image>();
+	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES = new HashMap<FlightEvent.Type, Image>();
 	static {
 		loadImage(FlightEvent.Type.LAUNCH, "pix/eventicons/event-launch.png");
 		loadImage(FlightEvent.Type.LIFTOFF, "pix/eventicons/event-liftoff.png");
@@ -164,26 +162,10 @@ public class SimulationPlotDialog extends JDialog {
 		if (domainType == null) {
 			throw new IllegalArgumentException("Domain axis type not specified.");
 		}
-		/* FIXME - is this code dead too?
-		List<Double> x = mainBranch.get(domainType);
-		 */
 
 		// Get plot length (ignore trailing NaN's)
 		int typeCount = filled.getTypeCount();
 
-		/* FIXME - is this code dead?
-		int dataLength = 0;
-		for (int i = 0; i < typeCount; i++) {
-			FlightDataType type = filled.getType(i);
-			List<Double> y = mainBranch.get(type);
-
-			for (int j = dataLength; j < y.size(); j++) {
-				if (!Double.isNaN(y.get(j)) && !Double.isInfinite(y.get(j)))
-					dataLength = j;
-			}
-		}
-		dataLength = Math.min(dataLength, x.size());
-		 */
 
 		// Create the XYSeries objects from the flight data and store into the collections
 		String[] axisLabel = new String[2];
@@ -199,7 +181,7 @@ public class SimulationPlotDialog extends JDialog {
 				// Store data in provided units
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
-				XYSeries series = new XYSeries(thisBranch.getBranchName() + ": " + name, false, true);
+				XYSeries series = new XYSeries(thisBranch.getBranchName() + "-" + branchCount+": " + name, false, true);
 				int pointCount = plotx.size();
 				for (int j = 0; j < pointCount; j++) {
 					series.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
