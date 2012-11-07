@@ -13,6 +13,7 @@ import java.awt.Stroke;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -37,6 +38,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -137,7 +139,7 @@ public class SimulationPlotDialog extends JDialog {
 
 	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
 		//// Flight data plot
-		super(parent, trans.get("PlotDialog.title.Flightdataplot"));
+		super(parent, simulation.getName());
 		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 
 		final boolean initialShowPoints = Application.getPreferences().getBoolean(Preferences.PLOT_SHOW_POINTS, false);
@@ -200,7 +202,7 @@ public class SimulationPlotDialog extends JDialog {
 		// Create the chart using the factory to get all default settings
 		JFreeChart chart = ChartFactory.createXYLineChart(
 				//// Simulated flight
-				trans.get("PlotDialog.Chart.Simulatedflight"),
+				simulation.getName(),
 				null,
 				null,
 				null,
@@ -214,6 +216,9 @@ public class SimulationPlotDialog extends JDialog {
 
 		// Add the data and formatting to the plot
 		XYPlot plot = chart.getXYPlot();
+		plot.setDomainPannable(true);
+		plot.setRangePannable(true);
+
 		int axisno = 0;
 		for (int i = 0; i < 2; i++) {
 			// Check whether axis has any data
@@ -408,7 +413,7 @@ public class SimulationPlotDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		this.add(panel);
 
-		ChartPanel chartPanel = new ChartPanel(chart,
+		final ChartPanel chartPanel = new SimulationChart(chart,
 				false, // properties
 				true, // save
 				false, // print
@@ -421,6 +426,10 @@ public class SimulationPlotDialog extends JDialog {
 		chartPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 
 		panel.add(chartPanel, "grow, wrap 20lp");
+
+		//// Description text
+		JLabel label = new StyledLabel(trans.get("PlotDialog.lbl.Chart"), -2);
+		panel.add(label, "gapleft para");
 
 		//// Show data points
 		final JCheckBox check = new JCheckBox(trans.get("PlotDialog.CheckBox.Showdatapoints"));
@@ -437,15 +446,42 @@ public class SimulationPlotDialog extends JDialog {
 		});
 		panel.add(check, "split, left");
 
+		//// Zoom out button
+		JButton button = new JButton(Icons.ZOOM_OUT);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if ( (e.getModifiers() & InputEvent.ALT_MASK)  == InputEvent.ALT_MASK ) {
+					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_OUT_DOMAIN_COMMAND));
+				} else {
+					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_OUT_BOTH_COMMAND));
+				}
+			}
+		});
+		panel.add(button, "gapleft rel");
 
-		JLabel label = new StyledLabel(trans.get("PlotDialog.lbl.Chart"), -2);
-		panel.add(label, "gapleft para");
+		//// Zoom in button
+		button = new JButton(Icons.ZOOM_IN);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if ( (e.getModifiers() & InputEvent.ALT_MASK)  == InputEvent.ALT_MASK ) {
+					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_IN_DOMAIN_COMMAND));
+				} else {
+					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_IN_BOTH_COMMAND));
 
+				}
+			}
+		});
+		panel.add(button, "gapleft rel");
 
+		//// Add series selection box
+		//// FIXME
+		
 		panel.add(new JPanel(), "growx");
 
 		//// Close button
-		JButton button = new JButton(trans.get("dlg.but.close"));
+		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -519,13 +555,13 @@ public class SimulationPlotDialog extends JDialog {
 	private static class ModifiedXYItemRenderer extends XYLineAndShapeRenderer {
 
 		private final int branchCount;
-		
+
 		private ModifiedXYItemRenderer( int branchCount ) {
 			this.branchCount = branchCount;
 		}
 
-		
-		
+
+
 		@Override
 		public Paint lookupSeriesPaint(int series) {
 			return super.lookupSeriesPaint(series/branchCount);
