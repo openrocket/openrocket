@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.plot;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -7,6 +8,8 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+
+import javax.swing.BorderFactory;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
@@ -20,6 +23,16 @@ import org.jfree.chart.plot.Zoomable;
 
 import com.jogamp.newt.event.InputEvent;
 
+/**
+ * Custom implementation of JFreeChart's ChartPanel which changes the mouse handling.
+ * 
+ * Changed mouse drag (left click + move) to pan the image.
+ * 
+ * Changed mouse wheel handling.  wheel zooms.  Alt+wheel zooms only domain axis.
+ * 
+ * @author kruland
+ *
+ */
 public class SimulationChart extends ChartPanel {
 
 	private Point2D panLast;
@@ -28,36 +41,17 @@ public class SimulationChart extends ChartPanel {
 	
 	private MouseWheelHandler mouseWheelHandler = null;
 
-	public SimulationChart(JFreeChart chart, boolean properties, boolean save,
-			boolean print, boolean zoom, boolean tooltips) {
-		super(chart, properties, save, print, zoom, tooltips);
-	}
-
-	public SimulationChart(JFreeChart chart, boolean useBuffer) {
-		super(chart, useBuffer);
-	}
-
-	public SimulationChart(JFreeChart chart, int width, int height,
-			int minimumDrawWidth, int minimumDrawHeight, int maximumDrawWidth,
-			int maximumDrawHeight, boolean useBuffer, boolean properties,
-			boolean copy, boolean save, boolean print, boolean zoom,
-			boolean tooltips) {
-		super(chart, width, height, minimumDrawWidth, minimumDrawHeight,
-				maximumDrawWidth, maximumDrawHeight, useBuffer, properties, copy, save,
-				print, zoom, tooltips);
-	}
-
-	public SimulationChart(JFreeChart chart, int width, int height,
-			int minimumDrawWidth, int minimumDrawHeight, int maximumDrawWidth,
-			int maximumDrawHeight, boolean useBuffer, boolean properties,
-			boolean save, boolean print, boolean zoom, boolean tooltips) {
-		super(chart, width, height, minimumDrawWidth, minimumDrawHeight,
-				maximumDrawWidth, maximumDrawHeight, useBuffer, properties, save,
-				print, zoom, tooltips);
-	}
-
 	public SimulationChart(JFreeChart chart) {
-		super(chart);
+		super(chart,
+				/* properties */false,
+				/* save */ true,
+				/* print */ false,
+				/* zoom */ true,
+				/* tooltips */ true);
+		this.setMouseWheelEnabled(true);
+		this.setEnforceFileExtensions(true);
+		this.setInitialDelay(500);
+		this.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 	}
 
 	@Override
@@ -190,9 +184,8 @@ public class SimulationChart extends ChartPanel {
 	        }
 	        Plot plot = chart.getPlot();
 	        if (plot instanceof Zoomable) {
-	        	boolean domainOnly = ( e.getModifiers() & InputEvent.ALT_MASK ) != 0;
 	            Zoomable zoomable = (Zoomable) plot;
-	            handleZoomable(zoomable, e, domainOnly);
+	            handleZoomable(zoomable, e);
 	        }
 	        else if (plot instanceof PiePlot) {
 	            PiePlot pp = (PiePlot) plot;
@@ -206,7 +199,7 @@ public class SimulationChart extends ChartPanel {
 	     * @param zoomable  the zoomable plot.
 	     * @param e  the mouse wheel event.
 	     */
-	    private void handleZoomable(Zoomable zoomable, MouseWheelEvent e, boolean domainOnly) {
+	    private void handleZoomable(Zoomable zoomable, MouseWheelEvent e) {
 	        // don't zoom unless the mouse pointer is in the plot's data area
 	        ChartRenderingInfo info = SimulationChart.this.getChartRenderingInfo();
 	        PlotRenderingInfo pinfo = info.getPlotInfo();
@@ -227,6 +220,7 @@ public class SimulationChart extends ChartPanel {
 	        if (SimulationChart.this.isDomainZoomable()) {
 	            zoomable.zoomDomainAxes(zf, pinfo, p, true);
 	        }
+        	boolean domainOnly = ( e.getModifiers() & InputEvent.ALT_MASK ) != 0;
 	        if (SimulationChart.this.isRangeZoomable() && !domainOnly ) {
 	            zoomable.zoomRangeAxes(zf, pinfo, p, true);
 	        }

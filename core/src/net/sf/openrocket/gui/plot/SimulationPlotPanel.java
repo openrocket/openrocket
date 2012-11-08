@@ -109,17 +109,6 @@ public class SimulationPlotPanel extends JPanel {
 		
 		setConfiguration(defaultConfiguration);
 
-		// FIXME - hard coding selected branches:
-		{
-			int branchCount = simulation.getSimulatedData().getBranchCount();
-			ArrayList<Integer> selectedBranches = new ArrayList<Integer>(branchCount);
-			for( int i=0; i< branchCount; i++ ) {
-				selectedBranches.add(i);
-			}
-			configuration.setSelectedBranches(selectedBranches);
-		}
-		
-
 		////  Configuration selector
 		
 		// Setup the combo box

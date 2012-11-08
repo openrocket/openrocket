@@ -169,8 +169,6 @@ public class PlotConfiguration implements Cloneable {
 	private final int axesCount;
 	private ArrayList<Axis> allAxes = new ArrayList<Axis>();
 	
-	private List<Integer> selectedBranches = Collections.singletonList(Integer.valueOf(0));
-
 	private String name = null;
 	
 
@@ -192,16 +190,6 @@ public class PlotConfiguration implements Cloneable {
 		setDomainAxisType(domainType);
 	}
 	
-	//// Branches to Plot
-	public void setSelectedBranches( List<Integer> selectedBranches ) {
-		this.selectedBranches = selectedBranches;
-	}
-	
-	public List<Integer> getSelectedBranches() {
-		// FIXME - unmodifiable?
-		return this.selectedBranches;
-	}
-
 	//// Axis
 
 	public FlightDataType getDomainAxisType() {
@@ -741,8 +729,6 @@ public class PlotConfiguration implements Cloneable {
 			copy.plotDataAxes = this.plotDataAxes.clone();
 			copy.plotDataUnits = this.plotDataUnits.clone();
 			copy.events = this.events.clone();
-			copy.selectedBranches = new ArrayList<Integer>();
-			copy.selectedBranches.addAll(this.selectedBranches);
 			
 			// Deep-clone all Axis since they are mutable
 			copy.allAxes = new ArrayList<Axis>();
