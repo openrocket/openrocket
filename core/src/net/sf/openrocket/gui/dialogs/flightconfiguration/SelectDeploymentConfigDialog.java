@@ -83,10 +83,8 @@ public class SelectDeploymentConfigDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if ( event.getSelectedItem() == DeployEvent.ALTITUDE ) {
-					delaySpinner.setEnabled(true);
 					altSpinner.setEnabled(true);
 				} else {
-					delaySpinner.setEnabled(false);
 					altSpinner.setEnabled(false);
 				}
 				
