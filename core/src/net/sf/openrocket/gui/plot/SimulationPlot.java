@@ -14,6 +14,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -50,8 +52,13 @@ public class SimulationPlot {
 
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
 
-	private JFreeChart chart;
+	private final JFreeChart chart;
 
+	private final PlotConfiguration config;
+	private final Simulation simulation;
+	private final PlotConfiguration filled;
+	
+	private final List<EventDisplayInfo> eventList;
 	private final List<ModifiedXYItemRenderer> renderers =	new ArrayList<ModifiedXYItemRenderer>();
 
 	int branchCount;
@@ -73,9 +80,13 @@ public class SimulationPlot {
 				r.setSeriesVisible(j, show);
 			}
 		}
+		drawDomainMarkers(branch);
 	}
 
 	SimulationPlot( Simulation simulation, PlotConfiguration config, boolean initialShowPoints ) {
+		this.simulation = simulation;
+		this.config = config;
+		
 		this.chart = ChartFactory.createXYLineChart(
 				//// Simulated flight
 				simulation.getName(),
@@ -90,11 +101,11 @@ public class SimulationPlot {
 
 		chart.addSubtitle(new TextTitle(config.getName()));
 
-		branchCount = simulation.getSimulatedData().getBranchCount();
+		this.branchCount = simulation.getSimulatedData().getBranchCount();
 
 		// Fill the auto-selections based on first branch selected.
 		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch( 0 );
-		PlotConfiguration filled = config.fillAutoAxes(mainBranch);
+		this.filled = config.fillAutoAxes(mainBranch);
 		List<Axis> axes = filled.getAllAxes();
 
 		// Create the data series for both axes
@@ -181,17 +192,94 @@ public class SimulationPlot {
 
 
 		// Create list of events to show (combine event too close to each other)
-		List<EventDisplayInfo> eventList = buildEventInfo(simulation, config);
+		this.eventList = buildEventInfo();
 
 		// Create the event markers
+		drawDomainMarkers(-1);
 
+	}
+
+	JFreeChart getJFreeChart() {
+		return chart;
+	}
+
+	private String getLabel(FlightDataType type, Unit unit) {
+		String name = type.getName();
+		if (unit != null && !UnitGroup.UNITS_NONE.contains(unit) &&
+				!UnitGroup.UNITS_COEFFICIENT.contains(unit) && unit.getUnit().length() > 0)
+			name += " (" + unit.getUnit() + ")";
+		return name;
+	}
+
+	private void drawDomainMarkers( int stage ) {
+		XYPlot plot = chart.getXYPlot();
+		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch( 0 );
+		
+		// Clear existing domain markers
+		plot.clearDomainMarkers();
+		
+		// Construct domain marker lists collapsing based on time.
+
+		List<Double> eventTimes = new ArrayList<Double>();
+		List<String> eventLabels = new ArrayList<String>();
+		List<Color> eventColors = new ArrayList<Color>();
+		List<Image> eventImages = new ArrayList<Image>();
+		{
+			HashSet<FlightEvent.Type> typeSet = new HashSet<FlightEvent.Type>();
+			double prevTime = -100;
+			String text = null;
+			Color color = null;
+			Image image = null;
+			for( EventDisplayInfo info : eventList ) {
+				if ( stage >=0 && stage != info.stage ) {
+					continue;
+				}
+				
+				double t = info.time;
+				FlightEvent.Type type = info.event.getType();
+
+				if (Math.abs(t - prevTime) <= 0.05) {
+
+					if (!typeSet.contains(type)) {
+						text = text + ", " + type.toString();
+						color = EventGraphics.getEventColor(type);
+						image = EventGraphics.getEventImage(type);
+						typeSet.add(type);
+					}
+
+				} else {
+
+					if (text != null) {
+						eventTimes.add(prevTime);
+						eventLabels.add(text);
+						eventColors.add(color);
+						eventImages.add(image);
+					}
+					prevTime = t;
+					text = type.toString();
+					color = EventGraphics.getEventColor(type);
+					image = EventGraphics.getEventImage(type);
+					typeSet.clear();
+					typeSet.add(type);
+				}
+
+			}
+			if (text != null) {
+				eventTimes.add(prevTime);
+				eventLabels.add(text);
+				eventColors.add(color);
+				eventImages.add(image);
+			}
+		}
+		
+		// Plot the markers
 		if (config.getDomainAxisType() == FlightDataType.TYPE_TIME) {
 
 			// Domain time is plotted as vertical markers
-			for ( EventDisplayInfo info : eventList ) {
-				double t = info.time;
-				String event = info.event;
-				Color color = info.color;
+			for ( int i=0; i<eventTimes.size(); i++ ) {
+				double t = eventTimes.get(i);
+				String event = eventLabels.get(i);
+				Color color = eventColors.get(i);
 
 				ValueMarker m = new ValueMarker(t);
 				m.setLabel(event);
@@ -209,10 +297,10 @@ public class SimulationPlot {
 
 			LinearInterpolator domainInterpolator = new LinearInterpolator( time, domain );
 
-			for (EventDisplayInfo info : eventList ) {
-				final double t = info.time;
-				String event = info.event;
-				Image image = info.image;
+			for ( int i=0; i<eventTimes.size(); i++ ) {
+				double t = eventTimes.get(i);
+				String event = eventLabels.get(i);
+				Image image = eventImages.get(i);
 
 				if (image == null)
 					continue;
@@ -242,25 +330,39 @@ public class SimulationPlot {
 				}
 			}
 		}
-
 	}
-
-	JFreeChart getJFreeChart() {
-		return chart;
-	}
-
-	private String getLabel(FlightDataType type, Unit unit) {
-		String name = type.getName();
-		if (unit != null && !UnitGroup.UNITS_NONE.contains(unit) &&
-				!UnitGroup.UNITS_COEFFICIENT.contains(unit) && unit.getUnit().length() > 0)
-			name += " (" + unit.getUnit() + ")";
-		return name;
-	}
-
-	private List<EventDisplayInfo> buildEventInfo(Simulation simulation, PlotConfiguration config) {
+	
+	private List<EventDisplayInfo> buildEventInfo() {
 		ArrayList<EventDisplayInfo> eventList = new ArrayList<EventDisplayInfo>();
-		HashSet<FlightEvent.Type> typeSet = new HashSet<FlightEvent.Type>();
 
+		for( int branch=0; branch<branchCount; branch++ ) {
+			List<FlightEvent> events = simulation.getSimulatedData().getBranch(branch).getEvents();
+			for( FlightEvent event : events ) {
+				FlightEvent.Type type = event.getType();
+				if ( type != FlightEvent.Type.ALTITUDE && config.isEventActive(type)) {
+					EventDisplayInfo info = new EventDisplayInfo();
+					info.stage = branch;
+					info.time = event.getTime();
+					info.event = event;
+					eventList.add(info);
+				}
+			}
+		}
+		
+		Collections.sort(eventList, new Comparator<EventDisplayInfo>() {
+
+			@Override
+			public int compare(EventDisplayInfo o1, EventDisplayInfo o2) {
+				if ( o1.time< o2.time) return -1;
+				if ( o1.time == o2.time)return 0;
+				return 1;
+			}
+			
+		});
+		
+		return eventList;
+		
+		/*
 		double prevTime = -100;
 		String text = null;
 		Color color = null;
@@ -312,6 +414,7 @@ public class SimulationPlot {
 			eventList.add(info);
 		}
 		return eventList;
+		*/
 	}
 
 	/**
@@ -459,10 +562,9 @@ public class SimulationPlot {
 	}
 
 	private static class EventDisplayInfo {
+		int stage;
 		double time;
-		String event;
-		Color color;
-		Image image;
+		FlightEvent event;
 	}
 
 }
