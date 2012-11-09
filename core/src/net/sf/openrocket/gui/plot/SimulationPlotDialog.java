@@ -163,7 +163,8 @@ public class SimulationPlotDialog extends JDialog {
 			}
 			
 		});
-		if ( stages.size() > 1 ) {
+		if ( stages.size() > 2 ) {
+			// Only show the combo box if there are at least 3 entries (ie, "All", "Main", and one other one
 			panel.add(stageSelection, "gapleft rel");
 			panel.add(new JPanel(), "growx");
 		}
