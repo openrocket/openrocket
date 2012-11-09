@@ -273,7 +273,7 @@ public class SimulationPlot {
 				FlightEvent.Type type = event.getType();
 
 				if (type != FlightEvent.Type.ALTITUDE && config.isEventActive(type)) {
-					if (Math.abs(t - prevTime) <= 0.01) {
+					if (Math.abs(t - prevTime) <= 0.05) {
 
 						if (!typeSet.contains(type)) {
 							text = text + ", " + type.toString();
