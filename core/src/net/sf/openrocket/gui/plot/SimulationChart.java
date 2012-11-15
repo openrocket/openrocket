@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.plot;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -36,8 +37,12 @@ import com.jogamp.newt.event.InputEvent;
 public class SimulationChart extends ChartPanel {
 
 	private Point2D panLast;
+	private Point startPoint;
 	private double panW;
 	private double panH;
+	
+	private enum Interaction {ZOOM, PAN};
+	private Interaction interaction = Interaction.PAN; 
 	
 	private MouseWheelHandler mouseWheelHandler = null;
 
@@ -72,7 +77,7 @@ public class SimulationChart extends ChartPanel {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if ( e.getButton() == MouseEvent.BUTTON1 ) {
+		if ( e.getButton() == MouseEvent.BUTTON1 || e.getButton() == MouseEvent.BUTTON3) {
 			// if no modifiers, use pan
 			Rectangle2D screenDataArea = getScreenDataArea(e.getX(), e.getY());
 			
@@ -80,10 +85,18 @@ public class SimulationChart extends ChartPanel {
 				this.panW  = screenDataArea.getWidth();
 				this.panH = screenDataArea.getHeight();
 				this.panLast = e.getPoint();
-				setCursor( Cursor.getPredefinedCursor( Cursor.MOVE_CURSOR));
+				this.startPoint = e.getPoint();
 			}
-		} else if ( e.getButton() == MouseEvent.BUTTON2 ) {
-			
+		} 
+		
+		if ( e.getButton() == MouseEvent.BUTTON2 ) { 
+			// middle/scroll button
+		} else if ( e.getButton() == MouseEvent.BUTTON3 ) { // right button
+			interaction = Interaction.ZOOM;
+			setCursor (Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR));
+		} else if ( e.getButton() == MouseEvent.BUTTON1 ) { // left button
+			interaction = Interaction.PAN;
+			setCursor( Cursor.getPredefinedCursor( Cursor.MOVE_CURSOR));
 		}
 	}
 
@@ -102,14 +115,38 @@ public class SimulationChart extends ChartPanel {
 		double hPercent = dy / this.panH;
 		boolean old = this.getChart().getPlot().isNotify();
 		this.getChart().getPlot().setNotify(false);
-		Pannable p = (Pannable) this.getChart().getPlot();
-		if ( p.getOrientation() == PlotOrientation.VERTICAL){
-			p.panDomainAxes( wPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
-			p.panRangeAxes( hPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
-		} else {
-			p.panDomainAxes( hPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
-			p.panRangeAxes( wPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
+		
+		switch (interaction) {
+			case PAN:
+				Pannable p = (Pannable) this.getChart().getPlot();
+				if ( p.getOrientation() == PlotOrientation.VERTICAL){
+					p.panDomainAxes( wPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
+					p.panRangeAxes( hPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
+				} else {
+					p.panDomainAxes( hPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
+					p.panRangeAxes( wPercent, this.getChartRenderingInfo().getPlotInfo(),panLast);
+				}
+				
+				break;
+			case ZOOM:
+				Zoomable pz = (Zoomable) this.getChart().getPlot();
+				
+				double zoomx = 1 + 2*wPercent;
+				double zoomy = 1 + 2*hPercent;
+				
+				Point2D anchor = SimulationChart.this.translateScreenToJava2D(startPoint);
+				
+				if ( pz.getOrientation() == PlotOrientation.VERTICAL) {
+					pz.zoomDomainAxes(zoomx, this.getChartRenderingInfo().getPlotInfo(), anchor, true);
+					pz.zoomRangeAxes(zoomy, this.getChartRenderingInfo().getPlotInfo(), anchor, true);
+				} else {
+					pz.zoomRangeAxes(zoomx, this.getChartRenderingInfo().getPlotInfo(), anchor, true);
+					pz.zoomDomainAxes(zoomy, this.getChartRenderingInfo().getPlotInfo(), anchor, true);
+				}
+				
+				break;
 		}
+		
 		
 		this.panLast = e.getPoint();
 		this.getChart().getPlot().setNotify(old);
