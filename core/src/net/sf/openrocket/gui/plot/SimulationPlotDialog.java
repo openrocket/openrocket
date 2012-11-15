@@ -69,22 +69,8 @@ public class SimulationPlotDialog extends JDialog {
 		});
 		panel.add(check, "split, left");
 
-		//// Zoom out button
-		JButton button = new JButton(Icons.ZOOM_OUT);
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if ( (e.getModifiers() & InputEvent.ALT_MASK)  == InputEvent.ALT_MASK ) {
-					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_OUT_DOMAIN_COMMAND));
-				} else {
-					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_OUT_BOTH_COMMAND));
-				}
-			}
-		});
-		panel.add(button, "gapleft rel");
-
 		//// Zoom in button
-		button = new JButton(Icons.ZOOM_IN);
+		JButton button = new JButton(Icons.ZOOM_IN);
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -93,6 +79,31 @@ public class SimulationPlotDialog extends JDialog {
 				} else {
 					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_IN_BOTH_COMMAND));
 
+				}
+			}
+		});
+		panel.add(button, "gapleft rel");
+
+		//// Reset Zoom button.
+		button = new JButton(Icons.ZOOM_RESET);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_RESET_BOTH_COMMAND));
+			}
+		});
+		panel.add(button, "gapleft rel");
+
+
+		//// Zoom out button
+		button = new JButton(Icons.ZOOM_OUT);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if ( (e.getModifiers() & InputEvent.ALT_MASK)  == InputEvent.ALT_MASK ) {
+					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_OUT_DOMAIN_COMMAND));
+				} else {
+					chartPanel.actionPerformed( new ActionEvent( chartPanel, ActionEvent.ACTION_FIRST, ChartPanel.ZOOM_OUT_BOTH_COMMAND));
 				}
 			}
 		});
@@ -118,8 +129,11 @@ public class SimulationPlotDialog extends JDialog {
 		if ( stages.size() > 2 ) {
 			// Only show the combo box if there are at least 3 entries (ie, "All", "Main", and one other one
 			panel.add(stageSelection, "gapleft rel");
-			panel.add(new JPanel(), "growx");
 		}
+
+		//// Spacer for layout to push close button to the right.
+		panel.add(new JPanel(), "growx");
+
 		//// Close button
 		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
