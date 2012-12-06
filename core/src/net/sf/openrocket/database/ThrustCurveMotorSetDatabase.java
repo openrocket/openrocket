@@ -47,7 +47,7 @@ public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	}
 	
 	
-
+	
 	/* (non-Javadoc)
 	 * @see net.sf.openrocket.database.ThrustCurveMotorSetDatabaseI#findMotors(net.sf.openrocket.motor.Motor.Type, java.lang.String, java.lang.String, double, double)
 	 */
@@ -103,11 +103,11 @@ public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
-	 * Start loading the motors.  If asynchronous 
+	 * Start loading the motors.  Creates a new thread for the loading if asynchronous.
 	 * 
 	 * @throws  IllegalStateException	if this method has already been called.
 	 */
@@ -176,7 +176,7 @@ public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 	protected abstract void loadMotors();
 	
 	
-
+	
 	/**
 	 * Creates the motor list, calls {@link #loadMotors()}, sorts the list and marks
 	 * the motors as loaded.  This method is called either synchronously or from the
@@ -208,6 +208,7 @@ public abstract class ThrustCurveMotorSetDatabase implements MotorDatabase {
 			this.setName("MotorLoadingThread");
 			this.setPriority(MIN_PRIORITY);
 		}
+		
 		@Override
 		public void run() {
 			performMotorLoading();

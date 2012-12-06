@@ -69,7 +69,7 @@
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build" description="Create the OpenRocket executable JAR">
+	<target name="jar" depends="build,serialize-presets,serialize-motors" description="Create the OpenRocket executable JAR">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${dist.dir}">
 			<manifest>
@@ -108,7 +108,30 @@
 		</jar>
 	</target>
 	
-	
+	<target name="serialize-presets" depends="core-jar" description="Preprocess the orc preset files into serialized form">
+	    <java classname="net.sf.openrocket.startup.SerializePresets"
+	          fork="true"
+			  classpathref="run-classpath"
+			  failonerror="true">
+	    </java>
+	</target>
+	<target name="serialize-motors" depends="core-jar" description="Preprocess the motor files into serialized form">
+	    <java classname="net.sf.openrocket.startup.SerializeMotors"
+	          fork="true"
+			  classpathref="run-classpath"
+			  failonerror="true">
+	    </java>
+	</target>
+		<!-- Core OpenRocket JAR -->
+	<target name="core-jar" depends="build" description="Create the OpenRocket code-only jar file">
+		<jar destfile="${build.dir}/${ant.project.name}-Core.jar" basedir="${dist.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}"/>
+				<attribute name="SplashScreen-Image" value="pix/splashscreen.png"/>
+			</manifest>
+		</jar>
+	</target>
+
 	<!-- CONVERT vendor csv to ORC files -->
 	<macrodef name="build-orc-file">
 		<attribute name="dir"/>
@@ -120,7 +143,7 @@
 				classpathref="run-classpath"
 				failonerror="true">
 				<arg value="@{dir}"/>
-				<arg value="resources/datafiles/presets/@{vendor}.orc"/>
+				<arg value="resources-src/datafiles/presets/@{vendor}.orc"/>
 			</java>
 		</sequential>
 	</macrodef>
