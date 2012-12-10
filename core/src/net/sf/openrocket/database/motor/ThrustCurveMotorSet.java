@@ -28,8 +28,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	private static final ThrustCurveMotorComparator comparator = new ThrustCurveMotorComparator();
 	
-
-
+	
+	
 	private final ArrayList<ThrustCurveMotor> motors = new ArrayList<ThrustCurveMotor>();
 	private final Map<ThrustCurveMotor, String> digestMap =
 			new IdentityHashMap<ThrustCurveMotor, String>();
@@ -44,7 +44,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private Motor.Type type = Motor.Type.UNKNOWN;
 	
 	
-
+	
 	public void addMotor(ThrustCurveMotor motor) {
 		
 		// Check for first insertion
@@ -92,7 +92,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		}
 		Collections.sort(delays);
 		
-
+		
 		// Check whether to add as new motor or overwrite existing
 		final String digest = motor.getDigest();
 		for (int index = 0; index < motors.size(); index++) {
@@ -145,7 +145,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			return false;
 		}
 		
-		if (!simplifiedDesignation.equals(simplifyDesignation(m.getDesignation())))
+		if (!simplifiedDesignation.equalsIgnoreCase(simplifyDesignation(m.getDesignation())))
 			return false;
 		
 		return true;
@@ -219,8 +219,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public String toString() {
 		return "ThrustCurveMotorSet[" + manufacturer + " " + designation +
@@ -228,8 +228,8 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	}
 	
 	
-
-
+	
+	
 	private static final Pattern SIMPLIFY_PATTERN = Pattern.compile("^[0-9]*[ -]*([A-Z][0-9]+).*");
 	
 	/**
@@ -245,7 +245,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		if (m.matches()) {
 			return m.group(1);
 		} else {
-			return str;
+			return str.replaceAll("\\s", "");
 		}
 	}
 	
