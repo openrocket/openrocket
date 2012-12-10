@@ -12,7 +12,6 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.gui.dialogs.MotorDatabaseLoadingDialog;
 import net.sf.openrocket.gui.dialogs.motor.thrustcurve.ThrustCurveMotorSelectionPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
@@ -26,22 +25,19 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	
 	private boolean okClicked = false;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	
 	public MotorChooserDialog(Motor current, double delay, double diameter, Window owner) {
-		super(owner, trans.get ("MotorChooserDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
+		super(owner, trans.get("MotorChooserDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
-		// Check that the motor database has been loaded properly
-		MotorDatabaseLoadingDialog.check(null);
 		
-
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		selectionPanel = new ThrustCurveMotorSelectionPanel((ThrustCurveMotor) current, delay, diameter);
 		
 		panel.add(selectionPanel, "grow, wrap para");
 		
-
+		
 		// OK / Cancel buttons
 		JButton okButton = new JButton(trans.get("dlg.but.ok"));
 		okButton.addActionListener(new ActionListener() {
@@ -100,7 +96,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	}
 	
 	
-
+	
 	@Override
 	public void close(boolean ok) {
 		okClicked = ok;

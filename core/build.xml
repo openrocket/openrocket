@@ -108,28 +108,21 @@
 		</jar>
 	</target>
 	
-	<target name="serialize-presets" depends="core-jar" description="Preprocess the orc preset files into serialized form">
+	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
 	    <java classname="net.sf.openrocket.startup.SerializePresets"
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">
 	    </java>
 	</target>
-	<target name="serialize-motors" depends="core-jar" description="Preprocess the motor files into serialized form">
+	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
 	    <java classname="net.sf.openrocket.startup.SerializeMotors"
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">
+	    	<arg value="resources-src/datafiles/thrustcurves/"/>
+	    	<arg value="resources/datafiles/thrustcurves/thrustcurves.ser"/>
 	    </java>
-	</target>
-		<!-- Core OpenRocket JAR -->
-	<target name="core-jar" depends="build" description="Create the OpenRocket code-only jar file">
-		<jar destfile="${build.dir}/${ant.project.name}-Core.jar" basedir="${dist.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="${main-class}"/>
-				<attribute name="SplashScreen-Image" value="pix/splashscreen.png"/>
-			</manifest>
-		</jar>
 	</target>
 
 	<!-- CONVERT vendor csv to ORC files -->
@@ -177,7 +170,7 @@
 			<fileset dir="." includes="*" excludes="*.log">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="." includes="resources/ lib/ lib-test/ src/ test/"/>
+			<fileset dir="." includes="resources/ lib/ lib-test/ src/ test/ resources-src/datafiles/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>

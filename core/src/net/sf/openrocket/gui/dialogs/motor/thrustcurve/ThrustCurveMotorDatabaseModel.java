@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.sf.openrocket.database.ThrustCurveMotorSet;
+import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 
 class ThrustCurveMotorDatabaseModel extends AbstractTableModel {
 	private final List<ThrustCurveMotorSet> database;

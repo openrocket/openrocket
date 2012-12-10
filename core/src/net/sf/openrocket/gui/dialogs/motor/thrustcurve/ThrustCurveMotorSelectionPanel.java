@@ -43,8 +43,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.database.ThrustCurveMotorSet;
-import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.motor.CloseableDialog;
@@ -163,8 +162,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		// Construct the database (adding the current motor if not in the db already)
 		List<ThrustCurveMotorSet> db;
-		// TODO - ugly blind cast.
-		db = ((ThrustCurveMotorSetDatabase) Application.getMotorSetDatabase()).getMotorSets();
+		db = Application.getThrustCurveMotorSetDatabase().getMotorSets();
 		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
 		if (current != null) {
