@@ -189,53 +189,6 @@ public class RocketRenderer {
 		gl.glDisable(GL.GL_BLEND);
 		gl.glDisable(GL.GL_CULL_FACE);
 		
-		// FIXME:  Ensure this change does not conflict with bug fix Bill made
-		gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_EMISSION,
-				selectedEmissive, 0);
-		gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_DIFFUSE,
-				colorBlack, 0);
-		gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_AMBIENT,
-				colorBlack, 0);
-		gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_SPECULAR,
-				colorBlack, 0);
-		
-		gl.glDepthMask(false);
-		gl.glDisable(GL.GL_DEPTH_TEST);
-		gl.glEnable(GL.GL_STENCIL_TEST);
-		
-		for (RocketComponent c : configuration) {
-			if (selection.contains(c)) {
-				// So it is faster to do this once before the loop,
-				// but then the outlines are not as good if you multi-select.
-				// Not sure which to do.
-				
-				gl.glStencilMask(1);
-				gl.glDisable(GL.GL_SCISSOR_TEST);
-				gl.glClearStencil(0);
-				gl.glClear(GL.GL_STENCIL_BUFFER_BIT);
-				gl.glStencilMask(0);
-				
-				gl.glStencilFunc(GL.GL_ALWAYS, 1, 1);
-				gl.glStencilMask(1);
-				gl.glColorMask(false, false, false, false);
-				gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
-				gl.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_REPLACE);
-				cr.renderGeometry(gl, c);
-				gl.glStencilMask(0);
-				
-				gl.glColorMask(true, true, true, true);
-				gl.glStencilFunc(GL.GL_NOTEQUAL, 1, 1);
-				gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
-				gl.glLineWidth(5.0f);
-				cr.renderGeometry(gl, c);
-			}
-		}
-		gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
-		gl.glDepthMask(true);
-		gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_EMISSION,
-				colorBlack, 0);
-		gl.glDisable(GL.GL_STENCIL_TEST);
-		gl.glEnable(GL.GL_DEPTH_TEST);
 	}
 	
 	private void renderMotors(GL2 gl, Configuration configuration) {
