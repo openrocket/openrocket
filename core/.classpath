@@ -10,12 +10,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib-extra/RXTXcomm.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar" sourcepath="/home/sampo/Projects/lib/jfreechart-1.0.13/source"/>
-	<classpathentry kind="lib" path="lib/jcommon-1.0.16.jar">
-		<accessrules>
-			<accessrule kind="nonaccessible" pattern="org/jfree/util/Log"/>
-		</accessrules>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/miglayout15-swing.jar"/>
 	<classpathentry kind="lib" path="lib/iText-5.0.2.jar"/>
 	<classpathentry kind="lib" path="lib-test/hamcrest-core-1.3.0RC1.jar"/>
@@ -33,5 +27,7 @@
 	<classpathentry kind="lib" path="lib/guice-multibindings-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.17.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="reference/jfreechart-1.0.14-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

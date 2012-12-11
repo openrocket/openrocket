@@ -139,6 +139,8 @@ class FinSetHandler extends AbstractElementHandler {
      */
     private Double calcCg = 0d;
 
+    private RockSimAppearanceBuilder appearanceBuilder = new RockSimAppearanceBuilder();
+    
 
     /**
      * Constructor.
@@ -238,6 +240,8 @@ class FinSetHandler extends AbstractElementHandler {
             if (RocksimCommonConstants.CALC_CG.equals(element)) {
                 calcCg = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LENGTH;
             }
+            
+            appearanceBuilder.processElement(element, content, warnings);
         }
         catch (NumberFormatException nfe) {
             warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
@@ -249,6 +253,9 @@ class FinSetHandler extends AbstractElementHandler {
             String content, WarningSet warnings) throws SAXException {
         //Create the fin set and correct for overrides and actual material densities
         final FinSet finSet = asOpenRocket(warnings);
+        
+        finSet.setAppearance(appearanceBuilder.getAppearance());
+
         if (component.isCompatible(finSet)) {
             BaseHandler.setOverride(finSet, override, mass, cg);
             if (!override && finSet.getCrossSection().equals(FinSet.CrossSection.AIRFOIL)) {

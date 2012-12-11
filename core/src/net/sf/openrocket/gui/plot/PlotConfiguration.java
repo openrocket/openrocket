@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.plot;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -168,10 +169,7 @@ public class PlotConfiguration implements Cloneable {
 	private final int axesCount;
 	private ArrayList<Axis> allAxes = new ArrayList<Axis>();
 	
-
-
 	private String name = null;
-	
 	
 
 	public PlotConfiguration() {
@@ -192,9 +190,7 @@ public class PlotConfiguration implements Cloneable {
 		setDomainAxisType(domainType);
 	}
 	
-	
-
-
+	//// Axis
 
 	public FlightDataType getDomainAxisType() {
 		return domainAxisType;
@@ -224,7 +220,7 @@ public class PlotConfiguration implements Cloneable {
 		domainAxisUnit = u;
 	}
 	
-	
+	//// FlightDataTypes
 
 	public void addPlotDataType(FlightDataType type) {
 		plotDataTypes.add(type);
@@ -242,8 +238,6 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
-
 	public void setPlotDataType(int index, FlightDataType type) {
 		FlightDataType origType = plotDataTypes.get(index);
 		plotDataTypes.set(index, type);
@@ -267,7 +261,6 @@ public class PlotConfiguration implements Cloneable {
 		}
 		plotDataAxes.set(index, axis);
 	}
-	
 	
 	public void setPlotDataType(int index, FlightDataType type, Unit unit, int axis) {
 		if (axis >= axesCount) {

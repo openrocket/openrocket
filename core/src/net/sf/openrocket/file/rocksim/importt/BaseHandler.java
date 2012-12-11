@@ -13,7 +13,9 @@ import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 
 import org.xml.sax.SAXException;
 
@@ -50,6 +52,8 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 */
 	private String materialName = "";
 	
+    private RockSimAppearanceBuilder appearanceBuilder = new RockSimAppearanceBuilder();
+
 	/**
 	 * The SAX method called when the closing element tag is reached.
 	 *
@@ -85,6 +89,8 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 			if (RocksimCommonConstants.DENSITY_TYPE.equals(element)) {
 				densityType = RocksimDensityType.fromCode(Integer.parseInt(content));
 			}
+			
+			appearanceBuilder.processElement(element, content, warnings);
 		} catch (NumberFormatException nfe) {
 			warnings.add("Could not convert " + element + " value of " + content + ".  It is expected to be a number.");
 		}
@@ -101,6 +107,17 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 		 */
 		density = computeDensity(densityType, density);
 		RocketComponent component = getComponent();
+        
+        //TODO - What RockSim components can have Appearances?
+        if ( component instanceof ExternalComponent ){	
+        	//If a symmetric component is set to PreventSeam then it is repeated
+        	//twice as many times around the rocket.
+        	if ( component instanceof SymmetricComponent && appearanceBuilder.isPreventSeam() ){
+        		appearanceBuilder.setScaleU(appearanceBuilder.getScaleU()*2);
+			}
+        	component.setAppearance(appearanceBuilder.getAppearance());
+        }
+        
 		updateComponentMaterial(component, materialName, getMaterialType(), density);
 	}
 	

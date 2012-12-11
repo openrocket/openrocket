@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -14,7 +13,6 @@ import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,13 +32,10 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.adaptors.PresetModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
-import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -52,7 +47,6 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Invalidatable;
-import net.sf.openrocket.util.LineStyle;
 
 public class RocketComponentConfig extends JPanel {
 	
@@ -70,8 +64,7 @@ public class RocketComponentConfig extends JPanel {
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
-	private JButton colorButton;
-	private JCheckBox colorDefault;
+
 	private JPanel buttonPanel;
 	
 	private JLabel infoLabel;
@@ -113,9 +106,11 @@ public class RocketComponentConfig extends JPanel {
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (component.isMassive())
-			//// Figure and Figure style options
-			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Figure"), null, figureTab(),
-					trans.get("RocketCompCfg.tab.Figstyleopt"));
+		
+		//// Appearance options
+		tabbedPane.addTab("Appearance", null, new AppearancePanel(document,component),
+				"Appearance Tool Tip");
+		
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
@@ -164,14 +159,6 @@ public class RocketComponentConfig extends JPanel {
 	public void updateFields() {
 		// Component name
 		componentNameField.setText(component.getName());
-		
-		// Component color and "Use default color" checkbox
-		if (colorButton != null && colorDefault != null) {
-			colorButton.setIcon(new ColorIcon(getColor()));
-			
-			if ((component.getColor() == null) != colorDefault.isSelected())
-				colorDefault.setSelected(component.getColor() == null);
-		}
 		
 		// Info label
 		StringBuilder sb = new StringBuilder();
@@ -383,93 +370,6 @@ public class RocketComponentConfig extends JPanel {
 		
 		return panel;
 	}
-	
-	
-	
-	private JPanel figureTab() {
-		JPanel panel = new JPanel(new MigLayout("align 20% 20%"));
-		
-		//// Figure style:
-		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Figurestyle"), Style.BOLD), "wrap para");
-		
-		//// Component color:
-		panel.add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")), "gapleft para, gapright 10lp");
-		
-		colorButton = new JButton(new ColorIcon(getColor()));
-		colorButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				net.sf.openrocket.util.Color c = component.getColor();
-				if (c == null) {
-					c = Application.getPreferences().getDefaultColor(component.getClass());
-				}
-				
-				//// Choose color
-				Color awtColor = ColorConversion.toAwtColor(c);
-				awtColor = JColorChooser.showDialog(tabbedPane, trans.get("RocketCompCfg.lbl.Choosecolor"), awtColor);
-				c = ColorConversion.fromAwtColor(awtColor);
-				if (c != null) {
-					component.setColor(c);
-				}
-			}
-		});
-		panel.add(colorButton, "gapright 10lp");
-		
-		//// Use default color
-		colorDefault = new JCheckBox(trans.get("RocketCompCfg.checkbox.Usedefaultcolor"));
-		if (component.getColor() == null)
-			colorDefault.setSelected(true);
-		colorDefault.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (colorDefault.isSelected())
-					component.setColor(null);
-				else
-					component.setColor(((SwingPreferences) Application.getPreferences()).getDefaultColor(component.getClass()));
-			}
-		});
-		panel.add(colorDefault, "wrap para");
-		
-		//// Component line style:
-		panel.add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")), "gapleft para, gapright 10lp");
-		
-		LineStyle[] list = new LineStyle[LineStyle.values().length + 1];
-		System.arraycopy(LineStyle.values(), 0, list, 1, LineStyle.values().length);
-		
-		JComboBox combo = new JComboBox(new EnumModel<LineStyle>(component, "LineStyle",
-				//// Default style
-				list, trans.get("LineStyle.Defaultstyle")));
-		panel.add(combo, "spanx 2, growx, wrap 50lp");
-		
-		//// Save as default style
-		JButton button = new JButton(trans.get("RocketCompCfg.but.Saveasdefstyle"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (component.getColor() != null) {
-					((SwingPreferences) Application.getPreferences()).setDefaultColor(component.getClass(), component.getColor());
-					component.setColor(null);
-				}
-				if (component.getLineStyle() != null) {
-					Application.getPreferences().setDefaultLineStyle(component.getClass(), component.getLineStyle());
-					component.setLineStyle(null);
-				}
-			}
-		});
-		panel.add(button, "gapleft para, spanx 3, growx, wrap");
-		
-		return panel;
-	}
-	
-	
-	private Color getColor() {
-		net.sf.openrocket.util.Color c = component.getColor();
-		if (c == null) {
-			c = Application.getPreferences().getDefaultColor(component.getClass());
-		}
-		return ColorConversion.toAwtColor(c);
-	}
-	
 	
 	
 	protected JPanel shoulderTab() {

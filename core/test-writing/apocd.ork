@@ -1,0 +1,695 @@
+<?xml version='1.0' encoding='utf-8'?>
+<openrocket version="1.6" creator="OpenRocket 12.03dev">
+  <rocket>
+    <name>apocalypse</name>
+    <referencetype>maximum</referencetype>
+
+    <subcomponents>
+      <stage>
+        <name>Stage</name>
+        <overridemass>4.0</overridemass>
+        <overridecg>1.05829</overridecg>
+        <overridesubcomponents>true</overridesubcomponents>
+
+        <subcomponents>
+          <nosecone>
+            <name>Nose cone</name>
+            <appearance>
+            <ambient red="255" green="255" blue="255"/>
+            <diffuse red="255" green="255" blue="255"/>
+            <specular red="255" green="255" blue="255"/>
+            <decal name="decals/Apocalypse_CONE_pointsFrfl.jpg" rotation="0.0" edgemode="MIRROR">
+            <center x="0.5" y="0.5"/>
+            <offset x="-1.0" y="-1.0"/>
+            <scale x="-2.0" y="-1.0"/>
+            </decal>
+            </appearance>
+            <overridemass>0.283495</overridemass>
+            <overridecg>0.2286</overridecg>
+            <overridesubcomponents>false</overridesubcomponents>
+            <finish>smooth</finish>
+            <material type="bulk" density="1049.21">RS: Polystyrene PS</material>
+            <length>0.42545</length>
+            <thickness>0.00318</thickness>
+            <shape>ogive</shape>
+            <shapeparameter>1.0</shapeparameter>
+            <aftradius>0.05</aftradius>
+            <aftshoulderradius>0.049215</aftshoulderradius>
+            <aftshoulderlength>0.0762</aftshoulderlength>
+            <aftshoulderthickness>0.00318</aftshoulderthickness>
+            <aftshouldercapped>false</aftshouldercapped>
+          </nosecone>
+
+          <bodytube>
+            <name>Body tube sup</name>
+            <appearance>
+            <ambient red="255" green="255" blue="255"/>
+            <diffuse red="255" green="255" blue="255"/>
+            <specular red="255" green="255" blue="255"/>
+            <decal name="decals/Apocalypse_logo_HAUT_fr2.jpg" rotation="0.0" edgemode="REPEAT">
+            <center x="0.5" y="0.5"/>
+            <offset x="-1.0" y="-1.0"/>
+            <scale x="-2.0" y="-1.0"/>
+            </decal>
+            </appearance>
+            <finish>smooth</finish>
+            <material type="bulk" density="1121.29">RS: Paper</material>
+            <length>0.6317999999999999</length>
+            <thickness>9.699999999999986E-4</thickness>
+            <radius>0.05</radius>
+
+            <subcomponents>
+              <tubecoupler>
+                <name>Tube coupler</name>
+                <position type="top">0.3556</position>
+                <overridemass>0.07370879999999999</overridemass>
+                <overridecg>0.0</overridecg>
+                <overridesubcomponents>false</overridesubcomponents>
+                <material type="bulk" density="958.705">RS: Kraft phenolic</material>
+                <length>0.1524</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.049030000000000004</outerradius>
+                <thickness>0.0010748000000000077</thickness>
+              </tubecoupler>
+
+              <parachute>
+                <name>Main Parachute</name>
+                <position type="top">0.0968</position>
+                <overridemass>0.08788299999999999</overridemass>
+                <overridecg>0.0</overridecg>
+                <overridesubcomponents>false</overridesubcomponents>
+                <packedlength>0.025</packedlength>
+                <packedradius>0.045000000000000005</packedradius>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <cd>0.75</cd>
+                <deployevent>ejection</deployevent>
+                <deployaltitude>200.0</deployaltitude>
+                <deploydelay>0.0</deploydelay>
+                <material type="surface" density="2.7098958420476206E-5">RS: 1.9 oz. Ripstop Nylon (SkyAngle)</material>
+                <diameter>0.9144</diameter>
+                <linecount>8</linecount>
+                <linelength>0.6858</linelength>
+                <linematerial type="line" density="0.00102">RS: 1/16 In. braided nylon</linematerial>
+              </parachute>
+            </subcomponents>
+          </bodytube>
+
+          <bodytube>
+            <name>Elec Bay</name>
+            <appearance>
+            <ambient red="255" green="255" blue="255"/>
+            <diffuse red="255" green="255" blue="255"/>
+            <specular red="255" green="255" blue="255"/>
+            <decal name="decals/Apocalypse_logo_medium2.jpg" rotation="0.0" edgemode="REPEAT">
+            <center x="0.5" y="0.5"/>
+            <offset x="-1.0" y="-1.0"/>
+            <scale x="-2.0" y="-1.0"/>
+            </decal>
+            </appearance>
+            <finish>smooth</finish>
+            <material type="bulk" density="1121.29">RS: Paper</material>
+            <length>0.1118</length>
+            <thickness>9.699999999999986E-4</thickness>
+            <radius>0.05</radius>
+
+            <subcomponents>
+              <tubecoupler>
+                <name>Tube coupler</name>
+                <position type="top">0.3556</position>
+                <overridemass>0.07370879999999999</overridemass>
+                <overridecg>0.0</overridecg>
+                <overridesubcomponents>false</overridesubcomponents>
+                <material type="bulk" density="958.705">RS: Kraft phenolic</material>
+                <length>0.1524</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.049030000000000004</outerradius>
+                <thickness>0.0010748000000000077</thickness>
+              </tubecoupler>
+            </subcomponents>
+          </bodytube>
+
+          <bodytube>
+            <name>Body tube inf1</name>
+            <appearance>
+            <ambient red="255" green="255" blue="255"/>
+            <diffuse red="255" green="255" blue="255"/>
+            <specular red="255" green="255" blue="255"/>
+            <decal name="decals/Apocalypse_logo_bas_coup2.jpg" rotation="0.0" edgemode="REPEAT">
+            <center x="0.5" y="0.5"/>
+            <offset x="-1.0" y="-1.0"/>
+            <scale x="-2.0" y="-1.0"/>
+            </decal>
+            </appearance>
+            <finish>smooth</finish>
+            <material type="bulk" density="1121.29">RS: Paper</material>
+            <length>0.2018</length>
+            <thickness>9.699999999999986E-4</thickness>
+            <radius>0.05</radius>
+
+            <subcomponents>
+              <tubecoupler>
+                <name>Tube coupler</name>
+                <position type="top">0.3556</position>
+                <overridemass>0.07370879999999999</overridemass>
+                <overridecg>0.0</overridecg>
+                <overridesubcomponents>false</overridesubcomponents>
+                <material type="bulk" density="958.705">RS: Kraft phenolic</material>
+                <length>0.1524</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.049030000000000004</outerradius>
+                <thickness>0.0010748000000000077</thickness>
+              </tubecoupler>
+
+              <parachute>
+                <name>drogue Parachute</name>
+                <position type="top">0.12029999999999999</position>
+                <overridemass>0.08788299999999999</overridemass>
+                <overridecg>0.0</overridecg>
+                <overridesubcomponents>false</overridesubcomponents>
+                <packedlength>0.025</packedlength>
+                <packedradius>0.045000000000000005</packedradius>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <cd>0.75</cd>
+                <deployevent>ejection</deployevent>
+                <deployaltitude>200.0</deployaltitude>
+                <deploydelay>0.0</deploydelay>
+                <material type="surface" density="6.663512241985067E-4">RS: 1.9 oz. Ripstop Nylon (SkyAngle)</material>
+                <diameter>0.1844</diameter>
+                <linecount>8</linecount>
+                <linelength>0.6858</linelength>
+                <linematerial type="line" density="0.00102">RS: 1/16 In. braided nylon</linematerial>
+              </parachute>
+            </subcomponents>
+          </bodytube>
+
+          <bodytube>
+            <name>Body tube inf2</name>
+            <appearance>
+            <ambient red="206" green="198" blue="187"/>
+            <diffuse red="206" green="198" blue="187"/>
+            <specular red="206" green="198" blue="187"/>
+            </appearance>
+            <finish>smooth</finish>
+            <material type="bulk" density="1121.29">RS: Paper</material>
+            <length>0.5636</length>
+            <thickness>9.699999999999986E-4</thickness>
+            <radius>0.05</radius>
+
+            <subcomponents>
+              <innertube>
+                <name>Body tube</name>
+                <position type="bottom">0.0</position>
+                <material type="bulk" density="1121.29">RS: Paper</material>
+                <length>0.4606</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.02743</outerradius>
+                <thickness>2.500000000000002E-4</thickness>
+                <clusterconfiguration>single</clusterconfiguration>
+                <clusterscale>1.0</clusterscale>
+                <clusterrotation>0.0</clusterrotation>
+                <motormount>
+                  <ignitionevent>automatic</ignitionevent>
+                  <ignitiondelay>0.0</ignitiondelay>
+                  <overhang>0.0</overhang>
+                </motormount>
+              </innertube>
+
+              <freeformfinset>
+                <name>Custom Fin-1</name>
+                <appearance>
+                <ambient red="255" green="255" blue="255"/>
+                <diffuse red="255" green="255" blue="255"/>
+                <specular red="255" green="255" blue="255"/>
+                <decal name="decals/fin rad-test5.jpg" rotation="0.0" edgemode="MIRROR">
+                <center x="0.5" y="0.5"/>
+                <offset x="-1.0" y="-1.0"/>
+                <scale x="-1.0" y="-1.0"/>
+                </decal>
+                </appearance>
+                <position type="top">0.127</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>0.0</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <tabheight>0.023370000000000002</tabheight>
+                <tablength>0.4147</tablength>
+                <tabposition relativeto="front">0.0</tabposition>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0136306" y="0.0152533"/>
+                  <point x="0.117158" y="0.0253139"/>
+                  <point x="0.2284" y="0.128"/>
+                  <point x="0.258" y="0.119"/>
+                  <point x="0.282" y="0.025"/>
+                  <point x="0.32" y="0.022"/>
+                  <point x="0.354" y="0.067"/>
+                  <point x="0.382" y="0.058"/>
+                  <point x="0.395" y="0.013"/>
+                  <point x="0.398" y="0.011300000000000001"/>
+                  <point x="0.406" y="0.0020"/>
+                  <point x="0.406" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 1a</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>-2.8650009700383143</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114111" y="0.019915600000000002"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 1b</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>3.009999399252072</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Custom Fin-2</name>
+                <appearance>
+                <ambient red="255" green="255" blue="255"/>
+                <diffuse red="255" green="255" blue="255"/>
+                <specular red="255" green="255" blue="255"/>
+                <decal name="decals/fin rad-test5.jpg" rotation="0.0" edgemode="MIRROR">
+                <center x="0.5" y="0.5"/>
+                <offset x="-1.0" y="-1.0"/>
+                <scale x="-1.0" y="-1.0"/>
+                </decal>
+                </appearance>
+                <position type="top">0.127</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>90.0002104591497</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <tabheight>0.023370000000000002</tabheight>
+                <tablength>0.3175</tablength>
+                <tabposition relativeto="front">0.0</tabposition>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0136306" y="0.0152533"/>
+                  <point x="0.117158" y="0.0253139"/>
+                  <point x="0.2284" y="0.128"/>
+                  <point x="0.258" y="0.119"/>
+                  <point x="0.282" y="0.025"/>
+                  <point x="0.32" y="0.022"/>
+                  <point x="0.354" y="0.067"/>
+                  <point x="0.382" y="0.058"/>
+                  <point x="0.395" y="0.013"/>
+                  <point x="0.398" y="0.011300000000000001"/>
+                  <point x="0.406" y="0.0020"/>
+                  <point x="0.406" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 2a</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>86.13503717319718</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 2b</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>93.38524511278261</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Custom Fin-3</name>
+                <appearance>
+                <ambient red="255" green="255" blue="255"/>
+                <diffuse red="255" green="255" blue="255"/>
+                <specular red="255" green="255" blue="255"/>
+                <decal name="decals/fin rad-test5.jpg" rotation="0.0" edgemode="MIRROR">
+                <center x="0.5" y="0.5"/>
+                <offset x="-1.0" y="-1.0"/>
+                <scale x="-1.0" y="-1.0"/>
+                </decal>
+                </appearance>
+                <position type="top">0.127</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>179.99984796050427</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <tabheight>0.023370000000000002</tabheight>
+                <tablength>0.3175</tablength>
+                <tabposition relativeto="front">0.0</tabposition>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0136306" y="0.0152533"/>
+                  <point x="0.117158" y="0.0253139"/>
+                  <point x="0.2284" y="0.128"/>
+                  <point x="0.258" y="0.119"/>
+                  <point x="0.282" y="0.025"/>
+                  <point x="0.32" y="0.022"/>
+                  <point x="0.354" y="0.067"/>
+                  <point x="0.382" y="0.058"/>
+                  <point x="0.395" y="0.013"/>
+                  <point x="0.398" y="0.011300000000000001"/>
+                  <point x="0.406" y="0.0020"/>
+                  <point x="0.406" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 3a</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>176.00976987521324</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 3b</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>-177.2399102613591</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Custom Fin-4</name>
+                <appearance>
+                <ambient red="255" green="255" blue="255"/>
+                <diffuse red="255" green="255" blue="255"/>
+                <specular red="255" green="255" blue="255"/>
+                <decal name="decals/fin rad-test5.jpg" rotation="0.0" edgemode="MIRROR">
+                <center x="0.5" y="0.5"/>
+                <offset x="-1.0" y="-1.0"/>
+                <scale x="-1.0" y="-1.0"/>
+                </decal>
+                </appearance>
+                <position type="top">0.127</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>-90.0002104591497</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <tabheight>0.023370000000000002</tabheight>
+                <tablength>0.3175</tablength>
+                <tabposition relativeto="front">0.0</tabposition>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0136306" y="0.0152533"/>
+                  <point x="0.117158" y="0.0253139"/>
+                  <point x="0.2284" y="0.128"/>
+                  <point x="0.258" y="0.119"/>
+                  <point x="0.282" y="0.025"/>
+                  <point x="0.32" y="0.022"/>
+                  <point x="0.354" y="0.067"/>
+                  <point x="0.382" y="0.058"/>
+                  <point x="0.395" y="0.013"/>
+                  <point x="0.398" y="0.011300000000000001"/>
+                  <point x="0.406" y="0.0020"/>
+                  <point x="0.406" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 4a</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>-86.49027100617829</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <freeformfinset>
+                <name>Contre fins 4b</name>
+                <appearance>
+                <ambient red="255" green="0" blue="0"/>
+                <diffuse red="255" green="0" blue="0"/>
+                <specular red="255" green="0" blue="0"/>
+                </appearance>
+                <position type="top">0.1349</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <fincount>1</fincount>
+                <rotation>-94.48990774179484</rotation>
+                <thickness>0.00478</thickness>
+                <crosssection>rounded</crosssection>
+                <cant>0.0</cant>
+                <finpoints>
+                  <point x="0.0" y="0.0"/>
+                  <point x="0.0038" y="0.0070"/>
+                  <point x="0.114" y="0.02"/>
+                  <point x="0.272906" y="0.02"/>
+                  <point x="0.381787" y="0.01"/>
+                  <point x="0.38726900000000003" y="0.0090"/>
+                  <point x="0.391" y="0.0040"/>
+                  <point x="0.392101" y="0.0"/>
+                </finpoints>
+              </freeformfinset>
+
+              <centeringring>
+                <name>Ring</name>
+                <position type="top">0.10790000000000001</position>
+                <material type="bulk" density="724.996">RS: Aircraft plywood (Birch)</material>
+                <length>0.00318</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.049030000000000004</outerradius>
+                <innerradius>auto</innerradius>
+              </centeringring>
+
+              <centeringring>
+                <name>Ring</name>
+                <position type="top">0.5596</position>
+                <material type="bulk" density="724.996">RS: Aircraft plywood (Birch)</material>
+                <length>0.00318</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.049030000000000004</outerradius>
+                <innerradius>auto</innerradius>
+              </centeringring>
+
+              <bulkhead>
+                <name>Bulkhead</name>
+                <position type="top">0.0</position>
+                <material type="bulk" density="680.785">RS: Birch</material>
+                <length>0.0030499999999999998</length>
+                <radialposition>0.0</radialposition>
+                <radialdirection>0.0</radialdirection>
+                <outerradius>0.049030000000000004</outerradius>
+              </bulkhead>
+
+              <launchlug>
+                <name>Launch lug</name>
+                <appearance>
+                <ambient red="170" green="170" blue="255"/>
+                <diffuse red="170" green="170" blue="255"/>
+                <specular red="170" green="170" blue="255"/>
+                </appearance>
+                <position type="top">0.54</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="1199.78">RS: Polycarbonate</material>
+                <radius>0.006715</radius>
+                <length>0.01</length>
+                <thickness>0.0010</thickness>
+                <radialdirection>-134.99974273092943</radialdirection>
+              </launchlug>
+
+              <launchlug>
+                <name>Launch lug</name>
+                <appearance>
+                <ambient red="170" green="170" blue="255"/>
+                <diffuse red="170" green="170" blue="255"/>
+                <specular red="170" green="170" blue="255"/>
+                </appearance>
+                <position type="top">0.0125</position>
+                <finish>smooth</finish>
+                <material type="bulk" density="1199.78">RS: Polycarbonate</material>
+                <radius>0.006715</radius>
+                <length>0.01</length>
+                <thickness>0.0010</thickness>
+                <radialdirection>-134.99974273092943</radialdirection>
+              </launchlug>
+            </subcomponents>
+          </bodytube>
+
+          <transition>
+            <name>Transition</name>
+            <appearance>
+            <ambient red="240" green="240" blue="240"/>
+            <diffuse red="240" green="240" blue="240"/>
+            <specular red="240" green="240" blue="240"/>
+            </appearance>
+            <finish>polished</finish>
+            <material type="bulk" density="847.056">RS: Urethane</material>
+            <length>0.04445</length>
+            <thickness>0.00521</thickness>
+            <shape>conical</shape>
+            <foreradius>0.05</foreradius>
+            <aftradius>0.03975</aftradius>
+            <foreshoulderradius>0.049530000000000005</foreshoulderradius>
+            <foreshoulderlength>0.00635</foreshoulderlength>
+            <foreshoulderthickness>0.00521</foreshoulderthickness>
+            <foreshouldercapped>false</foreshouldercapped>
+            <aftshoulderradius>0.0</aftshoulderradius>
+            <aftshoulderlength>0.0</aftshoulderlength>
+            <aftshoulderthickness>0.00521</aftshoulderthickness>
+            <aftshouldercapped>false</aftshouldercapped>
+          </transition>
+        </subcomponents>
+      </stage>
+    </subcomponents>
+  </rocket>
+
+  <simulations>
+  </simulations>
+</openrocket>

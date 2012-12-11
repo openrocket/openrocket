@@ -7,12 +7,14 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.net.URL;
 
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
-import net.sf.openrocket.file.RocketLoader;
+import net.sf.openrocket.file.FileInfo;
+import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
@@ -27,35 +29,41 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	private static final LogHelper log = Application.getLogger();
 	
 	private final File file;
+	private final URL jarURL;
 	private final InputStream stream;
-	private final RocketLoader loader;
+	private final GeneralRocketLoader loader;
 	
-	public OpenFileWorker(File file, RocketLoader loader) {
+	public OpenFileWorker(File file, GeneralRocketLoader loader) {
 		this.file = file;
+		this.jarURL = null;
 		this.stream = null;
 		this.loader = loader;
 	}
 	
 	
-	public OpenFileWorker(InputStream stream, RocketLoader loader) {
+	public OpenFileWorker(InputStream stream, URL fileURL, GeneralRocketLoader loader) {
 		this.stream = stream;
+		this.jarURL = fileURL;
 		this.file = null;
 		this.loader = loader;
 	}
 	
-	public RocketLoader getRocketLoader() {
+	public GeneralRocketLoader getRocketLoader() {
 		return loader;
 	}
 	
 	@Override
 	protected OpenRocketDocument doInBackground() throws Exception {
 		InputStream is;
-		
+
+		FileInfo fileInfo = null;
 		// Get the correct input stream
 		if (file != null) {
 			is = new FileInputStream(file);
+			fileInfo = new FileInfo(file);
 		} else {
 			is = stream;
+			fileInfo = new FileInfo(jarURL);
 		}
 		
 		// Buffer stream unless already buffered
@@ -67,7 +75,13 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			return loader.load(is, new DatabaseMotorFinder());
+			OpenRocketDocument document = loader.load(is, fileInfo, new DatabaseMotorFinder());
+
+			// Set document state
+			document.setFile(file);
+			document.setSaved(true);
+
+			return document;
 		} finally {
 			try {
 				is.close();

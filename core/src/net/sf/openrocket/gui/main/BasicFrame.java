@@ -61,12 +61,11 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
-import net.sf.openrocket.file.rocksim.export.RocksimSaver;
+import net.sf.openrocket.gui.ExportDecalDialog;
 import net.sf.openrocket.gui.StorageOptionChooser;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.customexpression.CustomExpressionDialog;
@@ -113,9 +112,9 @@ public class BasicFrame extends JFrame {
 	/**
 	 * The RocketLoader instance used for loading all rocket designs.
 	 */
-	private static final RocketLoader ROCKET_LOADER = new GeneralRocketLoader();
+	private static final GeneralRocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 	
-	private static final RocketSaver ROCKET_SAVER = new OpenRocketSaver();
+	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -431,14 +430,13 @@ public class BasicFrame extends JFrame {
 		
 		//// Open Recent...
 		item = new MRUDesignFileAction(trans.get("main.menu.file.openRecent"), this);
-		//// Open a recent rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrecentrocketdesign"));
 		item.setIcon(Icons.FILE_OPEN);
 		menu.add(item);
 		
+		
 		//// Open example...
 		item = new JMenuItem(trans.get("main.menu.file.openExample"));
-		//// Open an example rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
 				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
@@ -490,6 +488,19 @@ public class BasicFrame extends JFrame {
 			}
 		});
 		menu.add(item);
+		
+		
+		//// Export decal...
+		// FIXME: Localize
+		item = new JMenuItem("Export Decal");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportDecalAction();
+			}
+		});
+		menu.add(item);
+		
 		
 		//// Print...
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
@@ -618,7 +629,6 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 		//// Edit Component Preset File
-		
 		if (System.getProperty("openrocket.preseteditor.menu") != null) {
 			item = new JMenuItem(trans.get("main.menu.edit.editpreset"));
 			item.addActionListener(new ActionListener() {
@@ -633,6 +643,7 @@ public class BasicFrame extends JFrame {
 			});
 			menu.add(item);
 		}
+		
 		
 		////  Analyze
 		menu = new JMenu(trans.get("main.menu.analyze"));
@@ -1083,46 +1094,45 @@ public class BasicFrame extends JFrame {
 	 * @param parent	the parent window for dialogs.
 	 * @return			<code>true</code> if opened successfully.
 	 */
-	private static boolean open(URL url, BasicFrame parent) {
-		String filename = null;
+	public static boolean open(URL url, BasicFrame parent) {
+		String displayName = null;
 		
 		// First figure out the file name from the URL
 		
 		// Try using URI.getPath();
 		try {
 			URI uri = url.toURI();
-			filename = uri.getPath();
+			displayName = uri.getPath();
 		} catch (URISyntaxException ignore) {
 		}
 		
 		// Try URL-decoding the URL
-		if (filename == null) {
+		if (displayName == null) {
 			try {
-				filename = URLDecoder.decode(url.toString(), "UTF-8");
+				displayName = URLDecoder.decode(url.toString(), "UTF-8");
 			} catch (UnsupportedEncodingException ignore) {
 			}
 		}
 		
-		// Last resort
-		if (filename == null) {
-			filename = "";
+		if (displayName == null) {
+			displayName = "";
 		}
 		
 		// Remove path from filename
-		if (filename.lastIndexOf('/') >= 0) {
-			filename = filename.substring(filename.lastIndexOf('/') + 1);
+		if (displayName.lastIndexOf('/') >= 0) {
+			displayName = displayName.substring(displayName.lastIndexOf('/') + 1);
 		}
 		
 		
 		// Open the file
-		log.info("Opening file from url=" + url + " filename=" + filename);
+		log.info("Opening file from url=" + url + " filename=" + displayName);
 		try {
 			InputStream is = url.openStream();
-			open(is, filename, parent);
+			open(is, displayName, url, parent, true);
 		} catch (IOException e) {
 			log.warn("Error opening file" + e);
 			JOptionPane.showMessageDialog(parent,
-					"An error occurred while opening the file " + filename,
+					"An error occurred while opening the file " + displayName,
 					"Error loading file", JOptionPane.ERROR_MESSAGE);
 		}
 		
@@ -1135,13 +1145,14 @@ public class BasicFrame extends JFrame {
 	 * occurs, an error dialog is shown and <code>false</code> is returned.
 	 *
 	 * @param stream	the stream to load from.
-	 * @param filename	the file name to display in dialogs (not set to the document).
+	 * @param displayName	the file name to display in dialogs (not set to the document).
 	 * @param parent	the parent component for which a progress dialog is opened.
+	 * @param openRocketConfigDialog if true will open the rocket configuration dialog
 	 * @return			whether the file was successfully loaded and opened.
 	 */
-	private static boolean open(InputStream stream, String filename, Window parent) {
-		OpenFileWorker worker = new OpenFileWorker(stream, ROCKET_LOADER);
-		return open(worker, filename, null, parent);
+	private static boolean open(InputStream stream, String displayName, URL fileURL, Window parent, boolean openRocketConfigDialog) {
+		OpenFileWorker worker = new OpenFileWorker(stream, fileURL, ROCKET_LOADER);
+		return open(worker, displayName, parent, openRocketConfigDialog);
 	}
 	
 	
@@ -1155,7 +1166,7 @@ public class BasicFrame extends JFrame {
 	 */
 	public static boolean open(File file, Window parent) {
 		OpenFileWorker worker = new OpenFileWorker(file, ROCKET_LOADER);
-		return open(worker, file.getName(), file, parent);
+		return open(worker, file.getName(), parent, false);
 	}
 	
 	
@@ -1163,16 +1174,17 @@ public class BasicFrame extends JFrame {
 	 * Open the specified file using the provided worker.
 	 *
 	 * @param worker	the OpenFileWorker that loads the file.
-	 * @param filename	the file name to display in dialogs.
+	 * @param displayName	the file name to display in dialogs.
 	 * @param file		the File to set the document to (may be null).
 	 * @param parent
+	 * @param openRocketConfigDialog if true, will open the configuration dialog of the rocket.  This is useful for examples.
 	 * @return
 	 */
-	private static boolean open(OpenFileWorker worker, String filename, File file, Window parent) {
+	private static boolean open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
 		
 		// Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
-		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + filename + "...", worker)) {
+		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
 			// User cancelled the operation
 			log.info("User cancelled the OpenFileWorker");
 			return false;
@@ -1193,7 +1205,7 @@ public class BasicFrame extends JFrame {
 				
 				log.warn("File not found", cause);
 				JOptionPane.showMessageDialog(parent,
-						"File not found: " + filename,
+						"File not found: " + displayName,
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
 				
@@ -1201,7 +1213,7 @@ public class BasicFrame extends JFrame {
 				
 				log.warn("Error loading the file", cause);
 				JOptionPane.showMessageDialog(parent,
-						"Unable to open file '" + filename + "': "
+						"Unable to open file '" + displayName + "': "
 								+ cause.getMessage(),
 						"Error opening file", JOptionPane.ERROR_MESSAGE);
 				return false;
@@ -1228,7 +1240,7 @@ public class BasicFrame extends JFrame {
 			WarningDialog.showWarnings(parent,
 					new Object[] {
 							//// The following problems were encountered while opening
-							trans.get("BasicFrame.WarningDialog.txt1") + " " + filename + ".",
+							trans.get("BasicFrame.WarningDialog.txt1") + " " + displayName + ".",
 							//// Some design features may not have been loaded correctly.
 							trans.get("BasicFrame.WarningDialog.txt2")
 					},
@@ -1238,7 +1250,8 @@ public class BasicFrame extends JFrame {
 		
 		
 		// Set document state
-		doc.setFile(file);
+		// FIXME: Why was these two lines removed by kruland?
+		//doc.setFile(file);
 		doc.setSaved(true);
 		
 		
@@ -1250,6 +1263,10 @@ public class BasicFrame extends JFrame {
 		if (parent != null && parent instanceof BasicFrame) {
 			((BasicFrame) parent).closeIfReplaceable();
 		}
+		if (openRocketConfigDialog) {
+			ComponentConfigDialog.showDialog(frame, doc, doc.getRocket());
+		}
+		
 		return true;
 	}
 	
@@ -1347,7 +1364,10 @@ public class BasicFrame extends JFrame {
 		}
 		
 		try {
-			new RocksimSaver().save(file, document);
+			StorageOptions options = new StorageOptions();
+			options.setFileType(StorageOptions.FileType.ROCKSIM);
+			ROCKET_SAVER.save(file, document, options);
+			// Do not update the save state of the document.
 			return true;
 		} catch (IOException e) {
 			return false;
@@ -1454,10 +1474,11 @@ public class BasicFrame extends JFrame {
 	}
 	
 	
+	public void exportDecalAction() {
+		new ExportDecalDialog(this, document).setVisible(true);
+	}
 	
-	/**
-	 *
-	 */
+	
 	public void printAction() {
 		Double rotation = rocketpanel.getFigure().getRotation();
 		if (rotation == null) {

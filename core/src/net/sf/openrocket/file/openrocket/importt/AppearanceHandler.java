@@ -1,0 +1,103 @@
+package net.sf.openrocket.file.openrocket.importt;
+
+import java.util.HashMap;
+
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.appearance.AppearanceBuilder;
+import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.file.simplesax.AbstractElementHandler;
+import net.sf.openrocket.file.simplesax.ElementHandler;
+import net.sf.openrocket.file.simplesax.PlainTextHandler;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.Color;
+
+import org.xml.sax.SAXException;
+
+class AppearanceHandler extends AbstractElementHandler {
+	@SuppressWarnings("unused")
+	private final DocumentLoadingContext context;
+	private final RocketComponent component;
+	
+	private final AppearanceBuilder builder = new AppearanceBuilder();
+	private boolean isInDecal = false;
+	public AppearanceHandler( RocketComponent component, DocumentLoadingContext context ) {
+		this.context = context;
+		this.component = component;
+	}
+	@Override
+	public ElementHandler openElement(String element,HashMap<String, String> attributes, WarningSet warnings)
+			throws SAXException {
+		if ( "decal".equals(element) ) {
+			String name = attributes.remove("name");
+			builder.setImage(name);
+			double rotation = Double.parseDouble(attributes.remove("rotation"));
+			builder.setRotation(rotation);
+			String edgeModeName = attributes.remove("edgemode");
+			EdgeMode edgeMode = EdgeMode.valueOf(edgeModeName);
+			builder.setEdgeMode(edgeMode);
+			isInDecal = true;
+			return this;
+		}
+		return PlainTextHandler.INSTANCE;
+	}
+	@Override
+	public void closeElement(String element,HashMap<String, String> attributes, String content,	WarningSet warnings) throws SAXException {
+		if ( "ambient".equals(element) ) {
+			int red = Integer.parseInt(attributes.get("red"));
+			int green = Integer.parseInt(attributes.get("green"));
+			int blue = Integer.parseInt(attributes.get("blue"));
+			builder.setAmbient( new Color(red,green,blue));
+			return;
+		}
+		if ( "diffuse".equals(element) ) {
+			int red = Integer.parseInt(attributes.get("red"));
+			int green = Integer.parseInt(attributes.get("green"));
+			int blue = Integer.parseInt(attributes.get("blue"));
+			builder.setDiffuse( new Color(red,green,blue));
+			return;
+		}
+		if ( "specular".equals(element) ) {
+			int red = Integer.parseInt(attributes.get("red"));
+			int green = Integer.parseInt(attributes.get("green"));
+			int blue = Integer.parseInt(attributes.get("blue"));
+			builder.setSpecular( new Color(red,green,blue));
+			return;
+		}
+		if ( isInDecal && "center".equals(element) ) {
+			double x = Double.parseDouble(attributes.get("x"));
+			double y = Double.parseDouble(attributes.get("y"));
+			builder.setCenter(x,y);
+			return;
+		}
+		if ( isInDecal && "offset".equals(element) ) {
+			double x = Double.parseDouble(attributes.get("x"));
+			double y = Double.parseDouble(attributes.get("y"));
+			builder.setOffset(x,y);
+			return;
+		}
+		if ( isInDecal && "scale".equals(element) ) {
+			double x = Double.parseDouble(attributes.get("x"));
+			double y = Double.parseDouble(attributes.get("y"));
+			builder.setScale(x,y);
+			return;
+		}
+		if( isInDecal && "decal".equals(element) ) {
+			isInDecal = false;
+			return;
+		}
+		
+		super.closeElement(element, attributes, content, warnings);
+	}
+	
+	@Override
+	public void endHandler(String element, HashMap<String, String> attributes,
+			String content, WarningSet warnings) throws SAXException {
+		if ( "decal".equals(element) ) {
+			isInDecal = false;
+			return;
+		}
+		component.setAppearance(builder.getAppearance());
+		super.endHandler(element, attributes, content, warnings);
+	}
+	
+}

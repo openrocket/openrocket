@@ -302,7 +302,7 @@ public class SimulationPanel extends JPanel {
 						if (row < 0 || row >= document.getSimulationCount())
 							return null;
 						return document.getSimulation(row).getConfiguration()
-								.getMotorConfigurationDescription();
+								.getFlightConfigurationDescription();
 					}
 					
 					@Override

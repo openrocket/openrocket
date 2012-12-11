@@ -31,6 +31,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
@@ -48,6 +49,10 @@ import com.jogamp.opengl.util.awt.Overlay;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class RocketFigure3d extends JPanel implements GLEventListener {
+	
+	public static final int TYPE_REALISTIC = 0;
+	public static final int TYPE_FIGURE = 1;
+	
 	private static final long serialVersionUID = 1L;
 	private static final LogHelper log = Application.getLogger();
 	
@@ -61,6 +66,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static double fovX = Double.NaN;
 	private static final int CARET_SIZE = 20;
 	
+	private OpenRocketDocument document;
 	private Configuration configuration;
 	private GLCanvas canvas;
 	
@@ -83,7 +89,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	RocketRenderer rr = new RocketRenderer();
 	
-	public RocketFigure3d(Configuration config) {
+	public RocketFigure3d(OpenRocketDocument document, Configuration config) {
+		this.document = document;
 		this.configuration = config;
 		this.setLayout(new BorderLayout());
 		
@@ -371,6 +378,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		log.verbose("GL - dispose() called");
+		rr.dispose(drawable);
 	}
 	
 	@Override
@@ -430,31 +438,37 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		double rMax;
 	}
 	
+	private Bounds cachedBounds = null;
 	/**
 	 * Calculates the bounds for the current configuration
 	 * 
 	 * @return
 	 */
 	private Bounds calculateBounds() {
-		Bounds ret = new Bounds();
-		Collection<Coordinate> bounds = configuration.getBounds();
-		for (Coordinate c : bounds) {
-			ret.xMax = Math.max(ret.xMax, c.x);
-			ret.xMin = Math.min(ret.xMin, c.x);
-			
-			ret.yMax = Math.max(ret.yMax, c.y);
-			ret.yMin = Math.min(ret.yMin, c.y);
-			
-			ret.zMax = Math.max(ret.zMax, c.z);
-			ret.zMin = Math.min(ret.zMin, c.z);
-			
-			double r = MathUtil.hypot(c.y, c.z);
-			ret.rMax = Math.max(ret.rMax, r);
+		if ( cachedBounds != null ){
+			return cachedBounds;
+		} else {
+			Bounds b = new Bounds();
+			Collection<Coordinate> bounds = configuration.getBounds();
+			for (Coordinate c : bounds) {
+				b.xMax = Math.max(b.xMax, c.x);
+				b.xMin = Math.min(b.xMin, c.x);
+	
+				b.yMax = Math.max(b.yMax, c.y);
+				b.yMin = Math.min(b.yMin, c.y);
+	
+				b.zMax = Math.max(b.zMax, c.z);
+				b.zMin = Math.min(b.zMin, c.z);
+	
+				double r = MathUtil.hypot(c.y, c.z);
+				b.rMax = Math.max(b.rMax, r);
+			}
+			b.xSize = b.xMax - b.xMin;
+			b.ySize = b.yMax - b.yMin;
+			b.zSize = b.zMax - b.zMin;
+			cachedBounds = b;
+			return b;
 		}
-		ret.xSize = ret.xMax - ret.xMin;
-		ret.ySize = ret.yMax - ret.yMin;
-		ret.zSize = ret.zMax - ret.zMin;
-		return ret;
 	}
 	
 	private void setupView(GL2 gl, GLU glu) {
@@ -503,6 +517,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	 */
 	public void updateFigure() {
 		log.debug("3D Figure Updated");
+		cachedBounds = null;
 		rr.updateFigure();
 		internalRepaint();
 	}
@@ -621,6 +636,15 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void addComponentSelectionListener(
 			ComponentSelectionListener newListener) {
 		this.csl = newListener;
+	}
+	
+	public void setType(int t){
+		if ( t == TYPE_FIGURE ){
+			rr.setRenderStrategy(new FigureRenderStrategy());
+		} else {
+			rr.setRenderStrategy(new RealisticRenderStrategy(document));
+		}
+		repaint();
 	}
 	
 }

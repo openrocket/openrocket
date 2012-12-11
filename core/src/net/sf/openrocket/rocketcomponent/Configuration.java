@@ -31,7 +31,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	private Rocket rocket;
 	private BitSet stages = new BitSet();
 	
-	private String motorConfiguration = null;
+	private String flightConfigurationId = null;
 	
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
@@ -87,6 +87,11 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		fireChangeEvent();
 	}
 	
+	public void setOnlyStage(int stage) {
+		stages.clear();
+		stages.set(stage, stage+1, true);
+		fireChangeEvent();
+	}
 	
 	/**
 	 * Check whether the up-most stage of the rocket is in this configuration.
@@ -163,21 +168,21 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	
-	public String getMotorConfigurationID() {
-		return motorConfiguration;
+	public String getFlightConfigurationID() {
+		return flightConfigurationId;
 	}
 	
-	public void setMotorConfigurationID(String id) {
-		if ((motorConfiguration == null && id == null) ||
-				(id != null && id.equals(motorConfiguration)))
+	public void setFlightConfigurationID(String id) {
+		if ((flightConfigurationId == null && id == null) ||
+				(id != null && id.equals(flightConfigurationId)))
 			return;
 		
-		motorConfiguration = id;
+		flightConfigurationId = id;
 		fireChangeEvent();
 	}
 	
-	public String getMotorConfigurationDescription() {
-		return rocket.getMotorConfigurationNameOrDescription(motorConfiguration);
+	public String getFlightConfigurationDescription() {
+		return rocket.getFlightConfigurationNameOrDescription(flightConfigurationId);
 	}
 	
 	
@@ -243,7 +248,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
 					continue;
-				if (mount.getMotor(this.motorConfiguration) != null) {
+				if (mount.getMotor(this.flightConfigurationId) != null) {
 					return true;
 				}
 			}
@@ -458,7 +463,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 				RocketComponent c = iterator.next();
 				if (c instanceof MotorMount) {
 					MotorMount mount = (MotorMount) c;
-					if (mount.isMotorMount() && mount.getMotor(motorConfiguration) != null) {
+					if (mount.isMotorMount() && mount.getMotor(flightConfigurationId) != null) {
 						next = mount;
 						return;
 					}
