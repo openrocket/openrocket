@@ -1253,12 +1253,6 @@ public class BasicFrame extends JFrame {
 		}
 		
 		
-		// Set document state
-		// FIXME: Why was these two lines removed by kruland?
-		//doc.setFile(file);
-		doc.setSaved(true);
-		
-		
 		// Open the frame
 		log.debug("Opening new frame with the document");
 		BasicFrame frame = new BasicFrame(doc);
