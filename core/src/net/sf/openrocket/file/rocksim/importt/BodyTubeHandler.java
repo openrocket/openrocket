@@ -98,7 +98,8 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
      *
      * @return BULK
      */
-    public Material.Type getMaterialType() {
+    @Override
+	public Material.Type getMaterialType() {
         return Material.Type.BULK;
     }
 }

@@ -60,7 +60,8 @@ public class ColorChooser extends JPanel {
         final JButton button = new JButton(COLOR_CHOOSER_BUTTON_LABEL);
 
         ActionListener actionListener = new ActionListener() {
-            public void actionPerformed (ActionEvent actionEvent) {
+            @Override
+			public void actionPerformed (ActionEvent actionEvent) {
                 chooser.updateUI();
 
                 final JDialog dialog = JColorChooser.createDialog(null,
@@ -71,7 +72,8 @@ public class ColorChooser extends JPanel {
                 // Wait until current event dispatching completes before showing
                 // dialog
                 Runnable showDialog = new Runnable() {
-                    public void run () {
+                    @Override
+					public void run () {
                         dialog.show();
                     }
                 };
@@ -84,7 +86,8 @@ public class ColorChooser extends JPanel {
         // Add listener on model to detect changes to selected color 
         ColorSelectionModel model = chooser.getSelectionModel();
         model.addChangeListener(new ChangeListener() {
-            public void stateChanged (ChangeEvent evt) {
+            @Override
+			public void stateChanged (ChangeEvent evt) {
                 ColorSelectionModel model = (ColorSelectionModel) evt.getSource();
                 // Get the new color value 
                 curColor = model.getSelectedColor();

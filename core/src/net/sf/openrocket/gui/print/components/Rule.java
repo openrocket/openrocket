@@ -43,7 +43,8 @@ public class Rule extends PrintableComponent {
      *
      * @param g the opaque graphics context
      */
-    public void paintComponent(Graphics g) {
+    @Override
+	public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
 
         double div = PrintUnit.INCHES.toPoints(1) / 8;  //1/8 inch increment

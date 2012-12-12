@@ -34,7 +34,8 @@ public final class MRUDesignFileAction extends JMenu {
         parent = theParent;
         MRUDesignFile opts = MRUDesignFile.getInstance();
         opts.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
+            @Override
+			public void propertyChange(PropertyChangeEvent evt) {
                 if (!evt.getPropertyName().equals(MRUDesignFile.MRU_FILE_LIST_PROPERTY)) {
                     return;
                 }
@@ -68,7 +69,8 @@ public final class MRUDesignFileAction extends JMenu {
      */
     private Action createAction(String file) {
         Action action = new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
+            @Override
+			public void actionPerformed(ActionEvent e) {
                 String command = e.getActionCommand();
                 if (BasicFrame.open(new File(command), parent)) {
                     MRUDesignFile.getInstance().addFile(command);

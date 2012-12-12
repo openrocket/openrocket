@@ -107,7 +107,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         add(scrollPane, "cell 0 0 6 1,grow");
 
         table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+            @Override
+			public void mouseClicked(MouseEvent e) {
                 JTable target = (JTable) e.getSource();
                 int selectedColumn = table.getColumnModel().getColumnIndexAtX(target.getSelectedColumn());
                 final int targetSelectedRow = target.getSelectedRow();
@@ -200,7 +201,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         JMenuItem mntmExit = new JMenuItem("Close");
         mnFile.add(mntmExit);
         mntmExit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
+            @Override
+			public void actionPerformed(ActionEvent arg0) {
                 Window w = SwingUtilities.getWindowAncestor(ComponentPresetEditor.this);
                 w.dispose();
             }
@@ -303,7 +305,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             associated.clear();
         }
 
-        public void removeRow(int row) {
+        @Override
+		public void removeRow(int row) {
             super.removeRow(row);
             associated.remove(row);
         }
@@ -312,7 +315,8 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             return associated.get(row);
         }
 
-        public boolean isCellEditable(int rowIndex, int mColIndex) {
+        @Override
+		public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
         }
     }
@@ -375,8 +379,9 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
             }
         }
         catch (Exception e) {
+            String fileName = (file == null) ? "(file is null, can't get name)" : file.getName();
             JOptionPane.showMessageDialog(ComponentPresetEditor.this, "Unable to open OpenRocket component file: " +
-                    file.getName() + " Invalid format. " + e.getMessage());
+                    fileName + " Invalid format. " + e.getMessage());
             editContext.setOpenedFile(null);
             editContext.setEditingSelected(false);
             return false;

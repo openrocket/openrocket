@@ -70,6 +70,7 @@ public class UndoRedoAction extends AbstractAction implements UndoRedoListener {
 	
 	
 	// Set all the values correctly (name and enabled/disabled status)
+	@Override
 	public void setAllValues() {
 		String name, desc;
 		boolean actionEnabled;

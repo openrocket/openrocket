@@ -279,7 +279,6 @@ public class InnerTube extends ThicknessRingComponent
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
-	@Deprecated
 	@Override
 	public int getMotorCount() {
 		return getClusterCount();

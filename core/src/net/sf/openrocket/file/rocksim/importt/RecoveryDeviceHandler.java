@@ -61,7 +61,8 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
      * @param rawDensity the density as specified in the Rocksim design file
      * @return a value in OpenRocket SURFACE density units
      */
-    protected double computeDensity(RocksimDensityType type, double rawDensity) {
+    @Override
+	protected double computeDensity(RocksimDensityType type, double rawDensity) {
 
         double result;
 

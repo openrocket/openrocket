@@ -113,7 +113,8 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
      *
      * @return a component
      */
-    public Parachute getComponent() {
+    @Override
+	public Parachute getComponent() {
         return chute;
     }
 

@@ -19,6 +19,7 @@ public interface MotorLoader extends Loader<Motor> {
 	 * @return				a list of motors contained in the file.
 	 * @throws IOException	if an I/O exception occurs of the file format is invalid.
 	 */
+	@Override
 	public List<Motor> load(InputStream stream, String filename) throws IOException;
 	
 }

@@ -148,16 +148,18 @@ public class ComponentIcons {
 			icons[0] = new ImageIcon(bi, desc);
 			
 			// Create disabled icon
-			if (false) { // Fade using alpha 
+			boolean useAlphaFade = false;  // eclipse complains about dead code path if we don't do this
+			if (useAlphaFade) { // Fade using alpha 
 			
-				int rgb[] = bi2.getRGB(0, 0, bi2.getWidth(), bi2.getHeight(), null, 0, bi2.getWidth());
-				for (int i = 0; i < rgb.length; i++) {
-					final int alpha = (rgb[i] >> 24) & 0xFF;
-					rgb[i] = (rgb[i] & 0xFFFFFF) | (alpha / 3) << 24;
-					
-					//rgb[i] = (rgb[i]&0xFFFFFF) | ((rgb[i]>>1)&0x3F000000);
-				}
-				bi2.setRGB(0, 0, bi2.getWidth(), bi2.getHeight(), rgb, 0, bi2.getWidth());
+				/** Commented out dead code; left in for future use TODO **/
+				// int rgb[] = bi2.getRGB(0, 0, bi2.getWidth(), bi2.getHeight(), null, 0, bi2.getWidth());
+				// for (int i = 0; i < rgb.length; i++) {
+				// 	final int alpha = (rgb[i] >> 24) & 0xFF;
+				// 	rgb[i] = (rgb[i] & 0xFFFFFF) | (alpha / 3) << 24;
+				// 	
+				// 	//rgb[i] = (rgb[i]&0xFFFFFF) | ((rgb[i]>>1)&0x3F000000);
+				// }
+				// bi2.setRGB(0, 0, bi2.getWidth(), bi2.getHeight(), rgb, 0, bi2.getWidth());
 				
 			} else { // Raster alpha
 			
