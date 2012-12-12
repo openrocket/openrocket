@@ -434,6 +434,10 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_OPEN);
 		menu.add(item);
 		
+		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), this);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
+		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
+		menu.add(item);
 		
 		//// Open example...
 		item = new JMenuItem(trans.get("main.menu.file.openExample"));
