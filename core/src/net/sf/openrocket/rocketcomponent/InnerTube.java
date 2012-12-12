@@ -280,7 +280,7 @@ public class InnerTube extends ThicknessRingComponent
 	}
 	
 	@Deprecated
-    @Override
+	@Override
 	public int getMotorCount() {
 		return getClusterCount();
 	}

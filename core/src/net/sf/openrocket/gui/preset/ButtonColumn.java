@@ -240,7 +240,7 @@ public class ButtonColumn extends AbstractCellEditor
     public void mouseClicked(MouseEvent e) {}
     
 	@Override
-	public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {}
     
 	@Override
 	public void mouseExited(MouseEvent e) {}
