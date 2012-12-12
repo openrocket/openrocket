@@ -37,6 +37,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	// TODO: MEDIUM: Allow selecting steppers
 	private SimulationStepper flightStepper = new RK4SimulationStepper();
 	private SimulationStepper landingStepper = new BasicLandingStepper();
+	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
 
 	private SimulationStepper currentStepper;
 
@@ -190,6 +191,20 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
 								(RocketComponent) status.getMotorConfiguration().getMotorMount(motorId), motorId));
 					}
+				}
+				
+				// Check for Tumbling
+				// FIXME - need to test things like no longer stable.
+
+				if (status.isApogeeReached() && !status.isTumbling() ) {
+					int last_data_index = status.getFlightData().getLength() -1;
+					double cp = status.getFlightData().get(FlightDataType.TYPE_CP_LOCATION).get(last_data_index);
+					double cg = status.getFlightData().get(FlightDataType.TYPE_CG_LOCATION).get(last_data_index);
+					if( cg > cp ) {
+						addEvent( new FlightEvent(FlightEvent.Type.TUMBLE,status.getSimulationTime()));
+					}
+					status.setTumbling(true);
+
 				}
 
 			}
@@ -478,6 +493,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 
 			case ALTITUDE:
+				break;
+				
+			case TUMBLE:
+				this.currentStepper = this.tumbleStepper;
+				this.status = currentStepper.initialize(status);
+				status.getFlightData().addEvent(event);
 				break;
 			}
 

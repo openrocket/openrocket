@@ -69,6 +69,9 @@ public class SimulationStatus implements Monitorable {
 	/** Set to true when apogee has been detected. */
 	private boolean apogeeReached = false;
 	
+	/** Set to true to indicate the rocket is tumbling. */
+	private boolean tumbling = false;
+	
 	/** Contains a list of deployed recovery devices. */
 	private MonitorableSet<RecoveryDevice> deployedRecoveryDevices = new MonitorableSet<RecoveryDevice>();
 	
@@ -179,6 +182,7 @@ public class SimulationStatus implements Monitorable {
 		this.liftoff = orig.liftoff;
 		this.launchRodCleared = orig.launchRodCleared;
 		this.apogeeReached = orig.apogeeReached;
+		this.tumbling = orig.tumbling;
 		this.motorBurntOut = orig.motorBurntOut;
 		
 		this.deployedRecoveryDevices.clear();
@@ -379,6 +383,15 @@ public class SimulationStatus implements Monitorable {
 		return apogeeReached;
 	}
 	
+	
+	public void setTumbling( boolean tumbling ) {
+		this.tumbling = tumbling;
+		this.modID++;
+	}
+	
+	public boolean isTumbling() {
+		return tumbling;
+	}
 	
 	public Set<RecoveryDevice> getDeployedRecoveryDevices() {
 		return deployedRecoveryDevices;

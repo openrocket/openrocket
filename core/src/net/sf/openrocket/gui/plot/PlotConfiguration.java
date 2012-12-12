@@ -37,6 +37,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Total motion vs. time
@@ -50,6 +51,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Flight side profile
@@ -61,6 +63,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Stability vs. time
@@ -74,6 +77,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Drag coefficients vs. Mach number
@@ -98,6 +102,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Angle of attack and orientation vs. time
@@ -111,6 +116,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Simulation time step and computation time
@@ -123,6 +129,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		DEFAULT_CONFIGURATIONS = configs.toArray(new PlotConfiguration[0]);
