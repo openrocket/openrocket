@@ -419,7 +419,6 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object getContent(Class[] classes) throws IOException {
 		throw new UnsupportedOperationException();
