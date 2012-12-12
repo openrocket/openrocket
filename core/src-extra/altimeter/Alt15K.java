@@ -40,7 +40,6 @@ public class Alt15K {
 	
 	
 
-	@SuppressWarnings("unchecked")
 	public static String[] getNames() {
 		ArrayList<String> list = new ArrayList<String>();;
 		
@@ -57,7 +56,6 @@ public class Alt15K {
 
 	
 
-	@SuppressWarnings("unchecked")
 	public Alt15K(String name) throws IOException {
 		CommPortIdentifier pID = null;
 		
