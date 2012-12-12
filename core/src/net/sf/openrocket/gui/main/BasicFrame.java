@@ -433,7 +433,9 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrecentrocketdesign"));
 		item.setIcon(Icons.FILE_OPEN);
 		menu.add(item);
-		
+
+		// FIXME - one of these two example menu items needs to be removed.
+		//// Open example...
 		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), this);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
 		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
