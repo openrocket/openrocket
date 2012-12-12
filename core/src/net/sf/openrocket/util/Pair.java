@@ -31,7 +31,6 @@ public class Pair<U,V> {
 	 * Compare both components of the Pair to another object.
 	 * The pair is equal iff both items are equal (or null).
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof Pair))

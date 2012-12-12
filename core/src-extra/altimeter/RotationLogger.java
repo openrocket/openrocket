@@ -34,7 +34,6 @@ public class RotationLogger {
 	
 	
 
-	@SuppressWarnings("unchecked")
 	public static String[] getNames() {
 		ArrayList<String> list = new ArrayList<String>();;
 		
@@ -53,7 +52,6 @@ public class RotationLogger {
 	
 	
 
-	@SuppressWarnings("unchecked")
 	public RotationLogger(String name) throws IOException {
 		CommPortIdentifier portID = null;
 		
