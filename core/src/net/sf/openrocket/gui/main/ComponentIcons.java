@@ -148,10 +148,14 @@ public class ComponentIcons {
 			icons[0] = new ImageIcon(bi, desc);
 			
 			// Create disabled icon
-			boolean useAlphaFade = false;  // eclipse complains about dead code path if we don't do this
+			boolean useAlphaFade = false;  // don't use fade to alpha yet
 			if (useAlphaFade) { // Fade using alpha 
 			
-				/** Commented out dead code; left in for future use TODO **/
+				/* TODO This code to do fade using alpha had been dead code inside a "if (false) {" block.
+				 * Eclipse would give a build warning about dead code, so this code has been commented out 
+				 * but left here for future use; am assuming it was dead code because it wasn't working correctly
+				 * but that it will be useful in the future.
+				 */
 				// int rgb[] = bi2.getRGB(0, 0, bi2.getWidth(), bi2.getHeight(), null, 0, bi2.getWidth());
 				// for (int i = 0; i < rgb.length; i++) {
 				// 	final int alpha = (rgb[i] >> 24) & 0xFF;

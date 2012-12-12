@@ -99,7 +99,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
      * @return BULK
      */
     @Override
-	public Material.Type getMaterialType() {
+    public Material.Type getMaterialType() {
         return Material.Type.BULK;
     }
 }

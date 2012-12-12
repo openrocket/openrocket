@@ -219,7 +219,7 @@ public class ButtonColumn extends AbstractCellEditor
 	 *  active. Make sure editing is stopped when the mouse is released.
 	 */
     @Override
-	public void mousePressed(MouseEvent e)
+    public void mousePressed(MouseEvent e)
     {
     	if (table.isEditing()
 		&&  table.getCellEditor() == this)
@@ -227,7 +227,7 @@ public class ButtonColumn extends AbstractCellEditor
     }
 
     @Override
-	public void mouseReleased(MouseEvent e)
+    public void mouseReleased(MouseEvent e)
     {
     	if (isButtonColumnEditor
     	&&  table.isEditing())
@@ -237,7 +237,7 @@ public class ButtonColumn extends AbstractCellEditor
     }
 
     @Override
-	public void mouseClicked(MouseEvent e) {}
+    public void mouseClicked(MouseEvent e) {}
     
 	@Override
 	public void mouseEntered(MouseEvent e) {}

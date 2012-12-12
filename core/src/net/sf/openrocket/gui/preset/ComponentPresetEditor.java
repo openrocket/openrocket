@@ -108,7 +108,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 
         table.addMouseListener(new MouseAdapter() {
             @Override
-			public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 JTable target = (JTable) e.getSource();
                 int selectedColumn = table.getColumnModel().getColumnIndexAtX(target.getSelectedColumn());
                 final int targetSelectedRow = target.getSelectedRow();
@@ -202,7 +202,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         mnFile.add(mntmExit);
         mntmExit.addActionListener(new ActionListener() {
             @Override
-			public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent arg0) {
                 Window w = SwingUtilities.getWindowAncestor(ComponentPresetEditor.this);
                 w.dispose();
             }
@@ -306,7 +306,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         }
 
         @Override
-		public void removeRow(int row) {
+        public void removeRow(int row) {
             super.removeRow(row);
             associated.remove(row);
         }
@@ -316,7 +316,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         }
 
         @Override
-		public boolean isCellEditable(int rowIndex, int mColIndex) {
+        public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
         }
     }

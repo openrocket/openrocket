@@ -61,7 +61,7 @@ public class ColorChooser extends JPanel {
 
         ActionListener actionListener = new ActionListener() {
             @Override
-			public void actionPerformed (ActionEvent actionEvent) {
+            public void actionPerformed (ActionEvent actionEvent) {
                 chooser.updateUI();
 
                 final JDialog dialog = JColorChooser.createDialog(null,
@@ -73,7 +73,7 @@ public class ColorChooser extends JPanel {
                 // dialog
                 Runnable showDialog = new Runnable() {
                     @Override
-					public void run () {
+                    public void run () {
                         dialog.show();
                     }
                 };
@@ -87,7 +87,7 @@ public class ColorChooser extends JPanel {
         ColorSelectionModel model = chooser.getSelectionModel();
         model.addChangeListener(new ChangeListener() {
             @Override
-			public void stateChanged (ChangeEvent evt) {
+            public void stateChanged (ChangeEvent evt) {
                 ColorSelectionModel model = (ColorSelectionModel) evt.getSource();
                 // Get the new color value 
                 curColor = model.getSelectedColor();

@@ -26,7 +26,7 @@ public class ImagePreviewPanel extends JPanel
     }
 
     @Override
-	public void propertyChange(PropertyChangeEvent e) {
+    public void propertyChange(PropertyChangeEvent e) {
         String propertyName = e.getPropertyName();
 
         // Make sure we are responding to the right event.
@@ -44,17 +44,17 @@ public class ImagePreviewPanel extends JPanel
              * handle so we don't try to draw something silly.
              */
             if (name != null) {
-            	String nameLower = name.toLowerCase();
-            	if (nameLower.endsWith(".jpg")  || 
+                String nameLower = name.toLowerCase();
+                if (nameLower.endsWith(".jpg")  || 
                     nameLower.endsWith(".jpeg") ||
                     nameLower.endsWith(".gif")  ||
                     nameLower.endsWith(".png")) {
-            		
-            		icon = new ImageIcon(name);
-            		image = icon.getImage();
-            		scaleImage();
-            		repaint();
-            	}
+
+                    icon = new ImageIcon(name);
+                    image = icon.getImage();
+                    scaleImage();
+                    repaint();
+                }
             }
         }
     }
@@ -91,7 +91,7 @@ public class ImagePreviewPanel extends JPanel
     }
 
     @Override
-	public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) {
         g.setColor(bg);
 
         /*
