@@ -18,27 +18,27 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
 public class ExportDecalDialog extends JDialog {
 
+	private final static Translator trans = Application.getTranslator();
+	
 	private final OpenRocketDocument document;
 
 	private JComboBox decalComboBox;
 
-
 	public ExportDecalDialog(Window parent,OpenRocketDocument doc) {
-		// FIXME i18n
-		// FIXME add buttons.
-		super(parent, "title", ModalityType.APPLICATION_MODAL);
+		super(parent, trans.get("ExportDecalDialog.title"), ModalityType.APPLICATION_MODAL);
 
 		this.document = doc;
 
 		JPanel panel = new JPanel(new MigLayout());
 
 		//// decal list
-		JLabel label = new JLabel("Decal");
+		JLabel label = new JLabel(trans.get("ExportDecalDialog.decalList.lbl"));
 		panel.add(label);
 
 		Set<String> allDecals = document.getDecalList();
