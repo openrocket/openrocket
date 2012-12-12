@@ -37,6 +37,8 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.GeneralUnit;
+import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
@@ -45,6 +47,23 @@ public class AppearancePanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
 	private AppearanceBuilder ab;
+	
+	private final static UnitGroup UNIT_FOR_SCALES = new UnitGroup();
+	static {
+		Unit no_unit = new GeneralUnit(1,"",2) {
+			@Override
+			public double getNextValue(double value) {
+				return value+.1;
+			}
+
+			@Override
+			public double getPreviousValue(double value) {
+				return value-.1;
+			}
+
+		};
+		UNIT_FOR_SCALES.addUnit(no_unit);
+	}
 
 	private static final JColorChooser colorChooser = new JColorChooser();
 	
@@ -232,13 +251,13 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
 
 			add(new JLabel("x:"), "split 4");
-			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleU").getSpinnerModel());
+			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleU",UNIT_FOR_SCALES).getSpinnerModel());
 			scaleU.setEditor(new SpinnerEditor(scaleU));
 			mDefault.addEnableComponent(scaleU, false);
 			add(scaleU, "w 40");
 
 			add(new JLabel("y:"));
-			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleV").getSpinnerModel());
+			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleV",UNIT_FOR_SCALES).getSpinnerModel());
 			scaleV.setEditor(new SpinnerEditor(scaleV));
 			mDefault.addEnableComponent(scaleV, false);
 			add(scaleV, "wrap, w 40");
