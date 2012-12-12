@@ -90,7 +90,9 @@ public class PageFitPrintStrategy {
 
         Collections.sort(componentToPrint);
 
-    	while (componentToPrint.size() > 0) {
+        boolean somethingPrinted = true;
+    	while (componentToPrint.size() > 0 && somethingPrinted) {
+    		somethingPrinted = false;
     		int pageY = marginY;
     		Boolean anyAddedToRow;
 
@@ -113,6 +115,7 @@ public class PageFitPrintStrategy {
 		        			pageY = rowY + dim.height + marginY;
                         }
 		        		entry.remove();
+		        		somethingPrinted = true;
 		        		component.print(g2);
 		        		anyAddedToRow = true;
 		        	}
@@ -121,7 +124,21 @@ public class PageFitPrintStrategy {
     		} while (anyAddedToRow);
 
         	g2.dispose();
-        	document.newPage();
+        	if ( somethingPrinted ) {
+        		document.newPage();
+        	}
+    	}
+    	
+    	// Now print the big things.
+    	if ( componentToPrint.size() > 0 ) {
+        	ListIterator<PrintableComponent> entry = componentToPrint.listIterator();
+        	while( entry.hasNext() ) {
+	        	PrintableComponent component = entry.next();
+        		Graphics2D g2 = cb.createGraphics(pageSize.width, pageSize.height);
+        		component.print(g2);
+        		g2.dispose();
+        		document.newPage();
+        	}
     	}
     }
 
