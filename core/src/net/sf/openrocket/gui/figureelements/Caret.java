@@ -29,6 +29,7 @@ public abstract class Caret implements FigureElement {
 	/**
 	 * Paints the caret to the Graphics2D element.
 	 */
+	@Override
 	public void paint(Graphics2D g2, double scale) {
 		Area caret = getCaret();
 		AffineTransform t = new AffineTransform(1.0/scale, 0, 0, 1.0/scale, x, y);
@@ -39,6 +40,7 @@ public abstract class Caret implements FigureElement {
 	}
 
 	
+	@Override
 	public void paint(Graphics2D g2, double scale, Rectangle visible) {
 		throw new UnsupportedOperationException("paint() with rectangle unsupported.");
 	}

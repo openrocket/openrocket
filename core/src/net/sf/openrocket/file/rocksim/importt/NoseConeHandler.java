@@ -147,6 +147,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
      *
      * @return BULK
      */
+    @Override
     public Material.Type getMaterialType() {
         return Material.Type.BULK;
     }

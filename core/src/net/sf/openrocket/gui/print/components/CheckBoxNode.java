@@ -71,6 +71,7 @@ public class CheckBoxNode {
      * 
      * @return  the text label
      */
+    @Override
     public String toString () {
         return text;
     }
