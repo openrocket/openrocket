@@ -13,6 +13,7 @@ public abstract class InterpolatingAtmosphericModel implements AtmosphericModel 
 	private AtmosphericConditions[] levels = null;
 	
 	
+	@Override
 	public AtmosphericConditions getConditions(double altitude) {
 		if (levels == null)
 			computeLayers();

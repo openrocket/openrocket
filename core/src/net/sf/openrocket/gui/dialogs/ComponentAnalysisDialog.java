@@ -461,6 +461,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		//Close button
 		button = new JButton(trans.get("dlg.but.close"));
 		button.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				ComponentAnalysisDialog.this.dispose();
 			}

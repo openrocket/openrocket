@@ -26,6 +26,7 @@ public class DampingMoment extends AbstractSimulationListener {
 	private static final FlightDataType type = FlightDataType.getType("Damping moment coefficient", "Cdm", UnitGroup.UNITS_COEFFICIENT);
 	private static final FlightDataType[] typeList = {type};
 	
+	@Override
 	public String getName(){
 		return "Damping moment listener";
 	}
@@ -33,6 +34,7 @@ public class DampingMoment extends AbstractSimulationListener {
 	/**
 	 * Return a list of any flight data types this listener creates.
 	 */
+	@Override
 	public FlightDataType[] getFlightDataTypes(){
 		return typeList;
 	}

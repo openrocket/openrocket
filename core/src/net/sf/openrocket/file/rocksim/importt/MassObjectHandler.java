@@ -187,6 +187,7 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
      *
      * @param position the OpenRocket position
      */
+    @Override
     public void setRelativePosition(RocketComponent.Position position) {
         current.setRelativePosition(position);
     }
