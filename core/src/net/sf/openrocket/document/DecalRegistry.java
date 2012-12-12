@@ -25,7 +25,7 @@ public class DecalRegistry {
 
 	private Map<String,File> exportedDecalMap = new HashMap<String,File>();
 	
-	/* FIXME - Caching ?
+	/* TODO - should we implement caching?
 	private Map<String,byte[]> cache = new HashMap<String,byte[]>();
 	 */
 
@@ -71,7 +71,8 @@ public class DecalRegistry {
 	 * @throws IOException
 	 */
 	public InputStream getDecal( String name ) throws FileNotFoundException, IOException {
-		/* FIXME - Caching?
+		/* TODO
+		// if the decal has already been cached return it.
 		byte[] bytes = cache.get(name);
 		if ( bytes != null ) {
 			return new ByteArrayInputStream(bytes);
@@ -122,7 +123,7 @@ public class DecalRegistry {
 
 		try {
 			byte[] bytes = FileUtils.readBytes(rawIs);
-			// FIXME - update cache;
+			// TODO - here we would update the cache.
 			return new ByteArrayInputStream(bytes);
 		}
 		finally {
