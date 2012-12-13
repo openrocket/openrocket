@@ -497,8 +497,8 @@ public class BasicFrame extends JFrame {
 		
 		
 		//// Export decal...
-		// FIXME: Localize
-		item = new JMenuItem("Export Decal");
+		item = new JMenuItem(trans.get("main.menu.file.exportDecal"));
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportDecal.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
