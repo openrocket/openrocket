@@ -124,12 +124,14 @@ public class StorageOptionChooser extends JPanel {
 		this.add(noneButton, "spanx, wrap 20lp");
 		
 		//// Save decals
+		// FIXME - should we hide this if there are no decals?
 		decalButton = new JCheckBox(trans.get("StorageOptChooser.checkbox.IncludeDecals"));
 		decalButton.setToolTipText(trans.get("StorageOptChooser.lbl.IncludeDecals"));
 		decalButton.addActionListener(actionUpdater);
 		this.add(decalButton, "spanx, wrap para");
 		
 		//// Compress file
+		// FIXME - if the user selects save decals, should we automatically select compress file?
 		compressButton = new JCheckBox(trans.get("StorageOptChooser.checkbox.Compfile"));
 		//// Using compression reduces the file size significantly.
 		compressButton.setToolTipText(trans.get("StorageOptChooser.lbl.UsingComp"));
