@@ -266,8 +266,7 @@ public class GeneralRocketSaver {
 		try {
 
 
-			// Fixme - should probably be the same name?  Should we put everything in a directory?
-			ZipEntry mainFile = new ZipEntry("rocket.ork");
+			ZipEntry mainFile = new ZipEntry(fileName);
 			zos.putNextEntry(mainFile);
 			saveInternal(zos,document,options);
 			zos.closeEntry();
