@@ -32,7 +32,6 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Utils;
 
 /**
@@ -314,9 +313,6 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(button, "right");
 		
-		
-		// FIXME - add list & check boxes for data branches.
-
 		updatePlots();
 	}
 	

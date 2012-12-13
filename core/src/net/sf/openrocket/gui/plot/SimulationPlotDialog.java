@@ -7,6 +7,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -111,11 +112,10 @@ public class SimulationPlotDialog extends JDialog {
 		
 		//// Add series selection box
 		//// FIXME
-		List<String> stages = new ArrayList<String>();
+		ArrayList<String> stages = new ArrayList<String>();
 		stages.add("All");
-		for (int i = 0; i < simulation.getSimulatedData().getBranchCount(); i++) {
-			stages.add(simulation.getSimulatedData().getBranch(i).getBranchName() + " (" + i + ")");
-		}
+		stages.addAll( Util.generateSeriesLabels(simulation));
+
 		final JComboBox stageSelection = new JComboBox(stages.toArray(new String[0]));
 		stageSelection.addItemListener(new ItemListener() {
 			

@@ -132,12 +132,13 @@ public class SimulationPlot {
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
 
+			List<String> seriesNames = Util.generateSeriesLabels(simulation);
 			for( int branchIndex=0; branchIndex<branchCount; branchIndex++ ) {
 				FlightDataBranch thisBranch = simulation.getSimulatedData().getBranch(branchIndex);
 				// Store data in provided units
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
-				XYSeries series = new XYSeries(thisBranch.getBranchName() + " (" + branchIndex+"): " + name, false, true);
+				XYSeries series = new XYSeries(seriesNames.get(branchIndex) + ": " + name, false, true);
 				series.setDescription(thisBranch.getBranchName()+": " + name);
 				int pointCount = plotx.size();
 				for (int j = 0; j < pointCount; j++) {
