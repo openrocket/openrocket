@@ -111,7 +111,6 @@ public class SimulationPlotDialog extends JDialog {
 		panel.add(button, "gapleft rel");
 		
 		//// Add series selection box
-		//// FIXME
 		ArrayList<String> stages = new ArrayList<String>();
 		stages.add("All");
 		stages.addAll( Util.generateSeriesLabels(simulation));
