@@ -24,10 +24,15 @@ public abstract class TextFieldListener implements ActionListener, FocusListener
 
 	public abstract void setText(String text);
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		setText(field.getText());
 	}
+	
+	@Override
 	public void focusGained(FocusEvent e) { }
+	
+	@Override
 	public void focusLost(FocusEvent e) {
 		setText(field.getText());
 	}

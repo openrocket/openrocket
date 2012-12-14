@@ -67,5 +67,6 @@ public interface SimulationComputationListener extends SimulationListener {
 	
 	public double postSimpleThrustCalculation(SimulationStatus status, double thrust) throws SimulationException;
 
+	@Override
 	public FlightDataType[] getFlightDataTypes();
 }

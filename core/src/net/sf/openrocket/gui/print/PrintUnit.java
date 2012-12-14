@@ -8,52 +8,52 @@ package net.sf.openrocket.gui.print;
  */
 public enum PrintUnit {
     FOOT {
-        public double toInches(double d) { return d*12; }
-        public double toMillis(double d) { return d/FEET_PER_MM; }
-        public double toCentis(double d) { return d/(FEET_PER_MM*TEN); }
-        public double toMeters(double d) { return d/(FEET_PER_MM*TEN*TEN*TEN); }
-        public double toPoints(double d) { return (d * POINTS_PER_INCH * 12); }
-        public double convert(double d, PrintUnit u) { return u.toInches(d)/12; }
+        @Override public double toInches(double d) { return d*12; }
+        @Override public double toMillis(double d) { return d/FEET_PER_MM; }
+        @Override public double toCentis(double d) { return d/(FEET_PER_MM*TEN); }
+        @Override public double toMeters(double d) { return d/(FEET_PER_MM*TEN*TEN*TEN); }
+        @Override public double toPoints(double d) { return (d * POINTS_PER_INCH * 12); }
+        @Override public double convert(double d, PrintUnit u) { return u.toInches(d)/12; }
     },
     INCHES {
-        public double toInches(double d) { return d; }
-        public double toMillis(double d) { return d/INCHES_PER_MM; }
-        public double toCentis(double d) { return d/(INCHES_PER_MM*TEN); }
-        public double toMeters(double d) { return d/(INCHES_PER_MM*TEN*TEN*TEN); }
-        public double toPoints(double d) { return (d * POINTS_PER_INCH); }
-        public double convert(double d, PrintUnit u) { return u.toInches(d); }
+        @Override public double toInches(double d) { return d; }
+        @Override public double toMillis(double d) { return d/INCHES_PER_MM; }
+        @Override public double toCentis(double d) { return d/(INCHES_PER_MM*TEN); }
+        @Override public double toMeters(double d) { return d/(INCHES_PER_MM*TEN*TEN*TEN); }
+        @Override public double toPoints(double d) { return (d * POINTS_PER_INCH); }
+        @Override public double convert(double d, PrintUnit u) { return u.toInches(d); }
     },
     MILLIMETERS {
-        public double toInches(double d) { return d * INCHES_PER_MM; }
-        public double toMillis(double d) { return d; }
-        public double toCentis(double d) { return d/TEN; }
-        public double toMeters(double d) { return d/(TEN*TEN*TEN); }
-        public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
-        public double convert(double d, PrintUnit u) { return u.toMillis(d); }
+        @Override public double toInches(double d) { return d * INCHES_PER_MM; }
+        @Override public double toMillis(double d) { return d; }
+        @Override public double toCentis(double d) { return d/TEN; }
+        @Override public double toMeters(double d) { return d/(TEN*TEN*TEN); }
+        @Override public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
+        @Override public double convert(double d, PrintUnit u) { return u.toMillis(d); }
     },
     CENTIMETERS {
-        public double toInches(double d) { return d * INCHES_PER_MM * TEN; }
-        public double toMillis(double d) { return d * TEN; }
-        public double toCentis(double d) { return d; }
-        public double toMeters(double d) { return d/(TEN*TEN); }
-        public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
-        public double convert(double d, PrintUnit u) { return u.toCentis(d); }
+        @Override public double toInches(double d) { return d * INCHES_PER_MM * TEN; }
+        @Override public double toMillis(double d) { return d * TEN; }
+        @Override public double toCentis(double d) { return d; }
+        @Override public double toMeters(double d) { return d/(TEN*TEN); }
+        @Override public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
+        @Override public double convert(double d, PrintUnit u) { return u.toCentis(d); }
     },
     METERS {
-        public double toInches(double d) { return d * INCHES_PER_MM * TEN * TEN * TEN; }
-        public double toMillis(double d) { return d * TEN * TEN * TEN; }
-        public double toCentis(double d) { return d * TEN * TEN; }
-        public double toMeters(double d) { return d; }
-        public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
-        public double convert(double d, PrintUnit u) { return u.toMeters(d); }
+        @Override public double toInches(double d) { return d * INCHES_PER_MM * TEN * TEN * TEN; }
+        @Override public double toMillis(double d) { return d * TEN * TEN * TEN; }
+        @Override public double toCentis(double d) { return d * TEN * TEN; }
+        @Override public double toMeters(double d) { return d; }
+        @Override public double toPoints(double d) { return INCHES.toPoints(toInches(d)); }
+        @Override public double convert(double d, PrintUnit u) { return u.toMeters(d); }
     },
     POINTS {
-        public double toInches(double d) { return d/POINTS_PER_INCH; }
-        public double toMillis(double d) { return d/(POINTS_PER_INCH * INCHES_PER_MM); }
-        public double toCentis(double d) { return toMillis(d)/TEN; }
-        public double toMeters(double d) { return toMillis(d)/(TEN*TEN*TEN); }
-        public double toPoints(double d) { return d; }
-        public double convert(double d, PrintUnit u) { return u.toPoints(d); }
+        @Override public double toInches(double d) { return d/POINTS_PER_INCH; }
+        @Override public double toMillis(double d) { return d/(POINTS_PER_INCH * INCHES_PER_MM); }
+        @Override public double toCentis(double d) { return toMillis(d)/TEN; }
+        @Override public double toMeters(double d) { return toMillis(d)/(TEN*TEN*TEN); }
+        @Override public double toPoints(double d) { return d; }
+        @Override public double convert(double d, PrintUnit u) { return u.toPoints(d); }
     };
 
     // Handy constants for conversion methods
