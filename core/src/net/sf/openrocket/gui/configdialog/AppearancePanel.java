@@ -249,7 +249,7 @@ public class AppearancePanel extends JPanel {
 		}*/
 		
 		{ // Color
-			add(new JLabel("Color"));
+			add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
 			mDefault.addEnableComponent(colorButton, false);
 			add(colorButton);
 		}
