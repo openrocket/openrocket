@@ -121,10 +121,6 @@ public class AppearancePanel extends JPanel {
 		}
 		final JButton figureColorButton = new JButton(new ColorIcon(figureColor));
 		
-		/*final JButton diffuseColorButton = new JButton(new ColorIcon(ab.getDiffuse()));
-		final JButton ambientColorButton = new JButton(new ColorIcon(ab.getAmbient()));
-		final JButton specularColorButton = new JButton(new ColorIcon(ab.getSpecular()));*/
-		
 		final JButton colorButton = new JButton(new ColorIcon(ab.getAmbient()));
 
 		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
@@ -133,9 +129,6 @@ public class AppearancePanel extends JPanel {
 			@Override
 			public void stateChanged(EventObject e) {
 				figureColorButton.setIcon(new ColorIcon(c.getColor()));
-				/*diffuseColorButton.setIcon(new ColorIcon(ab.getDiffuse()));
-				ambientColorButton.setIcon(new ColorIcon(ab.getAmbient()));
-				specularColorButton.setIcon(new ColorIcon(ab.getSpecular()));*/
 				colorButton.setIcon(new ColorIcon(ab.getColor()));
 				c.setAppearance(ab.getAppearance());
 			}
@@ -154,9 +147,6 @@ public class AppearancePanel extends JPanel {
 
 		figureColorButton.addActionListener(new ColorActionListener(c, "Color"));
 		colorButton.addActionListener(new ColorActionListener(ab, "Color"));
-		/*diffuseColorButton.addActionListener(new ColorActionListener(ab, "Diffuse"));
-		ambientColorButton.addActionListener(new ColorActionListener(ab, "Ambient"));
-		specularColorButton.addActionListener(new ColorActionListener(ab, "Specular"));*/
 
 		BooleanModel mDefault = new BooleanModel(c.getAppearance() == null);
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
@@ -245,12 +235,6 @@ public class AppearancePanel extends JPanel {
 			p.add(textureDropDown, "grow");
 			add(p, "span 3, growx, wrap");
 		}
-
-		/*{ // Diffuse
-			add(new JLabel(trans.get("AppearanceCfg.lbl.color.diffuse")));
-			mDefault.addEnableComponent(diffuseColorButton, false);
-			add(diffuseColorButton);
-		}*/
 		
 		{ // Color
 			add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
