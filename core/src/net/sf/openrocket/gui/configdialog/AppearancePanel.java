@@ -270,7 +270,7 @@ public class AppearancePanel extends JPanel {
 			add(scaleV, "wrap, w 40");
 		}
 		
-		{// Placeholder
+		{// Shine
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
 			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
@@ -279,7 +279,7 @@ public class AppearancePanel extends JPanel {
 			mDefault.addEnableComponent(spin, false);
 			
 			add(spin, "split 2, w 50");
-			add(slide, "w 100");
+			add(slide, "w 50");
 		}
 
 
@@ -319,7 +319,7 @@ public class AppearancePanel extends JPanel {
 			add(new UnitSelector(rotationModel));
 			BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(-Math.PI, Math.PI));
 			mDefault.addEnableComponent(bs, false);
-			add(bs, "w 100, wrap");
+			add(bs, "w 50, wrap");
 		}
 
 
