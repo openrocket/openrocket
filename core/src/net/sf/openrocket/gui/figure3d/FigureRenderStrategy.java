@@ -5,6 +5,7 @@ import java.util.HashMap;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -97,7 +98,29 @@ public class FigureRenderStrategy extends RenderStrategy {
 
 	}
 	
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		GL2 gl = drawable.getGL().getGL2();
+		
+		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
+                new float[] { 0,0,0 }, 0);
 
+		float amb = 0.3f;
+		float dif = 1.0f - amb;
+		float spc = 1.0f;
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
+				new float[] { amb, amb, amb, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
+				new float[] { dif, dif, dif, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
+				new float[] { spc, spc, spc, 1 }, 0);
+
+		gl.glEnable(GLLightingFunc.GL_LIGHT1);
+		gl.glEnable(GLLightingFunc.GL_LIGHTING);
+		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
+
+		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+	}
 	
 	private static int getShine(RocketComponent c) {
 		if (c instanceof ExternalComponent) {

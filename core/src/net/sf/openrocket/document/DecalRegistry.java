@@ -15,10 +15,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.sf.openrocket.file.FileInfo;
+import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.FileUtils;
 
 public class DecalRegistry {
+	private static LogHelper log = Application.getLogger();
 
 	private FileInfo fileInfo;
 	private boolean isZipFile = false;
@@ -105,7 +108,12 @@ public class DecalRegistry {
 		if ( rawIs == null ) {
 			File decal = new File(name);
 			if ( decal.isAbsolute() ) {
-				rawIs = new FileInputStream(decal);
+				try {
+					rawIs = new FileInputStream(decal);
+				} catch ( FileNotFoundException e ){
+					name = decal.getName();
+					log.debug("Unable to find absolute file" + decal + ", falling back to " + name);
+				}
 			}
 		}
 
