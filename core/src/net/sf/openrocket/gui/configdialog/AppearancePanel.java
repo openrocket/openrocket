@@ -49,7 +49,11 @@ public class AppearancePanel extends JPanel {
 
 	private SimpleAppearanceBuilder ab;
 	
-	private final static UnitGroup UNIT_FOR_SCALES = new UnitGroup();
+	/**
+	 * A non-unit that adjusts by a small amount, suitable for
+	 * values that are on the 0-1 scale
+	 */
+	private final static UnitGroup TEXTURE_UNIT = new UnitGroup();
 	static {
 		Unit no_unit = new GeneralUnit(1,"",2) {
 			@Override
@@ -63,7 +67,7 @@ public class AppearancePanel extends JPanel {
 			}
 
 		};
-		UNIT_FOR_SCALES.addUnit(no_unit);
+		TEXTURE_UNIT.addUnit(no_unit);
 	}
 
 	private static final JColorChooser colorChooser = new JColorChooser();
@@ -258,13 +262,13 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
 
 			add(new JLabel("x:"), "split 4");
-			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX",UNIT_FOR_SCALES).getSpinnerModel());
+			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX", TEXTURE_UNIT).getSpinnerModel());
 			scaleU.setEditor(new SpinnerEditor(scaleU));
 			mDefault.addEnableComponent(scaleU, false);
 			add(scaleU, "w 40");
 
 			add(new JLabel("y:"));
-			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY",UNIT_FOR_SCALES).getSpinnerModel());
+			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY", TEXTURE_UNIT).getSpinnerModel());
 			scaleV.setEditor(new SpinnerEditor(scaleV));
 			mDefault.addEnableComponent(scaleV, false);
 			add(scaleV, "wrap, w 40");
@@ -287,13 +291,13 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
 
 			add(new JLabel("x:"), "split 4");
-			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU").getSpinnerModel());
+			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU", TEXTURE_UNIT).getSpinnerModel());
 			offsetU.setEditor(new SpinnerEditor(offsetU));
 			mDefault.addEnableComponent(offsetU, false);
 			add(offsetU, "w 40");
 
 			add(new JLabel("y:"));
-			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV").getSpinnerModel());
+			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV", TEXTURE_UNIT).getSpinnerModel());
 			offsetV.setEditor(new SpinnerEditor(offsetV));
 			mDefault.addEnableComponent(offsetV, false);
 			add(offsetV, "wrap, w 40");
