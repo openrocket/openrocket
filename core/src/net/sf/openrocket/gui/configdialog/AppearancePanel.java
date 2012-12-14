@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -18,8 +17,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
@@ -30,6 +27,7 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DecalModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
+import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -274,16 +272,14 @@ public class AppearancePanel extends JPanel {
 		
 		{// Placeholder
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
-			JSlider shine = new JSlider(new DefaultBoundedRangeModel(ab.getShine(), 0, 0, 100){{
-				addChangeListener(new ChangeListener() {
-					@Override
-					public void stateChanged(final ChangeEvent e) {
-						ab.setShine( ((DefaultBoundedRangeModel)e.getSource()).getValue());
-					}
-				});
-			}});
-			mDefault.addEnableComponent(shine, false);
-			add(shine, "w 100");
+			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
+			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
+			JSlider slide = new JSlider(shineModel.getSliderModel());
+			mDefault.addEnableComponent(slide, false);
+			mDefault.addEnableComponent(spin, false);
+			
+			add(spin, "split 2, w 50");
+			add(slide, "w 100");
 		}
 
 

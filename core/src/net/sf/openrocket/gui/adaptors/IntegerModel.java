@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.EventObject;
 
+import javax.swing.BoundedRangeModel;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
@@ -83,7 +85,44 @@ public class IntegerModel implements StateChangeListener {
 		return new IntegerSpinnerModel();
 	}
 	
+	private class ValueSliderModel extends DefaultBoundedRangeModel implements BoundedRangeModel, StateChangeListener {
+		ValueSliderModel(){
+			super(IntegerModel.this.getValue(), 0, minValue, maxValue);
+		}
+		@Override
+		public void setValue(int newValue) {
+			IntegerModel.this.setValue(newValue);
+		}
+
+		@Override
+		public int getValue(){
+			return IntegerModel.this.getValue();
+		}
+		@Override
+		public void stateChanged(EventObject e) {
+			IntegerModel.this.fireStateChanged();
+		}
+		
+		@Override
+		public void addChangeListener(ChangeListener l) {
+			IntegerModel.this.addChangeListener(l);
+		}
+		
+		@Override
+		public void removeChangeListener(ChangeListener l) {
+			IntegerModel.this.removeChangeListener(l);
+		}
+		
+	}
 	
+	/**
+	 * Returns a new BoundedRangeModel with the same base as the IntegerModel.
+	 * 
+	 * @return  A compatibility layer for Sliders.
+	 */
+	public BoundedRangeModel getSliderModel(){
+		return new ValueSliderModel();
+	}
 
 
 	////////////  Main model  /////////////
