@@ -26,6 +26,8 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	private double rotation;
 	private String image;
 	private Decal.EdgeMode edgeMode;
+	
+	private boolean batch;
 
 	public AppearanceBuilder() {
 		resetToDefaults();
@@ -217,7 +219,15 @@ public class AppearanceBuilder extends AbstractChangeSource {
 
 	@Override
 	protected void fireChangeEvent() {
-		super.fireChangeEvent();
+		if ( !batch )
+			super.fireChangeEvent();
+	}
+
+	public void batch(Runnable r){
+		batch = true;
+		r.run();
+		batch = false;
+		fireChangeEvent();
 	}
 
 }

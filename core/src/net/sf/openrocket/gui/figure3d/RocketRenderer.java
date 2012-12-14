@@ -131,20 +131,22 @@ public class RocketRenderer {
 			gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 			gl.glLineWidth(5.0f);
 			
-			for (RocketComponent c : selection) {
-				//Draw as lines, set Z to nearest
-				gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
-				gl.glDepthRange(0, 0);
-				cr.renderGeometry(gl, c);
-				
-				//Draw polygons, always passing depth test,
-				//setting Z to farthest
-				gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
-				gl.glDepthRange(1, 1);
-				gl.glDepthFunc(GL.GL_ALWAYS);
-				cr.renderGeometry(gl, c);
-				gl.glDepthFunc(GL.GL_LESS);
-				gl.glDepthRange(0, 1);
+			for (RocketComponent c : configuration) {
+				if ( selection.contains(c) ){
+					//Draw as lines, set Z to nearest
+					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
+					gl.glDepthRange(0, 0);
+					cr.renderGeometry(gl, c);
+					
+					//Draw polygons, always passing depth test,
+					//setting Z to farthest
+					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
+					gl.glDepthRange(1, 1);
+					gl.glDepthFunc(GL.GL_ALWAYS);
+					cr.renderGeometry(gl, c);
+					gl.glDepthFunc(GL.GL_LESS);
+					gl.glDepthRange(0, 1);
+				}
 			}
 			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
 			gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_EMISSION,

@@ -14,12 +14,13 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.appearance.SimpleAppearanceBuilder;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -46,7 +47,7 @@ import net.sf.openrocket.util.StateChangeListener;
 public class AppearancePanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
-	private AppearanceBuilder ab;
+	private SimpleAppearanceBuilder ab;
 	
 	private final static UnitGroup UNIT_FOR_SCALES = new UnitGroup();
 	static {
@@ -108,16 +109,19 @@ public class AppearancePanel extends JPanel {
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
-		ab = new AppearanceBuilder(c.getAppearance());
+		ab = new SimpleAppearanceBuilder(c.getAppearance());
 
 		net.sf.openrocket.util.Color figureColor = c.getColor();
 		if (figureColor == null) {
 			figureColor = Application.getPreferences().getDefaultColor(c.getClass());
 		}
 		final JButton figureColorButton = new JButton(new ColorIcon(figureColor));
-		final JButton diffuseColorButton = new JButton(new ColorIcon(ab.getDiffuse()));
+		
+		/*final JButton diffuseColorButton = new JButton(new ColorIcon(ab.getDiffuse()));
 		final JButton ambientColorButton = new JButton(new ColorIcon(ab.getAmbient()));
-		final JButton specularColorButton = new JButton(new ColorIcon(ab.getSpecular()));
+		final JButton specularColorButton = new JButton(new ColorIcon(ab.getSpecular()));*/
+		
+		final JButton colorButton = new JButton(new ColorIcon(ab.getAmbient()));
 
 		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
 
@@ -125,9 +129,10 @@ public class AppearancePanel extends JPanel {
 			@Override
 			public void stateChanged(EventObject e) {
 				figureColorButton.setIcon(new ColorIcon(c.getColor()));
-				diffuseColorButton.setIcon(new ColorIcon(ab.getDiffuse()));
+				/*diffuseColorButton.setIcon(new ColorIcon(ab.getDiffuse()));
 				ambientColorButton.setIcon(new ColorIcon(ab.getAmbient()));
-				specularColorButton.setIcon(new ColorIcon(ab.getSpecular()));
+				specularColorButton.setIcon(new ColorIcon(ab.getSpecular()));*/
+				colorButton.setIcon(new ColorIcon(ab.getColor()));
 				c.setAppearance(ab.getAppearance());
 			}
 		});
@@ -144,9 +149,10 @@ public class AppearancePanel extends JPanel {
 		});
 
 		figureColorButton.addActionListener(new ColorActionListener(c, "Color"));
-		diffuseColorButton.addActionListener(new ColorActionListener(ab, "Diffuse"));
+		colorButton.addActionListener(new ColorActionListener(ab, "Color"));
+		/*diffuseColorButton.addActionListener(new ColorActionListener(ab, "Diffuse"));
 		ambientColorButton.addActionListener(new ColorActionListener(ab, "Ambient"));
-		specularColorButton.addActionListener(new ColorActionListener(ab, "Specular"));
+		specularColorButton.addActionListener(new ColorActionListener(ab, "Specular"));*/
 
 		BooleanModel mDefault = new BooleanModel(c.getAppearance() == null);
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
@@ -213,7 +219,7 @@ public class AppearancePanel extends JPanel {
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
 
 		{// Texture Header Row
-			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD));
+			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD), "wrap");
 			
 			final JCheckBox materialDefault = new JCheckBox(mDefault);
 			materialDefault.addActionListener(new ActionListener() {
@@ -226,11 +232,6 @@ public class AppearancePanel extends JPanel {
 					}
 				}
 			});
-			materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
-			add(materialDefault);
-			JButton setMDefault = new JButton(trans.get("AppearanceCfg.but.savedefault"));
-			mDefault.addEnableComponent(setMDefault, false);
-			add(setMDefault, "span 2, align right, wrap");
 		}
 
 		{// Texture File
@@ -241,33 +242,46 @@ public class AppearancePanel extends JPanel {
 			add(p, "span 3, growx, wrap");
 		}
 
-		{ // Diffuse
+		/*{ // Diffuse
 			add(new JLabel(trans.get("AppearanceCfg.lbl.color.diffuse")));
 			mDefault.addEnableComponent(diffuseColorButton, false);
 			add(diffuseColorButton);
+		}*/
+		
+		{ // Color
+			add(new JLabel("Color"));
+			mDefault.addEnableComponent(colorButton, false);
+			add(colorButton);
 		}
 
 		{ // Scale
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
 
 			add(new JLabel("x:"), "split 4");
-			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleU",UNIT_FOR_SCALES).getSpinnerModel());
+			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX",UNIT_FOR_SCALES).getSpinnerModel());
 			scaleU.setEditor(new SpinnerEditor(scaleU));
 			mDefault.addEnableComponent(scaleU, false);
 			add(scaleU, "w 40");
 
 			add(new JLabel("y:"));
-			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleV",UNIT_FOR_SCALES).getSpinnerModel());
+			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY",UNIT_FOR_SCALES).getSpinnerModel());
 			scaleV.setEditor(new SpinnerEditor(scaleV));
 			mDefault.addEnableComponent(scaleV, false);
 			add(scaleV, "wrap, w 40");
 		}
-
-		{ // Ambient
-			add(new JLabel(trans.get("AppearanceCfg.lbl.color.ambient")));
-			mDefault.addEnableComponent(ambientColorButton, false);
-			add(ambientColorButton);
+		
+		{// Placeholder
+			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
+			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
+			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
+			JSlider slide = new JSlider(shineModel.getSliderModel());
+			mDefault.addEnableComponent(slide, false);
+			mDefault.addEnableComponent(spin, false);
+			
+			add(spin, "split 2, w 50");
+			add(slide, "w 100");
 		}
+
 
 		{ // Offset
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
@@ -284,36 +298,16 @@ public class AppearancePanel extends JPanel {
 			mDefault.addEnableComponent(offsetV, false);
 			add(offsetV, "wrap, w 40");
 		}
-
-		{ // Specular
-			add(new JLabel(trans.get("AppearanceCfg.lbl.color.specular")));
-			mDefault.addEnableComponent(specularColorButton, false);
-			add(specularColorButton);
+		
+		{ // Repeat
+			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
+			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
+			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
+			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
+			mDefault.addEnableComponent(combo, false);
+			add(combo);
 		}
 
-		{ // Center
-			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.center")));
-
-			add(new JLabel("x:"), "split 4");
-			JSpinner centerU = new JSpinner(new DoubleModel(ab, "CenterU").getSpinnerModel());
-			centerU.setEditor(new SpinnerEditor(centerU));
-			mDefault.addEnableComponent(centerU, false);
-			add(centerU, "w 40");
-
-			add(new JLabel("y:"));
-			JSpinner centerV = new JSpinner(new DoubleModel(ab, "CenterV").getSpinnerModel());
-			centerV.setEditor(new SpinnerEditor(centerV));
-			mDefault.addEnableComponent(centerV, false);
-			add(centerV, "wrap, w 40");
-		}
-
-		{ // Shine
-			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
-			IntegerModel shineModel = new IntegerModel(ab, "Shininess", 0, 128);
-			JSpinner shine = new JSpinner(shineModel.getSpinnerModel());
-			mDefault.addEnableComponent(shine, false);
-			add(shine, "w 50");
-		}
 
 		{ // Rotation
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
@@ -328,18 +322,6 @@ public class AppearancePanel extends JPanel {
 			add(bs, "w 100, wrap");
 		}
 
-		{// Placeholder
-			add(new JLabel(""), "span 2");
-		}
-
-		{ // Repeat
-			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
-			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
-			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
-			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
-			mDefault.addEnableComponent(combo, false);
-			add(combo);
-		}
 
 	}
 	
