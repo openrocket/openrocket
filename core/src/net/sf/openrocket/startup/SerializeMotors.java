@@ -42,15 +42,16 @@ public class SerializeMotors {
 		if (iterator == null) {
 			System.out.println("Can't find resources-src/thrustcurves directory");
 			System.exit(1);
-		}
-		while (iterator.hasNext()) {
-			Pair<String, InputStream> f = iterator.next();
-			String fileName = f.getU();
-			InputStream is = f.getV();
-			
-			List<Motor> motors = loader.load(is, fileName);
-			
-			allMotors.addAll(motors);
+		} else {
+			while (iterator.hasNext()) {
+				Pair<String, InputStream> f = iterator.next();
+				String fileName = f.getU();
+				InputStream is = f.getV();
+				
+				List<Motor> motors = loader.load(is, fileName);
+				
+				allMotors.addAll(motors);
+			}
 		}
 		
 		oos.writeObject(allMotors);
