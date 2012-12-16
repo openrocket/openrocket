@@ -59,7 +59,6 @@ public class RocksimConverter {
 			try {
 				StorageOptions opts = new StorageOptions();
 				opts.setFileType(StorageOptions.FileType.OPENROCKET);
-				opts.setCompressionEnabled(true);
 				opts.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_NONE);
 				opts.setExplicitlySet(true);
 				

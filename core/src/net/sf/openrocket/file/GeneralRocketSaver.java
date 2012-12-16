@@ -146,16 +146,6 @@ public class GeneralRocketSaver {
 
 	private void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options)	throws IOException {
 
-		// If we don't include decals, just write the simple file.
-		if (!options.isIncludeDecals()) {
-			saveInternal(output,document,options);
-			return;
-		}
-
-		// We're saving decals, so the result will be a zip file.  There's no
-		// need to gzip the rocket model file in the archive.
-		options.setCompressionEnabled(false);
-
 		/* if we want a directory ...
 		String path = fileName;
 		int dotlocation = fileName.lastIndexOf('.');

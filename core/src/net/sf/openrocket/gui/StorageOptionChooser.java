@@ -39,7 +39,6 @@ public class StorageOptionChooser extends JPanel {
 	
 	private JSpinner timeSpinner;
 	
-	private JCheckBox compressButton;
 	private JCheckBox decalButton;
 	
 	private JLabel estimateLabel;
@@ -130,14 +129,6 @@ public class StorageOptionChooser extends JPanel {
 		decalButton.addActionListener(actionUpdater);
 		this.add(decalButton, "spanx, wrap para");
 		
-		//// Compress file
-		// FIXME - if the user selects save decals, should we automatically select compress file?
-		compressButton = new JCheckBox(trans.get("StorageOptChooser.checkbox.Compfile"));
-		//// Using compression reduces the file size significantly.
-		compressButton.setToolTipText(trans.get("StorageOptChooser.lbl.UsingComp"));
-		compressButton.addActionListener(actionUpdater);
-		this.add(compressButton, "spanx, wrap para");
-		
 		
 		// Estimate is updated in loadOptions(opts)
 		estimateLabel = new JLabel("");
@@ -176,8 +167,6 @@ public class StorageOptionChooser extends JPanel {
 		timeSpinner.setValue(t);
 		artificialEvent = false;
 		
-		// Compression checkbox
-		compressButton.setSelected(opts.isCompressionEnabled());
 		decalButton.setSelected(opts.isIncludeDecals());
 		
 		updateEstimate();
@@ -198,7 +187,6 @@ public class StorageOptionChooser extends JPanel {
 		opts.setSimulationTimeSkip(t);
 		
 		opts.setIncludeDecals(decalButton.isSelected());
-		opts.setCompressionEnabled(compressButton.isSelected());
 		
 		opts.setExplicitlySet(true);
 	}
