@@ -128,8 +128,8 @@ public class ExpressionBuilder {
 	 *            a map of variable names to variable values
 	 * @return the {@link ExpressionBuilder} instance
 	 */
-	public ExpressionBuilder withVariables(VariableSet variables) {
-		this.variables = variables;
+	public ExpressionBuilder withVariables(VariableSet myVariables) {
+		this.variables = myVariables;
 		return this;
 	}
 }

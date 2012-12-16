@@ -1208,11 +1208,11 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	 *
 	 * @param preset the preset to edit
 	 */
-	private void fillEditor(ComponentPreset preset, MaterialHolder holder) {
+	private void fillEditor(ComponentPreset preset, MaterialHolder matHolder) {
 		ComponentPreset.Type t = preset.getType();
 		
 		mfgTextField.setText(preset.get(ComponentPreset.MANUFACTURER).getDisplayName());
-		setMaterial(materialChooser, preset, holder, Material.Type.BULK, ComponentPreset.MATERIAL);
+		setMaterial(materialChooser, preset, matHolder, Material.Type.BULK, ComponentPreset.MATERIAL);
 		switch (t) {
 		case BODY_TUBE:
 			typeCombo.setSelectedItem(trans.get(BODY_TUBE_KEY));
@@ -1444,7 +1444,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 			}
 			break;
 		case PARACHUTE:
-			setMaterial(materialChooser, preset, holder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
+			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
 			typeCombo.setSelectedItem(trans.get(PARACHUTE_KEY));
 			pcDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
 			if (preset.has(ComponentPreset.LINE_COUNT)) {
@@ -1470,13 +1470,13 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 				pcImage = new ImageIcon(byteArrayToImage(preset.get(ComponentPreset.IMAGE)));
 				pcImageBtn.setIcon(pcImage);
 			}
-			setMaterial(pcLineMaterialChooser, preset, holder, Material.Type.LINE, ComponentPreset.LINE_MATERIAL);
+			setMaterial(pcLineMaterialChooser, preset, matHolder, Material.Type.LINE, ComponentPreset.LINE_MATERIAL);
 			//                pcLineMaterialChooser.setModel(new MaterialModel(PresetEditorDialog.this, Material.Type.LINE));
 			
 			//                pcLineMaterialChooser.getModel().setSelectedItem(preset.get(ComponentPreset.LINE_MATERIAL));
 			break;
 		case STREAMER:
-			setMaterial(materialChooser, preset, holder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
+			setMaterial(materialChooser, preset, matHolder, Material.Type.SURFACE, ComponentPreset.MATERIAL);
 			typeCombo.setSelectedItem(trans.get(STREAMER_KEY));
 			stDescTextField.setText(preset.get(ComponentPreset.DESCRIPTION));
 			if (preset.has(ComponentPreset.LENGTH)) {
@@ -1506,7 +1506,7 @@ public class PresetEditorDialog extends JDialog implements ItemListener {
 	}
 	
 	private void setMaterial(final JComboBox chooser, final ComponentPreset preset, final MaterialHolder holder,
-			final Material.Type theType, final TypedKey key) {
+			final Material.Type theType, final TypedKey<Material> key) {
 		if (holder == null) {
 			chooser.setModel(new MaterialModel(PresetEditorDialog.this, theType));
 		}

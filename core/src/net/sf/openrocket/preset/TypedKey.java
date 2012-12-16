@@ -52,7 +52,7 @@ public class TypedKey<T> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TypedKey other = (TypedKey) obj;
+		TypedKey<?> other = (TypedKey<?>) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;

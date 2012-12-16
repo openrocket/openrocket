@@ -33,6 +33,7 @@ public class OperatorSelector extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	private static final LogHelper log = Application.getLogger();
 
+	@SuppressWarnings("unused")
 	private final Window parentWindow;
 	
 	private final JTable table;

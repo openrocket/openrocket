@@ -11,7 +11,6 @@ import net.sf.openrocket.file.motor.MotorLoader;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;

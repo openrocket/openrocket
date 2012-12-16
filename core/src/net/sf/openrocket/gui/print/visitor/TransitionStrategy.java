@@ -113,7 +113,7 @@ public class TransitionStrategy {
      */
     private boolean render(final Transition component) {
         try {
-            AbstractPrintable pfs;
+            AbstractPrintable<?> pfs;
             if (component instanceof NoseCone) {
                 pfs = new PrintableNoseCone((NoseCone) component);
             }

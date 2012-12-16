@@ -168,8 +168,8 @@ public class ComponentPresetTable extends JTable {
 		sorter.setRowFilter( filter );
 	}
 
-	public void updateData( List<ComponentPreset> presets ) {
-		this.presets = presets;
+	public void updateData( List<ComponentPreset> myPresets ) {
+		this.presets = myPresets;
 		this.favorites = Application.getPreferences().getComponentFavorites(presetType);
 		this.tableModel.fireTableDataChanged();
 	}
