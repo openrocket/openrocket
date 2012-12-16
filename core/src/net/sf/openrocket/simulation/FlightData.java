@@ -226,7 +226,7 @@ public class FlightData {
 		
 
 		// Launch rod velocity
-		eventloop: for (FlightEvent event : branch.getEvents()) {
+		for (FlightEvent event : branch.getEvents()) {
 			if (event.getType() == FlightEvent.Type.LAUNCHROD) {
 				double t = event.getTime();
 				List<Double> velocity = branch.get(FlightDataType.TYPE_VELOCITY_TOTAL);

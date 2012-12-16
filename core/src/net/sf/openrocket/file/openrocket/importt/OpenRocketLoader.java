@@ -744,6 +744,7 @@ class DatatypeHandler extends AbstractElementHandler {
 }
 
 class CustomExpressionHandler extends AbstractElementHandler {
+	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
 	private final OpenRocketContentHandler contentHandler;
 	public CustomExpression currentExpression;

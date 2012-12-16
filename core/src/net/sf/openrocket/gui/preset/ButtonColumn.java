@@ -114,7 +114,7 @@ public class ButtonColumn extends AbstractCellEditor
 
 	@Override
 	public Component getTableCellEditorComponent(
-		JTable table, Object value, boolean isSelected, int row, int column)
+		JTable myTable, Object value, boolean isSelected, int row, int column)
 	{
 		if (value == null)
 		{
@@ -147,16 +147,16 @@ public class ButtonColumn extends AbstractCellEditor
 //
 	@Override
 	public Component getTableCellRendererComponent(
-		JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		JTable myTable, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		if (isSelected)
 		{
-			renderButton.setForeground(table.getSelectionForeground());
-	 		renderButton.setBackground(table.getSelectionBackground());
+			renderButton.setForeground(myTable.getSelectionForeground());
+	 		renderButton.setBackground(myTable.getSelectionBackground());
 		}
 		else
 		{
-			renderButton.setForeground(table.getForeground());
+			renderButton.setForeground(myTable.getForeground());
 			renderButton.setBackground(UIManager.getColor("Button.background"));
 		}
 

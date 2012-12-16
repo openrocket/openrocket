@@ -30,6 +30,7 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 				document.getDefaultStorageOptions());
 		
 		// Create the ProgressOutputStream that provides progress estimates
+		@SuppressWarnings("resource")
 		ProgressOutputStream os = new ProgressOutputStream(
 				new BufferedOutputStream(new FileOutputStream(file)), 
 				estimate, this) {

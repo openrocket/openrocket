@@ -43,7 +43,7 @@ public class Alt15K {
 	public static String[] getNames() {
 		ArrayList<String> list = new ArrayList<String>();;
 		
-		Enumeration pids = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> pids = CommPortIdentifier.getPortIdentifiers();
 
 		while (pids.hasMoreElements()) {
 		    CommPortIdentifier pid = (CommPortIdentifier) pids.nextElement();
@@ -59,7 +59,7 @@ public class Alt15K {
 	public Alt15K(String name) throws IOException {
 		CommPortIdentifier pID = null;
 		
-		Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> portIdentifiers = CommPortIdentifier.getPortIdentifiers();
 		while (portIdentifiers.hasMoreElements()) {
 		    CommPortIdentifier pid = (CommPortIdentifier) portIdentifiers.nextElement();
 		    

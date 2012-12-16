@@ -87,7 +87,8 @@ public class RingHandlerTest extends RocksimTestBase {
     public void testBulkhead() throws Exception {
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(tube, new WarningSet());
-        CenteringRing component = (CenteringRing) getField(handler, "ring");
+        @SuppressWarnings("unused")
+		CenteringRing component = (CenteringRing) getField(handler, "ring");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
@@ -237,7 +238,8 @@ public class RingHandlerTest extends RocksimTestBase {
 
         BodyTube tube = new BodyTube();
         RingHandler handler = new RingHandler(tube, new WarningSet());
-        CenteringRing component = (CenteringRing) getField(handler, "ring");
+        @SuppressWarnings("unused")
+		CenteringRing component = (CenteringRing) getField(handler, "ring");
     }
 
     /**

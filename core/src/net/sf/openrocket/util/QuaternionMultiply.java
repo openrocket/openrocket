@@ -6,6 +6,7 @@ public class QuaternionMultiply {
 		public int sign = 1;
 		public String value;
 		
+		@SuppressWarnings("unused")
 		public Value multiply(Value other) {
 			Value result = new Value();
 			result.sign = this.sign * other.sign;
@@ -15,6 +16,7 @@ public class QuaternionMultiply {
 				result.value = other.value + "*" + this.value;
 			return result;
 		}
+		
 		@Override
 		public String toString() {
 			String s;
@@ -33,12 +35,9 @@ public class QuaternionMultiply {
 		}
 	}
 	
-	
-	
 	private static Value[] multiply(Value[] first, Value[] second) {
 		return null;
 	}
-	
 	
 	public static void main(String[] arg) {
 		if (arg.length % 4 != 0  || arg.length < 4) {

@@ -1,7 +1,5 @@
 package net.sf.openrocket.simulation.listeners;
 
-import java.util.List;
-
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;

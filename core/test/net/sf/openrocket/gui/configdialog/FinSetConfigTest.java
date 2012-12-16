@@ -138,7 +138,8 @@ public class FinSetConfigTest extends BaseTestCase {
         rings.add(ring1);
         rings.add(ring2);
 
-        RocketComponent parent = new BodyTube();
+        @SuppressWarnings("unused")
+		RocketComponent parent = new BodyTube();
         Double result = (Double)method.invoke(null, rings, 0.47d, 0.01, dm, ring1);
         Assert.assertEquals(0.01, result.doubleValue(), 0.0001);
     }
