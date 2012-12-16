@@ -6,8 +6,6 @@ import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.ComponentPresetFactory;
 import net.sf.openrocket.preset.InvalidComponentPresetException;
 import net.sf.openrocket.preset.TypedPropertyMap;
-import net.sf.openrocket.preset.xml.BaseComponentDTO.AnnotatedMaterialDTO;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;

@@ -315,6 +315,7 @@ public class BugReportDialog extends JDialog {
 	 * @param text	the bug report text.
 	 * @return		whether opening the client succeeded.
 	 */
+	@SuppressWarnings("unused")
 	private boolean openEmail(String text) {
 		String version;
 		

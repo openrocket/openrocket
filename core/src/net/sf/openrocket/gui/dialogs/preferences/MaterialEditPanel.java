@@ -364,9 +364,9 @@ public class MaterialEditPanel extends JPanel {
 		 * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 		 */
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value,
+		public Component getTableCellRendererComponent(JTable myTable, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
-			Component c = super.getTableCellRendererComponent(table, value, isSelected,
+			Component c = super.getTableCellRendererComponent(myTable, value, isSelected,
 					hasFocus, row, column);
 			if (c instanceof JLabel) {
 				JLabel label = (JLabel) c;
@@ -374,12 +374,12 @@ public class MaterialEditPanel extends JPanel {
 				
 				if (isSelected) {
 					if (m.isUserDefined())
-						label.setForeground(table.getSelectionForeground());
+						label.setForeground(myTable.getSelectionForeground());
 					else
 						label.setForeground(Color.GRAY);
 				} else {
 					if (m.isUserDefined())
-						label.setForeground(table.getForeground());
+						label.setForeground(myTable.getForeground());
 					else
 						label.setForeground(Color.GRAY);
 				}

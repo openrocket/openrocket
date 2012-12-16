@@ -390,6 +390,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case IGNITION: {
 				// Ignite the motor
 				MotorMount mount = (MotorMount) event.getSource();
+				@SuppressWarnings("unused")
 				RocketComponent component = (RocketComponent) mount;
 				MotorId motorId = (MotorId) event.getData();
 				MotorInstanceConfiguration config = status.getMotorConfiguration();

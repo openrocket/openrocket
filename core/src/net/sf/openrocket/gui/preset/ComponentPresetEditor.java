@@ -230,22 +230,22 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     @Override
     public void notifyResult(final ComponentPreset preset) {
         if (preset != null) {
-            DataTableModel model = (DataTableModel) table.getModel();
+            DataTableModel myModel = (DataTableModel) table.getModel();
             //Is this a new preset?
             String description = preset.has(ComponentPreset.DESCRIPTION) ? preset.get(ComponentPreset.DESCRIPTION) :
                     preset.getPartNo();
             if (!editContext.isEditingSelected() || table.getSelectedRow() == -1) {
-                model.addRow(new Object[]{preset.getManufacturer().getDisplayName(), preset.getType().name(),
+                myModel.addRow(new Object[]{preset.getManufacturer().getDisplayName(), preset.getType().name(),
                         preset.getPartNo(), description, Icons.EDIT_DELETE}, preset);
             }
             else {
                 //This is a modified preset; update all of the columns and the stored associated instance.
                 int row = table.getSelectedRow();
-                model.setValueAt(preset.getManufacturer().getDisplayName(), row, 0);
-                model.setValueAt(preset.getType().name(), row, 1);
-                model.setValueAt(preset.getPartNo(), row, 2);
-                model.setValueAt(description, row, 3);
-                model.associated.set(row, preset);
+                myModel.setValueAt(preset.getManufacturer().getDisplayName(), row, 0);
+                myModel.setValueAt(preset.getType().name(), row, 1);
+                myModel.setValueAt(preset.getPartNo(), row, 2);
+                myModel.setValueAt(description, row, 3);
+                myModel.associated.set(row, preset);
             }
         }
         editContext.setEditingSelected(false);

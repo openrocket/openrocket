@@ -107,11 +107,11 @@ public abstract class BasePartDTO {
 
             setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
-            String material = comp.getMaterial().getName();
-            if (material.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
-                material = material.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
+            String compMaterial = comp.getMaterial().getName();
+            if (compMaterial.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
+                compMaterial = compMaterial.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
             }
-            setMaterial(material);
+            setMaterial(compMaterial);
 
             setFinishCode(RocksimFinishCode.toCode(comp.getFinish()));
         }
@@ -121,11 +121,11 @@ public abstract class BasePartDTO {
             setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
             setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_BULK_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
-            String material = comp.getMaterial().getName();
-            if (material.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
-                material = material.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
+            String compMaterial = comp.getMaterial().getName();
+            if (compMaterial.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
+                compMaterial = compMaterial.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
             }
-            setMaterial(material);
+            setMaterial(compMaterial);
         }
         else if (ec instanceof RecoveryDevice) {
             RecoveryDevice comp = (RecoveryDevice) ec;
@@ -133,11 +133,11 @@ public abstract class BasePartDTO {
             setLocationMode(RocksimLocationMode.toCode(comp.getRelativePosition()));
             setDensity(comp.getMaterial().getDensity() * RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_SURFACE_DENSITY);
             setDensityType(RocksimDensityType.toCode(comp.getMaterial().getType()));
-            String material = comp.getMaterial().getName();
-            if (material.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
-                material = material.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
+            String compMaterial = comp.getMaterial().getName();
+            if (compMaterial.startsWith(BaseHandler.ROCKSIM_MATERIAL_PREFIX)) {
+                compMaterial = compMaterial.substring(BaseHandler.ROCKSIM_MATERIAL_PREFIX.length());
             }
-            setMaterial(material);
+            setMaterial(compMaterial);
         }
 
         if (ec instanceof RingComponent) {

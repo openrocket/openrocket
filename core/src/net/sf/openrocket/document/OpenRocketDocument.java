@@ -2,7 +2,6 @@ package net.sf.openrocket.document;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +18,6 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
-import net.sf.openrocket.simulation.exception.SimulationListenerException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;

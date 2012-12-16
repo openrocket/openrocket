@@ -141,12 +141,12 @@ public final class Coordinate implements Cloneable, Serializable {
 				this.weight + other.weight);
 	}
 	
-	public Coordinate add(double x, double y, double z) {
-		return new Coordinate(this.x + x, this.y + y, this.z + z, this.weight);
+	public Coordinate add(double x1, double y1, double z1) {
+		return new Coordinate(this.x + x1, this.y + y1, this.z + z1, this.weight);
 	}
 	
-	public Coordinate add(double x, double y, double z, double weight) {
-		return new Coordinate(this.x + x, this.y + y, this.z + z, this.weight + weight);
+	public Coordinate add(double x1, double y1, double z1, double w1) {
+		return new Coordinate(this.x + x1, this.y + y1, this.z + z1, this.weight + w1);
 	}
 	
 	/**
@@ -164,13 +164,13 @@ public final class Coordinate implements Cloneable, Serializable {
 	 * Subtract the specified values from this Coordinate.  The weight of the result
 	 * is the same as the weight of this Coordinate.
 	 * 
-	 * @param x   	x value to subtract
-	 * @param y		y value to subtract
-	 * @param z		z value to subtract
+	 * @param x1   	x value to subtract
+	 * @param y1	y value to subtract
+	 * @param z1	z value to subtract
 	 * @return		the result.
 	 */
-	public Coordinate sub(double x, double y, double z) {
-		return new Coordinate(this.x - x, this.y - y, this.z - z, this.weight);
+	public Coordinate sub(double x1, double y1, double z1) {
+		return new Coordinate(this.x - x1, this.y - y1, this.z - z1, this.weight);
 	}
 	
 	
@@ -263,23 +263,23 @@ public final class Coordinate implements Cloneable, Serializable {
 	 * returned.
 	 */
 	public Coordinate average(Coordinate other) {
-		double x, y, z, w;
+		double x1, y1, z1, w1;
 		
 		if (other == null)
 			return this;
 		
-		w = this.weight + other.weight;
-		if (Math.abs(w) < MathUtil.pow2(MathUtil.EPSILON)) {
-			x = (this.x + other.x) / 2;
-			y = (this.y + other.y) / 2;
-			z = (this.z + other.z) / 2;
-			w = 0;
+		w1 = this.weight + other.weight;
+		if (Math.abs(w1) < MathUtil.pow2(MathUtil.EPSILON)) {
+			x1 = (this.x + other.x) / 2;
+			y1 = (this.y + other.y) / 2;
+			z1 = (this.z + other.z) / 2;
+			w1 = 0;
 		} else {
-			x = (this.x * this.weight + other.x * other.weight) / w;
-			y = (this.y * this.weight + other.y * other.weight) / w;
-			z = (this.z * this.weight + other.z * other.weight) / w;
+			x1 = (this.x * this.weight + other.x * other.weight) / w1;
+			y1 = (this.y * this.weight + other.y * other.weight) / w1;
+			z1 = (this.z * this.weight + other.z * other.weight) / w1;
 		}
-		return new Coordinate(x, y, z, w);
+		return new Coordinate(x1, y1, z1, w1);
 	}
 	
 	

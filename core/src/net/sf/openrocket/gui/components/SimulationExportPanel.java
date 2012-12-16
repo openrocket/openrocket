@@ -287,18 +287,18 @@ public class SimulationExportPanel extends JPanel {
 		}
 		
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value,
+		public Component getTableCellRendererComponent(JTable myTable, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
 			
-			Component component = renderer.getTableCellRendererComponent(table,
+			Component component = renderer.getTableCellRendererComponent(myTable,
 					value, isSelected, hasFocus, row, column);
 			
 			if (selected[row]) {
-				component.setBackground(table.getSelectionBackground());
-				component.setForeground(table.getSelectionForeground());
+				component.setBackground(myTable.getSelectionBackground());
+				component.setForeground(myTable.getSelectionForeground());
 			} else {
-				component.setBackground(table.getBackground());
-				component.setForeground(table.getForeground());
+				component.setBackground(myTable.getBackground());
+				component.setForeground(myTable.getForeground());
 			}
 			
 			return component;

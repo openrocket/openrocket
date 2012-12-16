@@ -8,10 +8,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableComponent;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
-
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +21,6 @@ import java.util.Set;
  * @author Jason Blood <dyster2000@gmail.com>
  */
 public class PageFitPrintStrategy {
-
-    /**
-     * The logger.
-     */
-    private static final LogHelper log = Application.getLogger();
 
     /**
      * The iText document.

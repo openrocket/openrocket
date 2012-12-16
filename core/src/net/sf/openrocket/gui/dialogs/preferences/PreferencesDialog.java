@@ -618,7 +618,7 @@ public class PreferencesDialog extends JDialog {
 
 
 		// Progress dialog
-		final JDialog dialog = new JDialog(this, ModalityType.APPLICATION_MODAL);
+		final JDialog dialog1 = new JDialog(this, ModalityType.APPLICATION_MODAL);
 		JPanel panel = new JPanel(new MigLayout());
 
 		//// Checking for updates...
@@ -633,13 +633,13 @@ public class PreferencesDialog extends JDialog {
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dialog.dispose();
+				dialog1.dispose();
 			}
 		});
 		panel.add(cancel, "right");
-		dialog.add(panel);
+		dialog1.add(panel);
 
-		GUIUtil.setDisposableDialogOptions(dialog, cancel);
+		GUIUtil.setDisposableDialogOptions(dialog1, cancel);
 
 
 		// Timer to monitor progress
@@ -651,7 +651,7 @@ public class PreferencesDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (!retriever.isRunning() || startTime + 10000 < System.currentTimeMillis()) {
 					timer.stop();
-					dialog.dispose();
+					dialog1.dispose();
 				}
 			}
 		};
@@ -660,7 +660,7 @@ public class PreferencesDialog extends JDialog {
 
 
 		// Wait for action
-		dialog.setVisible(true);
+		dialog1.setVisible(true);
 
 
 		// Check result

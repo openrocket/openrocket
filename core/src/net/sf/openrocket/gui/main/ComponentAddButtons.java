@@ -190,9 +190,9 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					Dimension d = ComponentAddButtons.this.viewport.getExtentSize();
-					if (d.width != oldWidth) {
-						oldWidth = d.width;
+					Dimension d1 = ComponentAddButtons.this.viewport.getExtentSize();
+					if (d1.width != oldWidth) {
+						oldWidth = d1.width;
 						flowButtons();
 					}
 				}
