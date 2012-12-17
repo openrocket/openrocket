@@ -2,18 +2,23 @@
 
 	<property file="resources/build.properties" />
 	
-	<property name="src.dir"    	value="src"/>		<!-- Source directory -->
-	<property name="src-test.dir"	value="test"/>		<!-- Test directory -->
-	<property name="build.dir"   	value="build"/>		<!-- Build directory -->
-	<property name="build-test.dir" value="build/test"/><!-- Build directory -->
-		
+	<property name="src.dir"    	value="${basedir}/src"/>		<!-- Source directory -->
+	<property name="src-test.dir"	value="${basedir}/test"/>		<!-- Test directory -->
+	<property name="build.dir"   	value="${basedir}/build"/>		<!-- Build directory -->
+	<property name="build-test.dir" value="${basedir}/build/test"/>		<!-- Build directory -->
+	<property name="lib.dir"     	value="${basedir}/lib"/>		<!-- Library source directory -->
+	<property name="libtest.dir"	value="${basedir}/lib-test"/>		<!-- Library test source directory -->
+	<property name="libextra.dir"	value="${basedir}/lib-extra"/>		<!-- Library extra source directory -->
+	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
+	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
+	<property name="resources-src.dir"	value="${basedir}/resources-src"/>	<!-- Resources directory -->
+	
 	<!-- Distribution directory, from which stuff is jar'ed -->
 	<property name="dist.dir"    	value="${build.dir}/dist"/> 
 	<property name="dist-test.dir"	value="${build.dir}/dist-test"/>
 	
 	<property name="classes.dir" value="${dist.dir}"/>	<!-- Directory for classes -->
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
-	<property name="lib.dir"     value="lib"/>				<!-- Library source directory -->
 
 	<property name="pkgname"     value="${ant.project.name}-${build.version}"/>
 	
@@ -24,7 +29,7 @@
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
 
-	<property name="expanded-libs" value="lib/miglayout15-swing.jar"/>
+	<property name="expanded-libs" value="${lib.dir}/miglayout15-swing.jar"/>
 	
 	<!-- Classpath definitions -->
 	<path id="classpath">
@@ -33,23 +38,23 @@
 	
 	<path id="test-classpath">
 		<path refid="classpath"/>
-		<pathelement location="${basedir}/resources"/>
+		<pathelement location="${resources.dir}"/>
 		<pathelement location="${build-test.dir}"/>
 		<pathelement location="${classes.dir}"/>
 		<pathelement location="${src-test.dir}"/>
-		<fileset dir="lib-test/" includes="*.jar"/>
+		<fileset dir="${libtest.dir}/" includes="*.jar"/>
 	</path>
 
 	<path id="run-classpath">
 		<path refid="classpath"/>
-		<pathelement location="${basedir}/resources"/>
+		<pathelement location="${resources.dir}"/>
 		<pathelement location="${classes.dir}"/>
 	</path>
 
 	<!-- Add Ant-contrib tasks so we can use for loop -->
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
-			<pathelement location="lib-extra/ant-contrib-1.0b3.jar"/>
+			<pathelement location="${libextra.dir}/ant-contrib-1.0b3.jar"/>
 		</classpath>
 	</taskdef>
 
@@ -57,7 +62,7 @@
 	<!-- CLEAN -->
 	<target name="clean" description="Removes all build artifacts">
 		<delete dir="${build.dir}"/>
-		<delete dir="tmp/"/>
+		<delete dir="${tmp.dir}/"/>
 	</target>
 		
 	
@@ -75,27 +80,27 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl.all.jar" />
+				<attribute name="Classpath-Jars" value="${lib.dir}/gluegen-rt.jar ${lib.dir}/jogl.all.jar" />
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
-			<fileset dir="src/" includes="META-INF/" />
-			<fileset dir="resources/" />
+			<fileset dir="${src.dir}/" includes="META-INF/" />
+			<fileset dir="${resources.dir}/" />
 			
 			
 			<!-- Libraries to extract into base JAR -->
-			<zipfileset src="lib/miglayout15-swing.jar" />
-			<zipfileset src="lib/guice-3.0.jar" />
-			<zipfileset src="lib/aopalliance.jar"/>
-			<zipfileset src="lib/guice-3.0.jar"/>
-			<zipfileset src="lib/guice-multibindings-3.0.jar"/>
-			<zipfileset src="lib/iText-5.0.2.jar"/>
-			<zipfileset src="lib/javax.inject.jar"/>
-			<zipfileset src="lib/jcommon-1.0.16.jar"/>
-			<zipfileset src="lib/jfreechart-1.0.13.jar"/>
-			<zipfileset src="lib/miglayout15-swing.jar"/>
-			<zipfileset src="lib/opencsv-2.3.jar"/>
-			<zipfileset src="lib/OrangeExtensions-1.2.jar"/>
+			<zipfileset src="${lib.dir}/miglayout15-swing.jar" />
+			<zipfileset src="${lib.dir}/guice-3.0.jar" />
+			<zipfileset src="${lib.dir}/aopalliance.jar"/>
+			<zipfileset src="${lib.dir}/guice-3.0.jar"/>
+			<zipfileset src="${lib.dir}/guice-multibindings-3.0.jar"/>
+			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
+			<zipfileset src="${lib.dir}/javax.inject.jar"/>
+			<zipfileset src="${lib.dir}/jcommon-1.0.16.jar"/>
+			<zipfileset src="${lib.dir}/jfreechart-1.0.13.jar"/>
+			<zipfileset src="${lib.dir}/miglayout15-swing.jar"/>
+			<zipfileset src="${lib.dir}/opencsv-2.3.jar"/>
+			<zipfileset src="${lib.dir}/OrangeExtensions-1.2.jar"/>
 			
 			
 			<!-- JOGL libraries need to be jar-in-jar -->
@@ -104,7 +109,7 @@
 			</zipfileset>
 			
 			<!-- Include metafiles about OR -->
-			<fileset dir="." includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
+			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
 	
@@ -120,8 +125,8 @@
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">
-	    	<arg value="resources-src/datafiles/thrustcurves/"/>
-	    	<arg value="resources/datafiles/thrustcurves/thrustcurves.ser"/>
+	    	<arg value="${resources-src.dir}/datafiles/thrustcurves/"/>
+	    	<arg value="${resources.dir}/datafiles/thrustcurves/thrustcurves.ser"/>
 	    </java>
 	</target>
 
@@ -136,7 +141,7 @@
 				classpathref="run-classpath"
 				failonerror="true">
 				<arg value="@{dir}"/>
-				<arg value="resources-src/datafiles/presets/@{vendor}.orc"/>
+				<arg value="${resources-src.dir}/datafiles/presets/@{vendor}.orc"/>
 			</java>
 		</sequential>
 	</macrodef>
@@ -146,7 +151,7 @@
 		depends="build">
 
 		<for param="vendor-dir">
-			<dirset dir="resources-src/datafiles/rocksim_components"
+			<dirset dir="${resources-src.dir}/datafiles/rocksim_components"
 				includes="*"/>
 			<sequential>
 				<propertyregex property="vendor"
@@ -167,10 +172,10 @@
 		<mkdir dir="${build.dir}/${pkgname}"/>
 		<mkdir dir="${jar.dir}"/>
 		<copy todir="${build.dir}/${pkgname}">
-			<fileset dir="." includes="*" excludes="*.log">
+			<fileset dir="${basedir}" includes="*" excludes="*.log">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="." includes="resources/ lib/ lib-test/ src/ test/ resources-src/datafiles/"/>
+			<fileset dir="${basedir}" includes="${resources.dir}/ ${lib.dir}/ ${lib-test.dir}/ ${src.dir}/ ${test.dir}/ ${resources-src.dir}/datafiles/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
@@ -212,7 +217,7 @@
 	<!-- CHECK TODOs -->
 	<target name="todo" depends="checktodo"/>
 	<target name="checktodo">
-		<tempfile property="todo.file" prefix="checktodo-"/>
+		<tempfile property="todo.file" prefix="${tmp.dir}/checktodo-"/>
 		<echo>Checking project for FIXMEs.</echo>
 		<concat destfile="${todo.file}">
 			<fileset dir="${src.dir}">
@@ -235,10 +240,10 @@ ${criticaltodos}</fail>
 	</target>
 	
 	
-	<!-- CHECK TODOs -->
+	<!-- CHECK ASCII -->
 	<target name="ascii" depends="checkascii"/>
 	<target name="checkascii">
-		<tempfile property="ascii.file" prefix="checkascii-"/>
+		<tempfile property="ascii.file" prefix="${tmp.dir}/checkascii-"/>
 		<echo>Checking project for non-ASCII characters.</echo>
 		<concat destfile="${ascii.file}">
 			<fileset dir="${src.dir}">
@@ -268,13 +273,13 @@ ${nonascii}</fail>
 		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
 		
 		<echo>Running unit tests</echo>
-		<mkdir dir="tmp/rawtestoutput"/>
+		<mkdir dir="${tmp.dir}/rawtestoutput"/>
 		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
 			<classpath>
 				<path refid="test-classpath"/>
 				<path location="${basedir}"/>
 			</classpath>
-			<batchtest todir="tmp/rawtestoutput">
+			<batchtest todir="${tmp.dir}/rawtestoutput">
 				<fileset dir="${build-test.dir}">
 					<include name="**/Test*.class" />
 					<include name="**/*Test.class" />
@@ -284,11 +289,11 @@ ${nonascii}</fail>
 				<formatter type="xml"/>
 			</batchtest>
 		</junit>
-		<junitreport todir="tmp">
-			<fileset dir="tmp/rawtestoutput"/>
-			<report todir="tmp/test-reports"/>
+		<junitreport todir="${tmp.dir}">
+			<fileset dir="${tmp.dir}/rawtestoutput"/>
+			<report todir="${tmp.dir}/test-reports"/>
 		</junitreport>
-		<fail if="junit.failure" message="Unit test(s) failed.  See report in ${basedir}/tmp/test-reports/index.html"/>
+		<fail if="junit.failure" message="Unit test(s) failed.  See report in ${tmp.dir}/test-reports/index.html"/>
 		<echo>
 	Unit tests passed successfully.
 		</echo>

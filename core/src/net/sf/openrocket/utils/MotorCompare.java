@@ -76,7 +76,7 @@ public class MotorCompare {
 				System.out.print("(ERR:" + e.getMessage() + ")");
 			}
 			if (m != null) {
-				motors.addAll((List<? extends ThrustCurveMotor>) m);
+				motors.addAll((List) m);
 				for (int i = 0; i < m.size(); i++)
 					files.add(file);
 			}
