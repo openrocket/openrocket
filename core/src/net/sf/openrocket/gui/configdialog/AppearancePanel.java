@@ -148,7 +148,6 @@ public class AppearancePanel extends JPanel {
 		figureColorButton.addActionListener(new ColorActionListener(c, "Color"));
 		colorButton.addActionListener(new ColorActionListener(ab, "Color"));
 
-		BooleanModel mDefault = new BooleanModel(c.getAppearance() == null);
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 
 
@@ -214,24 +213,11 @@ public class AppearancePanel extends JPanel {
 
 		{// Texture Header Row
 			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD), "wrap");
-			
-			final JCheckBox materialDefault = new JCheckBox(mDefault);
-			materialDefault.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (materialDefault.isSelected()) {
-						c.setAppearance(null);
-					} else {
-						c.setAppearance(ab.getAppearance());
-					}
-				}
-			});
 		}
 
 		{// Texture File
 			add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
 			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
-			mDefault.addEnableComponent(textureDropDown, false);
 			p.add(textureDropDown, "grow");
 			add(p, "span 3, growx, wrap");
 		}
@@ -255,13 +241,11 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel("x:"), "split 4");
 			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX", TEXTURE_UNIT).getSpinnerModel());
 			scaleU.setEditor(new SpinnerEditor(scaleU));
-			mDefault.addEnableComponent(scaleU, false);
 			add(scaleU, "w 40");
 
 			add(new JLabel("y:"));
 			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY", TEXTURE_UNIT).getSpinnerModel());
 			scaleV.setEditor(new SpinnerEditor(scaleV));
-			mDefault.addEnableComponent(scaleV, false);
 			add(scaleV, "wrap, w 40");
 		}
 		
@@ -270,8 +254,6 @@ public class AppearancePanel extends JPanel {
 			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 			JSlider slide = new JSlider(shineModel.getSliderModel());
-			mDefault.addEnableComponent(slide, false);
-			mDefault.addEnableComponent(spin, false);
 			
 			add(spin, "split 2, w 50");
 			add(slide, "w 50");
@@ -284,13 +266,11 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel("x:"), "split 4");
 			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU", TEXTURE_UNIT).getSpinnerModel());
 			offsetU.setEditor(new SpinnerEditor(offsetU));
-			mDefault.addEnableComponent(offsetU, false);
 			add(offsetU, "w 40");
 
 			add(new JLabel("y:"));
 			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV", TEXTURE_UNIT).getSpinnerModel());
 			offsetV.setEditor(new SpinnerEditor(offsetV));
-			mDefault.addEnableComponent(offsetV, false);
 			add(offsetV, "wrap, w 40");
 		}
 		
@@ -299,7 +279,6 @@ public class AppearancePanel extends JPanel {
 			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
 			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
 			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
-			mDefault.addEnableComponent(combo, false);
 			add(combo);
 		}
 
@@ -309,11 +288,9 @@ public class AppearancePanel extends JPanel {
 			DoubleModel rotationModel = new DoubleModel(ab, "Rotation", UnitGroup.UNITS_ANGLE);
 			JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
 			rotation.setEditor(new SpinnerEditor(rotation));
-			mDefault.addEnableComponent(rotation, false);
 			add(rotation, "split 3, w 50");
 			add(new UnitSelector(rotationModel));
 			BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(-Math.PI, Math.PI));
-			mDefault.addEnableComponent(bs, false);
 			add(bs, "w 50, wrap");
 		}
 
