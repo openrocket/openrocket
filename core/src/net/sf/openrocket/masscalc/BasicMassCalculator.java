@@ -2,10 +2,8 @@ package net.sf.openrocket.masscalc;
 
 import static net.sf.openrocket.util.MathUtil.pow2;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import net.sf.openrocket.motor.Motor;

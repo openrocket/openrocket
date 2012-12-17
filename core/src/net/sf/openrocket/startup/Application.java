@@ -1,7 +1,8 @@
 package net.sf.openrocket.startup;
 
 import net.sf.openrocket.database.ComponentPresetDao;
-import net.sf.openrocket.database.MotorDatabase;
+import net.sf.openrocket.database.motor.MotorDatabase;
+import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
@@ -24,8 +25,6 @@ public final class Application {
 	private static LogLevelBufferLogger logBuffer;
 	
 	private static Translator baseTranslator = new DebugTranslator(null);
-	
-	private static MotorDatabase motorSetDatabase;
 	
 	private static ComponentPresetDao componentPresetDao;
 	
@@ -155,17 +154,24 @@ public final class Application {
 	
 	/**
 	 * Return the database of all thrust curves loaded into the system.
+	 * 
+	 * @deprecated Fetch the db from Guice instead.
 	 */
+	@Deprecated
 	public static MotorDatabase getMotorSetDatabase() {
-		return motorSetDatabase;
+		return injector.getInstance(MotorDatabase.class);
 	}
 	
 	/**
-	 * Set the database of thrust curves loaded into the system.
+	 * Return the ThrustCurveMotorSetDatabase for the system.
+	 * 
+	 * @deprecated Fetch the db from Guice instead.
 	 */
-	public static void setMotorSetDatabase(MotorDatabase motorSetDatabase) {
-		Application.motorSetDatabase = motorSetDatabase;
+	@Deprecated
+	public static ThrustCurveMotorSetDatabase getThrustCurveMotorSetDatabase() {
+		return injector.getInstance(ThrustCurveMotorSetDatabase.class);
 	}
+	
 	
 	public static ComponentPresetDao getComponentPresetDao() {
 		return componentPresetDao;

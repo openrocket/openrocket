@@ -1,0 +1,28 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Cesaroni Technology Inc." code="140-G145-PK-15A" Type="reloadable"
+dia="24." len="228.001" initWt="161.9" propWt="77.2" delays="15,12,10,8,6"
+auto-calc-mass="1" auto-calc-cg="1" avgThrust="137.552" peakThrust="346.018"
+throatDia="0." exitDia="0." Itot="139.615" burn-time="1.01" massFrac="47.68"
+Isp="184.41" tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1"
+mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pink Pro24 6G
+140-G145-PK 15A
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="77.2" cg="114."/>
+      <eng-data  t="0.007" f="286.726" m="76.6451" cg="114."/>
+      <eng-data  t="0.013" f="346.018" m="75.5955" cg="114."/>
+      <eng-data  t="0.022" f="310.619" m="73.9616" cg="114."/>
+      <eng-data  t="0.039" f="226.991" m="71.4348" cg="114."/>
+      <eng-data  t="0.066" f="203.097" m="68.2242" cg="114."/>
+      <eng-data  t="0.343" f="174.779" m="39.2852" cg="114."/>
+      <eng-data  t="0.672" f="138.496" m="10.7897" cg="114."/>
+      <eng-data  t="0.775" f="75.664" m="4.69104" cg="114."/>
+      <eng-data  t="0.899" f="29.204" m="1.09587" cg="114."/>
+      <eng-data  t="0.982" f="13.274" m="0.121107" cg="114."/>
+      <eng-data  t="1.015" f="0." m="0." cg="114."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

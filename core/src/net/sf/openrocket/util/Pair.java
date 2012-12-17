@@ -31,13 +31,13 @@ public class Pair<U,V> {
 	 * Compare both components of the Pair to another object.
 	 * The pair is equal iff both items are equal (or null).
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean equals(Object other) {
 		if (!(other instanceof Pair))
 			return false;
-		Object otherU = ((Pair)other).getU();
-		Object otherV = ((Pair)other).getV();
+		Object otherU = ((Pair<U,V>) other).getU();
+		Object otherV = ((Pair<U,V>) other).getV();
 		
 		if (otherU == null) {
 			if (this.u != null)

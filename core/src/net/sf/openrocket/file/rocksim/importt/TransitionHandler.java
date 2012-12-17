@@ -151,6 +151,7 @@ class TransitionHandler extends BaseHandler<Transition> {
      *
      * @return BULK
      */
+    @Override
     public Material.Type getMaterialType() {
         return Material.Type.BULK;
     }

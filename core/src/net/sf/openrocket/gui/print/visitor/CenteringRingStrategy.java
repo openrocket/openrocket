@@ -148,7 +148,7 @@ public class CenteringRingStrategy {
      */
     private void render(final CenteringRing component) {
         try {
-            AbstractPrintable pfs;
+            AbstractPrintable<CenteringRing> pfs;
             pfs = PrintableCenteringRing.create(component, findMotorMount(component));
 
             java.awt.Dimension size = pfs.getSize();

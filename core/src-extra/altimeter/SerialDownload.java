@@ -29,11 +29,10 @@ public class SerialDownload {
 	
 	
 
-	@SuppressWarnings("unchecked")
 	public static String[] getNames() {
 		ArrayList<String> list = new ArrayList<String>();;
 		
-		Enumeration pids = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> pids = CommPortIdentifier.getPortIdentifiers();
 
 		while (pids.hasMoreElements()) {
 		    CommPortIdentifier pid = (CommPortIdentifier) pids.nextElement();
@@ -48,25 +47,24 @@ public class SerialDownload {
 	
 	
 
-	@SuppressWarnings("unchecked")
 	public SerialDownload(String name) throws IOException {
-		CommPortIdentifier portID = null;
+		CommPortIdentifier myPortID  = null;
 		
-		Enumeration portIdentifiers = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> portIdentifiers = CommPortIdentifier.getPortIdentifiers();
 		while (portIdentifiers.hasMoreElements()) {
 		    CommPortIdentifier pid = (CommPortIdentifier) portIdentifiers.nextElement();
 		    
 		    if(pid.getPortType() == CommPortIdentifier.PORT_SERIAL &&
 		       pid.getName().equals(name)) {
-		        portID = pid;
+		        myPortID  = pid;
 		        break;
 		    }
 		}
 		
-		if (portID==null) {
+		if (myPortID == null) {
 			throw new IOException("Port '"+name+"' not found.");
 		}
-		this.portID = portID;
+		this.portID = myPortID ;
 	}
 	
 	

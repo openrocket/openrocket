@@ -588,6 +588,7 @@ public class PlotConfiguration implements Cloneable {
 	
 	
 
+	@SuppressWarnings("unused")
 	private double roundScaleUp(double scale) {
 		double mul = 1;
 		while (scale >= 10) {
@@ -614,6 +615,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private double roundScaleDown(double scale) {
 		double mul = 1;
 		while (scale >= 10) {

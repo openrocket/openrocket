@@ -7,9 +7,7 @@ import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.motor.MotorId;
-import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -17,15 +15,14 @@ import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.PolyInterpolator;
 
 public class DampingMoment extends AbstractSimulationListener {
 	
 	private static final FlightDataType type = FlightDataType.getType("Damping moment coefficient", "Cdm", UnitGroup.UNITS_COEFFICIENT);
 	private static final FlightDataType[] typeList = {type};
 	
+	@Override
 	public String getName(){
 		return "Damping moment listener";
 	}
@@ -33,6 +30,7 @@ public class DampingMoment extends AbstractSimulationListener {
 	/**
 	 * Return a list of any flight data types this listener creates.
 	 */
+	@Override
 	public FlightDataType[] getFlightDataTypes(){
 		return typeList;
 	}

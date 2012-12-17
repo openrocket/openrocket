@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class GeneralUnit extends Unit {
 
+	@SuppressWarnings("unused")
 	private final int significantNumbers;
 	private final int decimalRounding;
 	
@@ -57,15 +58,14 @@ public class GeneralUnit extends Unit {
 		}
 	}
 
-	
-	
-
 	// TODO: LOW: untested
 	// start, end and scale in this units
 //	@Override
 	public ArrayList<Tick> getTicks(double start, double end, double scale) {
 		ArrayList<Tick> ticks = new ArrayList<Tick>();
+		@SuppressWarnings("unused")
 		double delta;
+		@SuppressWarnings("unused")
 		int normal, major;
 
 		// TODO: LOW: more fine-grained (e.g.  0||||5||||10||||15||||20)
@@ -88,9 +88,8 @@ public class GeneralUnit extends Unit {
 			major = 100;   // TODO: LOW: More fine-grained with 5
 		}
 		
-		double v = Math.ceil(start/delta)*delta;
-		int n = (int)Math.round(v/delta);
-		
+//		double v = Math.ceil(start/delta)*delta;
+//		int n = (int)Math.round(v/delta);		
 //		while (v <= end) {
 //			if (n%major == 0)
 //				ticks.add(new Tick(v,Tick.MAJOR));

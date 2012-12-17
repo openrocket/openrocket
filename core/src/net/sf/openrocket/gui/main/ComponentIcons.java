@@ -148,16 +148,22 @@ public class ComponentIcons {
 			icons[0] = new ImageIcon(bi, desc);
 			
 			// Create disabled icon
-			if (false) { // Fade using alpha 
+			boolean useAlphaFade = false;  // don't use fade to alpha yet
+			if (useAlphaFade) { // Fade using alpha 
 			
-				int rgb[] = bi2.getRGB(0, 0, bi2.getWidth(), bi2.getHeight(), null, 0, bi2.getWidth());
-				for (int i = 0; i < rgb.length; i++) {
-					final int alpha = (rgb[i] >> 24) & 0xFF;
-					rgb[i] = (rgb[i] & 0xFFFFFF) | (alpha / 3) << 24;
-					
-					//rgb[i] = (rgb[i]&0xFFFFFF) | ((rgb[i]>>1)&0x3F000000);
-				}
-				bi2.setRGB(0, 0, bi2.getWidth(), bi2.getHeight(), rgb, 0, bi2.getWidth());
+				/* TODO This code to do fade using alpha had been dead code inside a "if (false) {" block.
+				 * Eclipse would give a build warning about dead code, so this code has been commented out 
+				 * but left here for future use; am assuming it was dead code because it wasn't working correctly
+				 * but that it will be useful in the future.
+				 */
+				// int rgb[] = bi2.getRGB(0, 0, bi2.getWidth(), bi2.getHeight(), null, 0, bi2.getWidth());
+				// for (int i = 0; i < rgb.length; i++) {
+				// 	final int alpha = (rgb[i] >> 24) & 0xFF;
+				// 	rgb[i] = (rgb[i] & 0xFFFFFF) | (alpha / 3) << 24;
+				// 	
+				// 	//rgb[i] = (rgb[i]&0xFFFFFF) | ((rgb[i]>>1)&0x3F000000);
+				// }
+				// bi2.setRGB(0, 0, bi2.getWidth(), bi2.getHeight(), rgb, 0, bi2.getWidth());
 				
 			} else { // Raster alpha
 			

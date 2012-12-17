@@ -188,10 +188,11 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 			viewport.addChangeListener(new ChangeListener() {
 				private int oldWidth = -1;
 				
+				@Override
 				public void stateChanged(ChangeEvent e) {
-					Dimension d = ComponentAddButtons.this.viewport.getExtentSize();
-					if (d.width != oldWidth) {
-						oldWidth = d.width;
+					Dimension d1 = ComponentAddButtons.this.viewport.getExtentSize();
+					if (d1.width != oldWidth) {
+						oldWidth = d1.width;
 						flowButtons();
 					}
 				}
@@ -356,6 +357,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 		 * Updates the enabled status of the button.
 		 * TODO: LOW: What about updates to the rocket tree?
 		 */
+		@Override
 		public void valueChanged(TreeSelectionEvent e) {
 			updateEnabled();
 		}

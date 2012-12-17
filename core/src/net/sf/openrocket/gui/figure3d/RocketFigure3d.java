@@ -113,7 +113,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			log.debug("Setting up GL capabilities...");
 			
 			log.verbose("GL - Getting Default Profile");
-			GLProfile glp = GLProfile.getDefault();
+			GLProfile glp = GLProfile.get(GLProfile.GL2);
 			
 			log.verbose("GL - creating GLCapabilities");
 			GLCapabilities caps = new GLCapabilities(glp);
@@ -123,9 +123,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			
 			log.verbose("GL - setNumSamples");
 			caps.setNumSamples(6);
-			
-			log.verbose("GL - setStencilBits");
-			caps.setStencilBits(1);
 			
 			log.verbose("GL - Creating Canvas");
 			canvas = new GLCanvas(caps);
@@ -139,7 +136,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			log.verbose("GL - Setting up mouse listeners");
 			setupMouseListeners();
 			
-			log.verbose("GL - Rasterizine Carets"); //reticulating splines?
+			log.verbose("GL - Rasterizing Carets");
 			rasterizeCarets();
 			
 		} catch (Throwable t) {
@@ -567,7 +564,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		glu.gluProject(c.x, c.y, c.z, mvmatrix, 0, projmatrix, 0, viewport, 0,
 				out, 0);
 		
-		log.verbose("GL - peoject() complete");
+		log.verbose("GL - project() complete");
 		return new Coordinate(out[0], out[1], out[2]);
 		
 	}

@@ -1,7 +1,7 @@
 <engine-database>
   <engine-list>
 <engine  mfg="Cesaroni Technology Inc." code="L730" Type="reloadable" dia="54."
-len="6490." initWt="2247." propWt="1351." delays="1000" auto-calc-mass="1"
+len="649" initWt="2247." propWt="1351." delays="1000" auto-calc-mass="1"
 auto-calc-cg="1" avgThrust="732.947" peakThrust="1216.59" throatDia="0."
 exitDia="0." Itot="2763.21" burn-time="3.77" massFrac="60.12" Isp="208.56"
 tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"

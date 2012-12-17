@@ -1,4 +1,4 @@
-package net.sf.openrocket.database;
+package net.sf.openrocket.database.motor;
 
 import java.util.List;
 

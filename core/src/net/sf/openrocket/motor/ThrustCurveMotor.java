@@ -1,5 +1,6 @@
 package net.sf.openrocket.motor;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
@@ -14,7 +15,12 @@ import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
 
 
-public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor> {
+public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1490333207132694479L;
+
 	private static final LogHelper log = Application.getLogger();
 	
 	public static final double MAX_THRUST = 10e6;

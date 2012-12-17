@@ -1,0 +1,30 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Cesaroni Technology Inc." code="12066-N2200-PK-P" Type="unspecified"
+dia="98." len="1010." initWt="11356." propWt="6308." delays="0"
+auto-calc-mass="1" auto-calc-cg="1" avgThrust="2062.8" peakThrust="2755.85"
+throatDia="0." exitDia="0." Itot="12088." burn-time="5.86" massFrac="55.5477"
+Isp="195.408" tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1"
+mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Pink Pro98 5G
+12066-N2200-PK P
+Note that the motor was fired in a 6G casing with a single Pro98-Spacer
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="6308." cg="505."/>
+      <eng-data  t="0.033" f="2755.85" m="6284.27" cg="505."/>
+      <eng-data  t="0.143" f="2434.78" m="6135.29" cg="505."/>
+      <eng-data  t="0.624" f="2555.18" m="5509.04" cg="505."/>
+      <eng-data  t="1.814" f="2602.01" m="3907.76" cg="505."/>
+      <eng-data  t="2.67" f="2461.54" m="2776.83" cg="505."/>
+      <eng-data  t="4.186" f="2130.43" m="960.45" cg="505."/>
+      <eng-data  t="4.66" f="2063.55" m="441.754" cg="505."/>
+      <eng-data  t="4.796" f="1852.84" m="302.781" cg="505."/>
+      <eng-data  t="5.067" f="775.92" m="116.903" cg="505."/>
+      <eng-data  t="5.236" f="474.916" m="61.7464" cg="505."/>
+      <eng-data  t="5.497" f="180.602" m="17.1055" cg="505."/>
+      <eng-data  t="5.86" f="0." m="0." cg="505."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

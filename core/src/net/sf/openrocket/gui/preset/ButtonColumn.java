@@ -114,7 +114,7 @@ public class ButtonColumn extends AbstractCellEditor
 
 	@Override
 	public Component getTableCellEditorComponent(
-		JTable table, Object value, boolean isSelected, int row, int column)
+		JTable myTable, Object value, boolean isSelected, int row, int column)
 	{
 		if (value == null)
 		{
@@ -145,17 +145,18 @@ public class ButtonColumn extends AbstractCellEditor
 //
 //  Implement TableCellRenderer interface
 //
+	@Override
 	public Component getTableCellRendererComponent(
-		JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		JTable myTable, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		if (isSelected)
 		{
-			renderButton.setForeground(table.getSelectionForeground());
-	 		renderButton.setBackground(table.getSelectionBackground());
+			renderButton.setForeground(myTable.getSelectionForeground());
+	 		renderButton.setBackground(myTable.getSelectionBackground());
 		}
 		else
 		{
-			renderButton.setForeground(table.getForeground());
+			renderButton.setForeground(myTable.getForeground());
 			renderButton.setBackground(UIManager.getColor("Button.background"));
 		}
 
@@ -194,6 +195,7 @@ public class ButtonColumn extends AbstractCellEditor
 	/*
 	 *	The button has been pressed. Stop editing and invoke the custom Action
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		int row = table.convertRowIndexToModel( table.getEditingRow() );
@@ -216,6 +218,7 @@ public class ButtonColumn extends AbstractCellEditor
 	 *  the mouse to another cell before releasing it, the editor is still
 	 *  active. Make sure editing is stopped when the mouse is released.
 	 */
+    @Override
     public void mousePressed(MouseEvent e)
     {
     	if (table.isEditing()
@@ -223,6 +226,7 @@ public class ButtonColumn extends AbstractCellEditor
 			isButtonColumnEditor = true;
     }
 
+    @Override
     public void mouseReleased(MouseEvent e)
     {
     	if (isButtonColumnEditor
@@ -232,7 +236,12 @@ public class ButtonColumn extends AbstractCellEditor
 		isButtonColumnEditor = false;
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {}
-	public void mouseEntered(MouseEvent e) {}
+    
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+    
+    @Override
     public void mouseExited(MouseEvent e) {}
 }

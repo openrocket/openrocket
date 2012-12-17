@@ -1,5 +1,7 @@
 package net.sf.openrocket.motor;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,7 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Manufacturer {
+public class Manufacturer implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8124172026153369292L;
 
 	private static class ManufacturerList extends ConcurrentHashMap<String,Manufacturer> {
 		
@@ -256,6 +263,24 @@ public class Manufacturer {
 	
 	private static String generateSearchString(String str) {
 		return str.toLowerCase(Locale.getDefault()).replaceAll("[^a-zA-Z0-9]+", " ").trim();
+	}
+	
+	private Object writeReplace() {
+		return new ManufacturerSerializationProxy(this.displayName);
+	}
+
+	private static class ManufacturerSerializationProxy implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8311677686087002569L;
+		String displayName;
+		ManufacturerSerializationProxy( String displayName ) {
+			this.displayName = displayName;
+		}
+		private Object readResolve() throws ObjectStreamException {
+			return Manufacturer.getManufacturer(this.displayName);
+		}
 	}
 	
 }

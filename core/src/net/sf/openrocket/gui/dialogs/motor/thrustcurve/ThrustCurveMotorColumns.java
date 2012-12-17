@@ -3,7 +3,7 @@ package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 import java.text.Collator;
 import java.util.Comparator;
 
-import net.sf.openrocket.database.ThrustCurveMotorSet;
+import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.DesignationComparator;
 import net.sf.openrocket.motor.ThrustCurveMotor;

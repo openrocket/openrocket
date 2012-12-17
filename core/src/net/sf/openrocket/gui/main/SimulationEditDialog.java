@@ -855,6 +855,7 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private void performPlot(PlotConfiguration config) {
 		
 		// Fill the auto-selections

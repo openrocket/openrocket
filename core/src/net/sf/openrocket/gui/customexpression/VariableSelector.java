@@ -4,7 +4,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -20,14 +19,10 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.JTableHeader;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 
 /**

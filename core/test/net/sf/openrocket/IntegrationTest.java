@@ -11,7 +11,8 @@ import javax.swing.Action;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.database.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.database.motor.MotorDatabase;
+import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.DatabaseMotorFinder;
@@ -36,14 +37,28 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
-import org.junit.BeforeClass;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.auto.Mock;
+import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.google.inject.Injector;
 
 /**
  * This class contains various integration tests that simulate user actions that
  * might be performed.
  */
+@RunWith(JMock.class)
 public class IntegrationTest extends BaseTestCase {
+	Mockery context = new JUnit4Mockery();
+	
+	@Mock
+	Injector injector;
+	
 	
 	private OpenRocketDocument document;
 	private Action undoAction, redoAction;
@@ -54,29 +69,37 @@ public class IntegrationTest extends BaseTestCase {
 	private FlightConditions conditions;
 	
 	
-	@BeforeClass
-	public static void initialize() {
-		ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase(false) {
-			@Override
-			protected void loadMotors() {
-				GeneralMotorLoader loader = new GeneralMotorLoader();
-				InputStream is = this.getClass().getResourceAsStream("Estes_A8.rse");
-				assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
-				try {
-					for (Motor m : loader.load(is, "Estes_A8.rse")) {
-						addMotor((ThrustCurveMotor) m);
-					}
-					is.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-					fail("IOException: " + e);
-				}
+	@Before
+	public void initialize() {
+		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
+		db.addMotor(readMotor());
+		
+		context.checking(new Expectations() {
+			{
+				allowing(injector).getInstance(MotorDatabase.class);
+				will(returnValue(db));
 			}
-		};
-		db.startLoading();
+		});
+		
 		assertEquals(1, db.getMotorSets().size());
-		Application.setMotorSetDatabase(db);
+		Application.setInjector(injector);
 		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
+	}
+	
+	private static ThrustCurveMotor readMotor() {
+		GeneralMotorLoader loader = new GeneralMotorLoader();
+		InputStream is = IntegrationTest.class.getResourceAsStream("Estes_A8.rse");
+		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
+		try {
+			for (Motor m : loader.load(is, "Estes_A8.rse")) {
+				return (ThrustCurveMotor) m;
+			}
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("IOException: " + e);
+		}
+		throw new RuntimeException("Could not load motor");
 	}
 	
 	/**

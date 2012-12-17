@@ -16,7 +16,7 @@ public class JIJ {
 		for (int i = 0; i < cps.length; i++) {
 			urls[i] = new File(cps[i]).toURI().toURL();
 		}
-		urls[cps.length] = new File("/home/sampo/Projects/OpenRocket/core/example.jar").toURL();
+		urls[cps.length] = new File("/home/sampo/Projects/OpenRocket/core/example.jar").toURI().toURL();
 		
 		System.out.println("Classpath: " + Arrays.toString(urls));
 		

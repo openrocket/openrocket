@@ -21,6 +21,7 @@ import net.sf.openrocket.gui.main.MRUDesignFile;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.GUIUtil;
+import net.sf.openrocket.gui.util.BlockingMotorDatabaseProvider;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.util.BuildProperties;
@@ -31,6 +32,10 @@ import com.google.inject.Injector;
 /**
  * The second class in the OpenRocket startup sequence.  This class can assume the
  * Application class to be properly set up, and can use any classes safely.
+ * <p>
+ * This class needs to complete the application setup, create a child Injector that
+ * contains all necessary bindings for the system, replace the Injector in Application
+ * and then continue the startup.
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -41,8 +46,6 @@ public class ApplicationStartup {
 	@Inject
 	private Injector injector;
 	
-	
-	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
 	
 	/**
 	 * Run when starting up OpenRocket after Application has been set up.
@@ -123,7 +126,13 @@ public class ApplicationStartup {
 		// Load motors etc.
 		log.info("Loading databases");
 		loadPresetComponents();
-		loadMotor();
+		BlockingMotorDatabaseProvider db = loadMotor();
+		
+		// Update injector to contain database bindings
+		ApplicationModule2 module = new ApplicationModule2(db);
+		Injector injector2 = injector.createChildInjector(module);
+		Application.setInjector(injector2);
+		
 		
 		Databases.fakeMethod();
 		
@@ -183,11 +192,14 @@ public class ApplicationStartup {
 	 * Start loading motors in background thread.
 	 * 
 	 * Public for Python bindings.
+	 * 
+	 * @return	a provider for the database which blocks before returning the db.
 	 */
-	public void loadMotor() {
-		ConcurrentLoadingThrustCurveMotorSetDatabase motorLoader = new ConcurrentLoadingThrustCurveMotorSetDatabase(THRUSTCURVE_DIRECTORY);
-		motorLoader.startLoading();
-		Application.setMotorSetDatabase(motorLoader);
+	public BlockingMotorDatabaseProvider loadMotor() {
+		MotorDatabaseLoader bg = injector.getInstance(MotorDatabaseLoader.class);
+		bg.startLoading();
+		BlockingMotorDatabaseProvider db = new BlockingMotorDatabaseProvider(bg);
+		return db;
 	}
 	
 	/**

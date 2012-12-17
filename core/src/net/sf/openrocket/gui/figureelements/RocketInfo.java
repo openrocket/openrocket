@@ -69,15 +69,15 @@ public class RocketInfo implements FigureElement {
 	
 	
 	@Override
-	public void paint(Graphics2D g2, double scale) {
+	public void paint(Graphics2D myG2, double scale) {
 		throw new UnsupportedOperationException("paint() must be called with coordinates");
 	}
 
 	@Override
-	public void paint(Graphics2D g2, double scale, Rectangle visible) {
-		this.g2 = g2;
+	public void paint(Graphics2D myG2, double scale, Rectangle visible) {
+		this.g2 = myG2;
 		this.line = FONT.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-				g2.getFontRenderContext()).getHeight();
+				myG2.getFontRenderContext()).getHeight();
 		
 		x1 = visible.x + MARGIN;
 		x2 = visible.x + visible.width - MARGIN;

@@ -109,7 +109,7 @@ public class RASPMotorLoader extends AbstractMotorLoader {
 						if (buf[i].equalsIgnoreCase("P") ||
 								buf[i].equalsIgnoreCase("plugged")) {
 							delays.add(Motor.PLUGGED);
-						} else {
+						} else if (buf[i].matches("[0-9]+")) {
 							// Many RASP files have "100" as an only delay
 							double d = Double.parseDouble(buf[i]);
 							if (d < 99)

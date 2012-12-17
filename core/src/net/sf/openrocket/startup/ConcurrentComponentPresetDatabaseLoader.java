@@ -2,7 +2,9 @@ package net.sf.openrocket.startup;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +19,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 
 public class ConcurrentComponentPresetDatabaseLoader {
@@ -90,19 +93,26 @@ public class ConcurrentComponentPresetDatabaseLoader {
 			// Start loading
 			log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
 
-			SimpleFileFilter orcFilter = new SimpleFileFilter("", false, "orc"); 
-			iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, orcFilter);
+			iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("",false,"ser"));
 
 			if (iterator != null) {
 				while( iterator.hasNext() ) {
 					Pair<String,InputStream> f = iterator.next();
-					FileLoader loader = new FileLoader( f.getV(), f.getU() );
-					loaderPool.execute(loader);
-					fileCount ++;
+					try {
+						ObjectInputStream ois = new ObjectInputStream(f.getV());
+						List<ComponentPreset> list = (List<ComponentPreset>) ois.readObject();
+						componentPresetDao.addAll(list);
+						fileCount++;
+						presetCount+=list.size();
+					}
+					catch ( Exception ex ) {
+						throw new BugException(ex);
+					}
 				}
 			}
 
 			try {
+				SimpleFileFilter orcFilter = new SimpleFileFilter("", false, "orc"); 
 				iterator = new DirectoryIterator(
 						((SwingPreferences) Application.getPreferences()).getDefaultUserComponentDirectory(),
 						orcFilter,
