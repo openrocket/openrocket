@@ -25,7 +25,7 @@ public class CustomExpressionSimulationListener extends	AbstractSimulationListen
 		FlightDataBranch data = status.getFlightData();
 		for (CustomExpression expression : expressions ) {
 			double value = expression.evaluateDouble(status);
-			log.debug("Setting value of custom expression "+expression.toString()+" = "+value);
+			//log.debug("Setting value of custom expression "+expression.toString()+" = "+value);
 			data.setValue(expression.getType(), value);
 		}
 	}
