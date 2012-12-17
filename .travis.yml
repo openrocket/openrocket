@@ -1,0 +1,4 @@
+language: java
+jdk:
+  - oraclejdk7
+script: "ant clean build serialize-motors serialize-presets jar"
