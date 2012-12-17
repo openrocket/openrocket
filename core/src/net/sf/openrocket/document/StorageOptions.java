@@ -14,8 +14,6 @@ public class StorageOptions implements Cloneable {
 	
 	private FileType fileType = FileType.OPENROCKET;
 	
-	private boolean includeDecals = false;
-	
 	private double simulationTimeSkip = SIMULATION_DATA_NONE;
 
 	private boolean explicitlySet = false;
@@ -26,14 +24,6 @@ public class StorageOptions implements Cloneable {
 
 	public void setFileType(FileType fileType) {
 		this.fileType = fileType;
-	}
-
-	public boolean isIncludeDecals() {
-		return includeDecals;
-	}
-
-	public void setIncludeDecals(boolean includeDecals) {
-		this.includeDecals = includeDecals;
 	}
 
 	public double getSimulationTimeSkip() {

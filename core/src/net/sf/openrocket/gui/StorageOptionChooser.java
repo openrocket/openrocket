@@ -39,8 +39,6 @@ public class StorageOptionChooser extends JPanel {
 	
 	private JSpinner timeSpinner;
 	
-	private JCheckBox decalButton;
-	
 	private JLabel estimateLabel;
 	
 	
@@ -122,14 +120,6 @@ public class StorageOptionChooser extends JPanel {
 		noneButton.addActionListener(actionUpdater);
 		this.add(noneButton, "spanx, wrap 20lp");
 		
-		//// Save decals
-		// FIXME - should we hide this if there are no decals?
-		decalButton = new JCheckBox(trans.get("StorageOptChooser.checkbox.IncludeDecals"));
-		decalButton.setToolTipText(trans.get("StorageOptChooser.lbl.IncludeDecals"));
-		decalButton.addActionListener(actionUpdater);
-		this.add(decalButton, "spanx, wrap para");
-		
-		
 		// Estimate is updated in loadOptions(opts)
 		estimateLabel = new JLabel("");
 		//// An estimate on how large the resulting file would
@@ -167,8 +157,6 @@ public class StorageOptionChooser extends JPanel {
 		timeSpinner.setValue(t);
 		artificialEvent = false;
 		
-		decalButton.setSelected(opts.isIncludeDecals());
-		
 		updateEstimate();
 	}
 	
@@ -185,8 +173,6 @@ public class StorageOptionChooser extends JPanel {
 		}
 		
 		opts.setSimulationTimeSkip(t);
-		
-		opts.setIncludeDecals(decalButton.isSelected());
 		
 		opts.setExplicitlySet(true);
 	}

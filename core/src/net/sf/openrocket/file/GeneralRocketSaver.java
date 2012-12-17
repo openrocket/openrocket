@@ -18,6 +18,7 @@ import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
+import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -229,6 +230,11 @@ public class GeneralRocketSaver {
 		}
 
 		// Now we have to loop through all the components and update their names.
+		// FIXME - we probably don't want to modify the existing document.
+		// Suppose the user has been using a couple of decal files from the file system.
+		// He currently is editing some decal files, but decides to do an itermediate save.
+		// The saved file should contain references to the decal copied into the zip container,
+		// however, the currently open document should still be looking at the filesystem copy.
 		for( RocketComponent c : document.getRocket() ) {
 
 			if ( c.getAppearance() == null ) {
@@ -248,7 +254,23 @@ public class GeneralRocketSaver {
 			c.setAppearance(builder.getAppearance());
 
 		}
+		
+		Map<String,InputStream> decalMap = new HashMap<String,InputStream>();
+		for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
 
+			String newName = decalNameNormalization.get(image.getKey());
+			decalMap.put(newName, image.getValue());
+		}
+		if ( options.getFileType() == FileType.OPENROCKET ) {
+			saveAllPartsZipFile(fileName, output, document, options, decalMap);
+		} else {
+			saveInternal(output, document, options);
+			output.close();
+		}
+	}
+	
+	public void saveAllPartsZipFile(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options, Map<String,InputStream> decals) throws IOException {
+		
 		// Open a zip stream to write to.
 		ZipOutputStream zos = new ZipOutputStream(output);
 		zos.setLevel(9);
@@ -265,8 +287,8 @@ public class GeneralRocketSaver {
 
 			for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
 
-				String newName = decalNameNormalization.get(image.getKey());
-				ZipEntry decal = new ZipEntry(newName);
+				String name = image.getKey();
+				ZipEntry decal = new ZipEntry(name);
 				zos.putNextEntry(decal);
 
 				InputStream is = image.getValue();
