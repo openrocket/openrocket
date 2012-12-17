@@ -121,7 +121,7 @@ public class AppearancePanel extends JPanel {
 		}
 		final JButton figureColorButton = new JButton(new ColorIcon(figureColor));
 		
-		final JButton colorButton = new JButton(new ColorIcon(ab.getAmbient()));
+		final JButton colorButton = new JButton(new ColorIcon(ab.getColor()));
 
 		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
 
@@ -238,8 +238,15 @@ public class AppearancePanel extends JPanel {
 		
 		{ // Color
 			add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
-			mDefault.addEnableComponent(colorButton, false);
+			//mDefault.addEnableComponent(colorButton, false);
+			colorButton.setEnabled(ab.getImage() == null);
 			add(colorButton);
+			ab.addChangeListener(new StateChangeListener() {
+				@Override
+				public void stateChanged(EventObject e) {
+					colorButton.setEnabled(ab.getImage() == null);
+				}
+			});
 		}
 
 		{ // Scale
