@@ -28,8 +28,6 @@ public class CustomExpressionSimulationListener extends	AbstractSimulationListen
 			//log.debug("Setting value of custom expression "+expression.toString()+" = "+value);
 			data.setValue(expression.getType(), value);
 		}
-		
-
 	}
 
 	@Override
