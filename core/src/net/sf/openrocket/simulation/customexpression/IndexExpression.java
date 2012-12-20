@@ -3,6 +3,7 @@ package net.sf.openrocket.simulation.customexpression;
 import java.util.List;
 
 import de.congrace.exp4j.Calculable;
+import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.LogHelper;
@@ -27,7 +28,6 @@ public class IndexExpression extends CustomExpression {
 	
 	@Override
 	public Variable evaluate(SimulationStatus status){
-		
 		Calculable calc = buildExpression();
 		if (calc == null){
 			return new Variable("Unknown");
@@ -42,15 +42,22 @@ public class IndexExpression extends CustomExpression {
 		List<Double> time = status.getFlightData().get(FlightDataType.TYPE_TIME);
 		LinearInterpolator interp = new LinearInterpolator(time, data); 
 		
+		// Set the variables in the expression to evaluate
+		for (FlightDataType etype : status.getFlightData().getTypes()){
+			double value = status.getFlightData().getLast(etype); 
+			calc.setVariable( new Variable(etype.getSymbol(), value ) );
+		}
+		
 		// Evaluate this expression to get the t value
+		//System.out.println("Evaluating expression to get t value "+this.getExpressionString());
 		try{
 			double tvalue = calc.calculate().getDoubleValue();
+			//System.out.println("t = "+tvalue);
 			return new Variable(hash(), interp.getValue( tvalue ) );
 		}
 		catch (java.util.EmptyStackException e){
 			log.user("Unable to calculate time index for indexed expression "+getExpressionString()+" due to empty stack exception");
 			return new Variable("Unknown");
 		}
-		
 	}
 }
