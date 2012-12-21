@@ -147,13 +147,14 @@ public class GeneralRocketSaver {
 
 	private void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options)	throws IOException {
 
-		/* if we want a directory ...
-		String path = fileName;
-		int dotlocation = fileName.lastIndexOf('.');
-		if ( dotlocation > 1 ) {
-			path = fileName.substring(dotlocation);
+		// For now, we don't save decal inforamtion in ROCKSIM files, so don't do anything
+		// which follows.
+		// TODO - add support for decals in ROCKSIM files?
+		if ( options.getFileType() == FileType.ROCKSIM ) {
+			saveInternal(output, document, options);
+			output.close();
+			return;
 		}
-		 */
 
 		// grab the set of decal images.  We do this up front
 		// so we can fail early if some resource is missing.
@@ -230,12 +231,12 @@ public class GeneralRocketSaver {
 		}
 
 		// Now we have to loop through all the components and update their names.
-		// FIXME - we probably don't want to modify the existing document.
-		// Suppose the user has been using a couple of decal files from the file system.
-		// He currently is editing some decal files, but decides to do an itermediate save.
-		// The saved file should contain references to the decal copied into the zip container,
-		// however, the currently open document should still be looking at the filesystem copy.
-		for( RocketComponent c : document.getRocket() ) {
+		
+		// First we copy the OpenRocketDocument so we can modify the decal file names
+		// without changing the ui's copy.  This is so the ui will continue to
+		// use the exported decals.
+		OpenRocketDocument rocketDocCopy = document.copy();
+		for( RocketComponent c : rocketDocCopy.getRocket() ) {
 
 			if ( c.getAppearance() == null ) {
 				continue;
@@ -261,12 +262,8 @@ public class GeneralRocketSaver {
 			String newName = decalNameNormalization.get(image.getKey());
 			decalMap.put(newName, image.getValue());
 		}
-		if ( options.getFileType() == FileType.OPENROCKET ) {
-			saveAllPartsZipFile(fileName, output, document, options, decalMap);
-		} else {
-			saveInternal(output, document, options);
-			output.close();
-		}
+
+		saveAllPartsZipFile(fileName, output, rocketDocCopy, options, decalMap);
 	}
 	
 	public void saveAllPartsZipFile(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options, Map<String,InputStream> decals) throws IOException {
