@@ -28,10 +28,6 @@ public class DecalRegistry {
 
 	private Map<String,File> exportedDecalMap = new HashMap<String,File>();
 	
-	/* TODO - should we implement caching?
-	private Map<String,byte[]> cache = new HashMap<String,byte[]>();
-	 */
-
 	public void setBaseFile(FileInfo fileInfo) {
 		this.fileInfo = fileInfo;
 	}
@@ -74,13 +70,6 @@ public class DecalRegistry {
 	 * @throws IOException
 	 */
 	public InputStream getDecal( String name ) throws FileNotFoundException, IOException {
-		/* TODO
-		// if the decal has already been cached return it.
-		byte[] bytes = cache.get(name);
-		if ( bytes != null ) {
-			return new ByteArrayInputStream(bytes);
-		} 
-		 */
 
 		// This is the InputStream to be returned.
 		InputStream rawIs = null;
