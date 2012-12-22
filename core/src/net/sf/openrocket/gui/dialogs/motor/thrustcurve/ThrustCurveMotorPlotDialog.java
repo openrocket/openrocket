@@ -79,7 +79,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 		// Selected thrust curve
 		int n = 0;
 		if (selected >= 0) {
-			dataset.addSeries(generateSeries(motors.get(selected)));
+			dataset.addSeries(generateSeries(motors.get(selected),0));
 			renderer.setSeriesStroke(n, new BasicStroke(1.5f));
 			renderer.setSeriesPaint(n, ThrustCurveMotorSelectionPanel.getColor(selected));
 		}
@@ -91,7 +91,7 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 				continue;
 			
 			ThrustCurveMotor m = motors.get(i);
-			dataset.addSeries(generateSeries(m));
+			dataset.addSeries(generateSeries(m, i));
 			renderer.setSeriesStroke(n, new BasicStroke(1.5f));
 			renderer.setSeriesPaint(n, ThrustCurveMotorSelectionPanel.getColor(i));
 			renderer.setSeriesShape(n, new Rectangle());
@@ -121,8 +121,12 @@ public class ThrustCurveMotorPlotDialog extends JDialog {
 	}
 	
 	
-	private XYSeries generateSeries(ThrustCurveMotor motor) {
-		XYSeries series = new XYSeries(motor.getManufacturer() + " " + motor.getDesignation());
+	private XYSeries generateSeries(ThrustCurveMotor motor, int i) {
+		String label = motor.getManufacturer() + " " + motor.getDesignation();
+		if ( i> 0 ) {
+			label += " ("+i+")";
+		}
+		XYSeries series = new XYSeries(label);
 		double[] time = motor.getTimePoints();
 		double[] thrust = motor.getThrustPoints();
 		
