@@ -62,7 +62,6 @@ public class RocksimSaver extends RocketSaver {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dest, "UTF-8"));
         writer.write(marshalToRocksim(doc));
         writer.flush();
-        writer.close();
     }
 
     @Override

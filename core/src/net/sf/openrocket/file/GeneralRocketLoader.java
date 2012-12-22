@@ -106,7 +106,6 @@ public class GeneralRocketLoader {
 		// Check for GZIP
 		if (buffer[0] == GZIP_SIGNATURE[0] && buffer[1] == GZIP_SIGNATURE[1]) {
 			OpenRocketDocument doc = loadFromStream(new GZIPInputStream(source), motorFinder);
-			doc.getDefaultStorageOptions().setCompressionEnabled(true);
 			doc.getDecalRegistry().setIsZipFile(false);
 			return doc;
 		}
@@ -122,8 +121,6 @@ public class GeneralRocketLoader {
 				}
 				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
-					doc.getDefaultStorageOptions().setCompressionEnabled(true);
-					doc.getDefaultStorageOptions().setIncludeDecals(true);
 					doc.getDecalRegistry().setIsZipFile(true);
 					return doc;
 				} else if ( entry.getName().matches(".*\\.[rR][kK][tT]$")) {

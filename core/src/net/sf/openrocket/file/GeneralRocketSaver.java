@@ -18,6 +18,7 @@ import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
+import net.sf.openrocket.document.StorageOptions.FileType;
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.file.rocksim.export.RocksimSaver;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -146,23 +147,14 @@ public class GeneralRocketSaver {
 
 	private void save(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options)	throws IOException {
 
-		// If we don't include decals, just write the simple file.
-		if (!options.isIncludeDecals()) {
-			saveInternal(output,document,options);
+		// For now, we don't save decal inforamtion in ROCKSIM files, so don't do anything
+		// which follows.
+		// TODO - add support for decals in ROCKSIM files?
+		if ( options.getFileType() == FileType.ROCKSIM ) {
+			saveInternal(output, document, options);
+			output.close();
 			return;
 		}
-
-		// We're saving decals, so the result will be a zip file.  There's no
-		// need to gzip the rocket model file in the archive.
-		options.setCompressionEnabled(false);
-
-		/* if we want a directory ...
-		String path = fileName;
-		int dotlocation = fileName.lastIndexOf('.');
-		if ( dotlocation > 1 ) {
-			path = fileName.substring(dotlocation);
-		}
-		 */
 
 		// grab the set of decal images.  We do this up front
 		// so we can fail early if some resource is missing.
@@ -239,7 +231,12 @@ public class GeneralRocketSaver {
 		}
 
 		// Now we have to loop through all the components and update their names.
-		for( RocketComponent c : document.getRocket() ) {
+		
+		// First we copy the OpenRocketDocument so we can modify the decal file names
+		// without changing the ui's copy.  This is so the ui will continue to
+		// use the exported decals.
+		OpenRocketDocument rocketDocCopy = document.copy();
+		for( RocketComponent c : rocketDocCopy.getRocket() ) {
 
 			if ( c.getAppearance() == null ) {
 				continue;
@@ -258,7 +255,19 @@ public class GeneralRocketSaver {
 			c.setAppearance(builder.getAppearance());
 
 		}
+		
+		Map<String,InputStream> decalMap = new HashMap<String,InputStream>();
+		for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
 
+			String newName = decalNameNormalization.get(image.getKey());
+			decalMap.put(newName, image.getValue());
+		}
+
+		saveAllPartsZipFile(fileName, output, rocketDocCopy, options, decalMap);
+	}
+	
+	public void saveAllPartsZipFile(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options, Map<String,InputStream> decals) throws IOException {
+		
 		// Open a zip stream to write to.
 		ZipOutputStream zos = new ZipOutputStream(output);
 		zos.setLevel(9);
@@ -275,8 +284,8 @@ public class GeneralRocketSaver {
 
 			for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
 
-				String newName = decalNameNormalization.get(image.getKey());
-				ZipEntry decal = new ZipEntry(newName);
+				String name = image.getKey();
+				ZipEntry decal = new ZipEntry(name);
 				zos.putNextEntry(decal);
 
 				InputStream is = image.getValue();

@@ -84,7 +84,6 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 		timeSkip = Math.rint(timeSkip * 100) / 100;
 		
 		doc.getDefaultStorageOptions().setSimulationTimeSkip(timeSkip);
-		doc.getDefaultStorageOptions().setCompressionEnabled(false); // Set by caller if compressed
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
 		
 		doc.clearUndo();

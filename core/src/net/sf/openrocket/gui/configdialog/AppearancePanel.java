@@ -49,7 +49,11 @@ public class AppearancePanel extends JPanel {
 
 	private SimpleAppearanceBuilder ab;
 	
-	private final static UnitGroup UNIT_FOR_SCALES = new UnitGroup();
+	/**
+	 * A non-unit that adjusts by a small amount, suitable for
+	 * values that are on the 0-1 scale
+	 */
+	private final static UnitGroup TEXTURE_UNIT = new UnitGroup();
 	static {
 		Unit no_unit = new GeneralUnit(1,"",2) {
 			@Override
@@ -63,7 +67,7 @@ public class AppearancePanel extends JPanel {
 			}
 
 		};
-		UNIT_FOR_SCALES.addUnit(no_unit);
+		TEXTURE_UNIT.addUnit(no_unit);
 	}
 
 	private static final JColorChooser colorChooser = new JColorChooser();
@@ -117,11 +121,7 @@ public class AppearancePanel extends JPanel {
 		}
 		final JButton figureColorButton = new JButton(new ColorIcon(figureColor));
 		
-		/*final JButton diffuseColorButton = new JButton(new ColorIcon(ab.getDiffuse()));
-		final JButton ambientColorButton = new JButton(new ColorIcon(ab.getAmbient()));
-		final JButton specularColorButton = new JButton(new ColorIcon(ab.getSpecular()));*/
-		
-		final JButton colorButton = new JButton(new ColorIcon(ab.getAmbient()));
+		final JButton colorButton = new JButton(new ColorIcon(ab.getColor()));
 
 		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
 
@@ -129,9 +129,6 @@ public class AppearancePanel extends JPanel {
 			@Override
 			public void stateChanged(EventObject e) {
 				figureColorButton.setIcon(new ColorIcon(c.getColor()));
-				/*diffuseColorButton.setIcon(new ColorIcon(ab.getDiffuse()));
-				ambientColorButton.setIcon(new ColorIcon(ab.getAmbient()));
-				specularColorButton.setIcon(new ColorIcon(ab.getSpecular()));*/
 				colorButton.setIcon(new ColorIcon(ab.getColor()));
 				c.setAppearance(ab.getAppearance());
 			}
@@ -150,11 +147,7 @@ public class AppearancePanel extends JPanel {
 
 		figureColorButton.addActionListener(new ColorActionListener(c, "Color"));
 		colorButton.addActionListener(new ColorActionListener(ab, "Color"));
-		/*diffuseColorButton.addActionListener(new ColorActionListener(ab, "Diffuse"));
-		ambientColorButton.addActionListener(new ColorActionListener(ab, "Ambient"));
-		specularColorButton.addActionListener(new ColorActionListener(ab, "Specular"));*/
 
-		BooleanModel mDefault = new BooleanModel(c.getAppearance() == null);
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 
 
@@ -220,66 +213,50 @@ public class AppearancePanel extends JPanel {
 
 		{// Texture Header Row
 			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD), "wrap");
-			
-			final JCheckBox materialDefault = new JCheckBox(mDefault);
-			materialDefault.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (materialDefault.isSelected()) {
-						c.setAppearance(null);
-					} else {
-						c.setAppearance(ab.getAppearance());
-					}
-				}
-			});
 		}
 
 		{// Texture File
 			add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
 			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
-			mDefault.addEnableComponent(textureDropDown, false);
 			p.add(textureDropDown, "grow");
 			add(p, "span 3, growx, wrap");
 		}
-
-		/*{ // Diffuse
-			add(new JLabel(trans.get("AppearanceCfg.lbl.color.diffuse")));
-			mDefault.addEnableComponent(diffuseColorButton, false);
-			add(diffuseColorButton);
-		}*/
 		
 		{ // Color
-			add(new JLabel("Color"));
-			mDefault.addEnableComponent(colorButton, false);
+			add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
+			//mDefault.addEnableComponent(colorButton, false);
+			colorButton.setEnabled(ab.getImage() == null);
 			add(colorButton);
+			ab.addChangeListener(new StateChangeListener() {
+				@Override
+				public void stateChanged(EventObject e) {
+					colorButton.setEnabled(ab.getImage() == null);
+				}
+			});
 		}
 
 		{ // Scale
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
 
 			add(new JLabel("x:"), "split 4");
-			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX",UNIT_FOR_SCALES).getSpinnerModel());
+			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX", TEXTURE_UNIT).getSpinnerModel());
 			scaleU.setEditor(new SpinnerEditor(scaleU));
-			mDefault.addEnableComponent(scaleU, false);
 			add(scaleU, "w 40");
 
 			add(new JLabel("y:"));
-			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY",UNIT_FOR_SCALES).getSpinnerModel());
+			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY", TEXTURE_UNIT).getSpinnerModel());
 			scaleV.setEditor(new SpinnerEditor(scaleV));
-			mDefault.addEnableComponent(scaleV, false);
 			add(scaleV, "wrap, w 40");
 		}
 		
-		{// Placeholder
+		{// Shine
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
 			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 			JSlider slide = new JSlider(shineModel.getSliderModel());
-			mDefault.addEnableComponent(slide, false);
-			mDefault.addEnableComponent(spin, false);
 			
 			add(spin, "split 2, w 50");
-			add(slide, "w 100");
+			add(slide, "w 50");
 		}
 
 
@@ -287,15 +264,13 @@ public class AppearancePanel extends JPanel {
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
 
 			add(new JLabel("x:"), "split 4");
-			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU").getSpinnerModel());
+			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU", TEXTURE_UNIT).getSpinnerModel());
 			offsetU.setEditor(new SpinnerEditor(offsetU));
-			mDefault.addEnableComponent(offsetU, false);
 			add(offsetU, "w 40");
 
 			add(new JLabel("y:"));
-			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV").getSpinnerModel());
+			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV", TEXTURE_UNIT).getSpinnerModel());
 			offsetV.setEditor(new SpinnerEditor(offsetV));
-			mDefault.addEnableComponent(offsetV, false);
 			add(offsetV, "wrap, w 40");
 		}
 		
@@ -304,7 +279,6 @@ public class AppearancePanel extends JPanel {
 			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
 			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
 			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
-			mDefault.addEnableComponent(combo, false);
 			add(combo);
 		}
 
@@ -314,12 +288,10 @@ public class AppearancePanel extends JPanel {
 			DoubleModel rotationModel = new DoubleModel(ab, "Rotation", UnitGroup.UNITS_ANGLE);
 			JSpinner rotation = new JSpinner(rotationModel.getSpinnerModel());
 			rotation.setEditor(new SpinnerEditor(rotation));
-			mDefault.addEnableComponent(rotation, false);
 			add(rotation, "split 3, w 50");
 			add(new UnitSelector(rotationModel));
 			BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(-Math.PI, Math.PI));
-			mDefault.addEnableComponent(bs, false);
-			add(bs, "w 100, wrap");
+			add(bs, "w 50, wrap");
 		}
 
 

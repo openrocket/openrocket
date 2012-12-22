@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.zip.GZIPOutputStream;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -57,11 +56,8 @@ public class OpenRocketSaver extends RocketSaver {
 
 	// Estimated storage used by different portions
 	// These have been hand-estimated from saved files
-	private static final int BYTES_PER_COMPONENT_UNCOMPRESSED = 590;
 	private static final int BYTES_PER_COMPONENT_COMPRESSED = 80;
-	private static final int BYTES_PER_SIMULATION_UNCOMPRESSED = 1000;
 	private static final int BYTES_PER_SIMULATION_COMPRESSED = 100;
-	private static final int BYTES_PER_DATAPOINT_UNCOMPRESSED = 350;
 	private static final int BYTES_PER_DATAPOINT_COMPRESSED = 100;
 
 
@@ -72,11 +68,6 @@ public class OpenRocketSaver extends RocketSaver {
 	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options) throws IOException {
 
 		log.info("Saving .ork file");
-
-		if (options.isCompressionEnabled()) {
-			log.debug("Enabling compression");
-			output = new GZIPOutputStream(output);
-		}
 
 		dest = new BufferedWriter(new OutputStreamWriter(output, OPENROCKET_CHARSET));
 
@@ -121,9 +112,6 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		log.debug("Writing complete, flushing buffers");
 		dest.flush();
-		if (options.isCompressionEnabled()) {
-			((GZIPOutputStream) output).finish();
-		}
 	}
 	
 	/*
@@ -178,17 +166,11 @@ public class OpenRocketSaver extends RocketSaver {
 			componentCount++;
 		}
 
-		if (options.isCompressionEnabled())
-			size += componentCount * BYTES_PER_COMPONENT_COMPRESSED;
-		else
-			size += componentCount * BYTES_PER_COMPONENT_UNCOMPRESSED;
+		size += componentCount * BYTES_PER_COMPONENT_COMPRESSED;
 
 
 		// Size per simulation
-		if (options.isCompressionEnabled())
-			size += doc.getSimulationCount() * BYTES_PER_SIMULATION_COMPRESSED;
-		else
-			size += doc.getSimulationCount() * BYTES_PER_SIMULATION_UNCOMPRESSED;
+		size += doc.getSimulationCount() * BYTES_PER_SIMULATION_COMPRESSED;
 
 
 		// Size per flight data point
@@ -205,10 +187,7 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 		}
 
-		if (options.isCompressionEnabled())
-			size += pointCount * BYTES_PER_DATAPOINT_COMPRESSED;
-		else
-			size += pointCount * BYTES_PER_DATAPOINT_UNCOMPRESSED;
+		size += pointCount * BYTES_PER_DATAPOINT_COMPRESSED;
 
 		return size;
 	}
