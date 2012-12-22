@@ -27,7 +27,7 @@ public class DecalRegistry {
 	private boolean isZipFile = false;
 
 	private Map<String,File> exportedDecalMap = new HashMap<String,File>();
-	
+
 	public void setBaseFile(FileInfo fileInfo) {
 		this.fileInfo = fileInfo;
 	}
@@ -48,7 +48,7 @@ public class DecalRegistry {
 			return false;
 		}
 		try {
-			InputStream is = forwardToEntry(name);
+			InputStream is = findInZipContainer(name);
 			if ( is != null ) {
 				is.close();
 				return true;
@@ -59,7 +59,7 @@ public class DecalRegistry {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * This function returns an InputStream backed by a byte[] containing the decal pixels.
 	 * If it reads in the bytes from an actual file, the underlying file is closed.
@@ -74,7 +74,7 @@ public class DecalRegistry {
 		// This is the InputStream to be returned.
 		InputStream rawIs = null;
 
-		
+
 		// First check if the decal had been exported
 		{
 			File exportedFile= exportedDecalMap.get(name);
@@ -90,7 +90,7 @@ public class DecalRegistry {
 		}
 
 		if ( rawIs == null && isZipFile ) {
-			rawIs = forwardToEntry(name);
+			rawIs = findInZipContainer(name);
 		}
 
 		// Check absolute file name:
@@ -120,7 +120,6 @@ public class DecalRegistry {
 
 		try {
 			byte[] bytes = FileUtils.readBytes(rawIs);
-			// TODO - here we would update the cache.
 			return new ByteArrayInputStream(bytes);
 		}
 		finally {
@@ -130,7 +129,7 @@ public class DecalRegistry {
 	}
 
 	public void exportDecal( String decalName, File selectedFile ) throws IOException {
-	
+
 		try {
 			InputStream is = getDecal(decalName);
 			OutputStream os = new BufferedOutputStream( new FileOutputStream(selectedFile));
@@ -139,21 +138,26 @@ public class DecalRegistry {
 
 			is.close();
 			os.close();
-			
+
 			exportedDecalMap.put(decalName, selectedFile );
-			
+
 		}
 		catch (IOException iex) {
 			throw new BugException(iex);
 		}
 
-		
-		
+
+
 	}
-	
-	
-	private ZipInputStream forwardToEntry( String name ) throws IOException {
-		ZipInputStream zis = new ZipInputStream(fileInfo.fileURL.openStream());
+
+
+	private ZipInputStream findInZipContainer( String name ) {
+		ZipInputStream zis = null;
+		try {
+			zis = new ZipInputStream(fileInfo.fileURL.openStream());
+		} catch( IOException ex ) {
+			return null;
+		}
 		try {
 			ZipEntry entry = zis.getNextEntry();
 			while ( entry != null ) {
@@ -162,12 +166,16 @@ public class DecalRegistry {
 				}
 				entry = zis.getNextEntry();
 			}
+			zis.close();
+			return null;
 		}
 		catch ( IOException ioex ) {
-			zis.close();
-			throw ioex;
+			try {
+				zis.close();
+			} catch ( IOException ex ) {
+				// why does close throw?  it's maddening
+			}
+			return null;
 		}
-		zis.close();
-		return null;
 	}
 }
