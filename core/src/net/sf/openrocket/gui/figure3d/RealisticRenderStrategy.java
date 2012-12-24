@@ -1,7 +1,6 @@
 package net.sf.openrocket.gui.figure3d;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 	private boolean needClearCache = false;
 	private Map<String, Texture> oldTexCache = new HashMap<String, Texture>();
 	private Map<String, Texture> texCache = new HashMap<String, Texture>();
+	private float anisotrophy = 0;
 
 	public RealisticRenderStrategy(OpenRocketDocument document) {
 		super(document);
@@ -72,6 +72,12 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
 
 		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+
+		if (gl.isExtensionAvailable("GL_EXT_texture_filter_anisotropic")) {
+			float a[] = new float[1];
+			gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, a, 0);
+			anisotrophy = a[0];
+		}
 	}
 
 	@Override
@@ -145,6 +151,10 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
 
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+			
+			if ( anisotrophy > 0){
+				gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotrophy);
+			}
 		}
 	}
 
