@@ -29,8 +29,14 @@ final class JoglDebugAdaptor {
 				@Override
 				public synchronized void write(int b) throws IOException {
 					if (b == '\r' || b == '\n') {
-						if (sb.toString().trim().length() > 0)
-							log.debug(sb.toString());
+						if (sb.toString().trim().length() > 0){
+							String s = sb.toString();
+							if ( Character.isWhitespace(s.charAt(0))){
+								log.verbose(sb.toString());
+							} else {
+								log.debug(sb.toString());
+							}
+						}
 						sb = new StringBuilder();
 					} else {
 						sb.append((char) b);
