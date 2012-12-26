@@ -52,6 +52,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	private static final LogHelper log = Application.getLogger();
 	
 	static {
+		JoglDebugAdaptor.plumbJoglDebug();
+		
 		//this allows the GL canvas and things like the motor selection
 		//drop down to z-order themselves.
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
