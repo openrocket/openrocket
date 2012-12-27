@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventObject;
 import java.util.List;
 
@@ -299,7 +300,7 @@ public class BooleanModel extends AbstractAction implements StateChangeListener,
 		
 		PropertyChangeListener[] listeners = this.getPropertyChangeListeners();
 		if (listeners.length > 0) {
-			log.warn("Invalidating " + this + " while still having listeners " + listeners);
+			log.warn("Invalidating " + this + " while still having listeners " + Arrays.toString(listeners));
 			for (PropertyChangeListener l : listeners) {
 				this.removePropertyChangeListener(l);
 			}

@@ -49,7 +49,7 @@ public class RocketSaver extends RocketComponentSaver {
 			if (id.equals(defId))
 				str += " default=\"true\"";
 			
-			if (rocket.getMotorConfigurationName(id) == "") {
+			if (rocket.getMotorConfigurationName(id).isEmpty()) {
 				str += "/>";
 			} else {
 				str += "><name>" + net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getMotorConfigurationName(id))
