@@ -23,7 +23,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 	private final Component parent;
 	private final AppearanceBuilder ab;
 	
-	private File lastImageDir = null;
+	private static File lastImageDir = null;
 
 	private String[] decals;
 	

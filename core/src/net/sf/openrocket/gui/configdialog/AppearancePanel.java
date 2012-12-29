@@ -3,6 +3,7 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
@@ -17,6 +18,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
@@ -34,6 +36,7 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.ColorConversion;
+import net.sf.openrocket.gui.util.EditDecalHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -41,6 +44,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.GeneralUnit;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
 
@@ -220,6 +224,27 @@ public class AppearancePanel extends JPanel {
 			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
 			p.add(textureDropDown, "grow");
 			add(p, "span 3, growx, wrap");
+			final JButton editBtn = new JButton(trans.get("AppearanceCfg.but.edit"));
+			editBtn.setEnabled( ab.getImage() != null );
+			ab.addChangeListener(new StateChangeListener() {
+				@Override
+				public void stateChanged(EventObject e) {
+					editBtn.setEnabled(ab.getImage() == null);
+				}
+			});
+			editBtn.addActionListener( new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					try {
+						EditDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, ab.getImage());
+					} catch (IOException ex) {
+						throw new BugException(ex);
+					}
+				}
+				
+			});
+			p.add(editBtn);
 		}
 		
 		{ // Color

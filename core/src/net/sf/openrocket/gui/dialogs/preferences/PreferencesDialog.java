@@ -1,9 +1,12 @@
 package net.sf.openrocket.gui.dialogs.preferences;
 
+import java.awt.Desktop;
 import java.awt.Dialog;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractListModel;
+import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -23,9 +27,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -37,8 +46,8 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -58,6 +67,8 @@ public class PreferencesDialog extends JDialog {
 
 	private File defaultDirectory = null;
 	private static final Translator trans = Application.getTranslator();
+	
+	private final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
 	private PreferencesDialog(Window parent) {
 		//// Preferences
@@ -77,7 +88,9 @@ public class PreferencesDialog extends JDialog {
 		//// Options and Miscellaneous options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(),
 				trans.get("pref.dlg.tab.Miscellaneousoptions"));
-
+		//// Decal Editor selection
+		tabbedPane.addTab(trans.get("pref.dlg.tab.DecalEditor"), decalEditorPane());
+		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -96,7 +109,7 @@ public class PreferencesDialog extends JDialog {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				((SwingPreferences) Application.getPreferences()).storeDefaultUnits();
+				preferences.storeDefaultUnits();
 			}
 		});
 
@@ -111,7 +124,7 @@ public class PreferencesDialog extends JDialog {
 		//// Language selector
 		Locale userLocale = null;
 		{
-			String locale = Application.getPreferences().getString("locale", null);
+			String locale = preferences.getString("locale", null);
 			userLocale = L10N.toLocale(locale);
 		}
 		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
@@ -133,7 +146,7 @@ public class PreferencesDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				Named<Locale> selection = (Named<Locale>) languageCombo.getSelectedItem();
 				Locale l = selection.get();
-				Application.getPreferences().putString(Preferences.USER_LOCAL, l == null ? null : l.toString());
+				preferences.putString(Preferences.USER_LOCAL, l == null ? null : l.toString());
 			}
 		});
 		panel.add(new JLabel(trans.get("lbl.language")), "gapright para");
@@ -163,7 +176,7 @@ public class PreferencesDialog extends JDialog {
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
-		List<File> files = ((SwingPreferences) Application.getPreferences()).getUserThrustCurveFiles();
+		List<File> files = preferences.getUserThrustCurveFiles();
 		String str = "";
 		for (File file : files) {
 			if (str.length() > 0) {
@@ -197,7 +210,7 @@ public class PreferencesDialog extends JDialog {
 						list.add(new File(s));
 					}
 				}
-				((SwingPreferences) Application.getPreferences()).setUserThrustCurveFiles(list);
+				preferences.setUserThrustCurveFiles(list);
 			}
 		});
 		panel.add(field, "w 100px, gapright unrel, spanx, growx, split");
@@ -252,8 +265,8 @@ public class PreferencesDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// First one sets to the default, but does not un-set the pref
-				field.setText(((SwingPreferences)Application.getPreferences()).getDefaultUserThrustCurveFile().getAbsolutePath());
-				((SwingPreferences) Application.getPreferences()).setUserThrustCurveFiles(null);
+				field.setText(preferences.getDefaultUserThrustCurveFile().getAbsolutePath());
+				preferences.setUserThrustCurveFiles(null);
 			}
 		});
 		panel.add(button, "wrap");
@@ -268,11 +281,11 @@ public class PreferencesDialog extends JDialog {
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
 				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
-		softwareUpdateBox.setSelected( Application.getPreferences().getCheckUpdates());
+		softwareUpdateBox.setSelected( preferences.getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Application.getPreferences().setCheckUpdates(softwareUpdateBox.isSelected());
+				preferences.setCheckUpdates(softwareUpdateBox.isSelected());
 			}
 		});
 		panel.add(softwareUpdateBox);
@@ -290,17 +303,17 @@ public class PreferencesDialog extends JDialog {
 		panel.add(button, "right, wrap");
 
 
-        final JCheckBox autoOpenDesignFile = new JCheckBox(trans.get("pref.dlg.but.openlast"));
-        autoOpenDesignFile.setSelected(Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled());
-        autoOpenDesignFile.addActionListener(new ActionListener() {
-        			@Override
-        			public void actionPerformed(ActionEvent e) {
-        				Application.getPreferences().setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
-        			}
-        		});
-        panel.add(autoOpenDesignFile);
+		final JCheckBox autoOpenDesignFile = new JCheckBox(trans.get("pref.dlg.but.openlast"));
+		autoOpenDesignFile.setSelected(preferences.isAutoOpenLastDesignOnStartupEnabled());
+		autoOpenDesignFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
+			}
+		});
+		panel.add(autoOpenDesignFile);
 
-        return panel;
+		return panel;
 	}
 
 	private JPanel unitsPane() {
@@ -456,6 +469,105 @@ public class PreferencesDialog extends JDialog {
 	}
 
 
+	private JPanel decalEditorPane() {
+
+		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
+
+		ButtonGroup execGroup = new ButtonGroup();
+
+		JRadioButton showPrompt = new JRadioButton(trans.get("EditDecalDialog.lbl.prompt"));
+		showPrompt.setSelected(!preferences.isDecalEditorPreferenceSet());
+		showPrompt.addItemListener( new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if ( ((JRadioButton) e.getItem()).isSelected() ) {
+					preferences.clearDecalEditorPreference();
+				}
+			}
+		});
+		panel.add(showPrompt,"wrap");
+		execGroup.add(showPrompt);
+
+		if (Desktop.getDesktop().isSupported(Desktop.Action.EDIT) ) {
+
+			JRadioButton systemRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.system"));
+			systemRadio.setSelected( preferences.isDecalEditorPreferenceSystem() );
+			systemRadio.addItemListener( new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if ( ((JRadioButton) e.getItem()).isSelected() ) {
+						preferences.setDecalEditorPreference(true, null);
+					}
+				}
+			});
+			panel.add(systemRadio,"wrap");
+			execGroup.add(systemRadio);
+
+		}
+		
+		boolean commandLineIsSelected = preferences.isDecalEditorPreferenceSet() && ! preferences.isDecalEditorPreferenceSystem();
+		final JRadioButton commandRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.cmdline"));
+		commandRadio.setSelected(commandLineIsSelected);
+		panel.add(commandRadio,"wrap");
+		execGroup.add(commandRadio);
+
+		final JTextArea commandText = new JTextArea();
+		commandText.setEnabled(commandLineIsSelected);
+		commandText.setText( commandLineIsSelected ? preferences.getDecalEditorCommandLine() : "" );
+		commandText.getDocument().addDocumentListener( new DocumentListener() {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				preferences.setDecalEditorPreference(false, commandText.getText());
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				preferences.setDecalEditorPreference(false, commandText.getText());
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				preferences.setDecalEditorPreference(false, commandText.getText());
+			}
+			
+		});
+		panel.add(commandText, "growx, wrap");
+
+		final JButton chooser = new JButton(trans.get("EditDecalDialog.btn.chooser"));
+		chooser.setEnabled(commandLineIsSelected);
+		chooser.addActionListener( new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				int action = fc.showOpenDialog(SwingUtilities.windowForComponent(PreferencesDialog.this));
+				if ( action == JFileChooser.APPROVE_OPTION) {
+					String commandLine = fc.getSelectedFile().getAbsolutePath();
+					commandText.setText(commandLine);
+					preferences.setDecalEditorPreference(false, commandLine);
+				}
+
+			}
+
+		});
+		panel.add(chooser, "growx, wrap");
+
+
+		commandRadio.addChangeListener( new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				boolean enabled = commandRadio.isSelected();
+				commandText.setEnabled(enabled);
+				chooser.setEnabled(enabled);
+			}
+
+		});
+
+		return panel;
+	}
+
 
 
 
@@ -514,7 +626,7 @@ public class PreferencesDialog extends JDialog {
 
 		@Override
 		public Object getSelectedItem() {
-			return descriptions[Application.getPreferences().getChoice(preference, descriptions.length, 0)];
+			return descriptions[preferences.getChoice(preference, descriptions.length, 0)];
 		}
 
 		@Override
@@ -535,7 +647,7 @@ public class PreferencesDialog extends JDialog {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
 
-			Application.getPreferences().putChoice(preference, index);
+			preferences.putChoice(preference, index);
 		}
 
 		@Override
@@ -565,7 +677,7 @@ public class PreferencesDialog extends JDialog {
 
 		@Override
 		public Object getSelectedItem() {
-			if (Application.getPreferences().getBoolean(preference, def)) {
+			if (preferences.getBoolean(preference, def)) {
 				return trueDesc;
 			} else {
 				return falseDesc;
@@ -583,9 +695,9 @@ public class PreferencesDialog extends JDialog {
 			}
 
 			if (trueDesc.equals(item)) {
-				Application.getPreferences().putBoolean(preference, true);
+				preferences.putBoolean(preference, true);
 			} else if (falseDesc.equals(item)) {
-				Application.getPreferences().putBoolean(preference, false);
+				preferences.putBoolean(preference, false);
 			} else {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
@@ -683,9 +795,9 @@ public class PreferencesDialog extends JDialog {
 			UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 			infoDialog.setVisible(true);
 			if (infoDialog.isReminderSelected()) {
-				Application.getPreferences().putString(SwingPreferences.LAST_UPDATE, "");
+				preferences.putString(SwingPreferences.LAST_UPDATE, "");
 			} else {
-				Application.getPreferences().putString(SwingPreferences.LAST_UPDATE, info.getLatestVersion());
+				preferences.putString(SwingPreferences.LAST_UPDATE, info.getLatestVersion());
 			}
 		}
 
