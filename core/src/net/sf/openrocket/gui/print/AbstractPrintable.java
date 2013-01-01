@@ -22,11 +22,10 @@ public abstract class AbstractPrintable<T> extends PrintableComponent {
     /**
      * Constructor. Initialize this printable with the component to be printed.
      *
-     * @param isDoubleBuffered  a boolean, true for double-buffering
-     * @param transition  the component to be printed
+     * @param component  the component to be printed
      */
-    public AbstractPrintable(boolean isDoubleBuffered, T transition) {
-        init(transition);
+    public AbstractPrintable(T component) {
+        init(component);
     }
 
     /**
@@ -50,8 +49,8 @@ public abstract class AbstractPrintable<T> extends PrintableComponent {
      * @return an awt image of the printable component
      */
     public Image createImage() {
-        int width = getWidth() + getOffsetX();
-        int height = getHeight() + getOffsetY();
+        int width = getWidth();
+        int height = getHeight();
         // Create a buffered image in which to draw
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         // Create a graphics contents on the buffered image
@@ -73,8 +72,12 @@ public abstract class AbstractPrintable<T> extends PrintableComponent {
 
         g2.setColor(Color.BLACK);
         g2.setStroke(thinStroke);
-		g2.translate(getOffsetX(), getOffsetY());
+        translate(g2);
 
         draw(g2);
+    }
+
+    protected void translate(final Graphics2D theG2) {
+        theG2.translate(getOffsetX(), getOffsetY());
     }
 }

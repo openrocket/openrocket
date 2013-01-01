@@ -3,9 +3,6 @@
  */
 package net.sf.openrocket.gui.print;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -19,24 +16,29 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
 /**
  * A bunch of helper methods for creating iText components.
  */
 public final class ITextHelper {
 
-	public static BaseFont getBaseFont(){
-		try {
-		return BaseFont.createFont("/dejavu-font/DejaVuSerif.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-		} catch (Exception ex ) {
-			throw new RuntimeException(ex);
-		}
-	}
+    public static BaseFont getBaseFont() {
+        try {
+            return BaseFont.createFont("/dejavu-font/DejaVuSerif.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     /**
      * Create a cell for an iText table.
      *
      * @return a cell with bottom border
      */
-    public static PdfPCell createCell () {
+    public static PdfPCell createCell() {
         return createCell(Rectangle.BOTTOM);
     }
 
@@ -47,7 +49,7 @@ public final class ITextHelper {
      *
      * @return a cell with given border
      */
-    public static PdfPCell createCell (int border) {
+    public static PdfPCell createCell(int border) {
         PdfPCell result = new PdfPCell();
         result.setBorder(border);
 
@@ -61,7 +63,7 @@ public final class ITextHelper {
      *
      * @return the cell containing a table
      */
-    public static PdfPCell createCell (PdfPTable table) {
+    public static PdfPCell createCell(PdfPTable table) {
         PdfPCell result = new PdfPCell();
         result.setBorder(PdfPCell.NO_BORDER);
         result.addElement(table);
@@ -76,7 +78,7 @@ public final class ITextHelper {
      *
      * @return the cell containing the text
      */
-    public static PdfPCell createCell (String v) {
+    public static PdfPCell createCell(String v) {
         return createCell(v, Rectangle.NO_BORDER, PrintUtilities.NORMAL);
     }
 
@@ -88,7 +90,7 @@ public final class ITextHelper {
      *
      * @return the cell containing the text
      */
-    public static PdfPCell createCell (String v, Font font) {
+    public static PdfPCell createCell(String v, Font font) {
         return createCell(v, Rectangle.NO_BORDER, font);
     }
 
@@ -101,7 +103,7 @@ public final class ITextHelper {
      *
      * @return the cell containing the text
      */
-    public static PdfPCell createCell (String v, int leftPad, int rightPad) {
+    public static PdfPCell createCell(String v, int leftPad, int rightPad) {
         PdfPCell c = createCell(v, Rectangle.NO_BORDER, PrintUtilities.NORMAL);
         c.setPaddingLeft(leftPad);
         c.setPaddingRight(rightPad);
@@ -116,13 +118,12 @@ public final class ITextHelper {
      *
      * @return the cell containing the text
      */
-    public static PdfPCell createCell (String v, int border) {
+    public static PdfPCell createCell(String v, int border) {
         return createCell(v, border, PrintUtilities.NORMAL);
     }
 
     /**
-     * Complete create cell - fully qualified.  Create a cell whose contents are the given string with the given border
-     * and font.
+     * Complete create cell - fully qualified.  Create a cell whose contents are the given string with the given border and font.
      *
      * @param v      the text of the cell
      * @param border the border type
@@ -130,7 +131,7 @@ public final class ITextHelper {
      *
      * @return the cell containing the text
      */
-    public static PdfPCell createCell (String v, int border, Font font) {
+    public static PdfPCell createCell(String v, int border, Font font) {
         PdfPCell result = new PdfPCell();
         result.setBorder(border);
         Chunk c = new Chunk();
@@ -148,7 +149,7 @@ public final class ITextHelper {
      *
      * @return an iText phrase
      */
-    public static Phrase createPhrase (String text, Font font) {
+    public static Phrase createPhrase(String text, Font font) {
         Phrase p = new Phrase();
         final Chunk chunk = new Chunk(text);
         chunk.setFont(font);
@@ -163,7 +164,7 @@ public final class ITextHelper {
      *
      * @return an iText phrase
      */
-    public static Phrase createPhrase (String text) {
+    public static Phrase createPhrase(String text) {
         return createPhrase(text, PrintUtilities.NORMAL);
     }
 
@@ -175,7 +176,7 @@ public final class ITextHelper {
      *
      * @return an iText paragraph
      */
-    public static Paragraph createParagraph (String text, Font font) {
+    public static Paragraph createParagraph(String text, Font font) {
         Paragraph p = new Paragraph();
         final Chunk chunk = new Chunk(text);
         chunk.setFont(font);
@@ -190,14 +191,13 @@ public final class ITextHelper {
      *
      * @return an iText paragraph
      */
-    public static Paragraph createParagraph (String text) {
+    public static Paragraph createParagraph(String text) {
         return createParagraph(text, PrintUtilities.NORMAL);
     }
 
     /**
-     * Break a large image up into page-size pieces and output each page in order to an iText document.  The image is
-     * overlayed with an matrix of pages running from left to right until the right side of the image is reached. Then
-     * the next 'row' of pages is output from left to right, and so on.
+     * Break a large image up into page-size pieces and output each page in order to an iText document.  The image is overlayed with an matrix of pages
+     * running from left to right until the right side of the image is reached. Then the next 'row' of pages is output from left to right, and so on.
      *
      * @param pageSize a rectangle that defines the bounds of the page size
      * @param doc      the iText document
@@ -206,9 +206,9 @@ public final class ITextHelper {
      *
      * @throws DocumentException thrown if the document could not be written
      */
-    public static void renderImageAcrossPages (Rectangle pageSize, Document doc, PdfWriter writer, java.awt.Image image)
+    public static void renderImageAcrossPages(Rectangle pageSize, Document doc, PdfWriter writer, java.awt.Image image)
             throws DocumentException {
-        final int margin = (int)Math.min(doc.topMargin(), PrintUnit.POINTS_PER_INCH * 0.3f);
+        final int margin = (int) Math.min(doc.topMargin(), PrintUnit.POINTS_PER_INCH * 0.3f);
         float wPage = pageSize.getWidth() - 2 * margin;
         float hPage = pageSize.getHeight() - 2 * margin;
 
@@ -218,7 +218,7 @@ public final class ITextHelper {
                                                                                                              hImage));
         PdfContentByte content = writer.getDirectContent();
 
-        int ymargin = 0;
+        int ymargin = margin;
 
         while (true) {
             BufferedImage subImage = ((BufferedImage) image).getSubimage((int) crop.getX(), (int) crop.getY(),
@@ -228,20 +228,21 @@ public final class ITextHelper {
             g2.drawImage(subImage, margin, ymargin, null);
             g2.dispose();
 
-            // After the first page, the y-margin needs to be set.
-            ymargin = margin;
+            final int newImageX = (int) (crop.getWidth() + crop.getX());
 
-            final int newX = (int) (crop.getWidth() + crop.getX());
-            if (newX < wImage) {
-                double adjust = Math.min(wImage - newX, wPage);
-                crop = new java.awt.Rectangle(newX, (int) crop.getY(), (int) adjust,
+            if (newImageX < wImage) {
+                //Spans multiple pages horizontally
+                double subImageWidth = Math.min(wImage - newImageX, wPage);
+                crop = new java.awt.Rectangle(newImageX, (int) crop.getY(), (int) subImageWidth,
                                               (int) crop.getHeight());
             }
             else {
-                final int newY = (int) (crop.getHeight() + crop.getY());
-                if (newY < hImage) {
-                    double adjust = Math.min(hImage - newY, hPage);
-                    crop = new java.awt.Rectangle(0, newY, (int) Math.min(wPage, wImage), (int) adjust);
+                //Spans multiple pages vertically
+                final int newImageY = (int) (crop.getHeight() + crop.getY());
+
+                if (newImageY < hImage) {
+                    double subImageHeight = Math.min(hImage - newImageY, hPage);
+                    crop = new java.awt.Rectangle(0, newImageY, (int) Math.min(wPage, wImage), (int) subImageHeight);
                 }
                 else {
                     break;
