@@ -129,12 +129,12 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
 
 		if (t != null && tex != null) {
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-
 			if ( t.getEdgeMode() == Decal.EdgeMode.STICKER ){
 				cr.renderGeometry(gl, c);
 			}
+			
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 			
 			tex.enable(gl);
 			tex.bind(gl);
@@ -161,6 +161,7 @@ public class RealisticRenderer extends RocketRenderer {
 				
 				gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 				gl.glEnable(GL.GL_BLEND);
+				gl.glDepthFunc(GL.GL_LEQUAL);
 			}
 				
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
@@ -168,16 +169,21 @@ public class RealisticRenderer extends RocketRenderer {
 			if (anisotrophy > 0) {
 				gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotrophy);
 			}
-		}
-
-		cr.renderGeometry(gl, c);
-
-		if (tex != null) {
+			
+			cr.renderGeometry(gl, c);
+			
+			if ( t.getEdgeMode() == Decal.EdgeMode.STICKER ){
+				gl.glDepthFunc(GL.GL_LESS);
+			}
+			
 			gl.glMatrixMode(GL.GL_TEXTURE);
 			gl.glPopMatrix();
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 			tex.disable(gl);
+		} else {
+			cr.renderGeometry(gl, c);
 		}
+
 	}
 
 	private void clearCaches(GL2 gl) {

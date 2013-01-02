@@ -390,7 +390,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
 		
-		gl.glDepthFunc(GL.GL_LEQUAL); // the type of depth test to do
+		gl.glDepthFunc(GL.GL_LESS); // the type of depth test to do
 		
 		float amb = 0.5f;
 		float dif = 1.0f;
