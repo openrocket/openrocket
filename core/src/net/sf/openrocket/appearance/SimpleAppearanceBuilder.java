@@ -48,7 +48,7 @@ public class SimpleAppearanceBuilder extends AppearanceBuilder {
 		batch(new Runnable() {
 			@Override
 			public void run() {
-				if (getImage() == null && image != null) {
+				if (getImage() == null && image != null && getEdgeMode() != Decal.EdgeMode.STICKER ) {
 					oldColor = getColor();
 					setColor(new Color(255, 255, 255));
 				} else if (getImage() != null && image == null && oldColor != null) {

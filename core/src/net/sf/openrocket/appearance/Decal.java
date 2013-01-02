@@ -11,7 +11,7 @@ import net.sf.openrocket.util.Coordinate;
 public class Decal {
 
 	public static enum EdgeMode {
-		REPEAT("TextureWrap.Repeat"), MIRROR("TextureWrap.Mirror"), CLAMP("TextureWrap.Clamp");
+		REPEAT("TextureWrap.Repeat"), MIRROR("TextureWrap.Mirror"), CLAMP("TextureWrap.Clamp"), STICKER("TextureWrap.Sticker");
 		private final String transName;
 		EdgeMode(final String name){
 			this.transName = name;
