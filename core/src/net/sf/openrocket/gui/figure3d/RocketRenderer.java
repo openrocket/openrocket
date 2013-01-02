@@ -121,7 +121,7 @@ public abstract class RocketRenderer {
 					gl.glDepthRange(1, 1);
 					gl.glDepthFunc(GL.GL_ALWAYS);
 					cr.renderGeometry(gl, c);
-					gl.glDepthFunc(GL.GL_LESS);
+					gl.glDepthFunc(GL.GL_LEQUAL);
 					gl.glDepthRange(0, 1);
 				}
 			}

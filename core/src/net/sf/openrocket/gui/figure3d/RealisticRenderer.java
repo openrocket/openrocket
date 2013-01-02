@@ -25,6 +25,8 @@ import com.jogamp.opengl.util.texture.TextureIO;
 
 public class RealisticRenderer extends RocketRenderer {
 	private final float[] colorBlack = { 0, 0, 0, 1 };
+	private final float[] colorClear = { 0, 0, 0, 0 };
+	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
 
 	private final DecalRegistry decalLoader;
@@ -130,6 +132,10 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
+			if ( t.getEdgeMode() == Decal.EdgeMode.STICKER ){
+				cr.renderGeometry(gl, c);
+			}
+			
 			tex.enable(gl);
 			tex.bind(gl);
 			gl.glMatrixMode(GL.GL_TEXTURE);
@@ -145,6 +151,18 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, toEdgeMode(t.getEdgeMode()));
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
 
+			if ( t.getEdgeMode() == Decal.EdgeMode.STICKER ){
+				convertColor(a.getDiffuse(), color);
+				gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
+				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
+				gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
+				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
+				gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
+				
+				gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+				gl.glEnable(GL.GL_BLEND);
+			}
+				
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 
 			if (anisotrophy > 0) {
@@ -195,7 +213,7 @@ public class RealisticRenderer extends RocketRenderer {
 		try {
 			log.debug("Loading texture " + t);
 			InputStream is = decalLoader.getDecal(imageName);
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, true, null);
+			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, GL.GL_RGBA, GL.GL_RGBA, true, null);
 			tex = TextureIO.newTexture(data);
 		} catch (Throwable e) {
 			log.error("Error loading Texture", e);
@@ -222,6 +240,8 @@ public class RealisticRenderer extends RocketRenderer {
 			return GL.GL_MIRRORED_REPEAT;
 		case CLAMP:
 			return GL.GL_CLAMP_TO_EDGE;
+		case STICKER:
+			return GL2.GL_CLAMP_TO_BORDER;
 		default:
 			return GL.GL_CLAMP_TO_EDGE;
 		}
