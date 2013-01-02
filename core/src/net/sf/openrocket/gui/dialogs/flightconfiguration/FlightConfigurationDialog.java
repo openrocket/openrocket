@@ -177,8 +177,13 @@ public class FlightConfigurationDialog extends JDialog {
 	public void copyConfiguration() {
 		// currentID is the currently selected configuration.
 		String newConfigId = rocket.newFlightConfigurationID();
+		String oldName = rocket.getFlightConfigurationName(currentID);
 		CopyFlightConfigurationVisitor v = new CopyFlightConfigurationVisitor(currentID, newConfigId);
 		v.visit(rocket);
+		// Select the new configuration
+		this.selectConfiguration(newConfigId);
+		// Copy the name.
+		this.changeConfigurationName(oldName);
 		motorConfigurationPanel.fireTableDataChanged();
 		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();

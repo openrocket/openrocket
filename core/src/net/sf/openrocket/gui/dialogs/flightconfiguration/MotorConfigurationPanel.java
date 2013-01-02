@@ -80,7 +80,7 @@ public class MotorConfigurationPanel extends JPanel {
 		configurationTableModel = new MotorConfigurationTableModel(this, true);
 		final JTable configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		configurationTable.setCellSelectionEnabled(true);
+		configurationTable.setRowSelectionAllowed(true);
 
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
@@ -269,9 +269,9 @@ public class MotorConfigurationPanel extends JPanel {
 		StringBuilder sb = new StringBuilder();
 		MotorConfiguration.IgnitionEvent ignition = motorConfig.getIgnitionEvent();
 		if ( ignition == null ) {
-			sb.append("[").append(mount.getDefaultIgnitionEvent().toString()).append("]");
+			sb.append("[").append(ellipsizeString(mount.getDefaultIgnitionEvent().toString(),15)).append("]");
 		} else {
-			sb.append(ignition.toString());
+			sb.append(ellipsizeString(ignition.toString(),15));
 		}
 		Double ignitionDelay = motorConfig.getIgnitionDelay();
 		if ( ignitionDelay == null ) {
@@ -284,6 +284,14 @@ public class MotorConfigurationPanel extends JPanel {
 		}
 		return sb.toString();
 	}
+
 	
+	private static String ellipsizeString( String s, int length ) {
+		if ( s.length() < length ) {
+			return s;
+		}
+		String newString = s.substring(0, length) + "...";
+		return newString;
+	}
 
 }

@@ -57,7 +57,7 @@ public class SeparationConfigurationPanel extends JPanel {
 		separationTableModel = new SeparationTableModel();
 		JTable table = new JTable( separationTableModel );
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setCellSelectionEnabled(true);
+		table.setRowSelectionAllowed(true);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

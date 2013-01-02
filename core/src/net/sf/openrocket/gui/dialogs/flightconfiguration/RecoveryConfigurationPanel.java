@@ -40,15 +40,14 @@ public class RecoveryConfigurationPanel extends JPanel {
 		recoveryTableModel = new RecoveryTableModel();
 		JTable table = new JTable( recoveryTableModel );
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setCellSelectionEnabled(true);
+		table.setRowSelectionAllowed(true);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				JTable table = (JTable) e.getComponent();
 				int row = table.getSelectedRow();
-				int column = table.getSelectedColumn();
 
-				if ( row >= 0 & column == 1) {
+				if ( row >= 0 ) {
 					selectedComponent = findRecoveryDevice(row);
 				} else { 
 					selectedComponent = null;
