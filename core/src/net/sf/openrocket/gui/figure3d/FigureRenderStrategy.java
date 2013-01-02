@@ -8,12 +8,8 @@ import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
-import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.SymmetricComponent;
-import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Color;
 
@@ -24,31 +20,8 @@ public class FigureRenderStrategy extends RenderStrategy {
 		super(null);
 	}
 
-	@Override
-	public boolean isDrawn(RocketComponent c) {
-		return true;
-	}
-
-	@Override
-	public boolean isDrawnTransparent(RocketComponent c) {
-		if (c instanceof BodyTube)
-			return true;
-		if (c instanceof NoseCone)
-			return false;
-		if (c instanceof SymmetricComponent) {
-			if (((SymmetricComponent) c).isFilled())
-				return false;
-		}
-		if (c instanceof Transition) {
-			Transition t = (Transition) c;
-			return !t.isAftShoulderCapped() && !t.isForeShoulderCapped();
-		}
-		return false;
-	}
-
 	private static final HashMap<Class<?>, Color> defaultColorCache = new HashMap<Class<?>, Color>();
 
-	@Override
 	public void preGeometry(GL2 gl, RocketComponent c, float alpha) {
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 		Color figureColor = c.getColor();
@@ -89,12 +62,6 @@ public class FigureRenderStrategy extends RenderStrategy {
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
-
-	}
-
-	@Override
-	public void postGeometry(GL2 gl, RocketComponent c, float alpha) {
-		//Nothing to do here
 
 	}
 	

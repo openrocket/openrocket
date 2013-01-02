@@ -86,17 +86,6 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		texCache = null;
 	}
 
-	@Override
-	public boolean isDrawn(RocketComponent c) {
-		return true;
-	}
-
-	@Override
-	public boolean isDrawnTransparent(RocketComponent c) {
-		return false;
-	}
-
-	@Override
 	public void preGeometry(GL2 gl, RocketComponent c, float alpha) {
 		if (needClearCache) {
 			clearCaches(gl);
@@ -158,7 +147,6 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		}
 	}
 
-	@Override
 	public void postGeometry(GL2 gl, RocketComponent c, float alpha) {
 		Appearance a = getAppearance(c);
 		Decal t = a.getTexture();

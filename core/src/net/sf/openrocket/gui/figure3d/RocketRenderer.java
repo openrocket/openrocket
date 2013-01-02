@@ -23,35 +23,23 @@ import net.sf.openrocket.util.Coordinate;
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
  */
-public class RocketRenderer {
+public abstract class RocketRenderer {
 	@SuppressWarnings("unused")
 	private static final LogHelper log = Application.getLogger();
 	
-	RenderStrategy currentStrategy = new FigureRenderStrategy();
-	RenderStrategy nextStrategy;
-	
-	ComponentRenderer cr;
+	final RenderStrategy currentStrategy;
+	final ComponentRenderer cr = new ComponentRenderer();
 	
 	private final float[] selectedEmissive = { 1, 0, 0, 1 };
 	private final float[] colorBlack = { 0, 0, 0, 1 };
 	
-	
-	public void setRenderStrategy(RenderStrategy r) {
-		nextStrategy = r;
-	}
-	
-	private void checkRenderStrategy(GLAutoDrawable drawable) {
-		if (nextStrategy == null)
-			return;
-		currentStrategy.dispose(drawable);
-		nextStrategy.init(drawable);
-		currentStrategy = nextStrategy;
-		nextStrategy = null;
+	protected RocketRenderer(RenderStrategy s){
+		currentStrategy = s;
 	}
 	
 	public void init(GLAutoDrawable drawable) {
-		cr = new ComponentRenderer();
 		cr.init(drawable);
+		currentStrategy.init(drawable);
 	}
 	
 	public void dispose(GLAutoDrawable drawable) {
@@ -66,7 +54,6 @@ public class RocketRenderer {
 	
 	public RocketComponent pick(GLAutoDrawable drawable,
 			Configuration configuration, Point p, Set<RocketComponent> ignore) {
-		checkRenderStrategy(drawable);
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL.GL_DEPTH_TEST);
 		
@@ -86,7 +73,7 @@ public class RocketRenderer {
 					(byte) ((pickParts.size() << 4) & 0xF0), (byte) 1);
 			pickParts.add(c);
 			
-			if (currentStrategy.isDrawnTransparent(c)) {
+			if (isDrawnTransparent(c)) {
 				gl.glEnable(GL.GL_CULL_FACE);
 				gl.glCullFace(GL.GL_FRONT);
 				cr.renderGeometry(gl, c);
@@ -112,7 +99,6 @@ public class RocketRenderer {
 	
 	public void render(GLAutoDrawable drawable, Configuration configuration,
 			Set<RocketComponent> selection) {
-		checkRenderStrategy(drawable);
 		
 		if (cr == null)
 			throw new IllegalStateException(this + " Not Initialized");
@@ -155,8 +141,8 @@ public class RocketRenderer {
 		
 		// Draw all inner components
 		for (RocketComponent c : configuration) {
-			if (currentStrategy.isDrawn(c)) {
-				if (!currentStrategy.isDrawnTransparent(c)) {
+			if (isDrawn(c)) {
+				if (!isDrawnTransparent(c)) {
 					renderComponent(gl, c, 1.0f);
 				}
 			}
@@ -169,8 +155,8 @@ public class RocketRenderer {
 		gl.glEnable(GL.GL_CULL_FACE);
 		gl.glCullFace(GL.GL_FRONT);
 		for (RocketComponent c : configuration) {
-			if (currentStrategy.isDrawn(c)) {
-				if (currentStrategy.isDrawnTransparent(c)) {
+			if (isDrawn(c)) {
+				if (isDrawnTransparent(c)) {
 					renderComponent(gl, c, 1.0f);
 				}
 			}
@@ -182,8 +168,8 @@ public class RocketRenderer {
 		gl.glEnable(GL.GL_CULL_FACE);
 		gl.glCullFace(GL.GL_BACK);
 		for (RocketComponent c : configuration) {
-			if (currentStrategy.isDrawn(c)) {
-				if (currentStrategy.isDrawnTransparent(c)) {
+			if (isDrawn(c)) {
+				if (isDrawnTransparent(c)) {
 					renderComponent(gl, c, 0.2f);
 				}
 			}
@@ -213,10 +199,9 @@ public class RocketRenderer {
 		
 	}
 	
-	public void renderComponent(GL2 gl, RocketComponent c, float alpha) {
-		currentStrategy.preGeometry(gl, c, alpha);
-		cr.renderGeometry(gl, c);
-		currentStrategy.postGeometry(gl, c, alpha);
-	}
-	
+	public abstract void renderComponent(GL2 gl, RocketComponent c, float alpha);
+
+	public abstract boolean isDrawn(RocketComponent c);
+
+	public abstract boolean isDrawnTransparent(RocketComponent c);
 }
