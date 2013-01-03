@@ -9,42 +9,30 @@ import net.sf.openrocket.util.Color;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class Appearance {
-	public static final Appearance MISSING = new Appearance(new Color(0,0,0), new Color(128,128,128), new Color(255,255,255), 100, null);
+	public static final Appearance MISSING = new Appearance(new Color(0,0,0), 100, null);
 
-	private final Color ambient, diffuse, specular;
-	private final int shininess;
+	private final Color paint;
+	private final int shine;
 	private final Decal texture;
 	
-	Appearance(final Color ambient, final Color diffuse, final Color specular, final int shininess, final Decal texture){
-		this.ambient = ambient;
-		this.diffuse = diffuse;
-		this.specular = specular;
-		this.shininess = shininess;
+	Appearance(final Color paint, final int shine, final Decal texture){
+		this.paint = paint;
+		this.shine = shine;
 		this.texture = texture;
 	}
 	
-	Appearance(final Color ambient, final Color diffuse, final Color specular, final int shininess){
-		this.ambient = ambient;
-		this.diffuse = diffuse;
-		this.specular = specular;
-		this.shininess = shininess;
+	Appearance(final Color paint, final int shine){
+		this.paint = paint;
+		this.shine = shine;
 		this.texture = null;
 	}
 	
-	public Color getAmbient() {
-		return ambient;
+	public Color getPaint() {
+		return paint;
 	}
 
-	public Color getDiffuse() {
-		return diffuse;
-	}
-
-	public Color getSpecular() {
-		return specular;
-	}
-
-	public int getShininess() {
-		return shininess;
+	public int getShine() {
+		return shine;
 	}
 
 	public Decal getTexture() {
@@ -53,8 +41,8 @@ public class Appearance {
 
 	@Override
 	public String toString() {
-		return "Appearance [ambient=" + ambient + ", diffuse=" + diffuse + ", specular=" + specular + ", shininess="
-				+ shininess + ", texture=" + texture + "]";
+		return "Appearance [paint=" + paint + ", shine="
+				+ shine + ", texture=" + texture + "]";
 	}
 
 }

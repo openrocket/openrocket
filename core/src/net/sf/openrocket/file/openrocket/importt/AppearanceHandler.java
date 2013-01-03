@@ -42,25 +42,11 @@ class AppearanceHandler extends AbstractElementHandler {
 	}
 	@Override
 	public void closeElement(String element,HashMap<String, String> attributes, String content,	WarningSet warnings) throws SAXException {
-		if ( "ambient".equals(element) ) {
+		if ( "paint".equals(element) ) {
 			int red = Integer.parseInt(attributes.get("red"));
 			int green = Integer.parseInt(attributes.get("green"));
 			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setAmbient( new Color(red,green,blue));
-			return;
-		}
-		if ( "diffuse".equals(element) ) {
-			int red = Integer.parseInt(attributes.get("red"));
-			int green = Integer.parseInt(attributes.get("green"));
-			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setDiffuse( new Color(red,green,blue));
-			return;
-		}
-		if ( "specular".equals(element) ) {
-			int red = Integer.parseInt(attributes.get("red"));
-			int green = Integer.parseInt(attributes.get("green"));
-			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setSpecular( new Color(red,green,blue));
+			builder.setPaint( new Color(red,green,blue));
 			return;
 		}
 		if ( isInDecal && "center".equals(element) ) {
@@ -78,7 +64,7 @@ class AppearanceHandler extends AbstractElementHandler {
 		if ( isInDecal && "scale".equals(element) ) {
 			double x = Double.parseDouble(attributes.get("x"));
 			double y = Double.parseDouble(attributes.get("y"));
-			builder.setScale(x,y);
+			builder.setScaleUV(x,y);
 			return;
 		}
 		if( isInDecal && "decal".equals(element) ) {
