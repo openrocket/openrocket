@@ -530,8 +530,10 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private void handleComponentClick(RocketComponent[] clicked, MouseEvent event){
 
 		// If no component is clicked, do nothing
-		if (clicked.length == 0)
+		if (clicked.length == 0){
+			selectionModel.setSelectionPath(null);
 			return;
+		}
 
 		// Check whether the currently selected component is in the clicked components.
 		TreePath path = selectionModel.getSelectionPath();
@@ -827,6 +829,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		TreePath[] paths = selectionModel.getSelectionPaths();
 		if (paths == null) {
 			figure.setSelection(null);
+			figure3d.setSelection(null);
 			return;
 		}
 
