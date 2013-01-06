@@ -279,8 +279,10 @@ public class AppearancePanel extends JPanel {
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
+			UnitSelector unit = new UnitSelector(shineModel);
 			
-			add(spin, "split 2, w 50");
+			add(spin, "split 3, w 50");
+			add(unit, "growx");
 			add(slide, "w 50");
 		}
 
