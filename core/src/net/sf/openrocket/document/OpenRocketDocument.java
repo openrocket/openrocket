@@ -178,38 +178,10 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return configuration;
 	}
 	
-	
 	public DecalRegistry getDecalRegistry() {
 		return decalRegistry;
 	}
 
-
-	public void setDecalRegistry(DecalRegistry decalRegistry) {
-		this.decalRegistry = decalRegistry;
-	}
-
-	public Set<String> getDecalList( ) {
-		
-		Set<String> decals = new TreeSet<String>();
-		// Look for all decals used in the rocket.
-		for( RocketComponent c : this.getRocket() ) {
-			if ( c.getAppearance() == null ) {
-				continue;
-			}
-			Appearance ap = c.getAppearance();
-			if ( ap.getTexture() == null ) {
-				continue;
-			}
-
-			Decal decal = ap.getTexture();
-
-			String decalName = decal.getImage();
-
-			decals.add(decalName);
-		}
-		return decals;
-	}
-	
 	public File getFile() {
 		return file;
 	}

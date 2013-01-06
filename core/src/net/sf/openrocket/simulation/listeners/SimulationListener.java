@@ -1,7 +1,5 @@
 package net.sf.openrocket.simulation.listeners;
 
-import java.util.List;
-
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;

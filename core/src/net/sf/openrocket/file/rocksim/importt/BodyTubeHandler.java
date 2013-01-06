@@ -3,7 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -11,9 +14,8 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim Body Tubes.
@@ -31,7 +33,8 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
      * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public BodyTubeHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    public BodyTubeHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a body tube may not be null.");
         }
@@ -44,7 +47,7 @@ class BodyTubeHandler extends BaseHandler<BodyTube> {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
-            return new AttachedPartsHandler(bodyTube);
+            return new AttachedPartsHandler(document, bodyTube);
         }
         return PlainTextHandler.INSTANCE;
     }

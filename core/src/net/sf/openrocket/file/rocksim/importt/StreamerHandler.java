@@ -3,15 +3,17 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Streamer components.
@@ -31,7 +33,8 @@ class StreamerHandler extends RecoveryDeviceHandler<Streamer> {
      * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public StreamerHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    public StreamerHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (c == null) {
             throw new IllegalArgumentException("The parent of a streamer may not be null.");
         }

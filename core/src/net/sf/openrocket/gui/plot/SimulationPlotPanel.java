@@ -398,9 +398,9 @@ public class SimulationPlotPanel extends JPanel {
 				public void itemStateChanged(ItemEvent e) {
 					if (modifying > 0)
 						return;
-					FlightDataType type = (FlightDataType) typeSelector.getSelectedItem();
-					configuration.setPlotDataType(index, type);
-					unitSelector.setUnitGroup(type.getUnitGroup());
+					FlightDataType selectedType = (FlightDataType) typeSelector.getSelectedItem();
+					configuration.setPlotDataType(index, selectedType);
+					unitSelector.setUnitGroup(selectedType.getUnitGroup());
 					unitSelector.setSelectedUnit(configuration.getUnit(index));
 					setToCustom();
 				}
@@ -417,8 +417,8 @@ public class SimulationPlotPanel extends JPanel {
 				public void itemStateChanged(ItemEvent e) {
 					if (modifying > 0)
 						return;
-					Unit unit = unitSelector.getSelectedUnit();
-					configuration.setPlotDataUnit(index, unit);
+					Unit selectedUnit = unitSelector.getSelectedUnit();
+					configuration.setPlotDataUnit(index, selectedUnit);
 				}
 			});
 			this.add(unitSelector, "width 40lp, gapright para");

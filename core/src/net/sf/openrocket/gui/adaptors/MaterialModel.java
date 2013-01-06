@@ -142,7 +142,9 @@ public class MaterialModel extends AbstractListModel implements
 		return database.size() + 1;
 	}
 
-
+	public Material.Type getType() {
+		return type;
+	}
 
 	////////  Change listeners
 

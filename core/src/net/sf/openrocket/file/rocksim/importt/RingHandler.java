@@ -3,7 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -14,9 +17,8 @@ import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for centering rings, tube couplers, and bulkheads.
@@ -45,7 +47,8 @@ class RingHandler extends PositionDependentHandler<CenteringRing> {
      * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public RingHandler(RocketComponent theParent, WarningSet warnings) throws IllegalArgumentException {
+    public RingHandler(OpenRocketDocument document, RocketComponent theParent, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (theParent == null) {
             throw new IllegalArgumentException("The parent of a ring may not be null.");
         }

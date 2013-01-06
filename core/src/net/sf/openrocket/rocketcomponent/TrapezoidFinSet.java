@@ -131,10 +131,10 @@ public class TrapezoidFinSet extends FinSet {
 			r = MAX_SWEEP_ANGLE;
 		if (r < -MAX_SWEEP_ANGLE)
 			r = -MAX_SWEEP_ANGLE;
-		double sweep = Math.tan(r) * height;
-		if (Double.isNaN(sweep) || Double.isInfinite(sweep))
+		double mySweep = Math.tan(r) * height;
+		if (Double.isNaN(mySweep) || Double.isInfinite(mySweep))
 			return;
-		setSweep(sweep);
+		setSweep(mySweep);
 	}
 	
 	public double getHeight() {

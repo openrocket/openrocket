@@ -3,15 +3,17 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A handler specific to streamers and parachutes.  This is done because Rocksim allows any type of material to be
@@ -31,6 +33,10 @@ public abstract class RecoveryDeviceHandler<C extends RecoveryDevice> extends Po
      */
     private Double calcMass = 0d;
 
+    public RecoveryDeviceHandler( OpenRocketDocument document ) {
+    	super(document);
+    }
+    
     /**
      * {@inheritDoc}
      */

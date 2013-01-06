@@ -103,6 +103,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
      *
      * @param pPaths an array of paths
      */
+    @Override
     public void setSelectionPaths (TreePath[] pPaths) {
         TreePath selected[] = getSelectionPaths();
         for (TreePath aSelected : selected) {
@@ -118,6 +119,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
      *
      * @param paths an array of tree path nodes
      */
+    @Override
     public void addSelectionPaths (TreePath[] paths) {
         // deselect all descendants of paths[] 
         for (TreePath path : paths) {
@@ -195,6 +197,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
      *
      * @param paths the array of path nodes
      */
+    @Override
     public void removeSelectionPaths (TreePath[] paths) {
         for (TreePath path : paths) {
             if (path.getPathCount() == 1) {

@@ -5,28 +5,24 @@ import java.nio.charset.Charset;
 
 
 public class TextUtil {
-
+	
 	
 	private static final char[] HEX = {
 			'0', '1', '2', '3', '4', '5', '6', '7',
 			'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 	};
-
+	
 	/**
-	 * Return the byte array for the string in the given charset.
+	 * Return the byte array for the string (in US-ASCII charset).
 	 * 
 	 * This function is implemented because Froyo (Android API 8) does not support
 	 * String.getBytes(Charset)
-	 * 
-	 * @param string
-	 * @param charSet
-	 * @return
 	 */
-	public static byte[] convertStringToBytes( String string, Charset charSet ) {
-		ByteBuffer encoded = charSet.encode(string);
+	public static byte[] asciiBytes(String string) {
+		ByteBuffer encoded = Charset.forName("US-ASCII").encode(string);
 		return encoded.array();
 	}
-
+	
 	
 	/**
 	 * Return the bytes formatted as a hexadecimal string.  The length of the
@@ -69,7 +65,7 @@ public class TextUtil {
 				return "Inf";
 		}
 		
-
+		
 		final String sign = (d < 0) ? "-" : "";
 		double abs = Math.abs(d);
 		
@@ -128,8 +124,8 @@ public class TextUtil {
 	}
 	
 	
-
-
+	
+	
 	/*
 	 * value must be positive!
 	 */
@@ -146,11 +142,11 @@ public class TextUtil {
 		// Round value
 		value = (Math.rint(value * rounding) + 0.1) / rounding;
 		
-
+		
 		int whole = (int) value;
 		value -= whole;
 		
-
+		
 		if (value < limit)
 			return "" + whole;
 		limit *= 10;
@@ -159,7 +155,7 @@ public class TextUtil {
 		sb.append("" + whole);
 		sb.append('.');
 		
-
+		
 		for (int i = 0; i < decimals; i++) {
 			
 			value *= 10;
@@ -188,13 +184,14 @@ public class TextUtil {
 	/*
 	 * Returns a word-wrapped version of given input string using HTML syntax, wrapped to len characters.
 	 */
-	public static String wrap(String in,int len) {
-		in=in.trim();
-		if(in.length()<len) return in;
-		if(in.substring(0, len).contains("\n"))
+	public static String wrap(String in, int len) {
+		in = in.trim();
+		if (in.length() < len)
+			return in;
+		if (in.substring(0, len).contains("\n"))
 			return in.substring(0, in.indexOf("\n")).trim() + "\n\n" + wrap(in.substring(in.indexOf("\n") + 1), len);
-		int place=Math.max(Math.max(in.lastIndexOf(" ",len),in.lastIndexOf("\t",len)),in.lastIndexOf("-",len));
-		return "<html>"+in.substring(0,place).trim()+"<br>"+wrap(in.substring(place),len);
+		int place = Math.max(Math.max(in.lastIndexOf(" ", len), in.lastIndexOf("\t", len)), in.lastIndexOf("-", len));
+		return "<html>" + in.substring(0, place).trim() + "<br>" + wrap(in.substring(place), len);
 	}
-
+	
 }

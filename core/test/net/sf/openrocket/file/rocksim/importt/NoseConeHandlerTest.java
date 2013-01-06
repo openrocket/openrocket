@@ -32,7 +32,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new NoseConeHandler(null, new WarningSet());
+            new NoseConeHandler(null, null, new WarningSet());
             Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -40,7 +40,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
         }
 
         Stage stage = new Stage();
-        NoseConeHandler handler = new NoseConeHandler(stage, new WarningSet());
+        NoseConeHandler handler = new NoseConeHandler(null, stage, new WarningSet());
         NoseCone component = (NoseCone) getField(handler, "noseCone");
         assertContains(component, stage.getChildren());
     }
@@ -52,8 +52,8 @@ public class NoseConeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new NoseConeHandler(new Stage(), new WarningSet()).openElement(null, null, null));
-        Assert.assertNotNull(new NoseConeHandler(new Stage(), new WarningSet()).openElement("AttachedParts", null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new NoseConeHandler(null, new Stage(), new WarningSet()).openElement(null, null, null));
+        Assert.assertNotNull(new NoseConeHandler(null, new Stage(), new WarningSet()).openElement("AttachedParts", null, null));
     }
 
     /**
@@ -69,7 +69,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
-        NoseConeHandler handler = new NoseConeHandler(stage, warnings);
+        NoseConeHandler handler = new NoseConeHandler(null, stage, warnings);
         NoseCone component = (NoseCone) getField(handler, "noseCone");
 
         handler.closeElement("ShapeCode", attributes, "0", warnings);
@@ -188,7 +188,7 @@ public class NoseConeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new NoseConeHandler(new Stage(), new WarningSet()).getComponent() instanceof NoseCone);
+        Assert.assertTrue(new NoseConeHandler(null, new Stage(), new WarningSet()).getComponent() instanceof NoseCone);
     }
 
     /**
@@ -198,6 +198,6 @@ public class NoseConeHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new NoseConeHandler(new Stage(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.BULK, new NoseConeHandler(null, new Stage(), new WarningSet()).getMaterialType());
     }
 }

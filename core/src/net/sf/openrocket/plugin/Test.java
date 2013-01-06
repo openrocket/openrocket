@@ -36,7 +36,7 @@ public class Test {
 		//		}
 		
 		List<File> jars = Arrays.asList(new File("/home/sampo/Projects/OpenRocket/core/example.jar"));
-		URL[] urls = { new File("/home/sampo/Projects/OpenRocket/core/example.jar").toURL() };
+		URL[] urls = { new File("/home/sampo/Projects/OpenRocket/core/example.jar").toURI().toURL() };
 		ClassLoader classLoader = new URLClassLoader(urls);
 		
 		classLoader = Test.class.getClassLoader();

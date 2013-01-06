@@ -27,68 +27,65 @@ import net.sf.openrocket.util.LineStyle;
 
 public class RocketComponentSaver {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	protected RocketComponentSaver() {
 		// Prevent instantiation from outside the package
 	}
-
+	
 	protected void addParams(net.sf.openrocket.rocketcomponent.RocketComponent c, List<String> elements) {
 		elements.add("<name>" + RocketSaver.escapeXML(c.getName()) + "</name>");
-
+		
 		ComponentPreset preset = c.getPresetComponent();
 		if (preset != null) {
 			elements.add("<preset type=\"" + preset.getType() +
 					"\" manufacturer=\"" + preset.getManufacturer().getSimpleName() +
 					"\" partno=\"" + preset.getPartNo() + "\" digest=\"" + preset.getDigest() + "\"/>");
 		}
-
+		
 		Appearance ap = c.getAppearance();
-		if ( ap != null ) {
+		if (ap != null) {
 			elements.add("<appearance>");
-			Color ambient = ap.getAmbient();
-			emitColor("ambient",elements,ambient);
-			Color diffuse = ap.getDiffuse();
-			emitColor("diffuse",elements,diffuse);
-			Color specular = ap.getSpecular();
-			emitColor("specular",elements,specular);
+			Color paint = ap.getPaint();
+			emitColor("paint", elements, paint);
+			elements.add("<shine>" + ap.getShine() + "</shine>");
 			Decal decal = ap.getTexture();
-			if ( decal != null ) {
-				String name = decal.getImage();
+			if (decal != null) {
+				String name = decal.getImage().getName();
 				double rotation = decal.getRotation();
 				EdgeMode edgeMode = decal.getEdgeMode();
-				elements.add("<decal name=\""+name+"\" rotation=\""+rotation+"\" edgemode=\""+ edgeMode.name()+"\">");
+				elements.add("<decal name=\"" + name + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
 				Coordinate center = decal.getCenter();
-				elements.add("<center x=\""+center.x+"\" y=\""+center.y+"\"/>");
+				elements.add("<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
 				Coordinate offset = decal.getOffset();
-				elements.add("<offset x=\""+offset.x+"\" y=\""+offset.y+"\"/>");
+				elements.add("<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
 				Coordinate scale = decal.getScale();
-				elements.add("<scale x=\""+scale.x+"\" y=\""+scale.y+"\"/>");
+				elements.add("<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
 				elements.add("</decal>");
 			}
 			elements.add("</appearance>");
 		}
-
+		
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
 			Color color = c.getColor();
 			emitColor("color", elements, color);
-
+			
 			LineStyle style = c.getLineStyle();
 			if (style != null) {
 				// Type names currently equivalent to the enum names except for case.
 				elements.add("<linestyle>" + style.name().toLowerCase(Locale.ENGLISH) + "</linestyle>");
 			}
 		}
-
-
+		
+		
 		// Save position unless "AFTER"
 		if (c.getRelativePosition() != RocketComponent.Position.AFTER) {
 			// The type names are currently equivalent to the enum names except for case.
 			String type = c.getRelativePosition().name().toLowerCase(Locale.ENGLISH);
 			elements.add("<position type=\"" + type + "\">" + c.getPositionValue() + "</position>");
 		}
-
-
+		
+		
 		// Overrides
 		boolean overridden = false;
 		if (c.isMassOverridden()) {
@@ -103,26 +100,26 @@ public class RocketComponentSaver {
 			elements.add("<overridesubcomponents>" + c.getOverrideSubcomponents()
 					+ "</overridesubcomponents>");
 		}
-
-
+		
+		
 		// Comment
 		if (c.getComment().length() > 0) {
 			elements.add("<comment>" + RocketSaver.escapeXML(c.getComment()) + "</comment>");
 		}
-
+		
 	}
-
-
-
-
+	
+	
+	
+	
 	protected final String materialParam(Material mat) {
 		return materialParam("material", mat);
 	}
-
-
+	
+	
 	protected final String materialParam(String tag, Material mat) {
 		String str = "<" + tag;
-
+		
 		switch (mat.getType()) {
 		case LINE:
 			str += " type=\"line\"";
@@ -136,31 +133,31 @@ public class RocketComponentSaver {
 		default:
 			throw new BugException("Unknown material type: " + mat.getType());
 		}
-
+		
 		String baseName = trans.getBaseText("material", mat.getName());
-
+		
 		return str + " density=\"" + mat.getDensity() + "\">" + RocketSaver.escapeXML(baseName) + "</" + tag + ">";
 	}
-
-
+	
+	
 	protected final List<String> motorMountParams(MotorMount mount) {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
 		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
 		List<String> elements = new ArrayList<String>();
-
+		
 		elements.add("<motormount>");
-
+		
 		for (String id : motorConfigIDs) {
 			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
-			if ( motorConfig == null ) {
+			if (motorConfig == null) {
 				continue;
 			}
 			Motor motor = motorConfig.getMotor();
 			// Nothing is stored if no motor loaded
 			if (motor == null)
 				continue;
-
+			
 			elements.add("  <motor configid=\"" + id + "\">");
 			if (motor.getMotorType() != Motor.Type.UNKNOWN) {
 				elements.add("    <type>" + motor.getMotorType().name().toLowerCase(Locale.ENGLISH) + "</type>");
@@ -174,7 +171,7 @@ public class RocketComponentSaver {
 			elements.add("    <designation>" + RocketSaver.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");
 			elements.add("    <length>" + motor.getLength() + "</length>");
-
+			
 			// Motor delay
 			if (motorConfig.getEjectionDelay() == Motor.PLUGGED) {
 				elements.add("    <delay>none</delay>");
@@ -182,33 +179,33 @@ public class RocketComponentSaver {
 				elements.add("    <delay>" + motorConfig.getEjectionDelay() + "</delay>");
 			}
 			
-			if ( motorConfig.getIgnitionEvent() != null ) {
+			if (motorConfig.getIgnitionEvent() != null) {
 				elements.add("    <ignitionevent>" + motorConfig.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
 			}
-			if ( motorConfig.getIgnitionDelay() != null ) {
+			if (motorConfig.getIgnitionDelay() != null) {
 				elements.add("    <ignitiondelay>" + motorConfig.getIgnitionDelay() + "</ignitiondelay>");
 			}
-
+			
 			elements.add("  </motor>");
 		}
-
+		
 		elements.add("  <ignitionevent>"
 				+ mount.getDefaultIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
 				+ "</ignitionevent>");
 		elements.add("  <ignitiondelay>" + mount.getDefaultIgnitionDelay() + "</ignitiondelay>");
 		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
-
+		
 		elements.add("</motormount>");
-
+		
 		return elements;
 	}
-
-	private final static void emitColor( String elementName, List<String> elements, Color color ) {
+	
+	private final static void emitColor(String elementName, List<String> elements, Color color) {
 		if (color != null) {
-			elements.add("<" + elementName+ " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
+			elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
 					+ "\" blue=\"" + color.getBlue() + "\"/>");
 		}
-
+		
 	}
-
+	
 }

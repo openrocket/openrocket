@@ -3,7 +3,13 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.rocksim.RocksimLocationMode;
@@ -19,12 +25,8 @@ import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
-import org.xml.sax.SAXException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim fin sets.  Because the type of fin may not be known first (in Rocksim file format, the fin
@@ -139,9 +141,8 @@ class FinSetHandler extends AbstractElementHandler {
      */
     private Double calcCg = 0d;
 
-    private RockSimAppearanceBuilder appearanceBuilder = new RockSimAppearanceBuilder();
+    private final RockSimAppearanceBuilder appearanceBuilder;
     
-
     /**
      * Constructor.
      *
@@ -149,10 +150,11 @@ class FinSetHandler extends AbstractElementHandler {
      *
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public FinSetHandler (RocketComponent c) throws IllegalArgumentException {
+    public FinSetHandler (OpenRocketDocument document, RocketComponent c) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a fin set may not be null.");
         }
+    	appearanceBuilder = new RockSimAppearanceBuilder( document );
         component = c;
     }
 

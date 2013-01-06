@@ -6,7 +6,6 @@ import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.CustomMaterialDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.loader.MaterialHolder;
 import net.sf.openrocket.startup.Application;
 
 import javax.swing.DefaultComboBoxModel;

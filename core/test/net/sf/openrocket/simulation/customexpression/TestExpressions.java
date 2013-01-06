@@ -2,7 +2,6 @@ package net.sf.openrocket.simulation.customexpression;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.Rocket;
 

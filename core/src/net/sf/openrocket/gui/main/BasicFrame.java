@@ -118,6 +118,8 @@ public class BasicFrame extends JFrame {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	
 	public static final int COMPONENT_TAB = 0;
 	public static final int SIMULATION_TAB = 1;
 	
@@ -272,13 +274,13 @@ public class BasicFrame extends JFrame {
 		
 		// Remove JTree key events that interfere with menu accelerators
 		InputMap im = SwingUtilities.getUIInputMap(tree, JComponent.WHEN_FOCUSED);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK), null);
-		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, SHORTCUT_KEY), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, SHORTCUT_KEY), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, SHORTCUT_KEY), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY), null);
+		im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY), null);
 		
 		
 		
@@ -398,7 +400,7 @@ public class BasicFrame extends JFrame {
 		
 		//// New
 		item = new JMenuItem(trans.get("main.menu.file.new"), KeyEvent.VK_N);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, SHORTCUT_KEY));
 		item.setMnemonic(KeyEvent.VK_N);
 		//// Create a new rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.new.desc"));
@@ -415,7 +417,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Open...
 		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
 		//// Open a rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
 		item.setIcon(Icons.FILE_OPEN);
@@ -433,7 +435,7 @@ public class BasicFrame extends JFrame {
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrecentrocketdesign"));
 		item.setIcon(Icons.FILE_OPEN);
 		menu.add(item);
-
+		
 		// FIXME - one of these two example menu items needs to be removed.
 		//// Open example...
 		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), this);
@@ -445,7 +447,7 @@ public class BasicFrame extends JFrame {
 		item = new JMenuItem(trans.get("main.menu.file.openExample"));
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+				SHORTCUT_KEY | ActionEvent.SHIFT_MASK));
 		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -466,7 +468,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Save
 		item = new JMenuItem(trans.get("main.menu.file.save"), KeyEvent.VK_S);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
 		//// Save the current rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.SavecurRocketdesign"));
 		item.setIcon(Icons.FILE_SAVE);
@@ -482,7 +484,7 @@ public class BasicFrame extends JFrame {
 		//// Save as...
 		item = new JMenuItem(trans.get("main.menu.file.saveAs"), KeyEvent.VK_A);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK));
+				SHORTCUT_KEY | ActionEvent.SHIFT_MASK));
 		//// Save the current rocket design to a new file
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.SavecurRocketdesnewfile"));
 		item.setIcon(Icons.FILE_SAVE_AS);
@@ -510,7 +512,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Print...
 		item = new JMenuItem(trans.get("main.menu.file.print"), KeyEvent.VK_P);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_KEY));
 		//// Print parts list and fin template
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.print.desc"));
 		item.setIcon(Icons.FILE_PRINT);
@@ -528,7 +530,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Close
 		item = new JMenuItem(trans.get("main.menu.file.close"), KeyEvent.VK_C);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_KEY));
 		//// Close the current rocket design
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Closedesign"));
 		item.setIcon(Icons.FILE_CLOSE);
@@ -545,7 +547,7 @@ public class BasicFrame extends JFrame {
 		
 		//// Quit
 		item = new JMenuItem(trans.get("main.menu.file.quit"), KeyEvent.VK_Q);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, SHORTCUT_KEY));
 		//// Quit the program
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Quitprogram"));
 		item.setIcon(Icons.FILE_QUIT);
@@ -570,7 +572,7 @@ public class BasicFrame extends JFrame {
 		
 		Action action = UndoRedoAction.newUndoAction(document);
 		item = new JMenuItem(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, SHORTCUT_KEY));
 		item.setMnemonic(KeyEvent.VK_U);
 		//// Undo the previous operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.undo.desc"));
@@ -579,7 +581,7 @@ public class BasicFrame extends JFrame {
 		
 		action = UndoRedoAction.newRedoAction(document);
 		item = new JMenuItem(action);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, SHORTCUT_KEY));
 		item.setMnemonic(KeyEvent.VK_R);
 		//// Redo the previously undone operation
 		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.edit.redo.desc"));
@@ -1102,7 +1104,6 @@ public class BasicFrame extends JFrame {
 	 */
 	public static boolean open(URL url, BasicFrame parent) {
 		String displayName = null;
-		
 		// First figure out the file name from the URL
 		
 		// Try using URI.getPath();
@@ -1187,7 +1188,6 @@ public class BasicFrame extends JFrame {
 	 * @return
 	 */
 	private static boolean open(OpenFileWorker worker, String displayName, Window parent, boolean openRocketConfigDialog) {
-		
 		// Open the file in a Swing worker thread
 		log.info("Starting OpenFileWorker");
 		if (!SwingWorkerDialog.runWorker(parent, "Opening file", "Reading " + displayName + "...", worker)) {
@@ -1253,7 +1253,6 @@ public class BasicFrame extends JFrame {
 					//// Warnings while opening file
 					trans.get("BasicFrame.WarningDialog.title"), warnings);
 		}
-		
 		
 		// Open the frame
 		log.debug("Opening new frame with the document");
@@ -1346,7 +1345,12 @@ public class BasicFrame extends JFrame {
 		}
 		else {
 			file = FileHelper.forceExtension(file, "ork");
-			return FileHelper.confirmWrite(file, this) && saveAs(file);
+			boolean result = FileHelper.confirmWrite(file, this) && saveAs(file);
+			if (result) {
+				MRUDesignFile opts = MRUDesignFile.getInstance();
+				opts.addFile(file.getAbsolutePath());
+			}
+			return result;
 		}
 	}
 	
@@ -1472,7 +1476,6 @@ public class BasicFrame extends JFrame {
 		}
 		return true;
 	}
-	
 	
 	public void exportDecalAction() {
 		new ExportDecalDialog(this, document).setVisible(true);

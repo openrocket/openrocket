@@ -59,6 +59,7 @@ public class SaveCSVWorker extends SwingWorker<Void, Void> {
 		estimate = Math.max(estimate, 1000);
 		
 		// Create the ProgressOutputStream that provides progress estimates
+		@SuppressWarnings("resource")
 		ProgressOutputStream os = new ProgressOutputStream(
 				new BufferedOutputStream(new FileOutputStream(file)), 
 				estimate, this) {

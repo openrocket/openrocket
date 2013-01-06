@@ -19,6 +19,7 @@ import net.sf.openrocket.gui.components.ImageDisplayComponent;
  */
 public class SlideShowComponent extends JSplitPane {
 	
+	@SuppressWarnings("hiding")
 	private final int WIDTH = 600;
 	private final int HEIGHT_IMAGE = 400;
 	private final int HEIGHT_TEXT = 100;

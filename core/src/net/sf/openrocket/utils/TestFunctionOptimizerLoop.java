@@ -21,12 +21,9 @@ public class TestFunctionOptimizerLoop {
 	
 	private static final double PRECISION = 0.01;
 	
-	private Point optimum;
 	private int stepCount = 0;
 	private int evaluations = 0;
 	
-	
-
 	private void go(final FunctionOptimizer optimizer, final Point optimum, final int maxSteps, ExecutorService executor) throws OptimizationException {
 		
 		Function function = new Function() {

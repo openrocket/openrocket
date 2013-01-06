@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.main;
 
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -39,11 +40,11 @@ import net.sf.openrocket.util.Pair;
 public class RocketActions {
 
 	public static final KeyStroke CUT_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_X,
-			ActionEvent.CTRL_MASK);
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 	public static final KeyStroke COPY_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_C,
-			ActionEvent.CTRL_MASK);
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 	public static final KeyStroke PASTE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_V,
-			ActionEvent.CTRL_MASK);
+			Toolkit.getDefaultToolkit().getMenuShortcutKeyMask());
 	
 	private final OpenRocketDocument document;
 	private final Rocket rocket;
@@ -276,6 +277,7 @@ public class RocketActions {
 	///////  Action classes
 
 	private abstract class RocketAction extends AbstractAction implements ClipboardListener {
+		@Override
 		public abstract void clipboardChanged();
 	}
 

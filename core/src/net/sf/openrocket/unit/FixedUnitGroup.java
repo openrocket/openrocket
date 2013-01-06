@@ -16,18 +16,22 @@ public class FixedUnitGroup extends UnitGroup {
 		this.unitString = unitString; 
 	}
 	
+	@Override
 	public int getUnitCount(){
 		return 1;
 	}
 	
+	@Override
 	public Unit getDefaultUnit(){
 		return new GeneralUnit(1, unitString);
 	}
 	
+	@Override
 	public Unit getSIUnit(){
 		return new GeneralUnit(1, unitString);
 	}
 	
+	@Override
 	public boolean contains(Unit u){
 		return true;
 	}

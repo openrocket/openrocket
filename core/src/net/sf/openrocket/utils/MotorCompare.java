@@ -22,10 +22,13 @@ public class MotorCompare {
 	private static final double MASS_MARGIN = 0.20;
 	
 	/** Number of time points in thrust curve to compare */
+	@SuppressWarnings("unused")
 	private static final int DIVISIONS = 100;
 	/** Maximum difference in thrust for a time point to be considered invalid */
+	@SuppressWarnings("unused")
 	private static final double THRUST_MARGIN = 0.20;
 	/** Number of invalid time points allowed */
+	@SuppressWarnings("unused")
 	private static final int ALLOWED_INVALID_POINTS = 20;
 	
 	/** Minimum number of thrust curve points allowed (incl. start and end points) */
@@ -33,18 +36,26 @@ public class MotorCompare {
 	
 	
 	public static void main(String[] args) throws IOException {
+		@SuppressWarnings("unused")
 		final double maxThrust;
+		@SuppressWarnings("unused")
 		final double maxTime;
+		@SuppressWarnings("unused")
 		int maxDelays;
+		@SuppressWarnings("unused")
 		int maxPoints;
+		@SuppressWarnings("unused")
 		int maxCommentLen;
 		
-		double min, max;
-		double diff;
+		@SuppressWarnings("unused")
+		double min, max, diff;
 		
+		@SuppressWarnings("unused")
 		int[] goodness;
 		
+		@SuppressWarnings("unused")
 		boolean bad = false;
+		@SuppressWarnings("unused")
 		List<String> cause = new ArrayList<String>();
 		
 		MotorLoader loader = new GeneralMotorLoader();
@@ -80,8 +91,8 @@ public class MotorCompare {
 
 
 	public static void compare(List<ThrustCurveMotor> motors, List<String> files) {
-		final double maxThrust;
-		final double maxTime;
+		@SuppressWarnings("unused")
+		final double maxThrust, maxTime;
 		int maxDelays;
 		int maxPoints;
 		int maxCommentLen;

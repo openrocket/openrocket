@@ -26,6 +26,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import com.jogamp.opengl.JoglVersion;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.BugReporter;
 import net.sf.openrocket.gui.components.SelectableLabel;
@@ -273,6 +275,7 @@ public class BugReportDialog extends JDialog {
 		sb.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
 		sb.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sb.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");
+		sb.append("JOGL version: " + JoglVersion.getInstance().getImplementationVersion() + "\n");
 		sb.append("Current default locale: " + Locale.getDefault() + "\n");
 		sb.append("System properties:\n");
 		
@@ -315,6 +318,7 @@ public class BugReportDialog extends JDialog {
 	 * @param text	the bug report text.
 	 * @return		whether opening the client succeeded.
 	 */
+	@SuppressWarnings("unused")
 	private boolean openEmail(String text) {
 		String version;
 		

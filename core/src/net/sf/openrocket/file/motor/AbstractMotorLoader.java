@@ -22,6 +22,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	 * This method delegates the reading to the loaded from the Reader using the charset
 	 * returned by {@link #getDefaultCharset()}.
 	 */
+	@Override
 	public List<Motor> load(InputStream stream, String filename) throws IOException {
 		return load(new InputStreamReader(stream, getDefaultCharset()), filename);
 	}

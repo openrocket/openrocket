@@ -93,6 +93,7 @@ public abstract class RocksimComponentFileLoader {
 	 *         component data file; the element in the list itself is an array of String, where each item in the array
 	 *         is a column (cell) in the row.  The string array is in sequential order as it appeared in the file.
 	 */
+	@SuppressWarnings("unused")
 	private void load(File file) throws FileNotFoundException {
 		load(new FileInputStream(file));
 	}

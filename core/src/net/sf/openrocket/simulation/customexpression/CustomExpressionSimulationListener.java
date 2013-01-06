@@ -1,18 +1,14 @@
 package net.sf.openrocket.simulation.customexpression;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
-import net.sf.openrocket.startup.Application;
 
 public class CustomExpressionSimulationListener extends	AbstractSimulationListener {
 
-	private static final LogHelper log = Application.getLogger();
 	private final List<CustomExpression> expressions;
 	
 	public CustomExpressionSimulationListener(List<CustomExpression> expressions) {
@@ -32,8 +28,6 @@ public class CustomExpressionSimulationListener extends	AbstractSimulationListen
 			//log.debug("Setting value of custom expression "+expression.toString()+" = "+value);
 			data.setValue(expression.getType(), value);
 		}
-		
-
 	}
 
 	@Override

@@ -86,6 +86,7 @@ public class CustomExpression implements Cloneable{
 		this.expression = expression;
 		
 		// Replace any indexed variables
+		subExpressions.clear();
 		expression = subTimeIndexes(expression);
 		expression = subTimeRanges(expression);
 		
@@ -450,13 +451,13 @@ public class CustomExpression implements Cloneable{
 		if ( !expressions.isEmpty() ) {
 			// check if expression already exists
 			if ( expressions.contains(this) ){
-				log.user("Expression already in document. This unit : "+this.getUnit()+", existing unit : "+expressions.get(0).getUnit());
+				log.debug("Expression already in document");
 				return;
 			}
 		}
 			
 		if (this.checkAll()){
-			log.user("Custom expression added to rocket document");
+			log.user("New custom expression added to rocket document");
 			doc.addCustomExpression( this );
 		}
 	}
@@ -470,6 +471,7 @@ public class CustomExpression implements Cloneable{
 		else {
 			int index = doc.getCustomExpressions().indexOf(this);
 			doc.getCustomExpressions().set(index, newExpression);
+			log.debug("Overwriting custom expression already in document");
 		}
 	}
 	

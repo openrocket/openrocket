@@ -3,16 +3,18 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim inside tubes.
@@ -31,8 +33,9 @@ class InnerBodyTubeHandler extends PositionDependentHandler<InnerTube> {
      * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public InnerBodyTubeHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
-        if (c == null) {
+    public InnerBodyTubeHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
+    	if (c == null) {
             throw new IllegalArgumentException("The parent component of an inner tube may not be null.");
         }
         bodyTube = new InnerTube();
@@ -44,7 +47,7 @@ class InnerBodyTubeHandler extends PositionDependentHandler<InnerTube> {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
-            return new AttachedPartsHandler(bodyTube);
+            return new AttachedPartsHandler(document, bodyTube);
         }
         return PlainTextHandler.INSTANCE;
     }

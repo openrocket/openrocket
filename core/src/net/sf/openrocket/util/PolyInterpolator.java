@@ -46,37 +46,37 @@ public class PolyInterpolator {
 	 * 					constraints, the second to derivative constraints etc.
 	 */
 	public PolyInterpolator(double[] ... points) {
-		int count = 0;
+		int myCount = 0;
 		for (int i=0; i < points.length; i++) {
-			count += points[i].length;
+			myCount += points[i].length;
 		}
-		if (count == 0) {
+		if (myCount == 0) {
 			throw new IllegalArgumentException("No interpolation points defined.");
 		}
 		
-		this.count = count;
+		this.count = myCount;
 		
-		int[] mul = new int[count];
+		int[] mul = new int[myCount];
 		Arrays.fill(mul, 1);
 
-		double[][] matrix = new double[count][count];
+		double[][] matrix = new double[myCount][myCount];
 		int row = 0;
 		for (int j=0; j < points.length; j++) {
 			
 			for (int i=0; i < points[j].length; i++) {
 				double x = 1;
-				for (int col = count-1-j; col>= 0; col--) {
+				for (int col = myCount-1-j; col>= 0; col--) {
 					matrix[row][col] = x*mul[col];
 					x *= points[j][i];
 				}
 				row++;
 			}
 			
-			for (int i=0; i < count; i++) {
-				mul[i] *= (count-i-j-1);
+			for (int i=0; i < myCount; i++) {
+				mul[i] *= (myCount-i-j-1);
 			}
 		}
-		assert(row == count);
+		assert(row == myCount);
 		
 		interpolationMatrix = inverse(matrix);
 	}

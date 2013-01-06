@@ -20,16 +20,18 @@ class AppearanceHandler extends AbstractElementHandler {
 	
 	private final AppearanceBuilder builder = new AppearanceBuilder();
 	private boolean isInDecal = false;
-	public AppearanceHandler( RocketComponent component, DocumentLoadingContext context ) {
+	
+	public AppearanceHandler(RocketComponent component, DocumentLoadingContext context) {
 		this.context = context;
 		this.component = component;
 	}
+	
 	@Override
-	public ElementHandler openElement(String element,HashMap<String, String> attributes, WarningSet warnings)
+	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
 			throws SAXException {
-		if ( "decal".equals(element) ) {
+		if ("decal".equals(element)) {
 			String name = attributes.remove("name");
-			builder.setImage(name);
+			builder.setImage(context.getOpenRocketDocument().getDecalRegistry().getDecalImage(name));
 			double rotation = Double.parseDouble(attributes.remove("rotation"));
 			builder.setRotation(rotation);
 			String edgeModeName = attributes.remove("edgemode");
@@ -40,48 +42,40 @@ class AppearanceHandler extends AbstractElementHandler {
 		}
 		return PlainTextHandler.INSTANCE;
 	}
+	
 	@Override
-	public void closeElement(String element,HashMap<String, String> attributes, String content,	WarningSet warnings) throws SAXException {
-		if ( "ambient".equals(element) ) {
+	public void closeElement(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
+		if ("paint".equals(element)) {
 			int red = Integer.parseInt(attributes.get("red"));
 			int green = Integer.parseInt(attributes.get("green"));
 			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setAmbient( new Color(red,green,blue));
+			builder.setPaint(new Color(red, green, blue));
 			return;
 		}
-		if ( "diffuse".equals(element) ) {
-			int red = Integer.parseInt(attributes.get("red"));
-			int green = Integer.parseInt(attributes.get("green"));
-			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setDiffuse( new Color(red,green,blue));
+		if ("shine".equals(element)) {
+			double shine = Double.parseDouble(content);
+			builder.setShine(shine);
 			return;
 		}
-		if ( "specular".equals(element) ) {
-			int red = Integer.parseInt(attributes.get("red"));
-			int green = Integer.parseInt(attributes.get("green"));
-			int blue = Integer.parseInt(attributes.get("blue"));
-			builder.setSpecular( new Color(red,green,blue));
-			return;
-		}
-		if ( isInDecal && "center".equals(element) ) {
+		if (isInDecal && "center".equals(element)) {
 			double x = Double.parseDouble(attributes.get("x"));
 			double y = Double.parseDouble(attributes.get("y"));
-			builder.setCenter(x,y);
+			builder.setCenter(x, y);
 			return;
 		}
-		if ( isInDecal && "offset".equals(element) ) {
+		if (isInDecal && "offset".equals(element)) {
 			double x = Double.parseDouble(attributes.get("x"));
 			double y = Double.parseDouble(attributes.get("y"));
-			builder.setOffset(x,y);
+			builder.setOffset(x, y);
 			return;
 		}
-		if ( isInDecal && "scale".equals(element) ) {
+		if (isInDecal && "scale".equals(element)) {
 			double x = Double.parseDouble(attributes.get("x"));
 			double y = Double.parseDouble(attributes.get("y"));
-			builder.setScale(x,y);
+			builder.setScaleUV(x, y);
 			return;
 		}
-		if( isInDecal && "decal".equals(element) ) {
+		if (isInDecal && "decal".equals(element)) {
 			isInDecal = false;
 			return;
 		}
@@ -92,7 +86,7 @@ class AppearanceHandler extends AbstractElementHandler {
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
-		if ( "decal".equals(element) ) {
+		if ("decal".equals(element)) {
 			isInDecal = false;
 			return;
 		}

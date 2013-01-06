@@ -106,5 +106,6 @@ public interface SimulationModifier extends ChangeSource {
 	 * another rocket instance (e.g. the same modification on another rocket component that
 	 * has the same component ID).
 	 */
+	@Override
 	public boolean equals(Object obj);
 }

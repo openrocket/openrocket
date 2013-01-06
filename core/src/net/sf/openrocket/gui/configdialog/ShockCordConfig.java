@@ -28,9 +28,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		JLabel label;
 		DoubleModel m;
-		JSpinner spin;
-		String tip;
-		
+		JSpinner spin;	
 
 		//////  Left side
 		

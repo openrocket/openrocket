@@ -26,7 +26,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new ParachuteHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new ParachuteHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -38,7 +38,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
+        ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -89,7 +89,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new ParachuteHandler(null, new WarningSet());
+            new ParachuteHandler(null, null, new WarningSet());
             Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -97,7 +97,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
+        ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         assertContains(component, tube.getChildren());
     }
@@ -110,7 +110,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
+        ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -123,7 +123,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new ParachuteHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
+        Assert.assertTrue(new ParachuteHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof Parachute);
     }
 
     /**
@@ -133,7 +133,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.SURFACE, new ParachuteHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.SURFACE, new ParachuteHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 
     /**
@@ -144,7 +144,7 @@ public class ParachuteHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testEndHandler() throws Exception {
         BodyTube tube = new BodyTube();
-        ParachuteHandler handler = new ParachuteHandler(tube, new WarningSet());
+        ParachuteHandler handler = new ParachuteHandler(null, tube, new WarningSet());
         Parachute component = (Parachute) getField(handler, "chute");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();

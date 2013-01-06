@@ -25,6 +25,7 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 		this.context = context;
 		this.rocket = new Rocket();
 		this.doc = new OpenRocketDocument(rocket);
+		context.setOpenRocketDocument(doc);
 	}
 	
 	public OpenRocketDocument getDocument() {

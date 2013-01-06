@@ -92,12 +92,14 @@ public class PinkNoise {
 		return x;
 	}
 	
-	
+	// TODO: this method seems incomplete
 	public static void main(String[] arg) {
 		
+		@SuppressWarnings("unused")
 		PinkNoise source;
 		
 		source = new PinkNoise(1.0, 100);
+		@SuppressWarnings("unused")
 		double std = 0;
 		for (int i=0; i < 1000000; i++) {
 			
