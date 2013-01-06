@@ -19,7 +19,7 @@ import net.sf.openrocket.util.Coordinate;
 public class AppearanceBuilder extends AbstractChangeSource {
 
 	private Color paint;
-	private int shine;
+	private double shine;
 	private double offsetU, offsetV;
 	private double centerU, centerV;
 	private double scaleU, scaleV;
@@ -37,6 +37,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		resetToDefaults();
 		if ( a != null ){
 			setPaint(a.getPaint());
+			setShine(a.getShine());
 			Decal d = a.getTexture();
 			if ( d != null ){
 				setOffset(d.getOffset().x, d.getOffset().y);
@@ -46,7 +47,6 @@ public class AppearanceBuilder extends AbstractChangeSource {
 				setEdgeMode(d.getEdgeMode());
 				setImage(d.getImage());
 			}
-		// TODO Critical the rest of this!
 		}
 	}
 
@@ -89,11 +89,11 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		fireChangeEvent();
 	}
 
-	public int getShine() {
+	public double getShine() {
 		return shine;
 	}
 
-	public void setShine(int shine) {
+	public void setShine(double shine) {
 		this.shine = shine;
 		fireChangeEvent();
 	}

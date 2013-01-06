@@ -49,6 +49,11 @@ class AppearanceHandler extends AbstractElementHandler {
 			builder.setPaint( new Color(red,green,blue));
 			return;
 		}
+		if ( "shine".equals(element) ){
+			double shine = Double.parseDouble(content);
+			builder.setShine(shine);
+			return;
+		}
 		if ( isInDecal && "center".equals(element) ) {
 			double x = Double.parseDouble(attributes.get("x"));
 			double y = Double.parseDouble(attributes.get("y"));

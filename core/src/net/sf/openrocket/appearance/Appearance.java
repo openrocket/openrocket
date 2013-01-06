@@ -12,16 +12,16 @@ public class Appearance {
 	public static final Appearance MISSING = new Appearance(new Color(0,0,0), 100, null);
 
 	private final Color paint;
-	private final int shine;
+	private final double shine;
 	private final Decal texture;
 	
-	Appearance(final Color paint, final int shine, final Decal texture){
+	Appearance(final Color paint, final double shine, final Decal texture){
 		this.paint = paint;
 		this.shine = shine;
 		this.texture = texture;
 	}
 	
-	Appearance(final Color paint, final int shine){
+	Appearance(final Color paint, final double shine){
 		this.paint = paint;
 		this.shine = shine;
 		this.texture = null;
@@ -31,7 +31,7 @@ public class Appearance {
 		return paint;
 	}
 
-	public int getShine() {
+	public double getShine() {
 		return shine;
 	}
 

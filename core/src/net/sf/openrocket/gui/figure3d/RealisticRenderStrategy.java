@@ -119,10 +119,10 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 
-		color[0] = color[1] = color[2] = (int)(a.getShine()*2.55);
+		color[0] = color[1] = color[2] = (float)a.getShine();
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
-		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, a.getShine());
+		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int)(100 * a.getShine()));
 
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);

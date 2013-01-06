@@ -47,6 +47,7 @@ public class RocketComponentSaver {
 			elements.add("<appearance>");
 			Color paint = ap.getPaint();
 			emitColor("paint",elements,paint);
+			elements.add("<shine>" + ap.getShine() + "</shine>");
 			Decal decal = ap.getTexture();
 			if ( decal != null ) {
 				String name = decal.getImage();

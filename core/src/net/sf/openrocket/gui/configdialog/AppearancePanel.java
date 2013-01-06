@@ -21,15 +21,14 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.appearance.AppearanceBuilder;
+import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DecalModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
-import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -276,9 +275,10 @@ public class AppearancePanel extends JPanel {
 		
 		{// Shine
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
-			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
+			DoubleModel shineModel = new DoubleModel(ab, "Shine", 0, 1);
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
-			JSlider slide = new JSlider(shineModel.getSliderModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
 			
 			add(spin, "split 2, w 50");
 			add(slide, "w 50");
