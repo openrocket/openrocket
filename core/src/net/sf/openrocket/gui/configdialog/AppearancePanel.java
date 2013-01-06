@@ -275,7 +275,7 @@ public class AppearancePanel extends JPanel {
 		
 		{// Shine
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
-			DoubleModel shineModel = new DoubleModel(ab, "Shine", 0, 1);
+			DoubleModel shineModel = new DoubleModel(ab, "Shine", UnitGroup.UNITS_RELATIVE);
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
 			spin.setEditor(new SpinnerEditor(spin));
 			JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
