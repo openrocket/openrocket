@@ -5,55 +5,35 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.util.Color;
 
 public class RockSimAppearanceBuilder extends AppearanceBuilder {
-	private double specularW = 1, ambientW = 1, diffuseW = 1;
-	private boolean oneColor;
+
 	boolean preventSeam = false;
 	boolean repeat = false;
 
-	@Override
-	public Appearance getAppearance() {
-		if (oneColor) {
-			setDiffuse(weight(getDiffuse(), diffuseW));
-			setAmbient(weight(getDiffuse(), diffuseW));
-			setSpecular(weight(getDiffuse(), diffuseW));
-		} else {
-			setDiffuse(weight(getDiffuse(), diffuseW));
-			setAmbient(weight(getAmbient(), ambientW));
-			setSpecular(weight(getSpecular(), specularW));
-		}
-		
-
-		
-		return super.getAppearance();
-	}
 
 	public void processElement(String element, String content, WarningSet warnings) {
 		try {
 			if (RocksimCommonConstants.TEXTURE.equals(element)) {
 				parseTexture(content);
 			} else if ("Ambient".equals(element)) {
-				ambientW = Double.parseDouble(content);
+				//ignored
 			} else if ("Diffuse".equals(element)) {
-				diffuseW = Double.parseDouble(content);
+				//ignored
 			} else if ("Specular".equals(element)) {
-				specularW = Double.parseDouble(content);
+				//ignored
 			} else if ("AbientColor".equals(element)) {
-				setAmbient(parseColor(content));
+				setPaint(parseColor(content));
 			} else if ("DiffuseColor".equals(element)) {
-				setDiffuse(parseColor(content));
+				//ignored
 			} else if ("SpecularColor".equals(element)) {
-				setSpecular(parseColor(content));
+				//Ignored
 			} else if ("UseSingleColor".equals(element) || "SimpleColorModel".equals(element) ) {
-				if ("1".equals(content)) {
-					oneColor = true;
-				}
+				//Ignored
 			}
 		} catch (Exception e) {
 			warnings.add("Could not convert " + element + " value of " + content + ": " + e.getMessage());
@@ -104,7 +84,7 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 				setCenter(Double.parseDouble(c[0]), Double.parseDouble(c[1]));
 			} else if ("scale".equals(name)) {
 				String[] c = value.split(",");
-				setScale(Double.parseDouble(c[0]), Double.parseDouble(c[1]));
+				setScaleUV(Double.parseDouble(c[0]), Double.parseDouble(c[1]));
 			}
 		}
 
@@ -117,11 +97,11 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 		}
 		
 		if ( !flips ){
-			setScale(getScaleU(), getScaleV() * -1);
+			setScaleUV(getScaleU(), getScaleV() * -1);
 			setOffset(getOffsetU(), -1 - getOffsetV());
 		}
 		if ( !flipr ){
-			setScale(getScaleU() * -1, getScaleV());
+			setScaleUV(getScaleU() * -1, getScaleV());
 			setOffset(-1 - getOffsetU(), getOffsetV());
 		}
 		

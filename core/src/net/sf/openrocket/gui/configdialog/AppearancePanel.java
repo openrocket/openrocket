@@ -21,15 +21,14 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
-import net.sf.openrocket.appearance.SimpleAppearanceBuilder;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DecalModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
-import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.ColorIcon;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -51,7 +50,7 @@ import net.sf.openrocket.util.StateChangeListener;
 public class AppearancePanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 
-	private SimpleAppearanceBuilder ab;
+	private AppearanceBuilder ab;
 	
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for
@@ -117,7 +116,7 @@ public class AppearancePanel extends JPanel {
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 
-		ab = new SimpleAppearanceBuilder(c.getAppearance());
+		ab = new AppearanceBuilder(c.getAppearance());
 
 		net.sf.openrocket.util.Color figureColor = c.getColor();
 		if (figureColor == null) {
@@ -125,7 +124,7 @@ public class AppearancePanel extends JPanel {
 		}
 		final JButton figureColorButton = new JButton(new ColorIcon(figureColor));
 		
-		final JButton colorButton = new JButton(new ColorIcon(ab.getColor()));
+		final JButton colorButton = new JButton(new ColorIcon(ab.getPaint()));
 
 		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
 
@@ -133,7 +132,7 @@ public class AppearancePanel extends JPanel {
 			@Override
 			public void stateChanged(EventObject e) {
 				figureColorButton.setIcon(new ColorIcon(c.getColor()));
-				colorButton.setIcon(new ColorIcon(ab.getColor()));
+				colorButton.setIcon(new ColorIcon(ab.getPaint()));
 				c.setAppearance(ab.getAppearance());
 			}
 		});
@@ -150,7 +149,7 @@ public class AppearancePanel extends JPanel {
 		});
 
 		figureColorButton.addActionListener(new ColorActionListener(c, "Color"));
-		colorButton.addActionListener(new ColorActionListener(ab, "Color"));
+		colorButton.addActionListener(new ColorActionListener(ab, "Paint"));
 
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
 
@@ -276,11 +275,14 @@ public class AppearancePanel extends JPanel {
 		
 		{// Shine
 			add(new JLabel(trans.get("AppearanceCfg.lbl.shine")));
-			IntegerModel shineModel = new IntegerModel(ab, "Shine", 0, 100);
+			DoubleModel shineModel = new DoubleModel(ab, "Shine", UnitGroup.UNITS_RELATIVE);
 			JSpinner spin = new JSpinner(shineModel.getSpinnerModel());
-			JSlider slide = new JSlider(shineModel.getSliderModel());
+			spin.setEditor(new SpinnerEditor(spin));
+			JSlider slide = new JSlider(shineModel.getSliderModel(0, 1));
+			UnitSelector unit = new UnitSelector(shineModel);
 			
-			add(spin, "split 2, w 50");
+			add(spin, "split 3, w 50");
+			add(unit, "growx");
 			add(slide, "w 50");
 		}
 
