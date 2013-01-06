@@ -69,7 +69,8 @@ class FinSetHandler extends AbstractElementHandler {
     /**
      * The length of the mid-chord (aka height).
      */
-    private double midChordLen = 0.0d;
+    @SuppressWarnings("unused")
+	private double midChordLen = 0.0d;
     /**
      * The distance of the leading edge from root to top.
      */
@@ -329,16 +330,16 @@ class FinSetHandler extends AbstractElementHandler {
     /**
      * Convert a Rocksim string that represents fin plan points into an array of OpenRocket coordinates.
      *
-     * @param pointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
+     * @param myPointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
      *                  <pre>x0,y0|x1,y1|x2,y2|... </pre>
      * @param warnings  the warning set to convey incompatibilities to the user
      *
      * @return an array of OpenRocket Coordinates
      */
-    private Coordinate[] toCoordinates (String pointList, WarningSet warnings) {
+    private Coordinate[] toCoordinates (String myPointList, WarningSet warnings) {
         List<Coordinate> result = new ArrayList<Coordinate>();
-        if (pointList != null && pointList.length() > 0) {
-            String[] points = pointList.split("\\Q|\\E");
+        if (myPointList != null && myPointList.length() > 0) {
+            String[] points = myPointList.split("\\Q|\\E");
             for (String point : points) {
                 String[] aPoint = point.split(",");
                 try {

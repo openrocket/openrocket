@@ -30,28 +30,36 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 		}
 	}
 	
+	@SuppressWarnings("hiding")
 	private volatile boolean instanceFollowRedirects = false;
-	private volatile String requestMethod = "";
+	
+	@SuppressWarnings("hiding")
 	private volatile int responseCode;
+
+	private volatile String requestMethod = "";
 	private Map<String, String> requestProperties = new HashMap<String, String>();
 	private volatile int connectTimeout = -1;
 	private volatile String contentEncoding = "";
 	
+	@SuppressWarnings("hiding")
 	private volatile boolean doInput = false;
+	@SuppressWarnings("hiding")
 	private volatile boolean doOutput = false;
 	
 	private volatile byte[] content = null;
 	private volatile String contentType = null;
+	
+	@SuppressWarnings("hiding")
 	private volatile boolean useCaches = false;
-	
-	
+
 	private volatile InputStream inputStream = null;
 	private volatile ByteArrayOutputStream outputStream = null;
 	
 	private volatile String trueUrl = null;
 	
-	
+	@SuppressWarnings("hiding")
 	private volatile boolean connected = false;
+	
 	private volatile int connectionDelay = 0;
 	
 	private volatile boolean failed = false;
@@ -419,9 +427,8 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 	
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public Object getContent(Class[] classes) throws IOException {
+	public Object getContent(@SuppressWarnings("rawtypes") Class[] classes) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 	

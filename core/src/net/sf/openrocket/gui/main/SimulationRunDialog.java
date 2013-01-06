@@ -99,6 +99,7 @@ public class SimulationRunDialog extends JDialog {
 	 * will result in an exception being thrown!
 	 */
 	private final Simulation[] simulations;
+	@SuppressWarnings("unused")
 	private final OpenRocketDocument document;
 	private final String[] simulationNames;
 	private final SimulationWorker[] simulationWorkers;

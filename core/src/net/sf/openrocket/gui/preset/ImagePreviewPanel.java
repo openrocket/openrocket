@@ -25,6 +25,7 @@ public class ImagePreviewPanel extends JPanel
         bg = getBackground();
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent e) {
         String propertyName = e.getPropertyName();
 
@@ -42,15 +43,18 @@ public class ImagePreviewPanel extends JPanel
              * Make reasonably sure we have an image format that AWT can
              * handle so we don't try to draw something silly.
              */
-            if ((name != null) &&
-                    name.toLowerCase().endsWith(".jpg") ||
-                    name.toLowerCase().endsWith(".jpeg") ||
-                    name.toLowerCase().endsWith(".gif") ||
-                    name.toLowerCase().endsWith(".png")) {
-                icon = new ImageIcon(name);
-                image = icon.getImage();
-                scaleImage();
-                repaint();
+            if (name != null) {
+                String nameLower = name.toLowerCase();
+                if (nameLower.endsWith(".jpg")  || 
+                    nameLower.endsWith(".jpeg") ||
+                    nameLower.endsWith(".gif")  ||
+                    nameLower.endsWith(".png")) {
+
+                    icon = new ImageIcon(name);
+                    image = icon.getImage();
+                    scaleImage();
+                    repaint();
+                }
             }
         }
     }
@@ -86,6 +90,7 @@ public class ImagePreviewPanel extends JPanel
         image = image.getScaledInstance(width, height, Image.SCALE_DEFAULT);
     }
 
+    @Override
     public void paintComponent(Graphics g) {
         g.setColor(bg);
 

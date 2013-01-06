@@ -41,10 +41,10 @@ public class TestRockets {
 	public TestRockets(String key) {
 		
 		if (key == null) {
-			Random rnd = new Random();
+			Random myRnd = new Random();
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < 6; i++) {
-				int n = rnd.nextInt(62);
+				int n = myRnd.nextInt(62);
 				if (n < 10) {
 					sb.append((char) ('0' + n));
 				} else if (n < 36) {
@@ -242,6 +242,7 @@ public class TestRockets {
 		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;
 		
 		int finCount = 3;
+		@SuppressWarnings("unused")
 		double finRootChord = 0.04, finTipChord = 0.05, finSweep = 0.01, finThickness = 0.003, finHeight = 0.03;
 		
 		
@@ -370,6 +371,7 @@ public class TestRockets {
 		BodyTube tube1, tube2, tube3;
 		TrapezoidFinSet finset;
 		TrapezoidFinSet auxfinset;
+		@SuppressWarnings("unused")
 		MassComponent mcomp;
 		
 		final double R = 0.07;

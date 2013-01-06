@@ -9,7 +9,7 @@ import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.GeneralRocketSaver.SavingProgress;
 
 public class SaveFileWorker extends SwingWorker<Void, Void> {
-
+	
 	private final OpenRocketDocument document;
 	private final File file;
 	private final GeneralRocketSaver saver;

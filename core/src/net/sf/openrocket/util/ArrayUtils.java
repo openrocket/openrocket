@@ -165,6 +165,7 @@ public class ArrayUtils {
 			throw new IllegalArgumentException();
 		}
 		
+		@SuppressWarnings("unchecked")
 		T[] result = (T[]) Array.newInstance( original.getClass().getComponentType(), end-start );
 		
 		int index = 0;

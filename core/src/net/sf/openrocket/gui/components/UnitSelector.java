@@ -244,10 +244,12 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 
 	////////  ItemListener handling  ////////
 
+	@Override
 	public void addItemListener(ItemListener listener) {
 		itemListeners.add(listener);
 	}
 
+	@Override
 	public void removeItemListener(ItemListener listener) {
 		itemListeners.remove(listener);
 	}
@@ -301,6 +303,7 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 			unit = u;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			setSelectedUnit(unit);
 		}
@@ -316,23 +319,28 @@ public class UnitSelector extends StyledLabel implements StateChangeListener, Mo
 
 	////////  Mouse handling ////////
 
+	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (unitGroup.getUnitCount() > 1)
 			popup();
 	}
 
+	@Override
 	public void mouseEntered(MouseEvent e) {
 		if (unitGroup.getUnitCount() > 1)
 			setBorder(withinBorder);
 	}
 
+	@Override
 	public void mouseExited(MouseEvent e) {
 		setBorder(normalBorder);
 	}
 
+	@Override
 	public void mousePressed(MouseEvent e) {
 	} // Ignore
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 	} // Ignore
 

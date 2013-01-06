@@ -16,7 +16,6 @@
  */
 package de.congrace.exp4j;
 
-import java.util.Map;
 import java.util.Stack;
 
 /**

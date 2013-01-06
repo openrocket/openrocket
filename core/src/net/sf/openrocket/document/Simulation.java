@@ -74,6 +74,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
 	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
 	private Class<? extends AerodynamicCalculator> aerodynamicCalculatorClass = BarrowmanCalculator.class;
+	@SuppressWarnings("unused")
 	private Class<? extends MassCalculator> massCalculatorClass = BasicMassCalculator.class;
 
 	/** Listeners for this object */

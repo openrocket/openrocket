@@ -69,7 +69,7 @@ public class PrintableTransition extends AbstractPrintable<Transition> {
 	 * @param transition the transition to print
 	 */
 	public PrintableTransition(Transition transition) {
-		super(false, transition);
+		super(transition);
 	}
 
     /**
@@ -177,13 +177,13 @@ public class PrintableTransition extends AbstractPrintable<Transition> {
 	 * @param x     the center of the circle's x coordinate
 	 * @param y     the center of the circle's y
 	 * @param line  the line to draw
-	 * @param theta the angle
+	 * @param myTheta the angle
 	 */
-	private void drawAlignmentMarks(Graphics2D g2, int x, int y, Line2D.Float line, float theta) {
+	private void drawAlignmentMarks(Graphics2D g2, int x, int y, Line2D.Float line, float myTheta) {
 		g2.translate(x, y);
-		g2.rotate(Math.toRadians(-theta));
+		g2.rotate(Math.toRadians(-myTheta));
 		g2.draw(line);
-		g2.rotate(Math.toRadians(theta));
+		g2.rotate(Math.toRadians(myTheta));
 		g2.translate(-x, -y);
 	}
 

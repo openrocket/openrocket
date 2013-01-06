@@ -89,15 +89,15 @@ public class PrintController {
                         break;
 
                     case TRANSITION_TEMPLATE:
-                        final TransitionStrategy tranWriter = new TransitionStrategy(idoc, writer, stages, pageFitPrint);
-                        if (tranWriter.writeToDocument(doc.getRocket(), false)) {
+                        final TransitionStrategy tranWriter = new TransitionStrategy(idoc, writer, stages, pageFitPrint, false);
+                        if (tranWriter.writeToDocument(doc.getRocket())) {
                             addRule = true;
                         }
                         break;
 
                     case NOSE_CONE_TEMPLATE:
-                        final TransitionStrategy coneWriter = new TransitionStrategy(idoc, writer, stages, pageFitPrint);
-                        if (coneWriter.writeToDocument(doc.getRocket(), true)) {
+                        final TransitionStrategy coneWriter = new TransitionStrategy(idoc, writer, stages, pageFitPrint, true);
+                        if (coneWriter.writeToDocument(doc.getRocket())) {
                             addRule = true;
                         }
                         break;
@@ -124,7 +124,7 @@ public class PrintController {
             }
 
             // Write out parts that we are going to combine onto single sheets of paper
-            pageFitPrint.writeToDocument(doc.getRocket());
+            pageFitPrint.writeToDocument();
             idoc.newPage();
 
             //Stupid iText throws a really nasty exception if there is no data when close is called.

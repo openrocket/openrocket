@@ -396,6 +396,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
+	@Deprecated
 	@Override
 	public int getMotorCount() {
 		return 1;

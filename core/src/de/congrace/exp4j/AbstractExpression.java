@@ -17,8 +17,6 @@
 package de.congrace.exp4j;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Abstract base class for mathematical expressions

@@ -263,19 +263,19 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 		
 		private void updateExponentialParameters() {
 			double pos = this.linearPosition;
-			double minValue = this.min.getValue();
-			double midValue = this.mid.getValue();
-			double maxValue = this.max.getValue();
+			double myMinValue = this.min.getValue();
+			double myMidValue = this.mid.getValue();
+			double myMaxValue = this.max.getValue();
 			/*
 			 * quad2..0 are calculated such that
 			 *   f(pos)  = mid      - continuity
 			 *   f(1)    = max      - end point
 			 *   f'(pos) = linear1  - continuity of derivative
 			 */
-			double delta = (midValue - minValue) / pos;
-			quad2 = (maxValue - midValue - delta + delta * pos) / pow2(pos - 1);
-			quad1 = (delta + 2 * (midValue - maxValue) * pos - delta * pos * pos) / pow2(pos - 1);
-			quad0 = (midValue - (2 * midValue + delta) * pos + (maxValue + delta) * pos * pos) / pow2(pos - 1);
+			double delta = (myMidValue - myMinValue) / pos;
+			quad2 = (myMaxValue - myMidValue - delta + delta * pos) / pow2(pos - 1);
+			quad1 = (delta + 2 * (myMidValue - myMaxValue) * pos - delta * pos * pos) / pow2(pos - 1);
+			quad0 = (myMidValue - (2 * myMidValue + delta) * pos + (myMaxValue + delta) * pos * pos) / pow2(pos - 1);
 		}
 		
 		private double pow2(double x) {

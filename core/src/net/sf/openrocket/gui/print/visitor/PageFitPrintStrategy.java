@@ -9,7 +9,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.PrintUnit;
 import net.sf.openrocket.gui.print.PrintableComponent;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 import java.awt.Graphics2D;
@@ -24,6 +23,9 @@ import java.util.Set;
  * @author Jason Blood <dyster2000@gmail.com>
  */
 public class PageFitPrintStrategy {
+
+    /** The margin. */
+    public final static int MARGIN = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
 
     /**
      * The logger.
@@ -70,10 +72,8 @@ public class PageFitPrintStrategy {
 
     /**
      * Recurse through the given rocket component.
-     *
-     * @param root the root component; all children will be printed recursively
      */
-    public void writeToDocument (final RocketComponent root) {
+    public void writeToDocument () {
         fitPrintComponents();
     }
 
@@ -84,8 +84,8 @@ public class PageFitPrintStrategy {
     	final Dimension pageSize = getPageSize();
         double wPage = pageSize.getWidth();
         double hPage = pageSize.getHeight();
-        int marginX = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
-        int marginY = (int)(PrintUnit.POINTS_PER_INCH * 0.3f);
+        int marginX = MARGIN;
+        int marginY = MARGIN;
         PdfContentByte cb = writer.getDirectContent();
 
         Collections.sort(componentToPrint);
@@ -94,7 +94,7 @@ public class PageFitPrintStrategy {
     		int pageY = marginY;
     		Boolean anyAddedToRow;
 
-            Graphics2D g2 = cb.createGraphics(pageSize.width, pageSize.height);
+            Graphics2D g2 = createGraphics((float) wPage, (float) hPage, cb);
 
     		do {
 	    		// Fill the row
@@ -106,23 +106,39 @@ public class PageFitPrintStrategy {
 	        	while (entry.hasNext()) {
 		        	PrintableComponent component = entry.next();
 		        	java.awt.Dimension dim = component.getSize();
-		        	if ((rowX + dim.width + marginX < wPage) && (rowY + dim.height + marginY < hPage)) {
+		        	if ((rowX + dim.width + marginX <= wPage) && (rowY + dim.height + marginY <= hPage)) {
 		        		component.setPrintOffset(rowX, rowY);
+                        // Separate each component horizontally by a space equal to the margin
 		        		rowX += dim.width + marginX;
 		        		if (rowY + dim.height + marginY > pageY) {
 		        			pageY = rowY + dim.height + marginY;
                         }
-		        		entry.remove();
+                        entry.remove();
 		        		component.print(g2);
 		        		anyAddedToRow = true;
 		        	}
 		        }
+                // Separate each component vertically by a space equal to the margin
                 pageY += marginY;
     		} while (anyAddedToRow);
 
         	g2.dispose();
         	document.newPage();
     	}
+    }
+
+    /**
+     * Create a graphics context.
+     *
+     * @param theWPage the width of the physical page
+     * @param theHPage the height of the physical
+     *
+     * @param theCb the pdf content byte instance
+     *
+     * @return a Graphics2D instance
+     */
+    Graphics2D createGraphics(final float theWPage, final float theHPage, final PdfContentByte theCb) {
+        return theCb.createGraphics(theWPage, theHPage);
     }
 
     /**
@@ -133,43 +149,5 @@ public class PageFitPrintStrategy {
     protected Dimension getPageSize () {
         return new Dimension(document.getPageSize().getWidth(),
                              document.getPageSize().getHeight());
-    }
-
-    /**
-     * Convenience class to model a dimension.
-     */
-    class Dimension {
-        /** Width, in points. */
-        public float width;
-        /** Height, in points. */
-        public float height;
-
-        /**
-         * Constructor.
-         * @param w width
-         * @param h height
-         */
-        public Dimension (float w, float h) {
-            width = w;
-            height = h;
-        }
-
-        /**
-         * Get the width.
-         *
-         * @return  the width
-         */
-        public float getWidth () {
-            return width;
-        }
-
-        /**
-         * Get the height.
-         *
-         * @return the height
-         */
-        public float getHeight () {
-            return height;
-        }
     }
 }

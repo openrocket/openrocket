@@ -43,6 +43,7 @@ public class Rule extends PrintableComponent {
      *
      * @param g the opaque graphics context
      */
+    @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
 
