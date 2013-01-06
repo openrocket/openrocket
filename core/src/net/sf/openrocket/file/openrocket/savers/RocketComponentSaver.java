@@ -45,12 +45,9 @@ public class RocketComponentSaver {
 		Appearance ap = c.getAppearance();
 		if ( ap != null ) {
 			elements.add("<appearance>");
-			Color ambient = ap.getAmbient();
-			emitColor("ambient",elements,ambient);
-			Color diffuse = ap.getDiffuse();
-			emitColor("diffuse",elements,diffuse);
-			Color specular = ap.getSpecular();
-			emitColor("specular",elements,specular);
+			Color paint = ap.getPaint();
+			emitColor("paint",elements,paint);
+			elements.add("<shine>" + ap.getShine() + "</shine>");
 			Decal decal = ap.getTexture();
 			if ( decal != null ) {
 				String name = decal.getImage();

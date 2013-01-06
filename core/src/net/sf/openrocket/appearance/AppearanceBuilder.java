@@ -18,8 +18,8 @@ import net.sf.openrocket.util.Coordinate;
  */
 public class AppearanceBuilder extends AbstractChangeSource {
 
-	private Color ambient, diffuse, specular;
-	private int shininess;
+	private Color paint;
+	private double shine;
 	private double offsetU, offsetV;
 	private double centerU, centerV;
 	private double scaleU, scaleV;
@@ -36,28 +36,23 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	public AppearanceBuilder(Appearance a) {
 		resetToDefaults();
 		if ( a != null ){
-			setAmbient(a.getAmbient());
-			setDiffuse(a.getDiffuse());
-			setSpecular(a.getSpecular());
-			setShininess(a.getShininess());
+			setPaint(a.getPaint());
+			setShine(a.getShine());
 			Decal d = a.getTexture();
 			if ( d != null ){
 				setOffset(d.getOffset().x, d.getOffset().y);
 				setCenter(d.getCenter().x, d.getCenter().y);
-				setScale(d.getScale().x, d.getScale().y);
+				setScaleUV(d.getScale().x, d.getScale().y);
 				setRotation(d.getRotation());
 				setEdgeMode(d.getEdgeMode());
 				setImage(d.getImage());
 			}
-		// TODO Critical the rest of this!
 		}
 	}
 
 	public void resetToDefaults() {
-		ambient = new Color(0, 0, 0);
-		diffuse = new Color(128, 128, 128);
-		specular = new Color(255, 255, 255);
-		shininess = 100;
+		paint = new Color(0, 0, 0);
+		shine = 0;
 		offsetU = offsetV = 0;
 		centerU = centerV = 0;
 		scaleU = scaleV = 1;
@@ -80,44 +75,26 @@ public class AppearanceBuilder extends AbstractChangeSource {
 					edgeMode);
 		}
 
-		return new Appearance( ambient, diffuse, specular, shininess, t);
+		return new Appearance( paint, shine, t);
 	}
 
 
 
-	public Color getAmbient() {
-		return ambient;
+	public Color getPaint() {
+		return paint;
 	}
 
-	public void setAmbient(Color ambient) {
-		this.ambient = ambient;
+	public void setPaint(Color paint) {
+		this.paint = paint;
 		fireChangeEvent();
 	}
 
-	public Color getDiffuse() {
-		return diffuse;
+	public double getShine() {
+		return shine;
 	}
 
-	public void setDiffuse(Color diffuse) {
-		this.diffuse = diffuse;
-		fireChangeEvent();
-	}
-
-	public Color getSpecular() {
-		return specular;
-	}
-
-	public void setSpecular(Color specular) {
-		this.specular = specular;
-		fireChangeEvent();
-	}
-
-	public int getShininess() {
-		return shininess;
-	}
-
-	public void setShininess(int shininess) {
-		this.shininess = shininess;
+	public void setShine(double shine) {
+		this.shine = shine;
 		fireChangeEvent();
 	}
 
@@ -185,9 +162,25 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		fireChangeEvent();
 	}
 
-	public void setScale(double u, double v) {
+	public void setScaleUV(double u, double v) {
 		setScaleU(u);
 		setScaleV(v);
+	}
+	
+	public double getScaleX() {
+		return 1.0 / getScaleU();
+	}
+
+	public void setScaleX(double scaleU) {
+		setScaleU(1.0 / scaleU);
+	}
+
+	public double getScaleY() {
+		return 1.0 / getScaleV();
+	}
+
+	public void setScaleY(double scaleV) {
+		setScaleV(1.0 / scaleV);
 	}
 
 	public double getRotation() {
