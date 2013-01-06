@@ -382,7 +382,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		log.verbose("GL - dispose() called");
-		// FIXME:  This line had been removed in master branch - should it be here or not?
 		rr.dispose(drawable);
 	}
 	
