@@ -267,13 +267,17 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			gl.glDisable(GLLightingFunc.GL_LIGHTING);
 			final RocketComponent picked = rr.pick(drawable, configuration,
 					pickPoint, pickEvent.isShiftDown() ? selection : null);
-			if (csl != null && picked != null) {
+			if (csl != null) {
 				final MouseEvent e = pickEvent;
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						csl.componentClicked(new RocketComponent[] { picked },
-								e);
+						if ( picked == null ){
+							log.debug("unselecting");
+							csl.componentClicked(new RocketComponent[] { }, e);
+						} else {
+							csl.componentClicked(new RocketComponent[] { picked }, e);
+						}
 					}
 				});
 				
