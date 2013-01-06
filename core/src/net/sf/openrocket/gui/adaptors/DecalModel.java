@@ -9,7 +9,9 @@ import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.appearance.AppearanceBuilder;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
@@ -20,17 +22,19 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 	private static final String NONE_SELECTED = trans.get("lbl.select");
 	private static final String SELECT_FILE = trans.get("lbl.choose");
 	
+	private final OpenRocketDocument document;
 	private final Component parent;
 	private final AppearanceBuilder ab;
 	
 	private static File lastImageDir = null;
-
-	private String[] decals;
+	
+	private DecalImage[] decals;
 	
 	public DecalModel(Component parent, OpenRocketDocument document, AppearanceBuilder ab) {
+		this.document = document;
 		this.parent = parent;
 		this.ab = ab;
-		decals = document.getDecalList().toArray( new String[0] );
+		decals = document.getDecalRegistry().getDecalList().toArray(new DecalImage[0]);
 	}
 	
 	@Override
@@ -46,7 +50,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 		if (index == getSize() - 1) {
 			return SELECT_FILE;
 		}
-		return decals[index-1];
+		return decals[index - 1];
 	}
 	
 	@Override
@@ -60,26 +64,29 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 				public void run() {
 					File current = lastImageDir;
 					lastImageDir = current;
-
+					
 					JFileChooser fc = new JFileChooser(current);
+					fc.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 					int action = fc.showOpenDialog(SwingUtilities.getWindowAncestor(parent));
-					if ( action == JFileChooser.APPROVE_OPTION) {
-						setSelectedItem(fc.getSelectedFile().getAbsolutePath());
+					if (action == JFileChooser.APPROVE_OPTION) {
+						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
+						File file = fc.getSelectedFile();
+						setSelectedItem(document.getDecalRegistry().getDecalImage(file));
 					}
 				}
 			});
 		} else {
-			ab.setImage( (String) item);
+			ab.setImage((DecalImage) item);
 		}
 	}
 	
 	@Override
 	public Object getSelectedItem() {
-		String name = ab.getImage();
-		if (name == null) {
+		DecalImage decal = ab.getImage();
+		if (decal == null) {
 			return NONE_SELECTED;
 		} else {
-			return name;
+			return decal;
 		}
 	}
 	

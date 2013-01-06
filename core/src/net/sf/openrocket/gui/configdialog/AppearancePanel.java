@@ -49,7 +49,7 @@ import net.sf.openrocket.util.StateChangeListener;
 
 public class AppearancePanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private AppearanceBuilder ab;
 	
 	/**
@@ -58,32 +58,32 @@ public class AppearancePanel extends JPanel {
 	 */
 	private final static UnitGroup TEXTURE_UNIT = new UnitGroup();
 	static {
-		Unit no_unit = new GeneralUnit(1,"",2) {
+		Unit no_unit = new GeneralUnit(1, "", 2) {
 			@Override
 			public double getNextValue(double value) {
-				return value+.1;
+				return value + .1;
 			}
-
+			
 			@Override
 			public double getPreviousValue(double value) {
-				return value-.1;
+				return value - .1;
 			}
-
+			
 		};
 		TEXTURE_UNIT.addUnit(no_unit);
 	}
-
+	
 	private static final JColorChooser colorChooser = new JColorChooser();
 	
 	private class ColorActionListener implements ActionListener {
 		private final String valueName;
 		private final Object o;
-
+		
 		ColorActionListener(final Object o, final String valueName) {
 			this.valueName = valueName;
 			this.o = o;
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent colorClickEvent) {
 			try {
@@ -112,12 +112,12 @@ public class AppearancePanel extends JPanel {
 			}
 		}
 	}
-
+	
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
-
+		
 		ab = new AppearanceBuilder(c.getAppearance());
-
+		
 		net.sf.openrocket.util.Color figureColor = c.getColor();
 		if (figureColor == null) {
 			figureColor = Application.getPreferences().getDefaultColor(c.getClass());
@@ -125,9 +125,9 @@ public class AppearancePanel extends JPanel {
 		final JButton figureColorButton = new JButton(new ColorIcon(figureColor));
 		
 		final JButton colorButton = new JButton(new ColorIcon(ab.getPaint()));
-
-		final JComboBox textureDropDown = new JComboBox( new DecalModel(this,document,ab));;
-
+		
+		final JComboBox textureDropDown = new JComboBox(new DecalModel(this, document, ab));
+		
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
@@ -136,7 +136,7 @@ public class AppearancePanel extends JPanel {
 				c.setAppearance(ab.getAppearance());
 			}
 		});
-
+		
 		c.addChangeListener(new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
@@ -147,13 +147,13 @@ public class AppearancePanel extends JPanel {
 				figureColorButton.setIcon(new ColorIcon(col));
 			}
 		});
-
+		
 		figureColorButton.addActionListener(new ColorActionListener(c, "Color"));
 		colorButton.addActionListener(new ColorActionListener(ab, "Paint"));
-
+		
 		BooleanModel fDefault = new BooleanModel(c.getColor() == null);
-
-
+		
+		
 		{// Style Header Row
 			final JCheckBox colorDefault = new JCheckBox(fDefault);
 			colorDefault.addActionListener(new ActionListener() {
@@ -189,15 +189,15 @@ public class AppearancePanel extends JPanel {
 			fDefault.addEnableComponent(button, false);
 			add(button, "span 2, align right, wrap");
 		}
-
+		
 		{// Figure Color
 			add(new JLabel(trans.get("RocketCompCfg.lbl.Componentcolor")));
 			fDefault.addEnableComponent(figureColorButton, false);
 			add(figureColorButton);
 		}
-
+		
 		{// Line Style
-			
+		
 			add(new JLabel(trans.get("RocketCompCfg.lbl.Complinestyle")));
 			
 			LineStyle[] list = new LineStyle[LineStyle.values().length + 1];
@@ -211,32 +211,32 @@ public class AppearancePanel extends JPanel {
 			
 			add(combo, "wrap");
 		}
-
+		
 		add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
-
+		
 		{// Texture Header Row
 			add(new StyledLabel(trans.get("AppearanceCfg.lbl.Appearance"), Style.BOLD), "wrap");
 		}
-
+		
 		{// Texture File
 			add(new JLabel(trans.get("AppearanceCfg.lbl.Texture")));
 			JPanel p = new JPanel(new MigLayout("fill, ins 0", "[grow][]"));
 			p.add(textureDropDown, "grow");
 			add(p, "span 3, growx, wrap");
 			final JButton editBtn = new JButton(trans.get("AppearanceCfg.but.edit"));
-			editBtn.setEnabled( ab.getImage() != null );
+			editBtn.setEnabled(ab.getImage() != null);
 			ab.addChangeListener(new StateChangeListener() {
 				@Override
 				public void stateChanged(EventObject e) {
 					editBtn.setEnabled(ab.getImage() == null);
 				}
 			});
-			editBtn.addActionListener( new ActionListener() {
-
+			editBtn.addActionListener(new ActionListener() {
+				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
-						EditDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, ab.getImage());
+						EditDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), ab.getImage());
 					} catch (IOException ex) {
 						throw new BugException(ex);
 					}
@@ -258,15 +258,15 @@ public class AppearancePanel extends JPanel {
 				}
 			});
 		}
-
+		
 		{ // Scale
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.scale")));
-
+			
 			add(new JLabel("x:"), "split 4");
 			JSpinner scaleU = new JSpinner(new DoubleModel(ab, "ScaleX", TEXTURE_UNIT).getSpinnerModel());
 			scaleU.setEditor(new SpinnerEditor(scaleU));
 			add(scaleU, "w 40");
-
+			
 			add(new JLabel("y:"));
 			JSpinner scaleV = new JSpinner(new DoubleModel(ab, "ScaleY", TEXTURE_UNIT).getSpinnerModel());
 			scaleV.setEditor(new SpinnerEditor(scaleV));
@@ -285,16 +285,16 @@ public class AppearancePanel extends JPanel {
 			add(unit, "growx");
 			add(slide, "w 50");
 		}
-
-
+		
+		
 		{ // Offset
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.offset")));
-
+			
 			add(new JLabel("x:"), "split 4");
 			JSpinner offsetU = new JSpinner(new DoubleModel(ab, "OffsetU", TEXTURE_UNIT).getSpinnerModel());
 			offsetU.setEditor(new SpinnerEditor(offsetU));
 			add(offsetU, "w 40");
-
+			
 			add(new JLabel("y:"));
 			JSpinner offsetV = new JSpinner(new DoubleModel(ab, "OffsetV", TEXTURE_UNIT).getSpinnerModel());
 			offsetV.setEditor(new SpinnerEditor(offsetV));
@@ -308,8 +308,8 @@ public class AppearancePanel extends JPanel {
 			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
 			add(combo);
 		}
-
-
+		
+		
 		{ // Rotation
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.rotation")));
 			DoubleModel rotationModel = new DoubleModel(ab, "Rotation", UnitGroup.UNITS_ANGLE);
@@ -320,8 +320,8 @@ public class AppearancePanel extends JPanel {
 			BasicSlider bs = new BasicSlider(rotationModel.getSliderModel(-Math.PI, Math.PI));
 			add(bs, "w 50, wrap");
 		}
-
-
+		
+		
 	}
 	
 }

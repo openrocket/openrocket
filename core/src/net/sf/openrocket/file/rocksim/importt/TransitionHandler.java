@@ -3,7 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.rocksim.RocksimNoseConeCode;
@@ -12,9 +15,8 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * The SAX handler for Transition components.
@@ -37,7 +39,8 @@ class TransitionHandler extends BaseHandler<Transition> {
      * @param warnings  the warning set
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public TransitionHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    public TransitionHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (c == null) {
             throw new IllegalArgumentException("The parent of a transition may not be null.");
         }
@@ -49,7 +52,7 @@ class TransitionHandler extends BaseHandler<Transition> {
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
-            return new AttachedPartsHandler(transition);
+            return new AttachedPartsHandler(document, transition);
         }
         return PlainTextHandler.INSTANCE;
     }
@@ -151,7 +154,6 @@ class TransitionHandler extends BaseHandler<Transition> {
      *
      * @return BULK
      */
-    @Override
     public Material.Type getMaterialType() {
         return Material.Type.BULK;
     }

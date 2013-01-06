@@ -24,11 +24,11 @@ public class Decal {
 
 	private final Coordinate offset, center, scale;
 	private final double rotation;
-	private final String image;
+	private final DecalImage image;
 	private final EdgeMode mode;
 	
 	Decal(final Coordinate offset, final Coordinate center, final Coordinate scale, final double rotation,
-			final String image, final EdgeMode mode) {
+			final DecalImage image, final EdgeMode mode) {
 		this.offset = offset;
 		this.center = center;
 		this.scale = scale;
@@ -57,7 +57,7 @@ public class Decal {
 		return mode;
 	}
 
-	public String getImage() {
+	public DecalImage getImage() {
 		return image;
 	}
 

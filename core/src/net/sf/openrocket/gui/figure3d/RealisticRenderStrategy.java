@@ -14,7 +14,6 @@ import javax.media.opengl.fixedfunc.GLMatrixFunc;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
-import net.sf.openrocket.document.DecalRegistry;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -26,37 +25,35 @@ import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class RealisticRenderStrategy extends RenderStrategy {
-
+	
 	private final float[] colorBlack = { 0, 0, 0, 1 };
 	private final float[] color = new float[4];
 	private static final LogHelper log = Application.getLogger();
-
-	private final DecalRegistry decalLoader;
+	
 	private boolean needClearCache = false;
 	private Map<String, Texture> oldTexCache = new HashMap<String, Texture>();
 	private Map<String, Texture> texCache = new HashMap<String, Texture>();
 	private float anisotrophy = 0;
-
+	
 	public RealisticRenderStrategy(OpenRocketDocument document) {
 		super(document);
-		this.decalLoader = document.getDecalRegistry();
 	}
-
+	
 	@Override
 	public void updateFigure() {
 		needClearCache = true;
 	}
-
+	
 	@Override
 	public void init(GLAutoDrawable drawable) {
-		oldTexCache = new HashMap<String,Texture>();
-		texCache = new HashMap<String,Texture>();
+		oldTexCache = new HashMap<String, Texture>();
+		texCache = new HashMap<String, Texture>();
 		
 		GL2 gl = drawable.getGL().getGL2();
 		
-		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
-                new float[] { 0,0,0 }, 0);
-
+		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT,
+				new float[] { 0, 0, 0 }, 0);
+		
 		float amb = 0.3f;
 		float dif = 1.0f - amb;
 		float spc = 1.0f;
@@ -66,50 +63,50 @@ public class RealisticRenderStrategy extends RenderStrategy {
 				new float[] { dif, dif, dif, 1 }, 0);
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
 				new float[] { spc, spc, spc, 1 }, 0);
-
+		
 		gl.glEnable(GLLightingFunc.GL_LIGHT1);
 		gl.glEnable(GLLightingFunc.GL_LIGHTING);
 		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
-
+		
 		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
-
+		
 		if (gl.isExtensionAvailable("GL_EXT_texture_filter_anisotropic")) {
 			float a[] = new float[1];
 			gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, a, 0);
 			anisotrophy = a[0];
 		}
 	}
-
+	
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		oldTexCache = null;
 		texCache = null;
 	}
-
+	
 	@Override
 	public boolean isDrawn(RocketComponent c) {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isDrawnTransparent(RocketComponent c) {
 		return false;
 	}
-
+	
 	@Override
 	public void preGeometry(GL2 gl, RocketComponent c, float alpha) {
 		if (needClearCache) {
 			clearCaches(gl);
 			needClearCache = false;
 		}
-
+		
 		Appearance a = getAppearance(c);
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
-		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL,GL2.GL_SEPARATE_SPECULAR_COLOR);
-
-
-		if ( a.getTexture() != null ){
-			color[0] = color[1] = color[2] =  1;
+		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
+		
+		
+		if (a.getTexture() != null) {
+			color[0] = color[1] = color[2] = 1;
 		} else {
 			convertColor(a.getPaint(), color);
 			color[3] = alpha;
@@ -118,15 +115,15 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
-
-		color[0] = color[1] = color[2] = (float)a.getShine();
+		
+		color[0] = color[1] = color[2] = (float) a.getShine();
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
-		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int)(100 * a.getShine()));
-
+		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int) (100 * a.getShine()));
+		
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
-
+		
 		Decal t = a.getTexture();
 		Texture tex = null;
 		if (t != null) {
@@ -135,30 +132,30 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		if (t != null && tex != null) {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-
+			
 			tex.enable(gl);
 			tex.bind(gl);
 			gl.glMatrixMode(GL.GL_TEXTURE);
 			gl.glPushMatrix();
-
+			
 			gl.glTranslated(-t.getCenter().x, -t.getCenter().y, 0);
 			gl.glRotated(57.2957795 * t.getRotation(), 0, 0, 1);
 			gl.glTranslated(t.getCenter().x, t.getCenter().y, 0);
-
+			
 			gl.glScaled(t.getScale().x, t.getScale().y, 0);
 			gl.glTranslated(t.getOffset().x, t.getOffset().y, 0);
-
+			
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, toEdgeMode(t.getEdgeMode()));
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
-
+			
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 			
-			if ( anisotrophy > 0){
+			if (anisotrophy > 0) {
 				gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotrophy);
 			}
 		}
 	}
-
+	
 	@Override
 	public void postGeometry(GL2 gl, RocketComponent c, float alpha) {
 		Appearance a = getAppearance(c);
@@ -174,7 +171,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			tex.disable(gl);
 		}
 	}
-
+	
 	private void clearCaches(GL2 gl) {
 		log.debug("ClearCaches");
 		for (Map.Entry<String, Texture> e : oldTexCache.entrySet()) {
@@ -185,37 +182,37 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		oldTexCache = texCache;
 		texCache = new HashMap<String, Texture>();
 	}
-
+	
 	private Texture getTexture(Decal t) {
-		String imageName = t.getImage();
-
+		String imageName = t.getImage().getName();
+		
 		// Return the Cached value if available
 		if (texCache.containsKey(imageName))
 			return texCache.get(imageName);
-
+		
 		// If the texture is in the Old Cache, save it.
 		if (oldTexCache.containsKey(imageName)) {
 			texCache.put(imageName, oldTexCache.get(imageName));
 			oldTexCache.remove(imageName);
 			return texCache.get(imageName);
 		}
-
+		
 		// Otherwise load it.
 		Texture tex = null;
 		try {
 			log.debug("Loading texture " + t);
-			InputStream is = decalLoader.getDecal(imageName);
+			InputStream is = t.getImage().getBytes();
 			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, true, null);
 			tex = TextureIO.newTexture(data);
 		} catch (Throwable e) {
 			log.error("Error loading Texture", e);
 		}
 		texCache.put(imageName, tex);
-
+		
 		return tex;
-
+		
 	}
-
+	
 	private Appearance getAppearance(RocketComponent c) {
 		Appearance ret = c.getAppearance();
 		if (ret == null) {
@@ -223,7 +220,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 		}
 		return ret;
 	}
-
+	
 	private int toEdgeMode(Decal.EdgeMode m) {
 		switch (m) {
 		case REPEAT:
@@ -236,7 +233,7 @@ public class RealisticRenderStrategy extends RenderStrategy {
 			return GL.GL_CLAMP_TO_EDGE;
 		}
 	}
-
+	
 	protected static void convertColor(Color color, float[] out) {
 		if (color == null) {
 			out[0] = 1;

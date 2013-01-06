@@ -4,6 +4,8 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -14,9 +16,8 @@ import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * This class is a Sax element handler for Rocksim version 9 design files.  It parses the Rocksim file (typically
@@ -113,7 +114,7 @@ class RocksimContentHandler extends AbstractElementHandler {
             return PlainTextHandler.INSTANCE;
         }
         if (RocksimCommonConstants.ROCKET_DESIGN.equals(element)) {
-            return new RocketDesignHandler(rocket);
+            return new RocketDesignHandler(doc, rocket);
         }
         return null;
     }
@@ -147,6 +148,7 @@ class RocksimContentHandler extends AbstractElementHandler {
  * structures.  If that invariant is not true, then behavior will be unpredictable.
  */
 class RocketDesignHandler extends AbstractElementHandler {
+	private final OpenRocketDocument document;
     /**
      * The parent component.
      */
@@ -185,7 +187,8 @@ class RocketDesignHandler extends AbstractElementHandler {
      *
      * @param c the parent component
      */
-    public RocketDesignHandler(RocketComponent c) {
+    public RocketDesignHandler(OpenRocketDocument document, RocketComponent c) {
+    	this.document = document;
         component = c;
     }
 
@@ -208,7 +211,7 @@ class RocketDesignHandler extends AbstractElementHandler {
                 stage.setOverrideCGX(stage3CG);
             }
             component.addChild(stage);
-            return new StageHandler(stage);
+            return new StageHandler(document, stage);
         }
         if ("Stage2Parts".equals(element)) {
             if (stageCount >= 2) {
@@ -224,7 +227,7 @@ class RocketDesignHandler extends AbstractElementHandler {
                     stage.setOverrideCGX(stage2CG);
                 }
                 component.addChild(stage);
-                return new StageHandler(stage);
+                return new StageHandler(document, stage);
             }
         }
         if ("Stage1Parts".equals(element)) {
@@ -241,7 +244,7 @@ class RocketDesignHandler extends AbstractElementHandler {
                     stage.setOverrideCGX(stage1CG);
                 }
                 component.addChild(stage);
-                return new StageHandler(stage);
+                return new StageHandler(document, stage);
             }
         }
         if (RocksimCommonConstants.NAME.equals(element)) {
@@ -311,6 +314,7 @@ class RocketDesignHandler extends AbstractElementHandler {
  * A SAX handler for a Rocksim stage.
  */
 class StageHandler extends AbstractElementHandler {
+	private final OpenRocketDocument document;
     /**
      * The parent OpenRocket component.
      */
@@ -322,23 +326,24 @@ class StageHandler extends AbstractElementHandler {
      * @param c the parent component
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public StageHandler(RocketComponent c) throws IllegalArgumentException {
+    public StageHandler(OpenRocketDocument document, RocketComponent c) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The stage component may not be null.");
         }
+        this.document = document;
         component = c;
     }
 
     @Override
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         if (RocksimCommonConstants.NOSE_CONE.equals(element)) {
-            return new NoseConeHandler(component, warnings);
+            return new NoseConeHandler(document, component, warnings);
         }
         if (RocksimCommonConstants.BODY_TUBE.equals(element)) {
-            return new BodyTubeHandler(component, warnings);
+            return new BodyTubeHandler(document, component, warnings);
         }
         if (RocksimCommonConstants.TRANSITION.equals(element)) {
-            return new TransitionHandler(component, warnings);
+            return new TransitionHandler(document, component, warnings);
         }
         return null;
     }

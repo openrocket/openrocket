@@ -3,7 +3,13 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.rocksim.RocksimLocationMode;
@@ -19,12 +25,8 @@ import net.sf.openrocket.rocketcomponent.IllegalFinPointException;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.util.Coordinate;
-import org.xml.sax.SAXException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim fin sets.  Because the type of fin may not be known first (in Rocksim file format, the fin
@@ -69,8 +71,7 @@ class FinSetHandler extends AbstractElementHandler {
     /**
      * The length of the mid-chord (aka height).
      */
-    @SuppressWarnings("unused")
-	private double midChordLen = 0.0d;
+    private double midChordLen = 0.0d;
     /**
      * The distance of the leading edge from root to top.
      */
@@ -140,9 +141,8 @@ class FinSetHandler extends AbstractElementHandler {
      */
     private Double calcCg = 0d;
 
-    private RockSimAppearanceBuilder appearanceBuilder = new RockSimAppearanceBuilder();
+    private final RockSimAppearanceBuilder appearanceBuilder;
     
-
     /**
      * Constructor.
      *
@@ -150,10 +150,11 @@ class FinSetHandler extends AbstractElementHandler {
      *
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public FinSetHandler (RocketComponent c) throws IllegalArgumentException {
+    public FinSetHandler (OpenRocketDocument document, RocketComponent c) throws IllegalArgumentException {
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a fin set may not be null.");
         }
+    	appearanceBuilder = new RockSimAppearanceBuilder( document );
         component = c;
     }
 
@@ -330,16 +331,16 @@ class FinSetHandler extends AbstractElementHandler {
     /**
      * Convert a Rocksim string that represents fin plan points into an array of OpenRocket coordinates.
      *
-     * @param myPointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
+     * @param pointList a comma and pipe delimited string of X,Y coordinates from Rocksim.  This is of the format:
      *                  <pre>x0,y0|x1,y1|x2,y2|... </pre>
      * @param warnings  the warning set to convey incompatibilities to the user
      *
      * @return an array of OpenRocket Coordinates
      */
-    private Coordinate[] toCoordinates (String myPointList, WarningSet warnings) {
+    private Coordinate[] toCoordinates (String pointList, WarningSet warnings) {
         List<Coordinate> result = new ArrayList<Coordinate>();
-        if (myPointList != null && myPointList.length() > 0) {
-            String[] points = myPointList.split("\\Q|\\E");
+        if (pointList != null && pointList.length() > 0) {
+            String[] points = pointList.split("\\Q|\\E");
             for (String point : points) {
                 String[] aPoint = point.split(",");
                 try {

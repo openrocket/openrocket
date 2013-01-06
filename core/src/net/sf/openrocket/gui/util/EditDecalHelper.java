@@ -5,7 +5,7 @@ import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.gui.dialogs.EditDecalDialog;
 import net.sf.openrocket.startup.Application;
 
@@ -18,8 +18,9 @@ public class EditDecalHelper {
 
 	private static final SwingPreferences prefs = ((SwingPreferences)Application.getPreferences());
 	
-	public static void editDecal( Window parent, OpenRocketDocument document, String decalId ) throws IOException {
+	public static void editDecal( Window parent, DecalImage decal ) throws IOException {
 
+		String decalId = decal.getName();
 		// Create Temp File.
 		int dotlocation = decalId.lastIndexOf('.');
 		String extension = "tmp";
@@ -28,7 +29,7 @@ public class EditDecalHelper {
 		}
 		File tmpFile = File.createTempFile("OR_graphics", extension);
 		
-		document.getDecalRegistry().exportDecal(decalId, tmpFile);
+		decal.exportImage(tmpFile, true);
 		
 		//First Check preferences
 		if ( prefs.isDecalEditorPreferenceSet() ) {

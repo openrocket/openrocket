@@ -3,7 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimFinishCode;
 import net.sf.openrocket.file.rocksim.RocksimNoseConeCode;
@@ -13,9 +16,8 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * The SAX nose cone handler for Rocksim NoseCones.
@@ -40,7 +42,8 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
      * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public NoseConeHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    public NoseConeHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a nose cone may not be null.");
         }
@@ -54,7 +57,7 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
     public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
         //Nose cones in Rocksim may have attached parts - namely Mass Objects - as children.
         if (RocksimCommonConstants.ATTACHED_PARTS.equals(element)) {
-            return new AttachedPartsHandler(noseCone);
+            return new AttachedPartsHandler(document, noseCone);
         }
         return PlainTextHandler.INSTANCE;
     }
@@ -147,7 +150,6 @@ class NoseConeHandler extends BaseHandler<NoseCone> {
      *
      * @return BULK
      */
-    @Override
     public Material.Type getMaterialType() {
         return Material.Type.BULK;
     }

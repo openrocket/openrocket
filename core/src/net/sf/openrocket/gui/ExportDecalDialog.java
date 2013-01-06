@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.JComboBox;
@@ -16,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
@@ -41,15 +40,9 @@ public class ExportDecalDialog extends JDialog {
 		JLabel label = new JLabel(trans.get("ExportDecalDialog.decalList.lbl"));
 		panel.add(label);
 
-		Set<String> allDecals = document.getDecalList();
-		List<String> exportableDecals = new ArrayList<String>();
-		for ( String decal : allDecals ) {
-			if ( document.getDecalRegistry().isExportable(decal) ) {
-				exportableDecals.add(decal);
-			}
-		}
+		Set<DecalImage> exportableDecals = document.getDecalRegistry().getExportableDecalsList();
 
-		decalComboBox = new JComboBox( exportableDecals.toArray( new String[0] ) );
+		decalComboBox = new JComboBox( exportableDecals.toArray( new DecalImage[0] ) );
 		decalComboBox.setEditable(false);
 		panel.add(decalComboBox, "growx, wrap");
 
@@ -68,7 +61,7 @@ public class ExportDecalDialog extends JDialog {
 					// Here we copy the bits out.
 
 					// FIXME - confirm overwrite?
-					String selectedDecal = (String) decalComboBox.getSelectedItem();
+					DecalImage selectedDecal = (DecalImage) decalComboBox.getSelectedItem();
 					File selectedFile = chooser.getSelectedFile();
 
 					export(selectedDecal,selectedFile);
@@ -82,10 +75,10 @@ public class ExportDecalDialog extends JDialog {
 		this.pack();
 	}
 
-	private void export( String decalName, File selectedFile ) {
+	private void export( DecalImage decal, File selectedFile ) {
 
 		try {
-			document.getDecalRegistry().exportDecal(decalName,selectedFile);
+			decal.exportImage(selectedFile, false);
 		}
 		catch (IOException iex) {
 			throw new BugException(iex);

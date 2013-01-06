@@ -30,7 +30,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new LaunchLugHandler(null, new WarningSet());
+            new LaunchLugHandler(null, null, new WarningSet());
             Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -38,7 +38,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        LaunchLugHandler handler = new LaunchLugHandler(tube, new WarningSet());
+        LaunchLugHandler handler = new LaunchLugHandler(null, tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
         assertContains(component, tube.getChildren());
     }
@@ -50,7 +50,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new LaunchLugHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new LaunchLugHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -62,7 +62,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
-        LaunchLugHandler handler = new LaunchLugHandler(tube, new WarningSet());
+        LaunchLugHandler handler = new LaunchLugHandler(null, tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -117,7 +117,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        LaunchLugHandler handler = new LaunchLugHandler(tube, new WarningSet());
+        LaunchLugHandler handler = new LaunchLugHandler(null, tube, new WarningSet());
         LaunchLug component = (LaunchLug) getField(handler, "lug");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -130,7 +130,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new LaunchLugHandler(new BodyTube(), new WarningSet()).getComponent() instanceof LaunchLug);
+        Assert.assertTrue(new LaunchLugHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof LaunchLug);
     }
 
     /**
@@ -140,7 +140,7 @@ public class LaunchLugHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new LaunchLugHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.BULK, new LaunchLugHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 
 

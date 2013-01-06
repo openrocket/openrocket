@@ -28,7 +28,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new StreamerHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new StreamerHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -40,7 +40,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
     public void testCloseElement() throws Exception {
 
         BodyTube tube = new BodyTube();
-        StreamerHandler handler = new StreamerHandler(tube, new WarningSet());
+        StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -85,7 +85,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new StreamerHandler(null, new WarningSet());
+            new StreamerHandler(null, null, new WarningSet());
             Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -93,7 +93,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        StreamerHandler handler = new StreamerHandler(tube, new WarningSet());
+        StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
         assertContains(component, tube.getChildren());
     }
@@ -106,7 +106,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
     @Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        StreamerHandler handler = new StreamerHandler(tube, new WarningSet());
+        StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -119,7 +119,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new StreamerHandler(new BodyTube(), new WarningSet()).getComponent() instanceof Streamer);
+        Assert.assertTrue(new StreamerHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof Streamer);
     }
 
     /**
@@ -129,7 +129,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
      */
     @Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.SURFACE, new StreamerHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.SURFACE, new StreamerHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 
     /**
@@ -140,7 +140,7 @@ public class StreamerHandlerTest extends RocksimTestBase {
     @Test
     public void testEndHandler() throws Exception {
         BodyTube tube = new BodyTube();
-        StreamerHandler handler = new StreamerHandler(tube, new WarningSet());
+        StreamerHandler handler = new StreamerHandler(null, tube, new WarningSet());
         Streamer component = (Streamer) getField(handler, "streamer");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();

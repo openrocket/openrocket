@@ -3,7 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
@@ -12,9 +15,8 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim's Parachute XML type.
@@ -37,7 +39,8 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
      * 
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public ParachuteHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    public ParachuteHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (c == null) {
             throw new IllegalArgumentException("The parent of a parachute may not be null.");
         }
@@ -87,8 +90,7 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
             }
             if (RocksimCommonConstants.SPILL_HOLE_DIA.equals(element)) {
                 //Not supported in OpenRocket
-                @SuppressWarnings("unused")
-				double spillHoleRadius = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
+                double spillHoleRadius = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
                 warnings.add("Parachute spill holes are not supported. Ignoring.");
             }
             if (RocksimCommonConstants.SHROUD_LINE_MASS_PER_MM.equals(element)) {
@@ -114,7 +116,6 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
      *
      * @return a component
      */
-    @Override
     public Parachute getComponent() {
         return chute;
     }

@@ -3,7 +3,10 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -14,9 +17,8 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * A SAX handler for Rocksim's MassObject XML type.
@@ -60,7 +62,8 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
      *
      * @throws IllegalArgumentException thrown if <code>c</code> is null
      */
-    public MassObjectHandler(RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    public MassObjectHandler(OpenRocketDocument document, RocketComponent c, WarningSet warnings) throws IllegalArgumentException {
+    	super(document);
         if (c == null) {
             throw new IllegalArgumentException("The parent component of a mass component may not be null.");
         }
@@ -187,7 +190,6 @@ class MassObjectHandler extends PositionDependentHandler<MassObject> {
      *
      * @param position the OpenRocket position
      */
-    @Override
     public void setRelativePosition(RocketComponent.Position position) {
         current.setRelativePosition(position);
     }

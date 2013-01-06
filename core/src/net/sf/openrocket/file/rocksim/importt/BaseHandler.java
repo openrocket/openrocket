@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
@@ -52,8 +53,14 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 */
 	private String materialName = "";
 	
-    private RockSimAppearanceBuilder appearanceBuilder = new RockSimAppearanceBuilder();
+	protected final OpenRocketDocument document;
+    private final RockSimAppearanceBuilder appearanceBuilder;
 
+    public BaseHandler( OpenRocketDocument document ) {
+    	this.document = document;
+    	appearanceBuilder = new RockSimAppearanceBuilder( document );
+    }
+    
 	/**
 	 * The SAX method called when the closing element tag is reached.
 	 *
@@ -293,7 +300,7 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 *
 	 * @return the Method instance, or null
 	 */
-	private static Method getMethod(RocketComponent component, String name, Class<?>[] args) {
+	private static Method getMethod(RocketComponent component, String name, Class[] args) {
 		Method method = null;
 		try {
 			method = component.getClass().getMethod(name, args);

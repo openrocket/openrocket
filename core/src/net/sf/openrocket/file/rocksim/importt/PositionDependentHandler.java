@@ -3,13 +3,15 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
+import java.util.HashMap;
+
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimLocationMode;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import org.xml.sax.SAXException;
 
-import java.util.HashMap;
+import org.xml.sax.SAXException;
 
 /**
  * An abstract base class that handles position dependencies for all lower level components that
@@ -25,6 +27,9 @@ public abstract class PositionDependentHandler<C extends RocketComponent> extend
     /** Temporary position. */
     private RocketComponent.Position position = RocketComponent.Position.TOP;
 
+    public PositionDependentHandler( OpenRocketDocument document ) {
+    	super(document);
+    }
     /**
      * {@inheritDoc}
      */

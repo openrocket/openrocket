@@ -7,15 +7,14 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import net.sf.openrocket.appearance.Appearance;
-import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.document.StorageOptions.FileType;
@@ -156,117 +155,27 @@ public class GeneralRocketSaver {
 			return;
 		}
 
-		// grab the set of decal images.  We do this up front
-		// so we can fail early if some resource is missing.
-
-		// decalNameNormalization maps the current decal file name
-		// to the name used in the zip file.
-		Map<String,String> decalNameNormalization = new HashMap<String,String>();
-
-		// decals maintains a mapping from decal file name to an input stream.
-		Map<String,InputStream> decals = new HashMap<String,InputStream>();
-		// try block to close streams held in decals if something goes wrong.
-		try {
-
-			// Look for all decals used in the rocket.
-			for( RocketComponent c : document.getRocket() ) {
-				if ( c.getAppearance() == null ) {
-					continue;
-				}
-				Appearance ap = c.getAppearance();
-				if ( ap.getTexture() == null ) {
-					continue;
-				}
-
-				Decal decal = ap.getTexture();
-
-				String decalName = decal.getImage();
-
-				// If the decal name is already in the decals map, we've already
-				// seen it attached to another component.
-				if ( decals.containsKey(decalName) ) {
-					continue;
-				}
-
-				// Use the DecalRegistry to get the input stream.
-				InputStream is = document.getDecalRegistry().getDecal(decalName);
-
-				// Add it to the decals map.
-				decals.put(decalName, is);
-
-				// Normalize the name:
-				File fname = new File(decalName);
-				String newName = "decals/" + fname.getName();
-
-				// If the normalized name is already used, it represents a different
-				// decal name.  We need to change the name slightly to find one which works.
-				if ( decalNameNormalization.values().contains(newName) ) {
-					// We'll append integers to the names until we get something which works.
-					// so if newName is "decals/foo.jpg", we will try "decals/foo (1).jpg"
-					// "decals/foo (2).jpg", etc.
-					String newNameTemplate = buildFilenameTemplate(newName);
-					int i=1;
-					while( true ) {
-						newName = MessageFormat.format(newNameTemplate, i);
-						if ( ! decalNameNormalization.values().contains(newName) ) {
-							break;
-						}
-						i++;
-					}
-				}
-
-				decalNameNormalization.put(decalName, newName);
-
-			}
-		}
-		catch (IOException ex) {
-			for ( InputStream is: decals.values() ) {
-				try {
-					is.close();
-				}
-				catch ( Throwable t ) {
-				}
-			}
-			throw ex;
-		}
-
-		// Now we have to loop through all the components and update their names.
+		Set<DecalImage> usedDecals = new TreeSet<DecalImage>();
 		
-		// First we copy the OpenRocketDocument so we can modify the decal file names
-		// without changing the ui's copy.  This is so the ui will continue to
-		// use the exported decals.
-		OpenRocketDocument rocketDocCopy = document.copy();
-		for( RocketComponent c : rocketDocCopy.getRocket() ) {
-
+		// Look for all decals used in the rocket.
+		for( RocketComponent c : document.getRocket() ) {
 			if ( c.getAppearance() == null ) {
 				continue;
 			}
-
 			Appearance ap = c.getAppearance();
-
 			if ( ap.getTexture() == null ) {
 				continue;
 			}
 
-			AppearanceBuilder builder = new AppearanceBuilder(ap);
+			Decal decal = ap.getTexture();
 
-			builder.setImage( decalNameNormalization.get(ap.getTexture().getImage()));
-
-			c.setAppearance(builder.getAppearance());
-
-		}
-		
-		Map<String,InputStream> decalMap = new HashMap<String,InputStream>();
-		for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
-
-			String newName = decalNameNormalization.get(image.getKey());
-			decalMap.put(newName, image.getValue());
+			usedDecals.add(decal.getImage());
 		}
 
-		saveAllPartsZipFile(fileName, output, rocketDocCopy, options, decalMap);
+		saveAllPartsZipFile(fileName, output, document, options, usedDecals);
 	}
 	
-	public void saveAllPartsZipFile(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options, Map<String,InputStream> decals) throws IOException {
+	public void saveAllPartsZipFile(String fileName, OutputStream output, OpenRocketDocument document, StorageOptions options, Set<DecalImage> decals) throws IOException {
 		
 		// Open a zip stream to write to.
 		ZipOutputStream zos = new ZipOutputStream(output);
@@ -282,13 +191,13 @@ public class GeneralRocketSaver {
 
 			// Now we write out all the decal images files.
 
-			for( Map.Entry<String, InputStream> image : decals.entrySet() ) {
+			for( DecalImage image : decals ) {
 
-				String name = image.getKey();
+				String name = image.getName();
 				ZipEntry decal = new ZipEntry(name);
 				zos.putNextEntry(decal);
 
-				InputStream is = image.getValue();
+				InputStream is = image.getBytes();
 				int bytesRead = 0;
 				byte[] buffer = new byte[2048];
 				while( (bytesRead = is.read(buffer)) > 0  ) {
@@ -306,21 +215,6 @@ public class GeneralRocketSaver {
 	}
 
 	// package scope for testing.
-	static String buildFilenameTemplate( String fileName ) {
-		// We're going to use MessageTemplate for this.  If we don't have a dot
-		// just append "(5)"
-		String nameTemplate = fileName + " ({0})";
-
-		// split up the newName.  Look for extension.
-		int lastDot = fileName.lastIndexOf('.');
-		if ( lastDot > 0 ) {
-			String firstPart = fileName.substring(0, lastDot );
-			String lastPart = fileName.substring(lastDot);
-			nameTemplate = firstPart + " ({0})" + lastPart;
-		}
-
-		return nameTemplate;
-	}
 
 	private void saveInternal(OutputStream output, OpenRocketDocument document, StorageOptions options)
 			throws IOException {
