@@ -426,7 +426,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(fovY, ratio, 0.05f, 100f);
+		glu.gluPerspective(fovY, ratio, 0.1f, 50f);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		
 		redrawExtras = true;
