@@ -108,7 +108,11 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
-		convertColor(a.getPaint(), color);
+		if (t != null && tex != null && t.getEdgeMode() != Decal.EdgeMode.STICKER) {
+			color[0] = color[1] = color[2] = 1;
+		} else {
+			convertColor(a.getPaint(), color);
+		}
 		color[3] = alpha;
 		
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
