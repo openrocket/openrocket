@@ -108,13 +108,9 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
-		if (t != null && tex != null && t.getEdgeMode() != Decal.EdgeMode.STICKER) {
-			color[0] = color[1] = color[2] = 1;
-		} else {
-			convertColor(a.getPaint(), color);
-		}
-		color[3] = alpha;
 		
+		convertColor(a.getPaint(), color);
+		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
@@ -128,16 +124,15 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
 		
+		cr.renderGeometry(gl, c);
+		
 		if (t != null && tex != null) {
-			if (t.getEdgeMode() == Decal.EdgeMode.STICKER) {
-				cr.renderGeometry(gl, c);
-			}
-			
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 			
 			tex.enable(gl);
 			tex.bind(gl);
+			
 			gl.glMatrixMode(GL.GL_TEXTURE);
 			gl.glPushMatrix();
 			
@@ -151,18 +146,16 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, toEdgeMode(t.getEdgeMode()));
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, toEdgeMode(t.getEdgeMode()));
 			
-			if (t.getEdgeMode() == Decal.EdgeMode.STICKER) {
-				convertColor(a.getPaint(), color);
-				gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
-				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
-				gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
-				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
-				gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
-				
-				gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-				gl.glEnable(GL.GL_BLEND);
-				gl.glDepthFunc(GL.GL_LEQUAL);
-			}
+			
+			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
+			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
+			gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
+			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
+			gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
+			
+			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+			gl.glEnable(GL.GL_BLEND);
+			gl.glDepthFunc(GL.GL_LEQUAL);
 			
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 			
@@ -180,8 +173,6 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glPopMatrix();
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 			tex.disable(gl);
-		} else {
-			cr.renderGeometry(gl, c);
 		}
 		
 	}
