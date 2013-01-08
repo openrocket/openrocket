@@ -275,7 +275,7 @@ public class AppearancePanel extends JPanel {
 			UnitSelector unit = new UnitSelector(shineModel);
 			
 			add(spin, "split 3, w 50");
-			add(unit, "growx");
+			add(unit);
 			add(slide, "w 50");
 		}
 		
