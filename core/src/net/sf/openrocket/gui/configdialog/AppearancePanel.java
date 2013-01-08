@@ -249,14 +249,7 @@ public class AppearancePanel extends JPanel {
 		{ // Color
 			add(new JLabel(trans.get("AppearanceCfg.lbl.color.Color")));
 			//mDefault.addEnableComponent(colorButton, false);
-			colorButton.setEnabled(ab.getImage() == null);
 			add(colorButton);
-			ab.addChangeListener(new StateChangeListener() {
-				@Override
-				public void stateChanged(EventObject e) {
-					colorButton.setEnabled(ab.getImage() == null);
-				}
-			});
 		}
 		
 		{ // Scale

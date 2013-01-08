@@ -21,6 +21,7 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
+import javax.media.opengl.GLRunnable;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.fixedfunc.GLMatrixFunc;
@@ -87,7 +88,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	float[] lightPosition = new float[] { 1, 4, 1, 0 };
 	
-	RocketRenderer rr = new RocketRenderer();
+	RocketRenderer rr = new FigureRenderer();
 	
 	public RocketFigure3d(OpenRocketDocument document, Configuration config) {
 		this.document = document;
@@ -393,7 +394,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
 		
-		gl.glDepthFunc(GL.GL_LEQUAL); // the type of depth test to do
+		gl.glDepthFunc(GL.GL_LESS); // the type of depth test to do
 		
 		float amb = 0.5f;
 		float dif = 1.0f;
@@ -425,7 +426,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		
 		gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(fovY, ratio, 0.05f, 100f);
+		glu.gluPerspective(fovY, ratio, 0.1f, 50f);
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		
 		redrawExtras = true;
@@ -631,13 +632,20 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		this.csl = newListener;
 	}
 	
-	public void setType(int t) {
-		if (t == TYPE_FIGURE) {
-			rr.setRenderStrategy(new FigureRenderStrategy());
-		} else {
-			rr.setRenderStrategy(new RealisticRenderStrategy(document));
-		}
-		repaint();
+	public void setType(final int t) {
+		canvas.invoke(true, new GLRunnable() {
+			@Override
+			public boolean run(GLAutoDrawable drawable) {
+				rr.dispose(drawable);
+				if (t == TYPE_FIGURE) {
+					rr = new FigureRenderer();
+				} else {
+					rr = new RealisticRenderer(document);
+				}
+				rr.init(drawable);
+				return false;
+			}
+		});
 	}
 	
 }
