@@ -1,14 +1,12 @@
 package net.sf.openrocket.appearance;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
-public interface DecalImage {
+import net.sf.openrocket.document.Attachment;
 
-	public String getName();
-	public InputStream getBytes() throws FileNotFoundException, IOException;
+public interface DecalImage extends Attachment {
+
 	public void exportImage( File file, boolean watchForChanges ) throws IOException;
 	
 }
