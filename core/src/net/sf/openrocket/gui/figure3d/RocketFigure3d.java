@@ -518,8 +518,13 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void updateFigure() {
 		log.debug("3D Figure Updated");
 		cachedBounds = null;
-		rr.updateFigure();
-		internalRepaint();
+		canvas.invoke(true, new GLRunnable() {
+			@Override
+			public boolean run(GLAutoDrawable drawable) {
+				rr.updateFigure(drawable);
+				return false;
+			}
+		});
 	}
 	
 	private void internalRepaint() {

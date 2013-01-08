@@ -38,8 +38,8 @@ public abstract class RocketRenderer {
 	public void dispose(GLAutoDrawable drawable) {
 	}
 	
-	public void updateFigure() {
-		cr.updateFigure();
+	public void updateFigure(GLAutoDrawable drawable) {
+		cr.updateFigure(drawable);
 	}
 	
 	public abstract void renderComponent(GL2 gl, RocketComponent c, float alpha);

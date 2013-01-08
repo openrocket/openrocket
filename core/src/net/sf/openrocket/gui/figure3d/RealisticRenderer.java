@@ -28,7 +28,6 @@ public class RealisticRenderer extends RocketRenderer {
 	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
 	
-	private boolean needClearCache = false;
 	private Map<String, Texture> oldTexCache = new HashMap<String, Texture>();
 	private Map<String, Texture> texCache = new HashMap<String, Texture>();
 	private float anisotrophy = 0;
@@ -69,10 +68,9 @@ public class RealisticRenderer extends RocketRenderer {
 	}
 	
 	@Override
-	public void updateFigure() {
-		super.updateFigure();
-		
-		needClearCache = true;
+	public void updateFigure(GLAutoDrawable drawable) {
+		super.updateFigure(drawable);
+		clearCaches(drawable.getGL().getGL2());
 	}
 	
 	@Override
@@ -95,12 +93,6 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public void renderComponent(GL2 gl, RocketComponent c, float alpha) {
-		
-		if (needClearCache) {
-			clearCaches(gl);
-			needClearCache = false;
-		}
-		
 		final Appearance a = getAppearance(c);
 		final Decal t = a.getTexture();
 		final Texture tex = getTexture(t);
