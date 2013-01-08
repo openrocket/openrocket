@@ -17,12 +17,39 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Color;
 
-public class FigureRenderStrategy extends RenderStrategy {
+public class FigureRenderer extends RocketRenderer {
 	private final float[] color = new float[4];
-
-	public FigureRenderStrategy() {
-		super(null);
+	
+	public FigureRenderer() {
 	}
+	
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		super.init(drawable);
+		
+		GL2 gl = drawable.getGL().getGL2();
+		
+		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
+                new float[] { 0,0,0 }, 0);
+
+		float amb = 0.3f;
+		float dif = 1.0f - amb;
+		float spc = 1.0f;
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
+				new float[] { amb, amb, amb, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
+				new float[] { dif, dif, dif, 1 }, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
+				new float[] { spc, spc, spc, 1 }, 0);
+
+		gl.glEnable(GLLightingFunc.GL_LIGHT1);
+		gl.glEnable(GLLightingFunc.GL_LIGHTING);
+		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
+
+		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+	}
+
+
 
 	@Override
 	public boolean isDrawn(RocketComponent c) {
@@ -45,11 +72,12 @@ public class FigureRenderStrategy extends RenderStrategy {
 		}
 		return false;
 	}
-
+	
 	private static final HashMap<Class<?>, Color> defaultColorCache = new HashMap<Class<?>, Color>();
 
 	@Override
-	public void preGeometry(GL2 gl, RocketComponent c, float alpha) {
+	public void renderComponent(GL2 gl, RocketComponent c, float alpha) {
+		
 		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 		Color figureColor = c.getColor();
 		if (figureColor == null) {
@@ -90,36 +118,7 @@ public class FigureRenderStrategy extends RenderStrategy {
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 
-	}
-
-	@Override
-	public void postGeometry(GL2 gl, RocketComponent c, float alpha) {
-		//Nothing to do here
-
-	}
-	
-	@Override
-	public void init(GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
-		
-		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
-                new float[] { 0,0,0 }, 0);
-
-		float amb = 0.3f;
-		float dif = 1.0f - amb;
-		float spc = 1.0f;
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT,
-				new float[] { amb, amb, amb, 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE,
-				new float[] { dif, dif, dif, 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
-				new float[] { spc, spc, spc, 1 }, 0);
-
-		gl.glEnable(GLLightingFunc.GL_LIGHT1);
-		gl.glEnable(GLLightingFunc.GL_LIGHTING);
-		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
-
-		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+		cr.renderGeometry(gl, c);
 	}
 	
 	private static int getShine(RocketComponent c) {
