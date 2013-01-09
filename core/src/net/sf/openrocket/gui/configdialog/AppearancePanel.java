@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
@@ -116,7 +117,7 @@ public class AppearancePanel extends JPanel {
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 		
-		ab = new AppearanceBuilder(c.getAppearance());
+		ab = new AppearanceBuilder(c.getAppearance() != null ? c.getAppearance() : DefaultAppearance.getDefaultAppearance(c));
 		
 		net.sf.openrocket.util.Color figureColor = c.getColor();
 		if (figureColor == null) {
