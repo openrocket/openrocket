@@ -28,7 +28,7 @@ import net.sf.openrocket.util.TextUtil;
 public class GeneralRocketLoader {
 	
 	protected final WarningSet warnings = new WarningSet();
-
+	
 	private static final int READ_BYTES = 300;
 	
 	private static final byte[] GZIP_SIGNATURE = { 31, -117 }; // 0x1f, 0x8b
@@ -54,7 +54,7 @@ public class GeneralRocketLoader {
 			return doc;
 			
 		} catch (Exception e) {
-			throw new RocketLoadException("Exception loading file: " + source,e);
+			throw new RocketLoadException("Exception loading file: " + source, e);
 		} finally {
 			if (stream != null) {
 				try {
@@ -68,9 +68,9 @@ public class GeneralRocketLoader {
 	
 	public final OpenRocketDocument load(InputStream source, FileInfo fileInfo, MotorFinder motorFinder) throws RocketLoadException {
 		try {
-		OpenRocketDocument doc = loadFromStream(source, motorFinder );
-		doc.getDecalRegistry().setBaseFile(fileInfo);
-		return doc;
+			OpenRocketDocument doc = loadFromStream(source, motorFinder);
+			doc.setBaseFile(fileInfo);
+			return doc;
 		} catch (Exception e) {
 			throw new RocketLoadException("Exception loading stream", e);
 		}
@@ -79,7 +79,7 @@ public class GeneralRocketLoader {
 	public final WarningSet getWarnings() {
 		return warnings;
 	}
-
+	
 	protected OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException,
 			RocketLoadException {
 		
@@ -99,13 +99,13 @@ public class GeneralRocketLoader {
 			throw new RocketLoadException("Unsupported or corrupt file.");
 		}
 		
-
+		
 		// Detect the appropriate loader
 		
 		// Check for GZIP
 		if (buffer[0] == GZIP_SIGNATURE[0] && buffer[1] == GZIP_SIGNATURE[1]) {
 			OpenRocketDocument doc = loadFromStream(new GZIPInputStream(source), motorFinder);
-			doc.getDecalRegistry().setIsZipFile(false);
+			doc.setIsZipFile(false);
 			return doc;
 		}
 		
@@ -120,7 +120,7 @@ public class GeneralRocketLoader {
 				}
 				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
-					doc.getDecalRegistry().setIsZipFile(true);
+					doc.setIsZipFile(true);
 					return doc;
 				} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
@@ -136,7 +136,7 @@ public class GeneralRocketLoader {
 				match++;
 				if (match == OPENROCKET_SIGNATURE.length) {
 					OpenRocketDocument doc = loadUsing(openRocketLoader, source, motorFinder);
-					doc.getDecalRegistry().setIsZipFile(false);
+					doc.setIsZipFile(false);
 					return doc;
 				}
 			} else {
@@ -146,8 +146,8 @@ public class GeneralRocketLoader {
 		
 		byte[] typeIdentifier = ArrayUtils.copyOf(buffer, ROCKSIM_SIGNATURE.length);
 		if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
-			OpenRocketDocument doc =  loadUsing(rocksimLoader, source, motorFinder);
-			doc.getDecalRegistry().setIsZipFile(false);
+			OpenRocketDocument doc = loadUsing(rocksimLoader, source, motorFinder);
+			doc.setIsZipFile(false);
 			return doc;
 		}
 		throw new RocketLoadException("Unsupported or corrupt file.");

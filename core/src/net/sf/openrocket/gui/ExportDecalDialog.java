@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.Collection;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -22,67 +22,66 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 
 public class ExportDecalDialog extends JDialog {
-
+	
 	private final static Translator trans = Application.getTranslator();
 	
 	private final OpenRocketDocument document;
-
+	
 	private JComboBox decalComboBox;
-
-	public ExportDecalDialog(Window parent,OpenRocketDocument doc) {
+	
+	public ExportDecalDialog(Window parent, OpenRocketDocument doc) {
 		super(parent, trans.get("ExportDecalDialog.title"), ModalityType.APPLICATION_MODAL);
-
+		
 		this.document = doc;
-
+		
 		JPanel panel = new JPanel(new MigLayout());
-
+		
 		//// decal list
 		JLabel label = new JLabel(trans.get("ExportDecalDialog.decalList.lbl"));
 		panel.add(label);
-
-		Set<DecalImage> exportableDecals = document.getDecalRegistry().getExportableDecalsList();
-
-		decalComboBox = new JComboBox( exportableDecals.toArray( new DecalImage[0] ) );
+		
+		Collection<DecalImage> exportableDecals = document.getDecalRegistry().getDecalList();
+		
+		decalComboBox = new JComboBox(exportableDecals.toArray(new DecalImage[0]));
 		decalComboBox.setEditable(false);
 		panel.add(decalComboBox, "growx, wrap");
-
+		
 		final JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setVisible(true);
 		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-
-		chooser.addActionListener( new ActionListener() {
+		
+		chooser.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String command = e.getActionCommand();
-				if ( command.equals(JFileChooser.CANCEL_SELECTION) ) {
+				if (command.equals(JFileChooser.CANCEL_SELECTION)) {
 					ExportDecalDialog.this.dispose();
-				} else if ( command.equals(JFileChooser.APPROVE_SELECTION)) {
+				} else if (command.equals(JFileChooser.APPROVE_SELECTION)) {
 					// Here we copy the bits out.
-
+					
 					// FIXME - confirm overwrite?
 					DecalImage selectedDecal = (DecalImage) decalComboBox.getSelectedItem();
 					File selectedFile = chooser.getSelectedFile();
-
-					export(selectedDecal,selectedFile);
+					
+					export(selectedDecal, selectedFile);
 					ExportDecalDialog.this.dispose();
 				}
 			}
 		});
 		panel.add(chooser, "span, grow");
-
+		
 		this.add(panel);
 		this.pack();
 	}
-
-	private void export( DecalImage decal, File selectedFile ) {
-
+	
+	private void export(DecalImage decal, File selectedFile) {
+		
 		try {
 			decal.exportImage(selectedFile, false);
-		}
-		catch (IOException iex) {
+		} catch (IOException iex) {
 			throw new BugException(iex);
 		}
 	}
-
+	
 }

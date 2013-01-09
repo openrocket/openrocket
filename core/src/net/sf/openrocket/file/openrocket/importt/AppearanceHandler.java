@@ -31,7 +31,7 @@ class AppearanceHandler extends AbstractElementHandler {
 			throws SAXException {
 		if ("decal".equals(element)) {
 			String name = attributes.remove("name");
-			builder.setImage(context.getOpenRocketDocument().getDecalRegistry().getDecalImage(name));
+			builder.setImage(context.getOpenRocketDocument().getDecalRegistry().getAttachment(name));
 			double rotation = Double.parseDouble(attributes.remove("rotation"));
 			builder.setRotation(rotation);
 			String edgeModeName = attributes.remove("edgemode");

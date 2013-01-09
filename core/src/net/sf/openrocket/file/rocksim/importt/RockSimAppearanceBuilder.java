@@ -68,7 +68,7 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 						//Find out how to get path of current rocksim file
 						//so I can look in it's directory
 					}
-					setImage(document.getDecalRegistry().getDecalImage(value));
+					setImage(document.getDecalRegistry().getAttachment(value));
 				}
 			} else if ("repeat".equals(name)) {
 				repeat = "1".equals(value);

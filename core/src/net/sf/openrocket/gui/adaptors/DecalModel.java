@@ -71,7 +71,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 					if (action == JFileChooser.APPROVE_OPTION) {
 						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
 						File file = fc.getSelectedFile();
-						setSelectedItem(document.getDecalRegistry().getDecalImage(file));
+						setSelectedItem(document.getDecalRegistry().getAttachment(file));
 					}
 				}
 			});
