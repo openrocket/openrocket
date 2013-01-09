@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -37,8 +38,17 @@ public class GeneralRocketLoader {
 	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.asciiBytes("<RockSimDoc");
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
+	private final FileInfo fileInfo;
 	
 	private final RocksimLoader rocksimLoader = new RocksimLoader();
+	
+	public GeneralRocketLoader(File file) {
+		this.fileInfo = new FileInfo(file);
+	}
+	
+	public GeneralRocketLoader(URL jarURL) {
+		this.fileInfo = new FileInfo(jarURL);
+	}
 	
 	/**
 	 * Loads a rocket from the specified File object.
@@ -50,7 +60,7 @@ public class GeneralRocketLoader {
 		try {
 			
 			stream = new BufferedInputStream(new FileInputStream(source));
-			OpenRocketDocument doc = load(stream, new FileInfo(source), motorFinder);
+			OpenRocketDocument doc = load(stream, motorFinder);
 			return doc;
 			
 		} catch (Exception e) {
@@ -66,7 +76,7 @@ public class GeneralRocketLoader {
 		}
 	}
 	
-	public final OpenRocketDocument load(InputStream source, FileInfo fileInfo, MotorFinder motorFinder) throws RocketLoadException {
+	public final OpenRocketDocument load(InputStream source, MotorFinder motorFinder) throws RocketLoadException {
 		try {
 			OpenRocketDocument doc = loadFromStream(source, motorFinder);
 			doc.setBaseFile(fileInfo);

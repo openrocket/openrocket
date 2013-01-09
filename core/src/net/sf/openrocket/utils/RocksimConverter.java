@@ -31,7 +31,6 @@ public class RocksimConverter {
 		
 		setup();
 		
-		GeneralRocketLoader loader = new GeneralRocketLoader();
 		GeneralRocketSaver saver = new GeneralRocketSaver();
 		
 		for (String inputFile : args) {
@@ -62,6 +61,7 @@ public class RocksimConverter {
 				opts.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_NONE);
 				opts.setExplicitlySet(true);
 				
+				GeneralRocketLoader loader = new GeneralRocketLoader(input);
 				OpenRocketDocument document = loader.load(input, new DatabaseMotorFinder());
 				saver.save(output, document, opts);
 				

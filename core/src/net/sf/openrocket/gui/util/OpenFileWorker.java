@@ -13,7 +13,6 @@ import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.DatabaseMotorFinder;
-import net.sf.openrocket.file.FileInfo;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -30,22 +29,19 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	
 	private final File file;
 	private final URL jarURL;
-	private final InputStream stream;
 	private final GeneralRocketLoader loader;
 	
-	public OpenFileWorker(File file, GeneralRocketLoader loader) {
+	public OpenFileWorker(File file) {
 		this.file = file;
 		this.jarURL = null;
-		this.stream = null;
-		this.loader = loader;
+		loader = new GeneralRocketLoader(file);
 	}
 	
 	
-	public OpenFileWorker(InputStream stream, URL fileURL, GeneralRocketLoader loader) {
-		this.stream = stream;
+	public OpenFileWorker(URL fileURL) {
 		this.jarURL = fileURL;
 		this.file = null;
-		this.loader = loader;
+		loader = new GeneralRocketLoader(fileURL);
 	}
 	
 	public GeneralRocketLoader getRocketLoader() {
@@ -55,15 +51,12 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 	@Override
 	protected OpenRocketDocument doInBackground() throws Exception {
 		InputStream is;
-
-		FileInfo fileInfo = null;
+		
 		// Get the correct input stream
 		if (file != null) {
 			is = new FileInputStream(file);
-			fileInfo = new FileInfo(file);
 		} else {
-			is = stream;
-			fileInfo = new FileInfo(jarURL);
+			is = jarURL.openStream();
 		}
 		
 		// Buffer stream unless already buffered
@@ -75,12 +68,12 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			OpenRocketDocument document = loader.load(is, fileInfo, new DatabaseMotorFinder());
-
+			OpenRocketDocument document = loader.load(is, new DatabaseMotorFinder());
+			
 			// Set document state
 			document.setFile(file);
 			document.setSaved(true);
-
+			
 			return document;
 		} finally {
 			try {

@@ -15,7 +15,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -62,7 +61,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
-import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.gui.ExportDecalDialog;
@@ -108,11 +106,6 @@ import net.sf.openrocket.util.TestRockets;
 
 public class BasicFrame extends JFrame {
 	private static final LogHelper log = Application.getLogger();
-	
-	/**
-	 * The RocketLoader instance used for loading all rocket designs.
-	 */
-	private static final GeneralRocketLoader ROCKET_LOADER = new GeneralRocketLoader();
 	
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
 	
@@ -1102,7 +1095,7 @@ public class BasicFrame extends JFrame {
 	 * @param parent	the parent window for dialogs.
 	 * @return			<code>true</code> if opened successfully.
 	 */
-	public static boolean open(URL url, BasicFrame parent) {
+	public static void open(URL url, BasicFrame parent) {
 		String displayName = null;
 		// First figure out the file name from the URL
 		
@@ -1133,33 +1126,9 @@ public class BasicFrame extends JFrame {
 		
 		// Open the file
 		log.info("Opening file from url=" + url + " filename=" + displayName);
-		try {
-			InputStream is = url.openStream();
-			open(is, displayName, url, parent, true);
-		} catch (IOException e) {
-			log.warn("Error opening file" + e);
-			JOptionPane.showMessageDialog(parent,
-					"An error occurred while opening the file " + displayName,
-					"Error loading file", JOptionPane.ERROR_MESSAGE);
-		}
 		
-		return false;
-	}
-	
-	
-	/**
-	 * Open the specified file from an InputStream in a new design frame.  If an error
-	 * occurs, an error dialog is shown and <code>false</code> is returned.
-	 *
-	 * @param stream	the stream to load from.
-	 * @param displayName	the file name to display in dialogs (not set to the document).
-	 * @param parent	the parent component for which a progress dialog is opened.
-	 * @param openRocketConfigDialog if true will open the rocket configuration dialog
-	 * @return			whether the file was successfully loaded and opened.
-	 */
-	private static boolean open(InputStream stream, String displayName, URL fileURL, Window parent, boolean openRocketConfigDialog) {
-		OpenFileWorker worker = new OpenFileWorker(stream, fileURL, ROCKET_LOADER);
-		return open(worker, displayName, parent, openRocketConfigDialog);
+		OpenFileWorker worker = new OpenFileWorker(url);
+		open(worker, displayName, parent, true);
 	}
 	
 	
@@ -1172,7 +1141,7 @@ public class BasicFrame extends JFrame {
 	 * @return			whether the file was successfully loaded and opened.
 	 */
 	public static boolean open(File file, Window parent) {
-		OpenFileWorker worker = new OpenFileWorker(file, ROCKET_LOADER);
+		OpenFileWorker worker = new OpenFileWorker(file);
 		return open(worker, file.getName(), parent, false);
 	}
 	
