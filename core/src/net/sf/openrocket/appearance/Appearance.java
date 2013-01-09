@@ -16,13 +16,13 @@ public class Appearance {
 	private final double shine;
 	private final Decal texture;
 	
-	Appearance(final Color paint, final double shine, final Decal texture) {
+	public Appearance(final Color paint, final double shine, final Decal texture) {
 		this.paint = paint;
 		this.shine = MathUtil.clamp(shine, 0, 1);
 		this.texture = texture;
 	}
 	
-	Appearance(final Color paint, final double shine) {
+	public Appearance(final Color paint, final double shine) {
 		this.paint = paint;
 		this.shine = MathUtil.clamp(shine, 0, 1);
 		this.texture = null;

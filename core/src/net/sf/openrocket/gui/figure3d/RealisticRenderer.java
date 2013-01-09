@@ -14,6 +14,7 @@ import javax.media.opengl.fixedfunc.GLMatrixFunc;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Color;
@@ -216,7 +217,7 @@ public class RealisticRenderer extends RocketRenderer {
 	private Appearance getAppearance(RocketComponent c) {
 		Appearance ret = c.getAppearance();
 		if (ret == null) {
-			ret = Appearance.MISSING;
+			ret = DefaultAppearance.getDefaultAppearance(c);
 		}
 		return ret;
 	}
