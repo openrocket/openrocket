@@ -8,6 +8,7 @@ import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -16,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.Coordinate;
 
 public class FigureRenderer extends RocketRenderer {
 	private final float[] color = new float[4];
@@ -29,9 +31,9 @@ public class FigureRenderer extends RocketRenderer {
 		
 		GL2 gl = drawable.getGL().getGL2();
 		
-		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, 
-                new float[] { 0,0,0 }, 0);
-
+		gl.glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT,
+				new float[] { 0, 0, 0 }, 0);
+		
 		float amb = 0.3f;
 		float dif = 1.0f - amb;
 		float spc = 1.0f;
@@ -41,21 +43,21 @@ public class FigureRenderer extends RocketRenderer {
 				new float[] { dif, dif, dif, 1 }, 0);
 		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR,
 				new float[] { spc, spc, spc, 1 }, 0);
-
+		
 		gl.glEnable(GLLightingFunc.GL_LIGHT1);
 		gl.glEnable(GLLightingFunc.GL_LIGHTING);
 		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
-
+		
 		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
 	}
-
-
-
+	
+	
+	
 	@Override
 	public boolean isDrawn(RocketComponent c) {
 		return true;
 	}
-
+	
 	@Override
 	public boolean isDrawnTransparent(RocketComponent c) {
 		if (c instanceof BodyTube)
@@ -74,7 +76,7 @@ public class FigureRenderer extends RocketRenderer {
 	}
 	
 	private static final HashMap<Class<?>, Color> defaultColorCache = new HashMap<Class<?>, Color>();
-
+	
 	@Override
 	public void renderComponent(GL2 gl, RocketComponent c, float alpha) {
 		
@@ -88,13 +90,13 @@ public class FigureRenderer extends RocketRenderer {
 				defaultColorCache.put(c.getClass(), figureColor);
 			}
 		}
-
+		
 		// Set up the front A&D color
 		convertColor(figureColor, color);
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
-
+		
 		// Set up the Specular color & Shine
 		convertColor(figureColor, color);
 		float d = 0.9f;
@@ -102,13 +104,13 @@ public class FigureRenderer extends RocketRenderer {
 		color[0] = Math.max(color[0], d) * m;
 		color[1] = Math.max(color[1], d) * m;
 		color[2] = Math.max(color[2], d) * m;
-
+		
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, getShine(c));
 		
 		color[0] = color[1] = color[2] = 0;
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, color, 0);
-
+		
 		//Back A&D
 		convertColor(figureColor, color);
 		color[0] = color[0] * 0.4f;
@@ -117,7 +119,7 @@ public class FigureRenderer extends RocketRenderer {
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
-
+		
 		cr.renderGeometry(gl, c);
 	}
 	
@@ -140,9 +142,9 @@ public class FigureRenderer extends RocketRenderer {
 		}
 		return 20;
 	}
-
+	
 	protected static void convertColor(Color color, float[] out) {
-		if ( color == null ){
+		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;
 			out[2] = 0;
@@ -151,5 +153,14 @@ public class FigureRenderer extends RocketRenderer {
 			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f) * 2;
 			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f) * 2;
 		}
+	}
+	
+	
+	@Override
+	protected void renderMotor(GL2 gl, Coordinate c, Motor motor) {
+		final float outside[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, outside, 0);
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, outside, 0);
+		super.renderMotor(gl, c, motor);
 	}
 }

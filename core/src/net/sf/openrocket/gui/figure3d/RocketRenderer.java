@@ -176,16 +176,19 @@ public abstract class RocketRenderer {
 			MotorMount mount = iterator.next();
 			Motor motor = mount.getMotor(motorID);
 			double length = motor.getLength();
-			double radius = motor.getDiameter() / 2;
 			
 			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
 					.getLength() + mount.getMotorOverhang() - length));
 			
 			for (int i = 0; i < position.length; i++) {
-				cr.renderMotor(gl, position[i], length, radius);
+				renderMotor(gl, position[i], motor);
 			}
 		}
 		
+	}
+	
+	protected void renderMotor(GL2 gl, Coordinate c, Motor motor) {
+		cr.renderMotor(gl, c, motor);
 	}
 	
 }
