@@ -235,7 +235,7 @@ public class RealisticRenderer extends RocketRenderer {
 		
 	}
 	
-	private Appearance getAppearance(RocketComponent c) {
+	protected Appearance getAppearance(RocketComponent c) {
 		Appearance ret = c.getAppearance();
 		if (ret == null) {
 			ret = DefaultAppearance.getDefaultAppearance(c);
