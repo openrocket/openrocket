@@ -15,9 +15,12 @@ import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
+import net.sf.openrocket.appearance.defaults.MotorAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.Coordinate;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureData;
@@ -93,8 +96,26 @@ public class RealisticRenderer extends RocketRenderer {
 	}
 	
 	@Override
-	public void renderComponent(GL2 gl, RocketComponent c, float alpha) {
-		final Appearance a = getAppearance(c);
+	protected void renderMotor(final GL2 gl, final Coordinate c, final Motor motor) {
+		render(gl, new Runnable() {
+			@Override
+			public void run() {
+				cr.renderMotor(gl, c, motor);
+			}
+		}, MotorAppearance.getAppearance(motor), 1);
+	}
+	
+	@Override
+	public void renderComponent(final GL2 gl, final RocketComponent c, final float alpha) {
+		render(gl, new Runnable() {
+			@Override
+			public void run() {
+				cr.renderGeometry(gl, c);
+			}
+		}, getAppearance(c), alpha);
+	}
+	
+	private void render(GL2 gl, Runnable g, Appearance a, float alpha) {
 		final Decal t = a.getTexture();
 		final Texture tex = getTexture(t);
 		
@@ -117,7 +138,7 @@ public class RealisticRenderer extends RocketRenderer {
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
 		
-		cr.renderGeometry(gl, c);
+		g.run();
 		
 		if (t != null && tex != null) {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
@@ -156,7 +177,7 @@ public class RealisticRenderer extends RocketRenderer {
 				gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotrophy);
 			}
 			
-			cr.renderGeometry(gl, c);
+			g.run();
 			
 			if (t.getEdgeMode() == Decal.EdgeMode.STICKER) {
 				gl.glDepthFunc(GL.GL_LESS);

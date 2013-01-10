@@ -7,7 +7,9 @@ import java.io.InputStream;
 
 import net.sf.openrocket.appearance.DecalImage;
 
+
 class ResourceDecalImage implements DecalImage {
+	
 	final String resource;
 	
 	ResourceDecalImage(final String resource) {

@@ -10,7 +10,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class Appearance {
-	public static final Appearance MISSING = new Appearance(new Color(0, 0, 0), 100, null);
+	public static final Appearance MISSING = new Appearance(new Color(0, 0, 0), 1, null);
 	
 	private final Color paint;
 	private final double shine;
