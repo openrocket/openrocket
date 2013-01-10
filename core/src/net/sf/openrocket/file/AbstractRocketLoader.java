@@ -1,9 +1,5 @@
 package net.sf.openrocket.file;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -19,11 +15,11 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * Loads a rocket from the specified InputStream.
 	 */
 	@Override
-	public final OpenRocketDocument load(InputStream source, MotorFinder motorFinder) throws RocketLoadException {
+	public final void load(OpenRocketDocument doc, InputStream source, MotorFinder motorFinder) throws RocketLoadException {
 		warnings.clear();
 		
 		try {
-			return loadFromStream(source, motorFinder);
+			loadFromStream(doc, source, motorFinder);
 		} catch (RocketLoadException e) {
 			throw e;
 		} catch (IOException e) {
@@ -39,7 +35,7 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * 
 	 * @throws RocketLoadException	if an error occurs during loading.
 	 */
-	protected abstract OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException,
+	protected abstract void loadFromStream(OpenRocketDocument doc, InputStream source, MotorFinder motorFinder) throws IOException,
 			RocketLoadException;
 	
 	

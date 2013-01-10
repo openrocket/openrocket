@@ -39,11 +39,11 @@ public class RocksimLoader extends AbstractRocketLoader {
 	 *          if an error occurs during loading.
 	 */
 	@Override
-	protected OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException, RocketLoadException {
+	protected void loadFromStream(OpenRocketDocument doc, InputStream source, MotorFinder motorFinder) throws IOException, RocketLoadException {
 		
 		InputSource xmlSource = new InputSource(source);
 		
-		RocksimHandler handler = new RocksimHandler();
+		RocksimHandler handler = new RocksimHandler(doc);
 		
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);
@@ -51,9 +51,7 @@ public class RocksimLoader extends AbstractRocketLoader {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
-		final OpenRocketDocument document = handler.getDocument();
-		document.setFile(null);
-		document.clearUndo();
-		return document;
+		doc.setFile(null);
+		doc.clearUndo();
 	}
 }

@@ -7,7 +7,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 
 public interface RocketLoader {
 	
-	public OpenRocketDocument load(InputStream source, MotorFinder motorFinder) throws RocketLoadException;
+	public void load(OpenRocketDocument doc, InputStream source, MotorFinder motorFinder) throws RocketLoadException;
 	
 	public WarningSet getWarnings();
 	

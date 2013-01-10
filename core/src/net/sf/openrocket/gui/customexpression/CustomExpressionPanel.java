@@ -20,7 +20,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -98,7 +97,7 @@ public class CustomExpressionPanel extends JPanel {
 					// Load expressions from selected document
 					GeneralRocketLoader loader = new GeneralRocketLoader(importFile);
 					try {
-						OpenRocketDocument importedDocument = loader.load(importFile, new DatabaseMotorFinder());
+						OpenRocketDocument importedDocument = loader.load();
 						for (CustomExpression exp : importedDocument.getCustomExpressions()) {
 							doc.addCustomExpression(exp);
 						}

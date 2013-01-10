@@ -19,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.openrocket.appearance.DecalImage;
-import net.sf.openrocket.document.BaseAttachmentFactory.BaseAttachment;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -28,9 +27,9 @@ import net.sf.openrocket.util.FileUtils;
 public class DecalRegistry implements AttachmentFactory<DecalImage> {
 	private static LogHelper log = Application.getLogger();
 	
-	private final BaseAttachmentFactory baseFactory;
+	private final AttachmentFactory baseFactory;
 	
-	public DecalRegistry(BaseAttachmentFactory baseFactory) {
+	public DecalRegistry(AttachmentFactory baseFactory) {
 		this.baseFactory = baseFactory;
 	}
 	
@@ -39,7 +38,7 @@ public class DecalRegistry implements AttachmentFactory<DecalImage> {
 	public DecalImage getAttachment(String decalName) {
 		DecalImageImpl d = registeredDecals.get(decalName);
 		if (d == null) {
-			BaseAttachment attachment = baseFactory.getAttachment(decalName);
+			Attachment attachment = baseFactory.getAttachment(decalName);
 			d = new DecalImageImpl(attachment);
 			registeredDecals.put(decalName, d);
 		}
@@ -58,7 +57,7 @@ public class DecalRegistry implements AttachmentFactory<DecalImage> {
 		// It's a new file, generate a name for it.
 		String decalName = makeUniqueName(file.getName());
 		
-		BaseAttachment attachment = baseFactory.getAttachment(decalName);
+		Attachment attachment = baseFactory.getAttachment(decalName);
 		decal = new DecalImageImpl(attachment);
 		decal.setFileSystemLocation(file);
 		
@@ -76,13 +75,13 @@ public class DecalRegistry implements AttachmentFactory<DecalImage> {
 		return decals;
 	}
 	
-	public class DecalImageImpl implements DecalImage, Comparable {
+	public class DecalImageImpl implements DecalImage {
 		
-		private final BaseAttachment delegate;
+		private final Attachment delegate;
 		
 		private File fileSystemLocation;
 		
-		private DecalImageImpl(BaseAttachment delegate) {
+		private DecalImageImpl(Attachment delegate) {
 			this.delegate = delegate;
 		}
 		
@@ -116,7 +115,7 @@ public class DecalRegistry implements AttachmentFactory<DecalImage> {
 		}
 		
 		@Override
-		public int compareTo(Object o) {
+		public int compareTo(Attachment o) {
 			if (!(o instanceof DecalImageImpl)) {
 				return -1;
 			}

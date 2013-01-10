@@ -12,7 +12,6 @@ import java.net.URL;
 import javax.swing.SwingWorker;
 
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
@@ -68,7 +67,7 @@ public class OpenFileWorker extends SwingWorker<OpenRocketDocument, Void> {
 		is = new ProgressInputStream(is);
 		
 		try {
-			OpenRocketDocument document = loader.load(is, new DatabaseMotorFinder());
+			OpenRocketDocument document = loader.load(is);
 			
 			// Set document state
 			document.setFile(file);

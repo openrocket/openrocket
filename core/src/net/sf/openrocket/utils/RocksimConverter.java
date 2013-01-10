@@ -6,7 +6,6 @@ import java.util.Locale;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
-import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
@@ -62,7 +61,7 @@ public class RocksimConverter {
 				opts.setExplicitlySet(true);
 				
 				GeneralRocketLoader loader = new GeneralRocketLoader(input);
-				OpenRocketDocument document = loader.load(input, new DatabaseMotorFinder());
+				OpenRocketDocument document = loader.load();
 				saver.save(output, document, opts);
 				
 			} catch (RocketLoadException e) {

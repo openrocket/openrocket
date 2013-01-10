@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface Attachment {
+public interface Attachment extends Comparable<Attachment> {
 	
 	public abstract String getName();
 	

@@ -35,11 +35,12 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 	
 	
 	@Override
-	public OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws RocketLoadException,
+	public void loadFromStream(OpenRocketDocument doc, InputStream source, MotorFinder motorFinder) throws RocketLoadException,
 			IOException {
 		log.info("Loading .ork file");
 		DocumentLoadingContext context = new DocumentLoadingContext();
 		context.setMotorFinder(motorFinder);
+		context.setOpenRocketDocument(doc);
 		
 		InputSource xmlSource = new InputSource(source);
 		OpenRocketHandler handler = new OpenRocketHandler(context);
@@ -52,8 +53,6 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
-		
-		OpenRocketDocument doc = handler.getDocument();
 		doc.getDefaultConfiguration().setAllStages();
 		
 		// Deduce suitable time skip
@@ -88,7 +87,6 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 		
 		doc.clearUndo();
 		log.info("Loading done");
-		return doc;
 	}
 	
 }

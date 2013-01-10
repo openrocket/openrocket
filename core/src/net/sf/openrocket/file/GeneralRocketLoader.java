@@ -13,6 +13,7 @@ import java.util.zip.ZipInputStream;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.openrocket.importt.OpenRocketLoader;
 import net.sf.openrocket.file.rocksim.importt.RocksimLoader;
 import net.sf.openrocket.util.ArrayUtils;
@@ -38,33 +39,41 @@ public class GeneralRocketLoader {
 	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.asciiBytes("<RockSimDoc");
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
-	private final FileInfo fileInfo;
 	
 	private final RocksimLoader rocksimLoader = new RocksimLoader();
 	
+	private File baseFile;
+	private URL jarURL;
+	
+	private final MotorFinder motorFinder;
+	
 	public GeneralRocketLoader(File file) {
-		this.fileInfo = new FileInfo(file);
+		this.baseFile = file;
+		this.jarURL = null;
+		this.motorFinder = new DatabaseMotorFinder();
 	}
 	
 	public GeneralRocketLoader(URL jarURL) {
-		this.fileInfo = new FileInfo(jarURL);
+		this.baseFile = null;
+		this.jarURL = jarURL;
+		this.motorFinder = new DatabaseMotorFinder();
 	}
 	
 	/**
-	 * Loads a rocket from the specified File object.
+	 * Loads a rocket from the File object used in the constructor
 	 */
-	public final OpenRocketDocument load(File source, MotorFinder motorFinder) throws RocketLoadException {
+	public final OpenRocketDocument load() throws RocketLoadException {
 		warnings.clear();
 		InputStream stream = null;
 		
 		try {
 			
-			stream = new BufferedInputStream(new FileInputStream(source));
-			OpenRocketDocument doc = load(stream, motorFinder);
+			stream = new BufferedInputStream(new FileInputStream(baseFile));
+			OpenRocketDocument doc = load(stream);
 			return doc;
 			
 		} catch (Exception e) {
-			throw new RocketLoadException("Exception loading file: " + source, e);
+			throw new RocketLoadException("Exception loading file: " + baseFile, e);
 		} finally {
 			if (stream != null) {
 				try {
@@ -76,10 +85,9 @@ public class GeneralRocketLoader {
 		}
 	}
 	
-	public final OpenRocketDocument load(InputStream source, MotorFinder motorFinder) throws RocketLoadException {
+	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
 		try {
-			OpenRocketDocument doc = loadFromStream(source, motorFinder);
-			doc.setBaseFile(fileInfo);
+			OpenRocketDocument doc = loadFromStream(source);
 			return doc;
 		} catch (Exception e) {
 			throw new RocketLoadException("Exception loading stream", e);
@@ -90,7 +98,7 @@ public class GeneralRocketLoader {
 		return warnings;
 	}
 	
-	protected OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException,
+	private OpenRocketDocument loadFromStream(InputStream source) throws IOException,
 			RocketLoadException {
 		
 		// Check for mark() support
@@ -114,13 +122,19 @@ public class GeneralRocketLoader {
 		
 		// Check for GZIP
 		if (buffer[0] == GZIP_SIGNATURE[0] && buffer[1] == GZIP_SIGNATURE[1]) {
-			OpenRocketDocument doc = loadFromStream(new GZIPInputStream(source), motorFinder);
-			doc.setIsZipFile(false);
+			OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentForFile(baseFile, false);
+			loadFromStream(doc, new GZIPInputStream(source));
 			return doc;
 		}
 		
 		// Check for ZIP (for future compatibility)
 		if (buffer[0] == ZIP_SIGNATURE[0] && buffer[1] == ZIP_SIGNATURE[1]) {
+			OpenRocketDocument doc;
+			if (baseFile != null) {
+				doc = OpenRocketDocumentFactory.createDocumentForFile(baseFile, true);
+			} else {
+				doc = OpenRocketDocumentFactory.createDocumentForUrl(jarURL, true);
+			}
 			// Search for entry with name *.ork
 			ZipInputStream in = new ZipInputStream(source);
 			while (true) {
@@ -129,14 +143,42 @@ public class GeneralRocketLoader {
 					throw new RocketLoadException("Unsupported or corrupt file.");
 				}
 				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
-					OpenRocketDocument doc = loadFromStream(in, motorFinder);
-					doc.setIsZipFile(true);
+					loadFromStream(doc, in);
 					return doc;
 				} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
-					OpenRocketDocument doc = loadFromStream(in, motorFinder);
+					loadFromStream(doc, in);
 					return doc;
 				}
 			}
+		}
+		
+		OpenRocketDocument doc = null;
+		if (baseFile != null) {
+			doc = OpenRocketDocumentFactory.createDocumentForFile(baseFile, false);
+		} else {
+			doc = OpenRocketDocumentFactory.createDocumentForUrl(jarURL, false);
+		}
+		loadFromStream(doc, source);
+		return doc;
+		
+	}
+	
+	private void loadFromStream(OpenRocketDocument doc, InputStream source) throws IOException, RocketLoadException {
+		
+		// Check for mark() support
+		if (!source.markSupported()) {
+			source = new BufferedInputStream(source);
+		}
+		
+		// Read using mark()
+		byte[] buffer = new byte[READ_BYTES];
+		int count;
+		source.mark(READ_BYTES + 10);
+		count = source.read(buffer);
+		source.reset();
+		
+		if (count < 10) {
+			throw new RocketLoadException("Unsupported or corrupt file.");
 		}
 		
 		// Check for OpenRocket
@@ -145,9 +187,8 @@ public class GeneralRocketLoader {
 			if (buffer[i] == OPENROCKET_SIGNATURE[match]) {
 				match++;
 				if (match == OPENROCKET_SIGNATURE.length) {
-					OpenRocketDocument doc = loadUsing(openRocketLoader, source, motorFinder);
-					doc.setIsZipFile(false);
-					return doc;
+					loadUsing(doc, openRocketLoader, source);
+					return;
 				}
 			} else {
 				match = 0;
@@ -156,18 +197,16 @@ public class GeneralRocketLoader {
 		
 		byte[] typeIdentifier = ArrayUtils.copyOf(buffer, ROCKSIM_SIGNATURE.length);
 		if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
-			OpenRocketDocument doc = loadUsing(rocksimLoader, source, motorFinder);
-			doc.setIsZipFile(false);
-			return doc;
+			loadUsing(doc, rocksimLoader, source);
+			return;
 		}
 		throw new RocketLoadException("Unsupported or corrupt file.");
+		
 	}
 	
-	private OpenRocketDocument loadUsing(RocketLoader loader, InputStream source, MotorFinder motorFinder)
-			throws RocketLoadException {
+	private void loadUsing(OpenRocketDocument doc, RocketLoader loader, InputStream source) throws RocketLoadException {
 		warnings.clear();
-		OpenRocketDocument doc = loader.load(source, motorFinder);
+		loader.load(doc, source, motorFinder);
 		warnings.addAll(loader.getWarnings());
-		return doc;
 	}
 }

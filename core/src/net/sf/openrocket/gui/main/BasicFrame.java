@@ -60,6 +60,7 @@ import javax.swing.tree.TreeSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
@@ -96,7 +97,6 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MemoryManagement;
@@ -839,7 +839,7 @@ public class BasicFrame extends JFrame {
 					return;
 				}
 				
-				OpenRocketDocument doc = new OpenRocketDocument(r);
+				OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(r);
 				doc.setSaved(true);
 				BasicFrame frame = new BasicFrame(doc);
 				frame.setVisible(true);
@@ -855,7 +855,7 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.user("Create Iso-Haisu selected");
 				Rocket r = TestRockets.makeIsoHaisu();
-				OpenRocketDocument doc = new OpenRocketDocument(r);
+				OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(r);
 				doc.setSaved(true);
 				BasicFrame frame = new BasicFrame(doc);
 				frame.setVisible(true);
@@ -870,7 +870,7 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.user("Create Big Blue selected");
 				Rocket r = TestRockets.makeBigBlue();
-				OpenRocketDocument doc = new OpenRocketDocument(r);
+				OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentFromRocket(r);
 				doc.setSaved(true);
 				BasicFrame frame = new BasicFrame(doc);
 				frame.setVisible(true);
@@ -1465,19 +1465,11 @@ public class BasicFrame extends JFrame {
 	public static void newAction() {
 		log.info("New action initiated");
 		
-		Rocket rocket = new Rocket();
-		Stage stage = new Stage();
-		//// Sustainer
-		stage.setName(trans.get("BasicFrame.StageName.Sustainer"));
-		rocket.addChild(stage);
-		OpenRocketDocument doc = new OpenRocketDocument(rocket);
-		doc.setSaved(true);
+		OpenRocketDocument doc = OpenRocketDocumentFactory.createNewRocket();
 		
 		BasicFrame frame = new BasicFrame(doc);
 		frame.replaceable = true;
 		frame.setVisible(true);
-		// kruland commented this out - I don't like it.
-		//ComponentConfigDialog.showDialog(frame, doc, rocket);
 	}
 	
 	/**
