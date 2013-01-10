@@ -6,9 +6,11 @@ import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -18,47 +20,41 @@ import net.sf.openrocket.util.Coordinate;
 
 public class DefaultAppearance {
 	
-	private static Appearance BALSA = new
-			Appearance(
-					new Color(1, 1, 1),
-					0,
-					new Decal(
-							new Coordinate(0, 0),
-							new Coordinate(0, 0),
-							new Coordinate(1, 1),
-							0,
-							new ResourceDecalImage("/datafiles/textures/balsa.png"), EdgeMode.REPEAT));
+	private static Appearance simple(String resource) {
+		return new Appearance(
+				new Color(1, 1, 1),
+				0,
+				new Decal(
+						new Coordinate(0, 0),
+						new Coordinate(0, 0),
+						new Coordinate(1, 1),
+						0,
+						new ResourceDecalImage(resource), EdgeMode.REPEAT));
+	};
 	
-	private static Appearance WOOD = new
-			Appearance(
-					new Color(1, 1, 1),
-					0,
-					new Decal(
-							new Coordinate(0, 0),
-							new Coordinate(0, 0),
-							new Coordinate(1, 1),
-							0,
-							new ResourceDecalImage("/datafiles/textures/wood.png"), EdgeMode.REPEAT));
+	private static Appearance simpleAlpha(Color base, float shine, String resource) {
+		return new Appearance(
+				base,
+				shine,
+				new Decal(
+						new Coordinate(0, 0),
+						new Coordinate(0, 0),
+						new Coordinate(1, 1),
+						0,
+						new ResourceDecalImage(resource), EdgeMode.REPEAT));
+	};
 	
-	public static final Appearance ESTES_BT = new Appearance(
-			new Color(212, 185, 145),
-			.3,
-			new Decal(
-					new Coordinate(0, 0),
-					new Coordinate(0, 0),
-					new Coordinate(1, 3),
-					0,
-					new ResourceDecalImage("/datafiles/textures/spiral-wound-alpha.png"), EdgeMode.REPEAT));
+	private static Appearance BALSA = simple("/datafiles/textures/balsa.png");
+	private static Appearance WOOD = simple("/datafiles/textures/wood.png");
+	private static Appearance CARDBOARD = simple("/datafiles/textures/cardboard.png");
+	private static Appearance HARDBOARD = simple("/datafiles/textures/hardboard.png");
+	private static Appearance WADDING = simple("/datafiles/textures/wadding.png");
+	private static Appearance CHUTE = simple("/datafiles/textures/chute.png");
 	
-	public static final Appearance WHITE_BT = new Appearance(
-			new Color(240, 240, 240),
-			.3,
-			new Decal(
-					new Coordinate(0, 0),
-					new Coordinate(0, 0),
-					new Coordinate(1, 3),
-					0,
-					new ResourceDecalImage("/datafiles/textures/spiral-wound-alpha.png"), EdgeMode.REPEAT));
+	
+	public static final Appearance ESTES_BT = simpleAlpha(new Color(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	public static final Appearance ESTES_IT = simpleAlpha(new Color(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
+	public static final Appearance WHITE_BT = simpleAlpha(new Color(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	
 	
 	private static HashMap<Color, Appearance> plastics = new HashMap<Color, Appearance>();
@@ -71,8 +67,10 @@ public class DefaultAppearance {
 	}
 	
 	public static Appearance getDefaultAppearance(RocketComponent c) {
-		if (c instanceof BodyTube || c instanceof InnerTube || c instanceof TubeCoupler)
+		if (c instanceof BodyTube)
 			return ESTES_BT;
+		if (c instanceof InnerTube || c instanceof TubeCoupler)
+			return ESTES_IT;
 		if (c instanceof FinSet)
 			return BALSA;
 		if (c instanceof LaunchLug)
@@ -81,6 +79,11 @@ public class DefaultAppearance {
 			return getPlastic(new Color(255, 255, 255));
 		if (c instanceof RadiusRingComponent)
 			return WOOD;
+		if (c instanceof Parachute)
+			return CHUTE;
+		if (c instanceof EngineBlock)
+			return HARDBOARD;
+		
 		return Appearance.MISSING;
 	}
 }
