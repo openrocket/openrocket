@@ -10,6 +10,7 @@ import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -83,6 +84,8 @@ public class DefaultAppearance {
 			return CHUTE;
 		if (c instanceof EngineBlock)
 			return HARDBOARD;
+		if (c instanceof MassObject)
+			return WADDING;
 		
 		return Appearance.MISSING;
 	}
