@@ -51,8 +51,9 @@ import com.jogamp.opengl.util.awt.Overlay;
  */
 public class RocketFigure3d extends JPanel implements GLEventListener {
 	
-	public static final int TYPE_REALISTIC = 0;
-	public static final int TYPE_FIGURE = 1;
+	public static final int TYPE_FIGURE = 0;
+	public static final int TYPE_UNFINISHED = 1;
+	public static final int TYPE_FINISHED = 2;
 	
 	private static final long serialVersionUID = 1L;
 	private static final LogHelper log = Application.getLogger();
@@ -644,8 +645,10 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 				rr.dispose(drawable);
 				if (t == TYPE_FIGURE) {
 					rr = new FigureRenderer();
-				} else {
+				} else if (t == TYPE_FINISHED) {
 					rr = new RealisticRenderer(document);
+				} else if (t == TYPE_UNFINISHED) {
+					rr = new UnfinishedRenderer(document);
 				}
 				rr.init(drawable);
 				return false;
