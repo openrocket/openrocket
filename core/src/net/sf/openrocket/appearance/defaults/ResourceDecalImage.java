@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.document.Attachment;
 
 
 class ResourceDecalImage implements DecalImage {
@@ -29,6 +30,11 @@ class ResourceDecalImage implements DecalImage {
 	@Override
 	public void exportImage(File file, boolean watchForChanges) throws IOException {
 		
+	}
+	
+	@Override
+	public int compareTo(Attachment a) {
+		return this.hashCode() - a.hashCode();
 	}
 	
 }
