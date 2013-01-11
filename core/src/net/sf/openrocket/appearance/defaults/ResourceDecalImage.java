@@ -18,6 +18,11 @@ class ResourceDecalImage implements DecalImage {
 	}
 	
 	@Override
+	public String toString() {
+		return getName();
+	}
+	
+	@Override
 	public String getName() {
 		return resource;
 	}
