@@ -13,6 +13,7 @@ public class MotorAppearance extends Appearance {
 	
 	private static MotorAppearance ESTES = new MotorAppearance("/datafiles/textures/motors/estes.png");
 	private static MotorAppearance AEROTECH = new MotorAppearance("/datafiles/textures/motors/aerotech.png");
+	private static MotorAppearance REUSABLE = new MotorAppearance("/datafiles/textures/motors/reusable.png", new Color(195, 60, 50), .6);
 	
 	public static Appearance getAppearance(Motor m) {
 		if (m instanceof ThrustCurveMotor) {
@@ -24,13 +25,25 @@ public class MotorAppearance extends Appearance {
 				return AEROTECH;
 			}
 		}
-		return Appearance.MISSING;
+		return REUSABLE;
 	}
 	
 	protected MotorAppearance(final String resource) {
 		super(
 				new Color(0, 0, 0),
 				.1,
+				new Decal(
+						new Coordinate(0, 0),
+						new Coordinate(0, 0),
+						new Coordinate(1, 1),
+						0,
+						new ResourceDecalImage(resource), EdgeMode.REPEAT));
+	}
+	
+	protected MotorAppearance(final String resource, Color c, double shine) {
+		super(
+				c,
+				shine,
 				new Decal(
 						new Coordinate(0, 0),
 						new Coordinate(0, 0),
