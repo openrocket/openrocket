@@ -7,7 +7,8 @@ import java.net.MalformedURLException;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
-import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Attachment;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.util.Color;
 
@@ -16,10 +17,10 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	boolean preventSeam = false;
 	boolean repeat = false;
 	
-	private final OpenRocketDocument document;
+	private final DocumentLoadingContext context;
 	
-	public RockSimAppearanceBuilder(OpenRocketDocument document) {
-		this.document = document;
+	public RockSimAppearanceBuilder(DocumentLoadingContext context) {
+		this.context = context;
 	}
 	
 	public void processElement(String element, String content, WarningSet warnings) {
@@ -68,7 +69,8 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 						//Find out how to get path of current rocksim file
 						//so I can look in it's directory
 					}
-					setImage(document.getDecalRegistry().getAttachment(value));
+					Attachment a = context.getAttachmentFactory().getAttachment(name);
+					setImage(context.getOpenRocketDocument().getDecalImage(a));
 				}
 			} else if ("repeat".equals(name)) {
 				repeat = "1".equals(value);

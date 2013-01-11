@@ -8,7 +8,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.AbstractRocketLoader;
-import net.sf.openrocket.file.MotorFinder;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.logging.LogHelper;
@@ -35,16 +35,14 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 	
 	
 	@Override
-	public void loadFromStream(OpenRocketDocument doc, InputStream source, MotorFinder motorFinder) throws RocketLoadException,
+	public void loadFromStream(DocumentLoadingContext context, InputStream source) throws RocketLoadException,
 			IOException {
 		log.info("Loading .ork file");
-		DocumentLoadingContext context = new DocumentLoadingContext();
-		context.setMotorFinder(motorFinder);
-		context.setOpenRocketDocument(doc);
 		
 		InputSource xmlSource = new InputSource(source);
 		OpenRocketHandler handler = new OpenRocketHandler(context);
 		
+		OpenRocketDocument doc = context.getOpenRocketDocument();
 		
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);

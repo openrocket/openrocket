@@ -1,10 +1,11 @@
-package net.sf.openrocket.document;
+package net.sf.openrocket.file;
 
 import java.net.URL;
 
+import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.document.attachments.ZipFileAttachment;
 
-public class ZipFileAttachmentFactory implements AttachmentFactory<Attachment> {
+public class ZipFileAttachmentFactory implements AttachmentFactory {
 	
 	private final URL zipFile;
 	

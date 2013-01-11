@@ -1,14 +1,14 @@
 package net.sf.openrocket.document;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -60,9 +60,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 	
-	private final AttachmentFactory attachmentFactory;
-	private final DecalRegistry decalRegistry;
-	
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
 	 */
@@ -95,36 +92,13 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final StorageOptions storageOptions = new StorageOptions();
 	
+	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
 	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
 	
-	OpenRocketDocument(Rocket rocket, File fileName, boolean isContainer) {
+	OpenRocketDocument(Rocket rocket) {
 		this.configuration = rocket.getDefaultConfiguration();
 		this.rocket = rocket;
-		AttachmentFactory attachments;
-		if (isContainer) {
-			try {
-				attachments = new ZipFileAttachmentFactory(fileName.toURI().toURL());
-			} catch (MalformedURLException mex) {
-				attachments = new FileSystemAttachmentFactory(null);
-			}
-		} else {
-			if (fileName == null) {
-				attachments = new FileSystemAttachmentFactory(null);
-			} else {
-				attachments = new FileSystemAttachmentFactory(fileName.getParentFile());
-			}
-		}
-		this.attachmentFactory = attachments;
-		this.decalRegistry = new DecalRegistry(this.attachmentFactory);
-		init();
-	}
-	
-	OpenRocketDocument(Rocket rocket, URL jarURL, boolean isContainer) {
-		this.configuration = rocket.getDefaultConfiguration();
-		this.rocket = rocket;
-		this.attachmentFactory = isContainer ? new ZipFileAttachmentFactory(jarURL) : new FileSystemAttachmentFactory(null);
-		this.decalRegistry = new DecalRegistry(this.attachmentFactory);
 		init();
 	}
 	
@@ -197,10 +171,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return configuration;
 	}
 	
-	public DecalRegistry getDecalRegistry() {
-		return decalRegistry;
-	}
-	
 	public File getFile() {
 		return file;
 	}
@@ -208,7 +178,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public void setFile(File file) {
 		this.file = file;
 	}
-	
 	
 	public boolean isSaved() {
 		return rocket.getModID() == savedID;
@@ -231,8 +200,15 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
+	public Collection<DecalImage> getDecalList() {
+		
+		return decalRegistry.getDecalList();
+		
+	}
 	
-	
+	public DecalImage getDecalImage(Attachment a) {
+		return decalRegistry.getDecalImage(a);
+	}
 	
 	public List<Simulation> getSimulations() {
 		return simulations.clone();

@@ -40,7 +40,7 @@ public class ExportDecalDialog extends JDialog {
 		JLabel label = new JLabel(trans.get("ExportDecalDialog.decalList.lbl"));
 		panel.add(label);
 		
-		Collection<DecalImage> exportableDecals = document.getDecalRegistry().getDecalList();
+		Collection<DecalImage> exportableDecals = document.getDecalList();
 		
 		decalComboBox = new JComboBox(exportableDecals.toArray(new DecalImage[0]));
 		decalComboBox.setEditable(false);

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
@@ -33,11 +34,11 @@ public class RocksimHandler extends AbstractElementHandler {
 	 */
 	private RocksimContentHandler handler = null;
 	
-	private final OpenRocketDocument document;
+	private final DocumentLoadingContext context;
 	
-	public RocksimHandler(OpenRocketDocument document) {
+	public RocksimHandler(DocumentLoadingContext context) {
 		super();
-		this.document = document;
+		this.context = context;
 	}
 	
 	/**
@@ -47,7 +48,7 @@ public class RocksimHandler extends AbstractElementHandler {
 	 * @return the document read, or null.
 	 */
 	public OpenRocketDocument getDocument() {
-		return document;
+		return context.getOpenRocketDocument();
 	}
 	
 	@Override
@@ -67,7 +68,7 @@ public class RocksimHandler extends AbstractElementHandler {
 			return null;
 		}
 		
-		handler = new RocksimContentHandler(document);
+		handler = new RocksimContentHandler(context);
 		return handler;
 	}
 	
@@ -78,9 +79,9 @@ public class RocksimHandler extends AbstractElementHandler {
  */
 class RocksimContentHandler extends AbstractElementHandler {
 	/**
-	 * The OpenRocketDocument that is the container for the rocket.
+	 * The DocumentLoadingContext
 	 */
-	private final OpenRocketDocument doc;
+	private final DocumentLoadingContext context;
 	
 	/**
 	 * The top-level component, from which all child components are added.
@@ -92,10 +93,10 @@ class RocksimContentHandler extends AbstractElementHandler {
 	 */
 	private String version;
 	
-	public RocksimContentHandler(OpenRocketDocument doc) {
+	public RocksimContentHandler(DocumentLoadingContext context) {
 		super();
-		this.doc = doc;
-		this.rocket = doc.getRocket();
+		this.context = context;
+		this.rocket = context.getOpenRocketDocument().getRocket();
 	}
 	
 	/**
@@ -104,7 +105,7 @@ class RocksimContentHandler extends AbstractElementHandler {
 	 * @return the instantiated OpenRocketDocument
 	 */
 	public OpenRocketDocument getDocument() {
-		return doc;
+		return context.getOpenRocketDocument();
 	}
 	
 	@Override
@@ -119,7 +120,7 @@ class RocksimContentHandler extends AbstractElementHandler {
 			return PlainTextHandler.INSTANCE;
 		}
 		if (RocksimCommonConstants.ROCKET_DESIGN.equals(element)) {
-			return new RocketDesignHandler(doc, rocket);
+			return new RocketDesignHandler(context, rocket);
 		}
 		return null;
 	}
@@ -153,7 +154,7 @@ class RocksimContentHandler extends AbstractElementHandler {
  * structures.  If that invariant is not true, then behavior will be unpredictable.
  */
 class RocketDesignHandler extends AbstractElementHandler {
-	private final OpenRocketDocument document;
+	private final DocumentLoadingContext context;
 	/**
 	 * The parent component.
 	 */
@@ -192,8 +193,8 @@ class RocketDesignHandler extends AbstractElementHandler {
 	 *
 	 * @param c the parent component
 	 */
-	public RocketDesignHandler(OpenRocketDocument document, RocketComponent c) {
-		this.document = document;
+	public RocketDesignHandler(DocumentLoadingContext context, RocketComponent c) {
+		this.context = context;
 		component = c;
 	}
 	
@@ -216,7 +217,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 				stage.setOverrideCGX(stage3CG);
 			}
 			component.addChild(stage);
-			return new StageHandler(document, stage);
+			return new StageHandler(context, stage);
 		}
 		if ("Stage2Parts".equals(element)) {
 			if (stageCount >= 2) {
@@ -232,7 +233,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 					stage.setOverrideCGX(stage2CG);
 				}
 				component.addChild(stage);
-				return new StageHandler(document, stage);
+				return new StageHandler(context, stage);
 			}
 		}
 		if ("Stage1Parts".equals(element)) {
@@ -249,7 +250,7 @@ class RocketDesignHandler extends AbstractElementHandler {
 					stage.setOverrideCGX(stage1CG);
 				}
 				component.addChild(stage);
-				return new StageHandler(document, stage);
+				return new StageHandler(context, stage);
 			}
 		}
 		if (RocksimCommonConstants.NAME.equals(element)) {
@@ -318,7 +319,7 @@ class RocketDesignHandler extends AbstractElementHandler {
  * A SAX handler for a Rocksim stage.
  */
 class StageHandler extends AbstractElementHandler {
-	private final OpenRocketDocument document;
+	private final DocumentLoadingContext context;
 	/**
 	 * The parent OpenRocket component.
 	 */
@@ -330,24 +331,24 @@ class StageHandler extends AbstractElementHandler {
 	 * @param c the parent component
 	 * @throws IllegalArgumentException thrown if <code>c</code> is null
 	 */
-	public StageHandler(OpenRocketDocument document, RocketComponent c) throws IllegalArgumentException {
+	public StageHandler(DocumentLoadingContext context, RocketComponent c) throws IllegalArgumentException {
 		if (c == null) {
 			throw new IllegalArgumentException("The stage component may not be null.");
 		}
-		this.document = document;
+		this.context = context;
 		component = c;
 	}
 	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
 		if (RocksimCommonConstants.NOSE_CONE.equals(element)) {
-			return new NoseConeHandler(document, component, warnings);
+			return new NoseConeHandler(context, component, warnings);
 		}
 		if (RocksimCommonConstants.BODY_TUBE.equals(element)) {
-			return new BodyTubeHandler(document, component, warnings);
+			return new BodyTubeHandler(context, component, warnings);
 		}
 		if (RocksimCommonConstants.TRANSITION.equals(element)) {
-			return new TransitionHandler(document, component, warnings);
+			return new TransitionHandler(context, component, warnings);
 		}
 		return null;
 	}

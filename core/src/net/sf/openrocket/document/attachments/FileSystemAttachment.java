@@ -17,6 +17,10 @@ public class FileSystemAttachment extends BaseAttachment implements Attachment {
 		this.location = location;
 	}
 	
+	public File getLocation() {
+		return location;
+	}
+	
 	@Override
 	public InputStream getBytes() throws FileNotFoundException, IOException {
 		return new FileInputStream(location);

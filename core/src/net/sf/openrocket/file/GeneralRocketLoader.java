@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
@@ -44,8 +45,11 @@ public class GeneralRocketLoader {
 	
 	private File baseFile;
 	private URL jarURL;
+	private boolean isContainer;
 	
 	private final MotorFinder motorFinder;
+	private AttachmentFactory attachmentFactory;
+	private final OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
 	
 	public GeneralRocketLoader(File file) {
 		this.baseFile = file;
@@ -69,7 +73,7 @@ public class GeneralRocketLoader {
 		try {
 			
 			stream = new BufferedInputStream(new FileInputStream(baseFile));
-			OpenRocketDocument doc = load(stream);
+			load(stream);
 			return doc;
 			
 		} catch (Exception e) {
@@ -87,7 +91,7 @@ public class GeneralRocketLoader {
 	
 	public final OpenRocketDocument load(InputStream source) throws RocketLoadException {
 		try {
-			OpenRocketDocument doc = loadFromStream(source);
+			loadStep1(source);
 			return doc;
 		} catch (Exception e) {
 			throw new RocketLoadException("Exception loading stream", e);
@@ -98,8 +102,20 @@ public class GeneralRocketLoader {
 		return warnings;
 	}
 	
-	private OpenRocketDocument loadFromStream(InputStream source) throws IOException,
-			RocketLoadException {
+	/**
+	 * This method determines the type file contained in the stream then calls the appropriate loading mecahnism.
+	 * 
+	 * If the stream is a gzip file, the argument is wrapped in a GzipInputStream and the rocket loaded.
+	 * 
+	 * If the stream is a zip container, the first zip entry with name ending in .ork or .rkt is loaded as the rocket.
+	 * 
+	 * If the stream is neither, then it is assumed to be an xml file containing either an ork or rkt format rocket.
+	 * 
+	 * @param source
+	 * @throws IOException
+	 * @throws RocketLoadException
+	 */
+	private void loadStep1(InputStream source) throws IOException, RocketLoadException {
 		
 		// Check for mark() support
 		if (!source.markSupported()) {
@@ -122,19 +138,17 @@ public class GeneralRocketLoader {
 		
 		// Check for GZIP
 		if (buffer[0] == GZIP_SIGNATURE[0] && buffer[1] == GZIP_SIGNATURE[1]) {
-			OpenRocketDocument doc = OpenRocketDocumentFactory.createDocumentForFile(baseFile, false);
-			loadFromStream(doc, new GZIPInputStream(source));
-			return doc;
+			isContainer = false;
+			setAttachmentFactory();
+			loadRocket(new GZIPInputStream(source));
+			return;
 		}
 		
 		// Check for ZIP (for future compatibility)
 		if (buffer[0] == ZIP_SIGNATURE[0] && buffer[1] == ZIP_SIGNATURE[1]) {
 			OpenRocketDocument doc;
-			if (baseFile != null) {
-				doc = OpenRocketDocumentFactory.createDocumentForFile(baseFile, true);
-			} else {
-				doc = OpenRocketDocumentFactory.createDocumentForUrl(jarURL, true);
-			}
+			isContainer = true;
+			setAttachmentFactory();
 			// Search for entry with name *.ork
 			ZipInputStream in = new ZipInputStream(source);
 			while (true) {
@@ -143,27 +157,25 @@ public class GeneralRocketLoader {
 					throw new RocketLoadException("Unsupported or corrupt file.");
 				}
 				if (entry.getName().matches(".*\\.[oO][rR][kK]$")) {
-					loadFromStream(doc, in);
-					return doc;
+					loadRocket(in);
+					return;
 				} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
-					loadFromStream(doc, in);
-					return doc;
+					loadRocket(in);
+					return;
 				}
 			}
+			
+			// FIXME should throw here because the zip file didn't contain either ork or rkt file.
 		}
 		
-		OpenRocketDocument doc = null;
-		if (baseFile != null) {
-			doc = OpenRocketDocumentFactory.createDocumentForFile(baseFile, false);
-		} else {
-			doc = OpenRocketDocumentFactory.createDocumentForUrl(jarURL, false);
-		}
-		loadFromStream(doc, source);
-		return doc;
+		isContainer = false;
+		setAttachmentFactory();
+		loadRocket(source);
+		return;
 		
 	}
 	
-	private void loadFromStream(OpenRocketDocument doc, InputStream source) throws IOException, RocketLoadException {
+	private void loadRocket(InputStream source) throws IOException, RocketLoadException {
 		
 		// Check for mark() support
 		if (!source.markSupported()) {
@@ -187,7 +199,7 @@ public class GeneralRocketLoader {
 			if (buffer[i] == OPENROCKET_SIGNATURE[match]) {
 				match++;
 				if (match == OPENROCKET_SIGNATURE.length) {
-					loadUsing(doc, openRocketLoader, source);
+					loadUsing(openRocketLoader, source);
 					return;
 				}
 			} else {
@@ -197,16 +209,36 @@ public class GeneralRocketLoader {
 		
 		byte[] typeIdentifier = ArrayUtils.copyOf(buffer, ROCKSIM_SIGNATURE.length);
 		if (Arrays.equals(ROCKSIM_SIGNATURE, typeIdentifier)) {
-			loadUsing(doc, rocksimLoader, source);
+			loadUsing(rocksimLoader, source);
 			return;
 		}
 		throw new RocketLoadException("Unsupported or corrupt file.");
 		
 	}
 	
-	private void loadUsing(OpenRocketDocument doc, RocketLoader loader, InputStream source) throws RocketLoadException {
+	private void setAttachmentFactory() {
+		attachmentFactory = new FileSystemAttachmentFactory(null);
+		if (jarURL != null && isContainer) {
+			attachmentFactory = new ZipFileAttachmentFactory(jarURL);
+		} else {
+			if (isContainer) {
+				try {
+					attachmentFactory = new ZipFileAttachmentFactory(baseFile.toURI().toURL());
+				} catch (MalformedURLException mex) {
+				}
+			} else if (baseFile != null) {
+				attachmentFactory = new FileSystemAttachmentFactory(baseFile.getParentFile());
+			}
+		}
+	}
+	
+	private void loadUsing(RocketLoader loader, InputStream source) throws RocketLoadException {
 		warnings.clear();
-		loader.load(doc, source, motorFinder);
+		DocumentLoadingContext context = new DocumentLoadingContext();
+		context.setOpenRocketDocument(doc);
+		context.setMotorFinder(motorFinder);
+		context.setAttachmentFactory(attachmentFactory);
+		loader.load(context, source);
 		warnings.addAll(loader.getWarnings());
 	}
 }

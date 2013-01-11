@@ -10,7 +10,9 @@ import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.FileSystemAttachmentFactory;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -34,7 +36,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 		this.document = document;
 		this.parent = parent;
 		this.ab = ab;
-		decals = document.getDecalRegistry().getDecalList().toArray(new DecalImage[0]);
+		decals = document.getDecalList().toArray(new DecalImage[0]);
 	}
 	
 	@Override
@@ -71,7 +73,8 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 					if (action == JFileChooser.APPROVE_OPTION) {
 						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(fc.getCurrentDirectory());
 						File file = fc.getSelectedFile();
-						setSelectedItem(document.getDecalRegistry().getAttachment(file));
+						Attachment a = (new FileSystemAttachmentFactory().getAttachment(file));
+						setSelectedItem(document.getDecalImage(a));
 					}
 				}
 			});

@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.database.Databases;
-import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
 import net.sf.openrocket.file.rocksim.RocksimDensityType;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
@@ -53,14 +53,14 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 	 */
 	private String materialName = "";
 	
-	protected final OpenRocketDocument document;
-    private final RockSimAppearanceBuilder appearanceBuilder;
-
-    public BaseHandler( OpenRocketDocument document ) {
-    	this.document = document;
-    	appearanceBuilder = new RockSimAppearanceBuilder( document );
-    }
-    
+	protected final DocumentLoadingContext context;
+	private final RockSimAppearanceBuilder appearanceBuilder;
+	
+	public BaseHandler(DocumentLoadingContext context) {
+		this.context = context;
+		appearanceBuilder = new RockSimAppearanceBuilder(context);
+	}
+	
 	/**
 	 * The SAX method called when the closing element tag is reached.
 	 *
@@ -114,17 +114,17 @@ public abstract class BaseHandler<C extends RocketComponent> extends AbstractEle
 		 */
 		density = computeDensity(densityType, density);
 		RocketComponent component = getComponent();
-        
-        //TODO - What RockSim components can have Appearances?
-        if ( component instanceof ExternalComponent ){	
-        	//If a symmetric component is set to PreventSeam then it is repeated
-        	//twice as many times around the rocket.
-        	if ( component instanceof SymmetricComponent && appearanceBuilder.isPreventSeam() ){
-        		appearanceBuilder.setScaleU(appearanceBuilder.getScaleU()*2);
+		
+		//TODO - What RockSim components can have Appearances?
+		if (component instanceof ExternalComponent) {
+			//If a symmetric component is set to PreventSeam then it is repeated
+			//twice as many times around the rocket.
+			if (component instanceof SymmetricComponent && appearanceBuilder.isPreventSeam()) {
+				appearanceBuilder.setScaleU(appearanceBuilder.getScaleU() * 2);
 			}
-        	component.setAppearance(appearanceBuilder.getAppearance());
-        }
-        
+			component.setAppearance(appearanceBuilder.getAppearance());
+		}
+		
 		updateComponentMaterial(component, materialName, getMaterialType(), density);
 	}
 	

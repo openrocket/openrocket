@@ -1,11 +1,11 @@
-package net.sf.openrocket.document;
+package net.sf.openrocket.file;
 
 import java.io.File;
 
-import net.sf.openrocket.document.attachments.BaseAttachment;
+import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.document.attachments.FileSystemAttachment;
 
-public class FileSystemAttachmentFactory implements AttachmentFactory<BaseAttachment> {
+public class FileSystemAttachmentFactory implements AttachmentFactory {
 	
 	private final File baseDirectory;
 	
@@ -22,8 +22,12 @@ public class FileSystemAttachmentFactory implements AttachmentFactory<BaseAttach
 		this.baseDirectory = baseDirectory;
 	}
 	
+	public Attachment getAttachment(File file) {
+		return new FileSystemAttachment(file.getName(), file);
+	}
+	
 	@Override
-	public BaseAttachment getAttachment(String name) {
+	public Attachment getAttachment(String name) {
 		
 		File file = new File(name);
 		
