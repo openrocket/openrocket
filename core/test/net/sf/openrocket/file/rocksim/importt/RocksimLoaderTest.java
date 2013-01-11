@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
@@ -34,8 +36,11 @@ public class RocksimLoaderTest {
 		InputStream stream = this.getClass().getResourceAsStream("PodFins.rkt");
 		Assert.assertNotNull("Could not open PodFins.rkt", stream);
 		try {
-			OpenRocketDocument doc = loader.loadFromStream(new BufferedInputStream(stream), new DatabaseMotorFinder());
-			Assert.assertNotNull(doc);
+			OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+			DocumentLoadingContext context = new DocumentLoadingContext();
+			context.setOpenRocketDocument(doc);
+			context.setMotorFinder(new DatabaseMotorFinder());
+			loader.loadFromStream(context, new BufferedInputStream(stream));
 			Rocket rocket = doc.getRocket();
 			Assert.assertNotNull(rocket);
 		} catch (IllegalStateException ise) {
@@ -64,7 +69,12 @@ public class RocksimLoaderTest {
 		
 		stream = this.getClass().getResourceAsStream("rocksimTestRocket2.rkt");
 		Assert.assertNotNull("Could not open rocksimTestRocket2.rkt", stream);
-		doc = loader.loadFromStream(new BufferedInputStream(stream), new DatabaseMotorFinder());
+		
+		doc = OpenRocketDocumentFactory.createEmptyRocket();
+		DocumentLoadingContext context = new DocumentLoadingContext();
+		context.setOpenRocketDocument(doc);
+		context.setMotorFinder(new DatabaseMotorFinder());
+		loader.loadFromStream(context, new BufferedInputStream(stream));
 		
 		Assert.assertNotNull(doc);
 		rocket = doc.getRocket();
@@ -87,7 +97,12 @@ public class RocksimLoaderTest {
 		
 		stream = this.getClass().getResourceAsStream("rocksimTestRocket3.rkt");
 		Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
-		doc = loader.loadFromStream(new BufferedInputStream(stream), new DatabaseMotorFinder());
+		
+		doc = OpenRocketDocumentFactory.createEmptyRocket();
+		context = new DocumentLoadingContext();
+		context.setOpenRocketDocument(doc);
+		context.setMotorFinder(new DatabaseMotorFinder());
+		loader.loadFromStream(context, new BufferedInputStream(stream));
 		
 		Assert.assertNotNull(doc);
 		rocket = doc.getRocket();
@@ -133,7 +148,12 @@ public class RocksimLoaderTest {
 		InputStream stream = RocksimLoaderTest.class.getResourceAsStream("rocksimTestRocket1.rkt");
 		try {
 			Assert.assertNotNull("Could not open rocksimTestRocket1.rkt", stream);
-			return theLoader.loadFromStream(new BufferedInputStream(stream), new DatabaseMotorFinder());
+			OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+			DocumentLoadingContext context = new DocumentLoadingContext();
+			context.setOpenRocketDocument(doc);
+			context.setMotorFinder(new DatabaseMotorFinder());
+			theLoader.loadFromStream(context, new BufferedInputStream(stream));
+			return doc;
 		} finally {
 			stream.close();
 		}
@@ -143,7 +163,12 @@ public class RocksimLoaderTest {
 		InputStream stream = RocksimLoaderTest.class.getResourceAsStream("rocksimTestRocket3.rkt");
 		try {
 			Assert.assertNotNull("Could not open rocksimTestRocket3.rkt", stream);
-			return theLoader.loadFromStream(new BufferedInputStream(stream), new DatabaseMotorFinder());
+			OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
+			DocumentLoadingContext context = new DocumentLoadingContext();
+			context.setOpenRocketDocument(doc);
+			context.setMotorFinder(new DatabaseMotorFinder());
+			theLoader.loadFromStream(context, new BufferedInputStream(stream));
+			return doc;
 		} finally {
 			stream.close();
 		}

@@ -1,16 +1,17 @@
 package net.sf.openrocket.document;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
-import net.sf.openrocket.file.FileInfo;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -59,9 +60,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
 	
-	private BaseAttachmentFactory attachmentFactory = new BaseAttachmentFactory();
-	private DecalRegistry decalRegistry = new DecalRegistry(attachmentFactory);
-	
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
 	 */
@@ -94,34 +92,21 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final StorageOptions storageOptions = new StorageOptions();
 	
+	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
-	private final List<DocumentChangeListener> listeners =
-			new ArrayList<DocumentChangeListener>();
+	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
 	
-	public OpenRocketDocument(Rocket rocket) {
-		this(rocket.getDefaultConfiguration());
+	OpenRocketDocument(Rocket rocket) {
+		this.configuration = rocket.getDefaultConfiguration();
+		this.rocket = rocket;
+		init();
 	}
 	
-	
-	private OpenRocketDocument(Configuration configuration) {
-		this.configuration = configuration;
-		this.rocket = configuration.getRocket();
-		
+	private void init() {
 		clearUndo();
 		
 		rocket.addComponentChangeListener(this);
 	}
-	
-	
-	public void setBaseFile(FileInfo fileInfo) {
-		attachmentFactory.setBaseFile(fileInfo);
-	}
-	
-	
-	public void setIsZipFile(boolean isZipFile) {
-		attachmentFactory.setIsZipFile(isZipFile);
-	}
-	
 	
 	public void addCustomExpression(CustomExpression expression) {
 		if (customExpressions.contains(expression)) {
@@ -186,10 +171,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return configuration;
 	}
 	
-	public DecalRegistry getDecalRegistry() {
-		return decalRegistry;
-	}
-	
 	public File getFile() {
 		return file;
 	}
@@ -197,7 +178,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public void setFile(File file) {
 		this.file = file;
 	}
-	
 	
 	public boolean isSaved() {
 		return rocket.getModID() == savedID;
@@ -220,8 +200,15 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
+	public Collection<DecalImage> getDecalList() {
+		
+		return decalRegistry.getDecalList();
+		
+	}
 	
-	
+	public DecalImage getDecalImage(Attachment a) {
+		return decalRegistry.getDecalImage(a);
+	}
 	
 	public List<Simulation> getSimulations() {
 		return simulations.clone();
@@ -553,11 +540,14 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * motor configuration ID is maintained and the simulations are copied to the new rocket.
 	 * No undo/redo information or file storage information is maintained.
 	 * 
+	 * This function is used from the Optimization routine to store alternatives of the same rocket.
+	 * For now we can assume that the copy returned does not have any of the attachment factories in place.
+	 * 
 	 * @return	a copy of this document.
 	 */
 	public OpenRocketDocument copy() {
 		Rocket rocketCopy = rocket.copyWithOriginalID();
-		OpenRocketDocument documentCopy = new OpenRocketDocument(rocketCopy);
+		OpenRocketDocument documentCopy = OpenRocketDocumentFactory.createDocumentFromRocket(rocketCopy);
 		documentCopy.getDefaultConfiguration().setFlightConfigurationID(configuration.getFlightConfigurationID());
 		for (Simulation s : simulations) {
 			documentCopy.addSimulation(s.duplicateSimulation(rocketCopy));

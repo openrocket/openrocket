@@ -5,17 +5,15 @@ import java.util.HashMap;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
-import net.sf.openrocket.rocketcomponent.Rocket;
 
 /**
  * Handles the content of the <openrocket> tag.
  */
 class OpenRocketContentHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
-	private final OpenRocketDocument doc;
-	private final Rocket rocket;
 	
 	private boolean rocketDefined = false;
 	private boolean simulationsDefined = false;
@@ -23,15 +21,12 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 	
 	public OpenRocketContentHandler(DocumentLoadingContext context) {
 		this.context = context;
-		this.rocket = new Rocket();
-		this.doc = new OpenRocketDocument(rocket);
-		context.setOpenRocketDocument(doc);
 	}
 	
 	public OpenRocketDocument getDocument() {
 		if (!rocketDefined)
 			return null;
-		return doc;
+		return context.getOpenRocketDocument();
 	}
 	
 	@Override
@@ -46,7 +41,7 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 				return null;
 			}
 			rocketDefined = true;
-			return new ComponentParameterHandler(rocket, context);
+			return new ComponentParameterHandler(getDocument().getRocket(), context);
 		}
 		
 		if (element.equals("datatypes")) {
@@ -66,7 +61,7 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 				return null;
 			}
 			simulationsDefined = true;
-			return new SimulationsHandler(doc, context);
+			return new SimulationsHandler(getDocument(), context);
 		}
 		
 		warnings.add(Warning.fromString("Unknown element " + element + ", ignoring."));
