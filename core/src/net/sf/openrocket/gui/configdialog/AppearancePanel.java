@@ -229,8 +229,8 @@ public class AppearancePanel extends JPanel {
 					}
 				}
 			});
-			add(materialDefault, "split 2");
-			add(new JLabel(trans.get("AppearanceCfg.lbl.Usedefault")), "wrap");
+			materialDefault.setText(trans.get("AppearanceCfg.lbl.Usedefault"));
+			add(materialDefault, "wrap");
 		}
 		
 		{// Texture File
