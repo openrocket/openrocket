@@ -5,6 +5,8 @@ import java.util.HashMap;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -47,20 +49,24 @@ public class DefaultAppearance {
 	
 	private static Appearance BALSA = simple("/datafiles/textures/balsa.png");
 	private static Appearance WOOD = simple("/datafiles/textures/wood.png");
+	@SuppressWarnings("unused")
 	private static Appearance CARDBOARD = simple("/datafiles/textures/cardboard.png");
 	private static Appearance HARDBOARD = simple("/datafiles/textures/hardboard.png");
 	private static Appearance WADDING = simple("/datafiles/textures/wadding.png");
 	private static Appearance CHUTE = simple("/datafiles/textures/chute.png");
 	
 	
-	public static final Appearance ESTES_BT = simpleAlpha(new Color(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
-	public static final Appearance ESTES_IT = simpleAlpha(new Color(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
-	public static final Appearance WHITE_BT = simpleAlpha(new Color(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_BT = simpleAlpha(new Color(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance ESTES_IT = simpleAlpha(new Color(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
+	private static final Appearance WHITE_BT = simpleAlpha(new Color(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	
+	private static Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.png");
+	private static Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
+	private static Appearance REUSABLE_MOTOR = simpleAlpha(new Color(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 	
 	private static HashMap<Color, Appearance> plastics = new HashMap<Color, Appearance>();
 	
-	public static Appearance getPlastic(Color c) {
+	private static Appearance getPlastic(Color c) {
 		if (!plastics.containsKey(c)) {
 			plastics.put(c, new Appearance(c, .3));
 		}
@@ -88,5 +94,18 @@ public class DefaultAppearance {
 			return WADDING;
 		
 		return Appearance.MISSING;
+	}
+	
+	public static Appearance getDefaultAppearance(Motor m) {
+		if (m instanceof ThrustCurveMotor) {
+			ThrustCurveMotor tcm = (ThrustCurveMotor) m;
+			if ("Estes".equals(tcm.getManufacturer().getSimpleName())) {
+				return ESTES_MOTOR;
+			}
+			if ("AeroTech".equals(tcm.getManufacturer().getSimpleName())) {
+				return AEROTECH_MOTOR;
+			}
+		}
+		return REUSABLE_MOTOR;
 	}
 }

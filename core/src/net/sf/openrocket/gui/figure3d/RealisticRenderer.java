@@ -15,7 +15,6 @@ import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
-import net.sf.openrocket.appearance.defaults.MotorAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -102,7 +101,7 @@ public class RealisticRenderer extends RocketRenderer {
 			public void run() {
 				cr.renderMotor(gl, c, motor);
 			}
-		}, MotorAppearance.getAppearance(motor), 1);
+		}, DefaultAppearance.getDefaultAppearance(motor), 1);
 	}
 	
 	@Override
