@@ -5,7 +5,7 @@ import java.util.EventObject;
 public class ComponentChangeEvent extends EventObject {
 	private static final long serialVersionUID = 1L;
 	
-
+	
 	/** A change that does not affect simulation results in any way (name, color, etc.) */
 	public static final int NONFUNCTIONAL_CHANGE = 1;
 	/** A change that affects the mass properties of the rocket */
@@ -23,6 +23,8 @@ public class ComponentChangeEvent extends EventObject {
 	public static final int MOTOR_CHANGE = 32;
 	/** A change that affects the events occurring during flight. */
 	public static final int EVENT_CHANGE = 64;
+	/** A change to the 3D texture assigned to a component*/
+	public static final int TEXTURE_CHANGE = 128;
 	
 	/** A bit-field that contains all possible change types. */
 	public static final int ALL_CHANGE = 0xFFFFFFFF;
@@ -47,6 +49,9 @@ public class ComponentChangeEvent extends EventObject {
 		return (RocketComponent) super.getSource();
 	}
 	
+	public boolean isTextureChange() {
+		return (type & TEXTURE_CHANGE) != 0;
+	}
 	
 	public boolean isAerodynamicChange() {
 		return (type & AERODYNAMIC_CHANGE) != 0;

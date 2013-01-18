@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.openrocket.document.Attachment;
+import net.sf.openrocket.util.AbstractChangeSource;
 
-public abstract class BaseAttachment implements Attachment {
+public abstract class BaseAttachment extends AbstractChangeSource implements Attachment {
 	
 	private final String name;
 	
@@ -36,5 +37,9 @@ public abstract class BaseAttachment implements Attachment {
 		return getName();
 	}
 	
+	@Override
+	public void fireChangeEvent() {
+		super.fireChangeEvent();
+	}
 	
 }

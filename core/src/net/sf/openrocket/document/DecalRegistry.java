@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +20,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.document.attachments.BaseAttachment;
 import net.sf.openrocket.document.attachments.FileSystemAttachment;
+import net.sf.openrocket.gui.watcher.FileWatcher;
+import net.sf.openrocket.gui.watcher.WatchEvent;
+import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -28,11 +33,32 @@ import net.sf.openrocket.util.FileUtils;
 public class DecalRegistry {
 	private static LogHelper log = Application.getLogger();
 	
+	private WatchService watchService = Application.getWatchService();
+	
 	DecalRegistry() {
-		
 	}
 	
 	private Map<String, DecalImageImpl> registeredDecals = new HashMap<String, DecalImageImpl>();
+	
+	public DecalImage makeUniqueImage(DecalImage original) {
+		
+		if (!(original instanceof DecalImageImpl)) {
+			return original;
+		}
+		
+		DecalImageImpl o = (DecalImageImpl) original;
+		
+		DecalImageImpl newDecal = o.clone();
+		
+		String newName = makeUniqueName(o.getName());
+		
+		newDecal.name = newName;
+		
+		registeredDecals.put(newName, newDecal);
+		
+		return newDecal;
+		
+	}
 	
 	public DecalImage getDecalImage(Attachment attachment) {
 		String decalName = attachment.getName();
@@ -73,7 +99,7 @@ public class DecalRegistry {
 		return decals;
 	}
 	
-	public class DecalImageImpl implements DecalImage {
+	public class DecalImageImpl implements DecalImage, Cloneable {
 		
 		private final Attachment delegate;
 		
@@ -94,15 +120,61 @@ public class DecalRegistry {
 			return name != null ? name : delegate.getName();
 		}
 		
+		/**
+		* This function returns an InputStream backed by a byte[] containing the decal pixels.
+		* If it reads in the bytes from an actual file, the underlying file is closed.
+		* 
+		* @return InputStream containing byte[] of the image
+		* @throws FileNotFoundException
+		* @throws IOException
+		 */
 		@Override
 		public InputStream getBytes() throws FileNotFoundException, IOException {
-			return DecalRegistry.getDecal(this);
+			// First check if the decal is located on the file system
+			File exportedFile = getFileSystemLocation();
+			if (exportedFile != null) {
+				InputStream rawIs = new FileInputStream(exportedFile);
+				try {
+					byte[] bytes = FileUtils.readBytes(rawIs);
+					return new ByteArrayInputStream(bytes);
+				} finally {
+					rawIs.close();
+				}
+				
+			}
+			
+			return delegate.getBytes();
 		}
 		
 		@Override
 		public void exportImage(File file, boolean watchForChanges) throws IOException {
-			DecalRegistry.exportDecal(this, file);
-			this.fileSystemLocation = file;
+			try {
+				InputStream is = getBytes();
+				OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+				
+				FileUtils.copy(is, os);
+				
+				is.close();
+				os.close();
+				
+				this.fileSystemLocation = file;
+				
+				if (watchForChanges) {
+					watchService.register(new FileWatcher(this.fileSystemLocation) {
+						
+						@Override
+						public void handleEvent(WatchEvent evt) {
+							((BaseAttachment) DecalImageImpl.this.delegate).fireChangeEvent();
+							System.out.println(this.getFile() + " has changed");
+							
+						}
+						
+					});
+				}
+				
+			} catch (IOException iex) {
+				throw new BugException(iex);
+			}
 		}
 		
 		File getFileSystemLocation() {
@@ -126,50 +198,24 @@ public class DecalRegistry {
 			return getName().compareTo(o.getName());
 		}
 		
-	}
-	
-	/**
-	 * This function returns an InputStream backed by a byte[] containing the decal pixels.
-	 * If it reads in the bytes from an actual file, the underlying file is closed.
-	 * 
-	 * @param name
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private static InputStream getDecal(DecalImageImpl decal) throws FileNotFoundException, IOException {
-		
-		// First check if the decal is located on the file system
-		File exportedFile = decal.getFileSystemLocation();
-		if (exportedFile != null) {
-			InputStream rawIs = new FileInputStream(exportedFile);
-			try {
-				byte[] bytes = FileUtils.readBytes(rawIs);
-				return new ByteArrayInputStream(bytes);
-			} finally {
-				rawIs.close();
-			}
+		@Override
+		protected DecalImageImpl clone() {
+			DecalImageImpl clone = new DecalImageImpl(this.delegate);
+			clone.fileSystemLocation = this.fileSystemLocation;
 			
+			return clone;
 		}
 		
-		return decal.delegate.getBytes();
-		
-	}
-	
-	private static void exportDecal(DecalImageImpl decal, File selectedFile) throws IOException {
-		
-		try {
-			InputStream is = decal.getBytes();
-			OutputStream os = new BufferedOutputStream(new FileOutputStream(selectedFile));
-			
-			FileUtils.copy(is, os);
-			
-			is.close();
-			os.close();
-			
-		} catch (IOException iex) {
-			throw new BugException(iex);
+		@Override
+		public void addChangeListener(EventListener listener) {
+			delegate.addChangeListener(listener);
 		}
+		
+		@Override
+		public void removeChangeListener(EventListener listener) {
+			delegate.removeChangeListener(listener);
+		}
+		
 		
 	}
 	
@@ -203,14 +249,17 @@ public class DecalRegistry {
 	 * group(3) = "null"
 	 * group(4) = "png"
 	 */
-	private static final Pattern fileNamePattern = Pattern.compile("(.*?)( \\((\\d+)\\)\\)?+)?\\.(\\w*)");
+	private static final Pattern fileNamePattern = Pattern.compile("(.*?)( \\((\\d+)\\)+)?\\.(\\w*)");
 	private static final int BASE_NAME_INDEX = 1;
 	private static final int NUMBER_INDEX = 3;
 	private static final int EXTENSION_INDEX = 4;
 	
 	private String makeUniqueName(String name) {
 		
-		String newName = "decals/" + name;
+		String newName = name;
+		if (!newName.startsWith("decals/")) {
+			newName = "decals/" + name;
+		}
 		String basename = "";
 		String extension = "";
 		Matcher nameMatcher = fileNamePattern.matcher(newName);

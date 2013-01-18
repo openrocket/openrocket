@@ -228,7 +228,7 @@ public class AppearancePanel extends JPanel {
 			ab.addChangeListener(new StateChangeListener() {
 				@Override
 				public void stateChanged(EventObject e) {
-					editBtn.setEnabled(ab.getImage() == null);
+					editBtn.setEnabled(ab.getImage() != null);
 				}
 			});
 			editBtn.addActionListener(new ActionListener() {
@@ -236,7 +236,7 @@ public class AppearancePanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
-						EditDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), ab.getImage());
+						EditDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, c, ab.getImage());
 					} catch (IOException ex) {
 						throw new BugException(ex);
 					}

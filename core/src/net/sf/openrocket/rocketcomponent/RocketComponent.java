@@ -2,11 +2,13 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.Collection;
 import java.util.EventListener;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
@@ -20,6 +22,7 @@ import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.SafetyMutex;
 import net.sf.openrocket.util.SimpleStack;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
 
@@ -423,6 +426,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public void setAppearance(Appearance appearance) {
 		this.appearance = appearance;
+		Decal d = this.appearance.getTexture();
+		if (d != null) {
+			d.getImage().addChangeListener(new StateChangeListener() {
+				
+				@Override
+				public void stateChanged(EventObject e) {
+					fireComponentChangeEvent(ComponentChangeEvent.TEXTURE_CHANGE);
+				}
+				
+			});
+		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	

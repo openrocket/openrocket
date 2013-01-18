@@ -4,7 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface Attachment extends Comparable<Attachment> {
+import net.sf.openrocket.util.ChangeSource;
+
+public interface Attachment extends Comparable<Attachment>, ChangeSource {
 	
 	public abstract String getName();
 	

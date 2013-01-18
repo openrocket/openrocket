@@ -48,6 +48,8 @@ public abstract class RocketRenderer {
 	
 	public abstract boolean isDrawnTransparent(RocketComponent c);
 	
+	public abstract void flushTextureCache(GLAutoDrawable drawable);
+	
 	public RocketComponent pick(GLAutoDrawable drawable, Configuration configuration, Point p,
 			Set<RocketComponent> ignore) {
 		final GL2 gl = drawable.getGL().getGL2();

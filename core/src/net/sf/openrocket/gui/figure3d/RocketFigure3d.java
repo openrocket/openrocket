@@ -106,6 +106,16 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		}
 	}
 	
+	public void flushTextureCaches() {
+		canvas.invoke(true, new GLRunnable() {
+			@Override
+			public boolean run(GLAutoDrawable drawable) {
+				rr.flushTextureCache(drawable);
+				return false;
+			}
+		});
+	}
+	
 	/**
 	 * Return true if 3d view is enabled. This may be toggled by the user at
 	 * launch time.

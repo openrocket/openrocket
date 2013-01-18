@@ -3,11 +3,14 @@ package net.sf.openrocket.document;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
@@ -18,6 +21,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
@@ -204,6 +208,31 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		
 		return decalRegistry.getDecalList();
 		
+	}
+	
+	public int countDecalUsage(DecalImage img) {
+		int count = 0;
+		
+		Iterator<RocketComponent> it = rocket.iterator();
+		while (it.hasNext()) {
+			RocketComponent comp = it.next();
+			Appearance a = comp.getAppearance();
+			if (a == null) {
+				continue;
+			}
+			Decal d = a.getTexture();
+			if (d == null) {
+				continue;
+			}
+			if (img.equals(d.getImage())) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public DecalImage makeUniqueDecal(DecalImage img) {
+		return decalRegistry.makeUniqueImage(img);
 	}
 	
 	public DecalImage getDecalImage(Attachment a) {
