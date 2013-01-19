@@ -2233,3 +2233,60 @@ attack, this approximation provides a sufficiently accurate estimate
 for the purposes of this thesis.
 
 
+\section{Lower stage aerodynamics}
+
+In staged rockets the lower stages of the rocket separate from the
+main rocket body and descend to the ground on their own.  While large
+rockets have parachutes also in lower stages, most model rockets rely
+on the stages falling to the ground without any recovery device.  As
+the lower stages typically are not aerodynamically stable, they tumble
+during descent, significantly reducing their speed.
+
+This kind of tumbling is difficult if not impossible to model in
+6-DOF, and the orientation is typically not of interest anyway.
+Therefore for simulating the descent of aerodynamically unstable
+stages, it is sufficient to compute the average aerodynamic drag of
+the tumbling lower stage.
+
+While model rockets are built in very peculiar forms, staged rockets
+are typically much more conservative in their design.  The lower
+stages are most often formed of just a body tube and fins.  Five such
+models were constructed for testing their descent aerodynamic drag.
+The physical properties of the models are listed in Table~XX.
+
+% # fins
+% root chord
+% tip chord
+% fin height
+% diameter
+% mass
+\begin{table}
+\caption{Physical properties of the lower stage models}
+\begin{tabular}{cccccc}
+Model: & #1 & #2 & #3 & #4 & #5 \\
+fins   & 3  & 3  & 4  & 0  & 3  \\
+$C_r$  &    &    &    & -  &    \\
+$C_t$  &    &    &    & -  &    \\
+$s$    &    &    &    & -  &    \\
+$d$    &    &    &    &    &    \\
+$m$    &    &    &    &    &    \\
+\end{tabular}
+\end{table}
+
+The drop tests were performed from a height of XX meters and the drop
+was recorded on Full HD video.  From the video frames the position of
+the component was calculated XX times per second.  The resulting graph
+is presented in Figure~XX.  The terminal velocity was determined for
+all models.
+
+At terminal velocity the drag force is equal to that of gravity:
+%
+\begin{equation}
+C_{D*} \cdot \frac{1}{2}\rho v_0^2 A_* = mg
+\end{equation}
+%
+From this it is easy to determine the drag coefficient $C_{D*}$ for a
+particular reference area $A_*$.
+
+For a tumbling rocket, it is reasonable to assume that the drag force
+is relative to the profile area of the rocket.
