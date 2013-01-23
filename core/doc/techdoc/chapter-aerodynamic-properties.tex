@@ -2244,15 +2244,16 @@ during descent, significantly reducing their speed.
 
 This kind of tumbling is difficult if not impossible to model in
 6-DOF, and the orientation is typically not of interest anyway.
-Therefore for simulating the descent of aerodynamically unstable
-stages, it is sufficient to compute the average aerodynamic drag of
+For simulating the descent of aerodynamically unstable stages, it is
+therefore sufficient to compute the average aerodynamic drag of
 the tumbling lower stage.
 
 While model rockets are built in very peculiar forms, staged rockets
 are typically much more conservative in their design.  The lower
 stages are most often formed of just a body tube and fins.  Five such
 models were constructed for testing their descent aerodynamic drag.
-The physical properties of the models are listed in Table~XX.
+The physical properties of the models are listed in
+Table~\ref{tab-lower-stages}.
 
 % # fins
 % root chord
@@ -2261,16 +2262,28 @@ The physical properties of the models are listed in Table~XX.
 % diameter
 % mass
 \begin{table}
+\label{tab-lower-stages}
 \caption{Physical properties of the lower stage models}
+\begin{center}
+\parbox{85mm}{
 \begin{tabular}{cccccc}
-Model: & #1 & #2 & #3 & #4 & #5 \\
-fins   & 3  & 3  & 4  & 0  & 3  \\
-$C_r$  &    &    &    & -  &    \\
-$C_t$  &    &    &    & -  &    \\
-$s$    &    &    &    & -  &    \\
-$d$    &    &    &    &    &    \\
-$m$    &    &    &    &    &    \\
+Model       & \#1 & \#2 & \#3 & \#4 & \#5 \\
+\hline
+No. fins    & 3   & 3   & 4   & 0   & 3   \\
+$C_r$ / mm  & 50  & 70  & 70  & -   & 200 \\
+$C_t$ / mm  & 25  & 40  & 40  & -   & 140 \\
+$s$ / mm    & 50  & 60  & 60  & -   & 130 \\
+$l_0$ / mm  & 10  & 10  & 10  & -   & 25  \\
+$d$ / mm    & 18  & 44  & 44  & 44  & 103 \\
+$l$ / mm    & 74  & 108 & 108 & 100 & 290 \\
+$m$ / g     & 8.1 & 18.0& 21.8& 6.8 &     \\
+\hline
 \end{tabular}
+}
+\parbox{50mm}{
+\epsfig{file=figures/lower-stage/lower-stage,width=50mm}
+}
+\end{center}
 \end{table}
 
 The drop tests were performed from a height of XX meters and the drop

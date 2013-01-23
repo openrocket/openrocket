@@ -1,0 +1,7 @@
+
+The following packages need to be installed on top of the basic
+texlive installation to compile the technical documentation (in Ubuntu):
+
+texlive-latex-extra
+texlive-math-extra
+texlive-fonts-extra
