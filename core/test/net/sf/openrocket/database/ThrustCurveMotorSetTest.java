@@ -1,6 +1,10 @@
 package net.sf.openrocket.database;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,31 +18,31 @@ import net.sf.openrocket.util.Coordinate;
 import org.junit.Test;
 
 public class ThrustCurveMotorSetTest {
-
-
+	
+	
 	private static final ThrustCurveMotor motor1 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
-			"F12X", "Desc", Motor.Type.UNKNOWN, new double[] { },
-			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestA");
+			"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
+			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+			new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
 	
 	private static final ThrustCurveMotor motor2 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
 			"F12H", "Desc", Motor.Type.SINGLE, new double[] { 5 },
-			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 1, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestB");
+			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+			new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestB");
 	
 	private static final ThrustCurveMotor motor3 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
 			"F12", "Desc", Motor.Type.UNKNOWN, new double[] { 0, Motor.PLUGGED },
-			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 2, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestC");
-
+			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 2, 0 },
+			new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestC");
+	
 	private static final ThrustCurveMotor motor4 = new ThrustCurveMotor(
 			Manufacturer.getManufacturer("A"),
 			"F12", "Desc", Motor.Type.HYBRID, new double[] { 0 },
-			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] {0, 2, 0},
-			new Coordinate[] {Coordinate.NUL, Coordinate.NUL, Coordinate.NUL}, "digestD");
+			0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 2, 0 },
+			new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestD");
 	
 	
 	@Test
@@ -50,7 +54,7 @@ public class ThrustCurveMotorSetTest {
 		assertEquals("J115", ThrustCurveMotorSet.simplifyDesignation("384-J115"));
 		assertEquals("A2", ThrustCurveMotorSet.simplifyDesignation("A2T"));
 		assertEquals("1/2A2T", ThrustCurveMotorSet.simplifyDesignation("1/2A2T"));
-		assertEquals("Micro Maxx II", ThrustCurveMotorSet.simplifyDesignation("Micro Maxx II"));
+		assertEquals("MicroMaxxII", ThrustCurveMotorSet.simplifyDesignation("Micro Maxx II"));
 	}
 	
 	@Test
