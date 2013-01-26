@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.EventListener;
 
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.Attachment;
@@ -40,6 +41,16 @@ class ResourceDecalImage implements DecalImage {
 	@Override
 	public int compareTo(Attachment a) {
 		return this.hashCode() - a.hashCode();
+	}
+	
+	@Override
+	public void addChangeListener(EventListener listener) {
+		//Unimplemented, this can not change
+	}
+	
+	@Override
+	public void removeChangeListener(EventListener listener) {
+		//Unimplemented, this can not change
 	}
 	
 }

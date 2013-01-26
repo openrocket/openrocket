@@ -61,6 +61,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -214,6 +215,13 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			@Override
 			public void stateChanged(EventObject e) {
 				// System.out.println("Configuration changed, calling updateFigure");
+				if (is3d) {
+					if (e instanceof ComponentChangeEvent) {
+						if (((ComponentChangeEvent) e).isTextureChange()) {
+							figure3d.flushTextureCaches();
+						}
+					}
+				}
 				updateExtras();
 				updateFigures();
 			}

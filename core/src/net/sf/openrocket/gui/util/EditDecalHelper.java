@@ -5,91 +5,107 @@ import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 
+import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.EditDecalDialog;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 public class EditDecalHelper {
-
+	
 	// FIXME - need to have a specific set of localizable exceptions come out of this instead of generic IOException;
 	// perhaps - unable to create file,
 	// unable to open system editor
 	// unable to fork process
-
-	private static final SwingPreferences prefs = ((SwingPreferences)Application.getPreferences());
 	
-	public static void editDecal( Window parent, DecalImage decal ) throws IOException {
-
+	private static final SwingPreferences prefs = ((SwingPreferences) Application.getPreferences());
+	
+	public static void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws IOException {
+		
+		boolean sysPrefSet = prefs.isDecalEditorPreferenceSet();
+		int usageCount = doc.countDecalUsage(decal);
+		
+		//First Check preferences
+		if (sysPrefSet && usageCount == 1) {
+			
+			launchEditor(prefs.isDecalEditorPreferenceSystem(), prefs.getDecalEditorCommandLine(), decal);
+			return;
+		}
+		
+		EditDecalDialog dialog = new EditDecalDialog(parent, !sysPrefSet, usageCount);
+		dialog.setVisible(true);
+		
+		if (dialog.isCancel()) {
+			return;
+		}
+		
+		// Do we use the System Preference Editor or from the dialog?
+		boolean useSystemEditor = false;
+		String commandLine = "";
+		
+		if (sysPrefSet) {
+			useSystemEditor = prefs.isDecalEditorPreferenceSystem();
+			commandLine = prefs.getDecalEditorCommandLine();
+		} else {
+			useSystemEditor = dialog.isUseSystemEditor();
+			commandLine = dialog.getCommandLine();
+			// Do we need to save the preferences?
+			if (dialog.isSavePreferences()) {
+				prefs.setDecalEditorPreference(useSystemEditor, commandLine);
+			}
+		}
+		
+		if (dialog.isEditOne()) {
+			decal = makeDecalUnique(doc, component, decal);
+		}
+		
+		launchEditor(useSystemEditor, commandLine, decal);
+		
+	}
+	
+	private static DecalImage makeDecalUnique(OpenRocketDocument doc, RocketComponent component, DecalImage decal) {
+		
+		DecalImage newImage = doc.makeUniqueDecal(decal);
+		
+		AppearanceBuilder appearanceBuilder = new AppearanceBuilder(component.getAppearance());
+		appearanceBuilder.setImage(newImage);
+		
+		component.setAppearance(appearanceBuilder.getAppearance());
+		
+		return newImage;
+	}
+	
+	private static void launchEditor(boolean useSystemEditor, String commandTemplate, DecalImage decal) throws IOException {
+		
 		String decalId = decal.getName();
 		// Create Temp File.
 		int dotlocation = decalId.lastIndexOf('.');
 		String extension = "tmp";
-		if ( dotlocation > 0 && dotlocation < decalId.length() ) {
+		if (dotlocation > 0 && dotlocation < decalId.length()) {
 			extension = decalId.substring(dotlocation);
 		}
 		File tmpFile = File.createTempFile("OR_graphics", extension);
 		
 		decal.exportImage(tmpFile, true);
 		
-		//First Check preferences
-		if ( prefs.isDecalEditorPreferenceSet() ) {
+		
+		if (useSystemEditor) {
+			Desktop.getDesktop().edit(tmpFile);
+		} else {
 			
-			// FIXME - need this one or all dialog.
+			String filename = tmpFile.getAbsolutePath();
 			
-			if ( prefs.isDecalEditorPreferenceSystem() ) {
-				launchSystemEditor( tmpFile );
+			String command;
+			if (commandTemplate.contains("%%")) {
+				command = commandTemplate.replace("%%", filename);
 			} else {
-				String commandTemplate = prefs.getDecalEditorCommandLine();
-				launchCommandEditor(commandTemplate, tmpFile);
+				command = commandTemplate + " " + filename;
 			}
-			return;
+			
+			Runtime.getRuntime().exec(command);
+			
 		}
-		
-		// Preference not set, launch dialog
-		EditDecalDialog dialog = new EditDecalDialog(parent);
-		dialog.setVisible(true);
-		
-		if( dialog.isCancel() ) {
-			// FIXME - delete tmpfile?
-			return;
-		}
-		
-		boolean saveToPrefs = dialog.isSavePreferences();
-		
-		if ( dialog.isUseSystemEditor() ) {
-			if ( saveToPrefs ) {
-				prefs.setDecalEditorPreference(true, null);
-			}
-			launchSystemEditor( tmpFile );
-		} else {
-			String commandLine = dialog.getCommandLine();
-			if( saveToPrefs ) {
-				prefs.setDecalEditorPreference(false, commandLine);
-			}
-			launchCommandEditor( commandLine, tmpFile );
-		}
-		
-	}
-	
-	private static void launchSystemEditor( File tmpFile ) throws IOException {
-		
-		Desktop.getDesktop().edit(tmpFile);
-		
-	}
-	
-	private static void launchCommandEditor( String commandTemplate, File tmpFile ) throws IOException {
-		
-		String filename = tmpFile.getAbsolutePath();
-		
-		String command;
-		if( commandTemplate.contains("%%")) {
-			command = commandTemplate.replace("%%", filename);
-		} else {
-			command = commandTemplate + " " + filename;
-		}
-		
-		Runtime.getRuntime().exec(command);
-		
 	}
 	
 }

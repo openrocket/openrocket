@@ -123,6 +123,10 @@ public class FigureRenderer extends RocketRenderer {
 		cr.renderGeometry(gl, c);
 	}
 	
+	@Override
+	public void flushTextureCache(GLAutoDrawable drawable) {
+	}
+	
 	private static int getShine(RocketComponent c) {
 		if (c instanceof ExternalComponent) {
 			switch (((ExternalComponent) c).getFinish()) {

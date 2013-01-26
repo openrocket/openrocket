@@ -190,6 +190,13 @@ public class RealisticRenderer extends RocketRenderer {
 		
 	}
 	
+	@Override
+	public void flushTextureCache(GLAutoDrawable drawable) {
+		// Flush the cache twice to get rid of old images.
+		clearCaches(drawable.getGL().getGL2());
+		clearCaches(drawable.getGL().getGL2());
+	}
+	
 	private void clearCaches(GL2 gl) {
 		log.debug("ClearCaches");
 		for (Map.Entry<String, Texture> e : oldTexCache.entrySet()) {
