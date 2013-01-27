@@ -15,6 +15,7 @@ import javax.media.opengl.glu.GLUtessellatorCallback;
 import javax.media.opengl.glu.GLUtessellatorCallbackAdapter;
 
 import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -314,10 +315,9 @@ public class ComponentRenderer {
 		
 	}
 	
-	public void renderMotor(final GL2 gl, final Coordinate c, double l, double r) {
-		final float outside[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, outside, 0);
-		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, outside, 0);
+	public void renderMotor(final GL2 gl, final Coordinate c, Motor motor) {
+		double l = motor.getLength();
+		double r = motor.getDiameter() / 2;
 		
 		gl.glPushMatrix();
 		
@@ -325,15 +325,48 @@ public class ComponentRenderer {
 		
 		gl.glRotated(90, 0, 1.0, 0);
 		
+		gl.glMatrixMode(GL.GL_TEXTURE);
+		gl.glPushMatrix();
+		gl.glTranslated(0, .125, 0);
+		gl.glScaled(1, .75, 0);
+		
 		glu.gluCylinder(q, r, r, l, LOD, 1);
 		
-		glu.gluDisk(q, r, 0, LOD, 2);
+		gl.glPopMatrix();
+		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+		
+		{
+			final double da = (2.0f * Math.PI) / LOD;
+			final double dt = 1.0 / LOD;
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			gl.glNormal3d(0, 0, 1);
+			for (int i = 0; i < LOD + 1; i++) {
+				gl.glTexCoord2d(i * dt, .125);
+				gl.glVertex3d(r * Math.cos(da * i), r * Math.sin(da * i), 0);
+				gl.glTexCoord2d(i * dt, 0);
+				gl.glVertex3d(0, 0, 0);
+				
+			}
+			gl.glEnd();
+		}
 		
 		gl.glTranslated(0, 0, l);
 		gl.glRotated(180, 0, 1.0, 0);
 		
-		glu.gluDisk(q, r, 0, LOD, 2);
-		
+		{
+			final double da = (2.0f * Math.PI) / LOD;
+			final double dt = 1.0 / LOD;
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			gl.glNormal3d(0, 0, 1);
+			for (int i = 0; i < LOD + 1; i++) {
+				gl.glTexCoord2d(i * dt, .875);
+				gl.glVertex3d(r * Math.cos(da * i), r * Math.sin(da * i), 0);
+				gl.glTexCoord2d(i * dt, 1);
+				gl.glVertex3d(0, 0, 0);
+				
+			}
+			gl.glEnd();
+		}
 		gl.glPopMatrix();
 	}
 }
