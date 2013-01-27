@@ -3,7 +3,6 @@ package net.sf.openrocket.file;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
@@ -28,9 +27,9 @@ public class GeneralRocketLoader extends AbstractRocketLoader {
 	private static final int READ_BYTES = 300;
 	
 	private static final byte[] GZIP_SIGNATURE = { 31, -117 }; // 0x1f, 0x8b
-	private static final byte[] ZIP_SIGNATURE = TextUtil.convertStringToBytes("PK",Charset.forName("US-ASCII"));
-	private static final byte[] OPENROCKET_SIGNATURE = TextUtil.convertStringToBytes("<openrocket",Charset.forName("US-ASCII"));
-	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.convertStringToBytes("<RockSimDoc",Charset.forName("US-ASCII"));
+	private static final byte[] ZIP_SIGNATURE = TextUtil.asciiBytes("PK");
+	private static final byte[] OPENROCKET_SIGNATURE = TextUtil.asciiBytes("<openrocket");
+	private static final byte[] ROCKSIM_SIGNATURE = TextUtil.asciiBytes("<RockSimDoc");
 	
 	private final OpenRocketLoader openRocketLoader = new OpenRocketLoader();
 	
@@ -78,7 +77,7 @@ public class GeneralRocketLoader extends AbstractRocketLoader {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
 					doc.getDefaultStorageOptions().setCompressionEnabled(true);
 					return doc;
-				} else if ( entry.getName().matches(".*\\.[rR][kK][tT]$")) {
+				} else if (entry.getName().matches(".*\\.[rR][kK][tT]$")) {
 					OpenRocketDocument doc = loadFromStream(in, motorFinder);
 					return doc;
 				}
