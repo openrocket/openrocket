@@ -2233,17 +2233,28 @@ attack, this approximation provides a sufficiently accurate estimate
 for the purposes of this thesis.
 
 
-\section{Lower stage aerodynamics}
+\section{Tumbling bodies}
+
+% Renaming of test vs. models here:
+%
+% #1  ->  test 2
+% #2  ->  test 3
+% #3  ->  test 5
+% #4  ->  test 4
+% #5  ->  test 6
+%
+% Test 1 failed to produce a reliable result.  Dimensions:
+% n=3, Cr=50, Ct=25, s=50, l0=10, d=18, l=74, m=8.1
 
 In staged rockets the lower stages of the rocket separate from the
 main rocket body and descend to the ground on their own.  While large
-rockets have parachutes also in lower stages, most model rockets rely
-on the stages falling to the ground without any recovery device.  As
-the lower stages typically are not aerodynamically stable, they tumble
-during descent, significantly reducing their speed.
+rockets typically have parachutes also in lower stages, most model
+rockets rely on the stages falling to the ground without any recovery
+device.  As the lower stages normally are not aerodynamically stable,
+they tumble during descent, significantly reducing their speed.
 
 This kind of tumbling is difficult if not impossible to model in
-6-DOF, and the orientation is typically not of interest anyway.
+6-DOF, and the orientation is not of interest anyway.
 For simulating the descent of aerodynamically unstable stages, it is
 therefore sufficient to compute the average aerodynamic drag of
 the tumbling lower stage.
@@ -2252,32 +2263,29 @@ While model rockets are built in very peculiar forms, staged rockets
 are typically much more conservative in their design.  The lower
 stages are most often formed of just a body tube and fins.  Five such
 models were constructed for testing their descent aerodynamic drag.
-The physical properties of the models are listed in
-Table~\ref{tab-lower-stages}.
 
-% # fins
-% root chord
-% tip chord
-% fin height
-% diameter
-% mass
+Models \#1 and \#2 are identical except for the number of fins.  \#3
+represents a large, high-power booster stage.  \#4 is a body tube
+without fins, and \#5 fins without a body tube.
+
 \begin{table}
+\caption{Physical properties and drop results of the lower stage models}
 \label{tab-lower-stages}
-\caption{Physical properties of the lower stage models}
 \begin{center}
-\parbox{85mm}{
+\parbox{80mm}{
 \begin{tabular}{cccccc}
 Model       & \#1 & \#2 & \#3 & \#4 & \#5 \\
 \hline
-No. fins    & 3   & 3   & 4   & 0   & 3   \\
-$C_r$ / mm  & 50  & 70  & 70  & -   & 200 \\
-$C_t$ / mm  & 25  & 40  & 40  & -   & 140 \\
-$s$ / mm    & 50  & 60  & 60  & -   & 130 \\
-$l_0$ / mm  & 10  & 10  & 10  & -   & 25  \\
-$d$ / mm    & 18  & 44  & 44  & 44  & 103 \\
-$l$ / mm    & 74  & 108 & 108 & 100 & 290 \\
-$m$ / g     & 8.1 & 18.0& 21.8& 6.8 &     \\
+No. fins    & 3   & 4   & 3   & 0   & 4    \\
+$C_r$ / mm  & 70  & 70  & 200 & -   & 85   \\
+$C_t$ / mm  & 40  & 40  & 140 & -   & 85   \\
+$s$ / mm    & 60  & 60  & 130 & -   & 50   \\
+$l_0$ / mm  & 10  & 10  & 25  & -   & -    \\
+$d$ / mm    & 44  & 44  & 103 & 44  & 0    \\
+$l$ / mm    & 108 & 108 & 290 & 100 & -    \\
+$m$ / g     & 18.0& 22.0& 160 & 6.8 & 11.5 \\
 \hline
+$v_0$ / m/s & 5.6 & 6.3 & 6.6 & 5.4 & 5.0  \\
 \end{tabular}
 }
 \parbox{50mm}{
@@ -2286,20 +2294,82 @@ $m$ / g     & 8.1 & 18.0& 21.8& 6.8 &     \\
 \end{center}
 \end{table}
 
-The drop tests were performed from a height of XX meters and the drop
-was recorded on Full HD video.  From the video frames the position of
-the component was calculated XX times per second.  The resulting graph
-is presented in Figure~XX.  The terminal velocity was determined for
-all models.
+The models were dropped from a height of 22 meters and the drop
+was recorded on video.  From the video frames the position of
+the component was determined and the terminal velocity $v_0$
+calculated with an accuracy of approximately $\pm 0.3\;\rm m/s$.
+During the drop test the temperature was -5$^\circ$C, relative
+humidity was 80\% and the dew point -7$^\circ$C.  Together these yield
+an air density of $\rho = 1.31\rm\;kg/m^3$.  The physical properties
+of the models and their terminal descent velocities are listed in
+Table~\ref{tab-lower-stages}.
+
+For a tumbling rocket, it is reasonable to assume that the drag force
+is relative to the profile area of the rocket.  For body tubes the
+profile area is straightforward to calculate.  For three and four fin
+configurations the minimum profile area is taken instead.
+
+Based on the results of models \#4 and \#5 it is clear that the
+aerodynamic drag coefficient (relative to the profile area) is
+significantly different for the body tube and fins.  Thus we assume
+the drag to consist of two independent components, one for the fins
+and one for the body tube.
 
 At terminal velocity the drag force is equal to that of gravity:
 %
 \begin{equation}
-C_{D*} \cdot \frac{1}{2}\rho v_0^2 A_* = mg
+\frac{1}{2}\rho v_0^2\; (C_{D,f}A_f  + C_{D,bt}A_{bt}) = mg
 \end{equation}
 %
-From this it is easy to determine the drag coefficient $C_{D*}$ for a
-particular reference area $A_*$.
+The values for $C_{D,f}$ and $C_{D,bt}$ were varied to optimize the
+relative mean square error of the $v_0$ prediction, yielding a result
+of $C_{D,f} = 1.42$ and $C_{D,bt} = 0.56$.  Using these values, the
+predicted terminal velocities varied between $3\%\ldots14\%$ from the
+measured values.
 
-For a tumbling rocket, it is reasonable to assume that the drag force
-is relative to the profile area of the rocket.
+During optimization it was noted that changing the error function
+being optimized had a significant effect on the resulting fin drag
+coefficient, but very little on the body tube drag coefficient.  It is
+assumed that the fin tumbling model has greater inaccuracy in this
+aspect.
+
+It is noteworthy that the body tube drag coefficient 0.56 is exactly
+half of that of a circular cylinder perpendicular to the
+airflow~\cite[p.~3-11]{hoerner}. This is expected of a cylinder that
+is falling at a random angle of attack.  The fin drag coefficient 1.42
+is also similar to that of a flat plate 1.17 or an open hemispherical
+cup 1.42 \cite[p.~3-17]{hoerner}.
+
+The total drag coefficient $C_D$ of a tumbling lower stage is obtained
+by combining and scaling the two drag coefficient components:
+%
+\begin{equation}
+C_D = \frac{C_{D,f}A_f  + C_{D,bt}A_{bt}}{\Aref}
+\end{equation}
+%
+Here $A_{bt}$ is the profile area of the body, and $A_f$ the effective
+fin profile area, which is the area of a single fin multiplied by the
+efficiency factor.  The estimated efficiency factors for various
+numbers of fins are listed in Table~\ref{tab-lower-stage-fins}.
+
+\begin{table}
+\caption{Estimated fin efficiency factors for tumblig lower stages}
+\label{tab-lower-stage-fins}
+\begin{center}
+\begin{tabular}{cc}
+Number  & Efficiency \\
+of fins & factor     \\
+\hline
+1 & 0.50 \\
+2 & 1.00 \\
+3 & 1.50 \\
+4 & 1.41 \\
+5 & 1.81 \\
+6 & 1.73 \\
+7 & 1.90 \\
+8 & 1.85 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
