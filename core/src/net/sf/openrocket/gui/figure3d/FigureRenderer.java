@@ -8,6 +8,7 @@ import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
+import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
 import net.sf.openrocket.rocketcomponent.NoseCone;
@@ -16,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.Coordinate;
 
 public class FigureRenderer extends RocketRenderer {
 	private final float[] color = new float[4];
@@ -155,5 +157,14 @@ public class FigureRenderer extends RocketRenderer {
 			out[1] = Math.max(0.2f, (float) color.getGreen() / 255f) * 2;
 			out[2] = Math.max(0.2f, (float) color.getBlue() / 255f) * 2;
 		}
+	}
+	
+	
+	@Override
+	protected void renderMotor(GL2 gl, Coordinate c, Motor motor) {
+		final float outside[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, outside, 0);
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, outside, 0);
+		super.renderMotor(gl, c, motor);
 	}
 }
