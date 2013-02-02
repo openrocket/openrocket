@@ -24,13 +24,10 @@ import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.Chars;
 
 public class MotorConfigurationPanel extends JPanel {
 	
@@ -42,7 +39,6 @@ public class MotorConfigurationPanel extends JPanel {
 	private final MotorConfigurationTableModel configurationTableModel;
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 	
-	private MotorMount currentMount = null;
 	final MotorMount[] mounts;
 	
 	MotorConfigurationPanel(FlightConfigurationDialog flightConfigurationDialog, Rocket rocket) {
@@ -84,7 +80,7 @@ public class MotorConfigurationPanel extends JPanel {
 		
 		
 		//// Motor selection table.
-		configurationTableModel = new MotorConfigurationTableModel(this, true);
+		configurationTableModel = new MotorConfigurationTableModel(rocket);
 		final JTable configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setRowSelectionAllowed(true);
@@ -93,12 +89,6 @@ public class MotorConfigurationPanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int row = configurationTable.getSelectedRow();
-				
-				if (row >= 0) {
-					currentMount = findMount(row);
-				} else {
-					currentMount = null;
-				}
 				
 				if (e.getClickCount() == 1) {
 					
@@ -162,7 +152,6 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	public void fireTableDataChanged() {
-		currentMount = null;
 		configurationTableModel.fireTableDataChanged();
 		updateButtonState();
 	}
@@ -263,62 +252,5 @@ public class MotorConfigurationPanel extends JPanel {
 		return mount;
 	}
 	
-	public String findMotorForDisplay(int row) {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount mount = findMount(row);
-		Motor motor = mount.getMotor(currentID);
-		if (motor == null)
-			return null;
-		
-		String str = motor.getDesignation(mount.getMotorDelay(currentID));
-		int count = mount.getMotorCount();
-		if (count > 1) {
-			str = "" + count + Chars.TIMES + " " + str;
-		}
-		return str;
-	}
-	
-	public String findIgnitionForDisplay(int row) {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount mount = findMount(row);
-		MotorConfiguration motorConfig = mount.getFlightConfiguration(currentID);
-		if (motorConfig == null) {
-			// No motor exists
-			return null;
-		}
-		
-		StringBuilder sb = new StringBuilder();
-		MotorConfiguration.IgnitionEvent ignition = motorConfig.getIgnitionEvent();
-		if (ignition == null) {
-			
-			// Default ignition event
-			IgnitionEvent event = mount.getDefaultIgnitionEvent();
-			String def = trans.get("table.ignition.default");
-			String value = trans.get("MotorMount.IgnitionEvent.short." + event.name());
-			return def.replace("{0}", value);
-			
-		} else {
-			sb.append(ellipsizeString(ignition.toString(), 15));
-		}
-		Double ignitionDelay = motorConfig.getIgnitionDelay();
-		if (ignitionDelay == null) {
-			double defaultdelay = mount.getDefaultIgnitionDelay();
-			if (defaultdelay > 0) {
-				sb.append(" + [").append(defaultdelay).append("s]");
-			}
-		} else {
-			sb.append(" + ").append(ignitionDelay).append("s");
-		}
-		return sb.toString();
-	}
-	
-	
-	private static String ellipsizeString(String s, int length) {
-		if (s.length() < length) {
-			return s;
-		}
-		String newString = s.substring(0, length) + "...";
-		return newString;
-	}
 	
 }
