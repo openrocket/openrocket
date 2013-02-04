@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.file.AttachmentUtils;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -79,7 +78,7 @@ public class ExportDecalDialog extends JDialog {
 	private void export(DecalImage decal, File selectedFile) {
 		
 		try {
-			AttachmentUtils.exportAttachment(decal, selectedFile);
+			decal.exportImage(selectedFile, false);
 		} catch (IOException iex) {
 			// FIXME - probably want a simple user dialog here since FileIO is not really a bug.
 			throw new BugException(iex);

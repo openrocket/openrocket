@@ -11,7 +11,7 @@ import java.util.zip.ZipInputStream;
 import net.sf.openrocket.document.Attachment;
 import net.sf.openrocket.util.FileUtils;
 
-public class ZipFileAttachment extends BaseAttachment implements Attachment {
+public class ZipFileAttachment extends Attachment {
 	
 	private final URL zipFileLocation;
 	

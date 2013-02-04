@@ -20,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.openrocket.appearance.DecalImage;
-import net.sf.openrocket.document.attachments.BaseAttachment;
 import net.sf.openrocket.document.attachments.FileSystemAttachment;
 import net.sf.openrocket.gui.watcher.FileWatcher;
 import net.sf.openrocket.gui.watcher.WatchEvent;
@@ -28,6 +27,7 @@ import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
 
 public class DecalRegistry {
@@ -99,7 +99,7 @@ public class DecalRegistry {
 		return decals;
 	}
 	
-	public class DecalImageImpl implements DecalImage, Cloneable {
+	public class DecalImageImpl implements DecalImage, Cloneable, Comparable<DecalImage>, ChangeSource {
 		
 		private final Attachment delegate;
 		
@@ -115,7 +115,6 @@ public class DecalRegistry {
 			this.delegate = delegate;
 		}
 		
-		@Override
 		public String getName() {
 			return name != null ? name : delegate.getName();
 		}
@@ -128,7 +127,6 @@ public class DecalRegistry {
 		* @throws FileNotFoundException
 		* @throws IOException
 		 */
-		@Override
 		public InputStream getBytes() throws FileNotFoundException, IOException {
 			// First check if the decal is located on the file system
 			File exportedFile = getFileSystemLocation();
@@ -164,7 +162,7 @@ public class DecalRegistry {
 						
 						@Override
 						public void handleEvent(WatchEvent evt) {
-							((BaseAttachment) DecalImageImpl.this.delegate).fireChangeEvent();
+							DecalImageImpl.this.delegate.fireChangeEvent();
 							System.out.println(this.getFile() + " has changed");
 							
 						}
@@ -191,10 +189,7 @@ public class DecalRegistry {
 		}
 		
 		@Override
-		public int compareTo(Attachment o) {
-			if (!(o instanceof DecalImageImpl)) {
-				return -1;
-			}
+		public int compareTo(DecalImage o) {
 			return getName().compareTo(o.getName());
 		}
 		

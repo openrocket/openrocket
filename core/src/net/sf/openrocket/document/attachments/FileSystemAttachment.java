@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 import net.sf.openrocket.document.Attachment;
 
-public class FileSystemAttachment extends BaseAttachment implements Attachment {
+public class FileSystemAttachment extends Attachment {
 	
 	private final File location;
 	
