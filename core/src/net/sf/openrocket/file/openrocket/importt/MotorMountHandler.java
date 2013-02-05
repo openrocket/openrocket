@@ -19,6 +19,7 @@ class MotorMountHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
 	private final MotorMount mount;
 	private MotorHandler motorHandler;
+	private IgnitionConfigurationHandler ignitionConfigHandler;
 	
 	public MotorMountHandler(MotorMount mount, DocumentLoadingContext context) {
 		this.mount = mount;
@@ -33,6 +34,11 @@ class MotorMountHandler extends AbstractElementHandler {
 		if (element.equals("motor")) {
 			motorHandler = new MotorHandler(context);
 			return motorHandler;
+		}
+		
+		if (element.equals("ignitionconfiguration")) {
+			ignitionConfigHandler = new IgnitionConfigurationHandler(context);
+			return ignitionConfigHandler;
 		}
 		
 		if (element.equals("ignitionevent") ||
@@ -61,9 +67,18 @@ class MotorMountHandler extends AbstractElementHandler {
 			Motor motor = motorHandler.getMotor(warnings);
 			mount.setMotor(id, motor);
 			mount.setMotorDelay(id, motorHandler.getDelay(warnings));
+			return;
+		}
+		
+		if (element.equals("ignitionconfiguration")) {
+			String id = attributes.get("configid");
+			if (id == null || id.equals("")) {
+				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
+				return;
+			}
 			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
-			motorConfig.setIgnitionEvent( motorHandler.getIgnitionEvent());
-			motorConfig.setIgnitionDelay( motorHandler.getIgnitionDelay());
+			motorConfig.setIgnitionEvent(ignitionConfigHandler.getIgnitionEvent());
+			motorConfig.setIgnitionDelay(ignitionConfigHandler.getIgnitionDelay());
 			return;
 		}
 		

@@ -179,14 +179,21 @@ public class RocketComponentSaver {
 				elements.add("    <delay>" + motorConfig.getEjectionDelay() + "</delay>");
 			}
 			
-			if (motorConfig.getIgnitionEvent() != null) {
-				elements.add("    <ignitionevent>" + motorConfig.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
-			}
-			if (motorConfig.getIgnitionDelay() != null) {
-				elements.add("    <ignitiondelay>" + motorConfig.getIgnitionDelay() + "</ignitiondelay>");
-			}
-			
 			elements.add("  </motor>");
+			
+			if (motorConfig.getIgnitionEvent() != null || motorConfig.getIgnitionDelay() != null) {
+				elements.add("  <ignitionconfiguration configid=\"" + id + "\">");
+				
+				if (motorConfig.getIgnitionEvent() != null) {
+					elements.add("    <ignitionevent>" + motorConfig.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
+				}
+				if (motorConfig.getIgnitionDelay() != null) {
+					elements.add("    <ignitiondelay>" + motorConfig.getIgnitionDelay() + "</ignitiondelay>");
+				}
+				
+				elements.add("  </ignitionconfiguration>");
+				
+			}
 		}
 		
 		elements.add("  <ignitionevent>"
