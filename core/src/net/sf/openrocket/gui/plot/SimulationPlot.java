@@ -89,14 +89,14 @@ public class SimulationPlot {
 		
 		this.chart = ChartFactory.createXYLineChart(
 				//// Simulated flight
-				simulation.getName(),
-				null,
-				null,
-				null,
-				PlotOrientation.VERTICAL,
-				true,
-				true,
-				false
+				/*title*/simulation.getName(),
+				/*xAxisLabel*/null,
+				/*yAxisLabel*/null,
+				/*dataset*/null,
+				/*orientation*/PlotOrientation.VERTICAL,
+				/*legend*/true,
+				/*tooltips*/true,
+				/*urls*/false
 				);
 		
 		chart.addSubtitle(new TextTitle(config.getName()));
