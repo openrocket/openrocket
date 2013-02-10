@@ -4,8 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -36,10 +34,10 @@ public class MotorConfigurationPanel extends JPanel {
 	private final FlightConfigurationDialog flightConfigurationDialog;
 	private final Rocket rocket;
 	
+	private final JTable configurationTable;
 	private final MotorConfigurationTableModel configurationTableModel;
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 	
-	final MotorMount[] mounts;
 	
 	MotorConfigurationPanel(FlightConfigurationDialog flightConfigurationDialog, Rocket rocket) {
 		super(new MigLayout("fill"));
@@ -49,7 +47,6 @@ public class MotorConfigurationPanel extends JPanel {
 		DescriptionArea desc = new DescriptionArea(trans.get("description"), 3, -1);
 		this.add(desc, "spanx, growx, wrap para");
 		
-		mounts = getPotentialMotorMounts();
 		
 		////  Motor mount selection
 		JLabel label = new StyledLabel(trans.get("lbl.motorMounts"), Style.BOLD);
@@ -61,7 +58,7 @@ public class MotorConfigurationPanel extends JPanel {
 		
 		
 		//// Motor Mount selection 
-		JTable table = new JTable(new MotorMountTableModel(this));
+		JTable table = new JTable(new MotorMountTableModel(this, rocket));
 		table.setTableHeader(null);
 		table.setShowVerticalLines(false);
 		table.setRowSelectionAllowed(false);
@@ -81,27 +78,18 @@ public class MotorConfigurationPanel extends JPanel {
 		
 		//// Motor selection table.
 		configurationTableModel = new MotorConfigurationTableModel(rocket);
-		final JTable configurationTable = new JTable(configurationTableModel);
+		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setRowSelectionAllowed(true);
 		
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row = configurationTable.getSelectedRow();
-				
-				if (e.getClickCount() == 1) {
-					
-					// Single click updates selection
-					updateButtonState();
-					
-				} else if (e.getClickCount() == 2) {
-					
+				updateButtonState();
+				if (e.getClickCount() == 2) {
 					// Double-click edits motor
 					selectMotor();
-					
 				}
-				
 			}
 		});
 		
@@ -158,6 +146,7 @@ public class MotorConfigurationPanel extends JPanel {
 	
 	public void updateButtonState() {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount currentMount = getCurrentMount();
 		selectMotorButton.setEnabled(currentMount != null && currentID != null);
 		removeMotorButton.setEnabled(currentMount != null && currentID != null);
 		selectIgnitionButton.setEnabled(currentMount != null && currentID != null);
@@ -165,8 +154,31 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	
+	private MotorMount getCurrentMount() {
+		int row = configurationTable.getSelectedRow();
+		if (row < 0) {
+			return null;
+		}
+		
+		int count = 0;
+		for (RocketComponent c : rocket) {
+			if (c instanceof MotorMount) {
+				MotorMount mount = (MotorMount) c;
+				if (mount.isMotorMount()) {
+					count++;
+				}
+				if (count > row) {
+					return mount;
+				}
+			}
+		}
+		
+		throw new IndexOutOfBoundsException("Invalid row, row=" + row + " count=" + count);
+	}
+	
 	private void selectMotor() {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount currentMount = getCurrentMount();
 		if (currentID == null || currentMount == null)
 			return;
 		
@@ -191,6 +203,7 @@ public class MotorConfigurationPanel extends JPanel {
 	
 	private void removeMotor() {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount currentMount = getCurrentMount();
 		if (currentID == null || currentMount == null)
 			return;
 		
@@ -203,6 +216,7 @@ public class MotorConfigurationPanel extends JPanel {
 	
 	private void selectIgnition() {
 		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount currentMount = getCurrentMount();
 		if (currentID == null || currentMount == null)
 			return;
 		
@@ -216,41 +230,5 @@ public class MotorConfigurationPanel extends JPanel {
 		configurationTableModel.fireTableDataChanged();
 		updateButtonState();
 	}
-	
-	public void makeMotorMount(MotorMount mount, boolean isMotorMount) {
-		mount.setMotorMount(isMotorMount);
-		configurationTableModel.fireTableStructureChanged();
-		updateButtonState();
-	}
-	
-	private MotorMount[] getPotentialMotorMounts() {
-		List<MotorMount> list = new ArrayList<MotorMount>();
-		for (RocketComponent c : rocket) {
-			if (c instanceof MotorMount) {
-				list.add((MotorMount) c);
-			}
-		}
-		return list.toArray(new MotorMount[0]);
-	}
-	
-	public MotorMount findMount(int row) {
-		MotorMount mount = null;
-		
-		int count = row;
-		for (MotorMount m : mounts) {
-			if (m.isMotorMount())
-				count--;
-			if (count < 0) {
-				mount = m;
-				break;
-			}
-		}
-		
-		if (mount == null) {
-			throw new IndexOutOfBoundsException("motor mount not found, row=" + row);
-		}
-		return mount;
-	}
-	
 	
 }

@@ -3,51 +3,53 @@ package net.sf.openrocket.rocketcomponent;
 import java.util.HashMap;
 
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.util.Utils;
+
 
 class BaseMotorMount implements FlightConfigurable<MotorConfiguration>, Cloneable {
-
-	private HashMap<String, MotorConfiguration > motors = new HashMap<String,MotorConfiguration>();
+	
+	private HashMap<String, MotorConfiguration> motors = new HashMap<String, MotorConfiguration>();
 	private MotorConfiguration defaultConfiguration = MotorConfiguration.makeDefaultMotorConfiguration();
 	
 	@Override
 	public MotorConfiguration getFlightConfiguration(String configId) {
 		return motors.get(configId);
 	}
-
+	
 	@Override
-	public void setFlightConfiguration(String configId,	MotorConfiguration config) {
-		if ( config == null ) {
+	public void setFlightConfiguration(String configId, MotorConfiguration config) {
+		if (config == null) {
 			motors.remove(configId);
 		} else {
-			motors.put(configId,  config);
+			motors.put(configId, config);
 		}
 	}
-
+	
 	@Override
 	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
 		MotorConfiguration oldConfig = getFlightConfiguration(oldConfigId);
-		if ( oldConfig != null ) {
+		if (oldConfig != null) {
 			oldConfig = oldConfig.clone();
 		}
 		setFlightConfiguration(newConfigId, oldConfig);
 	}
-
+	
 	@Override
 	public MotorConfiguration getDefaultFlightConfiguration() {
 		return defaultConfiguration;
 	}
-
+	
 	@Override
 	public void setDefaultFlightConfiguration(MotorConfiguration config) {
 		defaultConfiguration = config;
 	}
-
+	
 	Motor getMotor(String id) {
 		if (id == null)
 			return null;
 		
-		MotorConfiguration motorConfig =getFlightConfiguration(id);
-		if ( motorConfig == null ) {
+		MotorConfiguration motorConfig = getFlightConfiguration(id);
+		if (motorConfig == null) {
 			return null;
 		}
 		return motorConfig.getMotor();
@@ -65,26 +67,26 @@ class BaseMotorMount implements FlightConfigurable<MotorConfiguration>, Cloneabl
 			if (motor != null) {
 				throw new IllegalArgumentException("Cannot set non-null motor for id null");
 			}
+			return false;
 		}
-		if ( motor == null ) {
-			setFlightConfiguration(id, null);
-		}
+		
 		MotorConfiguration current = getFlightConfiguration(id);
-		if ( current == null ) {
+		if (current == null) {
 			current = new MotorConfiguration();
 			setFlightConfiguration(id, current);
 		}
-		Motor currentMotor = current.getMotor();
-		if (motor.equals(currentMotor)) {
+		
+		if (Utils.equals(motor, current.getMotor())) {
 			return false;
+		} else {
+			current.setMotor(motor);
+			return true;
 		}
-		current.setMotor(motor);
-		return true;
 	}
 	
 	double getMotorDelay(String id) {
 		MotorConfiguration current = getFlightConfiguration(id);
-		Double delay = ( current == null ) ? null : current.getEjectionDelay();
+		Double delay = (current == null) ? null : current.getEjectionDelay();
 		if (delay == null)
 			return Motor.PLUGGED;
 		return delay;
@@ -99,24 +101,24 @@ class BaseMotorMount implements FlightConfigurable<MotorConfiguration>, Cloneabl
 	 */
 	boolean setMotorDelay(String id, double delay) {
 		MotorConfiguration current = getFlightConfiguration(id);
-		if ( current == null ) {
+		if (current == null) {
 			current = new MotorConfiguration();
 			setFlightConfiguration(id, current);
 		}
-		if ( current.getEjectionDelay() != delay ) {
+		if (current.getEjectionDelay() != delay) {
 			current.setEjectionDelay(delay);
 			return true;
 		} else {
 			return false;
 		}
 	}
-
+	
 	@Override
 	protected BaseMotorMount clone() {
 		BaseMotorMount clone = new BaseMotorMount();
 		clone.defaultConfiguration = defaultConfiguration.clone();
-		clone.motors = (HashMap<String,MotorConfiguration>) motors.clone();
+		clone.motors = (HashMap<String, MotorConfiguration>) motors.clone();
 		return clone;
 	}
-
+	
 }
