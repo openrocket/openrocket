@@ -29,9 +29,13 @@ import net.sf.openrocket.util.LinearInterpolator;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.LegendItemCollection;
+import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.annotations.XYImageAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.block.LineBorder;
 import org.jfree.chart.plot.DefaultDrawingSupplier;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.PlotOrientation;
@@ -39,6 +43,7 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
 import org.jfree.data.xy.XYSeries;
@@ -46,8 +51,15 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.text.TextUtilities;
 import org.jfree.ui.LengthAdjustmentType;
 import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 import org.jfree.ui.TextAnchor;
 
+/*
+ * It should be possible to simplify this code quite a bit by using a single Renderer instance for
+ * both datasets and the legend.  But for now, the renderers are queried for the line color information
+ * and this is held in the Legend.
+ */
 public class SimulationPlot {
 	
 	private static final float PLOT_STROKE_WIDTH = 1.5f;
@@ -60,6 +72,8 @@ public class SimulationPlot {
 	
 	private final List<EventDisplayInfo> eventList;
 	private final List<ModifiedXYItemRenderer> renderers = new ArrayList<ModifiedXYItemRenderer>();
+	
+	private final LegendItems legendItems;
 	
 	int branchCount;
 	
@@ -86,6 +100,7 @@ public class SimulationPlot {
 	SimulationPlot(Simulation simulation, PlotConfiguration config, boolean initialShowPoints) {
 		this.simulation = simulation;
 		this.config = config;
+		this.branchCount = simulation.getSimulatedData().getBranchCount();
 		
 		this.chart = ChartFactory.createXYLineChart(
 				//// Simulated flight
@@ -94,14 +109,20 @@ public class SimulationPlot {
 				/*yAxisLabel*/null,
 				/*dataset*/null,
 				/*orientation*/PlotOrientation.VERTICAL,
-				/*legend*/true,
+				/*legend*/false,
 				/*tooltips*/true,
 				/*urls*/false
 				);
 		
-		chart.addSubtitle(new TextTitle(config.getName()));
+		this.legendItems = new LegendItems();
+		LegendTitle legend = new LegendTitle(legendItems);
+		legend.setMargin(new RectangleInsets(1.0, 1.0, 1.0, 1.0));
+		legend.setFrame(new LineBorder());
+		legend.setBackgroundPaint(Color.white);
+		legend.setPosition(RectangleEdge.BOTTOM);
+		chart.addSubtitle(legend);
 		
-		this.branchCount = simulation.getSimulatedData().getBranchCount();
+		chart.addSubtitle(new TextTitle(config.getName()));
 		
 		// Fill the auto-selections based on first branch selected.
 		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch(0);
@@ -131,6 +152,7 @@ public class SimulationPlot {
 			Unit unit = filled.getUnit(i);
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
+			this.legendItems.lineLabels.add(name);
 			
 			List<String> seriesNames = Util.generateSeriesLabels(simulation);
 			
@@ -217,13 +239,24 @@ public class SimulationPlot {
 				// Add data and map to the axis
 				plot.setDataset(axisno, data[i]);
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
+				renderers.add(r);
+				plot.setRenderer(axisno, r);
 				r.setBaseShapesVisible(initialShowPoints);
 				r.setBaseShapesFilled(true);
 				for (int j = 0; j < data[i].getSeriesCount(); j++) {
-					r.setSeriesStroke(j, new BasicStroke(PLOT_STROKE_WIDTH));
+					Stroke lineStroke = new BasicStroke(PLOT_STROKE_WIDTH);
+					r.setSeriesStroke(j, lineStroke);
 				}
-				renderers.add(r);
-				plot.setRenderer(axisno, r);
+				// Now we pull the colors for the legend.
+				for (int j = 0; j < data[i].getSeriesCount(); j += branchCount) {
+					Paint linePaint = r.lookupSeriesPaint(j);
+					this.legendItems.linePaints.add(linePaint);
+					Shape itemShape = r.lookupSeriesShape(j);
+					this.legendItems.pointShapes.add(itemShape);
+					Stroke lineStroke = r.getSeriesStroke(j);
+					this.legendItems.lineStrokes.add(lineStroke);
+				}
+				
 				plot.mapDatasetToRangeAxis(axisno, axisno);
 				axisno++;
 			}
@@ -408,6 +441,47 @@ public class SimulationPlot {
 		
 		return eventList;
 		
+	}
+	
+	private static class LegendItems implements LegendItemSource {
+		
+		private final List<String> lineLabels = new ArrayList<String>();
+		private final List<Paint> linePaints = new ArrayList<Paint>();
+		private final List<Stroke> lineStrokes = new ArrayList<Stroke>();
+		private final List<Shape> pointShapes = new ArrayList<Shape>();
+		
+		@Override
+		public LegendItemCollection getLegendItems() {
+			LegendItemCollection c = new LegendItemCollection();
+			int i = 0;
+			for (String s : lineLabels) {
+				String label = s;
+				String description = s;
+				String toolTipText = null;
+				String urlText = null;
+				boolean shapeIsVisible = false;
+				Shape shape = pointShapes.get(i);
+				boolean shapeIsFilled = false;
+				Paint fillPaint = linePaints.get(i);
+				boolean shapeOutlineVisible = false;
+				Paint outlinePaint = linePaints.get(i);
+				Stroke outlineStroke = lineStrokes.get(i);
+				boolean lineVisible = true;
+				Stroke lineStroke = lineStrokes.get(i);
+				Paint linePaint = linePaints.get(i);
+				
+				Shape legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
+				
+				LegendItem result = new LegendItem(label, description, toolTipText,
+						urlText, shapeIsVisible, shape, shapeIsFilled, fillPaint,
+						shapeOutlineVisible, outlinePaint, outlineStroke, lineVisible,
+						legendLine, lineStroke, linePaint);
+				
+				c.add(result);
+				i++;
+			}
+			return c;
+		}
 	}
 	
 	/**
