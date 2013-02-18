@@ -194,13 +194,17 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				}
 				
 				// Check for Tumbling
-				// FIXME - need to test things like no longer stable.
+				// Conditions for transision are:
+				//  apogee reached
+				// and is not already tumbling
+				// and not stable (cg > cp)
+				// and aoa > 30
 
 				if (status.isApogeeReached() && !status.isTumbling() ) {
-					int last_data_index = status.getFlightData().getLength() -1;
-					double cp = status.getFlightData().get(FlightDataType.TYPE_CP_LOCATION).get(last_data_index);
-					double cg = status.getFlightData().get(FlightDataType.TYPE_CG_LOCATION).get(last_data_index);
-					if( cg > cp ) {
+					double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
+					double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
+					double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
+					if( cg > cp && aoa > 30 ) {
 						addEvent( new FlightEvent(FlightEvent.Type.TUMBLE,status.getSimulationTime()));
 					}
 					status.setTumbling(true);

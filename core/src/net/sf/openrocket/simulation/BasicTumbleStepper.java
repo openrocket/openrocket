@@ -18,7 +18,6 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 	
 	@Override
 	public void step(SimulationStatus status, double maxTimeStep) throws SimulationException {
-		double refArea = status.getConfiguration().getReferenceArea();
 		
 		// Get the atmospheric conditions
 		AtmosphericConditions atmosphere = modelAtmosphericConditions(status);
@@ -30,11 +29,11 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		// Get total CD
 		double mach = airSpeed.length() / atmosphere.getMachSpeed();
 
-		double totalCD = ((BasicTumbleStatus)status).getTumbleCd();
+		double tumbleDrag = ((BasicTumbleStatus)status).getTumbleDrag();
 				
 		// Compute drag force
 		double dynP = (0.5 * atmosphere.getDensity() * airSpeed.length2());
-		double dragForce = totalCD * dynP * refArea;
+		double dragForce = tumbleDrag * dynP;
 		MassData massData = calculateMassData(status);
 		double mass = massData.getCG().weight;
 		
