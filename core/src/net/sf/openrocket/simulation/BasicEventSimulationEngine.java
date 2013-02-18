@@ -39,6 +39,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private SimulationStepper landingStepper = new BasicLandingStepper();
 	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
 
+	// Constant holding 30 degress in radians.  This is the AOA condition
+	// necessary to transistion to tumbling.
+	private final static double AOA_TUMBLE_CONDITION = Math.PI / 3.0;
+	
 	private SimulationStepper currentStepper;
 
 	private SimulationStatus status;
@@ -204,10 +208,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
 					double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
 					double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
-					if( cg > cp && aoa > 30 ) {
+					if( cg > cp && aoa > AOA_TUMBLE_CONDITION ) {
 						addEvent( new FlightEvent(FlightEvent.Type.TUMBLE,status.getSimulationTime()));
+						status.setTumbling(true);
 					}
-					status.setTumbling(true);
 
 				}
 
