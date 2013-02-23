@@ -112,12 +112,12 @@ public abstract class AbstractScaleFigure extends JPanel implements ScaleFigure 
 	
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(0, listener);
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
 	}
 	

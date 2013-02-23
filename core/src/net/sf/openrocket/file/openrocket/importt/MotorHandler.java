@@ -10,7 +10,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 
 import org.xml.sax.SAXException;
 
@@ -28,7 +28,7 @@ class MotorHandler extends AbstractElementHandler {
 	private double delay = Double.NaN;
 	
 	private Double ignitionDelay = null;
-	private MotorConfiguration.IgnitionEvent ignitionEvent = null;
+	private IgnitionConfiguration.IgnitionEvent ignitionEvent = null;
 	
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
@@ -64,7 +64,7 @@ class MotorHandler extends AbstractElementHandler {
 		return ignitionDelay;
 	}
 
-	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
+	public IgnitionConfiguration.IgnitionEvent getIgnitionEvent() {
 		return ignitionEvent;
 	}
 
@@ -151,7 +151,7 @@ class MotorHandler extends AbstractElementHandler {
 			
 		} else if ( element.equals("ignitionevent")) {
 			
-			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
+			for (IgnitionConfiguration.IgnitionEvent e : IgnitionConfiguration.IgnitionEvent.values()) {
 				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					ignitionEvent = e;
 					break;

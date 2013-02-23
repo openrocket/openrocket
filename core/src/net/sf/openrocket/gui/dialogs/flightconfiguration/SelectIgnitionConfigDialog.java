@@ -15,8 +15,9 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BasicEnumModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.unit.UnitGroup;
@@ -53,7 +54,7 @@ public class SelectIgnitionConfigDialog extends JDialog {
 		//// Ignition at:
 		panel.add(new JLabel(FlightConfigurationDialog.trans.get("MotorCfg.lbl.Ignitionat")), "");
 		
-		final JComboBox event = new JComboBox(new BasicEnumModel<IgnitionEvent>(IgnitionEvent.class));
+		final JComboBox event = new JComboBox(new BasicEnumModel<IgnitionConfiguration.IgnitionEvent>(IgnitionConfiguration.IgnitionEvent.class));
 		event.setSelectedItem(newConfiguration.getIgnitionEvent());
 		panel.add(event, "growx, wrap");
 		
@@ -77,7 +78,7 @@ public class SelectIgnitionConfigDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				
 				//// extract ignition event type;
-				IgnitionEvent ignitionEvent = (IgnitionEvent) event.getSelectedItem();
+				IgnitionConfiguration.IgnitionEvent ignitionEvent = (IgnitionConfiguration.IgnitionEvent) event.getSelectedItem();
 				newConfiguration.setIgnitionEvent(ignitionEvent);
 				
 				//// extract ignition delay time;

@@ -10,6 +10,7 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 
@@ -68,8 +69,8 @@ class MotorMountHandler extends AbstractElementHandler {
 		}
 		
 		if (element.equals("ignitionevent")) {
-			MotorConfiguration.IgnitionEvent event = null;
-			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
+			IgnitionConfiguration.IgnitionEvent event = null;
+			for (IgnitionConfiguration.IgnitionEvent e : IgnitionConfiguration.IgnitionEvent.values()) {
 				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					event = e;
 					break;

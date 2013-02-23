@@ -863,6 +863,16 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param l Listener to add.
 	 */
 	@Override
+	public void addChangeListener(StateChangeListener l) {
+		addChangeListener((EventListener) l);
+	}
+	
+	
+	/**
+	 * Add a listener to the model.  Adds the model as a listener to the value source if this
+	 * is the first listener.
+	 * @param l Listener to add.
+	 */
 	public void addChangeListener(EventListener l) {
 		checkState(true);
 		
@@ -884,6 +894,15 @@ public class DoubleModel implements StateChangeListener, ChangeSource, Invalidat
 	 * @param l Listener to remove.
 	 */
 	@Override
+	public void removeChangeListener(StateChangeListener l) {
+		removeChangeListener((EventListener) l);
+	}
+	
+	/**
+	 * Remove a listener from the model.  Removes the model from being a listener to the Component
+	 * if this was the last listener of the model.
+	 * @param l Listener to remove.
+	 */
 	public void removeChangeListener(EventListener l) {
 		checkState(false);
 		

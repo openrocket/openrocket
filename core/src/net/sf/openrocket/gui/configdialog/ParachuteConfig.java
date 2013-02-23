@@ -36,6 +36,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 	
 	public ParachuteConfig(OpenRocketDocument d, final RocketComponent component) {
 		super(d, component);
+		Parachute parachute = (Parachute) component;
 		
 		JPanel primary = new JPanel(new MigLayout());
 		
@@ -192,16 +193,17 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat")), "");
 		
-		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(component, "DefaultDeployEvent"));
+		DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfiguration().getDefault();
+		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
 		
-		m = new DoubleModel(component, "DefaultDeployDelay", 0);
+		m = new DoubleModel(deploymentConfig, "DeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin,3));
+		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "spanx, split");
 		
 		//// seconds
@@ -212,7 +214,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(label);
 		panel.add(label);
 		
-		m = new DoubleModel(component, "DefaultDeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(deploymentConfig, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -237,7 +239,6 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				trans.get("ParachuteCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
-	
 	
 	
 	

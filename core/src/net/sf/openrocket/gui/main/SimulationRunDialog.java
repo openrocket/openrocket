@@ -32,8 +32,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationStatus;
@@ -310,13 +309,12 @@ public class SimulationRunDialog extends JDialog {
 			Iterator<MotorMount> iterator = config.motorIterator();
 			while (iterator.hasNext()) {
 				MotorMount m = iterator.next();
-				if (m.getDefaultIgnitionEvent() == MotorConfiguration.IgnitionEvent.LAUNCH)
+				if (m.getIgnitionConfiguration().getDefault().getIgnitionEvent() == IgnitionConfiguration.IgnitionEvent.LAUNCH)
 					launchBurn = MathUtil.max(launchBurn, m.getMotor(id).getBurnTimeEstimate());
 				else
 					otherBurn = otherBurn + m.getMotor(id).getBurnTimeEstimate();
 			}
 			burnoutTimeEstimate = Math.max(launchBurn + otherBurn, 0.1);
-			
 		}
 		
 		

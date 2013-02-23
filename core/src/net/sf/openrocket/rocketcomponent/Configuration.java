@@ -35,7 +35,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
-
+	
 	/* Cached data */
 	private int boundsModID = -1;
 	private ArrayList<Coordinate> cachedBounds = new ArrayList<Coordinate>();
@@ -44,7 +44,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	private int refLengthModID = -1;
 	private double cachedRefLength = -1;
 	
-
+	
 	private int modID = 0;
 	
 	
@@ -61,7 +61,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	
-
+	
 	public Rocket getRocket() {
 		return rocket;
 	}
@@ -89,7 +89,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	public void setOnlyStage(int stage) {
 		stages.clear();
-		stages.set(stage, stage+1, true);
+		stages.set(stage, stage + 1, true);
 		fireChangeEvent();
 	}
 	
@@ -103,7 +103,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	
-
+	
 	/**
 	 * Check whether the stage specified by the index is active.
 	 */
@@ -186,9 +186,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Removes the listener connection to the rocket and listeners of this object.
 	 * This configuration may not be used after a call to this method!
@@ -203,12 +203,12 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	////////////////  Listeners  ////////////////
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		listenerList.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		listenerList.remove(listener);
 	}
 	
@@ -218,12 +218,12 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		this.modID++;
 		boundsModID = -1;
 		refLengthModID = -1;
-
+		
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
 		for (EventListener l : listeners) {
-			if ( l instanceof StateChangeListener ) {
-				((StateChangeListener)l).stateChanged(e);
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(e);
 			}
 		}
 	}
@@ -313,8 +313,8 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return an iterator that iterates over the currently active components.
 	 * The <code>Rocket</code> and <code>Stage</code> components are not returned,

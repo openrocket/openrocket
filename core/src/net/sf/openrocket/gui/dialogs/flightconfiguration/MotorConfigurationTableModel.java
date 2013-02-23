@@ -4,6 +4,7 @@ import javax.swing.table.AbstractTableModel;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -130,7 +131,7 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 			return NONE;
 		}
 		
-		MotorConfiguration.IgnitionEvent ignition = motorConfig.getIgnitionEvent();
+		IgnitionConfiguration.IgnitionEvent ignition = motorConfig.getIgnitionEvent();
 		Double ignitionDelay = motorConfig.getIgnitionDelay();
 		boolean isDefault = (ignition == null);
 		

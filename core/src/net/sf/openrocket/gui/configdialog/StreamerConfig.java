@@ -26,6 +26,7 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -34,6 +35,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 	
 	public StreamerConfig(OpenRocketDocument d, final RocketComponent component) {
 		super(d, component);
+		Streamer streamer = (Streamer) component;
 		
 		JPanel primary = new JPanel(new MigLayout());
 		
@@ -193,16 +195,17 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat")), "");
 		
-		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(component, "DefaultDeployEvent"));
+		DeploymentConfiguration deploymentConfig = streamer.getDeploymentConfiguration().getDefault();
+		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plusdelay")), "right");
 		
-		m = new DoubleModel(component, "DefaultDeployDelay", 0);
+		m = new DoubleModel(deploymentConfig, "DeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin,3));
+		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "spanx, split");
 		
 		//// seconds
@@ -213,7 +216,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(label);
 		panel.add(label);
 		
-		m = new DoubleModel(component, "DefaultDeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(deploymentConfig, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));

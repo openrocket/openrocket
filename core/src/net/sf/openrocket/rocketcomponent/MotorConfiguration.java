@@ -1,153 +1,76 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.l10n.Translator;
+import java.util.EventObject;
+import java.util.List;
+
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.simulation.FlightEvent;
-import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.util.Utils;
 
-public class MotorConfiguration implements Cloneable {
-
-	private MotorConfiguration.IgnitionEvent ignitionEvent;
-	private Double ignitionDelay;
-	private Motor motor = null;
-	private Double ejectionDelay = 0d;
+/**
+ * A single motor configuration.  This includes the selected motor
+ * and the ejection charge delay.
+ */
+public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
-	/**
-	 * Factory method which constructs a MotorConfiguration object which is suitable for
-	 * use as the defaults for the MotorMount.  In particular, it has Automatic ignitionEvent
-	 * and 0 ignitionDelay.
-
-	 * @return
-	 */
-	static MotorConfiguration makeDefaultMotorConfiguration() {
-		MotorConfiguration defaults = new MotorConfiguration();
-		defaults.ignitionDelay = 0d;
-		defaults.ignitionEvent = MotorConfiguration.IgnitionEvent.AUTOMATIC;
-		return defaults;
-	}
+	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
-
-	/**
-	 * Construct a MotorConfiguration object which is suitable for use by per flight configuration
-	 * scenarios.  ignitionEvent and ignitionDelay are null to indicate that one should rely on the
-	 * default value.
-	 */
-	MotorConfiguration() {
-	}
+	private Motor motor;
+	private double ejectionDelay;
 	
-	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
-		return ignitionEvent;
-	}
-
-	public void setIgnitionEvent(MotorConfiguration.IgnitionEvent ignitionEvent) {
-		this.ignitionEvent = ignitionEvent;
-	}
-
-	public Double getIgnitionDelay() {
-		return ignitionDelay;
-	}
-
-	public void setIgnitionDelay(Double ignitionDelay) {
-		this.ignitionDelay = ignitionDelay;
-	}
-
+	
 	public Motor getMotor() {
 		return motor;
 	}
-
+	
 	public void setMotor(Motor motor) {
+		if (Utils.equals(this.motor, motor)) {
+			return;
+		}
 		this.motor = motor;
+		fireChangeEvent();
 	}
-
-	public Double getEjectionDelay() {
+	
+	public double getEjectionDelay() {
 		return ejectionDelay;
 	}
-
-	public void setEjectionDelay(Double ejectionDelay) {
-		this.ejectionDelay = ejectionDelay;
+	
+	public void setEjectionDelay(double delay) {
+		if (MathUtil.equals(ejectionDelay, delay)) {
+			return;
+		}
+		this.ejectionDelay = delay;
+		fireChangeEvent();
 	}
-
+	
+	
 	@Override
 	public MotorConfiguration clone() {
-		MotorConfiguration clone = new MotorConfiguration();
-		clone.motor = motor;
-		clone.ejectionDelay = ejectionDelay;
-		clone.ignitionDelay = ignitionDelay;
-		clone.ignitionEvent = ignitionEvent;
-		return clone;
+		MotorConfiguration copy = new MotorConfiguration();
+		copy.motor = this.motor;
+		copy.ejectionDelay = this.ejectionDelay;
+		return copy;
 	}
-
-
-
-	public static enum IgnitionEvent {
-		//// Automatic (launch or ejection charge)
-		AUTOMATIC("MotorMount.IgnitionEvent.AUTOMATIC") {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				int count = source.getRocket().getStageCount();
-				int stage = source.getStageNumber();
-				
-				if (stage == count - 1) {
-					return LAUNCH.isActivationEvent(e, source);
-				} else {
-					return EJECTION_CHARGE.isActivationEvent(e, source);
-				}
-			}
-		},
-		//// Launch
-		LAUNCH("MotorMount.IgnitionEvent.LAUNCH") {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return (e.getType() == FlightEvent.Type.LAUNCH);
-			}
-		},
-		//// First ejection charge of previous stage
-		EJECTION_CHARGE("MotorMount.IgnitionEvent.EJECTION_CHARGE") {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
-					return false;
-				
-				int charge = e.getSource().getStageNumber();
-				int mount = source.getStageNumber();
-				return (mount + 1 == charge);
-			}
-		},
-		//// First burnout of previous stage
-		BURNOUT("MotorMount.IgnitionEvent.BURNOUT") {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.BURNOUT)
-					return false;
-				
-				int charge = e.getSource().getStageNumber();
-				int mount = source.getStageNumber();
-				return (mount + 1 == charge);
-			}
-		},
-		//// Never
-		NEVER("MotorMount.IgnitionEvent.NEVER") {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return false;
-			}
-		},
-		;
-		
 	
-		private static final Translator trans = Application.getTranslator();
-		private final String description;
-		
-		IgnitionEvent(String description) {
-			this.description = description;
-		}
-		
-		public abstract boolean isActivationEvent(FlightEvent e, RocketComponent source);
-		
-		@Override
-		public String toString() {
-			return trans.get(description);
+	
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		Object[] list = listeners.toArray();
+		for (Object l : list) {
+			((StateChangeListener) l).stateChanged(event);
 		}
 	}
-
+	
 }
