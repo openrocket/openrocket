@@ -10,7 +10,6 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 
 import org.xml.sax.SAXException;
 
@@ -26,9 +25,6 @@ class MotorHandler extends AbstractElementHandler {
 	private double diameter = Double.NaN;
 	private double length = Double.NaN;
 	private double delay = Double.NaN;
-	
-	private Double ignitionDelay = null;
-	private IgnitionConfiguration.IgnitionEvent ignitionEvent = null;
 	
 	public MotorHandler(DocumentLoadingContext context) {
 		this.context = context;
@@ -60,14 +56,6 @@ class MotorHandler extends AbstractElementHandler {
 		return delay;
 	}
 	
-	public Double getIgnitionDelay() {
-		return ignitionDelay;
-	}
-
-	public IgnitionConfiguration.IgnitionEvent getIgnitionEvent() {
-		return ignitionEvent;
-	}
-
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
 			String content, WarningSet warnings) throws SAXException {
@@ -149,24 +137,6 @@ class MotorHandler extends AbstractElementHandler {
 				
 			}
 			
-		} else if ( element.equals("ignitionevent")) {
-			
-			for (IgnitionConfiguration.IgnitionEvent e : IgnitionConfiguration.IgnitionEvent.values()) {
-				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
-					ignitionEvent = e;
-					break;
-				}
-			}
-			if (ignitionEvent == null) {
-				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
-			}
-			
-		} else if ( element.equals("ignitiondelay")) {
-			try {
-				ignitionDelay = Double.parseDouble(content);
-			} catch (NumberFormatException nfe) {
-				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
-			}
 		} else {
 			super.closeElement(element, attributes, content, warnings);
 		}

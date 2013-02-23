@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<openrocket version="1.5" creator="OpenRocket 12.09.1dev">
+<openrocket version="1.4" creator="OpenRocket 12.09.1dev">
   <rocket>
     <name>High Power Airstart</name>
     <comment>This file demonstrates the effect of different airstart timings on overall altitude.</comment>
@@ -33,7 +33,6 @@
 
           <bodytube>
             <name>Body tube</name>
-            <preset type="BODY_TUBE" manufacturer="Public Missiles" partno="PML PT-7.512" digest="c7a647e1a06db7fa41ac2ec20858ea0d"/>
             <finish>normal</finish>
             <material type="bulk" density="958.7050344900001">Kraft phenolic</material>
             <length>1.2191999999999998</length>
@@ -63,7 +62,6 @@
 
           <bodytube>
             <name>AV Bay</name>
-            <preset type="BODY_TUBE" manufacturer="Public Missiles" partno="PML PT-7.512" digest="c7a647e1a06db7fa41ac2ec20858ea0d"/>
             <finish>normal</finish>
             <material type="bulk" density="958.7050344900001">Kraft phenolic</material>
             <length>0.0508</length>
@@ -73,7 +71,6 @@
             <subcomponents>
               <tubecoupler>
                 <name>Tube coupler</name>
-                <preset type="TUBE_COUPLER" manufacturer="Always Ready Rocketry" partno="BT20-191CL" digest="0ec0536414f46211787ee3caeb1ac730"/>
                 <position type="bottom">0.17779999999999996</position>
                 <material type="bulk" density="1250.0">Vulcanized Fiber</material>
                 <length>0.4064</length>
@@ -119,7 +116,6 @@
 
           <bodytube>
             <name>Body tube</name>
-            <preset type="BODY_TUBE" manufacturer="Public Missiles" partno="PML PT-7.512" digest="c7a647e1a06db7fa41ac2ec20858ea0d"/>
             <finish>normal</finish>
             <material type="bulk" density="958.7050344900001">Kraft phenolic</material>
             <length>1.2191999999999998</length>
@@ -148,7 +144,6 @@
 
               <innertube>
                 <name>54mm center</name>
-                <preset type="BODY_TUBE" manufacturer="Public Missiles" partno="PML KS-2.152" digest="abd74b1da651e330e12cd06e8f6a7082"/>
                 <position type="bottom">0.0</position>
                 <material type="bulk" density="958.7050344900001">Kraft phenolic</material>
                 <length>0.36829999999999996</length>
@@ -208,7 +203,6 @@
 
               <innertube>
                 <name>38mm airstart</name>
-                <preset type="BODY_TUBE" manufacturer="Always Ready Rocketry" partno="BT20-38A" digest="21bf520cfb6ea7d2a81ae0fca7adb285"/>
                 <position type="bottom">0.0</position>
                 <material type="bulk" density="1250.0">Vulcanized Fiber</material>
                 <length>0.35559999999999803</length>
@@ -237,9 +231,11 @@
                     <diameter>0.038</diameter>
                     <length>0.25</length>
                     <delay>none</delay>
+                  </motor>
+                  <ignitionconfiguration configid="bc7de2d0-b362-463a-9853-0200700175c7">
                     <ignitionevent>automatic</ignitionevent>
                     <ignitiondelay>1.0</ignitiondelay>
-                  </motor>
+                  </ignitionconfiguration>
                   <motor configid="bbf39580-3dab-4987-9c86-4b3932934a28">
                     <type>reload</type>
                     <manufacturer>AeroTech</manufacturer>
@@ -248,9 +244,11 @@
                     <diameter>0.038</diameter>
                     <length>0.25</length>
                     <delay>none</delay>
+                  </motor>
+                  <ignitionconfiguration configid="bbf39580-3dab-4987-9c86-4b3932934a28">
                     <ignitionevent>automatic</ignitionevent>
                     <ignitiondelay>2.0</ignitiondelay>
-                  </motor>
+                  </ignitionconfiguration>
                   <motor configid="37647ba6-86f6-423d-a08c-4c68a3215fc0">
                     <type>reload</type>
                     <manufacturer>AeroTech</manufacturer>
@@ -259,9 +257,11 @@
                     <diameter>0.038</diameter>
                     <length>0.25</length>
                     <delay>none</delay>
+                  </motor>
+                  <ignitionconfiguration configid="37647ba6-86f6-423d-a08c-4c68a3215fc0">
                     <ignitionevent>automatic</ignitionevent>
                     <ignitiondelay>4.0</ignitiondelay>
-                  </motor>
+                  </ignitionconfiguration>
                   <motor configid="7c4d659a-a836-434a-acd4-66e27ae5e053">
                     <type>reload</type>
                     <manufacturer>AeroTech</manufacturer>
@@ -270,9 +270,11 @@
                     <diameter>0.038</diameter>
                     <length>0.25</length>
                     <delay>none</delay>
+                  </motor>
+                  <ignitionconfiguration configid="7c4d659a-a836-434a-acd4-66e27ae5e053">
                     <ignitionevent>automatic</ignitionevent>
                     <ignitiondelay>6.0</ignitiondelay>
-                  </motor>
+                  </ignitionconfiguration>
                   <ignitionevent>automatic</ignitionevent>
                   <ignitiondelay>0.0</ignitiondelay>
                   <overhang>0.0</overhang>
@@ -376,7 +378,6 @@
           <datapoint>0.097966,0.60807,13.048,139.62,13.048,139.62,0,0,0,0,0,0,0.7854,0,9.8062,0.14085,0,0,0,9.9143,1.5946,12.056,0.089201,NaN,2.2543,NaN,0.038718,2873855,1483.2,1.5759,0.43623,0.49671,0.25684,0.059195,0.12019,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.0013456,0.19487,0.029825,1.5708,0,NaN,288.15,101318,340.39,0.0076637,0.0073901</datapoint>
           <datapoint>0.10563,0.71217,14.119,139.57,14.119,139.57,0,0,0,0,0,0,0.7854,0,9.8062,0.12959,0,0,0,9.9071,1.5874,12.051,0.089184,NaN,2.2537,NaN,0.041831,3104893,1481.7,1.8122,0.43627,0.48936,0.25684,0.0592,0.12023,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.0014561,0.19487,0.029825,1.5708,0,NaN,288.15,101317,340.39,0.0070826,0.0078055</datapoint>
           <datapoint>0.11271,0.81568,15.108,139.57,15.108,139.57,0,0,0,0,0,0,0.7854,0,9.8062,0.12055,0,0,0,9.9008,1.5811,12.047,0.089169,NaN,2.2532,NaN,0.04471,3318583,1481,2.0457,0.4363,0.48356,0.25683,0.059206,0.12026,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.001558,0.19487,0.029825,1.5708,0,NaN,288.14,101315,340.39,0.0066189,0.0082238</datapoint>
-          <datapoint>0.11933,0.91873,16.032,139.57,16.032,139.57,0,0,0,0,0,0,0.7854,0,9.8062,0.11309,0,0,0,9.8951,1.5754,12.043,0.089155,NaN,2.2527,NaN,0.047404,3518487,1480.4,2.2774,0.43633,0.47888,0.25682,0.059211,0.12029,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,0.0016534,0.19487,0.029825,1.5708,0,NaN,288.14,101314,340.39,0.0062374,0.0086403</datapoint>
           <datapoint>0.12557,1.0215,16.903,139.56,16.903,139.57,0,0,0,0,0,0.66645,0.7854,0,9.8062,0.1068,0,0,0,9.8898,1.57,12.039,0.089142,2.3106,2.2523,0.29928,0.049944,3707012,1479.6,2.5077,0.43636,0.47503,0.25682,0.059216,0.12032,1.2453,0.37292,-3.2233e-4,0,0,0,0,0,0.0017432,0.19487,0.029825,1.5708,0,NaN,288.14,101313,340.38,0.009356,0.0092977</datapoint>
           <datapoint>0.13492,1.1857,18.21,139.51,18.21,139.51,-2.965e-5,0,2.965e-5,-3.1416,0.0063882,0.69853,0.7854,0,9.8062,0.098128,0,3.3224e-4,1.1827e-7,9.8833,1.5635,12.035,0.089127,2.3198,2.2517,0.3494,0.053756,3989873,1478.4,2.8736,0.43641,0.4699,0.25681,0.059224,0.12038,1.1263,0.3935,3.347e-4,0,0,0,0,1.2876e-6,0.0018779,0.19487,0.029825,1.5708,-4.2474e-4,NaN,288.14,101311,340.38,0.014034,0.00973</datapoint>
           <datapoint>0.14896,1.455,20.169,139.43,20.169,139.43,-1.8963e-4,0,1.8963e-4,-3.1416,0.016517,0.74389,0.7854,0,9.8062,0.087175,0,9.5541e-4,1.7249e-7,9.8735,1.5538,12.028,0.089104,2.3319,2.2509,0.41582,0.059478,4414517,1476.6,3.4719,0.43649,0.46376,0.25679,0.059238,0.12046,0.98038,0.40804,3.3336e-5,0,0,0,0,8.6974e-6,0.0020799,0.19487,0.029825,1.5708,-2.0992e-4,NaN,288.14,101308,340.38,0.021051,0.010155</datapoint>

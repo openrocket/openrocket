@@ -91,16 +91,21 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	/*RocketPanel.FigTypeAct.Sideview = Side view
-			RocketPanel.FigTypeAct.Backview = Back view
-			RocketPanel.FigViewAct.3DFigure = 3D Figure
-			RocketPanel.FigViewAct.3DRealistic = 3D Realistic*/
-	
-	private static enum VIEW_TYPE {
-		Sideview,
-		Backview,
-		Figure3D,
-		Realistic3D;
+	public static enum VIEW_TYPE {
+		Sideview(false, RocketFigure.TYPE_SIDE),
+		Backview(false, RocketFigure.TYPE_BACK),
+		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
+		Unfinished(true, RocketFigure3d.TYPE_UNFINISHED),
+		Finished(true, RocketFigure3d.TYPE_FINISHED);
+		
+		public final boolean is3d;
+		private final int type;
+		
+		private VIEW_TYPE(final boolean is3d, final int type) {
+			this.is3d = is3d;
+			this.type = type;
+		};
+		
 		@Override
 		public String toString() {
 			return trans.get("RocketPanel.FigTypeAct." + super.toString());
@@ -280,23 +285,12 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 			public void setSelectedItem(Object o) {
 				super.setSelectedItem(o);
 				VIEW_TYPE v = (VIEW_TYPE) o;
-				switch (v) {
-				case Sideview:
-					figure.setType(RocketFigure.TYPE_SIDE);
-					go2D();
-					break;
-				case Backview:
-					figure.setType(RocketFigure.TYPE_BACK);
-					go2D();
-					break;
-				case Realistic3D:
-					figure3d.setType(RocketFigure3d.TYPE_REALISTIC);
+				if (v.is3d) {
+					figure3d.setType(v.type);
 					go3D();
-					break;
-				case Figure3D:
-					figure3d.setType(RocketFigure3d.TYPE_FIGURE);
-					go3D();
-					break;
+				} else {
+					figure.setType(v.type);
+					go2D();
 				}
 			}
 		};
