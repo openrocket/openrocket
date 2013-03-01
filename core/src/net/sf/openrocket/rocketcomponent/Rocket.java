@@ -641,6 +641,8 @@ public class Rocket extends RocketComponent {
 		return getFlightConfigurationDescription(id);
 	}
 	
+	
+	// FIXME: Change to private
 	/**
 	 * Return a description for the flight configuration, generated from the motor
 	 * designations of the components.
