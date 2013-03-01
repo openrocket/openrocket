@@ -73,7 +73,6 @@ import net.sf.openrocket.gui.dialogs.BugReportDialog;
 import net.sf.openrocket.gui.dialogs.ComponentAnalysisDialog;
 import net.sf.openrocket.gui.dialogs.DebugLogDialog;
 import net.sf.openrocket.gui.dialogs.DetailDialog;
-import net.sf.openrocket.gui.dialogs.ExampleDesignDialog;
 import net.sf.openrocket.gui.dialogs.LicenseDialog;
 import net.sf.openrocket.gui.dialogs.PrintDialog;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
@@ -429,32 +428,10 @@ public class BasicFrame extends JFrame {
 		item.setIcon(Icons.FILE_OPEN);
 		menu.add(item);
 		
-		// FIXME - one of these two example menu items needs to be removed.
 		//// Open example...
 		item = new ExampleDesignFileAction(trans.get("main.menu.file.openExample"), this);
 		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
 		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
-		menu.add(item);
-		
-		//// Open example...
-		item = new JMenuItem(trans.get("main.menu.file.openExample"));
-		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openexamplerocketdesign"));
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-				SHORTCUT_KEY | ActionEvent.SHIFT_MASK));
-		item.setIcon(Icons.FILE_OPEN_EXAMPLE);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.user("Open example... selected");
-				URL[] urls = ExampleDesignDialog.selectExampleDesigns(BasicFrame.this);
-				if (urls != null) {
-					for (URL u : urls) {
-						log.user("Opening example " + u);
-						open(u, BasicFrame.this);
-					}
-				}
-			}
-		});
 		menu.add(item);
 		
 		menu.addSeparator();
