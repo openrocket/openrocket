@@ -42,9 +42,9 @@ public class TextUtil {
 	}
 	
 	/**
-	 * Return a string of the double value with suitable precision (5 digits).
-	 * The string is the shortest representation of the value including the
-	 * required precision.
+	 * Return a string of the double value with suitable precision for storage.
+	 * The string is the shortest representation of the value including at least
+	 * 5 digits of precision.
 	 * 
 	 * @param d		the value to present.
 	 * @return		a representation with suitable precision.
@@ -172,26 +172,42 @@ public class TextUtil {
 		return sb.toString();
 	}
 	
-	
-	public static String htmlEncode(String s) {
-		s = s.replace("&", "&amp;");
-		s = s.replace("\"", "&quot;");
-		s = s.replace("<", "&lt;");
-		s = s.replace(">", "&gt;");
-		return s;
-	}
-	
-	/*
-	 * Returns a word-wrapped version of given input string using HTML syntax, wrapped to len characters.
+	/**
+	 * Escape a string as XML or HTML.  Encodes the following characters:
+	 * <ul>
+	 *  <li>less than, greater than
+	 *  <li>quotation mark, apostrophe
+	 *  <li>ampersand
+	 *  <li>all control characters except newline, carriage return and tab
+	 * </ul>
+	 * 
+	 * The result is both valid XML and HTML 2.0.  The majority of characters are left unchanged.
 	 */
-	public static String wrap(String in, int len) {
-		in = in.trim();
-		if (in.length() < len)
-			return in;
-		if (in.substring(0, len).contains("\n"))
-			return in.substring(0, in.indexOf("\n")).trim() + "\n\n" + wrap(in.substring(in.indexOf("\n") + 1), len);
-		int place = Math.max(Math.max(in.lastIndexOf(" ", len), in.lastIndexOf("\t", len)), in.lastIndexOf("-", len));
-		return "<html>" + in.substring(0, place).trim() + "<br>" + wrap(in.substring(place), len);
+	public static String escapeXML(String s) {
+		StringBuilder sb = new StringBuilder(s.length());
+		
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			
+			if (c == '&') {
+				sb.append("&amp;");
+			} else if (c == '<') {
+				sb.append("&lt;");
+			} else if (c == '>') {
+				sb.append("&gt;");
+			} else if (c == '"') {
+				sb.append("&quot;");
+			} else if (((c < 32) && (c != '\t') && (c != '\n') && (c != '\r')) || (c == '\'') || (c == 127)) {
+				// &apos; is not used since it's not standard HTML, use numerical escape instead
+				sb.append("&#").append((int) c).append(';');
+			} else {
+				sb.append(c);
+			}
+		}
+		
+		return sb.toString();
 	}
+	
+	
 	
 }

@@ -40,7 +40,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		this.setInnerRadius(0.018 / 2);
 		this.setLength(0.070);
 		
-		this.motorConfigurations = new FlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, new MotorConfiguration());
+		this.motorConfigurations = new MotorFlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, MotorConfiguration.NO_MOTORS);
 		this.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new IgnitionConfiguration());
 	}
 	

@@ -15,6 +15,19 @@ import net.sf.openrocket.util.Utils;
  */
 public class MotorConfiguration implements FlightConfigurableParameter<MotorConfiguration> {
 	
+	/** Immutable configuration with no motor and zero delay. */
+	public static final MotorConfiguration NO_MOTORS = new MotorConfiguration() {
+		@Override
+		public void setMotor(Motor motor) {
+			throw new UnsupportedOperationException("Trying to modify immutable no-motors configuration");
+		};
+		
+		@Override
+		public void setEjectionDelay(double delay) {
+			throw new UnsupportedOperationException("Trying to modify immutable no-motors configuration");
+		};
+	};
+	
 	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
 	
 	private Motor motor;

@@ -16,45 +16,59 @@ import org.xml.sax.SAXException;
 
 class StageSeparationConfigurationHandler extends AbstractElementHandler {
 	private final Stage stage;
-	private StageSeparationConfiguration config;
-
-	public StageSeparationConfigurationHandler( Stage stage, DocumentLoadingContext context ) {
+	
+	private SeparationEvent event = null;
+	private double delay = Double.NaN;
+	
+	public StageSeparationConfigurationHandler(Stage stage, DocumentLoadingContext context) {
 		this.stage = stage;
-		config = new StageSeparationConfiguration();
 	}
-
+	
+	
+	public StageSeparationConfiguration getConfiguration(StageSeparationConfiguration def) {
+		StageSeparationConfiguration config = def.clone();
+		if (event != null) {
+			config.setSeparationEvent(event);
+		}
+		if (!Double.isNaN(delay)) {
+			config.setSeparationDelay(delay);
+		}
+		return config;
+	}
+	
+	
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings)
 			throws SAXException {
 		return PlainTextHandler.INSTANCE;
 	}
-
+	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes, String content,
 			WarningSet warnings) throws SAXException {
 		
 		content = content.trim();
 		
-		if ( "separationevent".equals(element) ) {
-			SeparationEvent type = (SeparationEvent) DocumentConfig.findEnum(content, SeparationEvent.class);
-			if ( type == null ) {
+		if ("separationevent".equals(element)) {
+			event = (SeparationEvent) DocumentConfig.findEnum(content, SeparationEvent.class);
+			if (event == null) {
 				warnings.add(Warning.FILE_INVALID_PARAMETER);
 				return;
 			}
-			config.setSeparationEvent( type );
 			return;
-		} else if ( "separationdelay".equals(element) ) {
-			config.setSeparationDelay( Double.parseDouble(content));
+		} else if ("separationdelay".equals(element)) {
+			delay = parseDouble(content, warnings, Warning.FILE_INVALID_PARAMETER);
 			return;
 		}
 		super.closeElement(element, attributes, content, warnings);
-
+		
 	}
-
+	
 	@Override
 	public void endHandler(String element, HashMap<String, String> attributes, String content, WarningSet warnings) throws SAXException {
 		String configId = attributes.get("configid");
-		stage.setFlightConfiguration(configId, config);
+		StageSeparationConfiguration def = stage.getStageSeparationConfiguration().getDefault();
+		stage.getStageSeparationConfiguration().set(configId, getConfiguration(def));
 	}
 	
 }

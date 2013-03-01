@@ -144,7 +144,7 @@ public class MotorConfig extends JPanel {
 		//// plus
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
-		dm = new DoubleModel(ignitionConfig, "Delay", 0);
+		dm = new DoubleModel(ignitionConfig, "IgnitionDelay", 0);
 		spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "gap rel rel");

@@ -22,6 +22,7 @@ import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -87,6 +88,7 @@ public class MotorConfigurationPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				updateButtonState();
 				if (e.getClickCount() == 2) {
+					// FIXME:  Double-click on ignition column should select ignition
 					// Double-click edits motor
 					selectMotor();
 				}
@@ -177,23 +179,27 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	private void selectMotor() {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount currentMount = getCurrentMount();
-		if (currentID == null || currentMount == null)
+		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount mount = getCurrentMount();
+		if (id == null || mount == null)
 			return;
 		
+		MotorConfiguration config = mount.getMotorConfiguration().get(id);
+		
 		MotorChooserDialog dialog = new MotorChooserDialog(
-				currentMount.getMotor(currentID),
-				currentMount.getMotorDelay(currentID),
-				currentMount.getMotorMountDiameter(),
+				config.getMotor(),
+				config.getEjectionDelay(),
+				mount.getMotorMountDiameter(),
 				flightConfigurationDialog);
 		dialog.setVisible(true);
 		Motor m = dialog.getSelectedMotor();
 		double d = dialog.getSelectedDelay();
 		
 		if (m != null) {
-			currentMount.setMotor(currentID, m);
-			currentMount.setMotorDelay(currentID, d);
+			config = new MotorConfiguration();
+			config.setMotor(m);
+			config.setEjectionDelay(d);
+			mount.getMotorConfiguration().set(id, config);
 		}
 		
 		flightConfigurationDialog.fireContentsUpdated();
@@ -202,12 +208,12 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	private void removeMotor() {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount currentMount = getCurrentMount();
-		if (currentID == null || currentMount == null)
+		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount mount = getCurrentMount();
+		if (id == null || mount == null)
 			return;
 		
-		currentMount.setMotor(currentID, null);
+		mount.getMotorConfiguration().resetDefault(id);
 		
 		flightConfigurationDialog.fireContentsUpdated();
 		configurationTableModel.fireTableDataChanged();
@@ -220,7 +226,7 @@ public class MotorConfigurationPanel extends JPanel {
 		if (currentID == null || currentMount == null)
 			return;
 		
-		SelectIgnitionConfigDialog dialog = new SelectIgnitionConfigDialog(
+		IgnitionSelectionDialog dialog = new IgnitionSelectionDialog(
 				this.flightConfigurationDialog,
 				rocket,
 				currentMount);

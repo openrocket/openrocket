@@ -29,12 +29,12 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		if (rocket.getDesigner().length() > 0) {
 			elements.add("<designer>"
-					+ net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getDesigner())
+					+ net.sf.openrocket.util.TextUtil.escapeXML(rocket.getDesigner())
 					+ "</designer>");
 		}
 		if (rocket.getRevision().length() > 0) {
 			elements.add("<revision>"
-					+ net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getRevision())
+					+ net.sf.openrocket.util.TextUtil.escapeXML(rocket.getRevision())
 					+ "</revision>");
 		}
 		
@@ -52,7 +52,7 @@ public class RocketSaver extends RocketComponentSaver {
 			if (rocket.getFlightConfigurationName(id) == "") {
 				str += "/>";
 			} else {
-				str += "><name>" + net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getFlightConfigurationName(id))
+				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(rocket.getFlightConfigurationName(id))
 						+ "</name></motorconfiguration>";
 			}
 			elements.add(str);

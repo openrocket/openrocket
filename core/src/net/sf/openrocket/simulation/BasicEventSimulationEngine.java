@@ -243,7 +243,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					Coordinate position = positions[i];
 					MotorId id = new MotorId(component.getID(), i + 1);
 					motors.addMotor(id, motor.getInstance(), motorConfig.getEjectionDelay(), mount,
-							ignitionConfig.getIgnitionEvent(), ignitionConfig.getDelay(), position);
+							ignitionConfig.getIgnitionEvent(), ignitionConfig.getIgnitionDelay(), position);
 				}
 			}
 		}

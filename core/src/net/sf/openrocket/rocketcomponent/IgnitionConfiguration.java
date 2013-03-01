@@ -9,7 +9,7 @@ import net.sf.openrocket.util.StateChangeListener;
 
 public class IgnitionConfiguration implements FlightConfigurableParameter<IgnitionConfiguration> {
 	
-	public static enum IgnitionEvent {
+	public enum IgnitionEvent {
 		//// Automatic (launch or ejection charge)
 		AUTOMATIC("MotorMount.IgnitionEvent.AUTOMATIC") {
 			@Override
@@ -104,11 +104,11 @@ public class IgnitionConfiguration implements FlightConfigurableParameter<Igniti
 	}
 	
 	
-	public double getDelay() {
+	public double getIgnitionDelay() {
 		return delay;
 	}
 	
-	public void setDelay(double delay) {
+	public void setIgnitionDelay(double delay) {
 		if (MathUtil.equals(delay, this.delay)) {
 			return;
 		}

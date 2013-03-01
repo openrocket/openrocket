@@ -51,4 +51,21 @@ public abstract class AbstractElementHandler implements ElementHandler {
 		// No-op
 	}
 	
+	
+	/**
+	 * Helper method for parsing a double value safely.
+	 * 
+	 * @param str		the string to parse
+	 * @param warnings	the warning set
+	 * @param warn		the warning to add if the value fails to parse
+	 * @return			the double value, or NaN if an error occurred
+	 */
+	protected double parseDouble(String str, WarningSet warnings, Warning warn) {
+		try {
+			return Double.parseDouble(str);
+		} catch (NumberFormatException e) {
+			warnings.add(warn);
+			return Double.NaN;
+		}
+	}
 }

@@ -16,6 +16,7 @@ import javax.swing.JTabbedPane;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
@@ -23,9 +24,13 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketvisitors.CopyFlightConfigurationVisitor;
 import net.sf.openrocket.startup.Application;
 
+/**
+ * Dialog for configuring all flight-configuration specific properties.
+ * Content of individual tabs are in separate classes.
+ */
 public class FlightConfigurationDialog extends JDialog {
 	
-	static final Translator trans = Application.getTranslator();
+	private static final Translator trans = Application.getTranslator();
 	
 	private final Rocket rocket;
 	
@@ -58,7 +63,7 @@ public class FlightConfigurationDialog extends JDialog {
 		JLabel label = new JLabel("Selected Configuration:");
 		panel.add(label);
 		
-		flightConfigurationModel = new FlightConfigurationModel(this, rocket.getDefaultConfiguration());
+		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration());
 		JComboBox configSelector = new JComboBox(flightConfigurationModel);
 		
 		panel.add(configSelector, "gapright para");
@@ -78,7 +83,7 @@ public class FlightConfigurationDialog extends JDialog {
 		renameConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new RenameConfigDialog(rocket, FlightConfigurationDialog.this).setVisible(true);
+				new RenameConfigDialog(FlightConfigurationDialog.this, rocket).setVisible(true);
 			}
 		});
 		panel.add(renameConfButton);
@@ -111,7 +116,6 @@ public class FlightConfigurationDialog extends JDialog {
 		//// Motor tabs
 		motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Motortab"), motorConfigurationPanel);
-		
 		//// Recovery tab
 		recoveryConfigurationPanel = new RecoveryConfigurationPanel(this, rocket);
 		tabs.add(trans.get("edtmotorconfdlg.lbl.Recoverytab"), recoveryConfigurationPanel);
@@ -121,6 +125,7 @@ public class FlightConfigurationDialog extends JDialog {
 		if (rocket.getStageCount() > 1) {
 			tabs.add(trans.get("edtmotorconfdlg.lbl.Stagetab"), separationConfigurationPanel);
 		}
+		
 		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -168,7 +173,6 @@ public class FlightConfigurationDialog extends JDialog {
 		currentID = rocket.newFlightConfigurationID();
 		rocket.getDefaultConfiguration().setFlightConfigurationID(currentID);
 		motorConfigurationPanel.fireTableDataChanged();
-		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
 		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
@@ -185,7 +189,6 @@ public class FlightConfigurationDialog extends JDialog {
 		// Copy the name.
 		this.changeConfigurationName(oldName);
 		motorConfigurationPanel.fireTableDataChanged();
-		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
 		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
@@ -193,7 +196,6 @@ public class FlightConfigurationDialog extends JDialog {
 	
 	public void changeConfigurationName(String newName) {
 		rocket.setFlightConfigurationName(currentID, newName);
-		flightConfigurationModel.fireContentsUpdated();
 	}
 	
 	public void removeConfiguration() {
@@ -202,7 +204,6 @@ public class FlightConfigurationDialog extends JDialog {
 		rocket.removeFlightConfigurationID(currentID);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(null);
 		motorConfigurationPanel.fireTableDataChanged();
-		flightConfigurationModel.fireContentsUpdated();
 		recoveryConfigurationPanel.fireTableDataChanged();
 		separationConfigurationPanel.fireTableDataChanged();
 		updateButtonState();
@@ -212,7 +213,6 @@ public class FlightConfigurationDialog extends JDialog {
 	 * Call this from other panels when a change might cause the names of the configurations to change.
 	 */
 	public void fireContentsUpdated() {
-		flightConfigurationModel.fireContentsUpdated();
 	}
 	
 	private void updateButtonState() {

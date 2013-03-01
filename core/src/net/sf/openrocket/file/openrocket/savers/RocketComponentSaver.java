@@ -8,13 +8,13 @@ import java.util.Locale;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
-import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -24,6 +24,7 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
+import net.sf.openrocket.util.TextUtil;
 
 public class RocketComponentSaver {
 	private static final Translator trans = Application.getTranslator();
@@ -33,7 +34,7 @@ public class RocketComponentSaver {
 	}
 	
 	protected void addParams(net.sf.openrocket.rocketcomponent.RocketComponent c, List<String> elements) {
-		elements.add("<name>" + RocketSaver.escapeXML(c.getName()) + "</name>");
+		elements.add("<name>" + TextUtil.escapeXML(c.getName()) + "</name>");
 		
 		ComponentPreset preset = c.getPresetComponent();
 		if (preset != null) {
@@ -104,7 +105,7 @@ public class RocketComponentSaver {
 		
 		// Comment
 		if (c.getComment().length() > 0) {
-			elements.add("<comment>" + RocketSaver.escapeXML(c.getComment()) + "</comment>");
+			elements.add("<comment>" + TextUtil.escapeXML(c.getComment()) + "</comment>");
 		}
 		
 	}
@@ -136,7 +137,7 @@ public class RocketComponentSaver {
 		
 		String baseName = trans.getBaseText("material", mat.getName());
 		
-		return str + " density=\"" + mat.getDensity() + "\">" + RocketSaver.escapeXML(baseName) + "</" + tag + ">";
+		return str + " density=\"" + mat.getDensity() + "\">" + TextUtil.escapeXML(baseName) + "</" + tag + ">";
 	}
 	
 	
@@ -148,11 +149,15 @@ public class RocketComponentSaver {
 		
 		elements.add("<motormount>");
 		
+		// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
+		elements.add("  <ignitionevent>"
+				+ mount.getIgnitionConfiguration().getDefault().getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
+				+ "</ignitionevent>");
+		elements.add("  <ignitiondelay>" + mount.getIgnitionConfiguration().getDefault().getIgnitionDelay() + "</ignitiondelay>");
+		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
+		
 		for (String id : motorConfigIDs) {
-			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
-			if (motorConfig == null) {
-				continue;
-			}
+			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(id);
 			Motor motor = motorConfig.getMotor();
 			// Nothing is stored if no motor loaded
 			if (motor == null)
@@ -164,11 +169,11 @@ public class RocketComponentSaver {
 			}
 			if (motor instanceof ThrustCurveMotor) {
 				ThrustCurveMotor m = (ThrustCurveMotor) motor;
-				elements.add("    <manufacturer>" + RocketSaver.escapeXML(m.getManufacturer().getSimpleName()) +
+				elements.add("    <manufacturer>" + TextUtil.escapeXML(m.getManufacturer().getSimpleName()) +
 						"</manufacturer>");
 				elements.add("    <digest>" + m.getDigest() + "</digest>");
 			}
-			elements.add("    <designation>" + RocketSaver.escapeXML(motor.getDesignation()) + "</designation>");
+			elements.add("    <designation>" + TextUtil.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");
 			elements.add("    <length>" + motor.getLength() + "</length>");
 			
@@ -181,26 +186,15 @@ public class RocketComponentSaver {
 			
 			elements.add("  </motor>");
 			
-			if (motorConfig.getIgnitionEvent() != null || motorConfig.getIgnitionDelay() != null) {
+			if (!mount.getIgnitionConfiguration().isDefault(id)) {
+				IgnitionConfiguration ignition = mount.getIgnitionConfiguration().get(id);
 				elements.add("  <ignitionconfiguration configid=\"" + id + "\">");
-				
-				if (motorConfig.getIgnitionEvent() != null) {
-					elements.add("    <ignitionevent>" + motorConfig.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
-				}
-				if (motorConfig.getIgnitionDelay() != null) {
-					elements.add("    <ignitiondelay>" + motorConfig.getIgnitionDelay() + "</ignitiondelay>");
-				}
-				
+				elements.add("    <ignitionevent>" + ignition.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
+				elements.add("    <ignitiondelay>" + ignition.getIgnitionDelay() + "</ignitiondelay>");
 				elements.add("  </ignitionconfiguration>");
 				
 			}
 		}
-		
-		elements.add("  <ignitionevent>"
-				+ mount.getDefaultIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
-				+ "</ignitionevent>");
-		elements.add("  <ignitiondelay>" + mount.getDefaultIgnitionDelay() + "</ignitiondelay>");
-		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
 		elements.add("</motormount>");
 		

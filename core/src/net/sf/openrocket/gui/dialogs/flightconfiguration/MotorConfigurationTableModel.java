@@ -19,12 +19,12 @@ import net.sf.openrocket.util.Coordinate;
  */
 class MotorConfigurationTableModel extends AbstractTableModel {
 	
-	private Translator trans = Application.getTranslator();
+	private static final Translator trans = Application.getTranslator();
 	
-	private final static String NONE = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.None");
-	private final static String MOTOR_MOUNT = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Mountheader");
-	private final static String MOTOR = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Motorheader");
-	private final static String IGNITION = FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Ignitionheader");
+	private static final String NONE = trans.get("edtmotorconfdlg.tbl.None");
+	private static final String MOTOR_MOUNT = trans.get("edtmotorconfdlg.tbl.Mountheader");
+	private static final String MOTOR = trans.get("edtmotorconfdlg.tbl.Motorheader");
+	private static final String IGNITION = trans.get("edtmotorconfdlg.tbl.Ignitionheader");
 	
 	private final Rocket rocket;
 	
@@ -63,13 +63,14 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 		}
 		case 1: {
 			MotorMount mount = findMount(row);
-			String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-			Motor motor = mount.getMotor(currentID);
+			String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			MotorConfiguration config = mount.getMotorConfiguration().get(id);
+			Motor motor = config.getMotor();
 			
 			if (motor == null)
 				return NONE;
 			
-			String str = motor.getDesignation(mount.getMotorDelay(currentID));
+			String str = motor.getDesignation(config.getEjectionDelay());
 			int count = getMountMultiplicity(mount);
 			if (count > 1) {
 				str = "" + count + Chars.TIMES + " " + str;
@@ -124,26 +125,16 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	
 	
 	private String getIgnitionEventString(int row) {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		MotorMount mount = findMount(row);
-		MotorConfiguration motorConfig = mount.getFlightConfiguration(currentID);
-		if (motorConfig == null) {
-			return NONE;
-		}
+		IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(id);
 		
-		IgnitionConfiguration.IgnitionEvent ignition = motorConfig.getIgnitionEvent();
-		Double ignitionDelay = motorConfig.getIgnitionDelay();
-		boolean isDefault = (ignition == null);
+		IgnitionConfiguration.IgnitionEvent ignitionEvent = ignitionConfig.getIgnitionEvent();
+		Double ignitionDelay = ignitionConfig.getIgnitionDelay();
+		boolean isDefault = mount.getIgnitionConfiguration().isDefault(id);
 		
-		if (ignition == null) {
-			ignition = mount.getDefaultIgnitionEvent();
-		}
-		if (ignitionDelay == null) {
-			ignitionDelay = mount.getDefaultIgnitionDelay();
-		}
-		
-		String str = trans.get("MotorMount.IgnitionEvent.short." + ignition.name());
-		if (ignitionDelay > 0) {
+		String str = trans.get("MotorMount.IgnitionEvent.short." + ignitionEvent.name());
+		if (ignitionDelay > 0.001) {
 			str = str + " + " + UnitGroup.UNITS_SHORT_TIME.toStringUnit(ignitionDelay);
 		}
 		if (isDefault) {

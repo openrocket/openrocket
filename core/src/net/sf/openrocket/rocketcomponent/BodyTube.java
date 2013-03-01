@@ -38,7 +38,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 		this.outerRadius = DEFAULT_RADIUS;
 		this.autoRadius = true;
 		
-		this.motorConfigurations = new FlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, new MotorConfiguration());
+		this.motorConfigurations = new MotorFlightConfigurationImpl<MotorConfiguration>(this, ComponentChangeEvent.MOTOR_CHANGE, MotorConfiguration.NO_MOTORS);
 		this.ignitionConfigurations = new FlightConfigurationImpl<IgnitionConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new IgnitionConfiguration());
 	}
 	

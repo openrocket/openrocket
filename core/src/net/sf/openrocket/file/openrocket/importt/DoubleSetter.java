@@ -4,12 +4,15 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.Reflection.Method;
 
 ////  DoubleSetter - sets a double value or (alternatively) if a specific string is encountered
 ////  calls a setXXX(boolean) method.
 class DoubleSetter implements Setter {
+	private final Reflection.Method configGetter;
 	private final Reflection.Method setMethod;
 	private final String specialString;
 	private final Reflection.Method specialMethod;
@@ -21,6 +24,7 @@ class DoubleSetter implements Setter {
 	 */
 	public DoubleSetter(Reflection.Method set) {
 		this.setMethod = set;
+		this.configGetter = null;
 		this.specialString = null;
 		this.specialMethod = null;
 		this.multiplier = 1.0;
@@ -33,6 +37,7 @@ class DoubleSetter implements Setter {
 	 */
 	public DoubleSetter(Reflection.Method set, double mul) {
 		this.setMethod = set;
+		this.configGetter = null;
 		this.specialString = null;
 		this.specialMethod = null;
 		this.multiplier = mul;
@@ -49,11 +54,26 @@ class DoubleSetter implements Setter {
 	public DoubleSetter(Reflection.Method set, String special,
 			Reflection.Method specialMethod) {
 		this.setMethod = set;
+		this.configGetter = null;
 		this.specialString = special;
 		this.specialMethod = specialMethod;
 		this.multiplier = 1.0;
 	}
 	
+	
+	/**
+	 * Set a double value of the default configuration of a FlightConfiguration object.
+	 * 
+	 * @param configGetter	getter method for the FlightConfiguration object
+	 * @param setter		setter method for the configuration object
+	 */
+	public DoubleSetter(Method configGetter, Method setter) {
+		this.setMethod = setter;
+		this.configGetter = configGetter;
+		this.specialString = null;
+		this.specialMethod = null;
+		this.multiplier = 1.0;
+	}
 	
 	@Override
 	public void set(RocketComponent c, String s, HashMap<String, String> attributes,
@@ -70,7 +90,14 @@ class DoubleSetter implements Setter {
 		// Normal case
 		try {
 			double d = Double.parseDouble(s);
-			setMethod.invoke(c, d * multiplier);
+			
+			if (configGetter == null) {
+				setMethod.invoke(c, d * multiplier);
+			} else {
+				FlightConfiguration<?> config = (FlightConfiguration<?>) configGetter.invoke(c);
+				Object obj = config.getDefault();
+				setMethod.invoke(obj, d * multiplier);
+			}
 		} catch (NumberFormatException e) {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 		}

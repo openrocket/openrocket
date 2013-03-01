@@ -278,4 +278,15 @@ public class TextUtilTest {
 		}
 	}
 	
+	
+	@Test
+	public void testEscapeXML() {
+		assertEquals("", TextUtil.escapeXML(""));
+		assertEquals("foo&amp;bar", TextUtil.escapeXML("foo&bar"));
+		assertEquals("&lt;html&gt;&amp;", TextUtil.escapeXML("<html>&"));
+		assertEquals("&quot;&#39;", TextUtil.escapeXML("\"'"));
+		assertEquals("foo\n\r\tbar", TextUtil.escapeXML("foo\n\r\tbar"));
+		assertEquals("foo&#0;&#1;&#31;&#127;bar", TextUtil.escapeXML("foo" + ((char) 0) + ((char) 1) + ((char) 31) + ((char) 127) + "bar"));
+	}
+	
 }
