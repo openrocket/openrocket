@@ -1,7 +1,4 @@
-package net.sf.openrocket.gui.figure3d;
-
-import java.util.HashMap;
-import java.util.Map;
+package net.sf.openrocket.gui.figure3d.geometry;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -14,6 +11,7 @@ import javax.media.opengl.glu.GLUtessellator;
 import javax.media.opengl.glu.GLUtessellatorCallback;
 import javax.media.opengl.glu.GLUtessellatorCallbackAdapter;
 
+import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -31,6 +29,7 @@ import net.sf.openrocket.util.Coordinate;
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class ComponentRenderer {
+	@SuppressWarnings("unused")
 	private static final LogHelper log = Application.getLogger();
 	
 	private int LOD = 80;
@@ -50,59 +49,62 @@ public class ComponentRenderer {
 		glu.gluQuadricTexture(q, true);
 	}
 	
-	private Map<RocketComponent, Integer> lists = new HashMap<RocketComponent, Integer>();
 	
 	public void updateFigure(GLAutoDrawable drawable) {
-		log.debug("Clearing Display Lists");
 		
-		GL2 gl = drawable.getGL().getGL2();
-		for (int i : lists.values()) {
-			gl.glDeleteLists(i, 1);
-		}
-		lists.clear();
 	}
 	
-	public void renderGeometry(GL2 gl, RocketComponent c) {
+	public Geometry getGeometry(final RocketComponent c, final Surface which) {
+		return new Geometry() {
+			
+			@Override
+			public void render(GL2 gl) {
+				renderGeometry(gl, c, which);
+			}
+			
+		};
+	}
+	
+	public Geometry getGeometry(final Motor motor, Surface which) {
+		return new Geometry() {
+			@Override
+			public void render(GL2 gl) {
+				renderMotor(gl, motor);
+			}
+		};
+	}
+	
+	private void renderGeometry(GL2 gl, RocketComponent c, Surface which) {
 		if (glu == null)
 			throw new IllegalStateException(this + " Not Initialized");
 		
 		glu.gluQuadricNormals(q, GLU.GLU_SMOOTH);
 		
+		Coordinate[] oo = c.toAbsolute(new Coordinate(0, 0, 0));
 		
-		if (lists.containsKey(c)) {
-			gl.glCallList(lists.get(c));
-		} else {
-			int list = gl.glGenLists(1);
-			gl.glNewList(list, GL2.GL_COMPILE_AND_EXECUTE);
+		for (Coordinate o : oo) {
+			gl.glPushMatrix();
 			
-			Coordinate[] oo = c.toAbsolute(new Coordinate(0, 0, 0));
+			gl.glTranslated(o.x, o.y, o.z);
 			
-			for (Coordinate o : oo) {
-				gl.glPushMatrix();
-				
-				gl.glTranslated(o.x, o.y, o.z);
-				
-				if (c instanceof BodyTube) {
-					renderTube(gl, (BodyTube) c);
-				} else if (c instanceof LaunchLug) {
-					renderLug(gl, (LaunchLug) c);
-				} else if (c instanceof RingComponent) {
-					renderRing(gl, (RingComponent) c);
-				} else if (c instanceof Transition) {
-					renderTransition(gl, (Transition) c);
-				} else if (c instanceof MassObject) {
-					renderMassObject(gl, (MassObject) c);
-				} else if (c instanceof FinSet) {
-					renderFinSet(gl, (FinSet) c);
-				} else {
-					renderOther(gl, c);
-				}
-				gl.glPopMatrix();
+			if (c instanceof BodyTube) {
+				renderTube(gl, (BodyTube) c, which);
+			} else if (c instanceof LaunchLug) {
+				renderLug(gl, (LaunchLug) c);
+			} else if (c instanceof RingComponent) {
+				renderRing(gl, (RingComponent) c);
+			} else if (c instanceof Transition) {
+				renderTransition(gl, (Transition) c);
+			} else if (c instanceof MassObject) {
+				renderMassObject(gl, (MassObject) c);
+			} else if (c instanceof FinSet) {
+				renderFinSet(gl, (FinSet) c);
+			} else {
+				renderOther(gl, c);
 			}
-			
-			gl.glEndList();
-			lists.put(c, list);
+			gl.glPopMatrix();
 		}
+		
 	}
 	
 	private void renderOther(GL2 gl, RocketComponent c) {
@@ -164,10 +166,32 @@ public class ComponentRenderer {
 		
 	}
 	
-	private void renderTube(GL2 gl, BodyTube t) {
+	private void renderTube(GL2 gl, BodyTube t, Surface which) {
+		//TODO REfactor without the extra transforms
+		
+		//outside
 		gl.glRotated(90, 0, 1.0, 0);
-		glu.gluCylinder(q, t.getOuterRadius(), t.getOuterRadius(),
-				t.getLength(), LOD, 1);
+		if (which == Surface.OUTSIDE)
+			glu.gluCylinder(q, t.getOuterRadius(), t.getOuterRadius(),
+					t.getLength(), LOD, 1);
+		
+		//edges
+		gl.glRotated(180, 0, 1.0, 0);
+		if (which == Surface.EDGES)
+			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
+		
+		gl.glRotated(180, 0, 1.0, 0);
+		gl.glTranslated(0, 0, t.getLength());
+		if (which == Surface.EDGES)
+			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
+		
+		
+		//inside
+		gl.glTranslated(0, 0, -t.getLength());
+		if (which == Surface.INSIDE)
+			glu.gluCylinder(q, t.getInnerRadius(), t.getInnerRadius(),
+					t.getLength(), LOD, 1);
+		
 	}
 	
 	private void renderRing(GL2 gl, RingComponent r) {
@@ -315,13 +339,11 @@ public class ComponentRenderer {
 		
 	}
 	
-	public void renderMotor(final GL2 gl, final Coordinate c, Motor motor) {
+	private void renderMotor(final GL2 gl, Motor motor) {
 		double l = motor.getLength();
 		double r = motor.getDiameter() / 2;
 		
 		gl.glPushMatrix();
-		
-		gl.glTranslated(c.x, c.y, c.z);
 		
 		gl.glRotated(90, 0, 1.0, 0);
 		

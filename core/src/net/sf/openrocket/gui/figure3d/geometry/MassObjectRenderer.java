@@ -112,46 +112,47 @@
  * in the design, construction, operation or maintenance of any nuclear
  * facility.
  */
-package net.sf.openrocket.gui.figure3d;
+package net.sf.openrocket.gui.figure3d.geometry;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
-import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.MassObject;
 
-public final class TransitionRenderer {
+final class MassObjectRenderer {
 	private static final boolean textureFlag = true;
-
-	private TransitionRenderer() {
+	
+	private MassObjectRenderer() {
 	}
-
-	public static final void drawTransition(final GL2 gl, final Transition tr,
+	
+	static final void drawMassObject(final GL2 gl, final MassObject o,
 			final int slices, final int stacks) {
-
+		
 		double da, r, dz;
 		double x, y, z, nz, nsign;
 		int i, j;
-
+		
 		nsign = 1.0f;
-
+		
 		da = 2.0f * PI / slices;
-		dz = (double) tr.getLength() / stacks;
-
+		dz = o.getLength() / stacks;
+		
 		double ds = 1.0f / slices;
 		double dt = 1.0f / stacks;
 		double t = 0.0f;
 		z = 0.0f;
-		r = (double) tr.getForeRadius();
 		for (j = 0; j < stacks; j++) {
-			r = (double) tr.getRadius(z);
-			double rNext = (double) tr.getRadius(z + dz);
-
+			r = getRadius(o, z);
+			double rNext = getRadius(o, z + dz);
 			if (j == stacks - 1)
-				rNext = (double) tr.getRadius(tr.getLength());
-
+				rNext = 0;
+			
+			if (j == stacks - 1)
+				rNext = 0;
+			
 			// Z component of normal vectors
 			nz = -(rNext - r) / dz;
-
+			
 			double s = 0.0f;
 			glBegin(gl, GL2.GL_QUAD_STRIP);
 			for (i = 0; i <= slices; i++) {
@@ -184,35 +185,50 @@ public final class TransitionRenderer {
 			t += dt;
 			z += dz;
 		} // for stacks
-
 	}
-
+	
+	private static final double getRadius(MassObject o, double z) {
+		double arc = Math.min(o.getLength(), 2 * o.getRadius()) * 0.35f;
+		double r = o.getRadius();
+		if (z == 0 || z == o.getLength())
+			return 0;
+		if (z < arc) {
+			double zz = z - arc;
+			return (r - arc) + Math.sqrt(arc * arc - zz * zz);
+		}
+		if (z > o.getLength() - arc) {
+			double zz = (z - o.getLength() + arc);
+			return (r - arc) + Math.sqrt(arc * arc - zz * zz);
+		}
+		return o.getRadius();
+	}
+	
 	// ----------------------------------------------------------------------
 	// Internals only below this point
 	//
-
-	private static final double PI = (double) Math.PI;
-
+	
+	private static final double PI = Math.PI;
+	
 	private static final void glBegin(GL gl, int mode) {
 		gl.getGL2().glBegin(mode);
 	}
-
+	
 	private static final void glEnd(GL gl) {
 		gl.getGL2().glEnd();
 	}
-
+	
 	private static final void glVertex3d(GL gl, double x, double y, double z) {
 		gl.getGL2().glVertex3d(x, y, z);
 	}
-
+	
 	private static final void glNormal3d(GL gl, double x, double y, double z) {
 		gl.getGL2().glNormal3d(x, y, z);
 	}
-
+	
 	private static final void glTexCoord2d(GL gl, double x, double y) {
 		gl.getGL2().glTexCoord2d(x, y);
 	}
-
+	
 	/**
 	 * Call glNormal3f after scaling normal to unit length.
 	 * 
@@ -222,8 +238,8 @@ public final class TransitionRenderer {
 	 */
 	private static final void normal3d(GL gl, double x, double y, double z) {
 		double mag;
-
-		mag = (double) Math.sqrt(x * x + y * y + z * z);
+		
+		mag = Math.sqrt(x * x + y * y + z * z);
 		if (mag > 0.00001F) {
 			x /= mag;
 			y /= mag;
@@ -231,17 +247,17 @@ public final class TransitionRenderer {
 		}
 		glNormal3d(gl, x, y, z);
 	}
-
+	
 	private static final void TXTR_COORD(GL gl, double x, double y) {
 		if (textureFlag)
 			glTexCoord2d(gl, x, y);
 	}
-
+	
 	private static final double sin(double r) {
-		return (double) Math.sin(r);
+		return Math.sin(r);
 	}
-
+	
 	private static final double cos(double r) {
-		return (double) Math.cos(r);
+		return Math.cos(r);
 	}
 }
