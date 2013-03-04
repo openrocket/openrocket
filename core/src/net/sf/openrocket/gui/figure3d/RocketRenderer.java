@@ -75,10 +75,10 @@ public abstract class RocketRenderer {
 			if (isDrawnTransparent(c)) {
 				gl.glEnable(GL.GL_CULL_FACE);
 				gl.glCullFace(GL.GL_FRONT);
-				cr.getGeometry(c, Surface.OUTSIDE).render(gl);
+				cr.getGeometry(c, Surface.ALL).render(gl);
 				gl.glDisable(GL.GL_CULL_FACE);
 			} else {
-				cr.getGeometry(c, Surface.OUTSIDE).render(gl);
+				cr.getGeometry(c, Surface.ALL).render(gl);
 			}
 		}
 		
@@ -117,14 +117,14 @@ public abstract class RocketRenderer {
 					// Draw as lines, set Z to nearest
 					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
 					gl.glDepthRange(0, 0);
-					cr.getGeometry(c, Surface.OUTSIDE).render(gl);
+					cr.getGeometry(c, Surface.ALL).render(gl);
 					
 					// Draw polygons, always passing depth test,
 					// setting Z to farthest
 					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
 					gl.glDepthRange(1, 1);
 					gl.glDepthFunc(GL.GL_ALWAYS);
-					cr.getGeometry(c, Surface.OUTSIDE).render(gl);
+					cr.getGeometry(c, Surface.ALL).render(gl);
 					gl.glDepthFunc(GL.GL_LESS);
 					gl.glDepthRange(0, 1);
 				}
@@ -133,6 +133,7 @@ public abstract class RocketRenderer {
 			gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_EMISSION, colorBlack, 0);
 		} // done with selection outline
 		
+		gl.glEnable(GL.GL_CULL_FACE);
 		// Draw all inner components
 		for (RocketComponent c : configuration) {
 			if (isDrawn(c)) {
@@ -141,6 +142,7 @@ public abstract class RocketRenderer {
 				}
 			}
 		}
+		gl.glDisable(GL.GL_CULL_FACE);
 		
 		renderMotors(gl, configuration);
 		
@@ -195,7 +197,7 @@ public abstract class RocketRenderer {
 	}
 	
 	protected void renderMotor(GL2 gl, Motor motor) {
-		cr.getGeometry(motor, Surface.OUTSIDE).render(gl);
+		cr.getGeometry(motor, Surface.ALL).render(gl);
 	}
 	
 }

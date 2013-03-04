@@ -4,8 +4,8 @@ import javax.media.opengl.GL2;
 
 public interface Geometry {
 	public static enum Surface {
-		OUTSIDE, INSIDE, EDGES;
+		ALL, OUTSIDE, INSIDE, EDGES;
 	}
-
+	
 	public void render(GL2 gl);
 }

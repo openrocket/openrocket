@@ -120,7 +120,7 @@ public class FigureRenderer extends RocketRenderer {
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 		
-		cr.getGeometry(c, Surface.OUTSIDE).render(gl);
+		cr.getGeometry(c, Surface.ALL).render(gl);
 	}
 	
 	@Override
