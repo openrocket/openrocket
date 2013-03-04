@@ -73,10 +73,7 @@ public abstract class RocketRenderer {
 			pickParts.add(c);
 			
 			if (isDrawnTransparent(c)) {
-				gl.glEnable(GL.GL_CULL_FACE);
-				gl.glCullFace(GL.GL_FRONT);
-				cr.getGeometry(c, Surface.ALL).render(gl);
-				gl.glDisable(GL.GL_CULL_FACE);
+				cr.getGeometry(c, Surface.INSIDE).render(gl);
 			} else {
 				cr.getGeometry(c, Surface.ALL).render(gl);
 			}
@@ -134,6 +131,8 @@ public abstract class RocketRenderer {
 		} // done with selection outline
 		
 		gl.glEnable(GL.GL_CULL_FACE);
+		gl.glCullFace(GL.GL_BACK);
+		
 		// Draw all inner components
 		for (RocketComponent c : configuration) {
 			if (isDrawn(c)) {
@@ -142,13 +141,13 @@ public abstract class RocketRenderer {
 				}
 			}
 		}
-		gl.glDisable(GL.GL_CULL_FACE);
+		//gl.glDisable(GL.GL_CULL_FACE);
 		
 		renderMotors(gl, configuration);
 		
 		// Draw Tube and Transition back faces, blended with depth test
 		// so that they show up behind.
-		gl.glEnable(GL.GL_CULL_FACE);
+		/*gl.glEnable(GL.GL_CULL_FACE);
 		gl.glCullFace(GL.GL_FRONT);
 		for (RocketComponent c : configuration) {
 			if (isDrawn(c)) {
@@ -158,11 +157,12 @@ public abstract class RocketRenderer {
 			}
 		}
 		gl.glDisable(GL.GL_CULL_FACE);
+		*/
 		
 		// Draw T&T front faces blended, without depth test
 		gl.glEnable(GL.GL_BLEND);
-		gl.glEnable(GL.GL_CULL_FACE);
-		gl.glCullFace(GL.GL_BACK);
+		//gl.glEnable(GL.GL_CULL_FACE);
+		//gl.glCullFace(GL.GL_BACK);
 		for (RocketComponent c : configuration) {
 			if (isDrawn(c)) {
 				if (isDrawnTransparent(c)) {
@@ -171,7 +171,7 @@ public abstract class RocketRenderer {
 			}
 		}
 		gl.glDisable(GL.GL_BLEND);
-		gl.glDisable(GL.GL_CULL_FACE);
+		//gl.glDisable(GL.GL_CULL_FACE);
 		
 	}
 	

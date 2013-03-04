@@ -102,9 +102,9 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public void renderComponent(final GL2 gl, final RocketComponent c, final float alpha) {
+		render(gl, cr.getGeometry(c, Surface.INSIDE), DefaultAppearance.getDefaultAppearance(c), true, 1.0f);
 		render(gl, cr.getGeometry(c, Surface.OUTSIDE), getAppearance(c), true, alpha);
 		render(gl, cr.getGeometry(c, Surface.EDGES), getAppearance(c), false, alpha);
-		render(gl, cr.getGeometry(c, Surface.INSIDE), DefaultAppearance.getDefaultAppearance(c), true, alpha);
 	}
 	
 	private void render(GL2 gl, Geometry g, Appearance a, boolean decals, float alpha) {
