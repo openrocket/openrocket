@@ -111,24 +111,19 @@ public class RealisticRenderer extends RocketRenderer {
 		final Decal t = a.getTexture();
 		final Texture tex = getTexture(t);
 		
-		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
 		
 		convertColor(a.getPaint(), color);
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 		
 		color[0] = color[1] = color[2] = (float) a.getShine();
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int) (100 * a.getShine()));
 		
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
-		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
 		
 		g.render(gl);
 		
@@ -155,9 +150,7 @@ public class RealisticRenderer extends RocketRenderer {
 			
 			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
-			gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
-			gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
 			
 			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 			gl.glEnable(GL.GL_BLEND);
