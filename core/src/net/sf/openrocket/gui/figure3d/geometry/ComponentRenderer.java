@@ -205,9 +205,12 @@ public class ComponentRenderer {
 		
 		
 		//inside
-		if (which == Surface.INSIDE)
+		if (which == Surface.INSIDE) {
+			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
 			glu.gluCylinder(q, t.getInnerRadius(), t.getInnerRadius(),
 					-t.getLength(), LOD, 1);
+			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
+		}
 		
 	}
 	
@@ -224,8 +227,10 @@ public class ComponentRenderer {
 		gl.glTranslated(0, 0, r.getLength());
 		glu.gluDisk(q, r.getInnerRadius(), r.getOuterRadius(), LOD, 2);
 		
+		glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
 		glu.gluCylinder(q, r.getInnerRadius(), r.getInnerRadius(),
 				-r.getLength(), LOD, 1);
+		glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
 		
 	}
 	
@@ -246,11 +251,13 @@ public class ComponentRenderer {
 		if (which == Surface.EDGES)
 			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
 		
-		
 		//inside
-		if (which == Surface.INSIDE)
+		if (which == Surface.INSIDE) {
+			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
 			glu.gluCylinder(q, t.getInnerRadius(), t.getInnerRadius(),
 					-t.getLength(), LOD, 1);
+			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
+		}
 	}
 	
 	private void renderMassObject(GL2 gl, MassObject o) {
