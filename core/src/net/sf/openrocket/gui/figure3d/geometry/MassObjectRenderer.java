@@ -129,10 +129,8 @@ final class MassObjectRenderer {
 			final int slices, final int stacks) {
 		
 		double da, r, dz;
-		double x, y, z, nz, nsign;
+		double x, y, z;
 		int i, j;
-		
-		nsign = 1.0f;
 		
 		da = 2.0f * PI / slices;
 		dz = o.getLength() / stacks;
@@ -144,14 +142,9 @@ final class MassObjectRenderer {
 		for (j = 0; j < stacks; j++) {
 			r = getRadius(o, z);
 			double rNext = getRadius(o, z + dz);
-			if (j == stacks - 1)
-				rNext = 0;
 			
 			if (j == stacks - 1)
 				rNext = 0;
-			
-			// Z component of normal vectors
-			nz = -(rNext - r) / dz;
 			
 			double s = 0.0f;
 			glBegin(gl, GL2.GL_QUAD_STRIP);
@@ -163,21 +156,21 @@ final class MassObjectRenderer {
 					x = sin((i * da));
 					y = cos((i * da));
 				}
-				if (nsign == 1.0f) {
-					normal3d(gl, (x * nsign), (y * nsign), (nz * nsign));
-					TXTR_COORD(gl, s, t);
-					glVertex3d(gl, (x * r), (y * r), z);
-					normal3d(gl, (x * nsign), (y * nsign), (nz * nsign));
-					TXTR_COORD(gl, s, t + dt);
-					glVertex3d(gl, (x * rNext), (y * rNext), (z + dz));
-				} else {
-					normal3d(gl, x * nsign, y * nsign, nz * nsign);
-					TXTR_COORD(gl, s, t);
-					glVertex3d(gl, (x * r), (y * r), z);
-					normal3d(gl, x * nsign, y * nsign, nz * nsign);
-					TXTR_COORD(gl, s, t + dt);
-					glVertex3d(gl, (x * rNext), (y * rNext), (z + dz));
-				}
+				
+				if (r == 0)
+					normal3d(gl, 0, 0, 1);
+				else
+					normal3d(gl, x, y, z);
+				TXTR_COORD(gl, s, t);
+				glVertex3d(gl, (x * r), (y * r), z);
+				
+				if (rNext == 0)
+					normal3d(gl, 0, 0, -1);
+				else
+					normal3d(gl, x, y, z);
+				TXTR_COORD(gl, s, t + dt);
+				glVertex3d(gl, (x * rNext), (y * rNext), (z + dz));
+				
 				s += ds;
 			} // for slices
 			glEnd(gl);
