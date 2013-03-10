@@ -120,92 +120,105 @@ public class ComponentRenderer {
 	}
 	
 	private void renderTransition(GL2 gl, Transition t, Surface which) {
-		//TODO take into account thickness.
-		
-		if (which == Surface.INSIDE) {
-			gl.glFrontFace(GL.GL_CCW);
-		}
-		
-		gl.glRotated(90, 0, 1.0, 0);
 		
 		if (which == Surface.OUTSIDE || which == Surface.INSIDE) {
+			gl.glPushMatrix();
+			gl.glRotated(90, 0, 1.0, 0);
+			if (which == Surface.INSIDE) {
+				gl.glFrontFace(GL.GL_CCW);
+			}
 			if (t.getType() == Transition.Shape.CONICAL) {
 				glu.gluCylinder(q, t.getForeRadius(), t.getAftRadius(),
 						t.getLength(), LOD, 1);
 			} else {
 				TransitionRenderer.drawTransition(gl, t, LOD, LOD);
 			}
+			if (which == Surface.INSIDE) {
+				gl.glFrontFace(GL.GL_CW);
+			}
+			gl.glPopMatrix();
 		}
 		
 		if (which == Surface.EDGES || which == Surface.INSIDE) {
 			// Render AFT shoulder
-			gl.glPushMatrix();
-			gl.glTranslated(0, 0, t.getLength());
-			
-			glu.gluCylinder(q, t.getAftShoulderRadius(), t.getAftShoulderRadius(),
-					t.getAftShoulderLength(), LOD, 1);
-			
-			gl.glRotated(180, 0, 1.0, 0);
-			
-			glu.gluDisk(q, t.getAftRadius(), t.getAftShoulderRadius(), LOD, 2);
-			
-			gl.glTranslated(0, 0, -t.getAftShoulderLength());
-			
-			if (t.isFilled() || t.isAftShoulderCapped()) {
-				glu.gluDisk(q, t.getAftShoulderRadius(), 0, LOD, 2);
+			{
+				gl.glPushMatrix();
+				gl.glTranslated(t.getLength(), 0, 0);
+				double iR = (t.isFilled() || t.isAftShoulderCapped()) ? 0 : t.getAftShoulderRadius() - t.getAftShoulderThickness();
+				if (which == Surface.EDGES) {
+					renderTube(gl, Surface.OUTSIDE, t.getAftShoulderRadius(), iR, t.getAftShoulderLength());
+					renderTube(gl, Surface.EDGES, t.getAftShoulderRadius(), iR, t.getAftShoulderLength());
+					gl.glPushMatrix();
+					gl.glRotated(90, 0, 1.0, 0);
+					glu.gluDisk(q, t.getAftShoulderRadius(), t.getAftRadius(), LOD, 2);
+					gl.glPopMatrix();
+					
+				} else {
+					renderTube(gl, Surface.INSIDE, t.getAftShoulderRadius(), iR, t.getAftShoulderLength());
+					gl.glPushMatrix();
+					gl.glRotated(270, 0, 1.0, 0);
+					glu.gluDisk(q, t.getAftShoulderRadius(), t.getAftRadius(), LOD, 2);
+					gl.glPopMatrix();
+				}
+				gl.glPopMatrix();
 			}
-			gl.glPopMatrix();
 			
-			// Render Fore Shoulder
-			gl.glPushMatrix();
-			gl.glRotated(180, 0, 1.0, 0);
-			
-			glu.gluCylinder(q, t.getForeShoulderRadius(),
-					t.getForeShoulderRadius(), t.getForeShoulderLength(), LOD, 1);
-			
-			gl.glRotated(180, 0, 1.0, 0);
-			
-			glu.gluDisk(q, t.getForeRadius(), t.getForeShoulderRadius(), LOD, 2);
-			
-			gl.glTranslated(0, 0, -t.getForeShoulderLength());
-			
-			if (t.isFilled() || t.isForeShoulderCapped()) {
-				glu.gluDisk(q, t.getForeShoulderRadius(), 0, LOD, 2);
+			// Render Fore shoulder
+			{
+				gl.glPushMatrix();
+				gl.glRotated(180, 0, 1.0, 0);
+				//gl.glTranslated(t.getLength(), 0, 0);
+				double iR = (t.isFilled() || t.isForeShoulderCapped()) ? 0 : t.getForeShoulderRadius() - t.getForeShoulderThickness();
+				if (which == Surface.EDGES) {
+					renderTube(gl, Surface.OUTSIDE, t.getForeShoulderRadius(), iR, t.getForeShoulderLength());
+					renderTube(gl, Surface.EDGES, t.getForeShoulderRadius(), iR, t.getForeShoulderLength());
+					gl.glPushMatrix();
+					gl.glRotated(90, 0, 1.0, 0);
+					glu.gluDisk(q, t.getForeShoulderRadius(), t.getForeRadius(), LOD, 2);
+					gl.glPopMatrix();
+					
+				} else {
+					renderTube(gl, Surface.INSIDE, t.getForeShoulderRadius(), iR, t.getForeShoulderLength());
+					gl.glPushMatrix();
+					gl.glRotated(270, 0, 1.0, 0);
+					glu.gluDisk(q, t.getForeShoulderRadius(), t.getForeRadius(), LOD, 2);
+					gl.glPopMatrix();
+				}
+				gl.glPopMatrix();
 			}
-			gl.glPopMatrix();
+			
 		}
 		
-		if (which == Surface.INSIDE) {
-			gl.glFrontFace(GL.GL_CW);
-		}
 	}
 	
-	private void renderTube(GL2 gl, BodyTube t, Surface which) {
+	private void renderTube(final GL2 gl, final Surface which, final double oR, final double iR, final double len) {
+		gl.glPushMatrix();
 		//outside
 		gl.glRotated(90, 0, 1.0, 0);
 		if (which == Surface.OUTSIDE)
-			glu.gluCylinder(q, t.getOuterRadius(), t.getOuterRadius(),
-					t.getLength(), LOD, 1);
+			glu.gluCylinder(q, oR, oR, len, LOD, 1);
 		
 		//edges
 		gl.glRotated(180, 0, 1.0, 0);
 		if (which == Surface.EDGES)
-			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
+			glu.gluDisk(q, iR, oR, LOD, 2);
 		
 		gl.glRotated(180, 0, 1.0, 0);
-		gl.glTranslated(0, 0, t.getLength());
+		gl.glTranslated(0, 0, len);
 		if (which == Surface.EDGES)
-			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
-		
+			glu.gluDisk(q, iR, oR, LOD, 2);
 		
 		//inside
 		if (which == Surface.INSIDE) {
 			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
-			glu.gluCylinder(q, t.getInnerRadius(), t.getInnerRadius(),
-					-t.getLength(), LOD, 1);
+			glu.gluCylinder(q, iR, iR, -len, LOD, 1);
 			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
 		}
-		
+		gl.glPopMatrix();
+	}
+	
+	private void renderTube(GL2 gl, BodyTube t, Surface which) {
+		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
 	}
 	
 	private void renderRing(GL2 gl, RingComponent r) {
@@ -229,29 +242,7 @@ public class ComponentRenderer {
 	}
 	
 	private void renderLug(GL2 gl, LaunchLug t, Surface which) {
-		//outside
-		gl.glRotated(90, 0, 1.0, 0);
-		if (which == Surface.OUTSIDE)
-			glu.gluCylinder(q, t.getOuterRadius(), t.getOuterRadius(),
-					t.getLength(), LOD, 1);
-		
-		//edges
-		gl.glRotated(180, 0, 1.0, 0);
-		if (which == Surface.EDGES)
-			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
-		
-		gl.glRotated(180, 0, 1.0, 0);
-		gl.glTranslated(0, 0, t.getLength());
-		if (which == Surface.EDGES)
-			glu.gluDisk(q, t.getInnerRadius(), t.getOuterRadius(), LOD, 2);
-		
-		//inside
-		if (which == Surface.INSIDE) {
-			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
-			glu.gluCylinder(q, t.getInnerRadius(), t.getInnerRadius(),
-					-t.getLength(), LOD, 1);
-			glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
-		}
+		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
 	}
 	
 	private void renderMassObject(GL2 gl, MassObject o) {
