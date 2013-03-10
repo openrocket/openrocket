@@ -13,6 +13,7 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
 import net.sf.openrocket.gui.figure3d.geometry.ComponentRenderer;
+import net.sf.openrocket.gui.figure3d.geometry.DisplayListComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
@@ -28,7 +29,7 @@ import net.sf.openrocket.util.Coordinate;
 public abstract class RocketRenderer {
 	protected static final LogHelper log = Application.getLogger();
 	
-	final ComponentRenderer cr = new ComponentRenderer();
+	final ComponentRenderer cr = new DisplayListComponentRenderer();
 	
 	private final float[] selectedEmissive = { 1, 0, 0, 1 };
 	private final float[] colorBlack = { 0, 0, 0, 1 };

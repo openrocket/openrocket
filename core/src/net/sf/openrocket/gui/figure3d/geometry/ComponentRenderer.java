@@ -72,7 +72,7 @@ public class ComponentRenderer {
 		};
 	}
 	
-	private void renderGeometry(GL2 gl, RocketComponent c, Surface which) {
+	protected void renderGeometry(GL2 gl, RocketComponent c, Surface which) {
 		if (glu == null)
 			throw new IllegalStateException(this + " Not Initialized");
 		
