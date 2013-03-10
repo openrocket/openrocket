@@ -128,29 +128,29 @@ final class TransitionRenderer {
 	static final void drawTransition(final GL2 gl, final Transition tr,
 			final int slices, final int stacks) {
 		
-		double da, r, dz;
-		double x, y, z, nz, nsign;
-		int i, j;
-		
-		nsign = 1.0f;
+		double da, r, dzBase;
+		double x, y, z, nz, lnz = 0;
+		int i;
 		
 		da = 2.0f * PI / slices;
-		dz = (double) tr.getLength() / stacks;
+		dzBase = (double) tr.getLength() / stacks;
 		
 		double ds = 1.0f / slices;
-		double dt = 1.0f / stacks;
-		double t = 0.0f;
+		
 		z = 0.0f;
 		r = (double) tr.getForeRadius();
-		for (j = 0; j < stacks; j++) {
-			r = (double) tr.getRadius(z);
-			double rNext = (double) tr.getRadius(z + dz);
+		while (z < tr.getLength()) {
+			double t = z / tr.getLength();
 			
-			if (j == stacks - 1)
-				rNext = (double) tr.getRadius(tr.getLength());
+			double dz = t < 0.025 ? dzBase / 8.0 : dzBase;
+			double zNext = Math.min(z + dz, tr.getLength());
+			
+			r = tr.getRadius(z);
+			double rNext = tr.getRadius(zNext);
+			
 			
 			// Z component of normal vectors
-			nz = -(rNext - r) / dz;
+			nz = (r - rNext) / dz;
 			
 			double s = 0.0f;
 			glBegin(gl, GL2.GL_QUAD_STRIP);
@@ -162,27 +162,36 @@ final class TransitionRenderer {
 					x = sin((i * da));
 					y = cos((i * da));
 				}
-				if (nsign == 1.0f) {
-					normal3d(gl, (x * nsign), (y * nsign), (nz * nsign));
-					TXTR_COORD(gl, s, t);
-					glVertex3d(gl, (x * r), (y * r), z);
-					normal3d(gl, (x * nsign), (y * nsign), (nz * nsign));
-					TXTR_COORD(gl, s, t + dt);
-					glVertex3d(gl, (x * rNext), (y * rNext), (z + dz));
+				
+				if (r == 0) {
+					switch (tr.getType()) {
+					case CONICAL:
+					case OGIVE:
+					case PARABOLIC:
+						normal3d(gl, x, y, nz);
+						break;
+					case ELLIPSOID:
+					case POWER:
+					case HAACK:
+						normal3d(gl, 0, 0, -1);
+						break;
+					}
+					
 				} else {
-					normal3d(gl, x * nsign, y * nsign, nz * nsign);
-					TXTR_COORD(gl, s, t);
-					glVertex3d(gl, (x * r), (y * r), z);
-					normal3d(gl, x * nsign, y * nsign, nz * nsign);
-					TXTR_COORD(gl, s, t + dt);
-					glVertex3d(gl, (x * rNext), (y * rNext), (z + dz));
+					normal3d(gl, x, y, lnz);
 				}
+				TXTR_COORD(gl, s, z / tr.getLength());
+				glVertex3d(gl, (x * r), (y * r), z);
+				
+				normal3d(gl, x, y, nz);
+				TXTR_COORD(gl, s, zNext / tr.getLength());
+				glVertex3d(gl, (x * rNext), (y * rNext), zNext);
+				
 				s += ds;
 			} // for slices
 			glEnd(gl);
-			// r += dr;
-			t += dt;
-			z += dz;
+			lnz = nz;
+			z = Math.min(z + dz, tr.getLength());
 		} // for stacks
 		
 	}

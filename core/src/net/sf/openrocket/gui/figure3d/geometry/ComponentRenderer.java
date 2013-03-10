@@ -17,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
@@ -127,12 +128,7 @@ public class ComponentRenderer {
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CCW);
 			}
-			if (t.getType() == Transition.Shape.CONICAL) {
-				glu.gluCylinder(q, t.getForeRadius(), t.getAftRadius(),
-						t.getLength(), LOD, 1);
-			} else {
-				TransitionRenderer.drawTransition(gl, t, LOD, LOD);
-			}
+			TransitionRenderer.drawTransition(gl, t, LOD, t.getType() == Shape.CONICAL ? 4 : LOD / 2);
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CW);
 			}
@@ -248,7 +244,7 @@ public class ComponentRenderer {
 	private void renderMassObject(GL2 gl, MassObject o) {
 		gl.glRotated(90, 0, 1.0, 0);
 		
-		MassObjectRenderer.drawMassObject(gl, o, LOD, LOD);
+		MassObjectRenderer.drawMassObject(gl, o, LOD / 2, LOD / 2);
 	}
 	
 	private void renderMotor(final GL2 gl, Motor motor) {
