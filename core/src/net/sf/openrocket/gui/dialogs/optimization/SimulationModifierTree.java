@@ -119,8 +119,8 @@ public class SimulationModifierTree extends BasicTree {
 	}
 	
 	
-
-
+	
+	
 	public class ComponentModifierTreeRenderer extends DefaultTreeCellRenderer {
 		private Font componentFont;
 		private Font stringFont;
@@ -142,7 +142,7 @@ public class SimulationModifierTree extends BasicTree {
 				makeFonts();
 			}
 			
-
+			
 			// Customize based on line type
 			
 			Object object = ((DefaultMutableTreeNode) value).getUserObject();
@@ -150,7 +150,7 @@ public class SimulationModifierTree extends BasicTree {
 			// Set icon (for rocket components, null for others)
 			setIcon(ComponentIcons.getSmallIcon(object.getClass()));
 			
-
+			
 			// Set text color/style
 			if (object instanceof RocketComponent) {
 				setForeground(Color.GRAY);
@@ -160,7 +160,7 @@ public class SimulationModifierTree extends BasicTree {
 				RocketComponent c = (RocketComponent) object;
 				String comment = c.getComment().trim();
 				if (comment.length() > 0) {
-					comment = TextUtil.htmlEncode(comment);
+					comment = TextUtil.escapeXML(comment);
 					comment = "<html>" + comment.replace("\n", "<br>");
 					this.setToolTipText(comment);
 				} else {

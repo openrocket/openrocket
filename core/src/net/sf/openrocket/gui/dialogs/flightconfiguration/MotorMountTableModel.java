@@ -1,24 +1,36 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
+
+import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.util.ArrayList;
 
 /**
  * The table model for selecting whether components are motor mounts or not.
  */
 class MotorMountTableModel extends AbstractTableModel {
 	
-	/**
-	 * 
-	 */
 	private final MotorConfigurationPanel motorConfigurationPanel;
-
+	
+	private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
+	
 	/**
 	 * @param motorConfigurationPanel
 	 */
-	MotorMountTableModel(MotorConfigurationPanel motorConfigurationPanel) {
+	MotorMountTableModel(MotorConfigurationPanel motorConfigurationPanel, Rocket rocket) {
 		this.motorConfigurationPanel = motorConfigurationPanel;
+		
+		for (RocketComponent c : rocket) {
+			if (c instanceof MotorMount) {
+				potentialMounts.add((MotorMount) c);
+			}
+		}
 	}
-
+	
 	@Override
 	public int getColumnCount() {
 		return 2;
@@ -26,7 +38,7 @@ class MotorMountTableModel extends AbstractTableModel {
 	
 	@Override
 	public int getRowCount() {
-		return this.motorConfigurationPanel.mounts.length;
+		return potentialMounts.size();
 	}
 	
 	@Override
@@ -47,10 +59,10 @@ class MotorMountTableModel extends AbstractTableModel {
 	public Object getValueAt(int row, int column) {
 		switch (column) {
 		case 0:
-			return new Boolean(this.motorConfigurationPanel.mounts[row].isMotorMount());
+			return new Boolean(potentialMounts.get(row).isMotorMount());
 			
 		case 1:
-			return this.motorConfigurationPanel.mounts[row].toString();
+			return potentialMounts.get(row).toString();
 			
 		default:
 			throw new IndexOutOfBoundsException("column=" + column);
@@ -68,6 +80,8 @@ class MotorMountTableModel extends AbstractTableModel {
 			throw new IllegalArgumentException("column=" + column + ", value=" + value);
 		}
 		
-		this.motorConfigurationPanel.makeMotorMount( this.motorConfigurationPanel.mounts[row], (Boolean) value);
+		MotorMount mount = potentialMounts.get(row);
+		mount.setMotorMount((Boolean) value);
+		this.motorConfigurationPanel.fireTableDataChanged();
 	}
 }

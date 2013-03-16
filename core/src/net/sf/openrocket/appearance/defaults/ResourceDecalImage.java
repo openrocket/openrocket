@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.EventListener;
 
 import net.sf.openrocket.appearance.DecalImage;
+import net.sf.openrocket.util.StateChangeListener;
 
 
 class ResourceDecalImage implements DecalImage {
@@ -38,12 +38,12 @@ class ResourceDecalImage implements DecalImage {
 	}
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		//Unimplemented, this can not change
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		//Unimplemented, this can not change
 	}
 	

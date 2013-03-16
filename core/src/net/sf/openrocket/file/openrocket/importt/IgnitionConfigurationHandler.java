@@ -9,21 +9,19 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
 
 import org.xml.sax.SAXException;
 
 class IgnitionConfigurationHandler extends AbstractElementHandler {
-	/** File version where latest digest format was introduced */
-	private static final int MOTOR_DIGEST_VERSION = 104;
-	
-	private final DocumentLoadingContext context;
 	
 	private Double ignitionDelay = null;
-	private MotorConfiguration.IgnitionEvent ignitionEvent = null;
+	private IgnitionEvent ignitionEvent = null;
+	
 	
 	public IgnitionConfigurationHandler(DocumentLoadingContext context) {
-		this.context = context;
+		
 	}
 	
 	
@@ -34,13 +32,17 @@ class IgnitionConfigurationHandler extends AbstractElementHandler {
 	}
 	
 	
-	public Double getIgnitionDelay() {
-		return ignitionDelay;
+	public IgnitionConfiguration getConfiguration(IgnitionConfiguration def) {
+		IgnitionConfiguration config = def.clone();
+		if (ignitionEvent != null) {
+			config.setIgnitionEvent(ignitionEvent);
+		}
+		if (ignitionDelay != null) {
+			config.setIgnitionDelay(ignitionDelay);
+		}
+		return config;
 	}
 	
-	public MotorConfiguration.IgnitionEvent getIgnitionEvent() {
-		return ignitionEvent;
-	}
 	
 	@Override
 	public void closeElement(String element, HashMap<String, String> attributes,
@@ -50,7 +52,7 @@ class IgnitionConfigurationHandler extends AbstractElementHandler {
 		
 		if (element.equals("ignitionevent")) {
 			
-			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
+			for (IgnitionEvent e : IgnitionEvent.values()) {
 				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					ignitionEvent = e;
 					break;

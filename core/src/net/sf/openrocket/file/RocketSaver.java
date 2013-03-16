@@ -40,22 +40,4 @@ public abstract class RocketSaver {
 	 * @return			the estimated number of bytes the storage would take.
 	 */
 	public abstract long estimateFileSize(OpenRocketDocument doc, StorageOptions options);
-	
-	public static String escapeXML(String s) {
-
-		s = s.replace("&", "&amp;");
-		s = s.replace("<", "&lt;");
-		s = s.replace(">", "&gt;");
-		s = s.replace("\"","&quot;");
-		s = s.replace("'", "&apos;");
-		
-		for (int i=0; i < s.length(); i++) {
-			char n = s.charAt(i);
-			if (((n < 32) && (n != 9) && (n != 10) && (n != 13)) || (n == 127)) {
-				s = s.substring(0,i) + "&#" + ((int)n) + ";" + s.substring(i+1);
-			}
-		}
-		
-		return s;
-	}
 }

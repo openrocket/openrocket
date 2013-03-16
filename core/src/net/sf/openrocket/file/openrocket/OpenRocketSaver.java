@@ -223,7 +223,7 @@ public class OpenRocketSaver extends RocketSaver {
 		 * Otherwise use version 1.0.
 		 */
 		
-		// Search the rocket for any Appearnces or non-motor flight configurations (version 1.6)
+		// Search the rocket for any Appearances or non-motor flight configurations (version 1.6)
 		for (RocketComponent c : document.getRocket()) {
 			if (c.getAppearance() != null) {
 				return FILE_VERSION_DIVISOR + 6;
@@ -241,7 +241,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Search for recovery device deployment type LOWER_STAGE_SEPARATION (version 1.5)
 		for (RocketComponent c : document.getRocket()) {
 			if (c instanceof RecoveryDevice) {
-				if (((RecoveryDevice) c).getDefaultDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
+				if (((RecoveryDevice) c).getDeploymentConfiguration().getDefault().getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) {
 					return FILE_VERSION_DIVISOR + 5;
 				}
 			}
@@ -355,7 +355,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<simulation status=\"" + enumToXMLName(simulation.getStatus()) + "\">");
 		indent++;
 		
-		writeln("<name>" + escapeXML(simulation.getName()) + "</name>");
+		writeln("<name>" + TextUtil.escapeXML(simulation.getName()) + "</name>");
 		// TODO: MEDIUM: Other simulators/calculators
 		
 		writeln("<simulator>RK4Simulator</simulator>");
@@ -393,7 +393,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		
 		for (String s : simulation.getSimulationListeners()) {
-			writeElement("listener", escapeXML(s));
+			writeElement("listener", TextUtil.escapeXML(s));
 		}
 		
 		// Write basic simulation data
@@ -424,7 +424,7 @@ public class OpenRocketSaver extends RocketSaver {
 			indent++;
 			
 			for (Warning w : data.getWarningSet()) {
-				writeElement("warning", escapeXML(w.toString()));
+				writeElement("warning", TextUtil.escapeXML(w.toString()));
 			}
 			
 			// Check whether to store data
@@ -446,7 +446,6 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("</simulation>");
 		
 	}
-	
 	
 	
 	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip)
@@ -472,7 +471,7 @@ public class OpenRocketSaver extends RocketSaver {
 		// Build the <databranch> tag
 		StringBuilder sb = new StringBuilder();
 		sb.append("<databranch name=\"");
-		sb.append(escapeXML(branch.getBranchName()));
+		sb.append(TextUtil.escapeXML(branch.getBranchName()));
 		
 		// Kevins version where typekeys are used
 		/*
@@ -488,7 +487,7 @@ public class OpenRocketSaver extends RocketSaver {
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)
 				sb.append(",");
-			sb.append(escapeXML(types[i].getName()));
+			sb.append(TextUtil.escapeXML(types[i].getName()));
 		}
 		sb.append("\">");
 		writeln(sb.toString());

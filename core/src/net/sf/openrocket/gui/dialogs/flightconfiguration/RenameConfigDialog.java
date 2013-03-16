@@ -10,23 +10,27 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
 
 public class RenameConfigDialog extends JDialog {
 	
-	RenameConfigDialog( final Rocket rocket, final FlightConfigurationDialog parent ) {
-		super(parent, FlightConfigurationDialog.trans.get("edtmotorconfdlg.title.Renameconf"),Dialog.ModalityType.APPLICATION_MODAL);
+	private static final Translator trans = Application.getTranslator();
+	
+	RenameConfigDialog(final FlightConfigurationDialog parent, final Rocket rocket) {
+		super(parent, trans.get("edtmotorconfdlg.title.Renameconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		final Configuration config = rocket.getDefaultConfiguration();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		final JTextArea textbox = new JTextArea( config.getFlightConfigurationDescription() );
+		final JTextArea textbox = new JTextArea(config.getFlightConfigurationDescription());
 		panel.add(textbox, "span, w 200lp, wrap");
 		
 		JButton okButton = new JButton("Ok");
-		okButton.addActionListener( new ActionListener() {
-
+		okButton.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				parent.changeConfigurationName(textbox.getText());
@@ -35,11 +39,11 @@ public class RenameConfigDialog extends JDialog {
 			
 		});
 		
-		panel.add( okButton );
+		panel.add(okButton);
 		
 		JButton defaultButton = new JButton("Reset to default");
-		defaultButton.addActionListener( new ActionListener() {
-
+		defaultButton.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				parent.changeConfigurationName(null);
@@ -48,11 +52,11 @@ public class RenameConfigDialog extends JDialog {
 			
 		});
 		
-		panel.add( defaultButton );
+		panel.add(defaultButton);
 		
 		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener( new ActionListener() {
-
+		cancel.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				RenameConfigDialog.this.setVisible(false);
@@ -60,13 +64,13 @@ public class RenameConfigDialog extends JDialog {
 			
 		});
 		
-		panel.add( cancel );
-
+		panel.add(cancel);
+		
 		this.setContentPane(panel);
 		this.validate();
 		this.pack();
 		this.setLocationByPlatform(true);
-
+		
 	}
-
+	
 }

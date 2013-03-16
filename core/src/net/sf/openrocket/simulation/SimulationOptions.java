@@ -38,16 +38,16 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
-
+	
 	private final Rocket rocket;
 	private String motorID = null;
 	
-
+	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
 	 * equals and copyFrom methods!!
 	 */
-
+	
 	// TODO: HIGH: Fetch default values from Prefs!
 	
 	private double launchRodLength = 1;
@@ -58,11 +58,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	/** Launch rod direction, 0 = upwind, PI = downwind. */
 	private double launchRodDirection = 0;
 	
-
+	
 	private double windAverage = 2.0;
 	private double windTurbulence = 0.1;
 	
-
+	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
@@ -76,7 +76,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double launchTemperature = ExtendedISAModel.STANDARD_TEMPERATURE;
 	private double launchPressure = ExtendedISAModel.STANDARD_PRESSURE;
 	
-
+	
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
@@ -84,11 +84,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	private boolean calculateExtras = true;
 	
-
+	
 	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
 	
-
+	
 	public SimulationOptions(Rocket rocket) {
 		this.rocket = rocket;
 	}
@@ -158,7 +158,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public double getWindSpeedAverage() {
 		return windAverage;
 	}
@@ -204,9 +204,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
-
-
+	
+	
+	
 	public double getLaunchAltitude() {
 		return launchAltitude;
 	}
@@ -276,7 +276,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public void setLaunchTemperature(double launchTemperature) {
 		if (MathUtil.equals(this.launchTemperature, launchTemperature))
 			return;
@@ -285,13 +285,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public double getLaunchPressure() {
 		return launchPressure;
 	}
 	
 	
-
+	
 	public void setLaunchPressure(double launchPressure) {
 		if (MathUtil.equals(this.launchPressure, launchPressure))
 			return;
@@ -338,13 +338,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public boolean getCalculateExtras() {
 		return calculateExtras;
 	}
 	
 	
-
+	
 	public void setCalculateExtras(boolean calculateExtras) {
 		if (this.calculateExtras == calculateExtras)
 			return;
@@ -353,7 +353,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public int getRandomSeed() {
 		return randomSeed;
 	}
@@ -380,7 +380,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	@Override
 	public SimulationOptions clone() {
 		try {
@@ -438,7 +438,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	/**
 	 * Compares whether the two simulation conditions are equal.  The two are considered
 	 * equal if the rocket, motor id and all variables are equal.
@@ -476,12 +476,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
 	}
 	
@@ -492,8 +492,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listeners.toArray(new EventListener[0]);
 		for (EventListener l : list) {
-			if ( l instanceof StateChangeListener ) {
-				((StateChangeListener)l).stateChanged(event);
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
 			}
 		}
 	}

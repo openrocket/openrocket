@@ -20,7 +20,7 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 	}
 	
 	
-
+	
 	@Override
 	public void updateFields() {
 		super.updateFields();
@@ -28,7 +28,7 @@ public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 		if (altitudeComponents == null)
 			return;
 		
-		boolean enabled = (((RecoveryDevice) component).getDefaultDeployEvent() == DeployEvent.ALTITUDE);
+		boolean enabled = (((RecoveryDevice) component).getDeploymentConfiguration().getDefault().getDeployEvent() == DeployEvent.ALTITUDE);
 		
 		for (JComponent c : altitudeComponents) {
 			c.setEnabled(enabled);

@@ -9,7 +9,7 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 
@@ -64,9 +64,11 @@ class MotorMountHandler extends AbstractElementHandler {
 				return;
 			}
 			
-			Motor motor = motorHandler.getMotor(warnings);
-			mount.setMotor(id, motor);
-			mount.setMotorDelay(id, motorHandler.getDelay(warnings));
+			MotorConfiguration config = new MotorConfiguration();
+			config.setMotor(motorHandler.getMotor(warnings));
+			config.setEjectionDelay(motorHandler.getDelay(warnings));
+			mount.getMotorConfiguration().set(id, config);
+			
 			return;
 		}
 		
@@ -76,15 +78,15 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Illegal motor specification, ignoring."));
 				return;
 			}
-			MotorConfiguration motorConfig = mount.getFlightConfiguration(id);
-			motorConfig.setIgnitionEvent(ignitionConfigHandler.getIgnitionEvent());
-			motorConfig.setIgnitionDelay(ignitionConfigHandler.getIgnitionDelay());
+			
+			IgnitionConfiguration def = mount.getIgnitionConfiguration().getDefault();
+			mount.getIgnitionConfiguration().set(id, ignitionConfigHandler.getConfiguration(def));
 			return;
 		}
 		
 		if (element.equals("ignitionevent")) {
-			MotorConfiguration.IgnitionEvent event = null;
-			for (MotorConfiguration.IgnitionEvent e : MotorConfiguration.IgnitionEvent.values()) {
+			IgnitionConfiguration.IgnitionEvent event = null;
+			for (IgnitionConfiguration.IgnitionEvent e : IgnitionConfiguration.IgnitionEvent.values()) {
 				if (e.name().toLowerCase(Locale.ENGLISH).replaceAll("_", "").equals(content)) {
 					event = e;
 					break;
@@ -94,7 +96,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Unknown ignition event type '" + content + "', ignoring."));
 				return;
 			}
-			mount.setDefaultIgnitionEvent(event);
+			mount.getIgnitionConfiguration().getDefault().setIgnitionEvent(event);
 			return;
 		}
 		
@@ -106,7 +108,7 @@ class MotorMountHandler extends AbstractElementHandler {
 				warnings.add(Warning.fromString("Illegal ignition delay specified, ignoring."));
 				return;
 			}
-			mount.setDefaultIgnitionDelay(d);
+			mount.getIgnitionConfiguration().getDefault().setIgnitionDelay(d);
 			return;
 		}
 		

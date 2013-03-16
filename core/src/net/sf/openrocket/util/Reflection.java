@@ -2,13 +2,12 @@ package net.sf.openrocket.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 
 public class Reflection {
-	
-	private static final String ROCKETCOMPONENT_PACKAGE = "net.sf.openrocket.rocketcomponent";
 	
 	/**
 	 * Simple wrapper class that converts the Method.invoke() exceptions into suitable
@@ -88,25 +87,24 @@ public class Reflection {
 	}
 	
 	
-
+	
 	/**
-	 * Find a method from the rocket component classes.
+	 * Find a method from a class.
 	 * Throws an exception if method not found.
 	 */
-	public static Reflection.Method findMethod(
-			Class<? extends RocketComponent> componentClass,
-			String method, Class<?>... params) {
-		Reflection.Method m = findMethod(ROCKETCOMPONENT_PACKAGE, componentClass,
-				"", method, params);
-		if (m == null) {
-			throw new BugException("Could not find method for componentClass="
-					+ componentClass + " method=" + method);
+	public static Reflection.Method findMethod(Class<?> c, String method, Class<?>... params) {
+		
+		java.lang.reflect.Method m;
+		try {
+			m = c.getMethod(method, params);
+			return new Reflection.Method(m);
+		} catch (NoSuchMethodException e) {
+			throw new BugException("Could not find method " + method + "(" + Arrays.toString(params) + ") from class " + c);
 		}
-		return m;
 	}
 	
 	
-
+	
 	public static Reflection.Method findMethod(String pack, RocketComponent component,
 			String method, Class<?>... params) {
 		return findMethod(pack, component.getClass(), "", method, params);

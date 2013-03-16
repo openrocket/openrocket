@@ -1,16 +1,17 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.EventObject;
+import java.util.List;
+
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
-public class StageSeparationConfiguration implements Cloneable {
-
-	private static final Translator trans = Application.getTranslator();
-
-	private StageSeparationConfiguration.SeparationEvent separationEvent = StageSeparationConfiguration.SeparationEvent.UPPER_IGNITION;
-	private double separationDelay = 0;
-
+public class StageSeparationConfiguration implements FlightConfigurableParameter<StageSeparationConfiguration> {
+	
 	public static enum SeparationEvent {
 		//// Upper stage motor ignition
 		UPPER_IGNITION(trans.get("Stage.SeparationEvent.UPPER_IGNITION")) {
@@ -93,33 +94,52 @@ public class StageSeparationConfiguration implements Cloneable {
 			return description;
 		}
 	}
-
-	public StageSeparationConfiguration.SeparationEvent getSeparationEvent() {
+	
+	
+	private static final Translator trans = Application.getTranslator();
+	
+	private final List<StateChangeListener> listeners = new ArrayList<StateChangeListener>();
+	
+	private SeparationEvent separationEvent = SeparationEvent.UPPER_IGNITION;
+	private double separationDelay = 0;
+	
+	
+	public SeparationEvent getSeparationEvent() {
 		return separationEvent;
 	}
-
-	public void setSeparationEvent(
-			StageSeparationConfiguration.SeparationEvent separationEvent) {
+	
+	public void setSeparationEvent(SeparationEvent separationEvent) {
+		if (separationEvent == null) {
+			throw new NullPointerException("separationEvent is null");
+		}
+		if (this.separationEvent == separationEvent) {
+			return;
+		}
 		this.separationEvent = separationEvent;
+		fireChangeEvent();
 	}
-
+	
 	public double getSeparationDelay() {
 		return separationDelay;
 	}
-
+	
 	public void setSeparationDelay(double separationDelay) {
+		if (MathUtil.equals(this.separationDelay, separationDelay)) {
+			return;
+		}
 		this.separationDelay = separationDelay;
+		fireChangeEvent();
 	}
-
+	
 	@Override
 	public String toString() {
-		if ( separationDelay > 0 ) {
-			return separationEvent.toString() + " +" + separationDelay + "s";
+		if (separationDelay > 0) {
+			return separationEvent.toString() + " + " + separationDelay + "s";
 		} else {
 			return separationEvent.toString();
 		}
 	}
-
+	
 	@Override
 	public StageSeparationConfiguration clone() {
 		StageSeparationConfiguration clone = new StageSeparationConfiguration();
@@ -127,5 +147,23 @@ public class StageSeparationConfiguration implements Cloneable {
 		clone.separationDelay = this.separationDelay;
 		return clone;
 	}
-
+	
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private void fireChangeEvent() {
+		EventObject event = new EventObject(this);
+		Object[] list = listeners.toArray();
+		for (Object l : list) {
+			((StateChangeListener) l).stateChanged(event);
+		}
+	}
+	
 }

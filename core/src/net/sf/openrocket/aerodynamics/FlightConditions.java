@@ -26,14 +26,14 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	private EventObject event = new EventObject(this);
 	
-
+	
 	/** Reference length used in calculations. */
 	private double refLength = 1.0;
 	
 	/** Reference area used in calculations. */
 	private double refArea = Math.PI * 0.25;
 	
-
+	
 	/** Angle of attack. */
 	private double aoa = 0;
 	
@@ -59,7 +59,7 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	 */
 	private double beta = MathUtil.safeSqrt(1 - mach * mach);
 	
-
+	
 	/** Current roll rate. */
 	private double rollRate = 0;
 	
@@ -68,10 +68,10 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	
 	private Coordinate pitchCenter = Coordinate.NUL;
 	
-
+	
 	private AtmosphericConditions atmosphericConditions = new AtmosphericConditions();
 	
-
+	
 	private int modID;
 	private int modIDadd = 0;
 	
@@ -326,8 +326,8 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * @return the pitchCenter
 	 */
@@ -445,12 +445,12 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 	
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		listenerList.add(0, listener);
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		listenerList.remove(listener);
 	}
 	
@@ -459,8 +459,8 @@ public class FlightConditions implements Cloneable, ChangeSource, Monitorable {
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] listeners = listenerList.toArray(new EventListener[0]);
 		for (EventListener l : listeners) {
-			if ( l instanceof StateChangeListener ) {
-				((StateChangeListener)l).stateChanged(event);
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
 			}
 		}
 	}

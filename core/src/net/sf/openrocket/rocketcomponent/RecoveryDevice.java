@@ -1,12 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
@@ -23,33 +18,22 @@ import net.sf.openrocket.util.MathUtil;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RecoveryDevice extends MassObject implements FlightConfigurable<DeploymentConfiguration> {
-	private static final Translator trans = Application.getTranslator();
-	
-	private Map<String,DeploymentConfiguration> deploymentConfigurations = new HashMap<String,DeploymentConfiguration>();
-	
-	private DeploymentConfiguration defaultDeploymentConfig = new DeploymentConfiguration();
+public abstract class RecoveryDevice extends MassObject implements FlightConfigurableComponent {
 	
 	private double cd = Parachute.DEFAULT_CD;
 	private boolean cdAutomatic = true;
 	
-	
 	private Material.Surface material;
+	
+	private FlightConfigurationImpl<DeploymentConfiguration> deploymentConfigurations;
+	
 	
 	
 	public RecoveryDevice() {
-		this(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
+		this.deploymentConfigurations = new FlightConfigurationImpl<DeploymentConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new DeploymentConfiguration());
+		setMaterial(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
 	}
 	
-	public RecoveryDevice(Material material) {
-		super();
-		setMaterial(material);
-	}
-	
-	public RecoveryDevice(double length, double radius, Material material) {
-		super(length, radius);
-		setMaterial(material);
-	}
 	
 	
 	
@@ -108,100 +92,37 @@ public abstract class RecoveryDevice extends MassObject implements FlightConfigu
 	}
 	
 	
-	/** 
-	 * Return the deployment configuration for this configurationId or null if using default.
-	 * 
-	 * @param configID
-	 * @return
-	 */
-	@Override
-	public DeploymentConfiguration getFlightConfiguration( String configID ) {
-		DeploymentConfiguration config = deploymentConfigurations.get(configID);
-		return config;
+	public FlightConfiguration<DeploymentConfiguration> getDeploymentConfiguration() {
+		return deploymentConfigurations;
 	}
+	
 	
 	@Override
-	public void setFlightConfiguration( String configID, DeploymentConfiguration config ) {
-		if ( config == null ) {
-			deploymentConfigurations.remove(configID);
-		} else {
-			deploymentConfigurations.put(configID, config);
-			
-		}
-	}
-
-	@Override
-	public DeploymentConfiguration getDefaultFlightConfiguration() {
-		return defaultDeploymentConfig;
+	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
+		deploymentConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
 	
-	@Override
-	public void setDefaultFlightConfiguration( DeploymentConfiguration config ) {
-		this.defaultDeploymentConfig = config;
-	}
-	
-	@Override
-	public void cloneFlightConfiguration( String oldConfigId, String newConfigId ) {
-		DeploymentConfiguration oldConfig = getFlightConfiguration(oldConfigId);
-		if ( oldConfig != null ) {
-			oldConfig = oldConfig.clone();
-		}
-		setFlightConfiguration( newConfigId, oldConfig );
-	}
-	
-	public DeployEvent getDefaultDeployEvent() {
-		return defaultDeploymentConfig.getDeployEvent();
-	}
-	
-	public void setDefaultDeployEvent(DeployEvent deployEvent) {
-		if (this.defaultDeploymentConfig.getDeployEvent() == deployEvent)
-			return;
-		this.defaultDeploymentConfig.setDeployEvent(deployEvent);
-		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
-	}
-	
-	
-	public double getDefaultDeployAltitude() {
-		return defaultDeploymentConfig.getDeployAltitude();
-	}
-	
-	public void setDefaultDeployAltitude(double deployAltitude) {
-		if (MathUtil.equals(getDefaultDeployAltitude(), deployAltitude))
-			return;
-		defaultDeploymentConfig.setDeployAltitude(deployAltitude);
-		if (getDefaultDeployEvent() == DeployEvent.ALTITUDE)
-			fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
-		else
-			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}
-	
-	
-	public double getDefaultDeployDelay() {
-		return defaultDeploymentConfig.getDeployDelay();
-	}
-	
-	public void setDefaultDeployDelay(double delay) {
-		delay = MathUtil.max(delay, 0);
-		if (MathUtil.equals(getDefaultDeployDelay(), delay))
-			return;
-		defaultDeploymentConfig.setDeployDelay(delay);
-		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
-	}
 	
 	@Override
 	public double getComponentMass() {
 		return getArea() * getMaterial().getDensity();
 	}
-
+	
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if ( preset.has(ComponentPreset.MATERIAL)) {
+		if (preset.has(ComponentPreset.MATERIAL)) {
 			Material m = preset.get(ComponentPreset.MATERIAL);
-			this.material = (Material.Surface)m;
+			this.material = (Material.Surface) m;
 		}
 		super.loadFromPreset(preset);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 	}
-
+	
+	@Override
+	protected RocketComponent copyWithOriginalID() {
+		RecoveryDevice copy = (RecoveryDevice) super.copyWithOriginalID();
+		copy.deploymentConfigurations = new FlightConfigurationImpl<DeploymentConfiguration>(deploymentConfigurations,
+				copy, ComponentChangeEvent.EVENT_CHANGE);
+		return copy;
+	}
 }

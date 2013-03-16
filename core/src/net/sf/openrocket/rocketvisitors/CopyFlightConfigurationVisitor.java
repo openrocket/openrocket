@@ -1,7 +1,7 @@
 package net.sf.openrocket.rocketvisitors;
 
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.FlightConfigurable;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 
 public class CopyFlightConfigurationVisitor extends DepthFirstRecusiveVisitor {
 
@@ -17,8 +17,8 @@ public class CopyFlightConfigurationVisitor extends DepthFirstRecusiveVisitor {
 	@Override
 	public void doAction(RocketComponent visitable) {
 		
-		if ( visitable instanceof FlightConfigurable ) {
-			((FlightConfigurable)visitable).cloneFlightConfiguration(oldConfigId, newConfigId);
+		if ( visitable instanceof FlightConfigurableComponent ) {
+			((FlightConfigurableComponent)visitable).cloneFlightConfiguration(oldConfigId, newConfigId);
 		}
 	}
 	

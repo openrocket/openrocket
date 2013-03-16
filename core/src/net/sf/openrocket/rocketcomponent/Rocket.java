@@ -37,38 +37,38 @@ public class Rocket extends RocketComponent {
 	
 	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
 	
-
+	
 	/**
 	 * List of component change listeners.
 	 */
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
-		
+	
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
 	 * When the structure is thawed, a single combined event will be fired.
 	 */
 	private List<ComponentChangeEvent> freezeList = null;
 	
-
+	
 	private int modID;
 	private int massModID;
 	private int aeroModID;
 	private int treeModID;
 	private int functionalModID;
 	
-
+	
 	private ReferenceType refType = ReferenceType.MAXIMUM; // Set in constructor
 	private double customReferenceLength = DEFAULT_REFERENCE_LENGTH;
 	
-
+	
 	// The default configuration used in dialogs
 	private final Configuration defaultConfiguration;
 	
-
+	
 	private String designer = "";
 	private String revision = "";
 	
-
+	
 	// Flight configuration list
 	private ArrayList<String> flightConfigurationIDs = new ArrayList<String>();
 	private HashMap<String, String> flightConfigurationNames = new HashMap<String, String>();
@@ -76,12 +76,12 @@ public class Rocket extends RocketComponent {
 		flightConfigurationIDs.add(null);
 	}
 	
-
+	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
 	
 	
-
+	
 	/////////////  Constructor  /////////////
 	
 	public Rocket() {
@@ -95,7 +95,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
+	
 	public String getDesigner() {
 		checkState();
 		return designer;
@@ -195,8 +195,8 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
+	
+	
 	public ReferenceType getReferenceType() {
 		checkState();
 		return refType;
@@ -227,9 +227,9 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Set whether the rocket has a perfect finish.  This will affect whether the
 	 * boundary layer is assumed to be fully turbulent or not.
@@ -244,7 +244,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
+	
 	/**
 	 * Get whether the rocket has a perfect finish.
 	 *
@@ -255,9 +255,9 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Make a deep copy of the Rocket structure.  This method is exposed as public to allow
 	 * for undo/redo system functionality.
@@ -326,8 +326,8 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
+	
+	
 	///////  Implement the ComponentChangeListener lists
 	
 	/**
@@ -342,8 +342,8 @@ public class Rocket extends RocketComponent {
 	
 	public void printListeners() {
 		System.out.println("" + this + " has " + listenerList.size() + " listeners:");
-		int i =0;
-		for( EventListener l : listenerList ) {
+		int i = 0;
+		for (EventListener l : listenerList) {
 			System.out.println("  " + (i) + ": " + l);
 			i++;
 		}
@@ -364,21 +364,6 @@ public class Rocket extends RocketComponent {
 				listenerList.size());
 	}
 	
-	
-	@Override
-	public void addChangeListener(EventListener l) {
-		checkState();
-		listenerList.add(l);
-		log.verbose("Added ChangeListener " + l + ", current number of listeners is " +
-				listenerList.size());
-	}
-	
-	@Override
-	public void removeChangeListener(EventListener l) {
-		listenerList.remove(l);
-		log.verbose("Removed ChangeListener " + l + ", current number of listeners is " +
-				listenerList.size());
-	}
 	
 	
 	@Override
@@ -417,12 +402,12 @@ public class Rocket extends RocketComponent {
 			
 			// Notify all listeners
 			// Copy the list before iterating to prevent concurrent modification exceptions.
-			EventListener[] list = listenerList.toArray( new EventListener[0] );
-			for ( EventListener l : list ) {
-				if ( l instanceof ComponentChangeListener ) {
-					((ComponentChangeListener) l ).componentChanged(e);
-				} else if ( l instanceof StateChangeListener ) {
-					((StateChangeListener) l ).stateChanged(e);
+			EventListener[] list = listenerList.toArray(new EventListener[0]);
+			for (EventListener l : list) {
+				if (l instanceof ComponentChangeListener) {
+					((ComponentChangeListener) l).componentChanged(e);
+				} else if (l instanceof StateChangeListener) {
+					((StateChangeListener) l).stateChanged(e);
 				}
 			}
 		} finally {
@@ -493,11 +478,11 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
+	
+	
 	////////  Motor configurations  ////////
 	
-
+	
 	/**
 	 * Return the default configuration.  This should be used in the user interface
 	 * to ensure a consistent rocket configuration between dialogs.  It should NOT
@@ -578,7 +563,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
+	
 	/**
 	 * Check whether the given motor configuration ID has motors defined for it.
 	 *
@@ -656,6 +641,8 @@ public class Rocket extends RocketComponent {
 		return getFlightConfigurationDescription(id);
 	}
 	
+	
+	// FIXME: Change to private
 	/**
 	 * Return a description for the flight configuration, generated from the motor
 	 * designations of the components.
@@ -773,10 +760,10 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
+	
 	////////  Obligatory component information
 	
-
+	
 	@Override
 	public String getComponentName() {
 		//// Rocket

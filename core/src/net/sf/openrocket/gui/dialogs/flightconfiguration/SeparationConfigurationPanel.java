@@ -15,78 +15,74 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
+import net.sf.openrocket.startup.Application;
 
 public class SeparationConfigurationPanel extends JPanel {
-
+	
+	private static final Translator trans = Application.getTranslator();
+	
 	private final FlightConfigurationDialog flightConfigurationDialog;
 	private final Rocket rocket;
 	private final Stage[] stages;
-
+	
+	private final JTable separationTable;
 	private final SeparationTableModel separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
-
-	private Stage selectedComponent;
-
-	SeparationConfigurationPanel( FlightConfigurationDialog flightConfigurationDialog, Rocket rocket ) {
-		super( new MigLayout("fill") );
+	
+	
+	SeparationConfigurationPanel(FlightConfigurationDialog flightConfigurationDialog, Rocket rocket) {
+		super(new MigLayout("fill"));
 		this.flightConfigurationDialog = flightConfigurationDialog;
 		this.rocket = rocket;
-
-		int stageCount = rocket.getStageCount() -1;
+		
+		
+		int stageCount = rocket.getStageCount() - 1;
 		stages = new Stage[stageCount];
 		Iterator<RocketComponent> it = rocket.iterator();
 		{
 			int stageIndex = -1;
-			while( it.hasNext() ) {
+			while (it.hasNext()) {
 				RocketComponent c = it.next();
-				if ( c instanceof Stage ) {
-					if ( stageIndex >= 0 ){
+				if (c instanceof Stage) {
+					if (stageIndex >= 0) {
 						stages[stageIndex] = (Stage) c;
 					}
 					stageIndex++;
 				}
 			}
 		}
-
+		
 		//// Recovery selection 
 		separationTableModel = new SeparationTableModel();
-		JTable table = new JTable( separationTableModel );
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setRowSelectionAllowed(true);
-		table.addMouseListener(new MouseAdapter() {
+		separationTable = new JTable(separationTableModel);
+		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		separationTable.setRowSelectionAllowed(true);
+		separationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				JTable table = (JTable) e.getComponent();
-				int row = table.getSelectedRow();
-				int column = table.getSelectedColumn();
-
-				if ( row >= 0 ) {
-					selectedComponent = stages[row];
-				} else { 
-					selectedComponent = null;
-				}
-
 				if (e.getClickCount() == 1) {
+					// FIXME: Listen to selection change, not clicks
 					// Single click updates selection
 					updateButtonState();
 				} else if (e.getClickCount() == 2) {
 					// Double-click edits 
 					selectDeployment();
 				}
-
 			}
 		});
-
-		JScrollPane scroll = new JScrollPane(table);
+		
+		JScrollPane scroll = new JScrollPane(separationTable);
 		this.add(scroll, "span, grow, wrap");
-
+		
 		//// Select deployment
-		selectSeparationButton = new JButton(FlightConfigurationDialog.trans.get("edtmotorconfdlg.but.Selectseparation"));
+		selectSeparationButton = new JButton(trans.get("edtmotorconfdlg.but.Selectseparation"));
 		selectSeparationButton.setEnabled(false);
 		selectSeparationButton.addActionListener(new ActionListener() {
 			@Override
@@ -95,9 +91,9 @@ public class SeparationConfigurationPanel extends JPanel {
 			}
 		});
 		this.add(selectSeparationButton, "skip, split, sizegroup button");
-
+		
 		//// Reset deployment
-		resetDeploymentButton = new JButton(FlightConfigurationDialog.trans.get("edtmotorconfdlg.but.Resetseparation"));
+		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetseparation"));
 		resetDeploymentButton.setEnabled(false);
 		resetDeploymentButton.addActionListener(new ActionListener() {
 			@Override
@@ -105,79 +101,100 @@ public class SeparationConfigurationPanel extends JPanel {
 				resetDeployment();
 			}
 		});
-		this.add(resetDeploymentButton,"sizegroup button, wrap");
-
+		this.add(resetDeploymentButton, "sizegroup button, wrap");
+		
 	}
-
+	
 	public void fireTableDataChanged() {
-		selectedComponent = null;
 		separationTableModel.fireTableDataChanged();
 		updateButtonState();
 	}
-
+	
+	private Stage getSelectedStage() {
+		int row = separationTable.getSelectedRow();
+		if (row >= 0 && row < stages.length) {
+			return stages[row];
+		}
+		return null;
+	}
+	
 	private void selectDeployment() {
-		JDialog d = new SelectSeparationConfigDialog( flightConfigurationDialog, rocket, selectedComponent );
+		Stage stage = getSelectedStage();
+		if (stage == null) {
+			return;
+		}
+		JDialog d = new SeparationSelectionDialog(flightConfigurationDialog, rocket, stage);
 		d.setVisible(true);
 		fireTableDataChanged();
 	}
-
+	
 	private void resetDeployment() {
-		selectedComponent.setFlightConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID(), null);
+		Stage stage = getSelectedStage();
+		if (stage == null) {
+			return;
+		}
+		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		stage.getStageSeparationConfiguration().resetDefault(id);
 		fireTableDataChanged();
 	}
-
+	
 	public void updateButtonState() {
-		boolean componentSelected = selectedComponent != null;
-		boolean isDefaulted = true;
-		if ( componentSelected ) {
-			isDefaulted = selectedComponent.getFlightConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID()) == null;
-		}
+		boolean componentSelected = getSelectedStage() != null;
 		selectSeparationButton.setEnabled(componentSelected);
-		resetDeploymentButton.setEnabled(componentSelected & ! isDefaulted);
+		resetDeploymentButton.setEnabled(componentSelected);
 	}
-
+	
 	private class SeparationTableModel extends AbstractTableModel {
-
+		
 		@Override
 		public int getRowCount() {
 			return stages.length;
 		}
-
+		
 		@Override
 		public int getColumnCount() {
 			return 2;
 		}
-
+		
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			Stage d = SeparationConfigurationPanel.this.stages[rowIndex];
-			switch ( columnIndex ) {
+			switch (columnIndex) {
 			case 0:
 				return d.getName();
 			case 1:
-				StageSeparationConfiguration separationConfig = d.getFlightConfiguration(rocket.getDefaultConfiguration().getFlightConfigurationID());
-				if ( separationConfig == null ) {
-					return "[" + d.getDefaultFlightConfiguration().toString() + "]";
+				String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+				StageSeparationConfiguration separationConfig = d.getStageSeparationConfiguration().get(id);
+				
+				SeparationEvent event = separationConfig.getSeparationEvent();
+				String str = event.toString();
+				
+				if (d.getStageSeparationConfiguration().isDefault(id)) {
+					str = trans.get("SeparationConfigurationPanel.table.separation.default");
+					str = str.replace("{0}", event.toString());
 				} else {
-					return separationConfig.toString();
+					str = event.toString();
 				}
+				return str;
+				
+			default:
+				throw new IndexOutOfBoundsException("column=" + columnIndex);
 			}
-
-			return null;
+			
 		}
-
+		
 		@Override
 		public String getColumnName(int column) {
-			switch ( column ) {
+			switch (column) {
 			case 0:
-				return FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Stageheader");
+				return trans.get("edtmotorconfdlg.tbl.Stageheader");
 			case 1:
-				return FlightConfigurationDialog.trans.get("edtmotorconfdlg.tbl.Separationheader");
+				return trans.get("edtmotorconfdlg.tbl.Separationheader");
 			default:
 				return "";
 			}
 		}
-
+		
 	}
-
+	
 }

@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +28,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
+import net.sf.openrocket.util.StateChangeListener;
 
 public class DecalRegistry {
 	private static LogHelper log = Application.getLogger();
@@ -202,12 +202,12 @@ public class DecalRegistry {
 		}
 		
 		@Override
-		public void addChangeListener(EventListener listener) {
+		public void addChangeListener(StateChangeListener listener) {
 			delegate.addChangeListener(listener);
 		}
 		
 		@Override
-		public void removeChangeListener(EventListener listener) {
+		public void removeChangeListener(StateChangeListener listener) {
 			delegate.removeChangeListener(listener);
 		}
 		

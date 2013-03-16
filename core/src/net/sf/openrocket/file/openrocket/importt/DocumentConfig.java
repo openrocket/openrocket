@@ -10,6 +10,7 @@ import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
@@ -47,7 +48,7 @@ import net.sf.openrocket.util.Reflection;
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6"};
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6" };
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
@@ -327,12 +328,15 @@ class DocumentConfig {
 				"auto",
 				Reflection.findMethod(RecoveryDevice.class, "setCDAutomatic", boolean.class)));
 		setters.put("RecoveryDevice:deployevent", new EnumSetter<DeployEvent>(
-				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployEvent", DeployEvent.class),
+				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfiguration"),
+				Reflection.findMethod(DeploymentConfiguration.class, "setDeployEvent", DeployEvent.class),
 				DeployEvent.class));
 		setters.put("RecoveryDevice:deployaltitude", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployAltitude", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfiguration"),
+				Reflection.findMethod(DeploymentConfiguration.class, "setDeployAltitude", double.class)));
 		setters.put("RecoveryDevice:deploydelay", new DoubleSetter(
-				Reflection.findMethod(RecoveryDevice.class, "setDefaultDeployDelay", double.class)));
+				Reflection.findMethod(RecoveryDevice.class, "getDeploymentConfiguration"),
+				Reflection.findMethod(DeploymentConfiguration.class, "setDeployDelay", double.class)));
 		setters.put("RecoveryDevice:material", new MaterialSetter(
 				Reflection.findMethod(RecoveryDevice.class, "setMaterial", Material.class),
 				Material.Type.SURFACE));
@@ -368,10 +372,12 @@ class DocumentConfig {
 		
 		// Stage
 		setters.put("Stage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
-				Reflection.findMethod(Stage.class, "setDefaultSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
+				Reflection.findMethod(Stage.class, "getStageSeparationConfiguration"),
+				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
 				StageSeparationConfiguration.SeparationEvent.class));
 		setters.put("Stage:separationdelay", new DoubleSetter(
-				Reflection.findMethod(Stage.class, "setDefaultSeparationDelay", double.class)));
+				Reflection.findMethod(Stage.class, "getStageSeparationConfiguration"),
+				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
 		
 	}
 	

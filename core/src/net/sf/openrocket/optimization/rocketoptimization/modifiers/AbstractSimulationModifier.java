@@ -77,7 +77,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	}
 	
 	
-
+	
 	/**
 	 * Returns the scaled value (normally within [0...1]).  If the min...max range is singular,
 	 * this method returns 0.0, 1.0 or 0.5 depending on whether the value is less than,
@@ -110,7 +110,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	}
 	
 	
-
+	
 	@Override
 	public double getMinValue() {
 		return minValue;
@@ -148,12 +148,12 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
 	}
 	
@@ -166,8 +166,8 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listeners.toArray(new EventListener[0]);
 		for (EventListener l : list) {
-			if ( l instanceof StateChangeListener ) {
-				((StateChangeListener)l).stateChanged(event);
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
 			}
 		}
 	}
@@ -195,7 +195,7 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 	}
 	
 	
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -207,5 +207,5 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 		return result;
 	}
 	
-
+	
 }

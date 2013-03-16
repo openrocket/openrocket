@@ -1,7 +1,6 @@
 package net.sf.openrocket.rocketcomponent;
 
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +15,7 @@ import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.ComponentChangeAdapter;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Invalidator;
 import net.sf.openrocket.util.LineStyle;
@@ -1528,9 +1528,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @throws IllegalStateException - if the root component is not a <code>Rocket</code>
 	 */
 	@Override
-	public void addChangeListener(EventListener l) {
-		checkState();
-		getRocket().addChangeListener(l);
+	public final void addChangeListener(StateChangeListener l) {
+		addComponentChangeListener(new ComponentChangeAdapter(l));
 	}
 	
 	/**
@@ -1542,10 +1541,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param l  Listener to remove
 	 */
 	@Override
-	public void removeChangeListener(EventListener l) {
-		if (this.parent != null) {
-			getRoot().removeChangeListener(l);
-		}
+	public final void removeChangeListener(StateChangeListener l) {
+		removeComponentChangeListener(new ComponentChangeAdapter(l));
 	}
 	
 	

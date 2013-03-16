@@ -40,13 +40,14 @@ public class StageConfig extends RocketComponentConfig {
 		// Select separation event
 		panel.add(new StyledLabel(trans.get("separation.lbl.title"), Style.BOLD), "spanx, wrap rel");
 		
-		JComboBox combo = new JComboBox(new EnumModel<StageSeparationConfiguration.SeparationEvent>(stage, "DefaultSeparationEvent"));
+		StageSeparationConfiguration config = stage.getStageSeparationConfiguration().getDefault();
+		JComboBox combo = new JComboBox(new EnumModel<StageSeparationConfiguration.SeparationEvent>(config, "SeparationEvent"));
 		panel.add(combo, "");
 		
 		// ... and delay
 		panel.add(new JLabel(trans.get("separation.lbl.plus")), "");
 		
-		DoubleModel dm = new DoubleModel(stage, "DefaultSeparationDelay", 0);
+		DoubleModel dm = new DoubleModel(config, "SeparationDelay", 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "width 45");
