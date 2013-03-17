@@ -4,7 +4,6 @@ import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public class UnfinishedRenderer extends RealisticRenderer {
@@ -15,7 +14,7 @@ public class UnfinishedRenderer extends RealisticRenderer {
 	
 	@Override
 	public boolean isDrawnTransparent(RocketComponent c) {
-		return c instanceof BodyTube || c instanceof InnerTube;
+		return c instanceof BodyTube;
 	}
 	
 	@Override
