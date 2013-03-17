@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -11,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -82,11 +86,13 @@ public class MotorConfigurationPanel extends JPanel {
 		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setRowSelectionAllowed(true);
+		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
 		
 		configurationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				updateButtonState();
+				
 				if (e.getClickCount() == 2) {
 					// FIXME:  Double-click on ignition column should select ignition
 					// Double-click edits motor
@@ -142,7 +148,12 @@ public class MotorConfigurationPanel extends JPanel {
 	}
 	
 	public void fireTableDataChanged() {
+		int selected = configurationTable.getSelectedRow();
 		configurationTableModel.fireTableDataChanged();
+		if (selected >= 0) {
+			selected = Math.min(selected, configurationTable.getRowCount() - 1);
+			configurationTable.getSelectionModel().setSelectionInterval(selected, selected);
+		}
 		updateButtonState();
 	}
 	
@@ -162,6 +173,11 @@ public class MotorConfigurationPanel extends JPanel {
 			return null;
 		}
 		
+		return getMount(row);
+	}
+	
+	
+	private MotorMount getMount(int row) {
 		int count = 0;
 		for (RocketComponent c : rocket) {
 			if (c instanceof MotorMount) {
@@ -177,6 +193,8 @@ public class MotorConfigurationPanel extends JPanel {
 		
 		throw new IndexOutOfBoundsException("Invalid row, row=" + row + " count=" + count);
 	}
+	
+	
 	
 	private void selectMotor() {
 		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
@@ -203,8 +221,7 @@ public class MotorConfigurationPanel extends JPanel {
 		}
 		
 		flightConfigurationDialog.fireContentsUpdated();
-		configurationTableModel.fireTableDataChanged();
-		updateButtonState();
+		fireTableDataChanged();
 	}
 	
 	private void removeMotor() {
@@ -216,8 +233,7 @@ public class MotorConfigurationPanel extends JPanel {
 		mount.getMotorConfiguration().resetDefault(id);
 		
 		flightConfigurationDialog.fireContentsUpdated();
-		configurationTableModel.fireTableDataChanged();
-		updateButtonState();
+		fireTableDataChanged();
 	}
 	
 	private void selectIgnition() {
@@ -233,8 +249,58 @@ public class MotorConfigurationPanel extends JPanel {
 		dialog.setVisible(true);
 		
 		flightConfigurationDialog.fireContentsUpdated();
-		configurationTableModel.fireTableDataChanged();
-		updateButtonState();
+		fireTableDataChanged();
+	}
+	
+	
+	private class MotorTableCellRenderer extends DefaultTableCellRenderer {
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (!(c instanceof JLabel)) {
+				return c;
+			}
+			JLabel label = (JLabel) c;
+			
+			MotorMount mount = getMount(row);
+			String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			
+			switch (column) {
+			case 0:
+				regular(label);
+				break;
+			
+			case 1:
+				if (mount.getMotorConfiguration().get(id).getMotor() != null) {
+					regular(label);
+				} else {
+					shaded(label);
+				}
+				break;
+			
+			case 2:
+				if (mount.getIgnitionConfiguration().isDefault(id)) {
+					shaded(label);
+				} else {
+					regular(label);
+				}
+				break;
+			}
+			
+			return label;
+		}
+		
+		private void shaded(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.ITALIC);
+			label.setForeground(Color.GRAY);
+		}
+		
+		private void regular(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.PLAIN);
+			label.setForeground(Color.BLACK);
+		}
+		
 	}
 	
 }

@@ -397,6 +397,19 @@ public class GUIUtil {
 	}
 	
 	
+	/**
+	 * Changes the style of the font of the specified label.
+	 * 
+	 * @param label			the component for which to change the font
+	 * @param style			the change in the font style
+	 */
+	public static void changeFontStyle(JLabel label, int style) {
+		Font font = label.getFont();
+		font = font.deriveFont(style);
+		label.setFont(font);
+	}
+	
+	
 	
 	/**
 	 * Traverses recursively the component tree, and sets all applicable component 
