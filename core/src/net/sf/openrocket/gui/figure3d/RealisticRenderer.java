@@ -27,7 +27,6 @@ import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class RealisticRenderer extends RocketRenderer {
-	private final float[] colorBlack = { 0, 0, 0, 1 };
 	private final float[] colorClear = { 0, 0, 0, 0 };
 	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
