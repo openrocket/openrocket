@@ -205,7 +205,7 @@ public class OpenRocketSaver extends RocketSaver {
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
 		 * File version 1.6 is required for:
-		 *  - saving files using appearances and textures
+		 *  - saving files using appearances and textures, flight configurations.
 		 *  
 		 * File version 1.5 is requires for:
 		 *  - saving designs using ComponentPrests
@@ -223,11 +223,12 @@ public class OpenRocketSaver extends RocketSaver {
 		 * Otherwise use version 1.0.
 		 */
 		
-		// Search the rocket for any Appearnces (version 1.6)
+		// Search the rocket for any Appearances or non-motor flight configurations (version 1.6)
 		for (RocketComponent c : document.getRocket()) {
 			if (c.getAppearance() != null) {
 				return FILE_VERSION_DIVISOR + 6;
 			}
+			// FIXME - test for flight configurations
 		}
 		
 		// Search the rocket for any ComponentPresets (version 1.5)
@@ -445,7 +446,6 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("</simulation>");
 		
 	}
-	
 	
 	
 	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip)

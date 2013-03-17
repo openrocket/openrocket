@@ -38,6 +38,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	// TODO: MEDIUM: Allow selecting steppers
 	private SimulationStepper flightStepper = new RK4SimulationStepper();
 	private SimulationStepper landingStepper = new BasicLandingStepper();
+	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
+	
+	// Constant holding 30 degress in radians.  This is the AOA condition
+	// necessary to transistion to tumbling.
+	private final static double AOA_TUMBLE_CONDITION = Math.PI / 3.0;
 	
 	private SimulationStepper currentStepper;
 	
@@ -191,6 +196,24 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
 								(RocketComponent) status.getMotorConfiguration().getMotorMount(motorId), motorId));
 					}
+				}
+				
+				// Check for Tumbling
+				// Conditions for transision are:
+				//  apogee reached
+				// and is not already tumbling
+				// and not stable (cg > cp)
+				// and aoa > 30
+				
+				if (status.isApogeeReached() && !status.isTumbling()) {
+					double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
+					double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
+					double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
+					if (cg > cp && aoa > AOA_TUMBLE_CONDITION) {
+						addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
+						status.setTumbling(true);
+					}
+					
 				}
 				
 			}
@@ -473,6 +496,12 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				break;
 			
 			case ALTITUDE:
+				break;
+			
+			case TUMBLE:
+				this.currentStepper = this.tumbleStepper;
+				this.status = currentStepper.initialize(status);
+				status.getFlightData().addEvent(event);
 				break;
 			}
 			
