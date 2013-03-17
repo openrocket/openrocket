@@ -74,7 +74,7 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 	}
 	
 	public double getEjectionDelay(MotorId id) {
-		return ignitionDelays.get(indexOf(id));
+		return ejectionDelays.get(indexOf(id));
 	}
 	
 	public MotorMount getMotorMount(MotorId id) {
@@ -154,6 +154,7 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 		clone.ids.addAll(this.ids);
 		clone.mounts.addAll(this.mounts);
 		clone.positions.addAll(this.positions);
+		clone.ejectionDelays.addAll(this.ejectionDelays);
 		clone.ignitionTimes.addAll(this.ignitionTimes);
 		clone.ignitionEvents.addAll(this.ignitionEvents);
 		clone.ignitionDelays.addAll(this.ignitionDelays);
