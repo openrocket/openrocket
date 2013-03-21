@@ -26,6 +26,8 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public class RecoveryConfigurationPanel extends JPanel {
 	
+	// FIXME:  Gray italics for default selection
+	
 	private Translator trans = Application.getTranslator();
 	
 	

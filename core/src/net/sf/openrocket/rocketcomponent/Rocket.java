@@ -651,7 +651,7 @@ public class Rocket extends RocketComponent {
 	 * @return    a textual representation of the configuration
 	 */
 	@SuppressWarnings("null")
-	public String getFlightConfigurationDescription(String id) {
+	private String getFlightConfigurationDescription(String id) {
 		checkState();
 		String name;
 		int motorCount = 0;

@@ -20,10 +20,13 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
-import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
 
 public class SeparationConfigurationPanel extends JPanel {
+	
+	// FIXME:  Gray italics for default selection
+	
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -164,17 +167,20 @@ public class SeparationConfigurationPanel extends JPanel {
 				return d.getName();
 			case 1:
 				String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
-				StageSeparationConfiguration separationConfig = d.getStageSeparationConfiguration().get(id);
+				StageSeparationConfiguration config = d.getStageSeparationConfiguration().get(id);
 				
-				SeparationEvent event = separationConfig.getSeparationEvent();
-				String str = event.toString();
+				String str;
+				
+				str = config.getSeparationEvent().toString();
+				if (config.getSeparationDelay() > 0.001) {
+					str += " + " + UnitGroup.UNITS_SHORT_TIME.toStringUnit(config.getSeparationDelay());
+				}
 				
 				if (d.getStageSeparationConfiguration().isDefault(id)) {
-					str = trans.get("SeparationConfigurationPanel.table.separation.default");
-					str = str.replace("{0}", event.toString());
-				} else {
-					str = event.toString();
+					String def = trans.get("SeparationConfigurationPanel.table.separation.default");
+					str = def.replace("{0}", str);
 				}
+				
 				return str;
 				
 			default:

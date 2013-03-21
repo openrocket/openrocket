@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
+import net.sf.openrocket.formatting.MotorDescriptionSubstitutor;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
@@ -402,12 +403,15 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		} else {
 			
 			if (src.rocket.hasMotors(src.motorID)) {
-				// Try to find a matching motor ID
-				String motorDesc = src.rocket.getFlightConfigurationDescription(src.motorID);
+				// Try to find a closely matching motor ID
+				MotorDescriptionSubstitutor formatter = new MotorDescriptionSubstitutor();
+				
+				String motorDesc = formatter.substitute(MotorDescriptionSubstitutor.SUBSTITUTION, src.rocket, src.motorID);
 				String matchID = null;
 				
 				for (String id : this.rocket.getFlightConfigurationIDs()) {
-					if (motorDesc.equals(this.rocket.getFlightConfigurationDescription(id))) {
+					String motorDesc2 = formatter.substitute(MotorDescriptionSubstitutor.SUBSTITUTION, this.rocket, id);
+					if (motorDesc.equals(motorDesc2)) {
 						matchID = id;
 						break;
 					}
