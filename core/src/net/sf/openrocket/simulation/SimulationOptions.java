@@ -15,6 +15,7 @@ import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -404,7 +405,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			
 			if (src.rocket.hasMotors(src.motorID)) {
 				// Try to find a closely matching motor ID
-				MotorDescriptionSubstitutor formatter = new MotorDescriptionSubstitutor();
+				MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
 				
 				String motorDesc = formatter.substitute(MotorDescriptionSubstitutor.SUBSTITUTION, src.rocket, src.motorID);
 				String matchID = null;

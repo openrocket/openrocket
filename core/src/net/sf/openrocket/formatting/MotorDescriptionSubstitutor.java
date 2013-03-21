@@ -33,7 +33,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 	@Override
 	public String substitute(String str, Rocket rocket, String configId) {
 		String description = getFlightConfigurationDescription(rocket, configId);
-		return str.replaceAll(SUBSTITUTION, description);
+		return str.replace(SUBSTITUTION, description);
 	}
 	
 	@Override
