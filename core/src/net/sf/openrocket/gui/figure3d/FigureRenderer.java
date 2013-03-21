@@ -8,6 +8,7 @@ import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
+import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
@@ -17,7 +18,6 @@ import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Color;
-import net.sf.openrocket.util.Coordinate;
 
 public class FigureRenderer extends RocketRenderer {
 	private final float[] color = new float[4];
@@ -91,6 +91,18 @@ public class FigureRenderer extends RocketRenderer {
 			}
 		}
 		
+		//Inside
+		convertColor(figureColor, color);
+		color[0] = color[0] * 0.7f;
+		color[1] = color[1] * 0.7f;
+		color[2] = color[2] * 0.7f;
+		color[3] = 1.0f;
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
+		
+		cr.getGeometry(c, Surface.INSIDE).render(gl);
+		
+		//OUtside
 		// Set up the front A&D color
 		convertColor(figureColor, color);
 		color[3] = alpha;
@@ -108,19 +120,13 @@ public class FigureRenderer extends RocketRenderer {
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, getShine(c));
 		
+		cr.getGeometry(c, Surface.OUTSIDE).render(gl);
+		cr.getGeometry(c, Surface.EDGES).render(gl);
+		
 		color[0] = color[1] = color[2] = 0;
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, color, 0);
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		
-		//Back A&D
-		convertColor(figureColor, color);
-		color[0] = color[0] * 0.4f;
-		color[1] = color[1] * 0.4f;
-		color[2] = color[2] * 0.4f;
-		color[3] = alpha;
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 		
-		cr.renderGeometry(gl, c);
 	}
 	
 	@Override
@@ -161,10 +167,10 @@ public class FigureRenderer extends RocketRenderer {
 	
 	
 	@Override
-	protected void renderMotor(GL2 gl, Coordinate c, Motor motor) {
-		final float outside[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	protected void renderMotor(GL2 gl, Motor motor) {
+		final float outside[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, outside, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, outside, 0);
-		super.renderMotor(gl, c, motor);
+		super.renderMotor(gl, motor);
 	}
 }

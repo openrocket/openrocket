@@ -16,17 +16,17 @@ import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.figure3d.geometry.Geometry;
+import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Color;
-import net.sf.openrocket.util.Coordinate;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public class RealisticRenderer extends RocketRenderer {
-	private final float[] colorBlack = { 0, 0, 0, 1 };
 	private final float[] colorClear = { 0, 0, 0, 0 };
 	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
@@ -95,51 +95,38 @@ public class RealisticRenderer extends RocketRenderer {
 	}
 	
 	@Override
-	protected void renderMotor(final GL2 gl, final Coordinate c, final Motor motor) {
-		render(gl, new Runnable() {
-			@Override
-			public void run() {
-				cr.renderMotor(gl, c, motor);
-			}
-		}, DefaultAppearance.getDefaultAppearance(motor), 1);
+	protected void renderMotor(final GL2 gl, final Motor motor) {
+		render(gl, cr.getGeometry(motor, Surface.OUTSIDE), DefaultAppearance.getDefaultAppearance(motor), true, 1);
 	}
 	
 	@Override
 	public void renderComponent(final GL2 gl, final RocketComponent c, final float alpha) {
-		render(gl, new Runnable() {
-			@Override
-			public void run() {
-				cr.renderGeometry(gl, c);
-			}
-		}, getAppearance(c), alpha);
+		render(gl, cr.getGeometry(c, Surface.INSIDE), DefaultAppearance.getDefaultAppearance(c), true, 1.0f);
+		render(gl, cr.getGeometry(c, Surface.OUTSIDE), getAppearance(c), true, alpha);
+		render(gl, cr.getGeometry(c, Surface.EDGES), getAppearance(c), false, alpha);
 	}
 	
-	private void render(GL2 gl, Runnable g, Appearance a, float alpha) {
+	private void render(GL2 gl, Geometry g, Appearance a, boolean decals, float alpha) {
 		final Decal t = a.getTexture();
 		final Texture tex = getTexture(t);
 		
-		gl.glLightModeli(GL2ES1.GL_LIGHT_MODEL_TWO_SIDE, 1);
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
 		
 		convertColor(a.getPaint(), color);
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, color, 0);
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, color, 0);
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, color, 0);
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, color, 0);
 		
 		color[0] = color[1] = color[2] = (float) a.getShine();
 		color[3] = alpha;
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_SPECULAR, color, 0);
 		gl.glMateriali(GL.GL_FRONT, GLLightingFunc.GL_SHININESS, (int) (100 * a.getShine()));
 		
-		gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
-		gl.glMateriali(GL.GL_BACK, GLLightingFunc.GL_SHININESS, 0);
 		
-		g.run();
+		g.render(gl);
 		
-		if (t != null && tex != null) {
+		if (decals && t != null && tex != null) {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 			
@@ -162,9 +149,7 @@ public class RealisticRenderer extends RocketRenderer {
 			
 			gl.glTexParameterfv(GL.GL_TEXTURE_2D, GL2.GL_TEXTURE_BORDER_COLOR, colorClear, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
-			gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_DIFFUSE, colorWhite, 0);
 			gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
-			gl.glMaterialfv(GL.GL_BACK, GLLightingFunc.GL_AMBIENT, colorWhite, 0);
 			
 			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 			gl.glEnable(GL.GL_BLEND);
@@ -176,7 +161,7 @@ public class RealisticRenderer extends RocketRenderer {
 				gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotrophy);
 			}
 			
-			g.run();
+			g.render(gl);
 			
 			if (t.getEdgeMode() == Decal.EdgeMode.STICKER) {
 				gl.glDepthFunc(GL.GL_LESS);

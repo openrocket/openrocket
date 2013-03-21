@@ -674,12 +674,19 @@ public abstract class FinSet extends ExternalComponent {
 		double x2 = getTabTrailingEdge();
 		double y = -getTabHeight();
 		
+		boolean add1 = x1 != points[0].x;
+		boolean add2 = x2 != points[points.length - 1].x;
+		
 		int n = points.length;
-		points = ArrayUtils.copyOf(points, points.length + 4);
-		points[n] = new Coordinate(x2, 0);
-		points[n + 1] = new Coordinate(x2, y);
-		points[n + 2] = new Coordinate(x1, y);
-		points[n + 3] = new Coordinate(x1, 0);
+		points = ArrayUtils.copyOf(points, points.length + 2 + (add1 ? 1 : 0) + (add2 ? 1 : 0));
+		
+		if (add2)
+			points[n++] = new Coordinate(x2, 0);
+		points[n++] = new Coordinate(x2, y);
+		points[n++] = new Coordinate(x1, y);
+		if (add1)
+			points[n++] = new Coordinate(x1, 0);
+			
 		return points;
 	}
 	

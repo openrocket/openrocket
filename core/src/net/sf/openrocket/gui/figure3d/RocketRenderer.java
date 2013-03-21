@@ -12,6 +12,9 @@ import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 
+import net.sf.openrocket.gui.figure3d.geometry.ComponentRenderer;
+import net.sf.openrocket.gui.figure3d.geometry.DisplayListComponentRenderer;
+import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -26,7 +29,7 @@ import net.sf.openrocket.util.Coordinate;
 public abstract class RocketRenderer {
 	protected static final LogHelper log = Application.getLogger();
 	
-	final ComponentRenderer cr = new ComponentRenderer();
+	final ComponentRenderer cr = new DisplayListComponentRenderer();
 	
 	private final float[] selectedEmissive = { 1, 0, 0, 1 };
 	private final float[] colorBlack = { 0, 0, 0, 1 };
@@ -71,12 +74,9 @@ public abstract class RocketRenderer {
 			pickParts.add(c);
 			
 			if (isDrawnTransparent(c)) {
-				gl.glEnable(GL.GL_CULL_FACE);
-				gl.glCullFace(GL.GL_FRONT);
-				cr.renderGeometry(gl, c);
-				gl.glDisable(GL.GL_CULL_FACE);
+				cr.getGeometry(c, Surface.INSIDE).render(gl);
 			} else {
-				cr.renderGeometry(gl, c);
+				cr.getGeometry(c, Surface.ALL).render(gl);
 			}
 		}
 		
@@ -115,14 +115,14 @@ public abstract class RocketRenderer {
 					// Draw as lines, set Z to nearest
 					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
 					gl.glDepthRange(0, 0);
-					cr.renderGeometry(gl, c);
+					cr.getGeometry(c, Surface.ALL).render(gl);
 					
 					// Draw polygons, always passing depth test,
 					// setting Z to farthest
 					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
 					gl.glDepthRange(1, 1);
 					gl.glDepthFunc(GL.GL_ALWAYS);
-					cr.renderGeometry(gl, c);
+					cr.getGeometry(c, Surface.ALL).render(gl);
 					gl.glDepthFunc(GL.GL_LESS);
 					gl.glDepthRange(0, 1);
 				}
@@ -130,6 +130,9 @@ public abstract class RocketRenderer {
 			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
 			gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_EMISSION, colorBlack, 0);
 		} // done with selection outline
+		
+		gl.glEnable(GL.GL_CULL_FACE);
+		gl.glCullFace(GL.GL_BACK);
 		
 		// Draw all inner components
 		for (RocketComponent c : configuration) {
@@ -142,23 +145,8 @@ public abstract class RocketRenderer {
 		
 		renderMotors(gl, configuration);
 		
-		// Draw Tube and Transition back faces, blended with depth test
-		// so that they show up behind.
-		gl.glEnable(GL.GL_CULL_FACE);
-		gl.glCullFace(GL.GL_FRONT);
-		for (RocketComponent c : configuration) {
-			if (isDrawn(c)) {
-				if (isDrawnTransparent(c)) {
-					renderComponent(gl, c, 1.0f);
-				}
-			}
-		}
-		gl.glDisable(GL.GL_CULL_FACE);
-		
 		// Draw T&T front faces blended, without depth test
 		gl.glEnable(GL.GL_BLEND);
-		gl.glEnable(GL.GL_CULL_FACE);
-		gl.glCullFace(GL.GL_BACK);
 		for (RocketComponent c : configuration) {
 			if (isDrawn(c)) {
 				if (isDrawnTransparent(c)) {
@@ -167,7 +155,6 @@ public abstract class RocketRenderer {
 			}
 		}
 		gl.glDisable(GL.GL_BLEND);
-		gl.glDisable(GL.GL_CULL_FACE);
 		
 	}
 	
@@ -183,14 +170,17 @@ public abstract class RocketRenderer {
 					.getLength() + mount.getMotorOverhang() - length));
 			
 			for (int i = 0; i < position.length; i++) {
-				renderMotor(gl, position[i], motor);
+				gl.glPushMatrix();
+				gl.glTranslated(position[i].x, position[i].y, position[i].z);
+				renderMotor(gl, motor);
+				gl.glPopMatrix();
 			}
 		}
 		
 	}
 	
-	protected void renderMotor(GL2 gl, Coordinate c, Motor motor) {
-		cr.renderMotor(gl, c, motor);
+	protected void renderMotor(GL2 gl, Motor motor) {
+		cr.getGeometry(motor, Surface.ALL).render(gl);
 	}
 	
 }
