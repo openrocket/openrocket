@@ -407,11 +407,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 				// Try to find a closely matching motor ID
 				MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
 				
-				String motorDesc = formatter.substitute(MotorDescriptionSubstitutor.SUBSTITUTION, src.rocket, src.motorID);
+				String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.motorID);
 				String matchID = null;
 				
 				for (String id : this.rocket.getFlightConfigurationIDs()) {
-					String motorDesc2 = formatter.substitute(MotorDescriptionSubstitutor.SUBSTITUTION, this.rocket, id);
+					String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, id);
 					if (motorDesc.equals(motorDesc2)) {
 						matchID = id;
 						break;

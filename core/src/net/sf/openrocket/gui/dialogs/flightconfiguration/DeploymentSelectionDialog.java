@@ -15,6 +15,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -32,6 +33,8 @@ import net.sf.openrocket.unit.UnitGroup;
 public class DeploymentSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
+	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	private final DeploymentConfiguration newConfiguration;
 	
@@ -53,7 +56,7 @@ public class DeploymentSelectionDialog extends JDialog {
 		final JRadioButton defaultButton = new JRadioButton(trans.get("DeploymentSelectionDialog.opt.default"), true);
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
 		String str = trans.get("DeploymentSelectionDialog.opt.override");
-		str = str.replace("{0}", rocket.getFlightConfigurationNameOrDescription(id));
+		str = str.replace("{0}", descriptor.format(rocket, id));
 		final JRadioButton overrideButton = new JRadioButton(str, false);
 		panel.add(overrideButton, "span, gapleft para, wrap para");
 		
@@ -133,7 +136,6 @@ public class DeploymentSelectionDialog extends JDialog {
 		this.setContentPane(panel);
 		GUIUtil.setDisposableDialogOptions(this, okButton);
 	}
-	
 	
 	private void updateState() {
 		boolean enabled = (newConfiguration.getDeployEvent() == DeployEvent.ALTITUDE);

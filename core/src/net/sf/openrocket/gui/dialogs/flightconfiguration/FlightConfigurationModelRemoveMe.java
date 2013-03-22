@@ -10,6 +10,8 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 
 public class FlightConfigurationModelRemoveMe extends DefaultComboBoxModel {
 	
+	// FIXME Remove this class
+	
 	private final Configuration config;
 	private final Rocket rocket;
 	
@@ -90,7 +92,7 @@ public class FlightConfigurationModelRemoveMe extends DefaultComboBoxModel {
 		
 		@Override
 		public String toString() {
-			return rocket.getFlightConfigurationNameOrDescription(id);
+			return null;
 		}
 	}
 	

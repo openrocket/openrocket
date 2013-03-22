@@ -11,6 +11,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.l10n.Translator;
@@ -22,8 +23,10 @@ import net.sf.openrocket.util.StateChangeListener;
 
 public class FlightConfigurationModel implements ComboBoxModel, StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final String EDIT = trans.get("MotorCfgModel.Editcfg");
+	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	
 	private EventListenerList listenerList = new EventListenerList();
@@ -33,7 +36,7 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	
 	private Map<String, ID> map = new HashMap<String, ID>();
 	
-
+	
 	public FlightConfigurationModel(Configuration config) {
 		this.config = config;
 		this.rocket = config.getRocket();
@@ -45,7 +48,7 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	@Override
 	public Object getElementAt(int index) {
 		String[] ids = rocket.getFlightConfigurationIDs();
-		if (index < 0  ||  index > ids.length)
+		if (index < 0 || index > ids.length)
 			return null;
 		
 		if (index == ids.length)
@@ -53,17 +56,17 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 		
 		return get(ids[index]);
 	}
-
+	
 	@Override
 	public int getSize() {
 		return rocket.getFlightConfigurationIDs().length + 1;
 	}
-
+	
 	@Override
 	public Object getSelectedItem() {
 		return get(config.getFlightConfigurationID());
 	}
-
+	
 	@Override
 	public void setSelectedItem(Object item) {
 		if (item == null) {
@@ -77,21 +80,21 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 				@Override
 				public void run() {
 					new FlightConfigurationDialog(rocket, BasicFrame.findFrame(rocket))
-						.setVisible(true);
+							.setVisible(true);
 				}
 			});
-
+			
 			return;
 		}
 		if (!(item instanceof ID)) {
-			throw new IllegalArgumentException("MotorConfigurationModel item="+item);
+			throw new IllegalArgumentException("MotorConfigurationModel item=" + item);
 		}
 		
 		ID idObject = (ID) item;
 		config.setFlightConfigurationID(idObject.getID());
 	}
-
-
+	
+	
 	
 	////////////////  Event/listener handling  ////////////////
 	
@@ -100,31 +103,31 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	public void addListDataListener(ListDataListener l) {
 		listenerList.add(ListDataListener.class, l);
 	}
-
+	
 	@Override
 	public void removeListDataListener(ListDataListener l) {
 		listenerList.remove(ListDataListener.class, l);
 	}
-
+	
 	protected void fireListDataEvent() {
 		Object[] listeners = listenerList.getListenerList();
 		ListDataEvent e = null;
-
-		for (int i = listeners.length-2; i>=0; i-=2) {
+		
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
 			if (listeners[i] == ListDataListener.class) {
 				if (e == null)
 					e = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, getSize());
-				((ListDataListener) listeners[i+1]).contentsChanged(e);
+				((ListDataListener) listeners[i + 1]).contentsChanged(e);
 			}
 		}
 	}
-	 
+	
 	
 	@Override
 	public void stateChanged(EventObject e) {
 		if (e instanceof ComponentChangeEvent) {
 			// Ignore unnecessary changes
-			if (!((ComponentChangeEvent)e).isMotorChange())
+			if (!((ComponentChangeEvent) e).isMotorChange())
 				return;
 		}
 		fireListDataEvent();
@@ -162,9 +165,8 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 		
 		@Override
 		public String toString() {
-			return rocket.getFlightConfigurationNameOrDescription(id);
+			return descriptor.format(rocket, id);
 		}
 	}
 	
 }
-

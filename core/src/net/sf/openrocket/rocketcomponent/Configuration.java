@@ -181,12 +181,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		fireChangeEvent();
 	}
 	
-	public String getFlightConfigurationDescription() {
-		return rocket.getFlightConfigurationNameOrDescription(flightConfigurationId);
-	}
-	
-	
-	
 	
 	
 	/**

@@ -32,20 +32,20 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 	
 	@Override
 	public String substitute(String str, Rocket rocket, String configId) {
-		String description = getFlightConfigurationDescription(rocket, configId);
+		String description = getMotorConfigurationDescription(rocket, configId);
 		return str.replace(SUBSTITUTION, description);
 	}
 	
 	@Override
 	public Map<String, String> getDescriptions() {
 		Map<String, String> desc = new HashMap<String, String>();
-		desc.put(SUBSTITUTION, trans.get("description"));
+		desc.put(SUBSTITUTION, trans.get("MotorDescriptionSubstitutor.description"));
 		return null;
 	}
 	
 	
 	
-	private String getFlightConfigurationDescription(Rocket rocket, String id) {
+	public String getMotorConfigurationDescription(Rocket rocket, String id) {
 		String name;
 		int motorCount = 0;
 		
@@ -82,7 +82,6 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 		}
 		
 		if (motorCount == 0) {
-			//// [No motors]
 			return trans.get("Rocket.motorCount.Nomotor");
 		}
 		
@@ -138,17 +137,16 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 			stages.add(stageName);
 		}
 		
-		name = "[";
+		name = "";
 		for (int i = 0; i < stages.size(); i++) {
 			String s = stages.get(i);
 			if (s.equals(""))
-				s = "None";
+				s = trans.get("Rocket.motorCount.noStageMotors");
 			if (i == 0)
 				name = name + s;
 			else
 				name = name + "; " + s;
 		}
-		name += "]";
 		return name;
 	}
 	
