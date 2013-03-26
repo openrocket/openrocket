@@ -133,8 +133,7 @@ public class MotorConfigurationPanel extends JPanel {
 		resetIgnitionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// FIXME
-				selectIgnition();
+				resetIgnition();
 			}
 		});
 		this.add(resetIgnitionButton, "sizegroup button, wrap");
@@ -231,6 +230,19 @@ public class MotorConfigurationPanel extends JPanel {
 				rocket,
 				currentMount);
 		dialog.setVisible(true);
+		
+		flightConfigurationDialog.fireContentsUpdated();
+		configurationTableModel.fireTableDataChanged();
+		updateButtonState();
+	}
+	
+	private void resetIgnition() {
+		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		MotorMount currentMount = getCurrentMount();
+		if (currentID == null || currentMount == null)
+			return;
+		
+		currentMount.getIgnitionConfiguration().resetDefault(currentID);
 		
 		flightConfigurationDialog.fireContentsUpdated();
 		configurationTableModel.fireTableDataChanged();
