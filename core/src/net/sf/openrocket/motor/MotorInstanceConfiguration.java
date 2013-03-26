@@ -81,8 +81,6 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 		return mounts.get(indexOf(id));
 	}
 	
-	// FIXME: Remove "Motor" from all method names
-	
 	public Coordinate getMotorPosition(MotorId id) {
 		return positions.get(indexOf(id));
 	}
