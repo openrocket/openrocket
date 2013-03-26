@@ -22,6 +22,7 @@ import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
 
 public class SeparationConfigurationPanel extends JPanel {
 	
@@ -67,11 +68,8 @@ public class SeparationConfigurationPanel extends JPanel {
 		separationTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 1) {
-					// FIXME: Listen to selection change, not clicks
-					// Single click updates selection
-					updateButtonState();
-				} else if (e.getClickCount() == 2) {
+				updateButtonState();
+				if (e.getClickCount() == 2) {
 					// Double-click edits 
 					selectDeployment();
 				}
@@ -174,6 +172,9 @@ public class SeparationConfigurationPanel extends JPanel {
 					str = str.replace("{0}", event.toString());
 				} else {
 					str = event.toString();
+					if (separationConfig.getSeparationDelay() > 0) {
+						str = str + "  + " + UnitGroup.UNITS_SHORT_TIME.toStringUnit(separationConfig.getSeparationDelay());
+					}
 				}
 				return str;
 				
