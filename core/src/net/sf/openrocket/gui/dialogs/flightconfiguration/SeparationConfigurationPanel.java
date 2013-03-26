@@ -164,18 +164,19 @@ public class SeparationConfigurationPanel extends JPanel {
 				String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 				StageSeparationConfiguration separationConfig = d.getStageSeparationConfiguration().get(id);
 				
+				boolean isDefault = d.getStageSeparationConfiguration().isDefault(id);
+				
 				SeparationEvent event = separationConfig.getSeparationEvent();
 				String str = event.toString();
-				
-				if (d.getStageSeparationConfiguration().isDefault(id)) {
-					str = trans.get("SeparationConfigurationPanel.table.separation.default");
-					str = str.replace("{0}", event.toString());
-				} else {
-					str = event.toString();
-					if (separationConfig.getSeparationDelay() > 0) {
-						str = str + "  + " + UnitGroup.UNITS_SHORT_TIME.toStringUnit(separationConfig.getSeparationDelay());
-					}
+				if (separationConfig.getSeparationDelay() > 0) {
+					str = str + "  + " + UnitGroup.UNITS_SHORT_TIME.toStringUnit(separationConfig.getSeparationDelay());
 				}
+				
+				if (isDefault) {
+					String def = trans.get("SeparationConfigurationPanel.table.separation.default");
+					str = def.replace("{0}", str);
+				}
+				
 				return str;
 				
 			default:
