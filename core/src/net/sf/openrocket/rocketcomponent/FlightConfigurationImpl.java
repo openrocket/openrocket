@@ -82,6 +82,12 @@ class FlightConfigurationImpl<E extends FlightConfigurableParameter<E>> implemen
 	
 	
 	@Override
+	public int size() {
+		return map.size();
+	}
+	
+	
+	@Override
 	public E get(String id) {
 		if (map.containsKey(id)) {
 			return map.get(id);

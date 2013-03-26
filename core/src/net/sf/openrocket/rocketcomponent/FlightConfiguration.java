@@ -66,4 +66,9 @@ public interface FlightConfiguration<E extends ChangeSource> extends FlightConfi
 	 */
 	public void resetDefault(String id);
 	
+	/**
+	 * Return the number of specific flight configurations other than the default.
+	 * @return
+	 */
+	public int size();
 }
