@@ -55,7 +55,6 @@ public class FlightConfigurationDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		// FIXME: Localize
 		JLabel label = new JLabel(trans.get("edtmotorconfdlg.lbl.Selectedconf"));
 		panel.add(label, "span, split");
 		
