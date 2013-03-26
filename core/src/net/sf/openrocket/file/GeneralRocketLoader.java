@@ -165,7 +165,6 @@ public class GeneralRocketLoader {
 				}
 			}
 			
-			// FIXME should throw here because the zip file didn't contain either ork or rkt file.
 		}
 		
 		isContainer = false;
