@@ -18,10 +18,12 @@ import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.FinSet;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -155,7 +157,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		long size = 0;
 		
-		// FIXME - estimate decals
+		// TODO - estimate decals
 		
 		// Size per component
 		int componentCount = 0;
@@ -228,7 +230,26 @@ public class OpenRocketSaver extends RocketSaver {
 			if (c.getAppearance() != null) {
 				return FILE_VERSION_DIVISOR + 6;
 			}
-			// FIXME - test for flight configurations
+			if (c instanceof FlightConfigurableComponent) {
+				if (c instanceof MotorMount) {
+					MotorMount mmt = (MotorMount) c;
+					if (mmt.getIgnitionConfiguration().size() > 0) {
+						return FILE_VERSION_DIVISOR + 6;
+					}
+				}
+				if (c instanceof RecoveryDevice) {
+					RecoveryDevice recovery = (RecoveryDevice) c;
+					if (recovery.getDeploymentConfiguration().size() > 0) {
+						return FILE_VERSION_DIVISOR + 6;
+					}
+				}
+				if (c instanceof Stage) {
+					Stage stage = (Stage) c;
+					if (stage.getStageSeparationConfiguration().size() > 0) {
+						return FILE_VERSION_DIVISOR + 6;
+					}
+				}
+			}
 		}
 		
 		// Search the rocket for any ComponentPresets (version 1.5)
