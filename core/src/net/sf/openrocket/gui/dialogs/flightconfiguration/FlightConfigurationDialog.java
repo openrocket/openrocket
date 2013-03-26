@@ -63,7 +63,7 @@ public class FlightConfigurationDialog extends JDialog {
 		configSelector.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				configurationChanged();
 			}
 		});
 		
