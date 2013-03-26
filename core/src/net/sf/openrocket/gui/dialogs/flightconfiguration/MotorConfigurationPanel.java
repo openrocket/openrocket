@@ -87,10 +87,15 @@ public class MotorConfigurationPanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				updateButtonState();
+				int selectedColumn = configurationTable.getSelectedColumn();
 				if (e.getClickCount() == 2) {
-					// FIXME:  Double-click on ignition column should select ignition
-					// Double-click edits motor
-					selectMotor();
+					if (selectedColumn == 2) {
+						// user double clicked in ignition column
+						selectIgnition();
+					} else {
+						// Double-click edits motor
+						selectMotor();
+					}
 				}
 			}
 		});
