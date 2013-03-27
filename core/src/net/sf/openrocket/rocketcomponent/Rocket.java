@@ -619,7 +619,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public void setFlightConfigurationName(String id, String name) {
 		checkState();
-		if (name == null || name.equals("")) {
+		if (name == null || name.equals("") || DEFAULT_NAME.equals(name)) {
 			flightConfigurationNames.remove(id);
 		} else {
 			flightConfigurationNames.put(id, name);
