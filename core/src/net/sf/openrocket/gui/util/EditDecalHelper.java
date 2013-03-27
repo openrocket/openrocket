@@ -26,11 +26,6 @@ public class EditDecalHelper {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	// FIXME - need to have a specific set of localizable exceptions come out of this instead of generic IOException;
-	// perhaps - unable to create file,
-	// unable to open system editor
-	// unable to fork process
-	
 	private static final SwingPreferences prefs = ((SwingPreferences) Application.getPreferences());
 	
 	public static void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
