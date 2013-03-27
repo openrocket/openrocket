@@ -3,7 +3,6 @@ package net.sf.openrocket.gui.configdialog;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.EventObject;
 
@@ -13,6 +12,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
@@ -37,6 +37,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.EditDecalHelper;
+import net.sf.openrocket.gui.util.EditDecalHelper.EditDecalHelperException;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -44,7 +45,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.GeneralUnit;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.StateChangeListener;
 
@@ -253,8 +253,8 @@ public class AppearancePanel extends JPanel {
 				public void actionPerformed(ActionEvent e) {
 					try {
 						EditDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, c, ab.getImage());
-					} catch (IOException ex) {
-						throw new BugException(ex);
+					} catch (EditDecalHelperException ex) {
+						JOptionPane.showMessageDialog(AppearancePanel.this, ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 				
@@ -344,5 +344,4 @@ public class AppearancePanel extends JPanel {
 		
 		
 	}
-	
 }

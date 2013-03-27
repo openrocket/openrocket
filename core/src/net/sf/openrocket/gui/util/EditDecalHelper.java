@@ -4,15 +4,27 @@ import java.awt.Desktop;
 import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.EditDecalDialog;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 public class EditDecalHelper {
+	
+	public static class EditDecalHelperException extends Exception {
+		
+		public EditDecalHelperException(String message, Throwable cause) {
+			super(message, cause);
+		}
+		
+	}
+	
+	private static final Translator trans = Application.getTranslator();
 	
 	// FIXME - need to have a specific set of localizable exceptions come out of this instead of generic IOException;
 	// perhaps - unable to create file,
@@ -21,7 +33,7 @@ public class EditDecalHelper {
 	
 	private static final SwingPreferences prefs = ((SwingPreferences) Application.getPreferences());
 	
-	public static void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws IOException {
+	public static void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
 		
 		boolean sysPrefSet = prefs.isDecalEditorPreferenceSet();
 		int usageCount = doc.countDecalUsage(decal);
@@ -76,7 +88,7 @@ public class EditDecalHelper {
 		return newImage;
 	}
 	
-	private static void launchEditor(boolean useSystemEditor, String commandTemplate, DecalImage decal) throws IOException {
+	private static void launchEditor(boolean useSystemEditor, String commandTemplate, DecalImage decal) throws EditDecalHelperException {
 		
 		String decalId = decal.getName();
 		// Create Temp File.
@@ -85,13 +97,29 @@ public class EditDecalHelper {
 		if (dotlocation > 0 && dotlocation < decalId.length()) {
 			extension = decalId.substring(dotlocation);
 		}
-		File tmpFile = File.createTempFile("OR_graphics", extension);
+		File tmpFile = null;
 		
-		decal.exportImage(tmpFile, true);
+		try {
+			tmpFile = File.createTempFile("OR_graphics", extension);
+		} catch (IOException ioex) {
+			String message = MessageFormat.format(trans.get("EditDecalHelper.createFileException"), tmpFile.getAbsoluteFile());
+			throw new EditDecalHelperException(message, ioex);
+		}
+		
+		try {
+			decal.exportImage(tmpFile, true);
+		} catch (IOException ioex) {
+			String message = MessageFormat.format(trans.get("EditDecalHelper.createFileException"), tmpFile.getAbsoluteFile());
+			throw new EditDecalHelperException(message, ioex);
+		}
 		
 		
 		if (useSystemEditor) {
-			Desktop.getDesktop().edit(tmpFile);
+			try {
+				Desktop.getDesktop().edit(tmpFile);
+			} catch (IOException ioex) {
+				throw new EditDecalHelperException(trans.get("EditDecalHelper.launchSystemEditorException"), ioex);
+			}
 		} else {
 			
 			String filename = tmpFile.getAbsolutePath();
@@ -103,9 +131,13 @@ public class EditDecalHelper {
 				command = commandTemplate + " " + filename;
 			}
 			
-			Runtime.getRuntime().exec(command);
+			try {
+				Runtime.getRuntime().exec(command);
+			} catch (IOException ioex) {
+				String message = MessageFormat.format(trans.get("EditDecalHelper.launchCustomEditorException"), command);
+				throw new EditDecalHelperException(message, ioex);
+			}
 			
 		}
 	}
-	
 }

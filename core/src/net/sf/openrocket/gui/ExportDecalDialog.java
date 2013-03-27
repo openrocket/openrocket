@@ -5,21 +5,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Collection;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 
 public class ExportDecalDialog extends JDialog {
 	
@@ -60,12 +62,14 @@ public class ExportDecalDialog extends JDialog {
 				} else if (command.equals(JFileChooser.APPROVE_SELECTION)) {
 					// Here we copy the bits out.
 					
-					// FIXME - confirm overwrite?
 					DecalImage selectedDecal = (DecalImage) decalComboBox.getSelectedItem();
 					File selectedFile = chooser.getSelectedFile();
 					
-					export(selectedDecal, selectedFile);
-					ExportDecalDialog.this.dispose();
+					if (FileHelper.confirmWrite(selectedFile, ExportDecalDialog.this)) {
+						export(selectedDecal, selectedFile);
+						// If the user doesn't confirm over write, then leave this dialog open.
+						ExportDecalDialog.this.dispose();
+					}
 				}
 			}
 		});
@@ -80,8 +84,8 @@ public class ExportDecalDialog extends JDialog {
 		try {
 			decal.exportImage(selectedFile, false);
 		} catch (IOException iex) {
-			// FIXME - probably want a simple user dialog here since FileIO is not really a bug.
-			throw new BugException(iex);
+			String message = MessageFormat.format(trans.get("ExportDecalDialog.exception"), selectedFile.getAbsoluteFile());
+			JOptionPane.showMessageDialog(this, message, "", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
