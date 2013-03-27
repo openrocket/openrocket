@@ -21,6 +21,10 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 
+/**
+ * A ComboBoxModel that contains a list of flight configurations.  The list can
+ * optionally contain a last element that opens up the configuration edit dialog.
+ */
 public class FlightConfigurationModel implements ComboBoxModel, StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 	
@@ -33,22 +37,32 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	
 	private final Configuration config;
 	private final Rocket rocket;
+	private final boolean showEditElement;
 	
 	private Map<String, ID> map = new HashMap<String, ID>();
 	
 	
 	public FlightConfigurationModel(Configuration config) {
-		this.config = config;
-		this.rocket = config.getRocket();
-		config.addChangeListener(this);
+		this(config, true);
 	}
 	
+	
+	public FlightConfigurationModel(Configuration config, boolean showEditElement) {
+		this.config = config;
+		this.rocket = config.getRocket();
+		this.showEditElement = showEditElement;
+		config.addChangeListener(this);
+	}
 	
 	
 	@Override
 	public Object getElementAt(int index) {
 		String[] ids = rocket.getFlightConfigurationIDs();
-		if (index < 0 || index > ids.length)
+		
+		if (index < 0)
+			return null;
+		if ((showEditElement && index > ids.length) ||
+				(!showEditElement && index >= ids.length))
 			return null;
 		
 		if (index == ids.length)
@@ -59,7 +73,11 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	
 	@Override
 	public int getSize() {
-		return rocket.getFlightConfigurationIDs().length + 1;
+		if (showEditElement) {
+			return rocket.getFlightConfigurationIDs().length + 1;
+		} else {
+			return rocket.getFlightConfigurationIDs().length;
+		}
 	}
 	
 	@Override

@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -8,13 +11,16 @@ import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -24,9 +30,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class SeparationConfigurationPanel extends JPanel {
-	
-	// FIXME:  Gray italics for default selection
-	
 	
 	private static final Translator trans = Application.getTranslator();
 	
@@ -80,6 +83,7 @@ public class SeparationConfigurationPanel extends JPanel {
 				}
 			}
 		});
+		separationTable.setDefaultRenderer(Object.class, new SeparationTableCellRenderer());
 		
 		JScrollPane scroll = new JScrollPane(separationTable);
 		this.add(scroll, "span, grow, wrap");
@@ -109,12 +113,21 @@ public class SeparationConfigurationPanel extends JPanel {
 	}
 	
 	public void fireTableDataChanged() {
+		int selected = separationTable.getSelectedRow();
 		separationTableModel.fireTableDataChanged();
+		if (selected >= 0) {
+			selected = Math.min(selected, separationTable.getRowCount() - 1);
+			separationTable.getSelectionModel().setSelectionInterval(selected, selected);
+		}
 		updateButtonState();
 	}
 	
 	private Stage getSelectedStage() {
 		int row = separationTable.getSelectedRow();
+		return getStage(row);
+	}
+	
+	private Stage getStage(int row) {
 		if (row >= 0 && row < stages.length) {
 			return stages[row];
 		}
@@ -200,7 +213,50 @@ public class SeparationConfigurationPanel extends JPanel {
 				return "";
 			}
 		}
+	}
+	
+	
+	private class SeparationTableCellRenderer extends DefaultTableCellRenderer {
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (!(c instanceof JLabel)) {
+				return c;
+			}
+			JLabel label = (JLabel) c;
+			
+			Stage stage = getStage(row);
+			String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			
+			switch (column) {
+			case 0:
+				regular(label);
+				break;
+			
+			case 1:
+				if (stage.getStageSeparationConfiguration().isDefault(id)) {
+					shaded(label);
+				} else {
+					regular(label);
+				}
+				break;
+			}
+			
+			return label;
+		}
+		
+		private void shaded(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.ITALIC);
+			label.setForeground(Color.GRAY);
+		}
+		
+		private void regular(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.PLAIN);
+			label.setForeground(Color.BLACK);
+		}
 		
 	}
+	
 	
 }

@@ -4,14 +4,17 @@ import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -28,6 +31,8 @@ public class SeparationSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	
 	private StageSeparationConfiguration newConfiguration;
 	
 	SeparationSelectionDialog(JDialog parent, final Rocket rocket, final Stage component) {
@@ -40,6 +45,23 @@ public class SeparationSelectionDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// FIXME: Edit Default or override option
+		
+		
+		// Edit default or override option
+		boolean isDefault = component.getStageSeparationConfiguration().isDefault(id);
+		panel.add(new JLabel(trans.get("SeparationSelectionDialog.opt.title")), "span, wrap rel");
+		final JRadioButton defaultButton = new JRadioButton(trans.get("SeparationSelectionDialog.opt.default"), isDefault);
+		panel.add(defaultButton, "span, gapleft para, wrap rel");
+		String str = trans.get("SeparationSelectionDialog.opt.override");
+		str = str.replace("{0}", descriptor.format(rocket, id));
+		final JRadioButton overrideButton = new JRadioButton(str, !isDefault);
+		panel.add(overrideButton, "span, gapleft para, wrap para");
+		
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(defaultButton);
+		buttonGroup.add(overrideButton);
+		// FIXME: Make buttons work
+		
 		
 		// Select separation event
 		panel.add(new JLabel(trans.get("SeparationSelectionDialog.lbl.separation")), "");

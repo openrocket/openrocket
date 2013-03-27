@@ -36,7 +36,7 @@ public class IgnitionSelectionDialog extends JDialog {
 	
 	private IgnitionConfiguration newConfiguration;
 	
-	IgnitionSelectionDialog(JDialog parent, final Rocket rocket, final MotorMount component) {
+	public IgnitionSelectionDialog(JDialog parent, final Rocket rocket, final MotorMount component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
@@ -44,6 +44,7 @@ public class IgnitionSelectionDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
+		// Edit default or override option
 		boolean isDefault = component.getIgnitionConfiguration().isDefault(id);
 		panel.add(new JLabel(trans.get("IgnitionSelectionDialog.opt.title")), "span, wrap rel");
 		final JRadioButton defaultButton = new JRadioButton(trans.get("IgnitionSelectionDialog.opt.default"), isDefault);

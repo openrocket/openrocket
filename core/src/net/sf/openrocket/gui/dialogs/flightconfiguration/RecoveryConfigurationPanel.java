@@ -1,5 +1,8 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -8,13 +11,16 @@ import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
@@ -25,8 +31,6 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
 public class RecoveryConfigurationPanel extends JPanel {
-	
-	// FIXME:  Gray italics for default selection
 	
 	private Translator trans = Application.getTranslator();
 	
@@ -53,7 +57,6 @@ public class RecoveryConfigurationPanel extends JPanel {
 		recoveryTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				JTable table = (JTable) e.getComponent();
 				updateButtonState();
 				
 				if (e.getClickCount() == 2) {
@@ -62,6 +65,7 @@ public class RecoveryConfigurationPanel extends JPanel {
 				}
 			}
 		});
+		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
 		
 		JScrollPane scroll = new JScrollPane(recoveryTable);
 		this.add(scroll, "span, grow, wrap");
@@ -90,7 +94,12 @@ public class RecoveryConfigurationPanel extends JPanel {
 	}
 	
 	public void fireTableDataChanged() {
+		int selected = recoveryTable.getSelectedRow();
 		recoveryTableModel.fireTableDataChanged();
+		if (selected >= 0) {
+			selected = Math.min(selected, recoveryTable.getRowCount() - 1);
+			recoveryTable.getSelectionModel().setSelectionInterval(selected, selected);
+		}
 		updateButtonState();
 	}
 	
@@ -205,6 +214,49 @@ public class RecoveryConfigurationPanel extends JPanel {
 			default:
 				return "";
 			}
+		}
+		
+	}
+	
+	
+	private class RecoveryTableCellRenderer extends DefaultTableCellRenderer {
+		
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (!(c instanceof JLabel)) {
+				return c;
+			}
+			JLabel label = (JLabel) c;
+			
+			RecoveryDevice recoveryDevice = findRecoveryDevice(row);
+			String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			
+			switch (column) {
+			case 0:
+				regular(label);
+				break;
+			
+			case 1:
+				if (recoveryDevice.getDeploymentConfiguration().isDefault(id)) {
+					shaded(label);
+				} else {
+					regular(label);
+				}
+				break;
+			}
+			
+			return label;
+		}
+		
+		private void shaded(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.ITALIC);
+			label.setForeground(Color.GRAY);
+		}
+		
+		private void regular(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.PLAIN);
+			label.setForeground(Color.BLACK);
 		}
 		
 	}

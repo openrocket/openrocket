@@ -60,7 +60,7 @@ public class FlightConfigurationDialog extends JDialog {
 		JLabel label = new JLabel("Selected flight configuration:");
 		panel.add(label, "span, split");
 		
-		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration());
+		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration(), false);
 		JComboBox configSelector = new JComboBox(flightConfigurationModel);
 		configSelector.addActionListener(new ActionListener() {
 			@Override
