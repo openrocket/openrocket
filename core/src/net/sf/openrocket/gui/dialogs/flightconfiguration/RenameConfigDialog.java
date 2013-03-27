@@ -21,20 +21,19 @@ public class RenameConfigDialog extends JDialog {
 	private static final Translator trans = Application.getTranslator();
 	
 	RenameConfigDialog(final FlightConfigurationDialog parent, final Rocket rocket) {
-		super(parent, trans.get("edtmotorconfdlg.title.Renameconf"), Dialog.ModalityType.APPLICATION_MODAL);
+		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		// FIXME: Localize
-		panel.add(new JLabel("Name for flight configuration:"), "span, wrap rel");
+		panel.add(new JLabel(trans.get("RenameConfigDialog.lbl.name")), "span, wrap rel");
 		
 		final JTextField textbox = new JTextField(rocket.getFlightConfigurationName(configId));
 		panel.add(textbox, "span, w 200lp, growx, wrap para");
 		
 		panel.add(new JPanel(), "growx");
 		
-		JButton okButton = new JButton("Ok");
+		JButton okButton = new JButton(trans.get("button.ok"));
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -45,7 +44,7 @@ public class RenameConfigDialog extends JDialog {
 		});
 		panel.add(okButton);
 		
-		JButton defaultButton = new JButton("Reset to default");
+		JButton defaultButton = new JButton(trans.get("RenameConfigDialog.but.reset"));
 		defaultButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -55,7 +54,7 @@ public class RenameConfigDialog extends JDialog {
 		});
 		panel.add(defaultButton);
 		
-		JButton cancel = new JButton("Cancel");
+		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -68,5 +67,4 @@ public class RenameConfigDialog extends JDialog {
 		
 		GUIUtil.setDisposableDialogOptions(this, okButton);
 	}
-	
 }
