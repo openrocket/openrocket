@@ -4,11 +4,13 @@ import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
@@ -36,13 +38,28 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		newConfiguration = component.getStageSeparationConfiguration().get(id).clone();
 		
-		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		// FIXME: Edit Default or override option
-		
 		// Select separation event
-		panel.add(new JLabel(trans.get("SeparationSelectionDialog.lbl.separation")), "");
+		panel.add(new JLabel(trans.get("SeparationSelectionDialog.opt.title")), "span, wrap rel");
+		
+		final JRadioButton defaultButton = new JRadioButton(trans.get("SeparationSelectionDialog.opt.default"), true);
+		panel.add(defaultButton, "span, gapleft para, wrap rel");
+		String str = trans.get("SeparationSelectionDialog.opt.override");
+		str = str.replace("{0}", rocket.getFlightConfigurationNameOrDescription(id));
+		final JRadioButton overrideButton = new JRadioButton(str, false);
+		panel.add(overrideButton, "span, gapleft para, wrap para");
+		
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(defaultButton);
+		buttonGroup.add(overrideButton);
+		
+		// Select the button based on current configuration.  If the configuration is overridden
+		// The the overrideButton is selected.
+		boolean isOverridden = !component.getStageSeparationConfiguration().isDefault(id);
+		if (isOverridden) {
+			overrideButton.setSelected(true);
+		}
 		
 		final JComboBox event = new JComboBox(new EnumModel<SeparationEvent>(newConfiguration, "SeparationEvent"));
 		event.setSelectedItem(newConfiguration.getSeparationEvent());
@@ -66,7 +83,11 @@ public class SeparationSelectionDialog extends JDialog {
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				component.getStageSeparationConfiguration().set(id, newConfiguration);
+				if (defaultButton.isSelected()) {
+					component.getStageSeparationConfiguration().setDefault(newConfiguration);
+				} else {
+					component.getStageSeparationConfiguration().set(id, newConfiguration);
+				}
 				SeparationSelectionDialog.this.setVisible(false);
 			}
 		});

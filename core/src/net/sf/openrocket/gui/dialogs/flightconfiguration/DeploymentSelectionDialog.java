@@ -61,6 +61,12 @@ public class DeploymentSelectionDialog extends JDialog {
 		buttonGroup.add(defaultButton);
 		buttonGroup.add(overrideButton);
 		
+		// Select the button based on current configuration.  If the configuration is overridden
+		// The the overrideButton is selected.
+		boolean isOverridden = !component.getDeploymentConfiguration().isDefault(id);
+		if (isOverridden) {
+			overrideButton.setSelected(true);
+		}
 		
 		//// Deployment
 		//// Deploys at:

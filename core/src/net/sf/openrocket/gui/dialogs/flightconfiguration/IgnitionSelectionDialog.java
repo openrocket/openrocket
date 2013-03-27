@@ -53,6 +53,13 @@ public class IgnitionSelectionDialog extends JDialog {
 		buttonGroup.add(defaultButton);
 		buttonGroup.add(overrideButton);
 		
+		// Select the button based on current configuration.  If the configuration is overridden
+		// The the overrideButton is selected.
+		boolean isOverridden = !component.getIgnitionConfiguration().isDefault(id);
+		if (isOverridden) {
+			overrideButton.setSelected(true);
+		}
+		
 		// Select ignition event
 		//// Ignition at:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
