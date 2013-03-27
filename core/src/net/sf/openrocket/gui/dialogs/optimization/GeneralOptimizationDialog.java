@@ -55,6 +55,7 @@ import javax.swing.tree.TreePath;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
@@ -114,6 +115,9 @@ public class GeneralOptimizationDialog extends JDialog {
 	
 	private static final String START_TEXT = trans.get("btn.start");
 	private static final String STOP_TEXT = trans.get("btn.stop");
+	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	
 	
 	private final List<OptimizableParameter> optimizationParameters = new ArrayList<OptimizableParameter>();
 	private final Map<Object, List<SimulationModifier>> simulationModifiers =
@@ -933,7 +937,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		
 		for (Simulation s : documentCopy.getSimulations()) {
 			String id = s.getConfiguration().getFlightConfigurationID();
-			String name = createSimulationName(s.getName(), rocket.getFlightConfigurationNameOrDescription(id));
+			String name = createSimulationName(s.getName(), descriptor.format(rocket, id));
 			simulations.add(new Named<Simulation>(s, name));
 		}
 		
@@ -943,13 +947,13 @@ public class GeneralOptimizationDialog extends JDialog {
 			}
 			Simulation sim = new Simulation(rocket);
 			sim.getConfiguration().setFlightConfigurationID(id);
-			String name = createSimulationName(trans.get("basicSimulationName"), rocket.getFlightConfigurationNameOrDescription(id));
+			String name = createSimulationName(trans.get("basicSimulationName"), descriptor.format(rocket, id));
 			simulations.add(new Named<Simulation>(sim, name));
 		}
 		
 		Simulation sim = new Simulation(rocket);
 		sim.getConfiguration().setFlightConfigurationID(null);
-		String name = createSimulationName(trans.get("noSimulationName"), rocket.getFlightConfigurationNameOrDescription(null));
+		String name = createSimulationName(trans.get("noSimulationName"), descriptor.format(rocket, null));
 		simulations.add(new Named<Simulation>(sim, name));
 		
 		

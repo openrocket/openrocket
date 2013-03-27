@@ -49,7 +49,8 @@ public class RocketSaver extends RocketComponentSaver {
 			if (id.equals(defId))
 				str += " default=\"true\"";
 			
-			if (rocket.getFlightConfigurationName(id) == "") {
+			
+			if (rocket.getFlightConfigurationName(id).equals(Rocket.DEFAULT_NAME)) {
 				str += "/>";
 			} else {
 				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(rocket.getFlightConfigurationName(id))

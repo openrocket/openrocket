@@ -11,10 +11,8 @@ import java.util.UUID;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -35,6 +33,7 @@ public class Rocket extends RocketComponent {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
+	public static final String DEFAULT_NAME = "[{motors}]";
 	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
 	
 	
@@ -583,7 +582,7 @@ public class Rocket extends RocketComponent {
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
 					continue;
-				if (mount.getMotor(id) != null) {
+				if (mount.getMotorConfiguration().get(id).getMotor() != null) {
 					return true;
 				}
 			}
@@ -594,18 +593,19 @@ public class Rocket extends RocketComponent {
 	
 	/**
 	 * Return the user-set name of the flight configuration.  If no name has been set,
-	 * returns an empty string (not null).
+	 * returns the default name ({@link #DEFAULT_NAME}).
 	 *
 	 * @param id   the flight configuration id
 	 * @return	   the configuration name
 	 */
+	// FIXME: Check references to this method adhere to the new returning of DEFAULT_NAME
 	public String getFlightConfigurationName(String id) {
 		checkState();
 		if (!isFlightConfigurationID(id))
-			return "";
+			return DEFAULT_NAME;
 		String s = flightConfigurationNames.get(id);
 		if (s == null)
-			return "";
+			return DEFAULT_NAME;
 		return s;
 	}
 	
@@ -619,145 +619,14 @@ public class Rocket extends RocketComponent {
 	 */
 	public void setFlightConfigurationName(String id, String name) {
 		checkState();
-		flightConfigurationNames.put(id, name);
+		if (name == null || name.equals("")) {
+			flightConfigurationNames.remove(id);
+		} else {
+			flightConfigurationNames.put(id, name);
+		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
-	
-	/**
-	 * Return either the flight configuration name (if set) or its description.
-	 *
-	 * @param id  the flight configuration ID.
-	 * @return    a textual representation of the configuration
-	 */
-	public String getFlightConfigurationNameOrDescription(String id) {
-		checkState();
-		String name;
-		
-		name = getFlightConfigurationName(id);
-		if (name != null && !name.equals(""))
-			return name;
-		
-		return getFlightConfigurationDescription(id);
-	}
-	
-	
-	// FIXME: Change to private
-	/**
-	 * Return a description for the flight configuration, generated from the motor
-	 * designations of the components.
-	 *
-	 * @param id  the flight configuration ID.
-	 * @return    a textual representation of the configuration
-	 */
-	@SuppressWarnings("null")
-	public String getFlightConfigurationDescription(String id) {
-		checkState();
-		String name;
-		int motorCount = 0;
-		
-		// Generate the description
-		
-		// First iterate over each stage and store the designations of each motor
-		List<List<String>> list = new ArrayList<List<String>>();
-		List<String> currentList = null;
-		
-		Iterator<RocketComponent> iterator = this.iterator();
-		while (iterator.hasNext()) {
-			RocketComponent c = iterator.next();
-			
-			if (c instanceof Stage) {
-				
-				currentList = new ArrayList<String>();
-				list.add(currentList);
-				
-			} else if (c instanceof MotorMount) {
-				
-				MotorMount mount = (MotorMount) c;
-				Motor motor = mount.getMotor(id);
-				
-				if (mount.isMotorMount() && motor != null) {
-					String designation = motor.getDesignation(mount.getMotorDelay(id));
-					
-					for (int i = 0; i < mount.getMotorCount(); i++) {
-						currentList.add(designation);
-						motorCount++;
-					}
-				}
-				
-			}
-		}
-		
-		if (motorCount == 0) {
-			//// [No motors]
-			return trans.get("Rocket.motorCount.Nomotor");
-		}
-		
-		// Change multiple occurrences of a motor to n x motor
-		List<String> stages = new ArrayList<String>();
-		
-		for (List<String> stage : list) {
-			String stageName = "";
-			String previous = null;
-			int count = 0;
-			
-			Collections.sort(stage);
-			for (String current : stage) {
-				if (current.equals(previous)) {
-					
-					count++;
-					
-				} else {
-					
-					if (previous != null) {
-						String s = "";
-						if (count > 1) {
-							s = "" + count + Chars.TIMES + previous;
-						} else {
-							s = previous;
-						}
-						
-						if (stageName.equals(""))
-							stageName = s;
-						else
-							stageName = stageName + "," + s;
-					}
-					
-					previous = current;
-					count = 1;
-					
-				}
-			}
-			if (previous != null) {
-				String s = "";
-				if (count > 1) {
-					s = "" + count + Chars.TIMES + previous;
-				} else {
-					s = previous;
-				}
-				
-				if (stageName.equals(""))
-					stageName = s;
-				else
-					stageName = stageName + "," + s;
-			}
-			
-			stages.add(stageName);
-		}
-		
-		name = "[";
-		for (int i = 0; i < stages.size(); i++) {
-			String s = stages.get(i);
-			if (s.equals(""))
-				s = "None";
-			if (i == 0)
-				name = name + s;
-			else
-				name = name + "; " + s;
-		}
-		name += "]";
-		return name;
-	}
 	
 	
 	

@@ -6,8 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that defines an interface to be a plugin interface.
- * Plugin interfaces are automatically discovered from plugin JARs and
+ * Annotation that defines an interface to be a plugin interface and
+ * classes as plugin implementations.
+ * <p>
+ * Plugin interfaces are automatically discovered from the classpath and
  * registered as plugins in Guice.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>

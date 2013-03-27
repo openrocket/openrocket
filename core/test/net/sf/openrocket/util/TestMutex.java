@@ -1,6 +1,10 @@
 package net.sf.openrocket.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +57,7 @@ public class TestMutex {
 	}
 	
 	
-
+	
 	private volatile int testState = 0;
 	private volatile String failure = null;
 	
@@ -106,6 +110,7 @@ public class TestMutex {
 					testState = 6;
 					
 				} catch (Exception e) {
+					e.printStackTrace();
 					failure = "Exception occurred in thread: " + e;
 					return;
 				}

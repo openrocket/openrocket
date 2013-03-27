@@ -14,6 +14,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -30,10 +31,12 @@ public class IgnitionSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	
 	
 	private IgnitionConfiguration newConfiguration;
 	
-	IgnitionSelectionDialog(JDialog parent, final Rocket rocket, final MotorMount component) {
+	public IgnitionSelectionDialog(JDialog parent, final Rocket rocket, final MotorMount component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
@@ -41,12 +44,14 @@ public class IgnitionSelectionDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
+		// Edit default or override option
+		boolean isDefault = component.getIgnitionConfiguration().isDefault(id);
 		panel.add(new JLabel(trans.get("IgnitionSelectionDialog.opt.title")), "span, wrap rel");
-		final JRadioButton defaultButton = new JRadioButton(trans.get("IgnitionSelectionDialog.opt.default"), true);
+		final JRadioButton defaultButton = new JRadioButton(trans.get("IgnitionSelectionDialog.opt.default"), isDefault);
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
 		String str = trans.get("IgnitionSelectionDialog.opt.override");
-		str = str.replace("{0}", rocket.getFlightConfigurationNameOrDescription(id));
-		final JRadioButton overrideButton = new JRadioButton(str, false);
+		str = str.replace("{0}", descriptor.format(rocket, id));
+		final JRadioButton overrideButton = new JRadioButton(str, !isDefault);
 		panel.add(overrideButton, "span, gapleft para, wrap para");
 		
 		ButtonGroup buttonGroup = new ButtonGroup();
@@ -96,6 +101,7 @@ public class IgnitionSelectionDialog extends JDialog {
 		});
 		
 		panel.add(okButton, "sizegroup btn");
+		
 		
 		JButton cancel = new JButton(trans.get("button.cancel"));
 		cancel.addActionListener(new ActionListener() {

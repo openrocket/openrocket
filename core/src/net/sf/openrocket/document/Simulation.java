@@ -7,6 +7,7 @@ import java.util.List;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
@@ -57,6 +58,9 @@ public class Simulation implements ChangeSource, Cloneable {
 		NOT_SIMULATED
 	}
 	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	
+	
 	private SafetyMutex mutex = SafetyMutex.newInstance();
 	
 	private final Rocket rocket;
@@ -83,7 +87,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	/** The conditions actually used in the previous simulation, or null */
 	private SimulationOptions simulatedConditions = null;
-	private String simulatedMotors = null;
+	private String simulatedConfiguration = null;
 	private FlightData simulatedData = null;
 	private int simulatedRocketID = -1;
 	
@@ -305,7 +309,8 @@ public class Simulation implements ChangeSource, Cloneable {
 			// Set simulated info after simulation, will not be set in case of exception
 			simulatedConditions = options.clone();
 			final Configuration configuration = getConfiguration();
-			simulatedMotors = configuration.getFlightConfigurationDescription();
+			
+			simulatedConfiguration = descriptor.format(configuration.getRocket(), configuration.getFlightConfigurationID());
 			simulatedRocketID = rocket.getFunctionalModID();
 			
 			status = Status.UPTODATE;
@@ -350,11 +355,10 @@ public class Simulation implements ChangeSource, Cloneable {
 	 *
 	 * @return	a description of the motor configuration of the previous simulation, or
 	 * 			<code>null</code>.
-	 * @see		Rocket#getFlightConfigurationNameOrDescription(String)
 	 */
-	public String getSimulatedMotorDescription() {
+	public String getSimulatedConfigurationDescription() {
 		mutex.verify();
-		return simulatedMotors;
+		return simulatedConfiguration;
 	}
 	
 	/**
@@ -389,7 +393,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.simulationListeners = this.simulationListeners.clone();
 			copy.listeners = new ArrayList<EventListener>();
 			copy.simulatedConditions = null;
-			copy.simulatedMotors = null;
+			copy.simulatedConfiguration = null;
 			copy.simulatedData = null;
 			copy.simulatedRocketID = -1;
 			

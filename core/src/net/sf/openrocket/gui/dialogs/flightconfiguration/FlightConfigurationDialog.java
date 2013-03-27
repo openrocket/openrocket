@@ -19,8 +19,9 @@ import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketvisitors.CopyFlightConfigurationVisitor;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -58,7 +59,7 @@ public class FlightConfigurationDialog extends JDialog {
 		JLabel label = new JLabel(trans.get("edtmotorconfdlg.lbl.Selectedconf"));
 		panel.add(label, "span, split");
 		
-		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration());
+		flightConfigurationModel = new FlightConfigurationModel(rocket.getDefaultConfiguration(), false);
 		JComboBox configSelector = new JComboBox(flightConfigurationModel);
 		configSelector.addActionListener(new ActionListener() {
 			@Override
@@ -84,7 +85,7 @@ public class FlightConfigurationDialog extends JDialog {
 		renameConfButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new RenameConfigDialog(FlightConfigurationDialog.this, rocket).setVisible(true);
+				renameConfiguration();
 			}
 		});
 		panel.add(renameConfButton);
@@ -166,37 +167,32 @@ public class FlightConfigurationDialog extends JDialog {
 		updateButtonState();
 	}
 	
-	public void addConfiguration() {
-		String id = rocket.newFlightConfigurationID();
-		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
-		motorConfigurationPanel.fireTableDataChanged();
-		recoveryConfigurationPanel.fireTableDataChanged();
-		separationConfigurationPanel.fireTableDataChanged();
-		updateButtonState();
+	private void addConfiguration() {
+		String newId = rocket.newFlightConfigurationID();
+		rocket.getDefaultConfiguration().setFlightConfigurationID(newId);
+		configurationChanged();
 	}
 	
-	public void copyConfiguration() {
+	private void copyConfiguration() {
 		String currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
 		// currentID is the currently selected configuration.
 		String newConfigId = rocket.newFlightConfigurationID();
 		String oldName = rocket.getFlightConfigurationName(currentId);
-		CopyFlightConfigurationVisitor v = new CopyFlightConfigurationVisitor(currentId, newConfigId);
-		v.visit(rocket);
-		// Select the new configuration
+		
+		for (RocketComponent c : rocket) {
+			if (c instanceof FlightConfigurableComponent) {
+				((FlightConfigurableComponent) c).cloneFlightConfiguration(currentId, newConfigId);
+			}
+		}
+		rocket.setFlightConfigurationName(currentId, oldName);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(newConfigId);
 		
-		// Copy the name.
-		this.changeConfigurationName(oldName);
-		motorConfigurationPanel.fireTableDataChanged();
-		recoveryConfigurationPanel.fireTableDataChanged();
-		separationConfigurationPanel.fireTableDataChanged();
-		updateButtonState();
+		configurationChanged();
 	}
 	
-	public void changeConfigurationName(String newName) {
-		String currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		rocket.setFlightConfigurationName(currentId, newName);
+	private void renameConfiguration() {
+		new RenameConfigDialog(this, rocket).setVisible(true);
 	}
 	
 	private void removeConfiguration() {
@@ -205,26 +201,13 @@ public class FlightConfigurationDialog extends JDialog {
 			return;
 		rocket.removeFlightConfigurationID(currentId);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(null);
-		motorConfigurationPanel.fireTableDataChanged();
-		recoveryConfigurationPanel.fireTableDataChanged();
-		separationConfigurationPanel.fireTableDataChanged();
-		updateButtonState();
-	}
-	
-	/**
-	 * Call this from other panels when a change might cause the names of the configurations to change.
-	 */
-	public void fireContentsUpdated() {
+		configurationChanged();
 	}
 	
 	private void updateButtonState() {
 		String currentId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		removeConfButton.setEnabled(currentId != null);
 		renameConfButton.setEnabled(currentId != null);
-		motorConfigurationPanel.updateButtonState();
-		recoveryConfigurationPanel.updateButtonState();
-		separationConfigurationPanel.updateButtonState();
 	}
-	
 	
 }

@@ -14,6 +14,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
@@ -30,6 +31,8 @@ public class SeparationSelectionDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
+	
 	private StageSeparationConfiguration newConfiguration;
 	
 	SeparationSelectionDialog(JDialog parent, final Rocket rocket, final Stage component) {
@@ -40,13 +43,15 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
+		
 		// Select separation event
 		panel.add(new JLabel(trans.get("SeparationSelectionDialog.opt.title")), "span, wrap rel");
 		
-		final JRadioButton defaultButton = new JRadioButton(trans.get("SeparationSelectionDialog.opt.default"), true);
+		boolean isDefault = component.getStageSeparationConfiguration().isDefault(id);
+		final JRadioButton defaultButton = new JRadioButton(trans.get("SeparationSelectionDialog.opt.default"), isDefault);
 		panel.add(defaultButton, "span, gapleft para, wrap rel");
 		String str = trans.get("SeparationSelectionDialog.opt.override");
-		str = str.replace("{0}", rocket.getFlightConfigurationNameOrDescription(id));
+		str = str.replace("{0}", descriptor.format(rocket, id));
 		final JRadioButton overrideButton = new JRadioButton(str, false);
 		panel.add(overrideButton, "span, gapleft para, wrap para");
 		
@@ -108,5 +113,4 @@ public class SeparationSelectionDialog extends JDialog {
 		
 		GUIUtil.setDisposableDialogOptions(this, okButton);
 	}
-	
 }
