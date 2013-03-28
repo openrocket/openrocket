@@ -421,6 +421,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			copy.name = this.name;
 			copy.options.copyFrom(this.options);
+			copy.simulatedConfiguration = this.simulatedConfiguration;
 			copy.simulationListeners = this.simulationListeners.clone();
 			copy.simulationStepperClass = this.simulationStepperClass;
 			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
