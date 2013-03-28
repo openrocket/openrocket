@@ -404,21 +404,26 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		} else {
 			
 			if (src.rocket.hasMotors(src.motorID)) {
-				// Try to find a closely matching motor ID
-				MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
-				
-				String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.motorID);
-				String matchID = null;
-				
-				for (String id : this.rocket.getFlightConfigurationIDs()) {
-					String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, id);
-					if (motorDesc.equals(motorDesc2)) {
-						matchID = id;
-						break;
+				// First check for exact match:
+				if (this.rocket.isFlightConfigurationID(src.motorID)) {
+					this.motorID = src.motorID;
+				} else {
+					// Try to find a closely matching motor ID
+					MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
+					
+					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.motorID);
+					String matchID = null;
+					
+					for (String id : this.rocket.getFlightConfigurationIDs()) {
+						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, id);
+						if (motorDesc.equals(motorDesc2)) {
+							matchID = id;
+							break;
+						}
 					}
+					
+					this.motorID = matchID;
 				}
-				
-				this.motorID = matchID;
 			} else {
 				this.motorID = null;
 			}
