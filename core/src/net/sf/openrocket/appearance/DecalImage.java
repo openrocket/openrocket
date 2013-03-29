@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 import net.sf.openrocket.util.ChangeSource;
 
-public interface DecalImage extends ChangeSource {
+public interface DecalImage extends ChangeSource, Comparable<DecalImage> {
 	
 	public String getName();
 	

@@ -47,4 +47,9 @@ class ResourceDecalImage implements DecalImage {
 		//Unimplemented, this can not change
 	}
 	
+	@Override
+	public int compareTo(DecalImage o) {
+		return getName().compareTo(o.getName());
+	}
+	
 }

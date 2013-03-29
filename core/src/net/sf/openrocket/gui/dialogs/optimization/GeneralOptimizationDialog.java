@@ -48,7 +48,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -231,9 +230,6 @@ public class GeneralOptimizationDialog extends JDialog {
 		selectedModifierTable.setRowSelectionAllowed(true);
 		selectedModifierTable.setColumnSelectionAllowed(false);
 		selectedModifierTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		TableRowSorter<ParameterSelectionTableModel> sorter = new TableRowSorter<ParameterSelectionTableModel>(selectedModifierTableModel);
-		sorter.setComparator(0, new SimulationModifierComparator());
-		selectedModifierTable.setRowSorter(sorter);
 		
 		// Make sure spinner editor fits into the cell height
 		selectedModifierTable.setRowHeight(new JSpinner().getPreferredSize().height - 4);
@@ -732,6 +728,22 @@ public class GeneralOptimizationDialog extends JDialog {
 		}
 		
 		SimulationModifier[] modifiers = selectedModifiers.toArray(new SimulationModifier[0]);
+		
+		// Check for DeploymentAltitude modifier, if it's there, we want to make certain the DeploymentEvent
+		// is ALTITUDE:
+		for (SimulationModifier mod : modifiers) {
+			
+			try {
+				mod.initialize(simulation);
+			} catch (OptimizationException ex) {
+				updating = true;
+				startButton.setSelected(false);
+				startButton.setText(START_TEXT);
+				updating = false;
+				throw new BugException(ex);
+			}
+			
+		}
 		
 		// Create and start the background worker
 		worker = new OptimizationWorker(simulation, parameter, goal, domain, modifiers) {

@@ -21,6 +21,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
@@ -52,6 +53,13 @@ public class AppearancePanel extends JPanel {
 	private static final Translator trans = Application.getTranslator();
 	
 	private AppearanceBuilder ab;
+	
+	// We hang on to the user selected appearance when switching to default appearance.
+	// this appearance is restored if the user unchecks the "default" button.
+	private Appearance previousUserSelectedAppearance = null;
+	
+	// We cache the default appearance for this component to make switching faster.
+	private Appearance defaultAppearance = null;
 	
 	/**
 	 * A non-unit that adjusts by a small amount, suitable for
@@ -117,7 +125,14 @@ public class AppearancePanel extends JPanel {
 	public AppearancePanel(final OpenRocketDocument document, final RocketComponent c) {
 		super(new MigLayout("fill", "[150][grow][150][grow]"));
 		
-		ab = new AppearanceBuilder(c.getAppearance() != null ? c.getAppearance() : DefaultAppearance.getDefaultAppearance(c));
+		previousUserSelectedAppearance = c.getAppearance();
+		defaultAppearance = DefaultAppearance.getDefaultAppearance(c);
+		if (previousUserSelectedAppearance == null) {
+			previousUserSelectedAppearance = new AppearanceBuilder().getAppearance();
+			ab = new AppearanceBuilder(defaultAppearance);
+		} else {
+			ab = new AppearanceBuilder(previousUserSelectedAppearance);
+		}
 		
 		net.sf.openrocket.util.Color figureColor = c.getColor();
 		if (figureColor == null) {
@@ -223,9 +238,10 @@ public class AppearancePanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (materialDefault.isSelected()) {
-						c.setAppearance(null);
+						previousUserSelectedAppearance = (ab == null) ? null : ab.getAppearance();
+						ab.setAppearance(defaultAppearance);
 					} else {
-						c.setAppearance(ab.getAppearance());
+						ab.setAppearance(previousUserSelectedAppearance);
 					}
 				}
 			});

@@ -34,6 +34,21 @@ public class AppearanceBuilder extends AbstractChangeSource {
 	}
 	
 	public AppearanceBuilder(Appearance a) {
+		setAppearance(a);
+	}
+	
+	public void resetToDefaults() {
+		paint = new Color(0, 0, 0);
+		shine = 0;
+		offsetU = offsetV = 0;
+		centerU = centerV = 0;
+		scaleU = scaleV = 1;
+		rotation = 0;
+		image = null;
+		edgeMode = EdgeMode.REPEAT;
+	}
+	
+	public void setAppearance(Appearance a) {
 		resetToDefaults();
 		if (a != null) {
 			setPaint(a.getPaint());
@@ -48,17 +63,6 @@ public class AppearanceBuilder extends AbstractChangeSource {
 				setImage(d.getImage());
 			}
 		}
-	}
-	
-	public void resetToDefaults() {
-		paint = new Color(0, 0, 0);
-		shine = 0;
-		offsetU = offsetV = 0;
-		centerU = centerV = 0;
-		scaleU = scaleV = 1;
-		rotation = 0;
-		image = null;
-		edgeMode = EdgeMode.REPEAT;
 	}
 	
 	public Appearance getAppearance() {

@@ -86,7 +86,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 	@Override
 	public Object getSelectedItem() {
 		DecalImage decal = ab.getImage();
-		if (decal == null) {
+		if (decal == null || !document.getDecalList().contains(decal)) {
 			return NONE_SELECTED;
 		} else {
 			return decal;
