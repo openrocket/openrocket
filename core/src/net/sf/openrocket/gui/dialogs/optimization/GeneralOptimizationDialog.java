@@ -98,7 +98,7 @@ import net.sf.openrocket.util.TextUtil;
 import com.itextpdf.text.Font;
 
 /**
- * General rocket optimization dialog.
+ * General rocket optimization dialog. 
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */

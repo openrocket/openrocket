@@ -76,6 +76,10 @@ public abstract class AbstractSimulationModifier implements SimulationModifier {
 		return toScaledValue(value);
 	}
 	
+	@Override
+	public void initialize(Simulation simulation) throws OptimizationException {
+		// Default is no-op.
+	}
 	
 	
 	/**
