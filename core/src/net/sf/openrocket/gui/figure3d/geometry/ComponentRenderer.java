@@ -128,7 +128,7 @@ public class ComponentRenderer {
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CCW);
 			}
-			TransitionRenderer.drawTransition(gl, t, LOD, t.getType() == Shape.CONICAL ? 4 : LOD / 2);
+			TransitionRenderer.drawTransition(gl, t, LOD, t.getType() == Shape.CONICAL ? 4 : LOD / 2, which == Surface.INSIDE ? -t.getThickness() : 0);
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CW);
 			}
