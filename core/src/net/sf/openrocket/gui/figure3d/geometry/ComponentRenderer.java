@@ -136,6 +136,18 @@ public class ComponentRenderer {
 		}
 		
 		if (which == Surface.EDGES || which == Surface.INSIDE) {
+			//Render aft edge
+			gl.glPushMatrix();
+			gl.glTranslated(t.getLength(), 0, 0);
+			if (which == Surface.EDGES) {
+				gl.glRotated(90, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getAftRadius() - t.getThickness()), t.getAftRadius(), LOD, 2);
+			} else {
+				gl.glRotated(270, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getAftRadius() - t.getThickness()), t.getAftRadius(), LOD, 2);
+			}
+			gl.glPopMatrix();
+			
 			// Render AFT shoulder
 			if (t.getAftShoulderLength() > 0) {
 				gl.glPushMatrix();
@@ -158,6 +170,18 @@ public class ComponentRenderer {
 				}
 				gl.glPopMatrix();
 			}
+			
+			//Render Fore edge
+			gl.glPushMatrix();
+			gl.glRotated(180, 0, 1.0, 0);
+			if (which == Surface.EDGES) {
+				gl.glRotated(90, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getForeRadius() - t.getThickness()), t.getForeRadius(), LOD, 2);
+			} else {
+				gl.glRotated(270, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getForeRadius() - t.getThickness()), t.getForeRadius(), LOD, 2);
+			}
+			gl.glPopMatrix();
 			
 			// Render Fore shoulder
 			if (t.getForeShoulderLength() > 0) {
