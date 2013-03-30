@@ -137,7 +137,7 @@ public class ComponentRenderer {
 		
 		if (which == Surface.EDGES || which == Surface.INSIDE) {
 			// Render AFT shoulder
-			{
+			if (t.getAftShoulderLength() > 0) {
 				gl.glPushMatrix();
 				gl.glTranslated(t.getLength(), 0, 0);
 				double iR = (t.isFilled() || t.isAftShoulderCapped()) ? 0 : t.getAftShoulderRadius() - t.getAftShoulderThickness();
@@ -160,7 +160,7 @@ public class ComponentRenderer {
 			}
 			
 			// Render Fore shoulder
-			{
+			if (t.getForeShoulderLength() > 0) {
 				gl.glPushMatrix();
 				gl.glRotated(180, 0, 1.0, 0);
 				//gl.glTranslated(t.getLength(), 0, 0);
