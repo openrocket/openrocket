@@ -128,7 +128,7 @@ public class ComponentRenderer {
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CCW);
 			}
-			TransitionRenderer.drawTransition(gl, t, LOD, t.getType() == Shape.CONICAL ? 4 : LOD / 2);
+			TransitionRenderer.drawTransition(gl, t, LOD, t.getType() == Shape.CONICAL ? 4 : LOD / 2, which == Surface.INSIDE ? -t.getThickness() : 0);
 			if (which == Surface.INSIDE) {
 				gl.glFrontFace(GL.GL_CW);
 			}
@@ -136,8 +136,20 @@ public class ComponentRenderer {
 		}
 		
 		if (which == Surface.EDGES || which == Surface.INSIDE) {
+			//Render aft edge
+			gl.glPushMatrix();
+			gl.glTranslated(t.getLength(), 0, 0);
+			if (which == Surface.EDGES) {
+				gl.glRotated(90, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getAftRadius() - t.getThickness()), t.getAftRadius(), LOD, 2);
+			} else {
+				gl.glRotated(270, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getAftRadius() - t.getThickness()), t.getAftRadius(), LOD, 2);
+			}
+			gl.glPopMatrix();
+			
 			// Render AFT shoulder
-			{
+			if (t.getAftShoulderLength() > 0) {
 				gl.glPushMatrix();
 				gl.glTranslated(t.getLength(), 0, 0);
 				double iR = (t.isFilled() || t.isAftShoulderCapped()) ? 0 : t.getAftShoulderRadius() - t.getAftShoulderThickness();
@@ -159,8 +171,20 @@ public class ComponentRenderer {
 				gl.glPopMatrix();
 			}
 			
+			//Render Fore edge
+			gl.glPushMatrix();
+			gl.glRotated(180, 0, 1.0, 0);
+			if (which == Surface.EDGES) {
+				gl.glRotated(90, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getForeRadius() - t.getThickness()), t.getForeRadius(), LOD, 2);
+			} else {
+				gl.glRotated(270, 0, 1.0, 0);
+				glu.gluDisk(q, Math.max(0, t.getForeRadius() - t.getThickness()), t.getForeRadius(), LOD, 2);
+			}
+			gl.glPopMatrix();
+			
 			// Render Fore shoulder
-			{
+			if (t.getForeShoulderLength() > 0) {
 				gl.glPushMatrix();
 				gl.glRotated(180, 0, 1.0, 0);
 				//gl.glTranslated(t.getLength(), 0, 0);

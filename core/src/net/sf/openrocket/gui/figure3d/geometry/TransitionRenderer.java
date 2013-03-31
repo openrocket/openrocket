@@ -126,7 +126,7 @@ final class TransitionRenderer {
 	}
 	
 	static final void drawTransition(final GL2 gl, final Transition tr,
-			final int slices, final int stacks) {
+			final int slices, final int stacks, final double offsetRadius) {
 		
 		double da, r, dzBase;
 		double x, y, z, nz, lnz = 0;
@@ -145,8 +145,8 @@ final class TransitionRenderer {
 			double dz = t < 0.025 ? dzBase / 8.0 : dzBase;
 			double zNext = Math.min(z + dz, tr.getLength());
 			
-			r = tr.getRadius(z);
-			double rNext = tr.getRadius(zNext);
+			r = Math.max(0, tr.getRadius(z) + offsetRadius);
+			double rNext = Math.max(0, tr.getRadius(zNext) + offsetRadius);
 			
 			
 			// Z component of normal vectors
