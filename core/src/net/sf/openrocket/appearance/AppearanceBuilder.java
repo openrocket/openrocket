@@ -37,7 +37,7 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		setAppearance(a);
 	}
 	
-	public void resetToDefaults() {
+	private void resetToDefaults() {
 		paint = new Color(0, 0, 0);
 		shine = 0;
 		offsetU = offsetV = 0;
@@ -48,21 +48,26 @@ public class AppearanceBuilder extends AbstractChangeSource {
 		edgeMode = EdgeMode.REPEAT;
 	}
 	
-	public void setAppearance(Appearance a) {
-		resetToDefaults();
-		if (a != null) {
-			setPaint(a.getPaint());
-			setShine(a.getShine());
-			Decal d = a.getTexture();
-			if (d != null) {
-				setOffset(d.getOffset().x, d.getOffset().y);
-				setCenter(d.getCenter().x, d.getCenter().y);
-				setScaleUV(d.getScale().x, d.getScale().y);
-				setRotation(d.getRotation());
-				setEdgeMode(d.getEdgeMode());
-				setImage(d.getImage());
+	public void setAppearance(final Appearance a) {
+		batch(new Runnable() {
+			@Override
+			public void run() {
+				resetToDefaults();
+				if (a != null) {
+					setPaint(a.getPaint());
+					setShine(a.getShine());
+					Decal d = a.getTexture();
+					if (d != null) {
+						setOffset(d.getOffset().x, d.getOffset().y);
+						setCenter(d.getCenter().x, d.getCenter().y);
+						setScaleUV(d.getScale().x, d.getScale().y);
+						setRotation(d.getRotation());
+						setEdgeMode(d.getEdgeMode());
+						setImage(d.getImage());
+					}
+				}
 			}
-		}
+		});
 	}
 	
 	public Appearance getAppearance() {
