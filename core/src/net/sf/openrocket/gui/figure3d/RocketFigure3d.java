@@ -645,6 +645,20 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	}
 	
 	public void setType(final int t) {
+		// The first time the user selects any 3d figure types,  the canvas' internal _drawable
+		// has not been realized.  Unfortunately, there is a test in canvas.invoke which doesn't
+		// execute the runnable if the drawable isn't realized.
+		// In order to trump this, we test if the canvas has not been realized and initialize
+		// the renderer accordingly.  There is certainly a better way to do this.
+		if (!canvas.isRealized()) {
+			if (t == TYPE_FIGURE) {
+				rr = new FigureRenderer();
+			} else if (t == TYPE_FINISHED) {
+				rr = new RealisticRenderer(document);
+			} else if (t == TYPE_UNFINISHED) {
+				rr = new UnfinishedRenderer(document);
+			}
+		}
 		canvas.invoke(true, new GLRunnable() {
 			@Override
 			public boolean run(GLAutoDrawable drawable) {
