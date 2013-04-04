@@ -20,8 +20,6 @@
 	<classpathentry kind="lib" path="lib-test/uispec4j-2.3-jdk16.jar"/>
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="lib/jogl/jogl.all.jar"/>
 	<classpathentry kind="lib" path="lib/OrangeExtensions-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/guice-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/guice-multibindings-3.0.jar"/>
@@ -29,6 +27,8 @@
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.17.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="reference/jfreechart-1.0.14-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar"/>
 	<classpathentry kind="lib" path="lib-test/test-plugin.jar"/>
 	<classpathentry kind="lib" path="lib/annotation-detector-3.0.2-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>

@@ -80,7 +80,7 @@
 			<manifest>
 				<attribute name="Main-Class" value="${main-class}" />
 				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl.all.jar" />
+				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
 			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
@@ -218,7 +218,7 @@
 	<!-- CHECK TODOs -->
 	<target name="todo" depends="checktodo"/>
 	<target name="checktodo">
-		<tempfile property="todo.file" prefix="${tmp.dir}/checktodo-"/>
+		<tempfile property="todo.file" prefix="checktodo-" destDir="${tmp.dir}"/>
 		<echo>Checking project for FIXMEs.</echo>
 		<concat destfile="${todo.file}">
 			<fileset dir="${src.dir}">
@@ -244,7 +244,7 @@ ${criticaltodos}</fail>
 	<!-- CHECK ASCII -->
 	<target name="ascii" depends="checkascii"/>
 	<target name="checkascii">
-		<tempfile property="ascii.file" prefix="${tmp.dir}/checkascii-"/>
+		<tempfile property="ascii.file" prefix="checkascii-" destDir="${tmp.dir}"/>
 		<echo>Checking project for non-ASCII characters.</echo>
 		<concat destfile="${ascii.file}">
 			<fileset dir="${src.dir}">
