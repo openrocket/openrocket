@@ -163,7 +163,7 @@ public abstract class RocketRenderer {
 		Iterator<MotorMount> iterator = configuration.motorIterator();
 		while (iterator.hasNext()) {
 			MotorMount mount = iterator.next();
-			Motor motor = mount.getMotor(motorID);
+			Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
 			double length = motor.getLength();
 			
 			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
