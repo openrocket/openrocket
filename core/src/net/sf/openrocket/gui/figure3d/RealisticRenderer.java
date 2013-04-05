@@ -78,8 +78,8 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
+		flushTextureCache(drawable);
 		super.dispose(drawable);
-		
 		oldTexCache = null;
 		texCache = null;
 	}
