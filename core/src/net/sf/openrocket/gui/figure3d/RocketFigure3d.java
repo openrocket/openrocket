@@ -396,7 +396,6 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	@Override
 	public void init(final GLAutoDrawable drawable) {
 		log.verbose("GL - init()");
-		rr.init(drawable);
 		
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
@@ -417,6 +416,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		gl.glShadeModel(GLLightingFunc.GL_SMOOTH);
 		
 		gl.glEnable(GLLightingFunc.GL_NORMALIZE);
+		
+		rr.init(drawable);
 		
 		extrasOverlay = new Overlay(drawable);
 		caretOverlay = new Overlay(drawable);
@@ -650,30 +651,33 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		// execute the runnable if the drawable isn't realized.
 		// In order to trump this, we test if the canvas has not been realized and initialize
 		// the renderer accordingly.  There is certainly a better way to do this.
-		if (!canvas.isRealized()) {
-			if (t == TYPE_FIGURE) {
-				rr = new FigureRenderer();
-			} else if (t == TYPE_FINISHED) {
-				rr = new RealisticRenderer(document);
-			} else if (t == TYPE_UNFINISHED) {
-				rr = new UnfinishedRenderer(document);
-			}
+		
+		final RocketRenderer newRR;
+		
+		switch (t) {
+		case TYPE_FINISHED:
+			newRR = new RealisticRenderer(document);
+			break;
+		case TYPE_UNFINISHED:
+			newRR = new UnfinishedRenderer(document);
+			break;
+		default:
+			newRR = new FigureRenderer();
 		}
-		canvas.invoke(true, new GLRunnable() {
-			@Override
-			public boolean run(GLAutoDrawable drawable) {
-				rr.dispose(drawable);
-				if (t == TYPE_FIGURE) {
-					rr = new FigureRenderer();
-				} else if (t == TYPE_FINISHED) {
-					rr = new RealisticRenderer(document);
-				} else if (t == TYPE_UNFINISHED) {
-					rr = new UnfinishedRenderer(document);
+		
+		if (!canvas.isRealized()) {
+			rr = newRR;
+		} else {
+			canvas.invoke(true, new GLRunnable() {
+				@Override
+				public boolean run(GLAutoDrawable drawable) {
+					rr.dispose(drawable);
+					rr = newRR;
+					newRR.init(drawable);
+					return false;
 				}
-				rr.init(drawable);
-				return false;
-			}
-		});
+			});
+		}
 	}
 	
 }
