@@ -18,8 +18,27 @@ public class EditDecalHelper {
 	
 	public static class EditDecalHelperException extends Exception {
 		
+		private String extraMessage = "";
+		
 		public EditDecalHelperException(String message, Throwable cause) {
 			super(message, cause);
+		}
+		
+		public EditDecalHelperException(String message, String extraMessage, Throwable cause) {
+			super(message, cause);
+			this.extraMessage = extraMessage;
+		}
+		
+		@Override
+		public String getMessage() {
+			if (extraMessage == null || extraMessage.isEmpty()) {
+				return super.getMessage();
+			}
+			return super.getMessage() + "\n" + getExtraMessage();
+		}
+		
+		public String getExtraMessage() {
+			return extraMessage;
 		}
 		
 	}
@@ -113,7 +132,7 @@ public class EditDecalHelper {
 			try {
 				Desktop.getDesktop().edit(tmpFile);
 			} catch (IOException ioex) {
-				throw new EditDecalHelperException(trans.get("EditDecalHelper.launchSystemEditorException"), ioex);
+				throw new EditDecalHelperException(trans.get("EditDecalHelper.launchSystemEditorException"), trans.get("EditDecalHelper.editPreferencesHelp"), ioex);
 			}
 		} else {
 			
@@ -130,7 +149,7 @@ public class EditDecalHelper {
 				Runtime.getRuntime().exec(command);
 			} catch (IOException ioex) {
 				String message = MessageFormat.format(trans.get("EditDecalHelper.launchCustomEditorException"), command);
-				throw new EditDecalHelperException(message, ioex);
+				throw new EditDecalHelperException(message, trans.get("EditDecalHelper.editPreferencesHelp"), ioex);
 			}
 			
 		}
