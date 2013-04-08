@@ -163,7 +163,7 @@ public class DecalRegistry {
 						@Override
 						public void handleEvent(WatchEvent evt) {
 							DecalImageImpl.this.delegate.fireChangeEvent();
-							System.out.println(this.getFile() + " has changed");
+							//System.out.println(this.getFile() + " has changed");
 							
 						}
 						
