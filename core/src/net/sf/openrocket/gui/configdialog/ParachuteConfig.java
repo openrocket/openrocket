@@ -25,7 +25,6 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -278,8 +277,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				((MassObject) component).setRadialDirection(0.0);
-				((MassObject) component).setRadialPosition(0.0);
+				((Parachute) component).setRadialDirection(0.0);
+				((Parachute) component).setRadialPosition(0.0);
 			}
 		});
 		panel.add(button, "spanx, right");

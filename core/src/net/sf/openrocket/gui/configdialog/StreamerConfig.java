@@ -24,7 +24,6 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
-import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.startup.Application;
@@ -283,8 +282,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				((MassComponent) component).setRadialDirection(0.0);
-				((MassComponent) component).setRadialPosition(0.0);
+				((Streamer) component).setRadialDirection(0.0);
+				((Streamer) component).setRadialPosition(0.0);
 			}
 		});
 		panel.add(button, "spanx, right");
