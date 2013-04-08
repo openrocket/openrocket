@@ -114,8 +114,8 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 		}
 		
 		//TODO Make use of these values
-		System.out.println("Interpolate: " + interpolate);
-		System.out.println("FlipT: " + flipt);
+		//System.out.println("Interpolate: " + interpolate);
+		//System.out.println("FlipT: " + flipt);
 		;
 		
 	}
