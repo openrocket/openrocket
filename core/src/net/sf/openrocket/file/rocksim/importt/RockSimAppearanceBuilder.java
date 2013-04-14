@@ -48,7 +48,11 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 	}
 	
 	private void parseTexture(String s) throws FileNotFoundException, MalformedURLException {
-		final String[] parts = s.trim().split("\\|");
+		s = s.trim();
+		if (s.isEmpty()) {
+			return;
+		}
+		final String[] parts = s.split("\\|");
 		
 		boolean interpolate = false;
 		boolean flipr = false;
