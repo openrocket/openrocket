@@ -91,7 +91,9 @@ class ParachuteHandler extends RecoveryDeviceHandler<Parachute> {
 			if (RocksimCommonConstants.SPILL_HOLE_DIA.equals(element)) {
 				//Not supported in OpenRocket
 				double spillHoleRadius = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_RADIUS;
-				warnings.add("Parachute spill holes are not supported. Ignoring.");
+				if (spillHoleRadius > 0) {
+					warnings.add("Parachute spill holes are not supported. Ignoring.");
+				}
 			}
 			if (RocksimCommonConstants.SHROUD_LINE_MASS_PER_MM.equals(element)) {
 				shroudLineDensity = Double.parseDouble(content) / RocksimCommonConstants.ROCKSIM_TO_OPENROCKET_LINE_DENSITY;
