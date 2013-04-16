@@ -37,8 +37,8 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
@@ -53,21 +53,21 @@ import net.sf.openrocket.util.Utils;
 
 public class PreferencesDialog extends JDialog {
 	private static final LogHelper log = Application.getLogger();
-
+	
 	private final List<DefaultUnitSelector> unitSelectors = new ArrayList<DefaultUnitSelector>();
-
+	
 	private File defaultDirectory = null;
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private PreferencesDialog(Window parent) {
 		//// Preferences
 		super(parent, trans.get("pref.dlg.title.Preferences"), Dialog.ModalityType.APPLICATION_MODAL);
-
+		
 		JPanel panel = new JPanel(new MigLayout("fill, gap unrel", "[grow]", "[grow][]"));
-
+		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "grow, wrap");
-
+		
 		//// Units and Default units
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null, unitsPane(),
 				trans.get("pref.dlg.tab.Defaultunits"));
@@ -77,7 +77,7 @@ public class PreferencesDialog extends JDialog {
 		//// Options and Miscellaneous options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(),
 				trans.get("pref.dlg.tab.Miscellaneousoptions"));
-
+		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -88,26 +88,26 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(close, "span, right, tag close");
-
+		
 		this.setContentPane(panel);
 		pack();
 		this.setLocationRelativeTo(null);
-
+		
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
 				((SwingPreferences) Application.getPreferences()).storeDefaultUnits();
 			}
 		});
-
+		
 		GUIUtil.setDisposableDialogOptions(this, close);
 	}
-
-
+	
+	
 	private JPanel optionsPane() {
 		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
-
-
+		
+		
 		//// Language selector
 		Locale userLocale = null;
 		{
@@ -116,11 +116,11 @@ public class PreferencesDialog extends JDialog {
 		}
 		List<Named<Locale>> locales = new ArrayList<Named<Locale>>();
 		for (Locale l : SwingPreferences.getSupportedLocales()) {
-			locales.add(new Named<Locale>(l, l.getDisplayLanguage()));
+			locales.add(new Named<Locale>(l, l.getDisplayLanguage(l) + "/" + l.getDisplayLanguage()));
 		}
 		Collections.sort(locales);
 		locales.add(0, new Named<Locale>(null, trans.get("languages.default")));
-
+		
 		final JComboBox languageCombo = new JComboBox(locales.toArray());
 		for (int i = 0; i < locales.size(); i++) {
 			if (Utils.equals(userLocale, locales.get(i).get())) {
@@ -138,10 +138,10 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(new JLabel(trans.get("lbl.language")), "gapright para");
 		panel.add(languageCombo, "wrap rel, growx, sg combos");
-
+		
 		panel.add(new StyledLabel(trans.get("PreferencesDialog.lbl.languageEffect"), -3, Style.ITALIC), "span, wrap para*2");
-
-
+		
+		
 		//// Position to insert new body components:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
 		panel.add(new JComboBox(new PrefChoiseSelector(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY,
@@ -151,7 +151,7 @@ public class PreferencesDialog extends JDialog {
 				trans.get("pref.dlg.PrefChoiseSelector1"),
 				trans.get("pref.dlg.PrefChoiseSelector2"),
 				trans.get("pref.dlg.PrefChoiseSelector3"))), "wrap para, growx, sg combos");
-
+		
 		//// Confirm deletion of simulations:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Confirmdeletion")));
 		panel.add(new JComboBox(new PrefBooleanSelector(Preferences.CONFIRM_DELETE_SIMULATION,
@@ -159,7 +159,7 @@ public class PreferencesDialog extends JDialog {
 				//// Confirm
 				trans.get("pref.dlg.PrefBooleanSelector1"),
 				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap 40lp, growx, sg combos");
-
+		
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
@@ -177,17 +177,17 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				changed();
 			}
-
+			
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				changed();
 			}
-
+			
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				changed();
 			}
-
+			
 			private void changed() {
 				String text = field.getText();
 				List<File> list = new ArrayList<File>();
@@ -201,7 +201,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(field, "w 100px, gapright unrel, spanx, growx, split");
-
+		
 		//// Add button
 		JButton button = new JButton(trans.get("pref.dlg.but.add"));
 		button.addActionListener(new ActionListener() {
@@ -228,7 +228,7 @@ public class PreferencesDialog extends JDialog {
 				if (defaultDirectory != null) {
 					chooser.setCurrentDirectory(defaultDirectory);
 				}
-
+				
 				//// Add
 				int returnVal = chooser.showDialog(PreferencesDialog.this, trans.get("pref.dlg.Add"));
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -244,31 +244,31 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(button, "gapright unrel");
-
+		
 		//// Reset button
 		button = new JButton(trans.get("pref.dlg.but.reset"));
-
+		
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// First one sets to the default, but does not un-set the pref
-				field.setText(((SwingPreferences)Application.getPreferences()).getDefaultUserThrustCurveFile().getAbsolutePath());
+				field.setText(((SwingPreferences) Application.getPreferences()).getDefaultUserThrustCurveFile().getAbsolutePath());
 				((SwingPreferences) Application.getPreferences()).setUserThrustCurveFiles(null);
 			}
 		});
 		panel.add(button, "wrap");
-
+		
 		//// Add directories, RASP motor files (*.eng), RockSim engine files (*.rse) or ZIP archives separated by a semicolon (;) to load external thrust curves.  Changes will take effect the next time you start OpenRocket.
 		DescriptionArea desc = new DescriptionArea(trans.get("pref.dlg.DescriptionArea.Adddirectories"), 3, -3, false);
 		desc.setBackground(getBackground());
 		panel.add(desc, "spanx, growx, wrap 40lp");
-
-
-
+		
+		
+		
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
 				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
-		softwareUpdateBox.setSelected( Application.getPreferences().getCheckUpdates());
+		softwareUpdateBox.setSelected(Application.getPreferences().getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -276,7 +276,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(softwareUpdateBox);
-
+		
 		//// Check now button
 		button = new JButton(trans.get("pref.dlg.but.checknow"));
 		//// Check for software updates now
@@ -288,140 +288,140 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(button, "right, wrap");
-
-
-        final JCheckBox autoOpenDesignFile = new JCheckBox(trans.get("pref.dlg.but.openlast"));
-        autoOpenDesignFile.setSelected(Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled());
-        autoOpenDesignFile.addActionListener(new ActionListener() {
-        			@Override
-        			public void actionPerformed(ActionEvent e) {
-        				Application.getPreferences().setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
-        			}
-        		});
-        panel.add(autoOpenDesignFile);
-
-        return panel;
+		
+		
+		final JCheckBox autoOpenDesignFile = new JCheckBox(trans.get("pref.dlg.but.openlast"));
+		autoOpenDesignFile.setSelected(Application.getPreferences().isAutoOpenLastDesignOnStartupEnabled());
+		autoOpenDesignFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Application.getPreferences().setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
+			}
+		});
+		panel.add(autoOpenDesignFile);
+		
+		return panel;
 	}
-
+	
 	private JPanel unitsPane() {
 		JPanel panel = new JPanel(new MigLayout("", "[][]40lp[][]"));
 		JComboBox combo;
-
+		
 		//// Select your preferred units:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Selectprefunits")), "span, wrap paragraph");
-
-
+		
+		
 		//// Rocket dimensions:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketdimensions")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_LENGTH));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Line density:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Linedensity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_LINE));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Motor dimensions:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Motordimensions")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_MOTOR_DIMENSIONS));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Surface density:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Surfacedensity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_SURFACE));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Distance:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Distance")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DISTANCE));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Bulk density::
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Bulkdensity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_BULK));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Velocity:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Velocity")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_VELOCITY));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Surface roughness:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Surfaceroughness")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ROUGHNESS));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Acceleration:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Acceleration")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ACCELERATION));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Area:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Area")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_AREA));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Mass:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Mass")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_MASS));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Angle:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Angle")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ANGLE));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Force:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Force")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_FORCE));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Roll rate:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rollrate")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ROLL));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Total impulse:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Totalimpulse")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_IMPULSE));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Temperature:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Temperature")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_TEMPERATURE));
 		panel.add(combo, "sizegroup boxes, wrap");
-
+		
 		//// Moment of inertia:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Momentofinertia")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Pressure:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Pressure")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_PRESSURE));
 		panel.add(combo, "sizegroup boxes, wrap");
-
-
+		
+		
 		//// Stability:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
 		panel.add(combo, "sizegroup boxes");
-
+		
 		//// Windspeed:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Windspeed")));
 		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
 		panel.add(combo, "sizegroup boxes, wrap para");
-
-
-
-
+		
+		
+		
+		
 		//// Default metric button
 		JButton button = new JButton(trans.get("pref.dlg.but.defaultmetric"));
 		button.addActionListener(new ActionListener() {
@@ -433,7 +433,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(button, "spanx, split 2, grow");
-
+		
 		//// Default imperial button
 		button = new JButton(trans.get("pref.dlg.but.defaultimperial"));
 		button.addActionListener(new ActionListener() {
@@ -445,34 +445,34 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(button, "grow, wrap para");
-
+		
 		//// The effects will take place the next time you open a window.
 		panel.add(new StyledLabel(
 				trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
 				"spanx, wrap");
-
-
+		
+		
 		return panel;
 	}
-
-
-
-
-
+	
+	
+	
+	
+	
 	private class DefaultUnitSelector extends AbstractListModel implements ComboBoxModel {
-
+		
 		private final UnitGroup group;
-
+		
 		public DefaultUnitSelector(UnitGroup group) {
 			this.group = group;
 			unitSelectors.add(this);
 		}
-
+		
 		@Override
 		public Object getSelectedItem() {
 			return group.getDefaultUnit();
 		}
-
+		
 		@Override
 		public void setSelectedItem(Object item) {
 			if (item == null) {
@@ -484,39 +484,39 @@ public class PreferencesDialog extends JDialog {
 			}
 			group.setDefaultUnit(group.getUnitIndex((Unit) item));
 		}
-
+		
 		@Override
 		public Object getElementAt(int index) {
 			return group.getUnit(index);
 		}
-
+		
 		@Override
 		public int getSize() {
 			return group.getUnitCount();
 		}
-
-
+		
+		
 		public void fireChange() {
 			this.fireContentsChanged(this, 0, this.getSize());
 		}
 	}
-
-
-
+	
+	
+	
 	private class PrefChoiseSelector extends AbstractListModel implements ComboBoxModel {
 		private final String preference;
 		private final String[] descriptions;
-
+		
 		public PrefChoiseSelector(String preference, String... descriptions) {
 			this.preference = preference;
 			this.descriptions = descriptions;
 		}
-
+		
 		@Override
 		public Object getSelectedItem() {
 			return descriptions[Application.getPreferences().getChoice(preference, descriptions.length, 0)];
 		}
-
+		
 		@Override
 		public void setSelectedItem(Object item) {
 			if (item == null) {
@@ -534,27 +534,27 @@ public class PreferencesDialog extends JDialog {
 			if (index >= descriptions.length) {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
-
+			
 			Application.getPreferences().putChoice(preference, index);
 		}
-
+		
 		@Override
 		public Object getElementAt(int index) {
 			return descriptions[index];
 		}
-
+		
 		@Override
 		public int getSize() {
 			return descriptions.length;
 		}
 	}
-
-
+	
+	
 	private class PrefBooleanSelector extends AbstractListModel implements ComboBoxModel {
 		private final String preference;
 		private final String trueDesc, falseDesc;
 		private final boolean def;
-
+		
 		public PrefBooleanSelector(String preference, String falseDescription,
 				String trueDescription, boolean defaultState) {
 			this.preference = preference;
@@ -562,7 +562,7 @@ public class PreferencesDialog extends JDialog {
 			this.falseDesc = falseDescription;
 			this.def = defaultState;
 		}
-
+		
 		@Override
 		public Object getSelectedItem() {
 			if (Application.getPreferences().getBoolean(preference, def)) {
@@ -571,7 +571,7 @@ public class PreferencesDialog extends JDialog {
 				return falseDesc;
 			}
 		}
-
+		
 		@Override
 		public void setSelectedItem(Object item) {
 			if (item == null) {
@@ -581,7 +581,7 @@ public class PreferencesDialog extends JDialog {
 			if (!(item instanceof String)) {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
-
+			
 			if (trueDesc.equals(item)) {
 				Application.getPreferences().putBoolean(preference, true);
 			} else if (falseDesc.equals(item)) {
@@ -590,44 +590,44 @@ public class PreferencesDialog extends JDialog {
 				throw new IllegalArgumentException("Illegal argument " + item);
 			}
 		}
-
+		
 		@Override
 		public Object getElementAt(int index) {
 			switch (index) {
 			case 0:
 				return def ? trueDesc : falseDesc;
-
+				
 			case 1:
 				return def ? falseDesc : trueDesc;
-
+				
 			default:
 				throw new IndexOutOfBoundsException("Boolean asked for index=" + index);
 			}
 		}
-
+		
 		@Override
 		public int getSize() {
 			return 2;
 		}
 	}
-
-
+	
+	
 	private void checkForUpdates() {
 		final UpdateInfoRetriever retriever = new UpdateInfoRetriever();
 		retriever.start();
-
-
+		
+		
 		// Progress dialog
 		final JDialog dialog1 = new JDialog(this, ModalityType.APPLICATION_MODAL);
 		JPanel panel = new JPanel(new MigLayout());
-
+		
 		//// Checking for updates...
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Checkingupdates")), "wrap");
-
+		
 		JProgressBar bar = new JProgressBar();
 		bar.setIndeterminate(true);
 		panel.add(bar, "growx, wrap para");
-
+		
 		//// Cancel button
 		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
 		cancel.addActionListener(new ActionListener() {
@@ -638,14 +638,14 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(cancel, "right");
 		dialog1.add(panel);
-
+		
 		GUIUtil.setDisposableDialogOptions(dialog1, cancel);
-
-
+		
+		
 		// Timer to monitor progress
 		final Timer timer = new Timer(100, null);
 		final long startTime = System.currentTimeMillis();
-
+		
 		ActionListener listener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -657,12 +657,12 @@ public class PreferencesDialog extends JDialog {
 		};
 		timer.addActionListener(listener);
 		timer.start();
-
-
+		
+		
 		// Wait for action
 		dialog1.setVisible(true);
-
-
+		
+		
 		// Check result
 		UpdateInfo info = retriever.getUpdateInfo();
 		if (info == null) {
@@ -688,14 +688,14 @@ public class PreferencesDialog extends JDialog {
 				Application.getPreferences().putString(SwingPreferences.LAST_UPDATE, info.getLatestVersion());
 			}
 		}
-
+		
 	}
-
-
+	
+	
 	////////  Singleton implementation  ////////
-
+	
 	private static PreferencesDialog dialog = null;
-
+	
 	public static void showPreferences(Window parent) {
 		if (dialog != null) {
 			dialog.dispose();
@@ -703,6 +703,6 @@ public class PreferencesDialog extends JDialog {
 		dialog = new PreferencesDialog(parent);
 		dialog.setVisible(true);
 	}
-
-
+	
+	
 }
