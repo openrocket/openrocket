@@ -38,7 +38,7 @@ public class StageConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Select separation event
-		panel.add(new StyledLabel(trans.get("separation.lbl.title"), Style.BOLD), "spanx, wrap rel");
+		panel.add(new StyledLabel(trans.get("separation.lbl.title") + CommonStrings.dagger, Style.BOLD), "spanx, wrap rel");
 		
 		StageSeparationConfiguration config = stage.getStageSeparationConfiguration().getDefault();
 		JComboBox combo = new JComboBox(new EnumModel<StageSeparationConfiguration.SeparationEvent>(config, "SeparationEvent"));
@@ -54,6 +54,8 @@ public class StageConfig extends RocketComponentConfig {
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("separation.lbl.seconds")), "wrap unrel");
+		
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
 		return panel;
 	}

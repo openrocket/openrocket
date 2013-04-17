@@ -134,7 +134,7 @@ public class MotorConfig extends JPanel {
 		
 		// Select ignition event
 		//// Ignition at:
-		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat") + CommonStrings.dagger), "");
 		
 		IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().getDefault();
 		combo = new JComboBox(new EnumModel<IgnitionConfiguration.IgnitionEvent>(ignitionConfig, "IgnitionEvent"));
@@ -152,6 +152,7 @@ public class MotorConfig extends JPanel {
 		//// seconds
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.seconds")), "wrap unrel");
 		
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
 		
 		// Check stage count
@@ -165,13 +166,13 @@ public class MotorConfig extends JPanel {
 			
 			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longA1") + " " +
 					trans.get("MotorCfg.lbl.longA2"), -1),
-					"spanx, right, wrap para");
+					"spanx, wrap para");
 		} else {
 			//// The current design has 
 			//// stages.
 			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longB1") + " " + stages + " " +
 					trans.get("MotorCfg.lbl.longB2"), -1),
-					"skip 1, spanx, wrap para");
+					"spanx, wrap para");
 		}
 		
 		
