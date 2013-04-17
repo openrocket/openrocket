@@ -117,7 +117,7 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 	@Override
 	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types ) {
 		blockUntilLoaded();
-		return listForTypes( types.toArray(new ComponentPreset.Type[types.size()]) );
+		return listForTypes( (ComponentPreset.Type[]) types.toArray() );
 	}
 
 	@Override

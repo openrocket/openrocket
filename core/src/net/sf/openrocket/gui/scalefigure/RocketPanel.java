@@ -670,7 +670,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 
 		// Check whether data is already up to date
 		if (flightDataFunctionalID == configuration.getRocket().getFunctionalModID() &&
-				flightDataMotorID.equals(configuration.getMotorConfigurationID())) {
+				flightDataMotorID == configuration.getMotorConfigurationID()) {
 			return;
 		}
 
