@@ -100,6 +100,8 @@ public class FreeformFinSet extends FinSet {
 						name.substring(componentTypeName.length()));
 			}
 			
+			freeform.setAppearance(finset.getAppearance());
+			
 			// Add freeform fin set to parent
 			if (parent != null) {
 				parent.addChild(freeform, position);

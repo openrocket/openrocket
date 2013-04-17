@@ -54,5 +54,10 @@ public class Color {
 	public void setAlpha(int alpha) {
 		this.alpha = alpha;
 	}
+
+	@Override
+	public String toString() {
+		return "Color [r=" + red + ", g=" + green + ", b=" + blue + ", a=" + alpha + "]";
+	}
 	
 }

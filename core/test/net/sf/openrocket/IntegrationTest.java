@@ -1,8 +1,13 @@
 package net.sf.openrocket;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,7 +20,6 @@ import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.file.DatabaseMotorFinder;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
@@ -111,10 +115,10 @@ public class IntegrationTest extends BaseTestCase {
 		System.setProperty("openrocket.unittest", "true");
 		
 		// Load the rocket
-		GeneralRocketLoader loader = new GeneralRocketLoader();
+		GeneralRocketLoader loader = new GeneralRocketLoader(new File("simplerocket.ork"));
 		InputStream is = this.getClass().getResourceAsStream("simplerocket.ork");
 		assertNotNull("Problem in unit test, cannot find simplerocket.ork", is);
-		document = loader.load(is, new DatabaseMotorFinder());
+		document = loader.load(is);
 		is.close();
 		
 		undoAction = UndoRedoAction.newUndoAction(document);

@@ -11,10 +11,8 @@ import java.util.UUID;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -35,53 +33,54 @@ public class Rocket extends RocketComponent {
 	private static final LogHelper log = Application.getLogger();
 	private static final Translator trans = Application.getTranslator();
 	
+	public static final String DEFAULT_NAME = "[{motors}]";
 	public static final double DEFAULT_REFERENCE_LENGTH = 0.01;
 	
-
+	
 	/**
 	 * List of component change listeners.
 	 */
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
-		
+	
 	/**
 	 * When freezeList != null, events are not dispatched but stored in the list.
 	 * When the structure is thawed, a single combined event will be fired.
 	 */
 	private List<ComponentChangeEvent> freezeList = null;
 	
-
+	
 	private int modID;
 	private int massModID;
 	private int aeroModID;
 	private int treeModID;
 	private int functionalModID;
 	
-
+	
 	private ReferenceType refType = ReferenceType.MAXIMUM; // Set in constructor
 	private double customReferenceLength = DEFAULT_REFERENCE_LENGTH;
 	
-
+	
 	// The default configuration used in dialogs
 	private final Configuration defaultConfiguration;
 	
-
+	
 	private String designer = "";
 	private String revision = "";
 	
-
-	// Motor configuration list
-	private ArrayList<String> motorConfigurationIDs = new ArrayList<String>();
-	private HashMap<String, String> motorConfigurationNames = new HashMap<String, String>();
+	
+	// Flight configuration list
+	private ArrayList<String> flightConfigurationIDs = new ArrayList<String>();
+	private HashMap<String, String> flightConfigurationNames = new HashMap<String, String>();
 	{
-		motorConfigurationIDs.add(null);
+		flightConfigurationIDs.add(null);
 	}
 	
-
+	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
 	
 	
-
+	
 	/////////////  Constructor  /////////////
 	
 	public Rocket() {
@@ -95,7 +94,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
+	
 	public String getDesigner() {
 		checkState();
 		return designer;
@@ -195,8 +194,8 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
+	
+	
 	public ReferenceType getReferenceType() {
 		checkState();
 		return refType;
@@ -227,9 +226,9 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Set whether the rocket has a perfect finish.  This will affect whether the
 	 * boundary layer is assumed to be fully turbulent or not.
@@ -244,7 +243,7 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
+	
 	/**
 	 * Get whether the rocket has a perfect finish.
 	 *
@@ -255,9 +254,9 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Make a deep copy of the Rocket structure.  This method is exposed as public to allow
 	 * for undo/redo system functionality.
@@ -266,9 +265,9 @@ public class Rocket extends RocketComponent {
 	@Override
 	public Rocket copyWithOriginalID() {
 		Rocket copy = (Rocket) super.copyWithOriginalID();
-		copy.motorConfigurationIDs = this.motorConfigurationIDs.clone();
-		copy.motorConfigurationNames =
-				(HashMap<String, String>) this.motorConfigurationNames.clone();
+		copy.flightConfigurationIDs = this.flightConfigurationIDs.clone();
+		copy.flightConfigurationNames =
+				(HashMap<String, String>) this.flightConfigurationNames.clone();
 		copy.resetListeners();
 		
 		return copy;
@@ -306,14 +305,14 @@ public class Rocket extends RocketComponent {
 		this.refType = r.refType;
 		this.customReferenceLength = r.customReferenceLength;
 		
-		this.motorConfigurationIDs = r.motorConfigurationIDs.clone();
-		this.motorConfigurationNames =
-				(HashMap<String, String>) r.motorConfigurationNames.clone();
+		this.flightConfigurationIDs = r.flightConfigurationIDs.clone();
+		this.flightConfigurationNames =
+				(HashMap<String, String>) r.flightConfigurationNames.clone();
 		this.perfectFinish = r.perfectFinish;
 		
-		String id = defaultConfiguration.getMotorConfigurationID();
-		if (!this.motorConfigurationIDs.contains(id))
-			defaultConfiguration.setMotorConfigurationID(null);
+		String id = defaultConfiguration.getFlightConfigurationID();
+		if (!this.flightConfigurationIDs.contains(id))
+			defaultConfiguration.setFlightConfigurationID(null);
 		
 		this.checkComponentStructure();
 		
@@ -326,8 +325,8 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
+	
+	
 	///////  Implement the ComponentChangeListener lists
 	
 	/**
@@ -342,8 +341,8 @@ public class Rocket extends RocketComponent {
 	
 	public void printListeners() {
 		System.out.println("" + this + " has " + listenerList.size() + " listeners:");
-		int i =0;
-		for( EventListener l : listenerList ) {
+		int i = 0;
+		for (EventListener l : listenerList) {
 			System.out.println("  " + (i) + ": " + l);
 			i++;
 		}
@@ -364,21 +363,6 @@ public class Rocket extends RocketComponent {
 				listenerList.size());
 	}
 	
-	
-	@Override
-	public void addChangeListener(EventListener l) {
-		checkState();
-		listenerList.add(l);
-		log.verbose("Added ChangeListener " + l + ", current number of listeners is " +
-				listenerList.size());
-	}
-	
-	@Override
-	public void removeChangeListener(EventListener l) {
-		listenerList.remove(l);
-		log.verbose("Removed ChangeListener " + l + ", current number of listeners is " +
-				listenerList.size());
-	}
 	
 	
 	@Override
@@ -417,12 +401,12 @@ public class Rocket extends RocketComponent {
 			
 			// Notify all listeners
 			// Copy the list before iterating to prevent concurrent modification exceptions.
-			EventListener[] list = listenerList.toArray( new EventListener[0] );
-			for ( EventListener l : list ) {
-				if ( l instanceof ComponentChangeListener ) {
-					((ComponentChangeListener) l ).componentChanged(e);
-				} else if ( l instanceof StateChangeListener ) {
-					((StateChangeListener) l ).stateChanged(e);
+			EventListener[] list = listenerList.toArray(new EventListener[0]);
+			for (EventListener l : list) {
+				if (l instanceof ComponentChangeListener) {
+					((ComponentChangeListener) l).componentChanged(e);
+				} else if (l instanceof StateChangeListener) {
+					((StateChangeListener) l).stateChanged(e);
 				}
 			}
 		} finally {
@@ -493,11 +477,11 @@ public class Rocket extends RocketComponent {
 	}
 	
 	
-
-
+	
+	
 	////////  Motor configurations  ////////
 	
-
+	
 	/**
 	 * Return the default configuration.  This should be used in the user interface
 	 * to ensure a consistent rocket configuration between dialogs.  It should NOT
@@ -512,26 +496,26 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Return an array of the motor configuration IDs.  This array is guaranteed
+	 * Return an array of the flight configuration IDs.  This array is guaranteed
 	 * to contain the <code>null</code> ID as the first element.
 	 *
-	 * @return  an array of the motor configuration IDs.
+	 * @return  an array of the flight configuration IDs.
 	 */
-	public String[] getMotorConfigurationIDs() {
+	public String[] getFlightConfigurationIDs() {
 		checkState();
-		return motorConfigurationIDs.toArray(new String[0]);
+		return flightConfigurationIDs.toArray(new String[0]);
 	}
 	
 	/**
-	 * Add a new motor configuration ID to the motor configurations.  The new ID
+	 * Add a new flight configuration ID to the flight configurations.  The new ID
 	 * is returned.
 	 *
-	 * @return  the new motor configuration ID.
+	 * @return  the new flight configuration ID.
 	 */
-	public String newMotorConfigurationID() {
+	public String newFlightConfigurationID() {
 		checkState();
 		String id = UUID.randomUUID().toString();
-		motorConfigurationIDs.add(id);
+		flightConfigurationIDs.add(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 		return id;
 	}
@@ -544,24 +528,24 @@ public class Rocket extends RocketComponent {
 	 */
 	public boolean addMotorConfigurationID(String id) {
 		checkState();
-		if (id == null || motorConfigurationIDs.contains(id))
+		if (id == null || flightConfigurationIDs.contains(id))
 			return false;
-		motorConfigurationIDs.add(id);
+		flightConfigurationIDs.add(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 		return true;
 	}
 	
 	/**
-	 * Remove a motor configuration ID from the configuration IDs.  The <code>null</code>
+	 * Remove a flight configuration ID from the configuration IDs.  The <code>null</code>
 	 * ID cannot be removed, and an attempt to remove it will be silently ignored.
 	 *
-	 * @param id   the motor configuration ID to remove
+	 * @param id   the flight configuration ID to remove
 	 */
-	public void removeMotorConfigurationID(String id) {
+	public void removeFlightConfigurationID(String id) {
 		checkState();
 		if (id == null)
 			return;
-		motorConfigurationIDs.remove(id);
+		flightConfigurationIDs.remove(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
@@ -572,13 +556,13 @@ public class Rocket extends RocketComponent {
 	 * @param id	the configuration ID.
 	 * @return		whether a motor configuration with that ID exists.
 	 */
-	public boolean isMotorConfigurationID(String id) {
+	public boolean isFlightConfigurationID(String id) {
 		checkState();
-		return motorConfigurationIDs.contains(id);
+		return flightConfigurationIDs.contains(id);
 	}
 	
 	
-
+	
 	/**
 	 * Check whether the given motor configuration ID has motors defined for it.
 	 *
@@ -598,7 +582,7 @@ public class Rocket extends RocketComponent {
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
 					continue;
-				if (mount.getMotor(id) != null) {
+				if (mount.getMotorConfiguration().get(id).getMotor() != null) {
 					return true;
 				}
 			}
@@ -608,175 +592,47 @@ public class Rocket extends RocketComponent {
 	
 	
 	/**
-	 * Return the user-set name of the motor configuration.  If no name has been set,
-	 * returns an empty string (not null).
+	 * Return the user-set name of the flight configuration.  If no name has been set,
+	 * returns the default name ({@link #DEFAULT_NAME}).
 	 *
-	 * @param id   the motor configuration id
+	 * @param id   the flight configuration id
 	 * @return	   the configuration name
 	 */
-	public String getMotorConfigurationName(String id) {
+	// FIXME: Check references to this method adhere to the new returning of DEFAULT_NAME
+	public String getFlightConfigurationName(String id) {
 		checkState();
-		if (!isMotorConfigurationID(id))
-			return "";
-		String s = motorConfigurationNames.get(id);
+		if (!isFlightConfigurationID(id))
+			return DEFAULT_NAME;
+		String s = flightConfigurationNames.get(id);
 		if (s == null)
-			return "";
+			return DEFAULT_NAME;
 		return s;
 	}
 	
 	
 	/**
-	 * Set the name of the motor configuration.  A name can be unset by passing
+	 * Set the name of the flight configuration.  A name can be unset by passing
 	 * <code>null</code> or an empty string.
 	 *
-	 * @param id	the motor configuration id
-	 * @param name	the name for the motor configuration
+	 * @param id	the flight configuration id
+	 * @param name	the name for the flight configuration
 	 */
-	public void setMotorConfigurationName(String id, String name) {
+	public void setFlightConfigurationName(String id, String name) {
 		checkState();
-		motorConfigurationNames.put(id, name);
+		if (name == null || name.equals("") || DEFAULT_NAME.equals(name)) {
+			flightConfigurationNames.remove(id);
+		} else {
+			flightConfigurationNames.put(id, name);
+		}
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	
-	/**
-	 * Return either the motor configuration name (if set) or its description.
-	 *
-	 * @param id  the motor configuration ID.
-	 * @return    a textual representation of the configuration
-	 */
-	public String getMotorConfigurationNameOrDescription(String id) {
-		checkState();
-		String name;
-		
-		name = getMotorConfigurationName(id);
-		if (name != null && !name.equals(""))
-			return name;
-		
-		return getMotorConfigurationDescription(id);
-	}
-	
-	/**
-	 * Return a description for the motor configuration, generated from the motor
-	 * designations of the components.
-	 *
-	 * @param id  the motor configuration ID.
-	 * @return    a textual representation of the configuration
-	 */
-	@SuppressWarnings("null")
-	public String getMotorConfigurationDescription(String id) {
-		checkState();
-		String name;
-		int motorCount = 0;
-		
-		// Generate the description
-		
-		// First iterate over each stage and store the designations of each motor
-		List<List<String>> list = new ArrayList<List<String>>();
-		List<String> currentList = null;
-		
-		Iterator<RocketComponent> iterator = this.iterator();
-		while (iterator.hasNext()) {
-			RocketComponent c = iterator.next();
-			
-			if (c instanceof Stage) {
-				
-				currentList = new ArrayList<String>();
-				list.add(currentList);
-				
-			} else if (c instanceof MotorMount) {
-				
-				MotorMount mount = (MotorMount) c;
-				Motor motor = mount.getMotor(id);
-				
-				if (mount.isMotorMount() && motor != null) {
-					String designation = motor.getDesignation(mount.getMotorDelay(id));
-					
-					for (int i = 0; i < mount.getMotorCount(); i++) {
-						currentList.add(designation);
-						motorCount++;
-					}
-				}
-				
-			}
-		}
-		
-		if (motorCount == 0) {
-			//// [No motors]
-			return trans.get("Rocket.motorCount.Nomotor");
-		}
-		
-		// Change multiple occurrences of a motor to n x motor
-		List<String> stages = new ArrayList<String>();
-		
-		for (List<String> stage : list) {
-			String stageName = "";
-			String previous = null;
-			int count = 0;
-			
-			Collections.sort(stage);
-			for (String current : stage) {
-				if (current.equals(previous)) {
-					
-					count++;
-					
-				} else {
-					
-					if (previous != null) {
-						String s = "";
-						if (count > 1) {
-							s = "" + count + Chars.TIMES + previous;
-						} else {
-							s = previous;
-						}
-						
-						if (stageName.equals(""))
-							stageName = s;
-						else
-							stageName = stageName + "," + s;
-					}
-					
-					previous = current;
-					count = 1;
-					
-				}
-			}
-			if (previous != null) {
-				String s = "";
-				if (count > 1) {
-					s = "" + count + Chars.TIMES + previous;
-				} else {
-					s = previous;
-				}
-				
-				if (stageName.equals(""))
-					stageName = s;
-				else
-					stageName = stageName + "," + s;
-			}
-			
-			stages.add(stageName);
-		}
-		
-		name = "[";
-		for (int i = 0; i < stages.size(); i++) {
-			String s = stages.get(i);
-			if (s.equals(""))
-				s = "None";
-			if (i == 0)
-				name = name + s;
-			else
-				name = name + "; " + s;
-		}
-		name += "]";
-		return name;
-	}
 	
 	
-
 	////////  Obligatory component information
 	
-
+	
 	@Override
 	public String getComponentName() {
 		//// Rocket

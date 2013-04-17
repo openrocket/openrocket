@@ -28,7 +28,7 @@ public class FinSetHandlerTest extends TestCase {
     @org.junit.Test
     public void testAsOpenRocket() throws Exception {
 
-        FinSetHandler dto = new FinSetHandler(new BodyTube());
+        FinSetHandler dto = new FinSetHandler(null, new BodyTube());
 
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -93,7 +93,7 @@ public class FinSetHandlerTest extends TestCase {
      */
     @org.junit.Test
     public void testToCoordinates() throws Exception {
-        FinSetHandler holder = new FinSetHandler(new BodyTube());
+        FinSetHandler holder = new FinSetHandler(null, new BodyTube());
         Method method = FinSetHandler.class.getDeclaredMethod("toCoordinates", String.class, WarningSet.class);
         method.setAccessible(true);
 

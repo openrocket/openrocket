@@ -1,12 +1,17 @@
 package net.sf.openrocket.document;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -16,6 +21,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
@@ -57,19 +63,18 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final ArrayList<Simulation> simulations = new ArrayList<Simulation>();
 	private ArrayList<CustomExpression> customExpressions = new ArrayList<CustomExpression>();
-
-
+	
 	/*
 	 * The undo/redo variables and mechanism are documented in doc/undo-redo-flow.*
 	 */
-
+	
 	/** 
 	 * The undo history of the rocket.   Whenever a new undo position is created while the
 	 * rocket is in "dirty" state, the rocket is copied here.
 	 */
 	private LinkedList<Rocket> undoHistory = new LinkedList<Rocket>();
 	private LinkedList<String> undoDescription = new LinkedList<String>();
-
+	
 	/**
 	 * The position in the undoHistory we are currently at.  If modifications have been
 	 * made to the rocket, the rocket is in "dirty" state and this points to the previous
@@ -83,7 +88,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	private String nextDescription = null;
 	private String storedDescription = null;
 	
-
+	
 	private ArrayList<UndoRedoListener> undoRedoListeners = new ArrayList<UndoRedoListener>(2);
 	
 	private File file = null;
@@ -91,57 +96,54 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final StorageOptions storageOptions = new StorageOptions();
 	
-
-	private final List<DocumentChangeListener> listeners =
-			new ArrayList<DocumentChangeListener>();
+	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
-	public OpenRocketDocument(Rocket rocket) {
-		this(rocket.getDefaultConfiguration());
+	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
+	
+	OpenRocketDocument(Rocket rocket) {
+		this.configuration = rocket.getDefaultConfiguration();
+		this.rocket = rocket;
+		init();
 	}
 	
-	
-	private OpenRocketDocument(Configuration configuration) {
-		this.configuration = configuration;
-		this.rocket = configuration.getRocket();
-		
+	private void init() {
 		clearUndo();
 		
 		rocket.addComponentChangeListener(this);
 	}
 	
-	
-	public void addCustomExpression(CustomExpression expression){
-		if (customExpressions.contains(expression)){
-			log.user("Could not add custom expression "+expression.getName()+" to document as document alerady has a matching expression.");
+	public void addCustomExpression(CustomExpression expression) {
+		if (customExpressions.contains(expression)) {
+			log.user("Could not add custom expression " + expression.getName() + " to document as document alerady has a matching expression.");
 		} else {
 			customExpressions.add(expression);
 		}
 	}
 	
-	public void removeCustomExpression(CustomExpression expression){
+	public void removeCustomExpression(CustomExpression expression) {
 		customExpressions.remove(expression);
 	}
 	
-	public List<CustomExpression> getCustomExpressions(){
+	public List<CustomExpression> getCustomExpressions() {
 		return customExpressions;
 	}
 	
 	/*
 	 * Returns a set of all the flight data types defined or available in any way in the rocket document
 	 */
-	public Set<FlightDataType> getFlightDataTypes(){
+	public Set<FlightDataType> getFlightDataTypes() {
 		Set<FlightDataType> allTypes = new LinkedHashSet<FlightDataType>();
 		
 		// built in
 		Collections.addAll(allTypes, FlightDataType.ALL_TYPES);
 		
 		// custom expressions
-		for (CustomExpression exp : customExpressions){
+		for (CustomExpression exp : customExpressions) {
 			allTypes.add(exp.getType());
 		}
 		
 		// simulation listeners
-		for (Simulation sim : simulations){
+		for (Simulation sim : simulations) {
 			for (String className : sim.getSimulationListeners()) {
 				SimulationListener l = null;
 				try {
@@ -153,7 +155,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 				} catch (Exception e) {
 					log.error("Could not instantiate listener: " + className);
 				}
-			}			
+			}
 		}
 		
 		// imported data
@@ -163,7 +165,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return allTypes;
 	}
 	
-
+	
 	public Rocket getRocket() {
 		return rocket;
 	}
@@ -173,7 +175,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return configuration;
 	}
 	
-	
 	public File getFile() {
 		return file;
 	}
@@ -181,7 +182,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	public void setFile(File file) {
 		this.file = file;
 	}
-	
 	
 	public boolean isSaved() {
 		return rocket.getModID() == savedID;
@@ -204,9 +204,41 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-
-
-
+	public Collection<DecalImage> getDecalList() {
+		
+		return decalRegistry.getDecalList();
+		
+	}
+	
+	public int countDecalUsage(DecalImage img) {
+		int count = 0;
+		
+		Iterator<RocketComponent> it = rocket.iterator();
+		while (it.hasNext()) {
+			RocketComponent comp = it.next();
+			Appearance a = comp.getAppearance();
+			if (a == null) {
+				continue;
+			}
+			Decal d = a.getTexture();
+			if (d == null) {
+				continue;
+			}
+			if (img.equals(d.getImage())) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public DecalImage makeUniqueDecal(DecalImage img) {
+		return decalRegistry.makeUniqueImage(img);
+	}
+	
+	public DecalImage getDecalImage(Attachment a) {
+		return decalRegistry.getDecalImage(a);
+	}
+	
 	public List<Simulation> getSimulations() {
 		return simulations.clone();
 	}
@@ -312,14 +344,14 @@ public class OpenRocketDocument implements ComponentChangeListener {
 			undoDescription.removeLast();
 		}
 		
-
+		
 		// Add the current state to the undo history
 		undoHistory.add(rocket.copyWithOriginalID());
 		undoDescription.add(null);
 		nextDescription = description;
 		undoPosition++;
 		
-
+		
 		// Maintain maximum undo size
 		if (undoHistory.size() > UNDO_LEVELS + UNDO_MARGIN && undoPosition > UNDO_MARGIN) {
 			for (int i = 0; i < UNDO_MARGIN; i++) {
@@ -376,7 +408,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		undoHistory.add(rocket.copyWithOriginalID());
 		undoDescription.add(null);
 		undoPosition = 0;
-
+		
 		fireUndoRedoChangeEvent();
 	}
 	
@@ -531,18 +563,21 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-
+	
 	/**
 	 * Return a copy of this document.  The rocket is copied with original ID's, the default
 	 * motor configuration ID is maintained and the simulations are copied to the new rocket.
 	 * No undo/redo information or file storage information is maintained.
 	 * 
+	 * This function is used from the Optimization routine to store alternatives of the same rocket.
+	 * For now we can assume that the copy returned does not have any of the attachment factories in place.
+	 * 
 	 * @return	a copy of this document.
 	 */
 	public OpenRocketDocument copy() {
 		Rocket rocketCopy = rocket.copyWithOriginalID();
-		OpenRocketDocument documentCopy = new OpenRocketDocument(rocketCopy);
-		documentCopy.getDefaultConfiguration().setMotorConfigurationID(configuration.getMotorConfigurationID());
+		OpenRocketDocument documentCopy = OpenRocketDocumentFactory.createDocumentFromRocket(rocketCopy);
+		documentCopy.getDefaultConfiguration().setFlightConfigurationID(configuration.getFlightConfigurationID());
 		for (Simulation s : simulations) {
 			documentCopy.addSimulation(s.duplicateSimulation(rocketCopy));
 		}
@@ -550,14 +585,14 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-
+	
 	///////  Listeners
 	
-	public void addUndoRedoListener( UndoRedoListener listener ) {
+	public void addUndoRedoListener(UndoRedoListener listener) {
 		undoRedoListeners.add(listener);
 	}
 	
-	public void removeUndoRedoListener( UndoRedoListener listener ) {
+	public void removeUndoRedoListener(UndoRedoListener listener) {
 		undoRedoListeners.remove(listener);
 	}
 	
@@ -585,6 +620,6 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	
-
-
+	
+	
 }

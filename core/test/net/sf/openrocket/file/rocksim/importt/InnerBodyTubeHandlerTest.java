@@ -29,7 +29,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new InnerBodyTubeHandler(null, new WarningSet());
+            new InnerBodyTubeHandler(null, null, new WarningSet());
             Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -37,7 +37,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube, new WarningSet());
+        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(null, tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
         assertContains(component, tube.getChildren());
     }
@@ -49,8 +49,8 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
-        Assert.assertNotNull(new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).openElement("AttachedParts", null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new InnerBodyTubeHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertNotNull(new InnerBodyTubeHandler(null, new BodyTube(), new WarningSet()).openElement("AttachedParts", null, null));
     }
 
     /**
@@ -62,7 +62,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testCloseElement() throws Exception {
         BodyTube tube = new BodyTube();
-        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube, new WarningSet());
+        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(null, tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
@@ -126,7 +126,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(tube, new WarningSet());
+        InnerBodyTubeHandler handler = new InnerBodyTubeHandler(null, tube, new WarningSet());
         InnerTube component = (InnerTube) getField(handler, "bodyTube");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -139,7 +139,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).getComponent() instanceof InnerTube);
+        Assert.assertTrue(new InnerBodyTubeHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof InnerTube);
     }
 
     /**
@@ -149,7 +149,7 @@ public class InnerBodyTubeHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.BULK, new InnerBodyTubeHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.BULK, new InnerBodyTubeHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 
 }

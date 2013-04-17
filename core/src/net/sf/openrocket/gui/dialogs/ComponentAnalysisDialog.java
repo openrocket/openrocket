@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -44,7 +45,7 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
-import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
+import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -64,13 +65,14 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 
-public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
+public class ComponentAnalysisDialog extends JDialog implements StateChangeListener {
 	
 	private static ComponentAnalysisDialog singletonDialog = null;
 	private static final Translator trans = Application.getTranslator();
-
-
+	
+	
 	private final FlightConditions conditions;
 	private final Configuration configuration;
 	private final DoubleModel theta, aoa, mach, roll;
@@ -85,7 +87,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	
 	private final JList warningList;
 	
-
+	
 	private final List<AerodynamicForces> cpData = new ArrayList<AerodynamicForces>();
 	private final List<Coordinate> cgData = new ArrayList<Coordinate>();
 	private final List<AerodynamicForces> dragData = new ArrayList<AerodynamicForces>();
@@ -95,7 +97,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	
 	public ComponentAnalysisDialog(final RocketPanel rocketPanel) {
 		////Component analysis
-		super(SwingUtilities.getWindowAncestor(rocketPanel), 
+		super(SwingUtilities.getWindowAncestor(rocketPanel),
 				trans.get("componentanalysisdlg.componentanalysis"));
 		
 		JTable table;
@@ -106,7 +108,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		this.configuration = rocketPanel.getConfiguration();
 		this.aerodynamicCalculator = rocketPanel.getAerodynamicCalculator().newInstance();
 		
-
+		
 		conditions = new FlightConditions(configuration);
 		
 		rocketPanel.setCPAOA(0);
@@ -141,7 +143,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		});
 		panel.add(worstToggle, "");
 		
-
+		
 		warningList = new JList();
 		JScrollPane scrollPane = new JScrollPane(warningList);
 		////Warnings:
@@ -164,7 +166,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		panel.add(new BasicSlider(roll.getSliderModel(-20 * 2 * Math.PI, 20 * 2 * Math.PI)),
 				"growx, wrap paragraph");
 		
-
+		
 		// Stage and motor selection:
 		//// Active stages:
 		panel.add(new JLabel(trans.get("componentanalysisdlg.lbl.activestages")), "spanx, split, gapafter rel");
@@ -174,35 +176,35 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		JLabel label = new JLabel(trans.get("componentanalysisdlg.lbl.motorconf"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		panel.add(label, "growx, right");
-		panel.add(new JComboBox(new MotorConfigurationModel(configuration)), "wrap");
+		panel.add(new JComboBox(new FlightConfigurationModel(configuration)), "wrap");
 		
-
-
+		
+		
 		// Tabbed pane
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "spanx, growx, growy");
 		
-
+		
 		// Create the CP data table
 		cpTableModel = new ColumnTableModel(
-
-		//// Component
-		new Column(trans.get("componentanalysisdlg.TabStability.Col.Component")) {
-			@Override
-			public Object getValueAt(int row) {
-				RocketComponent c = cpData.get(row).getComponent();
-				if (c instanceof Rocket) {
-					return trans.get("componentanalysisdlg.TOTAL");
-				}
-				return c.toString();
-			}
-			
-			@Override
-			public int getDefaultWidth() {
-				return 200;
-			}
-		},
+				
+				//// Component
+				new Column(trans.get("componentanalysisdlg.TabStability.Col.Component")) {
+					@Override
+					public Object getValueAt(int row) {
+						RocketComponent c = cpData.get(row).getComponent();
+						if (c instanceof Rocket) {
+							return trans.get("componentanalysisdlg.TOTAL");
+						}
+						return c.toString();
+					}
+					
+					@Override
+					public int getDefaultWidth() {
+						return 200;
+					}
+				},
 				new Column(trans.get("componentanalysisdlg.TabStability.Col.CG") + " / " + UnitGroup.UNITS_LENGTH.getDefaultUnit().getUnit()) {
 					private Unit unit = UnitGroup.UNITS_LENGTH.getDefaultUnit();
 					
@@ -233,13 +235,13 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 						return NOUNIT.toString(cpData.get(row).getCP().weight);
 					}
 				}
-
-		) {
-			@Override
-			public int getRowCount() {
-				return cpData.size();
-			}
-		};
+				
+				) {
+					@Override
+					public int getRowCount() {
+						return cpData.size();
+					}
+				};
 		
 		table = new JTable(cpTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -255,11 +257,11 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 		
 		//// Stability and Stability information
-		tabbedPane.addTab(trans.get("componentanalysisdlg.TabStability"), 
+		tabbedPane.addTab(trans.get("componentanalysisdlg.TabStability"),
 				null, scrollpane, trans.get("componentanalysisdlg.TabStability.ttip"));
 		
-
-
+		
+		
 		// Create the drag data table
 		dragTableModel = new ColumnTableModel(
 				//// Component
@@ -313,7 +315,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 					}
 				};
 		
-
+		
 		table = new JTable(dragTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
@@ -331,9 +333,9 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		tabbedPane.addTab(trans.get("componentanalysisdlg.dragTabchar"), null, scrollpane,
 				trans.get("componentanalysisdlg.dragTabchar.ttip"));
 		
-
-
-
+		
+		
+		
 		// Create the roll data table
 		rollTableModel = new ColumnTableModel(
 				//// Component
@@ -375,7 +377,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 					}
 				};
 		
-
+		
 		table = new JTable(rollTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
@@ -386,13 +388,13 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		scrollpane.setPreferredSize(new Dimension(600, 200));
 		
 		//// Roll dynamics and Roll dynamics tooltip
-		tabbedPane.addTab(trans.get("componentanalysisdlg.rollTableModel"), null, scrollpane, 
+		tabbedPane.addTab(trans.get("componentanalysisdlg.rollTableModel"), null, scrollpane,
 				trans.get("componentanalysisdlg.rollTableModel.ttip"));
 		
-
-
-
-
+		
+		
+		
+		
 		// Add the data updater to listen to changes in aoa and theta
 		mach.addChangeListener(this);
 		theta.addChangeListener(this);
@@ -401,8 +403,8 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		configuration.addChangeListener(this);
 		this.stateChanged(null);
 		
-
-
+		
+		
 		// Remove listeners when closing window
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -437,8 +439,8 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		sel.resizeFont(-1);
 		panel.add(sel, "wrap");
 		
-
-
+		
+		
 		// Buttons
 		JButton button;
 		
@@ -468,7 +470,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		});
 		panel.add(button, "span, split, tag cancel");
 		
-
+		
 		this.setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		pack();
@@ -477,12 +479,12 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	}
 	
 	
-
+	
 	/**
 	 * Updates the data in the table and fires a table data change event.
 	 */
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(EventObject e) {
 		AerodynamicForces forces;
 		WarningSet set = new WarningSet();
 		conditions.setAOA(aoa.getValue());
@@ -506,7 +508,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 		Map<RocketComponent, Coordinate> massData =
 				massCalculator.getCGAnalysis(configuration, MassCalcType.LAUNCH_MASS);
 		
-
+		
 		cpData.clear();
 		cgData.clear();
 		dragData.clear();
@@ -583,7 +585,7 @@ public class ComponentAnalysisDialog extends JDialog implements ChangeListener {
 	}
 	
 	
-
+	
 	private class DragCellRenderer extends JLabel implements TableCellRenderer {
 		private final Font normalFont;
 		private final Font boldFont;

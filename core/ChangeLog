@@ -1,3 +1,36 @@
+
+2013-04-17 Bill Kuker and Kevin Ruland
+    * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
+      apply decals (images) to rocket components.  Added ability to launch external graphics editor to edit decals and monitor
+      file for writes to update the rocket view.
+
+2013-04-17 Kevin Ruland
+    * Added simulation of tumble recovery based on experimentation done by Sampo Niskane.  This is particularly useful
+      for low power staged flights.
+
+2013-04-17 Kevin Ruland
+    * Extended "motor configuration" concept to cover more properties.  The concept was renamed "Flight Configuration" and
+      allows the user to override stage separation, recovery deployment, and motor ignition per flight configuration.
+      These configurations are stored in the ork file with each component.  If no override is specified then the user specified
+      default is used (set in the component edit dialog).  The flight configuration dialog was reworked to make it more
+      usable.  The user selects the configuration in a drop down with buttons for "add", "delete" and "rename".  After selecting
+      the configuration, the tabbed area below allows the user to change the configuration for this simulation.
+      
+2013-04-17 Kevin Ruland
+    * Allow simulation of stages without a motor.  Users in the past have attempted to simulate separate recovery of payload
+      and booster by tricking OpenRocket using a dummy motor with trivial thrust curve.  Now the user does not need to do this.
+      There is an example of this provided in TARC Payloader.ork and Boosted Dart.ork
+      
+2013-04-17 Kevin Ruland
+    * Simulate recovery of boosters.  The simulation engine will create new FlightDataBranches for each stage after
+      separation.  The data for the boosters begins at t=separation.  The simulation plot allows the user to select
+      which stage's data to show (or all).
+
+2013-04-17 Kevin Ruland
+    * Modified the zoom and pan controls in the simulation plot.  Added zoom in, out, and reset buttons.  Added
+      scroll with mouse wheel.  If the alt key is used with either of these, only the domain is zoomed.  Richard
+      contributed a more logical mouse controlled zoom - right click and drag will zoom (either domain, range or both).
+
 2012-09-28 Sampo Niskane
 	* Released version 12.09.1
 

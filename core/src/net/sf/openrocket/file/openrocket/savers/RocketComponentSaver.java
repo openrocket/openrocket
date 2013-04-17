@@ -5,21 +5,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import net.sf.openrocket.file.RocketSaver;
+import net.sf.openrocket.appearance.Appearance;
+import net.sf.openrocket.appearance.Decal;
+import net.sf.openrocket.appearance.Decal.EdgeMode;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.LineStyle;
-
+import net.sf.openrocket.util.TextUtil;
 
 public class RocketComponentSaver {
 	private static final Translator trans = Application.getTranslator();
@@ -29,7 +34,7 @@ public class RocketComponentSaver {
 	}
 	
 	protected void addParams(net.sf.openrocket.rocketcomponent.RocketComponent c, List<String> elements) {
-		elements.add("<name>" + RocketSaver.escapeXML(c.getName()) + "</name>");
+		elements.add("<name>" + TextUtil.escapeXML(c.getName()) + "</name>");
 		
 		ComponentPreset preset = c.getPresetComponent();
 		if (preset != null) {
@@ -38,14 +43,33 @@ public class RocketComponentSaver {
 					"\" partno=\"" + preset.getPartNo() + "\" digest=\"" + preset.getDigest() + "\"/>");
 		}
 		
+		Appearance ap = c.getAppearance();
+		if (ap != null) {
+			elements.add("<appearance>");
+			Color paint = ap.getPaint();
+			emitColor("paint", elements, paint);
+			elements.add("<shine>" + ap.getShine() + "</shine>");
+			Decal decal = ap.getTexture();
+			if (decal != null) {
+				String name = decal.getImage().getName();
+				double rotation = decal.getRotation();
+				EdgeMode edgeMode = decal.getEdgeMode();
+				elements.add("<decal name=\"" + name + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
+				Coordinate center = decal.getCenter();
+				elements.add("<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
+				Coordinate offset = decal.getOffset();
+				elements.add("<offset x=\"" + offset.x + "\" y=\"" + offset.y + "\"/>");
+				Coordinate scale = decal.getScale();
+				elements.add("<scale x=\"" + scale.x + "\" y=\"" + scale.y + "\"/>");
+				elements.add("</decal>");
+			}
+			elements.add("</appearance>");
+		}
 		
 		// Save color and line style if significant
 		if (!(c instanceof Rocket || c instanceof ComponentAssembly)) {
 			Color color = c.getColor();
-			if (color != null) {
-				elements.add("<color red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
-						+ "\" blue=\"" + color.getBlue() + "\"/>");
-			}
+			emitColor("color", elements, color);
 			
 			LineStyle style = c.getLineStyle();
 			if (style != null) {
@@ -81,7 +105,7 @@ public class RocketComponentSaver {
 		
 		// Comment
 		if (c.getComment().length() > 0) {
-			elements.add("<comment>" + RocketSaver.escapeXML(c.getComment()) + "</comment>");
+			elements.add("<comment>" + TextUtil.escapeXML(c.getComment()) + "</comment>");
 		}
 		
 	}
@@ -113,22 +137,28 @@ public class RocketComponentSaver {
 		
 		String baseName = trans.getBaseText("material", mat.getName());
 		
-		return str + " density=\"" + mat.getDensity() + "\">" + RocketSaver.escapeXML(baseName) + "</" + tag + ">";
+		return str + " density=\"" + mat.getDensity() + "\">" + TextUtil.escapeXML(baseName) + "</" + tag + ">";
 	}
 	
 	
 	protected final List<String> motorMountParams(MotorMount mount) {
 		if (!mount.isMotorMount())
 			return Collections.emptyList();
-		
-		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getMotorConfigurationIDs();
+		String[] motorConfigIDs = ((RocketComponent) mount).getRocket().getFlightConfigurationIDs();
 		List<String> elements = new ArrayList<String>();
 		
 		elements.add("<motormount>");
 		
+		// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
+		elements.add("  <ignitionevent>"
+				+ mount.getIgnitionConfiguration().getDefault().getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
+				+ "</ignitionevent>");
+		elements.add("  <ignitiondelay>" + mount.getIgnitionConfiguration().getDefault().getIgnitionDelay() + "</ignitiondelay>");
+		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
+		
 		for (String id : motorConfigIDs) {
-			Motor motor = mount.getMotor(id);
-			
+			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(id);
+			Motor motor = motorConfig.getMotor();
 			// Nothing is stored if no motor loaded
 			if (motor == null)
 				continue;
@@ -139,34 +169,44 @@ public class RocketComponentSaver {
 			}
 			if (motor instanceof ThrustCurveMotor) {
 				ThrustCurveMotor m = (ThrustCurveMotor) motor;
-				elements.add("    <manufacturer>" + RocketSaver.escapeXML(m.getManufacturer().getSimpleName()) +
+				elements.add("    <manufacturer>" + TextUtil.escapeXML(m.getManufacturer().getSimpleName()) +
 						"</manufacturer>");
 				elements.add("    <digest>" + m.getDigest() + "</digest>");
 			}
-			elements.add("    <designation>" + RocketSaver.escapeXML(motor.getDesignation()) + "</designation>");
+			elements.add("    <designation>" + TextUtil.escapeXML(motor.getDesignation()) + "</designation>");
 			elements.add("    <diameter>" + motor.getDiameter() + "</diameter>");
 			elements.add("    <length>" + motor.getLength() + "</length>");
 			
 			// Motor delay
-			if (mount.getMotorDelay(id) == Motor.PLUGGED) {
+			if (motorConfig.getEjectionDelay() == Motor.PLUGGED) {
 				elements.add("    <delay>none</delay>");
 			} else {
-				elements.add("    <delay>" + mount.getMotorDelay(id) + "</delay>");
+				elements.add("    <delay>" + motorConfig.getEjectionDelay() + "</delay>");
 			}
 			
 			elements.add("  </motor>");
+			
+			if (!mount.getIgnitionConfiguration().isDefault(id)) {
+				IgnitionConfiguration ignition = mount.getIgnitionConfiguration().get(id);
+				elements.add("  <ignitionconfiguration configid=\"" + id + "\">");
+				elements.add("    <ignitionevent>" + ignition.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "") + "</ignitionevent>");
+				elements.add("    <ignitiondelay>" + ignition.getIgnitionDelay() + "</ignitiondelay>");
+				elements.add("  </ignitionconfiguration>");
+				
+			}
 		}
-		
-		elements.add("  <ignitionevent>"
-				+ mount.getIgnitionEvent().name().toLowerCase(Locale.ENGLISH).replace("_", "")
-				+ "</ignitionevent>");
-		
-		elements.add("  <ignitiondelay>" + mount.getIgnitionDelay() + "</ignitiondelay>");
-		elements.add("  <overhang>" + mount.getMotorOverhang() + "</overhang>");
 		
 		elements.add("</motormount>");
 		
 		return elements;
+	}
+	
+	private final static void emitColor(String elementName, List<String> elements, Color color) {
+		if (color != null) {
+			elements.add("<" + elementName + " red=\"" + color.getRed() + "\" green=\"" + color.getGreen()
+					+ "\" blue=\"" + color.getBlue() + "\"/>");
+		}
+		
 	}
 	
 }

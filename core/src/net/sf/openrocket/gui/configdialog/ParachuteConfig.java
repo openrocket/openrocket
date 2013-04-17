@@ -24,8 +24,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.MassObject;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.Parachute;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -36,6 +35,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 	
 	public ParachuteConfig(OpenRocketDocument d, final RocketComponent component) {
 		super(d, component);
+		Parachute parachute = (Parachute) component;
 		
 		JPanel primary = new JPanel(new MigLayout());
 		
@@ -190,29 +190,30 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		//// Deployment
 		//// Deploys at:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat")), "");
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat") + CommonStrings.dagger), "");
 		
-		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DeployEvent"));
+		DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfiguration().getDefault();
+		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.plusdelay")), "right");
 		
-		m = new DoubleModel(component, "DeployDelay", 0);
+		m = new DoubleModel(deploymentConfig, "DeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin,3));
+		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "spanx, split");
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.seconds")), "wrap paragraph");
 		
 		// Altitude:
-		label = new JLabel(trans.get("ParachuteCfg.lbl.Altitude"));
+		label = new JLabel(trans.get("ParachuteCfg.lbl.Altitude") + CommonStrings.dagger);
 		altitudeComponents.add(label);
 		panel.add(label);
 		
-		m = new DoubleModel(component, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(deploymentConfig, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -225,6 +226,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(slider);
 		panel.add(slider, "w 100lp, wrap");
 		
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
 		primary.add(panel, "grow");
 		
@@ -237,7 +239,6 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 				trans.get("ParachuteCfg.tab.ttip.Radialpos"), 1);
 		tabbedPane.setSelectedIndex(0);
 	}
-	
 	
 	
 	
@@ -277,8 +278,8 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				((MassObject) component).setRadialDirection(0.0);
-				((MassObject) component).setRadialPosition(0.0);
+				((Parachute) component).setRadialDirection(0.0);
+				((Parachute) component).setRadialPosition(0.0);
 			}
 		});
 		panel.add(button, "spanx, right");
