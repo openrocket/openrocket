@@ -1,8 +1,8 @@
 package net.sf.openrocket.util;
 
 import static java.lang.Math.PI;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
 import java.util.Random;
@@ -17,19 +17,19 @@ public class TextUtilTest {
 		Charset us_ascii = Charset.forName("US-ASCII");
 		
 		byte[] ZIP_SIGNATURE_CORRECT = "PK".getBytes(us_ascii);
-		byte[] ZIP_SIGNATURE_TEST = TextUtil.convertStringToBytes( "PK", us_ascii);
+		byte[] ZIP_SIGNATURE_TEST = TextUtil.asciiBytes("PK");
 		
-		assertArrayEquals( ZIP_SIGNATURE_CORRECT, ZIP_SIGNATURE_TEST );
+		assertArrayEquals(ZIP_SIGNATURE_CORRECT, ZIP_SIGNATURE_TEST);
 		
 		byte[] OPENROCKET_SIGNATURE_CORRECT = "<openrocket".getBytes(us_ascii);
-		byte[] OPENROCKET_SIGNATURE_TEST = TextUtil.convertStringToBytes( "<openrocket", us_ascii);
-
-		assertArrayEquals( OPENROCKET_SIGNATURE_CORRECT, OPENROCKET_SIGNATURE_TEST);
+		byte[] OPENROCKET_SIGNATURE_TEST = TextUtil.asciiBytes("<openrocket");
+		
+		assertArrayEquals(OPENROCKET_SIGNATURE_CORRECT, OPENROCKET_SIGNATURE_TEST);
 		
 		byte[] ROCKSIM_SIGNATURE_CORRECT = "<RockSimDoc".getBytes(us_ascii);
-		byte[] ROCKSIM_SIGNATURE_TEST = TextUtil.convertStringToBytes( "<RockSimDoc", us_ascii);
+		byte[] ROCKSIM_SIGNATURE_TEST = TextUtil.asciiBytes("<RockSimDoc");
 		
-		assertArrayEquals( ROCKSIM_SIGNATURE_CORRECT, ROCKSIM_SIGNATURE_TEST );
+		assertArrayEquals(ROCKSIM_SIGNATURE_CORRECT, ROCKSIM_SIGNATURE_TEST);
 	}
 	
 	@Test
@@ -187,12 +187,12 @@ public class TextUtilTest {
 		
 		assertEquals("1.001", TextUtil.doubleToString(1.00096));
 		
-
+		
 		/*
 		 * Not testing with 1.00015 because it might be changed during number formatting
 		 * calculations.  Its rounding is basically arbitrary anyway.
 		 */
-
+		
 		assertEquals("1.0002e-5", TextUtil.doubleToString(1.0001500001e-5));
 		assertEquals("1.0001e-5", TextUtil.doubleToString(1.0001499999e-5));
 		assertEquals("1.0002e-4", TextUtil.doubleToString(1.0001500001e-4));
@@ -226,7 +226,7 @@ public class TextUtilTest {
 		assertEquals("1.0002e10", TextUtil.doubleToString(1.0001500001e10));
 		assertEquals("1.0001e10", TextUtil.doubleToString(1.0001499999e10));
 		
-
+		
 		assertEquals("-1.0002e-5", TextUtil.doubleToString(-1.0001500001e-5));
 		assertEquals("-1.0001e-5", TextUtil.doubleToString(-1.0001499999e-5));
 		assertEquals("-1.0002e-4", TextUtil.doubleToString(-1.0001500001e-4));
@@ -276,6 +276,17 @@ public class TextUtilTest {
 			result = Double.parseDouble(s);
 			assertEquals(expected, result, 0.00000001);
 		}
+	}
+	
+	
+	@Test
+	public void testEscapeXML() {
+		assertEquals("", TextUtil.escapeXML(""));
+		assertEquals("foo&amp;bar", TextUtil.escapeXML("foo&bar"));
+		assertEquals("&lt;html&gt;&amp;", TextUtil.escapeXML("<html>&"));
+		assertEquals("&quot;&#39;", TextUtil.escapeXML("\"'"));
+		assertEquals("foo\n\r\tbar", TextUtil.escapeXML("foo\n\r\tbar"));
+		assertEquals("foo&#0;&#1;&#31;&#127;bar", TextUtil.escapeXML("foo" + ((char) 0) + ((char) 1) + ((char) 31) + ((char) 127) + "bar"));
 	}
 	
 }

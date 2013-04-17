@@ -69,7 +69,7 @@ public class PrintableTransition extends AbstractPrintable<Transition> {
 	 * @param transition the transition to print
 	 */
 	public PrintableTransition(Transition transition) {
-		super(false, transition);
+		super(transition);
 	}
 
     /**

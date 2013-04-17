@@ -54,7 +54,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 			totalCG = Coordinate.NUL;
 		
 		// Add motor CGs
-		String motorId = configuration.getMotorConfigurationID();
+		String motorId = configuration.getFlightConfigurationID();
 		if (type != MassCalcType.NO_MOTORS && motorId != null) {
 			Iterator<MotorMount> iterator = configuration.motorIterator();
 			while (iterator.hasNext()) {

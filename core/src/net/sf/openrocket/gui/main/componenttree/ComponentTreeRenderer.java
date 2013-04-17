@@ -48,7 +48,7 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		
 		String comment = c.getComment().trim();
 		if (comment.length() > 0) {
-			comment = TextUtil.htmlEncode(comment);
+			comment = TextUtil.escapeXML(comment);
 			comment = comment.replace("\n", "<br>");
 			sb.append("<br>").append(comment);
 		}

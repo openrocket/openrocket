@@ -8,7 +8,7 @@ import net.sf.openrocket.util.BugException;
 
 public class EnumName<E extends Enum<E>> {
 	
-	public static final EnumConversion NAME = new EnumConversion() {
+	private static final EnumConversion NAME = new EnumConversion() {
 		@Override
 		public String convert(Enum<?> e) {
 			return e.name();

@@ -1,12 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Pair;
 
 
 /**
@@ -21,102 +18,22 @@ import net.sf.openrocket.util.Pair;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public abstract class RecoveryDevice extends MassObject {
-	private static final Translator trans = Application.getTranslator();
-	
-	public static enum DeployEvent {
-		LAUNCH(trans.get("RecoveryDevice.DeployEvent.LAUNCH")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return e.getType() == FlightEvent.Type.LAUNCH;
-			}
-		},
-		EJECTION(trans.get("RecoveryDevice.DeployEvent.EJECTION")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.EJECTION_CHARGE)
-					return false;
-				RocketComponent charge = e.getSource();
-				return charge.getStageNumber() == source.getStageNumber();
-			}
-		},
-		APOGEE(trans.get("RecoveryDevice.DeployEvent.APOGEE")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return e.getType() == FlightEvent.Type.APOGEE;
-			}
-		},
-		ALTITUDE(trans.get("RecoveryDevice.DeployEvent.ALTITUDE")) {
-			@SuppressWarnings("unchecked")
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.ALTITUDE)
-					return false;
-				
-				double alt = ((RecoveryDevice) source).getDeployAltitude();
-				Pair<Double, Double> altitude = (Pair<Double, Double>) e.getData();
-				
-				return (altitude.getU() >= alt) && (altitude.getV() <= alt);
-			}
-		},
-		LOWER_STAGE_SEPARATION(trans.get("RecoveryDevice.DeployEvent.LOWER_STAGE_SEPARATION")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				if (e.getType() != FlightEvent.Type.STAGE_SEPARATION)
-					return false;
-				
-				int separation = e.getSource().getStageNumber();
-				int current = source.getStageNumber();
-				return (current + 1 == separation);
-			}
-		},
-		NEVER(trans.get("RecoveryDevice.DeployEvent.NEVER")) {
-			@Override
-			public boolean isActivationEvent(FlightEvent e, RocketComponent source) {
-				return false;
-			}
-		};
-		
-		private final String description;
-		
-		DeployEvent(String description) {
-			this.description = description;
-		}
-		
-		public abstract boolean isActivationEvent(FlightEvent e, RocketComponent source);
-		
-		@Override
-		public String toString() {
-			return description;
-		}
-		
-	}
-	
-	
-	private DeployEvent deployEvent = DeployEvent.EJECTION;
-	private double deployAltitude = 200;
-	private double deployDelay = 0;
+public abstract class RecoveryDevice extends MassObject implements FlightConfigurableComponent {
 	
 	private double cd = Parachute.DEFAULT_CD;
 	private boolean cdAutomatic = true;
 	
-	
 	private Material.Surface material;
+	
+	private FlightConfigurationImpl<DeploymentConfiguration> deploymentConfigurations;
+	
 	
 	
 	public RecoveryDevice() {
-		this(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
+		this.deploymentConfigurations = new FlightConfigurationImpl<DeploymentConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new DeploymentConfiguration());
+		setMaterial(Application.getPreferences().getDefaultComponentMaterial(RecoveryDevice.class, Material.Type.SURFACE));
 	}
 	
-	public RecoveryDevice(Material material) {
-		super();
-		setMaterial(material);
-	}
-	
-	public RecoveryDevice(double length, double radius, Material material) {
-		super(length, radius);
-		setMaterial(material);
-	}
 	
 	
 	
@@ -175,63 +92,37 @@ public abstract class RecoveryDevice extends MassObject {
 	}
 	
 	
-	
-	
-	public DeployEvent getDeployEvent() {
-		return deployEvent;
-	}
-	
-	public void setDeployEvent(DeployEvent deployEvent) {
-		if (this.deployEvent == deployEvent)
-			return;
-		this.deployEvent = deployEvent;
-		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
+	public FlightConfiguration<DeploymentConfiguration> getDeploymentConfiguration() {
+		return deploymentConfigurations;
 	}
 	
 	
-	public double getDeployAltitude() {
-		return deployAltitude;
+	@Override
+	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
+		deploymentConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
 	}
-	
-	public void setDeployAltitude(double deployAltitude) {
-		if (MathUtil.equals(this.deployAltitude, deployAltitude))
-			return;
-		this.deployAltitude = deployAltitude;
-		if (getDeployEvent() == DeployEvent.ALTITUDE)
-			fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
-		else
-			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
-	}
-	
-	
-	public double getDeployDelay() {
-		return deployDelay;
-	}
-	
-	public void setDeployDelay(double delay) {
-		delay = MathUtil.max(delay, 0);
-		if (MathUtil.equals(this.deployDelay, delay))
-			return;
-		this.deployDelay = delay;
-		fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
-	}
-	
 	
 	
 	@Override
 	public double getComponentMass() {
 		return getArea() * getMaterial().getDensity();
 	}
-
+	
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if ( preset.has(ComponentPreset.MATERIAL)) {
+		if (preset.has(ComponentPreset.MATERIAL)) {
 			Material m = preset.get(ComponentPreset.MATERIAL);
-			this.material = (Material.Surface)m;
+			this.material = (Material.Surface) m;
 		}
 		super.loadFromPreset(preset);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-
 	}
-
+	
+	@Override
+	protected RocketComponent copyWithOriginalID() {
+		RecoveryDevice copy = (RecoveryDevice) super.copyWithOriginalID();
+		copy.deploymentConfigurations = new FlightConfigurationImpl<DeploymentConfiguration>(deploymentConfigurations,
+				copy, ComponentChangeEvent.EVENT_CHANGE);
+		return copy;
+	}
 }

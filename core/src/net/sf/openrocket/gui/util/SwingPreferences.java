@@ -38,7 +38,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
 		List<Locale> list = new ArrayList<Locale>();
-		for (String lang : new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl" }) {
+		for (String lang : new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl", "ja", "pt" }) {
 			list.add(new Locale(lang));
 		}
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
@@ -225,17 +225,17 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	}
 	
 	public File getDefaultUserComponentDirectory() {
-
+		
 		File compdir = new File(SystemInfo.getUserApplicationDirectory(), "Components");
-
+		
 		if (!compdir.isDirectory()) {
 			compdir.mkdirs();
 		}
 		
-		if( !compdir.isDirectory() ) {
+		if (!compdir.isDirectory()) {
 			return null;
 		}
-		if( !compdir.canRead() ) {
+		if (!compdir.canRead()) {
 			return null;
 		}
 		return compdir;
@@ -573,7 +573,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		
 		return materials;
 	}
-	
+
+	////  Preset Component Favorites
+
 	@Override
 	public void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite) {
 		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
@@ -595,6 +597,35 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		}
 		return collection;
 	}
-	////  Helper methods
+
+	////  Decal Editor Setting
+	private final static String DECAL_EDITOR_PREFERNCE_NODE = "decalEditorPreference";
+	private final static String DECAL_EDITOR_USE_SYSTEM_DEFAULT = "<SYSTEM>";
+	
+	public void clearDecalEditorPreference( ) {
+		putString(DECAL_EDITOR_PREFERNCE_NODE,null);
+	}
+	public void setDecalEditorPreference(boolean useSystem, String commandLine) {
+		if ( useSystem ) {
+			putString(DECAL_EDITOR_PREFERNCE_NODE,DECAL_EDITOR_USE_SYSTEM_DEFAULT);
+		} else if ( commandLine != null ) {
+			putString(DECAL_EDITOR_PREFERNCE_NODE, commandLine);
+		} else {
+			clearDecalEditorPreference();
+		}
+	}
+
+	public boolean isDecalEditorPreferenceSet() {
+		String s = getString(DECAL_EDITOR_PREFERNCE_NODE,null);
+		return s != null;
+	}
+	
+	public boolean isDecalEditorPreferenceSystem() {
+		String s = getString(DECAL_EDITOR_PREFERNCE_NODE,null);
+		return DECAL_EDITOR_USE_SYSTEM_DEFAULT.equals(s);
+	}
+	public String getDecalEditorCommandLine() {
+		return getString(DECAL_EDITOR_PREFERNCE_NODE,null);
+	}
 	
 }

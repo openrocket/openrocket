@@ -29,7 +29,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
     public void testConstructor() throws Exception {
 
         try {
-            new MassObjectHandler(null, new WarningSet());
+            new MassObjectHandler(null, null, new WarningSet());
             Assert.fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException iae) {
@@ -37,7 +37,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         }
 
         BodyTube tube = new BodyTube();
-        MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
+        MassObjectHandler handler = new MassObjectHandler(null, tube, new WarningSet());
         MassComponent mass = (MassComponent) getField(handler, "mass");
         MassComponent current = (MassComponent) getField(handler, "current");
         Assert.assertEquals(mass, current);
@@ -50,7 +50,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testOpenElement() throws Exception {
-        Assert.assertEquals(PlainTextHandler.INSTANCE, new MassObjectHandler(new BodyTube(), new WarningSet()).openElement(null, null, null));
+        Assert.assertEquals(PlainTextHandler.INSTANCE, new MassObjectHandler(null, new BodyTube(), new WarningSet()).openElement(null, null, null));
     }
 
     /**
@@ -65,7 +65,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
         HashMap<String, String> attributes = new HashMap<String, String>();
         WarningSet warnings = new WarningSet();
 
-        MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
+        MassObjectHandler handler = new MassObjectHandler(null, tube, new WarningSet());
         MassComponent component = (MassComponent) getField(handler, "mass");
 
         handler.closeElement("Len", attributes, "-1", warnings);
@@ -98,7 +98,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
     @org.junit.Test
     public void testSetRelativePosition() throws Exception {
         BodyTube tube = new BodyTube();
-        MassObjectHandler handler = new MassObjectHandler(tube, new WarningSet());
+        MassObjectHandler handler = new MassObjectHandler(null, tube, new WarningSet());
         MassComponent component = (MassComponent) getField(handler, "mass");
         handler.setRelativePosition(RocketComponent.Position.ABSOLUTE);
         Assert.assertEquals(RocketComponent.Position.ABSOLUTE, component.getRelativePosition());
@@ -111,7 +111,7 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetComponent() throws Exception {
-        Assert.assertTrue(new MassObjectHandler(new BodyTube(), new WarningSet()).getComponent() instanceof MassComponent);
+        Assert.assertTrue(new MassObjectHandler(null, new BodyTube(), new WarningSet()).getComponent() instanceof MassComponent);
     }
 
     /**
@@ -121,6 +121,6 @@ public class MassObjectHandlerTest extends RocksimTestBase {
      */
     @org.junit.Test
     public void testGetMaterialType() throws Exception {
-        Assert.assertEquals(Material.Type.LINE, new MassObjectHandler(new BodyTube(), new WarningSet()).getMaterialType());
+        Assert.assertEquals(Material.Type.LINE, new MassObjectHandler(null, new BodyTube(), new WarningSet()).getMaterialType());
     }
 }

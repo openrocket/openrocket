@@ -12,6 +12,13 @@ openrocket.locale
 openrocket.3d.disable
 	Disables all OpenGL calls if set.
 
+openrocket.plugins
+	List of extra plugin JARs to load.  By default the directory Plugins/ under the
+	application directory is scanned and all .JAR files are used.  Multiple plugins
+	are separated using the platform-specific path separator (; or :).
+
+
+
 Logging options
 ---------------
 
@@ -27,7 +34,6 @@ openrocket.log.stdout
 openrocket.log.tracelevel
 	Defines from which log level upwards the logging position is stored along with the log line.
 	Defaults to INFO.
-
 
 
 

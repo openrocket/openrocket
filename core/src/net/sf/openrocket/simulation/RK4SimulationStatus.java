@@ -1,9 +1,11 @@
 package net.sf.openrocket.simulation;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.util.Coordinate;
 
-public class RK4SimulationStatus extends SimulationStatus {
+public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	private Coordinate launchRodDirection;
 	
 	private double previousAcceleration = 0;
@@ -13,7 +15,22 @@ public class RK4SimulationStatus extends SimulationStatus {
 	private double maxZVelocity = 0;
 	private double startWarningTime = -1;
 	
-	
+	public RK4SimulationStatus(Configuration configuration,
+			MotorInstanceConfiguration motorConfiguration,
+			SimulationConditions simulationConditions ) {
+		super(configuration, motorConfiguration, simulationConditions);
+	}
+
+	public RK4SimulationStatus( SimulationStatus other ) {
+		super(other);
+		if ( other instanceof RK4SimulationStatus ) {
+			this.launchRodDirection = ((RK4SimulationStatus) other).launchRodDirection;
+			this.previousAcceleration = ((RK4SimulationStatus) other).previousAcceleration;
+			this.maxZVelocity = ((RK4SimulationStatus) other).maxZVelocity;
+			this.startWarningTime = ((RK4SimulationStatus) other).startWarningTime;
+			this.previousAtmosphericConditions = ((RK4SimulationStatus) other).previousAtmosphericConditions;
+		}
+	}
 	public void setLaunchRodDirection(Coordinate launchRodDirection) {
 		this.launchRodDirection = launchRodDirection;
 	}
@@ -64,7 +81,6 @@ public class RK4SimulationStatus extends SimulationStatus {
 	public void setStartWarningTime(double startWarningTime) {
 		this.startWarningTime = startWarningTime;
 	}
-	
 	
 	@Override
 	public RK4SimulationStatus clone() {

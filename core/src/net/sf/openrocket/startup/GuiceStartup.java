@@ -1,5 +1,7 @@
 package net.sf.openrocket.startup;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
@@ -14,7 +16,6 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.PrintStreamLogger;
-import net.sf.openrocket.plugin.PluginHelper;
 import net.sf.openrocket.plugin.PluginModule;
 
 import com.google.inject.Guice;
@@ -80,6 +81,7 @@ public class GuiceStartup {
 			setPropertyIfNotSet("openrocket.debug.menu", "true");
 			setPropertyIfNotSet("openrocket.debug.mutexlocation", "true");
 			setPropertyIfNotSet("openrocket.debug.motordigest", "true");
+			setPropertyIfNotSet("jogl.debug", "all");
 		}
 	}
 	
@@ -131,6 +133,40 @@ public class GuiceStartup {
 		str += " (" + LOG_STDOUT_PROPERTY + "=" + System.getProperty(LOG_STDOUT_PROPERTY) +
 				" " + LOG_STDERR_PROPERTY + "=" + System.getProperty(LOG_STDERR_PROPERTY) + ")";
 		log.info(str);
+		
+		
+		
+		//Replace System.err with a PrintStream that logs lines to DEBUG, or VBOSE if they are indented.
+		//If debug info is not being output to the console then the data is both logged and written to
+		//stderr.
+		final boolean writeToStderr = !(printer.getOutput(LogLevel.DEBUG) == System.out || printer.getOutput(LogLevel.DEBUG) == System.err);
+		final PrintStream stdErr = System.err;
+		System.setErr(new PrintStream(new OutputStream() {
+			StringBuilder currentLine = new StringBuilder();
+			
+			@Override
+			public synchronized void write(int b) throws IOException {
+				if (writeToStderr) {
+					//Write to real stderr
+					stdErr.write(b);
+				}
+				if (b == '\r' || b == '\n') {
+					//Line is complete, log it
+					if (currentLine.toString().trim().length() > 0) {
+						String s = currentLine.toString();
+						if (Character.isWhitespace(s.charAt(0))) {
+							log.verbose(currentLine.toString());
+						} else {
+							log.debug(currentLine.toString());
+						}
+					}
+					currentLine = new StringBuilder();
+				} else {
+					//append to the line being built
+					currentLine.append((char) b);
+				}
+			}
+		}));
 	}
 	
 	private static boolean setLogOutput(PrintStreamLogger logger, PrintStream stream, String level, LogLevel defaultLevel) {
@@ -211,7 +247,7 @@ public class GuiceStartup {
 	
 	private static Injector initializeGuice() {
 		Module applicationModule = new ApplicationModule();
-		Module pluginModule = new PluginModule(PluginHelper.getPluginJars(), GuiceStartup.class.getClassLoader());
+		Module pluginModule = new PluginModule();
 		
 		return Guice.createInjector(applicationModule, pluginModule);
 	}

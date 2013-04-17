@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="8634-M6400-VM-P" Type="reloadable" dia="98." len="702."
+initWt="7919." propWt="4308." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="6243.1" peakThrust="7244.6" throatDia="0." exitDia="0." Itot="8634.21"
+burn-time="1.38" massFrac="54.4" Isp="204.37" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>CTI Pro-98 4G
+8634 M6400-VM P
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="4308." cg="351."/>
+      <eng-data  t="0.011" f="6079.64" m="4291.32" cg="351."/>
+      <eng-data  t="0.135" f="6598.41" m="3899.13" cg="351."/>
+      <eng-data  t="0.354" f="7080.77" m="3151.77" cg="351."/>
+      <eng-data  t="0.503" f="7244.6" m="2619.28" cg="351."/>
+      <eng-data  t="0.713" f="7162.69" m="1864.49" cg="351."/>
+      <eng-data  t="0.954" f="6707.62" m="1030.57" cg="351."/>
+      <eng-data  t="1.183" f="5688.28" m="322.397" cg="351."/>
+      <eng-data  t="1.233" f="5460.75" m="183.328" cg="351."/>
+      <eng-data  t="1.26" f="4914.68" m="113.442" cg="351."/>
+      <eng-data  t="1.288" f="3394.77" m="55.3983" cg="351."/>
+      <eng-data  t="1.331" f="800.91" m="10.3899" cg="351."/>
+      <eng-data  t="1.383" f="0." m="0." cg="351."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,14 +1,9 @@
 package net.sf.openrocket.file;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
-import net.sf.openrocket.document.OpenRocketDocument;
 
 
 public abstract class AbstractRocketLoader implements RocketLoader {
@@ -16,40 +11,14 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	
 	
 	/**
-	 * Loads a rocket from the specified File object.
-	 */
-	@Override
-	public final OpenRocketDocument load(File source, MotorFinder motorFinder) throws RocketLoadException {
-		warnings.clear();
-		InputStream stream = null;
-		
-		try {
-			
-			stream = new BufferedInputStream(new FileInputStream(source));
-			return load(stream, motorFinder);
-			
-		} catch (FileNotFoundException e) {
-			throw new RocketLoadException("File not found: " + source);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	/**
 	 * Loads a rocket from the specified InputStream.
 	 */
 	@Override
-	public final OpenRocketDocument load(InputStream source, MotorFinder motorFinder) throws RocketLoadException {
+	public final void load(DocumentLoadingContext context, InputStream source) throws RocketLoadException {
 		warnings.clear();
 		
 		try {
-			return loadFromStream(source, motorFinder);
+			loadFromStream(context, source);
 		} catch (RocketLoadException e) {
 			throw e;
 		} catch (IOException e) {
@@ -65,8 +34,7 @@ public abstract class AbstractRocketLoader implements RocketLoader {
 	 * 
 	 * @throws RocketLoadException	if an error occurs during loading.
 	 */
-	protected abstract OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException,
-			RocketLoadException;
+	protected abstract void loadFromStream(DocumentLoadingContext context, InputStream source) throws IOException, RocketLoadException;
 	
 	
 	

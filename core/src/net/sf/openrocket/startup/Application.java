@@ -3,6 +3,7 @@ package net.sf.openrocket.startup;
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
+import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
@@ -68,7 +69,9 @@ public final class Application {
 		Application.logger = logger;
 	}
 	
-	
+	public static WatchService getWatchService() {
+		return Application.injector.getInstance(WatchService.class);
+	}
 	
 	/**
 	 * Return the log buffer.

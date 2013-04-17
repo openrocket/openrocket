@@ -713,7 +713,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			ThrustCurveMotor m = motors.get(i);
 			
 			//// Thrust
-			XYSeries series = new XYSeries(trans.get("TCMotorSelPan.title.Thrust"));
+			XYSeries series = new XYSeries(trans.get("TCMotorSelPan.title.Thrust") + " (" + i + ")");
 			double[] time = m.getTimePoints();
 			double[] thrust = m.getThrustPoints();
 			

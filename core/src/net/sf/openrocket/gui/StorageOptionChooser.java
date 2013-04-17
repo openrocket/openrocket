@@ -39,8 +39,6 @@ public class StorageOptionChooser extends JPanel {
 	
 	private JSpinner timeSpinner;
 	
-	private JCheckBox compressButton;
-	
 	private JLabel estimateLabel;
 	
 	
@@ -122,15 +120,6 @@ public class StorageOptionChooser extends JPanel {
 		noneButton.addActionListener(actionUpdater);
 		this.add(noneButton, "spanx, wrap 20lp");
 		
-		
-		//// Compress file
-		compressButton = new JCheckBox(trans.get("StorageOptChooser.checkbox.Compfile"));
-		//// Using compression reduces the file size significantly.
-		compressButton.setToolTipText(trans.get("StorageOptChooser.lbl.UsingComp"));
-		compressButton.addActionListener(actionUpdater);
-		this.add(compressButton, "spanx, wrap para");
-		
-		
 		// Estimate is updated in loadOptions(opts)
 		estimateLabel = new JLabel("");
 		//// An estimate on how large the resulting file would
@@ -168,9 +157,6 @@ public class StorageOptionChooser extends JPanel {
 		timeSpinner.setValue(t);
 		artificialEvent = false;
 		
-		// Compression checkbox
-		compressButton.setSelected(opts.isCompressionEnabled());
-		
 		updateEstimate();
 	}
 	
@@ -187,8 +173,6 @@ public class StorageOptionChooser extends JPanel {
 		}
 		
 		opts.setSimulationTimeSkip(t);
-		
-		opts.setCompressionEnabled(compressButton.isSelected());
 		
 		opts.setExplicitlySet(true);
 	}

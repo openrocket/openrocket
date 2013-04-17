@@ -14,7 +14,7 @@ import net.sf.openrocket.startup.Application;
  */
 public final class Coordinate implements Cloneable, Serializable {
 	private static final LogHelper log = Application.getLogger();
-
+	
 	// Defined for backwards compatibility after adding clone().
 	static final long serialVersionUID = 585574649794259293L;
 	
@@ -58,8 +58,8 @@ public final class Coordinate implements Cloneable, Serializable {
 	
 	////////  End debug section
 	
-
-
+	
+	
 	public static final Coordinate NUL = new Coordinate(0, 0, 0, 0);
 	public static final Coordinate NaN = new Coordinate(Double.NaN, Double.NaN,
 			Double.NaN, Double.NaN);
@@ -67,7 +67,7 @@ public final class Coordinate implements Cloneable, Serializable {
 	public final double x, y, z;
 	public final double weight;
 	
-
+	
 	private double length = -1; /* Cached when calculated */
 	
 	
@@ -203,6 +203,20 @@ public final class Coordinate implements Cloneable, Serializable {
 	}
 	
 	/**
+	 * Cross product of two Coordinates taken as vectors
+	 */
+	public Coordinate cross(Coordinate other) {
+		return cross(this, other);
+	}
+	
+	/**
+	 * Cross product of two Coordinates taken as vectors
+	 */
+	public static Coordinate cross(Coordinate a, Coordinate b) {
+		return new Coordinate(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+	}
+	
+	/**
 	 * Distance from the origin to the Coordinate.
 	 */
 	public double length() {
@@ -250,8 +264,8 @@ public final class Coordinate implements Cloneable, Serializable {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Weighted average of two coordinates.  If either of the weights are positive,
 	 * the result is the weighted average of the coordinates and the weight is the sum
@@ -316,10 +330,10 @@ public final class Coordinate implements Cloneable, Serializable {
 		else
 			return String.format("(%.3f,%.3f,%.3f)", x, y, z);
 	}
-
+	
 	@Override
 	public Coordinate clone() {
-		return new Coordinate( 	this.x, this.y, this.z, this.weight );
+		return new Coordinate(this.x, this.y, this.z, this.weight);
 	}
-
+	
 }

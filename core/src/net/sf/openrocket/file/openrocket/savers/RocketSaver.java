@@ -29,19 +29,19 @@ public class RocketSaver extends RocketComponentSaver {
 		
 		if (rocket.getDesigner().length() > 0) {
 			elements.add("<designer>"
-					+ net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getDesigner())
+					+ net.sf.openrocket.util.TextUtil.escapeXML(rocket.getDesigner())
 					+ "</designer>");
 		}
 		if (rocket.getRevision().length() > 0) {
 			elements.add("<revision>"
-					+ net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getRevision())
+					+ net.sf.openrocket.util.TextUtil.escapeXML(rocket.getRevision())
 					+ "</revision>");
 		}
 		
 		
 		// Motor configurations
-		String defId = rocket.getDefaultConfiguration().getMotorConfigurationID();
-		for (String id : rocket.getMotorConfigurationIDs()) {
+		String defId = rocket.getDefaultConfiguration().getFlightConfigurationID();
+		for (String id : rocket.getFlightConfigurationIDs()) {
 			if (id == null)
 				continue;
 			
@@ -49,10 +49,11 @@ public class RocketSaver extends RocketComponentSaver {
 			if (id.equals(defId))
 				str += " default=\"true\"";
 			
-			if (rocket.getMotorConfigurationName(id) == "") {
+			
+			if (rocket.getFlightConfigurationName(id).equals(Rocket.DEFAULT_NAME)) {
 				str += "/>";
 			} else {
-				str += "><name>" + net.sf.openrocket.file.RocketSaver.escapeXML(rocket.getMotorConfigurationName(id))
+				str += "><name>" + net.sf.openrocket.util.TextUtil.escapeXML(rocket.getFlightConfigurationName(id))
 						+ "</name></motorconfiguration>";
 			}
 			elements.add(str);

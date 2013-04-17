@@ -4,22 +4,26 @@ import net.sf.openrocket.util.BugException;
 
 public class StorageOptions implements Cloneable {
 	
+	public enum FileType {
+		OPENROCKET,
+		ROCKSIM
+	}
+	
 	public static final double SIMULATION_DATA_NONE = Double.POSITIVE_INFINITY;
 	public static final double SIMULATION_DATA_ALL = 0;
 	
-	private boolean compressionEnabled = true;
+	private FileType fileType = FileType.OPENROCKET;
 	
 	private double simulationTimeSkip = SIMULATION_DATA_NONE;
 
 	private boolean explicitlySet = false;
 	
-
-	public boolean isCompressionEnabled() {
-		return compressionEnabled;
+	public FileType getFileType() {
+		return fileType;
 	}
 
-	public void setCompressionEnabled(boolean compression) {
-		this.compressionEnabled = compression;
+	public void setFileType(FileType fileType) {
+		this.fileType = fileType;
 	}
 
 	public double getSimulationTimeSkip() {
@@ -30,8 +34,6 @@ public class StorageOptions implements Cloneable {
 		this.simulationTimeSkip = simulationTimeSkip;
 	}
 	
-	
-	
 	public boolean isExplicitlySet() {
 		return explicitlySet;
 	}
@@ -40,8 +42,6 @@ public class StorageOptions implements Cloneable {
 		this.explicitlySet = explicitlySet;
 	}
 
-	
-	
 	@Override
 	public StorageOptions clone() {
 		try {

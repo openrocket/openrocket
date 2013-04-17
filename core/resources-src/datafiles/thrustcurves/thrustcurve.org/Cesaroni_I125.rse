@@ -1,0 +1,31 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="567-I125-WH-LB-10" Type="reloadable" dia="38." len="367."
+initWt="647." propWt="355.6" delays="10,7,5,3" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="124.202" peakThrust="267.82" throatDia="0."
+exitDia="0." Itot="569.465" burn-time="4.58" massFrac="54.96" Isp="163.3"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI Pro-38 5G
+567 I125 WH LB 10A
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="355.6" cg="183.5"/>
+      <eng-data  t="0.046" f="174.74" m="353.09" cg="183.5"/>
+      <eng-data  t="0.089" f="267.82" m="347.149" cg="183.5"/>
+      <eng-data  t="0.135" f="235.986" m="339.913" cg="183.5"/>
+      <eng-data  t="0.258" f="193.772" m="323.409" cg="183.5"/>
+      <eng-data  t="0.35" f="182.007" m="312.615" cg="183.5"/>
+      <eng-data  t="0.553" f="174.74" m="290.004" cg="183.5"/>
+      <eng-data  t="1.124" f="176.125" m="227.452" cg="183.5"/>
+      <eng-data  t="1.502" f="173.01" m="186.247" cg="183.5"/>
+      <eng-data  t="1.806" f="162.284" m="154.422" cg="183.5"/>
+      <eng-data  t="2.439" f="135.986" m="95.4728" cg="183.5"/>
+      <eng-data  t="3.372" f="84.775" m="31.1642" cg="183.5"/>
+      <eng-data  t="4.005" f="36.678" m="7.16059" cg="183.5"/>
+      <eng-data  t="4.395" f="14.879" m="0.882657" cg="183.5"/>
+      <eng-data  t="4.585" f="0." m="0." cg="183.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>
