@@ -29,7 +29,6 @@ public class PluginModule extends AbstractModule {
 		List<Class<?>> interfaces = new ArrayList<Class<?>>();
 		List<Class<?>> unusedInterfaces;
 		
-		
 		// Find plugin interfaces
 		for (Class<?> c : classes) {
 			if (c.isInterface()) {
@@ -44,6 +43,7 @@ public class PluginModule extends AbstractModule {
 				continue;
 			
 			for (Class<?> intf : c.getInterfaces()) {
+				
 				if (interfaces.contains(intf)) {
 					// Ugly hack to enable dynamic binding...  Can this be done type-safely?
 					Multibinder<Object> binder = (Multibinder<Object>) findBinder(intf);

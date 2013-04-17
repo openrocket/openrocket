@@ -23,9 +23,9 @@ import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.MassComponent;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -34,6 +34,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 	
 	public StreamerConfig(OpenRocketDocument d, final RocketComponent component) {
 		super(d, component);
+		Streamer streamer = (Streamer) component;
 		
 		JPanel primary = new JPanel(new MigLayout());
 		
@@ -191,29 +192,30 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		//// Deployment
 		//// Deploys at:
-		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat")), "");
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat") + CommonStrings.dagger), "");
 		
-		combo = new JComboBox(new EnumModel<IgnitionEvent>(component, "DeployEvent"));
+		DeploymentConfiguration deploymentConfig = streamer.getDeploymentConfiguration().getDefault();
+		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
 		panel.add(combo, "spanx 3, growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.plusdelay")), "right");
 		
-		m = new DoubleModel(component, "DeployDelay", 0);
+		m = new DoubleModel(deploymentConfig, "DeployDelay", 0);
 		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin,3));
+		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "spanx, split");
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("StreamerCfg.lbl.seconds")), "wrap paragraph");
 		
 		// Altitude:
-		label = new JLabel(trans.get("StreamerCfg.lbl.Altitude"));
+		label = new JLabel(trans.get("StreamerCfg.lbl.Altitude") + CommonStrings.dagger);
 		altitudeComponents.add(label);
 		panel.add(label);
 		
-		m = new DoubleModel(component, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
+		m = new DoubleModel(deploymentConfig, "DeployAltitude", UnitGroup.UNITS_DISTANCE, 0);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -226,6 +228,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		altitudeComponents.add(slider);
 		panel.add(slider, "w 100lp, wrap");
 		
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "skip 1, spanx, wrap para");
 		
 		primary.add(panel, "grow");
 		
@@ -280,8 +283,8 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				((MassComponent) component).setRadialDirection(0.0);
-				((MassComponent) component).setRadialPosition(0.0);
+				((Streamer) component).setRadialDirection(0.0);
+				((Streamer) component).setRadialPosition(0.0);
 			}
 		});
 		panel.add(button, "spanx, right");

@@ -107,7 +107,7 @@ public class SimulationPlotPanel extends JPanel {
 		types = branch.getTypes();
 		
 		setConfiguration(defaultConfiguration);
-		
+
 		////  Configuration selector
 		
 		// Setup the combo box
@@ -313,7 +313,6 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(button, "right");
 		
-
 		updatePlots();
 	}
 	

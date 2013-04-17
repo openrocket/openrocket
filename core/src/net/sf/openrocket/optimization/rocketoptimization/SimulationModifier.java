@@ -89,7 +89,7 @@ public interface SimulationModifier extends ChangeSource {
 	public double getCurrentScaledValue(Simulation simulation) throws OptimizationException;
 	
 	
-
+	
 	/**
 	 * Modify the specified simulation to the corresponding parameter value.
 	 * 
@@ -99,6 +99,13 @@ public interface SimulationModifier extends ChangeSource {
 	 */
 	public void modify(Simulation simulation, double scaledValue) throws OptimizationException;
 	
+	/**
+	 * Called once at the start of the optimization.
+	 * This method can be used to ensure the simulation or rocket are properly configured.
+	 * 
+	 * @param simulation
+	 */
+	public void initialize(Simulation simulation) throws OptimizationException;
 	
 	/**
 	 * Compare whether this SimulationModifier is equivalent to another simulation modifier.

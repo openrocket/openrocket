@@ -72,7 +72,12 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
 		 * which contains the old and new altitudes.
 		 */
-		ALTITUDE(trans.get("FlightEvent.Type.ALTITUDE"));
+		ALTITUDE(trans.get("FlightEvent.Type.ALTITUDE")),
+		
+		/**
+		 * The rocket begins to tumble.
+		 */
+		TUMBLE(trans.get("FlightEvent.Type.TUMBLE"));
 		
 		private final String name;
 		

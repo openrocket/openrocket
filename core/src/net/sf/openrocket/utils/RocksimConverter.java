@@ -6,11 +6,9 @@ import java.util.Locale;
 
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
-import net.sf.openrocket.file.DatabaseMotorFinder;
+import net.sf.openrocket.file.GeneralRocketLoader;
+import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.file.RocketLoader;
-import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.file.openrocket.OpenRocketSaver;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.logging.LogLevel;
@@ -32,8 +30,7 @@ public class RocksimConverter {
 		
 		setup();
 		
-		RocketLoader loader = new net.sf.openrocket.file.rocksim.importt.RocksimLoader();
-		RocketSaver saver = new OpenRocketSaver();
+		GeneralRocketSaver saver = new GeneralRocketSaver();
 		
 		for (String inputFile : args) {
 			System.out.println("Converting " + inputFile + "...");
@@ -59,11 +56,12 @@ public class RocksimConverter {
 			
 			try {
 				StorageOptions opts = new StorageOptions();
-				opts.setCompressionEnabled(true);
+				opts.setFileType(StorageOptions.FileType.OPENROCKET);
 				opts.setSimulationTimeSkip(StorageOptions.SIMULATION_DATA_NONE);
 				opts.setExplicitlySet(true);
 				
-				OpenRocketDocument document = loader.load(input, new DatabaseMotorFinder());
+				GeneralRocketLoader loader = new GeneralRocketLoader(input);
+				OpenRocketDocument document = loader.load();
 				saver.save(output, document, opts);
 				
 			} catch (RocketLoadException e) {

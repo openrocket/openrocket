@@ -36,6 +36,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Total motion vs. time
@@ -49,6 +50,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Flight side profile
@@ -60,6 +62,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Stability vs. time
@@ -73,6 +76,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Drag coefficients vs. Mach number
@@ -97,6 +101,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Angle of attack and orientation vs. time
@@ -110,6 +115,7 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		//// Simulation time step and computation time
@@ -122,13 +128,14 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
 		config.setEvent(FlightEvent.Type.STAGE_SEPARATION, true);
 		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		configs.add(config);
 		
 		DEFAULT_CONFIGURATIONS = configs.toArray(new PlotConfiguration[0]);
 	}
 	
-
-
+	
+	
 	/** Bonus given for the first type being on the first axis */
 	private static final double BONUS_FIRST_TYPE_ON_FIRST_AXIS = 1.0;
 	
@@ -144,11 +151,11 @@ public class PlotConfiguration implements Cloneable {
 	/** Bonus given for only using a single axis. */
 	private static final double BONUS_ONLY_ONE_AXIS = 50.0;
 	
-
+	
 	private static final double INCLUDE_ZERO_DISTANCE = 0.3; // 30% of total range
 	
-
-
+	
+	
 	/** The data types to be plotted. */
 	private ArrayList<FlightDataType> plotDataTypes = new ArrayList<FlightDataType>();
 	
@@ -163,17 +170,14 @@ public class PlotConfiguration implements Cloneable {
 	private FlightDataType domainAxisType = null;
 	private Unit domainAxisUnit = null;
 	
-
+	
 	/** All available axes. */
 	private final int axesCount;
 	private ArrayList<Axis> allAxes = new ArrayList<Axis>();
 	
-
-
 	private String name = null;
 	
 	
-
 	public PlotConfiguration() {
 		this(null, FlightDataType.TYPE_TIME);
 	}
@@ -192,10 +196,8 @@ public class PlotConfiguration implements Cloneable {
 		setDomainAxisType(domainType);
 	}
 	
+	//// Axis
 	
-
-
-
 	public FlightDataType getDomainAxisType() {
 		return domainAxisType;
 	}
@@ -224,8 +226,8 @@ public class PlotConfiguration implements Cloneable {
 		domainAxisUnit = u;
 	}
 	
+	//// FlightDataTypes
 	
-
 	public void addPlotDataType(FlightDataType type) {
 		plotDataTypes.add(type);
 		plotDataUnits.add(type.getUnitGroup().getDefaultUnit());
@@ -242,8 +244,6 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
-
 	public void setPlotDataType(int index, FlightDataType type) {
 		FlightDataType origType = plotDataTypes.get(index);
 		plotDataTypes.set(index, type);
@@ -268,7 +268,6 @@ public class PlotConfiguration implements Cloneable {
 		plotDataAxes.set(index, axis);
 	}
 	
-	
 	public void setPlotDataType(int index, FlightDataType type, Unit unit, int axis) {
 		if (axis >= axesCount) {
 			throw new IllegalArgumentException("Axis index too large");
@@ -285,7 +284,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
+	
 	public FlightDataType getType(int index) {
 		return plotDataTypes.get(index);
 	}
@@ -322,9 +321,9 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
-
-
+	
+	
+	
 	public List<Axis> getAllAxes() {
 		List<Axis> list = new ArrayList<Axis>();
 		list.addAll(allAxes);
@@ -349,7 +348,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
+	
 	/**
 	 * Find the best combination of the auto-selectable axes.
 	 * 
@@ -364,8 +363,8 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Recursively search for the best combination of the auto-selectable axes.
 	 * This is a brute-force search method.
@@ -384,13 +383,13 @@ public class PlotConfiguration implements Cloneable {
 				break;
 		}
 		
-
+		
 		if (autoindex >= plotDataAxes.size()) {
 			// All axes have been assigned, just return since we are already the best
 			return new Pair<PlotConfiguration, Double>(copy, copy.getGoodnessValue(data));
 		}
 		
-
+		
 		// Set the auto-selected index one at a time and choose the best one
 		PlotConfiguration best = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
@@ -407,9 +406,9 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Fit the axes to hold the provided data.  All of the plotDataAxis elements must
 	 * be non-negative.
@@ -459,7 +458,7 @@ public class PlotConfiguration implements Cloneable {
 			}
 		}
 		
-
+		
 		// Check whether to use a common zero
 		Axis left = allAxes.get(0);
 		Axis right = allAxes.get(1);
@@ -469,8 +468,8 @@ public class PlotConfiguration implements Cloneable {
 				Double.isNaN(left.getMinValue()) || Double.isNaN(right.getMinValue()))
 			return;
 		
-
-
+		
+		
 		//// Compute common zero
 		// TODO: MEDIUM: This algorithm may require tweaking
 		
@@ -481,7 +480,7 @@ public class PlotConfiguration implements Cloneable {
 		
 		// Calculate and round scaling factor
 		double scale = Math.max(left.getRangeLength(), right.getRangeLength()) /
-						Math.min(left.getRangeLength(), right.getRangeLength());
+				Math.min(left.getRangeLength(), right.getRangeLength());
 		
 		//System.out.println("Scale: " + scale);
 		
@@ -501,54 +500,6 @@ public class PlotConfiguration implements Cloneable {
 		min2 /= scale;
 		max2 /= scale;
 		
-
-
-		// Scale to unit length
-		//		double scale1 = left.getRangeLength();
-		//		double scale2 = right.getRangeLength();
-		//		
-		//		double min1 = left.getMinValue() / scale1;
-		//		double max1 = left.getMaxValue() / scale1;
-		//		double min2 = right.getMinValue() / scale2;
-		//		double max2 = right.getMaxValue() / scale2;
-		//		
-		//		// Combine unit ranges
-		//		min1 = MathUtil.min(min1, min2);
-		//		min2 = min1;
-		//		max1 = MathUtil.max(max1, max2);
-		//		max2 = max1;
-		//		
-		//		// Scale up
-		//		min1 *= scale1;
-		//		max1 *= scale1;
-		//		min2 *= scale2;
-		//		max2 *= scale2;
-		//		
-		//		// Compute common scale
-		//		double range1 = max1-min1;
-		//		double range2 = max2-min2;
-		//		
-		//		double scale = MathUtil.max(range1, range2) / MathUtil.min(range1, range2);
-		//		double roundScale = roundScale(scale);
-		//
-		//		if (range2 < range1) {
-		//			if (roundScale < scale) {
-		//				min2 = min1 / roundScale;
-		//				max2 = max1 / roundScale;
-		//			} else {
-		//				min1 = min2 * roundScale;
-		//				max1 = max2 * roundScale;
-		//			}
-		//		} else {
-		//			if (roundScale > scale) {
-		//				min2 = min1 * roundScale;
-		//				max2 = max1 * roundScale;
-		//			} else {
-		//				min1 = min2 / roundScale;
-		//				max1 = max2 / roundScale;
-		//			}
-		//		}
-		
 		// Apply scale
 		left.addBound(min1);
 		left.addBound(max1);
@@ -558,7 +509,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
+	
 	private double roundScale(double scale) {
 		double mul = 1;
 		while (scale >= 10) {
@@ -587,7 +538,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
+	
 	@SuppressWarnings("unused")
 	private double roundScaleUp(double scale) {
 		double mul = 1;
@@ -640,7 +591,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
+	
 	/**
 	 * Fits the axis ranges to the data and returns the "goodness value" of this 
 	 * selection of axes.  All plotDataAxis elements must be non-null.
@@ -682,11 +633,11 @@ public class PlotConfiguration implements Cloneable {
 			goodness += d * 100.0;
 		}
 		
-
+		
 		/*
 		 * Add extra points for specific things.
 		 */
-
+		
 		// A little for the first type being on the first axis
 		if (plotDataAxes.get(0) == 0)
 			goodness += BONUS_FIRST_TYPE_ON_FIRST_AXIS;
@@ -710,7 +661,7 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
+	
 	/**
 	 * Reset the units of this configuration to the default units. Returns this
 	 * PlotConfiguration.
@@ -725,8 +676,8 @@ public class PlotConfiguration implements Cloneable {
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public PlotConfiguration clone() {
 		try {
@@ -747,7 +698,7 @@ public class PlotConfiguration implements Cloneable {
 			
 			return copy;
 			
-
+			
 		} catch (CloneNotSupportedException e) {
 			throw new BugException("BUG! Could not clone().");
 		}

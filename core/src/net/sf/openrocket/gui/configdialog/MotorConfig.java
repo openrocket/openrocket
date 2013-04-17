@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -22,17 +23,19 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
-import net.sf.openrocket.gui.adaptors.MotorConfigurationModel;
+import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.MotorMount.IgnitionEvent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -62,23 +65,23 @@ public class MotorConfig extends JPanel {
 		check.setText(trans.get("MotorCfg.checkbox.compmotormount"));
 		this.add(check, "wrap");
 		
-
+		
 		panel = new JPanel(new MigLayout("fill"));
 		this.add(panel, "grow, wrap");
 		
-
+		
 		// Motor configuration selector
 		//// Motor configuration:
-		panel.add(new JLabel(trans.get("MotorCfg.lbl.Motorcfg")), "shrink");
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Flightcfg")), "shrink");
 		
-		JComboBox combo = new JComboBox(new MotorConfigurationModel(configuration));
+		JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
 		panel.add(combo, "growx");
-		
-		configuration.addChangeListener(new ChangeListener() {
+		combo.addActionListener(new ActionListener() {
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				updateFields();
 			}
+			
 		});
 		
 		//// New button
@@ -86,13 +89,24 @@ public class MotorConfig extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String id = rocket.newMotorConfigurationID();
-				configuration.setMotorConfigurationID(id);
+				String id = rocket.newFlightConfigurationID();
+				configuration.setFlightConfigurationID(id);
+			}
+		});
+		panel.add(button, "");
+		
+		//// Edit button
+		button = new JButton(trans.get("MotorCfg.but.FlightcfgEdit"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JDialog configDialog = new FlightConfigurationDialog(rocket, SwingUtilities.windowForComponent(MotorConfig.this));
+				configDialog.show();
 			}
 		});
 		panel.add(button, "wrap unrel");
 		
-
+		
 		// Current motor:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Currentmotor")), "shrink");
 		
@@ -101,8 +115,8 @@ public class MotorConfig extends JPanel {
 		updateFields();
 		panel.add(motorLabel, "wrap unrel");
 		
-
-
+		
+		
 		//  Overhang
 		//// Motor overhang:
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.Motoroverhang")));
@@ -116,29 +130,31 @@ public class MotorConfig extends JPanel {
 		panel.add(new UnitSelector(dm), "width :30lp:");
 		panel.add(new BasicSlider(dm.getSliderModel(-0.02, 0.06)), "w 100lp, wrap unrel");
 		
-
-
+		
+		
 		// Select ignition event
 		//// Ignition at:
-		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat")), "");
+		panel.add(new JLabel(trans.get("MotorCfg.lbl.Ignitionat") + CommonStrings.dagger), "");
 		
-		combo = new JComboBox(new EnumModel<IgnitionEvent>(mount, "IgnitionEvent"));
+		IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().getDefault();
+		combo = new JComboBox(new EnumModel<IgnitionConfiguration.IgnitionEvent>(ignitionConfig, "IgnitionEvent"));
 		panel.add(combo, "growx, wrap");
 		
 		// ... and delay
 		//// plus
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.plus")), "gap indent, skip 1, span, split");
 		
-		dm = new DoubleModel(mount, "IgnitionDelay", 0);
+		dm = new DoubleModel(ignitionConfig, "IgnitionDelay", 0);
 		spin = new JSpinner(dm.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin,3));
+		spin.setEditor(new SpinnerEditor(spin, 3));
 		panel.add(spin, "gap rel rel");
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("MotorCfg.lbl.seconds")), "wrap unrel");
 		
-
-
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
+		
+		
 		// Check stage count
 		RocketComponent c = (RocketComponent) mount;
 		c = c.getRocket();
@@ -150,23 +166,23 @@ public class MotorConfig extends JPanel {
 			
 			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longA1") + " " +
 					trans.get("MotorCfg.lbl.longA2"), -1),
-					"spanx, right, wrap para");
+					"spanx, wrap para");
 		} else {
 			//// The current design has 
 			//// stages.
 			panel.add(new StyledLabel(trans.get("MotorCfg.lbl.longB1") + " " + stages + " " +
 					trans.get("MotorCfg.lbl.longB2"), -1),
-					"skip 1, spanx, wrap para");
+					"spanx, wrap para");
 		}
 		
-
+		
 		// Select etc. buttons
 		//// Select motor
 		button = new JButton(trans.get("MotorCfg.but.Selectmotor"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String id = configuration.getMotorConfigurationID();
+				String id = configuration.getFlightConfigurationID();
 				
 				MotorChooserDialog dialog = new MotorChooserDialog(mount.getMotor(id),
 						mount.getMotorDelay(id), mount.getMotorMountDiameter(),
@@ -177,11 +193,13 @@ public class MotorConfig extends JPanel {
 				
 				if (m != null) {
 					if (id == null) {
-						id = rocket.newMotorConfigurationID();
-						configuration.setMotorConfigurationID(id);
+						id = rocket.newFlightConfigurationID();
+						configuration.setFlightConfigurationID(id);
 					}
-					mount.setMotor(id, m);
-					mount.setMotorDelay(id, d);
+					MotorConfiguration config = new MotorConfiguration();
+					config.setMotor(m);
+					config.setEjectionDelay(d);
+					mount.getMotorConfiguration().set(id, config);
 				}
 				updateFields();
 			}
@@ -193,16 +211,16 @@ public class MotorConfig extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mount.setMotor(configuration.getMotorConfigurationID(), null);
+				mount.getMotorConfiguration().resetDefault(configuration.getFlightConfigurationID());
 				updateFields();
 			}
 		});
 		panel.add(button, "growx, wrap");
 		
-
-
-
-
+		
+		
+		
+		
 		// Set enabled status
 		
 		setDeepEnabled(panel, motorMount.isMotorMount());
@@ -216,7 +234,7 @@ public class MotorConfig extends JPanel {
 	}
 	
 	public void updateFields() {
-		String id = configuration.getMotorConfigurationID();
+		String id = configuration.getFlightConfigurationID();
 		Motor m = mount.getMotor(id);
 		if (m == null) {
 			//// None

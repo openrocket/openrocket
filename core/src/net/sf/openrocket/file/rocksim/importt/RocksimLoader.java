@@ -6,9 +6,8 @@ package net.sf.openrocket.file.rocksim.importt;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.AbstractRocketLoader;
-import net.sf.openrocket.file.MotorFinder;
+import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 
@@ -39,11 +38,11 @@ public class RocksimLoader extends AbstractRocketLoader {
 	 *          if an error occurs during loading.
 	 */
 	@Override
-	protected OpenRocketDocument loadFromStream(InputStream source, MotorFinder motorFinder) throws IOException, RocketLoadException {
+	protected void loadFromStream(DocumentLoadingContext context, InputStream source) throws IOException, RocketLoadException {
 		
 		InputSource xmlSource = new InputSource(source);
 		
-		RocksimHandler handler = new RocksimHandler();
+		RocksimHandler handler = new RocksimHandler(context);
 		
 		try {
 			SimpleSAX.readXML(xmlSource, handler, warnings);
@@ -51,9 +50,7 @@ public class RocksimLoader extends AbstractRocketLoader {
 			throw new RocketLoadException("Malformed XML in input.", e);
 		}
 		
-		final OpenRocketDocument document = handler.getDocument();
-		document.setFile(null);
-		document.clearUndo();
-		return document;
+		context.getOpenRocketDocument().setFile(null);
+		context.getOpenRocketDocument().clearUndo();
 	}
 }

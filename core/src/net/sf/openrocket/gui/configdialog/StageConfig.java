@@ -15,7 +15,7 @@ import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.rocketcomponent.Stage.SeparationEvent;
+import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 
 public class StageConfig extends RocketComponentConfig {
@@ -38,21 +38,24 @@ public class StageConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Select separation event
-		panel.add(new StyledLabel(trans.get("separation.lbl.title"), Style.BOLD), "spanx, wrap rel");
+		panel.add(new StyledLabel(trans.get("separation.lbl.title") + CommonStrings.dagger, Style.BOLD), "spanx, wrap rel");
 		
-		JComboBox combo = new JComboBox(new EnumModel<SeparationEvent>(stage, "SeparationEvent"));
+		StageSeparationConfiguration config = stage.getStageSeparationConfiguration().getDefault();
+		JComboBox combo = new JComboBox(new EnumModel<StageSeparationConfiguration.SeparationEvent>(config, "SeparationEvent"));
 		panel.add(combo, "");
 		
 		// ... and delay
 		panel.add(new JLabel(trans.get("separation.lbl.plus")), "");
 		
-		DoubleModel dm = new DoubleModel(stage, "SeparationDelay", 0);
+		DoubleModel dm = new DoubleModel(config, "SeparationDelay", 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "");
+		panel.add(spin, "width 45");
 		
 		//// seconds
 		panel.add(new JLabel(trans.get("separation.lbl.seconds")), "wrap unrel");
+		
+		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		
 		return panel;
 	}

@@ -1,6 +1,9 @@
 package net.sf.openrocket.rocketcomponent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.util.Iterator;
@@ -15,10 +18,10 @@ public class ComponentCompare {
 	private static final String[] IGNORED_METHODS = {
 			"getClass", "getChildCount", "getChildren", "getNextComponent", "getID",
 			"getPreviousComponent", "getParent", "getRocket", "getRoot", "getStage",
-			"getStageNumber", "getComponentName",
+			"getStageNumber", "getComponentName", "getDefaultFlightConfiguration",
 			// Rocket specific methods:
 			"getModID", "getMassModID", "getAerodynamicModID", "getTreeModID", "getFunctionalModID",
-			"getMotorConfigurationIDs", "getDefaultConfiguration", "getMotorMounts"
+			"getFlightConfigurationIDs", "getDefaultConfiguration", "getMotorMounts"
 	};
 	
 	
@@ -38,7 +41,7 @@ public class ComponentCompare {
 	}
 	
 	
-
+	
 	public static void assertDeepEquality(RocketComponent c1, RocketComponent c2) {
 		assertEquality(c1, c2);
 		
@@ -54,7 +57,7 @@ public class ComponentCompare {
 	}
 	
 	
-
+	
 	public static void assertDeepSimilarity(RocketComponent c1, RocketComponent c2,
 			boolean allowNameDifference) {
 		assertSimilarity(c1, c2, allowNameDifference);
@@ -71,7 +74,7 @@ public class ComponentCompare {
 	}
 	
 	
-
+	
 	/**
 	 * Check whether the two components are <em>similar</em>.  Two components are similar
 	 * if each of the getXXX and isXXX methods that both object types have return
@@ -114,7 +117,7 @@ public class ComponentCompare {
 			if (allowNameDifference && name.equals("getName"))
 				continue;
 			
-
+			
 			// Check for method in other class
 			Method m2;
 			try {

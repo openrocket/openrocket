@@ -21,7 +21,6 @@ import eu.infomas.annotation.AnnotationDetector.TypeReporter;
  */
 public class AnnotationFinderImpl implements AnnotationFinder {
 	
-	@SuppressWarnings("resource")
 	@Override
 	public List<Class<?>> findAnnotatedTypes(Class<?> annotation) {
 		final List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -42,7 +41,7 @@ public class AnnotationFinderImpl implements AnnotationFinder {
 				
 				List<File> files = new ArrayList<File>();
 				for (URL url : urls) {
-					if (url.getProtocol() == "file") {
+					if (url.getProtocol().equals("file")) {
 						files.add(JarUtil.urlToFile(url));
 					}
 				}

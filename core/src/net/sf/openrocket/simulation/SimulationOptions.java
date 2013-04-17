@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
+import net.sf.openrocket.formatting.MotorDescriptionSubstitutor;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
@@ -14,6 +15,7 @@ import net.sf.openrocket.models.gravity.GravityModel;
 import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -38,16 +40,16 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
-
+	
 	private final Rocket rocket;
 	private String motorID = null;
 	
-
+	
 	/*
 	 * NOTE:  When adding/modifying parameters, they must also be added to the
 	 * equals and copyFrom methods!!
 	 */
-
+	
 	// TODO: HIGH: Fetch default values from Prefs!
 	
 	private double launchRodLength = 1;
@@ -58,11 +60,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	/** Launch rod direction, 0 = upwind, PI = downwind. */
 	private double launchRodDirection = 0;
 	
-
+	
 	private double windAverage = 2.0;
 	private double windTurbulence = 0.1;
 	
-
+	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
@@ -76,7 +78,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double launchTemperature = ExtendedISAModel.STANDARD_TEMPERATURE;
 	private double launchPressure = ExtendedISAModel.STANDARD_PRESSURE;
 	
-
+	
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
@@ -84,11 +86,11 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	private boolean calculateExtras = true;
 	
-
+	
 	private List<EventListener> listeners = new ArrayList<EventListener>();
 	
 	
-
+	
 	public SimulationOptions(Rocket rocket) {
 		this.rocket = rocket;
 	}
@@ -111,7 +113,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	public void setMotorConfigurationID(String id) {
 		if (id != null)
 			id = id.intern();
-		if (!rocket.isMotorConfigurationID(id))
+		if (!rocket.isFlightConfigurationID(id))
 			id = null;
 		if (id == motorID)
 			return;
@@ -158,7 +160,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public double getWindSpeedAverage() {
 		return windAverage;
 	}
@@ -204,9 +206,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
-
-
+	
+	
+	
 	public double getLaunchAltitude() {
 		return launchAltitude;
 	}
@@ -276,7 +278,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public void setLaunchTemperature(double launchTemperature) {
 		if (MathUtil.equals(this.launchTemperature, launchTemperature))
 			return;
@@ -285,13 +287,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public double getLaunchPressure() {
 		return launchPressure;
 	}
 	
 	
-
+	
 	public void setLaunchPressure(double launchPressure) {
 		if (MathUtil.equals(this.launchPressure, launchPressure))
 			return;
@@ -338,13 +340,13 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public boolean getCalculateExtras() {
 		return calculateExtras;
 	}
 	
 	
-
+	
 	public void setCalculateExtras(boolean calculateExtras) {
 		if (this.calculateExtras == calculateExtras)
 			return;
@@ -353,7 +355,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	public int getRandomSeed() {
 		return randomSeed;
 	}
@@ -380,7 +382,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	@Override
 	public SimulationOptions clone() {
 		try {
@@ -402,18 +404,26 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		} else {
 			
 			if (src.rocket.hasMotors(src.motorID)) {
-				// Try to find a matching motor ID
-				String motorDesc = src.rocket.getMotorConfigurationDescription(src.motorID);
-				String matchID = null;
-				
-				for (String id : this.rocket.getMotorConfigurationIDs()) {
-					if (motorDesc.equals(this.rocket.getMotorConfigurationDescription(id))) {
-						matchID = id;
-						break;
+				// First check for exact match:
+				if (this.rocket.isFlightConfigurationID(src.motorID)) {
+					this.motorID = src.motorID;
+				} else {
+					// Try to find a closely matching motor ID
+					MotorDescriptionSubstitutor formatter = Application.getInjector().getInstance(MotorDescriptionSubstitutor.class);
+					
+					String motorDesc = formatter.getMotorConfigurationDescription(src.rocket, src.motorID);
+					String matchID = null;
+					
+					for (String id : this.rocket.getFlightConfigurationIDs()) {
+						String motorDesc2 = formatter.getMotorConfigurationDescription(this.rocket, id);
+						if (motorDesc.equals(motorDesc2)) {
+							matchID = id;
+							break;
+						}
 					}
+					
+					this.motorID = matchID;
 				}
-				
-				this.motorID = matchID;
 			} else {
 				this.motorID = null;
 			}
@@ -438,7 +448,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
-
+	
 	/**
 	 * Compares whether the two simulation conditions are equal.  The two are considered
 	 * equal if the rocket, motor id and all variables are equal.
@@ -476,12 +486,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	@Override
-	public void addChangeListener(EventListener listener) {
+	public void addChangeListener(StateChangeListener listener) {
 		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeChangeListener(EventListener listener) {
+	public void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
 	}
 	
@@ -492,8 +502,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		// Copy the list before iterating to prevent concurrent modification exceptions.
 		EventListener[] list = listeners.toArray(new EventListener[0]);
 		for (EventListener l : list) {
-			if ( l instanceof StateChangeListener ) {
-				((StateChangeListener)l).stateChanged(event);
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
 			}
 		}
 	}

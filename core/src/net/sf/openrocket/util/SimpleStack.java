@@ -26,4 +26,11 @@ public class SimpleStack<T> extends ArrayList<T> {
 		return value;
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder("SimpleStack count=" + size() + "\n");
+		for( T element: this ) {
+			sb.append("   ").append(element.toString());
+		}
+		return sb.toString();
+	}
 }
