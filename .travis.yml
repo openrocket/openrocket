@@ -2,3 +2,4 @@ language: java
 jdk:
   - oraclejdk7
 script: "ant -buildfile core/build.xml clean checkascii build jar"
+script: "ant -buildfile core/build.xml unittest"
