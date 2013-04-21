@@ -2,5 +2,12 @@ language: java
 jdk:
   - oraclejdk7
 script:
+ - "echo ***"
+ - "echo *** Building OpenRocket..."
+ - "echo ***"
  - "ant -buildfile core/build.xml clean checkascii build jar"
+ - "echo ***"
+ - "echo *** Running OpenRocket unit tests..."
+ - "echo ***"
  - "ant -buildfile core/build.xml unittest"
+ - "echo ***"
