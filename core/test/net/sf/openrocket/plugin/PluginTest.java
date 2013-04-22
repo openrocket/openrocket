@@ -1,9 +1,14 @@
 package net.sf.openrocket.plugin;
 
+import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.ApplicationModule;
+
 import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 /**
  * Test the plugin loading system using Guice.
@@ -17,7 +22,11 @@ public class PluginTest {
 	@Test
 	public void testPluginModule() {
 		
-		Injector injector = Guice.createInjector(new PluginModule());
+		Application.setPreferences(new SwingPreferences());
+		
+		Module applicationModule = new ApplicationModule();
+		
+		Injector injector = Guice.createInjector(applicationModule, new PluginModule());
 		PluginTester tester = injector.getInstance(PluginTester.class);
 		tester.testPlugins();
 		
