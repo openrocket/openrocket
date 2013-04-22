@@ -426,17 +426,20 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public void setAppearance(Appearance appearance) {
 		this.appearance = appearance;
-		Decal d = this.appearance.getTexture();
-		if (d != null) {
-			d.getImage().addChangeListener(new StateChangeListener() {
-				
-				@Override
-				public void stateChanged(EventObject e) {
-					fireComponentChangeEvent(ComponentChangeEvent.TEXTURE_CHANGE);
-				}
-				
-			});
+		if (this.appearance != null) {
+			Decal d = this.appearance.getTexture();
+			if (d != null) {
+				d.getImage().addChangeListener(new StateChangeListener() {
+					
+					@Override
+					public void stateChanged(EventObject e) {
+						fireComponentChangeEvent(ComponentChangeEvent.TEXTURE_CHANGE);
+					}
+					
+				});
+			}
 		}
+		// CHECK - should this be a TEXTURE_CHANGE and not NONFUNCTIONAL_CHANGE?
 		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	

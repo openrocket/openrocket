@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import net.sf.openrocket.BaseApplicationAbstractTest;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.DatabaseMotorFinder;
@@ -23,7 +24,7 @@ import org.junit.Assert;
 /**
  * RocksimLoader Tester.
  */
-public class RocksimLoaderTest {
+public class RocksimLoaderTest extends BaseApplicationAbstractTest {
 	
 	/**
 	 * Test a bug reported via automated bug report.  I have been unable to reproduce this bug
@@ -83,7 +84,7 @@ public class RocksimLoaderTest {
 		//Do some simple asserts;  the important thing here is just validating that the mass and cg were
 		//not overridden for each stage.
 		Assert.assertEquals("Three Stage Everything Included Rocket", doc.getRocket().getName());
-		Assert.assertEquals(1, loader.getWarnings().size());
+		Assert.assertEquals(0, loader.getWarnings().size());
 		Assert.assertEquals(3, rocket.getStageCount());
 		Stage stage1 = (Stage) rocket.getChild(0);
 		Assert.assertFalse(stage1.isMassOverridden());

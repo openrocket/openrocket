@@ -18,7 +18,10 @@ public class ComponentCompare {
 	private static final String[] IGNORED_METHODS = {
 			"getClass", "getChildCount", "getChildren", "getNextComponent", "getID",
 			"getPreviousComponent", "getParent", "getRocket", "getRoot", "getStage",
-			"getStageNumber", "getComponentName", "getDefaultFlightConfiguration",
+			"getStageNumber", "getComponentName",
+			"getStageSeparationConfiguration",
+			"getMotorConfiguration",
+			"getIgnitionConfiguration",
 			// Rocket specific methods:
 			"getModID", "getMassModID", "getAerodynamicModID", "getTreeModID", "getFunctionalModID",
 			"getFlightConfigurationIDs", "getDefaultConfiguration", "getMotorMounts"
