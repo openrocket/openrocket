@@ -2,6 +2,7 @@ package net.sf.openrocket.optimization.rocketoptimization.modifiers;
 
 import static net.sf.openrocket.util.MathUtil.EPSILON;
 import static org.junit.Assert.assertEquals;
+import net.sf.openrocket.BaseApplicationAbstractTest;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -11,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestGenericModifier {
+public class TestGenericModifier extends BaseApplicationAbstractTest {
 	
 	private TestValue value;
 	private GenericModifier<TestValue> gm;

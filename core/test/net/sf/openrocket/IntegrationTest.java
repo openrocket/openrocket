@@ -16,7 +16,6 @@ import javax.swing.Action;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -38,31 +37,26 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.ApplicationModule2;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
-import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 /**
  * This class contains various integration tests that simulate user actions that
  * might be performed.
  */
 @RunWith(JMock.class)
-public class IntegrationTest extends BaseTestCase {
+public class IntegrationTest extends BaseApplicationAbstractTest {
 	Mockery context = new JUnit4Mockery();
-	
-	@Mock
-	Injector injector;
-	
 	
 	private OpenRocketDocument document;
 	private Action undoAction, redoAction;
@@ -72,22 +66,27 @@ public class IntegrationTest extends BaseTestCase {
 	private Configuration config;
 	private FlightConditions conditions;
 	
-	
-	@Before
-	public void initialize() {
+	@BeforeClass
+	public static void setupMotorDatabase() {
+		
 		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
 		db.addMotor(readMotor());
 		
-		context.checking(new Expectations() {
-			{
-				allowing(injector).getInstance(MotorDatabase.class);
-				will(returnValue(db));
-			}
-		});
-		
 		assertEquals(1, db.getMotorSets().size());
-		Application.setInjector(injector);
+		
+		ApplicationModule2 module = new ApplicationModule2(new Provider<ThrustCurveMotorSetDatabase>() {
+			
+			@Override
+			public ThrustCurveMotorSetDatabase get() {
+				return db;
+			}
+			
+		});
+		Injector injector2 = Application.getInjector().createChildInjector(module);
+		Application.setInjector(injector2);
 		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
+		
+		
 	}
 	
 	private static ThrustCurveMotor readMotor() {
