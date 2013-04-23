@@ -262,7 +262,7 @@ public class FinRenderer {
 	//  Given the sequentially connected points (a,b), (c,d), and (e,f), this
 	//  function returns, in (C,D), a bevel-inset replacement for point (c,d).
 	//
-	//  Note:  If vectors (a,b)->(c,d) and (c,d)->(e,f) are exactly 180° opposed,
+	//  Note:  If vectors (a,b)->(c,d) and (c,d)->(e,f) are exactly 180 degrees opposed,
 	//         or if either segment is zero-length, this function will do
 	//         nothing; i.e. point (C,D) will not be set.
 	private Coordinate insetCorner(
