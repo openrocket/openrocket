@@ -472,7 +472,7 @@
 <Removed>0</Removed>
 <Station>148.7</Station>
 <Dia>414.5</Dia>
-<SpillHoleDia>0.</SpillHoleDia>
+<SpillHoleDia>1.</SpillHoleDia>
 <SideCount>15</SideCount>
 <ShroudLineCount>16</ShroudLineCount>
 <Thickness>0.05</Thickness>
