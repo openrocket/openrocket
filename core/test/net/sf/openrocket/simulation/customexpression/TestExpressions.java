@@ -1,12 +1,12 @@
 package net.sf.openrocket.simulation.customexpression;
 
-import net.sf.openrocket.BaseApplicationAbstractTest;
+import net.sf.openrocket.AbstractBaseApplication;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 
 import org.junit.Test;
 
-public class TestExpressions extends BaseApplicationAbstractTest {
+public class TestExpressions extends AbstractBaseApplication {
 	
 	@Test
 	public void testExpressions() {

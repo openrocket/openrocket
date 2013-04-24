@@ -12,7 +12,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 
-public abstract class BaseApplicationAbstractTest {
+public abstract class AbstractBaseApplication {
 	
 	
 	@BeforeClass
