@@ -55,7 +55,7 @@ import com.google.inject.Provider;
  * might be performed.
  */
 @RunWith(JMock.class)
-public class IntegrationTest extends BaseApplicationAbstractTest {
+public class IntegrationTest extends AbstractBaseApplication {
 	Mockery context = new JUnit4Mockery();
 	
 	private OpenRocketDocument document;
