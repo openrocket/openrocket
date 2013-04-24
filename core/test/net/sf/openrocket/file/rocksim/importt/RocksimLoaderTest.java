@@ -8,7 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.sf.openrocket.BaseApplicationAbstractTest;
+import net.sf.openrocket.AbstractBaseApplication;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.DatabaseMotorFinder;
@@ -24,7 +24,7 @@ import org.junit.Assert;
 /**
  * RocksimLoader Tester.
  */
-public class RocksimLoaderTest extends BaseApplicationAbstractTest {
+public class RocksimLoaderTest extends AbstractBaseApplication {
 	
 	/**
 	 * Test a bug reported via automated bug report.  I have been unable to reproduce this bug
