@@ -158,7 +158,7 @@ public class NoseConePresetTests extends BaseTestCase {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("NoseConeCustom", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:NoseConeCustom]", preset.get(ComponentPreset.MATERIAL).getName());
 		// note - epsilon is 1% of the simple computation of density
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.01 * density);
 	}
@@ -200,7 +200,7 @@ public class NoseConePresetTests extends BaseTestCase {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("test", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:test]", preset.get(ComponentPreset.MATERIAL).getName());
 		// note - epsilon is 1% of the simple computation of density
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.01 * density);
 	}

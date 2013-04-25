@@ -126,7 +126,7 @@ public class BulkHeadPresetTests {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("BulkHeadCustom", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:BulkHeadCustom]", preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.0005);
 	}
 	
@@ -166,7 +166,7 @@ public class BulkHeadPresetTests {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("test", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:test]", preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.0005);
 	}
 	
