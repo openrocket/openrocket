@@ -163,7 +163,7 @@ public class TransitionPresetTests extends BaseTestCase {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("TransitionCustom", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:TransitionCustom]", preset.get(ComponentPreset.MATERIAL).getName());
 		
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.01 * density);
 	}
@@ -214,7 +214,7 @@ public class TransitionPresetTests extends BaseTestCase {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("test", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:test]", preset.get(ComponentPreset.MATERIAL).getName());
 		
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.01 * density);
 	}
