@@ -222,7 +222,7 @@ public class LaunchLugPresetTests {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("TubeCustom", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:TubeCustom]", preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.0005);
 	}
 	
@@ -264,7 +264,7 @@ public class LaunchLugPresetTests {
 		
 		double density = 100.0 / volume;
 		
-		assertEquals("test", preset.get(ComponentPreset.MATERIAL).getName());
+		assertEquals("[material:test]", preset.get(ComponentPreset.MATERIAL).getName());
 		assertEquals(density, preset.get(ComponentPreset.MATERIAL).getDensity(), 0.0005);
 	}
 	
