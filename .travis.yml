@@ -2,5 +2,6 @@ language: java
 jdk:
   - oraclejdk7
 script:
- - "ant -buildfile core/build.xml clean checkascii build jar"
- - "ant -buildfile core/build.xml unittest"
+ - "cd core"
+ - "ant -buildfile build.xml clean checkascii build jar"
+ - "ant -buildfile build.xml unittest-no-junit-report"

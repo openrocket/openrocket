@@ -299,5 +299,36 @@ ${nonascii}</fail>
 	Unit tests passed successfully.
 		</echo>
  	</target>
+
+	<!--  Unit test (show errors in output stream instead of junit report)  -->
+	<target name="unittest-no-junit-report" description="Execute unit tests, show report to output stream" depends="build">
+		<echo>Building unit tests</echo>
+		<mkdir dir="${build-test.dir}"/>
+		<javac debug="true" srcdir="${src-test.dir}" destdir="${build-test.dir}" classpathref="test-classpath"/>
+		
+		<echo>Running unit tests</echo>
+		<mkdir dir="${tmp.dir}/rawtestoutput"/>
+		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
+			<classpath>
+				<path refid="test-classpath"/>
+				<path location="${basedir}"/>
+			</classpath>
+			<batchtest todir="${tmp.dir}/rawtestoutput">
+				<fileset dir="${build-test.dir}">
+					<include name="**/Test*.class" />
+					<include name="**/*Test.class" />
+					<exclude name="**/*$*.class" />
+					<exclude name="Test.class" />
+				</fileset>
+				<!-- <formatter type="xml"/> -->
+                <formatter type="plain" usefile="false" />
+			</batchtest>
+		</junit>
+		<fail if="junit.failure" message="Unit test(s) failed.  See output above for failures."/>
+		<echo>
+	Unit tests passed successfully.
+		</echo>
+ 	</target>
+    
     
 </project>
