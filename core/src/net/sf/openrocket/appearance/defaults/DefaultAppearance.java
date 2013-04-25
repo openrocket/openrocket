@@ -47,20 +47,20 @@ public class DefaultAppearance {
 						new ResourceDecalImage(resource), EdgeMode.REPEAT));
 	};
 	
-	private static Appearance BALSA = simple("/datafiles/textures/balsa.png");
-	private static Appearance WOOD = simple("/datafiles/textures/wood.png");
+	private static Appearance BALSA = simple("/datafiles/textures/balsa.jpg");
+	private static Appearance WOOD = simple("/datafiles/textures/wood.jpg");
 	@SuppressWarnings("unused")
-	private static Appearance CARDBOARD = simple("/datafiles/textures/cardboard.png");
-	private static Appearance HARDBOARD = simple("/datafiles/textures/hardboard.png");
+	private static Appearance CARDBOARD = simple("/datafiles/textures/cardboard.jpg");
+	private static Appearance HARDBOARD = simple("/datafiles/textures/hardboard.jpg");
 	private static Appearance WADDING = simple("/datafiles/textures/wadding.png");
-	private static Appearance CHUTE = simple("/datafiles/textures/chute.png");
+	private static Appearance CHUTE = simple("/datafiles/textures/chute.jpg");
 	
 	
 	private static final Appearance ESTES_BT = simpleAlpha(new Color(212, 185, 145), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	private static final Appearance ESTES_IT = simpleAlpha(new Color(168, 146, 116), .1f, "/datafiles/textures/spiral-wound-alpha.png");
 	private static final Appearance WHITE_BT = simpleAlpha(new Color(240, 240, 240), .3f, "/datafiles/textures/spiral-wound-alpha.png");
 	
-	private static Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.png");
+	private static Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
 	private static Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
 	private static Appearance REUSABLE_MOTOR = simpleAlpha(new Color(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 	
