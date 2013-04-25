@@ -1,5 +1,7 @@
 package net.sf.openrocket.startup;
 
+import java.util.Locale;
+
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
@@ -7,6 +9,7 @@ import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
+import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
@@ -25,7 +28,7 @@ public final class Application {
 	private static LogHelper logger;
 	private static LogLevelBufferLogger logBuffer;
 	
-	private static Translator baseTranslator = new DebugTranslator(null);
+	private static Translator baseTranslator = new ResourceBundleTranslator("l10n.messages");
 	
 	private static ComponentPresetDao componentPresetDao;
 	
@@ -38,6 +41,13 @@ public final class Application {
 	// Initialize the logger to something sane for testing without executing Startup
 	static {
 		setLogOutputLevel(LogLevel.DEBUG);
+	}
+	
+	public Application() {
+		
+		if (Locale.getDefault().getLanguage().equals("xx")) {
+			baseTranslator = new DebugTranslator(baseTranslator);
+		}
 	}
 	
 	/**
