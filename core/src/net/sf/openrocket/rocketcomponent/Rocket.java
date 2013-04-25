@@ -598,7 +598,6 @@ public class Rocket extends RocketComponent {
 	 * @param id   the flight configuration id
 	 * @return	   the configuration name
 	 */
-	// FIXME: Check references to this method adhere to the new returning of DEFAULT_NAME
 	public String getFlightConfigurationName(String id) {
 		checkState();
 		if (!isFlightConfigurationID(id))
