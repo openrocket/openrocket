@@ -20,8 +20,8 @@ import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.MRUDesignFile;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
-import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.BlockingMotorDatabaseProvider;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.util.BuildProperties;
@@ -165,14 +165,13 @@ public class ApplicationStartup {
 		
 	}
 	
-	
 	/**
 	 * Start loading preset components in background thread.
 	 * 
 	 * Public for Python bindings.
 	 */
 	public void loadPresetComponents() {
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(true) {
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(false) {
 			@Override
 			protected void load() {
 				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader(this);
