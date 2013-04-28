@@ -64,7 +64,7 @@ public class RocketComponentConfig extends JPanel {
 	protected final JTextField componentNameField;
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
-
+	
 	private JPanel buttonPanel;
 	
 	private JLabel infoLabel;
@@ -106,10 +106,10 @@ public class RocketComponentConfig extends JPanel {
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Override"), null, overrideTab(),
 				trans.get("RocketCompCfg.tab.MassandCGoverride"));
 		if (component.isMassive())
-		
-		//// Appearance options
-		tabbedPane.addTab("Appearance", null, new AppearancePanel(document,component),
-				"Appearance Tool Tip");
+			
+			//// Appearance options
+			tabbedPane.addTab(trans.get("RocketCompCfg.tab.Appearance"), null, new AppearancePanel(document, component),
+					"Appearance Tool Tip");
 		
 		//// Comment and Specify a comment for the component
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
