@@ -301,7 +301,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 				}
 			}
 		};
-		add(new JLabel("View Type:"), "spanx, split");
+		add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "spanx, split");
 		add(new JComboBox(cm));
 		
 		
@@ -367,8 +367,6 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		addExtras();
 	}
-	
-	
 	
 	public RocketFigure getFigure() {
 		return figure;
