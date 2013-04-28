@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EventObject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -101,6 +102,7 @@ import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
 import net.sf.openrocket.util.Reflection;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.TestRockets;
 
 public class BasicFrame extends JFrame {
@@ -476,6 +478,16 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				exportDecalAction();
 			}
+		});
+		item.setEnabled(document.getDecalList().size() > 0);
+		final JMenuItem exportMenuItem = item;
+		document.getRocket().addChangeListener(new StateChangeListener() {
+			
+			@Override
+			public void stateChanged(EventObject e) {
+				exportMenuItem.setEnabled(document.getDecalList().size() > 0);
+			}
+			
 		});
 		menu.add(item);
 		
