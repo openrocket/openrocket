@@ -257,6 +257,7 @@ public class AppearancePanel extends JPanel {
 			add(p, "span 3, growx, wrap");
 			final JButton editBtn = new JButton(trans.get("AppearanceCfg.but.edit"));
 			editBtn.setEnabled(ab.getImage() != null);
+			// Enable the editBtn only when the appearance builder has an Image assigned to it.
 			ab.addChangeListener(new StateChangeListener() {
 				@Override
 				public void stateChanged(EventObject e) {
@@ -275,7 +276,6 @@ public class AppearancePanel extends JPanel {
 				}
 				
 			});
-			mDefault.addEnableComponent(editBtn, false);
 			p.add(editBtn);
 		}
 		
