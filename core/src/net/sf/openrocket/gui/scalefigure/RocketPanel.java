@@ -297,6 +297,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 					go3D();
 				} else {
 					figure.setType(v.type);
+					updateExtras(); // when switching from side view to back view, need to clear CP & CG markers
 					go2D();
 				}
 			}
