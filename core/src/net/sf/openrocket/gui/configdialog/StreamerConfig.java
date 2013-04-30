@@ -192,7 +192,7 @@ public class StreamerConfig extends RecoveryDeviceConfig {
 		
 		//// Deployment
 		//// Deploys at:
-		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat") + CommonStrings.dagger), "");
+		panel.add(new JLabel(trans.get("StreamerCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
 		DeploymentConfiguration deploymentConfig = streamer.getDeploymentConfiguration().getDefault();
 		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));

@@ -190,7 +190,7 @@ public class ParachuteConfig extends RecoveryDeviceConfig {
 		
 		//// Deployment
 		//// Deploys at:
-		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat") + CommonStrings.dagger), "");
+		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat") + " " + CommonStrings.dagger), "");
 		
 		DeploymentConfiguration deploymentConfig = parachute.getDeploymentConfiguration().getDefault();
 		combo = new JComboBox(new EnumModel<DeploymentConfiguration.DeployEvent>(deploymentConfig, "DeployEvent"));
