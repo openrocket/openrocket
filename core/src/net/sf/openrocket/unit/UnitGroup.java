@@ -356,6 +356,7 @@ public class UnitGroup {
 		map.put("POWER", UNITS_POWER);
 		map.put("MOMENTUM", UNITS_MOMENTUM);
 		map.put("FREQUENCY", UNITS_FREQUENCY);
+		map.put("WINDSPEED", UNITS_WINDSPEED);
 		
 		UNITS = Collections.unmodifiableMap(map);
 		
