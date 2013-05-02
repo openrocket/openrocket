@@ -3,6 +3,8 @@ package net.sf.openrocket.gui;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -29,7 +31,8 @@ public class ExportDecalDialog extends JDialog {
 	
 	private final OpenRocketDocument document;
 	
-	private JComboBox decalComboBox;
+	private final JComboBox decalComboBox;
+	private final JFileChooser chooser;
 	
 	public ExportDecalDialog(Window parent, OpenRocketDocument doc) {
 		super(parent, trans.get("ExportDecalDialog.title"), ModalityType.APPLICATION_MODAL);
@@ -48,10 +51,25 @@ public class ExportDecalDialog extends JDialog {
 		decalComboBox.setEditable(false);
 		panel.add(decalComboBox, "growx, wrap");
 		
-		final JFileChooser chooser = new JFileChooser();
+		chooser = new JFileChooser();
 		chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
 		chooser.setVisible(true);
 		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+		
+		// Add an item change listener to the decal chooser to detect when the selected image has change
+		decalComboBox.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					updateChoosenDecal();
+				}
+			}
+			
+		});
+		
+		// Call the update to synchronize the boxes on startup.
+		updateChoosenDecal();
 		
 		chooser.addActionListener(new ActionListener() {
 			@Override
@@ -87,5 +105,14 @@ public class ExportDecalDialog extends JDialog {
 			String message = MessageFormat.format(trans.get("ExportDecalDialog.exception"), selectedFile.getAbsoluteFile());
 			JOptionPane.showMessageDialog(this, message, "", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	private void updateChoosenDecal() {
+		DecalImage image = (DecalImage) decalComboBox.getSelectedItem();
+		if (image == null) {
+			return;
+		}
+		File fullName = new File(image.getName());
+		chooser.setSelectedFile(new File(fullName.getName()));
 	}
 }
