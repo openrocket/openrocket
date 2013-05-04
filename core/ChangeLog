@@ -1,3 +1,6 @@
+2013-05-04 Sampo Niskanen
+
+	* Released version 13.05
 
 2013-04-17 Bill Kuker and Kevin Ruland
     * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
@@ -15,12 +18,12 @@
       default is used (set in the component edit dialog).  The flight configuration dialog was reworked to make it more
       usable.  The user selects the configuration in a drop down with buttons for "add", "delete" and "rename".  After selecting
       the configuration, the tabbed area below allows the user to change the configuration for this simulation.
-      
+
 2013-04-17 Kevin Ruland
     * Allow simulation of stages without a motor.  Users in the past have attempted to simulate separate recovery of payload
       and booster by tricking OpenRocket using a dummy motor with trivial thrust curve.  Now the user does not need to do this.
       There is an example of this provided in TARC Payloader.ork and Boosted Dart.ork
-      
+
 2013-04-17 Kevin Ruland
     * Simulate recovery of boosters.  The simulation engine will create new FlightDataBranches for each stage after
       separation.  The data for the boosters begins at t=separation.  The simulation plot allows the user to select

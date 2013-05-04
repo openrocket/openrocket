@@ -1,12 +1,12 @@
-OpenRocket 13.04 (2013-04-28):
---------------------------------
+OpenRocket 13.05 (2013-05-04):
+------------------------------
 
 New Features:
 
     * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
       apply decals (images) to rocket components.  Added ability to launch external graphics editor to edit decals and monitor
       file for writes to update the rocket view.
-    * Added simulation of tumble recovery based on experimentation done by Sampo Niskane.  This is particularly useful
+    * Added simulation of tumble recovery based on experimentation done by Sampo Niskanen.  This is particularly useful
       for low power staged flights.
     * Extended "motor configuration" concept to cover more properties.  The concept was renamed "Flight Configuration" and
       allows the user to override stage separation, recovery deployment, and motor ignition per flight configuration.
