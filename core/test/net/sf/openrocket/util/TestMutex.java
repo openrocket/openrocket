@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.ExceptionHandler;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,25 @@ public class TestMutex {
 	@Before
 	public void setup() {
 		System.setProperty("openrocket.debug.safetycheck", "true");
+		
+		// Set exception handler that does nothing (called by SafetyMutex)
+		Application.setExceptionHandler(new ExceptionHandler() {
+			@Override
+			public void uncaughtException(Thread thread, Throwable throwable) {
+			}
+			
+			@Override
+			public void handleErrorCondition(Throwable exception) {
+			}
+			
+			@Override
+			public void handleErrorCondition(String message, Throwable exception) {
+			}
+			
+			@Override
+			public void handleErrorCondition(String message) {
+			}
+		});
 	}
 	
 	@Test
