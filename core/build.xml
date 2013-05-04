@@ -176,7 +176,7 @@
 			<fileset dir="${basedir}" includes="*" excludes="*.log">
 				<type type="file"/>
 			</fileset>
-			<fileset dir="${basedir}" includes="${resources.dir}/ ${lib.dir}/ ${lib-test.dir}/ ${src.dir}/ ${test.dir}/ ${resources-src.dir}/datafiles/"/>
+			<fileset dir="${basedir}" includes="resources/ lib/ lib-test/ src/ test/ resources-src/datafiles/"/>
 		</copy>
 		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
 		<delete dir="${build.dir}/${pkgname}"/>
