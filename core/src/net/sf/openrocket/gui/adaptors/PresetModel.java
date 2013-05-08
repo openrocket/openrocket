@@ -7,12 +7,15 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.preset.ComponentPresetChooserDialog;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -22,7 +25,7 @@ import net.sf.openrocket.util.BugException;
 
 public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset> {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(PresetModel.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final String NONE_SELECTED = trans.get("lbl.select");
@@ -62,7 +65,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	
 	@Override
 	public void setSelectedItem(Object item) {
-		log.user("User selected preset item '" + item + "' for component " + component);
+		log.info(Markers.USER_MARKER, "User selected preset item '" + item + "' for component " + component);
 		
 		if (item == null) {
 			throw new BugException("item is null");

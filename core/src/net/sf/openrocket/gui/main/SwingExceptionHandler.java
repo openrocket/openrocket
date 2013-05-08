@@ -3,8 +3,11 @@ package net.sf.openrocket.gui.main;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.ExceptionHandler;
@@ -12,7 +15,7 @@ import net.sf.openrocket.startup.ExceptionHandler;
 
 public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, ExceptionHandler {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SwingExceptionHandler.class);
 	
 	private static final int MEMORY_RESERVE = 512 * 1024;
 	
@@ -97,7 +100,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	 */
 	@Override
 	public void handleErrorCondition(String message) {
-		log.error(1, message, new TraceException());
+		log.error(message, new TraceException());
 		handleErrorCondition(new InternalException(message));
 	}
 	
@@ -114,7 +117,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	 */
 	@Override
 	public void handleErrorCondition(String message, Throwable exception) {
-		log.error(1, message, exception);
+		log.error(message, exception);
 		handleErrorCondition(new InternalException(message, exception));
 	}
 	
@@ -132,7 +135,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	public void handleErrorCondition(final Throwable exception) {
 		try {
 			if (!(exception instanceof InternalException)) {
-				log.error(1, "Error occurred", exception);
+				log.error("Error occurred", exception);
 			}
 			final Thread thread = Thread.currentThread();
 			
@@ -210,12 +213,12 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 		
 		if (selection != 0) {
 			// User cancelled
-			log.user("User chose not to fill bug report");
+			log.info(Markers.USER_MARKER, "User chose not to fill bug report");
 			return;
 		}
 		
 		// Show bug report dialog
-		log.user("User requested sending bug report");
+		log.info(Markers.USER_MARKER, "User requested sending bug report");
 		BugReportDialog.showExceptionDialog(null, t, e);
 	}
 	

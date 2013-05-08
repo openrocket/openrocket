@@ -10,8 +10,10 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sf.openrocket.logging.Markers;
 
 /**
  * A color chooser button.  The currently selected color can be queried or set using the
@@ -21,7 +23,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class ColorChooserButton extends JButton {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ColorChooserButton.class);
 	
 	public static final String COLOR_KEY = "selectedColor";
 	
@@ -34,7 +36,7 @@ public class ColorChooserButton extends JButton {
 		this.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Activating color chooser");
+				log.info(Markers.USER_MARKER, "Activating color chooser");
 				final JColorChooser chooser = new JColorChooser(getSelectedColor());
 				chooser.setPreviewPanel(new JPanel());
 				final JDialog dialog = JColorChooser.createDialog(ColorChooserButton.this, "Select color", true,
@@ -42,7 +44,7 @@ public class ColorChooserButton extends JButton {
 							@Override
 							public void actionPerformed(ActionEvent e2) {
 								Color c = chooser.getColor();
-								log.user("User selected color " + c);
+								log.info(Markers.USER_MARKER, "User selected color " + c);
 								setSelectedColor(chooser.getColor());
 							}
 						}, null);

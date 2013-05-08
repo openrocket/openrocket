@@ -51,6 +51,9 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -70,7 +73,7 @@ import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
@@ -103,7 +106,7 @@ import com.itextpdf.text.Font;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class GeneralOptimizationDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(GeneralOptimizationDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final Collator collator = Collator.getInstance();
@@ -310,7 +313,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		removeAllButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Removing all selected modifiers");
+				log.info(Markers.USER_MARKER, "Removing all selected modifiers");
 				selectedModifiers.clear();
 				selectedModifierTableModel.fireTableDataChanged();
 				availableModifierTree.repaint();
@@ -341,7 +344,7 @@ public class GeneralOptimizationDialog extends JDialog {
 						addModifier(mod);
 						clearHistory();
 					} else {
-						log.user("Double-clicked non-available option");
+						log.info(Markers.USER_MARKER, "Double-clicked non-available option");
 					}
 				}
 			}
@@ -552,10 +555,10 @@ public class GeneralOptimizationDialog extends JDialog {
 					return;
 				}
 				if (running) {
-					log.user("Stopping optimization");
+					log.info(Markers.USER_MARKER, "Stopping optimization");
 					stopOptimization();
 				} else {
-					log.user("Starting optimization");
+					log.info(Markers.USER_MARKER, "Starting optimization");
 					startOptimization();
 				}
 			}
@@ -567,7 +570,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		plotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Plotting optimization path, dimensionality=" + selectedModifiers.size());
+				log.info(Markers.USER_MARKER, "Plotting optimization path, dimensionality=" + selectedModifiers.size());
 				OptimizationPlotDialog dialog = new OptimizationPlotDialog(
 						Collections.unmodifiableList(optimizationPath),
 						Collections.unmodifiableMap(evaluationHistory),
@@ -586,7 +589,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("User selected save path");
+				log.info(Markers.USER_MARKER, "User selected save path");
 				savePath();
 			}
 		});
@@ -602,7 +605,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		applyButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Applying optimization changes");
+				log.info(Markers.USER_MARKER, "Applying optimization changes");
 				applyDesign();
 			}
 		});
@@ -614,7 +617,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		resetButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Resetting optimization design");
+				log.info(Markers.USER_MARKER, "Resetting optimization design");
 				resetDesign();
 			}
 		});
@@ -626,7 +629,7 @@ public class GeneralOptimizationDialog extends JDialog {
 		closeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Closing optimization dialog");
+				log.info(Markers.USER_MARKER, "Closing optimization dialog");
 				stopOptimization();
 				GeneralOptimizationDialog.this.dispose();
 			}
@@ -1056,17 +1059,17 @@ public class GeneralOptimizationDialog extends JDialog {
 	
 	private void addModifier(SimulationModifier mod) {
 		if (!selectedModifiers.contains(mod)) {
-			log.user(1, "Adding simulation modifier " + mod);
+			log.info(Markers.USER_MARKER, "Adding simulation modifier " + mod);
 			selectedModifiers.add(mod);
 			selectedModifierTableModel.fireTableDataChanged();
 			availableModifierTree.repaint();
 		} else {
-			log.user(1, "Attempting to add an already existing simulation modifier " + mod);
+			log.info(Markers.USER_MARKER, "Attempting to add an already existing simulation modifier " + mod);
 		}
 	}
 	
 	private void removeModifier(SimulationModifier mod) {
-		log.user(1, "Removing simulation modifier " + mod);
+		log.info(Markers.USER_MARKER, "Removing simulation modifier " + mod);
 		selectedModifiers.remove(mod);
 		selectedModifierTableModel.fireTableDataChanged();
 		availableModifierTree.repaint();

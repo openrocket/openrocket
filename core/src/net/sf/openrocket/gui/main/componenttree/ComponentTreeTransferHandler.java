@@ -13,8 +13,11 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -28,7 +31,7 @@ import net.sf.openrocket.util.BugException;
  */
 public class ComponentTreeTransferHandler extends TransferHandler {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ComponentTreeTransferHandler.class);
 	
 	private final OpenRocketDocument document;
 	
@@ -88,13 +91,13 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		}
 		
 		boolean allowed = data.destParent.isCompatible(data.child);
-		log.verbose("Checking validity of drag-drop " + data.toString() + " allowed:" + allowed);
+		log.trace("Checking validity of drag-drop " + data.toString() + " allowed:" + allowed);
 		
 		// Ensure we're not dropping a component onto a child component
 		RocketComponent path = data.destParent;
 		while (path != null) {
 			if (path.equals(data.child)) {
-				log.verbose("Drop would cause cycle in tree, disallowing.");
+				log.trace("Drop would cause cycle in tree, disallowing.");
 				allowed = false;
 				break;
 			}
@@ -136,14 +139,14 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 			// Check whether move action would be a no-op
 			if ((action == MOVE) && (data.srcParent == data.destParent) &&
 					(data.destIndex == data.srcIndex || data.destIndex == data.srcIndex + 1)) {
-				log.user("Dropped component at the same place as previously: " + data);
+				log.info(Markers.USER_MARKER, "Dropped component at the same place as previously: " + data);
 				return false;
 			}
 			
 			
 			switch (action) {
 			case MOVE:
-				log.user("Performing DnD move operation: " + data);
+				log.info(Markers.USER_MARKER, "Performing DnD move operation: " + data);
 				
 				// If parents are the same, check whether removing the child changes the insert position
 				int index = data.destIndex;
@@ -167,7 +170,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 				return true;
 				
 			case COPY:
-				log.user("Performing DnD copy operation: " + data);
+				log.info(Markers.USER_MARKER, "Performing DnD copy operation: " + data);
 				RocketComponent copy = data.child.copy();
 				try {
 					document.startUndo("Copy component");
@@ -348,7 +351,7 @@ public class ComponentTreeTransferHandler extends TransferHandler {
 		int correctInsertIndex = model.getIndexOfChild(correctInsertPath.getLastPathComponent(),
 				dropPath.getLastPathComponent()) + 1;
 		
-		log.verbose("Working around Sun JRE bug 6560955: " +
+		log.trace("Working around Sun JRE bug 6560955: " +
 				"converted path=" + ComponentTreeModel.pathToString(originalPath) + " index=" + originalIndex +
 				" into path=" + ComponentTreeModel.pathToString(correctInsertPath) +
 				" index=" + correctInsertIndex);

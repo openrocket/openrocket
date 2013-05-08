@@ -6,7 +6,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.loader.MaterialHolder;
@@ -33,6 +33,10 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,7 +57,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(ComponentPresetEditor.class);
 
     /**
      * The I18N translator.
@@ -343,14 +347,14 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
         int option = chooser.showOpenDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
             editContext.setOpenedFile(null);
-            log.user("User decided not to open, option=" + option);
+            log.info(Markers.USER_MARKER, "User decided not to open, option=" + option);
             return false;
         }
 
         File file = chooser.getSelectedFile();
         try {
             if (file == null) {
-                log.user("User did not select a file");
+                log.info(Markers.USER_MARKER, "User did not select a file");
                 return false;
             }
 
@@ -424,13 +428,13 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 
         int option = chooser.showSaveDialog(ComponentPresetEditor.this);
         if (option != JFileChooser.APPROVE_OPTION) {
-            log.user("User decided not to save, option=" + option);
+            log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
             return false;
         }
 
         file = chooser.getSelectedFile();
         if (file == null) {
-            log.user("User did not select a file");
+            log.info(Markers.USER_MARKER, "User did not select a file");
             return false;
         }
 

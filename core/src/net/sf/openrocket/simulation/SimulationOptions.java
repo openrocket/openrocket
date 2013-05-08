@@ -24,6 +24,9 @@ import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.util.WorldCoordinate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A class holding simulation options in basic parameter form and which functions
  * as a ChangeSource.  A SimulationConditions instance is generated from this class
@@ -32,6 +35,8 @@ import net.sf.openrocket.util.WorldCoordinate;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SimulationOptions implements ChangeSource, Cloneable {
+	
+	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
 	

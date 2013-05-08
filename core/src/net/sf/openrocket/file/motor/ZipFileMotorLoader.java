@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.file.UnknownFileTypeException;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.UncloseableInputStream;
 
 /**
@@ -19,7 +20,7 @@ import net.sf.openrocket.util.UncloseableInputStream;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class ZipFileMotorLoader implements MotorLoader {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ZipFileMotorLoader.class);
 	
 	private final MotorLoader loader;
 	

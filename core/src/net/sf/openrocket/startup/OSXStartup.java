@@ -3,13 +3,14 @@ package net.sf.openrocket.startup;
 import java.awt.Image;
 import java.awt.Toolkit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.gui.dialogs.AboutDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
-import net.sf.openrocket.logging.LogHelper;
-
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.PreferencesHandler;
 import com.apple.eawt.QuitHandler;
@@ -26,7 +27,7 @@ import com.apple.eawt.AppEvent.QuitEvent;
  * 
  */
 final class OSXStartup {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OSXStartup.class);
 
 	// The name in the app menu
 	private static final String APP_NAME = "OpenRocket";

@@ -38,6 +38,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
@@ -49,13 +52,14 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.logging.StackTraceWriter;
 import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.NumericComparator;
 
 public class DebugLogDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(DebugLogDialog.class);
 	
 	private static final int POLL_TIME = 250;
 	private static final String STACK_TRACE_MARK = "\uFF01";
@@ -167,7 +171,7 @@ public class DebugLogDialog extends JDialog {
 		clear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Clearing log buffer");
+				log.info(Markers.USER_MARKER, "Clearing log buffer");
 				buffer.clear();
 				queue.clear();
 				model.fireTableDataChanged();
@@ -358,7 +362,7 @@ public class DebugLogDialog extends JDialog {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				log.user("Closing debug log dialog");
+				log.info(Markers.USER_MARKER, "Closing debug log dialog");
 				timer.stop();
 				if (delegator != null) {
 					log.info("Removing log listener");

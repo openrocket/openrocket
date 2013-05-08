@@ -4,8 +4,8 @@ import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract implementation of a ChangeSource.  Can either be extended
@@ -14,7 +14,7 @@ import net.sf.openrocket.startup.Application;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class AbstractChangeSource implements ChangeSource {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(AbstractChangeSource.class);
 	
 	private final List<EventListener> listeners = new ArrayList<EventListener>();
 	
@@ -22,15 +22,14 @@ public class AbstractChangeSource implements ChangeSource {
 	@Override
 	public final void addChangeListener(StateChangeListener listener) {
 		listeners.add(listener);
-		log.verbose(1, "Adding change listeners, listener count is now " + listeners.size());
+		log.trace("Adding change listeners, listener count is now " + listeners.size());
 	}
 	
 	@Override
 	public final void removeChangeListener(StateChangeListener listener) {
 		listeners.remove(listener);
-		log.verbose(1, "Removing change listeners, listener count is now " + listeners.size());
+		log.trace("Removing change listeners, listener count is now " + listeners.size());
 	}
-	
 	
 	public void fireChangeEvent(Object source) {
 		EventObject event = new EventObject(source);
@@ -43,7 +42,6 @@ public class AbstractChangeSource implements ChangeSource {
 		}
 		
 	}
-	
 	
 	/**
 	 * Fire a change event to all listeners.

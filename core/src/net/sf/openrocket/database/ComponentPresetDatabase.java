@@ -5,14 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 
 public abstract class ComponentPresetDatabase extends Database<ComponentPreset> implements ComponentPresetDao {
 
-	private static final LogHelper logger = Application.getLogger();
-
+	private static final Logger logger = LoggerFactory.getLogger(ComponentPresetDatabase.class);
+	
 	private volatile boolean startedLoading = false;
 	private volatile boolean endedLoading = false;
 	private final boolean asynchronous;

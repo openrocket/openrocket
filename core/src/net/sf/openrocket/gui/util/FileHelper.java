@@ -2,12 +2,16 @@ package net.sf.openrocket.gui.util;
 
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +26,7 @@ import java.util.Locale;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class FileHelper {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(FileHelper.class);
 	private static final Translator trans = Application.getTranslator();
 
 
@@ -94,7 +98,7 @@ public final class FileHelper {
 	public static File ensureExtension(File original, String extension) {
 
 		if (original.getName().indexOf('.') < 0) {
-			log.debug(1, "File name does not contain extension, adding '" + extension + "'");
+			log.debug("File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();
 			name = name + "." + extension;
 			return new File(name);
@@ -115,7 +119,7 @@ public final class FileHelper {
 	public static File forceExtension(File original, String extension) {
 
 		if (!original.getName().toLowerCase(Locale.ENGLISH).endsWith(extension.toLowerCase(Locale.ENGLISH))) {
-			log.debug(1, "File name does not contain extension, adding '" + extension + "'");
+			log.debug("File name does not contain extension, adding '" + extension + "'");
 			String name = original.getAbsolutePath();
 			if (extension.startsWith(".")) {
 				name = name + extension;
@@ -140,15 +144,15 @@ public final class FileHelper {
 	 */
 	public static boolean confirmWrite(File file, Component parent) {
 		if (file.exists()) {
-			log.info(1, "File " + file + " exists, confirming overwrite from user");
+			log.info(Markers.USER_MARKER, "File " + file + " exists, confirming overwrite from user");
 			int result = JOptionPane.showConfirmDialog(parent,
 					L10N.replace(trans.get("error.fileExists.desc"), "{filename}", file.getName()),
 					trans.get("error.fileExists.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (result != JOptionPane.YES_OPTION) {
-				log.user(1, "User decided not to overwrite the file");
+				log.info(Markers.USER_MARKER, "User decided not to overwrite the file");
 				return false;
 			}
-			log.user(1, "User decided to overwrite the file");
+			log.info(Markers.USER_MARKER, "User decided to overwrite the file");
 		}
 		return true;
 	}
@@ -162,7 +166,7 @@ public final class FileHelper {
 	 */
 	public static void errorWriting(IOException e, Component parent) {
 
-		log.warn(1, "Error writing to file", e);
+		log.warn("Error writing to file", e);
 		JOptionPane.showMessageDialog(parent,
 				new Object[] {
 						trans.get("error.writing.desc"),

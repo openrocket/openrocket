@@ -5,8 +5,9 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.util.Pair;
 
 /**
@@ -20,7 +21,7 @@ import net.sf.openrocket.util.Pair;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public abstract class FileIterator implements Iterator<Pair<String, InputStream>> {
-	private static final LogHelper logger = Application.getLogger();
+	private static final Logger logger = LoggerFactory.getLogger(FileIterator.class);
 	
 	private Pair<String, InputStream> next = null;
 	private int fileCount = 0;

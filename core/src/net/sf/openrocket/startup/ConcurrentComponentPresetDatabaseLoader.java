@@ -11,12 +11,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.util.BugException;
@@ -24,7 +26,7 @@ import net.sf.openrocket.util.Pair;
 
 public class ConcurrentComponentPresetDatabaseLoader {
 
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ConcurrentComponentPresetDatabaseLoader.class);
 	private static final String SYSTEM_PRESET_DIR = "datafiles/presets";
 
 	private final CountDownLatch latch = new CountDownLatch(1);

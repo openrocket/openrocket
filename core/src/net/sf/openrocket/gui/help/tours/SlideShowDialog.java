@@ -14,17 +14,20 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Chars;
 
 public class SlideShowDialog extends JDialog {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SlideShowDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private SlideShowComponent slideShowComponent;
@@ -52,7 +55,7 @@ public class SlideShowDialog extends JDialog {
 		prevButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Clicked previous button");
+				log.info(Markers.USER_MARKER, "Clicked previous button");
 				setPosition(position - 1);
 			}
 		});
@@ -64,7 +67,7 @@ public class SlideShowDialog extends JDialog {
 		nextButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Clicked next button");
+				log.info(Markers.USER_MARKER, "Clicked next button");
 				setPosition(position + 1);
 			}
 		});
@@ -138,7 +141,7 @@ public class SlideShowDialog extends JDialog {
 		Action next = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				log.user("Key action for next slide");
+				log.info(Markers.USER_MARKER, "Key action for next slide");
 				if (position < slideSet.getSlideCount() - 1) {
 					setPosition(position + 1);
 				}
@@ -148,7 +151,7 @@ public class SlideShowDialog extends JDialog {
 		Action previous = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				log.user("Key action for previous slide");
+				log.info(Markers.USER_MARKER, "Key action for previous slide");
 				if (position > 0) {
 					setPosition(position - 1);
 				}
