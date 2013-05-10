@@ -1,7 +1,5 @@
 package net.sf.openrocket.startup;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Locale;
 import java.util.prefs.Preferences;
@@ -11,12 +9,12 @@ import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.DelegatorLogger;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
-import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.PrintStreamLogger;
 import net.sf.openrocket.plugin.PluginModule;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -40,12 +38,7 @@ import com.google.inject.Module;
  */
 public class GuiceStartup {
 	
-	static LogHelper log;
-	
-	private static final String LOG_STDERR_PROPERTY = "openrocket.log.stderr";
-	private static final String LOG_STDOUT_PROPERTY = "openrocket.log.stdout";
-	
-	private static final int LOG_BUFFER_LENGTH = 50;
+	private final static Logger log = LoggerFactory.getLogger(GuiceStartup.class);
 	
 	/**
 	 * OpenRocket startup main method.
@@ -76,8 +69,6 @@ public class GuiceStartup {
 	 */
 	private static void checkDebugStatus() {
 		if (System.getProperty("openrocket.debug") != null) {
-			setPropertyIfNotSet("openrocket.log.stdout", "VBOSE");
-			setPropertyIfNotSet("openrocket.log.tracelevel", "VBOSE");
 			setPropertyIfNotSet("openrocket.debug.menu", "true");
 			setPropertyIfNotSet("openrocket.debug.mutexlocation", "true");
 			setPropertyIfNotSet("openrocket.debug.motordigest", "true");
@@ -97,7 +88,7 @@ public class GuiceStartup {
 	 * Initializes the loggins system.
 	 */
 	public static void initializeLogging() {
-		DelegatorLogger delegator = new DelegatorLogger();
+		/*DelegatorLogger delegator = new DelegatorLogger();
 		
 		// Log buffer
 		LogLevelBufferLogger buffer = new LogLevelBufferLogger(LOG_BUFFER_LENGTH);
@@ -135,7 +126,6 @@ public class GuiceStartup {
 		log.info(str);
 		
 		
-		
 		//Replace System.err with a PrintStream that logs lines to DEBUG, or VBOSE if they are indented.
 		//If debug info is not being output to the console then the data is both logged and written to
 		//stderr.
@@ -167,6 +157,7 @@ public class GuiceStartup {
 				}
 			}
 		}));
+		*/
 	}
 	
 	private static boolean setLogOutput(PrintStreamLogger logger, PrintStream stream, String level, LogLevel defaultLevel) {

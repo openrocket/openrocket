@@ -16,7 +16,6 @@ import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -557,7 +556,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		log.error(error + ": this=" + this + " undoPosition=" + undoPosition +
 				" undoHistory.size=" + undoHistory.size() + " isClean=" + isCleanState() +
 				" nextDescription=" + nextDescription + " storedDescription=" + storedDescription,
-				new TraceException());
+				new Throwable());
 		
 		if (!undoErrorReported) {
 			undoErrorReported = true;

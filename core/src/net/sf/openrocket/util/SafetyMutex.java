@@ -2,11 +2,10 @@ package net.sf.openrocket.util;
 
 import java.util.LinkedList;
 
+import net.sf.openrocket.startup.Application;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.sf.openrocket.logging.TraceException;
-import net.sf.openrocket.startup.Application;
 
 /**
  * A mutex that can be used for verifying thread safety.  This class cannot be
@@ -37,7 +36,7 @@ public abstract class SafetyMutex {
 		}
 	}
 	
-
+	
 	/**
 	 * Verify that this mutex is unlocked, but don't lock it.  This has the same effect
 	 * as <code>mutex.lock(); mutex.unlock();</code> and is useful for methods that return
@@ -73,7 +72,7 @@ public abstract class SafetyMutex {
 	public abstract boolean unlock(String location);
 	
 	
-
+	
 	/**
 	 * Bogus implementation of a safety mutex (used when safety checking is not performed).
 	 */
@@ -106,12 +105,12 @@ public abstract class SafetyMutex {
 		// lockingThread is set when this mutex is locked.
 		Thread lockingThread = null;
 		// longingLocation is set when lockingThread is, if STORE_LOCKING_LOCATION is true
-		TraceException lockingLocation = null;
+		Throwable lockingLocation = null;
 		// Stack of places that have locked this mutex
 		final LinkedList<String> locations = new LinkedList<String>();
 		
 		
-
+		
 		@Override
 		public synchronized void verify() {
 			checkState(true);
@@ -121,7 +120,7 @@ public abstract class SafetyMutex {
 		}
 		
 		
-
+		
 		@Override
 		public synchronized void lock(String location) {
 			if (location == null) {
@@ -136,14 +135,14 @@ public abstract class SafetyMutex {
 			
 			lockingThread = currentThread;
 			if (STORE_LOCKING_LOCATION) {
-				lockingLocation = new TraceException("Location where mutex was locked '" + location + "'");
+				lockingLocation = new Throwable("Location where mutex was locked '" + location + "'");
 			}
 			locations.push(location);
 		}
 		
 		
-
-
+		
+		
 		@Override
 		public synchronized boolean unlock(String location) {
 			try {
@@ -154,7 +153,7 @@ public abstract class SafetyMutex {
 				}
 				checkState(false);
 				
-
+				
 				// Check that the mutex is locked
 				if (lockingThread == null) {
 					error("Mutex was not locked", false);
@@ -189,7 +188,7 @@ public abstract class SafetyMutex {
 		}
 		
 		
-
+		
 		/**
 		 * Check that the internal state of the mutex (lockingThread vs. locations) is correct.
 		 */

@@ -7,14 +7,15 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.FlightEvent.Type;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class FlightDataBranchHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
@@ -22,7 +23,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	private final FlightDataType[] types;
 	private final FlightDataBranch branch;
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(FlightDataBranchHandler.class);
 	private final SingleSimulationHandler simHandler;
 	
 	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler, DocumentLoadingContext context) {

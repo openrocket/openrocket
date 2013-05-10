@@ -8,10 +8,7 @@ import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
-import net.sf.openrocket.logging.LogLevelBufferLogger;
-import net.sf.openrocket.logging.PrintStreamLogger;
 
 import com.google.inject.Injector;
 
@@ -21,9 +18,6 @@ import com.google.inject.Injector;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class Application {
-	
-	private static LogHelper logger;
-	private static LogLevelBufferLogger logBuffer;
 	
 	private static Translator baseTranslator = new DebugTranslator(null);
 	
@@ -52,42 +46,8 @@ public final class Application {
 		return false;
 	}
 	
-	/**
-	 * Retrieve the logger to be used in logging.  By default this returns
-	 * a logger that outputs to stdout/stderr even if not separately initialized,
-	 * useful for development and debugging.
-	 */
-	public static LogHelper getLogger() {
-		return logger;
-	}
-	
-	/**
-	 * Set the logger to be used in logging.  Note that calling this will only have effect
-	 * on not-yet loaded classes, as the instance is stored in a static variable.
-	 */
-	public static void setLogger(LogHelper logger) {
-		Application.logger = logger;
-	}
-	
 	public static WatchService getWatchService() {
 		return Application.injector.getInstance(WatchService.class);
-	}
-	
-	/**
-	 * Return the log buffer.
-	 * 
-	 * @return the logBuffer or null if not initialized
-	 */
-	public static LogLevelBufferLogger getLogBuffer() {
-		return logBuffer;
-	}
-	
-	/**
-	 * Set the log buffer logger.  The logger must be separately configured
-	 * to receive the logging.
-	 */
-	public static void setLogBuffer(LogLevelBufferLogger logBuffer) {
-		Application.logBuffer = logBuffer;
 	}
 	
 	
@@ -97,13 +57,15 @@ public final class Application {
 	 * @param level		the minimum logging level to output.
 	 */
 	public static void setLogOutputLevel(LogLevel level) {
+		// FIXME
+		/*
 		logger = new PrintStreamLogger();
 		for (LogLevel l : LogLevel.values()) {
 			if (l.atLeast(level)) {
 				((PrintStreamLogger) logger).setOutput(l, System.out);
 			}
 		}
-		
+		*/
 	}
 	
 	

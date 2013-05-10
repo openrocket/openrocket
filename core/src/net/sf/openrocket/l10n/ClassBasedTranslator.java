@@ -2,7 +2,6 @@ package net.sf.openrocket.l10n;
 
 import java.util.MissingResourceException;
 
-import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.util.BugException;
 
 /**
@@ -83,7 +82,7 @@ public class ClassBasedTranslator implements Translator {
 	
 	
 	private String findClassName() {
-		TraceException trace = new TraceException();
+		Throwable trace = new Throwable();
 		StackTraceElement stack[] = trace.getStackTrace();
 		final int index = 2 + levels;
 		if (stack.length <= index) {

@@ -67,7 +67,7 @@ public class LogLine implements Comparable<LogLine> {
 	}
 	
 	
-
+	
 	/**
 	 * @return the level
 	 */
@@ -92,13 +92,13 @@ public class LogLine implements Comparable<LogLine> {
 	}
 	
 	
-	/**
-	 * @return the trace
-	 */
-	public TraceException getTrace() {
-		return trace;
+	public String getLocation() {
+		if (trace != null) {
+			return trace.getLocation();
+		} else {
+			return "(-)";
+		}
 	}
-	
 	
 	/**
 	 * @return the message
@@ -116,8 +116,8 @@ public class LogLine implements Comparable<LogLine> {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return a formatted string of the log line.  The line contains the log
 	 * line count, the time stamp, the log level, the trace position, the log
@@ -129,7 +129,7 @@ public class LogLine implements Comparable<LogLine> {
 			String str;
 			str = String.format("%4d %10.3f %-" + LogLevel.LENGTH + "s %s %s",
 					count, timestamp / 1000.0, (level != null) ? level.toString() : "NULL",
-					(trace != null) ? trace.getMessage() : "(-)",
+					getLocation(),
 					message);
 			if (cause != null) {
 				StackTraceWriter stw = new StackTraceWriter();

@@ -15,19 +15,20 @@ import javax.media.opengl.fixedfunc.GLLightingFunc;
 import net.sf.openrocket.gui.figure3d.geometry.ComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.DisplayListComponentRenderer;
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public abstract class RocketRenderer {
-	protected static final LogHelper log = Application.getLogger();
+	protected static final Logger log = LoggerFactory.getLogger(RocketRenderer.class);
 	
 	final ComponentRenderer cr = new DisplayListComponentRenderer();
 	

@@ -1,6 +1,5 @@
 package net.sf.openrocket.util;
 
-import net.sf.openrocket.logging.TraceException;
 
 /**
  * A utility class helping an object to be made immutable after a certain point of time.
@@ -15,7 +14,7 @@ import net.sf.openrocket.logging.TraceException;
  */
 public class Mutable implements Cloneable {
 	
-	private TraceException immuteTrace = null;
+	private Throwable immuteTrace = null;
 	
 	/**
 	 * Mark the object immutable.  Once the object has been called the object
@@ -23,7 +22,7 @@ public class Mutable implements Cloneable {
 	 */
 	public void immute() {
 		if (immuteTrace == null) {
-			immuteTrace = new TraceException(1, 2);
+			immuteTrace = new Throwable();
 		}
 	}
 	

@@ -23,8 +23,10 @@ import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.BlockingMotorDatabaseProvider;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.util.BuildProperties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -41,8 +43,8 @@ import com.google.inject.Injector;
  */
 public class ApplicationStartup {
 	
-	@Inject
-	private LogHelper log;
+	private final static Logger log = LoggerFactory.getLogger(ApplicationStartup.class);
+	
 	@Inject
 	private Injector injector;
 	

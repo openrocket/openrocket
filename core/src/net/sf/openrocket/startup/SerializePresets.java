@@ -59,7 +59,7 @@ public class SerializePresets {
 		
 		List<ComponentPreset> list = componentPresetDao.listAll();
 		
-		Application.getLogger().info("Total number of presets = " + list.size());
+		System.out.println("Total number of presets = " + list.size());
 		
 		File outFile = new File("resources/datafiles/presets", "system.ser");
 		

@@ -23,15 +23,17 @@ import net.sf.openrocket.document.attachments.FileSystemAttachment;
 import net.sf.openrocket.gui.watcher.FileWatcher;
 import net.sf.openrocket.gui.watcher.WatchEvent;
 import net.sf.openrocket.gui.watcher.WatchService;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
 import net.sf.openrocket.util.StateChangeListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DecalRegistry {
-	private static LogHelper log = Application.getLogger();
+	private static Logger log = LoggerFactory.getLogger(DecalRegistry.class);
 	
 	private WatchService watchService = Application.getWatchService();
 	

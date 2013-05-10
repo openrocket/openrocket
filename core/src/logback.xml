@@ -6,7 +6,13 @@
 			<pattern><![CDATA[%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n%caller{2, BAD}]]></pattern>
 		</encoder>
 	</appender>
+	<appender name="buffer" class="net.sf.openrocket.logging.LogbackBufferLoggerAdaptor">
+		<encoder>
+			<pattern><![CDATA[%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n%caller{2, BAD}]]></pattern>
+		</encoder>
+	</appender>
 	<root level="TRACE">
 		<appender-ref ref="stdout" />
+		<appender-ref ref="buffer" />
 	</root>
 </configuration>
