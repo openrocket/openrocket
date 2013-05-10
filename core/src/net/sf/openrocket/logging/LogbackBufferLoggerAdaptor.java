@@ -56,13 +56,14 @@ public class LogbackBufferLoggerAdaptor extends AppenderBase<ILoggingEvent> {
 	
 	private LogLine toLogLine(ILoggingEvent e) {
 		LogLevel l = toORLevel(e.getLevel());
-		if (SLF4JLogHelper.USER_MARKER.equals(e.getMarker()))
+		if (Markers.USER_MARKER.equals(e.getMarker()))
 			l = LogLevel.USER;
+		if (Markers.STDERR_MARKER.equals(e.getMarker()))
+			l = LogLevel.STDERR;
 		Throwable t = null;
 		if (e.getThrowableProxy() != null) {
 			t = ((ThrowableProxy) e.getThrowableProxy()).getThrowable();
 		}
 		return new LogLine(l, new TraceException(), e.getMessage(), t);
 	}
-	
 }
