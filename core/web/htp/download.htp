@@ -79,9 +79,9 @@
     
     <p>Alternatively, the most recent development version can be 
       obtained from 
-      <a href="https://github.com/plaa/openrocket/">GitHub</a>.
+      <a href="https://github.com/openrocket/openrocket/">GitHub</a>.
       The code can be retrieved using the command</p>
-    <pre class="quote">$ git clone git://github.com/plaa/openrocket.git</pre>
+    <pre class="quote">$ git clone git://github.com/openrocket/openrocket.git</pre>
     <p>The above URL may be used to connect to the repository with
       other Git clients as well.</p>
 
