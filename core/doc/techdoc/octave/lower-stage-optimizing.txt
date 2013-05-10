@@ -1,0 +1,156 @@
+data = load('testi1.txt')
+x = data(:,2)
+v1 = (x(1:length(x)-1) - x(2:length(x))) / 0.25 / 100
+
+
+Optimization:
+
+
+Cr = [50 70 70 0 200 85]
+Ct = [25 40 40 0 140 85]
+s = [50 60 60 0 130 50]
+d = [18 44 44 44 103 0]
+l = [74 108 108 100 290 0]
+m = [8.1 18 22 6.8 160 11.5]
+Afin = (Cr + Ct)/2 .* s        % one fin area
+Abt = d .* l
+fin3 = 1 + sin(30/180*pi)      % fin efficiencies
+fin4 = 2/sqrt(2)
+Afinbt = Abt + Afin .* [fin3 fin3 fin4 0 fin3 fin4]
+v0 = [4.3 5.6 6.3 6.6 5.4 5.0]
+dv0 = [0.5 0.2 0.3 0.3 0.3 0.5]
+g = 9.81
+rho = 1.2
+Afins = Afin .* [fin3 fin3 fin4 0 fin3 fin4]
+
+dv0(1)=Inf
+dv0(6) = 0.3
+
+
+
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g/(rho * (CDfin*Afins + CDbt*Abt)/1000000 ))
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 ))
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = est-v0
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = ((est-v0)/dv0)
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = ((est-v0)./dv0)
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = ((est-v0)./dv0).^2
+CDfin=1.3; CDbt=0.55; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0)./dv0).^2)
+foo(3,5)=4
+clear foo
+CDrange = 0.3:0.01:1.5;
+size(CDrange )
+for index_f = 30:150; for index_bt = 30:150; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0)./dv0).^2); errTable(index_f, index_tb) = err; endfor; endfor
+for index_f = 30:150; for index_bt = 30:150; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0)./dv0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+errTable 
+mesh(1:150, 1:150, errTable )
+min(errTable)
+min(errTable)
+errTable(find(errTable == 0)) = 1000
+mesh(1:150, 1:150, errTable )
+help min
+min(errTable)
+min(min(errTable))
+mesh(1:150, 1:150, min(errTable,30) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0)./dv0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+mesh(1:200, 1:200, min(errTable,30) )
+plot(1:200, 1:200, min(errTable,30) )
+contour(1:200, 1:200, min(errTable,30) )
+contour(1:200, 1:200, min(errTable,20) )
+contourf(1:200, 1:200, min(errTable,20) )
+contour(1:200, 1:200, min(errTable,20) , 0.01)
+contour(1:200, 1:200, min(errTable,20) , 1)
+contour(1:200, 1:200, min(errTable,20) , 1:20)
+contour(1:200, 1:200, min(errTable,20) , 1:30)
+contour(1:200, 1:200, min(errTable,20) , 1:0.5:30)
+imagesc(1:200, 1:200, min(errTable,20) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1]).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,20) )
+clear errTable 
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1]).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,20) )
+imagesc(1:200, 1:200, min(errTable,10) )
+imagesc(1:200, 1:200, min(errTable,5) )
+imagesc(1:200, 1:200, min(errTable,2) )
+imagesc(1:200, 1:200, min(errTable,3) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abt)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1] ./ v0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,3) )
+imagesc(1:200, 1:200, min(errTable,1) )
+imagesc(1:200, 1:200, min(errTable, 0.1) )
+sqrt(3)/2
+f3=sqrt(3)/2
+f4=1/sqrt(2)
+Abtef=Abt .* [f3 f3 f4 0 f3 f4]
+Abt
+Abtef=Abt .* [f3 f3 f4 1 f3 f4]
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1] ./ v0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,1) )
+imagesc(1:200, 1:200, min(errTable,0.1) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1]).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,0.1) )
+imagesc(1:200, 1:200, min(errTable) )
+imagesc(1:200, 1:200, min(errTable,20) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 4 1]).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,20) )
+imagesc(1:200, 1:200, min(errTable,10) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 2 1]).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,10) )
+imagesc(1:200, 1:200, min(errTable,5) )
+imagesc(1:200, 1:200, min(errTable,7) )
+imagesc(1:200, 1:200, min(errTable,6) )
+imagesc(1:200, 1:200, min(errTable,10) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 2 1] ./ v0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,10) )
+imagesc(1:200, 1:200, min(errTable,1) )
+imagesc(1:200, 1:200, min(errTable,0.1) )
+imagesc(1:200, 1:200, min(errTable,0.2) )
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1] ./ v0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,0.2) )
+imagesc(1:200, 1:200, min(errTable,0.1) )
+imagesc(1:200, 1:200, min(errTable,0.01) )
+imagesc(1:200, 1:200, min(errTable,0.05) )
+imagesc(1:200, 1:200, min(errTable,0.08) )
+imagesc(1:200, 1:200, min(errTable,0.07) )
+imagesc(1:200, 1:200, min(errTable,0.06) )
+contour(1:200, 1:200, min(errTable,0.06) )
+contour(1:200, 1:200, min(errTable,0.03) )
+contour(1:200, 1:200, min(errTable,0.05) )
+contour(1:200, 1:200, min(errTable,0.04) )
+contour(1:200, 1:200, min(errTable,0.1) )
+contour(1:200, 1:200, min(errTable,0.1), 0:0.01:1 )
+contour(1:200, 1:200, min(errTable,0.1), 0:0.001:1 )
+contour(1:200, 1:200, min(errTable,0.1), 0:0.01:1 )
+imagesc(1:200, 1:200, min(errTable,0.06) )
+imagesc(1:200, 1:200, min(errTable,0.1) )
+imagesc(1:200, 1:200, min(errTable,1) )
+legend
+colorbar 
+imagesc(1:200, 1:200, min(errTable,0.5) )
+colorbar 
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1] ./ v0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+
+f3=1.654
+f4=1.799
+Afins = Afin .* [f3 f3 f4 0 f3 f4]
+for index_f = 30:200; for index_bt = 30:200; CDfin=index_f/100; CDbt=index_bt/100; est = sqrt(2*(m/1000)*g ./ (rho * (CDfin.*Afins + CDbt.*Abtef)/1000000 )); err = sum(((est-v0) .* [0 1 1 1 1 1] ./ v0).^2); errTable(index_f, index_bt) = err; endfor; endfor
+imagesc(1:200, 1:200, min(errTable,0.5) )
+imagesc(1:200, 1:200, min(errTable,0.2) )
+.56*2
+Afin
+Afins
+m/1000 * g / (0.5*rho*v0.^2 * (Afins+Abt))
+m/1000 * g ./ (0.5*rho*v0.^2 * (Afins+Abt))
+m/1000 * g ./ (0.5*rho*v0.^2 .* (Afins+Abt))
+m/1000 * g ./ (0.5*rho*v0.^2 .* (Afins+Abt)/1000000)
+Afin
+Afins
+Afins./Afin
+Afins = Afin .* [f3 f3 f4 0 f3 f4]
+f3
+f4
+f3=1.5
+f4=1.414
+Afins = Afin .* [f3 f3 f4 0 f3 f4]
+m/1000 * g ./ (0.5*rho*v0.^2 .* (Afins+Abt)/1000000)
+history
+help history
+history -w 'ohist'
