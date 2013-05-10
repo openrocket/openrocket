@@ -7,19 +7,31 @@ import ch.qos.logback.core.AppenderBase;
 
 public class LogbackBufferLoggerAdaptor extends AppenderBase<ILoggingEvent> {
 	
-	private final LogHelper logHelper;
+	private final DelegatorLogger logHelper;
+	private final LogLevelBufferLogger logBuffer;
 	
-	public LogbackBufferLoggerAdaptor() {
-		logHelper = LoggingSystemSetup.getInstance();
+	private static final int LOG_BUFFER_LENGTH = 50;
+	
+	public LogbackBufferLoggerAdaptor(int bufferLength) {
+		logHelper = new DelegatorLogger();
+		logBuffer = new LogLevelBufferLogger(bufferLength);
+		logHelper.addLogger(logBuffer);
 	}
 	
-	public LogbackBufferLoggerAdaptor(LogHelper logHelper) {
-		this.logHelper = logHelper;
+	public LogbackBufferLoggerAdaptor() {
+		this(LOG_BUFFER_LENGTH);
+	}
+	
+	DelegatorLogger getLogHelper() {
+		return logHelper;
+	}
+	
+	LogLevelBufferLogger getLogBuffer() {
+		return logBuffer;
 	}
 	
 	@Override
 	protected void append(ILoggingEvent e) {
-		e.getCallerData();
 		LogLine ll = toLogLine(e);
 		
 		logHelper.log(ll);

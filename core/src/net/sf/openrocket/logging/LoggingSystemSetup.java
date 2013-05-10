@@ -1,18 +1,16 @@
 package net.sf.openrocket.logging;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 
 public class LoggingSystemSetup {
 	
-	private static final DelegatorLogger delegator = new DelegatorLogger();
-	
-	private static final int LOG_BUFFER_LENGTH = 50;
-	
-	private static final LogLevelBufferLogger llbl = new LogLevelBufferLogger(LOG_BUFFER_LENGTH);
-	
-	static {
-		delegator.addLogger(llbl);
-		
-	}
+	// This class is highly dependent on the logback.xml file.
+	// It assumes logback is the logging backend and that
+	// there is an appender named "buffer" and that appender
+	// is the LogbackBufferLoggerAdapter.
 	
 	/**
 	 * Get the logger to be used in logging.
@@ -20,11 +18,15 @@ public class LoggingSystemSetup {
 	 * @return	the logger to be used in all logging.
 	 */
 	public static DelegatorLogger getInstance() {
-		return delegator;
+		Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		LogbackBufferLoggerAdaptor adapater = (LogbackBufferLoggerAdaptor) logger.getAppender("buffer");
+		return adapater.getLogHelper();
 	}
 	
 	public static LogLevelBufferLogger getBufferLogger() {
-		return llbl;
+		Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		LogbackBufferLoggerAdaptor adapater = (LogbackBufferLoggerAdaptor) logger.getAppender("buffer");
+		return adapater.getLogBuffer();
 	}
 	
 }

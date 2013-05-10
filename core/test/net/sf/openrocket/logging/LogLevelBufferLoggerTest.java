@@ -18,16 +18,13 @@ public class LogLevelBufferLoggerTest {
 	@Test
 	public void testLogger() {
 		
-		DelegatorLogger l = new DelegatorLogger();
-		LogLevelBufferLogger llbl = new LogLevelBufferLogger(4);
-		
 		// assume SLF4J is bound to logback in the current environment
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		
 		// Call context.reset() to clear any previous configuration, e.g. default 
 		// configuration. For multi-step configuration, omit calling context.reset().
 		context.reset();
-		LogbackBufferLoggerAdaptor a = new LogbackBufferLoggerAdaptor(llbl);
+		LogbackBufferLoggerAdaptor a = new LogbackBufferLoggerAdaptor(4);
 		a.start();
 		logger.addAppender(a);
 		
@@ -52,6 +49,7 @@ public class LogLevelBufferLoggerTest {
 		logger.debug("debug 8");
 		logger.info("info 6");
 		
+		LogLevelBufferLogger llbl = LoggingSystemSetup.getBufferLogger();
 		List<LogLine> list = llbl.getLogs();
 		assertEquals(16, list.size());
 		
