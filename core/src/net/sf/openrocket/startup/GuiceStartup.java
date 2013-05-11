@@ -9,9 +9,7 @@ import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LoggingSystemSetup;
-import net.sf.openrocket.logging.PrintStreamLogger;
 import net.sf.openrocket.logging.PrintStreamToSLF4J;
 import net.sf.openrocket.plugin.PluginModule;
 
@@ -90,6 +88,8 @@ public class GuiceStartup {
 	 * Initializes the logging system.
 	 */
 	public static void initializeLogging() {
+		LoggingSystemSetup.setupLoggingAppender();
+		
 		if (System.getProperty("openrocket.debug") != null) {
 			LoggingSystemSetup.addConsoleAppender();
 		}
@@ -99,23 +99,6 @@ public class GuiceStartup {
 		final PrintStream stdErr = System.err;
 		System.setErr(PrintStreamToSLF4J.getPrintStream("STDERR", stdErr));
 	}
-	
-	private static boolean setLogOutput(PrintStreamLogger logger, PrintStream stream, String level, LogLevel defaultLevel) {
-		LogLevel minLevel = LogLevel.fromString(level, defaultLevel);
-		if (minLevel == null) {
-			return false;
-		}
-		
-		for (LogLevel l : LogLevel.values()) {
-			if (l.atLeast(minLevel)) {
-				logger.setOutput(l, stream);
-			}
-		}
-		return true;
-	}
-	
-	
-	
 	
 	/**
 	 * Initializes the localization system.

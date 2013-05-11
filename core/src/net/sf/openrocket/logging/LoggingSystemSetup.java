@@ -2,6 +2,7 @@ package net.sf.openrocket.logging;
 
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -31,6 +32,18 @@ public class LoggingSystemSetup {
 		layout.setPattern("%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n%caller{2, BAD}");
 		layout.start();
 		appender.setEncoder(layout);
+		appender.start();
+		logger.addAppender(appender);
+	}
+	
+	public static void setupLoggingAppender() {
+		Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		logger.detachAndStopAllAppenders();
+		logger.setLevel(Level.TRACE);
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		LogbackBufferLoggerAdaptor appender = new LogbackBufferLoggerAdaptor();
+		appender.setName("buffer");
+		appender.setContext(context);
 		appender.start();
 		logger.addAppender(appender);
 	}

@@ -11,7 +11,6 @@ import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
-import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.startup.Application;
 
 /**
@@ -78,7 +77,6 @@ public class RocksimConverter {
 		Locale.setDefault(Locale.US);
 		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
 		
-		Application.setLogOutputLevel(LogLevel.WARN);
 		Application.setPreferences(new SwingPreferences());
 	}
 }

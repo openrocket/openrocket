@@ -8,7 +8,6 @@ import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogLevel;
 
 import com.google.inject.Injector;
 
@@ -29,11 +28,6 @@ public final class Application {
 	
 	private static Injector injector;
 	
-	// Initialize the logger to something sane for testing without executing Startup
-	static {
-		setLogOutputLevel(LogLevel.DEBUG);
-	}
-	
 	/**
 	 * Return whether to use additional safety code checks.
 	 */
@@ -48,24 +42,6 @@ public final class Application {
 	
 	public static WatchService getWatchService() {
 		return Application.injector.getInstance(WatchService.class);
-	}
-	
-	
-	/**
-	 * Set the logging to output the specified log level and upwards to standard output.
-	 * 
-	 * @param level		the minimum logging level to output.
-	 */
-	public static void setLogOutputLevel(LogLevel level) {
-		// FIXME
-		/*
-		logger = new PrintStreamLogger();
-		for (LogLevel l : LogLevel.values()) {
-			if (l.atLeast(level)) {
-				((PrintStreamLogger) logger).setOutput(l, System.out);
-			}
-		}
-		*/
 	}
 	
 	
