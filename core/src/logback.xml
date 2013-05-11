@@ -1,18 +1,8 @@
-<configuration>
-	<evaluator name="BAD"
-		class="ch.qos.logback.classic.boolex.OnErrorEvaluator" />
-	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<pattern><![CDATA[%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n%caller{2, BAD}]]></pattern>
-		</encoder>
-	</appender>
-	<appender name="buffer" class="net.sf.openrocket.logging.LogbackBufferLoggerAdaptor">
-		<encoder>
-			<pattern><![CDATA[%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n%caller{2, BAD}]]></pattern>
-		</encoder>
+<configuration debug="false">
+ 	<appender name="buffer"
+		class="net.sf.openrocket.logging.LogbackBufferLoggerAdaptor">
 	</appender>
 	<root level="TRACE">
-		<appender-ref ref="stdout" />
 		<appender-ref ref="buffer" />
 	</root>
 </configuration>

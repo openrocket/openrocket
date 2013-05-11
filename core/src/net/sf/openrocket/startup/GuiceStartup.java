@@ -10,6 +10,7 @@ import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogLevel;
+import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.logging.PrintStreamLogger;
 import net.sf.openrocket.logging.PrintStreamToSLF4J;
 import net.sf.openrocket.plugin.PluginModule;
@@ -89,7 +90,9 @@ public class GuiceStartup {
 	 * Initializes the logging system.
 	 */
 	public static void initializeLogging() {
-		
+		if (System.getProperty("openrocket.debug") != null) {
+			LoggingSystemSetup.addConsoleAppender();
+		}
 		//Replace System.err with a PrintStream that logs lines to DEBUG, or VBOSE if they are indented.
 		//If debug info is not being output to the console then the data is both logged and written to
 		//stderr.

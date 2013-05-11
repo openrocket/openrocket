@@ -32,7 +32,7 @@
 	<classpathentry kind="lib" path="lib-test/test-plugin.jar"/>
 	<classpathentry kind="lib" path="lib/annotation-detector-3.0.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.12.jar" sourcepath="reference/logback-classic-1.0.12-sources.jar"/>
-	<classpathentry kind="lib" path="lib/logback-core-1.0.12.jar" sourcepath="lib/logback-core-1.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.0.12.jar" sourcepath="reference/logback-core-1.0.12-sources.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
