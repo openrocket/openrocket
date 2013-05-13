@@ -1,4 +1,4 @@
-package net.sf.openrocket.startup;
+package net.sf.openrocket.startup.providers;
 
 import java.util.Locale;
 import java.util.prefs.Preferences;

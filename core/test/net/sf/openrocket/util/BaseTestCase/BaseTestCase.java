@@ -4,7 +4,7 @@ import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.CoreServicesModule;
+import net.sf.openrocket.utils.CoreServicesModule;
 
 import org.junit.BeforeClass;
 

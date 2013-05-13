@@ -1,6 +1,7 @@
-package net.sf.openrocket.startup;
+package net.sf.openrocket.startup.providers;
 
 import net.sf.openrocket.database.ComponentPresetDatabase;
+import net.sf.openrocket.database.ComponentPresetDatabaseLoader;
 import net.sf.openrocket.l10n.Translator;
 
 import org.slf4j.Logger;

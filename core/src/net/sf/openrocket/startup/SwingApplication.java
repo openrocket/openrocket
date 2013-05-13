@@ -35,12 +35,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 /**
- * The second class in the OpenRocket startup sequence.  This class can assume the
- * Application class to be properly set up, and can use any classes safely.
- * <p>
- * This class needs to complete the application setup, create a child Injector that
- * contains all necessary bindings for the system, replace the Injector in Application
- * and then continue the startup.
+ * Start the OpenRocket swing application.
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
@@ -118,14 +113,6 @@ public class SwingApplication {
 		System.setErr(PrintStreamToSLF4J.getPrintStream("STDERR", stdErr));
 	}
 	
-	private Injector initializeGuice() {
-		Module applicationModule = new CoreServicesModule();
-		GuiModule guiModule = new GuiModule();
-		Module pluginModule = new PluginModule();
-		
-		return Guice.createInjector(applicationModule, guiModule, pluginModule);
-	}
-	
 	/**
 	 * Run in the EDT when starting up OpenRocket.
 	 *
@@ -146,18 +133,12 @@ public class SwingApplication {
 		// Load motors etc.
 		log.info("Loading databases");
 		
-		// There are some latent dependencies in here so the guiced application
-		// is created in two parts.  In particular, the database loading processes
-		// require the translator to be setup correctly.
-		Module applicationModule = new CoreServicesModule();
+		GuiModule guiModule = new GuiModule();
 		Module pluginModule = new PluginModule();
-		Injector injector = Guice.createInjector(applicationModule, pluginModule);
+		Injector injector = Guice.createInjector(guiModule, pluginModule);
 		Application.setInjector(injector);
 		
-		// Update injector to contain database bindings
-		GuiModule guiModule = new GuiModule();
-		Injector injector2 = injector.createChildInjector(guiModule);
-		Application.setInjector(injector2);
+		guiModule.startLoader();
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;

@@ -1,6 +1,7 @@
-package net.sf.openrocket.startup;
+package net.sf.openrocket.utils;
 
 import net.sf.openrocket.plugin.PluginModule;
+import net.sf.openrocket.startup.Application;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -1,4 +1,4 @@
-package net.sf.openrocket.startup;
+package net.sf.openrocket.utils;
 
 import java.io.File;
 import java.io.FileOutputStream;

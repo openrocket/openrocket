@@ -15,8 +15,7 @@ import net.sf.openrocket.startup.jij.PluginClasspathProvider;
  * 
  * The startup class sequence is the following:
  *   1. Startup
- *   2. GuiceStartup
- *   3. ApplicationStartup
+ *   2. SwingApplication
  * 
  * This class changes the current classpath to contain the jar-in-jar
  * library dependencies and plugins in the current classpath, and

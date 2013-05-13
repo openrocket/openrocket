@@ -9,7 +9,6 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.startup.BasicApplication;
 
 /**
  * Utility that loads Rocksim file formats and saves them in ORK format.

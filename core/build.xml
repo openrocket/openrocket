@@ -118,14 +118,14 @@
 	</target>
 	
 	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
-	    <java classname="net.sf.openrocket.startup.SerializePresets"
+	    <java classname="net.sf.openrocket.utils.SerializePresets"
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">
 	    </java>
 	</target>
 	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
-	    <java classname="net.sf.openrocket.startup.SerializeMotors"
+	    <java classname="net.sf.openrocket.utils.SerializeMotors"
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">

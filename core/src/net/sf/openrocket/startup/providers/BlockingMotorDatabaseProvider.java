@@ -1,4 +1,4 @@
-package net.sf.openrocket.startup;
+package net.sf.openrocket.startup.providers;
 
 import java.awt.SplashScreen;
 import java.awt.event.ActionEvent;
@@ -11,6 +11,7 @@ import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.MotorDatabaseLoader;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.util.GUIUtil;

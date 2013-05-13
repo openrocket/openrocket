@@ -9,8 +9,8 @@ import java.util.List;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
-import net.sf.openrocket.startup.BasicApplication;
 import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.utils.BasicApplication;
 
 public class RocksimComponentFileTranslator {
 

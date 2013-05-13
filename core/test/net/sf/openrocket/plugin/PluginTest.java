@@ -1,6 +1,6 @@
 package net.sf.openrocket.plugin;
 
-import net.sf.openrocket.startup.CoreServicesModule;
+import net.sf.openrocket.utils.CoreServicesModule;
 
 import org.junit.Test;
 

@@ -42,7 +42,7 @@ import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
 import net.sf.openrocket.preset.xml.OpenRocketComponentDTO;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.BasicApplication;
+import net.sf.openrocket.utils.BasicApplication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
