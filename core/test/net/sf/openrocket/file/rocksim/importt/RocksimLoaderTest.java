@@ -8,7 +8,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.sf.openrocket.AbstractBaseApplication;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.file.DatabaseMotorFinder;
@@ -18,13 +17,14 @@ import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Assert;
 
 /**
  * RocksimLoader Tester.
  */
-public class RocksimLoaderTest extends AbstractBaseApplication {
+public class RocksimLoaderTest extends BaseTestCase {
 	
 	/**
 	 * Test a bug reported via automated bug report.  I have been unable to reproduce this bug

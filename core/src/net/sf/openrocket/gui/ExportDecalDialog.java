@@ -100,7 +100,7 @@ public class ExportDecalDialog extends JDialog {
 	private void export(DecalImage decal, File selectedFile) {
 		
 		try {
-			decal.exportImage(selectedFile, false);
+			decal.exportImage(selectedFile);
 		} catch (IOException iex) {
 			String message = MessageFormat.format(trans.get("ExportDecalDialog.exception"), selectedFile.getAbsoluteFile());
 			JOptionPane.showMessageDialog(this, message, "", JOptionPane.ERROR_MESSAGE);

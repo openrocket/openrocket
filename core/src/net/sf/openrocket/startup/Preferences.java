@@ -22,7 +22,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.UniqueID;
 
 public abstract class Preferences {
-
+	
 	/*
 	 * Well known string keys to preferences.
 	 * There are other strings out there in the source as well.
@@ -37,40 +37,40 @@ public abstract class Preferences {
 	public static final String EXPORT_EVENT_COMMENTS = "ExportEventComments";
 	public static final String EXPORT_COMMENT_CHARACTER = "ExportCommentCharacter";
 	public static final String USER_LOCAL = "locale";
-
+	
 	public static final String PLOT_SHOW_POINTS = "ShowPlotPoints";
-
+	
 	private static final String CHECK_UPDATES = "CheckUpdates";
 	public static final String LAST_UPDATE = "LastUpdateVersion";
-
+	
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
 	public static final String MOTOR_HIDE_SIMILAR = "MotorHideSimilar";
-
+	
 	// Node names
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
-    private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
-
-    /*
-      * ******************************************************************************************
-      *
-      * Abstract methods which must be implemented by any derived class.
-      */
+	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
+	
+	/*
+	 * ******************************************************************************************
+	 *
+	 * Abstract methods which must be implemented by any derived class.
+	 */
 	public abstract boolean getBoolean(String key, boolean defaultValue);
-
+	
 	public abstract void putBoolean(String key, boolean value);
-
+	
 	public abstract int getInt(String key, int defaultValue);
-
+	
 	public abstract void putInt(String key, int value);
-
+	
 	public abstract double getDouble(String key, double defaultValue);
-
+	
 	public abstract void putDouble(String key, double value);
-
+	
 	public abstract String getString(String key, String defaultValue);
-
+	
 	public abstract void putString(String key, String value);
-
+	
 	/**
 	 * Directory represents a way to collect multiple keys together.  Implementors may
 	 * choose to concatenate the directory with the key using some special character.
@@ -80,41 +80,41 @@ public abstract class Preferences {
 	 * @return
 	 */
 	public abstract String getString(String directory, String key, String defaultValue);
-
+	
 	public abstract void putString(String directory, String key, String value);
-
+	
 	/*
 	 * ******************************************************************************************
 	 */
 	public final boolean getCheckUpdates() {
 		return this.getBoolean(CHECK_UPDATES, BuildProperties.getDefaultCheckUpdates());
 	}
-
+	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
 	}
-
+	
 	public final double getDefaultMach() {
 		// TODO: HIGH: implement custom default mach number
 		return 0.3;
 	}
-
-    /**
-     * Enable/Disable the auto-opening of the last edited design file on startup.
-     */
-    public final void setAutoOpenLastDesignOnStartup(boolean enabled) {
-        this.putBoolean(AUTO_OPEN_LAST_DESIGN, enabled);
-    }
-
-    /**
-     * Answer if the auto-opening of the last edited design file on startup is enabled.
-     *
-     * @return true if the application should automatically open the last edited design file on startup.
-     */
-    public final boolean isAutoOpenLastDesignOnStartupEnabled() {
-        return this.getBoolean(AUTO_OPEN_LAST_DESIGN, false);
-    }
-
+	
+	/**
+	 * Enable/Disable the auto-opening of the last edited design file on startup.
+	 */
+	public final void setAutoOpenLastDesignOnStartup(boolean enabled) {
+		this.putBoolean(AUTO_OPEN_LAST_DESIGN, enabled);
+	}
+	
+	/**
+	 * Answer if the auto-opening of the last edited design file on startup is enabled.
+	 *
+	 * @return true if the application should automatically open the last edited design file on startup.
+	 */
+	public final boolean isAutoOpenLastDesignOnStartupEnabled() {
+		return this.getBoolean(AUTO_OPEN_LAST_DESIGN, false);
+	}
+	
 	/**
 	 * Return the OpenRocket unique ID.
 	 *
@@ -128,7 +128,7 @@ public abstract class Preferences {
 		}
 		return id;
 	}
-
+	
 	/**
 	 * Returns a limited-range integer value from the preferences.  If the value
 	 * in the preferences is negative or greater than max, then the default value
@@ -145,7 +145,7 @@ public abstract class Preferences {
 			return def;
 		return v;
 	}
-
+	
 	/**
 	 * Helper method that puts an integer choice value into the preferences.
 	 *
@@ -155,7 +155,7 @@ public abstract class Preferences {
 	public final void putChoice(String key, int value) {
 		this.putInt(key, value);
 	}
-
+	
 	/**
 	 * Retrieve an enum value from the user preferences.
 	 *
@@ -168,19 +168,19 @@ public abstract class Preferences {
 		if (def == null) {
 			throw new BugException("Default value cannot be null");
 		}
-
+		
 		String value = getString(key, null);
 		if (value == null) {
 			return def;
 		}
-
+		
 		try {
 			return Enum.valueOf(def.getDeclaringClass(), value);
 		} catch (IllegalArgumentException e) {
 			return def;
 		}
 	}
-
+	
 	/**
 	 * Store an enum value to the user preferences.
 	 *
@@ -194,12 +194,12 @@ public abstract class Preferences {
 			putString(key, value.name());
 		}
 	}
-
+	
 	public Color getDefaultColor(Class<? extends RocketComponent> c) {
-		String color = get("componentColors", c, DEFAULT_COLORS);
+		String color = get("componentColors", c, StaticFieldHolder.DEFAULT_COLORS);
 		if (color == null)
 			return Color.BLACK;
-
+		
 		Color clr = parseColor(color);
 		if (clr != null) {
 			return clr;
@@ -207,28 +207,28 @@ public abstract class Preferences {
 			return Color.BLACK;
 		}
 	}
-
+	
 	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
 		if (color == null)
 			return;
 		putString("componentColors", c.getSimpleName(), stringifyColor(color));
 	}
-
-
+	
+	
 	/**
 	 * Retrieve a Line style for the given component.
 	 * @param c
 	 * @return
 	 */
 	public final LineStyle getDefaultLineStyle(Class<? extends RocketComponent> c) {
-		String value = get("componentStyle", c, DEFAULT_LINE_STYLES);
+		String value = get("componentStyle", c, StaticFieldHolder.DEFAULT_LINE_STYLES);
 		try {
 			return LineStyle.valueOf(value);
 		} catch (Exception e) {
 			return LineStyle.SOLID;
 		}
 	}
-
+	
 	/**
 	 * Set a default line style for the given component.
 	 * @param c
@@ -240,7 +240,7 @@ public abstract class Preferences {
 			return;
 		putString("componentStyle", c.getSimpleName(), style.name());
 	}
-
+	
 	/**
 	 * Get the default material type for the given component.
 	 * @param componentClass
@@ -250,7 +250,7 @@ public abstract class Preferences {
 	public Material getDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass,
 			Material.Type type) {
-
+		
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
@@ -260,18 +260,18 @@ public abstract class Preferences {
 			} catch (IllegalArgumentException ignore) {
 			}
 		}
-
+		
 		switch (type) {
 		case LINE:
-			return DefaultMaterialHolder.DEFAULT_LINE_MATERIAL;
+			return StaticFieldHolder.DEFAULT_LINE_MATERIAL;
 		case SURFACE:
-			return DefaultMaterialHolder.DEFAULT_SURFACE_MATERIAL;
+			return StaticFieldHolder.DEFAULT_SURFACE_MATERIAL;
 		case BULK:
-			return DefaultMaterialHolder.DEFAULT_BULK_MATERIAL;
+			return StaticFieldHolder.DEFAULT_BULK_MATERIAL;
 		}
 		throw new IllegalArgumentException("Unknown material type: " + type);
 	}
-
+	
 	/**
 	 * Set the default material for a component type.
 	 * @param componentClass
@@ -279,11 +279,11 @@ public abstract class Preferences {
 	 */
 	public void setDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass, Material material) {
-
+		
 		putString("componentMaterials", componentClass.getSimpleName(),
 				material == null ? null : material.toStorableString());
 	}
-
+	
 	/**
 	 * get a net.sf.openrocket.util.Color object for the given key.
 	 * @param key
@@ -297,7 +297,7 @@ public abstract class Preferences {
 		}
 		return c;
 	}
-
+	
 	/**
 	 * set a net.sf.openrocket.util.Color preference value for the given key.
 	 * @param key
@@ -306,7 +306,7 @@ public abstract class Preferences {
 	public final void putColor(String key, Color value) {
 		putString(key, stringifyColor(value));
 	}
-
+	
 	/**
 	 * Helper function to convert a string representation into a net.sf.openrocket.util.Color object.
 	 * @param color
@@ -316,7 +316,7 @@ public abstract class Preferences {
 		if (color == null) {
 			return null;
 		}
-
+		
 		String[] rgb = color.split(",");
 		if (rgb.length == 3) {
 			try {
@@ -329,7 +329,7 @@ public abstract class Preferences {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Helper function to convert a net.sf.openrocket.util.Color object into a
 	 * String before storing in a preference.
@@ -340,7 +340,7 @@ public abstract class Preferences {
 		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 		return string;
 	}
-
+	
 	/**
 	 * Special helper function which allows for a map of default values.
 	 *
@@ -355,7 +355,7 @@ public abstract class Preferences {
 	protected String get(String directory,
 			Class<? extends RocketComponent> componentClass,
 			Map<Class<?>, String> defaultMap) {
-
+		
 		// Search preferences
 		Class<?> c = componentClass;
 		while (c != null && RocketComponent.class.isAssignableFrom(c)) {
@@ -364,10 +364,10 @@ public abstract class Preferences {
 				return value;
 			c = c.getSuperclass();
 		}
-
+		
 		if (defaultMap == null)
 			return null;
-
+		
 		// Search defaults
 		c = componentClass;
 		while (RocketComponent.class.isAssignableFrom(c)) {
@@ -376,50 +376,45 @@ public abstract class Preferences {
 				return value;
 			c = c.getSuperclass();
 		}
-
+		
 		return null;
 	}
-
+	
 	public abstract void addUserMaterial(Material m);
-
+	
 	public abstract Set<Material> getUserMaterials();
-
+	
 	public abstract void removeUserMaterial(Material m);
-
+	
 	public abstract void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite);
-
+	
 	public abstract Set<String> getComponentFavorites(ComponentPreset.Type type);
-
-	/*
-	 * Map of default line styles
-	 */
-	private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES =
-			new HashMap<Class<?>, String>();
-	static {
-		DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
-		DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
-	}
-
+	
 	/*
 	 * Within a holder class so they will load only when needed.
 	 */
-	private static class DefaultMaterialHolder {
+	private static class StaticFieldHolder {
 		private static final Material DEFAULT_LINE_MATERIAL = Databases.findMaterial(Material.Type.LINE, "Elastic cord (round 2 mm, 1/16 in)");
 		private static final Material DEFAULT_SURFACE_MATERIAL = Databases.findMaterial(Material.Type.SURFACE, "Ripstop nylon");
 		private static final Material DEFAULT_BULK_MATERIAL = Databases.findMaterial(Material.Type.BULK, "Cardboard");
+		/*
+		 * Map of default line styles
+		 */
+		
+		private static final HashMap<Class<?>, String> DEFAULT_LINE_STYLES = new HashMap<Class<?>, String>();
+		static {
+			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
+			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
+		}
+		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
+		static {
+			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
+			DEFAULT_COLORS.put(FinSet.class, "0,0,200");
+			DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
+			DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
+			DEFAULT_COLORS.put(MassObject.class, "0,0,0");
+			DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
+		}
 	}
-
-	private static final HashMap<Class<?>, String> DEFAULT_COLORS =
-			new HashMap<Class<?>, String>();
-	static {
-		DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
-		DEFAULT_COLORS.put(FinSet.class, "0,0,200");
-		DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
-		DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");
-		DEFAULT_COLORS.put(MassObject.class, "0,0,0");
-		DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
-	}
-
-
-
+	
 }

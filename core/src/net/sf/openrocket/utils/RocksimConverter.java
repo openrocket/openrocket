@@ -9,9 +9,7 @@ import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.GeneralRocketSaver;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.l10n.ResourceBundleTranslator;
-import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.BasicApplication;
 
 /**
  * Utility that loads Rocksim file formats and saves them in ORK format.
@@ -75,8 +73,9 @@ public class RocksimConverter {
 	
 	private static void setup() {
 		Locale.setDefault(Locale.US);
-		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
 		
-		Application.setPreferences(new SwingPreferences());
+		BasicApplication app = new BasicApplication();
+		app.initializeApplication();
+		//?? Application.setPreferences(new SwingPreferences());
 	}
 }

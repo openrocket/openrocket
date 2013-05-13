@@ -11,7 +11,6 @@ import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
-import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.util.Pair;
 
@@ -27,7 +26,7 @@ public class SerializeMotors {
 		String inputDir = args[0];
 		String outputFile = args[1];
 		
-		Application.setPreferences(new SwingPreferences());
+		//Application.setPreferences(new SwingPreferences());
 		
 		File outFile = new File(outputFile);
 		

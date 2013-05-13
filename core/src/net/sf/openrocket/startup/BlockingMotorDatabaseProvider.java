@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.util;
+package net.sf.openrocket.startup;
 
 import java.awt.SplashScreen;
 import java.awt.event.ActionEvent;
@@ -13,8 +13,8 @@ import javax.swing.Timer;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.gui.main.Splash;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.startup.MotorDatabaseLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

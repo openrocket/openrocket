@@ -27,7 +27,7 @@
 	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
 	
 	<!-- The main class of the application -->
-	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
+	<property name="main-class"  value="net.sf.openrocket.startup.JiJStartup"/>
 
 	<property name="expanded-libs" value="${lib.dir}/miglayout15-swing.jar"/>
 	

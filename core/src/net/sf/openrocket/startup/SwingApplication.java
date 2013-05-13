@@ -4,6 +4,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.PrintStream;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -13,23 +14,25 @@ import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
-import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.dialogs.UpdateInfoDialog;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.main.MRUDesignFile;
 import net.sf.openrocket.gui.main.Splash;
 import net.sf.openrocket.gui.main.SwingExceptionHandler;
-import net.sf.openrocket.gui.util.BlockingMotorDatabaseProvider;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.logging.LoggingSystemSetup;
+import net.sf.openrocket.logging.PrintStreamToSLF4J;
+import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.util.BuildProperties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 
 /**
  * The second class in the OpenRocket startup sequence.  This class can assume the
@@ -41,26 +44,21 @@ import com.google.inject.Injector;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class ApplicationStartup {
+public class SwingApplication {
 	
-	private final static Logger log = LoggerFactory.getLogger(ApplicationStartup.class);
-	
-	@Inject
-	private Injector injector;
-	
+	private final static Logger log = LoggerFactory.getLogger(SwingApplication.class);
 	
 	/**
-	 * Run when starting up OpenRocket after Application has been set up.
-	 *
-	 * @param args	command line arguments
+	 * OpenRocket startup main method.
 	 */
-	public void runMain(final String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		
+		// Check for "openrocket.debug" property before anything else
+		checkDebugStatus();
+		
+		// Initialize logging first so we can use it
+		initializeLogging();
 		log.info("Starting up OpenRocket version " + BuildProperties.getVersion());
-		
-		Application.setInjector(injector);
-		
-		Thread.sleep(1000);
 		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");
@@ -71,18 +69,62 @@ public class ApplicationStartup {
 			OSXStartup.setupOSX();
 		}
 		
+		final SwingApplication runner = new SwingApplication();
+		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
 		log.info("Moving startup to EDT");
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
-				runInEDT(args);
+				runner.runInEDT(args);
 			}
 		});
 		
 		log.info("Startup complete");
+		
 	}
 	
+	/**
+	 * Set proper system properties if openrocket.debug is defined.
+	 */
+	private static void checkDebugStatus() {
+		if (System.getProperty("openrocket.debug") != null) {
+			setPropertyIfNotSet("openrocket.debug.menu", "true");
+			setPropertyIfNotSet("openrocket.debug.mutexlocation", "true");
+			setPropertyIfNotSet("openrocket.debug.motordigest", "true");
+			setPropertyIfNotSet("jogl.debug", "all");
+		}
+	}
+	
+	private static void setPropertyIfNotSet(String key, String value) {
+		if (System.getProperty(key) == null) {
+			System.setProperty(key, value);
+		}
+	}
+	
+	/**
+	 * Initializes the logging system.
+	 */
+	public static void initializeLogging() {
+		LoggingSystemSetup.setupLoggingAppender();
+		
+		if (System.getProperty("openrocket.debug") != null) {
+			LoggingSystemSetup.addConsoleAppender();
+		}
+		//Replace System.err with a PrintStream that logs lines to DEBUG, or VBOSE if they are indented.
+		//If debug info is not being output to the console then the data is both logged and written to
+		//stderr.
+		final PrintStream stdErr = System.err;
+		System.setErr(PrintStreamToSLF4J.getPrintStream("STDERR", stdErr));
+	}
+	
+	private Injector initializeGuice() {
+		Module applicationModule = new CoreServicesModule();
+		GuiModule guiModule = new GuiModule();
+		Module pluginModule = new PluginModule();
+		
+		return Guice.createInjector(applicationModule, guiModule, pluginModule);
+	}
 	
 	/**
 	 * Run in the EDT when starting up OpenRocket.
@@ -95,12 +137,27 @@ public class ApplicationStartup {
 		log.info("Initializing the splash screen");
 		Splash.init();
 		
-		
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
 		SwingExceptionHandler exceptionHandler = new SwingExceptionHandler();
 		Application.setExceptionHandler(exceptionHandler);
 		exceptionHandler.registerExceptionHandler();
+		
+		// Load motors etc.
+		log.info("Loading databases");
+		
+		// There are some latent dependencies in here so the guiced application
+		// is created in two parts.  In particular, the database loading processes
+		// require the translator to be setup correctly.
+		Module applicationModule = new CoreServicesModule();
+		Module pluginModule = new PluginModule();
+		Injector injector = Guice.createInjector(applicationModule, pluginModule);
+		Application.setInjector(injector);
+		
+		// Update injector to contain database bindings
+		GuiModule guiModule = new GuiModule();
+		Injector injector2 = injector.createChildInjector(guiModule);
+		Application.setInjector(injector2);
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateInfo;
@@ -123,21 +180,7 @@ public class ApplicationStartup {
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
 		
-		
-		
-		// Load motors etc.
-		log.info("Loading databases");
-		loadPresetComponents();
-		BlockingMotorDatabaseProvider db = loadMotor();
-		
-		// Update injector to contain database bindings
-		ApplicationModule2 module = new ApplicationModule2(db);
-		Injector injector2 = injector.createChildInjector(module);
-		Application.setInjector(injector2);
-		
-		
 		Databases.fakeMethod();
-		
 		
 		// Starting action (load files or open new document)
 		log.info("Opening main application window");
@@ -168,45 +211,9 @@ public class ApplicationStartup {
 	}
 	
 	/**
-	 * Start loading preset components in background thread.
-	 * 
-	 * Public for Python bindings.
-	 */
-	public void loadPresetComponents() {
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase(false) {
-			@Override
-			protected void load() {
-				ConcurrentComponentPresetDatabaseLoader presetLoader = new ConcurrentComponentPresetDatabaseLoader(this);
-				presetLoader.load();
-				try {
-					presetLoader.await();
-				} catch (InterruptedException iex) {
-					
-				}
-			}
-		};
-		Application.setComponentPresetDao(componentPresetDao);
-		componentPresetDao.startLoading();
-	}
-	
-	/**
-	 * Start loading motors in background thread.
-	 * 
-	 * Public for Python bindings.
-	 * 
-	 * @return	a provider for the database which blocks before returning the db.
-	 */
-	public BlockingMotorDatabaseProvider loadMotor() {
-		MotorDatabaseLoader bg = injector.getInstance(MotorDatabaseLoader.class);
-		bg.startLoading();
-		BlockingMotorDatabaseProvider db = new BlockingMotorDatabaseProvider(bg);
-		return db;
-	}
-	
-	/**
 	 * Check that the JRE is not running headless.
 	 */
-	private void checkHead() {
+	private static void checkHead() {
 		
 		if (GraphicsEnvironment.isHeadless()) {
 			log.error("Application is headless.");

@@ -3,7 +3,6 @@ package net.sf.openrocket.optimization.rocketoptimization;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import net.sf.openrocket.AbstractBaseApplication;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.general.Point;
@@ -12,6 +11,7 @@ import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.unit.Value;
 import net.sf.openrocket.util.Pair;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(JMock.class)
-public class TestRocketOptimizationFunction extends AbstractBaseApplication {
+public class TestRocketOptimizationFunction extends BaseTestCase {
 	Mockery context = new JUnit4Mockery();
 	
 	@Mock

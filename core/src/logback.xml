@@ -1,8 +1,0 @@
-<configuration debug="false">
- 	<appender name="buffer"
-		class="net.sf.openrocket.logging.LogbackBufferLoggerAdaptor">
-	</appender>
-	<root level="TRACE">
-		<appender-ref ref="buffer" />
-	</root>
-</configuration>

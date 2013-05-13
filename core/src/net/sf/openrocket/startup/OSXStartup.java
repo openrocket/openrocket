@@ -103,7 +103,7 @@ final class OSXStartup {
 
 			// Set the dock icon to the largest icon
 			final Image dockIcon = Toolkit.getDefaultToolkit().getImage(
-					ApplicationStartup.class.getResource(ICON_RSRC));
+					SwingApplication.class.getResource(ICON_RSRC));
 			osxApp.setDockIconImage(dockIcon);
 
 		} catch (final Throwable t) {

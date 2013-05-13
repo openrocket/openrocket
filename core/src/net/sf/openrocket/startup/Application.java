@@ -3,9 +3,7 @@ package net.sf.openrocket.startup;
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
-import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
 
@@ -17,12 +15,6 @@ import com.google.inject.Injector;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class Application {
-	
-	private static Translator baseTranslator = new DebugTranslator(null);
-	
-	private static ComponentPresetDao componentPresetDao;
-	
-	private static Preferences preferences;
 	
 	private static ExceptionHandler exceptionHandler;
 	
@@ -40,44 +32,28 @@ public final class Application {
 		return false;
 	}
 	
-	public static WatchService getWatchService() {
-		return Application.injector.getInstance(WatchService.class);
+	private static Translator getBaseTranslator() {
+		return injector.getInstance(Translator.class);
 	}
-	
 	
 	/**
 	 * Return the translator to use for obtaining translated strings.
 	 * @return	a translator.
 	 */
 	public static Translator getTranslator() {
-		Translator t = baseTranslator;
+		Translator t = getBaseTranslator();
 		t = new ClassBasedTranslator(t, 1);
 		t = new ExceptionSuppressingTranslator(t);
 		return t;
 	}
 	
 	/**
-	 * Set the translator used in obtaining translated strings.
-	 * @param translator	the translator to set.
-	 */
-	public static void setBaseTranslator(Translator translator) {
-		Application.baseTranslator = translator;
-	}
-	
-	
-	/**
 	 * @return the preferences
 	 */
 	public static Preferences getPreferences() {
-		return preferences;
+		return injector.getInstance(Preferences.class);
 	}
 	
-	/**
-	 * @param preferences the preferences to set
-	 */
-	public static void setPreferences(Preferences preferences) {
-		Application.preferences = preferences;
-	}
 	
 	/**
 	 * @return the exceptionHandler
@@ -114,13 +90,10 @@ public final class Application {
 	}
 	
 	
+	@Deprecated
 	public static ComponentPresetDao getComponentPresetDao() {
-		return componentPresetDao;
+		return injector.getInstance(ComponentPresetDao.class);
 		
-	}
-	
-	public static void setComponentPresetDao(ComponentPresetDao componentPresetDao) {
-		Application.componentPresetDao = componentPresetDao;
 	}
 	
 	public static Injector getInjector() {

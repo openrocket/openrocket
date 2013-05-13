@@ -12,50 +12,40 @@ import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.xml.OpenRocketComponentLoader;
 import net.sf.openrocket.util.Pair;
 
-public class SerializePresets {
+public class SerializePresets extends BasicApplication {
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		Application.setPreferences(new SwingPreferences());
-		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
+		SerializePresets app = new SerializePresets();
+		app.initializeApplication();
 		
 		Locale.setDefault(Locale.ENGLISH);
 		
-		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase() {
-			
-			@Override
-			protected void load() {
-				
-				FileIterator iterator = DirectoryIterator.findDirectory("resources-src/datafiles/presets", new SimpleFileFilter("", false, "orc"));
-				
-				if (iterator == null) {
-					throw new RuntimeException("Can't find resources-src/presets directory");
-				}
-				while (iterator.hasNext()) {
-					Pair<String, InputStream> f = iterator.next();
-					String fileName = f.getU();
-					InputStream is = f.getV();
-					
-					OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
-					Collection<ComponentPreset> presets = loader.load(is, fileName);
-					
-					this.addAll(presets);
-					
-				}
-			}
-			
-		};
+		ComponentPresetDatabase componentPresetDao = new ComponentPresetDatabase();
 		
-		componentPresetDao.startLoading();
+		FileIterator iterator = DirectoryIterator.findDirectory("resources-src/datafiles/presets", new SimpleFileFilter("", false, "orc"));
+		
+		if (iterator == null) {
+			throw new RuntimeException("Can't find resources-src/presets directory");
+		}
+		while (iterator.hasNext()) {
+			Pair<String, InputStream> f = iterator.next();
+			String fileName = f.getU();
+			InputStream is = f.getV();
+			
+			OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
+			Collection<ComponentPreset> presets = loader.load(is, fileName);
+			
+			componentPresetDao.addAll(presets);
+			
+		}
 		
 		List<ComponentPreset> list = componentPresetDao.listAll();
 		

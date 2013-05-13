@@ -29,7 +29,7 @@ public class LoggingSystemSetup {
 		appender.setContext(context);
 		PatternLayoutEncoder layout = new PatternLayoutEncoder();
 		layout.setContext(context);
-		layout.setPattern("%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n%caller{2, BAD}");
+		layout.setPattern("%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n");
 		layout.start();
 		appender.setEncoder(layout);
 		appender.start();

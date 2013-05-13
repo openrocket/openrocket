@@ -1,18 +1,16 @@
 package net.sf.openrocket.preset.loader;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.material.Material;
-import net.sf.openrocket.preset.ComponentPreset;
-import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.GuiceStartup;
-import net.sf.openrocket.util.ArrayList;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.util.List;
+
+import net.sf.openrocket.material.Material;
+import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
+import net.sf.openrocket.startup.BasicApplication;
+import net.sf.openrocket.util.ArrayList;
 
 public class RocksimComponentFileTranslator {
 
@@ -26,6 +24,9 @@ public class RocksimComponentFileTranslator {
 
     public static void main(String[] args) throws Exception {
 
+		BasicApplication app = new BasicApplication();
+		app.initializeApplication();
+		
         // How to control logging?
 
         if (args.length < 2 || args.length > 2) {
@@ -36,9 +37,6 @@ public class RocksimComponentFileTranslator {
         List<ComponentPreset> allPresets = new ArrayList<ComponentPreset>();
 
         LOGGER.println("Loading csv files from directory " + args[0]);
-
-        GuiceStartup.initializeLogging();
-        Application.setPreferences(new SwingPreferences());
 
         MaterialHolder materialMap = loadAll(allPresets, new File(args[0]));
         LOGGER.println("\tMarshalling to XML");

@@ -24,9 +24,9 @@ import net.sf.openrocket.startup.jij.PluginClasspathProvider;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Startup {
+public class JiJStartup {
 	
-	private static final String STARTUP_CLASS = "net.sf.openrocket.startup.GuiceStartup";
+	private static final String STARTUP_CLASS = "net.sf.openrocket.startup.SwingApplication";
 	
 	public static void main(String[] args) {
 		addClasspathUrlHandler();
