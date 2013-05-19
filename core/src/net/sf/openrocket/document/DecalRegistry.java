@@ -23,17 +23,17 @@ import net.sf.openrocket.document.attachments.FileSystemAttachment;
 import net.sf.openrocket.gui.watcher.FileWatcher;
 import net.sf.openrocket.gui.watcher.WatchEvent;
 import net.sf.openrocket.gui.watcher.WatchService;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
 import net.sf.openrocket.util.StateChangeListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DecalRegistry {
-	private static LogHelper log = Application.getLogger();
-	
-	private WatchService watchService = Application.getWatchService();
+	private static Logger log = LoggerFactory.getLogger(DecalRegistry.class);
 	
 	DecalRegistry() {
 	}
@@ -119,6 +119,11 @@ public class DecalRegistry {
 			return name != null ? name : delegate.getName();
 		}
 		
+		@Override
+		public void fireChangeEvent(Object source) {
+			delegate.fireChangeEvent(source);
+		}
+		
 		/**
 		* This function returns an InputStream backed by a byte[] containing the decal pixels.
 		* If it reads in the bytes from an actual file, the underlying file is closed.
@@ -145,7 +150,7 @@ public class DecalRegistry {
 		}
 		
 		@Override
-		public void exportImage(File file, boolean watchForChanges) throws IOException {
+		public void exportImage(File file) throws IOException {
 			try {
 				InputStream is = getBytes();
 				OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
@@ -156,19 +161,6 @@ public class DecalRegistry {
 				os.close();
 				
 				this.fileSystemLocation = file;
-				
-				if (watchForChanges) {
-					watchService.register(new FileWatcher(this.fileSystemLocation) {
-						
-						@Override
-						public void handleEvent(WatchEvent evt) {
-							DecalImageImpl.this.delegate.fireChangeEvent();
-							//System.out.println(this.getFile() + " has changed");
-							
-						}
-						
-					});
-				}
 				
 			} catch (IOException iex) {
 				throw new BugException(iex);

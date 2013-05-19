@@ -15,8 +15,7 @@ import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.logging.TraceException;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -27,6 +26,9 @@ import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class describing an entire OpenRocket document, including a rocket and
@@ -41,7 +43,7 @@ import net.sf.openrocket.util.ArrayList;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenRocketDocument implements ComponentChangeListener {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketDocument.class);
 	
 	/**
 	 * The minimum number of undo levels that are stored.
@@ -114,7 +116,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	public void addCustomExpression(CustomExpression expression) {
 		if (customExpressions.contains(expression)) {
-			log.user("Could not add custom expression " + expression.getName() + " to document as document alerady has a matching expression.");
+			log.info(Markers.USER_MARKER, "Could not add custom expression " + expression.getName() + " to document as document alerady has a matching expression.");
 		} else {
 			customExpressions.add(expression);
 		}
@@ -551,10 +553,10 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	 * time it occurs, but not on subsequent times.  Logs automatically the undo system state.
 	 */
 	private void logUndoError(String error) {
-		log.error(1, error + ": this=" + this + " undoPosition=" + undoPosition +
+		log.error(error + ": this=" + this + " undoPosition=" + undoPosition +
 				" undoHistory.size=" + undoHistory.size() + " isClean=" + isCleanState() +
 				" nextDescription=" + nextDescription + " storedDescription=" + storedDescription,
-				new TraceException());
+				new Throwable());
 		
 		if (!undoErrorReported) {
 			undoErrorReported = true;

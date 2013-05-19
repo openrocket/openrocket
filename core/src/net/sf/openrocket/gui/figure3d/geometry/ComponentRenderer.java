@@ -8,7 +8,6 @@ import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
 
 import net.sf.openrocket.gui.figure3d.geometry.Geometry.Surface;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -18,15 +17,17 @@ import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * @author Bill Kuker <bkuker@billkuker.com>
  */
 public class ComponentRenderer {
 	@SuppressWarnings("unused")
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ComponentRenderer.class);
 	
 	private int LOD = 80;
 	

@@ -2,8 +2,10 @@ package net.sf.openrocket.optimization.rocketoptimization.parameters;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.OptimizationException;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.simulation.FlightData;
@@ -14,7 +16,6 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.system.InterruptListener;
-import net.sf.openrocket.startup.Application;
 
 /**
  * An abstract optimization parameter that simulates a rocket flight and obtains
@@ -24,7 +25,7 @@ import net.sf.openrocket.startup.Application;
  */
 public abstract class SimulationBasedParameter implements OptimizableParameter {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SimulationBasedParameter.class);
 	
 	@Override
 	public double computeValue(Simulation simulation) throws OptimizationException, InterruptedException {

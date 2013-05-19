@@ -10,11 +10,24 @@ import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.dialogs.EditDecalDialog;
+import net.sf.openrocket.gui.watcher.FileWatcher;
+import net.sf.openrocket.gui.watcher.WatchEvent;
+import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
+
+import com.google.inject.Inject;
 
 public class EditDecalHelper {
+	
+	@Inject
+	private WatchService watchService;
+	
+	@Inject
+	private Translator trans;
+	
+	@Inject
+	private SwingPreferences prefs;
 	
 	public static class EditDecalHelperException extends Exception {
 		
@@ -43,12 +56,8 @@ public class EditDecalHelper {
 		
 	}
 	
-	private static final Translator trans = Application.getTranslator();
+	public void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
 	
-	private static final SwingPreferences prefs = ((SwingPreferences) Application.getPreferences());
-	
-	public static void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
-		
 		boolean sysPrefSet = prefs.isDecalEditorPreferenceSet();
 		int usageCount = doc.countDecalUsage(decal);
 		
@@ -102,7 +111,7 @@ public class EditDecalHelper {
 		return newImage;
 	}
 	
-	private static void launchEditor(boolean useSystemEditor, String commandTemplate, DecalImage decal) throws EditDecalHelperException {
+	private void launchEditor(boolean useSystemEditor, String commandTemplate, final DecalImage decal) throws EditDecalHelperException {
 		
 		String decalId = decal.getName();
 		// Create Temp File.
@@ -121,7 +130,18 @@ public class EditDecalHelper {
 		}
 		
 		try {
-			decal.exportImage(tmpFile, true);
+			decal.exportImage(tmpFile);
+			watchService.register(new FileWatcher(tmpFile) {
+				
+				@Override
+				public void handleEvent(WatchEvent evt) {
+					decal.fireChangeEvent(evt);
+					//System.out.println(this.getFile() + " has changed");
+					
+				}
+				
+			});
+			
 		} catch (IOException ioex) {
 			String message = MessageFormat.format(trans.get("EditDecalHelper.createFileException"), tmpFile.getAbsoluteFile());
 			throw new EditDecalHelperException(message, ioex);

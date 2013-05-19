@@ -13,21 +13,21 @@ import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.NullElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorDigest;
 import net.sf.openrocket.motor.MotorDigest.DataType;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class RockSimMotorLoader extends AbstractMotorLoader {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(RockSimMotorLoader.class);
 	
 	public static final String CHARSET_NAME = "UTF-8";
 	

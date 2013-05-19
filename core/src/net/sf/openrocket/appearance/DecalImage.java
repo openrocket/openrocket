@@ -13,6 +13,7 @@ public interface DecalImage extends ChangeSource, Comparable<DecalImage> {
 	
 	public InputStream getBytes() throws FileNotFoundException, IOException;
 	
-	public void exportImage(File file, boolean watchForChanges) throws IOException;
+	public void exportImage(File file) throws IOException;
 	
+	public void fireChangeEvent(Object source);
 }

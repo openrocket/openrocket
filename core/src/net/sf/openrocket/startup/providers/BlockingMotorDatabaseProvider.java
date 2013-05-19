@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.util;
+package net.sf.openrocket.startup.providers;
 
 import java.awt.SplashScreen;
 import java.awt.event.ActionEvent;
@@ -11,11 +11,14 @@ import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.MotorDatabaseLoader;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.gui.main.Splash;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.MotorDatabaseLoader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -29,8 +32,9 @@ import com.google.inject.Provider;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorSetDatabase> {
-	@Inject
-	private LogHelper log;
+	
+	private static final Logger log = LoggerFactory.getLogger(BlockingMotorDatabaseProvider.class);
+	
 	@Inject
 	private Translator trans;
 	
@@ -58,7 +62,7 @@ public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorS
 		SplashScreen splash = Splash.getSplashScreen();
 		if (splash == null || !splash.isVisible()) {
 			
-			log.info(1, "Motor database not loaded yet, displaying dialog");
+			log.info("Motor database not loaded yet, displaying dialog");
 			
 			final LoadingDialog dialog = new LoadingDialog();
 			
@@ -84,7 +88,7 @@ public class BlockingMotorDatabaseProvider implements Provider<ThrustCurveMotorS
 			
 		} else {
 			
-			log.info(1, "Motor database not loaded yet, splash screen still present, delaying until loaded");
+			log.info("Motor database not loaded yet, splash screen still present, delaying until loaded");
 			loader.blockUntilLoaded();
 			
 		}

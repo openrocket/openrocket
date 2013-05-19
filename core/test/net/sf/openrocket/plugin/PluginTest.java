@@ -1,8 +1,6 @@
 package net.sf.openrocket.plugin;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.ApplicationModule;
+import net.sf.openrocket.utils.CoreServicesModule;
 
 import org.junit.Test;
 
@@ -22,9 +20,7 @@ public class PluginTest {
 	@Test
 	public void testPluginModule() {
 		
-		Application.setPreferences(new SwingPreferences());
-		
-		Module applicationModule = new ApplicationModule();
+		Module applicationModule = new CoreServicesModule();
 		
 		Injector injector = Guice.createInjector(applicationModule, new PluginModule());
 		PluginTester tester = injector.getInstance(PluginTester.class);

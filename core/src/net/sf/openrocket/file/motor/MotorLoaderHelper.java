@@ -9,18 +9,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
 public final class MotorLoaderHelper {
 
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(MotorLoaderHelper.class);
 
 	private MotorLoaderHelper() {
 		// Prevent construction

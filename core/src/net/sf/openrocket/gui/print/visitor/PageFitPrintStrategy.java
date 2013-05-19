@@ -3,19 +3,21 @@
  */
 package net.sf.openrocket.gui.print.visitor;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfWriter;
-import net.sf.openrocket.gui.print.PrintUnit;
-import net.sf.openrocket.gui.print.PrintableComponent;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
-
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ListIterator;
 import java.util.Set;
+
+import net.sf.openrocket.gui.print.PrintUnit;
+import net.sf.openrocket.gui.print.PrintableComponent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfWriter;
 
 /**
  * A strategy for drawing multiple rocket components onto as few pages as possible.
@@ -30,7 +32,7 @@ public class PageFitPrintStrategy {
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(PageFitPrintStrategy.class);
 
     /**
      * The iText document.

@@ -1,7 +1,8 @@
 package net.sf.openrocket.util;
 
-import static org.junit.Assert.*;
-import net.sf.openrocket.logging.TraceException;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class MutableTest {
 		} catch (IllegalStateException e) {
 			// Success
 			t = e.getCause();
-			assertTrue(t instanceof TraceException);
+			assertTrue(t instanceof Throwable);
 		}
 		
 		m.immute();

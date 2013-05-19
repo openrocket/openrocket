@@ -48,6 +48,11 @@ public enum LogLevel {
 	DEBUG,
 	
 	/**
+	 * Level at which redirected StdErr messages are logged
+	 */
+	STDERR,
+	
+	/**
 	 * Level of verbose debug logging to be used in areas which are called repeatedly,
 	 * such as computational methods used in simulations.  This level is separated to
 	 * allow filtering out the verbose logs generated during simulations, DnD etc.

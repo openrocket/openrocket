@@ -15,7 +15,6 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
@@ -31,16 +30,17 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OpenRocketSaver extends RocketSaver {
-	private static final LogHelper log = Application.getLogger();
-	
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketSaver.class);
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.

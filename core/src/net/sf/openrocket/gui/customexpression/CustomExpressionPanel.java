@@ -18,6 +18,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
@@ -25,13 +28,13 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.startup.Application;
 
 public class CustomExpressionPanel extends JPanel {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(CustomExpressionPanel.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private JPanel expressionSelectorPanel;
@@ -102,7 +105,7 @@ public class CustomExpressionPanel extends JPanel {
 							doc.addCustomExpression(exp);
 						}
 					} catch (RocketLoadException e1) {
-						log.user("Error opening document to import expressions from.");
+						log.info(Markers.USER_MARKER, "Error opening document to import expressions from.");
 					}
 					updateExpressions();
 				}

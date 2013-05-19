@@ -7,12 +7,12 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 import net.sf.openrocket.gui.print.FinMarkingGuide;
 import net.sf.openrocket.gui.print.ITextHelper;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.startup.Application;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A strategy for drawing a fin marking guide. As currently implemented, each body tube with a finset will have
@@ -24,7 +24,7 @@ public class FinMarkingGuideStrategy {
     /**
      * The logger.
      */
-    private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(FinMarkingGuideStrategy.class);
 
     /**
      * The iText document.

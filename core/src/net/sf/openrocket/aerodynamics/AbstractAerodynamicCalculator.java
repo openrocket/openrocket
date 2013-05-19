@@ -2,11 +2,12 @@ package net.sf.openrocket.aerodynamics;
 
 import java.util.Map;
 
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -17,7 +18,7 @@ import net.sf.openrocket.util.Coordinate;
  */
 
 public abstract class AbstractAerodynamicCalculator implements AerodynamicCalculator {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(AbstractAerodynamicCalculator.class);
 	
 	/** Number of divisions used when calculating worst CP. */
 	public static final int DIVISIONS = 360;

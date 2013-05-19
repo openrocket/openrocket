@@ -8,8 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.util.JarUtil;
 import net.sf.openrocket.util.Pair;
 
@@ -21,7 +22,7 @@ import net.sf.openrocket.util.Pair;
  */
 public class DirectoryIterator extends FileIterator {
 	
-	private static final LogHelper logger = Application.getLogger();
+	private static final Logger logger = LoggerFactory.getLogger(DirectoryIterator.class);
 	
 	private final FileFilter filter;
 	private final File[] files;

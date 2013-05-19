@@ -49,18 +49,22 @@ import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
+import net.sf.openrocket.logging.LoggingSystemSetup;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.logging.StackTraceWriter;
-import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.NumericComparator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DebugLogDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(DebugLogDialog.class);
 	
 	private static final int POLL_TIME = 250;
 	private static final String STACK_TRACE_MARK = "\uFF01";
 	private static final Translator trans = Application.getTranslator();
-
+	
 	private static final EnumMap<LogLevel, Color> backgroundColors = new EnumMap<LogLevel, Color>(LogLevel.class);
 	static {
 		for (LogLevel l : LogLevel.values()) {
@@ -90,7 +94,7 @@ public class DebugLogDialog extends JDialog {
 	private final JCheckBox followBox;
 	private final Timer timer;
 	
-
+	
 	private final JTable table;
 	private final ColumnTableModel model;
 	private final TableRowSorter<TableModel> sorter;
@@ -106,8 +110,7 @@ public class DebugLogDialog extends JDialog {
 		//// OpenRocket debug log
 		super(parent, trans.get("debuglogdlg.OpenRocketdebuglog"));
 		
-		// Start listening to log lines
-		LogHelper applicationLog = Application.getLogger();
+		LogHelper applicationLog = LoggingSystemSetup.getInstance();
 		if (applicationLog instanceof DelegatorLogger) {
 			log.info("Adding log listener");
 			delegator = (DelegatorLogger) applicationLog;
@@ -120,19 +123,19 @@ public class DebugLogDialog extends JDialog {
 		}
 		
 		// Fetch old log lines
-		LogLevelBufferLogger bufferLogger = Application.getLogBuffer();
+		LogLevelBufferLogger bufferLogger = LoggingSystemSetup.getBufferLogger();
 		if (bufferLogger != null) {
 			buffer.addAll(bufferLogger.getLogs());
 		} else {
 			log.warn("Application does not have a log buffer");
 		}
 		
-
+		
 		// Create the UI
 		JPanel mainPanel = new JPanel(new MigLayout("fill"));
 		this.add(mainPanel);
 		
-
+		
 		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		split.setDividerLocation(0.7);
 		mainPanel.add(split, "grow");
@@ -167,7 +170,7 @@ public class DebugLogDialog extends JDialog {
 		clear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Clearing log buffer");
+				log.info(Markers.USER_MARKER, "Clearing log buffer");
 				buffer.clear();
 				queue.clear();
 				model.fireTableDataChanged();
@@ -175,22 +178,22 @@ public class DebugLogDialog extends JDialog {
 		});
 		panel.add(clear, "right, wrap");
 		
-
-
+		
+		
 		// Create the table model
 		model = new ColumnTableModel(
-
-		new Column("#") {
-			@Override
-			public Object getValueAt(int row) {
-				return buffer.get(row).getLogCount();
-			}
-			
-			@Override
-			public int getDefaultWidth() {
-				return 60;
-			}
-		},
+				
+				new Column("#") {
+					@Override
+					public Object getValueAt(int row) {
+						return buffer.get(row).getLogCount();
+					}
+					
+					@Override
+					public int getDefaultWidth() {
+						return 60;
+					}
+				},
 				//// Time
 				new Column(trans.get("debuglogdlg.col.Time")) {
 					@Override
@@ -234,12 +237,8 @@ public class DebugLogDialog extends JDialog {
 				new Column(trans.get("debuglogdlg.col.Location")) {
 					@Override
 					public Object getValueAt(int row) {
-						TraceException e = buffer.get(row).getTrace();
-						if (e != null) {
-							return e.getMessage();
-						} else {
-							return "";
-						}
+						String e = buffer.get(row).getLocation();
+						return e;
 					}
 					
 					@Override
@@ -259,13 +258,13 @@ public class DebugLogDialog extends JDialog {
 						return 580;
 					}
 				}
-
-		) {
-			@Override
-			public int getRowCount() {
-				return buffer.size();
-			}
-		};
+				
+				) {
+					@Override
+					public int getRowCount() {
+						return buffer.size();
+					}
+				};
 		
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -292,12 +291,12 @@ public class DebugLogDialog extends JDialog {
 		table.setRowSorter(sorter);
 		sorter.setRowFilter(new LogFilter());
 		
-
+		
 		panel.add(new JScrollPane(table), "span, grow, width " +
 				(Toolkit.getDefaultToolkit().getScreenSize().width * 8 / 10) +
 				"px, height 400px");
 		
-
+		
 		panel = new JPanel(new MigLayout("fill"));
 		split.add(panel);
 		
@@ -333,7 +332,7 @@ public class DebugLogDialog extends JDialog {
 		GUIUtil.changeFontSize(stackTraceLabel, -2);
 		panel.add(new JScrollPane(stackTraceLabel), "grow");
 		
-
+		
 		//Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -344,7 +343,7 @@ public class DebugLogDialog extends JDialog {
 		});
 		mainPanel.add(close, "newline para, right, tag ok");
 		
-
+		
 		// Use timer to purge the queue so as not to overwhelm the EDT with events
 		timer = new Timer(POLL_TIME, new ActionListener() {
 			@Override
@@ -358,7 +357,7 @@ public class DebugLogDialog extends JDialog {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				log.user("Closing debug log dialog");
+				log.info(Markers.USER_MARKER, "Closing debug log dialog");
 				timer.stop();
 				if (delegator != null) {
 					log.info("Removing log listener");
@@ -371,8 +370,6 @@ public class DebugLogDialog extends JDialog {
 		followBox.requestFocus();
 	}
 	
-	
-
 	private void updateSelected(int row) {
 		if (row < 0) {
 			
@@ -389,12 +386,8 @@ public class DebugLogDialog extends JDialog {
 			numberLabel.setText("" + line.getLogCount());
 			timeLabel.setText(String.format("%.3f s", line.getTimestamp() / 1000.0));
 			levelLabel.setText(line.getLevel().toString());
-			TraceException e = line.getTrace();
-			if (e != null) {
-				locationLabel.setText(e.getMessage());
-			} else {
-				locationLabel.setText("-");
-			}
+			String e = line.getLocation();
+			locationLabel.setText(e);
 			messageLabel.setText(line.getMessage());
 			Throwable t = line.getCause();
 			if (t != null) {
@@ -498,7 +491,7 @@ public class DebugLogDialog extends JDialog {
 			this.setBackground(bg);
 			
 			this.setOpaque(true);
-			this.setText(value.toString());
+			this.setText(String.valueOf(value));
 			
 			return this;
 		}

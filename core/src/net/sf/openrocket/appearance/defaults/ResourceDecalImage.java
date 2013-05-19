@@ -33,8 +33,11 @@ class ResourceDecalImage implements DecalImage {
 	}
 	
 	@Override
-	public void exportImage(File file, boolean watchForChanges) throws IOException {
+	public void exportImage(File file) throws IOException {
+	}
 		
+	@Override
+	public void fireChangeEvent(Object source) {
 	}
 	
 	@Override

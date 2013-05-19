@@ -3,15 +3,9 @@ package net.sf.openrocket.startup;
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
-import net.sf.openrocket.gui.watcher.WatchService;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
-import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.logging.LogLevel;
-import net.sf.openrocket.logging.LogLevelBufferLogger;
-import net.sf.openrocket.logging.PrintStreamLogger;
 
 import com.google.inject.Injector;
 
@@ -22,23 +16,9 @@ import com.google.inject.Injector;
  */
 public final class Application {
 	
-	private static LogHelper logger;
-	private static LogLevelBufferLogger logBuffer;
-	
-	private static Translator baseTranslator = new DebugTranslator(null);
-	
-	private static ComponentPresetDao componentPresetDao;
-	
-	private static Preferences preferences;
-	
 	private static ExceptionHandler exceptionHandler;
 	
 	private static Injector injector;
-	
-	// Initialize the logger to something sane for testing without executing Startup
-	static {
-		setLogOutputLevel(LogLevel.DEBUG);
-	}
 	
 	/**
 	 * Return whether to use additional safety code checks.
@@ -52,94 +32,28 @@ public final class Application {
 		return false;
 	}
 	
-	/**
-	 * Retrieve the logger to be used in logging.  By default this returns
-	 * a logger that outputs to stdout/stderr even if not separately initialized,
-	 * useful for development and debugging.
-	 */
-	public static LogHelper getLogger() {
-		return logger;
+	private static Translator getBaseTranslator() {
+		return injector.getInstance(Translator.class);
 	}
-	
-	/**
-	 * Set the logger to be used in logging.  Note that calling this will only have effect
-	 * on not-yet loaded classes, as the instance is stored in a static variable.
-	 */
-	public static void setLogger(LogHelper logger) {
-		Application.logger = logger;
-	}
-	
-	public static WatchService getWatchService() {
-		return Application.injector.getInstance(WatchService.class);
-	}
-	
-	/**
-	 * Return the log buffer.
-	 * 
-	 * @return the logBuffer or null if not initialized
-	 */
-	public static LogLevelBufferLogger getLogBuffer() {
-		return logBuffer;
-	}
-	
-	/**
-	 * Set the log buffer logger.  The logger must be separately configured
-	 * to receive the logging.
-	 */
-	public static void setLogBuffer(LogLevelBufferLogger logBuffer) {
-		Application.logBuffer = logBuffer;
-	}
-	
-	
-	/**
-	 * Set the logging to output the specified log level and upwards to standard output.
-	 * 
-	 * @param level		the minimum logging level to output.
-	 */
-	public static void setLogOutputLevel(LogLevel level) {
-		logger = new PrintStreamLogger();
-		for (LogLevel l : LogLevel.values()) {
-			if (l.atLeast(level)) {
-				((PrintStreamLogger) logger).setOutput(l, System.out);
-			}
-		}
-		
-	}
-	
 	
 	/**
 	 * Return the translator to use for obtaining translated strings.
 	 * @return	a translator.
 	 */
 	public static Translator getTranslator() {
-		Translator t = baseTranslator;
+		Translator t = getBaseTranslator();
 		t = new ClassBasedTranslator(t, 1);
 		t = new ExceptionSuppressingTranslator(t);
 		return t;
 	}
 	
 	/**
-	 * Set the translator used in obtaining translated strings.
-	 * @param translator	the translator to set.
-	 */
-	public static void setBaseTranslator(Translator translator) {
-		Application.baseTranslator = translator;
-	}
-	
-	
-	/**
 	 * @return the preferences
 	 */
 	public static Preferences getPreferences() {
-		return preferences;
+		return injector.getInstance(Preferences.class);
 	}
 	
-	/**
-	 * @param preferences the preferences to set
-	 */
-	public static void setPreferences(Preferences preferences) {
-		Application.preferences = preferences;
-	}
 	
 	/**
 	 * @return the exceptionHandler
@@ -176,13 +90,10 @@ public final class Application {
 	}
 	
 	
+	@Deprecated
 	public static ComponentPresetDao getComponentPresetDao() {
-		return componentPresetDao;
+		return injector.getInstance(ComponentPresetDao.class);
 		
-	}
-	
-	public static void setComponentPresetDao(ComponentPresetDao componentPresetDao) {
-		Application.componentPresetDao = componentPresetDao;
 	}
 	
 	public static Injector getInjector() {

@@ -25,8 +25,12 @@ import net.sf.openrocket.util.SimpleStack;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent>, Visitable<RocketComponentVisitor, RocketComponent> {
+	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	/*

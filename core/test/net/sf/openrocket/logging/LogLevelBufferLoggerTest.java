@@ -5,35 +5,52 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 
 public class LogLevelBufferLoggerTest {
 	
+	// NOTE cast
+	private final static Logger logger = (Logger) LoggerFactory.getLogger(LogLevelBufferLoggerTest.class);
+	
 	@Test
 	public void testLogger() {
-		LogLevelBufferLogger logger = new LogLevelBufferLogger(4);
+		
+		// assume SLF4J is bound to logback in the current environment
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		
+		// Call context.reset() to clear any previous configuration, e.g. default 
+		// configuration. For multi-step configuration, omit calling context.reset().
+		context.reset();
+		LogbackBufferLoggerAdaptor a = new LogbackBufferLoggerAdaptor(4);
+		a.start();
+		logger.addAppender(a);
 		
 		logger.debug("debug 1");
 		logger.debug("debug 2");
-		logger.user("user 1");
+		logger.info(Markers.USER_MARKER, "user 1");
 		logger.info("info 1");
 		logger.info("info 2");
 		logger.warn("warn 1");
 		logger.debug("debug 3");
 		logger.debug("debug 4");
-		logger.user("user 2");
+		logger.info(Markers.USER_MARKER, "user 2");
 		logger.info("info 3");
 		logger.error("error 1");
 		logger.debug("debug 5");
 		logger.warn("warn 2");
 		logger.debug("debug 6");
-		logger.user("user 3");
+		logger.info(Markers.USER_MARKER, "user 3");
 		logger.info("info 4");
 		logger.debug("debug 7");
 		logger.info("info 5");
 		logger.debug("debug 8");
 		logger.info("info 6");
 		
-		List<LogLine> list = logger.getLogs();
+		LogLevelBufferLogger llbl = LoggingSystemSetup.getBufferLogger();
+		List<LogLine> list = llbl.getLogs();
 		assertEquals(16, list.size());
 		
 		assertEquals("user 1", list.get(0).getMessage());
@@ -54,5 +71,4 @@ public class LogLevelBufferLoggerTest {
 		assertEquals("info 6", list.get(15).getMessage());
 		
 	}
-	
 }

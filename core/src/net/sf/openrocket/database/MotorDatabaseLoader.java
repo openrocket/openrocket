@@ -1,4 +1,4 @@
-package net.sf.openrocket.startup;
+package net.sf.openrocket.database;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -8,20 +8,20 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
 
-import net.sf.openrocket.database.AsynchronousDatabaseLoader;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.file.iterator.DirectoryIterator;
 import net.sf.openrocket.file.iterator.FileIterator;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 
-import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An asynchronous database loader that loads the internal thrust curves
@@ -31,11 +31,11 @@ import com.google.inject.Inject;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
+	
+	private final static Logger log = LoggerFactory.getLogger(MotorDatabaseLoader.class);
+	
 	private static final String THRUSTCURVE_DIRECTORY = "datafiles/thrustcurves/";
 	private static final long STARTUP_DELAY = 0;
-	
-	@Inject
-	private LogHelper log;
 	
 	private final ThrustCurveMotorSetDatabase database = new ThrustCurveMotorSetDatabase();
 	private int motorCount = 0;

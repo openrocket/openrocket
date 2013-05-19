@@ -37,12 +37,13 @@ import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.main.Splash;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jogamp.opengl.util.awt.Overlay;
 
@@ -56,7 +57,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public static final int TYPE_FINISHED = 2;
 	
 	private static final long serialVersionUID = 1L;
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);
 	
 	static {
 		//this allows the GL canvas and things like the motor selection
@@ -131,31 +132,31 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		try {
 			log.debug("Setting up GL capabilities...");
 			
-			log.verbose("GL - Getting Default Profile");
+			log.trace("GL - Getting Default Profile");
 			final GLProfile glp = GLProfile.get(GLProfile.GL2);
 			
-			log.verbose("GL - creating GLCapabilities");
+			log.trace("GL - creating GLCapabilities");
 			final GLCapabilities caps = new GLCapabilities(glp);
 			
-			log.verbose("GL - setSampleBuffers");
+			log.trace("GL - setSampleBuffers");
 			caps.setSampleBuffers(true);
 			
-			log.verbose("GL - setNumSamples");
+			log.trace("GL - setNumSamples");
 			caps.setNumSamples(6);
 			
-			log.verbose("GL - Creating Canvas");
+			log.trace("GL - Creating Canvas");
 			canvas = new GLCanvas(caps);
 			
-			log.verbose("GL - Registering as GLEventListener on canvas");
+			log.trace("GL - Registering as GLEventListener on canvas");
 			canvas.addGLEventListener(this);
 			
-			log.verbose("GL - Adding canvas to this JPanel");
+			log.trace("GL - Adding canvas to this JPanel");
 			this.add(canvas, BorderLayout.CENTER);
 			
-			log.verbose("GL - Setting up mouse listeners");
+			log.trace("GL - Setting up mouse listeners");
 			setupMouseListeners();
 			
-			log.verbose("GL - Rasterizing Carets");
+			log.trace("GL - Rasterizing Carets");
 			rasterizeCarets();
 			
 		} catch (Throwable t) {
@@ -389,13 +390,13 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	@Override
 	public void dispose(final GLAutoDrawable drawable) {
-		log.verbose("GL - dispose() called");
+		log.trace("GL - dispose() called");
 		rr.dispose(drawable);
 	}
 	
 	@Override
 	public void init(final GLAutoDrawable drawable) {
-		log.verbose("GL - init()");
+		log.trace("GL - init()");
 		
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClearDepth(1.0f); // clear z-buffer to the farthest
@@ -425,7 +426,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	@Override
 	public void reshape(final GLAutoDrawable drawable, final int x, final int y, final int w, final int h) {
-		log.verbose("GL - reshape()");
+		log.trace("GL - reshape()");
 		final GL2 gl = drawable.getGL().getGL2();
 		final GLU glu = new GLU();
 		

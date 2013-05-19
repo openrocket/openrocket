@@ -2,9 +2,8 @@ package net.sf.openrocket.util;
 
 import java.util.Iterator;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.logging.TraceException;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A list of listeners of a specific type.  This class contains various utility,
@@ -19,21 +18,20 @@ import net.sf.openrocket.startup.Application;
  * @param <T>	the type of the listeners.
  */
 public class ListenerList<T> implements Invalidatable, Iterable<T> {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ListenerList.class);
 	
 	private final ArrayList<ListenerData<T>> listeners = new ArrayList<ListenerData<T>>();
-	private final TraceException instantiationLocation;
+	private final Throwable instantiationLocation;
 	
-	private TraceException invalidated = null;
+	private Throwable invalidated = null;
 	
 	
 	/**
 	 * Sole contructor.
 	 */
 	public ListenerList() {
-		this.instantiationLocation = new TraceException(1, 1);
+		this.instantiationLocation = new Throwable();
 	}
-	
 	
 	/**
 	 * Adds the specified listener to this list.  The listener is not added if it
@@ -49,7 +47,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 		
 		ListenerData<T> data = new ListenerData<T>(listener);
 		if (listeners.contains(data)) {
-			log.warn(1, "Attempting to add duplicate listener " + listener);
+			log.warn("Attempting to add duplicate listener " + listener);
 			return false;
 		}
 		listeners.add(data);
@@ -71,11 +69,11 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 		while (iterator.hasNext()) {
 			if (iterator.next().listener == listener) {
 				iterator.remove();
-				log.verbose(1, "Removing listener " + listener);
+				log.trace("Removing listener " + listener);
 				return true;
 			}
 		}
-		log.info(1, "Attempting to remove non-existant listener " + listener);
+		log.info("Attempting to remove non-existant listener " + listener);
 		return false;
 	}
 	
@@ -104,7 +102,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	 * Return the instantiation location of this listener list.
 	 * @return	the location where this listener list was instantiated.
 	 */
-	public TraceException getInstantiationLocation() {
+	public Throwable getInstantiationLocation() {
 		return instantiationLocation;
 	}
 	
@@ -116,7 +114,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	 */
 	@Override
 	public void invalidate() {
-		this.invalidated = new TraceException("Invalidation occurred at this point");
+		this.invalidated = new Throwable("Invalidation occurred at this point");
 		if (!listeners.isEmpty()) {
 			log.info("Invalidating " + this + " while still having listeners " + listeners);
 		}
@@ -134,8 +132,8 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 			if (error) {
 				throw new BugException(this + ": this ListenerList has been invalidated", invalidated);
 			} else {
-				log.warn(1, this + ": this ListenerList has been invalidated",
-						new TraceException("ListenerList was attempted to be used here", invalidated));
+				log.warn(this + ": this ListenerList has been invalidated",
+						new Throwable("ListenerList was attempted to be used here", invalidated));
 			}
 		}
 	}
@@ -177,7 +175,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 	public static class ListenerData<T> {
 		private final T listener;
 		private final long addTimestamp;
-		private final TraceException addLocation;
+		private final Throwable addLocation;
 		private long accessTimestamp;
 		
 		/**
@@ -190,7 +188,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 			this.listener = listener;
 			this.addTimestamp = System.currentTimeMillis();
 			this.accessTimestamp = this.addTimestamp;
-			this.addLocation = new TraceException("Listener " + listener + " add position");
+			this.addLocation = new Throwable("Listener " + listener + " add position");
 		}
 		
 		@Override
@@ -226,7 +224,7 @@ public class ListenerList<T> implements Invalidatable, Iterable<T> {
 		/**
 		 * Return the location where this listener was added to the listener list.
 		 */
-		public TraceException getAddLocation() {
+		public Throwable getAddLocation() {
 			return addLocation;
 		}
 		
