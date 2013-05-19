@@ -39,9 +39,9 @@ import com.google.inject.Module;
  *
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class SwingApplication {
+public class SwingStartup {
 	
-	private final static Logger log = LoggerFactory.getLogger(SwingApplication.class);
+	private final static Logger log = LoggerFactory.getLogger(SwingStartup.class);
 	
 	/**
 	 * OpenRocket startup main method.
@@ -61,10 +61,10 @@ public class SwingApplication {
 		
 		// If running on a MAC set up OSX UI Elements.
 		if (SystemInfo.getPlatform() == Platform.MAC_OS) {
-			OSXStartup.setupOSX();
+			OSXSetup.setupOSX();
 		}
 		
-		final SwingApplication runner = new SwingApplication();
+		final SwingStartup runner = new SwingStartup();
 		
 		// Run the actual startup method in the EDT since it can use progress dialogs etc.
 		log.info("Moving startup to EDT");

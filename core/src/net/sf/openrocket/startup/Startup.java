@@ -15,7 +15,7 @@ import net.sf.openrocket.startup.jij.PluginClasspathProvider;
  * 
  * The startup class sequence is the following:
  *   1. Startup
- *   2. SwingApplication
+ *   2. SwingStartup
  * 
  * This class changes the current classpath to contain the jar-in-jar
  * library dependencies and plugins in the current classpath, and
@@ -23,9 +23,9 @@ import net.sf.openrocket.startup.jij.PluginClasspathProvider;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class JiJStartup {
+public class Startup {
 	
-	private static final String STARTUP_CLASS = "net.sf.openrocket.startup.SwingApplication";
+	private static final String STARTUP_CLASS = "net.sf.openrocket.startup.SwingStartup";
 	
 	public static void main(String[] args) {
 		addClasspathUrlHandler();

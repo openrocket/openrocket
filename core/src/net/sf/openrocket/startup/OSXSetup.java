@@ -26,8 +26,8 @@ import com.apple.eawt.AppEvent.QuitEvent;
  * @author Bill Kuker <bkuker@billkuker.com>
  * 
  */
-final class OSXStartup {
-	private static final Logger log = LoggerFactory.getLogger(OSXStartup.class);
+final class OSXSetup {
+	private static final Logger log = LoggerFactory.getLogger(OSXSetup.class);
 
 	// The name in the app menu
 	private static final String APP_NAME = "OpenRocket";
@@ -103,7 +103,7 @@ final class OSXStartup {
 
 			// Set the dock icon to the largest icon
 			final Image dockIcon = Toolkit.getDefaultToolkit().getImage(
-					SwingApplication.class.getResource(ICON_RSRC));
+					SwingStartup.class.getResource(ICON_RSRC));
 			osxApp.setDockIconImage(dockIcon);
 
 		} catch (final Throwable t) {

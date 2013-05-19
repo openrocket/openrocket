@@ -1,6 +1,7 @@
 package net.sf.openrocket.startup.providers;
 
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 
 import net.sf.openrocket.l10n.DebugTranslator;
@@ -17,8 +18,16 @@ public class TranslatorProvider implements Provider<Translator> {
 	
 	private final static Logger log = LoggerFactory.getLogger(TranslatorProvider.class);
 	
+	private AtomicReference<Translator> translator = new AtomicReference<Translator>();
+	
 	@Override
 	public Translator get() {
+		
+		Translator oldTranslator = translator.get();
+		
+		if (oldTranslator != null) {
+			return oldTranslator;
+		}
 		
 		// Check for locale propery
 		String langcode = System.getProperty("openrocket.locale");
@@ -43,16 +52,20 @@ public class TranslatorProvider implements Provider<Translator> {
 		}
 		
 		// Setup the translator
-		Translator t;
-		t = new ResourceBundleTranslator("l10n.messages");
+		Translator newTranslator;
+		newTranslator = new ResourceBundleTranslator("l10n.messages");
 		if (Locale.getDefault().getLanguage().equals("xx")) {
-			t = new DebugTranslator(t);
+			newTranslator = new DebugTranslator(newTranslator);
 		}
 		
 		log.info("Set up translation for locale " + Locale.getDefault() +
-				", debug.currentFile=" + t.get("debug.currentFile"));
+				", debug.currentFile=" + newTranslator.get("debug.currentFile"));
 		
-		return t;
+		if (translator.compareAndSet(null, newTranslator)) {
+			return newTranslator;
+		} else {
+			return translator.get();
+		}
 		
 	}
 	

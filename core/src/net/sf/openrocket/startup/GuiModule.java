@@ -16,6 +16,7 @@ import net.sf.openrocket.startup.providers.BlockingMotorDatabaseProvider;
 import net.sf.openrocket.startup.providers.TranslatorProvider;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
 /**
  * GuiModule is the Guice Module for the OpenRocket Swing application.
@@ -26,7 +27,7 @@ import com.google.inject.AbstractModule;
  * <code>
  * GuiModule module = new GuiModule();
  * Application.setInjector( Guice.createInjector(guiModule));
- * module.startLoadin();
+ * module.startLoading();
  * </code>
  * 
  * @author kruland
@@ -44,17 +45,17 @@ public class GuiModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		
-		bind(Preferences.class).to(SwingPreferences.class);
-		bind(Translator.class).toProvider(TranslatorProvider.class);
-		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class);
-		bind(WatchService.class).to(WatchServiceImpl.class);
+		bind(Preferences.class).to(SwingPreferences.class).in(Scopes.SINGLETON);
+		bind(Translator.class).toProvider(TranslatorProvider.class).in(Scopes.SINGLETON);
+		bind(RocketDescriptor.class).to(RocketDescriptorImpl.class).in(Scopes.SINGLETON);
+		bind(WatchService.class).to(WatchServiceImpl.class).in(Scopes.SINGLETON);
 		
 		BlockingComponentPresetDatabaseProvider componentDatabaseProvider = new BlockingComponentPresetDatabaseProvider(presetLoader);
-		bind(ComponentPresetDao.class).toProvider(componentDatabaseProvider);
+		bind(ComponentPresetDao.class).toProvider(componentDatabaseProvider).in(Scopes.SINGLETON);
 		
 		BlockingMotorDatabaseProvider motorDatabaseProvider = new BlockingMotorDatabaseProvider(motorLoader);
-		bind(ThrustCurveMotorSetDatabase.class).toProvider(motorDatabaseProvider);
-		bind(MotorDatabase.class).toProvider(motorDatabaseProvider);
+		bind(ThrustCurveMotorSetDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
+		bind(MotorDatabase.class).toProvider(motorDatabaseProvider).in(Scopes.SINGLETON);
 		
 	}
 	

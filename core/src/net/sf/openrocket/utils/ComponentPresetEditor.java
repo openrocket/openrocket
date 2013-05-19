@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.preset;
+package net.sf.openrocket.utils;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -31,6 +31,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.xml.bind.JAXBException;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.gui.preset.ButtonColumn;
+import net.sf.openrocket.gui.preset.PresetEditorDialog;
+import net.sf.openrocket.gui.preset.PresetResultListener;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
@@ -38,11 +41,9 @@ import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.loader.MaterialHolder;
-import net.sf.openrocket.preset.loader.RocksimComponentFileTranslator;
 import net.sf.openrocket.preset.xml.OpenRocketComponentDTO;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.utils.BasicApplication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package net.sf.openrocket.preset.loader;
+package net.sf.openrocket.utils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,9 +8,20 @@ import java.util.List;
 
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.preset.loader.BodyTubeLoader;
+import net.sf.openrocket.preset.loader.BulkHeadLoader;
+import net.sf.openrocket.preset.loader.CenteringRingLoader;
+import net.sf.openrocket.preset.loader.EngineBlockLoader;
+import net.sf.openrocket.preset.loader.LaunchLugLoader;
+import net.sf.openrocket.preset.loader.MaterialHolder;
+import net.sf.openrocket.preset.loader.MaterialLoader;
+import net.sf.openrocket.preset.loader.NoseConeLoader;
+import net.sf.openrocket.preset.loader.ParachuteLoader;
+import net.sf.openrocket.preset.loader.StreamerLoader;
+import net.sf.openrocket.preset.loader.TransitionLoader;
+import net.sf.openrocket.preset.loader.TubeCouplerLoader;
 import net.sf.openrocket.preset.xml.OpenRocketComponentSaver;
 import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.utils.BasicApplication;
 
 public class RocksimComponentFileTranslator {
 
