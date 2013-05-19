@@ -4,15 +4,17 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import net.sf.openrocket.gui.dialogs.BugReportDialog;
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.logging.TraceException;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.ExceptionHandler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, ExceptionHandler {
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SwingExceptionHandler.class);
 	
 	private static final int MEMORY_RESERVE = 512 * 1024;
 	
@@ -26,8 +28,8 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	private volatile boolean handling = false;
 	
 	
-
-
+	
+	
 	@Override
 	public void uncaughtException(final Thread thread, final Throwable throwable) {
 		
@@ -97,7 +99,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	 */
 	@Override
 	public void handleErrorCondition(String message) {
-		log.error(1, message, new TraceException());
+		log.error(message, new Throwable());
 		handleErrorCondition(new InternalException(message));
 	}
 	
@@ -114,7 +116,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	 */
 	@Override
 	public void handleErrorCondition(String message, Throwable exception) {
-		log.error(1, message, exception);
+		log.error(message, exception);
 		handleErrorCondition(new InternalException(message, exception));
 	}
 	
@@ -132,7 +134,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	public void handleErrorCondition(final Throwable exception) {
 		try {
 			if (!(exception instanceof InternalException)) {
-				log.error(1, "Error occurred", exception);
+				log.error("Error occurred", exception);
 			}
 			final Thread thread = Thread.currentThread();
 			
@@ -194,7 +196,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			return;
 		}
 		
-
+		
 		// Normal exception, show question dialog		
 		log.info("Showing Exception dialog");
 		int selection = JOptionPane.showOptionDialog(null, new Object[] {
@@ -204,23 +206,23 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 				" ",
 				"Please take a moment to report this bug to the developers.",
 				"This can be done automatically if you have an Internet connection."
-				}, "Uncaught exception", JOptionPane.DEFAULT_OPTION,
+		}, "Uncaught exception", JOptionPane.DEFAULT_OPTION,
 				JOptionPane.ERROR_MESSAGE, null,
 				new Object[] { "View bug report", "Close" }, "View bug report");
 		
 		if (selection != 0) {
 			// User cancelled
-			log.user("User chose not to fill bug report");
+			log.info(Markers.USER_MARKER, "User chose not to fill bug report");
 			return;
 		}
 		
 		// Show bug report dialog
-		log.user("User requested sending bug report");
+		log.info(Markers.USER_MARKER, "User requested sending bug report");
 		BugReportDialog.showExceptionDialog(null, t, e);
 	}
 	
 	
-
+	
 	/**
 	 * Registers the uncaught exception handler.  This should be used to ensure that
 	 * all necessary registrations are performed.
@@ -228,11 +230,11 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	public void registerExceptionHandler() {
 		
 		Thread.setDefaultUncaughtExceptionHandler(this);
-
+		
 		// Handler for modal dialogs of Sun's Java implementation
 		// See bug ID 4499199.
 		System.setProperty("sun.awt.exception.handler", AwtHandler.class.getName());
-
+		
 		reserveMemory();
 		
 	}
@@ -249,7 +251,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	}
 	
 	
-
+	
 	/**
 	 * Return whether this throwable was caused by an OutOfMemoryError
 	 * condition.  An exception is deemed to be caused by OutOfMemoryError
@@ -271,13 +273,13 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 	}
 	
 	
-
+	
 	/**
 	 * Handler used in modal dialogs by Sun Java implementation.
 	 */
 	public static class AwtHandler {
 		public void handle(Throwable t) {
-				Application.getExceptionHandler().uncaughtException(Thread.currentThread(), t);
+			Application.getExceptionHandler().uncaughtException(Thread.currentThread(), t);
 		}
 	}
 	
@@ -292,7 +294,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 		
 		// NOTE:  Calling method logs the entire throwable, so log only message here
 		
-
+		
 		/*
 		 * Detect and ignore bug 6826104 in Sun JRE.
 		 */
@@ -302,10 +304,10 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			if (trace.length > 3 &&
 					trace[0].getClassName().equals("sun.awt.X11.XWindowPeer") &&
 					trace[0].getMethodName().equals("restoreTransientFor") &&
-
+					
 					trace[1].getClassName().equals("sun.awt.X11.XWindowPeer") &&
 					trace[1].getMethodName().equals("removeFromTransientFors") &&
-
+					
 					trace[2].getClassName().equals("sun.awt.X11.XWindowPeer") &&
 					trace[2].getMethodName().equals("setModalBlocked")) {
 				log.warn("Ignoring Sun JRE bug (6826104): http://bugs.sun.com/view_bug.do?bug_id=6826104" + t);
@@ -314,7 +316,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			
 		}
 		
-
+		
 		/*
 		 * Detect and ignore bug 6828938 in Sun JRE 1.6.0_14 - 1.6.0_16.
 		 */
@@ -324,7 +326,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			if (elements.length >= 3 &&
 					(buggyClass.equals(elements[0].getClassName()) ||
 							buggyClass.equals(elements[1].getClassName()) ||
-						buggyClass.equals(elements[2].getClassName()))) {
+					buggyClass.equals(elements[2].getClassName()))) {
 				log.warn("Ignoring Sun JRE bug 6828938:  " +
 						"(see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6828938): " + t);
 				return true;
@@ -340,10 +342,10 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			if (trace.length > 3 &&
 					trace[0].getClassName().equals("javax.swing.JComponent") &&
 					trace[0].getMethodName().equals("repaint") &&
-
+					
 					trace[1].getClassName().equals("sun.swing.FilePane$2") &&
 					trace[1].getMethodName().equals("repaintListSelection") &&
-
+					
 					trace[2].getClassName().equals("sun.swing.FilePane$2") &&
 					trace[2].getMethodName().equals("repaintSelection")) {
 				log.warn("Ignoring Sun JRE bug 6561072 " +
@@ -352,7 +354,7 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			}
 		}
 		
-
+		
 		/*
 		 * Detect and ignore bug 6933331 in Sun JRE 1.6.0_18 and others
 		 */
@@ -377,10 +379,10 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 			if (trace.length > 3 &&
 					trace[0].getClassName().equals("sun.awt.shell.Win32ShellFolder2") &&
 					trace[0].getMethodName().equals("pidlsEqual") &&
-
+					
 					trace[1].getClassName().equals("sun.awt.shell.Win32ShellFolder2") &&
 					trace[1].getMethodName().equals("equals") &&
-
+					
 					trace[2].getClassName().equals("sun.awt.shell.Win32ShellFolderManager2") &&
 					trace[2].getMethodName().equals("isFileSystemRoot")) {
 				log.warn("Ignoring Sun JRE bug " +

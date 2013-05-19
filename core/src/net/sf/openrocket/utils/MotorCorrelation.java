@@ -8,12 +8,10 @@ import java.util.List;
 
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.file.motor.MotorLoader;
-import net.sf.openrocket.logging.LogLevel;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.ThrustCurveMotor;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MathUtil;
 
@@ -98,10 +96,9 @@ public class MotorCorrelation {
 	}
 	
 	
-
-
+	
+	
 	public static void main(String[] args) {
-		Application.setLogOutputLevel(LogLevel.WARN);
 		
 		MotorLoader loader = new GeneralMotorLoader();
 		List<Motor> motors = new ArrayList<Motor>();

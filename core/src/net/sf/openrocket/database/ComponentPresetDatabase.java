@@ -5,34 +5,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.openrocket.logging.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 
-public abstract class ComponentPresetDatabase extends Database<ComponentPreset> implements ComponentPresetDao {
+public class ComponentPresetDatabase extends Database<ComponentPreset> implements ComponentPresetDao {
 
-	private static final LogHelper logger = Application.getLogger();
-
-	private volatile boolean startedLoading = false;
-	private volatile boolean endedLoading = false;
-	private final boolean asynchronous;
-
-	/** Set to true the first time {@link #blockUntilLoaded()} is called. */
-	protected volatile boolean inUse = false;
-
+	private static final Logger logger = LoggerFactory.getLogger(ComponentPresetDatabase.class);
+	
 	public ComponentPresetDatabase() {
 		super();
-		this.asynchronous = false;
 	}
 	
-	public ComponentPresetDatabase(boolean asynchronous ) {
-		super();
-		this.asynchronous = asynchronous;
-	}
-
 	@Override
 	public List<ComponentPreset> listAll() {
-		blockUntilLoaded();
 		return list;
 	}
 
@@ -43,7 +31,6 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 
 	@Override
 	public List<ComponentPreset> listForType( ComponentPreset.Type type ) {
-		blockUntilLoaded();
 		if ( type == null ) {
 			return Collections.<ComponentPreset>emptyList();
 		}
@@ -69,8 +56,6 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 	 */
 	@Override
 	public List<ComponentPreset> listForType( ComponentPreset.Type type, boolean favorite ) {
-		blockUntilLoaded();
-
 		if ( !favorite ) {
 			return listForType(type);
 		}
@@ -89,8 +74,6 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 
 	@Override
 	public List<ComponentPreset> listForTypes( ComponentPreset.Type ... type ) {
-		blockUntilLoaded();
-
 		if( type == null || type.length == 0 ) {
 			return Collections.<ComponentPreset>emptyList();
 		}
@@ -116,13 +99,11 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 
 	@Override
 	public List<ComponentPreset> listForTypes( List<ComponentPreset.Type> types ) {
-		blockUntilLoaded();
 		return listForTypes( (ComponentPreset.Type[]) types.toArray() );
 	}
 
 	@Override
 	public List<ComponentPreset> find(String manufacturer, String partNo) {
-		blockUntilLoaded();
 		List<ComponentPreset> presets = new ArrayList<ComponentPreset>();
 		for( ComponentPreset preset : list ) {
 			if ( preset.getManufacturer().getSimpleName().equals(manufacturer) && preset.getPartNo().equals(partNo) ) {
@@ -134,75 +115,8 @@ public abstract class ComponentPresetDatabase extends Database<ComponentPreset> 
 
 	@Override
 	public void setFavorite( ComponentPreset preset, ComponentPreset.Type type, boolean favorite ) {
-		blockUntilLoaded();
 		Application.getPreferences().setComponentFavorite( preset, type, favorite );
 		this.fireAddEvent(preset);
-	}
-
-
-	/**
-	 * Used for loading the component preset database.  This method will be called in a background
-	 * thread to load the presets asynchronously.
-	 */
-	protected abstract void load();
-
-	/**
-	 * Start loading the presets.
-	 * 
-	 * @throws  IllegalStateException	if this method has already been called.
-	 */
-	public void startLoading() {
-		if (startedLoading) {
-			throw new IllegalStateException("Already called startLoading");
-		}
-		startedLoading = true;
-		if (asynchronous) {
-			new LoadingThread().start();
-		} else {
-			load();
-		}
-		synchronized (this) {
-			endedLoading = true;
-			this.notifyAll();
-		}
-	}
-
-	/**
-	 * Background thread for loading the presets. 
-	 */
-	private class LoadingThread extends Thread {
-		
-		private LoadingThread() {
-			this.setName("PresetLoadingThread");
-			this.setPriority(MIN_PRIORITY);
-		}
-		@Override
-		public void run() {
-			load();
-		}
-	}
-
-	/**
-	 * Block the current thread until loading of the presets has been completed.
-	 * 
-	 * @throws IllegalStateException	if startLoading() has not been called.
-	 */
-	public void blockUntilLoaded() {
-		inUse = true;
-		if (!startedLoading) {
-			throw new IllegalStateException("startLoading() has not been called");
-		}
-		if (!endedLoading) {
-			synchronized (this) {
-				while (!endedLoading) {
-					try {
-						this.wait();
-					} catch (InterruptedException e) {
-						logger.warn("InterruptedException occurred, ignoring", e);
-					}
-				}
-			}
-		}
 	}
 
 }

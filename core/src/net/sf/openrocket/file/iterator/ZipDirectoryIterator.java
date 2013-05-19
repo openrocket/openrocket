@@ -8,8 +8,9 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.openrocket.util.Pair;
 
 /**
@@ -22,7 +23,7 @@ import net.sf.openrocket.util.Pair;
  */
 public class ZipDirectoryIterator extends FileIterator {
 	
-	private static final LogHelper logger = Application.getLogger();
+	private static final Logger logger = LoggerFactory.getLogger(ZipDirectoryIterator.class);
 
 	private final File zipFileName;
 	private final String directory;

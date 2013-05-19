@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
@@ -29,11 +28,14 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.SimpleStack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private static final Translator trans = Application.getTranslator();
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
 	private SimulationStepper flightStepper = new RK4SimulationStepper();
@@ -129,7 +131,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - status.getSimulationTime(), 0.001);
 					}
-					log.verbose("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
+					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
 					currentStepper.step(status, maxStepTime);
 				}
 				SimulationListenerHelper.firePostStep(status);
@@ -282,8 +284,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		boolean ret = true;
 		FlightEvent event;
 		
-		log.verbose("HandleEvents: current branch = " + status.getFlightData().getBranchName());
-		log.verbose("EventQueue = " + status.getEventQueue().toString());
+		log.trace("HandleEvents: current branch = " + status.getFlightData().getBranchName());
+		log.trace("EventQueue = " + status.getEventQueue().toString());
 		for (event = nextEvent(); event != null; event = nextEvent()) {
 			
 			// Ignore events for components that are no longer attached to the rocket
@@ -298,7 +300,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			
 			if (event.getType() != FlightEvent.Type.ALTITUDE) {
-				log.verbose("BasicEventSimulationEngine:  Handling event " + event);
+				log.trace("BasicEventSimulationEngine:  Handling event " + event);
 			}
 			
 			if (event.getType() == FlightEvent.Type.IGNITION) {

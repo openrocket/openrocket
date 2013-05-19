@@ -11,16 +11,16 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.util.GUIUtil;
-import net.sf.openrocket.l10n.ResourceBundleTranslator;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.utils.BasicApplication;
 
 public class Tester {
 	
-
+	
 	public static void main(String[] args) throws InterruptedException, InvocationTargetException {
 		
-		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
+		BasicApplication baseApp = new BasicApplication();
+		baseApp.initializeApplication();
 		
 		GUIUtil.setBestLAF();
 		
@@ -33,7 +33,7 @@ public class Tester {
 				DoubleModel model = new DoubleModel(Math.toRadians(45), UnitGroup.UNITS_ANGLE);
 				DoubleModel second = new DoubleModel(Math.toRadians(30), UnitGroup.UNITS_ANGLE);
 				
-
+				
 				CompassPointer rose = new CompassSelector(model);
 				rose.setPreferredSize(new Dimension(300, 300));
 				rose.setSecondaryModel(second);
@@ -51,11 +51,11 @@ public class Tester {
 				spin.setPreferredSize(new Dimension(50, 20));
 				panel.add(spin, "wrap para");
 				
-
+				
 				CompassSelectionButton button = new CompassSelectionButton(model);
 				panel.add(button);
 				
-
+				
 				frame.add(panel);
 				frame.pack();
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

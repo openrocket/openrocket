@@ -5,14 +5,15 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Locale;
 
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Inertia;
 import net.sf.openrocket.util.MathUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Serializable {
@@ -20,8 +21,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	 * 
 	 */
 	private static final long serialVersionUID = -1490333207132694479L;
-
-	private static final LogHelper log = Application.getLogger();
+	
+	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotor.class);
 	
 	public static final double MAX_THRUST = 10e6;
 	
@@ -33,7 +34,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	private static final DesignationComparator DESIGNATION_COMPARATOR = new DesignationComparator();
 	
 	private final String digest;
-
+	
 	private final Manufacturer manufacturer;
 	private final String designation;
 	private final String description;
@@ -55,7 +56,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	 * Constructs a new ThrustCurveMotor from an existing ThrustCurveMotor.
 	 * @param m
 	 */
-	protected ThrustCurveMotor( ThrustCurveMotor m ) {
+	protected ThrustCurveMotor(ThrustCurveMotor m) {
 		this.digest = m.digest;
 		this.manufacturer = m.manufacturer;
 		this.designation = m.designation;
@@ -66,8 +67,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		this.length = m.length;
 		this.time = ArrayUtils.copyOf(m.time, m.time.length);
 		this.thrust = ArrayUtils.copyOf(m.thrust, m.thrust.length);
-		this.cg = new Coordinate[ m.cg.length ];
-		for( int i = 0; i< cg.length; i++ ) {
+		this.cg = new Coordinate[m.cg.length];
+		for (int i = 0; i < cg.length; i++) {
 			this.cg[i] = m.cg[i].clone();
 		}
 		this.maxThrust = m.maxThrust;
@@ -146,7 +147,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			throw new IllegalArgumentException("Illegal motor type=" + type);
 		}
 		
-
+		
 		this.manufacturer = manufacturer;
 		this.designation = designation;
 		this.description = description;
@@ -162,7 +163,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	
-
+	
 	/**
 	 * Get the manufacturer of this motor.
 	 * 
@@ -262,8 +263,8 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public double getBurnTimeEstimate() {
 		return burnTime;
@@ -289,7 +290,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		return digest;
 	}
 	
-
+	
 	/**
 	 * Compute the general statistics of this motor.
 	 */
@@ -302,7 +303,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				maxThrust = t;
 		}
 		
-
+		
 		// Burn start time
 		double thrustLimit = maxThrust * MARGINAL_THRUST;
 		double burnStart, burnEnd;
@@ -323,7 +324,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			burnStart = MathUtil.map(thrustLimit, thrust[pos - 1], thrust[pos], time[pos - 1], time[pos]);
 		}
 		
-
+		
 		// Burn end time
 		for (pos = thrust.length - 2; pos >= 0; pos--) {
 			if (thrust[pos] >= thrustLimit)
@@ -341,11 +342,11 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 					time[pos], time[pos + 1]);
 		}
 		
-
+		
 		// Burn time
 		burnTime = Math.max(burnEnd - burnStart, 0);
 		
-
+		
 		// Total impulse and average thrust
 		totalImpulse = 0;
 		averageThrust = 0;
@@ -409,7 +410,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	
-
+	
 	////////  Motor instance implementation  ////////
 	private class ThrustCurveMotorInstance implements MotorInstance {
 		
@@ -448,7 +449,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		}
 		
 		@Override
-		public Motor getParentMotor(){
+		public Motor getParentMotor() {
 			return parentMotor;
 		}
 		
@@ -505,7 +506,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				return;
 			}
 			
-
+			
 			// Compute average & instantaneous thrust
 			if (nextTime < time[position + 1]) {
 				
@@ -524,7 +525,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 				position++;
 				while ((position < time.length - 1) && (nextTime >= time[position + 1])) {
 					stepThrust += (thrust[position] + thrust[position + 1]) / 2 *
-									(time[position + 1] - time[position]);
+							(time[position + 1] - time[position]);
 					position++;
 				}
 				
@@ -533,7 +534,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 					instThrust = MathUtil.map(nextTime, time[position], time[position + 1],
 							thrust[position], thrust[position + 1]);
 					stepThrust += (thrust[position] + instThrust) / 2 *
-									(nextTime - time[position]);
+							(nextTime - time[position]);
 				} else {
 					// Thrust ended during this step
 					instThrust = 0;
@@ -574,7 +575,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	}
 	
 	
-
+	
 	@Override
 	public int compareTo(ThrustCurveMotor other) {
 		
@@ -602,5 +603,5 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 	}
 	
-
+	
 }

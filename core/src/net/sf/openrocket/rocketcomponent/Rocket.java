@@ -10,13 +10,15 @@ import java.util.List;
 import java.util.UUID;
 
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -30,7 +32,7 @@ import net.sf.openrocket.util.UniqueID;
  */
 
 public class Rocket extends RocketComponent {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(Rocket.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	public static final String DEFAULT_NAME = "[{motors}]";
@@ -352,18 +354,16 @@ public class Rocket extends RocketComponent {
 	public void addComponentChangeListener(ComponentChangeListener l) {
 		checkState();
 		listenerList.add(l);
-		log.verbose("Added ComponentChangeListener " + l + ", current number of listeners is " +
+		log.trace("Added ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
 	
 	@Override
 	public void removeComponentChangeListener(ComponentChangeListener l) {
 		listenerList.remove(l);
-		log.verbose("Removed ComponentChangeListener " + l + ", current number of listeners is " +
+		log.trace("Removed ComponentChangeListener " + l + ", current number of listeners is " +
 				listenerList.size());
 	}
-	
-	
 	
 	@Override
 	protected void fireComponentChangeEvent(ComponentChangeEvent e) {

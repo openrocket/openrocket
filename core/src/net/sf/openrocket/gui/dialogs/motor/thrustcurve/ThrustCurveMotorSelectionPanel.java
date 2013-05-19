@@ -52,7 +52,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.startup.Application;
@@ -70,9 +70,11 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorSelectionPanel.class);
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final double MOTOR_SIMILARITY_THRESHOLD = 0.95;
@@ -269,12 +271,12 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				if (row >= 0) {
 					row = table.convertRowIndexToModel(row);
 					ThrustCurveMotorSet motorSet = model.getMotorSet(row);
-					log.user("Selected table row " + row + ": " + motorSet);
+					log.info(Markers.USER_MARKER, "Selected table row " + row + ": " + motorSet);
 					if (motorSet != selectedMotorSet) {
 						select(selectMotor(motorSet));
 					}
 				} else {
-					log.user("Selected table row " + row + ", nothing selected");
+					log.info(Markers.USER_MARKER, "Selected table row " + row + ", nothing selected");
 				}
 			}
 		});

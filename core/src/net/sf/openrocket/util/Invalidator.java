@@ -1,8 +1,9 @@
 package net.sf.openrocket.util;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.logging.TraceException;
 import net.sf.openrocket.startup.Application;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class that performs object invalidation functions.
@@ -12,10 +13,10 @@ import net.sf.openrocket.startup.Application;
 public class Invalidator implements Invalidatable {
 	private static final boolean USE_CHECKS = Application.useSafetyChecks();
 	
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(Invalidator.class);
 	
 	private final Object monitorable;
-	private TraceException invalidated = null;
+	private Throwable invalidated = null;
 	
 	
 	/**
@@ -42,8 +43,8 @@ public class Invalidator implements Invalidatable {
 			if (throwException) {
 				throw new BugException(monitorable + ": This object has been invalidated", invalidated);
 			} else {
-				log.warn(1, monitorable + ": This object has been invalidated",
-						new TraceException("Usage was attempted here", invalidated));
+				log.warn(monitorable + ": This object has been invalidated",
+						new Throwable("Usage was attempted here", invalidated));
 			}
 			return false;
 		}
@@ -64,9 +65,9 @@ public class Invalidator implements Invalidatable {
 	public void invalidate() {
 		if (USE_CHECKS) {
 			if (invalidated != null) {
-				log.warn(1, monitorable + ": This object has already been invalidated, ignoring", invalidated);
+				log.warn(monitorable + ": This object has already been invalidated, ignoring", invalidated);
 			}
-			invalidated = new TraceException("Invalidation occurred here");
+			invalidated = new Throwable("Invalidation occurred here");
 		}
 	}
 	

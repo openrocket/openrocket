@@ -20,7 +20,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.optimization.general.Point;
 import net.sf.openrocket.optimization.rocketoptimization.OptimizableParameter;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationModifier;
@@ -51,6 +50,8 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.TextAnchor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class that plots the path of an optimization.
@@ -58,7 +59,7 @@ import org.jfree.ui.TextAnchor;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OptimizationPlotDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OptimizationPlotDialog.class);
 	private static final Translator trans = Application.getTranslator();
 	
 

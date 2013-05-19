@@ -14,9 +14,12 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.MathUtil;
 
@@ -30,7 +33,7 @@ import net.sf.openrocket.util.MathUtil;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class SwingWorkerDialog extends JDialog implements PropertyChangeListener {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(SwingWorkerDialog.class);
 	private static final Translator trans = Application.getTranslator();
 
 	/** Number of milliseconds to wait at a time between checking worker status */
@@ -72,7 +75,7 @@ public class SwingWorkerDialog extends JDialog implements PropertyChangeListener
 		cancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("User cancelled SwingWorker operation");
+				log.info(Markers.USER_MARKER, "User cancelled SwingWorker operation");
 				cancel();
 			}
 		});

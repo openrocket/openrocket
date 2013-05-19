@@ -13,7 +13,6 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -31,6 +30,9 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -79,7 +81,7 @@ public class DesignReport {
 	/**
 	 * The logger.
 	 */
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(DesignReport.class);
 	public static final double SCALE_FUDGE_FACTOR = 0.4d;
 	
 	private static final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);

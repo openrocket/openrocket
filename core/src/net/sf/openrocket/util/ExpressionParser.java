@@ -2,13 +2,14 @@ package net.sf.openrocket.util;
 
 import java.text.DecimalFormatSymbols;
 
-import net.sf.openrocket.logging.LogHelper;
-import net.sf.openrocket.startup.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
 
 public class ExpressionParser {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(ExpressionParser.class);
 	
 	private static final char DECIMAL_SEPARATOR;
 	private static final char MINUS_SIGN;

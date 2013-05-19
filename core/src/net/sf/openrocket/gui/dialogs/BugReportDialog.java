@@ -26,8 +26,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import com.jogamp.opengl.JoglVersion;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.BugReporter;
 import net.sf.openrocket.gui.components.SelectableLabel;
@@ -36,10 +34,13 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LogLevelBufferLogger;
 import net.sf.openrocket.logging.LogLine;
+import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.JarUtil;
+
+import com.jogamp.opengl.JoglVersion;
 
 public class BugReportDialog extends JDialog {
 	
@@ -73,16 +74,16 @@ public class BugReportDialog extends JDialog {
 				"gapleft para, split 2, gapright rel");
 		panel.add(new SelectableLabel(REPORT_EMAIL), "growx, wrap para");
 		
-
+		
 		final JTextArea textArea = new JTextArea(message, 20, 70);
 		textArea.setEditable(true);
 		panel.add(new JScrollPane(textArea), "grow, wrap");
 		
-
+		
 		panel.add(new StyledLabel(trans.get("bugreport.lbl.Theinformation"), -1), "wrap para");
 		
-
-
+		
+		
 		////Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -93,7 +94,7 @@ public class BugReportDialog extends JDialog {
 		});
 		panel.add(close, "right, sizegroup buttons, split");
 		
-
+		
 		////  Mail button
 		//		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Action.MAIL)) {
 		//			JButton mail = new JButton("Open email");
@@ -108,7 +109,7 @@ public class BugReportDialog extends JDialog {
 		//			panel.add(mail, "right, sizegroup buttons");
 		//		}
 		
-
+		
 		////  Send bug report button
 		JButton send = new JButton(trans.get("bugreport.dlg.but.Sendbugreport"));
 		////  Automatically send the bug report to the OpenRocket developers.
@@ -147,7 +148,7 @@ public class BugReportDialog extends JDialog {
 									ex.getClass().getSimpleName() + ": " + ex.getMessage(), " ",
 									//// Please send the report manually to 
 									trans.get("bugreport.dlg.failedmsg2") + " " + REPORT_EMAIL },
-									//// Error sending report
+							//// Error sending report
 							trans.get("bugreport.dlg.failedmsg3"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -165,7 +166,7 @@ public class BugReportDialog extends JDialog {
 	}
 	
 	
-
+	
 	/**
 	 * Show a general bug report dialog allowing the user to input information about
 	 * the bug they encountered.
@@ -197,7 +198,7 @@ public class BugReportDialog extends JDialog {
 		sb.append('\n');
 		sb.append('\n');
 		
-
+		
 		sb.append("(Do not modify anything below this line.)\n");
 		sb.append("---------- System information ----------\n");
 		addSystemInformation(sb);
@@ -207,7 +208,7 @@ public class BugReportDialog extends JDialog {
 		sb.append('\n');
 		
 		BugReportDialog reportDialog = new BugReportDialog(parent,
-						trans.get("bugreport.reportDialog.txt"), sb.toString(), false);
+				trans.get("bugreport.reportDialog.txt"), sb.toString(), false);
 		reportDialog.setVisible(true);
 	}
 	
@@ -231,7 +232,7 @@ public class BugReportDialog extends JDialog {
 		sb.append('\n');
 		sb.append('\n');
 		
-
+		
 		sb.append("Include your email address (optional; it helps if we can " +
 				"contact you in case we need additional information):\n");
 		sb.append('\n');
@@ -247,7 +248,7 @@ public class BugReportDialog extends JDialog {
 		sb.append(sw.getBuffer());
 		sb.append('\n');
 		
-
+		
 		sb.append("---------- Thread information ----------\n");
 		if (t == null) {
 			sb.append("Thread is not specified.");
@@ -256,7 +257,7 @@ public class BugReportDialog extends JDialog {
 		}
 		sb.append('\n');
 		
-
+		
 		sb.append("---------- System information ----------\n");
 		addSystemInformation(sb);
 		sb.append("---------- Error log ----------\n");
@@ -301,7 +302,7 @@ public class BugReportDialog extends JDialog {
 	
 	
 	private static void addErrorLog(StringBuilder sb) {
-		LogLevelBufferLogger buffer = Application.getLogBuffer();
+		LogLevelBufferLogger buffer = LoggingSystemSetup.getBufferLogger();
 		List<LogLine> logs = buffer.getLogs();
 		for (LogLine l : logs) {
 			sb.append(l.toString()).append('\n');
@@ -309,7 +310,7 @@ public class BugReportDialog extends JDialog {
 	}
 	
 	
-
+	
 	/**
 	 * Open the default email client with the suitable bug report.
 	 * Note that this does not work on some systems even if Desktop.isSupported()
@@ -329,8 +330,8 @@ public class BugReportDialog extends JDialog {
 			throw new BugException(e);
 		}
 		
-
-
+		
+		
 		String mailto = "mailto:" + REPORT_EMAIL
 				+ "?subject=Bug%20report%20for%20OpenRocket%20" + version
 				+ "?body=" + text;

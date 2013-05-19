@@ -6,22 +6,24 @@ package net.sf.openrocket.simulation.customexpression;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.congrace.exp4j.Calculable;
 import de.congrace.exp4j.ExpressionBuilder;
 import de.congrace.exp4j.Variable;
 import net.sf.openrocket.document.OpenRocketDocument;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.LinearInterpolator;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StringUtil;
 
 public class RangeExpression extends CustomExpression {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(RangeExpression.class);
 
 	private ExpressionBuilder startBuilder, endBuilder;
 	
@@ -91,7 +93,7 @@ public class RangeExpression extends CustomExpression {
 			endTime = MathUtil.clamp(endTime, 0, time.get(time.size()-1));
 		}
 		catch (java.util.EmptyStackException e){
-			log.user("Unable to calculate time index for range expression "+getSymbol()+" due to empty stack exception");
+			log.info(Markers.USER_MARKER, "Unable to calculate time index for range expression "+getSymbol()+" due to empty stack exception");
 			return new Variable("Unknown");
 		}
 		

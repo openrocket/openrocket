@@ -7,9 +7,7 @@ import java.util.BitSet;
 import java.util.EventObject;
 import java.util.Iterator;
 
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
@@ -175,8 +173,6 @@ public class ConfigurationTest extends BaseTestCase {
 	@Test
 	public void testGeneralMethods() {
 		
-		LogHelper log = Application.getLogger();
-		
 		/* Setup */
 		Rocket r1 = makeSingleStageTestRocket();
 		Configuration config = r1.getDefaultConfiguration();
@@ -197,9 +193,9 @@ public class ConfigurationTest extends BaseTestCase {
 		double refArea = config.getReferenceArea();
 		
 		// TODO validate that the values are correct
-		log.debug("ConfigurationTest, length: " + String.valueOf(length));
-		log.debug("ConfigurationTest, refLength: " + String.valueOf(refLength));
-		log.debug("ConfigurationTest, refArea: " + String.valueOf(refArea));
+		//log.debug("ConfigurationTest, length: " + String.valueOf(length));
+		//log.debug("ConfigurationTest, refLength: " + String.valueOf(refLength));
+		//log.debug("ConfigurationTest, refArea: " + String.valueOf(refArea));
 		
 		/* Cleanup */
 		config.release();

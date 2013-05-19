@@ -13,6 +13,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.ColorChooserButton;
@@ -21,14 +24,14 @@ import net.sf.openrocket.gui.print.PaperSize;
 import net.sf.openrocket.gui.print.PrintSettings;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.logging.LogHelper;
+import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 
 /**
  * This class is a dialog for displaying advanced settings for printing rocket related info.
  */
 public class PrintSettingsDialog extends JDialog {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(PrintSettingsDialog.class);
 	private static final Translator trans = Application.getTranslator();
 
 	
@@ -91,7 +94,7 @@ public class PrintSettingsDialog extends JDialog {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				log.user("Resetting print setting values to defaults");
+				log.info(Markers.USER_MARKER, "Resetting print setting values to defaults");
 				PrintSettings defaults = new PrintSettings();
 				settings.loadFrom(defaults);
 				fillColorButton.setSelectedColor(settings.getTemplateFillColor());

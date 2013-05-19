@@ -22,9 +22,11 @@ public class JarInJarStarter {
 			urls.addAll(p.getUrls());
 		}
 		
-		System.out.println("New classpath:");
-		for (URL u : urls) {
-			System.out.println("   " + u);
+		if (System.getProperty("openrocket.debug") != null) {
+			System.out.println("New classpath:");
+			for (URL u : urls) {
+				System.out.println("   " + u);
+			}
 		}
 		
 		URL[] urlArray = urls.toArray(new URL[0]);

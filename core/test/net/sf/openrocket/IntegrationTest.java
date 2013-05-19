@@ -16,6 +16,9 @@ import javax.swing.Action;
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.database.ComponentPresetDao;
+import net.sf.openrocket.database.ComponentPresetDatabase;
+import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -23,7 +26,6 @@ import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.motor.GeneralMotorLoader;
 import net.sf.openrocket.gui.main.UndoRedoAction;
-import net.sf.openrocket.l10n.ResourceBundleTranslator;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
@@ -37,8 +39,9 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.ApplicationModule2;
+import net.sf.openrocket.startup.GuiModule;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -47,15 +50,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Provider;
+import com.google.inject.util.Modules;
 
 /**
  * This class contains various integration tests that simulate user actions that
  * might be performed.
  */
 @RunWith(JMock.class)
-public class IntegrationTest extends AbstractBaseApplication {
+public class IntegrationTest extends BaseTestCase {
 	Mockery context = new JUnit4Mockery();
 	
 	private OpenRocketDocument document;
@@ -66,25 +72,48 @@ public class IntegrationTest extends AbstractBaseApplication {
 	private Configuration config;
 	private FlightConditions conditions;
 	
+	private static class EmptyComponentDbProvider implements Provider<ComponentPresetDao> {
+		
+		final ComponentPresetDao db = new ComponentPresetDatabase();
+		
+		@Override
+		public ComponentPresetDao get() {
+			return db;
+		}
+	}
+	
+	private static class MotorDbProvider implements Provider<ThrustCurveMotorSetDatabase> {
+		
+		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
+		
+		public MotorDbProvider() {
+			db.addMotor(readMotor());
+			
+			assertEquals(1, db.getMotorSets().size());
+		}
+		
+		@Override
+		public ThrustCurveMotorSetDatabase get() {
+			return db;
+		}
+	}
+	
 	@BeforeClass
 	public static void setupMotorDatabase() {
 		
-		final ThrustCurveMotorSetDatabase db = new ThrustCurveMotorSetDatabase();
-		db.addMotor(readMotor());
-		
-		assertEquals(1, db.getMotorSets().size());
-		
-		ApplicationModule2 module = new ApplicationModule2(new Provider<ThrustCurveMotorSetDatabase>() {
+		Module dbOverrides = new AbstractModule() {
 			
 			@Override
-			public ThrustCurveMotorSetDatabase get() {
-				return db;
+			protected void configure() {
+				bind(ComponentPresetDao.class).toProvider(new EmptyComponentDbProvider());
+				bind(MotorDatabase.class).toProvider(new MotorDbProvider());
 			}
 			
-		});
-		Injector injector2 = Application.getInjector().createChildInjector(module);
+			
+		};
+		
+		Injector injector2 = Application.getInjector().createChildInjector(Modules.override(new GuiModule()).with(dbOverrides));
 		Application.setInjector(injector2);
-		Application.setBaseTranslator(new ResourceBundleTranslator("l10n.messages"));
 		
 		
 	}
@@ -306,17 +335,17 @@ public class IntegrationTest extends AbstractBaseApplication {
 	
 	private void checkUndoState(String undoDesc, String redoDesc) {
 		if (undoDesc == null) {
-			assertEquals("Undo", undoAction.getValue(Action.NAME));
+			assertEquals("[UndoRedoAction.OpenRocketDocument.Undo]", undoAction.getValue(Action.NAME));
 			assertFalse(undoAction.isEnabled());
 		} else {
-			assertEquals("Undo (" + undoDesc + ")", undoAction.getValue(Action.NAME));
+			assertEquals("[UndoRedoAction.OpenRocketDocument.Undo] (" + undoDesc + ")", undoAction.getValue(Action.NAME));
 			assertTrue(undoAction.isEnabled());
 		}
 		if (redoDesc == null) {
-			assertEquals("Redo", redoAction.getValue(Action.NAME));
+			assertEquals("[UndoRedoAction.OpenRocketDocument.Redo]", redoAction.getValue(Action.NAME));
 			assertFalse(redoAction.isEnabled());
 		} else {
-			assertEquals("Redo (" + redoDesc + ")", redoAction.getValue(Action.NAME));
+			assertEquals("[UndoRedoAction.OpenRocketDocument.Redo] (" + redoDesc + ")", redoAction.getValue(Action.NAME));
 			assertTrue(redoAction.isEnabled());
 		}
 	}

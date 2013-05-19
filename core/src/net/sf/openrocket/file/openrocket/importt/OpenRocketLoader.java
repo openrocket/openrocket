@@ -11,11 +11,11 @@ import net.sf.openrocket.file.AbstractRocketLoader;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
-import net.sf.openrocket.logging.LogHelper;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
-import net.sf.openrocket.startup.Application;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class OpenRocketLoader extends AbstractRocketLoader {
-	private static final LogHelper log = Application.getLogger();
+	private static final Logger log = LoggerFactory.getLogger(OpenRocketLoader.class);
 	
 	
 	@Override
