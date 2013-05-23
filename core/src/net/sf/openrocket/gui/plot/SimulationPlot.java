@@ -153,7 +153,6 @@ public class SimulationPlot {
 			Unit unit = filled.getUnit(i);
 			int axis = filled.getAxis(i);
 			String name = getLabel(type, unit);
-			this.legendItems.lineLabels.add(name);
 			
 			List<String> seriesNames = Util.generateSeriesLabels(simulation);
 			
@@ -167,7 +166,7 @@ public class SimulationPlot {
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
 				XYSeries series = new XYSeries(seriesNames.get(branchIndex) + ": " + name, false, true);
-				series.setDescription(thisBranch.getBranchName() + ": " + name);
+				series.setDescription(name);
 				int pointCount = plotx.size();
 				for (int j = 0; j < pointCount; j++) {
 					series.add(domainUnit.toUnit(plotx.get(j)), unit.toUnit(ploty.get(j)));
@@ -250,6 +249,8 @@ public class SimulationPlot {
 				}
 				// Now we pull the colors for the legend.
 				for (int j = 0; j < data[i].getSeriesCount(); j += branchCount) {
+					String name = data[i].getSeries(j).getDescription();
+					this.legendItems.lineLabels.add(name);
 					Paint linePaint = r.lookupSeriesPaint(j);
 					this.legendItems.linePaints.add(linePaint);
 					Shape itemShape = r.lookupSeriesShape(j);
