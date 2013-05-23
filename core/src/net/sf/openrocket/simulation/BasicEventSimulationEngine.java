@@ -224,7 +224,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			SimulationListenerHelper.fireEndSimulation(status, e);
 			// Add FlightEvent for Abort.
 			status.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, status.getSimulationTime(), status.getConfiguration().getRocket(), e.getLocalizedMessage()));
-			status.getWarnings().add(Warning.SIMULATION_EXCEPTION);
+			status.getWarnings().add(e.getLocalizedMessage());
 		}
 		
 		return status.getFlightData();

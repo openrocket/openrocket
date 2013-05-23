@@ -38,7 +38,7 @@ public class SimulationPlotDialog extends JDialog {
 	private SimulationPlotDialog(Window parent, Simulation simulation, PlotConfiguration config) {
 		//// Flight data plot
 		super(parent, simulation.getName());
-		this.setModalityType(ModalityType.MODELESS);
+		this.setModalityType(ModalityType.DOCUMENT_MODAL);
 		
 		final boolean initialShowPoints = Application.getPreferences().getBoolean(Preferences.PLOT_SHOW_POINTS, false);
 		

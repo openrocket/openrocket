@@ -395,6 +395,7 @@ public class SimulationRunDialog extends JDialog {
 			log.debug("Simulation done");
 			setSimulationProgress(1.0);
 			updateProgress();
+			SimulationWarningDialog.showWarningDialog(SimulationRunDialog.this, simulation);
 		}
 		
 		
