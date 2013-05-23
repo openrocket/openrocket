@@ -77,7 +77,12 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		/**
 		 * The rocket begins to tumble.
 		 */
-		TUMBLE(trans.get("FlightEvent.Type.TUMBLE"));
+		TUMBLE(trans.get("FlightEvent.Type.TUMBLE")),
+		
+		/**
+		 * Simulation aborted
+		 */
+		EXCEPTION(trans.get("FlightEvent.Type.EXCEPTION"));
 		
 		private final String name;
 		

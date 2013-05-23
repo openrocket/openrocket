@@ -1,13 +1,11 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.simulation;
 
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -40,139 +38,126 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
-import net.sf.openrocket.gui.components.SimulationExportPanel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
-import net.sf.openrocket.gui.plot.Axis;
-import net.sf.openrocket.gui.plot.PlotConfiguration;
-import net.sf.openrocket.gui.plot.SimulationPlotPanel;
-import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.simulation.FlightData;
-import net.sf.openrocket.simulation.FlightDataBranch;
-import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.simulation.listeners.example.CSVSaveListener;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Chars;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-
 
 public class SimulationEditDialog extends JDialog {
 	
-	public static final int DEFAULT = -1;
-	public static final int EDIT = 1;
-	public static final int PLOT = 2;
-	
-
 	private final Window parentWindow;
-	private final Simulation simulation;
+	private final Simulation[] simulation;
 	private final OpenRocketDocument document;
 	private final SimulationOptions conditions;
 	private final Configuration configuration;
 	private static final Translator trans = Application.getTranslator();
 	
 	
-	public SimulationEditDialog(Window parent, OpenRocketDocument document, Simulation s) {
-		this(parent, document, s, 0);
-	}
-	
-	public SimulationEditDialog(Window parent, OpenRocketDocument document, Simulation s, int tab) {
+	public SimulationEditDialog(Window parent, OpenRocketDocument document, Simulation... sims) {
 		//// Edit simulation
 		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
 		this.document = document;
 		this.parentWindow = parent;
-		this.simulation = s;
-		this.conditions = simulation.getOptions();
-		configuration = simulation.getConfiguration();
+		this.simulation = sims;
+		this.conditions = simulation[0].getOptions();
+		configuration = simulation[0].getConfiguration();
 		
-		JPanel mainPanel = new JPanel(new MigLayout("fill", "[grow, fill]"));
+		JPanel mainPanel = new JPanel(new MigLayout(""));
 		
-		//// Simulation name:
-		mainPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "span, split 2, shrink");
-		final JTextField field = new JTextField(simulation.getName());
-		field.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				setText();
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				setText();
-			}
-			
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				setText();
-			}
-			
-			private void setText() {
-				String name = field.getText();
-				if (name == null || name.equals(""))
-					return;
-				//System.out.println("Setting name:" + name);
-				simulation.setName(name);
+		if (sims.length == 1) {
+			//// Simulation name:
+			mainPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "shrink");
+			final JTextField field = new JTextField(simulation[0].getName());
+			field.getDocument().addDocumentListener(new DocumentListener() {
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					setText();
+				}
 				
-			}
-		});
-		mainPanel.add(field, "shrinky, growx, wrap");
-		
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					setText();
+				}
+				
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					setText();
+				}
+				
+				private void setText() {
+					String name = field.getText();
+					if (name == null || name.equals(""))
+						return;
+					//System.out.println("Setting name:" + name);
+					simulation[0].setName(name);
+					
+				}
+			});
+			mainPanel.add(field, "shrinky, growx, wrap");
+			
+			//// Flight selector
+			//// Flight configuration:
+			JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
+			//// Select the motor configuration to use.
+			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
+			mainPanel.add(label, "shrink");
+			
+			JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
+			//// Select the motor configuration to use.
+			combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
+			combo.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
+				}
+			});
+			mainPanel.add(combo, "split 2, shrink");
+			
+			//// Edit button
+			JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JDialog configDialog = new FlightConfigurationDialog(SimulationEditDialog.this.document.getRocket(), SwingUtilities.windowForComponent(SimulationEditDialog.this));
+					configDialog.setVisible(true);
+				}
+			});
+			mainPanel.add(button, "shrink, wrap");
+		}
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		//// Launch conditions
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), flightConditionsTab());
 		//// Simulation options
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), simulationOptionsTab());
-		//// Plot data
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Plotdata"), plotTab());
-		//// Export data
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Exportdata"), exportTab());
 		
-		// Select the initial tab
-		if (tab == EDIT) {
-			tabbedPane.setSelectedIndex(0);
-		} else if (tab == PLOT) {
-			tabbedPane.setSelectedIndex(2);
-		} else {
-			FlightData data = s.getSimulatedData();
-			if (data == null || data.getBranchCount() == 0)
-				tabbedPane.setSelectedIndex(0);
-			else
-				tabbedPane.setSelectedIndex(2);
-		}
+		tabbedPane.setSelectedIndex(0);
 		
 		mainPanel.add(tabbedPane, "spanx, grow, wrap");
 		
-
+		
 		// Buttons
 		mainPanel.add(new JPanel(), "spanx, split, growx");
 		
-		JButton button;
 		//// Run simulation button
-		button = new JButton(trans.get("simedtdlg.but.runsimulation"));
+		JButton button = new JButton(trans.get("simedtdlg.but.runsimulation"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				copyChangesToAllSims();
 				SimulationEditDialog.this.dispose();
 				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
 			}
@@ -184,12 +169,13 @@ public class SimulationEditDialog extends JDialog {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				copyChangesToAllSims();
 				SimulationEditDialog.this.dispose();
 			}
 		});
 		mainPanel.add(close, "");
 		
-
+		
 		this.add(mainPanel);
 		this.validate();
 		this.pack();
@@ -198,10 +184,19 @@ public class SimulationEditDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, button);
 	}
 	
+	private void copyChangesToAllSims() {
+		if (simulation.length > 1) {
+			for (int i = 1; i < simulation.length; i++) {
+				simulation[i].getOptions().copyConditionsFrom(simulation[0].getOptions());
+				simulation[i].getSimulationListeners().clear();
+				simulation[i].getSimulationListeners().addAll(simulation[0].getSimulationListeners());
+			}
+		}
+	}
 	
-
-
-
+	
+	
+	
 	private JPanel flightConditionsTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub;
@@ -211,35 +206,6 @@ public class SimulationEditDialog extends JDialog {
 		DoubleModel m;
 		JSpinner spin;
 		
-		//// Flight selector
-		//// Flight configuration:
-		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
-		//// Select the motor configuration to use.
-		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
-		panel.add(label, "shrinkx, spanx, split 2");
-		
-		JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
-		//// Select the motor configuration to use.
-		combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
-		combo.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
-			}
-		});
-		panel.add(combo, "");
-		
-		//// Edit button
-		JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JDialog configDialog = new FlightConfigurationDialog(document.getRocket(),SwingUtilities.windowForComponent(SimulationEditDialog.this));
-				configDialog.show();
-			}
-		});
-		panel.add(button, "wrap");
-
 		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
@@ -247,10 +213,10 @@ public class SimulationEditDialog extends JDialog {
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Wind")));
 		panel.add(sub, "growx, split 2, aligny 0, flowy, gapright para");
 		
-
+		
 		// Wind average
 		//// Average windspeed:
-		label = new JLabel(trans.get("simedtdlg.lbl.Averwindspeed"));
+		JLabel label = new JLabel(trans.get("simedtdlg.lbl.Averwindspeed"));
 		//// The average windspeed relative to the ground.
 		tip = trans.get("simedtdlg.lbl.ttip.Averwindspeed");
 		label.setToolTipText(tip);
@@ -270,8 +236,8 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
-
+		
+		
 		// Wind std. deviation
 		//// Standard deviation:
 		label = new JLabel(trans.get("simedtdlg.lbl.Stddeviation"));
@@ -297,7 +263,7 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
+		
 		// Wind turbulence intensity
 		//// Turbulence intensity:
 		label = new JLabel(trans.get("simedtdlg.lbl.Turbulenceintensity"));
@@ -335,10 +301,10 @@ public class SimulationEditDialog extends JDialog {
 			}
 		});
 		
-
-
-
-
+		
+		
+		
+		
 		//// Temperature and pressure
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
@@ -346,7 +312,7 @@ public class SimulationEditDialog extends JDialog {
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Atmoscond")));
 		panel.add(sub, "growx, aligny 0, gapright para");
 		
-
+		
 		BooleanModel isa = new BooleanModel(conditions, "ISAAtmosphere");
 		JCheckBox check = new JCheckBox(isa);
 		//// Use International Standard Atmosphere
@@ -387,8 +353,8 @@ public class SimulationEditDialog extends JDialog {
 		isa.addEnableComponent(slider, false);
 		sub.add(slider, "w 75lp, wrap");
 		
-
-
+		
+		
 		// Pressure:
 		label = new JLabel(trans.get("simedtdlg.lbl.Pressure"));
 		//// The atmospheric pressure at the launch site.
@@ -414,10 +380,10 @@ public class SimulationEditDialog extends JDialog {
 		isa.addEnableComponent(slider, false);
 		sub.add(slider, "w 75lp, wrap");
 		
-
-
-
-
+		
+		
+		
+		
 		//// Launch site conditions
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
@@ -425,7 +391,7 @@ public class SimulationEditDialog extends JDialog {
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.lbl.Launchsite")));
 		panel.add(sub, "growx, split 2, aligny 0, flowy");
 		
-
+		
 		// Latitude:
 		label = new JLabel(trans.get("simedtdlg.lbl.Latitude"));
 		//// <html>The launch site latitude affects the gravitational pull of Earth.<br>
@@ -448,7 +414,7 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
+		
 		// Longitude:
 		label = new JLabel(trans.get("simedtdlg.lbl.Longitude"));
 		tip = trans.get("simedtdlg.lbl.ttip.Longitude");
@@ -469,7 +435,7 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
+		
 		// Altitude:
 		label = new JLabel(trans.get("simedtdlg.lbl.Altitude"));
 		//// <html>The launch altitude above mean sea level.<br> 
@@ -492,10 +458,10 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
-
-
-
+		
+		
+		
+		
 		//// Launch rod
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
@@ -503,7 +469,7 @@ public class SimulationEditDialog extends JDialog {
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Launchrod")));
 		panel.add(sub, "growx, aligny 0, wrap");
 		
-
+		
 		// Length:
 		label = new JLabel(trans.get("simedtdlg.lbl.Length"));
 		//// The length of the launch rod.
@@ -525,8 +491,8 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
-
+		
+		
 		// Angle:
 		label = new JLabel(trans.get("simedtdlg.lbl.Angle"));
 		//// The angle of the launch rod from vertical.
@@ -550,8 +516,8 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
-
-
+		
+		
 		// Direction:
 		label = new JLabel(trans.get("simedtdlg.lbl.Direction"));
 		//// <html>Direction of the launch rod relative to the wind.<br>
@@ -580,6 +546,35 @@ public class SimulationEditDialog extends JDialog {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
+		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
+		restoreDefaults.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
+				SimulationOptions defaults = f.getDefault();
+				conditions.copyConditionsFrom(defaults);
+				
+			}
+			
+		});
+		panel.add(restoreDefaults, "span, split 3, skip, gapbottom para, gapright para, right");
+		
+		JButton saveDefaults = new JButton(trans.get("simedtdlg.but.savedefault"));
+		saveDefaults.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
+				f.saveDefault(conditions);
+				
+			}
+			
+		});
+		
+		panel.add(saveDefaults, "gapbottom para, gapright para, right");
 		return panel;
 	}
 	
@@ -608,7 +603,7 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	
-
+	
 	private JPanel simulationOptionsTab() {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub, subsub;
@@ -619,7 +614,7 @@ public class SimulationEditDialog extends JDialog {
 		UnitSelector unit;
 		BasicSlider slider;
 		
-
+		
 		//// Simulation options
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
@@ -627,11 +622,11 @@ public class SimulationEditDialog extends JDialog {
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simopt")));
 		panel.add(sub, "growx, growy, aligny 0");
 		
-
+		
 		// Separate panel for computation methods, as they use a different layout
 		subsub = new JPanel(new MigLayout("insets 0, fill"));
 		
-
+		
 		//// Calculation method:
 		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
 		label = new JLabel(trans.get("simedtdlg.lbl.Calcmethod"));
@@ -643,7 +638,7 @@ public class SimulationEditDialog extends JDialog {
 		label.setToolTipText(tip);
 		subsub.add(label, "growx, wrap para");
 		
-
+		
 		//  Simulation method
 		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1") +
 				trans.get("simedtdlg.lbl.ttip.Simmethod2");
@@ -655,7 +650,7 @@ public class SimulationEditDialog extends JDialog {
 		label.setToolTipText(tip);
 		subsub.add(label, "growx, wrap para");
 		
-
+		
 		//// Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.GeodeticMethodTip"));
@@ -676,7 +671,7 @@ public class SimulationEditDialog extends JDialog {
 		
 		sub.add(subsub, "spanx, wrap para");
 		
-
+		
 		//// Time step:
 		label = new JLabel(trans.get("simedtdlg.lbl.Timestep"));
 		tip = trans.get("simedtdlg.lbl.ttip.Timestep1") +
@@ -703,9 +698,9 @@ public class SimulationEditDialog extends JDialog {
 		sub.add(slider, "w 75lp, wrap");
 		//sub.add(slider,"wrap");
 		
-
-
-
+		
+		
+		
 		//// Reset to default button
 		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		//// Reset the time step to its default value (
@@ -722,16 +717,16 @@ public class SimulationEditDialog extends JDialog {
 		
 		sub.add(button, "align left");
 		
-
-
-
+		
+		
+		
 		//// Simulation listeners
 		sub = new JPanel(new MigLayout("fill, gap 0 0"));
 		//// Simulator listeners
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simlist")));
 		panel.add(sub, "growx, growy");
 		
-
+		
 		DescriptionArea desc = new DescriptionArea(5);
 		//// <html><i>Simulation listeners</i> is an advanced feature that allows user-written code to listen to and interact with the simulation.  
 		//// For details on writing simulation listeners, see the OpenRocket technical documentation.
@@ -771,7 +766,7 @@ public class SimulationEditDialog extends JDialog {
 					return;
 				
 				Application.getPreferences().putString("previousListenerName", input);
-				simulation.getSimulationListeners().add(input);
+				simulation[0].getSimulationListeners().add(input);
 				listenerModel.fireContentsChanged();
 			}
 		});
@@ -785,14 +780,14 @@ public class SimulationEditDialog extends JDialog {
 				int[] selected = list.getSelectedIndices();
 				Arrays.sort(selected);
 				for (int i = selected.length - 1; i >= 0; i--) {
-					simulation.getSimulationListeners().remove(selected[i]);
+					simulation[0].getSimulationListeners().remove(selected[i]);
 				}
 				listenerModel.fireContentsChanged();
 			}
 		});
 		sub.add(button, "sizegroup buttons, alignx 50%");
 		
-
+		
 		return panel;
 	}
 	
@@ -802,12 +797,12 @@ public class SimulationEditDialog extends JDialog {
 		public String getElementAt(int index) {
 			if (index < 0 || index >= getSize())
 				return null;
-			return simulation.getSimulationListeners().get(index);
+			return simulation[0].getSimulationListeners().get(index);
 		}
 		
 		@Override
 		public int getSize() {
-			return simulation.getSimulationListeners().size();
+			return simulation[0].getSimulationListeners().size();
 		}
 		
 		public void fireContentsChanged() {
@@ -816,40 +811,9 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	
-
-
-	/**
-	 * A panel for plotting the previously calculated data.
-	 */
-	private JPanel plotTab() {
-		
-		// Check that data exists
-		if (simulation.getSimulatedData() == null ||
-				simulation.getSimulatedData().getBranchCount() == 0) {
-			return noDataPanel();
-		}
-		
-		return new SimulationPlotPanel(simulation);
-	}
 	
 	
-
-	/**
-	 * A panel for exporting the data.
-	 */
-	private JPanel exportTab() {
-		FlightData data = simulation.getSimulatedData();
-		
-		// Check that data exists
-		if (data == null || data.getBranchCount() == 0 ||
-				data.getBranch(0).getTypes().length == 0) {
-			return noDataPanel();
-		}
-		
-		return new SimulationExportPanel(simulation);
-	}
 	
-
 	/**
 	 * Return a panel stating that there is no data available, and that the user
 	 * should run the simulation first.
@@ -868,165 +832,7 @@ public class SimulationEditDialog extends JDialog {
 	}
 	
 	
-	@SuppressWarnings("unused")
-	private void performPlot(PlotConfiguration config) {
-		
-		// Fill the auto-selections
-		FlightDataBranch branch = simulation.getSimulatedData().getBranch(0);
-		PlotConfiguration filled = config.fillAutoAxes(branch);
-		List<Axis> axes = filled.getAllAxes();
-		
-
-		// Create the data series for both axes
-		XYSeriesCollection[] data = new XYSeriesCollection[2];
-		data[0] = new XYSeriesCollection();
-		data[1] = new XYSeriesCollection();
-		
-
-		// Get the domain axis type
-		final FlightDataType domainType = filled.getDomainAxisType();
-		final Unit domainUnit = filled.getDomainAxisUnit();
-		if (domainType == null) {
-			throw new IllegalArgumentException("Domain axis type not specified.");
-		}
-		List<Double> x = branch.get(domainType);
-		
-
-		// Create the XYSeries objects from the flight data and store into the collections
-		int length = filled.getTypeCount();
-		String[] axisLabel = new String[2];
-		for (int i = 0; i < length; i++) {
-			// Get info
-			FlightDataType type = filled.getType(i);
-			Unit unit = filled.getUnit(i);
-			int axis = filled.getAxis(i);
-			String name = getLabel(type, unit);
-			
-			// Store data in provided units
-			List<Double> y = branch.get(type);
-			XYSeries series = new XYSeries(name, false, true);
-			for (int j = 0; j < x.size(); j++) {
-				series.add(domainUnit.toUnit(x.get(j)), unit.toUnit(y.get(j)));
-			}
-			data[axis].addSeries(series);
-			
-			// Update axis label
-			if (axisLabel[axis] == null)
-				axisLabel[axis] = type.getName();
-			else
-				axisLabel[axis] += "; " + type.getName();
-		}
-		
-
-		// Create the chart using the factory to get all default settings
-		JFreeChart chart = ChartFactory.createXYLineChart(
-				//// Simulated flight
-				trans.get("simedtdlg.chart.Simflight"),
-				null,
-				null,
-				null,
-				PlotOrientation.VERTICAL,
-				true,
-				true,
-				false
-				);
-		
-
-		// Add the data and formatting to the plot
-		XYPlot plot = chart.getXYPlot();
-		int axisno = 0;
-		for (int i = 0; i < 2; i++) {
-			// Check whether axis has any data
-			if (data[i].getSeriesCount() > 0) {
-				// Create and set axis
-				double min = axes.get(i).getMinValue();
-				double max = axes.get(i).getMaxValue();
-				NumberAxis axis = new PresetNumberAxis(min, max);
-				axis.setLabel(axisLabel[i]);
-				//				axis.setRange(axes.get(i).getMinValue(), axes.get(i).getMaxValue());
-				plot.setRangeAxis(axisno, axis);
-				
-				// Add data and map to the axis
-				plot.setDataset(axisno, data[i]);
-				plot.setRenderer(axisno, new StandardXYItemRenderer());
-				plot.mapDatasetToRangeAxis(axisno, axisno);
-				axisno++;
-			}
-		}
-		
-		plot.getDomainAxis().setLabel(getLabel(domainType, domainUnit));
-		plot.addDomainMarker(new ValueMarker(0));
-		plot.addRangeMarker(new ValueMarker(0));
-		
-
-		// Create the dialog
-		//// Simulation results
-		final JDialog dialog = new JDialog(this, trans.get("simedtdlg.dlg.Simres"));
-		dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
-		
-		JPanel panel = new JPanel(new MigLayout("fill"));
-		dialog.add(panel);
-		
-		ChartPanel chartPanel = new ChartPanel(chart,
-				false, // properties
-				true, // save
-				false, // print
-				true, // zoom
-				true); // tooltips
-		chartPanel.setMouseWheelEnabled(true);
-		chartPanel.setEnforceFileExtensions(true);
-		chartPanel.setInitialDelay(500);
-		
-		chartPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-		
-		panel.add(chartPanel, "grow, wrap 20lp");
-		
-		//// Close button
-		JButton button = new JButton(trans.get("dlg.but.close"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dialog.setVisible(false);
-			}
-		});
-		panel.add(button, "right");
-		
-		dialog.setLocationByPlatform(true);
-		dialog.pack();
-		
-		GUIUtil.setDisposableDialogOptions(dialog, button);
-		
-		dialog.setVisible(true);
-	}
 	
-	
-	private class PresetNumberAxis extends NumberAxis {
-		private final double min;
-		private final double max;
-		
-		public PresetNumberAxis(double min, double max) {
-			this.min = min;
-			this.max = max;
-			autoAdjustRange();
-		}
-		
-		@Override
-		protected void autoAdjustRange() {
-			this.setRange(min, max);
-		}
-	}
-	
-	
-	private String getLabel(FlightDataType type, Unit unit) {
-		String name = type.getName();
-		if (unit != null && !UnitGroup.UNITS_NONE.contains(unit) &&
-				!UnitGroup.UNITS_COEFFICIENT.contains(unit) && unit.getUnit().length() > 0)
-			name += " (" + unit.getUnit() + ")";
-		return name;
-	}
-	
-	
-
 	private class ListenerCellRenderer extends JLabel implements ListCellRenderer {
 		
 		@Override

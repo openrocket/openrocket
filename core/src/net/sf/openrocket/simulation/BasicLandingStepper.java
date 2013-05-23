@@ -13,7 +13,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 	private static final double RECOVERY_TIME_STEP = 0.5;
 	
 	@Override
-	public SimulationStatus initialize(SimulationStatus status) throws SimulationException {
+	public SimulationStatus initialize(SimulationStatus status) {
 		return status;
 	}
 	

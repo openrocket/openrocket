@@ -4,7 +4,7 @@
 package net.sf.openrocket.gui.print;
 
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.gui.main.SimulationWorker;
+import net.sf.openrocket.gui.simulation.SimulationWorker;
 import net.sf.openrocket.simulation.FlightData;
 
 /**

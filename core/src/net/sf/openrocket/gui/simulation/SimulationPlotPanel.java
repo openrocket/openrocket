@@ -1,5 +1,6 @@
-package net.sf.openrocket.gui.plot;
+package net.sf.openrocket.gui.simulation;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -10,6 +11,7 @@ import java.util.EnumSet;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,6 +26,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.plot.PlotConfiguration;
+import net.sf.openrocket.gui.plot.SimulationPlotDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
@@ -213,7 +217,7 @@ public class SimulationPlotPanel extends JPanel {
 		col0.setPreferredWidth(w);
 		col0.setMaxWidth(w);
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
-		this.add(new JScrollPane(table), "height 10px, width 200lp, grow 1, wrap rel");
+		this.add(new JScrollPane(table), "height 200px, width 200lp, grow 1, wrap rel");
 		
 
 		////  All + None buttons
@@ -294,6 +298,7 @@ public class SimulationPlotPanel extends JPanel {
 
 		this.add(new JPanel(), "growx");
 		
+		/*
 		//// Plot flight
 		button = new JButton(trans.get("simplotpanel.but.Plotflight"));
 		button.addActionListener(new ActionListener() {
@@ -312,10 +317,22 @@ public class SimulationPlotPanel extends JPanel {
 			}
 		});
 		this.add(button, "right");
-		
+		*/
 		updatePlots();
 	}
 	
+	public JDialog doPlot() {
+		if (configuration.getTypeCount() == 0) {
+			JOptionPane.showMessageDialog(SimulationPlotPanel.this,
+					trans.get("error.noPlotSelected"),
+					trans.get("error.noPlotSelected.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+		defaultConfiguration = configuration.clone();
+		return SimulationPlotDialog.getPlot((Window) SwingUtilities.getRoot(SimulationPlotPanel.this),
+				simulation, configuration);
+	}
 	
 	private void setConfiguration(PlotConfiguration conf) {
 		

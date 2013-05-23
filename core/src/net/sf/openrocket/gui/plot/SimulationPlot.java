@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.simulation.SimulationPlotPanel;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;

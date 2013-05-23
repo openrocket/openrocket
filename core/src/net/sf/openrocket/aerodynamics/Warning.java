@@ -325,4 +325,7 @@ public abstract class Warning {
 
 	public static final Warning RECOVERY_LAUNCH_ROD =
 		new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
+	
+	public static final Warning SIMULATION_EXCEPTION =
+			new Other("Exception during simulation");
 }

@@ -452,6 +452,25 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		fireChangeEvent();
 	}
 	
+	public void copyConditionsFrom(SimulationOptions src) {
+		
+		this.launchAltitude = src.launchAltitude;
+		this.launchLatitude = src.launchLatitude;
+		this.launchLongitude = src.launchLongitude;
+		this.launchPressure = src.launchPressure;
+		this.launchRodAngle = src.launchRodAngle;
+		this.launchRodDirection = src.launchRodDirection;
+		this.launchRodLength = src.launchRodLength;
+		this.launchTemperature = src.launchTemperature;
+		this.maximumAngle = src.maximumAngle;
+		this.timeStep = src.timeStep;
+		this.windAverage = src.windAverage;
+		this.windTurbulence = src.windTurbulence;
+		this.calculateExtras = src.calculateExtras;
+		this.randomSeed = src.randomSeed;
+		
+		fireChangeEvent();
+	}
 	
 	
 	/**

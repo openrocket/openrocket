@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.simulation;
 
 import java.util.Arrays;
 
@@ -53,6 +53,7 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 		
 		try {
 			simulation.simulate(listeners);
+			// FIXME - test for simulation warnings.
 		} catch (Throwable e) {
 			throwable = e;
 			return null;

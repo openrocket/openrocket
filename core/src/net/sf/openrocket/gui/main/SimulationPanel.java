@@ -23,9 +23,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -38,6 +35,10 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.simulation.SimulationEditDialog;
+import net.sf.openrocket.gui.simulation.SimulationPlotExportDialog;
+import net.sf.openrocket.gui.simulation.SimulationRunDialog;
+import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -47,6 +48,9 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimulationPanel extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
@@ -68,12 +72,13 @@ public class SimulationPanel extends JPanel {
 	private final ColumnTableModel simulationTableModel;
 	private final JTable simulationTable;
 	
+	private final JButton editButton;
+	private final JButton runButton;
+	private final JButton deleteButton;
+	private final JButton plotButton;
 	
 	public SimulationPanel(OpenRocketDocument doc) {
 		super(new MigLayout("fill", "[grow][][][][][][grow]"));
-		
-		JButton button;
-		
 		
 		this.document = doc;
 		
@@ -82,51 +87,54 @@ public class SimulationPanel extends JPanel {
 		////////  The simulation action buttons
 		
 		//// New simulation button
-		button = new JButton(trans.get("simpanel.but.newsimulation"));
-		//// Add a new simulation
-		button.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Simulation sim = new Simulation(document.getRocket());
-				sim.setName(document.getNextSimulationName());
-				
-				int n = document.getSimulationCount();
-				document.addSimulation(sim);
-				simulationTableModel.fireTableDataChanged();
-				simulationTable.clearSelection();
-				simulationTable.addRowSelectionInterval(n, n);
-				
-				openDialog(sim, SimulationEditDialog.EDIT);
-			}
-		});
-		this.add(button, "skip 1, gapright para");
+		{
+			JButton button = new JButton(trans.get("simpanel.but.newsimulation"));
+			//// Add a new simulation
+			button.setToolTipText(trans.get("simpanel.but.ttip.newsimulation"));
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Simulation sim = new Simulation(document.getRocket());
+					sim.setName(document.getNextSimulationName());
+					
+					int n = document.getSimulationCount();
+					document.addSimulation(sim);
+					simulationTableModel.fireTableDataChanged();
+					simulationTable.clearSelection();
+					simulationTable.addRowSelectionInterval(n, n);
+					
+					openDialog(sim);
+				}
+			});
+			this.add(button, "skip 1, gapright para");
+		}
 		
 		//// Edit simulation button
-		button = new JButton(trans.get("simpanel.but.editsimulation"));
+		editButton = new JButton(trans.get("simpanel.but.editsimulation"));
 		//// Edit the selected simulation
-		button.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
-		button.addActionListener(new ActionListener() {
+		editButton.setToolTipText(trans.get("simpanel.but.ttip.editsim"));
+		editButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int selected = simulationTable.getSelectedRow();
-				if (selected < 0)
-					return; // TODO: MEDIUM: "None selected" dialog
+				int[] selection = simulationTable.getSelectedRows();
+				if (selection.length == 0)
+					return; // TODO: LOW: "None selected" dialog
 					
-				selected = simulationTable.convertRowIndexToModel(selected);
-				simulationTable.clearSelection();
-				simulationTable.addRowSelectionInterval(selected, selected);
-				
-				openDialog(document.getSimulations().get(selected), SimulationEditDialog.EDIT);
+				Simulation[] sims = new Simulation[selection.length];
+				for (int i = 0; i < selection.length; i++) {
+					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
+					sims[i] = document.getSimulation(selection[i]);
+				}
+				openDialog(sims);
 			}
 		});
-		this.add(button, "gapright para");
+		this.add(editButton, "gapright para");
 		
 		//// Run simulations
-		button = new JButton(trans.get("simpanel.but.runsimulations"));
+		runButton = new JButton(trans.get("simpanel.but.runsimulations"));
 		//// Re-run the selected simulations
-		button.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
-		button.addActionListener(new ActionListener() {
+		runButton.setToolTipText(trans.get("simpanel.but.ttip.runsimu"));
+		runButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
@@ -146,13 +154,13 @@ public class SimulationPanel extends JPanel {
 				fireMaintainSelection();
 			}
 		});
-		this.add(button, "gapright para");
+		this.add(runButton, "gapright para");
 		
 		//// Delete simulations button
-		button = new JButton(trans.get("simpanel.but.deletesimulations"));
+		deleteButton = new JButton(trans.get("simpanel.but.deletesimulations"));
 		//// Delete the selected simulations
-		button.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
-		button.addActionListener(new ActionListener() {
+		deleteButton.setToolTipText(trans.get("simpanel.but.ttip.deletesim"));
+		deleteButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
@@ -201,12 +209,12 @@ public class SimulationPanel extends JPanel {
 				simulationTableModel.fireTableDataChanged();
 			}
 		});
-		this.add(button, "gapright para");
+		this.add(deleteButton, "gapright para");
 		
 		//// Plot / export button
-		button = new JButton(trans.get("simpanel.but.plotexport"));
+		plotButton = new JButton(trans.get("simpanel.but.plotexport"));
 		//		button = new JButton("Plot flight");
-		button.addActionListener(new ActionListener() {
+		plotButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selected = simulationTable.getSelectedRow();
@@ -217,10 +225,21 @@ public class SimulationPanel extends JPanel {
 				simulationTable.clearSelection();
 				simulationTable.addRowSelectionInterval(selected, selected);
 				
-				openDialog(document.getSimulations().get(selected), SimulationEditDialog.PLOT);
+				
+				Simulation sim = document.getSimulations().get(selected);
+				
+				if (sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0) {
+					new SimulationRunDialog(SwingUtilities.getWindowAncestor(
+							SimulationPanel.this), document, sim).setVisible(true);
+				}
+				
+				new SimulationPlotExportDialog(SwingUtilities.getWindowAncestor(SimulationPanel.this), document, sim)
+						.setVisible(true);
+				fireMaintainSelection();
+				
 			}
 		});
-		this.add(button, "wrap para");
+		this.add(plotButton, "wrap para");
 		
 		
 		
@@ -474,13 +493,20 @@ public class SimulationPanel extends JPanel {
 					int selected = simulationTable.getSelectedRow();
 					if (selected < 0)
 						return;
-					
 					selected = simulationTable.convertRowIndexToModel(selected);
-					simulationTable.clearSelection();
-					simulationTable.addRowSelectionInterval(selected, selected);
 					
-					openDialog(document.getSimulations().get(selected),
-							SimulationEditDialog.DEFAULT);
+					int column = simulationTable.columnAtPoint(e.getPoint());
+					if (column == 0) {
+						SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
+					} else {
+						simulationTable.clearSelection();
+						simulationTable.addRowSelectionInterval(selected, selected);
+						
+						// FIXME - do we want to check to open plot dialog?
+						openDialog(document.getSimulations().get(selected));
+					}
+				} else {
+					updateButtonStates();
 				}
 			}
 		});
@@ -509,17 +535,35 @@ public class SimulationPanel extends JPanel {
 		JScrollPane scrollpane = new JScrollPane(simulationTable);
 		this.add(scrollpane, "spanx, grow, wrap rel");
 		
-		
+		updateButtonStates();
 	}
 	
+	private void updateButtonStates() {
+		int[] selection = simulationTable.getSelectedRows();
+		if (selection.length == 0) {
+			editButton.setEnabled(false);
+			runButton.setEnabled(false);
+			deleteButton.setEnabled(false);
+			plotButton.setEnabled(false);
+		} else {
+			if (selection.length > 1) {
+				plotButton.setEnabled(false);
+			} else {
+				plotButton.setEnabled(true);
+			}
+			editButton.setEnabled(true);
+			runButton.setEnabled(true);
+			deleteButton.setEnabled(true);
+		}
+		
+	}
 	
 	public ListSelectionModel getSimulationListSelectionModel() {
 		return simulationTable.getSelectionModel();
 	}
 	
-	private void openDialog(final Simulation sim, int position) {
-		new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sim, position)
-				.setVisible(true);
+	private void openDialog(final Simulation... sims) {
+		new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sims).setVisible(true);
 		fireMaintainSelection();
 	}
 	

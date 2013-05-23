@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.simulation;
 
 
 import java.awt.Dialog;
