@@ -53,7 +53,6 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 		
 		try {
 			simulation.simulate(listeners);
-			// FIXME - test for simulation warnings.
 		} catch (Throwable e) {
 			throwable = e;
 			return null;
@@ -87,7 +86,7 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	protected abstract void simulationInterrupted(Throwable t);
 	
 	
-
+	
 	/**
 	 * Marks this simulation as done and calls the progress update.
 	 */
@@ -100,7 +99,7 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	}
 	
 	
-
+	
 	/**
 	 * A simulation listener that throws a {@link SimulationCancelledException} if
 	 * this SwingWorker has been cancelled.  The conditions is checked every time a step
