@@ -57,7 +57,6 @@ public class SimulationPlotExportDialog extends JDialog {
 				if (tabbedPane.getSelectedIndex() == 0) {
 					JDialog plot = plotTab.doPlot(SimulationPlotExportDialog.this.parentWindow);
 					if (plot != null) {
-						SimulationPlotExportDialog.this.dispose();
 						plot.setVisible(true);
 					}
 				} else {
