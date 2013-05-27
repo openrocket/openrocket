@@ -228,7 +228,7 @@ public class SimulationPanel extends JPanel {
 				
 				Simulation sim = document.getSimulations().get(selected);
 				
-				if (sim.getSimulatedData() == null || sim.getSimulatedData().getBranchCount() == 0) {
+				if (!sim.hasSimulationData()) {
 					new SimulationRunDialog(SwingUtilities.getWindowAncestor(
 							SimulationPanel.this), document, sim).setVisible(true);
 				}

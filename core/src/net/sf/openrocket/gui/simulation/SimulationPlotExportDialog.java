@@ -24,7 +24,7 @@ public class SimulationPlotExportDialog extends JDialog {
 	private final Simulation simulation;
 	private static final Translator trans = Application.getTranslator();
 	
-	public SimulationPlotExportDialog(Window parent, OpenRocketDocument document, Simulation s) {
+	public SimulationPlotExportDialog(Window parent, final OpenRocketDocument document, Simulation s) {
 		//// Plot/Export simulation
 		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
 		this.parentWindow = parent;
@@ -48,6 +48,21 @@ public class SimulationPlotExportDialog extends JDialog {
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Exportdata"), exportTab);
 		
 		mainPanel.add(tabbedPane, "grow, wrap");
+		
+		JButton button = new JButton("<<Edit");
+		button.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationPlotExportDialog.this.dispose();
+				SimulationEditDialog edit = new SimulationEditDialog(SimulationPlotExportDialog.this.parentWindow,
+						document, SimulationPlotExportDialog.this.simulation);
+				edit.setVisible(true);
+			}
+			
+		});
+		
+		mainPanel.add(button, "spanx, split 3, align left");
 		
 		JButton ok = new JButton(trans.get("dlg.but.ok"));
 		ok.addActionListener(new ActionListener() {
@@ -87,5 +102,4 @@ public class SimulationPlotExportDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, close);
 		
 	}
-	
 }

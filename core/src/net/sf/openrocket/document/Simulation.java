@@ -374,7 +374,21 @@ public class Simulation implements ChangeSource, Cloneable {
 		return simulatedData;
 	}
 	
-	
+	/**
+	 * Return true if this simulation contains plotable flight data.
+	 * 
+	 * @return
+	 */
+	public boolean hasSimulationData() {
+		FlightData data = getSimulatedData();
+		if (data == null) {
+			return false;
+		}
+		if (data.getBranchCount() == 0) {
+			return false;
+		}
+		return true;
+	}
 	
 	/**
 	 * Returns a copy of this simulation suitable for cut/copy/paste operations.

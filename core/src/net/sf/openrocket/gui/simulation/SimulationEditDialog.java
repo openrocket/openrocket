@@ -149,11 +149,28 @@ public class SimulationEditDialog extends JDialog {
 		mainPanel.add(tabbedPane, "spanx, grow, wrap");
 		
 		
-		// Buttons
-		mainPanel.add(new JPanel(), "spanx, split, growx");
+		//// Open Plot button
+		JButton button = new JButton("<<Plot");
+		button.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationEditDialog.this.dispose();
+				SimulationPlotExportDialog plot = new SimulationPlotExportDialog(SimulationEditDialog.this.parentWindow,
+						SimulationEditDialog.this.document, SimulationEditDialog.this.simulation[0]);
+				plot.setVisible(true);
+			}
+			
+		});
+		mainPanel.add(button, "spanx, split 3, align left");
+		if (sims.length == 1 && sims[0].hasSimulationData()) {
+			button.setVisible(true);
+		} else {
+			button.setVisible(false);
+		}
 		
 		//// Run simulation button
-		JButton button = new JButton(trans.get("simedtdlg.but.runsimulation"));
+		button = new JButton(trans.get("simedtdlg.but.runsimulation"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -162,7 +179,7 @@ public class SimulationEditDialog extends JDialog {
 				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
 			}
 		});
-		mainPanel.add(button, "gapright para");
+		mainPanel.add(button, " align right, tag ok");
 		
 		//// Close button 
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -173,7 +190,7 @@ public class SimulationEditDialog extends JDialog {
 				SimulationEditDialog.this.dispose();
 			}
 		});
-		mainPanel.add(close, "");
+		mainPanel.add(close, "tag ok");
 		
 		
 		this.add(mainPanel);
