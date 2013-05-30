@@ -36,7 +36,6 @@ import net.sf.openrocket.gui.adaptors.Column;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.simulation.SimulationEditDialog;
-import net.sf.openrocket.gui.simulation.SimulationPlotExportDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
@@ -233,9 +232,9 @@ public class SimulationPanel extends JPanel {
 							SimulationPanel.this), document, sim).setVisible(true);
 				}
 				
-				new SimulationPlotExportDialog(SwingUtilities.getWindowAncestor(SimulationPanel.this), document, sim)
-						.setVisible(true);
 				fireMaintainSelection();
+				
+				openDialog(sim);
 				
 			}
 		});
@@ -502,7 +501,6 @@ public class SimulationPanel extends JPanel {
 						simulationTable.clearSelection();
 						simulationTable.addRowSelectionInterval(selected, selected);
 						
-						// FIXME - do we want to check to open plot dialog?
 						openDialog(document.getSimulations().get(selected));
 					}
 				} else {
@@ -563,7 +561,11 @@ public class SimulationPanel extends JPanel {
 	}
 	
 	private void openDialog(final Simulation... sims) {
-		new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sims).setVisible(true);
+		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sims);
+		if (sims.length == 1 && sims[0].hasSimulationData()) {
+			d.setPlotMode();
+		}
+		d.setVisible(true);
 		fireMaintainSelection();
 	}
 	
