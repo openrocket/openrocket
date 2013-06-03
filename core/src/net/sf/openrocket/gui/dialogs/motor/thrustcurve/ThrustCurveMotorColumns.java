@@ -42,6 +42,22 @@ enum ThrustCurveMotorColumns {
 			return new DesignationComparator();
 		}
 	},
+	//// TotalImpulse
+	TOTAL_IMPULSE("TCurveMotorCol.TOTAL_IMPULSE") {
+		@Override
+		public Object getValue(ThrustCurveMotorSet m) {
+			return m.getTotalImpuse();
+		}
+		
+		@Override
+		public Comparator<?> getComparator() {
+			return new Comparator<Long>() {
+				public int compare(Long o1, Long o2) {
+					return o1.compareTo(o2);
+				}
+			};
+		}
+	},
 	//// Type
 	TYPE("TCurveMotorCol.TYPE") {
 		@Override
@@ -79,7 +95,7 @@ enum ThrustCurveMotorColumns {
 		}
 	};
 	
-
+	
 	private final String title;
 	private final int width;
 	private static final Translator trans = Application.getTranslator();
