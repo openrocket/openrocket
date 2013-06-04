@@ -102,7 +102,7 @@ public class SimulationPanel extends JPanel {
 					simulationTable.clearSelection();
 					simulationTable.addRowSelectionInterval(n, n);
 					
-					openDialog(sim);
+					openDialog(false, sim);
 				}
 			});
 			this.add(button, "skip 1, gapright para");
@@ -124,7 +124,7 @@ public class SimulationPanel extends JPanel {
 					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
 					sims[i] = document.getSimulation(selection[i]);
 				}
-				openDialog(sims);
+				openDialog(false, sims);
 			}
 		});
 		this.add(editButton, "gapright para");
@@ -234,7 +234,7 @@ public class SimulationPanel extends JPanel {
 				
 				fireMaintainSelection();
 				
-				openDialog(sim);
+				openDialog(true, sim);
 				
 			}
 		});
@@ -560,13 +560,21 @@ public class SimulationPanel extends JPanel {
 		return simulationTable.getSelectionModel();
 	}
 	
-	private void openDialog(final Simulation... sims) {
+	private void openDialog(boolean plotMode, final Simulation... sims) {
 		SimulationEditDialog d = new SimulationEditDialog(SwingUtilities.getWindowAncestor(this), document, sims);
-		if (sims.length == 1 && sims[0].hasSimulationData()) {
+		if (plotMode) {
 			d.setPlotMode();
 		}
 		d.setVisible(true);
 		fireMaintainSelection();
+	}
+	
+	private void openDialog(final Simulation sim) {
+		boolean plotMode = false;
+		if (sim.hasSimulationData()) {
+			plotMode = true;
+		}
+		openDialog(plotMode, sim);
 	}
 	
 	private void fireMaintainSelection() {
