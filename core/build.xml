@@ -326,6 +326,7 @@ ${nonascii}</fail>
 				<!-- <formatter type="xml"/> -->
                 <formatter type="plain" usefile="false" />
 			</batchtest>
+            <jvmarg value="-Dlogback.configurationFile=config/logback-stdout-level-error.xml"/>
 		</junit>
 		<fail if="junit.failure" message="Unit test(s) failed.  See output above for failures."/>
 		<echo>

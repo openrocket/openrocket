@@ -17,7 +17,7 @@ public class TestExpressions extends BaseTestCase {
 		//CustomExpression exp = new CustomExpression(doc, "Kinetic energy", "Ek", "J", ".5*m*Vt^2");
 		
 		CustomExpression exp = new CustomExpression(doc, "Average mass", "Mavg", "kg", "mean(m[0:t])");
-		System.out.println(exp.getExpressionString());
+		//System.out.println(exp.getExpressionString());
 		
 	}
 }

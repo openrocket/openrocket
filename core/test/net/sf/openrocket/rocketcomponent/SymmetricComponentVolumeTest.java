@@ -24,14 +24,14 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		double volume = Math.PI / 3.0;
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -58,15 +58,15 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		double volume = Math.PI / 3.0;
 		volume += Math.PI;
 		
 		double mass = density * volume;
 		
-		System.out.println(volume + "\t" + mass);
+		//System.out.println(volume + "\t" + mass);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -90,8 +90,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		double volume = Math.PI / 3.0; // outer volume
 		
@@ -105,7 +105,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -132,8 +132,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		double volume = Math.PI / 3.0; // outer volume
 		
@@ -150,7 +150,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -175,14 +175,14 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		double volume = Math.PI / 3.0 * (2.0 * 2.0 + 2.0 * 1.0 + 1.0 * 1.0) * 4.0;
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -213,8 +213,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		double volume = Math.PI / 3.0 * (2.0 * 2.0 + 2.0 * 1.0 + 1.0 * 1.0) * 4.0;
 		// plus aft shoulder:
@@ -224,7 +224,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -249,8 +249,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		// Volume of filled transition = 
 		double filledVolume = Math.PI / 3.0 * (1.0 * 1.0 + 1.0 * 0.5 + 0.5 * 0.5) * 1.0;
@@ -271,7 +271,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -302,8 +302,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		// Volume of filled transition = 
 		double filledVolume = Math.PI / 3.0 * (1.0 * 1.0 + 1.0 * 0.5 + 0.5 * 0.5) * 1.0;
@@ -329,7 +329,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -354,8 +354,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		// Volume of filled transition = 
 		double filledVolume = Math.PI / 3.0 * (1.0 * 1.0 + 1.0 * 0.5 + 0.5 * 0.5) * 1.0;
@@ -377,7 +377,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
@@ -409,8 +409,8 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		Coordinate cg = nc.getCG();
 		
-		System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
-		System.out.println(cg);
+		//System.out.println(nc.getComponentVolume() + "\t" + nc.getMass());
+		//System.out.println(cg);
 		
 		// Volume of filled transition = 
 		double filledVolume = Math.PI / 3.0 * (1.0 * 1.0 + 1.0 * 0.5 + 0.5 * 0.5) * 1.0;
@@ -438,7 +438,7 @@ public class SymmetricComponentVolumeTest extends BaseTestCase {
 		
 		double mass = density * volume;
 		
-		System.out.println(volume);
+		//System.out.println(volume);
 		
 		assertEquals(volume, nc.getComponentVolume(), epsilonPercent * volume);
 		assertEquals(mass, nc.getMass(), epsilonPercent * mass);
