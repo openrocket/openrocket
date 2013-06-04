@@ -18,7 +18,9 @@ public class TestDirectoryIterator {
 		}, true);
 		
 		while (iterator.hasNext()) {
-			System.out.println("" + iterator.next());
+			// TODO need checks here to ensure correct things were done
+			//System.out.println("" + iterator.next());
+			iterator.next();
 		}
 		
 	}

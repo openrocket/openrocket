@@ -320,7 +320,7 @@ public class TestRockets {
 		finset.setFinCount(4);
 		
 		finset.setCantAngle(0 * Math.PI / 180);
-		System.err.println("Fin cant angle: " + (finset.getCantAngle() * 180 / Math.PI));
+		//System.err.println("Fin cant angle: " + (finset.getCantAngle() * 180 / Math.PI));
 		
 		mcomp = new MassComponent(0.2, 0.03, 0.045 + 0.060);
 		mcomp.setRelativePosition(Position.TOP);
@@ -539,7 +539,7 @@ public class TestRockets {
 		
 		
 		finset.setCantAngle(0 * Math.PI / 180);
-		System.err.println("Fin cant angle: " + (finset.getCantAngle() * 180 / Math.PI));
+		//System.err.println("Fin cant angle: " + (finset.getCantAngle() * 180 / Math.PI));
 		
 		
 		// Stage construction
