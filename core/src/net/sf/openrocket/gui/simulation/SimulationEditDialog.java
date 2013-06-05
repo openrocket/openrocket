@@ -42,6 +42,28 @@ public class SimulationEditDialog extends JDialog {
 	private final static String EDITMODE = "EDIT";
 	private final static String PLOTMODE = "PLOT";
 	
+	public SimulationEditDialog(Window parent, final OpenRocketDocument document, Simulation... sims) {
+		//// Edit simulation
+		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
+		this.document = document;
+		this.parentWindow = parent;
+		this.simulation = sims;
+		this.conditions = simulation[0].getOptions();
+		configuration = simulation[0].getConfiguration();
+		
+		this.cards = new JPanel(new CardLayout());
+		this.add(cards);
+		buildEditCard();
+		buildPlotCard();
+		
+		this.validate();
+		this.pack();
+		
+		this.setLocationByPlatform(true);
+		
+		GUIUtil.setDisposableDialogOptions(this, null);
+	}
+	
 	private boolean isSingleEdit() {
 		return simulation.length == 1;
 	}
@@ -65,138 +87,141 @@ public class SimulationEditDialog extends JDialog {
 		cards.validate();
 	}
 	
-	public SimulationEditDialog(Window parent, OpenRocketDocument document, Simulation... sims) {
-		//// Edit simulation
-		super(parent, trans.get("simedtdlg.title.Editsim"), JDialog.ModalityType.DOCUMENT_MODAL);
-		this.document = document;
-		this.parentWindow = parent;
-		this.simulation = sims;
-		this.conditions = simulation[0].getOptions();
-		configuration = simulation[0].getConfiguration();
-		
-		this.cards = new JPanel(new CardLayout());
-		this.add(cards);
-		{
-			JPanel simEditPanel = new JPanel(new MigLayout("fill"));
-			
-			if (isSingleEdit()) {
-				//// Simulation name:
-				simEditPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "shrink");
-				final JTextField field = new JTextField(simulation[0].getName());
-				field.getDocument().addDocumentListener(new DocumentListener() {
-					@Override
-					public void changedUpdate(DocumentEvent e) {
-						setText();
-					}
-					
-					@Override
-					public void insertUpdate(DocumentEvent e) {
-						setText();
-					}
-					
-					@Override
-					public void removeUpdate(DocumentEvent e) {
-						setText();
-					}
-					
-					private void setText() {
-						String name = field.getText();
-						if (name == null || name.equals(""))
-							return;
-						//System.out.println("Setting name:" + name);
-						simulation[0].setName(name);
-						
-					}
-				});
-				simEditPanel.add(field, "shrinky, growx, wrap");
-				
-				//// Flight selector
-				//// Flight configuration:
-				JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
-				//// Select the motor configuration to use.
-				label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
-				simEditPanel.add(label, "shrink");
-				
-				JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
-				//// Select the motor configuration to use.
-				combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
-				combo.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
-					}
-				});
-				simEditPanel.add(combo, "split 2, shrink");
-				
-				//// Edit button
-				JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
-				button.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						JDialog configDialog = new FlightConfigurationDialog(SimulationEditDialog.this.document.getRocket(), SwingUtilities.windowForComponent(SimulationEditDialog.this));
-						configDialog.setVisible(true);
-					}
-				});
-				simEditPanel.add(button, "shrink, wrap");
+	private void copyChangesToAllSims() {
+		if (simulation.length > 1) {
+			for (int i = 1; i < simulation.length; i++) {
+				simulation[i].getOptions().copyConditionsFrom(simulation[0].getOptions());
+				simulation[i].getSimulationListeners().clear();
+				simulation[i].getSimulationListeners().addAll(simulation[0].getSimulationListeners());
 			}
-			JTabbedPane tabbedPane = new JTabbedPane();
-			
-			//// Launch conditions
-			tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), new SimulationConditionsPanel(simulation[0]));
-			//// Simulation options
-			tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), new SimulationOptionsPanel(simulation[0]));
-			
-			tabbedPane.setSelectedIndex(0);
-			
-			simEditPanel.add(tabbedPane, "spanx, grow, wrap");
-			
-			
-			//// Open Plot button
-			JButton button = new JButton("<<Plot");
-			button.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					//				SimulationEditDialog.this.dispose();
-					//				SimulationPlotExportDialog plot = new SimulationPlotExportDialog(SimulationEditDialog.this.parentWindow,
-					//						SimulationEditDialog.this.document, SimulationEditDialog.this.simulation[0]);
-					//				plot.setVisible(true);
-					SimulationEditDialog.this.setPlotMode();
-				}
-				
-			});
-			simEditPanel.add(button, "spanx, split 3, align left");
-			if (allowsPlotMode()) {
-				button.setVisible(true);
-			} else {
-				button.setVisible(false);
-			}
-			
-			//// Run simulation button
-			button = new JButton(trans.get("simedtdlg.but.runsimulation"));
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					copyChangesToAllSims();
-					SimulationEditDialog.this.dispose();
-					SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
-				}
-			});
-			simEditPanel.add(button, " align right, tag ok");
-			
-			//// Close button 
-			JButton close = new JButton(trans.get("dlg.but.close"));
-			close.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					copyChangesToAllSims();
-					SimulationEditDialog.this.dispose();
-				}
-			});
-			simEditPanel.add(close, "tag ok");
-			//simEditPanel.validate();
-			cards.add(simEditPanel, EDITMODE);
 		}
+	}
+	
+	private void refreshView() {
+		cards.removeAll();
+		buildEditCard();
+		buildPlotCard();
+		this.validate();
+	}
+	
+	private void buildEditCard() {
+		JPanel simEditPanel = new JPanel(new MigLayout("fill"));
+		
+		if (isSingleEdit()) {
+			//// Simulation name:
+			simEditPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "span, split 2, shrink");
+			final JTextField field = new JTextField(simulation[0].getName());
+			field.getDocument().addDocumentListener(new DocumentListener() {
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					setText();
+				}
+				
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					setText();
+				}
+				
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					setText();
+				}
+				
+				private void setText() {
+					String name = field.getText();
+					if (name == null || name.equals(""))
+						return;
+					//System.out.println("Setting name:" + name);
+					simulation[0].setName(name);
+					
+				}
+			});
+			simEditPanel.add(field, "shrinky, growx, wrap");
+			
+			//// Flight selector
+			//// Flight configuration:
+			JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
+			//// Select the motor configuration to use.
+			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
+			simEditPanel.add(label, "span, split 2, shrink");
+			
+			JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
+			//// Select the motor configuration to use.
+			combo.setToolTipText(trans.get("simedtdlg.combo.ttip.Flightcfg"));
+			combo.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
+				}
+			});
+			simEditPanel.add(combo, "split 2, shrink");
+			
+			//// Edit button
+			JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JDialog configDialog = new FlightConfigurationDialog(SimulationEditDialog.this.document.getRocket(), SwingUtilities.windowForComponent(SimulationEditDialog.this));
+					configDialog.setVisible(true);
+				}
+			});
+			simEditPanel.add(button, "shrink, align left, wrap");
+		}
+		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		//// Launch conditions
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), new SimulationConditionsPanel(simulation[0]));
+		//// Simulation options
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), new SimulationOptionsPanel(simulation[0]));
+		
+		tabbedPane.setSelectedIndex(0);
+		
+		simEditPanel.add(tabbedPane, "spanx, grow, wrap");
+		
+		
+		//// Open Plot button
+		JButton button = new JButton("<<Plot");
+		button.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationEditDialog.this.setPlotMode();
+			}
+			
+		});
+		simEditPanel.add(button, "spanx, split 3, align left");
+		if (allowsPlotMode()) {
+			button.setVisible(true);
+		} else {
+			button.setVisible(false);
+		}
+		
+		//// Run simulation button
+		button = new JButton(trans.get("simedtdlg.but.runsimulation"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				copyChangesToAllSims();
+				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
+				refreshView();
+			}
+		});
+		simEditPanel.add(button, " align right, tag ok");
+		
+		//// Close button 
+		JButton close = new JButton(trans.get("dlg.but.close"));
+		close.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationEditDialog.this.dispose();
+			}
+		});
+		simEditPanel.add(close, "tag ok");
+		
+		cards.add(simEditPanel, EDITMODE);
+	}
+	
+	private void buildPlotCard() {
 		if (allowsPlotMode()) {
 			JPanel plotExportPanel = new JPanel(new MigLayout("fill"));
 			
@@ -233,6 +258,10 @@ public class SimulationEditDialog extends JDialog {
 			ok.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					// If the simulation is out of date, run the simulation.
+					if (simulation[0].getStatus() != Simulation.Status.UPTODATE) {
+						new SimulationRunDialog(SimulationEditDialog.this.parentWindow, document, simulation[0]).setVisible(true);
+					}
 					
 					if (tabbedPane.getSelectedIndex() == 0) {
 						JDialog plot = plotTab.doPlot(SimulationEditDialog.this.parentWindow);
@@ -261,23 +290,5 @@ public class SimulationEditDialog extends JDialog {
 			cards.add(plotExportPanel, PLOTMODE);
 			
 		}
-		
-		this.validate();
-		this.pack();
-		
-		this.setLocationByPlatform(true);
-		
-		GUIUtil.setDisposableDialogOptions(this, null);
 	}
-	
-	private void copyChangesToAllSims() {
-		if (simulation.length > 1) {
-			for (int i = 1; i < simulation.length; i++) {
-				simulation[i].getOptions().copyConditionsFrom(simulation[0].getOptions());
-				simulation[i].getSimulationListeners().clear();
-				simulation[i].getSimulationListeners().addAll(simulation[0].getSimulationListeners());
-			}
-		}
-	}
-	
 }
