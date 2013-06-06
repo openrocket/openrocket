@@ -213,6 +213,7 @@ public class SimulationEditDialog extends JDialog {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+					copyChangesToAllSims();
 				SimulationEditDialog.this.dispose();
 			}
 		});
