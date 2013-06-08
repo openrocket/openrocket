@@ -23,9 +23,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
@@ -47,6 +44,9 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimulationPanel extends JPanel {
 	private static final Logger log = LoggerFactory.getLogger(SimulationPanel.class);
@@ -130,9 +130,11 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0)
-					return; // TODO: LOW: "None selected" dialog
-					
+				if (selection.length == 0) {
+					JOptionPane.showMessageDialog(simulationTable, "No simulations selected.");
+					return;
+				}
+				
 				Simulation[] sims = new Simulation[selection.length];
 				for (int i = 0; i < selection.length; i++) {
 					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
@@ -511,7 +513,6 @@ public class SimulationPanel extends JPanel {
 		
 		
 	}
-	
 	
 	public ListSelectionModel getSimulationListSelectionModel() {
 		return simulationTable.getSelectionModel();
