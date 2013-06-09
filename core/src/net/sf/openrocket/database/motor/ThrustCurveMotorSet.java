@@ -41,6 +41,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 	private String simplifiedDesignation = null;
 	private double diameter = -1;
 	private double length = -1;
+	private long totalImpulse = 0;
 	private Motor.Type type = Motor.Type.UNKNOWN;
 	
 	
@@ -54,6 +55,7 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 			simplifiedDesignation = simplifyDesignation(designation);
 			diameter = motor.getDiameter();
 			length = motor.getLength();
+			totalImpulse = Math.round((motor.getTotalImpulseEstimate()));
 		}
 		
 		// Verify that the motor can be added
@@ -218,7 +220,13 @@ public class ThrustCurveMotorSet implements Comparable<ThrustCurveMotorSet> {
 		return type;
 	}
 	
-	
+	/**
+	 * Return the estimated total impulse for this motor type.
+	 * @return estimated total impulse
+	 */
+	public long getTotalImpuse() {
+		return totalImpulse;
+	}
 	
 	
 	@Override
