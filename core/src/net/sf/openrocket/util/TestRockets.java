@@ -4,6 +4,9 @@ import java.util.Random;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.motor.Manufacturer;
@@ -42,6 +45,11 @@ import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.simulation.SimulationOptions;
+import net.sf.openrocket.simulation.customexpression.CustomExpression;
+import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
+import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 
 public class TestRockets {
@@ -539,7 +547,7 @@ public class TestRockets {
 	/*
 	 * Create a new file version 1.00 rocket
 	 */
-	public static Rocket makeTestRocket_v100() {
+	public static OpenRocketDocument makeTestRocket_v100() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v100");
 		
@@ -553,13 +561,13 @@ public class TestRockets {
 		
 		rocket.addChild(stage);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.01 rocket with finTabs
 	 */
-	public static Rocket makeTestRocket_v101_withFinTabs() {
+	public static OpenRocketDocument makeTestRocket_v101_withFinTabs() {
 		
 		Rocket rocket = new Rocket();
 		rocket.setName("v101_withFinTabs");
@@ -581,14 +589,14 @@ public class TestRockets {
 		fins.setTabLength(0.25);
 		bodyTube.addChild(fins);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 		
 	}
 	
 	/*
 	 * Create a new file version 1.01 rocket with tube coupler child
 	 */
-	public static Rocket makeTestRocket_v101_withTubeCouplerChild() {
+	public static OpenRocketDocument makeTestRocket_v101_withTubeCouplerChild() {
 		
 		Rocket rocket = new Rocket();
 		rocket.setName("v101_withTubeCouplerChild");
@@ -608,16 +616,16 @@ public class TestRockets {
 		tubeCoupler.addChild(centeringRing);
 		bodyTube.addChild(tubeCoupler);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.04 rocket with motor in flight config
 	 */
-	public static Rocket makeTestRocket_v104_withMotor() {
+	public static OpenRocketDocument makeTestRocket_v104_withMotor() {
 		
 		Rocket rocket = new Rocket();
-		rocket.setName("v101_withTubeCouplerChild");
+		rocket.setName("v104_withMotorConfig");
 		
 		// make stage
 		Stage stage = new Stage();
@@ -650,19 +658,97 @@ public class TestRockets {
 		rocket.newFlightConfigurationID();
 		rocket.addMotorConfigurationID("F12X");
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+	}
+	
+	/*
+	 * Create a new file version 1.04 rocket with simulation data
+	 */
+	public static OpenRocketDocument makeTestRocket_v104_withSimulationData() {
+		
+		Rocket rocket = new Rocket();
+		rocket.setName("v104_withSimulationData");
+		
+		// make stage
+		Stage stage = new Stage();
+		stage.setName("Stage1");
+		rocket.addChild(stage);
+		
+		// make body tube 
+		BodyTube bodyTube = new BodyTube(12, 1, 0.05);
+		stage.addChild(bodyTube);
+		
+		// make inner tube with motor mount flag set
+		InnerTube innerTube = new InnerTube();
+		innerTube.setMotorMount(true);
+		bodyTube.addChild(innerTube);
+		
+		// create motor config and add a motor to it
+		MotorConfiguration motorConfig = new MotorConfiguration();
+		ThrustCurveMotor motor = new ThrustCurveMotor(
+				Manufacturer.getManufacturer("A"),
+				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
+				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
+		motorConfig.setMotor(motor);
+		motorConfig.setEjectionDelay(5);
+		
+		// add motor config to inner tube (motor mount)
+		innerTube.getMotorConfiguration().set("F12X", motorConfig);
+		
+		// add motor config to rocket's flight config
+		//rocket.newFlightConfigurationID();
+		rocket.addMotorConfigurationID("F12X");
+		
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		
+		// create simulation data
+		SimulationOptions options = new SimulationOptions(rocket);
+		options.setMotorConfigurationID("F12X");
+		Simulation simulation1 = new Simulation(rocket);
+		
+		rocketDoc.addSimulation(simulation1);
+		Simulation simulation2 = new Simulation(rocket);
+		rocketDoc.addSimulation(simulation2);
+		
+		return rocketDoc;
+	}
+	
+	/*
+	 * Create a new file version 1.05 rocket with custom expression 
+	 */
+	public static OpenRocketDocument makeTestRocket_v105_withCustomExpression() {
+		Rocket rocket = new Rocket();
+		rocket.setName("v105_withCustomExpression");
+		
+		// make stage
+		Stage stage = new Stage();
+		stage.setName("Stage1");
+		rocket.addChild(stage);
+		
+		// make body tube 
+		BodyTube bodyTube = new BodyTube();
+		stage.addChild(bodyTube);
+		
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		
+		CustomExpression expression = new CustomExpression(rocketDoc, "name", "symbol", "unit", "expression");
+		rocketDoc.addCustomExpression(expression);
+		
+		return rocketDoc;
 	}
 	
 	/*
 	 * Create a new file version 1.05 rocket with component preset
 	 */
-	public static Rocket makeTestRocket_v105_withComponentPreset() {
+	public static OpenRocketDocument makeTestRocket_v105_withComponentPreset() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v105_withComponentPreset");
 		
 		// make stage
 		Stage stage = new Stage();
 		stage.setName("Stage1");
+		rocket.addChild(stage);
 		
 		// make body tube 
 		BodyTube bodyTube = new BodyTube();
@@ -685,15 +771,13 @@ public class TestRockets {
 			e.printStackTrace();
 		}
 		
-		rocket.addChild(stage);
-		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.05 rocket with lower stage recovery device
 	 */
-	public static Rocket makeTestRocket_v105_withLowerStageRecoveryDevice() {
+	public static OpenRocketDocument makeTestRocket_v105_withLowerStageRecoveryDevice() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v105_withLowerStageRecoveryDevice");
 		
@@ -705,8 +789,6 @@ public class TestRockets {
 		// make 1st stage body tube
 		BodyTube bodyTube1 = new BodyTube(5, 1, 0.05);
 		stage1.addChild(bodyTube1);
-		
-		//getDeploymentConfiguration().getDefault().getDeployEvent() == DeployEvent.LOWER_STAGE_SEPARATION) 
 		
 		// make 1st stage recovery device with deployment config in default
 		RecoveryDevice parachute = new Parachute();
@@ -720,13 +802,13 @@ public class TestRockets {
 		stage2.setName("Stage2");
 		rocket.addChild(stage2);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.06 rocket with appearance
 	 */
-	public static Rocket makeTestRocket_v106_withAppearance() {
+	public static OpenRocketDocument makeTestRocket_v106_withAppearance() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withAppearance");
 		
@@ -741,13 +823,13 @@ public class TestRockets {
 		bodyTube.setAppearance(appearance);
 		stage.addChild(bodyTube);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.06 rocket with flight configuration with motor mount ignition configuration
 	 */
-	public static Rocket makeTestRocket_v106_withMotorMountIgnitionConfig() {
+	public static OpenRocketDocument makeTestRocket_v106_withMotorMountIgnitionConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withwithMotorMountIgnitionConfig");
 		
@@ -770,13 +852,13 @@ public class TestRockets {
 		ignitionConfig.setIgnitionDelay(2);
 		innerTube.getIgnitionConfiguration().set("2SecondDelay", ignitionConfig);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.06 rocket with flight configuration with recovery device deployment configuration non-default
 	 */
-	public static Rocket makeTestRocket_v106_withRecoveryDeviceDeploymentConfig() {
+	public static OpenRocketDocument makeTestRocket_v106_withRecoveryDeviceDeploymentConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withRecoveryDeviceDeploymentConfig");
 		
@@ -796,13 +878,13 @@ public class TestRockets {
 		parachute.getDeploymentConfiguration().set("testParachute", deploymentConfig);
 		bodyTube.addChild(parachute);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
 	/*
 	 * Create a new file version 1.06 rocket with flight configuration with stage separation configuration
 	 */
-	public static Rocket makeTestRocket_v106_withStageSeparationConfig() {
+	public static OpenRocketDocument makeTestRocket_v106_withStageSeparationConfig() {
 		Rocket rocket = new Rocket();
 		rocket.setName("v106_withStageSeparationConfig");
 		
@@ -833,9 +915,80 @@ public class TestRockets {
 		BodyTube bodyTube2 = new BodyTube(12, 1, 0.05);
 		stage2.addChild(bodyTube2);
 		
-		return rocket;
+		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
+	/*
+	 * Create a new test rocket for testing OpenRocketSaver.estimateFileSize()
+	 */
+	public static OpenRocketDocument makeTestRocket_for_estimateFileSize() {
+		Rocket rocket = new Rocket();
+		rocket.setName("for_estimateFileSize");
+		
+		// make 1st stage
+		Stage stage1 = new Stage();
+		stage1.setName("Stage1");
+		rocket.addChild(stage1);
+		
+		// make 1st stage body tube
+		BodyTube bodyTube1 = new BodyTube(5, 1, 0.05);
+		stage1.addChild(bodyTube1);
+		
+		TrapezoidFinSet fins1 = new TrapezoidFinSet();
+		fins1.setFinCount(3);
+		fins1.setFinShape(1.5, 1.5, 0.0, 1.5, .005);
+		bodyTube1.addChild(fins1);
+		
+		// make 1st stage recovery device with deployment config in default
+		RecoveryDevice parachute = new Parachute();
+		DeploymentConfiguration deploymentConfig = new DeploymentConfiguration();
+		deploymentConfig.setDeployEvent(DeployEvent.LOWER_STAGE_SEPARATION);
+		deploymentConfig.setDeployEvent(DeployEvent.ALTITUDE);
+		parachute.getDeploymentConfiguration().setDefault(deploymentConfig);
+		bodyTube1.addChild(parachute);
+		
+		// make 2nd stage
+		Stage stage2 = new Stage();
+		stage2.setName("Stage2");
+		rocket.addChild(stage2);
+		
+		// make 2nd stage nose cone
+		NoseCone noseCone = new NoseCone(Transition.Shape.OGIVE, 6 * 0.5, 0.5);
+		stage2.addChild(noseCone);
+		
+		// make 2nd stage body tube
+		BodyTube bodyTube2 = new BodyTube(15, 1, 0.05);
+		stage2.addChild(bodyTube2);
+		
+		// make 2nd stage fins
+		TrapezoidFinSet fins2 = new TrapezoidFinSet();
+		fins2.setFinCount(3);
+		fins2.setFinShape(1.0, 1.0, 0.0, 1.0, .005);
+		bodyTube2.addChild(fins2);
+		
+		OpenRocketDocument rocketDoc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		
+		// create simulation data
+		Simulation simulation1 = new Simulation(rocket);
+		simulation1.getOptions().setISAAtmosphere(false); // helps cover code in saveComponent()
+		simulation1.getOptions().setTimeStep(0.05);
+		rocketDoc.addSimulation(simulation1);
+		
+		Simulation simulation2 = new Simulation(rocket);
+		simulation2.getOptions().setISAAtmosphere(true); // helps cover code in saveComponent()
+		simulation2.getOptions().setTimeStep(0.05);
+		rocketDoc.addSimulation(simulation2);
+		
+		SimulationListener simulationListener = new AbstractSimulationListener();
+		try {
+			simulation1.simulate(simulationListener);
+			simulation2.simulate(simulationListener);
+		} catch (SimulationException e) {
+			// do nothing, we don't care
+		}
+		
+		return rocketDoc;
+	}
 	
 	
 }

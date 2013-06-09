@@ -7,10 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.sf.openrocket.file.openrocket.OpenRocketSaver;
+import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
 
-public class DocumentConfigTest {
+public class DocumentConfigTest extends BaseTestCase {
 	
 	/**
 	 * Check that unit tests exist for all supported OR file versions.
