@@ -4,8 +4,6 @@ OpenRocket
 Build Status : [ ![Build Status](https://travis-ci.org/openrocket/openrocket.png) ](https://travis-ci.org/openrocket/openrocket)
 ------------
 
-
-
 Overview
 --------
 
