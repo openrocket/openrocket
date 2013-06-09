@@ -77,7 +77,7 @@ public class GeneralRocketLoader {
 			return doc;
 			
 		} catch (Exception e) {
-			throw new RocketLoadException("Exception loading file: " + baseFile, e);
+			throw new RocketLoadException("Exception loading file: " + baseFile + " , " + e.getMessage(), e);
 		} finally {
 			if (stream != null) {
 				try {
@@ -94,7 +94,7 @@ public class GeneralRocketLoader {
 			loadStep1(source);
 			return doc;
 		} catch (Exception e) {
-			throw new RocketLoadException("Exception loading stream", e);
+			throw new RocketLoadException("Exception loading stream: " + e.getMessage(), e);
 		}
 	}
 	
