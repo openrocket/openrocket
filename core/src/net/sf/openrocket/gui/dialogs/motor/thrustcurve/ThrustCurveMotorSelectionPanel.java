@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +35,8 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -262,6 +265,15 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			table.getColumnModel().getColumn(i).setPreferredWidth(column.getWidth());
 		}
 		table.setRowSorter(sorter);
+		// force initial sort order to by diameter, total impulse, manufacturer
+		{
+			RowSorter.SortKey[] sortKeys = {
+					new RowSorter.SortKey(ThrustCurveMotorColumns.DIAMETER.ordinal(), SortOrder.ASCENDING),
+					new RowSorter.SortKey(ThrustCurveMotorColumns.TOTAL_IMPULSE.ordinal(), SortOrder.ASCENDING),
+					new RowSorter.SortKey(ThrustCurveMotorColumns.MANUFACTURER.ordinal(), SortOrder.ASCENDING)
+			};
+			sorter.setSortKeys(Arrays.asList(sortKeys));
+		}
 		
 		// Set selection and double-click listeners
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -557,7 +569,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		setDelays(false);
 		
 	}
-	
 	
 	@Override
 	public Motor getSelectedMotor() {
