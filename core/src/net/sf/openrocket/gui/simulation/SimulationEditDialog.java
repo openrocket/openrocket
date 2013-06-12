@@ -204,6 +204,9 @@ public class SimulationEditDialog extends JDialog {
 				copyChangesToAllSims();
 				SimulationRunDialog.runSimulations(parentWindow, SimulationEditDialog.this.document, simulation);
 				refreshView();
+				if (allowsPlotMode()) {
+					setPlotMode();
+				}
 			}
 		});
 		simEditPanel.add(button, " align right, tag ok");
@@ -213,7 +216,7 @@ public class SimulationEditDialog extends JDialog {
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-					copyChangesToAllSims();
+				copyChangesToAllSims();
 				SimulationEditDialog.this.dispose();
 			}
 		});
