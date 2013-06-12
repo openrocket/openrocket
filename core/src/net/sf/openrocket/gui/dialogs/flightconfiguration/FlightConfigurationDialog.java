@@ -15,6 +15,7 @@ import javax.swing.JTabbedPane;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
 import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -170,6 +171,10 @@ public class FlightConfigurationDialog extends JDialog {
 	private void addConfiguration() {
 		String newId = rocket.newFlightConfigurationID();
 		rocket.getDefaultConfiguration().setFlightConfigurationID(newId);
+		
+		// Create a new simulation for this configuration.
+		createSimulationForNewConfiguration();
+		
 		configurationChanged();
 	}
 	
@@ -188,7 +193,20 @@ public class FlightConfigurationDialog extends JDialog {
 		rocket.setFlightConfigurationName(currentId, oldName);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(newConfigId);
 		
+		// Create a new simulation for this configuration.
+		createSimulationForNewConfiguration();
+		
 		configurationChanged();
+	}
+	
+	/**
+	 * prereq - assumes that the new configuration has been set as the default configuration.
+	 */
+	private void createSimulationForNewConfiguration() {
+		Simulation newSim = new Simulation(rocket);
+		OpenRocketDocument doc = BasicFrame.findDocument(rocket);
+		newSim.setName(doc.getNextSimulationName());
+		doc.addSimulation(newSim);
 	}
 	
 	private void renameConfiguration() {

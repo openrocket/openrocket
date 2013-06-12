@@ -8,7 +8,7 @@ import net.sf.openrocket.unit.UnitGroup;
 public abstract class Warning {
 	
 	private static final Translator trans = Application.getTranslator();
-
+	
 	/**
 	 * Return a Warning with the specific text.
 	 */
@@ -36,8 +36,8 @@ public abstract class Warning {
 	 */
 	@Override
 	public boolean equals(Object o) {
-        return o != null && (o.getClass() == this.getClass());
-    }
+		return o != null && (o.getClass() == this.getClass());
+	}
 	
 	/**
 	 * A <code>hashCode</code> method compatible with the <code>equals</code> method.
@@ -79,21 +79,21 @@ public abstract class Warning {
 			return (trans.get("Warning.LargeAOA.str2") +
 					UnitGroup.UNITS_ANGLE.getDefaultUnit().toString(aoa) + ").");
 		}
-
+		
 		@Override
 		public boolean replaceBy(Warning other) {
 			if (!(other instanceof LargeAOA))
 				return false;
 			
-			LargeAOA o = (LargeAOA)other;
-			if (Double.isNaN(this.aoa))   // If this has value NaN then replace
+			LargeAOA o = (LargeAOA) other;
+			if (Double.isNaN(this.aoa)) // If this has value NaN then replace
 				return true;
 			return (o.aoa > this.aoa);
 		}
 	}
 	
 	public static class MissingMotor extends Warning {
-
+		
 		private Motor.Type type = null;
 		private String manufacturer = null;
 		private String designation = null;
@@ -101,7 +101,7 @@ public abstract class Warning {
 		private double diameter = Double.NaN;
 		private double length = Double.NaN;
 		private double delay = Double.NaN;
-
+		
 		@Override
 		public String toString() {
 			String str = "No motor with designation '" + designation + "'";
@@ -110,82 +110,82 @@ public abstract class Warning {
 			str += " found.";
 			return str;
 		}
-
+		
 		public Motor.Type getType() {
 			return type;
 		}
-
-
+		
+		
 		public void setType(Motor.Type type) {
 			this.type = type;
 		}
-
-
+		
+		
 		public String getManufacturer() {
 			return manufacturer;
 		}
-
-
+		
+		
 		public void setManufacturer(String manufacturer) {
 			this.manufacturer = manufacturer;
 		}
-
-
+		
+		
 		public String getDesignation() {
 			return designation;
 		}
-
-
+		
+		
 		public void setDesignation(String designation) {
 			this.designation = designation;
 		}
-
-
+		
+		
 		public String getDigest() {
 			return digest;
 		}
-
-
+		
+		
 		public void setDigest(String digest) {
 			this.digest = digest;
 		}
-
-
+		
+		
 		public double getDiameter() {
 			return diameter;
 		}
-
-
+		
+		
 		public void setDiameter(double diameter) {
 			this.diameter = diameter;
 		}
-
-
+		
+		
 		public double getLength() {
 			return length;
 		}
-
-
+		
+		
 		public void setLength(double length) {
 			this.length = length;
 		}
-
-
+		
+		
 		public double getDelay() {
 			return delay;
 		}
-
-
+		
+		
 		public void setDelay(double delay) {
 			this.delay = delay;
 		}
-
-
+		
+		
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
 		}
-
+		
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -206,7 +206,7 @@ public abstract class Warning {
 			result = prime * result + ((type == null) ? 0 : type.hashCode());
 			return result;
 		}
-
+		
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
@@ -272,7 +272,7 @@ public abstract class Warning {
 			if (!(other instanceof Other))
 				return false;
 			
-			Other o = (Other)other;
+			Other o = (Other) other;
 			return (o.description.equals(this.description));
 		}
 		
@@ -280,7 +280,7 @@ public abstract class Warning {
 		public int hashCode() {
 			return description.hashCode();
 		}
-
+		
 		@Override
 		public boolean replaceBy(Warning other) {
 			return false;
@@ -289,40 +289,40 @@ public abstract class Warning {
 	
 	
 	/** A <code>Warning</code> that the body diameter is discontinuous. */
-////Discontinuity in rocket body diameter.
-	public static final Warning DISCONTINUITY = 
-		new Other(trans.get("Warning.DISCONTINUITY"));
+	////Discontinuity in rocket body diameter.
+	public static final Warning DISCONTINUITY =
+			new Other(trans.get("Warning.DISCONTINUITY"));
 	
 	/** A <code>Warning</code> that the fins are thick compared to the rocket body. */
-////Thick fins may not be modeled accurately.
+	////Thick fins may not be modeled accurately.
 	public static final Warning THICK_FIN =
-		new Other(trans.get("Warning.THICK_FIN"));
+			new Other(trans.get("Warning.THICK_FIN"));
 	
 	/** A <code>Warning</code> that the fins have jagged edges. */
-////Jagged-edged fin predictions may be inaccurate.
+	////Jagged-edged fin predictions may be inaccurate.
 	public static final Warning JAGGED_EDGED_FIN =
-		new Other(trans.get("Warning.JAGGED_EDGED_FIN"));
+			new Other(trans.get("Warning.JAGGED_EDGED_FIN"));
 	
 	/** A <code>Warning</code> that simulation listeners have affected the simulation */
-////Listeners modified the flight simulation
+	////Listeners modified the flight simulation
 	public static final Warning LISTENERS_AFFECTED =
-		new Other(trans.get("Warning.LISTENERS_AFFECTED"));
+			new Other(trans.get("Warning.LISTENERS_AFFECTED"));
 	
-////Recovery device opened while motor still burning.
+	////Recovery device opened while motor still burning.
 	public static final Warning RECOVERY_DEPLOYMENT_WHILE_BURNING =
-		new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
+			new Other(trans.get("Warning.RECOVERY_DEPLOYMENT_WHILE_BURNING"));
 	
 	
 	//// Invalid parameter encountered, ignoring.
 	public static final Warning FILE_INVALID_PARAMETER =
-		new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
-
+			new Other(trans.get("Warning.FILE_INVALID_PARAMETER"));
+	
 	public static final Warning PARALLEL_FINS =
-		new Other(trans.get("Warning.PARALLEL_FINS"));
+			new Other(trans.get("Warning.PARALLEL_FINS"));
 	
 	public static final Warning SUPERSONIC =
-		new Other(trans.get("Warning.SUPERSONIC"));
-
+			new Other(trans.get("Warning.SUPERSONIC"));
+	
 	public static final Warning RECOVERY_LAUNCH_ROD =
-		new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
+			new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
 }

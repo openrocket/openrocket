@@ -42,9 +42,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private SimulationStepper landingStepper = new BasicLandingStepper();
 	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	
-	// Constant holding 30 degress in radians.  This is the AOA condition
+	// Constant holding 10 degress in radians.  This is the AOA condition
 	// necessary to transistion to tumbling.
-	private final static double AOA_TUMBLE_CONDITION = Math.PI / 3.0;
+	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	private SimulationStepper currentStepper;
 	
@@ -105,7 +105,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		return flightData;
 	}
 	
-	private FlightDataBranch simulateLoop() throws SimulationException {
+	private FlightDataBranch simulateLoop() {
 		
 		// Initialize the simulation
 		currentStepper = flightStepper;
@@ -222,7 +222,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			
 		} catch (SimulationException e) {
 			SimulationListenerHelper.fireEndSimulation(status, e);
-			throw e;
+			// Add FlightEvent for Abort.
+			status.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, status.getSimulationTime(), status.getConfiguration().getRocket(), e.getLocalizedMessage()));
+			status.getWarnings().add(e.getLocalizedMessage());
 		}
 		
 		return status.getFlightData();

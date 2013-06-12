@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.simulation;
 
 import java.util.Arrays;
 
@@ -86,7 +86,7 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	protected abstract void simulationInterrupted(Throwable t);
 	
 	
-
+	
 	/**
 	 * Marks this simulation as done and calls the progress update.
 	 */
@@ -99,7 +99,7 @@ public abstract class SimulationWorker extends SwingWorker<FlightData, Simulatio
 	}
 	
 	
-
+	
 	/**
 	 * A simulation listener that throws a {@link SimulationCancelledException} if
 	 * this SwingWorker has been cancelled.  The conditions is checked every time a step
