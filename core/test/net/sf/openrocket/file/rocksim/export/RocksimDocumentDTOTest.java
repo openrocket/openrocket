@@ -41,23 +41,24 @@ public class RocksimDocumentDTOTest extends RocksimTestBase {
 		RocksimDocumentDTO message = new RocksimDocumentDTO();
 		message.setDesign(design);
 		
-		
 		StringWriter stringWriter = new StringWriter();
 		marshaller.marshal(message, stringWriter);
 		
 		String response = stringWriter.toString();
 		
-		System.err.println(response);
+		// TODO need checks here to validation that correct things were done
+		//System.err.println(response);
 	}
 	
 	@Test
 	public void testRoundTrip() throws Exception {
+		// TODO need checks here to validate that correct things were done
 		OpenRocketDocument ord = RocksimLoaderTest.loadRocksimRocket3(new RocksimLoader());
 		
 		Assert.assertNotNull(ord);
 		String result = new RocksimSaver().marshalToRocksim(ord);
 		
-		//        System.err.println(result);
+		//  System.err.println(result);
 		
 		File output = new File("rt.rkt");
 		FileWriter fw = new FileWriter(output);

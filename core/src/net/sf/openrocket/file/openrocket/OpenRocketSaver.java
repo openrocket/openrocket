@@ -194,6 +194,17 @@ public class OpenRocketSaver extends RocketSaver {
 		return size;
 	}
 	
+	/**
+	 * Public test accessor method for calculateNecessaryFileVersion, used by unit tests.
+	 * 
+	 * @param document	the document to output.
+	 * @param opts		the storage options.
+	 * @return			the integer file version to use.
+	 */
+	public int testAccessor_calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
+		// TODO: should check for test context here and fail if not running junit
+		return calculateNecessaryFileVersion(document, opts);
+	}
 	
 	/**
 	 * Determine which file version is required in order to store all the features of the
@@ -225,6 +236,10 @@ public class OpenRocketSaver extends RocketSaver {
 		 * Otherwise use version 1.0.
 		 */
 		
+		/////////////////
+		// Version 1.6 // 
+		/////////////////
+		
 		// Search the rocket for any Appearances or non-motor flight configurations (version 1.6)
 		for (RocketComponent c : document.getRocket()) {
 			if (c.getAppearance() != null) {
@@ -252,6 +267,10 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 		}
 		
+		/////////////////
+		// Version 1.5 // 
+		/////////////////
+		
 		// Search the rocket for any ComponentPresets (version 1.5)
 		for (RocketComponent c : document.getRocket()) {
 			if (c.getPresetComponent() != null) {
@@ -268,10 +287,14 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 		}
 		
-		// Check for custom expressions
+		// Check for custom expressions (version 1.5)
 		if (!document.getCustomExpressions().isEmpty()) {
 			return FILE_VERSION_DIVISOR + 5;
 		}
+		
+		/////////////////
+		// Version 1.4 // 
+		/////////////////
 		
 		// Check if design has simulations defined (version 1.4)
 		if (document.getSimulationCount() > 0) {
@@ -291,7 +314,23 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 		}
 		
-		// Check for fin tabs (version 1.1)
+		/////////////////
+		// Version 1.3 // 
+		/////////////////
+		
+		// no version 1.3 file type exists
+		
+		/////////////////
+		// Version 1.2 // 
+		/////////////////
+		
+		// no version 1.2 file type exists
+		
+		/////////////////
+		// Version 1.1 // 
+		/////////////////
+		
+		// Check for fin tabs or tube coupler children (version 1.1)
 		for (RocketComponent c : document.getRocket()) {
 			// Check for fin tabs
 			if (c instanceof FinSet) {
@@ -309,6 +348,10 @@ public class OpenRocketSaver extends RocketSaver {
 				}
 			}
 		}
+		
+		/////////////////
+		// Version 1.0 // 
+		/////////////////
 		
 		// Default (version 1.0)
 		return FILE_VERSION_DIVISOR + 0;

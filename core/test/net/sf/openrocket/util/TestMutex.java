@@ -10,8 +10,12 @@ import net.sf.openrocket.startup.ExceptionHandler;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestMutex {
+	
+	private static final Logger log = LoggerFactory.getLogger(TestMutex.class);
 	
 	@Before
 	public void setup() {
@@ -73,8 +77,13 @@ public class TestMutex {
 		SafetyMutex.ConcreteSafetyMutex.errorReported = true;
 		
 		m.lock("here");
-		assertTrue(m.unlock("here"));
-		assertFalse(m.unlock("here"));
+		
+		boolean unlocked = m.unlock("here");
+		assertTrue("First unlock failed but should have succeeded.", unlocked);
+		
+		log.error("***** The following ConcurrencyException in testDoubleUnlocking() is expected, but this test can't prevent it from being logged. *****");
+		unlocked = m.unlock("here");
+		assertFalse("Second unlock succeeded but should have failed.", unlocked);
 	}
 	
 	
@@ -95,6 +104,7 @@ public class TestMutex {
 					// Test locking a locked mutex
 					waitFor(1);
 					try {
+						log.error("***** The following ConcurrencyException in testThreadingErrors() is expected, but this test can't prevent it from being logged. *****");
 						m.lock("in thread one");
 						failure = "Succeeded in locking a mutex locked by a different thread";
 						return;
@@ -103,6 +113,7 @@ public class TestMutex {
 					}
 					
 					// Test unlocking a mutex locked by a different thread
+					log.error("***** The following ConcurrencyException in testThreadingErrors() is expected, but this test can't prevent it from being logged. *****");
 					if (m.unlock("in thread two")) {
 						failure = "Succeeded in unlocking a mutex locked by a different thread";
 						return;
@@ -110,6 +121,7 @@ public class TestMutex {
 					
 					// Test verifying a locked mutex that already has an error
 					try {
+						log.error("***** The following ConcurrencyException in testThreadingErrors() is expected, but this test can't prevent it from being logged. *****");
 						m.verify();
 						failure = "Succeeded in verifying a mutex locked by a different thread";
 						return;
@@ -155,6 +167,7 @@ public class TestMutex {
 		assertNull("Thread error: " + failure, failure);
 		
 		try {
+			log.error("***** The following ConcurrencyException in testThreadingErrors() is expected, but this test can't prevent it from being logged. *****");
 			m.lock("two");
 			fail("Succeeded in locking a locked mutex in main thread");
 		} catch (ConcurrencyException e) {
@@ -162,9 +175,11 @@ public class TestMutex {
 		}
 		
 		// Test unlocking a mutex locked by a different thread
+		log.error("***** The following ConcurrencyException in testThreadingErrors() is expected, but this test can't prevent it from being logged. *****");
 		assertFalse(m.unlock("here"));
 		
 		try {
+			log.error("***** The following ConcurrencyException in testThreadingErrors() is expected, but this test can't prevent it from being logged. *****");
 			m.verify();
 			fail("Succeeded in verifying a locked mutex in main thread");
 		} catch (ConcurrencyException e) {
