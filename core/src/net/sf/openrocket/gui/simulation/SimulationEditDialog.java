@@ -264,7 +264,7 @@ public class SimulationEditDialog extends JDialog {
 			
 			plotExportPanel.add(button, "spanx, split 3, align left");
 			
-			JButton ok = new JButton(trans.get("dlg.but.ok"));
+			JButton ok = new JButton(trans.get("SimulationEditDialog.btn.plot"));
 			ok.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
