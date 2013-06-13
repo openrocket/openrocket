@@ -7,8 +7,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -113,8 +111,8 @@ public class SimulationPlotDialog extends JDialog {
 		//// Add series selection box
 		ArrayList<String> stages = new ArrayList<String>();
 		stages.add("All");
-		stages.addAll( Util.generateSeriesLabels(simulation));
-
+		stages.addAll(Util.generateSeriesLabels(simulation));
+		
 		final JComboBox stageSelection = new JComboBox(stages.toArray(new String[0]));
 		stageSelection.addItemListener(new ItemListener() {
 			
@@ -159,8 +157,8 @@ public class SimulationPlotDialog extends JDialog {
 	 * @param simulation	the simulation to plot.
 	 * @param config		the configuration of the plot.
 	 */
-	public static void showPlot(Window parent, Simulation simulation, PlotConfiguration config) {
-		new SimulationPlotDialog(parent, simulation, config).setVisible(true);
+	public static SimulationPlotDialog getPlot(Window parent, Simulation simulation, PlotConfiguration config) {
+		return new SimulationPlotDialog(parent, simulation, config);
 	}
 	
 }

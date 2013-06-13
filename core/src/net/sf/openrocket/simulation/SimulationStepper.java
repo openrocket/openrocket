@@ -11,7 +11,7 @@ public interface SimulationStepper {
 	 * @param status		the current simulation status.
 	 * @return				a SimulationStatus suitable for simulating with this simulation stepper.
 	 */
-	public SimulationStatus initialize(SimulationStatus status) throws SimulationException;
+	public SimulationStatus initialize(SimulationStatus status);
 	
 	/**
 	 * Perform one simulation time step.

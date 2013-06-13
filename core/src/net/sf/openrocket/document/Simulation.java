@@ -13,6 +13,7 @@ import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
+import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationConditions;
@@ -105,8 +106,11 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.status = Status.NOT_SIMULATED;
 		
 		options = new SimulationOptions(rocket);
-		options.setMotorConfigurationID(
-				rocket.getDefaultConfiguration().getFlightConfigurationID());
+		
+		DefaultSimulationOptionFactory f = Application.getInjector().getInstance(DefaultSimulationOptionFactory.class);
+		options.copyConditionsFrom(f.getDefault());
+		
+		options.setMotorConfigurationID(rocket.getDefaultConfiguration().getFlightConfigurationID());
 		options.addChangeListener(new ConditionListener());
 	}
 	
@@ -374,7 +378,21 @@ public class Simulation implements ChangeSource, Cloneable {
 		return simulatedData;
 	}
 	
-	
+	/**
+	 * Return true if this simulation contains plotable flight data.
+	 * 
+	 * @return
+	 */
+	public boolean hasSimulationData() {
+		FlightData data = getSimulatedData();
+		if (data == null) {
+			return false;
+		}
+		if (data.getBranchCount() == 0) {
+			return false;
+		}
+		return true;
+	}
 	
 	/**
 	 * Returns a copy of this simulation suitable for cut/copy/paste operations.

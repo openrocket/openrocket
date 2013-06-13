@@ -1,5 +1,6 @@
-package net.sf.openrocket.gui.plot;
+package net.sf.openrocket.gui.simulation;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -10,12 +11,12 @@ import java.util.EnumSet;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -24,6 +25,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.plot.PlotConfiguration;
+import net.sf.openrocket.gui.plot.SimulationPlotDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
@@ -71,18 +74,18 @@ public class SimulationPlotPanel extends JPanel {
 		PRESET_ARRAY[PRESET_ARRAY.length - 1] = CUSTOM_CONFIGURATION;
 	}
 	
-
-
+	
+	
 	/** The current default configuration, set each time a plot is made. */
 	private static PlotConfiguration defaultConfiguration =
 			PlotConfiguration.DEFAULT_CONFIGURATIONS[0].resetUnits();
 	
-
+	
 	private final Simulation simulation;
 	private final FlightDataType[] types;
 	private PlotConfiguration configuration;
 	
-
+	
 	private JComboBox configurationSelector;
 	
 	private JComboBox domainTypeSelector;
@@ -91,7 +94,7 @@ public class SimulationPlotPanel extends JPanel {
 	private JPanel typeSelectorPanel;
 	private FlightEventTableModel eventTableModel;
 	
-
+	
 	private int modifying = 0;
 	
 	
@@ -107,7 +110,7 @@ public class SimulationPlotPanel extends JPanel {
 		types = branch.getTypes();
 		
 		setConfiguration(defaultConfiguration);
-
+		
 		////  Configuration selector
 		
 		// Setup the combo box
@@ -126,7 +129,7 @@ public class SimulationPlotPanel extends JPanel {
 				// the UI when the selected item changes.
 				// TODO - this should probably be implemented as an ActionListener instead
 				// of ItemStateListener.
-				if ( e.getStateChange() == ItemEvent.DESELECTED) {
+				if (e.getStateChange() == ItemEvent.DESELECTED) {
 					return;
 				}
 				if (modifying > 0)
@@ -144,8 +147,8 @@ public class SimulationPlotPanel extends JPanel {
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Presetplotconf")), "spanx, split");
 		this.add(configurationSelector, "growx, wrap 20lp");
 		
-
-
+		
+		
 		//// X axis
 		
 		//// X axis type:
@@ -185,8 +188,8 @@ public class SimulationPlotPanel extends JPanel {
 		desc.setViewportBorder(BorderFactory.createEmptyBorder());
 		this.add(desc, "width 1px, growx 1, wrap unrel");
 		
-
-
+		
+		
 		//// Y axis selector panel
 		//// Y axis types:
 		this.add(new JLabel(trans.get("simplotpanel.lbl.Yaxistypes")));
@@ -197,7 +200,7 @@ public class SimulationPlotPanel extends JPanel {
 		JScrollPane scroll = new JScrollPane(typeSelectorPanel);
 		this.add(scroll, "spany 2, height 10px, wmin 400lp, grow 100, gapright para");
 		
-
+		
 		//// Flight events
 		eventTableModel = new FlightEventTableModel();
 		JTable table = new JTable(eventTableModel);
@@ -213,9 +216,9 @@ public class SimulationPlotPanel extends JPanel {
 		col0.setPreferredWidth(w);
 		col0.setMaxWidth(w);
 		table.addMouseListener(new GUIUtil.BooleanTableClickListener(table));
-		this.add(new JScrollPane(table), "height 10px, width 200lp, grow 1, wrap rel");
+		this.add(new JScrollPane(table), "height 200px, width 200lp, grow 1, wrap rel");
 		
-
+		
 		////  All + None buttons
 		JButton button = new JButton(trans.get("simplotpanel.but.All"));
 		button.addActionListener(new ActionListener() {
@@ -240,8 +243,8 @@ public class SimulationPlotPanel extends JPanel {
 		});
 		this.add(button, "gapleft para, gapright para, growx, sizegroup buttons, wrap para");
 		
-
-
+		
+		
 		//// New Y axis plot type
 		button = new JButton(trans.get("simplotpanel.but.NewYaxisplottype"));
 		button.addActionListener(new ActionListener() {
@@ -260,40 +263,41 @@ public class SimulationPlotPanel extends JPanel {
 				// Select new type smartly
 				FlightDataType type = null;
 				for (FlightDataType t :
-					simulation.getSimulatedData().getBranch(0).getTypes()) {
-						
-						boolean used = false;
-						if (configuration.getDomainAxisType().equals(t)) {
-							used = true;
-						} else {
-							for (int i = 0; i < configuration.getTypeCount(); i++) {
-								if (configuration.getType(i).equals(t)) {
-									used = true;
-									break;
-								}
+				simulation.getSimulatedData().getBranch(0).getTypes()) {
+					
+					boolean used = false;
+					if (configuration.getDomainAxisType().equals(t)) {
+						used = true;
+					} else {
+						for (int i = 0; i < configuration.getTypeCount(); i++) {
+							if (configuration.getType(i).equals(t)) {
+								used = true;
+								break;
 							}
 						}
-						
-						if (!used) {
-							type = t;
-							break;
-						}
-					}
-					if (type == null) {
-						type = simulation.getSimulatedData().getBranch(0).getTypes()[0];
 					}
 					
-					// Add new type
-					configuration.addPlotDataType(type);
-					setToCustom();
-					updatePlots();
+					if (!used) {
+						type = t;
+						break;
+					}
 				}
+				if (type == null) {
+					type = simulation.getSimulatedData().getBranch(0).getTypes()[0];
+				}
+				
+				// Add new type
+				configuration.addPlotDataType(type);
+				setToCustom();
+				updatePlots();
+			}
 		});
 		this.add(button, "spanx, split");
 		
-
+		
 		this.add(new JPanel(), "growx");
 		
+		/*
 		//// Plot flight
 		button = new JButton(trans.get("simplotpanel.but.Plotflight"));
 		button.addActionListener(new ActionListener() {
@@ -312,10 +316,21 @@ public class SimulationPlotPanel extends JPanel {
 			}
 		});
 		this.add(button, "right");
-		
+		*/
 		updatePlots();
 	}
 	
+	public JDialog doPlot(Window parent) {
+		if (configuration.getTypeCount() == 0) {
+			JOptionPane.showMessageDialog(SimulationPlotPanel.this,
+					trans.get("error.noPlotSelected"),
+					trans.get("error.noPlotSelected.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+		defaultConfiguration = configuration.clone();
+		return SimulationPlotDialog.getPlot(parent, simulation, configuration);
+	}
 	
 	private void setConfiguration(PlotConfiguration conf) {
 		
@@ -366,14 +381,14 @@ public class SimulationPlotPanel extends JPanel {
 		
 		// In order to consistantly update the ui, we need to validate before repaint.
 		typeSelectorPanel.validate();
-		typeSelectorPanel.repaint();	
+		typeSelectorPanel.repaint();
 		
 		eventTableModel.fireTableDataChanged();
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * A JPanel which configures a single plot of a PlotConfiguration.
 	 */
@@ -443,7 +458,7 @@ public class SimulationPlotPanel extends JPanel {
 			});
 			this.add(axisSelector);
 			
-
+			
 			JButton button = new JButton(Icons.DELETE);
 			//// Remove this plot
 			button.setToolTipText(trans.get("simplotpanel.but.ttip.Removethisplot"));
@@ -461,7 +476,7 @@ public class SimulationPlotPanel extends JPanel {
 	}
 	
 	
-
+	
 	private class FlightEventTableModel extends AbstractTableModel {
 		private final FlightEvent.Type[] eventTypes;
 		

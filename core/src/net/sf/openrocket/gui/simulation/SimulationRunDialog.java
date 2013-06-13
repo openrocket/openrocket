@@ -1,4 +1,4 @@
-package net.sf.openrocket.gui.main;
+package net.sf.openrocket.gui.simulation;
 
 
 import java.awt.Dialog;
@@ -23,9 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
@@ -49,6 +46,9 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.MathUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SimulationRunDialog extends JDialog {
