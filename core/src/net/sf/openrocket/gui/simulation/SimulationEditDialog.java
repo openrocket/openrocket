@@ -108,8 +108,10 @@ public class SimulationEditDialog extends JDialog {
 		JPanel simEditPanel = new JPanel(new MigLayout("fill"));
 		
 		if (isSingleEdit()) {
+			JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
+			
 			//// Simulation name:
-			simEditPanel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "span, split 2, shrink");
+			panel.add(new JLabel(trans.get("simedtdlg.lbl.Simname") + " "), "growx 0, gapright para");
 			final JTextField field = new JTextField(simulation[0].getName());
 			field.getDocument().addDocumentListener(new DocumentListener() {
 				@Override
@@ -136,14 +138,14 @@ public class SimulationEditDialog extends JDialog {
 					
 				}
 			});
-			simEditPanel.add(field, "shrinky, growx, wrap");
+			panel.add(field, "growx, wrap");
 			
 			//// Flight selector
 			//// Flight configuration:
 			JLabel label = new JLabel(trans.get("simedtdlg.lbl.Flightcfg"));
 			//// Select the motor configuration to use.
 			label.setToolTipText(trans.get("simedtdlg.lbl.ttip.Flightcfg"));
-			simEditPanel.add(label, "span, split 2, shrink");
+			panel.add(label, "growx 0, gapright para");
 			
 			JComboBox combo = new JComboBox(new FlightConfigurationModel(configuration));
 			//// Select the motor configuration to use.
@@ -154,7 +156,7 @@ public class SimulationEditDialog extends JDialog {
 					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
 				}
 			});
-			simEditPanel.add(combo, "split 2, shrink");
+			panel.add(combo, "span, split");
 			
 			//// Edit button
 			JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
@@ -165,7 +167,11 @@ public class SimulationEditDialog extends JDialog {
 					configDialog.setVisible(true);
 				}
 			});
-			simEditPanel.add(button, "shrink, align left, wrap");
+			panel.add(button, "align left");
+			
+			panel.add(new JPanel(), "growx, wrap");
+			
+			simEditPanel.add(panel, "growx, wrap");
 		}
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
@@ -180,7 +186,7 @@ public class SimulationEditDialog extends JDialog {
 		
 		
 		//// Open Plot button
-		JButton button = new JButton("<<Plot");
+		JButton button = new JButton(trans.get("SimulationEditDialog.btn.plot") + " >>");
 		button.addActionListener(new ActionListener() {
 			
 			@Override
@@ -197,7 +203,7 @@ public class SimulationEditDialog extends JDialog {
 		}
 		
 		//// Run simulation button
-		button = new JButton(trans.get("simedtdlg.but.runsimulation"));
+		button = new JButton(trans.get("SimulationEditDialog.btn.simulateAndPlot"));
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -246,7 +252,7 @@ public class SimulationEditDialog extends JDialog {
 			
 			plotExportPanel.add(tabbedPane, "grow, wrap");
 			
-			JButton button = new JButton("<<Edit");
+			JButton button = new JButton("<< " + trans.get("SimulationEditDialog.btn.edit"));
 			button.addActionListener(new ActionListener() {
 				
 				@Override
