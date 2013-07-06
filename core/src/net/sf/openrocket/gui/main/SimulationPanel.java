@@ -28,6 +28,7 @@ import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.document.Simulation.Status;
 import net.sf.openrocket.document.events.DocumentChangeEvent;
 import net.sf.openrocket.document.events.DocumentChangeListener;
 import net.sf.openrocket.document.events.SimulationChangeEvent;
@@ -571,7 +572,7 @@ public class SimulationPanel extends JPanel {
 	
 	private void openDialog(final Simulation sim) {
 		boolean plotMode = false;
-		if (sim.hasSimulationData()) {
+		if (sim.hasSimulationData() && (sim.getStatus() == Status.UPTODATE || sim.getStatus() == Status.EXTERNAL)) {
 			plotMode = true;
 		}
 		openDialog(plotMode, sim);
