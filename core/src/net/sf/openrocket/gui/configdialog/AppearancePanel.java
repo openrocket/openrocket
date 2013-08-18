@@ -341,8 +341,8 @@ public class AppearancePanel extends JPanel {
 		
 		{ // Repeat
 			add(new JLabel(trans.get("AppearanceCfg.lbl.texture.repeat")));
-			EdgeMode[] list = new EdgeMode[EdgeMode.values().length + 1];
-			System.arraycopy(EdgeMode.values(), 0, list, 1, EdgeMode.values().length);
+			EdgeMode[] list = new EdgeMode[EdgeMode.values().length];
+			System.arraycopy(EdgeMode.values(), 0, list, 0, EdgeMode.values().length);
 			JComboBox combo = new JComboBox(new EnumModel<EdgeMode>(ab, "EdgeMode", list));
 			mDefault.addEnableComponent(combo, false);
 			add(combo);
