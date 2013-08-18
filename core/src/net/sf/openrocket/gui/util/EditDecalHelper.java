@@ -56,8 +56,19 @@ public class EditDecalHelper {
 		
 	}
 	
-	public void editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
-	
+	/**
+	 * Returns the decal which is edited.  The decal edited might be different from the one passed in
+	 * if only a single copy of a decal should be edited.
+	 * 
+	 * @param parent
+	 * @param doc
+	 * @param component
+	 * @param decal
+	 * @return
+	 * @throws EditDecalHelperException
+	 */
+	public DecalImage editDecal(Window parent, OpenRocketDocument doc, RocketComponent component, DecalImage decal) throws EditDecalHelperException {
+		
 		boolean sysPrefSet = prefs.isDecalEditorPreferenceSet();
 		int usageCount = doc.countDecalUsage(decal);
 		
@@ -65,14 +76,14 @@ public class EditDecalHelper {
 		if (sysPrefSet && usageCount == 1) {
 			
 			launchEditor(prefs.isDecalEditorPreferenceSystem(), prefs.getDecalEditorCommandLine(), decal);
-			return;
+			return decal;
 		}
 		
 		EditDecalDialog dialog = new EditDecalDialog(parent, !sysPrefSet, usageCount);
 		dialog.setVisible(true);
 		
 		if (dialog.isCancel()) {
-			return;
+			return decal;
 		}
 		
 		// Do we use the System Preference Editor or from the dialog?
@@ -96,6 +107,8 @@ public class EditDecalHelper {
 		}
 		
 		launchEditor(useSystemEditor, commandLine, decal);
+		
+		return decal;
 		
 	}
 	

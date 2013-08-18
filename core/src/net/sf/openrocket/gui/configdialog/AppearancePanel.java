@@ -24,6 +24,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.AppearanceBuilder;
 import net.sf.openrocket.appearance.Decal.EdgeMode;
+import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -271,7 +272,8 @@ public class AppearancePanel extends JPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					try {
-						editDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, c, ab.getImage());
+						DecalImage newImage = editDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, c, ab.getImage());
+						ab.setImage(newImage);
 					} catch (EditDecalHelperException ex) {
 						JOptionPane.showMessageDialog(AppearancePanel.this, ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
 					}
