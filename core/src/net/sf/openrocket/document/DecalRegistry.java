@@ -20,10 +20,6 @@ import java.util.regex.Pattern;
 
 import net.sf.openrocket.appearance.DecalImage;
 import net.sf.openrocket.document.attachments.FileSystemAttachment;
-import net.sf.openrocket.gui.watcher.FileWatcher;
-import net.sf.openrocket.gui.watcher.WatchEvent;
-import net.sf.openrocket.gui.watcher.WatchService;
-import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.FileUtils;
@@ -51,6 +47,11 @@ public class DecalRegistry {
 		DecalImageImpl newDecal = o.clone();
 		
 		String newName = makeUniqueName(o.getName());
+		
+		// Return the old decal if a new one isn't required.
+		if (newName.equals(o.getName())) {
+			return original;
+		}
 		
 		newDecal.name = newName;
 		

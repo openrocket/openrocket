@@ -234,6 +234,9 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	}
 	
 	public DecalImage makeUniqueDecal(DecalImage img) {
+		if (countDecalUsage(img) <= 1) {
+			return img;
+		}
 		return decalRegistry.makeUniqueImage(img);
 	}
 	
