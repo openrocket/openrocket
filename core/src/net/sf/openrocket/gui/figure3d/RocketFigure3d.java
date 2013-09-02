@@ -234,6 +234,10 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			
 			@Override
 			public void mouseDragged(final MouseEvent e) {
+				//You can get a drag without a press while a modal dialog is shown
+				if (pressEvent == null)
+					return;
+				
 				int dx = lastX - e.getX();
 				int dy = lastY - e.getY();
 				lastX = e.getX();
