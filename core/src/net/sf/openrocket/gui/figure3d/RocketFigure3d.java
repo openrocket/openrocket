@@ -531,13 +531,15 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	public void updateFigure() {
 		log.debug("3D Figure Updated");
 		cachedBounds = null;
-		canvas.invoke(true, new GLRunnable() {
-			@Override
-			public boolean run(GLAutoDrawable drawable) {
-				rr.updateFigure(drawable);
-				return false;
-			}
-		});
+		if (canvas != null) {
+			canvas.invoke(true, new GLRunnable() {
+				@Override
+				public boolean run(GLAutoDrawable drawable) {
+					rr.updateFigure(drawable);
+					return false;
+				}
+			});
+		}
 	}
 	
 	private void internalRepaint() {
@@ -651,11 +653,16 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	}
 	
 	public void setType(final int t) {
+		//There is no canvas if there was an error while creating it.
+		if (canvas == null)
+			return;
+		
 		// The first time the user selects any 3d figure types,  the canvas' internal _drawable
 		// has not been realized.  Unfortunately, there is a test in canvas.invoke which doesn't
 		// execute the runnable if the drawable isn't realized.
 		// In order to trump this, we test if the canvas has not been realized and initialize
 		// the renderer accordingly.  There is certainly a better way to do this.
+		
 		
 		final RocketRenderer newRR;
 		
