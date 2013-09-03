@@ -145,7 +145,8 @@ public class AppearancePanel extends JPanel {
 		
 		final JButton colorButton = new JButton(new ColorIcon(ab.getPaint()));
 		
-		final JComboBox textureDropDown = new JComboBox(new DecalModel(this, document, ab));
+		final DecalModel decalModel = new DecalModel(this, document, ab);
+		final JComboBox textureDropDown = new JComboBox(decalModel);
 		
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
@@ -274,6 +275,7 @@ public class AppearancePanel extends JPanel {
 					try {
 						DecalImage newImage = editDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, c, ab.getImage());
 						ab.setImage(newImage);
+						decalModel.refresh();
 					} catch (EditDecalHelperException ex) {
 						JOptionPane.showMessageDialog(AppearancePanel.this, ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
 					}

@@ -93,4 +93,8 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 		}
 	}
 	
+	public void refresh() {
+		decals = document.getDecalList().toArray(new DecalImage[0]);
+		fireContentsChanged(this, 0, decals.length);
+	}
 }
