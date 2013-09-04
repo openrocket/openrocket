@@ -164,7 +164,7 @@ public class EditDecalHelper {
 		if (useSystemEditor) {
 			try {
 				Desktop.getDesktop().edit(tmpFile);
-			} catch (IOException ioex) {
+			} catch (Exception ioex) {
 				throw new EditDecalHelperException(trans.get("EditDecalHelper.launchSystemEditorException"), trans.get("EditDecalHelper.editPreferencesHelp"), ioex);
 			}
 		} else {
