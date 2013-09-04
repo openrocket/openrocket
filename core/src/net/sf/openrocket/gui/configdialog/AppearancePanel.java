@@ -154,6 +154,7 @@ public class AppearancePanel extends JPanel {
 				figureColorButton.setIcon(new ColorIcon(c.getColor()));
 				colorButton.setIcon(new ColorIcon(ab.getPaint()));
 				c.setAppearance(ab.getAppearance());
+				decalModel.refresh();
 			}
 		});
 		
@@ -275,7 +276,6 @@ public class AppearancePanel extends JPanel {
 					try {
 						DecalImage newImage = editDecalHelper.editDecal(SwingUtilities.getWindowAncestor(AppearancePanel.this), document, c, ab.getImage());
 						ab.setImage(newImage);
-						decalModel.refresh();
 					} catch (EditDecalHelperException ex) {
 						JOptionPane.showMessageDialog(AppearancePanel.this, ex.getMessage(), "", JOptionPane.ERROR_MESSAGE);
 					}
