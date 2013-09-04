@@ -145,7 +145,8 @@ public class AppearancePanel extends JPanel {
 		
 		final JButton colorButton = new JButton(new ColorIcon(ab.getPaint()));
 		
-		final JComboBox textureDropDown = new JComboBox(new DecalModel(this, document, ab));
+		final DecalModel decalModel = new DecalModel(this, document, ab);
+		final JComboBox textureDropDown = new JComboBox(decalModel);
 		
 		ab.addChangeListener(new StateChangeListener() {
 			@Override
@@ -153,6 +154,7 @@ public class AppearancePanel extends JPanel {
 				figureColorButton.setIcon(new ColorIcon(c.getColor()));
 				colorButton.setIcon(new ColorIcon(ab.getPaint()));
 				c.setAppearance(ab.getAppearance());
+				decalModel.refresh();
 			}
 		});
 		

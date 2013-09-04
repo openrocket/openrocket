@@ -46,7 +46,7 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 	
 	@Override
 	public Object getElementAt(int index) {
-		if (index == 0) {
+		if (index <= 0) {
 			return NONE_SELECTED;
 		}
 		if (index == getSize() - 1) {
@@ -93,4 +93,8 @@ public class DecalModel extends AbstractListModel implements ComboBoxModel {
 		}
 	}
 	
+	public void refresh() {
+		decals = document.getDecalList().toArray(new DecalImage[0]);
+		fireContentsChanged(this, 0, decals.length);
+	}
 }
