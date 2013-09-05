@@ -25,8 +25,6 @@
 	<classpathentry kind="lib" path="lib/guice-multibindings-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="lib/jcommon-1.0.17.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="reference/jfreechart-1.0.14-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar" sourcepath="reference/gluegen-v2.0-rc11-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar" sourcepath="reference/jogl-v2.0-rc11-sources.jar"/>
 	<classpathentry kind="lib" path="lib-test/test-plugin.jar"/>
@@ -34,5 +32,7 @@
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.12.jar" sourcepath="reference/logback-classic-1.0.12-sources.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.0.12.jar" sourcepath="reference/logback-core-1.0.12-sources.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.18.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.15.jar" sourcepath="reference/jfreechart-1.0.15-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
