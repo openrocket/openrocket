@@ -145,6 +145,8 @@ public class SimulationPlot {
 		// Get plot length (ignore trailing NaN's)
 		int typeCount = filled.getTypeCount();
 		
+		int seriesCount = 0;
+		
 		// Create the XYSeries objects from the flight data and store into the collections
 		String[] axisLabel = new String[2];
 		for (int i = 0; i < typeCount; i++) {
@@ -165,7 +167,7 @@ public class SimulationPlot {
 				// Store data in provided units
 				List<Double> plotx = thisBranch.get(domainType);
 				List<Double> ploty = thisBranch.get(type);
-				XYSeries series = new XYSeries(seriesNames.get(branchIndex) + ": " + name, false, true);
+				XYSeries series = new XYSeries(seriesCount++, false, true);
 				series.setDescription(name);
 				int pointCount = plotx.size();
 				for (int j = 0; j < pointCount; j++) {
@@ -181,7 +183,7 @@ public class SimulationPlot {
 				// Get first time index used in secondary branch;
 				double firstSampleTime = thisBranch.get(FlightDataType.TYPE_TIME).get(0);
 				
-				XYSeries series = new XYSeries(seriesNames.get(branchIndex) + ": " + name, false, true);
+				XYSeries series = new XYSeries(seriesCount++, false, true);
 				series.setDescription(thisBranch.getBranchName() + ": " + name);
 				
 				// Copy the first points from the primaryBranch.
