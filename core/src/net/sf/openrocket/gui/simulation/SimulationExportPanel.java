@@ -3,11 +3,15 @@ package net.sf.openrocket.gui.simulation;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,6 +27,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.components.CsvOptionPanel;
 import net.sf.openrocket.gui.components.UnitCellEditor;
+import net.sf.openrocket.gui.plot.Util;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SaveCSVWorker;
@@ -50,7 +55,7 @@ public class SimulationExportPanel extends JPanel {
 	private final JLabel selectedCountLabel;
 	
 	private final Simulation simulation;
-	private final FlightDataBranch branch;
+	private FlightDataBranch branch;
 	
 	private final boolean[] selected;
 	private final FlightDataType[] types;
@@ -65,10 +70,7 @@ public class SimulationExportPanel extends JPanel {
 		JPanel panel;
 		JButton button;
 		
-		
 		this.simulation = sim;
-		
-		// TODO: MEDIUM: Only exports primary branch
 		
 		final FlightData data = simulation.getSimulatedData();
 		
@@ -173,6 +175,27 @@ public class SimulationExportPanel extends JPanel {
 		
 		this.add(csvOptions, "spany, split, growx 1");
 		
+		//// Add series selection box
+		ArrayList<String> stages = new ArrayList<String>();
+		stages.addAll(Util.generateSeriesLabels(simulation));
+		
+		final JComboBox stageSelection = new JComboBox(stages.toArray(new String[0]));
+		stageSelection.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				int selectedStage = stageSelection.getSelectedIndex();
+				branch = data.getBranch(selectedStage);
+			}
+			
+		});
+		if (stages.size() > 1) {
+			// Only show the combo box if there are at least 2 entries (ie, "Main", and one other one
+			JPanel stagePanel = new JPanel(new MigLayout("fill"));
+			stagePanel.setBorder(BorderFactory.createTitledBorder(trans.get("SimExpPan.border.Stage")));
+			stagePanel.add(stageSelection, "growx");
+			this.add(stagePanel, "spany, split, growx 1");
+		}
 		
 		// Space-filling panel
 		panel = new JPanel();
@@ -190,7 +213,6 @@ public class SimulationExportPanel extends JPanel {
 		this.add(button, "gapbottom para, gapright para, right");
 		*/
 	}
-	
 	
 	public boolean doExport() {
 		JFileChooser chooser = new JFileChooser();
