@@ -80,11 +80,16 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "13.05";
+$unstable = "13.09";
 $stable = "1.0.0";
 
 
-if (preg_match("/^12.09.1$/", $version)) {
+if (preg_match("/^13.05$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "4: Updated 3D libraries\n" .
+    "4: Bug fixes\n" .
+    "";
+} else if (preg_match("/^12.09.1$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "10: Realistic 3D rendering\n" .
     "9: Flight configurations\n" .

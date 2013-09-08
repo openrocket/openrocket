@@ -1,3 +1,10 @@
+OpenRocket 13.09 (2013-09-08):
+------------------------------
+
+This release contains a number of bug fixes, updated 3D JOGL
+libraries, and separates simulation edit and plot dialogs.
+
+
 OpenRocket 13.05 (2013-05-04):
 ------------------------------
 
