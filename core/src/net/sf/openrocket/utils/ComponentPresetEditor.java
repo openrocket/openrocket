@@ -253,7 +253,7 @@ public class ComponentPresetEditor extends JPanel implements PresetResultListene
 		BasicApplication app = new BasicApplication();
 		app.initializeApplication();
 		try {
-			// FIXME - Application.setPreferences(new SwingPreferences());
+			// Application.setPreferences(new SwingPreferences());
 			JFrame dialog = new JFrame();
 			dialog.getContentPane().add(new ComponentPresetEditor(dialog));
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

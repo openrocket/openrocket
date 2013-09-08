@@ -18,7 +18,7 @@ public class LogLevelBufferLoggerTest {
 	
 	@Test
 	@Ignore
-	//FIXME test testLogger() is failing, prob due to changes in logging recently
+	// TODO: test testLogger() is failing, prob due to changes in logging recently
 	public void testLogger() {
 		
 		// assume SLF4J is bound to logback in the current environment
