@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -57,6 +56,8 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
@@ -157,20 +158,25 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * @param delay		the currently selected ejection charge delay.
 	 * @param diameter	the diameter of the motor mount.
 	 */
-	public ThrustCurveMotorSelectionPanel(ThrustCurveMotor current, double delay, double diameter) {
+	public ThrustCurveMotorSelectionPanel(MotorMount mount, String currentConfig) {
 		super(new MigLayout("fill", "[grow][]"));
 		
-		
+		double diameter = 0;
+		if (currentConfig != null && mount != null) {
+			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
+			selectedMotor = (ThrustCurveMotor) motorConf.getMotor();
+			selectedDelay = motorConf.getEjectionDelay();
+			diameter = mount.getMotorMountDiameter();
+		}
 		
 		// Construct the database (adding the current motor if not in the db already)
 		List<ThrustCurveMotorSet> db;
 		db = Application.getThrustCurveMotorSetDatabase().getMotorSets();
 		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
-		if (current != null) {
-			selectedMotor = current;
+		if (selectedMotor != null) {
 			for (ThrustCurveMotorSet motorSet : db) {
-				if (motorSet.getMotors().contains(current)) {
+				if (motorSet.getMotors().contains(selectedMotor)) {
 					selectedMotorSet = motorSet;
 					break;
 				}
@@ -178,7 +184,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			if (selectedMotorSet == null) {
 				db = new ArrayList<ThrustCurveMotorSet>(db);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
-				extra.addMotor(current);
+				extra.addMotor(selectedMotor);
 				selectedMotorSet = extra;
 				db.add(extra);
 				Collections.sort(db);
@@ -345,7 +351,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			private void update() {
 				String text = searchField.getText().trim();
 				String[] split = text.split("\\s+");
-				rowFilter.setSearchTerms( Arrays.asList(split) );
+				rowFilter.setSearchTerms(Arrays.asList(split));
 				sorter.sort();
 				scrollSelectionVisible();
 			}
@@ -555,7 +561,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		// Update the panel data
 		updateData();
-		selectedDelay = delay;
 		setDelays(false);
 		
 	}

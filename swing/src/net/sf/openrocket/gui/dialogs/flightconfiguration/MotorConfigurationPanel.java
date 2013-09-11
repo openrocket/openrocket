@@ -207,11 +207,7 @@ public class MotorConfigurationPanel extends JPanel {
 		
 		MotorConfiguration config = mount.getMotorConfiguration().get(id);
 		
-		MotorChooserDialog dialog = new MotorChooserDialog(
-				config.getMotor(),
-				config.getEjectionDelay(),
-				mount.getMotorMountDiameter(),
-				flightConfigurationDialog);
+		MotorChooserDialog dialog = new MotorChooserDialog(mount, id, flightConfigurationDialog);
 		dialog.setVisible(true);
 		Motor m = dialog.getSelectedMotor();
 		double d = dialog.getSelectedDelay();
