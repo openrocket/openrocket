@@ -34,7 +34,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
@@ -109,18 +108,17 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	
 	private final List<ThrustCurveMotorSet> database;
 	
-	private final double diameter;
 	private CloseableDialog dialog = null;
 	
 	
-	private final ThrustCurveMotorDatabaseModel model;
+	final ThrustCurveMotorDatabaseModel model;
 	private final JTable table;
 	private final TableRowSorter<TableModel> sorter;
 	
 	private final JCheckBox hideSimilarBox;
 	
 	private final JTextField searchField;
-	private String[] searchTerms = new String[0];
+	String[] searchTerms = new String[0];
 	
 	
 	private final JLabel curveSelectionLabel;
@@ -162,7 +160,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	public ThrustCurveMotorSelectionPanel(ThrustCurveMotor current, double delay, double diameter) {
 		super(new MigLayout("fill", "[grow][]"));
 		
-		this.diameter = diameter;
 		
 		
 		// Construct the database (adding the current motor if not in the db already)
@@ -189,6 +186,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		database = db;
 		
+		model = new ThrustCurveMotorDatabaseModel(database);
+		final MotorRowFilter rowFilter = new MotorRowFilter(model, diameter);
 		
 		
 		////  GUI
@@ -217,20 +216,21 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					sel = SHOW_ALL;
 				switch (sel) {
 				case SHOW_ALL:
-					sorter.setRowFilter(new MotorRowFilterAll());
+					rowFilter.setDiameterControl(MotorRowFilter.DiameterFilterControl.ALL);
 					break;
 				
 				case SHOW_SMALLER:
-					sorter.setRowFilter(new MotorRowFilterSmaller());
+					rowFilter.setDiameterControl(MotorRowFilter.DiameterFilterControl.SMALLER);
 					break;
 				
 				case SHOW_EXACT:
-					sorter.setRowFilter(new MotorRowFilterExact());
+					rowFilter.setDiameterControl(MotorRowFilter.DiameterFilterControl.EXACT);
 					break;
 				
 				default:
 					throw new BugException("Invalid selection mode sel=" + sel);
 				}
+				sorter.sort();
 				Application.getPreferences().putChoice("MotorDiameterMatch", sel);
 				scrollSelectionVisible();
 			}
@@ -252,7 +252,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		
 		// Motor selection table
-		model = new ThrustCurveMotorDatabaseModel(database);
 		table = new JTable(model);
 		
 		
@@ -274,6 +273,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			};
 			sorter.setSortKeys(Arrays.asList(sortKeys));
 		}
+		
+		sorter.setRowFilter(rowFilter);
 		
 		// Set selection and double-click listeners
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -344,14 +345,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			private void update() {
 				String text = searchField.getText().trim();
 				String[] split = text.split("\\s+");
-				ArrayList<String> list = new ArrayList<String>();
-				for (String s : split) {
-					s = s.trim().toLowerCase(Locale.getDefault());
-					if (s.length() > 0) {
-						list.add(s);
-					}
-				}
-				searchTerms = list.toArray(new String[0]);
+				rowFilter.setSearchTerms( Arrays.asList(split) );
 				sorter.sort();
 				scrollSelectionVisible();
 			}
@@ -385,10 +379,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			}
 		});
 		panel.add(curveSelectionBox, "growx, wrap para");
-		
-		
-		
-		
 		
 		// Ejection charge delay:
 		panel.add(new JLabel(trans.get("TCMotorSelPan.lbl.Ejectionchargedelay")));
@@ -933,66 +923,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			return c;
 		}
 		
-	}
-	
-	
-	////////  Row filters
-	
-	/**
-	 * Abstract adapter class.
-	 */
-	private abstract class MotorRowFilter extends RowFilter<TableModel, Integer> {
-		@Override
-		public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
-			int index = entry.getIdentifier();
-			ThrustCurveMotorSet m = model.getMotorSet(index);
-			return filterByDiameter(m) && filterByString(m);
-		}
-		
-		public abstract boolean filterByDiameter(ThrustCurveMotorSet m);
-		
-		
-		public boolean filterByString(ThrustCurveMotorSet m) {
-			main: for (String s : searchTerms) {
-				for (ThrustCurveMotorColumns col : ThrustCurveMotorColumns.values()) {
-					String str = col.getValue(m).toString().toLowerCase(Locale.getDefault());
-					if (str.indexOf(s) >= 0)
-						continue main;
-				}
-				return false;
-			}
-			return true;
-		}
-	}
-	
-	/**
-	 * Show all motors.
-	 */
-	private class MotorRowFilterAll extends MotorRowFilter {
-		@Override
-		public boolean filterByDiameter(ThrustCurveMotorSet m) {
-			return true;
-		}
-	}
-	
-	/**
-	 * Show motors smaller than the mount.
-	 */
-	private class MotorRowFilterSmaller extends MotorRowFilter {
-		@Override
-		public boolean filterByDiameter(ThrustCurveMotorSet m) {
-			return (m.getDiameter() <= diameter + 0.0004);
-		}
-	}
-	
-	/**
-	 * Show motors that fit the mount.
-	 */
-	private class MotorRowFilterExact extends MotorRowFilter {
-		@Override
-		public boolean filterByDiameter(ThrustCurveMotorSet m) {
-			return ((m.getDiameter() <= diameter + 0.0004) && (m.getDiameter() >= diameter - 0.0015));
-		}
 	}
 	
 	
