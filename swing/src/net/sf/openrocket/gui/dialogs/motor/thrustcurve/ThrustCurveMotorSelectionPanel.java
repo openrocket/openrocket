@@ -11,14 +11,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -54,6 +58,7 @@ import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
@@ -105,12 +110,9 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	
 	private static final ThrustCurveMotorComparator MOTOR_COMPARATOR = new ThrustCurveMotorComparator();
 	
-	
-	
 	private final List<ThrustCurveMotorSet> database;
 	
 	private CloseableDialog dialog = null;
-	
 	
 	final ThrustCurveMotorDatabaseModel model;
 	private final JTable table;
@@ -192,9 +194,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		database = db;
 		
-		model = new ThrustCurveMotorDatabaseModel(database);
-		final MotorRowFilter rowFilter = new MotorRowFilter(model, diameter);
+		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		
+		model = new ThrustCurveMotorDatabaseModel(database);
+		final MotorRowFilter rowFilter = new MotorRowFilter(mount, model);
+		rowFilter.setExcludedManufacturers(unselectedManusFromPreferences);
 		
 		////  GUI
 		
@@ -256,6 +260,69 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		});
 		panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap para");
 		
+		{
+			final JCheckBox hideUsedBox = new JCheckBox("Hide motors already used in the mount");
+			GUIUtil.changeFontSize(hideUsedBox, -1);
+			hideUsedBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					rowFilter.setHideUsedMotors(hideUsedBox.isSelected());
+					sorter.sort();
+					scrollSelectionVisible();
+				}
+			});
+			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap para");
+		}
+		
+		{
+			
+			// Find all the manufacturers:
+			Set<Manufacturer> manus = new HashSet<Manufacturer>();
+			for (ThrustCurveMotorSet s : database) {
+				manus.add(s.getManufacturer());
+			}
+			final ManufacturerPopupSelector popup = new ManufacturerPopupSelector(manus, unselectedManusFromPreferences) {
+				
+				@Override
+				public void onDismissed(List<Manufacturer> selectedManufacturers, List<Manufacturer> unselectedManufacturers) {
+					((SwingPreferences) Application.getPreferences()).setExcludedMotorManufacturers(unselectedManufacturers);
+					rowFilter.setExcludedManufacturers(unselectedManufacturers);
+					sorter.sort();
+					scrollSelectionVisible();
+					System.out.println("Here I am");
+				}
+				
+			};
+			
+			JButton manuFilter = new JButton("Manufacturer Filter");
+			manuFilter.addMouseListener(new MouseListener() {
+				
+				@Override
+				public void mouseClicked(MouseEvent e) {
+				}
+				
+				@Override
+				public void mousePressed(MouseEvent e) {
+				}
+				
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					popup.show(e.getComponent(), e.getX(), e.getY());
+				}
+				
+				@Override
+				public void mouseEntered(MouseEvent e) {
+				}
+				
+				@Override
+				public void mouseExited(MouseEvent e) {
+				}
+				
+			});
+			panel.add(manuFilter, "gapleft para, spanx, growx, wrap para");
+			
+			
+		}
 		
 		// Motor selection table
 		table = new JTable(model);

@@ -9,6 +9,10 @@ import javax.swing.RowFilter;
 import javax.swing.table.TableModel;
 
 import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
+import net.sf.openrocket.motor.Manufacturer;
+import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 
 ////////  Row filters
 
@@ -23,16 +27,28 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		SMALLER
 	};
 	
+	// configuration data used in the filter process
 	private final ThrustCurveMotorDatabaseModel model;
-	private final double diameter;
+	private final Double diameter;
+	private List<ThrustCurveMotor> usedMotors = new ArrayList<ThrustCurveMotor>();
 	
+	// things which can be changed to modify filter behavior
 	private List<String> searchTerms = Collections.<String> emptyList();
 	private DiameterFilterControl diameterControl = DiameterFilterControl.ALL;
+	private boolean hideUsedMotors = false;
+	private List<Manufacturer> excludedManufacturers = new ArrayList<Manufacturer>();
 	
-	public MotorRowFilter(ThrustCurveMotorDatabaseModel model, double diameter) {
+	public MotorRowFilter(MotorMount mount, ThrustCurveMotorDatabaseModel model) {
 		super();
 		this.model = model;
-		this.diameter = diameter;
+		if (mount != null) {
+			this.diameter = mount.getMotorMountDiameter();
+			for (MotorConfiguration m : mount.getMotorConfiguration()) {
+				this.usedMotors.add((ThrustCurveMotor) m.getMotor());
+			}
+		} else {
+			this.diameter = null;
+		}
 	}
 	
 	public void setSearchTerms(final List<String> searchTerms) {
@@ -49,14 +65,46 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		this.diameterControl = diameterControl;
 	}
 	
+	void setHideUsedMotors(boolean hideUsedMotors) {
+		this.hideUsedMotors = hideUsedMotors;
+	}
+	
+	void setExcludedManufacturers(List<Manufacturer> excludedManufacturers) {
+		this.excludedManufacturers.clear();
+		this.excludedManufacturers.addAll(excludedManufacturers);
+	}
+	
 	@Override
 	public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 		int index = entry.getIdentifier();
 		ThrustCurveMotorSet m = model.getMotorSet(index);
-		return filterByDiameter(m) && filterByString(m);
+		return filterManufacturers(m) && filterUsed(m) && filterByDiameter(m) && filterByString(m);
 	}
 	
-	public boolean filterByDiameter(ThrustCurveMotorSet m) {
+	private boolean filterManufacturers(ThrustCurveMotorSet m) {
+		if (excludedManufacturers.contains(m.getManufacturer())) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	private boolean filterUsed(ThrustCurveMotorSet m) {
+		if (!hideUsedMotors) {
+			return true;
+		}
+		for (ThrustCurveMotor motor : usedMotors) {
+			if (m.matches(motor)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean filterByDiameter(ThrustCurveMotorSet m) {
+		if (diameter == null) {
+			return true;
+		}
 		switch (diameterControl) {
 		default:
 		case ALL:
@@ -69,7 +117,7 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	}
 	
 	
-	public boolean filterByString(ThrustCurveMotorSet m) {
+	private boolean filterByString(ThrustCurveMotorSet m) {
 		main: for (String s : searchTerms) {
 			for (ThrustCurveMotorColumns col : ThrustCurveMotorColumns.values()) {
 				String str = col.getValue(m).toString().toLowerCase(Locale.getDefault());
