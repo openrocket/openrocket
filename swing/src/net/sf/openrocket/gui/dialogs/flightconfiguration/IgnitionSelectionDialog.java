@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
 import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -36,7 +37,7 @@ public class IgnitionSelectionDialog extends JDialog {
 	
 	private IgnitionConfiguration newConfiguration;
 	
-	public IgnitionSelectionDialog(JDialog parent, final Rocket rocket, final MotorMount component) {
+	public IgnitionSelectionDialog(Window parent, final Rocket rocket, final MotorMount component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectignitionconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
