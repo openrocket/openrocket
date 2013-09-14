@@ -206,6 +206,9 @@ public class SimulationEditDialog extends JDialog {
 		
 		//// Run simulation button
 		button = new JButton(trans.get("SimulationEditDialog.btn.simulateAndPlot"));
+		if (!isSingleEdit()) {
+			button.setText(trans.get("SimulationEditDialog.btn.simulate"));
+		}
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -214,6 +217,8 @@ public class SimulationEditDialog extends JDialog {
 				refreshView();
 				if (allowsPlotMode()) {
 					setPlotMode();
+				} else {
+					setVisible(false);
 				}
 			}
 		});
