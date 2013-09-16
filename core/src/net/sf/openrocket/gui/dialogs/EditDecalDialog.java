@@ -47,7 +47,7 @@ public class EditDecalDialog extends JDialog {
 			
 			ButtonGroup execGroup = new ButtonGroup();
 			
-			if (Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
+			if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
 				
 				systemRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.system"));
 				systemRadio.setSelected(true);

@@ -490,7 +490,7 @@ public class PreferencesDialog extends JDialog {
 		panel.add(showPrompt, "wrap");
 		execGroup.add(showPrompt);
 		
-		if (Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
+		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {
 			
 			JRadioButton systemRadio = new JRadioButton(trans.get("EditDecalDialog.lbl.system"));
 			systemRadio.setSelected(preferences.isDecalEditorPreferenceSystem());
