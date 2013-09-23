@@ -147,14 +147,19 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 			log.trace("GL - creating GLCapabilities");
 			final GLCapabilities caps = new GLCapabilities(glp);
 			
-			log.trace("GL - setSampleBuffers");
-			caps.setSampleBuffers(true);
-			
-			log.trace("GL - setNumSamples");
-			caps.setNumSamples(6);
-			
-			log.trace("GL - Creating Canvas");
-			canvas = new GLCanvas(caps);
+			if (true) {
+				log.trace("GL - setSampleBuffers");
+				caps.setSampleBuffers(true);
+				
+				log.trace("GL - setNumSamples");
+				caps.setNumSamples(6);
+				
+				log.trace("GL - Creating GLCanvas");
+				canvas = new GLCanvas(caps);
+			} else {
+				log.trace("GL - Creating GLJPanel");
+				canvas = new GLJPanel(caps);
+			}
 			
 			log.trace("GL - Registering as GLEventListener on canvas");
 			((GLAutoDrawable) canvas).addGLEventListener(this);
