@@ -50,6 +50,11 @@ public abstract class Preferences {
 	public static final String PREFERRED_THRUST_CURVE_MOTOR_NODE = "preferredThrustCurveMotors";
 	private static final String AUTO_OPEN_LAST_DESIGN = "AUTO_OPEN_LAST_DESIGN";
 	
+	//Preferences related to 3D graphics
+	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
+	public static final String OPENGL_ENABLE_AA = "OpenGL_Antialiasing_Is_Enabled";
+	public static final String OPENGL_USE_FBO = "OpenGL_Use_FBO";
+	
 	/*
 	 * ******************************************************************************************
 	 *

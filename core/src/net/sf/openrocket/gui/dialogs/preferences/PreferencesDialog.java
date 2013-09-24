@@ -580,35 +580,34 @@ public class PreferencesDialog extends JDialog {
 				trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
 				"spanx, wrap");
 		
-		BooleanModel enableGLModel = new BooleanModel(true);//TODO
+		BooleanModel enableGLModel = new BooleanModel(preferences.getBoolean(Preferences.OPENGL_ENABLED, true));
 		final JCheckBox enableGL = new JCheckBox(enableGLModel);
 		enableGL.setText("Enable 3D Graphics"); //TODO Translation
-		enableGL.setSelected(true); //TODO
 		enableGL.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO
+				preferences.putBoolean(Preferences.OPENGL_ENABLED, enableGL.isSelected());
 			}
 		});
 		panel.add(enableGL, "wrap");
 		
 		final JCheckBox enableAA = new JCheckBox("Enable Antialiasing"); //TODO Translation
-		enableAA.setSelected(true); //TODO
+		enableAA.setSelected(preferences.getBoolean(Preferences.OPENGL_ENABLE_AA, true));
 		enableAA.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO
+				preferences.putBoolean(Preferences.OPENGL_ENABLE_AA, enableAA.isSelected());
 			}
 		});
 		enableGLModel.addEnableComponent(enableAA);
 		panel.add(enableAA, "wrap");
 		
 		final JCheckBox useFBO = new JCheckBox("Use Offscreen Rendering"); //TODO Translation
-		useFBO.setSelected(false); //TODO
+		useFBO.setSelected(preferences.getBoolean(Preferences.OPENGL_USE_FBO, false));
 		useFBO.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO
+				preferences.putBoolean(Preferences.OPENGL_USE_FBO, useFBO.isSelected());
 			}
 		});
 		enableGLModel.addEnableComponent(useFBO);
