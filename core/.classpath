@@ -26,7 +26,7 @@
 	<classpathentry kind="lib" path="lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar" sourcepath="reference/gluegen-v2.0-rc11-sources.jar"/>
-	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar" sourcepath="reference/jogl-v2.0-rc11-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar" sourcepath="reference/jogl-all-2.0.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib-test/test-plugin.jar"/>
 	<classpathentry kind="lib" path="lib/annotation-detector-3.0.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.12.jar" sourcepath="reference/logback-classic-1.0.12-sources.jar"/>
