@@ -109,16 +109,8 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		}
 	}
 	
-	private void invoke(boolean wait, GLRunnable r) {
-		if (canvas instanceof GLCanvas) {
-			((GLCanvas) canvas).invoke(wait, r);
-		} else if (canvas instanceof GLJPanel) {
-			((GLJPanel) canvas).invoke(wait, r);
-		}
-	}
-	
 	public void flushTextureCaches() {
-		invoke(true, new GLRunnable() {
+		((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
 			@Override
 			public boolean run(GLAutoDrawable drawable) {
 				rr.flushTextureCache(drawable);
@@ -550,7 +542,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		log.debug("3D Figure Updated");
 		cachedBounds = null;
 		if (canvas != null) {
-			invoke(true, new GLRunnable() {
+			((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
 				@Override
 				public boolean run(GLAutoDrawable drawable) {
 					rr.updateFigure(drawable);
@@ -562,11 +554,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 	
 	private void internalRepaint() {
 		if (canvas != null) {
-			if (canvas instanceof GLCanvas) {
-				((GLCanvas) canvas).display();
-			} else if (canvas instanceof GLJPanel) {
-				((GLJPanel) canvas).display();
-			}
+			((GLAutoDrawable) canvas).display();
 		}
 		super.repaint();
 	}
@@ -705,7 +693,7 @@ public class RocketFigure3d extends JPanel implements GLEventListener {
 		} else if (canvas instanceof GLJPanel && !((GLJPanel) canvas).isRealized()) {
 			rr = newRR;
 		} else {
-			invoke(true, new GLRunnable() {
+			((GLAutoDrawable) canvas).invoke(true, new GLRunnable() {
 				@Override
 				public boolean run(GLAutoDrawable drawable) {
 					rr.dispose(drawable);
