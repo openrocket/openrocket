@@ -28,9 +28,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
@@ -41,6 +42,7 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -92,7 +94,7 @@ public class PreferencesDialog extends JDialog {
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(),
 				trans.get("pref.dlg.tab.Miscellaneousoptions"));
 		//// Decal Editor selection
-		tabbedPane.addTab(trans.get("pref.dlg.tab.DecalEditor"), decalEditorPane());
+		tabbedPane.addTab("Graphics", graphicsOptionsPane()); //TODO Translation
 		
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -471,9 +473,11 @@ public class PreferencesDialog extends JDialog {
 	}
 	
 	
-	private JPanel decalEditorPane() {
+	private JPanel graphicsOptionsPane() {
 		
-		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
+		JPanel panel = new JPanel(new MigLayout("fill, ins n n n"));
+		
+		panel.add(new StyledLabel(trans.get("pref.dlg.tab.DecalEditor"), Style.BOLD), "wrap"); //TODO Translation
 		
 		ButtonGroup execGroup = new ButtonGroup();
 		
@@ -513,7 +517,7 @@ public class PreferencesDialog extends JDialog {
 		panel.add(commandRadio, "wrap");
 		execGroup.add(commandRadio);
 		
-		final JTextArea commandText = new JTextArea();
+		final JTextField commandText = new JTextField();
 		commandText.setEnabled(commandLineIsSelected);
 		commandText.setText(commandLineIsSelected ? preferences.getDecalEditorCommandLine() : "");
 		commandText.getDocument().addDocumentListener(new DocumentListener() {
@@ -553,7 +557,7 @@ public class PreferencesDialog extends JDialog {
 			}
 			
 		});
-		panel.add(chooser, "growx, wrap");
+		panel.add(chooser, "wrap");
 		
 		
 		commandRadio.addChangeListener(new ChangeListener() {
@@ -566,6 +570,49 @@ public class PreferencesDialog extends JDialog {
 			}
 			
 		});
+		
+		/////GL Options
+		panel.add(new JSeparator(SwingConstants.HORIZONTAL), "span, wrap, growx");
+		panel.add(new StyledLabel("3D Graphics", Style.BOLD), "wrap"); //TODO Translation
+		
+		//// The effects will take place the next time you open a window.
+		panel.add(new StyledLabel(
+				trans.get("pref.dlg.lbl.effect1"), -2, Style.ITALIC),
+				"spanx, wrap");
+		
+		BooleanModel enableGLModel = new BooleanModel(true);//TODO
+		final JCheckBox enableGL = new JCheckBox(enableGLModel);
+		enableGL.setText("Enable 3D Graphics"); //TODO Translation
+		enableGL.setSelected(true); //TODO
+		enableGL.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO
+			}
+		});
+		panel.add(enableGL, "wrap");
+		
+		final JCheckBox enableAA = new JCheckBox("Enable Antialiasing"); //TODO Translation
+		enableAA.setSelected(true); //TODO
+		enableAA.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO
+			}
+		});
+		enableGLModel.addEnableComponent(enableAA);
+		panel.add(enableAA, "wrap");
+		
+		final JCheckBox useFBO = new JCheckBox("Use Offscreen Rendering"); //TODO Translation
+		useFBO.setSelected(false); //TODO
+		useFBO.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO
+			}
+		});
+		enableGLModel.addEnableComponent(useFBO);
+		panel.add(useFBO, "wrap");
 		
 		return panel;
 	}
