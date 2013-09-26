@@ -82,11 +82,16 @@ public abstract class RocketRenderer {
 		}
 		
 		ByteBuffer bb = ByteBuffer.allocateDirect(4);
-		
+
+		if (p == null)
+			return null; //Allow pick to be called without a point for debugging
+			
 		gl.glReadPixels(p.x, p.y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, bb);
 		
 		final int pickColor = bb.getInt();
 		final int pickIndex = ((pickColor >> 20) & 0xF00) | ((pickColor >> 16) & 0x0F0) | ((pickColor >> 12) & 0x00F);
+		
+		log.trace("Picked pixel color is {} index is {}", pickColor, pickIndex);
 		
 		if (pickIndex < 0 || pickIndex > pickParts.size() - 1)
 			return null;

@@ -127,11 +127,12 @@ public class RealisticRenderer extends RocketRenderer {
 		g.render(gl);
 		
 		if (decals && t != null && tex != null) {
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 			
 			tex.enable(gl);
 			tex.bind(gl);
+			
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
+			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 			
 			gl.glMatrixMode(GL.GL_TEXTURE);
 			gl.glPushMatrix();
@@ -170,6 +171,7 @@ public class RealisticRenderer extends RocketRenderer {
 			gl.glMatrixMode(GL.GL_TEXTURE);
 			gl.glPopMatrix();
 			gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+			
 			tex.disable(gl);
 		}
 		
