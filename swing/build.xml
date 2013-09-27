@@ -1,4 +1,4 @@
-<project name="OpenRocket-Core" basedir=".">
+<project name="OpenRocket" basedir=".">
 
 	<property file="resources/build.properties" />
 	
@@ -11,21 +11,31 @@
 	<property name="libextra.dir"	value="${basedir}/lib-extra"/>		<!-- Library extra source directory -->
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
-	<property name="resources-src.dir"	value="${basedir}/resources-src"/>	<!-- Resources directory -->
+	<property name="resources-src.dir"	value="${basedir}/resources-src"/>
+        <property name="core.dir" value="${basedir}/../core"/>
 	
 	<!-- Distribution directory, from which stuff is jar'ed -->
-	<property name="dist.dir"    	value="${build.dir}/dist"/> 
+	<property name="classes.dir"    	value="${build.dir}/classes"/> 
 	<property name="dist-test.dir"	value="${build.dir}/dist-test"/>
 	
-	<property name="classes.dir" value="${dist.dir}"/>	<!-- Directory for classes -->
 	<property name="jar.dir"     value="${build.dir}/jar"/>	<!-- Directory for built jar's -->
 
 	<property name="pkgname"     value="${ant.project.name}-${build.version}"/>
 	
 	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
+	<property name="dist.bin"    value="${jar.dir}/${pkgname}.jar"/>
+	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
+	
+	<!-- The main class of the application -->
+	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
+
+	<property name="expanded-libs" value="${lib.dir}/miglayout15-swing.jar"/>
+	
 	<!-- Classpath definitions -->
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+                <fileset dir="${core.dir}/build/jar" includes="OpenRocket-Core.jar"/>
+                <fileset dir="${core.dir}/lib" includes="**/*.jar"/>
 	</path>
 	
 	<path id="test-classpath">
@@ -43,6 +53,13 @@
 		<pathelement location="${classes.dir}"/>
 	</path>
 
+	<!-- Add Ant-contrib tasks so we can use for loop -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${libextra.dir}/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
+
 	
 	<!-- CLEAN -->
 	<target name="clean" description="Removes all build artifacts">
@@ -59,30 +76,137 @@
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build,serialize-motors" description="Create the OpenRocket Core">
+	<target name="jar" depends="build,serialize-presets" description="Create the OpenRocket executable JAR">
 		<mkdir dir="${jar.dir}" />
-		<jar destfile="${jar.file}" basedir="${dist.dir}">
+		<jar destfile="${jar.file}" basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
+				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
+			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
 			<fileset dir="${src.dir}/" includes="META-INF/,logback.xml" />
 			<fileset dir="${resources.dir}/" />
 			
 			
+			<!-- Libraries to extract into base JAR -->
+			<zipfileset src="${core.dir}/build/jar/OpenRocket-core.jar" />
+			<zipfileset src="${lib.dir}/miglayout15-swing.jar" />
+			<zipfileset src="${core.dir}/lib/guice-3.0.jar" />
+			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
+			<zipfileset src="${core.dir}/lib/guice-multibindings-3.0.jar"/>
+			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
+			<zipfileset src="${core.dir}/lib/javax.inject.jar"/>
+			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
+			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
+			<zipfileset src="${lib.dir}/miglayout15-swing.jar"/>
+			<zipfileset src="${core.dir}/lib/opencsv-2.3.jar"/>
+			<zipfileset src="${lib.dir}/OrangeExtensions-1.2.jar"/>
+			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.2-SNAPSHOT.jar"/>
+			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.5.jar"/>
+			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
+			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
+									
+			
+			<!-- JOGL libraries need to be jar-in-jar -->
+			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
+				<include name="*.jar"/>
+			</zipfileset>
+			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
 	
-	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
-	    <java classname="net.sf.openrocket.utils.SerializeMotors"
+	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
+	    <java classname="net.sf.openrocket.utils.SerializePresets"
 	          fork="true"
 			  classpathref="run-classpath"
 			  failonerror="true">
-	    	<arg value="${resources-src.dir}/datafiles/thrustcurves/"/>
-	    	<arg value="${resources.dir}/datafiles/thrustcurves/thrustcurves.ser"/>
 	    </java>
 	</target>
 
+	<!-- CONVERT vendor csv to ORC files -->
+	<macrodef name="build-orc-file">
+		<attribute name="dir"/>
+		<attribute name="vendor"/>
+		<sequential>
+			<echo>Generating ORC file for vendor @{vendor}</echo>
+			<java classname="net.sf.openrocket.preset.loader.RocksimComponentFileTranslator"
+				fork="true"
+				classpathref="run-classpath"
+				failonerror="true">
+				<arg value="@{dir}"/>
+				<arg value="${resources-src.dir}/datafiles/presets/@{vendor}.orc"/>
+			</java>
+		</sequential>
+	</macrodef>
+
+	<target name="generate-orc-files"
+		description="Generate ORC file from vendor csv"
+		depends="build">
+
+		<for param="vendor-dir">
+			<dirset dir="${resources-src.dir}/datafiles/rocksim_components"
+				includes="*"/>
+			<sequential>
+				<propertyregex property="vendor"
+					override="true"
+					input="@{vendor-dir}"
+					select="\1"
+					regexp=".*[/\\]([^/\\]*)$"/>
+				<build-orc-file dir="@{vendor-dir}" vendor="${vendor}"/>
+			</sequential>
+		</for>
+	</target>
+	
+	<!-- DIST-SRC -->
+	<target name="dist-src">
+		<echo>			
+		Building source distribution
+		</echo>
+		<mkdir dir="${build.dir}/${pkgname}"/>
+		<mkdir dir="${jar.dir}"/>
+		<copy todir="${build.dir}/${pkgname}">
+			<fileset dir="${basedir}" includes="*" excludes="*.log">
+				<type type="file"/>
+			</fileset>
+			<fileset dir="${basedir}" includes="resources/ lib/ lib-test/ src/ test/ resources-src/datafiles/"/>
+		</copy>
+		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
+		<delete dir="${build.dir}/${pkgname}"/>
+	</target>
+	
+	
+	<!-- DIST-SRC-TEST -->
+	<target name="dist-src-test" depends="dist-src">
+		<echo>
+		Testing source distribution
+		</echo>
+		<delete dir="${dist-test.dir}"/>
+		<mkdir dir="${dist-test.dir}"/>
+		<unzip dest="${dist-test.dir}" src="${dist.src}"/>
+		<ant dir="${dist-test.dir}/${pkgname}" antfile="build.xml" target="jar"/>
+		<ant dir="${dist-test.dir}/${pkgname}" antfile="build.xml" target="unittest"/>
+		<delete dir="${dist-test.dir}"/>
+		<echo>
+		Source distribution test successful
+		</echo>
+	</target>	
+	
+	
+	<!-- DIST-BIN -->
+	<target name="dist-bin" depends="check,clean,unittest,jar">
+		<move file="${jar.file}" tofile="${dist.bin}"/>
+	</target>
+
+	
+	<!-- DIST -->
+	<target name="dist" depends="dist-bin,dist-src,dist-src-test">
+		<echo>Distribution ${build.version} (${build.source}) built into directory ${jar.dir}</echo>
+	</target>
+	
 	
 	<!-- CHECK -->
 	<target name="check" depends="checktodo,checkascii"/>

@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import net.sf.openrocket.IntegrationTest;
+import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.ComponentPresetDatabase;
 import net.sf.openrocket.database.motor.MotorDatabase;
@@ -30,7 +30,6 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.TestRockets;
-import net.sf.openrocket.utils.CoreServicesModule;
 
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -50,7 +49,7 @@ public class OpenRocketSaverTest {
 	
 	@BeforeClass
 	public static void setup() {
-		Module applicationModule = new CoreServicesModule();
+		Module applicationModule = new ServicesForTesting();
 		Module pluginModule = new PluginModule();
 		
 		Module dbOverrides = new AbstractModule() {
@@ -307,7 +306,7 @@ public class OpenRocketSaverTest {
 	
 	private static ThrustCurveMotor readMotor() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
-		InputStream is = IntegrationTest.class.getResourceAsStream("Estes_A8.rse");
+		InputStream is = OpenRocketSaverTest.class.getResourceAsStream("/net/sf/openrocket/Estes_A8.rse");
 		assertNotNull("Problem in unit test, cannot find Estes_A8.rse", is);
 		try {
 			for (Motor m : loader.load(is, "Estes_A8.rse")) {

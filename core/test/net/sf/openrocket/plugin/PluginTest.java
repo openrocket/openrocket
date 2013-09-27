@@ -1,6 +1,6 @@
 package net.sf.openrocket.plugin;
 
-import net.sf.openrocket.utils.CoreServicesModule;
+import net.sf.openrocket.ServicesForTesting;
 
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class PluginTest {
 	@Test
 	public void testPluginModule() {
 		
-		Module applicationModule = new CoreServicesModule();
+		Module applicationModule = new ServicesForTesting();
 		
 		Injector injector = Guice.createInjector(applicationModule, new PluginModule());
 		PluginTester tester = injector.getInstance(PluginTester.class);
