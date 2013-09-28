@@ -19,5 +19,7 @@
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/logback-classic-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-1.0.12.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/resources"/>
+	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
