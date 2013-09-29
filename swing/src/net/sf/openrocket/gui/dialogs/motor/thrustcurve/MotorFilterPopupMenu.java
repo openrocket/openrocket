@@ -57,7 +57,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 		
 		// Manufacturer selection
 		JPanel sub = new JPanel(new MigLayout("fill"));
-		TitledBorder border = BorderFactory.createTitledBorder("Manufacturer");
+		TitledBorder border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.MANUFACTURER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
 
@@ -99,7 +99,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 
 		sub.add(new JScrollPane(manufacturerCheckList.getList()), "grow,wrap");
 
-		JButton clearMotors = new JButton("clear");
+		JButton clearMotors = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
 		clearMotors.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -110,7 +110,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 
 		sub.add(clearMotors,"split 2");
 
-		JButton selectMotors = new JButton("all");
+		JButton selectMotors = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
 		selectMotors.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -125,7 +125,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 
 		// Impulse selection
 		sub = new JPanel(new MigLayout("fill"));
-		border = BorderFactory.createTitledBorder("Impulse");
+		border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
 
@@ -149,7 +149,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 
 		sub.add(new JScrollPane(impulseCheckList.getList()), "grow,wrap");
 
-		JButton clearImpulse = new JButton("clear");
+		JButton clearImpulse = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
 		clearImpulse.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -159,7 +159,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 		});
 		sub.add(clearImpulse,"split 2");
 
-		JButton selectImpulse = new JButton("all");
+		JButton selectImpulse = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
 		selectImpulse.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -174,7 +174,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 		// Diameter selection
 
 		sub = new JPanel(new MigLayout("fill"));
-		border = BorderFactory.createTitledBorder("Diameter");
+		border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.DIAMETER"));
 		GUIUtil.changeFontStyle(border, Font.BOLD);
 		sub.setBorder(border);
 
@@ -222,7 +222,7 @@ public abstract class MotorFilterPopupMenu extends JPopupMenu {
 
 
 		// Close button
-		JButton closeButton = new JButton("close");
+		JButton closeButton = new JButton(trans.get("TCMotorSelPan.btn.close"));
 		closeButton.addActionListener(new ActionListener() {
 
 			@Override

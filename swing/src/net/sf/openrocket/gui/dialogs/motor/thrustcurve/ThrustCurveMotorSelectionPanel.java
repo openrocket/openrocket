@@ -203,7 +203,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		// Search field
 		//// Search:
 		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Search"));
-		panel.add(label, "");
+		panel.add(label, "split");
 		
 		searchField = new JTextField();
 		searchField.getDocument().addDocumentListener(new DocumentListener() {
@@ -250,7 +250,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				
 			};
 			
-			JButton manuFilter = new JButton("Motor Filter");
+			JButton manuFilter = new JButton(trans.get("TCMotorSelPan.btn.filter"));
 			manuFilter.addMouseListener(new MouseListener() {
 				
 				@Override
@@ -339,7 +339,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
 		
 		{
-			final JCheckBox hideUsedBox = new JCheckBox("Hide motors already used in the mount");
+			final JCheckBox hideUsedBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUsed"));
 			GUIUtil.changeFontSize(hideUsedBox, -1);
 			hideUsedBox.addActionListener(new ActionListener() {
 				@Override
