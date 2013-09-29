@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -33,10 +34,21 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	private List<ThrustCurveMotor> usedMotors = new ArrayList<ThrustCurveMotor>();
 	
 	// things which can be changed to modify filter behavior
+	
+	// Collection of strings which match text in the moto
 	private List<String> searchTerms = Collections.<String> emptyList();
+	
+	// Limit motors based on diameter of the motor mount
 	private DiameterFilterControl diameterControl = DiameterFilterControl.ALL;
+	
+	// Boolean which hides motors in the usedMotors list
 	private boolean hideUsedMotors = false;
+	
+	// List of manufacturers to exclude.
 	private List<Manufacturer> excludedManufacturers = new ArrayList<Manufacturer>();
+	
+	// List of ImpulseClasses to exclude.
+	private List<ImpulseClass> excludedImpulseClass = new ArrayList<ImpulseClass>();
 	
 	public MotorRowFilter(MotorMount mount, ThrustCurveMotorDatabaseModel model) {
 		super();
@@ -61,6 +73,10 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		}
 	}
 	
+	DiameterFilterControl getDiameterControl() {
+		return diameterControl;
+	}
+
 	void setDiameterControl(DiameterFilterControl diameterControl) {
 		this.diameterControl = diameterControl;
 	}
@@ -69,16 +85,25 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		this.hideUsedMotors = hideUsedMotors;
 	}
 	
-	void setExcludedManufacturers(List<Manufacturer> excludedManufacturers) {
+	List<Manufacturer> getExcludedManufacturers() {
+		return excludedManufacturers;
+	}
+
+	void setExcludedManufacturers(Collection<Manufacturer> excludedManufacturers) {
 		this.excludedManufacturers.clear();
 		this.excludedManufacturers.addAll(excludedManufacturers);
+	}
+	
+	void setExcludedImpulseClasses(Collection<ImpulseClass> excludedImpulseClasses ) {
+		this.excludedImpulseClass.clear();
+		this.excludedImpulseClass.addAll(excludedImpulseClasses);
 	}
 	
 	@Override
 	public boolean include(RowFilter.Entry<? extends TableModel, ? extends Integer> entry) {
 		int index = entry.getIdentifier();
 		ThrustCurveMotorSet m = model.getMotorSet(index);
-		return filterManufacturers(m) && filterUsed(m) && filterByDiameter(m) && filterByString(m);
+		return filterManufacturers(m) && filterUsed(m) && filterByDiameter(m) && filterByString(m) && filterByImpulseClass(m);
 	}
 	
 	private boolean filterManufacturers(ThrustCurveMotorSet m) {
@@ -128,4 +153,14 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		}
 		return true;
 	}
+	
+	private boolean filterByImpulseClass(ThrustCurveMotorSet m) {
+		for( ImpulseClass c : excludedImpulseClass ) {
+			if (c.isIn(m) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

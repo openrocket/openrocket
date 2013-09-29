@@ -83,22 +83,10 @@ import org.slf4j.LoggerFactory;
 
 public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelector {
 	private static final Logger log = LoggerFactory.getLogger(ThrustCurveMotorSelectionPanel.class);
+	
 	private static final Translator trans = Application.getTranslator();
 	
 	private static final double MOTOR_SIMILARITY_THRESHOLD = 0.95;
-	
-	private static final int SHOW_ALL = 0;
-	private static final int SHOW_SMALLER = 1;
-	private static final int SHOW_EXACT = 2;
-	private static final String[] SHOW_DESCRIPTIONS = {
-			//// Show all motors
-			trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc1"),
-			//// Show motors with diameter less than that of the motor mount
-			trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2"),
-			//// Show motors with diameter equal to that of the motor mount
-			trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3")
-	};
-	private static final int SHOW_MAX = 2;
 	
 	private static final int ZOOM_ICON_POSITION_NEGATIVE_X = 50;
 	private static final int ZOOM_ICON_POSITION_POSITIVE_Y = 12;
@@ -194,11 +182,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 		database = db;
 		
-		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
-		
 		model = new ThrustCurveMotorDatabaseModel(database);
 		final MotorRowFilter rowFilter = new MotorRowFilter(mount, model);
-		rowFilter.setExcludedManufacturers(unselectedManusFromPreferences);
 		
 		////  GUI
 		
@@ -215,86 +200,57 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Selrocketmotor"), Style.BOLD);
 		panel.add(label, "spanx, wrap para");
 		
-		// Diameter selection
-		JComboBox filterComboBox = new JComboBox(SHOW_DESCRIPTIONS);
-		filterComboBox.addActionListener(new ActionListener() {
+		// Search field
+		//// Search:
+		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Search"));
+		panel.add(label, "");
+		
+		searchField = new JTextField();
+		searchField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				JComboBox cb = (JComboBox) e.getSource();
-				int sel = cb.getSelectedIndex();
-				if ((sel < 0) || (sel > SHOW_MAX))
-					sel = SHOW_ALL;
-				switch (sel) {
-				case SHOW_ALL:
-					rowFilter.setDiameterControl(MotorRowFilter.DiameterFilterControl.ALL);
-					break;
-				
-				case SHOW_SMALLER:
-					rowFilter.setDiameterControl(MotorRowFilter.DiameterFilterControl.SMALLER);
-					break;
-				
-				case SHOW_EXACT:
-					rowFilter.setDiameterControl(MotorRowFilter.DiameterFilterControl.EXACT);
-					break;
-				
-				default:
-					throw new BugException("Invalid selection mode sel=" + sel);
-				}
+			public void changedUpdate(DocumentEvent e) {
+				update();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				update();
+			}
+			
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				update();
+			}
+			
+			private void update() {
+				String text = searchField.getText().trim();
+				String[] split = text.split("\\s+");
+				rowFilter.setSearchTerms(Arrays.asList(split));
 				sorter.sort();
-				Application.getPreferences().putChoice("MotorDiameterMatch", sel);
 				scrollSelectionVisible();
 			}
 		});
-		panel.add(filterComboBox, "spanx, growx, wrap rel");
-		
-		//// Hide very similar thrust curves
-		hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
-		GUIUtil.changeFontSize(hideSimilarBox, -1);
-		hideSimilarBox.setSelected(Application.getPreferences().getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, true));
-		hideSimilarBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Application.getPreferences().putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
-				updateData();
-			}
-		});
-		panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap para");
-		
-		{
-			final JCheckBox hideUsedBox = new JCheckBox("Hide motors already used in the mount");
-			GUIUtil.changeFontSize(hideUsedBox, -1);
-			hideUsedBox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					rowFilter.setHideUsedMotors(hideUsedBox.isSelected());
-					sorter.sort();
-					scrollSelectionVisible();
-				}
-			});
-			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap para");
-		}
+		panel.add(searchField, "growx");
 		
 		{
 			
 			// Find all the manufacturers:
-			Set<Manufacturer> manus = new HashSet<Manufacturer>();
+			Set<Manufacturer> allManufacturers = new HashSet<Manufacturer>();
 			for (ThrustCurveMotorSet s : database) {
-				manus.add(s.getManufacturer());
+				allManufacturers.add(s.getManufacturer());
 			}
-			final ManufacturerPopupSelector popup = new ManufacturerPopupSelector(manus, unselectedManusFromPreferences) {
+
+			final MotorFilterPopupMenu popup = new MotorFilterPopupMenu(allManufacturers, rowFilter) {
 				
 				@Override
-				public void onDismissed(List<Manufacturer> selectedManufacturers, List<Manufacturer> unselectedManufacturers) {
-					((SwingPreferences) Application.getPreferences()).setExcludedMotorManufacturers(unselectedManufacturers);
-					rowFilter.setExcludedManufacturers(unselectedManufacturers);
+				public void onSelectionChanged() {
 					sorter.sort();
 					scrollSelectionVisible();
-					System.out.println("Here I am");
 				}
 				
 			};
 			
-			JButton manuFilter = new JButton("Manufacturer Filter");
+			JButton manuFilter = new JButton("Motor Filter");
 			manuFilter.addMouseListener(new MouseListener() {
 				
 				@Override
@@ -319,7 +275,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 				
 			});
-			panel.add(manuFilter, "gapleft para, spanx, growx, wrap para");
+			panel.add(manuFilter, "gapleft para, wrap para");
 			
 			
 		}
@@ -382,50 +338,38 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		scrollpane.setViewportView(table);
 		panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
 		
+		{
+			final JCheckBox hideUsedBox = new JCheckBox("Hide motors already used in the mount");
+			GUIUtil.changeFontSize(hideUsedBox, -1);
+			hideUsedBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					rowFilter.setHideUsedMotors(hideUsedBox.isSelected());
+					sorter.sort();
+					scrollSelectionVisible();
+				}
+			});
+			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap para");
+		}
 		
-		
+		//// Hide very similar thrust curves
+		hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
+		GUIUtil.changeFontSize(hideSimilarBox, -1);
+		hideSimilarBox.setSelected(Application.getPreferences().getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, true));
+		hideSimilarBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Application.getPreferences().putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+				updateData();
+			}
+		});
+		panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap para");
 		
 		// Motor mount diameter label
 		//// Motor mount diameter: 
 		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Motormountdia") + " " +
 				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(diameter));
 		panel.add(label, "gapright 30lp, spanx, split");
-		
-		
-		
-		// Search field
-		//// Search:
-		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Search"));
-		panel.add(label, "");
-		
-		searchField = new JTextField();
-		searchField.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				update();
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				update();
-			}
-			
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				update();
-			}
-			
-			private void update() {
-				String text = searchField.getText().trim();
-				String[] split = text.split("\\s+");
-				rowFilter.setSearchTerms(Arrays.asList(split));
-				sorter.sort();
-				scrollSelectionVisible();
-			}
-		});
-		panel.add(searchField, "growx, wrap");
-		
-		
 		
 		// Vertical split
 		this.add(panel, "grow");
@@ -615,16 +559,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		panel.add(layer, "width 300:300:, height 180:180:, grow, spanx");
 		
-		
-		
 		this.add(panel, "grow");
-		
-		
-		
-		// Sets the filter:
-		int showMode = Application.getPreferences().getChoice(net.sf.openrocket.startup.Preferences.MOTOR_DIAMETER_FILTER, SHOW_MAX, SHOW_EXACT);
-		filterComboBox.setSelectedIndex(showMode);
-		
 		
 		// Update the panel data
 		updateData();

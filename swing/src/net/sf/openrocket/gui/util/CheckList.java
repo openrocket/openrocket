@@ -159,12 +159,24 @@ public class CheckList<T> {
 		return unchecked;
 	}
 	
+	public void checkAll() {
+		getModel().checkAll();
+	}
+	
+	public void clearAll() {
+		getModel().clearAll();
+	}
+	
 	/**
 	 * Resets checked elements 
 	 * @param elements
 	 */
 	public void setCheckedItems(Collection<T> elements) {
 		getModel().setCheckedItems(elements);
+	}
+	
+	public void setUncheckedItems( Collection<T> elements ) {
+		getModel().setUncheckedItems(elements);
 	}
 	
 	public void toggleIndex(int index) {

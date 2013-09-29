@@ -73,7 +73,8 @@ final class CheckListEditor extends MouseAdapter {
 			
 			if (e.getClickCount() > 1) {
 				// clear all and check selected for more then 1 clicks
-				model.setCheckedItems(Arrays.asList(model.getElementAt(index)));
+				// Original implementation had this implementation.  I didn't like that behavior.
+//				model.setCheckedItems(Arrays.asList(model.getElementAt(index)));
 			} else {
 				// simple toggle for 1 click
 				model.setCheckedIndex(index, !model.isCheckedIndex(index));

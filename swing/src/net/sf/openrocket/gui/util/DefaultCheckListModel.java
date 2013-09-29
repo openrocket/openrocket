@@ -107,6 +107,16 @@ public class DefaultCheckListModel<T> extends AbstractListModel {
 		return Collections.unmodifiableList(items);
 	}
 	
+	public void clearAll() {
+		checks.clear();
+		fireContentsChanged(this, 0, checks.size() - 1);
+	}
+	
+	public void checkAll() {
+		checks.addAll(data);
+		fireContentsChanged(this, 0, checks.size() - 1);
+	}
+	
 	public void setCheckedItems(Collection<T> items) {
 		
 		//		if ( CollectionUtils.isEmpty(items))  return;
@@ -121,4 +131,14 @@ public class DefaultCheckListModel<T> extends AbstractListModel {
 		
 	}
 	
+	public void setUncheckedItems( Collection<T> items ) {
+		
+		List<T> correctedItems = new ArrayList<T>(data);
+		correctedItems.removeAll(items);
+		
+		checks.clear();
+		checks.addAll(correctedItems);
+		fireContentsChanged(this, 0, checks.size() - 1);
+		
+	}
 }
