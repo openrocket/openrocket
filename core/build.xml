@@ -7,7 +7,7 @@
 	<property name="build.dir"   	value="${basedir}/build"/>		<!-- Build directory -->
 	<property name="build-test.dir" value="${basedir}/build/test"/>		<!-- Build directory -->
 	<property name="lib.dir"     	value="${basedir}/lib"/>		<!-- Library source directory -->
-	<property name="libtest.dir"	value="${basedir}/lib-test"/>		<!-- Library test source directory -->
+	<property name="libtest.dir"	value="${basedir}/../lib-test"/>		<!-- Library test source directory -->
 	<property name="libextra.dir"	value="${basedir}/lib-extra"/>		<!-- Library extra source directory -->
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
@@ -84,61 +84,6 @@
 	</target>
 
 	
-	<!-- CHECK -->
-	<target name="check" depends="checktodo,checkascii"/>
-	
-	<!-- CHECK TODOs -->
-	<target name="todo" depends="checktodo"/>
-	<target name="checktodo">
-		<tempfile property="todo.file" prefix="checktodo-" destDir="${tmp.dir}"/>
-		<echo>Checking project for FIXMEs.</echo>
-		<concat destfile="${todo.file}">
-			<fileset dir="${src.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<fileset dir="${src-test.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="(FIXME|TODO:.*CRITICAL)"/>
-				</linecontainsregexp>
-			</filterchain>
-		</concat>
-		<loadfile srcfile="${todo.file}" property="criticaltodos"/>
-		<delete file="${todo.file}"/>
-		<fail if="criticaltodos">CRITICAL TODOs exist in project:
-${criticaltodos}</fail>
-		<echo>No critical TODOs in project.</echo>
-	</target>
-	
-	
-	<!-- CHECK ASCII -->
-	<target name="ascii" depends="checkascii"/>
-	<target name="checkascii">
-		<tempfile property="ascii.file" prefix="checkascii-" destDir="${tmp.dir}"/>
-		<echo>Checking project for non-ASCII characters.</echo>
-		<concat destfile="${ascii.file}">
-			<fileset dir="${src.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<fileset dir="${src-test.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="\P{ASCII}"/>
-				</linecontainsregexp>
-			</filterchain>
-		</concat>
-		<loadfile srcfile="${ascii.file}" property="nonascii"/>
-		<delete file="${ascii.file}"/>
-		<fail if="nonascii">Non-ASCII characters exist in project:
-${nonascii}</fail>
-		<echo>No non-ASCII characters in project.</echo>
-	</target>
-	
-	
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
 		<echo>Building unit tests</echo>
@@ -147,7 +92,7 @@ ${nonascii}</fail>
 		
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
-		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
+		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure" dir="${basedir}">
 			<classpath>
 				<path refid="test-classpath"/>
 				<path location="${basedir}"/>
