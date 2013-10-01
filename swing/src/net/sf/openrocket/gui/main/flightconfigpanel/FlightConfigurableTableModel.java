@@ -40,12 +40,21 @@ public class FlightConfigurableTableModel<T extends FlightConfigurableComponent>
 		}
 	}
 
+	/**
+	 * Return true if this component should be included in the table.
+	 * @param component
+	 * @return
+	 */
+	protected boolean includeComponent( T component ) {
+		return true;
+	}
+	
 	protected void initialize() {
 		components.clear();
 		Iterator<RocketComponent> it = rocket.iterator();
 		while (it.hasNext()) {
 			RocketComponent c = it.next();
-			if (clazz.isAssignableFrom(c.getClass())) {
+			if (clazz.isAssignableFrom(c.getClass()) && includeComponent( (T) c) ) {
 				components.add( (T) c);
 			}
 		}

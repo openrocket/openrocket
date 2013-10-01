@@ -1,17 +1,25 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.util.EventObject;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
@@ -68,7 +76,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			}
 		}
 	}
-	
+
 	private final void installTableListener() {
 		getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -98,7 +106,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	 * @return
 	 */
 	protected abstract JTable initializeTable();
-	
+
 	/**
 	 * Return the embedded JTable
 	 * @return
@@ -134,6 +142,44 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			return (String) tableValue;
 		}
 		return null;
+	}
+
+	protected abstract class FlightConfigurableCellRenderer extends DefaultTableCellRenderer {
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (!(c instanceof JLabel)) {
+				return c;
+			}
+			JLabel label = (JLabel) c;
+
+			switch (column) {
+			case 0: {
+				label.setText(descriptor.format(rocket, (String) value));
+				return label;
+			}
+			default: {
+				Pair<String, T> v = (Pair<String, T>) value;
+				String id = v.getU();
+				T component = v.getV();
+				format(component, id, label );
+				return label;
+			}
+			}
+		}
+
+		protected final void shaded(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.ITALIC);
+			label.setForeground(Color.GRAY);
+		}
+
+		protected final void regular(JLabel label) {
+			GUIUtil.changeFontStyle(label, Font.PLAIN);
+			label.setForeground(Color.BLACK);
+		}
+
+		protected abstract void format( T component, String configId, JLabel label );
+
 	}
 
 }

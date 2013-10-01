@@ -89,7 +89,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	@Override
 	protected JTable initializeTable() {
 		//// Motor selection table.
-		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket);
+		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket) {
+
+			@Override
+			protected boolean includeComponent(MotorMount component) {
+				return component.isMotorMount();
+			}
+			
+		};
 		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setCellSelectionEnabled(true);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -201,34 +208,17 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	}
 	
 	
-	private class MotorTableCellRenderer extends DefaultTableCellRenderer {
+	private class MotorTableCellRenderer extends FlightConfigurablePanel<MotorMount>.FlightConfigurableCellRenderer {
+		
 		
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (!(c instanceof JLabel)) {
-				return c;
-			}
-			JLabel label = (JLabel) c;
-			
-			switch (column) {
-			case 0: {
-				label.setText(descriptor.format(rocket, (String) value));
-				return label;
-			}
-			default: {
-				Pair<String, MotorMount> v = (Pair<String, MotorMount>) value;
-				String id = v.getU();
-				MotorMount mount = v.getV();
-				MotorConfiguration motorConfig = mount.getMotorConfiguration().get(id);
-				String motorString = getMotorSpecification(mount, motorConfig);
-				String ignitionString = getIgnitionEventString(id, mount);
-				label.setText(motorString + " " + ignitionString);
-				return label;
-			}
-			}
+		protected void format(MotorMount mount, String configId, JLabel label) {
+			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(configId);
+			String motorString = getMotorSpecification(mount, motorConfig);
+			String ignitionString = getIgnitionEventString(configId, mount);
+			label.setText(motorString + " " + ignitionString);
 		}
-		
+
 		private String getMotorSpecification(MotorMount mount, MotorConfiguration motorConfig) {
 			Motor motor = motorConfig.getMotor();
 			

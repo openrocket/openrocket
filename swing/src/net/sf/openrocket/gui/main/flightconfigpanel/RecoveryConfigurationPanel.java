@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
@@ -133,50 +134,18 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		resetDeploymentButton.setEnabled(componentSelected);
 	}
 
-	class RecoveryTableCellRenderer extends DefaultTableCellRenderer {
-
-		RecoveryTableCellRenderer() {}
+	class RecoveryTableCellRenderer extends FlightConfigurablePanel<RecoveryDevice>.FlightConfigurableCellRenderer {
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (!(c instanceof JLabel)) {
-				return c;
-			}
-			JLabel label = (JLabel) c;
-
-			switch (column) {
-			case 0: {
-				label.setText(descriptor.format(rocket, (String) value));
+		protected void format(RecoveryDevice recovery, String configId, JLabel label) {
+			DeploymentConfiguration deployConfig = recovery.getDeploymentConfiguration().get(configId);
+			String spec = getDeploymentSpecification(deployConfig);
+			label.setText(spec);
+			if (recovery.getDeploymentConfiguration().isDefault(configId)) {
+				shaded(label);
+			} else {
 				regular(label);
-				return label;
 			}
-			default: {
-				Pair<String, RecoveryDevice> v = (Pair<String, RecoveryDevice>) value;
-				String id = v.getU();
-				RecoveryDevice recovery = v.getV();
-				DeploymentConfiguration deployConfig = recovery.getDeploymentConfiguration().get(id);
-				String spec = getDeploymentSpecification(deployConfig);
-				label.setText(spec);
-				if (recovery.getDeploymentConfiguration().isDefault(id)) {
-					shaded(label);
-				} else {
-					regular(label);
-				}
-				break;
-			}
-			}
-			return label;
-		}
-
-		private void shaded(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(Color.GRAY);
-		}
-
-		private void regular(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.PLAIN);
-			label.setForeground(Color.BLACK);
 		}
 
 		private String getDeploymentSpecification( DeploymentConfiguration config ) {

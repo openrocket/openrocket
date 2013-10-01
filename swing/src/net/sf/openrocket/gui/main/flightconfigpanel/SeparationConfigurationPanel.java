@@ -21,6 +21,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
@@ -132,51 +133,20 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 		resetDeploymentButton.setEnabled(componentSelected);
 	}
 	
-	private class SeparationTableCellRenderer extends DefaultTableCellRenderer {
+	private class SeparationTableCellRenderer extends FlightConfigurablePanel<Stage>.FlightConfigurableCellRenderer {
 		
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (!(c instanceof JLabel)) {
-				return c;
-			}
-			JLabel label = (JLabel) c;
-
-			switch (column) {
-			case 0: {
-				label.setText(descriptor.format(rocket, (String) value));
+		protected void format(Stage stage, String configId, JLabel label) {
+			StageSeparationConfiguration sepConfig = stage.getStageSeparationConfiguration().get(configId);
+			String spec = getSeparationSpecification(sepConfig);
+			label.setText(spec);
+			if (stage.getStageSeparationConfiguration().isDefault(configId)) {
+				shaded(label);
+			} else {
 				regular(label);
-				return label;
 			}
-			default: {
-				Pair<String, Stage> v = (Pair<String, Stage>) value;
-				String id = v.getU();
-				Stage stage = v.getV();
-				StageSeparationConfiguration sepConfig = stage.getStageSeparationConfiguration().get(id);
-				String spec = getSeparationSpecification(sepConfig);
-				label.setText(spec);
-				if (stage.getStageSeparationConfiguration().isDefault(id)) {
-					shaded(label);
-				} else {
-					regular(label);
-				}
-				break;
-			}
-			}
-			return label;
-			
 		}
-		
-		private void shaded(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(Color.GRAY);
-		}
-		
-		private void regular(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.PLAIN);
-			label.setForeground(Color.BLACK);
-		}
-		
+
 		private String getSeparationSpecification( StageSeparationConfiguration sepConfig ) {
 			String str;
 			
