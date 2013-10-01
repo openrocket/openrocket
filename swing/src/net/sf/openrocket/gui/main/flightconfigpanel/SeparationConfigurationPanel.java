@@ -21,6 +21,7 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
@@ -72,7 +73,13 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	@Override
 	protected JTable initializeTable() {
 		//// Separation selection 
-		separationTableModel = new FlightConfigurableTableModel<Stage>(Stage.class, rocket);
+		separationTableModel = new FlightConfigurableTableModel<Stage>(Stage.class, rocket) {
+			@Override
+			protected boolean includeComponent(Stage component) {
+				return component.getStageNumber() > 0;
+			}
+
+		};
 		JTable separationTable = new JTable(separationTableModel);
 		separationTable.setCellSelectionEnabled(true);
 		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
