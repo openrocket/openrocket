@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
@@ -51,11 +50,11 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		this.document = doc;
 		this.rocket = doc.getRocket();
 		
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill","[grow][][][][][grow]"));
 		
 		//// Tabs for advanced view.
 		tabs = new JTabbedPane();
-		this.add(tabs, "grow, spanx, wrap");
+		this.add(tabs, "spanx, grow, wrap");
 		
 		//// Motor tabs
 		motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
@@ -78,7 +77,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			
 		});
 		
-		panel.add(newConfButton);
+		panel.add(newConfButton,"skip 1,gapright para");
 		
 		renameConfButton = new JButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
 		renameConfButton.addActionListener(new ActionListener() {
@@ -88,7 +87,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				configurationChanged();
 			}
 		});
-		panel.add(renameConfButton);
+		panel.add(renameConfButton,"gapright para");
 		
 		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
 		removeConfButton.addActionListener(new ActionListener() {
@@ -98,7 +97,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				configurationChanged();
 			}
 		});
-		panel.add(removeConfButton);
+		panel.add(removeConfButton,"gapright para");
 		
 		copyConfButton = new JButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
 		copyConfButton.addActionListener(new ActionListener() {
