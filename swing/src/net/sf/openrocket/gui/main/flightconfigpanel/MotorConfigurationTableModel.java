@@ -6,6 +6,8 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -15,11 +17,11 @@ import net.sf.openrocket.util.Pair;
 /**
  * The table model for selecting and editing the motor configurations.
  */
-class MotorConfigurationTableModel extends AbstractTableModel {
+class MotorConfigurationTableModel extends AbstractTableModel implements ComponentChangeListener {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String CONFIGURATION = "Configuration";
+	private static final String CONFIGURATION = trans.get("edtmotorconfdlg.col.configuration");
 	
 	private final Rocket rocket;
 	
@@ -28,11 +30,19 @@ class MotorConfigurationTableModel extends AbstractTableModel {
 	
 	public MotorConfigurationTableModel(Rocket rocket) {
 		this.rocket = rocket;
-		
+		this.rocket.addComponentChangeListener(this);
 		initializeMotorMounts();
 		
 	}
 	
+	@Override
+	public void componentChanged(ComponentChangeEvent e) {
+		if ( e.isMotorChange() || e.isTreeChange() ) {
+			initializeMotorMounts();
+			fireTableStructureChanged();
+		}
+	}
+
 	private void initializeMotorMounts() {
 		motorMounts.clear();
 		for (RocketComponent c : rocket) {

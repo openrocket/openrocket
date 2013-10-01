@@ -7,16 +7,15 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Pair;
 
-class SeparationTableModel extends AbstractTableModel {
+class SeparationTableModel extends AbstractTableModel implements ComponentChangeListener {
 	
 	private static final Translator trans = Application.getTranslator();
 
@@ -24,12 +23,20 @@ class SeparationTableModel extends AbstractTableModel {
 
 	private final List<Stage> stages = new ArrayList<Stage>();
 
-	private static final String CONFIGURATION = "Configuration";
+	private static final String CONFIGURATION = trans.get("edtmotorconfdlg.col.configuration");
 
 	SeparationTableModel(Rocket rocket ) {
 		this.rocket = rocket;
-		
+		this.rocket.addComponentChangeListener(this);
 		initialize();
+	}
+
+	@Override
+	public void componentChanged(ComponentChangeEvent e) {
+		if ( e.isTreeChange() ) {
+			initialize();
+			fireTableStructureChanged();
+		}
 	}
 
 	private void initialize() {
