@@ -17,7 +17,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -35,37 +34,14 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
-	private final FlightConfigurationPanel flightConfigurationPanel;
-	final Rocket rocket;
-
-	private final RecoveryTableModel recoveryTableModel;
-	private final JTable recoveryTable;
+	private RecoveryTableModel recoveryTableModel;
+	private JTable recoveryTable;
 	private final JButton selectDeploymentButton;
 	private final JButton resetDeploymentButton;
 
 
 	RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
-		this.flightConfigurationPanel = flightConfigurationPanel;
-		this.rocket = rocket;
-
-		//// Recovery selection 
-		recoveryTableModel = new RecoveryTableModel(rocket);
-		recoveryTable = new JTable(recoveryTableModel);
-		recoveryTable.setCellSelectionEnabled(true);
-		recoveryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		recoveryTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
-
-				if (e.getClickCount() == 2) {
-					// Double-click edits 
-					selectDeployment();
-				}
-			}
-		});
-		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
 
 		JScrollPane scroll = new JScrollPane(recoveryTable);
 		this.add(scroll, "span, grow, wrap");
@@ -91,6 +67,29 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			}
 		});
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
+	}
+
+	@Override
+	protected JTable initializeTable() {
+		//// Recovery selection 
+		recoveryTableModel = new RecoveryTableModel(rocket);
+		recoveryTable = new JTable(recoveryTableModel);
+		recoveryTable.setCellSelectionEnabled(true);
+		recoveryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		recoveryTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				updateButtonState();
+
+				if (e.getClickCount() == 2) {
+					// Double-click edits 
+					selectDeployment();
+				}
+			}
+		});
+		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
+
+		return recoveryTable;
 	}
 
 	@Override

@@ -1,8 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -14,13 +12,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.gui.dialogs.flightconfiguration.IgnitionSelectionDialog;
 import net.sf.openrocket.gui.dialogs.motor.MotorChooserDialog;
-import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
@@ -38,52 +33,11 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 	
-	protected final JTable configurationTable;
-	protected final MotorConfigurationTableModel configurationTableModel;
+	protected JTable configurationTable;
+	protected MotorConfigurationTableModel configurationTableModel;
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
-		
-		//// Motor selection table.
-		configurationTableModel = new MotorConfigurationTableModel(rocket);
-		configurationTable = new JTable(configurationTableModel);
-		configurationTable.setCellSelectionEnabled(true);
-		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
-		
-		configurationTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
-				int selectedColumn = configurationTable.getSelectedColumn();
-				if (e.getClickCount() == 2) {
-					if (selectedColumn > 0) {
-						selectMotor();
-					}
-				}
-			}
-		});
-		
-		configurationTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if ( e.getValueIsAdjusting() ) {
-					return;
-				}
-				int firstrow = e.getFirstIndex();
-				int lastrow = e.getLastIndex();
-				ListSelectionModel model = (ListSelectionModel) e.getSource();
-				for( int row = firstrow; row <= lastrow; row ++) {
-					if ( model.isSelectedIndex(row) ) {
-						String id = (String) configurationTableModel.getValueAt(row, 0);
-						flightConfigurationPanel.setCurrentConfiguration(id);
-						return;
-					}
-				}
-			}
-			
-		});
 		
 		JScrollPane scroll = new JScrollPane(configurationTable);
 		this.add(scroll, "grow, wrap");
@@ -132,6 +86,30 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		
 	}
 	
+	@Override
+	protected JTable initializeTable() {
+		//// Motor selection table.
+		configurationTableModel = new MotorConfigurationTableModel(rocket);
+		configurationTable = new JTable(configurationTableModel);
+		configurationTable.setCellSelectionEnabled(true);
+		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
+		
+		configurationTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				updateButtonState();
+				int selectedColumn = configurationTable.getSelectedColumn();
+				if (e.getClickCount() == 2) {
+					if (selectedColumn > 0) {
+						selectMotor();
+					}
+				}
+			}
+		});
+		return configurationTable;
+	}
+
 	@Override
 	protected JTable getTable() {
 		return configurationTable;

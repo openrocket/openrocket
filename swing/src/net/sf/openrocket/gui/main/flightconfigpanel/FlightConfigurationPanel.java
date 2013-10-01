@@ -185,9 +185,4 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 
 	}
 	
-	public void setCurrentConfiguration(String id) {
-		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
-		updateButtonState();
-	}
-	
 }

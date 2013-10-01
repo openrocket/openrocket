@@ -4,6 +4,9 @@ import java.util.EventObject;
 
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
@@ -26,45 +29,84 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		super(new MigLayout("fill"));
 		this.flightConfigurationPanel = flightConfigurationPanel;
 		this.rocket = rocket;
+		initializeTable();
 		rocket.getDefaultConfiguration().addChangeListener( new StateChangeListener() {
-
 			@Override
 			public void stateChanged(EventObject e) {
-				String id = FlightConfigurablePanel.this.rocket.getDefaultConfiguration().getFlightConfigurationID();
-				
-				String selectedId = FlightConfigurablePanel.this.getSelectedConfigurationId();
-				if ( id == null && selectedId == null ) {
-					// Nothing to do
-				} else if ( id == null ) {
-					// need to unselect
-					FlightConfigurablePanel.this.getTable().clearSelection();
-				} else if ( !id.equals(selectedId)){
-					// Need to change selection
-					
-					// We'll select the correct row, in the currently selected column.
-					
-					JTable table = FlightConfigurablePanel.this.getTable();
-					
-					int col = table.getSelectedColumn();
-					
-					for( int row = 0; row < table.getRowCount(); row++ ) {
-						String rowId = FlightConfigurablePanel.this.rocket.getFlightConfigurationIDs()[row + 1];
-						if ( rowId.equals(id) ) {
-							table.changeSelection(row, col, true, false);
-						}
+				FlightConfigurablePanel.this.synchronizeConfigurationSelection();
+			}
+		});
+		installTableListener();
+		synchronizeConfigurationSelection();
+	}
+
+	protected final void synchronizeConfigurationSelection() {
+		String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
+
+		String selectedId = getSelectedConfigurationId();
+		if ( id == null && selectedId == null ) {
+			// Nothing to do
+		} else if ( id == null ) {
+			// need to unselect
+			getTable().clearSelection();
+		} else if ( !id.equals(selectedId)){
+			// Need to change selection
+
+			// We'll select the correct row, in the currently selected column.
+
+			JTable table = getTable();
+
+			int col = table.getSelectedColumn();
+			if ( col < 0 ) {
+				col = 0;
+			}
+			for( int row = 0; row < table.getRowCount(); row++ ) {
+				String rowId = rocket.getFlightConfigurationIDs()[row + 1];
+				if ( rowId.equals(id) ) {
+					table.changeSelection(row, col, true, false);
+				}
+			}
+		}
+	}
+	
+	private final void installTableListener() {
+		getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if ( e.getValueIsAdjusting() ) {
+					return;
+				}
+				int firstrow = e.getFirstIndex();
+				int lastrow = e.getLastIndex();
+				ListSelectionModel model = (ListSelectionModel) e.getSource();
+				for( int row = firstrow; row <= lastrow; row ++) {
+					if ( model.isSelectedIndex(row) ) {
+						String id = (String) getTable().getValueAt(row, 0);
+						rocket.getDefaultConfiguration().setFlightConfigurationID(id);
+						return;
 					}
 				}
-				
-				
 			}
-			
+
 		});
 	}
 
-	protected abstract JTable getTable();
+	/**
+	 * Override this method to create the embedded JTable and it's backing Model.
+	 * 
+	 * @return
+	 */
+	protected abstract JTable initializeTable();
 	
+	/**
+	 * Return the embedded JTable
+	 * @return
+	 */
+	protected abstract JTable getTable();
+
 	protected T getSelectedComponent() {
-		
+
 		int col = getTable().getSelectedColumn();
 		int row = getTable().getSelectedRow();
 		if ( row < 0 || col < 0 ) {
@@ -77,7 +119,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		}
 		return null;
 	}
-	
+
 	protected String getSelectedConfigurationId() {
 		int col = getTable().getSelectedColumn();
 		int row = getTable().getSelectedRow();

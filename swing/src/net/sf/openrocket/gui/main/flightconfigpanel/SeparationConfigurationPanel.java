@@ -33,37 +33,14 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	static final Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
-	private final FlightConfigurationPanel flightConfigurationPanel;
-	final Rocket rocket;
-	
-	private final JTable separationTable;
-	private final SeparationTableModel separationTableModel;
+	private JTable separationTable;
+	private SeparationTableModel separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
 	
 	
 	SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
-		this.flightConfigurationPanel = flightConfigurationPanel;
-		this.rocket = rocket;
-		
-		
-		//// Recovery selection 
-		separationTableModel = new SeparationTableModel(rocket);
-		separationTable = new JTable(separationTableModel);
-		separationTable.setCellSelectionEnabled(true);
-		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		separationTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				updateButtonState();
-				if (e.getClickCount() == 2) {
-					// Double-click edits 
-					selectDeployment();
-				}
-			}
-		});
-		separationTable.setDefaultRenderer(Object.class, new SeparationTableCellRenderer());
 		
 		JScrollPane scroll = new JScrollPane(separationTable);
 		this.add(scroll, "span, grow, wrap");
@@ -92,6 +69,28 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 		
 	}
 	
+	@Override
+	protected JTable initializeTable() {
+		//// Separation selection 
+		separationTableModel = new SeparationTableModel(rocket);
+		separationTable = new JTable(separationTableModel);
+		separationTable.setCellSelectionEnabled(true);
+		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		separationTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				updateButtonState();
+				if (e.getClickCount() == 2) {
+					// Double-click edits 
+					selectDeployment();
+				}
+			}
+		});
+		separationTable.setDefaultRenderer(Object.class, new SeparationTableCellRenderer());
+		
+		return separationTable;
+	}
+
 	@Override
 	protected JTable getTable() {
 		return separationTable;
