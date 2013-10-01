@@ -33,13 +33,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 	
-	protected JTable configurationTable;
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
 		
-		JScrollPane scroll = new JScrollPane(configurationTable);
+		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "grow, wrap");
 		
 		//// Select motor
@@ -97,7 +96,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 			
 		};
-		configurationTable = new JTable(configurationTableModel);
+		JTable configurationTable = new JTable(configurationTableModel);
 		configurationTable.setCellSelectionEnabled(true);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
@@ -106,7 +105,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				updateButtonState();
-				int selectedColumn = configurationTable.getSelectedColumn();
+				int selectedColumn = table.getSelectedColumn();
 				if (e.getClickCount() == 2) {
 					if (selectedColumn > 0) {
 						selectMotor();
@@ -117,17 +116,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		return configurationTable;
 	}
 
-	@Override
-	protected JTable getTable() {
-		return configurationTable;
-	}
-
 	public void fireTableDataChanged() {
-		int selected = configurationTable.getSelectedRow();
+		int selected = table.getSelectedRow();
 		configurationTableModel.fireTableDataChanged();
 		if (selected >= 0) {
-			selected = Math.min(selected, configurationTable.getRowCount() - 1);
-			configurationTable.getSelectionModel().setSelectionInterval(selected, selected);
+			selected = Math.min(selected, table.getRowCount() - 1);
+			table.getSelectionModel().setSelectionInterval(selected, selected);
 		}
 		updateButtonState();
 	}

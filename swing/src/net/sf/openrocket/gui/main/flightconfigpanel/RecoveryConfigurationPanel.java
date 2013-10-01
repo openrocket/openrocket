@@ -36,7 +36,6 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	private FlightConfigurableTableModel<RecoveryDevice> recoveryTableModel;
-	private JTable recoveryTable;
 	private final JButton selectDeploymentButton;
 	private final JButton resetDeploymentButton;
 
@@ -44,7 +43,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
 
-		JScrollPane scroll = new JScrollPane(recoveryTable);
+		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "span, grow, wrap");
 
 		//// Select deployment
@@ -74,7 +73,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	protected JTable initializeTable() {
 		//// Recovery selection 
 		recoveryTableModel = new FlightConfigurableTableModel<RecoveryDevice>(RecoveryDevice.class, rocket);
-		recoveryTable = new JTable(recoveryTableModel);
+		JTable recoveryTable = new JTable(recoveryTableModel);
 		recoveryTable.setCellSelectionEnabled(true);
 		recoveryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		recoveryTable.addMouseListener(new MouseAdapter() {
@@ -93,17 +92,12 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		return recoveryTable;
 	}
 
-	@Override
-	protected JTable getTable() {
-		return recoveryTable;
-	}
-
 	public void fireTableDataChanged() {
-		int selected = recoveryTable.getSelectedRow();
+		int selected = table.getSelectedRow();
 		recoveryTableModel.fireTableDataChanged();
 		if (selected >= 0) {
-			selected = Math.min(selected, recoveryTable.getRowCount() - 1);
-			recoveryTable.getSelectionModel().setSelectionInterval(selected, selected);
+			selected = Math.min(selected, table.getRowCount() - 1);
+			table.getSelectionModel().setSelectionInterval(selected, selected);
 		}
 		updateButtonState();
 	}

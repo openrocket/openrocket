@@ -34,7 +34,6 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	static final Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
-	private JTable separationTable;
 	private FlightConfigurableTableModel<Stage> separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
@@ -43,7 +42,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
 		
-		JScrollPane scroll = new JScrollPane(separationTable);
+		JScrollPane scroll = new JScrollPane(table);
 		this.add(scroll, "span, grow, wrap");
 		
 		//// Select deployment
@@ -74,7 +73,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	protected JTable initializeTable() {
 		//// Separation selection 
 		separationTableModel = new FlightConfigurableTableModel<Stage>(Stage.class, rocket);
-		separationTable = new JTable(separationTableModel);
+		JTable separationTable = new JTable(separationTableModel);
 		separationTable.setCellSelectionEnabled(true);
 		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		separationTable.addMouseListener(new MouseAdapter() {
@@ -92,17 +91,12 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 		return separationTable;
 	}
 
-	@Override
-	protected JTable getTable() {
-		return separationTable;
-	}
-
 	public void fireTableDataChanged() {
-		int selected = separationTable.getSelectedRow();
+		int selected = table.getSelectedRow();
 		separationTableModel.fireTableDataChanged();
 		if (selected >= 0) {
-			selected = Math.min(selected, separationTable.getRowCount() - 1);
-			separationTable.getSelectionModel().setSelectionInterval(selected, selected);
+			selected = Math.min(selected, table.getRowCount() - 1);
+			table.getSelectionModel().setSelectionInterval(selected, selected);
 		}
 		updateButtonState();
 	}
