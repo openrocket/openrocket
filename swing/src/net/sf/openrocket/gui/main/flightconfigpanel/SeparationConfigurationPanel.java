@@ -11,14 +11,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -30,7 +28,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Pair;
 
-public class SeparationConfigurationPanel extends JPanel {
+public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage> {
 	
 	static final Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -45,7 +43,7 @@ public class SeparationConfigurationPanel extends JPanel {
 	
 	
 	SeparationConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(new MigLayout("fill"));
+		super(flightConfigurationPanel,rocket);
 		this.flightConfigurationPanel = flightConfigurationPanel;
 		this.rocket = rocket;
 		
@@ -94,6 +92,11 @@ public class SeparationConfigurationPanel extends JPanel {
 		
 	}
 	
+	@Override
+	protected JTable getTable() {
+		return separationTable;
+	}
+
 	public void fireTableDataChanged() {
 		int selected = separationTable.getSelectedRow();
 		separationTableModel.fireTableDataChanged();
@@ -104,19 +107,6 @@ public class SeparationConfigurationPanel extends JPanel {
 		updateButtonState();
 	}
 	
-	private Stage getSelectedComponent() {
-		int col = separationTable.getSelectedColumn();
-		int row = separationTable.getSelectedRow();
-		if ( row < 0 || col < 0 ) {
-			return null;
-		}
-		Object tableValue = separationTable.getModel().getValueAt(row, col);
-		if ( tableValue instanceof Pair ) {
-			Pair<String,Stage> selected = (Pair<String,Stage>) tableValue;
-			return selected.getV();
-		}
-		return null;
-	}
 
 	private void selectDeployment() {
 		Stage stage = getSelectedComponent();

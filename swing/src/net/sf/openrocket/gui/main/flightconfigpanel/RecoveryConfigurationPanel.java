@@ -11,7 +11,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -31,7 +30,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Pair;
 
-public class RecoveryConfigurationPanel extends JPanel {
+public class RecoveryConfigurationPanel extends FlightConfigurablePanel<RecoveryDevice> {
 
 	Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -46,7 +45,7 @@ public class RecoveryConfigurationPanel extends JPanel {
 
 
 	RecoveryConfigurationPanel(FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
-		super(new MigLayout("fill"));
+		super(flightConfigurationPanel,rocket);
 		this.flightConfigurationPanel = flightConfigurationPanel;
 		this.rocket = rocket;
 
@@ -94,6 +93,11 @@ public class RecoveryConfigurationPanel extends JPanel {
 		this.add(resetDeploymentButton, "sizegroup button, wrap");
 	}
 
+	@Override
+	protected JTable getTable() {
+		return recoveryTable;
+	}
+
 	public void fireTableDataChanged() {
 		int selected = recoveryTable.getSelectedRow();
 		recoveryTableModel.fireTableDataChanged();
@@ -128,21 +132,6 @@ public class RecoveryConfigurationPanel extends JPanel {
 		boolean componentSelected = getSelectedComponent() != null;
 		selectDeploymentButton.setEnabled(componentSelected);
 		resetDeploymentButton.setEnabled(componentSelected);
-	}
-
-
-	private RecoveryDevice getSelectedComponent() {
-		int col = recoveryTable.getSelectedColumn();
-		int row = recoveryTable.getSelectedRow();
-		if ( row < 0 || col < 0 ) {
-			return null;
-		}
-		Object tableValue = recoveryTable.getModel().getValueAt(row, col);
-		if ( tableValue instanceof Pair ) {
-			Pair<String,RecoveryDevice> selected = (Pair<String,RecoveryDevice>) tableValue;
-			return selected.getV();
-		}
-		return null;
 	}
 
 	class RecoveryTableCellRenderer extends DefaultTableCellRenderer {
