@@ -34,7 +34,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 	
 	protected JTable configurationTable;
-	protected MotorConfigurationTableModel configurationTableModel;
+	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
@@ -89,7 +89,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	@Override
 	protected JTable initializeTable() {
 		//// Motor selection table.
-		configurationTableModel = new MotorConfigurationTableModel(rocket);
+		configurationTableModel = new FlightConfigurableTableModel<MotorMount>(MotorMount.class,rocket);
 		configurationTable = new JTable(configurationTableModel);
 		configurationTable.setCellSelectionEnabled(true);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

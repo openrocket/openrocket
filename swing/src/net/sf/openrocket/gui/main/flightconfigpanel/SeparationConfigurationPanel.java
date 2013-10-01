@@ -34,7 +34,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
 	private JTable separationTable;
-	private SeparationTableModel separationTableModel;
+	private FlightConfigurableTableModel<Stage> separationTableModel;
 	private final JButton selectSeparationButton;
 	private final JButton resetDeploymentButton;
 	
@@ -72,7 +72,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	@Override
 	protected JTable initializeTable() {
 		//// Separation selection 
-		separationTableModel = new SeparationTableModel(rocket);
+		separationTableModel = new FlightConfigurableTableModel<Stage>(Stage.class, rocket);
 		separationTable = new JTable(separationTableModel);
 		separationTable.setCellSelectionEnabled(true);
 		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

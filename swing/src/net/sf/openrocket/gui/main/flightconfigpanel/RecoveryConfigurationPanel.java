@@ -34,7 +34,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	Translator trans = Application.getTranslator();
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
-	private RecoveryTableModel recoveryTableModel;
+	private FlightConfigurableTableModel<RecoveryDevice> recoveryTableModel;
 	private JTable recoveryTable;
 	private final JButton selectDeploymentButton;
 	private final JButton resetDeploymentButton;
@@ -72,7 +72,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	@Override
 	protected JTable initializeTable() {
 		//// Recovery selection 
-		recoveryTableModel = new RecoveryTableModel(rocket);
+		recoveryTableModel = new FlightConfigurableTableModel<RecoveryDevice>(RecoveryDevice.class, rocket);
 		recoveryTable = new JTable(recoveryTableModel);
 		recoveryTable.setCellSelectionEnabled(true);
 		recoveryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

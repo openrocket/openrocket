@@ -9,53 +9,47 @@ import javax.swing.table.AbstractTableModel;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
+import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
 
-class SeparationTableModel extends AbstractTableModel implements ComponentChangeListener {
-	
+public class FlightConfigurableTableModel<T extends FlightConfigurableComponent> extends AbstractTableModel  implements ComponentChangeListener{
+
 	private static final Translator trans = Application.getTranslator();
-
-	private final Rocket rocket;
-
-	private final List<Stage> stages = new ArrayList<Stage>();
-
 	private static final String CONFIGURATION = trans.get("edtmotorconfdlg.col.configuration");
 
-	SeparationTableModel(Rocket rocket ) {
+	protected final Rocket rocket;
+	protected final Class<T> clazz;
+	private final List<T> components = new ArrayList<T>();
+
+	public FlightConfigurableTableModel(Class<T> clazz, Rocket rocket) {
+		super();
 		this.rocket = rocket;
+		this.clazz = clazz;
 		this.rocket.addComponentChangeListener(this);
 		initialize();
 	}
 
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
-		if ( e.isTreeChange() ) {
+		if ( e.isMotorChange() || e.isTreeChange() ) {
 			initialize();
 			fireTableStructureChanged();
 		}
 	}
 
-	private void initialize() {
-		stages.clear();
+	protected void initialize() {
+		components.clear();
 		Iterator<RocketComponent> it = rocket.iterator();
-		{
-			int stageIndex = -1;
-			while (it.hasNext()) {
-				RocketComponent c = it.next();
-				if (c instanceof Stage) {
-					if (stageIndex >= 0) {
-						stages.add( (Stage) c);
-					}
-					stageIndex++;
-				}
+		while (it.hasNext()) {
+			RocketComponent c = it.next();
+			if (clazz.isAssignableFrom(c.getClass())) {
+				components.add( (T) c);
 			}
 		}
 	}
-
 
 	@Override
 	public int getRowCount() {
@@ -64,8 +58,9 @@ class SeparationTableModel extends AbstractTableModel implements ComponentChange
 
 	@Override
 	public int getColumnCount() {
-		return stages.size() + 1;
+		return components.size() + 1;
 	}
+
 	@Override
 	public Object getValueAt(int row, int column) {
 		String id = getConfiguration(row);
@@ -75,8 +70,8 @@ class SeparationTableModel extends AbstractTableModel implements ComponentChange
 		}
 		default: {
 			int index = column - 1;
-			Stage d = stages.get(index);
-			return new Pair<String, Stage>(id, d);
+			T d = components.get(index);
+			return new Pair<String, T>(id, d);
 		}
 		}
 	}
@@ -89,9 +84,9 @@ class SeparationTableModel extends AbstractTableModel implements ComponentChange
 		}
 		default: {
 			int index = column - 1;
-			Stage d = stages.get(index);
+			T d = components.get(index);
 			return d.toString();
-
+	
 		}
 		}
 	}
