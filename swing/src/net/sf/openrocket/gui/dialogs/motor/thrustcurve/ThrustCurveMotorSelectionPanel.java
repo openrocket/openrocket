@@ -352,6 +352,8 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap para");
 		}
 		
+		scrollSelectionVisible();
+		
 		//// Hide very similar thrust curves
 		hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
 		GUIUtil.changeFontSize(hideSimilarBox, -1);
