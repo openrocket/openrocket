@@ -37,3 +37,6 @@
 /core/resources-src/pix/sormus.xcf.gz
 /core/resources-src/pix/splashscreen-sormus.png
 /core/resources-src/pix/splashscreen-sormus.xcf.gz
+
+/swing/build
+/swing/tmp

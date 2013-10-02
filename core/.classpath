@@ -23,7 +23,7 @@
 	<classpathentry kind="lib" path="lib/javax.inject.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="lib-test/test-plugin.jar"/>
-	<classpathentry kind="lib" path="lib/annotation-detector-3.0.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/annotation-detector-3.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

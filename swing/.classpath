@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.5.jar"/>
-	<classpathentry kind="lib" path="/OpenRocket Core/lib/annotation-detector-3.0.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-3.0.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-multibindings-3.0.jar"/>
@@ -21,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/logback-core-1.0.12.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/resources"/>
 	<classpathentry kind="lib" path="resources"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/annotation-detector-3.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
