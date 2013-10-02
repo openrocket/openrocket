@@ -45,16 +45,15 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 	}
 
 	public FlightConfigurationPanel(OpenRocketDocument doc) {
-		super(new MigLayout("fill"));
+		super(new MigLayout("fill","[grow][][][][][grow]"));
 		
 		this.document = doc;
 		this.rocket = doc.getRocket();
 		
-		JPanel panel = new JPanel(new MigLayout("fill","[grow][][][][][grow]"));
+		//JPanel panel = new JPanel(new MigLayout("fill","[grow][][][][][grow]"));
 		
 		//// Tabs for advanced view.
 		tabs = new JTabbedPane();
-		this.add(tabs, "spanx, grow, wrap");
 		
 		//// Motor tabs
 		motorConfigurationPanel = new MotorConfigurationPanel(this, rocket);
@@ -77,7 +76,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 			
 		});
 		
-		panel.add(newConfButton,"skip 1,gapright para");
+		this.add(newConfButton,"skip 1,gapright para");
 		
 		renameConfButton = new JButton(trans.get("edtmotorconfdlg.but.Renameconfiguration"));
 		renameConfButton.addActionListener(new ActionListener() {
@@ -87,7 +86,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				configurationChanged();
 			}
 		});
-		panel.add(renameConfButton,"gapright para");
+		this.add(renameConfButton,"gapright para");
 		
 		removeConfButton = new JButton(trans.get("edtmotorconfdlg.but.Removeconfiguration"));
 		removeConfButton.addActionListener(new ActionListener() {
@@ -97,7 +96,7 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				configurationChanged();
 			}
 		});
-		panel.add(removeConfButton,"gapright para");
+		this.add(removeConfButton,"gapright para");
 		
 		copyConfButton = new JButton(trans.get("edtmotorconfdlg.but.Copyconfiguration"));
 		copyConfButton.addActionListener(new ActionListener() {
@@ -107,10 +106,12 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 				configurationChanged();
 			}
 		});
-		panel.add(copyConfButton, "wrap para");
-		
-		this.add(panel, "growx");
+		this.add(copyConfButton, "wrap");
+
 		updateButtonState();
+
+		this.add(tabs, "spanx, grow, wrap rel");
+
 		
 		this.rocket.getDefaultConfiguration().addChangeListener(this);
 	}
