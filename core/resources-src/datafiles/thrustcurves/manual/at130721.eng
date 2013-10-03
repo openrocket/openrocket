@@ -1,7 +1,7 @@
 ; @File: at130721.asc, @Pts-I: 538, @Pts-O: 31, @Sm: 0, @CO: 5%
 ; @TI: 17.10047, @TIa: 17.06124, @TIe: +0.05%, @ThMax: 8.3068, @ThAvg: 2.05042, @Tb: 8.34
 ; Exported using ThrustCurveTool, www.ThrustGear.com
-D2 0 0 100 0.0 0.0 AT
+D2 18 70 P 0.0107 0.0266 AT
   0.016      0.0453094
   0.064      6.90221
   0.08       7.73285
