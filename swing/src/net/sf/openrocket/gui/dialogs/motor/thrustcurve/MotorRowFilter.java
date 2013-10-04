@@ -30,7 +30,7 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	
 	// configuration data used in the filter process
 	private final ThrustCurveMotorDatabaseModel model;
-	private final Double diameter;
+	private Double diameter;
 	private List<ThrustCurveMotor> usedMotors = new ArrayList<ThrustCurveMotor>();
 	
 	// things which can be changed to modify filter behavior
@@ -50,9 +50,12 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	// List of ImpulseClasses to exclude.
 	private List<ImpulseClass> excludedImpulseClass = new ArrayList<ImpulseClass>();
 	
-	public MotorRowFilter(MotorMount mount, ThrustCurveMotorDatabaseModel model) {
+	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
 		super();
 		this.model = model;
+	}
+	
+	public void setMotorMount( MotorMount mount ) {
 		if (mount != null) {
 			this.diameter = mount.getMotorMountDiameter();
 			for (MotorConfiguration m : mount.getMotorConfiguration()) {

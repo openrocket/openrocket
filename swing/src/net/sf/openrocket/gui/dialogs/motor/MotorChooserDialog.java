@@ -26,14 +26,18 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	private boolean okClicked = false;
 	private static final Translator trans = Application.getTranslator();
 	
-	
 	public MotorChooserDialog(MotorMount mount, String currentConfig, Window owner) {
+		this(owner);
+		setMotorMountAndConfig(mount, currentConfig);
+	}
+	
+	public MotorChooserDialog(Window owner) {
 		super(owner, trans.get("MotorChooserDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		selectionPanel = new ThrustCurveMotorSelectionPanel(mount, currentConfig);
+		selectionPanel = new ThrustCurveMotorSelectionPanel();
 		
 		panel.add(selectionPanel, "grow, wrap para");
 		
@@ -74,6 +78,9 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		selectionPanel.setCloseableDialog(this);
 	}
 	
+	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+		selectionPanel.setMotorMountAndConfig(mount, currentConfig);
+	}
 	
 	/**
 	 * Return the motor selected by this chooser dialog, or <code>null</code> if the selection has been aborted.

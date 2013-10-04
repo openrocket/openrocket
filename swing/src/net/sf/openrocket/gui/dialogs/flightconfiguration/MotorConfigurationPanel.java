@@ -43,9 +43,11 @@ public class MotorConfigurationPanel extends JPanel {
 	private final MotorConfigurationTableModel configurationTableModel;
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 	
+	private final MotorChooserDialog dialog;
 	
 	MotorConfigurationPanel(FlightConfigurationDialog flightConfigurationDialog, Rocket rocket) {
 		super(new MigLayout("fill"));
+		dialog = new MotorChooserDialog(flightConfigurationDialog);
 		this.flightConfigurationDialog = flightConfigurationDialog;
 		this.rocket = rocket;
 		
@@ -207,7 +209,7 @@ public class MotorConfigurationPanel extends JPanel {
 		
 		MotorConfiguration config = mount.getMotorConfiguration().get(id);
 		
-		MotorChooserDialog dialog = new MotorChooserDialog(mount, id, flightConfigurationDialog);
+		dialog.setMotorMountAndConfig(mount, id);
 		dialog.setVisible(true);
 		Motor m = dialog.getSelectedMotor();
 		double d = dialog.getSelectedDelay();

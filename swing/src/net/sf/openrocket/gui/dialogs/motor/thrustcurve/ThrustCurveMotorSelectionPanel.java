@@ -98,20 +98,21 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	
 	private static final ThrustCurveMotorComparator MOTOR_COMPARATOR = new ThrustCurveMotorComparator();
 	
-	private final List<ThrustCurveMotorSet> database;
+	private List<ThrustCurveMotorSet> database;
 	
 	private CloseableDialog dialog = null;
 	
 	final ThrustCurveMotorDatabaseModel model;
 	private final JTable table;
 	private final TableRowSorter<TableModel> sorter;
+	private final MotorRowFilter rowFilter;
 	
 	private final JCheckBox hideSimilarBox;
 	
 	private final JTextField searchField;
 	String[] searchTerms = new String[0];
 	
-	
+	private final StyledLabel diameterLabel;
 	private final JLabel curveSelectionLabel;
 	private final JComboBox curveSelectionBox;
 	private final DefaultComboBoxModel curveSelectionModel;
@@ -140,7 +141,11 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private ThrustCurveMotorSet selectedMotorSet;
 	private double selectedDelay;
 	
-	
+	public ThrustCurveMotorSelectionPanel(MotorMount mount, String currentConfig) {
+		this();
+		setMotorMountAndConfig( mount, currentConfig );
+		
+	}
 	/**
 	 * Sole constructor.
 	 * 
@@ -148,42 +153,17 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * @param delay		the currently selected ejection charge delay.
 	 * @param diameter	the diameter of the motor mount.
 	 */
-	public ThrustCurveMotorSelectionPanel(MotorMount mount, String currentConfig) {
+	public ThrustCurveMotorSelectionPanel() {
 		super(new MigLayout("fill", "[grow][]"));
-		
-		double diameter = 0;
-		if (currentConfig != null && mount != null) {
-			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
-			selectedMotor = (ThrustCurveMotor) motorConf.getMotor();
-			selectedDelay = motorConf.getEjectionDelay();
-			diameter = mount.getMotorMountDiameter();
-		}
 		
 		// Construct the database (adding the current motor if not in the db already)
 		List<ThrustCurveMotorSet> db;
 		db = Application.getThrustCurveMotorSetDatabase().getMotorSets();
 		
-		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
-		if (selectedMotor != null) {
-			for (ThrustCurveMotorSet motorSet : db) {
-				if (motorSet.getMotors().contains(selectedMotor)) {
-					selectedMotorSet = motorSet;
-					break;
-				}
-			}
-			if (selectedMotorSet == null) {
-				db = new ArrayList<ThrustCurveMotorSet>(db);
-				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
-				extra.addMotor(selectedMotor);
-				selectedMotorSet = extra;
-				db.add(extra);
-				Collections.sort(db);
-			}
-		}
 		database = db;
 		
 		model = new ThrustCurveMotorDatabaseModel(database);
-		final MotorRowFilter rowFilter = new MotorRowFilter(mount, model);
+		rowFilter = new MotorRowFilter(model);
 		
 		////  GUI
 		
@@ -369,8 +349,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		
 		// Motor mount diameter label
 		//// Motor mount diameter: 
-		label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Motormountdia") + " " +
-				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(diameter));
+		diameterLabel = new StyledLabel();
 		panel.add(label, "gapright 30lp, spanx, split");
 		
 		// Vertical split
@@ -490,9 +469,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		scrollpane = new JScrollPane(comment);
 		panel.add(scrollpane, "spanx, growx, wrap para");
 		
-		
-		
-		
 		// Thrust curve plot
 		chart = ChartFactory.createXYLineChart(
 				null, // title
@@ -567,6 +543,45 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		updateData();
 		setDelays(false);
 		
+	}
+	
+	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+		double diameter = 0;
+
+		if (currentConfig != null && mount != null) {
+			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
+			selectedMotor = (ThrustCurveMotor) motorConf.getMotor();
+			selectedDelay = motorConf.getEjectionDelay();
+			diameter = mount.getMotorMountDiameter();
+		}
+		
+		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
+		if (selectedMotor != null) {
+			for (ThrustCurveMotorSet motorSet : database) {
+				if (motorSet.getMotors().contains(selectedMotor)) {
+					selectedMotorSet = motorSet;
+					break;
+				}
+			}
+			if (selectedMotorSet == null) {
+				database = new ArrayList<ThrustCurveMotorSet>(database);
+				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
+				extra.addMotor(selectedMotor);
+				selectedMotorSet = extra;
+				database.add(extra);
+				Collections.sort(database);
+			}
+		}
+
+		updateData();
+		setDelays(true);
+		
+		diameterLabel.setText(trans.get("TCMotorSelPan.lbl.Motormountdia") + " " +
+				UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(0));
+		
+		rowFilter.setMotorMount(mount);
+		scrollSelectionVisible();
+
 	}
 	
 	@Override
