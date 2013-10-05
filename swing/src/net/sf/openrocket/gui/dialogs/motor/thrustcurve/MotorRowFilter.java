@@ -35,7 +35,10 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	
 	// things which can be changed to modify filter behavior
 	
-	// Collection of strings which match text in the moto
+	// Limit motors based on minimum diameter
+	private Double minimumDiameter;
+	
+	// Collection of strings which match text in the motor
 	private List<String> searchTerms = Collections.<String> emptyList();
 	
 	// Limit motors based on diameter of the motor mount
@@ -76,6 +79,14 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		}
 	}
 	
+	Double getMinimumDiameter() {
+		return minimumDiameter;
+	}
+
+	void setMinimumDiameter(Double minimumDiameter) {
+		this.minimumDiameter = minimumDiameter;
+	}
+
 	DiameterFilterControl getDiameterControl() {
 		return diameterControl;
 	}
@@ -130,6 +141,13 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	}
 	
 	private boolean filterByDiameter(ThrustCurveMotorSet m) {
+		
+		if ( minimumDiameter != null ) {
+			if ( m.getDiameter() <= minimumDiameter - 0.0015 ) {
+				return false;
+			}
+		}
+		
 		if (diameter == null) {
 			return true;
 		}
