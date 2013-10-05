@@ -144,7 +144,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		}
 
 		////  GUI
-		JPanel panel = new JPanel(new MigLayout("fill","[][grow][]"));
+		JPanel panel = new JPanel(new MigLayout("fill","[][grow]"));
 		this.add(panel, "grow");
 
 		//// Select thrust curve:
@@ -165,30 +165,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 				}
 			});
 			panel.add(curveSelectionBox, "growx");
-			
-			final JPopupMenu popup = new JPopupMenu();
-			popup.add( motorInformationPanel );
-			JButton showDetailsButton = new JButton(trans.get("TCMotorSelPan.btn.details"));
-			showDetailsButton.addMouseListener(new MouseListener() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-				}
-				@Override
-				public void mousePressed(MouseEvent e) {
-				}
-				@Override
-				public void mouseReleased(MouseEvent e) {
-					popup.show(e.getComponent(), e.getX(), e.getY());
-				}
-				@Override
-				public void mouseEntered(MouseEvent e) {
-				}
-				@Override
-				public void mouseExited(MouseEvent e) {
-				}
-			});
-			panel.add(showDetailsButton, "gapleft para, wrap");
-
 		}
 
 		// Ejection charge delay:
@@ -214,7 +190,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					setDelays(false);
 				}
 			});
-			panel.add(delayBox, "growx");
+			panel.add(delayBox, "split 2, growx");
 			//// (Number of seconds or \"None\")
 			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.NumberofsecondsorNone"), -3), "wrap para");
 			setDelays(false);
