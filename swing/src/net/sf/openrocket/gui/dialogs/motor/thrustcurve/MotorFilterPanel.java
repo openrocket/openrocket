@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -34,6 +35,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
@@ -48,7 +50,13 @@ public abstract class MotorFilterPanel extends JPanel {
 	private final CheckList<ImpulseClass> impulseCheckList;
 
 	private final MotorRowFilter filter;
-	private final TitledBorder diameterTitleBorder;
+	
+	// Things we change the label on based on the MotorMount.
+	private final JCheckBox maximumLengthCheckBox;
+	private final JRadioButton showSmallerDiametersButton;
+	private final JRadioButton showExactDiametersButton;
+	
+	private Double mountLength;
 	private final DoubleModel mountDiameter = new DoubleModel(1);
 	
 	private int showMode = SHOW_ALL;
@@ -194,7 +202,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		// Diameter selection
 
 		sub = new JPanel(new MigLayout("fill"));
-		diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.DIAMETER"));
+		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCMotorSelPan.MotorSize"));
 		GUIUtil.changeFontStyle(diameterTitleBorder, Font.BOLD);
 		sub.setBorder(diameterTitleBorder);
 
@@ -211,7 +219,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		showAllDiametersButton.setSelected( showMode == SHOW_ALL);
 		sub.add(showAllDiametersButton, "growx,wrap");
 
-		JRadioButton showSmallerDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2") );
+		showSmallerDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2") );
 		showSmallerDiametersButton.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -224,7 +232,7 @@ public abstract class MotorFilterPanel extends JPanel {
 		showSmallerDiametersButton.setSelected( showMode == SHOW_SMALLER);
 		sub.add(showSmallerDiametersButton, "growx,wrap");
 
-		JRadioButton showExactDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3") );
+		showExactDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3") );
 		showExactDiametersButton.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -258,6 +266,23 @@ public abstract class MotorFilterPanel extends JPanel {
 			sub.add(new UnitSelector(minDiameter));
 			sub.add(new BasicSlider(minDiameter.getSliderModel(0,0.5, mountDiameter)), "w 100lp, wrap");
 		}
+		
+		{
+			maximumLengthCheckBox = new JCheckBox(trans.get("TCMotorSelPan.limitByLength"));
+			maximumLengthCheckBox.addChangeListener( new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (maximumLengthCheckBox.isSelected() ) {
+						MotorFilterPanel.this.filter.setMaximumLength( mountLength );
+					} else {
+						MotorFilterPanel.this.filter.setMaximumLength(null);
+					}
+					onSelectionChanged();
+				}
+				
+			});
+			sub.add(maximumLengthCheckBox);
+		}
 		this.add(sub, "grow,wrap");
 
 	}
@@ -267,13 +292,20 @@ public abstract class MotorFilterPanel extends JPanel {
 		onSelectionChanged();
 		if ( mount == null ) {
 			// Disable diameter controls?
-			diameterTitleBorder.setTitle(trans.get("TCurveMotorCol.DIAMETER"));
+			showSmallerDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2"));
+			showExactDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3"));
+			maximumLengthCheckBox.setText("Limit by length");
 			mountDiameter.setValue(1.0);
+			mountLength = null;
 		} else {
 			mountDiameter.setValue(mount.getMotorMountDiameter());
-			diameterTitleBorder.setTitle(trans.get("TCurveMotorCol.DIAMETER") + " "
-					+ trans.get("TCMotorSelPan.lbl.Motormountdia") + " " +
-					UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(mount.getMotorMountDiameter()));
+			mountLength = ((RocketComponent)mount).getLength();
+			showSmallerDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2")
+					+ " " + UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(mount.getMotorMountDiameter())+ ")");
+			showExactDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3")
+					+ " (" + UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(mount.getMotorMountDiameter())+ ")");
+			maximumLengthCheckBox.setText("Limit by length"
+					+ " (" + UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(((RocketComponent)mount).getLength()) +")");
 
 		}
 	}

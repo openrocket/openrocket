@@ -305,7 +305,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 			JScrollPane scrollpane = new JScrollPane();
 			scrollpane.setViewportView(table);
-			panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap para");
+			panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap");
 
 		}
 
@@ -321,7 +321,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					scrollSelectionVisible();
 				}
 			});
-			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap para");
+			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
 		}
 
 		//// Hide very similar thrust curves
@@ -336,7 +336,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					updateData();
 				}
 			});
-			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap para");
+			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap");
 		}
 
 		// Vertical split
