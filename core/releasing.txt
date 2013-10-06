@@ -1,27 +1,61 @@
 
+
 Steps for making a release:
 
-1.  Update build.properties for the new version.
-2.  Update ReleaseNotes
-3.  Update ChangeLog
-4.  ant dist
-5.  Test new features (not in project directory)
-6.  Copy distribution files into dists project
-7.  Update updates.php and test various versions using a different name:
+Prerequisites:
+  Must have clone of https://github.com/openrocket/openrocket.git
+  Must have working copy of openrocket's dists directory from sourceforge:
+     svn checkout --username=<username> svn+ssh://<username>@svn.code.sf.net/p/openrocket/code/dists dists
+     NOTE: the source code on sourceforge is dead and has been moved to github
+     
+The steps below will use '(git)' to note the step requires working in the files stored on github and '(svn)'
+for files stored on sourceforge.
+
+1.  (git) Update core/resources/build.properties for the new version.
+
+2.  (git) Update core/ReleaseNotes
+
+3.  (git) Update core/ChangeLog
+
+4.  (git) ant dist
+
+5.  Test new features 
+    - Execute the jar created by the dist process.
+    - Do not execute it from the project directory.
+
+6.  (svn) Copy distribution files into dists project checked out from sourceforge
+
+7.  (git) Update core/web/html/actions/updates.php and test various versions
+    using a different url:
+
     scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/testupdates.php
     java -Dopenrocket.debug.updateurl=http://openrocket.sourceforge.net/actions/testupdates.php -jar OpenRocket-1.1.0.jar
-8.  Update HTML: htp/htp.def (version number) htp/news.htp (release info)
-9.  Run "htp @" and check the web pages locally
+
+8.  (git) Update HTML: core/web/htp/htp.def (version number) core/web/htp/news.htp (release info)
+
+9.  Run "htp @" and check the web pages locally (htp is available from htp.sourceforge.net)
+
 10. Tag the version in Git 'git tag -a release-13.09'
+
 11. Update Eclipse project and commit files+tag to git (OpenRocket and dists, 'git push origin release-13.09')
+    (svn) commit changes to dists working directory to sourceforge
+    (git) commit and push changes to core/ including the tag.
+
 12. Upload JAR and source distribution and ReleaseNotes to Sourceforge 
      - Files -> Add Folder -> Add File
+
 13. Update HTML to web server:
-    scp * plaa,openrocket@web.sourceforge.net:htdocs/
+    cd core/web/html; scp * plaa,openrocket@web.sourceforge.net:htdocs/
+
 14. Test downloading from Sourceforge and web site
+
 15. Update update.php to web server:
-    scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/
+
+    cd core/web/html/actions/; scp updates.php plaa,openrocket@web.sourceforge.net:htdocs/actions/
+
 16. Test update checking without specific options
+
 17. Update build.properties to "dev" version + commit
+
 18. Send email about new release to openrocket-announce@lists.sourceforge.net
 
