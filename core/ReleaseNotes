@@ -1,3 +1,11 @@
+OpenRocket 13.09.1 (2013-10-05):
+------------------------------
+
+This release contains a number of bug fixes, updated 3D JOGL
+libraries.  Added preliminary thrustcurves for Aerotech C3 and D2 18mm
+reloads.
+
+
 OpenRocket 13.09 (2013-09-08):
 ------------------------------
 
