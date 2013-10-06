@@ -9,6 +9,11 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">6.10.2013:</span> Version 13.09.1 is
+   <a href="download.html">released</a>!  This is a bug-fix release,
+   and includes updated 3D libraries and new thrust curves for
+   Aerotech C3 and D2.</p>
+
   <p><span class="date">8.9.2013:</span> Version 13.09 is
    <a href="download.html">released</a>!  This release contains
    numerous bug fixes, updated 3D JOGL libraries, and separated
@@ -26,15 +31,15 @@
     Versions earlier than 12.03 will not be able to read files saved
     by this version.</p>
 
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
+
   <p><span class="date">28.9.2012:</span> Version 12.09.1 is
    <a href="download.html">released</a>!  This is a bug-fix release,
    fixing numerous bugs introduced in 12.09.  The only new feature is
    the option to automatically open the latest design file on startup
    (in <em>Edit</em> &rarr; <em>Preferences</em> &rarr; <em>Options</em>).
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">23.9.2012:</span> Version 12.09 for Android is
    <a href="download.html">released</a>!  The major improvement is the
