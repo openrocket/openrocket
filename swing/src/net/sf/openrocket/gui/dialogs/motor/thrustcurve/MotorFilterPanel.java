@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -32,6 +33,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.CheckList;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
+import net.sf.openrocket.gui.widgets.MultiSlider;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -45,43 +47,52 @@ public abstract class MotorFilterPanel extends JPanel {
 
 	private static final Translator trans = Application.getTranslator();
 
+	private static Hashtable diameterLabels = new Hashtable();
+	private static double[] diameterValues = new double[] {
+		0,
+		.013,
+		.018,
+		.024,
+		.029,
+		.038,
+		.054,
+		.075,
+		.098,
+		1.000
+	};
+	static {
+		for( int i = 0; i< diameterValues.length; i++ ) {
+			if( i == diameterValues.length-1) {
+				diameterLabels.put( i, new JLabel("+"));
+			} else {
+				diameterLabels.put( i, new JLabel(UnitGroup.UNITS_MOTOR_DIMENSIONS.toString(diameterValues[i])));
+			}
+		}
+	}
+
+	private static Hashtable impulseLabels = new Hashtable();
+	static {
+		int i =0;
+		for( ImpulseClass impulseClass : ImpulseClass.values() ) {
+			impulseLabels.put(i, new JLabel( impulseClass.name() ));
+			i++;
+		}
+	}
+
 	private final CheckList<Manufacturer> manufacturerCheckList;
 
-	private final CheckList<ImpulseClass> impulseCheckList;
-
 	private final MotorRowFilter filter;
-	
+
 	// Things we change the label on based on the MotorMount.
 	private final JCheckBox maximumLengthCheckBox;
-	private final JRadioButton showSmallerDiametersButton;
-	private final JRadioButton showExactDiametersButton;
-	
-	private Double mountLength;
-	private final DoubleModel mountDiameter = new DoubleModel(1);
-	
-	private int showMode = SHOW_ALL;
+	private final MultiSlider diameterSlider;
 
-	private static final int SHOW_ALL = 0;
-	private static final int SHOW_SMALLER = 1;
-	private static final int SHOW_EXACT = 2;
-	private static final int SHOW_MAX = 2;
+	private Double mountLength;
 
 	public MotorFilterPanel(Collection<Manufacturer> allManufacturers, MotorRowFilter filter ) {
 		super(new MigLayout("fill", "[grow]"));
 		this.filter = filter; 
 
-		showMode = Application.getPreferences().getChoice(net.sf.openrocket.startup.Preferences.MOTOR_DIAMETER_FILTER, MotorFilterPanel.SHOW_MAX, MotorFilterPanel.SHOW_EXACT);
-		switch( showMode ) {
-		case SHOW_ALL:
-			filter.setDiameterControl(MotorRowFilter.DiameterFilterControl.ALL);
-			break;
-		case SHOW_EXACT:
-			filter.setDiameterControl(MotorRowFilter.DiameterFilterControl.EXACT);
-			break;
-		case SHOW_SMALLER:
-			filter.setDiameterControl(MotorRowFilter.DiameterFilterControl.SMALLER);
-			break;
-		}
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
 
@@ -152,121 +163,64 @@ public abstract class MotorFilterPanel extends JPanel {
 		this.add(sub,"grow, wrap");
 
 		// Impulse selection
-		sub = new JPanel(new MigLayout("fill"));
-		border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
-		GUIUtil.changeFontStyle(border, Font.BOLD);
-		sub.setBorder(border);
+		{
+			sub = new JPanel(new MigLayout("fill"));
+			border = BorderFactory.createTitledBorder(trans.get("TCurveMotorCol.TOTAL_IMPULSE"));
+			GUIUtil.changeFontStyle(border, Font.BOLD);
+			sub.setBorder(border);
 
-		impulseCheckList = new CheckList.Builder().<ImpulseClass>build();
-		impulseCheckList.setData(Arrays.asList(ImpulseClass.values()));
-		impulseCheckList.checkAll();
-		impulseCheckList.getModel().addListDataListener( new ListDataListener() {
-			@Override
-			public void intervalAdded(ListDataEvent e) {
-			}
-			@Override
-			public void intervalRemoved(ListDataEvent e) {
-			}
-			@Override
-			public void contentsChanged(ListDataEvent e) {
-				MotorFilterPanel.this.filter.setExcludedImpulseClasses( impulseCheckList.getUncheckedItems() );
-				onSelectionChanged();
-			}
-
-		});
-
-		sub.add(new JScrollPane(impulseCheckList.getList()), "grow,wrap");
-
-		JButton clearImpulse = new JButton(trans.get("TCMotorSelPan.btn.checkNone"));
-		clearImpulse.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				MotorFilterPanel.this.impulseCheckList.clearAll();
-
-			}
-		});
-		sub.add(clearImpulse,"split 2");
-
-		JButton selectImpulse = new JButton(trans.get("TCMotorSelPan.btn.checkAll"));
-		selectImpulse.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				MotorFilterPanel.this.impulseCheckList.checkAll();
-
-			}
-		});
-		sub.add(selectImpulse,"wrap");
-
+			final MultiSlider impulseSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, ImpulseClass.values().length-1,0, ImpulseClass.values().length-1);
+			impulseSlider.setBounded(true); // thumbs cannot cross
+			impulseSlider.setMajorTickSpacing(1);
+			impulseSlider.setPaintTicks(true);
+			impulseSlider.setLabelTable(impulseLabels);
+			impulseSlider.setPaintLabels(true);
+			impulseSlider.addChangeListener( new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					int minimpulse = impulseSlider.getValueAt(0);
+					MotorFilterPanel.this.filter.setMinimumImpulse(ImpulseClass.values()[minimpulse]);
+					int maximpulse = impulseSlider.getValueAt(1);
+					MotorFilterPanel.this.filter.setMaximumImpulse(ImpulseClass.values()[maximpulse]);
+					onSelectionChanged();
+				}
+			});
+			sub.add( impulseSlider, "growx, wrap");
+		}
 		this.add(sub,"grow, wrap");
-
+		
+		
 		// Diameter selection
-
 		sub = new JPanel(new MigLayout("fill"));
 		TitledBorder diameterTitleBorder = BorderFactory.createTitledBorder(trans.get("TCMotorSelPan.MotorSize"));
 		GUIUtil.changeFontStyle(diameterTitleBorder, Font.BOLD);
 		sub.setBorder(diameterTitleBorder);
 
-		JRadioButton showAllDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc1") );
-		showAllDiametersButton.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showMode = SHOW_ALL;
-				MotorFilterPanel.this.filter.setDiameterControl(MotorRowFilter.DiameterFilterControl.ALL);
-				saveMotorDiameterMatchPrefence();
-				onSelectionChanged();
-			}
-		});
-		showAllDiametersButton.setSelected( showMode == SHOW_ALL);
-		sub.add(showAllDiametersButton, "growx,wrap");
-
-		showSmallerDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2") );
-		showSmallerDiametersButton.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showMode = SHOW_SMALLER;
-				MotorFilterPanel.this.filter.setDiameterControl(MotorRowFilter.DiameterFilterControl.SMALLER);
-				saveMotorDiameterMatchPrefence();
-				onSelectionChanged();
-			}
-		});
-		showSmallerDiametersButton.setSelected( showMode == SHOW_SMALLER);
-		sub.add(showSmallerDiametersButton, "growx,wrap");
-
-		showExactDiametersButton = new JRadioButton( trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3") );
-		showExactDiametersButton.addActionListener( new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showMode = SHOW_EXACT;
-				MotorFilterPanel.this.filter.setDiameterControl(MotorRowFilter.DiameterFilterControl.EXACT);
-				saveMotorDiameterMatchPrefence();
-				onSelectionChanged();
-			}
-		});
-		showExactDiametersButton.setSelected( showMode == SHOW_EXACT );
-		sub.add(showExactDiametersButton, "growx,wrap");
-		ButtonGroup comboGroup = new ButtonGroup();
-		comboGroup.add( showAllDiametersButton );
-		comboGroup.add( showSmallerDiametersButton );
-		comboGroup.add( showExactDiametersButton );
-
 		{
-			sub.add( new JLabel("Minimum diameter"), "split 4");
-			final DoubleModel minDiameter = new DoubleModel(0, UnitGroup.UNITS_MOTOR_DIMENSIONS, 0, .2);
-			minDiameter.addChangeListener( new ChangeListener() {
+			sub.add( new JLabel("Minimum diameter"), "split 2, wrap");
+			diameterSlider = new MultiSlider(MultiSlider.HORIZONTAL,0, diameterValues.length-1, 0, diameterValues.length-1);
+			diameterSlider.setBounded(true); // thumbs cannot cross
+			diameterSlider.setMajorTickSpacing(1);
+			diameterSlider.setPaintTicks(true);
+			diameterSlider.setLabelTable(diameterLabels);
+			diameterSlider.setPaintLabels(true);
+			diameterSlider.addChangeListener( new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					MotorFilterPanel.this.filter.setMinimumDiameter(minDiameter.getValue());
+					int minDiameter = diameterSlider.getValueAt(0);
+					MotorFilterPanel.this.filter.setMinimumDiameter(diameterValues[minDiameter]);
+					int maxDiameter = diameterSlider.getValueAt(1);
+					if( maxDiameter == diameterValues.length-1 ) {
+						MotorFilterPanel.this.filter.setMaximumDiameter(null);
+					} else {
+						MotorFilterPanel.this.filter.setMaximumDiameter(diameterValues[maxDiameter]);
+					}
 					onSelectionChanged();
 				}
 			});
-			JSpinner spin = new JSpinner(minDiameter.getSpinnerModel());
-			spin.setEditor(new SpinnerEditor(spin));
-			sub.add(spin, "growx");
-
-			sub.add(new UnitSelector(minDiameter));
-			sub.add(new BasicSlider(minDiameter.getSliderModel(0,0.5, mountDiameter)), "w 100lp, wrap");
+			sub.add( diameterSlider, "growx, wrap");
 		}
-		
+
 		{
 			maximumLengthCheckBox = new JCheckBox(trans.get("TCMotorSelPan.limitByLength"));
 			maximumLengthCheckBox.addChangeListener( new ChangeListener() {
@@ -279,7 +233,7 @@ public abstract class MotorFilterPanel extends JPanel {
 					}
 					onSelectionChanged();
 				}
-				
+
 			});
 			sub.add(maximumLengthCheckBox);
 		}
@@ -292,26 +246,28 @@ public abstract class MotorFilterPanel extends JPanel {
 		onSelectionChanged();
 		if ( mount == null ) {
 			// Disable diameter controls?
-			showSmallerDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2"));
-			showExactDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3"));
 			maximumLengthCheckBox.setText("Limit by length");
-			mountDiameter.setValue(1.0);
 			mountLength = null;
 		} else {
-			mountDiameter.setValue(mount.getMotorMountDiameter());
 			mountLength = ((RocketComponent)mount).getLength();
-			showSmallerDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc2")
-					+ " " + UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(mount.getMotorMountDiameter())+ ")");
-			showExactDiametersButton.setText(trans.get("TCMotorSelPan.SHOW_DESCRIPTIONS.desc3")
-					+ " (" + UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(mount.getMotorMountDiameter())+ ")");
+			double mountDiameter = mount.getMotorMountDiameter();
+			// find the next largest diameter
+			int i;
+			for( i =0; i< diameterValues.length; i++ ) {
+				if ( mountDiameter<= diameterValues[i] ) {
+					break;
+				}
+			}
+			if( i >= diameterValues.length-1 ) {
+				diameterSlider.setValueAt(1, diameterValues.length-1);
+			} else {
+				diameterSlider.setValueAt(1, i) ;
+			}
+			diameterSlider.setValueAt(1, i);
 			maximumLengthCheckBox.setText("Limit by length"
 					+ " (" + UnitGroup.UNITS_MOTOR_DIMENSIONS.getDefaultUnit().toStringUnit(((RocketComponent)mount).getLength()) +")");
 
 		}
-	}
-
-	private void saveMotorDiameterMatchPrefence() {
-		Application.getPreferences().putChoice("MotorDiameterMatch", showMode );
 	}
 
 	public abstract void onSelectionChanged();

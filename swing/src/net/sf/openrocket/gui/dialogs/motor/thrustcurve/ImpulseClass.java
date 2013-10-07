@@ -1,9 +1,5 @@
 package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
-import net.sf.openrocket.database.motor.ThrustCurveMotorSet;
 
 public enum ImpulseClass {
 
@@ -32,10 +28,13 @@ public enum ImpulseClass {
 	public String toString() {
 		return name;
 	}
+
+	public double getLow() {
+		return low;
+	}
 	
-	public boolean isIn( ThrustCurveMotorSet m ) {
-		long motorImpulse = m.getTotalImpuse();
-		return motorImpulse >= low && motorImpulse <= high;
+	public double getHigh() {
+		return high;
 	}
 	
 	private double low;

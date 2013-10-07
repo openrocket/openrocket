@@ -22,15 +22,8 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
  */
 class MotorRowFilter extends RowFilter<TableModel, Integer> {
 
-	public enum DiameterFilterControl {
-		ALL,
-		EXACT,
-		SMALLER
-	};
-
 	// configuration data used in the filter process
 	private final ThrustCurveMotorDatabaseModel model;
-	private Double diameter;
 	private List<ThrustCurveMotor> usedMotors = new ArrayList<ThrustCurveMotor>();
 
 	// things which can be changed to modify filter behavior
@@ -39,12 +32,11 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 
 	// Limit motors based on minimum diameter
 	private Double minimumDiameter;
+	
+	private Double maximumDiameter;
 
 	// Collection of strings which match text in the motor
 	private List<String> searchTerms = Collections.<String> emptyList();
-
-	// Limit motors based on diameter of the motor mount
-	private DiameterFilterControl diameterControl = DiameterFilterControl.ALL;
 
 	// Boolean which hides motors in the usedMotors list
 	private boolean hideUsedMotors = false;
@@ -52,8 +44,10 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	// List of manufacturers to exclude.
 	private List<Manufacturer> excludedManufacturers = new ArrayList<Manufacturer>();
 
-	// List of ImpulseClasses to exclude.
-	private List<ImpulseClass> excludedImpulseClass = new ArrayList<ImpulseClass>();
+	// Impulse class filtering
+	private ImpulseClass minimumImpulse;
+	private ImpulseClass maximumImpulse;
+	
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
 		super();
@@ -62,12 +56,9 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 
 	public void setMotorMount( MotorMount mount ) {
 		if (mount != null) {
-			this.diameter = mount.getMotorMountDiameter();
 			for (MotorConfiguration m : mount.getMotorConfiguration()) {
 				this.usedMotors.add((ThrustCurveMotor) m.getMotor());
 			}
-		} else {
-			this.diameter = null;
 		}
 	}
 
@@ -97,12 +88,12 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		this.minimumDiameter = minimumDiameter;
 	}
 
-	DiameterFilterControl getDiameterControl() {
-		return diameterControl;
+	Double getMaximumDiameter() {
+		return maximumDiameter;
 	}
 
-	void setDiameterControl(DiameterFilterControl diameterControl) {
-		this.diameterControl = diameterControl;
+	void setMaximumDiameter(Double maximumDiameter) {
+		this.maximumDiameter = maximumDiameter;
 	}
 
 	void setHideUsedMotors(boolean hideUsedMotors) {
@@ -118,9 +109,20 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		this.excludedManufacturers.addAll(excludedManufacturers);
 	}
 
-	void setExcludedImpulseClasses(Collection<ImpulseClass> excludedImpulseClasses ) {
-		this.excludedImpulseClass.clear();
-		this.excludedImpulseClass.addAll(excludedImpulseClasses);
+	ImpulseClass getMinimumImpulse() {
+		return minimumImpulse;
+	}
+
+	void setMinimumImpulse(ImpulseClass minimumImpulse) {
+		this.minimumImpulse = minimumImpulse;
+	}
+
+	ImpulseClass getMaximumImpulse() {
+		return maximumImpulse;
+	}
+
+	void setMaximumImpulse(ImpulseClass maximumImpulse) {
+		this.maximumImpulse = maximumImpulse;
 	}
 
 	@Override
@@ -158,20 +160,8 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 			}
 		}
 
-		if (diameter != null) {
-			switch (diameterControl) {
-			default:
-			case ALL:
-				break;
-			case EXACT:
-				if ((m.getDiameter() <= diameter + 0.0004) && (m.getDiameter() >= diameter - 0.0015)) {
-					break;
-				}
-				return false;
-			case SMALLER:
-				if (m.getDiameter() <= diameter + 0.0004) {
-					break;
-				}
+		if ( maximumDiameter != null ) {
+			if ( m.getDiameter() >= maximumDiameter + 0.0004 ) {
 				return false;
 			}
 		}
@@ -199,11 +189,18 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	}
 
 	private boolean filterByImpulseClass(ThrustCurveMotorSet m) {
-		for( ImpulseClass c : excludedImpulseClass ) {
-			if (c.isIn(m) ) {
+		if ( minimumImpulse != null ) {
+			if( m.getTotalImpuse() < minimumImpulse.getLow() ) {
 				return false;
 			}
 		}
+		
+		if ( maximumImpulse != null ) {
+			if( m.getTotalImpuse() > maximumImpulse.getHigh() ) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
