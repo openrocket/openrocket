@@ -14,25 +14,32 @@ import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.util.AbstractChangeSource;
+import net.sf.openrocket.util.ChangeSource;
+import net.sf.openrocket.util.StateChangeListener;
 
 ////////  Row filters
 
 /**
  * Abstract adapter class.
  */
-class MotorRowFilter extends RowFilter<TableModel, Integer> {
+public class MotorRowFilter extends RowFilter<TableModel, Integer> implements ChangeSource {
 
 	// configuration data used in the filter process
 	private final ThrustCurveMotorDatabaseModel model;
 	private List<ThrustCurveMotor> usedMotors = new ArrayList<ThrustCurveMotor>();
 
+	private final AbstractChangeSource changeSourceDelegate = new AbstractChangeSource();
+	private final Object change = new Object();
+
 	// things which can be changed to modify filter behavior
 
-	private Double maximumLength;
+	// Limit motors based on length
+	private double minimumLength = 0;
+	private double maximumLength = Double.MAX_VALUE;
 
-	// Limit motors based on minimum diameter
+	// Limit motors based on diameter
 	private Double minimumDiameter;
-	
 	private Double maximumDiameter;
 
 	// Collection of strings which match text in the motor
@@ -47,7 +54,7 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 	// Impulse class filtering
 	private ImpulseClass minimumImpulse;
 	private ImpulseClass maximumImpulse;
-	
+
 
 	public MotorRowFilter(ThrustCurveMotorDatabaseModel model) {
 		super();
@@ -72,12 +79,26 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		}
 	}
 
-	Double getMaximumLength() {
+	public double getMinimumLength() {
+		return minimumLength;
+	}
+
+	public void setMinimumLength(double minimumLength) {
+		if ( this.minimumLength != minimumLength ) {
+			this.minimumLength = minimumLength;
+			fireChangeEvent(change);
+		}
+	}
+
+	public double getMaximumLength() {
 		return maximumLength;
 	}
 
-	void setMaximumLength(Double maximumLength) {
-		this.maximumLength = maximumLength;
+	public void setMaximumLength(double maximumLength) {
+		if ( this.maximumLength != maximumLength ) {
+			this.maximumLength = maximumLength;
+			fireChangeEvent(change);
+		}
 	}
 
 	Double getMinimumDiameter() {
@@ -165,13 +186,15 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 				return false;
 			}
 		}
-		
-		if ( maximumLength != null ) {
-			if ( m.getLength() > maximumLength ) {
-				return false;
-			}
+
+		if ( m.getLength() > maximumLength ) {
+			return false;
 		}
-		
+
+		if ( m.getLength() < minimumLength ) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -194,7 +217,7 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 				return false;
 			}
 		}
-		
+
 		if ( maximumImpulse != null ) {
 			if( m.getTotalImpuse() > maximumImpulse.getHigh() ) {
 				return false;
@@ -202,6 +225,18 @@ class MotorRowFilter extends RowFilter<TableModel, Integer> {
 		}
 
 		return true;
+	}
+
+	public final void addChangeListener(StateChangeListener listener) {
+		changeSourceDelegate.addChangeListener(listener);
+	}
+
+	public final void removeChangeListener(StateChangeListener listener) {
+		changeSourceDelegate.removeChangeListener(listener);
+	}
+
+	public void fireChangeEvent(Object source) {
+		changeSourceDelegate.fireChangeEvent(source);
 	}
 
 }
