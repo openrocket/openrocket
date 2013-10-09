@@ -156,7 +156,6 @@ public class FlightConfigurationPanel extends JPanel implements StateChangeListe
 		if (currentId == null)
 			return;
 		rocket.removeFlightConfigurationID(currentId);
-		rocket.getDefaultConfiguration().setFlightConfigurationID(null);
 		configurationChanged();
 	}
 	
