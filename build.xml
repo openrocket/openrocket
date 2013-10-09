@@ -1,0 +1,121 @@
+<project name="OpenRocket" basedir="." default="jar">
+
+    <!-- CLEAN -->
+
+	<target name="clean" depends="clean-core, clean-swing">
+	</target>
+
+	<target name="clean-core">
+		<ant dir="core" target="clean"/>
+	</target>
+
+	<target name="clean-swing">
+		<ant dir="swing" target="clean"/>
+	</target>
+
+
+    <!-- BUILD -->
+
+	<target name="build" depends="build-core, build-swing">
+	</target>
+
+	<target name="build-core">
+		<ant dir="core" target="build"/>
+	</target>
+	
+	<target name="build-swing" depends="jar-core">
+		<ant dir="swing" target="build"/>
+	</target>
+
+    <!-- JAR -->
+	
+	<target name="jar" depends="jar-core,jar-swing">
+	</target>
+	
+	<target name="jar-core" depends="build-core">
+		<ant dir="core" target="jar"/>
+	</target>
+	
+	<target name="jar-swing" depends="build-swing">
+		<ant dir="swing" target="jar"/>
+	</target>
+
+    <!-- TEST -->
+	
+	<target name="unittest" depends="unittest-core, unittest-swing">
+	</target>
+	
+	<target name="unittest-core" depends="jar-core">
+		<ant dir="core" target="unittest" inheritAll="false" />
+	</target>
+	
+	<target name="unittest-swing" depends="jar-swing">
+		<ant dir="swing" target="unittest" inheritAll="false" />
+	</target>
+
+    <!-- CHECK -->
+    <target name="check" depends="checktodo,checkascii"/>
+
+    <!-- CHECK TODOs -->
+    <target name="todo" depends="checktodo"/>
+    <target name="checktodo">
+        <tempfile property="todo.file" prefix="checktodo-" destDir="${basedir}"/>
+        <echo>Checking project for FIXMEs.</echo>
+        <concat destfile="${todo.file}">
+            <fileset dir="core/src">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="core/test">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="swing/src">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="swing/test">
+                <include name="**/*.java"/>
+            </fileset>
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="(FIXME|TODO:.*CRITICAL)"/>
+                </linecontainsregexp>
+            </filterchain>
+        </concat>
+        <loadfile srcfile="${todo.file}" property="criticaltodos"/>
+        <delete file="${todo.file}"/>
+        <fail if="criticaltodos">CRITICAL TODOs exist in project:
+${criticaltodos}</fail>
+        <echo>No critical TODOs in project.</echo>
+    </target>
+
+    <!-- CHECK ASCII -->
+    <target name="ascii" depends="checkascii"/>
+    <target name="checkascii">
+        <tempfile property="ascii.file" prefix="checkascii-" destDir="${basedir}"/>
+        <echo>Checking project for non-ASCII characters.</echo>
+        <concat destfile="${ascii.file}">
+            <fileset dir="core/src">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="core/test">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="swing/src">
+                <include name="**/*.java"/>
+            </fileset>
+            <fileset dir="swing/test">
+                <include name="**/*.java"/>
+            </fileset>
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="\P{ASCII}"/>
+                </linecontainsregexp>
+            </filterchain>
+        </concat>
+        <loadfile srcfile="${ascii.file}" property="nonascii"/>
+        <delete file="${ascii.file}"/>
+        <fail if="nonascii">Non-ASCII characters exist in project:
+${nonascii}</fail>
+        <echo>No non-ASCII characters in project.</echo>
+    </target>
+
+</project>

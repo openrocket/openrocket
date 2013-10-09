@@ -11,7 +11,7 @@ import net.sf.openrocket.util.ChangeSource;
  *
  * @param <E>	the parameter type
  */
-public interface FlightConfiguration<E extends ChangeSource> extends FlightConfigurableComponent {
+public interface FlightConfiguration<E extends ChangeSource> extends FlightConfigurableComponent, Iterable<E> {
 	
 	/**
 	 * Return the default parameter value for this FlightConfiguration.

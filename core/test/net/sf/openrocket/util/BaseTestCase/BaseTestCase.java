@@ -1,10 +1,10 @@
 package net.sf.openrocket.util.BaseTestCase;
 
+import net.sf.openrocket.ServicesForTesting;
 import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.utils.CoreServicesModule;
 
 import org.junit.BeforeClass;
 
@@ -18,7 +18,7 @@ public class BaseTestCase {
 	
 	@BeforeClass
 	public static void setUp() throws Exception {
-		Module applicationModule = new CoreServicesModule();
+		Module applicationModule = new ServicesForTesting();
 		Module debugTranslator = new AbstractModule() {
 			
 			@Override
