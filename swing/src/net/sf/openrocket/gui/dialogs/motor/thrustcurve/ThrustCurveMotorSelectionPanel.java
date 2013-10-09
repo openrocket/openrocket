@@ -95,7 +95,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	private final JComboBox curveSelectionBox;
 	private final DefaultComboBoxModel curveSelectionModel;
 	private final JComboBox delayBox;
-	
+
 	private final MotorInformationPanel motorInformationPanel;
 	private final MotorFilterPanel motorFilterPanel;
 
@@ -140,7 +140,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					scrollSelectionVisible();
 				}
 			};
-			
+
 		}
 
 		////  GUI
@@ -303,7 +303,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		// Vertical split
 		this.add(new JSeparator(JSeparator.VERTICAL), "growy, gap para para");
-		
+
 		JTabbedPane rightSide = new JTabbedPane();
 		rightSide.add(trans.get("TCMotorSelPan.btn.filter"), motorFilterPanel);
 		rightSide.add(trans.get("TCMotorSelPan.btn.details"), motorInformationPanel);
@@ -323,7 +323,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		if ( mount != null ) {
 			diameter = mount.getMotorMountDiameter();
 		}
-		
+
 		if (currentConfig != null && mount != null) {
 			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
 			selectedMotor = (ThrustCurveMotor) motorConf.getMotor();
@@ -454,14 +454,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionBox.setEnabled(false);
 			curveSelectionLabel.setEnabled(false);
 		}
-		
+
 		motorInformationPanel.updateData(motors, selectedMotor);
 
 	}
 
 	List<ThrustCurveMotor> getFilteredCurves() {
 		List<ThrustCurveMotor> motors = selectedMotorSet.getMotors();
-		if (hideSimilarBox.isSelected()) {
+		if (hideSimilarBox.isSelected()  && selectedMotor != null) {
 			List<ThrustCurveMotor> filtered = new ArrayList<ThrustCurveMotor>(motors.size());
 			for (int i = 0; i < motors.size(); i++) {
 				ThrustCurveMotor m = motors.get(i);
@@ -469,7 +469,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					filtered.add(m);
 					continue;
 				}
-
 				double similarity = MotorCorrelation.similarity(selectedMotor, m);
 				log.debug("Motor similarity: " + similarity);
 				if (similarity < MOTOR_SIMILARITY_THRESHOLD) {
