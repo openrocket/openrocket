@@ -17,6 +17,10 @@
 	  and it also provides information about a flight simulation
 	  in real-time.
       </a></div>
+      <div class="smallshotconst"><a href="shots/dart.png">
+	  <img src="shots-small/dart.jpg" alt="Realistic 3D Rendering"/><br/>
+	  Paint and decals can be added and rendered in 3D.
+      </a></div>
       <div class="smallshotconst"><a href="shots/dialog-edit.png">
 	  <img src="shots-small/dialog-edit.jpg" alt="Component edit
 	  dialog"/><br/>
@@ -109,8 +113,8 @@
     <p>OpenRocket is under constant work in the free time of the
       developers.  You can have a sneak preview on what has been
       planned by checking the
-      <a href="http://openrocket.svn.sourceforge.net/viewvc/openrocket/trunk/TODO">TODO-file</a>
-      in the SVN repository.</p>
+      <a href="https://raw.github.com/openrocket/openrocket/master/core/TODO">TODO-file</a>
+      on github.</p>
 
     <p>Below are a few major features that are under consideration:</p>
 
@@ -120,18 +124,13 @@
 	<a href="getinvolved.html" class="help">(help needed!)</a></li>
       <li>Better support for supersonic simulation
 	<a href="getinvolved.html" class="help">(help needed!)</a></li>
-      <li>3D view of the rocket design 
-	<a href="getinvolved.html" class="help">(help
-	needed!)</a></li>
-      <li>Printing and saving figures, simulation data and designs</li>
-      <li>Support for ready-made component databases</li>
       <li>Customized support for hybrid rocket motors and water
 	rockets</li>
       <li>Importing and plotting actual flight data from altimeters</li>
       <li>Rocket flight animation</li>
       <li>A "wizard" for creating new rocket designs</li>
       <li class="spacer">More ideas are listed in the 
-	<a href="http://openrocket.svn.sourceforge.net/viewvc/openrocket/trunk/TODO">TODO-file</a>!</li>
+	<a href="https://raw.github.com/openrocket/openrocket/master/core/TODO">TODO-file</a>!</li>
     </ul>
 
     <p>If you want to help make OpenRocket the best rocket simulator,
