@@ -265,8 +265,13 @@ public class MultiSlider extends JSlider {
      * Returns the index number of currently operated thumb.
      */
     public int getCurrentThumbIndex() {
-	return ((MultiSliderUI)ui).getCurrentIndex();
-    }
+		try {
+			return ((MultiSliderUI)ui).getCurrentIndex();
+		}
+		catch (Exception e) {
+			return 0;
+    	}
+	}
 
     /***
      * Returns data model that handles the sliders three
@@ -311,7 +316,12 @@ public class MultiSlider extends JSlider {
      * description: The sliders BoundedRangeModel.
      */
     public void setModel(BoundedRangeModel newModel) {
-	setModelAt(getCurrentThumbIndex(), newModel);
+		try {
+			setModelAt(getCurrentThumbIndex(), newModel);
+		}
+		catch (Exception e) {
+			this.sliderModel = newModel;
+		}
     }
 
     /***
@@ -401,7 +411,12 @@ public class MultiSlider extends JSlider {
      * @see #setValue
      */
     public int getValueAt(int index) {
-	return getModelAt(index).getValue();
+		try {
+			return getModelAt(index).getValue();
+		}
+		catch (Exception e) {
+			return 0;
+		}
     }
 
     /***
