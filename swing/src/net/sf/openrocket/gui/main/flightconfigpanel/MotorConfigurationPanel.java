@@ -145,9 +145,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		MotorConfiguration config = mount.getMotorConfiguration().get(id);
 		
 		MotorChooserDialog dialog = new MotorChooserDialog(
-				config.getMotor(),
-				config.getEjectionDelay(),
-				mount.getMotorMountDiameter(),
+				mount,
+				id,
 				SwingUtilities.getWindowAncestor(flightConfigurationPanel));
 		dialog.setVisible(true);
 		Motor m = dialog.getSelectedMotor();
