@@ -2,6 +2,7 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.Utils;
@@ -79,6 +80,10 @@ class FlightConfigurationImpl<E extends FlightConfigurableParameter<E>> implemen
 		fireEvent();
 	}
 	
+	@Override
+	public Iterator<E> iterator() {
+		return map.values().iterator();
+	}
 	
 	
 	@Override
