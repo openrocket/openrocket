@@ -83,6 +83,7 @@ import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
+import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -100,10 +101,10 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.MemoryManagement;
 import net.sf.openrocket.util.MemoryManagement.MemoryData;
-import net.sf.openrocket.utils.ComponentPresetEditor;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.TestRockets;
+import net.sf.openrocket.utils.ComponentPresetEditor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,6 +196,8 @@ public class BasicFrame extends JFrame {
 		tabbedPane = new JTabbedPane();
 		//// Rocket design
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Rocketdesign"), null, designTab());
+		//// Flight configurations
+		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, new FlightConfigurationPanel(document));
 		//// Flight simulations
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
 		
@@ -250,7 +253,6 @@ public class BasicFrame extends JFrame {
 		frames.add(this);
 		log.debug("BasicFrame instantiation complete");
 	}
-	
 	
 	/**
 	 * Construct the "Rocket design" tab.  This contains a horizontal split pane

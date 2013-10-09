@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
 import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -43,7 +44,7 @@ public class DeploymentSelectionDialog extends JDialog {
 	private final UnitSelector altUnit;
 	private final JSlider altSlider;
 	
-	DeploymentSelectionDialog(JDialog parent, final Rocket rocket, final RecoveryDevice component) {
+	public DeploymentSelectionDialog(Window parent, final Rocket rocket, final RecoveryDevice component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectdeploymentconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
