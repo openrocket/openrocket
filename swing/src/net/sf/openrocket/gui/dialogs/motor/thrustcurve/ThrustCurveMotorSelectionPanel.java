@@ -164,7 +164,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					}
 				}
 			});
-			panel.add(curveSelectionBox, "growx");
+			panel.add(curveSelectionBox, "growx, wrap");
 		}
 
 		// Ejection charge delay:
@@ -190,40 +190,25 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 					setDelays(false);
 				}
 			});
-			panel.add(delayBox, "split 2, growx");
+			panel.add(delayBox, "growx,wrap");
 			//// (Number of seconds or \"None\")
-			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.NumberofsecondsorNone"), -3), "wrap para");
+			panel.add(new StyledLabel(trans.get("TCMotorSelPan.lbl.NumberofsecondsorNone"), -3), "skip, wrap");
 			setDelays(false);
 		}
 
-		// Search field
+		//// Hide very similar thrust curves
 		{
-			//// Search:
-			StyledLabel label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Search"));
-			panel.add(label);
-			searchField = new JTextField();
-			searchField.getDocument().addDocumentListener(new DocumentListener() {
+			hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
+			GUIUtil.changeFontSize(hideSimilarBox, -1);
+			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, true));
+			hideSimilarBox.addActionListener(new ActionListener() {
 				@Override
-				public void changedUpdate(DocumentEvent e) {
-					update();
-				}
-				@Override
-				public void insertUpdate(DocumentEvent e) {
-					update();
-				}
-				@Override
-				public void removeUpdate(DocumentEvent e) {
-					update();
-				}
-				private void update() {
-					String text = searchField.getText().trim();
-					String[] split = text.split("\\s+");
-					rowFilter.setSearchTerms(Arrays.asList(split));
-					sorter.sort();
-					scrollSelectionVisible();
+				public void actionPerformed(ActionEvent e) {
+					Application.getPreferences().putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
+					updateData();
 				}
 			});
-			panel.add(searchField, "span, growx, wrap");
+			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap");
 		}
 
 		//// Motor selection table
@@ -285,38 +270,38 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		}
 
-		//// Hide used motor files
+		// Search field
 		{
-			final JCheckBox hideUsedBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUsed"));
-			GUIUtil.changeFontSize(hideUsedBox, -1);
-			hideUsedBox.addActionListener(new ActionListener() {
+			//// Search:
+			StyledLabel label = new StyledLabel(trans.get("TCMotorSelPan.lbl.Search"));
+			panel.add(label);
+			searchField = new JTextField();
+			searchField.getDocument().addDocumentListener(new DocumentListener() {
 				@Override
-				public void actionPerformed(ActionEvent e) {
-					rowFilter.setHideUsedMotors(hideUsedBox.isSelected());
+				public void changedUpdate(DocumentEvent e) {
+					update();
+				}
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					update();
+				}
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					update();
+				}
+				private void update() {
+					String text = searchField.getText().trim();
+					String[] split = text.split("\\s+");
+					rowFilter.setSearchTerms(Arrays.asList(split));
 					sorter.sort();
 					scrollSelectionVisible();
 				}
 			});
-			panel.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
+			panel.add(searchField, "span, growx");
 		}
-
-		//// Hide very similar thrust curves
-		{
-			hideSimilarBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideSimilar"));
-			GUIUtil.changeFontSize(hideSimilarBox, -1);
-			hideSimilarBox.setSelected(Application.getPreferences().getBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, true));
-			hideSimilarBox.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Application.getPreferences().putBoolean(net.sf.openrocket.startup.Preferences.MOTOR_HIDE_SIMILAR, hideSimilarBox.isSelected());
-					updateData();
-				}
-			});
-			panel.add(hideSimilarBox, "gapleft para, spanx, growx, wrap");
-		}
+		this.add(panel, "grow");
 
 		// Vertical split
-		this.add(panel, "grow");
 		this.add(new JSeparator(JSeparator.VERTICAL), "growy, gap para para");
 		
 		JTabbedPane rightSide = new JTabbedPane();

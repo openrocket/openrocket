@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -89,6 +90,21 @@ public abstract class MotorFilterPanel extends JPanel {
 
 		List<Manufacturer> unselectedManusFromPreferences = ((SwingPreferences) Application.getPreferences()).getExcludedMotorManufacturers();
 		filter.setExcludedManufacturers(unselectedManusFromPreferences);
+
+		//// Hide used motor files
+		{
+			final JCheckBox hideUsedBox = new JCheckBox(trans.get("TCMotorSelPan.checkbox.hideUsed"));
+			GUIUtil.changeFontSize(hideUsedBox, -1);
+			hideUsedBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					MotorFilterPanel.this.filter.setHideUsedMotors(hideUsedBox.isSelected());
+					onSelectionChanged();
+				}
+			});
+			this.add(hideUsedBox, "gapleft para, spanx, growx, wrap");
+		}
+
 
 		// Manufacturer selection
 		JPanel sub = new JPanel(new MigLayout("fill"));
@@ -292,7 +308,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			diameterSlider.setValueAt(1, i-1);
 
 			motorMountDimension.setText( trans.get("TCMotorSelPan.MotorMountDimensions") + " " +
-					UnitGroup.UNITS_MOTOR_DIMENSIONS.toStringUnit(mountDiameter)+ "x" + UnitGroup.UNITS_MOTOR_DIMENSIONS.toStringUnit(mountLength));
+					UnitGroup.UNITS_MOTOR_DIMENSIONS.toStringUnit(mountDiameter)+ " x " + UnitGroup.UNITS_MOTOR_DIMENSIONS.toStringUnit(mountLength));
 		}
 	}
 

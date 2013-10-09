@@ -39,7 +39,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		
 		selectionPanel = new ThrustCurveMotorSelectionPanel();
 		
-		panel.add(selectionPanel, "grow, wrap para");
+		panel.add(selectionPanel, "grow, wrap");
 		
 		
 		// OK / Cancel buttons
