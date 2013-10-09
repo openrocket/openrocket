@@ -14,14 +14,14 @@ import net.sf.openrocket.util.ArrayList;
  */
 class MotorMountTableModel extends AbstractTableModel {
 	
-	private final MotorConfigurationPanel motorConfigurationPanel;
+	private final MotorMountConfigurationPanel motorConfigurationPanel;
 	
 	private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
 	
 	/**
 	 * @param motorConfigurationPanel
 	 */
-	MotorMountTableModel(MotorConfigurationPanel motorConfigurationPanel, Rocket rocket) {
+	MotorMountTableModel(MotorMountConfigurationPanel motorConfigurationPanel, Rocket rocket) {
 		this.motorConfigurationPanel = motorConfigurationPanel;
 		
 		for (RocketComponent c : rocket) {
@@ -82,6 +82,6 @@ class MotorMountTableModel extends AbstractTableModel {
 		
 		MotorMount mount = potentialMounts.get(row);
 		mount.setMotorMount((Boolean) value);
-		this.motorConfigurationPanel.fireTableDataChanged();
+		this.motorConfigurationPanel.onDataChanged();
 	}
 }
