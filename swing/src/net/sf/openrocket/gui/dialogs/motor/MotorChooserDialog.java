@@ -16,7 +16,7 @@ import net.sf.openrocket.gui.dialogs.motor.thrustcurve.ThrustCurveMotorSelection
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.ThrustCurveMotor;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
 
 public class MotorChooserDialog extends JDialog implements CloseableDialog {
@@ -26,16 +26,20 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	private boolean okClicked = false;
 	private static final Translator trans = Application.getTranslator();
 	
+	public MotorChooserDialog(MotorMount mount, String currentConfig, Window owner) {
+		this(owner);
+		setMotorMountAndConfig(mount, currentConfig);
+	}
 	
-	public MotorChooserDialog(Motor current, double delay, double diameter, Window owner) {
+	public MotorChooserDialog(Window owner) {
 		super(owner, trans.get("MotorChooserDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
-		selectionPanel = new ThrustCurveMotorSelectionPanel((ThrustCurveMotor) current, delay, diameter);
+		selectionPanel = new ThrustCurveMotorSelectionPanel();
 		
-		panel.add(selectionPanel, "grow, wrap para");
+		panel.add(selectionPanel, "grow, wrap");
 		
 		
 		// OK / Cancel buttons
@@ -74,6 +78,9 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		selectionPanel.setCloseableDialog(this);
 	}
 	
+	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+		selectionPanel.setMotorMountAndConfig(mount, currentConfig);
+	}
 	
 	/**
 	 * Return the motor selected by this chooser dialog, or <code>null</code> if the selection has been aborted.

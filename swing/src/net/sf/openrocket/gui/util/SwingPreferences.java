@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -14,12 +15,10 @@ import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.motor.Manufacturer;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -29,6 +28,9 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
@@ -575,9 +577,9 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		
 		return materials;
 	}
-
+	
 	////  Preset Component Favorites
-
+	
 	@Override
 	public void setComponentFavorite(ComponentPreset preset, ComponentPreset.Type type, boolean favorite) {
 		Preferences prefs = PREFNODE.node("favoritePresets").node(type.name());
@@ -599,35 +601,67 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 		}
 		return collection;
 	}
-
+	
 	////  Decal Editor Setting
 	private final static String DECAL_EDITOR_PREFERNCE_NODE = "decalEditorPreference";
 	private final static String DECAL_EDITOR_USE_SYSTEM_DEFAULT = "<SYSTEM>";
 	
-	public void clearDecalEditorPreference( ) {
-		putString(DECAL_EDITOR_PREFERNCE_NODE,null);
+	public void clearDecalEditorPreference() {
+		putString(DECAL_EDITOR_PREFERNCE_NODE, null);
 	}
+	
 	public void setDecalEditorPreference(boolean useSystem, String commandLine) {
-		if ( useSystem ) {
-			putString(DECAL_EDITOR_PREFERNCE_NODE,DECAL_EDITOR_USE_SYSTEM_DEFAULT);
-		} else if ( commandLine != null ) {
+		if (useSystem) {
+			putString(DECAL_EDITOR_PREFERNCE_NODE, DECAL_EDITOR_USE_SYSTEM_DEFAULT);
+		} else if (commandLine != null) {
 			putString(DECAL_EDITOR_PREFERNCE_NODE, commandLine);
 		} else {
 			clearDecalEditorPreference();
 		}
 	}
-
+	
 	public boolean isDecalEditorPreferenceSet() {
-		String s = getString(DECAL_EDITOR_PREFERNCE_NODE,null);
+		String s = getString(DECAL_EDITOR_PREFERNCE_NODE, null);
 		return s != null;
 	}
 	
 	public boolean isDecalEditorPreferenceSystem() {
-		String s = getString(DECAL_EDITOR_PREFERNCE_NODE,null);
+		String s = getString(DECAL_EDITOR_PREFERNCE_NODE, null);
 		return DECAL_EDITOR_USE_SYSTEM_DEFAULT.equals(s);
 	}
+	
 	public String getDecalEditorCommandLine() {
-		return getString(DECAL_EDITOR_PREFERNCE_NODE,null);
+		return getString(DECAL_EDITOR_PREFERNCE_NODE, null);
 	}
 	
+	public List<Manufacturer> getExcludedMotorManufacturers() {
+		Preferences prefs = PREFNODE.node("excludedMotorManufacturers");
+		List<Manufacturer> collection = new ArrayList<Manufacturer>();
+		try {
+			String[] manuShortNames = prefs.keys();
+			for (String s : manuShortNames) {
+				Manufacturer m = Manufacturer.getManufacturer(s);
+				if (m != null) {
+					collection.add(m);
+				}
+			}
+		} catch (BackingStoreException e) {
+		}
+		
+		return collection;
+		
+	}
+	
+	public void setExcludedMotorManufacturers(Collection<Manufacturer> manus) {
+		Preferences prefs = PREFNODE.node("excludedMotorManufacturers");
+		try {
+			for (String s : prefs.keys()) {
+				prefs.remove(s);
+			}
+		} catch (BackingStoreException e) {
+		}
+		for (Manufacturer m : manus) {
+			prefs.putBoolean(m.getSimpleName(), true);
+		}
+	}
 }

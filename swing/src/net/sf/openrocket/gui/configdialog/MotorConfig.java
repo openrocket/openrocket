@@ -184,8 +184,7 @@ public class MotorConfig extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				String id = configuration.getFlightConfigurationID();
 				
-				MotorChooserDialog dialog = new MotorChooserDialog(mount.getMotor(id),
-						mount.getMotorDelay(id), mount.getMotorMountDiameter(),
+				MotorChooserDialog dialog = new MotorChooserDialog(mount, id,
 						SwingUtilities.getWindowAncestor(MotorConfig.this));
 				dialog.setVisible(true);
 				Motor m = dialog.getSelectedMotor();
