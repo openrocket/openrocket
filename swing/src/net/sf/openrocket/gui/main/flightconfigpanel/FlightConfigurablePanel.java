@@ -139,9 +139,6 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (!(c instanceof JLabel)) {
-				return c;
-			}
 			JLabel label = (JLabel) c;
 
 			switch (column) {
