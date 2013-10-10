@@ -105,6 +105,7 @@
 					<exclude name="Test.class" />
 				</fileset>
 				<formatter type="xml"/>
+				<formatter type="plain" usefile="false" />
 			</batchtest>
 		</junit>
 		<junitreport todir="${tmp.dir}">
