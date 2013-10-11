@@ -6,14 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ComboBoxModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
-import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
-import net.sf.openrocket.gui.main.BasicFrame;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -28,8 +25,6 @@ import net.sf.openrocket.util.StateChangeListener;
 public class FlightConfigurationModel implements ComboBoxModel, StateChangeListener {
 	private static final Translator trans = Application.getTranslator();
 	
-	private static final String EDIT = trans.get("MotorCfgModel.Editcfg");
-	
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 	
 	
@@ -37,20 +32,13 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	
 	private final Configuration config;
 	private final Rocket rocket;
-	private final boolean showEditElement;
 	
 	private Map<String, ID> map = new HashMap<String, ID>();
 	
 	
 	public FlightConfigurationModel(Configuration config) {
-		this(config, true);
-	}
-	
-	
-	public FlightConfigurationModel(Configuration config, boolean showEditElement) {
 		this.config = config;
 		this.rocket = config.getRocket();
-		this.showEditElement = showEditElement;
 		config.addChangeListener(this);
 	}
 	
@@ -61,23 +49,15 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 		
 		if (index < 0)
 			return null;
-		if ((showEditElement && index > ids.length) ||
-				(!showEditElement && index >= ids.length))
+		if ( index >= ids.length) 
 			return null;
-		
-		if (index == ids.length)
-			return EDIT;
 		
 		return get(ids[index]);
 	}
 	
 	@Override
 	public int getSize() {
-		if (showEditElement) {
-			return rocket.getFlightConfigurationIDs().length + 1;
-		} else {
-			return rocket.getFlightConfigurationIDs().length;
-		}
+		return rocket.getFlightConfigurationIDs().length;
 	}
 	
 	@Override
@@ -89,19 +69,6 @@ public class FlightConfigurationModel implements ComboBoxModel, StateChangeListe
 	public void setSelectedItem(Object item) {
 		if (item == null) {
 			// Clear selection - huh?
-			return;
-		}
-		if (item == EDIT) {
-			
-			// Open edit dialog in the future, after combo box has closed
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					new FlightConfigurationDialog(rocket, BasicFrame.findFrame(rocket))
-							.setVisible(true);
-				}
-			});
-			
 			return;
 		}
 		if (!(item instanceof ID)) {

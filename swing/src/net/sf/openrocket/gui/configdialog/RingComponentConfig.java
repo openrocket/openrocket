@@ -1,10 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -22,7 +18,6 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.EngineBlock;
-import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -170,74 +165,5 @@ public class RingComponentConfig extends RocketComponentConfig {
 		return panel;
 	}
 	
-	
-	protected JPanel positionTab() {
-		JPanel panel = new JPanel(new MigLayout("align 20% 20%, gap rel unrel",
-				"[][65lp::][30lp::]", ""));
-		
-		////  Radial position
-		JLabel l = new JLabel(trans.get("ringcompcfg.Radialdistance"));
-		//// Distance from the rocket centerline
-		l.setToolTipText(trans.get("ringcompcfg.Distancefrom"));
-		panel.add(l);
-		
-		DoubleModel m = new DoubleModel(component, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
-		
-		JSpinner spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		//// Distance from the rocket centerline
-		spin.setToolTipText(trans.get("ringcompcfg.Distancefrom"));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		BasicSlider bs = new BasicSlider(m.getSliderModel(0, 0.1, 1.0));
-		//// Distance from the rocket centerline
-		bs.setToolTipText(trans.get("ringcompcfg.Distancefrom"));
-		panel.add(bs, "w 100lp, wrap");
-		
-		
-		//// Radial direction
-		l = new JLabel(trans.get("ringcompcfg.Radialdirection"));
-		//// The radial direction from the rocket centerline
-		l.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
-		panel.add(l);
-		
-		m = new DoubleModel(component, "RadialDirection", UnitGroup.UNITS_ANGLE);
-		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		//// The radial direction from the rocket centerline
-		spin.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		bs = new BasicSlider(m.getSliderModel(-Math.PI, Math.PI));
-		//// The radial direction from the rocket centerline
-		bs.setToolTipText(trans.get("ringcompcfg.radialdirectionfrom"));
-		panel.add(bs, "w 100lp, wrap");
-		
-		
-		//// Reset button
-		JButton button = new JButton(trans.get("ringcompcfg.but.Reset"));
-		//// Reset the component to the rocket centerline
-		button.setToolTipText(trans.get("ringcompcfg.but.Resetcomponant"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				((RingComponent) component).setRadialDirection(0.0);
-				((RingComponent) component).setRadialPosition(0.0);
-			}
-		});
-		panel.add(button, "spanx, right, wrap para");
-		
-		
-		DescriptionArea note = new DescriptionArea(3);
-		//// Note: An inner tube will not affect the aerodynamics of the rocket even if it is located outside of the body tube.
-		note.setText(trans.get("ringcompcfg.note.desc"));
-		panel.add(note, "spanx, growx");
-		
-		
-		return panel;
-	}
 	
 }
