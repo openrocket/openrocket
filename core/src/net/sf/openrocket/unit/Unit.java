@@ -103,6 +103,10 @@ public abstract class Unit {
 		}
 		
 		val = roundForDecimalFormat(val);
+		// Check for approximate integer
+		if (Math.abs(val - Math.floor(val)) < 0.0001) {
+			return intFormat.format(val);
+		}
 		return decFormat.format(val);
 	}
 	

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar"/>
+	<classpathentry kind="lib" path="lib/iText-5.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.18.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.15.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout15-swing.jar"/>
+	<classpathentry kind="lib" path="lib/OrangeExtensions-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/OpenRocket Core"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/slf4j-api-1.7.5.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-3.0.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/guice-multibindings-3.0.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/javax.inject.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.0.12.jar"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/resources"/>
+	<classpathentry kind="lib" path="resources"/>
+	<classpathentry kind="lib" path="/OpenRocket Core/lib/annotation-detector-3.0.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

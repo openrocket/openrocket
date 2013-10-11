@@ -37,9 +37,6 @@
 /core/resources-src/pix/sormus.xcf.gz
 /core/resources-src/pix/splashscreen-sormus.png
 /core/resources-src/pix/splashscreen-sormus.xcf.gz
-<<<<<<< HEAD
 
-/*/bin/
-/android-libraries/*/bin/
-=======
->>>>>>> Convert svn:ignore properties to .gitignore.
+/swing/build
+/swing/tmp
