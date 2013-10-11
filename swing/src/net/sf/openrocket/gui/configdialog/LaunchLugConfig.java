@@ -154,8 +154,6 @@ public class LaunchLugConfig extends RocketComponentConfig {
 	@Override
 	public void updateFields() {
 		super.updateFields();
-		if (motorConfigPane != null)
-			motorConfigPane.updateFields();
 	}
 	
 }

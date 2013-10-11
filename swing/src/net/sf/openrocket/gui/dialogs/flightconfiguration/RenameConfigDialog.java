@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.dialogs.flightconfiguration;
 
 import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,7 +21,7 @@ public class RenameConfigDialog extends JDialog {
 	
 	private static final Translator trans = Application.getTranslator();
 	
-	RenameConfigDialog(final FlightConfigurationDialog parent, final Rocket rocket) {
+	public RenameConfigDialog(final Window parent, final Rocket rocket) {
 		super(parent, trans.get("RenameConfigDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		final String configId = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		
