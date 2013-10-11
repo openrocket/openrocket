@@ -298,7 +298,7 @@ public abstract class MotorFilterPanel extends JPanel {
 			// find the next largest diameter
 			int i;
 			for( i =0; i< diameterValues.length; i++ ) {
-				if ( mountDiameter< diameterValues[i] ) {
+				if ( mountDiameter< diameterValues[i] - 0.0005 ) {
 					break;
 				}
 			}
