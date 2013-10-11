@@ -1,13 +1,5 @@
 package net.sf.openrocket.preset.loader;
 
-import au.com.bytecode.opencsv.CSVReader;
-import net.sf.openrocket.gui.print.PrintUnit;
-import net.sf.openrocket.preset.TypedPropertyMap;
-import net.sf.openrocket.unit.Unit;
-import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.ArrayList;
-import net.sf.openrocket.util.StringUtil;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,19 +9,26 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.List;
 
+import net.sf.openrocket.preset.TypedPropertyMap;
+import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.util.ArrayList;
+import net.sf.openrocket.util.StringUtil;
+import au.com.bytecode.opencsv.CSVReader;
+
 /**
  * Primary entry point for parsing component CSV files that are in Rocksim format.
  */
 public abstract class RocksimComponentFileLoader {
-
-    private static final PrintStream LOGGER = System.err;
-
+	
+	private static final PrintStream LOGGER = System.err;
+	
 	private String basePath = "";
-
+	
 	private File dir;
-
+	
 	protected List<RocksimComponentFileColumnParser> fileColumns = new ArrayList<RocksimComponentFileColumnParser>();
-
+	
 	/**
 	 * Constructor.
 	 *
@@ -39,7 +38,7 @@ public abstract class RocksimComponentFileLoader {
 		dir = theBasePathToLoadFrom;
 		basePath = dir.getAbsolutePath();
 	}
-
+	
 	/**
 	 * Constructor.
 	 *
@@ -49,17 +48,17 @@ public abstract class RocksimComponentFileLoader {
 		dir = new File(basePath);
 		basePath = theBasePathToLoadFrom;
 	}
-
+	
 	protected abstract RocksimComponentFileType getFileType();
-
+	
 	public void load() {
 		try {
-		load(getFileType());
-		} catch (FileNotFoundException fex ) {
-	        LOGGER.println( fex.getLocalizedMessage() );
+			load(getFileType());
+		} catch (FileNotFoundException fex) {
+			LOGGER.println(fex.getLocalizedMessage());
 		}
 	}
-
+	
 	/**
 	 * Read a comma separated component file and return the parsed contents as a list of string arrays.  Not for
 	 * production use - just here for smoke testing.
@@ -83,7 +82,7 @@ public abstract class RocksimComponentFileLoader {
 		FileInputStream fis = new FileInputStream(new File(dir, type.getDefaultFileName()));
 		load(fis);
 	}
-
+	
 	/**
 	 * Read a comma separated component file and return the parsed contents as a list of string arrays.
 	 *
@@ -97,7 +96,7 @@ public abstract class RocksimComponentFileLoader {
 	private void load(File file) throws FileNotFoundException {
 		load(new FileInputStream(file));
 	}
-
+	
 	/**
 	 * Read a comma separated component file and return the parsed contents as a list of string arrays.
 	 *
@@ -114,13 +113,13 @@ public abstract class RocksimComponentFileLoader {
 		InputStreamReader r = null;
 		try {
 			r = new InputStreamReader(is);
-
+			
 			// Create the CSV reader.  Use comma separator.
 			CSVReader reader = new CSVReader(r, ',', '\'', '\\');
-
+			
 			//Read and throw away the header row.
 			parseHeaders(reader.readNext());
-
+			
 			String[] data = null;
 			while ((data = reader.readNext()) != null) {
 				// detect empty lines and skip:
@@ -134,41 +133,38 @@ public abstract class RocksimComponentFileLoader {
 			}
 			//Read the rest of the file as data rows.
 			return;
-		}
-		catch (IOException e) {
-		}
-		finally {
+		} catch (IOException e) {
+		} finally {
 			if (r != null) {
 				try {
 					r.close();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 				}
 			}
 		}
-
+		
 	}
-
+	
 	protected void parseHeaders(String[] headers) {
 		for (RocksimComponentFileColumnParser column : fileColumns) {
 			column.configure(headers);
 		}
 	}
-
+	
 	protected void parseData(String[] data) {
 		if (data == null || data.length == 0) {
 			return;
 		}
 		TypedPropertyMap props = new TypedPropertyMap();
-
+		
 		preProcess(data);
-
+		
 		for (RocksimComponentFileColumnParser column : fileColumns) {
 			column.parse(data, props);
 		}
 		postProcess(props);
 	}
-
+	
 	protected void preProcess(String[] data) {
 		for (int i = 0; i < data.length; i++) {
 			String d = data[i];
@@ -177,13 +173,13 @@ public abstract class RocksimComponentFileLoader {
 			}
 			d = d.trim();
 			d = stripAll(d, '"');
-
+			
 			data[i] = d;
 		}
 	}
-
+	
 	protected abstract void postProcess(TypedPropertyMap props);
-
+	
 	/**
 	 * Rocksim CSV units are either inches or mm.  A value of 0 or "in." indicate inches.  A value of 1 or "mm" indicate
 	 * millimeters.
@@ -196,7 +192,7 @@ public abstract class RocksimComponentFileLoader {
 		String tmp = units.trim().toLowerCase();
 		return "0".equals(tmp) || tmp.startsWith("in");
 	}
-
+	
 	/**
 	 * Convert inches or millimeters to meters.
 	 *
@@ -207,13 +203,13 @@ public abstract class RocksimComponentFileLoader {
 	 */
 	protected static double convertLength(String units, double value) {
 		if (isInches(units)) {
-			return PrintUnit.INCHES.toMeters(value);
+			return UnitGroup.UNITS_LENGTH.getUnit("in").fromUnit(value);
 		}
 		else {
-			return PrintUnit.MILLIMETERS.toMeters(value);
+			return UnitGroup.UNITS_LENGTH.getUnit("mm").fromUnit(value);
 		}
 	}
-
+	
 	protected static double convertMass(String units, double value) {
 		if ("oz".equals(units)) {
 			Unit u = UnitGroup.UNITS_MASS.getUnit(2);
@@ -221,7 +217,7 @@ public abstract class RocksimComponentFileLoader {
 		}
 		return value;
 	}
-
+	
 	/**
 	 * Remove all occurrences of the given character.  Note: this is done because some manufacturers embed double quotes
 	 * in their descriptions or material names.  Those are stripped away because they cause all sorts of matching/lookup
@@ -242,7 +238,7 @@ public abstract class RocksimComponentFileLoader {
 		}
 		return sb.toString();
 	}
-
+	
 	/**
 	 * Convert all words in a given string to Camel Case (first letter capitalized). Words are assumed to be separated
 	 * by a space.  Note: this is done because some manufacturers define their material name in Camel Case but the
@@ -268,7 +264,7 @@ public abstract class RocksimComponentFileLoader {
 			return target;
 		}
 	}
-
+	
 }
 
 //Errata:

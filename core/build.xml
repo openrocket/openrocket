@@ -1,4 +1,4 @@
-<project name="OpenRocket" basedir=".">
+<project name="OpenRocket-Core" basedir=".">
 
 	<property file="resources/build.properties" />
 	
@@ -7,7 +7,7 @@
 	<property name="build.dir"   	value="${basedir}/build"/>		<!-- Build directory -->
 	<property name="build-test.dir" value="${basedir}/build/test"/>		<!-- Build directory -->
 	<property name="lib.dir"     	value="${basedir}/lib"/>		<!-- Library source directory -->
-	<property name="libtest.dir"	value="${basedir}/lib-test"/>		<!-- Library test source directory -->
+	<property name="libtest.dir"	value="${basedir}/../lib-test"/>		<!-- Library test source directory -->
 	<property name="libextra.dir"	value="${basedir}/lib-extra"/>		<!-- Library extra source directory -->
 	<property name="tmp.dir"	value="${basedir}/tmp"/>		<!-- Temporary directory -->
 	<property name="resources.dir"	value="${basedir}/resources"/>		<!-- Resources directory -->
@@ -23,14 +23,6 @@
 	<property name="pkgname"     value="${ant.project.name}-${build.version}"/>
 	
 	<property name="jar.file"    value="${jar.dir}/${ant.project.name}.jar"/>
-	<property name="dist.bin"    value="${jar.dir}/${pkgname}.jar"/>
-	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
-	
-	<!-- The main class of the application -->
-	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
-
-	<property name="expanded-libs" value="${lib.dir}/miglayout15-swing.jar"/>
-	
 	<!-- Classpath definitions -->
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
@@ -51,13 +43,6 @@
 		<pathelement location="${classes.dir}"/>
 	</path>
 
-	<!-- Add Ant-contrib tasks so we can use for loop -->
-	<taskdef resource="net/sf/antcontrib/antlib.xml">
-		<classpath>
-			<pathelement location="${libextra.dir}/ant-contrib-1.0b3.jar"/>
-		</classpath>
-	</taskdef>
-
 	
 	<!-- CLEAN -->
 	<target name="clean" description="Removes all build artifacts">
@@ -74,56 +59,20 @@
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
-	<target name="jar" depends="build,serialize-presets,serialize-motors" description="Create the OpenRocket executable JAR">
+	<target name="jar" depends="build,serialize-motors" description="Create the OpenRocket Core">
 		<mkdir dir="${jar.dir}" />
 		<jar destfile="${jar.file}" basedir="${dist.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="${main-class}" />
-				<attribute name="SplashScreen-Image" value="pix/splashscreen.png" />
-				<attribute name="Classpath-Jars" value="lib/gluegen-rt.jar lib/jogl-all.jar" />
-			</manifest>
 
 			<!-- Include, in the root of the JAR, the resources needed by OR -->
 			<fileset dir="${src.dir}/" includes="META-INF/,logback.xml" />
 			<fileset dir="${resources.dir}/" />
 			
 			
-			<!-- Libraries to extract into base JAR -->
-			<zipfileset src="${lib.dir}/miglayout15-swing.jar" />
-			<zipfileset src="${lib.dir}/guice-3.0.jar" />
-			<zipfileset src="${lib.dir}/aopalliance.jar"/>
-			<zipfileset src="${lib.dir}/guice-3.0.jar"/>
-			<zipfileset src="${lib.dir}/guice-multibindings-3.0.jar"/>
-			<zipfileset src="${lib.dir}/iText-5.0.2.jar"/>
-			<zipfileset src="${lib.dir}/javax.inject.jar"/>
-			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
-			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
-			<zipfileset src="${lib.dir}/miglayout15-swing.jar"/>
-			<zipfileset src="${lib.dir}/opencsv-2.3.jar"/>
-			<zipfileset src="${lib.dir}/OrangeExtensions-1.2.jar"/>
-			<zipfileset src="${lib.dir}/annotation-detector-3.0.2-SNAPSHOT.jar"/>
-			<zipfileset src="${lib.dir}/slf4j-api-1.7.5.jar"/>
-			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
-			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
-									
-			
-			<!-- JOGL libraries need to be jar-in-jar -->
-			<zipfileset dir="${lib.dir}/jogl" prefix="lib">
-				<include name="*.jar"/>
-			</zipfileset>
-			
 			<!-- Include metafiles about OR -->
 			<fileset dir="${basedir}" includes="LICENSE.TXT README.TXT ChangeLog ReleaseNotes fileformat.txt" />
 		</jar>
 	</target>
 	
-	<target name="serialize-presets" depends="build" description="Preprocess the orc preset files into serialized form">
-	    <java classname="net.sf.openrocket.utils.SerializePresets"
-	          fork="true"
-			  classpathref="run-classpath"
-			  failonerror="true">
-	    </java>
-	</target>
 	<target name="serialize-motors" depends="build" description="Preprocess the motor files into serialized form">
 	    <java classname="net.sf.openrocket.utils.SerializeMotors"
 	          fork="true"
@@ -134,141 +83,6 @@
 	    </java>
 	</target>
 
-	<!-- CONVERT vendor csv to ORC files -->
-	<macrodef name="build-orc-file">
-		<attribute name="dir"/>
-		<attribute name="vendor"/>
-		<sequential>
-			<echo>Generating ORC file for vendor @{vendor}</echo>
-			<java classname="net.sf.openrocket.preset.loader.RocksimComponentFileTranslator"
-				fork="true"
-				classpathref="run-classpath"
-				failonerror="true">
-				<arg value="@{dir}"/>
-				<arg value="${resources-src.dir}/datafiles/presets/@{vendor}.orc"/>
-			</java>
-		</sequential>
-	</macrodef>
-
-	<target name="generate-orc-files"
-		description="Generate ORC file from vendor csv"
-		depends="build">
-
-		<for param="vendor-dir">
-			<dirset dir="${resources-src.dir}/datafiles/rocksim_components"
-				includes="*"/>
-			<sequential>
-				<propertyregex property="vendor"
-					override="true"
-					input="@{vendor-dir}"
-					select="\1"
-					regexp=".*[/\\]([^/\\]*)$"/>
-				<build-orc-file dir="@{vendor-dir}" vendor="${vendor}"/>
-			</sequential>
-		</for>
-	</target>
-	
-	<!-- DIST-SRC -->
-	<target name="dist-src">
-		<echo>			
-		Building source distribution
-		</echo>
-		<mkdir dir="${build.dir}/${pkgname}"/>
-		<mkdir dir="${jar.dir}"/>
-		<copy todir="${build.dir}/${pkgname}">
-			<fileset dir="${basedir}" includes="*" excludes="*.log">
-				<type type="file"/>
-			</fileset>
-			<fileset dir="${basedir}" includes="resources/ lib/ lib-test/ src/ test/ resources-src/datafiles/"/>
-		</copy>
-		<zip destfile="${dist.src}" basedir="${build.dir}" includes="${pkgname}/"/>
-		<delete dir="${build.dir}/${pkgname}"/>
-	</target>
-	
-	
-	<!-- DIST-SRC-TEST -->
-	<target name="dist-src-test" depends="dist-src">
-		<echo>
-		Testing source distribution
-		</echo>
-		<delete dir="${dist-test.dir}"/>
-		<mkdir dir="${dist-test.dir}"/>
-		<unzip dest="${dist-test.dir}" src="${dist.src}"/>
-		<ant dir="${dist-test.dir}/${pkgname}" antfile="build.xml" target="jar"/>
-		<ant dir="${dist-test.dir}/${pkgname}" antfile="build.xml" target="unittest"/>
-		<delete dir="${dist-test.dir}"/>
-		<echo>
-		Source distribution test successful
-		</echo>
-	</target>	
-	
-	
-	<!-- DIST-BIN -->
-	<target name="dist-bin" depends="check,clean,unittest,jar">
-		<move file="${jar.file}" tofile="${dist.bin}"/>
-	</target>
-
-	
-	<!-- DIST -->
-	<target name="dist" depends="dist-bin,dist-src,dist-src-test">
-		<echo>Distribution ${build.version} (${build.source}) built into directory ${jar.dir}</echo>
-	</target>
-	
-	
-	<!-- CHECK -->
-	<target name="check" depends="checktodo,checkascii"/>
-	
-	<!-- CHECK TODOs -->
-	<target name="todo" depends="checktodo"/>
-	<target name="checktodo">
-		<tempfile property="todo.file" prefix="checktodo-" destDir="${tmp.dir}"/>
-		<echo>Checking project for FIXMEs.</echo>
-		<concat destfile="${todo.file}">
-			<fileset dir="${src.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<fileset dir="${src-test.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="(FIXME|TODO:.*CRITICAL)"/>
-				</linecontainsregexp>
-			</filterchain>
-		</concat>
-		<loadfile srcfile="${todo.file}" property="criticaltodos"/>
-		<delete file="${todo.file}"/>
-		<fail if="criticaltodos">CRITICAL TODOs exist in project:
-${criticaltodos}</fail>
-		<echo>No critical TODOs in project.</echo>
-	</target>
-	
-	
-	<!-- CHECK ASCII -->
-	<target name="ascii" depends="checkascii"/>
-	<target name="checkascii">
-		<tempfile property="ascii.file" prefix="checkascii-" destDir="${tmp.dir}"/>
-		<echo>Checking project for non-ASCII characters.</echo>
-		<concat destfile="${ascii.file}">
-			<fileset dir="${src.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<fileset dir="${src-test.dir}">
-			    <include name="**/*.java"/>
-			</fileset>
-			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="\P{ASCII}"/>
-				</linecontainsregexp>
-			</filterchain>
-		</concat>
-		<loadfile srcfile="${ascii.file}" property="nonascii"/>
-		<delete file="${ascii.file}"/>
-		<fail if="nonascii">Non-ASCII characters exist in project:
-${nonascii}</fail>
-		<echo>No non-ASCII characters in project.</echo>
-	</target>
-	
 	
 	<!--  Unit tests  -->
 	<target name="unittest" description="Execute unit tests" depends="build">
@@ -278,7 +92,7 @@ ${nonascii}</fail>
 		
 		<echo>Running unit tests</echo>
 		<mkdir dir="${tmp.dir}/rawtestoutput"/>
-		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure">
+		<junit fork="yes" forkmode="once" printsummary="false" failureproperty="junit.failure" dir="${basedir}">
 			<classpath>
 				<path refid="test-classpath"/>
 				<path location="${basedir}"/>
@@ -291,6 +105,7 @@ ${nonascii}</fail>
 					<exclude name="Test.class" />
 				</fileset>
 				<formatter type="xml"/>
+				<formatter type="plain" usefile="false" />
 			</batchtest>
 		</junit>
 		<junitreport todir="${tmp.dir}">
