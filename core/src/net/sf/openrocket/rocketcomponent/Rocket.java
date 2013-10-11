@@ -552,7 +552,6 @@ public class Rocket extends RocketComponent {
 			getDefaultConfiguration().setFlightConfigurationID(null);
 		}
 		flightConfigurationIDs.remove(id);
-		// FIXME - remove corresponding simulations?
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}
 	
