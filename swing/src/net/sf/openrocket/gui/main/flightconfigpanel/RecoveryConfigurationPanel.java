@@ -55,7 +55,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 				selectDeployment();
 			}
 		});
-		this.add(selectDeploymentButton, "split, sizegroup button");
+		this.add(selectDeploymentButton, "split, align right, sizegroup button");
 
 		//// Reset deployment
 		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetdeployment"));

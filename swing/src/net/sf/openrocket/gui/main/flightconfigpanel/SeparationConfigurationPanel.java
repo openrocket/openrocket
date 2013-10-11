@@ -55,7 +55,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 				selectDeployment();
 			}
 		});
-		this.add(selectSeparationButton, "split, sizegroup button");
+		this.add(selectSeparationButton, "split, align right, sizegroup button");
 		
 		//// Reset deployment
 		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetseparation"));

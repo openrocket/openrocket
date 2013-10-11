@@ -82,7 +82,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				selectMotor();
 			}
 		});
-		this.add(selectMotorButton, "split, sizegroup button");
+		this.add(selectMotorButton, "split, align right, sizegroup button");
 
 		//// Remove motor button
 		removeMotorButton = new JButton(trans.get("MotorConfigurationPanel.btn.removeMotor"));
