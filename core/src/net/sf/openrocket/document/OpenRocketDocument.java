@@ -281,6 +281,20 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		return simulation;
 	}
 	
+	public void removeFlightConfigurationAndSimulations(String configId) {
+		if (configId == null) {
+			return;
+		}
+		for (Simulation s : getSimulations()) {
+			// Assumes modifiable collection - which it is
+			if (s.getConfiguration().getFlightConfigurationID().equals(configId)) {
+				removeSimulation(s);
+			}
+		}
+		rocket.removeFlightConfigurationID(configId);
+	}
+	
+	
 	/**
 	 * Return a unique name suitable for the next simulation.  The name begins
 	 * with {@link #SIMULATION_NAME_PREFIX} and has a unique number larger than any
