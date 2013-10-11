@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import net.sf.openrocket.gui.util.SwingPreferences;
-
 public class L10nPropertyReport {
+	
+	private static String[] supportedLocales = new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl", "ja", "pt" };
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -28,9 +27,7 @@ public class L10nPropertyReport {
 		System.out.println("en contains " + english.keySet().size());
 		
 		
-		for (Locale l : SwingPreferences.getSupportedLocales()) {
-			
-			String localename = l.getLanguage();
+		for (String localename : supportedLocales) {
 			
 			if ("en".equals(localename)) {
 				continue;
