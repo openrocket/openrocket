@@ -117,9 +117,9 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0)
-					return; // TODO: LOW: "None selected" dialog
-					
+				if (selection.length == 0) {
+					return;
+				}
 				Simulation[] sims = new Simulation[selection.length];
 				for (int i = 0; i < selection.length; i++) {
 					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
@@ -138,9 +138,9 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0)
-					return; // TODO: LOW: "None selected" dialog
-					
+				if (selection.length == 0) {
+					return;
+				}
 				Simulation[] sims = new Simulation[selection.length];
 				for (int i = 0; i < selection.length; i++) {
 					selection[i] = simulationTable.convertRowIndexToModel(selection[i]);
@@ -164,9 +164,9 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int[] selection = simulationTable.getSelectedRows();
-				if (selection.length == 0)
-					return; // TODO: LOW: "None selected" dialog
-					
+				if (selection.length == 0) {
+					return;
+				}
 				// Verify deletion
 				boolean verify = Application.getPreferences().getBoolean(Preferences.CONFIRM_DELETE_SIMULATION, true);
 				if (verify) {
@@ -218,9 +218,9 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selected = simulationTable.getSelectedRow();
-				if (selected < 0)
-					return; // TODO: MEDIUM: "None selected" dialog
-					
+				if (selected < 0) {
+					return; 
+				}
 				selected = simulationTable.convertRowIndexToModel(selected);
 				simulationTable.clearSelection();
 				simulationTable.addRowSelectionInterval(selected, selected);
@@ -480,6 +480,7 @@ public class SimulationPanel extends JPanel {
 				return false;
 			}
 		};
+		simulationTable.setAutoCreateRowSorter(true);
 		simulationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		simulationTable.setDefaultRenderer(Object.class, new JLabelRenderer());
 		simulationTableModel.setColumnWidths(simulationTable.getColumnModel());
@@ -490,17 +491,19 @@ public class SimulationPanel extends JPanel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-					int selected = simulationTable.getSelectedRow();
-					if (selected < 0)
+					int selectedRow = simulationTable.getSelectedRow();
+					if (selectedRow < 0) {
 						return;
-					selected = simulationTable.convertRowIndexToModel(selected);
+					}
+					int selected = simulationTable.convertRowIndexToModel(selectedRow);
 					
 					int column = simulationTable.columnAtPoint(e.getPoint());
 					if (column == 0) {
 						SimulationWarningDialog.showWarningDialog(SimulationPanel.this, document.getSimulations().get(selected));
 					} else {
+						
 						simulationTable.clearSelection();
-						simulationTable.addRowSelectionInterval(selected, selected);
+						simulationTable.addRowSelectionInterval(selectedRow, selectedRow);
 						
 						openDialog(document.getSimulations().get(selected));
 					}
