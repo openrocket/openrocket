@@ -608,6 +608,8 @@ public class SimulationPanel extends JPanel {
 			if (row < 0 || row >= document.getSimulationCount())
 				return super.getTableCellRendererComponent(table, value,
 						isSelected, hasFocus, row, column);
+
+			row = table.getRowSorter().convertRowIndexToModel(row);
 			
 			// A JLabel is self-contained and has set its own tool tip
 			if (value instanceof JLabel) {
