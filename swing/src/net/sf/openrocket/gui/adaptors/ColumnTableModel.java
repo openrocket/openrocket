@@ -28,6 +28,10 @@ public abstract class ColumnTableModel extends AbstractTableModel {
 		}
 	}
 	
+	public Column getColumn(int i) {
+		return columns[i];
+	}
+	
 	@Override
 	public int getColumnCount() {
 		return columns.length;
