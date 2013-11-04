@@ -8,7 +8,6 @@ import java.util.NoSuchElementException;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.Decal;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
@@ -31,7 +30,12 @@ import org.slf4j.LoggerFactory;
 
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent>, Visitable<RocketComponentVisitor, RocketComponent> {
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
-	private static final Translator trans = Application.getTranslator();
+	
+	// Because of changes to Java 1.7.0-45's mechanism to construct DataFlavor objects (used in Drag and Drop)
+	// We cannot access static members of the Application object in this class.  Instead of holding
+	// on to the Translator object, we'll just use when we need it.
+	//private static final Translator trans = Application.getTranslator();
+	
 	
 	/*
 	 * Text is suitable to the form
@@ -40,19 +44,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public enum Position {
 		/** Position relative to the top of the parent component. */
 		//// Top of the parent component
-		TOP(trans.get("RocketComponent.Position.TOP")),
+		TOP(Application.getTranslator().get("RocketComponent.Position.TOP")),
 		/** Position relative to the middle of the parent component. */
 		//// Middle of the parent component
-		MIDDLE(trans.get("RocketComponent.Position.MIDDLE")),
+		MIDDLE(Application.getTranslator().get("RocketComponent.Position.MIDDLE")),
 		/** Position relative to the bottom of the parent component. */
 		//// Bottom of the parent component
-		BOTTOM(trans.get("RocketComponent.Position.BOTTOM")),
+		BOTTOM(Application.getTranslator().get("RocketComponent.Position.BOTTOM")),
 		/** Position after the parent component (for body components). */
 		//// After the parent component
-		AFTER(trans.get("RocketComponent.Position.AFTER")),
+		AFTER(Application.getTranslator().get("RocketComponent.Position.AFTER")),
 		/** Specify an absolute X-coordinate position. */
 		//// Tip of the nose cone
-		ABSOLUTE(trans.get("RocketComponent.Position.ABSOLUTE"));
+		ABSOLUTE(Application.getTranslator().get("RocketComponent.Position.ABSOLUTE"));
 		
 		private String title;
 		
