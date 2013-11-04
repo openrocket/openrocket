@@ -1,5 +1,7 @@
 package net.sf.openrocket.gui.adaptors;
 
+import java.util.Comparator;
+
 import javax.swing.table.TableColumnModel;
 
 public abstract class Column {
@@ -73,6 +75,17 @@ public abstract class Column {
 	 * @param value
 	 */
 	public void setValueAt(int row, Object value ) {
+	}
+	
+	/**
+	 * Get the Comparator to use with this column.
+	 * 
+	 * If null, the assumption is the default comparator will be used for this column
+	 * 
+	 * @return
+	 */
+	public Comparator getComparator() {
+		return null;
 	}
 	
 }
