@@ -1,3 +1,15 @@
+OpenRocket 13.11  (2013-11-08):
+------------------------------
+
+New Features:
+    * Chinese translations
+    * Replaced flight configuration dialog with more efficient configuration tab
+    * Improved filtering in motor chooser dialog
+
+Bug Fixes:
+    * Updated jogl to correct 3d problems on various platforms
+    * Fixed NPE introduced by changes in Java 1.7.0_45-b18
+
 OpenRocket 13.09.1 (2013-10-05):
 ------------------------------
 
