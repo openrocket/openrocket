@@ -9,6 +9,13 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">8.11.2013:</span> Version 13.11 is
+   <a href="download.html">released</a>!  This release simplifies
+   flight configurations by replacing the dialog with the configuration
+   tab.  Motor filtering in the motor chooser dialog has been enhanced.
+   Chineese translations have been added and Russian translations updated.
+   Updated the 3D libraries, and squashed some bugs introduced by Java 1.7.0_45-b18.</p>
+
   <p><span class="date">6.10.2013:</span> Version 13.09.1 is
    <a href="download.html">released</a>!  This is a bug-fix release,
    and includes updated 3D libraries and new thrust curves for
