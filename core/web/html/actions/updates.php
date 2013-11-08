@@ -80,11 +80,18 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "13.09.1";
+$unstable = "13.11";
 $stable = "1.0.0";
 
 
-if (preg_match("/^13.09$/", $version)) {
+if (preg_match("/^13.09.1$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "6: Simplified flight configuration process\n" .
+    "4: New translations for Chinese\n" .
+    "4: Updated 3D libraries\n" .
+    "4: Bug fixes\n" .
+    "";
+} else if (preg_match("/^13.09$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "6: New thrustcurves for Aerotech C3 and D2\n" .
     "4: Updated Translations to Russian\n" .
