@@ -3,7 +3,8 @@ package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
 public enum ImpulseClass {
 
-	A("A",0.0, 2.5 ),
+// Impulse class A starts below zero to catch the MMX motors.
+	A("A",-1.0, 2.5 ),
 	B("B",2.5, 5.0 ),
 	C("C",5.0, 10.0),
 	D("D",10.0, 20.0),
