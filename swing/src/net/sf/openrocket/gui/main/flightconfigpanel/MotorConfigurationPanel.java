@@ -49,10 +49,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 
+	private final MotorChooserDialog motorChooserDialog;
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
+
+		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
+
 
 		{
 			//// Select motor mounts
@@ -177,13 +181,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		MotorConfiguration config = mount.getMotorConfiguration().get(id);
 
-		MotorChooserDialog dialog = new MotorChooserDialog(
-				mount,
-				id,
-				SwingUtilities.getWindowAncestor(flightConfigurationPanel));
-		dialog.setVisible(true);
-		Motor m = dialog.getSelectedMotor();
-		double d = dialog.getSelectedDelay();
+		motorChooserDialog.setMotorMountAndConfig(mount, id);
+
+		motorChooserDialog.setVisible(true);
+
+		Motor m = motorChooserDialog.getSelectedMotor();
+		double d = motorChooserDialog.getSelectedDelay();
 
 		if (m != null) {
 			config = new MotorConfiguration();
@@ -257,7 +260,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 			c.setBorder(b);
 		}
-		
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table,Object value, boolean isSelected, boolean hasFocus, int row,int column) {
 			switch (column) {
@@ -289,7 +292,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			label.add(ignitionLabel);
 			label.validate();
 			return label;
-//			label.setText(motorString + " " + ignitionString);
+			//			label.setText(motorString + " " + ignitionString);
 		}
 
 		private String getMotorSpecification(MotorMount mount, MotorConfiguration motorConfig) {

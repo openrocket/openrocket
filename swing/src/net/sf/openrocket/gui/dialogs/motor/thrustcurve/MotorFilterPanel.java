@@ -344,8 +344,6 @@ public abstract class MotorFilterPanel extends JPanel {
 		((SwingPreferences) Application.getPreferences()).putBoolean("motorFilterLimitLength", limitLength);
 		if ( mountLength != null  & limitLength ) {
 			lengthSlider.setValueAt(1, (int) Math.min(1000,Math.round(1000*mountLength)));
-		} else {
-			lengthSlider.setValueAt(1, 1000);
 		}
 	}
 	
@@ -363,8 +361,6 @@ public abstract class MotorFilterPanel extends JPanel {
 				i--;
 			}
 			diameterSlider.setValueAt(1, i-1);
-		} else {
-			diameterSlider.setValueAt(1, diameterValues.length-1);
 		}
 	}
 
