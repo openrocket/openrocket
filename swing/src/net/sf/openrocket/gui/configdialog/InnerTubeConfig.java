@@ -39,7 +39,6 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Clusterable;
-import net.sf.openrocket.rocketcomponent.EngineBlock;
 import net.sf.openrocket.rocketcomponent.InnerTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RingComponent;
@@ -168,16 +167,17 @@ public class InnerTubeConfig extends RocketComponentConfig {
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
 
-		MotorConfig motorConfig = new MotorConfig((MotorMount)c);
-		
-		panel.add(motorConfig,"spanx, growx");
-		
 		//// Material
 		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
 				"cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		tabbedPane.insertTab(trans.get("ThicknessRingCompCfg.tab.General"), null, panel,
 				trans.get("ThicknessRingCompCfg.tab.Generalprop"), 0);
+
+		MotorConfig motorConfig = new MotorConfig((MotorMount)c);
+
+		tabbedPane.insertTab(trans.get("InnerTubeCfg.tab.Motor"), null, motorConfig,
+				trans.get("InnerTubeCfg.tab.ttip.Motor"), 1);
 
 		JPanel tab = clusterTab();
 		//// Cluster and Cluster configuration
