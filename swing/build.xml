@@ -29,8 +29,6 @@
 	<!-- The main class of the application -->
 	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
 
-	<property name="expanded-libs" value="${lib.dir}/miglayout15-swing.jar"/>
-	
 	<!-- Classpath definitions -->
 	<path id="classpath">
 		<fileset dir="${lib.dir}" includes="**/*.jar"/>
@@ -93,7 +91,7 @@
 			
 			<!-- Libraries to extract into base JAR -->
 			<zipfileset src="${core.dir}/build/jar/OpenRocket-Core.jar" />
-			<zipfileset src="${lib.dir}/miglayout15-swing.jar" />
+			<zipfileset src="${lib.dir}/miglayout-4.0-swing.jar" />
 			<zipfileset src="${core.dir}/lib/guice-3.0.jar" />
 			<zipfileset src="${core.dir}/lib/aopalliance.jar"/>
 			<zipfileset src="${core.dir}/lib/guice-multibindings-3.0.jar"/>
@@ -101,7 +99,6 @@
 			<zipfileset src="${core.dir}/lib/javax.inject.jar"/>
 			<zipfileset src="${lib.dir}/jcommon-1.0.18.jar"/>
 			<zipfileset src="${lib.dir}/jfreechart-1.0.15.jar"/>
-			<zipfileset src="${lib.dir}/miglayout15-swing.jar"/>
 			<zipfileset src="${core.dir}/lib/opencsv-2.3.jar"/>
 			<zipfileset src="${lib.dir}/OrangeExtensions-1.2.jar"/>
 			<zipfileset src="${core.dir}/lib/annotation-detector-3.0.2.jar"/>
