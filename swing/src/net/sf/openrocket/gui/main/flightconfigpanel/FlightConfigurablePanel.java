@@ -18,8 +18,6 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
-import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Pair;
@@ -87,7 +85,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				ListSelectionModel model = (ListSelectionModel) e.getSource();
 				for( int row = firstrow; row <= lastrow; row ++) {
 					if ( model.isSelectedIndex(row) ) {
-						String id = (String) table.getValueAt(row, 0);
+						String id = (String) table.getValueAt(row, table.convertColumnIndexToView(0));
 						rocket.getDefaultConfiguration().setFlightConfigurationID(id);
 						return;
 					}
@@ -106,8 +104,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 	protected T getSelectedComponent() {
 
-		int col = table.getSelectedColumn();
-		int row = table.getSelectedRow();
+		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
+		int row = table.convertRowIndexToModel(table.getSelectedRow());
 		if ( row < 0 || col < 0 ) {
 			return null;
 		}
@@ -120,8 +118,8 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	}
 
 	protected String getSelectedConfigurationId() {
-		int col = table.getSelectedColumn();
-		int row = table.getSelectedRow();
+		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
+		int row = table.convertRowIndexToModel(table.getSelectedRow());
 		if ( row < 0 || col < 0 ) {
 			return null;
 		}
@@ -141,6 +139,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			JLabel label = (JLabel) c;
 
+			column = table.convertColumnIndexToModel(column);
 			switch (column) {
 			case 0: {
 				label.setText(descriptor.format(rocket, (String) value));
