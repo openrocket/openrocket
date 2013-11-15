@@ -139,7 +139,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		////  GUI
 		JPanel panel = new JPanel(new MigLayout("fill","[][grow]"));
-		this.add(panel, "grow");
 
 		//// Select thrust curve:
 		{
@@ -260,7 +259,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 			JScrollPane scrollpane = new JScrollPane();
 			scrollpane.setViewportView(table);
-			panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap");
+			panel.add(scrollpane, "grow, width :500:, spanx, wrap");
 
 		}
 
