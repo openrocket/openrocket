@@ -151,7 +151,9 @@ public abstract class MotorFilterPanel extends JPanel {
 
 			@Override
 			public void contentsChanged(ListDataEvent e) {
-				MotorFilterPanel.this.filter.setExcludedManufacturers( manufacturerCheckList.getUncheckedItems() );
+				Collection<Manufacturer> uncheckedManufacturers = manufacturerCheckList.getUncheckedItems();
+				MotorFilterPanel.this.filter.setExcludedManufacturers( uncheckedManufacturers );
+				((SwingPreferences) Application.getPreferences()).setExcludedMotorManufacturers(uncheckedManufacturers);
 				onSelectionChanged();
 			}
 		});
