@@ -45,7 +45,7 @@ public class SimulationPlotDialog extends JDialog {
 		final SimulationPlot myPlot = new SimulationPlot(simulation, config, initialShowPoints);
 		
 		// Create the dialog
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill","[]","[grow][]"));
 		this.add(panel);
 		
 		final ChartPanel chartPanel = new SimulationChart(myPlot.getJFreeChart());
