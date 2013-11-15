@@ -134,6 +134,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		};
 		JTable configurationTable = new JTable(configurationTableModel);
+		configurationTable.getTableHeader().setReorderingAllowed(false);
 		configurationTable.setCellSelectionEnabled(true);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
@@ -263,6 +264,8 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,Object value, boolean isSelected, boolean hasFocus, int row,int column) {
+			column = table.convertColumnIndexToModel(column);
+			row = table.convertRowIndexToModel(row);
 			switch (column) {
 			case 0: {
 				JLabel label = new JLabel(descriptor.format(rocket, (String) value));

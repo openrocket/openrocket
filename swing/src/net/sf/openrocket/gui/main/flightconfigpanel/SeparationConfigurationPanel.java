@@ -1,8 +1,5 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,20 +12,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
-import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Pair;
 
 public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage> {
 	
@@ -81,6 +73,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 
 		};
 		JTable separationTable = new JTable(separationTableModel);
+		separationTable.getTableHeader().setReorderingAllowed(false);
 		separationTable.setCellSelectionEnabled(true);
 		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		separationTable.addMouseListener(new MouseAdapter() {
