@@ -2,6 +2,7 @@ OpenRocket 13.11.1 (2013-11-15):
 ------------------------------
 
 Bug Fixes:
+    * Added back the TubeConfiguration Configuration dialog
     * Seems the jogl update didn't happen in the 13.11 build.
     * Made the motor filter remember previous settings
     * Fixed various exceptions in flight configuration tables due to column reordering
