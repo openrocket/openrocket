@@ -201,6 +201,8 @@ class MotorInformationPanel extends JPanel {
 	}
 	
 	public void clearData() {
+		selectedMotor = null;
+		selectedMotorSet = null;
 		totalImpulseLabel.setText("");
 		totalImpulseLabel.setToolTipText(null);
 		classificationLabel.setText("");
@@ -219,6 +221,11 @@ class MotorInformationPanel extends JPanel {
 	}
 	
 	public void updateData( List<ThrustCurveMotor> motors, ThrustCurveMotor selectedMotor ) {
+		
+		if ( selectedMotor == null ) {
+			clearData();
+			return;
+		}
 		
 		this.selectedMotorSet = motors;
 		this.selectedMotor = selectedMotor;
