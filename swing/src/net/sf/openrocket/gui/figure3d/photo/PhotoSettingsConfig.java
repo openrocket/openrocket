@@ -41,6 +41,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.StateChangeListener;
 
+@SuppressWarnings("serial")
 public class PhotoSettingsConfig extends JTabbedPane {
 	private static final JColorChooser colorChooser = new JColorChooser();
 	

@@ -40,6 +40,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+@SuppressWarnings("serial")
 public class PhotoApp extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(PhotoApp.class);
 	private final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
