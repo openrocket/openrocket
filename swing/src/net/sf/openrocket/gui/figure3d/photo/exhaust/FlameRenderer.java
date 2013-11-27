@@ -352,8 +352,8 @@ public final class FlameRenderer {
 			final float z = 2 * (r.nextFloat() * r.nextFloat() * r.nextFloat());
 			final float x = z * (r.nextFloat() - 0.5f);
 			final float y = z * (r.nextFloat() - 0.5f);
-			gl.glBegin(GL.GL_POINTS);
 			gl.glPointSize(1);
+			gl.glBegin(GL.GL_POINTS);
 			gl.glVertex3f(x, y, z * 2);
 			gl.glEnd();
 		}
