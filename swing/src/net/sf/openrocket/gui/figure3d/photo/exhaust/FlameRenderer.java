@@ -308,7 +308,8 @@ public final class FlameRenderer {
 				mvmatrix[1] = mvmatrix[2] = mvmatrix[4] = mvmatrix[6] = mvmatrix[8] = mvmatrix[9] = 0;
 				gl.glLoadMatrixd(mvmatrix, 0);
 				
-				//TODO Add a random rotation to prevent artifacts from texture.
+				//Add a random rotation to prevent artifacts from texture.
+				gl.glRotatef(r.nextFloat()*45f, 0,0,1);
 				
 				gl.glBegin(GL.GL_TRIANGLE_FAN);
 				float d = radius.f(z) * scale * 2;

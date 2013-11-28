@@ -4,7 +4,7 @@ uniform sampler2D uSmoke;
 void main(void)
 {
 	vec3 normal = 2.0 * texture2D (uNormal, gl_TexCoord[0].st).rgb - 1.0;
-	normal = normalize (normal);
+	normal = normalize (gl_NormalMatrix * normal);
 	
 	float lamberFactor = max (dot (gl_LightSource[1].position.xyz, normal), 0.0) ;
 	
