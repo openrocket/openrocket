@@ -344,18 +344,26 @@ public final class FlameRenderer {
 		Random r = new Random(0);
 		
 		float[] c = new float[4];
+		float[] c2 = new float[4];
 		convertColor(color, c);
-		for (int i = 0; i < 3; i++)
-			c[i] = c[i] * .3f + .7f;
-		gl.glColor4fv(c, 0);
-		
+		for (int i = 0; i < 3; i++){
+			c[i] = c2[i] = c[i] * .2f + .8f;
+		}
+		c[3] = 1;
+		c2[3] = 1;
+		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+		gl.glEnable(GL.GL_BLEND);
+		gl.glLineWidth(1f);
 		for (int i = 0; i < 200; i++) {
 			final float z = 2 * (r.nextFloat() * r.nextFloat() * r.nextFloat());
 			final float x = z * (r.nextFloat() - 0.5f);
 			final float y = z * (r.nextFloat() - 0.5f);
 			gl.glPointSize(1);
-			gl.glBegin(GL.GL_POINTS);
+			gl.glBegin(GL.GL_LINES);
+			gl.glColor4fv(c, 0);
 			gl.glVertex3f(x, y, z * 2);
+			gl.glColor4fv(c2, 0);
+			gl.glVertex3f(x * 1.02f, y * 1.02f, z * 2 + 0.01f);
 			gl.glEnd();
 		}
 	}
