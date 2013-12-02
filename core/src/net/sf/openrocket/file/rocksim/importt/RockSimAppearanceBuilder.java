@@ -69,12 +69,13 @@ public class RockSimAppearanceBuilder extends AppearanceBuilder {
 			if ("file".equals(name)) {
 				if (value.length() > 0) {
 					final File f = new File(value);
-					if (!f.exists()) {
-						//Find out how to get path of current rocksim file
-						//so I can look in it's directory
+					if (f.exists()) {
+						Attachment a = context.getAttachmentFactory().getAttachment(name);
+						setImage(context.getOpenRocketDocument().getDecalImage(a));
 					}
-					Attachment a = context.getAttachmentFactory().getAttachment(name);
-					setImage(context.getOpenRocketDocument().getDecalImage(a));
+					// else {
+					// If we can't find the file on the filesystem, we just ignore the decal.
+					//}
 				}
 			} else if ("repeat".equals(name)) {
 				repeat = "1".equals(value);
