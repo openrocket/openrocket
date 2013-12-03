@@ -1,11 +1,12 @@
 package net.sf.openrocket.gui.figure3d.photo;
 
+import net.sf.openrocket.gui.figure3d.photo.exhaust.FlameRenderer.FlameSettings;
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky;
 import net.sf.openrocket.gui.figure3d.photo.sky.builtin.Mountains;
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.Color;
 
-public class PhotoSettings extends AbstractChangeSource {
+public class PhotoSettings extends AbstractChangeSource implements FlameSettings {
 	private double roll = 3.14;
 	private double yaw = 0;
 	private double pitch = 2.05;

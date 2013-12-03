@@ -364,7 +364,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			for (int i = 0; i < position.length; i++) {
 				gl.glPushMatrix();
 				gl.glTranslated(position[i].x + motor.getLength(), position[i].y, position[i].z);
-				FlameRenderer.f(gl, p.isFlame(), p.isSmoke(), p.isSparks(), p.getSmokeColor(), p.getFlameColor(), motor, (float) p.getExhaustScale(), (float) p.getFlameAspectRatio());
+				FlameRenderer.drawExhaust(gl, p, motor);
 				gl.glPopMatrix();
 			}
 		}

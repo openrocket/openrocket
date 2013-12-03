@@ -139,15 +139,135 @@ import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 
 public final class FlameRenderer {
-	
+
+	public interface FlameSettings {
+		public boolean isFlame();
+
+		public boolean isSmoke();
+
+		public Color getFlameColor();
+
+		public Color getSmokeColor();
+
+		public double getSmokeAlpha();
+
+		public boolean isSparks();
+
+		public double getExhaustScale();
+
+		public double getFlameAspectRatio();
+	}
+
 	private static final Logger log = LoggerFactory.getLogger(FlameRenderer.class);
-	
+
 	private FlameRenderer() {
 	}
-	
-	static Texture noise;
-	
-	protected static void convertColor(Color color, float[] out) {
+
+	public static void drawExhaust(GL2 gl, FlameSettings fs, Motor motor) {
+
+		final float s = (float) Math.max(.5, Math.sqrt(motor.getAverageThrustEstimate()) / 4.0)
+				* (float) fs.getExhaustScale();
+		gl.glScalef(s, s, s);
+
+		gl.glRotated(90, 0, 1, 0);
+		gl.glTranslated(0, 0, 0);
+
+		gl.glDisable(GLLightingFunc.GL_LIGHTING);
+
+		if (fs.isSparks() && fs.isFlame()) {
+			sparks(gl, fs.getFlameColor());
+		}
+
+		gl.glEnable(GL.GL_BLEND);
+
+		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
+		gl.glDepthMask(false);
+
+		if (fs.isSmoke()) {
+			final float LEN = 10;
+			final float MAX_R = .15f;
+			final int P = 5;
+
+			final Func radius = new Func() {
+				@Override
+				public float f(double d) {
+					return (float) (Math.atan(d) / (Math.PI / 2.0)) * MAX_R + 0.001f;
+				}
+			};
+
+			final Func dZ = new Func() {
+				@Override
+				public float f(double z) {
+					return radius.f(z);
+				}
+			};
+
+			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+
+			gl.glActiveTexture(GL.GL_TEXTURE0);
+			smokeT.bind(gl);
+
+			gl.glActiveTexture(GL.GL_TEXTURE1);
+			smokeN.bind(gl);
+
+			gl.glUseProgram(shaderprogram);
+
+			setUniform1i(gl, shaderprogram, "uSmoke", 0);
+			setUniform1i(gl, shaderprogram, "uNormal", 1);
+
+			trail(gl, radius, dZ, new Const(0.1f * (fs.getSmokeColor().getAlpha() / 255f)), LEN, P, fs.getSmokeColor(),
+					s);
+			// trail(gl, radius, dZ, new Const(1), 0.2f, 1, smokeColor);
+			gl.glUseProgram(0);
+
+			smokeN.disable(gl);
+			gl.glActiveTexture(GL.GL_TEXTURE0);
+		}
+
+		if (fs.isFlame()) {
+			gl.glScalef(1, 1, (float) fs.getFlameAspectRatio());
+
+			gl.glActiveTexture(GL.GL_TEXTURE0);
+			flameT.enable(gl);
+			flameT.bind(gl);
+
+			final float FLEN = 0.3f;
+			final int FP = 6;
+			final Func fr = new Func() {
+				@Override
+				public float f(double z) {
+					z = z / FLEN;
+					z = 1 - z;
+					return (float) (z * z - z * z * z) * .06f;
+				}
+			};
+
+			final Func fdZ = new Func() {
+				@Override
+				public float f(double z) {
+					return 0.002f;
+				}
+			};
+
+			final Func alpha = new Func() {
+				@Override
+				public float f(double z) {
+					return 0.2f * (float) Math.pow((1.0f - (float) z / FLEN), 4);
+				};
+			};
+
+			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
+			trail(gl, fr, fdZ, alpha, FLEN, FP, fs.getFlameColor(), s);
+
+			flameT.disable(gl);
+		}
+
+		gl.glEnable(GLLightingFunc.GL_LIGHTING);
+		gl.glDepthMask(true);
+
+	}
+
+	private static void convertColor(Color color, float[] out) {
 		if (color == null) {
 			out[0] = 1;
 			out[1] = 1;
@@ -158,64 +278,70 @@ public final class FlameRenderer {
 			out[2] = (float) color.getBlue() / 255f;
 		}
 	}
-	
+
 	static Texture flameT;
 	static Texture smokeT;
 	static Texture smokeN;
 	static int shaderprogram;
-	
+
 	private static interface Func {
 		float f(double d);
 	}
-	
+
 	private static final class Const implements Func {
 		final float val;
-		
+
 		public Const(final float val) {
 			this.val = val;
 		}
-		
+
 		@Override
 		public float f(final double d) {
 			return val;
 		}
 	}
-	
+
 	public static void init(GL2 gl) {
 		try {
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-color.png"), GL.GL_RGBA, GL.GL_RGBA, true, null);
+			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(),
+					FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-color.png"), GL.GL_RGBA, GL.GL_RGBA,
+					true, null);
 			smokeT = TextureIO.newTexture(data);
-			data = TextureIO.newTextureData(GLProfile.getDefault(), FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-normal.png"), GL.GL_RGBA, GL.GL_RGBA, true, null);
+			data = TextureIO.newTextureData(GLProfile.getDefault(),
+					FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-normal.png"), GL.GL_RGBA, GL.GL_RGBA,
+					true, null);
 			smokeN = TextureIO.newTexture(data);
-			data = TextureIO.newTextureData(GLProfile.getDefault(), FlameRenderer.class.getResourceAsStream("/datafiles/flame/smoke2.png"), GL.GL_RGBA, GL.GL_RGBA, true, null);
+			data = TextureIO.newTextureData(GLProfile.getDefault(),
+					FlameRenderer.class.getResourceAsStream("/datafiles/flame/smoke2.png"), GL.GL_RGBA, GL.GL_RGBA,
+					true, null);
 			flameT = TextureIO.newTexture(data);
-			
+
 			String line;
 			shaderprogram = gl.glCreateProgram();
-			
-			/*int v = gl.glCreateShader(GL2.GL_FRAGMENT_SHADER);
-			BufferedReader brv = new BufferedReader(new InputStreamReader(FlameRenderer.class.getResourceAsStream("smokeVertex.glsl")));
-			String vsrc = "";
-			while ((line = brv.readLine()) != null) {
-				vsrc += line + "\n";
-			}
-			gl.glShaderSource(v, 1, new String[] { vsrc }, (int[]) null, 0);
-			gl.glAttachShader(shaderprogram, v);
-			gl.glCompileShader(v);*/
-			
+
+			/*
+			 * int v = gl.glCreateShader(GL2.GL_FRAGMENT_SHADER); BufferedReader
+			 * brv = new BufferedReader(new
+			 * InputStreamReader(FlameRenderer.class
+			 * .getResourceAsStream("smokeVertex.glsl"))); String vsrc = "";
+			 * while ((line = brv.readLine()) != null) { vsrc += line + "\n"; }
+			 * gl.glShaderSource(v, 1, new String[] { vsrc }, (int[]) null, 0);
+			 * gl.glAttachShader(shaderprogram, v); gl.glCompileShader(v);
+			 */
+
 			int f = gl.glCreateShader(GL2.GL_FRAGMENT_SHADER);
-			BufferedReader brf = new BufferedReader(new InputStreamReader(FlameRenderer.class.getResourceAsStream("/datafiles/flame/smokeShader.glsl")));
+			BufferedReader brf = new BufferedReader(new InputStreamReader(
+					FlameRenderer.class.getResourceAsStream("/datafiles/flame/smokeShader.glsl")));
 			String fsrc = "";
 			while ((line = brf.readLine()) != null) {
 				fsrc += line + "\n";
 			}
 			gl.glShaderSource(f, 1, new String[] { fsrc }, (int[]) null, 0);
 			gl.glCompileShader(f);
-			
+
 			int statusFragmentShader[] = new int[1];
 			gl.glGetShaderiv(f, GL2.GL_COMPILE_STATUS, IntBuffer.wrap(statusFragmentShader));
-			if (statusFragmentShader[0] == GL2.GL_FALSE)
-			{
+			if (statusFragmentShader[0] == GL2.GL_FALSE) {
 				int infoLogLenght[] = new int[1];
 				gl.glGetShaderiv(f, GL2.GL_INFO_LOG_LENGTH, IntBuffer.wrap(infoLogLenght));
 				ByteBuffer infoLog = Buffers.newDirectByteBuffer(infoLogLenght[0]);
@@ -225,53 +351,46 @@ public final class FlameRenderer {
 				String out = new String(infoBytes);
 				System.err.println("Fragment shader error:\n" + out);
 			}
-			
+
 			gl.glAttachShader(shaderprogram, f);
-			
-			
-			
-			
+
 			gl.glLinkProgram(shaderprogram);
 			gl.glValidateProgram(shaderprogram);
-			
-			
+
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 	}
-	
-	
-	
+
 	private static void trail(GL2 gl, Func radius, Func dZ, Func alpha, float LEN, int P, Color color, float scale) {
 		float[] c = new float[4];
 		convertColor(color, c);
-		
-		//Figure out if the flame and smoke is point "in" or "out" of the screen
-		//in order to draw the particles in the right Z order
+
+		// Figure out if the flame and smoke is point "in" or "out" of the
+		// screen
+		// in order to draw the particles in the right Z order
 		final boolean startAtTop;
 		{
 			final double[] mvmatrix = new double[16];
 			final double[] projmatrix = new double[16];
 			final int[] viewport = new int[4];
-			
+
 			gl.glGetIntegerv(GL.GL_VIEWPORT, viewport, 0);
 			gl.glGetDoublev(GLMatrixFunc.GL_MODELVIEW_MATRIX, mvmatrix, 0);
 			gl.glGetDoublev(GLMatrixFunc.GL_PROJECTION_MATRIX, projmatrix, 0);
-			
+
 			final double out[] = new double[4];
 			final double out2[] = new double[4];
-			(new GLU()).gluProject(0, 0, 0, mvmatrix, 0, projmatrix, 0, viewport, 0,
-					out, 0);
-			(new GLU()).gluProject(0, 0, 0.01f, mvmatrix, 0, projmatrix, 0, viewport, 0,
-					out2, 0);
-			
+			(new GLU()).gluProject(0, 0, 0, mvmatrix, 0, projmatrix, 0, viewport, 0, out, 0);
+			(new GLU()).gluProject(0, 0, 0.01f, mvmatrix, 0, projmatrix, 0, viewport, 0, out2, 0);
+
 			startAtTop = out2[2] < out[2];
 		}
-		
+
 		final float start;
 		final float len;
 		final float mult;
-		
+
 		if (startAtTop) {
 			start = 0.002f;
 			len = LEN;
@@ -281,36 +400,35 @@ public final class FlameRenderer {
 			len = 0.002f;
 			mult = -1;
 		}
-		
-		//Use the same seed every time
+
+		// Use the same seed every time
 		Random r = new Random(0);
-		
-		//Loop forwards or backwards. Technically the dZ is applied differently
-		//in either direction, but the difference should be vanishingly small.
+
+		// Loop forwards or backwards. Technically the dZ is applied differently
+		// in either direction, but the difference should be vanishingly small.
 		for (float z = start; mult * z < mult * len; z += mult * dZ.f(z)) {
 			gl.glPushMatrix();
 			gl.glTranslatef(0, 0, z);
-			
+
 			c[3] = alpha.f(z);
 			gl.glColor4fv(c, 0);
-			
-			
+
 			for (int i = 0; i < P; i++) {
 				gl.glPushMatrix();
 				float rx = radius.f(z) - ((float) r.nextFloat() * radius.f(z) * 2.0f);
 				float ry = radius.f(z) - ((float) r.nextFloat() * radius.f(z) * 2.0f);
 				float rz = radius.f(z) - ((float) r.nextFloat() * radius.f(z) * 2.0f);
 				gl.glTranslatef(rx, ry, rz);
-				
+
 				final double[] mvmatrix = new double[16];
 				gl.glGetDoublev(GLMatrixFunc.GL_MODELVIEW_MATRIX, mvmatrix, 0);
 				mvmatrix[0] = mvmatrix[5] = mvmatrix[10] = 1;
 				mvmatrix[1] = mvmatrix[2] = mvmatrix[4] = mvmatrix[6] = mvmatrix[8] = mvmatrix[9] = 0;
 				gl.glLoadMatrixd(mvmatrix, 0);
-				
-				//Add a random rotation to prevent artifacts from texture.
-				gl.glRotatef(r.nextFloat()*45f, 0,0,1);
-				
+
+				// Add a random rotation to prevent artifacts from texture.
+				gl.glRotatef(r.nextFloat() * 45f, 0, 0, 1);
+
 				gl.glBegin(GL.GL_TRIANGLE_FAN);
 				float d = radius.f(z) * scale * 2;
 				gl.glTexCoord2f(0, 0);
@@ -322,15 +440,15 @@ public final class FlameRenderer {
 				gl.glTexCoord2f(1, 0);
 				gl.glVertex3f(d, -d, 0);
 				gl.glEnd();
-				
+
 				gl.glPopMatrix();
 			}
-			
+
 			gl.glPopMatrix();
 		}
 	}
-	
-	public static void setUniform1i(GL2 inGL, int inProgramID, String inName, int inValue) {
+
+	private static void setUniform1i(GL2 inGL, int inProgramID, String inName, int inValue) {
 		int tUniformLocation = inGL.glGetUniformLocation(inProgramID, inName);
 		if (tUniformLocation != -1) {
 			inGL.glUniform1i(tUniformLocation, inValue);
@@ -338,15 +456,15 @@ public final class FlameRenderer {
 			log.warn("UNIFORM COULD NOT BE FOUND! NAME={}", inName);
 		}
 	}
-	
-	public static void sparks(GL2 gl, Color color) {
-		//Use the same seed every time
+
+	private static void sparks(GL2 gl, Color color) {
+		// Use the same seed every time
 		Random r = new Random(0);
-		
+
 		float[] c = new float[4];
 		float[] c2 = new float[4];
 		convertColor(color, c);
-		for (int i = 0; i < 3; i++){
+		for (int i = 0; i < 3; i++) {
 			c[i] = c2[i] = c[i] * .2f + .8f;
 		}
 		c[3] = 1;
@@ -367,109 +485,5 @@ public final class FlameRenderer {
 			gl.glEnd();
 		}
 	}
-	
-	public static void f(GL2 gl, boolean flame, boolean smoke, boolean sparks, Color smokeColor, Color flameColor, Motor motor, float scale, float aspect) {
-		
-		final float s = (float) Math.max(.5, Math.sqrt(motor.getAverageThrustEstimate()) / 4.0) * scale;
-		gl.glScalef(s, s, s);
-		
-		gl.glRotated(90, 0, 1, 0);
-		gl.glTranslated(0, 0, 0);
-		
-		gl.glDisable(GLLightingFunc.GL_LIGHTING);
-		
-		if (sparks && flame) {
-			sparks(gl, flameColor);
-		}
-		
-		gl.glEnable(GL.GL_BLEND);
-		
-		gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
-		gl.glDepthMask(false);
-		
-		
-		if (smoke) {
-			final float LEN = 10;
-			final float MAX_R = .15f;
-			final int P = 5;
-			
-			final Func radius = new Func() {
-				@Override
-				public float f(double d) {
-					return (float) (Math.atan(d) / (Math.PI / 2.0)) * MAX_R + 0.001f;
-				}
-			};
-			
-			final Func dZ = new Func() {
-				@Override
-				public float f(double z) {
-					return radius.f(z);
-				}
-			};
-			
-			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-			
-			gl.glActiveTexture(GL.GL_TEXTURE0);
-			smokeT.bind(gl);
-			
-			gl.glActiveTexture(GL.GL_TEXTURE1);
-			smokeN.bind(gl);
-			
-			gl.glUseProgram(shaderprogram);
-			
-			setUniform1i(gl, shaderprogram, "uSmoke", 0);
-			setUniform1i(gl, shaderprogram, "uNormal", 1);
-			
-			trail(gl, radius, dZ, new Const(0.1f * (smokeColor.getAlpha() / 255f)), LEN, P, smokeColor, s);
-			//trail(gl, radius, dZ, new Const(1), 0.2f, 1, smokeColor);
-			gl.glUseProgram(0);
-			
-			smokeN.disable(gl);
-			gl.glActiveTexture(GL.GL_TEXTURE0);
-		}
-		
-		
-		if (flame) {
-			gl.glScalef(1, 1, aspect);
-			
-			gl.glActiveTexture(GL.GL_TEXTURE0);
-			flameT.enable(gl);
-			flameT.bind(gl);
-			
-			final float FLEN = 0.3f;
-			final int FP = 6;
-			final Func fr = new Func() {
-				@Override
-				public float f(double z) {
-					z = z / FLEN;
-					z = 1 - z;
-					return (float) (z * z - z * z * z) * .06f;
-				}
-			};
-			
-			final Func fdZ = new Func() {
-				@Override
-				public float f(double z) {
-					return 0.002f;
-				}
-			};
-			
-			final Func alpha = new Func() {
-				@Override
-				public float f(double z) {
-					return 0.2f * (float) Math.pow((1.0f - (float) z / FLEN), 4);
-				};
-			};
-			
-			gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
-			trail(gl, fr, fdZ, alpha, FLEN, FP, flameColor, s);
-			
-			flameT.disable(gl);
-		}
-		
-		gl.glEnable(GLLightingFunc.GL_LIGHTING);
-		gl.glDepthMask(true);
-		
-	}
-	
+
 }
