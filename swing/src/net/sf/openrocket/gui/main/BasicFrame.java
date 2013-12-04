@@ -81,6 +81,7 @@ import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
+import net.sf.openrocket.gui.figure3d.photo.PhotoFrame;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
@@ -603,6 +604,19 @@ public class BasicFrame extends JFrame {
 				ScaleDialog dialog = new ScaleDialog(document, getSelectedComponent(), BasicFrame.this);
 				dialog.setVisible(true);
 				dialog.dispose();
+			}
+		});
+		menu.add(item);
+		
+		
+		item = new JMenuItem("Photo..."); //TODO
+		item.getAccessibleContext().setAccessibleDescription("Photo Editor"); //TODO
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Photo... selected");
+				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
+				pa.setVisible(true);
 			}
 		});
 		menu.add(item);
