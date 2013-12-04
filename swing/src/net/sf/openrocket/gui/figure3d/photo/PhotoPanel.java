@@ -345,6 +345,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			gl.glEnable(GLLightingFunc.GL_LIGHT2);
 		} else {
 			gl.glDisable(GLLightingFunc.GL_LIGHT2);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE, new float[] { 0,0,0,1 }, 0);
 		}
 		
 		

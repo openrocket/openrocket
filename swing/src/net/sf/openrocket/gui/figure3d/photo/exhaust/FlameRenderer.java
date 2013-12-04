@@ -168,6 +168,10 @@ public final class FlameRenderer {
 	}
 
 	public static void drawExhaust(GL2 gl, FlameSettings fs, Motor motor) {
+		
+		//TODO REmove these
+		//dispose(gl);
+		//init(gl);
 
 		final float s = (float) Math.max(.5, Math.sqrt(motor.getAverageThrustEstimate()) / 4.0)
 				* (float) fs.getExhaustScale();
@@ -307,6 +311,7 @@ public final class FlameRenderer {
 
 	public static void init(GL2 gl) {
 		try {
+			log.debug("Loading Textures");
 			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(),
 					FlameRenderer.class.getResourceAsStream("/datafiles/flame/c-color.png"), GL.GL_RGBA, GL.GL_RGBA,
 					true, null);
@@ -320,6 +325,7 @@ public final class FlameRenderer {
 					true, null);
 			flameT = TextureIO.newTexture(data);
 
+			log.debug("Loading Shader");
 			String line;
 			shaderprogram = gl.glCreateProgram();
 
@@ -364,6 +370,19 @@ public final class FlameRenderer {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	public static void dispose(GL2 gl) {
+		log.debug("Destroying Textures");
+		smokeT.destroy(gl);
+		smokeN.destroy(gl);
+		flameT.destroy(gl);
+		smokeT = null;
+		smokeN = null;
+		flameT = null;
+		log.debug("Deleting Shader {}", shaderprogram);
+		//gl.glDeleteShader(shaderprogram); TODO Why is this broken?
+		shaderprogram = 0;
 	}
 
 	private static void trail(GL2 gl, Func radius, Func dZ, Func alpha, float LEN, int P, Color color, float scale) {
@@ -416,6 +435,11 @@ public final class FlameRenderer {
 
 			c[3] = alpha.f(z);
 			gl.glColor4fv(c, 0);
+			
+			int[] ii = {0};
+			gl.glGetIntegerv(GL2.GL_CURRENT_PROGRAM, ii, 0);
+			if ( ii[0] == shaderprogram )
+				setUniform1f(gl, shaderprogram, "z", z);
 
 			for (int i = 0; i < P; i++) {
 				gl.glPushMatrix();
@@ -456,6 +480,15 @@ public final class FlameRenderer {
 		int tUniformLocation = inGL.glGetUniformLocation(inProgramID, inName);
 		if (tUniformLocation != -1) {
 			inGL.glUniform1i(tUniformLocation, inValue);
+		} else {
+			log.warn("UNIFORM COULD NOT BE FOUND! NAME={}", inName);
+		}
+	}
+	
+	private static void setUniform1f(GL2 inGL, int inProgramID, String inName, float inValue) {
+		int tUniformLocation = inGL.glGetUniformLocation(inProgramID, inName);
+		if (tUniformLocation != -1) {
+			inGL.glUniform1f(tUniformLocation, inValue);
 		} else {
 			log.warn("UNIFORM COULD NOT BE FOUND! NAME={}", inName);
 		}
