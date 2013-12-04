@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.figure3d.photo;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -41,31 +42,31 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 @SuppressWarnings("serial")
-public class PhotoApp extends JFrame {
-	private static final Logger log = LoggerFactory.getLogger(PhotoApp.class);
+public class PhotoFrame extends JFrame {
+	private static final Logger log = LoggerFactory.getLogger(PhotoFrame.class);
 	private final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 	private final Translator trans = Application.getTranslator();
-	
-	private PhotoPanel photoPanel;
-	private JDialog settings;
-	
-	public PhotoApp() {
+
+	private final PhotoPanel photoPanel;
+	private final JDialog settings;
+
+	public PhotoFrame(OpenRocketDocument document, Window parent) {
+		this(false);
+		setTitle("Photo - " + document.getRocket().getName());
+		photoPanel.setDoc(document);
+	}
+
+	public PhotoFrame(boolean app) {
 		setSize(1024, 768);
 		this.setMinimumSize(new Dimension(160, 150));
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 		photoPanel = new PhotoPanel();
-		setJMenuBar(getMenu());
+		setJMenuBar(getMenu(app));
 		setContentPane(photoPanel);
-		
+
 		GUIUtil.rememberWindowSize(this);
 		this.setLocationByPlatform(true);
 		GUIUtil.setWindowIcons(this);
-		
-		setTitle("OpenRocket - Photo Studio Alpha");
-		
-		setVisible(true);
-		
+
 		settings = new JDialog(this, "Settings") {
 			{
 				setContentPane(new PhotoSettingsConfig(photoPanel.getSettings()));
@@ -75,63 +76,64 @@ public class PhotoApp extends JFrame {
 			}
 		};
 	}
-	
-	JMenuBar getMenu() {
+
+	private JMenuBar getMenu(final boolean showFileMenu) {
 		JMenuBar menubar = new JMenuBar();
 		JMenu menu;
 		JMenuItem item;
-		
-		////  File
-		menu = new JMenu(trans.get("main.menu.file"));
-		menu.setMnemonic(KeyEvent.VK_F);
-		//// File-handling related tasks
-		menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
-		menubar.add(menu);
-		
-		item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
-		//// Open a rocket design
-		item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
-		item.setIcon(Icons.FILE_OPEN);
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Open... selected");
-				
-				JFileChooser chooser = new JFileChooser();
-				
-				chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-				chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
-				chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
-				chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
-				
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				
-				chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
-				int option = chooser.showOpenDialog(PhotoApp.this);
-				if (option == JFileChooser.APPROVE_OPTION) {
-					File file = chooser.getSelectedFile();
-					log.debug("Opening File " + file.getAbsolutePath());
-					GeneralRocketLoader grl = new GeneralRocketLoader(file);
-					try {
-						OpenRocketDocument doc = grl.load();
-						photoPanel.setDoc(doc);
-					} catch (RocketLoadException e1) {
-						e1.printStackTrace();
+
+		// // File
+		if (showFileMenu) {
+			menu = new JMenu(trans.get("main.menu.file"));
+			menu.setMnemonic(KeyEvent.VK_F);
+			// // File-handling related tasks
+			menu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.desc"));
+			menubar.add(menu);
+
+			item = new JMenuItem(trans.get("main.menu.file.open"), KeyEvent.VK_O);
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, SHORTCUT_KEY));
+			// // Open a rocket design
+			item.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.item.Openrocketdesign"));
+			item.setIcon(Icons.FILE_OPEN);
+			item.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					log.info(Markers.USER_MARKER, "Open... selected");
+
+					JFileChooser chooser = new JFileChooser();
+
+					chooser.addChoosableFileFilter(FileHelper.ALL_DESIGNS_FILTER);
+					chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
+					chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+					chooser.setFileFilter(FileHelper.ALL_DESIGNS_FILTER);
+
+					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+					chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+					int option = chooser.showOpenDialog(PhotoFrame.this);
+					if (option == JFileChooser.APPROVE_OPTION) {
+						File file = chooser.getSelectedFile();
+						log.debug("Opening File " + file.getAbsolutePath());
+						GeneralRocketLoader grl = new GeneralRocketLoader(file);
+						try {
+							OpenRocketDocument doc = grl.load();
+							photoPanel.setDoc(doc);
+						} catch (RocketLoadException e1) {
+							e1.printStackTrace();
+						}
 					}
 				}
-			}
-		});
-		menu.add(item);
-		
-		////  Edit
+			});
+			menu.add(item);
+		}
+
+		// // Edit
 		menu = new JMenu(trans.get("main.menu.edit"));
 		menu.setMnemonic(KeyEvent.VK_E);
-		//// Rocket editing
+		// // Rocket editing
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.menu.Rocketedt"));
 		menubar.add(menu);
-		
-		
+
 		Action action = new AbstractAction("Copy") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -143,101 +145,90 @@ public class PhotoApp extends JFrame {
 		item.setMnemonic(KeyEvent.VK_C);
 		item.getAccessibleContext().setAccessibleDescription("Copy image to clipboard");
 		menu.add(item);
-		
+
 		menu.add(new JMenuItem(new AbstractAction("Photo Settings") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				settings.setVisible(true);
 			}
 		}));
-		
-		//Window
+
+		// Window
 		menu = new JMenu("Window");
 		menubar.add(menu);
 		JMenu sizeMenu = new JMenu("Size");
 		menu.add(sizeMenu);
-		
+
 		sizeMenu.add(new JMenuItem(new SizeAction(320, 240, "QVGA")));
 		sizeMenu.add(new JMenuItem(new SizeAction(640, 480, "VGA")));
 		sizeMenu.add(new JMenuItem(new SizeAction(1024, 768, "XGA")));
-		
+
 		sizeMenu.addSeparator();
-		
+
 		sizeMenu.add(new JMenuItem(new SizeAction(240, 320, "QVGA Portrait")));
 		sizeMenu.add(new JMenuItem(new SizeAction(480, 640, "VGA Portrait")));
 		sizeMenu.add(new JMenuItem(new SizeAction(768, 1024, "XGA Portrait")));
-		
+
 		sizeMenu.addSeparator();
-		
+
 		sizeMenu.add(new JMenuItem(new SizeAction(854, 480, "420p")));
 		sizeMenu.add(new JMenuItem(new SizeAction(1280, 720, "720p")));
 		sizeMenu.add(new JMenuItem(new SizeAction(1920, 1080, "1080p")));
-		
+
 		return menubar;
 	}
-	
+
 	private class SizeAction extends AbstractAction {
 		private final int w, h;
-		
+
 		SizeAction(final int w, final int h, final String n) {
 			super(w + " x " + h + " (" + n + ")");
 			this.w = w;
 			this.h = h;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			photoPanel.setPreferredSize(new Dimension(w, h));
-			PhotoApp.this.pack();
+			PhotoFrame.this.pack();
 		}
-		
+
 	}
-	
-	
+
 	public static void main(String args[]) throws Exception {
-		
+
 		LoggingSystemSetup.setupLoggingAppender();
 		LoggingSystemSetup.addConsoleAppender();
-		
+
 		// Setup the uncaught exception handler
 		log.info("Registering exception handler");
 		SwingExceptionHandler exceptionHandler = new SwingExceptionHandler();
 		Application.setExceptionHandler(exceptionHandler);
 		exceptionHandler.registerExceptionHandler();
-		
+
 		// Load motors etc.
 		log.info("Loading databases");
-		
+
 		GuiModule guiModule = new GuiModule();
 		Module pluginModule = new PluginModule();
 		Injector injector = Guice.createInjector(guiModule, pluginModule);
 		Application.setInjector(injector);
-		
+
 		guiModule.startLoader();
-		
+
 		// Set the best available look-and-feel
 		log.info("Setting best LAF");
 		GUIUtil.setBestLAF();
-		
+
 		// Load defaults
 		((SwingPreferences) Application.getPreferences()).loadDefaultUnits();
-		
+
 		Databases.fakeMethod();
-		
-		new PhotoApp();
-		
-		/*
-		if (true) {
-			Thread.sleep(1);
-			//String f = "C:\\Users\\bkuker\\git\\openrocket\\core\\resources\\datafiles\\examples\\Simulation Listeners.ork";
-			//String f = "C:\\Users\\bkuker\\git\\openrocket\\core\\resources\\datafiles\\examples\\High Power Airstart.ork";
-			String f = "C:\\Users\\bkuker\\git\\openrocket\\core\\resources\\datafiles\\examples\\A simple model rocket.ork";
-			//String f = "C:\\Users\\bkuker\\git\\openrocket\\core\\resources\\datafiles\\examples\\Clustered rocket design.ork";
-			//String f = "C:\\Users\\bkuker\\git\\openrocket\\core\\resources\\datafiles\\examples\\Boosted Dart.ork";
-			GeneralRocketLoader grl = new GeneralRocketLoader(new File(f));
-			OpenRocketDocument doc = grl.load();
-			pb.setDoc(doc);
-		}*/
+
+		PhotoFrame pa = new PhotoFrame(true);
+		pa.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		pa.setTitle("OpenRocket - Photo Studio Alpha");
+		pa.setVisible(true);
 	}
-	
+
 }
