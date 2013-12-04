@@ -288,9 +288,31 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				fireModel.addEnableComponent(flameAspectSpinner);
 				
 				add(new JLabel("Sparks"));
-				JCheckBox sparksCheck = new JCheckBox(new BooleanModel(p, "Sparks"));
+				BooleanModel sparksModel = new BooleanModel(p, "Sparks");
+				JCheckBox sparksCheck = new JCheckBox(sparksModel);
 				add(sparksCheck, "wrap");
 				fireModel.addEnableComponent(sparksCheck);
+				
+				add(new JLabel("Spark Concentration"));
+				DoubleModel sparkConcentrationModel = new DoubleModel(p, "SparkConcentration", 100, UnitGroup.UNITS_NONE, 0, 100);
+				JSpinner sparkConcentrationSpinner = new JSpinner(sparkConcentrationModel.getSpinnerModel());
+				add(sparkConcentrationSpinner, "wrap");
+				sparksModel.addEnableComponent(sparkConcentrationSpinner);
+				
+				add(new JLabel("Spark Weight"));
+				DoubleModel sparkWeightModel = new DoubleModel(p, "SparkWeight", 100, UnitGroup.UNITS_NONE, 0, 100);
+				JSpinner sparkWeightSpinner = new JSpinner(sparkWeightModel.getSpinnerModel());
+				add(sparkWeightSpinner, "wrap");
+				sparksModel.addEnableComponent(sparkWeightSpinner);
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				
 				add(new JLabel("Exhaust Scale"));
 				DoubleModel exhaustScaleModel = new DoubleModel(p, "ExhaustScale", 100, UnitGroup.UNITS_NONE, 0, 1000);

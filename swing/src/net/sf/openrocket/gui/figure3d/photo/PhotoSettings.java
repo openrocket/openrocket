@@ -34,6 +34,9 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
 	
+	private double sparkConcentration;
+	private double sparkWeight;
+	
 	private Sky sky = Mountains.instance;
 	
 	public double getRoll() {
@@ -248,6 +251,24 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	
 	public void setSky(Sky sky) {
 		this.sky = sky;
+		fireChangeEvent();
+	}
+
+	public double getSparkConcentration() {
+		return sparkConcentration;
+	}
+
+	public void setSparkConcentration(double sparkConcentration) {
+		this.sparkConcentration = sparkConcentration;
+		fireChangeEvent();
+	}
+
+	public double getSparkWeight() {
+		return sparkWeight;
+	}
+
+	public void setSparkWeight(double sparkWeight) {
+		this.sparkWeight = sparkWeight;
 		fireChangeEvent();
 	}
 }
