@@ -266,7 +266,7 @@ public class BasicFrame extends JFrame {
 		
 		//  Upper-left segment, component tree
 		
-		JPanel panel = new JPanel(new MigLayout("fill, flowy", "", "[grow]"));
+		JPanel panel = new JPanel(new MigLayout("fill, flowy", "[grow][grow 0]","[grow]"));
 		
 		tree = new ComponentTree(document);
 		tree.setSelectionModel(componentSelectionModel);
