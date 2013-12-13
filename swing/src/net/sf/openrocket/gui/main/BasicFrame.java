@@ -119,7 +119,8 @@ public class BasicFrame extends JFrame {
 	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 	
 	public static final int COMPONENT_TAB = 0;
-	public static final int SIMULATION_TAB = 1;
+	public static final int CONFIGURATION_TAB = 1;
+	public static final int SIMULATION_TAB = 2;
 	
 	
 	/**
