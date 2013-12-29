@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent>, Visitable<RocketComponentVisitor, RocketComponent> {
+public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
 	
 	// Because of changes to Java 1.7.0-45's mechanism to construct DataFlavor objects (used in Drag and Drop)
@@ -1736,9 +1736,9 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	///////////// Visitor pattern implementation
-	@Override
-	public void accept(RocketComponentVisitor visitor) {
+	public <R> R accept(RocketComponentVisitor<R> visitor) {
 		visitor.visit(this);
+		return visitor.getResult();
 	}
 	
 	////////////  Helper methods for subclasses

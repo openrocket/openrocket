@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -49,6 +50,10 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 
+	private final JPanel cards;
+	private final static String HELP_LABEL = "help";
+	private final static String TABLE_LABEL = "table";
+	
 	private final MotorChooserDialog motorChooserDialog;
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
@@ -56,7 +61,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		super(flightConfigurationPanel,rocket);
 
 		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
-
 
 		{
 			//// Select motor mounts
@@ -75,8 +79,16 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			this.add(subpanel, "split, w 200lp, growy");
 		}
 
+		cards = new JPanel(new CardLayout());
+		this.add( cards );
+		
+		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
+		cards.add(helpText, HELP_LABEL );
+		
 		JScrollPane scroll = new JScrollPane(table);
-		this.add(scroll, "grow, wrap");
+		cards.add(scroll, TABLE_LABEL );
+		
+		this.add(cards, "grow, wrap");
 
 		//// Select motor
 		selectMotorButton = new JButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
@@ -122,6 +134,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	}
 
+	protected void showEmptyText() {
+		((CardLayout)cards.getLayout()).show(cards, HELP_LABEL);
+	}
+
+	protected void showContent() {
+		((CardLayout)cards.getLayout()).show(cards, TABLE_LABEL);
+	}
+
 	@Override
 	protected JTable initializeTable() {
 		//// Motor selection table.
@@ -165,12 +185,21 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	}
 
 	private void updateButtonState() {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount currentMount = getSelectedComponent();
-		selectMotorButton.setEnabled(currentMount != null && currentID != null);
-		removeMotorButton.setEnabled(currentMount != null && currentID != null);
-		selectIgnitionButton.setEnabled(currentMount != null && currentID != null);
-		resetIgnitionButton.setEnabled(currentMount != null && currentID != null);
+		if( configurationTableModel.getColumnCount() > 1 ) {
+			showContent();
+			String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			MotorMount currentMount = getSelectedComponent();
+			selectMotorButton.setEnabled(currentMount != null && currentID != null);
+			removeMotorButton.setEnabled(currentMount != null && currentID != null);
+			selectIgnitionButton.setEnabled(currentMount != null && currentID != null);
+			resetIgnitionButton.setEnabled(currentMount != null && currentID != null);
+		} else {
+			showEmptyText();
+			selectMotorButton.setEnabled(false);
+			removeMotorButton.setEnabled(false);
+			selectIgnitionButton.setEnabled(false);
+			resetIgnitionButton.setEnabled(false);
+		}
 	}
 
 
