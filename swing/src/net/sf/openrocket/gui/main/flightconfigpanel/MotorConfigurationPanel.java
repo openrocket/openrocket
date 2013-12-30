@@ -23,6 +23,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
@@ -153,6 +155,16 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 
 		};
+		// Listen to changes to the table so we can disable the help text when a
+		// motor mount is added through the edit body tube dialog.
+		configurationTableModel.addTableModelListener( new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				MotorConfigurationPanel.this.updateButtonState();
+			}
+			
+		});
 		JTable configurationTable = new JTable(configurationTableModel);
 		configurationTable.getTableHeader().setReorderingAllowed(false);
 		configurationTable.setCellSelectionEnabled(true);
@@ -171,6 +183,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				}
 			}
 		});
+		
 		return configurationTable;
 	}
 
