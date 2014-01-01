@@ -9,6 +9,11 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">01.01.2014:</span> Version 13.11.2 is
+   <a href="download.html">released</a>!  This release contains bug fixes,
+   usability improvements, and layout fixes.
+   </p>
+
   <p><span class="date">15.11.2013:</span> Version 13.11.1 is
    <a href="download.html">released</a>!  This release contains bug fixes
    including fixing Tube Coupler configuration, various exceptions in
