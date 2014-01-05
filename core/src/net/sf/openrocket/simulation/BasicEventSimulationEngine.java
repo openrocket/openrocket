@@ -66,7 +66,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		flightConfigurationId = configuration.getFlightConfigurationID();
 		MotorInstanceConfiguration motorConfiguration = setupMotorConfiguration(configuration);
 		if (motorConfiguration.getMotorIDs().isEmpty()) {
-			throw new MotorIgnitionException("No motors defined in the simulation.");
+			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
 		
 		status = new SimulationStatus(configuration, motorConfiguration, simulationConditions);
@@ -403,7 +403,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			case BURNOUT: {
 				// If motor burnout occurs without lift-off, abort
 				if (!status.isLiftoff()) {
-					throw new SimulationLaunchException("Motor burnout without liftoff.");
+					throw new SimulationLaunchException(trans.get("BasicEventSimulationEngine.error.earlyMotorBurnout"));
 				}
 				// Add ejection charge event
 				MotorId motorId = (MotorId) event.getData();
@@ -514,7 +514,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		
 		// If no motor has ignited, abort
 		if (!status.isMotorIgnited()) {
-			throw new MotorIgnitionException("No motors ignited.");
+			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noIgnition"));
 		}
 		
 		return ret;
@@ -579,7 +579,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					" rocketOrientationQuaternion=" + status.getRocketOrientationQuaternion() +
 					" rocketRotationVelocity=" + status.getRocketRotationVelocity() +
 					" effectiveLaunchRodLength=" + status.getEffectiveLaunchRodLength());
-			throw new SimulationException("Simulation resulted in not-a-number (NaN) value, please report a bug.");
+			throw new SimulationException(trans.get("BasicEventSimulationEngine.error.NaNResult"));
 		}
 	}
 	

@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 
+import net.miginfocom.layout.LayoutUtil;
 import net.sf.openrocket.arch.SystemInfo;
 import net.sf.openrocket.arch.SystemInfo.Platform;
 import net.sf.openrocket.communication.UpdateInfo;
@@ -50,6 +51,10 @@ public class SwingStartup {
 		
 		// Check for "openrocket.debug" property before anything else
 		checkDebugStatus();
+
+		if (System.getProperty("openrocket.debug.layout") != null) {
+			LayoutUtil.setGlobalDebugMillis(100);
+		}
 		
 		// Initialize logging first so we can use it
 		initializeLogging();

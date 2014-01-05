@@ -287,7 +287,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		}
 		for (Simulation s : getSimulations()) {
 			// Assumes modifiable collection - which it is
-			if (s.getConfiguration().getFlightConfigurationID().equals(configId)) {
+			if (configId.equals(s.getConfiguration().getFlightConfigurationID())) {
 				removeSimulation(s);
 			}
 		}
