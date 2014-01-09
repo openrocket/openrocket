@@ -1,6 +1,6 @@
-import net.sf.openrocket.*;
-import net.sf.openrocket.simulation.*;
-import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.SimulationConditions;
+import net.sf.openrocket.simulation.SimulationStatus;
 
 
 public class OpenRocketAPI {
@@ -10,21 +10,23 @@ public class OpenRocketAPI {
 	private SimulationStatus m_CStatus;
 	
 	public int LoadRocket(String szFileName) {
+		
 		return loadorkfile(szFileName); //this needs to be more complex...
+		
 	}
 	
-	public void RunSimulation(){
-	
-	SimulationEngine boink = new BasicEventSimulationEngine; 
-	
-	try {
-		m_CFlightData= boink.simulate(m_CSimulationConditions);
-	} catch (SimulationException e) {
-		// TODO Auto-generated catch block
-		System.out.println("oops RunSimulation threw an error");
-	}
-	
-};
+	public void RunSimulation() {
+		
+		/*SimulationEngine boink = new BasicEventSimulationEngine; 
+		
+		try {
+			m_CFlightData= boink.simulate(m_CSimulationConditions);
+		} catch (SimulationException e) {
+			// TODO Auto-generated catch block
+			System.out.println("oops RunSimulation threw an error");
+		}
+		*/
+	};
 	
 	public double getMaxAltitude() {
 		return m_CFlightData.getMaxAltitude();
@@ -63,6 +65,7 @@ public class OpenRocketAPI {
 	}
 	
 	private int loadorkfile(String filename) {
+		return 1;
 	}
 	
 };
