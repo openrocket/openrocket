@@ -352,7 +352,7 @@ public class RocketComponentConfig extends JPanel {
 	
 	
 	private JPanel commentTab() {
-		JPanel panel = new JPanel(new MigLayout("fill"));
+		JPanel panel = new JPanel(new MigLayout("fill","[]","[][grow]"));
 		
 		//// Comments on the
 		panel.add(new StyledLabel(trans.get("RocketCompCfg.lbl.Commentsonthe") + " " + component.getComponentName() + ":",
@@ -366,7 +366,7 @@ public class RocketComponentConfig extends JPanel {
 		GUIUtil.setTabToFocusing(commentTextArea);
 		commentTextArea.addFocusListener(textFieldListener);
 		
-		panel.add(new JScrollPane(commentTextArea), "width 10px, height 10px, growx, growy");
+		panel.add(new JScrollPane(commentTextArea), "grow");
 		
 		return panel;
 	}

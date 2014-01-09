@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -22,6 +23,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
@@ -49,10 +52,17 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	private final JButton selectMotorButton, removeMotorButton, selectIgnitionButton, resetIgnitionButton;
 
+	private final JPanel cards;
+	private final static String HELP_LABEL = "help";
+	private final static String TABLE_LABEL = "table";
+	
+	private final MotorChooserDialog motorChooserDialog;
 	protected FlightConfigurableTableModel<MotorMount> configurationTableModel;
 
 	MotorConfigurationPanel(final FlightConfigurationPanel flightConfigurationPanel, Rocket rocket) {
 		super(flightConfigurationPanel,rocket);
+
+		motorChooserDialog = new MotorChooserDialog(SwingUtilities.getWindowAncestor(flightConfigurationPanel));
 
 		{
 			//// Select motor mounts
@@ -71,8 +81,16 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			this.add(subpanel, "split, w 200lp, growy");
 		}
 
+		cards = new JPanel(new CardLayout());
+		this.add( cards );
+		
+		JLabel helpText = new JLabel(trans.get("MotorConfigurationPanel.lbl.nomotors"));
+		cards.add(helpText, HELP_LABEL );
+		
 		JScrollPane scroll = new JScrollPane(table);
-		this.add(scroll, "grow, wrap");
+		cards.add(scroll, TABLE_LABEL );
+		
+		this.add(cards, "grow, wrap");
 
 		//// Select motor
 		selectMotorButton = new JButton(trans.get("MotorConfigurationPanel.btn.selectMotor"));
@@ -118,6 +136,14 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 	}
 
+	protected void showEmptyText() {
+		((CardLayout)cards.getLayout()).show(cards, HELP_LABEL);
+	}
+
+	protected void showContent() {
+		((CardLayout)cards.getLayout()).show(cards, TABLE_LABEL);
+	}
+
 	@Override
 	protected JTable initializeTable() {
 		//// Motor selection table.
@@ -129,7 +155,18 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 
 		};
+		// Listen to changes to the table so we can disable the help text when a
+		// motor mount is added through the edit body tube dialog.
+		configurationTableModel.addTableModelListener( new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				MotorConfigurationPanel.this.updateButtonState();
+			}
+			
+		});
 		JTable configurationTable = new JTable(configurationTableModel);
+		configurationTable.getTableHeader().setReorderingAllowed(false);
 		configurationTable.setCellSelectionEnabled(true);
 		configurationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		configurationTable.setDefaultRenderer(Object.class, new MotorTableCellRenderer());
@@ -146,6 +183,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 				}
 			}
 		});
+		
 		return configurationTable;
 	}
 
@@ -160,12 +198,21 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	}
 
 	private void updateButtonState() {
-		String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
-		MotorMount currentMount = getSelectedComponent();
-		selectMotorButton.setEnabled(currentMount != null && currentID != null);
-		removeMotorButton.setEnabled(currentMount != null && currentID != null);
-		selectIgnitionButton.setEnabled(currentMount != null && currentID != null);
-		resetIgnitionButton.setEnabled(currentMount != null && currentID != null);
+		if( configurationTableModel.getColumnCount() > 1 ) {
+			showContent();
+			String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
+			MotorMount currentMount = getSelectedComponent();
+			selectMotorButton.setEnabled(currentMount != null && currentID != null);
+			removeMotorButton.setEnabled(currentMount != null && currentID != null);
+			selectIgnitionButton.setEnabled(currentMount != null && currentID != null);
+			resetIgnitionButton.setEnabled(currentMount != null && currentID != null);
+		} else {
+			showEmptyText();
+			selectMotorButton.setEnabled(false);
+			removeMotorButton.setEnabled(false);
+			selectIgnitionButton.setEnabled(false);
+			resetIgnitionButton.setEnabled(false);
+		}
 	}
 
 
@@ -177,13 +224,12 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 
 		MotorConfiguration config = mount.getMotorConfiguration().get(id);
 
-		MotorChooserDialog dialog = new MotorChooserDialog(
-				mount,
-				id,
-				SwingUtilities.getWindowAncestor(flightConfigurationPanel));
-		dialog.setVisible(true);
-		Motor m = dialog.getSelectedMotor();
-		double d = dialog.getSelectedDelay();
+		motorChooserDialog.setMotorMountAndConfig(mount, id);
+
+		motorChooserDialog.setVisible(true);
+
+		Motor m = motorChooserDialog.getSelectedMotor();
+		double d = motorChooserDialog.getSelectedDelay();
 
 		if (m != null) {
 			config = new MotorConfiguration();
@@ -257,9 +303,11 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			}
 			c.setBorder(b);
 		}
-		
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table,Object value, boolean isSelected, boolean hasFocus, int row,int column) {
+			column = table.convertColumnIndexToModel(column);
+			row = table.convertRowIndexToModel(row);
 			switch (column) {
 			case 0: {
 				JLabel label = new JLabel(descriptor.format(rocket, (String) value));
@@ -289,7 +337,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			label.add(ignitionLabel);
 			label.validate();
 			return label;
-//			label.setText(motorString + " " + ignitionString);
+			//			label.setText(motorString + " " + ignitionString);
 		}
 
 		private String getMotorSpecification(MotorMount mount, MotorConfiguration motorConfig) {
