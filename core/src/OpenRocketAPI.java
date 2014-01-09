@@ -51,6 +51,7 @@ public class OpenRocketAPI {
 		return m_CFlightData.getFlightTime();
 	}
 	
+	
 	public double getGroundHitVelocity() {
 		return m_CFlightData.getGroundHitVelocity();
 	}
