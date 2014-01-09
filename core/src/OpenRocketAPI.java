@@ -16,14 +16,13 @@ public class OpenRocketAPI {
 	}
 	
 	public void RunSimulation() {
-		
 		/*SimulationEngine boink = new BasicEventSimulationEngine; 
 		
 		try {
-			m_CFlightData= boink.simulate(m_CSimulationConditions);
+		m_CFlightData= boink.simulate(m_CSimulationConditions);
 		} catch (SimulationException e) {
-			// TODO Auto-generated catch block
-			System.out.println("oops RunSimulation threw an error");
+		// TODO Auto-generated catch block
+		System.out.println("oops RunSimulation threw an error");
 		}
 		*/
 	};
