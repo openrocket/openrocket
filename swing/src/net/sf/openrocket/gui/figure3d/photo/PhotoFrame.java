@@ -229,6 +229,10 @@ public class PhotoFrame extends JFrame {
 		pa.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pa.setTitle("OpenRocket - Photo Studio Alpha");
 		pa.setVisible(true);
+		
+		GeneralRocketLoader grl = new GeneralRocketLoader(new File("C:/Users/bkuker/git/openrocket/swing/resources/datafiles/examples/A simple model rocket.ork"));
+		OpenRocketDocument doc = grl.load();
+		pa.photoPanel.setDoc(doc);
 	}
 
 }
