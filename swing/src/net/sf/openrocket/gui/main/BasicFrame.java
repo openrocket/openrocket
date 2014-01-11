@@ -610,19 +610,6 @@ public class BasicFrame extends JFrame {
 		menu.add(item);
 		
 		
-		item = new JMenuItem("Photo..."); //TODO
-		item.getAccessibleContext().setAccessibleDescription("Photo Editor"); //TODO
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				log.info(Markers.USER_MARKER, "Photo... selected");
-				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
-				pa.setVisible(true);
-			}
-		});
-		menu.add(item);
-		
-		
 		
 		//// Preferences
 		item = new JMenuItem(trans.get("main.menu.edit.preferences"));
@@ -695,6 +682,18 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.debug("Custom expressions selected");
 				new CustomExpressionDialog(document, BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		item = new JMenuItem(trans.get("main.menu.analyze.photo"), KeyEvent.VK_P);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.photo.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Photo... selected");
+				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
+				pa.setVisible(true);
 			}
 		});
 		menu.add(item);
