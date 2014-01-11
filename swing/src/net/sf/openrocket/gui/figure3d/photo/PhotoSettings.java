@@ -86,6 +86,11 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		return viewAlt;
 	}
 	
+	public void setViewAltAz(double viewAlt, double viewAz){
+		this.viewAz = viewAz;
+		this.viewAlt = viewAlt;
+		fireChangeEvent();
+	}
 	public void setViewAlt(double viewAlt) {
 		this.viewAlt = viewAlt;
 		fireChangeEvent();

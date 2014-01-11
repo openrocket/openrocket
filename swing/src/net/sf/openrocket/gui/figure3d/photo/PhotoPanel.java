@@ -76,7 +76,6 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 	private RocketRenderer rr;
 	private PhotoSettings p;
-	private Trackball trackball = new Trackball();
 
 	void setDoc(final OpenRocketDocument doc) {
 		((GLAutoDrawable) canvas).invoke(false, new GLRunnable() {
@@ -204,21 +203,14 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				final double y1 = (2 * lastY - height) / height;
 				final double x2 = (width - 2 * e.getX()) / width;
 				final double y2 = (2 * e.getY() - height) / height;
-				trackball.swipe(x1, y1, x2, y2, p.getViewAz(), p.getViewAlt());
-
-				p.setPitchYawRoll(trackball.getPitch(), trackball.getYaw(), trackball.getRoll());
+				
+				p.setViewAltAz(p.getViewAlt() - (y1-y2), p.getViewAz() + (x1-x2));
 
 				lastX = e.getX();
 				lastY = e.getY();
 			}
 		};
 
-		p.addChangeListener(new StateChangeListener() {
-			@Override
-			public void stateChanged(EventObject e) {
-				trackball.setPitchYawRoll(p.getPitch(), p.getYaw(), p.getRoll());
-			}
-		});
 		canvas.addMouseMotionListener(a);
 		canvas.addMouseListener(a);
 	}
