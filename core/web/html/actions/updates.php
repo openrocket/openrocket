@@ -80,13 +80,18 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "13.11.1";
+$unstable = "13.11.2";
 $stable = "1.0.0";
 
 
-if (preg_match("/^13.11$/", $version)) {
+if (preg_match("/^13.11.1$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "4: Bug fixes - Various fixes to motor selection\n".
+    "";
+} else if (preg_match("/^13.11$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "4: Bug fixes - Tube Coupler configuration among other things\n".
+    "4: Bug fixes - Various fixes to motor selection\n".
     "";
 } else if (preg_match("/^13.09.1$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
