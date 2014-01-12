@@ -3,17 +3,14 @@ package net.sf.openrocket.gui.figure3d.photo;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.SplashScreen;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 import javax.media.opengl.DebugGL2;
 import javax.media.opengl.GL;
@@ -71,8 +68,17 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	private Component canvas;
 	private TextureCache textureCache = new TextureCache();
 	private double ratio;
-	private boolean doCopy = false;
 	private boolean needUpdate = false;
+
+	private List<ImageCallback> imageCallbacks = new java.util.Vector<PhotoPanel.ImageCallback>();
+
+	interface ImageCallback {
+		public void performAction(BufferedImage i);
+	}
+
+	void addImageCallback(ImageCallback a) {
+		imageCallbacks.add(a);
+	}
 
 	private RocketRenderer rr;
 	private PhotoSettings p;
@@ -107,11 +113,6 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				return false;
 			}
 		});
-	}
-
-	void doCopy() {
-		doCopy = true;
-		repaint();
 	}
 
 	PhotoSettings getSettings() {
@@ -203,8 +204,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				final double y1 = (2 * lastY - height) / height;
 				final double x2 = (width - 2 * e.getX()) / width;
 				final double y2 = (2 * e.getY() - height) / height;
-				
-				p.setViewAltAz(p.getViewAlt() - (y1-y2), p.getViewAz() + (x1-x2));
+
+				p.setViewAltAz(p.getViewAlt() - (y1 - y2), p.getViewAz() + (x1 - x2));
 
 				lastX = e.getX();
 				lastY = e.getY();
@@ -249,11 +250,19 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			gl.glAccum(GL2.GL_RETURN, 1.0f);
 		}
 
-		if (doCopy) {
-			copy(drawable);
-			doCopy = false;
+		if (!imageCallbacks.isEmpty()) {
+			BufferedImage i = (new AWTGLReadBufferUtil(GLProfile.get(GLProfile.GL2), false)).readPixelsToBufferedImage(
+					drawable.getGL(), 0, 0, drawable.getWidth(), drawable.getHeight(), true);
+			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(imageCallbacks);
+			imageCallbacks.clear();
+			for (ImageCallback ia : cbs) {
+				try {
+					ia.performAction(i);
+				} catch (Throwable t) {
+					log.error("Image Callback {} threw", i, t);
+				}
+			}
 		}
-
 	}
 
 	private static void convertColor(Color color, float[] out) {
@@ -470,42 +479,6 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		gl.glRotated(p.getRoll() * (180.0 / Math.PI), 1, 0, 0);
 		// Center the rocket in the view.
 		gl.glTranslated(-b.xMin - b.xSize / 2.0, 0, 0);
-	}
-
-	private void copy(final GLAutoDrawable drawable) {
-
-		final BufferedImage image = (new AWTGLReadBufferUtil(GLProfile.get(GLProfile.GL2), false))
-				.readPixelsToBufferedImage(drawable.getGL(), 0, 0, drawable.getWidth(), drawable.getHeight(), true);
-
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new Transferable() {
-			@Override
-			public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-				if (flavor.equals(DataFlavor.imageFlavor) && image != null) {
-					return image;
-				} else {
-					throw new UnsupportedFlavorException(flavor);
-				}
-			}
-
-			@Override
-			public DataFlavor[] getTransferDataFlavors() {
-				DataFlavor[] flavors = new DataFlavor[1];
-				flavors[0] = DataFlavor.imageFlavor;
-				return flavors;
-			}
-
-			@Override
-			public boolean isDataFlavorSupported(DataFlavor flavor) {
-				DataFlavor[] flavors = getTransferDataFlavors();
-				for (int i = 0; i < flavors.length; i++) {
-					if (flavor.equals(flavors[i])) {
-						return true;
-					}
-				}
-
-				return false;
-			}
-		}, null);
 	}
 
 }

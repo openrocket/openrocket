@@ -3,11 +3,17 @@ package net.sf.openrocket.gui.figure3d.photo;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
@@ -17,6 +23,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileFilter;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -26,6 +33,7 @@ import net.sf.openrocket.gui.main.SwingExceptionHandler;
 import net.sf.openrocket.gui.util.FileHelper;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.LoggingSystemSetup;
@@ -114,6 +122,7 @@ public class PhotoFrame extends JFrame {
 					if (option == JFileChooser.APPROVE_OPTION) {
 						File file = chooser.getSelectedFile();
 						log.debug("Opening File " + file.getAbsolutePath());
+						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
 						GeneralRocketLoader grl = new GeneralRocketLoader(file);
 						try {
 							OpenRocketDocument doc = grl.load();
@@ -125,6 +134,60 @@ public class PhotoFrame extends JFrame {
 				}
 			});
 			menu.add(item);
+			
+			
+			item = new JMenuItem("Save Image...", KeyEvent.VK_S); //TODO Trans
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
+			// // Open a rocket design
+			item.getAccessibleContext().setAccessibleDescription("Save Image"); //TODO Trans
+			item.setIcon(Icons.FILE_OPEN);
+			item.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					log.info(Markers.USER_MARKER, "Save... selected");
+					photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
+						@Override
+						public void performAction(final BufferedImage image) {
+							log.info("Got image {} to save...", image);
+							
+							final FileFilter png = new SimpleFileFilter("PNG Image", ".png"); //TODO Trans
+							
+							final JFileChooser chooser = new JFileChooser();
+
+							chooser.addChoosableFileFilter(png);
+							chooser.setFileFilter(png);
+							chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+							chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences()).getDefaultDirectory());
+							final int option = chooser.showSaveDialog(PhotoFrame.this);
+							
+							if (option != JFileChooser.APPROVE_OPTION) {
+								log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
+								return;
+							}
+							
+							final File file = FileHelper.forceExtension(chooser.getSelectedFile(), "png");
+							if (file == null) {
+								log.info(Markers.USER_MARKER, "User did not select a file");
+								return;
+							}
+
+							((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser.getCurrentDirectory());
+							log.info(Markers.USER_MARKER, "User chose to save image as {}", file);
+							
+							if ( FileHelper.confirmWrite(file, PhotoFrame.this) ){
+								try {
+									ImageIO.write(image, "png", file);
+								} catch (IOException e) {
+									throw new Error(e);
+								}
+							}
+						}
+					});
+				}
+			});
+			menu.add(item);
+			
 		}
 
 		// // Edit
@@ -137,7 +200,40 @@ public class PhotoFrame extends JFrame {
 		Action action = new AbstractAction("Copy") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				photoPanel.doCopy();
+				photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
+					@Override
+					public void performAction(final BufferedImage image) {
+						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new Transferable() {
+							@Override
+							public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+								if (flavor.equals(DataFlavor.imageFlavor) && image != null) {
+									return image;
+								} else {
+									throw new UnsupportedFlavorException(flavor);
+								}
+							}
+
+							@Override
+							public DataFlavor[] getTransferDataFlavors() {
+								DataFlavor[] flavors = new DataFlavor[1];
+								flavors[0] = DataFlavor.imageFlavor;
+								return flavors;
+							}
+
+							@Override
+							public boolean isDataFlavorSupported(DataFlavor flavor) {
+								DataFlavor[] flavors = getTransferDataFlavors();
+								for (int i = 0; i < flavors.length; i++) {
+									if (flavor.equals(flavors[i])) {
+										return true;
+									}
+								}
+
+								return false;
+							}
+						}, null);
+					}
+				});
 			}
 		};
 		item = new JMenuItem(action);
