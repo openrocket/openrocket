@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.SplashScreen;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.EventObject;
@@ -187,8 +188,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			}
 
 			@Override
-			public void mouseClicked(final MouseEvent e) {
-
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				p.setViewDistance(p.getViewDistance() + 0.1 * e.getWheelRotation());
 			}
 
 			@Override
@@ -212,6 +213,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			}
 		};
 
+		canvas.addMouseWheelListener(a);
 		canvas.addMouseMotionListener(a);
 		canvas.addMouseListener(a);
 	}
