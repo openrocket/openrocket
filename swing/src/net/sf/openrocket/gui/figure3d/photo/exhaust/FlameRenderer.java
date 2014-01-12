@@ -168,11 +168,6 @@ public final class FlameRenderer {
 	}
 
 	public static void drawExhaust(GL2 gl, FlameSettings fs, Motor motor) {
-		
-		//TODO REmove these
-		//dispose(gl);
-		//init(gl);
-
 		final float s = (float) Math.max(.5, Math.sqrt(motor.getAverageThrustEstimate()) / 4.0)
 				* (float) fs.getExhaustScale();
 		gl.glScalef(s, s, s);
