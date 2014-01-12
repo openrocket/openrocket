@@ -5,6 +5,7 @@ import net.sf.openrocket.gui.figure3d.photo.sky.Sky;
 import net.sf.openrocket.gui.figure3d.photo.sky.builtin.Mountains;
 import net.sf.openrocket.util.AbstractChangeSource;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.MathUtil;
 
 public class PhotoSettings extends AbstractChangeSource implements FlameSettings {
 	private double roll = 3.14;
@@ -29,7 +30,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private boolean flame = false;
 	private Color flameColor = new Color(255, 100, 50);
 	private boolean smoke = true;
-	private Color smokeColor = new Color(230, 230, 230, 204);
+	private Color smokeColor = new Color(230, 230, 230, 102);
 	private boolean sparks = false;
 	private double exhaustScale = 1.0;
 	private double flameAspectRatio = 1.0;
@@ -65,14 +66,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 		this.pitch = pitch;
 		fireChangeEvent();
 	}
-	
-	public void setPitchYawRoll(double pitch, double yaw, double roll) {
-		this.roll = roll;
-		this.yaw = yaw;
-		this.pitch = pitch;
-		fireChangeEvent();
-	}
-	
+
 	public double getAdvance() {
 		return advance;
 	}
@@ -88,11 +82,11 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	
 	public void setViewAltAz(double viewAlt, double viewAz){
 		this.viewAz = viewAz;
-		this.viewAlt = viewAlt;
+		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
 		fireChangeEvent();
 	}
 	public void setViewAlt(double viewAlt) {
-		this.viewAlt = viewAlt;
+		this.viewAlt = MathUtil.clamp(viewAlt, -Math.PI/2, Math.PI/2);
 		fireChangeEvent();
 	}
 	
@@ -110,7 +104,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 	
 	public void setViewDistance(double viewDistance) {
-		this.viewDistance = viewDistance;
+		this.viewDistance = Math.max(viewDistance, 0);
 		fireChangeEvent();
 	}
 	
@@ -119,7 +113,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	}
 	
 	public void setFov(double fov) {
-		this.fov = fov;
+		this.fov = MathUtil.clamp(fov, 1, Math.PI);
 		fireChangeEvent();
 	}
 	
