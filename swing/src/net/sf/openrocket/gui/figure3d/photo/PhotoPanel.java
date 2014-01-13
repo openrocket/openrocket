@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.figure3d.photo;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -79,6 +80,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 	void addImageCallback(ImageCallback a) {
 		imageCallbacks.add(a);
+		repaint();
 	}
 
 	private RocketRenderer rr;
@@ -93,14 +95,15 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				rr = new RealisticRenderer(doc);
 				rr.init(drawable);
 
-				doc.getDefaultConfiguration().addChangeListener(new StateChangeListener() {
-					@Override
-					public void stateChanged(EventObject e) {
-						log.debug("Repainting on config state change");
-						needUpdate = true;
-						PhotoPanel.this.repaint();
-					}
-				});
+				doc.getDefaultConfiguration().addChangeListener(
+						new StateChangeListener() {
+							@Override
+							public void stateChanged(EventObject e) {
+								log.debug("Repainting on config state change");
+								needUpdate = true;
+								PhotoPanel.this.repaint();
+							}
+						});
 
 				doc.addDocumentChangeListener(new DocumentChangeListener() {
 					@Override
@@ -150,14 +153,16 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 			final GLCapabilities caps = new GLCapabilities(glp);
 
-			if (Application.getPreferences().getBoolean(Preferences.OPENGL_ENABLE_AA, true)) {
+			if (Application.getPreferences().getBoolean(
+					Preferences.OPENGL_ENABLE_AA, true)) {
 				caps.setSampleBuffers(true);
 				caps.setNumSamples(6);
 			} else {
 				log.trace("GL - Not enabling AA by user pref");
 			}
 
-			if (Application.getPreferences().getBoolean(Preferences.OPENGL_USE_FBO, false)) {
+			if (Application.getPreferences().getBoolean(
+					Preferences.OPENGL_USE_FBO, false)) {
 				log.trace("GL - Creating GLJPanel");
 				canvas = new GLJPanel(caps);
 			} else {
@@ -170,7 +175,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		} catch (Throwable t) {
 			log.error("An error occurred creating 3d View", t);
 			canvas = null;
-			this.add(new JLabel("Unable to load 3d Libraries: " + t.getMessage()));
+			this.add(new JLabel("Unable to load 3d Libraries: "
+					+ t.getMessage()));
 		}
 	}
 
@@ -189,7 +195,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				p.setViewDistance(p.getViewDistance() + 0.1 * e.getWheelRotation());
+				p.setViewDistance(p.getViewDistance() + 0.1
+						* e.getWheelRotation());
 			}
 
 			@Override
@@ -206,7 +213,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 				final double x2 = (width - 2 * e.getX()) / width;
 				final double y2 = (2 * e.getY() - height) / height;
 
-				p.setViewAltAz(p.getViewAlt() - (y1 - y2), p.getViewAz() + (x1 - x2));
+				p.setViewAltAz(p.getViewAlt() - (y1 - y2), p.getViewAz()
+						+ (x1 - x2));
 
 				lastX = e.getX();
 				lastY = e.getY();
@@ -219,12 +227,23 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	}
 
 	@Override
-	public void repaint() {
+	public void paintImmediately(Rectangle r) {
+		super.paintImmediately(r);
 		if (canvas != null)
 			((GLAutoDrawable) canvas).display();
-		super.repaint();
 	}
 
+	@Override
+	public void paintImmediately(int x, int y, int w, int h) {
+		super.paintImmediately(x, y, w, h);
+		if (canvas != null)
+			((GLAutoDrawable) canvas).display();
+	}
+
+	/*
+	 * @Override public void repaint() { if (canvas != null) ((GLAutoDrawable)
+	 * canvas).display(); super.repaint(); }
+	 */
 	@Override
 	public void display(final GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
@@ -253,9 +272,12 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		}
 
 		if (!imageCallbacks.isEmpty()) {
-			BufferedImage i = (new AWTGLReadBufferUtil(GLProfile.get(GLProfile.GL2), false)).readPixelsToBufferedImage(
-					drawable.getGL(), 0, 0, drawable.getWidth(), drawable.getHeight(), true);
-			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(imageCallbacks);
+			BufferedImage i = (new AWTGLReadBufferUtil(
+					GLProfile.get(GLProfile.GL2), false))
+					.readPixelsToBufferedImage(drawable.getGL(), 0, 0,
+							drawable.getWidth(), drawable.getHeight(), true);
+			final Vector<ImageCallback> cbs = new Vector<PhotoPanel.ImageCallback>(
+					imageCallbacks);
 			imageCallbacks.clear();
 			for (ImageCallback ia : cbs) {
 				try {
@@ -291,12 +313,21 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		float amb = (float) p.getAmbiance();
 		float dif = 1.0f - amb;
 		float spc = 1.0f;
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT, new float[] { amb * color[0], amb * color[1],
-				amb * color[2], 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE, new float[] { dif * color[0], dif * color[1],
-				dif * color[2], 1 }, 0);
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR, new float[] { spc * color[0],
-				spc * color[1], spc * color[2], 1 }, 0);
+		gl.glLightfv(
+				GLLightingFunc.GL_LIGHT1,
+				GLLightingFunc.GL_AMBIENT,
+				new float[] { amb * color[0], amb * color[1], amb * color[2], 1 },
+				0);
+		gl.glLightfv(
+				GLLightingFunc.GL_LIGHT1,
+				GLLightingFunc.GL_DIFFUSE,
+				new float[] { dif * color[0], dif * color[1], dif * color[2], 1 },
+				0);
+		gl.glLightfv(
+				GLLightingFunc.GL_LIGHT1,
+				GLLightingFunc.GL_SPECULAR,
+				new float[] { spc * color[0], spc * color[1], spc * color[2], 1 },
+				0);
 
 		convertColor(p.getSkyColor(), color);
 		gl.glClearColor(color[0], color[1], color[2], 1);
@@ -341,12 +372,16 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		gl.glRotated(p.getViewAlt() * (180.0 / Math.PI), 1, 0, 0);
 		gl.glRotated(p.getViewAz() * (180.0 / Math.PI), 0, 1, 0);
 
-		float[] lightPosition = new float[] { (float) Math.cos(p.getLightAlt()) * (float) Math.sin(p.getLightAz()),//
+		float[] lightPosition = new float[] {
+				(float) Math.cos(p.getLightAlt())
+						* (float) Math.sin(p.getLightAz()),//
 				(float) Math.sin(p.getLightAlt()),//
-				(float) Math.cos(p.getLightAlt()) * (float) Math.cos(p.getLightAz()), //
+				(float) Math.cos(p.getLightAlt())
+						* (float) Math.cos(p.getLightAz()), //
 				0 };
 
-		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION, lightPosition, 0);
+		gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION,
+				lightPosition, 0);
 
 		// Change to LEFT Handed coordinates
 		gl.glScaled(1, 1, -1);
@@ -358,20 +393,23 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		if (p.isFlame()) {
 			convertColor(p.getFlameColor(), color);
 
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_AMBIENT, new float[] { 0, 0, 0, 1 }, 0);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE, new float[] { color[0], color[1],
-					color[2], 1 }, 0);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_SPECULAR, new float[] { color[0], color[1],
-					color[2], 1 }, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_AMBIENT,
+					new float[] { 0, 0, 0, 1 }, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE,
+					new float[] { color[0], color[1], color[2], 1 }, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_SPECULAR,
+					new float[] { color[0], color[1], color[2], 1 }, 0);
 
 			Bounds b = calculateBounds();
-			gl.glLightf(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_QUADRATIC_ATTENUATION, 20f);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_POSITION, new float[] { (float) (b.xMax + .1f), 0,
-					0, 1 }, 0);
+			gl.glLightf(GLLightingFunc.GL_LIGHT2,
+					GLLightingFunc.GL_QUADRATIC_ATTENUATION, 20f);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_POSITION,
+					new float[] { (float) (b.xMax + .1f), 0, 0, 1 }, 0);
 			gl.glEnable(GLLightingFunc.GL_LIGHT2);
 		} else {
 			gl.glDisable(GLLightingFunc.GL_LIGHT2);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE, new float[] { 0, 0, 0, 1 }, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT2, GLLightingFunc.GL_DIFFUSE,
+					new float[] { 0, 0, 0, 1 }, 0);
 		}
 
 		rr.render(drawable, configuration, new HashSet<RocketComponent>());
@@ -384,12 +422,14 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
 			double length = motor.getLength();
 
-			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
-					.getLength() + mount.getMotorOverhang() - length));
+			Coordinate[] position = ((RocketComponent) mount)
+					.toAbsolute(new Coordinate(((RocketComponent) mount)
+							.getLength() + mount.getMotorOverhang() - length));
 
 			for (int i = 0; i < position.length; i++) {
 				gl.glPushMatrix();
-				gl.glTranslated(position[i].x + motor.getLength(), position[i].y, position[i].z);
+				gl.glTranslated(position[i].x + motor.getLength(),
+						position[i].y, position[i].z);
 				FlameRenderer.drawExhaust(gl, p, motor);
 				gl.glPopMatrix();
 			}
@@ -426,7 +466,8 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	}
 
 	@Override
-	public void reshape(final GLAutoDrawable drawable, final int x, final int y, final int w, final int h) {
+	public void reshape(final GLAutoDrawable drawable, final int x,
+			final int y, final int w, final int h) {
 		log.trace("GL - reshape()");
 		ratio = (double) w / (double) h;
 	}

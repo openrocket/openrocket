@@ -23,6 +23,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.openrocket.database.Databases;
@@ -154,43 +155,48 @@ public class PhotoFrame extends JFrame {
 				photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
 					@Override
 					public void performAction(final BufferedImage image) {
-						log.info("Got image {} to save...", image);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								log.info("Got image {} to save...", image);
 
-						final FileFilter png = new SimpleFileFilter("PNG Image", ".png"); // TODO
-																							// Trans
+								final FileFilter png = new SimpleFileFilter("PNG Image", ".png"); // TODO
+																									// Trans
 
-						final JFileChooser chooser = new JFileChooser();
+								final JFileChooser chooser = new JFileChooser();
 
-						chooser.addChoosableFileFilter(png);
-						chooser.setFileFilter(png);
-						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+								chooser.addChoosableFileFilter(png);
+								chooser.setFileFilter(png);
+								chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-						chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences())
-								.getDefaultDirectory());
-						final int option = chooser.showSaveDialog(PhotoFrame.this);
+								chooser.setCurrentDirectory(((SwingPreferences) Application.getPreferences())
+										.getDefaultDirectory());
+								final int option = chooser.showSaveDialog(PhotoFrame.this);
 
-						if (option != JFileChooser.APPROVE_OPTION) {
-							log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
-							return;
-						}
+								if (option != JFileChooser.APPROVE_OPTION) {
+									log.info(Markers.USER_MARKER, "User decided not to save, option=" + option);
+									return;
+								}
 
-						final File file = FileHelper.forceExtension(chooser.getSelectedFile(), "png");
-						if (file == null) {
-							log.info(Markers.USER_MARKER, "User did not select a file");
-							return;
-						}
+								final File file = FileHelper.forceExtension(chooser.getSelectedFile(), "png");
+								if (file == null) {
+									log.info(Markers.USER_MARKER, "User did not select a file");
+									return;
+								}
 
-						((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser
-								.getCurrentDirectory());
-						log.info(Markers.USER_MARKER, "User chose to save image as {}", file);
+								((SwingPreferences) Application.getPreferences()).setDefaultDirectory(chooser
+										.getCurrentDirectory());
+								log.info(Markers.USER_MARKER, "User chose to save image as {}", file);
 
-						if (FileHelper.confirmWrite(file, PhotoFrame.this)) {
-							try {
-								ImageIO.write(image, "png", file);
-							} catch (IOException e) {
-								throw new Error(e);
+								if (FileHelper.confirmWrite(file, PhotoFrame.this)) {
+									try {
+										ImageIO.write(image, "png", file);
+									} catch (IOException e) {
+										throw new Error(e);
+									}
+								}
 							}
-						}
+						});
 					}
 				});
 			}
@@ -335,7 +341,7 @@ public class PhotoFrame extends JFrame {
 		pa.setVisible(true);
 
 		GeneralRocketLoader grl = new GeneralRocketLoader(new File(
-				"C:/Users/bkuker/git/openrocket/swing/resources/datafiles/examples/A simple model rocket.ork"));
+				"/Users/bkuker/git/openrocket/swing/resources/datafiles/examples/A simple model rocket.ork"));
 		OpenRocketDocument doc = grl.load();
 		pa.photoPanel.setDoc(doc);
 	}
