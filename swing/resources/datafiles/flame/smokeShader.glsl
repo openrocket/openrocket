@@ -26,9 +26,9 @@ void main(void)
 	
 	vec4 flameColor = gl_LightSource[2].diffuse;
 	float flameFactor =  max (dot (vec3(0,0,1), diffuseNormal), 0.0);
-	flameFactor = flameFactor * (1 - z / 1.0);
-	flameFactor = flameFactor * diffuseMaterial.a * gl_Color.a * 10;
-	flameFactor = clamp(flameFactor,0,1);
+	flameFactor = flameFactor * (1.0 - z / 1.0);
+	flameFactor = flameFactor * diffuseMaterial.a * gl_Color.a * 10.0;
+	flameFactor = clamp(flameFactor,0.0,1.0);
 	
 	vec4 light = diffuseLight * diffuseBump + ambientLight;
 	
