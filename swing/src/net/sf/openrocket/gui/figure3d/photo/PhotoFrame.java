@@ -73,6 +73,7 @@ public class PhotoFrame extends JFrame {
 
 		GUIUtil.rememberWindowSize(this);
 		this.setLocationByPlatform(true);
+		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.setWindowIcons(this);
 
 		settings = new JDialog(this, "Settings") {
@@ -80,6 +81,8 @@ public class PhotoFrame extends JFrame {
 				setContentPane(new PhotoSettingsConfig(photoPanel.getSettings()));
 				pack();
 				this.setLocationByPlatform(true);
+				GUIUtil.rememberWindowSize(this);
+				GUIUtil.rememberWindowPosition(this);
 				setVisible(true);
 			}
 		};
