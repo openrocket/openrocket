@@ -46,19 +46,27 @@ public class OpenRocketAPI {
 			Injector injector = Guice.createInjector(guiModule, pluginModule);
 			Application.setInjector(injector);
 			
+			guiModule.startLoader();//might just do some initializing
+			
 			File Filename = new File(szFileName);
 			System.out.println(szFileName);
 			
 			GeneralRocketLoader test = new GeneralRocketLoader(Filename);
 			OpenRocketDocument temp = test.load();
 			
+			System.out.println(temp.getSimulationCount());
 			if (temp.getSimulationCount() > 0)
 			{
-				SimulationOptions temp2 = temp.getSimulation(0).getSimulatedConditions();
+				SimulationOptions temp2 = temp.getSimulation(1).getSimulatedConditions();
 				if (temp2 != null)
 				{
 					m_CSimulationConditions = temp2.toSimulationConditions();
 				}
+				else{
+					System.out.println("simulation is null");
+				}
+			}else{
+				System.out.println("no simulations found");
 			}
 			//return loadorkfile(szFileName); //this needs to be more complex...
 		} catch (RocketLoadException oops) {
@@ -72,6 +80,9 @@ public class OpenRocketAPI {
 	}
 	
 	public void RunSimulation() {
+		if(m_CSimulationConditions == null)
+			{System.out.println("no simulation data");
+			return;}
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		
 		try {
