@@ -102,7 +102,7 @@ public class OpenRocketDocument implements ComponentChangeListener {
 	
 	private final List<DocumentChangeListener> listeners = new ArrayList<DocumentChangeListener>();
 	
-	OpenRocketDocument(Rocket rocket) {
+	public OpenRocketDocument(Rocket rocket) {
 		this.configuration = rocket.getDefaultConfiguration();
 		this.rocket = rocket;
 		init();
