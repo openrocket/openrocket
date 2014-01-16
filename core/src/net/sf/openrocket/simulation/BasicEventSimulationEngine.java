@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
 
 public class BasicEventSimulationEngine implements SimulationEngine {
 	
-	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
+	protected static final Translator trans = Application.getTranslator();
+	protected static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
 	private SimulationStepper flightStepper = new RK4SimulationStepper();
@@ -52,11 +52,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private SimulationStepper currentStepper;
 	
-	private SimulationStatus status;
+	protected SimulationStatus status;
 	
-	private String flightConfigurationId;
+	protected String flightConfigurationId;
 	
-	private SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
+	protected SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
 	
 	
 	@Override
@@ -109,7 +109,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		return flightData;
 	}
 	
-	private FlightDataBranch simulateLoop() {
+	protected FlightDataBranch simulateLoop() {
 		
 		// Initialize the simulation
 		currentStepper = flightStepper;
@@ -254,7 +254,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @param simulation	the launch conditions.
 	 * @return				a rocket configuration with all stages attached.
 	 */
-	private Configuration setupConfiguration(SimulationConditions simulation) {
+	protected Configuration setupConfiguration(SimulationConditions simulation) {
 		Configuration configuration = new Configuration(simulation.getRocket());
 		configuration.setAllStages();
 		configuration.setFlightConfigurationID(simulation.getMotorConfigurationID());
@@ -270,7 +270,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @param configuration		the rocket configuration.
 	 * @return					a new motor instance configuration with all motors in place.
 	 */
-	private MotorInstanceConfiguration setupMotorConfiguration(Configuration configuration) {
+	protected MotorInstanceConfiguration setupMotorConfiguration(Configuration configuration) {
 		MotorInstanceConfiguration motors = new MotorInstanceConfiguration();
 		final String flightConfigId = configuration.getFlightConfigurationID();
 		
@@ -300,7 +300,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * Each event that has occurred before or at the current simulation time is
 	 * processed.  Suitable events are also added to the flight data.
 	 */
-	private boolean handleEvents() throws SimulationException {
+	protected boolean handleEvents() throws SimulationException {
 		boolean ret = true;
 		FlightEvent event;
 		

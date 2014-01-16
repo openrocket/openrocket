@@ -57,7 +57,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	private static final double MAX_ROLL_RATE_CHANGE = 2 * Math.PI / 180;
 	private static final double MAX_PITCH_CHANGE = 4 * Math.PI / 180;
 	
-	private static final double MIN_TIME_STEP = 0.001;
+	private static double MIN_TIME_STEP = 0.001;
 	
 
 	private Random random;
@@ -726,5 +726,4 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		public Rotation2D thetaRotation;
 		
 	}
-	
 }
