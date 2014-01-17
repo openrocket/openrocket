@@ -1,3 +1,4 @@
+package net.sf.openrocket.startup;
 import java.io.File;
 
 import net.sf.openrocket.document.OpenRocketDocument;
