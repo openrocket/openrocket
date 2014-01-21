@@ -17,9 +17,11 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		
 	}
 	
-	public int StartSimulation(SimulationConditions sim, FlightData flight) throws SimulationException {
+	//will not handel multiple stages in a rocket
+	//
+	public SimulationStatus StartSimulation(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
 		if (sim == null)
-			return -1;
+			return null;
 		
 		// Set up flight data
 		flight = new FlightData();
@@ -43,7 +45,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		
 		SimulationListenerHelper.fireStartSimulation(status);
 		
-		return 0;
+		return new SimulationStatus(status);
 	}
 	
 	/* 
@@ -54,7 +56,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	 * -4 simulation finished
 	 * */
 	
-	public int StepSimulation(FlightData flightData, int timestep) {
+	public int StepSimulation(FlightData flightData, SimulationStatus Status, double timestep) {
 		if (flightData == null)
 			return -2;
 		if (timestep < .005 || timestep > 5)
@@ -62,12 +64,18 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		if (stages.size() == 0) {
 			EndSimulation(flightData);
 		}
+		
+		status = new SimulationStatus(Status);
+		
 		SimulationStatus stageStatus = stages.pop();
 		if (stageStatus == null) {
 			EndSimulation(flightData);
 		}
 		status = stageStatus;
-		FlightDataBranch dataBranch = simulateLoop();
+		FlightDataBranch dataBranch = null;
+		//dataBranch=simulateLoop();
+		
+		
 		flightData.addBranch(dataBranch);
 		warnmeifidosomthingwrong(flightData);
 		
