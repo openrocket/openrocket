@@ -1,4 +1,5 @@
 package net.sf.openrocket.startup;
+
 import java.io.File;
 
 import net.sf.openrocket.simulation.*;
@@ -22,43 +23,61 @@ import com.google.inject.Module;
 
 public class OpenRocketAPI {
 	
-	private boolean m_bIsSimulationRunning=false; 
+	private boolean m_bIsSimulationStagesRunning=false;
+	private boolean m_bIsSimulationLoopRunning=false;
 	private FlightData m_CFlightData = null;
 	private SimulationConditions m_CSimulationConditions = null;
 	private SimulationStatus m_CStatus; //will be used later.
 	private UserControledSimulation m_CRocket=null;
 	
 
-	public int GetVelocityX() {
-		return (int) Math.random();
+	public double GetVelocityX() {
+		if(m_CStatus==null)
+			return -1;
+		if(m_CStatus.getRocketVelocity()==null)
+			return -2;
+		return m_CStatus.getRocketVelocity().x;
 	}
 	
-	public int GetVelocityY() {
-		return (int) Math.random();
+	public double GetVelocityZ() {
+		if(m_CStatus==null)
+			return -1;
+		if(m_CStatus.getRocketVelocity()==null)
+			return -2;
+		return m_CStatus.getRocketVelocity().z;
 	}
 	
-	public int GetVelocityZ() {
-		return (int) Math.random();
+	public double GetVelocityY() {
+		if(m_CStatus==null)
+			return -1;
+		if(m_CStatus.getRocketVelocity()==null)
+			return -2;
+		return m_CStatus.getRocketVelocity().y;
 	}
 	
 	
-
-	public boolean IsSimulationRunning(){return m_bIsSimulationRunning;}
+	public boolean IsSimulationStagesRunning(){return m_bIsSimulationStagesRunning;}
+	
+	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
+	
 	
 	public int StartSimulation(){
 		m_CRocket=new UserControledSimulation();
 		try{
-		m_CStatus=m_CRocket.StartSimulation(m_CSimulationConditions,m_CStatus, m_CFlightData);
+		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, m_CFlightData);
 		if(m_CStatus==null)
 			{System.out.println("temp is not valid");
 			return -1;
 			}
-		m_bIsSimulationRunning=true;
+		m_bIsSimulationLoopRunning=true;
+		m_bIsSimulationStagesRunning=true;
 		}
 		catch(SimulationException e)
 		{System.out.println(e);}
 		return 0;
 	}
+	
+	
 	
 	public int SimulationStep(){
 		if(m_CSimulationConditions==null)
@@ -67,18 +86,32 @@ public class OpenRocketAPI {
 		}
 	
 	public int SimulationStep(double timestep){
-		if(m_bIsSimulationRunning!=true)
+		int temp=0;
+		if(m_bIsSimulationLoopRunning!=true)
 			{System.out.println("not running");
 			return -1;}
 		if(m_CRocket==null)
 			{System.out.println("Rocket is null");
 			return -2;}
-		int temp=m_CRocket.StepSimulation(m_CFlightData,m_CStatus, timestep);
+		m_CStatus=m_CRocket.step(m_CStatus, timestep);
 		
-		if(temp==-4)
-			m_bIsSimulationRunning=true;
+		if(m_CStatus==null)
+			{m_bIsSimulationLoopRunning=false;
+			temp=-3;
+			}
 		return temp;
 		}
+	
+	public int StagesStep(){
+		if(m_CRocket==null)
+			return -1;
+		
+		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
+		if(m_CStatus!=null)
+			m_bIsSimulationStagesRunning=true;
+			
+		return 0;
+	}
 	
 	public int LoadRocket(String szFileName) {
 		try {

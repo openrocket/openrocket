@@ -1,25 +1,203 @@
 package net.sf.openrocket.simulation;
 
+import net.sf.openrocket.motor.MotorId;
+import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
+import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.Pair;
 
 public class UserControledSimulation extends BasicEventSimulationEngine {
 	
 	public Configuration configuration = null;
-	public boolean m_CSimulationRunning = false;
+	public boolean m_bSimulationRunning = false;
 	
 	public UserControledSimulation() {
 		// TODO Auto-generated constructor stub
 		
 	}
 	
+	public SimulationStatus firstInitialize(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
+		Status = InitializeSimulation(sim, Status, flight);
+		Status = FirstPartofWhileTrue(flight, Status);
+		Status = InitializeSimulationloop(Status);
+		
+		m_bSimulationRunning = true;
+		
+		return Status;
+	}
+	
+	public SimulationStatus step(SimulationStatus Status, Double time) {
+		Status.setPreviousTimeStep(time); //this is such a lie but it should alter timestep to do what we want
+		
+		return RunSimulationLoop(Status);
+		
+	}
+	
+	public SimulationStatus stagestep(FlightData flight, SimulationStatus Status) {
+		EndSimulationLoop();
+		EndOfWhileTrue(flight, null);
+		return FirstPartofWhileTrue(flight, status);
+	}
+	
+	private int EndOfWhileTrue(FlightData flightData, FlightDataBranch dataBranch) {
+		flightData.addBranch(dataBranch);
+		flightData.getWarningSet().addAll(status.getWarnings());
+		
+		return 0;
+	}
+	
+	private SimulationStatus InitializeSimulationloop(SimulationStatus Status) {
+		
+		// Initialize the simulation
+		currentStepper = flightStepper;
+		status = currentStepper.initialize(Status);
+		
+		// Get originating position (in case listener has modified launch position)
+		//origin = status.getRocketPosition();
+		//originVelocity = status.getRocketVelocity();
+		return status;
+	}
+	
+	private SimulationStatus RunSimulationLoop(SimulationStatus Status) {
+		double maxAlt = Double.NEGATIVE_INFINITY;
+		
+		//status = new SimulationStatus(Status);
+		
+		// Get originating position (in case listener has modified launch position)
+		Coordinate origin = status.getRocketPosition();
+		Coordinate originVelocity = status.getRocketVelocity();
+		
+		try {
+			
+			if (handleEvents() == false)
+				return null;
+			
+			// Take the step
+			double oldAlt = status.getRocketPosition().z;
+			
+			if (SimulationListenerHelper.firePreStep(status)) {
+				// Step at most to the next event
+				double maxStepTime = Double.MAX_VALUE;
+				FlightEvent nextEvent = status.getEventQueue().peek();
+				if (nextEvent != null) {
+					maxStepTime = MathUtil.max(nextEvent.getTime() - status.getSimulationTime(), 0.001);
+				}
+				log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
+				currentStepper.step(status, maxStepTime);
+			}
+			SimulationListenerHelper.firePostStep(status);
+			
+			
+			// Check for NaN values in the simulation status
+			checkNaN();
+			
+			// Add altitude event
+			addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, status.getSimulationTime(),
+					status.getConfiguration().getRocket(),
+					new Pair<Double, Double>(oldAlt, status.getRocketPosition().z)));
+			
+			if (status.getRocketPosition().z > maxAlt) {
+				maxAlt = status.getRocketPosition().z;
+			}
+			
+			
+			// Position relative to start location
+			Coordinate relativePosition = status.getRocketPosition().sub(origin);
+			
+			// Add appropriate events
+			if (!status.isLiftoff()) {
+				
+				// Avoid sinking into ground before liftoff
+				if (relativePosition.z < 0) {
+					status.setRocketPosition(origin);
+					status.setRocketVelocity(originVelocity);
+				}
+				// Detect lift-off
+				if (relativePosition.z > 0.02) {
+					addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, status.getSimulationTime()));
+				}
+				
+			} else {
+				
+				// Check ground hit after liftoff
+				if (status.getRocketPosition().z < 0) {
+					status.setRocketPosition(status.getRocketPosition().setZ(0));
+					addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, status.getSimulationTime()));
+					addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, status.getSimulationTime()));
+				}
+				
+			}
+			
+			// Check for launch guide clearance
+			if (!status.isLaunchRodCleared() &&
+					relativePosition.length() > status.getSimulationConditions().getLaunchRodLength()) {
+				addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, status.getSimulationTime(), null));
+			}
+			
+			
+			// Check for apogee
+			if (!status.isApogeeReached() && status.getRocketPosition().z < maxAlt - 0.01) {
+				addEvent(new FlightEvent(FlightEvent.Type.APOGEE, status.getSimulationTime(),
+						status.getConfiguration().getRocket()));
+			}
+			
+			
+			// Check for burnt out motors
+			for (MotorId motorId : status.getMotorConfiguration().getMotorIDs()) {
+				MotorInstance motor = status.getMotorConfiguration().getMotorInstance(motorId);
+				if (!motor.isActive() && status.addBurntOutMotor(motorId)) {
+					addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
+							(RocketComponent) status.getMotorConfiguration().getMotorMount(motorId), motorId));
+				}
+			}
+			
+			// Check for Tumbling
+			// Conditions for transision are:
+			//  apogee reached
+			// and is not already tumbling
+			// and not stable (cg > cp)
+			// and aoa > 30
+			
+			if (status.isApogeeReached() && !status.isTumbling()) {
+				double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
+				double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
+				double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
+				if (cg > cp && aoa > AOA_TUMBLE_CONDITION) {
+					addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
+					status.setTumbling(true);
+				}
+				
+			}
+			
+		} catch (SimulationException e) {
+			SimulationListenerHelper.fireEndSimulation(status, e);
+			// Add FlightEvent for Abort.
+			status.getFlightData().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, status.getSimulationTime(), status.getConfiguration().getRocket(), e.getLocalizedMessage()));
+			status.getWarnings().add(e.getLocalizedMessage());
+		}
+		
+		return status;
+	}
+	
+	private int EndSimulationLoop() {
+		return 0;
+	}
+	
+	public int EndSimulation() {
+		m_bSimulationRunning = false;
+		return 0;
+	}
+	
+	
 	//will not handel multiple stages in a rocket
 	//
-	public SimulationStatus StartSimulation(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
+	public SimulationStatus InitializeSimulation(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
 		if (sim == null)
 			return null;
 		
@@ -45,7 +223,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		
 		SimulationListenerHelper.fireStartSimulation(status);
 		
-		return new SimulationStatus(status);
+		return status;
 	}
 	
 	/* 
@@ -56,30 +234,22 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	 * -4 simulation finished
 	 * */
 	
-	public int StepSimulation(FlightData flightData, SimulationStatus Status, double timestep) {
+	public SimulationStatus FirstPartofWhileTrue(FlightData flightData, SimulationStatus Status) {
 		if (flightData == null)
-			return -2;
-		if (timestep < .005 || timestep > 5)
-			return -3;
+			return null;
 		if (stages.size() == 0) {
 			EndSimulation(flightData);
 		}
 		
-		status = new SimulationStatus(Status);
+		status = Status;
 		
 		SimulationStatus stageStatus = stages.pop();
 		if (stageStatus == null) {
 			EndSimulation(flightData);
 		}
 		status = stageStatus;
-		FlightDataBranch dataBranch = null;
-		//dataBranch=simulateLoop();
 		
-		
-		flightData.addBranch(dataBranch);
-		warnmeifidosomthingwrong(flightData);
-		
-		return 0;
+		return Status;
 	}
 	
 	
