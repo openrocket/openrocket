@@ -27,7 +27,7 @@ public class OpenRocketAPI {
 	private boolean m_bIsSimulationLoopRunning=false;
 	private FlightData m_CFlightData = null;
 	private SimulationConditions m_CSimulationConditions = null;
-	private SimulationStatus m_CStatus; //will be used later.
+	private SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
 	
 
@@ -69,6 +69,8 @@ public class OpenRocketAPI {
 			{System.out.println("temp is not valid");
 			return -1;
 			}
+		m_CFlightData=new FlightData();
+		
 		m_bIsSimulationLoopRunning=true;
 		m_bIsSimulationStagesRunning=true;
 		}
@@ -93,7 +95,7 @@ public class OpenRocketAPI {
 		if(m_CRocket==null)
 			{System.out.println("Rocket is null");
 			return -2;}
-		m_CStatus=m_CRocket.step(m_CStatus, timestep);
+		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData, timestep);
 		
 		if(m_CStatus==null)
 			{m_bIsSimulationLoopRunning=false;
@@ -107,13 +109,18 @@ public class OpenRocketAPI {
 			return -1;
 		
 		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
-		if(m_CStatus!=null)
-			m_bIsSimulationStagesRunning=true;
+		if(m_CStatus==null)
+			m_bIsSimulationStagesRunning=false;
 			
 		return 0;
 	}
 	
-	public int LoadRocket(String szFileName) {
+	public int LoadRocket(String szFileName){
+		
+		return LoadRocket(szFileName,0);
+	}
+	
+	public int LoadRocket(String szFileName,int simtograb) {
 		try {
 			
 			GuiModule guiModule = new GuiModule();
@@ -131,13 +138,13 @@ public class OpenRocketAPI {
 			
 			System.out.print("Number of Simulations in file: ");
 			System.out.println(temp.getSimulationCount());
-			if (temp.getSimulationCount() != 0)
+			if (!(temp.getSimulationCount() < simtograb))
 			{
-				SimulationOptions temp2 = temp.getSimulation(0).getSimulatedConditions();
+				SimulationOptions temp2 = temp.getSimulation(simtograb).getSimulatedConditions();
 				if (temp2 != null)
 				{
 					System.out.print("Getting Simulation Conditions for: ");
-					System.out.println(temp.getSimulation(0).getName());
+					System.out.println(temp.getSimulation(simtograb).getName());
 					m_CSimulationConditions = temp2.toSimulationConditions();
 				}
 				else{

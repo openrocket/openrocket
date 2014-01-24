@@ -14,8 +14,8 @@ import net.sf.openrocket.util.Pair;
 
 public class UserControledSimulation extends BasicEventSimulationEngine {
 	
-	public Configuration configuration = null;
-	public boolean m_bSimulationRunning = false;
+	protected Configuration configuration = null;
+	protected boolean m_bSimulationRunning = false;
 	
 	public UserControledSimulation() {
 		// TODO Auto-generated constructor stub
@@ -32,21 +32,22 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		return Status;
 	}
 	
-	public SimulationStatus step(SimulationStatus Status, Double time) {
+	public SimulationStatus step(SimulationStatus Status, FlightData flight, Double time) {
 		Status.setPreviousTimeStep(time); //this is such a lie but it should alter timestep to do what we want
 		
-		return RunSimulationLoop(Status);
+		return RunSimulationLoop(Status, flight);
 		
 	}
 	
 	public SimulationStatus stagestep(FlightData flight, SimulationStatus Status) {
+		//status = Status; //Status might be null due to a return value
 		EndSimulationLoop();
-		EndOfWhileTrue(flight, null);
+		//EndOfWhileTrue(flight);
 		return FirstPartofWhileTrue(flight, status);
 	}
 	
-	private int EndOfWhileTrue(FlightData flightData, FlightDataBranch dataBranch) {
-		flightData.addBranch(dataBranch);
+	private int EndOfWhileTrue(FlightData flightData) {
+		flightData.addBranch(status.getFlightData());
 		flightData.getWarningSet().addAll(status.getWarnings());
 		
 		return 0;
@@ -64,7 +65,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		return status;
 	}
 	
-	private SimulationStatus RunSimulationLoop(SimulationStatus Status) {
+	private SimulationStatus RunSimulationLoop(SimulationStatus Status, FlightData flight) {
 		double maxAlt = Double.NEGATIVE_INFINITY;
 		
 		//status = new SimulationStatus(Status);
@@ -76,8 +77,10 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		try {
 			
 			if (handleEvents() == false)
+			{
+				EndOfWhileTrue(flight);
 				return null;
-			
+			}
 			// Take the step
 			double oldAlt = status.getRocketPosition().z;
 			
@@ -202,7 +205,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 			return null;
 		
 		// Set up flight data
-		flight = new FlightData();
+		//flight = new FlightData();
 		
 		// Set up rocket configuration
 		configuration = setupConfiguration(sim);
@@ -239,6 +242,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 			return null;
 		if (stages.size() == 0) {
 			EndSimulation(flightData);
+			return null;
 		}
 		
 		status = Status;
@@ -246,6 +250,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		SimulationStatus stageStatus = stages.pop();
 		if (stageStatus == null) {
 			EndSimulation(flightData);
+			return null;
 		}
 		status = stageStatus;
 		
