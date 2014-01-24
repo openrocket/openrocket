@@ -129,12 +129,15 @@ public class OpenRocketAPI {
 			GeneralRocketLoader test = new GeneralRocketLoader(Filename);
 			OpenRocketDocument temp = test.load();
 			
+			System.out.print("Number of Simulations in file: ");
 			System.out.println(temp.getSimulationCount());
-			if (temp.getSimulationCount() > 0)
+			if (temp.getSimulationCount() != 0)
 			{
-				SimulationOptions temp2 = temp.getSimulation(1).getSimulatedConditions();
+				SimulationOptions temp2 = temp.getSimulation(0).getSimulatedConditions();
 				if (temp2 != null)
 				{
+					System.out.print("Getting Simulation Conditions for: ");
+					System.out.println(temp.getSimulation(0).getName());
 					m_CSimulationConditions = temp2.toSimulationConditions();
 				}
 				else{
