@@ -218,9 +218,10 @@ public final class FlameRenderer {
 			setUniform1i(gl, shaderprogram, "uSmoke", 0);
 			setUniform1i(gl, shaderprogram, "uNormal", 1);
 
-			trail(gl, radius, dZ, new Const(0.1f * (fs.getSmokeColor().getAlpha() / 255f)), LEN, P, fs.getSmokeColor(),
-					s);
-			// trail(gl, radius, dZ, new Const(1), 0.2f, 1, smokeColor);
+			trail(gl, radius, dZ, //
+					new Const(0.025f * (fs.getSmokeColor().getAlpha() / 255f)), //
+					LEN, P, fs.getSmokeColor(), s);
+
 			gl.glUseProgram(0);
 
 			smokeN.disable(gl);
