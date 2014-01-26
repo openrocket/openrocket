@@ -12,7 +12,7 @@ public class Meadow extends SkyBox implements Credit {
 	
 	@Override
 	public String getCredit() {
-		return "Â© Emil Persson, aka Humus.\nCC-BY 3.0 Attribution License.";
+		return "© Emil Persson, aka Humus.\nCC-BY 3.0 Attribution License.";
 	}
 	
 	@Override

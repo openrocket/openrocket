@@ -12,7 +12,7 @@ public class Miramar extends SkyBox implements Credit {
 	
 	@Override
 	public String getCredit() {
-		return "Â© Jockum Skoglund aka hipshot.\nCC-BY 3.0 Attribution License.";
+		return "© Jockum Skoglund aka hipshot.\nCC-BY 3.0 Attribution License.";
 	}
 	
 	@Override
