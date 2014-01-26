@@ -686,8 +686,8 @@ public class BasicFrame extends JFrame {
 		});
 		menu.add(item);
 		
-		item = new JMenuItem(trans.get("main.menu.analyze.photo"), KeyEvent.VK_P);
-		item.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.analyze.photo.desc"));
+		item = new JMenuItem(trans.get("PhotoFrame.title"), KeyEvent.VK_P);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.desc"));
 		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

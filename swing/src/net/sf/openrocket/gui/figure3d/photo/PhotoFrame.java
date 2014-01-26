@@ -61,7 +61,7 @@ public class PhotoFrame extends JFrame {
 
 	public PhotoFrame(OpenRocketDocument document, Window parent) {
 		this(false);
-		setTitle("Photo - " + document.getRocket().getName());
+		setTitle(trans.get("PhotoFrame.title") + " - " + document.getRocket().getName());
 		photoPanel.setDoc(document);
 	}
 
@@ -77,7 +77,7 @@ public class PhotoFrame extends JFrame {
 		GUIUtil.rememberWindowPosition(this);
 		GUIUtil.setWindowIcons(this);
 
-		settings = new JDialog(this, "Settings") {
+		settings = new JDialog(this, trans.get("PhotoSettingsConfig.title")) {
 			{
 				setContentPane(new PhotoSettingsConfig(photoPanel.getSettings()));
 				pack();
@@ -142,11 +142,10 @@ public class PhotoFrame extends JFrame {
 			menu.add(item);
 		}
 
-		item = new JMenuItem("Save Image...", KeyEvent.VK_S); // TODO Trans
+		item = new JMenuItem(trans.get("PhotoFrame.menu.file.save"), KeyEvent.VK_S);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, SHORTCUT_KEY));
 		// // Open a rocket design
-		item.getAccessibleContext().setAccessibleDescription("Save Image"); // TODO
-																			// Trans
+		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.file.save"));
 		item.setIcon(Icons.FILE_OPEN);
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -160,8 +159,8 @@ public class PhotoFrame extends JFrame {
 							public void run() {
 								log.info("Got image {} to save...", image);
 
-								final FileFilter png = new SimpleFileFilter("PNG Image", ".png"); // TODO
-																									// Trans
+								final FileFilter png = new SimpleFileFilter(trans.get("PhotoFrame.fileFilter.png"),
+										".png");
 
 								final JFileChooser chooser = new JFileChooser();
 
@@ -210,7 +209,7 @@ public class PhotoFrame extends JFrame {
 		menu.getAccessibleContext().setAccessibleDescription(trans.get("BasicFrame.menu.Rocketedt"));
 		menubar.add(menu);
 
-		Action action = new AbstractAction("Copy") {
+		Action action = new AbstractAction(trans.get("PhotoFrame.menu.edit.copy")) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				photoPanel.addImageCallback(new PhotoPanel.ImageCallback() {
@@ -253,10 +252,10 @@ public class PhotoFrame extends JFrame {
 		item = new JMenuItem(action);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, SHORTCUT_KEY));
 		item.setMnemonic(KeyEvent.VK_C);
-		item.getAccessibleContext().setAccessibleDescription("Copy image to clipboard");
+		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.menu.edit.copy.desc"));
 		menu.add(item);
 
-		menu.add(new JMenuItem(new AbstractAction("Photo Settings") {
+		menu.add(new JMenuItem(new AbstractAction(trans.get("PhotoSettingsConfig.title")) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				settings.setVisible(true);
@@ -264,9 +263,9 @@ public class PhotoFrame extends JFrame {
 		}));
 
 		// Window
-		menu = new JMenu("Window");
+		menu = new JMenu(trans.get("PhotoFrame.menu.window"));
 		menubar.add(menu);
-		JMenu sizeMenu = new JMenu("Size");
+		JMenu sizeMenu = new JMenu(trans.get("PhotoFrame.menu.window.size"));
 		menu.add(sizeMenu);
 
 		sizeMenu.add(new JMenuItem(new SizeAction(320, 240, "QVGA")));
@@ -275,9 +274,10 @@ public class PhotoFrame extends JFrame {
 
 		sizeMenu.addSeparator();
 
-		sizeMenu.add(new JMenuItem(new SizeAction(240, 320, "QVGA Portrait")));
-		sizeMenu.add(new JMenuItem(new SizeAction(480, 640, "VGA Portrait")));
-		sizeMenu.add(new JMenuItem(new SizeAction(768, 1024, "XGA Portrait")));
+		final String s = trans.get("PhotoFrame.menu.window.size.portrait");
+		sizeMenu.add(new JMenuItem(new SizeAction(240, 320, s.replace("{0}", "QVGA"))));
+		sizeMenu.add(new JMenuItem(new SizeAction(480, 640, s.replace("{0}", "VGA"))));
+		sizeMenu.add(new JMenuItem(new SizeAction(768, 1024, s.replace("{0}", "XGA"))));
 
 		sizeMenu.addSeparator();
 
