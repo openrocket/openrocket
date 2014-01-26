@@ -79,7 +79,10 @@ public class OpenRocketAPI {
 		return 0;
 	}
 	
-	
+	public double GetTimeStep()
+	{
+		return m_CSimulationConditions.getTimeStep();
+	}
 	
 	public int SimulationStep(){
 		if(m_CSimulationConditions==null)
