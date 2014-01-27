@@ -169,6 +169,7 @@ public class OpenRocketAPI {
 		return m_CStatus.isLiftoff();
 	}
 
+	
 	/******************************************************************
 	 * rocket simulation functions
 	 * **************************************************************/
@@ -179,14 +180,14 @@ public class OpenRocketAPI {
 	
 	public int StartSimulation(){
 		m_CRocket=new UserControledSimulation();
+		FlightData temp=new FlightData();
 		try{
-		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, m_CFlightData);
+		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, temp);
 		if(m_CStatus==null)
-			{System.err.println("temp is not valid");
+			{System.err.println("simulation is not valid");
 			return -1;
 			}
-		m_CFlightData=new FlightData();
-		
+		m_CFlightData=temp;
 		m_bIsSimulationLoopRunning=true;
 		m_bIsSimulationStagesRunning=true;
 		}
@@ -276,6 +277,9 @@ public class OpenRocketAPI {
 	}
 	
 	public void RunSimulation() {
+		if(m_bIsSimulationStagesRunning==true){
+			System.err.print("error can't RunSimulation while StartSimulation is running");
+			return;}
 		if(m_CSimulationConditions == null)
 			{System.err.println("no simulation data");
 			return;}
