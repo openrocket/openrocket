@@ -301,7 +301,12 @@ public class OpenRocketAPI {
 			
 			System.out.print("Number of Simulations in file: ");
 			System.out.println(temp.getSimulationCount());
-			if (!(temp.getSimulationCount() < simtograb))
+			int simCount = temp.getSimulationCount();
+			if (simCount == 0)
+			{
+				return -1;
+			}
+			if (!(simCount < simtograb))
 			{
 				SimulationOptions temp2 = temp.getSimulation(simtograb).getSimulatedConditions();
 				if (temp2 != null)
@@ -315,6 +320,7 @@ public class OpenRocketAPI {
 				}
 			}else{
 				System.out.println("no simulations found");
+				return -2;
 			}
 			//return loadorkfile(szFileName); //this needs to be more complex...
 		} catch (RocketLoadException oops) {
