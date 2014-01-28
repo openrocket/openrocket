@@ -39,8 +39,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		return Status;
 	}
 	
-	public SimulationStatus step(SimulationStatus Status, FlightData flight, Double time) {
-		Status.setPreviousTimeStep(time); //this is such a lie but it should alter timestep to do what we want
+	public SimulationStatus step(SimulationStatus Status, FlightData flight) {
 		
 		return RunSimulationLoop(Status, flight);
 		

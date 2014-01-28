@@ -78,6 +78,7 @@ public class OpenRocketAPI {
 		if(x==null)
 			return -2;
 		return x.getX();
+		
 	}
 	public double getOrientationY(){
 		if(m_CStatus==null)
@@ -260,7 +261,12 @@ public class OpenRocketAPI {
 		if(m_CRocket==null)
 			{System.err.println("Rocket is null");
 			return -2;}
-		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData, timestep);
+		if(m_CStatus==null)
+		{System.err.println("simualtion is null");
+		return -2;}
+		
+		m_CStatus.setPreviousTimeStep(timestep);
+		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
 		
 		if(m_CStatus==null)
 			{m_bIsSimulationLoopRunning=false;
