@@ -16,6 +16,7 @@ import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.GuiModule;
 import net.sf.openrocket.util.Coordinate;
+import net.sf.openrocket.util.Quaternion;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -58,6 +59,51 @@ public class OpenRocketAPI {
 			return -2;
 		return m_CStatus.getRocketVelocity().x;
 	}
+	
+	public double setOrientationXYZ(double W,double X,double Y,double Z){
+		if(m_CStatus==null)
+			return -1;
+		Quaternion xyzOrientation=new Quaternion(W,X,Y,Z);
+		if(xyzOrientation!=null)
+			{
+			m_CStatus.setRocketOrientationQuaternion(xyzOrientation);
+			}
+		return 0;
+	}
+	
+	public double getOrientationX(){
+		if(m_CStatus==null)
+			return -1;
+		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+		if(x==null)
+			return -2;
+		return x.getX();
+	}
+	public double getOrientationY(){
+		if(m_CStatus==null)
+			return -1;
+		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+		if(x==null)
+			return -2;
+		return x.getY();
+	}
+	public double getOrientationZ(){
+		if(m_CStatus==null)
+			return -1;
+		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+		if(x==null)
+			return -2;
+		return x.getZ();
+	}
+	public double getOrientationW(){
+		if(m_CStatus==null)
+			return -1;
+		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+		if(x==null)
+			return -2;
+		return x.getW();
+	}
+	
 	public double GetVelocityZ() {
 		if(m_CStatus==null)
 			return -1;
@@ -168,7 +214,6 @@ public class OpenRocketAPI {
 			return false;
 		return m_CStatus.isLiftoff();
 	}
-
 	
 	/******************************************************************
 	 * rocket simulation functions
@@ -278,7 +323,7 @@ public class OpenRocketAPI {
 	
 	public void RunSimulation() {
 		if(m_bIsSimulationStagesRunning==true){
-			System.err.print("error can't RunSimulation while StartSimulation is running");
+			System.err.println("warning calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
 			return;}
 		if(m_CSimulationConditions == null)
 			{System.err.println("no simulation data");
@@ -302,49 +347,41 @@ public class OpenRocketAPI {
 			return -1;
 		return m_CFlightData.getMaxAltitude();
 	}
-	
 	public double getMaxVelocity() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getMaxVelocity();
 	}
-	
 	public double getMaxAcceleration() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getTimeToApogee();
 	}
-	
 	public double getMaxMachNumber() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getMaxMachNumber();
 	}
-	
 	public double getTimeToApogee() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getTimeToApogee();
 	}
-	
 	public double getFlightTime() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getFlightTime();
 	}
-	
 	public double getGroundHitVelocity() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getGroundHitVelocity();
 	}
-	
 	public double getLaunchRodVelocity() {
 		if (m_CFlightData == null)
 			return -1;
 		return m_CFlightData.getLaunchRodVelocity();
 	}
-	
 	public double getDeploymentVelocity() {
 		if (m_CFlightData == null)
 			return -1;
