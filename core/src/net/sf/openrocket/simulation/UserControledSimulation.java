@@ -19,14 +19,21 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	
 	public UserControledSimulation() {
 		// TODO Auto-generated constructor stub
-		
+		super();
 	}
 	
 	public SimulationStatus firstInitialize(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
-		Status = InitializeSimulation(sim, Status, flight);
+		if (flight == null)
+			return null;
+		Status = InitializeSimulation(sim, Status);
+		if (Status == null)
+			return null;
 		Status = FirstPartofWhileTrue(flight, Status);
+		if (Status == null)
+			return null;
 		Status = InitializeSimulationloop(Status);
-		
+		if (Status == null)
+			return null;
 		m_bSimulationRunning = true;
 		
 		return Status;
@@ -200,7 +207,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	
 	//will not handel multiple stages in a rocket
 	//
-	public SimulationStatus InitializeSimulation(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
+	public SimulationStatus InitializeSimulation(SimulationConditions sim, SimulationStatus Status) throws SimulationException {
 		if (sim == null)
 			return null;
 		
