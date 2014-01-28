@@ -29,7 +29,7 @@ public class OpenRocketAPI {
 	private boolean m_bIsSimulationLoopRunning=false;
 	private FlightData m_CFlightData = null;
 	private SimulationConditions m_CSimulationConditions = null;
-	private SimulationStatus m_CStatus;
+	private RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
 	
 	
@@ -51,6 +51,13 @@ public class OpenRocketAPI {
 /**********************************************************************
  * seters and getters for simulation data
  ********************************************************************* */
+	
+
+	public double GetAccelerationX() {
+		if(m_CStatus==null)
+			return -1;
+		return m_CStatus.getRocketLinearAcceleration();
+	}
 	
 	public double GetVelocityX() {
 		if(m_CStatus==null)
@@ -299,9 +306,9 @@ public class OpenRocketAPI {
 			GeneralRocketLoader test = new GeneralRocketLoader(Filename);
 			OpenRocketDocument temp = test.load();
 			
-			System.out.print("Number of Simulations in file: ");
-			System.out.println(temp.getSimulationCount());
 			int simCount = temp.getSimulationCount();
+			System.out.print("Number of Simulations in file: ");
+			System.out.println(simCount);
 			if (simCount == 0)
 			{
 				return -1;
@@ -314,6 +321,7 @@ public class OpenRocketAPI {
 					System.out.print("Getting Simulation Conditions for: ");
 					System.out.println(temp.getSimulation(simtograb).getName());
 					m_CSimulationConditions = temp2.toSimulationConditions();
+					temp2.toSimulationConditions();
 				}
 				else{
 					System.err.println("simulation is null");

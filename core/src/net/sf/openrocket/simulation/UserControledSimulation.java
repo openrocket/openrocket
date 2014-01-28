@@ -22,7 +22,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		super();
 	}
 	
-	public SimulationStatus firstInitialize(SimulationConditions sim, SimulationStatus Status, FlightData flight) throws SimulationException {
+	public RK4SimulationStatus firstInitialize(SimulationConditions sim, RK4SimulationStatus Status, FlightData flight) throws SimulationException {
 		if (flight == null)
 			return null;
 		Status = InitializeSimulation(sim, Status);
@@ -39,13 +39,13 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		return Status;
 	}
 	
-	public SimulationStatus step(SimulationStatus Status, FlightData flight) {
+	public RK4SimulationStatus step(SimulationStatus Status, FlightData flight) {
 		
 		return RunSimulationLoop(Status, flight);
 		
 	}
 	
-	public SimulationStatus stagestep(FlightData flight, SimulationStatus Status) {
+	public RK4SimulationStatus stagestep(FlightData flight, SimulationStatus Status) {
 		//status = Status; //Status might be null due to a return value
 		EndSimulationLoop();
 		//EndOfWhileTrue(flight);
@@ -59,7 +59,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		return 0;
 	}
 	
-	private SimulationStatus InitializeSimulationloop(SimulationStatus Status) {
+	private RK4SimulationStatus InitializeSimulationloop(SimulationStatus Status) {
 		
 		// Initialize the simulation
 		currentStepper = flightStepper;
@@ -68,10 +68,10 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		// Get originating position (in case listener has modified launch position)
 		//origin = status.getRocketPosition();
 		//originVelocity = status.getRocketVelocity();
-		return status;
+		return (RK4SimulationStatus) status;
 	}
 	
-	private SimulationStatus RunSimulationLoop(SimulationStatus Status, FlightData flight) {
+	private RK4SimulationStatus RunSimulationLoop(SimulationStatus Status, FlightData flight) {
 		double maxAlt = Double.NEGATIVE_INFINITY;
 		
 		//status = new SimulationStatus(Status);
@@ -191,7 +191,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 			status.getWarnings().add(e.getLocalizedMessage());
 		}
 		
-		return status;
+		return (RK4SimulationStatus) status;
 	}
 	
 	private int EndSimulationLoop() {
@@ -206,7 +206,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	
 	//will not handel multiple stages in a rocket
 	//
-	public SimulationStatus InitializeSimulation(SimulationConditions sim, SimulationStatus Status) throws SimulationException {
+	public RK4SimulationStatus InitializeSimulation(SimulationConditions sim, RK4SimulationStatus Status) throws SimulationException {
 		if (sim == null)
 			return null;
 		
@@ -221,7 +221,8 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
 		
-		status = new SimulationStatus(configuration, motorConfiguration, sim);
+		//status = new SimulationStatus(configuration, motorConfiguration, sim);
+		status = new RK4SimulationStatus(configuration, motorConfiguration, sim);
 		status.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, sim.getRocket()));
 		{
 			// main sustainer stage
@@ -232,7 +233,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		
 		SimulationListenerHelper.fireStartSimulation(status);
 		
-		return status;
+		return (RK4SimulationStatus) status;
 	}
 	
 	/* 
@@ -243,7 +244,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	 * -4 simulation finished
 	 * */
 	
-	public SimulationStatus FirstPartofWhileTrue(FlightData flightData, SimulationStatus Status) {
+	public RK4SimulationStatus FirstPartofWhileTrue(FlightData flightData, SimulationStatus Status) {
 		if (flightData == null)
 			return null;
 		if (stages.size() == 0) {
@@ -260,7 +261,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		}
 		status = stageStatus;
 		
-		return Status;
+		return (RK4SimulationStatus) Status;
 	}
 	
 	
