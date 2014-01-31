@@ -29,7 +29,7 @@ public class PhotoSettings extends AbstractChangeSource implements FlameSettings
 	private boolean motionBlurred = false;
 	private boolean flame = false;
 	private Color flameColor = new Color(255, 100, 50);
-	private boolean smoke = true;
+	private boolean smoke = false;
 	private Color smokeColor = new Color(230, 230, 230, 102);
 	private boolean sparks = false;
 	private double exhaustScale = 1.0;
