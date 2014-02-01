@@ -2,6 +2,7 @@ package net.sf.openrocket.gui.figure3d.photo.sky.builtin;
 
 import net.sf.openrocket.gui.figure3d.photo.sky.Sky.Credit;
 import net.sf.openrocket.gui.figure3d.photo.sky.SkyBoxCross;
+import net.sf.openrocket.util.Chars;
 
 public class Storm extends SkyBoxCross implements Credit {
 	public static final Storm instance = new Storm();
@@ -12,7 +13,7 @@ public class Storm extends SkyBoxCross implements Credit {
 	
 	@Override
 	public String getCredit() {
-		return "© Jockum Skoglund aka hipshot.\nCC-BY 3.0 Attribution License.";
+		return Chars.COPY + " Jockum Skoglund aka hipshot.\nCC-BY 3.0 Attribution License.";
 	}
 	
 	@Override
