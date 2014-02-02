@@ -14,7 +14,7 @@ import net.sf.openrocket.simulation.SimulationEngine;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.GuiModule;
+import net.sf.openrocket.startup.APIGuiModule;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Quaternion;
 
@@ -39,7 +39,7 @@ public class OpenRocketAPI {
 	
 	public OpenRocketAPI(){
 		
-		GuiModule guiModule = new GuiModule();
+		APIGuiModule guiModule = new APIGuiModule();
 		Module pluginModule = new PluginModule();
 		Injector injector = Guice.createInjector(guiModule, pluginModule);
 		Application.setInjector(injector);
