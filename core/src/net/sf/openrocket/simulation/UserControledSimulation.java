@@ -245,8 +245,9 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	 * */
 	
 	public RK4SimulationStatus FirstPartofWhileTrue(FlightData flightData, SimulationStatus Status) {
-		if (flightData == null)
+		if (flightData == null) {
 			return null;
+		}
 		if (stages.size() == 0) {
 			EndSimulation(flightData);
 			return null;
@@ -261,7 +262,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		}
 		status = stageStatus;
 		
-		return (RK4SimulationStatus) Status;
+		return new RK4SimulationStatus(Status);
 	}
 	
 	
