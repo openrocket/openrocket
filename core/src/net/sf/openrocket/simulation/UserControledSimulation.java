@@ -227,7 +227,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		{
 			// main sustainer stage
 			RocketComponent sustainer = configuration.getRocket().getChild(0);
-			status.setFlightData(new FlightDataBranch(sustainer.getName(), FlightDataType.TYPE_TIME));
+			status.setFlightData(new FlightDataBranch(sustainer.getName(), FlightDataType.ALL_TYPES));
 		}
 		stages.add(status);
 		
