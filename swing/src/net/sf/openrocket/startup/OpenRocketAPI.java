@@ -4,14 +4,15 @@ import java.io.File;
 
 import net.sf.openrocket.simulation.*;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationEngine;
-import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.APIGuiModule;
@@ -59,6 +60,27 @@ public class OpenRocketAPI {
 		return m_CStatus.getRocketLinearAcceleration();
 	}
 	
+	/*
+	 * returns the flight data we want to get.
+	 * Flightdata.getunits() will let you know the units.
+	 * 
+	 * -1 flightdata is null run a simulation (at least partially) to fix
+	 * -2 branch was null did you specify any parameters to run (done by default unless overridden);
+	 *  nan last value of simulation non valid? try progressing further in the simulation
+	 * 
+	 * bejon is doing this
+	 * 
+	public double getFlightDataSpecial(FlightDataType blort){
+		if(m_CFlightData==null)
+			return -1;
+	
+		FlightDataBranch alpha=m_CFlightData.getBranch(0);
+		if(alpha==null)
+			return -2;
+		
+		return alpha.getLast(blort);
+	}
+	*/
 	public double GetVelocityX() {
 		if(m_CStatus==null)
 			return -1;
@@ -232,8 +254,15 @@ public class OpenRocketAPI {
 	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
 	
 	public int StartSimulation(){
+		return StartSimulation(new FlightDataBranch("psas",FlightDataType.ALL_TYPES));
+		}
+	
+	public int StartSimulation(FlightDataBranch CBranch){
 		m_CRocket=new UserControledSimulation();
 		FlightData temp=new FlightData();
+		if(CBranch!=null){
+			temp.addBranch(CBranch);
+			m_CSimulationConditions.setCalculateExtras(true);}
 		try{
 		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, temp);
 		if(m_CStatus==null)
@@ -293,10 +322,20 @@ public class OpenRocketAPI {
 		return 0;
 	}
 	
-	public int LoadRocket(String szFileName) {
+	public int LoadRocket(String szFileName){
 		
-		return LoadRocket(szFileName,0);
+		return LoadRocket(szFileName,1);
 	}
+	
+	/*
+	 * loads a rocket and simulationconditions from an ork file
+	 * 
+	 * 0 everything went fine;
+	 * -1 simcount==0 //no simulations in file 
+	 * -2 !(simcount < simtograb) //you asked for a simulation not present
+	 * -3 simulation data not present in simulation
+	 * -4 exception thrown
+	 * */
 	
 	public int LoadRocket(String szFileName,int simtograb) {
 		try {
@@ -306,36 +345,45 @@ public class OpenRocketAPI {
 			GeneralRocketLoader test = new GeneralRocketLoader(Filename);
 			OpenRocketDocument temp = test.load();
 			
+			int simCount = temp.getSimulationCount();
+			System.out.print("Number of Simulations in file: ");
 			System.out.println(simCount);
 			if (simCount == 0)
 			{
 				return -1;
 			}
 			if (!(simCount < simtograb))
-			{
-				SimulationOptions temp2 = temp.getSimulation(simtograb).getSimulatedConditions();
+			{simtograb--;
+				Simulation temp2 = temp.getSimulation(simtograb);
 				if (temp2 != null)
 				{
-					m_CSimulationConditions = temp2.toSimulationConditions();
-					temp2.toSimulationConditions();
+					System.out.print("Getting Simulation Conditions for: ");
+					System.out.println(temp.getSimulation(simtograb).getName());
+					System.out.println("status of rocket is "+temp2.getStatus());
+					m_CSimulationConditions = temp2.getOptions().toSimulationConditions();
+					
 				}
 				else{
-					System.err.println("simulation is null");
+					//System.err.println("simulation is null");
+					return -3;
 				}
 			}else{
-				System.out.println("no simulations found");
+				//System.err.println("assked for simulation not present");
 				return -2;
 			}
 			//return loadorkfile(szFileName); //this needs to be more complex...
 		} catch (RocketLoadException oops) {
 			System.err.print("made a mistake file : ");
-			System.err.print(szFileName);
-			System.err.print(oops.toString());
-			return 1;
+			System.err.println(szFileName+" "+oops.toString());
+			return -4;
 			
 		}
 		return 0;
 	}
+
+	/*
+	 * runs simulation start to finish just like openrocket main.
+	 * */
 	
 	public void RunSimulation() {
 		if(m_bIsSimulationStagesRunning==true){
@@ -344,6 +392,7 @@ public class OpenRocketAPI {
 		if(m_CSimulationConditions == null)
 			{System.err.println("no simulation data");
 			return;}
+		m_CSimulationConditions.setCalculateExtras(true);
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		
 		try {
