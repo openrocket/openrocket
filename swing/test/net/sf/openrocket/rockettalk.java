@@ -86,6 +86,8 @@ public class rockettalk extends OpenRocketAPI{
 				FlightDataBranch rc_f = flightData();
 				FlightDataStep rc_s = flightDataStep();
 				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
+				Coordinate c1 = this.m_CStatus.getRocketVelocity();
+				Coordinate c2 = this.m_CStatus.getRocketPosition();
 				int i = rc_f.getLength();
 				int y = i;
 			}

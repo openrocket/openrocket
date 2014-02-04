@@ -74,7 +74,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		{
 			// main sustainer stage
 			RocketComponent sustainer = configuration.getRocket().getChild(0);
-			status.setFlightData(new FlightDataBranch(sustainer.getName(), FlightDataType.TYPE_TIME));
+			FlightDataType fdt = FlightDataType.TYPE_TIME;
+			FlightDataBranch fdb = new FlightDataBranch(sustainer.getName(), fdt);
+			status.setFlightData(fdb);
 		}
 		stages.add(status);
 		
