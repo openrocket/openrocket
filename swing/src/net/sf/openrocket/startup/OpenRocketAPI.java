@@ -324,7 +324,7 @@ public class OpenRocketAPI {
 	
 	public int LoadRocket(String szFileName){
 		
-		return LoadRocket(szFileName,0);
+		return LoadRocket(szFileName,1);
 	}
 	
 	/*
