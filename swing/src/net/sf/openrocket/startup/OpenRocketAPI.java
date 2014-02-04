@@ -28,11 +28,13 @@ public class OpenRocketAPI {
 	
 	private boolean m_bIsSimulationStagesRunning=false;
 	private boolean m_bIsSimulationLoopRunning=false;
-	private FlightData m_CFlightMaximums = null;
-	private FlightDataBranch m_CFlightData = null;
+	private FlightData m_CFlightData = null;
+	private FlightDataBranch m_CFlightDataBranch = null;
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
+	//TODO: Make this a paramater that can be specified
+	private double timeStep = 0.0; //0.00125 is added to this internally.
 	
 	
 	
@@ -60,20 +62,60 @@ public class OpenRocketAPI {
 	 * 
 	 * @return
 	 */
-	public int GetItteration(){
-		return m_CFlightData.getLength();
+	public int GetIteration(){
+		return m_CFlightDataBranch.getLength();
 	}
 	/**
 	 * Returns the time step for the current iteration of the simulation.
 	 * 
 	 * @return		end time of current time step - end time of previous time step.
 	 */
-	public double GetTimeStep()
-	{
-		List<Double> ts = m_CFlightData.get(FlightDataType.TYPE_TIME_STEP);
-		double t_1 = ts.get(ts.size()-1);
-		double t_0 = ts.get(ts.size()-2);
-		return t_1 - t_0;
+	public double GetTimeStep()	{
+		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
+		if(i < 0){
+			return -1;
+		}
+		return i;
+	}
+	/**
+	 * Returns the total time as of the current step of the simulation
+	 * @return
+	 */
+	public double GetTime(){
+		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
+		if(i == -2){
+			return -1;
+		}
+		if(i == -1){
+			return 0;
+		}
+		return i;
+	}
+	/**
+	 * Returns one value correlating to the key type and the
+	 * current iteration.
+	 *
+	 * @param		Specify this type of data to return
+	 * @return		double
+	 */
+	protected double GetValue(FlightDataType type) {
+		List<Double> tsl = m_CFlightDataBranch.get(type);
+		if(tsl == null) return -2;
+		int tsl_size = tsl.size();
+		if(tsl_size < 1) return -1;
+		return tsl.get(tsl_size -1);
+	}
+
+	/**
+	 * Returns one value correlating to the key type and the
+	 * specified iteration.
+	 * 
+	 * @param		Specify this type of data to return
+	 * @return		double
+	 */
+	protected double GetValue(FlightDataType type, int step) {
+		FlightDataStep currentStep = GetFlightDataStep(step);
+		return currentStep.get(type);
 	}
 	/**
 	 * Returns the entire class containing all of the simulation data.
@@ -81,7 +123,7 @@ public class OpenRocketAPI {
 	 * @return		FlightDataBranch type.
 	 */
 	public FlightDataBranch GetFlightData(){
-		return m_CFlightData;
+		return m_CFlightDataBranch;
 	}
 	
 	/**
@@ -90,16 +132,17 @@ public class OpenRocketAPI {
 	 * @return		FlightDataStep type.
 	 */
 	public FlightDataStep GetFlightDataStep(){
-		return null;
+		return new FlightDataStep(m_CFlightDataBranch);
 	}
 	
 	/**
 	 * Returns the values for the specified iteration of the simulation
 	 * 
+	 * @param		Desired iteration (the first iteration is iteration 1)
 	 * @return		FlightDataStep type.
 	 */
 	public FlightDataStep GetFlightDataStep(int i){
-		return null;
+		return new FlightDataStep(m_CFlightDataBranch, i);
 	}
 	/******************************************************************
 	 * rocket simulation functions
@@ -118,8 +161,8 @@ public class OpenRocketAPI {
 			{System.err.println("simulation is not valid");
 			return -1;
 			}
-		m_CFlightMaximums = fm_temp;
-		m_CFlightData = m_CStatus.getFlightData();
+		m_CFlightData = fm_temp;
+		m_CFlightDataBranch = m_CStatus.getFlightData();
 		m_bIsSimulationLoopRunning=true;
 		m_bIsSimulationStagesRunning=true;
 		}
@@ -129,9 +172,7 @@ public class OpenRocketAPI {
 	}
 
 	public int SimulationStep(){
-		if(m_CSimulationConditions==null)
-			return -1;
-		return SimulationStep((int) m_CSimulationConditions.getTimeStep() );
+		return SimulationStep( this.timeStep );
 		}
 	
 	public int SimulationStep(double timestep){
@@ -147,7 +188,7 @@ public class OpenRocketAPI {
 		return -2;}
 		
 		m_CStatus.setPreviousTimeStep(timestep);
-		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightMaximums);
+		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
 		
 		if(m_CStatus==null)
 			{m_bIsSimulationLoopRunning=false;
@@ -160,7 +201,7 @@ public class OpenRocketAPI {
 		if(m_CRocket==null)
 			return -1;
 		
-		m_CStatus=m_CRocket.stagestep(m_CFlightMaximums, m_CStatus);
+		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
 		if(m_CStatus==null)
 			m_bIsSimulationStagesRunning=false;
 			
@@ -204,7 +245,7 @@ public class OpenRocketAPI {
 				System.out.println("no simulations found");
 				return -2;
 			}
-			//return loadorkfile(szFileName); //this needs to be more complex...
+			//TODO: return loadorkfile(szFileName); //this needs to be more complex...
 		} catch (RocketLoadException oops) {
 			System.err.print("made a mistake file : ");
 			System.err.print(szFileName);
@@ -225,7 +266,9 @@ public class OpenRocketAPI {
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		
 		try {
-			m_CFlightMaximums = boink.simulate(m_CSimulationConditions);
+			m_CFlightData = boink.simulate(m_CSimulationConditions);
+			System.out.print("Number of branches in simulation: ");
+			System.out.println(m_CFlightData.getBranchCount());
 		} catch (SimulationException e) {
 			System.err.println("oops RunSimulation threw an error");
 		}
@@ -237,55 +280,55 @@ public class OpenRocketAPI {
 	 *****************************************************/
 	
 	public double getMaxAltitude() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getMaxAltitude();
+		return m_CFlightData.getMaxAltitude();
 	}
 	public double getMaxVelocity() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getMaxVelocity();
+		return m_CFlightData.getMaxVelocity();
 	}
 	public double getMaxAcceleration() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getTimeToApogee();
+		return m_CFlightData.getTimeToApogee();
 	}
 	public double getMaxMachNumber() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getMaxMachNumber();
+		return m_CFlightData.getMaxMachNumber();
 	}
 	public double getTimeToApogee() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getTimeToApogee();
+		return m_CFlightData.getTimeToApogee();
 	}
 	public double getFlightTime() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getFlightTime();
+		return m_CFlightData.getFlightTime();
 	}
 	public double getGroundHitVelocity() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getGroundHitVelocity();
+		return m_CFlightData.getGroundHitVelocity();
 	}
 	public double getLaunchRodVelocity() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getLaunchRodVelocity();
+		return m_CFlightData.getLaunchRodVelocity();
 	}
 	public double getDeploymentVelocity() {
-		if (m_CFlightMaximums == null)
+		if (m_CFlightData == null)
 			return -1;
-		return m_CFlightMaximums.getDeploymentVelocity();
+		return m_CFlightData.getDeploymentVelocity();
 	}
 	
 	/**********************************************************************
 	 * seters and getters for simulation data
 	 ********************************************************************* */
-		
+	//TODO: These should all be remade to use m_CFlightDataBranch and 	
 
 		public double GetAccelerationX() {
 			if(m_CStatus==null)
@@ -311,7 +354,7 @@ public class OpenRocketAPI {
 				}
 			return 0;
 		}
-		
+		//TODO: These Orientations do not change during flight.
 		public double getOrientationX(){
 			if(m_CStatus==null)
 				return -1;

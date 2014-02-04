@@ -29,7 +29,7 @@ import org.javatuples.*;
 /**
  * @author nubjub
  */
-public class rockettalk extends OpenRocketAPI_0{
+public class rockettalk extends OpenRocketAPI{
 	SimulationStatus rc_simStatus;
 	FlightDataBranch rc_flightData;
 	ArrayList<FlightDataBranch> rc_fdl;
@@ -58,7 +58,7 @@ public class rockettalk extends OpenRocketAPI_0{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.LoadRocket("/home/panman/desk/src/openrocket/swing/test/net/sf/openrocket/rockettalk.ork", 0);
+		    this.LoadRocket("/home/panman/desk/src/openrocket/swing/test/net/sf/openrocket/rockettalk_simple.ork", 0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -76,21 +76,27 @@ public class rockettalk extends OpenRocketAPI_0{
 	public void test() {
 		this.RunSimulation();
 		this.StartSimulation();
-		double timestep = this.GetTimeStep();
-		int count = 1;
+		int iteration =-1;
+		int count = -1;
+		double timestep =-1;
 		while(this.IsSimulationLoopRunning()){
 			while(this.IsSimulationLoopRunning()){
-				++count;
-				this.SimulationStep();
+				count = this.SimulationStep();
+				iteration = this.GetIteration();
+				timestep = this.GetTimeStep();
 				FlightDataBranch rc_f = flightData();
-				FlightDataBranch tmp = rc_f;
+				FlightDataStep rc_s = flightDataStep();
 				int i = rc_f.getLength();
 				int y = i;
 			}
+	        this.StagesStep();
 		}
 	}
 	private FlightDataBranch flightData() {
-		return this.m_CStatus.getFlightData();
+		return this.GetFlightData();
+	}
+	private FlightDataStep flightDataStep() {
+		return this.GetFlightDataStep();
 	}
 
 }
