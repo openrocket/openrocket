@@ -30,8 +30,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	/** Number of divisions in the fin chords. */
 	protected static final int DIVISIONS = 48;
 	
-	
-	
 	protected double macLength = Double.NaN; // MAC length
 	protected double macLead = Double.NaN; // MAC leading edge position
 	protected double macSpan = Double.NaN; // MAC spanwise position
@@ -47,7 +45,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected double[] chordLead = new double[DIVISIONS];
 	protected double[] chordTrail = new double[DIVISIONS];
 	protected double[] chordLength = new double[DIVISIONS];
-	
 	
 	protected final WarningSet geometryWarnings = new WarningSet();
 	
@@ -81,7 +78,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		calculateInterferenceFinCount(fin);
 	}
 	
-	
 	/*
 	 * Calculates the non-axial forces produced by the fins (normal and side forces,
 	 * pitch, yaw and roll moments, CP position, CNa).
@@ -89,7 +85,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	@Override
 	public void calculateNonaxialForces(FlightConditions conditions,
 			AerodynamicForces forces, WarningSet warnings) {
-		
 		
 		if (span < 0.001) {
 			forces.setCm(0);
@@ -104,14 +99,11 @@ public class FinSetCalc extends RocketComponentCalc {
 			return;
 		}
 		
-		
 		// Add warnings  (radius/2 == diameter/4)
 		if (thickness > bodyRadius / 2) {
 			warnings.add(Warning.THICK_FIN);
 		}
 		warnings.addAll(geometryWarnings);
-		
-		
 		
 		//////// Calculate CNa.  /////////
 		
@@ -124,7 +116,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		double cna;
 		double theta = conditions.getTheta();
 		double angle = baseRotation;
-		
 		
 		// Compute basic CNa without interference effects
 		if (finCount == 1 || finCount == 2) {
@@ -232,22 +223,16 @@ public class FinSetCalc extends RocketComponentCalc {
 		//		cna *= pow2(1 + tau);	// Barrowman thesis (too optimistic??)
 		//		logger.debug("Component cna = {}", cna);
 		
-		
-		
 		// TODO: LOW: check for fin tip mach cone interference
 		// (Barrowman thesis pdf-page 40)
 		
 		// TODO: LOW: fin-fin mach cone effect, MIL-HDBK page 5-25
 		
-		
-		
 		// Calculate CP position
+		double x = macLead + calculateCPPos(conditions) * macLength;
 		//		logger.debug("Component macLead = {}", macLead);
 		//		logger.debug("Component macLength = {}", macLength);
-		//FIXME - macLength is incorrect!
-		double x = macLead + calculateCPPos(conditions) * macLength;
 		//		logger.debug("Component x = {}", x);
-		
 		
 		
 		// Calculate roll forces, reduce forcing above stall angle
@@ -258,9 +243,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		// With body-fin interference effect:
 		forces.setCrollForce(finCount * (macSpan + r) * cna1 * (1 + tau) * cantAngle / conditions.getRefLength());
 		
-		
-		
-		
 		if (conditions.getAOA() > STALL_ANGLE) {
 			//			System.out.println("Fin stalling in roll");
 			forces.setCrollForce(forces.getCrollForce() * MathUtil.clamp(
@@ -268,8 +250,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 		forces.setCrollDamp(calculateDampingMoment(conditions));
 		forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
-		
-		
 		
 		//		System.out.printf(component.getName() + ":  roll rate:%.3f  force:%.3f  damp:%.3f  " +
 		//				"total:%.3f\n",
@@ -297,9 +277,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		forces.setCside(0);
 		forces.setCyaw(0);
 		
-		
 	}
-	
 	
 	/**
 	 * Returns the MAC length of the fin.  This is required in the friction drag
@@ -314,8 +292,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	public double getMidchordPos() {
 		return macLead + 0.5 * macLength;
 	}
-	
-	
 	
 	/**
 	 * Pre-calculates the fin geometry values.
@@ -340,7 +316,6 @@ public class FinSetCalc extends RocketComponentCalc {
 				down = true;
 			}
 		}
-		
 		
 		// Calculate the chord lead and trail positions and length
 		
@@ -402,7 +377,6 @@ public class FinSetCalc extends RocketComponentCalc {
 			}
 		}
 		
-		
 		/* Calculate fin properties:
 		 * 
 		 * macLength // MAC length
@@ -455,7 +429,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		cosGammaLead /= (DIVISIONS - 1);
 	}
 	
-	
 	///////////////  CNa1 calculation  ////////////////
 	
 	private static final double CNA_SUBSONIC = 0.9;
@@ -494,7 +467,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		//		System.out.println("K3[m="+CNA_SUPERSONIC+"] = "+k3[0]);
 	}
 	
-	
 	protected double calculateFinCNa1(FlightConditions conditions) {
 		double mach = conditions.getMach();
 		double ref = conditions.getRefArea();
@@ -531,9 +503,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		return cnaInterpolator.interpolate(mach, subV, superV, subD, superD, 0);
 	}
 	
-	
-	
-	
 	private double calculateDampingMoment(FlightConditions conditions) {
 		double rollRate = conditions.getRollRate();
 		
@@ -542,7 +511,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		double mach = conditions.getMach();
 		double absRate = Math.abs(rollRate);
-		
 		
 		/*
 		 * At low speeds and relatively large roll rates (i.e. near apogee) the
@@ -563,8 +531,6 @@ public class FinSetCalc extends RocketComponentCalc {
 			//					(MathUtil.sign(rollRate) *component.getFinCount() * sum));
 			return MathUtil.sign(rollRate) * finCount * sum;
 		}
-		
-		
 		
 		if (mach <= CNA_SUBSONIC) {
 			//			System.out.println("BASIC:   "+
@@ -608,9 +574,6 @@ public class FinSetCalc extends RocketComponentCalc {
 		return subsonic * (CNA_SUPERSONIC - mach) / (CNA_SUPERSONIC - CNA_SUBSONIC) +
 				supersonic * (mach - CNA_SUBSONIC) / (CNA_SUPERSONIC - CNA_SUBSONIC);
 	}
-	
-	
-	
 	
 	/**
 	 * Return the relative position of the CP along the mean aerodynamic chord.
@@ -706,7 +669,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	//		
 	//	}
 	
-	
 	@Override
 	public double calculatePressureDragForce(FlightConditions conditions,
 			double stagnationCD, double baseCD, WarningSet warnings) {
@@ -744,13 +706,11 @@ public class FinSetCalc extends RocketComponentCalc {
 		}
 		// Airfoil assumed to have zero base drag
 		
-		
 		// Scale to correct reference area
 		drag *= finCount * span * thickness / conditions.getRefArea();
 		
 		return drag;
 	}
-	
 	
 	private void calculateInterferenceFinCount(FinSet component) {
 		RocketComponent parent = component.getParent();
