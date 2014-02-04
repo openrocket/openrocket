@@ -11,7 +11,7 @@ public class Lake extends SkySphere implements Credit {
 	public static final Lake instance = new Lake();
 	
 	private Lake() {
-		super(Lake.class.getResource("/datafiles/sky/lake.png"));
+		super(Lake.class.getResource("/datafiles/sky/lake.jpg"));
 	}
 	
 	@Override
