@@ -35,10 +35,7 @@ public class OpenRocketAPI {
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
 	//TODO: Make this a paramater that can be specified
-	private double timeStep = 0.0; //0.00125 is added to this internally.
-	
-	private static final Translator trans = Application.getTranslator();
-	
+	private double timeStep = 0.0; //0.00125 is added to this internally.	
 	
 	public int setlogfile(String filename){		
 		return 0;
@@ -58,10 +55,6 @@ public class OpenRocketAPI {
 	/****************************************************
 	 * flight data functions
 	 *****************************************************/
-/*	public FlightDataType TextToType(String s){
-		FlightDataType value = trans.get("FlightDataType.TYPE_TIME");
-		return null;
-	}*/
 	/**
 	 * Returns the current iteration of the simulation
 	 * 
@@ -75,6 +68,21 @@ public class OpenRocketAPI {
 	 * 
 	 * @return		end time of current time step - end time of previous time step.
 	 */
+	/**
+	 * Returns one value correlating to the key type and the
+	 * current iteration.
+	 *
+	 * @param		Specify this type of data to return
+	 * @return		double
+	 */
+	protected double GetValue(FlightDataType type) {
+		List<Double> tsl = m_CFlightDataBranch.get(type);
+		if(tsl == null) return -2;
+		int tsl_size = tsl.size();
+		if(tsl_size < 1) return -1;
+		return tsl.get(tsl_size -1);
+	}
+
 	public double GetTimeStep()	{
 		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
 		if(i < 0){
@@ -96,21 +104,6 @@ public class OpenRocketAPI {
 		}
 		return i;
 	}
-	/**
-	 * Returns one value correlating to the key type and the
-	 * current iteration.
-	 *
-	 * @param		Specify this type of data to return
-	 * @return		double
-	 */
-	protected double GetValue(FlightDataType type) {
-		List<Double> tsl = m_CFlightDataBranch.get(type);
-		if(tsl == null) return -2;
-		int tsl_size = tsl.size();
-		if(tsl_size < 1) return -1;
-		return tsl.get(tsl_size -1);
-	}
-
 	/**
 	 * Returns one value correlating to the key type and the
 	 * specified iteration.

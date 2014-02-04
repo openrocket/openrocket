@@ -22,7 +22,6 @@ import java.util.Vector;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.startup.OpenRocketAPI;
-import net.sf.openrocket.startup.OpenRocketAPI_0;
 import net.sf.openrocket.simulation.*;
 
 import org.javatuples.*;
