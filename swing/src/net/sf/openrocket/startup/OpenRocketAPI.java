@@ -1,6 +1,7 @@
 package net.sf.openrocket.startup;
 
 import java.io.File;
+import java.util.List;
 
 import net.sf.openrocket.simulation.*;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -27,10 +28,12 @@ public class OpenRocketAPI {
 	
 	private boolean m_bIsSimulationStagesRunning=false;
 	private boolean m_bIsSimulationLoopRunning=false;
-	private FlightData m_CFlightData = null;
+	private FlightData m_CFlightMaximums = null;
+	private FlightDataBranch m_CFlightData = null;
 	private SimulationConditions m_CSimulationConditions = null;
-	private RK4SimulationStatus m_CStatus;
+	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
+	
 	
 	
 	public int setlogfile(String filename){		
@@ -48,181 +51,56 @@ public class OpenRocketAPI {
 		
 	}
 
-/**********************************************************************
- * seters and getters for simulation data
- ********************************************************************* */
-	
+	/****************************************************
+	 * flight data functions
+	 *****************************************************/
 
-	public double GetAccelerationX() {
-		if(m_CStatus==null)
-			return -1;
-		return m_CStatus.getRocketLinearAcceleration();
+	/**
+	 * Returns the current iteration of the simulation
+	 * 
+	 * @return
+	 */
+	public int GetItteration(){
+		return m_CFlightData.getLength();
 	}
-	
-	public double GetVelocityX() {
-		if(m_CStatus==null)
-			return -1;
-		if(m_CStatus.getRocketVelocity()==null)
-			return -2;
-		return m_CStatus.getRocketVelocity().x;
+	/**
+	 * Returns the time step for the current iteration of the simulation.
+	 * 
+	 * @return		end time of current time step - end time of previous time step.
+	 */
+	public double GetTimeStep()
+	{
+		List<Double> ts = m_CFlightData.get(FlightDataType.TYPE_TIME_STEP);
+		double t_1 = ts.get(ts.size()-1);
+		double t_0 = ts.get(ts.size()-2);
+		return t_1 - t_0;
 	}
-	
-	public double setOrientationXYZ(double W,double X,double Y,double Z){
-		if(m_CStatus==null)
-			return -1;
-		Quaternion xyzOrientation=new Quaternion(W,X,Y,Z);
-		if(xyzOrientation!=null)
-			{
-			m_CStatus.setRocketOrientationQuaternion(xyzOrientation);
-			}
-		return 0;
-	}
-	
-	public double getOrientationX(){
-		if(m_CStatus==null)
-			return -1;
-		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
-		if(x==null)
-			return -2;
-		return x.getX();
-		
-	}
-	public double getOrientationY(){
-		if(m_CStatus==null)
-			return -1;
-		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
-		if(x==null)
-			return -2;
-		return x.getY();
-	}
-	public double getOrientationZ(){
-		if(m_CStatus==null)
-			return -1;
-		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
-		if(x==null)
-			return -2;
-		return x.getZ();
-	}
-	public double getOrientationW(){
-		if(m_CStatus==null)
-			return -1;
-		Quaternion x=m_CStatus.getRocketOrientationQuaternion();
-		if(x==null)
-			return -2;
-		return x.getW();
+	/**
+	 * Returns the entire class containing all of the simulation data.
+	 * 
+	 * @return		FlightDataBranch type.
+	 */
+	public FlightDataBranch GetFlightData(){
+		return m_CFlightData;
 	}
 	
-	public double GetVelocityZ() {
-		if(m_CStatus==null)
-			return -1;
-		if(m_CStatus.getRocketVelocity()==null)
-			return -2;
-		return m_CStatus.getRocketVelocity().z;
-	}
-	public double GetVelocityY() {
-
-		if(m_CStatus==null)
-			return -1;
-		if(m_CStatus.getRocketVelocity()==null)
-			return -2;
-		return m_CStatus.getRocketVelocity().y;
-	}
-
-	public double GetCordinateX() {
-
-		if(m_CStatus==null)
-			return -1;
-		Coordinate x=m_CStatus.getRocketPosition();
-		if(x==null){
-			return -2;
-		}
-		return x.x;
-	}
-	public double GetCordinateY() {
-
-		if(m_CStatus==null)
-			return -1;
-		Coordinate x=m_CStatus.getRocketPosition();
-		if(x==null){
-			return -2;
-		}
-		return x.y;
-	}	
-	public double GetCordinateZ() {
-
-		if(m_CStatus==null)
-			return -1;
-		Coordinate x=m_CStatus.getRocketPosition();
-		if(x==null){
-			return -2;
-		}
-		return x.z;
+	/**
+	 * Returns the values for the current iteration of the simulation
+	 * 
+	 * @return		FlightDataStep type.
+	 */
+	public FlightDataStep GetFlightDataStep(){
+		return null;
 	}
 	
-	public double GetVelocityRotationX() {
-
-		if(m_CStatus==null)
-			return -1;
-		Coordinate x=m_CStatus.getRocketRotationVelocity();
-		if(x==null){
-			return -2;
-		}
-		return x.x;
+	/**
+	 * Returns the values for the specified iteration of the simulation
+	 * 
+	 * @return		FlightDataStep type.
+	 */
+	public FlightDataStep GetFlightDataStep(int i){
+		return null;
 	}
-	public double GetVelocityRotationY() {
-
-		if(m_CStatus==null)
-			return -1;
-		Coordinate x=m_CStatus.getRocketRotationVelocity();
-		if(x==null){
-			return -2;
-		}
-		return x.y;
-	}
-	public double GetVelocityRotationZ() {
-
-		if(m_CStatus==null)
-			return -1;
-		Coordinate x=m_CStatus.getRocketRotationVelocity();
-		if(x==null){
-			return -2;
-		}
-		return x.z;
-	}
-	
-	public double GetsimulationrunningtimeX() {
-
-		if(m_CStatus==null)
-			return -1;
-		return m_CStatus.getSimulationTime();
-		}
-	
-	public boolean GetBoolTumbling() {
-		if(m_CStatus==null)
-			return false;
-		return m_CStatus.isTumbling();
-	}
-	public boolean GetBoolMotorIgnited() {
-		if(m_CStatus==null)
-			return false;
-		return m_CStatus.isMotorIgnited();
-				}
-	public boolean GetBoolApogeeReached() {
-		if(m_CStatus==null)
-			return false;
-		return m_CStatus.isApogeeReached();
-	}
-	public boolean GetBoolLaunchRodCleared() {
-		if(m_CStatus==null)
-			return false;
-		return m_CStatus.isLaunchRodCleared();
-	}
-	public boolean GetBoolLiftoff() {
-		if(m_CStatus==null)
-			return false;
-		return m_CStatus.isLiftoff();
-	}
-	
 	/******************************************************************
 	 * rocket simulation functions
 	 * **************************************************************/
@@ -233,14 +111,15 @@ public class OpenRocketAPI {
 	
 	public int StartSimulation(){
 		m_CRocket=new UserControledSimulation();
-		FlightData temp=new FlightData();
+		FlightData fm_temp = new FlightData();
 		try{
-		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, temp);
+		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, fm_temp);
 		if(m_CStatus==null)
 			{System.err.println("simulation is not valid");
 			return -1;
 			}
-		m_CFlightData=temp;
+		m_CFlightMaximums = fm_temp;
+		m_CFlightData = m_CStatus.getFlightData();
 		m_bIsSimulationLoopRunning=true;
 		m_bIsSimulationStagesRunning=true;
 		}
@@ -248,12 +127,7 @@ public class OpenRocketAPI {
 		{System.out.println(e);}
 		return 0;
 	}
-	
-	public double GetTimeStep()
-	{
-		return m_CSimulationConditions.getTimeStep();
-	}
-	
+
 	public int SimulationStep(){
 		if(m_CSimulationConditions==null)
 			return -1;
@@ -273,7 +147,7 @@ public class OpenRocketAPI {
 		return -2;}
 		
 		m_CStatus.setPreviousTimeStep(timestep);
-		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
+		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightMaximums);
 		
 		if(m_CStatus==null)
 			{m_bIsSimulationLoopRunning=false;
@@ -286,7 +160,7 @@ public class OpenRocketAPI {
 		if(m_CRocket==null)
 			return -1;
 		
-		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
+		m_CStatus=m_CRocket.stagestep(m_CFlightMaximums, m_CStatus);
 		if(m_CStatus==null)
 			m_bIsSimulationStagesRunning=false;
 			
@@ -351,7 +225,7 @@ public class OpenRocketAPI {
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		
 		try {
-			m_CFlightData = boink.simulate(m_CSimulationConditions);
+			m_CFlightMaximums = boink.simulate(m_CSimulationConditions);
 		} catch (SimulationException e) {
 			System.err.println("oops RunSimulation threw an error");
 		}
@@ -359,58 +233,227 @@ public class OpenRocketAPI {
 	};
 
 	/****************************************************
-	 * flight data functions
+	 * flight data maximums (RK4) functions
 	 *****************************************************/
 	
 	public double getMaxAltitude() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getMaxAltitude();
+		return m_CFlightMaximums.getMaxAltitude();
 	}
 	public double getMaxVelocity() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getMaxVelocity();
+		return m_CFlightMaximums.getMaxVelocity();
 	}
 	public double getMaxAcceleration() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getTimeToApogee();
+		return m_CFlightMaximums.getTimeToApogee();
 	}
 	public double getMaxMachNumber() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getMaxMachNumber();
+		return m_CFlightMaximums.getMaxMachNumber();
 	}
 	public double getTimeToApogee() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getTimeToApogee();
+		return m_CFlightMaximums.getTimeToApogee();
 	}
 	public double getFlightTime() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getFlightTime();
+		return m_CFlightMaximums.getFlightTime();
 	}
 	public double getGroundHitVelocity() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getGroundHitVelocity();
+		return m_CFlightMaximums.getGroundHitVelocity();
 	}
 	public double getLaunchRodVelocity() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getLaunchRodVelocity();
+		return m_CFlightMaximums.getLaunchRodVelocity();
 	}
 	public double getDeploymentVelocity() {
-		if (m_CFlightData == null)
+		if (m_CFlightMaximums == null)
 			return -1;
-		return m_CFlightData.getDeploymentVelocity();
+		return m_CFlightMaximums.getDeploymentVelocity();
 	}
 	
-	/*
-	private int loadorkfile(String filename) {
-		return 1;
-	}
-	*/
+	/**********************************************************************
+	 * seters and getters for simulation data
+	 ********************************************************************* */
+		
+
+		public double GetAccelerationX() {
+			if(m_CStatus==null)
+				return -1;
+			return m_CStatus.getRocketLinearAcceleration();
+		}
+		
+		public double GetVelocityX() {
+			if(m_CStatus==null)
+				return -1;
+			if(m_CStatus.getRocketVelocity()==null)
+				return -2;
+			return m_CStatus.getRocketVelocity().x;
+		}
+		
+		public double setOrientationXYZ(double W,double X,double Y,double Z){
+			if(m_CStatus==null)
+				return -1;
+			Quaternion xyzOrientation=new Quaternion(W,X,Y,Z);
+			if(xyzOrientation!=null)
+				{
+				m_CStatus.setRocketOrientationQuaternion(xyzOrientation);
+				}
+			return 0;
+		}
+		
+		public double getOrientationX(){
+			if(m_CStatus==null)
+				return -1;
+			Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+			if(x==null)
+				return -2;
+			return x.getX();
+			
+		}
+		public double getOrientationY(){
+			if(m_CStatus==null)
+				return -1;
+			Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+			if(x==null)
+				return -2;
+			return x.getY();
+		}
+		public double getOrientationZ(){
+			if(m_CStatus==null)
+				return -1;
+			Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+			if(x==null)
+				return -2;
+			return x.getZ();
+		}
+		public double getOrientationW(){
+			if(m_CStatus==null)
+				return -1;
+			Quaternion x=m_CStatus.getRocketOrientationQuaternion();
+			if(x==null)
+				return -2;
+			return x.getW();
+		}
+		
+		public double GetVelocityZ() {
+			if(m_CStatus==null)
+				return -1;
+			if(m_CStatus.getRocketVelocity()==null)
+				return -2;
+			return m_CStatus.getRocketVelocity().z;
+		}
+		public double GetVelocityY() {
+
+			if(m_CStatus==null)
+				return -1;
+			if(m_CStatus.getRocketVelocity()==null)
+				return -2;
+			return m_CStatus.getRocketVelocity().y;
+		}
+
+		public double GetCordinateX() {
+
+			if(m_CStatus==null)
+				return -1;
+			Coordinate x=m_CStatus.getRocketPosition();
+			if(x==null){
+				return -2;
+			}
+			return x.x;
+		}
+		public double GetCordinateY() {
+
+			if(m_CStatus==null)
+				return -1;
+			Coordinate x=m_CStatus.getRocketPosition();
+			if(x==null){
+				return -2;
+			}
+			return x.y;
+		}	
+		public double GetCordinateZ() {
+
+			if(m_CStatus==null)
+				return -1;
+			Coordinate x=m_CStatus.getRocketPosition();
+			if(x==null){
+				return -2;
+			}
+			return x.z;
+		}
+		
+		public double GetVelocityRotationX() {
+
+			if(m_CStatus==null)
+				return -1;
+			Coordinate x=m_CStatus.getRocketRotationVelocity();
+			if(x==null){
+				return -2;
+			}
+			return x.x;
+		}
+		public double GetVelocityRotationY() {
+
+			if(m_CStatus==null)
+				return -1;
+			Coordinate x=m_CStatus.getRocketRotationVelocity();
+			if(x==null){
+				return -2;
+			}
+			return x.y;
+		}
+		public double GetVelocityRotationZ() {
+
+			if(m_CStatus==null)
+				return -1;
+			Coordinate x=m_CStatus.getRocketRotationVelocity();
+			if(x==null){
+				return -2;
+			}
+			return x.z;
+		}
+		
+		public double GetsimulationrunningtimeX() {
+
+			if(m_CStatus==null)
+				return -1;
+			return m_CStatus.getSimulationTime();
+			}
+		
+		public boolean GetBoolTumbling() {
+			if(m_CStatus==null)
+				return false;
+			return m_CStatus.isTumbling();
+		}
+		public boolean GetBoolMotorIgnited() {
+			if(m_CStatus==null)
+				return false;
+			return m_CStatus.isMotorIgnited();
+					}
+		public boolean GetBoolApogeeReached() {
+			if(m_CStatus==null)
+				return false;
+			return m_CStatus.isApogeeReached();
+		}
+		public boolean GetBoolLaunchRodCleared() {
+			if(m_CStatus==null)
+				return false;
+			return m_CStatus.isLaunchRodCleared();
+		}
+		public boolean GetBoolLiftoff() {
+			if(m_CStatus==null)
+				return false;
+			return m_CStatus.isLiftoff();
+		}
 };
