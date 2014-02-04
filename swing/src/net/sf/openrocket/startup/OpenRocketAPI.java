@@ -7,6 +7,7 @@ import net.sf.openrocket.simulation.*;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
@@ -36,6 +37,7 @@ public class OpenRocketAPI {
 	//TODO: Make this a paramater that can be specified
 	private double timeStep = 0.0; //0.00125 is added to this internally.
 	
+	private static final Translator trans = Application.getTranslator();
 	
 	
 	public int setlogfile(String filename){		
@@ -56,7 +58,10 @@ public class OpenRocketAPI {
 	/****************************************************
 	 * flight data functions
 	 *****************************************************/
-
+/*	public FlightDataType TextToType(String s){
+		FlightDataType value = trans.get("FlightDataType.TYPE_TIME");
+		return null;
+	}*/
 	/**
 	 * Returns the current iteration of the simulation
 	 * 
@@ -162,6 +167,7 @@ public class OpenRocketAPI {
 			return -1;
 			}
 		m_CFlightData = fm_temp;
+		//TODO: Flight data class can potentially have more then one Branch.
 		m_CFlightDataBranch = m_CStatus.getFlightData();
 		m_bIsSimulationLoopRunning=true;
 		m_bIsSimulationStagesRunning=true;

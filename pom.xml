@@ -10,7 +10,10 @@
 		<module>core</module>
 		<module>swing</module>
 		<module>lib-test</module>
-		<module>test</module>
+                <module>android</module>
+                <module>TreeViewList</module>
+                <module>ActionBarSherlock</module>
+                <module>achartengine</module>
 	</modules>
 	<build>
 		<plugins>

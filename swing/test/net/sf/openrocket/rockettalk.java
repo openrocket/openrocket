@@ -86,6 +86,7 @@ public class rockettalk extends OpenRocketAPI{
 				timestep = this.GetTimeStep();
 				FlightDataBranch rc_f = flightData();
 				FlightDataStep rc_s = flightDataStep();
+				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
 				int i = rc_f.getLength();
 				int y = i;
 			}
