@@ -158,9 +158,9 @@ public class OpenRocketAPI {
 	
 	public int StartSimulation(FlightDataBranch CBranch){
 		m_CRocket=new UserControledSimulation();
-		FlightData temp=new FlightData();
+		FlightData fm_temp=new FlightData();
 		if(CBranch!=null){
-			temp.addBranch(CBranch);
+			fm_temp.addBranch(CBranch);
 			m_CSimulationConditions.setCalculateExtras(true);}
 		try{
 		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, fm_temp);
