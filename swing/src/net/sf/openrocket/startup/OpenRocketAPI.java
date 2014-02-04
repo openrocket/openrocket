@@ -34,7 +34,7 @@ public class OpenRocketAPI {
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
-	//TODO: Make this a paramater that can be specified
+	//TODO: Make this a parameter that can be specified
 	private double timeStep = 1.0; //There is a value in the ork file that is added to this.	
 	
 	public int setlogfile(String filename){		
@@ -115,6 +115,15 @@ public class OpenRocketAPI {
 		return currentStep.get(type);
 	}
 	
+	public void SetValue(FlightDataType type, double value) {
+		if(m_CFlightDataBranch == null) {
+			System.out.println("ERROR NULL");
+			return;
+		}
+		
+		m_CFlightDataBranch.setValue(type, value);
+	}
+	
 	/**
 	 * Returns the values for the current iteration of the simulation
 	 * 
@@ -152,8 +161,16 @@ public class OpenRocketAPI {
 	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
 	
 	public int StartSimulation(){
+
+		return StartSimulation(new FlightDataBranch("psas",FlightDataType.TYPE_TIME));
+		}
+	
+	public int StartSimulation(FlightDataBranch CBranch){
 		m_CRocket=new UserControledSimulation();
-		FlightData fm_temp = new FlightData();
+		FlightData fm_temp=new FlightData();
+		if(CBranch!=null){
+			fm_temp.addBranch(CBranch);
+			m_CSimulationConditions.setCalculateExtras(true);}
 		try{
 		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, fm_temp);
 		if(m_CStatus==null)
