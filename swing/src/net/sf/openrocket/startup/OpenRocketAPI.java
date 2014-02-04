@@ -35,7 +35,7 @@ public class OpenRocketAPI {
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
 	//TODO: Make this a paramater that can be specified
-	private double timeStep = 0.0; //0.00125 is added to this internally.	
+	private double timeStep = 1.0; //There is a value in the ork file that is added to this.	
 	
 	public int setlogfile(String filename){		
 		return 0;
@@ -64,25 +64,24 @@ public class OpenRocketAPI {
 		return m_CFlightDataBranch.getLength();
 	}
 	/**
-	 * Returns the time step for the current iteration of the simulation.
-	 * 
-	 * @return		end time of current time step - end time of previous time step.
-	 */
-	/**
 	 * Returns one value correlating to the key type and the
 	 * current iteration.
 	 *
 	 * @param		Specify this type of data to return
 	 * @return		double
 	 */
-	protected double GetValue(FlightDataType type) {
+	public double GetValue(FlightDataType type) {
 		List<Double> tsl = m_CFlightDataBranch.get(type);
 		if(tsl == null) return -2;
 		int tsl_size = tsl.size();
 		if(tsl_size < 1) return -1;
 		return tsl.get(tsl_size -1);
 	}
-
+	/**
+	 * Returns the time step for the current iteration of the simulation.
+	 * 
+	 * @return		end time of current time step - end time of previous time step.
+	 */
 	public double GetTimeStep()	{
 		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
 		if(i < 0){
@@ -111,17 +110,9 @@ public class OpenRocketAPI {
 	 * @param		Specify this type of data to return
 	 * @return		double
 	 */
-	protected double GetValue(FlightDataType type, int step) {
+	public double GetValue(FlightDataType type, int step) {
 		FlightDataStep currentStep = GetFlightDataStep(step);
 		return currentStep.get(type);
-	}
-	/**
-	 * Returns the entire class containing all of the simulation data.
-	 * 
-	 * @return		FlightDataBranch type.
-	 */
-	public FlightDataBranch GetFlightData(){
-		return m_CFlightDataBranch;
 	}
 	
 	/**
@@ -141,6 +132,16 @@ public class OpenRocketAPI {
 	 */
 	public FlightDataStep GetFlightDataStep(int i){
 		return new FlightDataStep(m_CFlightDataBranch, i);
+	}
+	
+	/**
+	 * Returns the entire class containing all of the simulation data.
+	 * This is a shallow copy, probably not the best idea to be public.
+	 * 
+	 * @return		FlightDataBranch type.
+	 */
+	protected FlightDataBranch GetFlightData(){
+		return m_CFlightDataBranch;
 	}
 	/******************************************************************
 	 * rocket simulation functions
@@ -186,7 +187,7 @@ public class OpenRocketAPI {
 		{System.err.println("simualtion is null");
 		return -2;}
 		
-		m_CStatus.setPreviousTimeStep(timestep);
+		m_CStatus.setPreviousTimeStep(.5);
 		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
 		
 		if(m_CStatus==null)

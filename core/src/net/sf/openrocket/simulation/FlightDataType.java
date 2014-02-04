@@ -61,9 +61,15 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	public static final FlightDataType TYPE_ACCELERATION_LINEAR_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_Z"), "Alz", UnitGroup.UNITS_ACCELERATION, 24);
 	
+	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_X = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_X"), "Aax", UnitGroup.UNITS_ACCELERATION, 25);
+	
+	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_Y = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_Y"), "Aay", UnitGroup.UNITS_ACCELERATION, 26);
+	
+	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_Z"), "Aaz", UnitGroup.UNITS_ACCELERATION, 27);
+	
 	
 	//// Lateral position and motion
-	public static final FlightDataType TYPE_POSITION_Z = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Pz", UnitGroup.UNITS_DISTANCE, 28);
+	public static final FlightDataType TYPE_POSITION_Z = newType(trans.get("FlightDataType.TYPE_POSITION_Z"), "Pz", UnitGroup.UNITS_DISTANCE, 28);
 	//// Position upwind
 	public static final FlightDataType TYPE_POSITION_X = newType(trans.get("FlightDataType.TYPE_POSITION_X"), "Px", UnitGroup.UNITS_DISTANCE, 29);
 	//// Position parallel to wind
@@ -213,9 +219,12 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			TYPE_ACCELERATION_LINEAR_X,
 			TYPE_ACCELERATION_LINEAR_Y,
 			TYPE_ACCELERATION_LINEAR_Z,
+			TYPE_ACCELERATION_ANGULAR_X,
+			TYPE_ACCELERATION_ANGULAR_Y,
+			TYPE_ACCELERATION_ANGULAR_Z,
+			TYPE_POSITION_Z,
 			TYPE_POSITION_X,
 			TYPE_POSITION_Y,
-			TYPE_POSITION_Z,
 			TYPE_POSITION_XY,
 			TYPE_POSITION_DIRECTION,
 			TYPE_VELOCITY_X,
