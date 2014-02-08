@@ -162,7 +162,7 @@ public class OpenRocketAPI {
 	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
 	
 	public int StartSimulation(){
-		return StartSimulation(new FlightDataBranch("psas",FlightDataType.ALL_TYPES));
+		return StartSimulation(new FlightDataBranch("psas",FlightDataType.TYPE_TIME));
 		}
 	
 	public int StartSimulation(FlightDataBranch CBranch){
