@@ -35,7 +35,7 @@ public class OpenRocketAPI {
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket=null;
-	//TODO: Make this a paramater that can be specified
+	//TODO: Make this a parameter that can be specified
 	private double timeStep = 1.0; //There is a value in the ork file that is added to this.	
 	
 	public int setlogfile(String filename){		
@@ -114,6 +114,15 @@ public class OpenRocketAPI {
 	public double GetValue(FlightDataType type, int step) {
 		FlightDataStep currentStep = GetFlightDataStep(step);
 		return currentStep.get(type);
+	}
+	
+	public void SetValue(FlightDataType type, double value) {
+		if(m_CFlightDataBranch == null) {
+			System.out.println("ERROR NULL");
+			return;
+		}
+		
+		m_CFlightDataBranch.setValue(type, value);
 	}
 	
 	/**
