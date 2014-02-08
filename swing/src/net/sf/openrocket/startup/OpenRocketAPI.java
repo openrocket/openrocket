@@ -162,7 +162,7 @@ public class OpenRocketAPI {
 	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
 	
 	public int StartSimulation(){
-		return StartSimulation(new FlightDataBranch("psas",FlightDataType.ALL_TYPES));
+		return StartSimulation(new FlightDataBranch("psas",FlightDataType.TYPE_TIME));
 		}
 	
 	public int StartSimulation(FlightDataBranch CBranch){
@@ -287,6 +287,14 @@ public class OpenRocketAPI {
 	/*
 	 * runs simulation start to finish just like openrocket main.
 	 * */
+	public void SetMinTimeStep(double TimeStep){
+		if(!m_bIsSimulationLoopRunning){
+			System.err.println("Calling SetMinTimeStep before initializing simulation, call StartSimulation first. Time Step not set.");
+			return;
+		}
+		
+		m_CRocket.setMinTimeStep(TimeStep);
+	}
 	
 	public void RunSimulation() {
 		if(m_bIsSimulationStagesRunning==true){
