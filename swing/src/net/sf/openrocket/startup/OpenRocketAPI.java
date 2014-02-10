@@ -7,7 +7,6 @@ import net.sf.openrocket.simulation.*;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.plugin.PluginModule;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.FlightData;
@@ -166,6 +165,8 @@ public class OpenRocketAPI {
 		}
 	
 	public int StartSimulation(FlightDataBranch CBranch){
+		if(m_CSimulationConditions==null)
+			return -2;
 		m_CRocket=new UserControledSimulation();
 		FlightData fm_temp=new FlightData();
 		if(CBranch!=null){
@@ -273,13 +274,15 @@ public class OpenRocketAPI {
 		return 0;
 	}
 	
-	public void RunSimulation() {
+	public int RunSimulation() {
 		if(m_bIsSimulationStagesRunning==true){
-			System.err.println("warning calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
-			return;}
-		if(m_CSimulationConditions == null)
-			{System.err.println("no simulation data");
-			return;}
+			System.err.println("error calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
+			return-1 ;}
+		if(m_CSimulationConditions == null)	{
+			System.err.println("no simulation data");
+			return -2;
+		}
+		m_CSimulationConditions.setCalculateExtras(true);
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		
 		try {
@@ -288,9 +291,10 @@ public class OpenRocketAPI {
 			System.out.println(m_CFlightData.getBranchCount());
 		} catch (SimulationException e) {
 			System.err.println("oops RunSimulation threw an error");
+			return -3;
 		}
-		
-	};
+		return 0;
+	}
 
 	/****************************************************
 	 * flight data maximums (RK4) functions
@@ -484,7 +488,7 @@ public class OpenRocketAPI {
 			return x.z;
 		}
 		
-		public double GetsimulationrunningtimeX() {
+		public double Getsimulationrunningtime() {
 
 			if(m_CStatus==null)
 				return -1;
