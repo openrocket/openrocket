@@ -16,6 +16,8 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 	
 	protected Configuration configuration = null;
 	protected boolean m_bSimulationRunning = false;
+	protected Coordinate origin = null;
+	protected Coordinate originVelocity = null;
 	
 	public UserControledSimulation() {
 		// TODO Auto-generated constructor stub
@@ -66,8 +68,8 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		status = currentStepper.initialize(Status);
 		
 		// Get originating position (in case listener has modified launch position)
-		//origin = status.getRocketPosition();
-		//originVelocity = status.getRocketVelocity();
+		origin = status.getRocketPosition();
+		originVelocity = status.getRocketVelocity();
 		return (RK4SimulationStatus) status;
 	}
 	
@@ -76,9 +78,7 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		
 		//status = new SimulationStatus(Status);
 		
-		// Get originating position (in case listener has modified launch position)
-		Coordinate origin = status.getRocketPosition();
-		Coordinate originVelocity = status.getRocketVelocity();
+		
 		
 		try {
 			
