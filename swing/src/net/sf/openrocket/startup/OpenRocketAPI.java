@@ -274,6 +274,10 @@ public class OpenRocketAPI {
 		return 0;
 	}
 	
+	/*
+	 * runs simulation start to finish just like openrocket main.
+	 * */
+	
 	public int RunSimulation() {
 		if(m_bIsSimulationStagesRunning==true){
 			System.err.println("error calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
