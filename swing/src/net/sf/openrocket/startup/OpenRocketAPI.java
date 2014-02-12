@@ -288,14 +288,6 @@ public class OpenRocketAPI {
 	/*
 	 * runs simulation start to finish just like openrocket main.
 	 * */
-	public void SetMinTimeStep(double TimeStep){
-		if(!m_bIsSimulationLoopRunning){
-			System.err.println("Calling SetMinTimeStep before initializing simulation, call StartSimulation first. Time Step not set.");
-			return;
-		}
-		
-		m_CRocket.setMinTimeStep(TimeStep);
-	}
 	
 	public int RunSimulation() {
 		if(m_bIsSimulationStagesRunning==true){

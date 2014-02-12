@@ -284,12 +284,4 @@ public class UserControledSimulation extends BasicEventSimulationEngine {
 		return 0;
 		
 	}
-	
-	public void setMinTimeStep(double TimeStep) {
-		if (currentStepper instanceof RK4SimulationStepper) {
-			((RK4SimulationStepper) currentStepper).setMinTimeStep(TimeStep);
-			return;
-		}
-		System.err.println("Time step not set. Stepper not RK4SimulationStepper");
-	}
 };

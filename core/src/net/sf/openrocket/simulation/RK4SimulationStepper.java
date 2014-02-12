@@ -736,9 +736,4 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		public Rotation2D thetaRotation;
 		
 	}
-	
-	public void setMinTimeStep(double TimeStep)
-	{
-		MIN_TIME_STEP = TimeStep;
-	}
 }
