@@ -91,17 +91,6 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 		return separationTable;
 	}
 
-	public void fireTableDataChanged() {
-		int selected = table.getSelectedRow();
-		separationTableModel.fireTableDataChanged();
-		if (selected >= 0) {
-			selected = Math.min(selected, table.getRowCount() - 1);
-			table.getSelectionModel().setSelectionInterval(selected, selected);
-		}
-		updateButtonState();
-	}
-	
-
 	private void selectDeployment() {
 		Stage stage = getSelectedComponent();
 		if (stage == null) {
@@ -130,7 +119,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	private class SeparationTableCellRenderer extends FlightConfigurablePanel<Stage>.FlightConfigurableCellRenderer {
 		
 		@Override
-		protected void format(Stage stage, String configId, JLabel label) {
+		protected JLabel format(Stage stage, String configId, JLabel label) {
 			StageSeparationConfiguration sepConfig = stage.getStageSeparationConfiguration().get(configId);
 			String spec = getSeparationSpecification(sepConfig);
 			label.setText(spec);
@@ -139,6 +128,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 			} else {
 				regular(label);
 			}
+			return label;
 		}
 
 		private String getSeparationSpecification( StageSeparationConfiguration sepConfig ) {

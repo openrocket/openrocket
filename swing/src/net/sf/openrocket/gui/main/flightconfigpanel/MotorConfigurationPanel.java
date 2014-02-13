@@ -187,17 +187,7 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 		return configurationTable;
 	}
 
-	public void fireTableDataChanged() {
-		int selected = table.getSelectedRow();
-		configurationTableModel.fireTableDataChanged();
-		if (selected >= 0) {
-			selected = Math.min(selected, table.getRowCount() - 1);
-			table.getSelectionModel().setSelectionInterval(selected, selected);
-		}
-		updateButtonState();
-	}
-
-	private void updateButtonState() {
+	protected void updateButtonState() {
 		if( configurationTableModel.getColumnCount() > 1 ) {
 			showContent();
 			String currentID = rocket.getDefaultConfiguration().getFlightConfigurationID();
@@ -280,52 +270,10 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 	}
 
 
-	private class MotorTableCellRenderer implements TableCellRenderer {
-
-		private void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
-			c.setOpaque(true);
-			if ( isSelected) {
-				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
-			} else {
-				c.setBackground(table.getBackground());
-				c.setForeground(table.getForeground());
-			}
-			Border b = null;
-			if ( hasFocus ) {
-				if (isSelected) {
-					b = UIManager.getBorder("Table.focusSelectedCellHighlightBorder");
-				} else {
-					b = UIManager.getBorder("Table.focusCellHighligtBorder");
-				}
-			} else {
-				b = new EmptyBorder(1,1,1,1);
-			}
-			c.setBorder(b);
-		}
+	private class MotorTableCellRenderer extends FlightConfigurablePanel<MotorMount>.FlightConfigurableCellRenderer {
 
 		@Override
-		public Component getTableCellRendererComponent(JTable table,Object value, boolean isSelected, boolean hasFocus, int row,int column) {
-			column = table.convertColumnIndexToModel(column);
-			row = table.convertRowIndexToModel(row);
-			switch (column) {
-			case 0: {
-				JLabel label = new JLabel(descriptor.format(rocket, (String) value));
-				setSelected(label, table, isSelected, hasFocus);
-				return label;
-			}
-			default: {
-				Pair<String, MotorMount> v = (Pair<String, MotorMount>) value;
-				String id = v.getU();
-				MotorMount component = v.getV();
-				JLabel label = format(component, id);
-				setSelected(label, table, isSelected, hasFocus);
-				return label;
-			}
-			}
-		}
-
-		protected JLabel format(MotorMount mount, String configId) {
+		protected JLabel format( MotorMount mount, String configId, JLabel l ) {
 			JLabel label = new JLabel();
 			label.setLayout(new BoxLayout(label, BoxLayout.X_AXIS));
 			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(configId);
@@ -337,7 +285,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			label.add(ignitionLabel);
 			label.validate();
 			return label;
-			//			label.setText(motorString + " " + ignitionString);
 		}
 
 		private String getMotorSpecification(MotorMount mount, MotorConfiguration motorConfig) {
@@ -358,12 +305,6 @@ public class MotorConfigurationPanel extends FlightConfigurablePanel<MotorMount>
 			RocketComponent c = (RocketComponent) mount;
 			return c.toAbsolute(Coordinate.NUL).length;
 		}
-
-		protected final void shaded(JLabel label) {
-			GUIUtil.changeFontStyle(label, Font.ITALIC);
-			label.setForeground(Color.GRAY);
-		}
-
 
 		private JLabel getIgnitionEventString(String id, MotorMount mount) {
 			IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(id);

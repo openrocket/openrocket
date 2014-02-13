@@ -86,16 +86,6 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		return recoveryTable;
 	}
 
-	public void fireTableDataChanged() {
-		int selected = table.getSelectedRow();
-		recoveryTableModel.fireTableDataChanged();
-		if (selected >= 0) {
-			selected = Math.min(selected, table.getRowCount() - 1);
-			table.getSelectionModel().setSelectionInterval(selected, selected);
-		}
-		updateButtonState();
-	}
-
 	private void selectDeployment() {
 		RecoveryDevice c = getSelectedComponent();
 		if (c == null) {
@@ -125,7 +115,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	class RecoveryTableCellRenderer extends FlightConfigurablePanel<RecoveryDevice>.FlightConfigurableCellRenderer {
 
 		@Override
-		protected void format(RecoveryDevice recovery, String configId, JLabel label) {
+		protected JLabel format(RecoveryDevice recovery, String configId, JLabel label) {
 			DeploymentConfiguration deployConfig = recovery.getDeploymentConfiguration().get(configId);
 			String spec = getDeploymentSpecification(deployConfig);
 			label.setText(spec);
@@ -134,6 +124,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			} else {
 				regular(label);
 			}
+			return label;
 		}
 
 		private String getDeploymentSpecification( DeploymentConfiguration config ) {
