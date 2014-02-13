@@ -304,25 +304,25 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		this.add(rightSide);
 
 		// Update the panel data
-		scrollSelectionVisible();
 		updateData();
 		setDelays(false);
 
 	}
 
 	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+		ThrustCurveMotor motorToSelect = null;
 		if (currentConfig != null && mount != null) {
 			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
-			selectedMotor = (ThrustCurveMotor) motorConf.getMotor();
+			motorToSelect = (ThrustCurveMotor) motorConf.getMotor();
 			selectedDelay = motorConf.getEjectionDelay();
 		}
 
 		selectedMotorSet = null;
 		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
-		if (selectedMotor != null) {
+		if (motorToSelect != null) {
 			for (ThrustCurveMotorSet motorSet : database) {
-				if (motorSet.getMotors().contains(selectedMotor)) {
+				if (motorSet.getMotors().contains(motorToSelect)) {
 					selectedMotorSet = motorSet;
 					break;
 				}
@@ -330,15 +330,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			if (selectedMotorSet == null) {
 				database = new ArrayList<ThrustCurveMotorSet>(database);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
-				extra.addMotor(selectedMotor);
+				extra.addMotor(motorToSelect);
 				selectedMotorSet = extra;
 				database.add(extra);
 				Collections.sort(database);
 			}
 		}
 
-		updateData();
-		setDelays(true);
+		select(motorToSelect);
 
 		motorFilterPanel.setMotorMount(mount);
 		scrollSelectionVisible();
@@ -394,7 +393,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * Called when a different motor is selected from within the panel.
 	 */
 	private void select(ThrustCurveMotor motor) {
-		if (selectedMotor == motor)
+		if (selectedMotor == motor || motor == null)
 			return;
 
 		ThrustCurveMotorSet set = findMotorSet(motor);
@@ -410,6 +409,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		if (updateDelays) {
 			setDelays(true);
 		}
+		scrollSelectionVisible();
 	}
 
 
