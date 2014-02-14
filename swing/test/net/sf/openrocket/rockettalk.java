@@ -24,7 +24,6 @@ import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.startup.OpenRocketAPI;
 import net.sf.openrocket.simulation.*;
 
-import org.javatuples.*;
 /**
  * @author nubjub
  */
