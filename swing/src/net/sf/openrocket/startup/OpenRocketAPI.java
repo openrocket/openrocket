@@ -36,6 +36,7 @@ public class OpenRocketAPI {
 	private UserControledSimulation m_CRocket=null;
 	//TODO: Make this a parameter that can be specified
 	private double timeStep = 1.0; //There is a value in the ork file that is added to this.	
+	private int m_rand_seed;
 	
 	public int setlogfile(String filename){		
 		return 0;
@@ -49,7 +50,7 @@ public class OpenRocketAPI {
 		Application.setInjector(injector);
 		
 		guiModule.startLoader();//might just do some initializing
-		
+		m_rand_seed = 0;
 	}
 
 	/****************************************************
@@ -240,16 +241,20 @@ public class OpenRocketAPI {
 	 * -3 simulation data not present in simulation
 	 * -4 exception thrown
 	 * */
+	public void SetRandomSeed(int rand_seed)
+	{
+		m_rand_seed = rand_seed;
+	}
 	
-	public int LoadRocket(String szFileName,int simtograb) {
+	public int LoadRocket(String szFileName, int simtograb) {
 		try {
 			File Filename = new File(szFileName);
 			System.out.println("loading rocket from "+szFileName);
 			
-			GeneralRocketLoader test = new GeneralRocketLoader(Filename);
-			OpenRocketDocument temp = test.load();
+			GeneralRocketLoader rocketLoader = new GeneralRocketLoader(Filename);
+			OpenRocketDocument Rocket = rocketLoader.load();
 			
-			int simCount = temp.getSimulationCount();
+			int simCount = Rocket.getSimulationCount();
 			System.out.print("Number of Simulations in file: ");
 			System.out.println(simCount);
 			if (simCount == 0)
@@ -258,13 +263,16 @@ public class OpenRocketAPI {
 			}
 			if (!(simCount < simtograb))
 			{simtograb--;
-				Simulation temp2 = temp.getSimulation(simtograb);
-				if (temp2 != null)
+				Simulation rocketSimulation = Rocket.getSimulation(simtograb);
+				if (rocketSimulation != null)
 				{
 					System.out.print("Getting Simulation Conditions for: ");
-					System.out.println(temp.getSimulation(simtograb).getName());
-					System.out.println("status of rocket is "+temp2.getStatus());
-					m_CSimulationConditions = temp2.getOptions().toSimulationConditions();
+					System.out.println(Rocket.getSimulation(simtograb).getName());
+					System.out.println("status of rocket is " + rocketSimulation.getStatus());
+					SimulationOptions opt = rocketSimulation.getOptions();
+					if (m_rand_seed != 0)
+						opt.setRandomSeed(m_rand_seed);
+					m_CSimulationConditions =  opt.toSimulationConditions();
 					
 				}
 				else{
