@@ -61,11 +61,11 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	
 	public static final FlightDataType TYPE_ACCELERATION_LINEAR_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_Z"), "Alz", UnitGroup.UNITS_ACCELERATION, 24);
 	
-	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_X = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_X"), "Aax", UnitGroup.UNITS_ACCELERATION, 25);
+	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_X = newType(trans.get("FlightDataType.TYPE_ACCELERATION_ANGULAR_X"), "Aax", UnitGroup.UNITS_ACCELERATION, 25);
 	
-	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_Y = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_Y"), "Aay", UnitGroup.UNITS_ACCELERATION, 26);
+	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_Y = newType(trans.get("FlightDataType.TYPE_ACCELERATION_ANGULAR_Y"), "Aay", UnitGroup.UNITS_ACCELERATION, 26);
 	
-	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_LINEAR_Z"), "Aaz", UnitGroup.UNITS_ACCELERATION, 27);
+	public static final FlightDataType TYPE_ACCELERATION_ANGULAR_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_ANGULAR_Z"), "Aaz", UnitGroup.UNITS_ACCELERATION, 27);
 	
 	
 	//// Lateral position and motion
