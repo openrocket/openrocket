@@ -29,8 +29,8 @@
 /android-libraries/ActionBarSherlock/bin
 
 # /android-libraries/TreeViewList/
-/android-libraries/TreeViewList/bin
 /android-libraries/TreeViewList/gen
+/android-libraries/TreeViewList/bin
 
 # /lib-test
 
