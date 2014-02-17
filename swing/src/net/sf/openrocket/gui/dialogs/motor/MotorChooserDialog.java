@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.dialogs.motor.thrustcurve.ThrustCurveMotorSelectionPanel;
@@ -34,6 +35,8 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 	public MotorChooserDialog(Window owner) {
 		super(owner, trans.get("MotorChooserDialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
 		
+		// We're going to reuse this dialog so only hide it when it's closed.
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
@@ -67,7 +70,7 @@ public class MotorChooserDialog extends JDialog implements CloseableDialog {
 		this.setModal(true);
 		this.pack();
 		this.setLocationByPlatform(true);
-		GUIUtil.setDisposableDialogOptions(this, okButton);
+		GUIUtil.installEscapeCloseOperation(this);
 		
 		JComponent focus = selectionPanel.getDefaultFocus();
 		if (focus != null) {
