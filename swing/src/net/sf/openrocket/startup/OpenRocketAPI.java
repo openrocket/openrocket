@@ -29,7 +29,7 @@ public class OpenRocketAPI {
 	
 	private boolean m_bIsSimulationStagesRunning=false;
 	private boolean m_bIsSimulationLoopRunning=false;
-	//private FlightData m_CFlightData = null;
+	private FlightData m_CFlightData = null;
 	//private FlightDataBranch m_CFlightDataBranch = null; //use GetFlightData()
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
@@ -70,12 +70,10 @@ public class OpenRocketAPI {
 	 * @param   FlightDataType The data type to return
 	 * @return  double         Value of the specified type
 	 */
-	public double GetValue(FlightDataType type) {
-		List<Double> tsl = GetFlightData().get(type);
-		if(tsl == null) return -2;
-		int tsl_size = tsl.size();
-		if(tsl_size < 1) return -1;
-		return tsl.get(tsl_size -1);
+	public double GetValue(FlightDataType type){
+		FlightDataStep fds = GetFlightDataStep();
+		double tsl = fds.get(type);
+		return tsl;
 	}
 	/**
 	 * Returns the time step for the current iteration of the simulation.
@@ -107,8 +105,9 @@ public class OpenRocketAPI {
 	 */
 	//TODO: Not implemented correctly
 	public double GetValue(FlightDataType type, int step) {
-		FlightDataStep currentStep = GetFlightDataStep(step);
-		return currentStep.get(type);
+		FlightDataStep fds = GetFlightDataStep(step);
+		double tsl = fds.get(type);
+		return tsl;
 	}
 	//TODO: Not implemented correctly
 	public void SetValue(FlightDataType type, double value) {
@@ -158,7 +157,7 @@ public class OpenRocketAPI {
 			}
 		} catch (Throwable t) {
 			System.err
-					.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception");
+					.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception"+ t);
 			throw new IllegalStateException(t);
 		}
 		return fdb_temp;
@@ -180,9 +179,9 @@ public class OpenRocketAPI {
 			m_CSimulationConditions.setTimeStep(timeStep);
 		}
 		m_CRocket=new UserControledSimulation();
-		FlightData fm_temp = new FlightData(new FlightDataBranch("empty",	FlightDataType.TYPE_TIME));
+		m_CFlightData = new FlightData(new FlightDataBranch("empty", FlightDataType.TYPE_TIME));
 		try{
-		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, fm_temp);
+		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, m_CFlightData);
 		if(m_CStatus==null)
 			{System.err.println("simulation is not valid");
 			return -1;
@@ -208,7 +207,7 @@ public class OpenRocketAPI {
 		{System.err.println("simualtion is null");
 		return -2;
 		}
-		m_CStatus=m_CRocket.step(m_CStatus,null);
+		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
 		
 		if(m_CStatus==null)
 			{m_bIsSimulationLoopRunning=false;
@@ -392,7 +391,6 @@ public class OpenRocketAPI {
 			return 0;
 		}
 		//TODO: These Orientations do not change during flight.
-		/*
 		public double getOrientationX(){
 			if(m_CStatus==null)
 				return -1;
@@ -426,7 +424,6 @@ public class OpenRocketAPI {
 				return -2;
 			return x.getW();
 		}
-		*/
 		public double GetVelocityZ() {
 			if(m_CStatus==null)
 				return -1;

@@ -56,7 +56,7 @@ public class rockettalk extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.LoadRocket("/home/panman/desk/src/openrocket/swing/test/net/sf/openrocket/threestagerocket.ork");
+		    this.LoadRocket("/home/bejon/desk/repo/openrocket/swing/test/net/sf/openrocket/threestagerocket.ork");
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -79,12 +79,10 @@ public class rockettalk extends OpenRocketAPI{
 		double timestep =-1;
 		while(this.IsSimulationLoopRunning()){
 			while(this.IsSimulationLoopRunning()){
-				count = this.SimulationStep(); //step the simulation.
 				iteration = this.GetIteration();
 				timestep = this.GetTimeStep();
-				FlightDataBranch rc_f = flightData();
 				FlightDataStep rc_s = flightDataStep();
-				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
+//				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
 //				Coordinate v1 = this.m_CStatus.getRocketVelocity();
 //				Coordinate p1 = this.m_CStatus.getRocketPosition();
 /*				List<Double> T = rc_f.get(FlightDataType.TYPE_TIME);
@@ -97,8 +95,9 @@ public class rockettalk extends OpenRocketAPI{
 				List<Double> Vy = rc_f.get(FlightDataType.TYPE_VELOCITY_Y);
 				List<Double> Vz = rc_f.get(FlightDataType.TYPE_VELOCITY_Z);*/
 				
-				System.out.println(rc_s.getBranchName() +", Time:" + rc_s.get(FlightDataType.TYPE_TIME) );
-				int i = rc_f.getLength();
+				System.out.println(rc_s.getBranchName() +", Time:" + this.GetValue(FlightDataType.TYPE_TIME) );
+
+				count = this.SimulationStep(); //step the simulation.
 			}
 	        this.StagesStep();
 		}
