@@ -64,18 +64,6 @@ public class OpenRocketAPI {
 		return GetFlightData().getLength();
 	}
 	/**
-	 * Returns one value correlating to the key type and the
-	 * current iteration.
-	 *
-	 * @param   FlightDataType The data type to return
-	 * @return  double         Value of the specified type
-	 */
-	public double GetValue(FlightDataType type){
-		FlightDataStep fds = GetFlightDataStep();
-		double tsl = fds.get(type);
-		return tsl;
-	}
-	/**
 	 * Returns the time step for the current iteration of the simulation.
 	 * 
 	 * @return  double  End time of current time step - end time of previous time step.
@@ -97,18 +85,51 @@ public class OpenRocketAPI {
 	}
 	/**
 	 * Returns one value correlating to the key type and the
+	 * current iteration.
+	 *
+	 * @param   FlightDataType The data type to return
+	 * @return  double         Value of the specified type
+	 */
+	public double GetValue(FlightDataType type){
+		return GetValue(type, -1);
+	}
+	/**
+	 * Returns one value correlating to the key type and the
 	 * specified iteration.
 	 * 
 	 * @param   FlightDataType  This type of data to return
 	 * @param   int             Step to obtain value from
 	 * @return  double          Value requested
 	 */
-	//TODO: Not implemented correctly
 	public double GetValue(FlightDataType type, int step) {
-		FlightDataStep fds = GetFlightDataStep(step);
+		FlightDataStep fds = null;
+		if(step < 0){
+			fds = GetFlightDataStep();
+		} 
+		else {
+			//TODO: Untested
+			fds = GetFlightDataStep(step);
+		}
 		double tsl = fds.get(type);
 		return tsl;
 	}
+	/**
+	 * 
+	 * @param   FlightDataType  Type of data to get the max of
+	 * @return  double          Value requested
+	 */
+	public double GetMaximum(FlightDataType type){
+		return GetFlightData().getMaximum(type);
+	}
+	/**
+	 * 
+	 * @param   FlightDataType  Type of data to get the min of
+	 * @return  double          Value requested
+	 */
+	public double GetMinimum(FlightDataType type){
+		return GetFlightData().getMinimum(type);
+	}
+	
 	//TODO: Not implemented correctly
 	public void SetValue(FlightDataType type, double value) {
 		if(GetFlightData() == null) {
@@ -206,6 +227,8 @@ public class OpenRocketAPI {
 		{System.err.println("simualtion is null");
 		return -2;
 		}
+		//m_CFlightData is only populated at the end of the simulation
+		//m_CStatus.getRocketPosition().z < 0
 		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
 		
 		if(m_CStatus==null)
@@ -313,7 +336,7 @@ public class OpenRocketAPI {
 	/****************************************************
 	 * flight data maximums (RK4) functions
 	 *****************************************************/
-	/*
+	
 	public double getMaxAltitude() {
 		if (m_CFlightData == null)
 			return -1;
@@ -359,7 +382,7 @@ public class OpenRocketAPI {
 			return -1;
 		return m_CFlightData.getDeploymentVelocity();
 	}
-	*/
+	
 	/**********************************************************************
 	 * seters and getters for simulation data
 	 ********************************************************************* */
