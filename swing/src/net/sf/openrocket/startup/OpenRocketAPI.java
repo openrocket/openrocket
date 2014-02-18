@@ -150,7 +150,19 @@ public class OpenRocketAPI {
 	 * @return		FlightDataBranch type.
 	 */
 	protected FlightDataBranch GetFlightData(){
-		return m_CFlightDataBranch;
+		FlightDataBranch fdb_temp = null;
+		try {
+			fdb_temp = m_CStatus.getFlightData();
+			if (fdb_temp == null) {
+				throw new IllegalStateException("fdb_temp == null");
+			}
+		} catch (Throwable t) {
+			System.err
+					.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception"+ t);
+			//throw new IllegalStateException(t);
+			fdb_temp= new FlightDataBranch("empty", FlightDataType.TYPE_TIME);
+		}
+		return fdb_temp;
 	}
 	/******************************************************************
 	 * rocket simulation functions
