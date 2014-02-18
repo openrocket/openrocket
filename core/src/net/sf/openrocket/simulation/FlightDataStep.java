@@ -53,6 +53,7 @@ public class FlightDataStep {
 			for (FlightDataType t : types) {
 				ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
 				Double v = new Double(list.get(step));
+				//TODO: what is the optimal value to set a NAN to?
 				if (v.isNaN()) {
 					v = (double) -1;
 				}

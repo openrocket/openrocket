@@ -64,20 +64,6 @@ public class OpenRocketAPI {
 		return m_CFlightDataBranch.getLength();
 	}
 	/**
-	 * Returns one value correlating to the key type and the
-	 * current iteration.
-	 *
-	 * @param		Specify this type of data to return
-	 * @return		double
-	 */
-	public double GetValue(FlightDataType type) {
-		List<Double> tsl = m_CFlightDataBranch.get(type);
-		if(tsl == null) return -2;
-		int tsl_size = tsl.size();
-		if(tsl_size < 1) return -1;
-		return tsl.get(tsl_size -1);
-	}
-	/**
 	 * Returns the time step for the current iteration of the simulation.
 	 * 
 	 * @return		end time of current time step - end time of previous time step.
@@ -105,6 +91,16 @@ public class OpenRocketAPI {
 	}
 	/**
 	 * Returns one value correlating to the key type and the
+	 * current iteration.
+	 *
+	 * @param   FlightDataType The data type to return
+	 * @return  double         Value of the specified type
+	 */
+	public double GetValue(FlightDataType type){
+		return GetValue(type, -1);
+	}
+	/**
+	 * Returns one value correlating to the key type and the
 	 * specified iteration.
 	 * 
 	 * @param		Specify this type of data to return
@@ -112,9 +108,35 @@ public class OpenRocketAPI {
 	 */
 	public double GetValue(FlightDataType type, int step) {
 		FlightDataStep currentStep = GetFlightDataStep(step);
-		return currentStep.get(type);
+		FlightDataStep fds = null;
+		if(step < 0){
+			fds = GetFlightDataStep();
+		} 
+		else {
+			//TODO: Untested
+			fds = GetFlightDataStep(step);
+		}
+		double tsl = fds.get(type);
+		return tsl;
+	}
+	/**
+	 * 
+	 * @param   FlightDataType  Type of data to get the max of
+	 * @return  double          Value requested
+	 */
+	public double GetMaximum(FlightDataType type){
+		return GetFlightData().getMaximum(type);
+	}
+	/**
+	 * 
+	 * @param   FlightDataType  Type of data to get the min of
+	 * @return  double          Value requested
+	 */
+	public double GetMinimum(FlightDataType type){
+		return GetFlightData().getMinimum(type);
 	}
 	
+	//TODO: Not implemented correctly
 	public void SetValue(FlightDataType type, double value) {
 		if(m_CFlightDataBranch == null) {
 			System.out.println("ERROR NULL");
@@ -217,6 +239,10 @@ public class OpenRocketAPI {
 		return -2;}
 		
 		m_CStatus.setPreviousTimeStep(.5);
+		return -2;
+		}
+		//m_CFlightData is only populated at the end of the simulation
+		//m_CStatus.getRocketPosition().z < 0
 		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
 		
 		if(m_CStatus==null)
