@@ -54,11 +54,9 @@ public class FlightDataStep {
 			for (FlightDataType t : types) {
 				ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
 				Double v = new Double(list.get(step));
-				//TODO: what is the optimal value to set a NAN to?
-				if (v.isNaN()) {
-					v = (double) -1;
+				if (!v.isNaN()) {
+					values.put(t, v);
 				}
-				values.put(t, v);
 			}
 		}
 	}
@@ -104,6 +102,7 @@ public class FlightDataStep {
 		if (values.containsKey(type)) {
 			return values.get(type);
 		}
+		//TODO: What should this failure value be??
 		return -1;
 	}
 	
