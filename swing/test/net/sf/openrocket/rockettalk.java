@@ -80,6 +80,7 @@ public class rockettalk extends OpenRocketAPI{
 		while(this.IsSimulationLoopRunning()){
 			while(this.IsSimulationLoopRunning()){
 				iteration = this.GetIteration();
+				count = this.SimulationStep(); //step the simulation.
 				timestep = this.GetTimeStep();
 				FlightDataStep rc_s = flightDataStep();
 //				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
@@ -97,7 +98,6 @@ public class rockettalk extends OpenRocketAPI{
 				
 				System.out.println(rc_s.getBranchName() +", Time:" + this.GetValue(FlightDataType.TYPE_TIME) );
 
-				count = this.SimulationStep(); //step the simulation.
 			}
 	        this.StagesStep();
 		}

@@ -146,7 +146,6 @@ public class OpenRocketAPI {
 	 * best idea to be public.
 	 * 
 	 * @return FlightDataBranch type.
-	 * @throws IllegalStateException
 	 */
 	protected FlightDataBranch GetFlightData(){
 		FlightDataBranch fdb_temp = null;
@@ -158,7 +157,8 @@ public class OpenRocketAPI {
 		} catch (Throwable t) {
 			System.err
 					.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception"+ t);
-			throw new IllegalStateException(t);
+			//throw new IllegalStateException(t);
+			fdb_temp= new FlightDataBranch("empty", FlightDataType.TYPE_TIME);
 		}
 		return fdb_temp;
 	}
