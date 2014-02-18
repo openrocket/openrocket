@@ -53,7 +53,11 @@ public class FlightDataStep {
 			FlightDataType[] types = branch.getTypes();
 			for (FlightDataType t : types) {
 				ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
-				values.put(t, list.get(step));
+				Double v = new Double(list.get(step));
+				if (v.isNaN()) {
+					v = (double) -1;
+				}
+				values.put(t, v);
 			}
 		}
 	}
@@ -69,8 +73,7 @@ public class FlightDataStep {
 		if (branch == null) {
 			throw new IllegalArgumentException("branch parameter cannot be null.");
 		}
-		int i = branch.getLength();
-		return i;
+		return branch.getLength();
 	}
 	
 	/**

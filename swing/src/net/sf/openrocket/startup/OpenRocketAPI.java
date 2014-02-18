@@ -155,9 +155,8 @@ public class OpenRocketAPI {
 				throw new IllegalStateException("fdb_temp == null");
 			}
 		} catch (Throwable t) {
-			System.err
-					.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception"+ t);
-			//throw new IllegalStateException(t);
+			System.err.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception"+ t);
+			System.err.println("OpenRocketAPI.GetFlightData() consider where you're stepping the simulation");
 			fdb_temp= new FlightDataBranch("empty", FlightDataType.TYPE_TIME);
 		}
 		return fdb_temp;
