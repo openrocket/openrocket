@@ -83,6 +83,7 @@ public class rockettalk extends OpenRocketAPI{
 				count = this.SimulationStep(); //step the simulation.
 				timestep = this.GetTimeStep();
 				FlightDataStep rc_s = flightDataStep();
+				
 //				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
 //				Coordinate v1 = this.m_CStatus.getRocketVelocity();
 //				Coordinate p1 = this.m_CStatus.getRocketPosition();
@@ -96,7 +97,8 @@ public class rockettalk extends OpenRocketAPI{
 				List<Double> Vy = rc_f.get(FlightDataType.TYPE_VELOCITY_Y);
 				List<Double> Vz = rc_f.get(FlightDataType.TYPE_VELOCITY_Z);*/
 				
-				System.out.println(rc_s.getBranchName() +", Time:" + this.GetValue(FlightDataType.TYPE_TIME) );
+				System.out.println(rc_s.getBranchName() +", Time:" + this.GetValue(FlightDataType.TYPE_ACCELERATION_ANGULAR_Z) );
+				count = this.SimulationStep(); //step the simulation.
 
 			}
 	        this.StagesStep();
