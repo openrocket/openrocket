@@ -96,6 +96,16 @@ public class OpenRocketAPI {
 	}
 	/**
 	 * Returns one value correlating to the key type and the
+	 * current iteration.
+	 *
+	 * @param   FlightDataType The data type to return
+	 * @return  double         Value of the specified type
+	 */
+	public double GetValue(FlightDataType type){
+		return GetValue(type, -1);
+	}
+	/**
+	 * Returns one value correlating to the key type and the
 	 * specified iteration.
 	 * 
 	 * @param   FlightDataType  This type of data to return
@@ -226,6 +236,9 @@ public class OpenRocketAPI {
 			return -2;}
 		if(m_CStatus==null)
 		{System.err.println("simualtion is null");
+		return -2;}
+		
+		m_CStatus.setPreviousTimeStep(.5);
 		return -2;
 		}
 		//m_CFlightData is only populated at the end of the simulation
