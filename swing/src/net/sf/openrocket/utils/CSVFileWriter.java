@@ -16,7 +16,6 @@ package net.sf.openrocket.utils;
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-//package dakside.csv;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,41 +34,47 @@ import java.util.logging.Logger;
 /**
  * CSV file writer
  * 
- * @author takaji
+ * @author takaji, modified by nubjub
  * 
  */
 public final class CSVFileWriter {
 
     protected CSVFormat format;
     protected final BufferedWriter writer;
+    protected final String writerName;
     int row = 1;
 
     // <editor-fold defaultstate="collapsed" desc="Constructors">
     public CSVFileWriter(Writer writer) {
         this.writer = new BufferedWriter(writer);
+        this.writerName = writer.toString();
         this.format = new CSVFormat();
     }
 
     public CSVFileWriter(Writer writer, CSVFormat format)
             throws FileNotFoundException {
         this.writer = new BufferedWriter(writer);
+        this.writerName = writer.toString();
         this.format = format;
     }
 
     public CSVFileWriter(BufferedWriter writer) {
         this.writer = writer;
+        this.writerName = writer.toString();
         this.format = new CSVFormat();
     }
 
     public CSVFileWriter(BufferedWriter writer, CSVFormat format)
             throws FileNotFoundException {
         this.writer = writer;
+        this.writerName = writer.toString();
         this.format = format;
     }
 
     public CSVFileWriter(String filename) {
         try {
             this.writer = new BufferedWriter(new FileWriter(new File(filename)));
+            this.writerName = filename;
             this.format = new CSVFormat();
         } catch (IOException ex) {
             Logger.getLogger(CSVFileWriter.class.getName()).log(Level.SEVERE, null, ex);
@@ -80,6 +85,7 @@ public final class CSVFileWriter {
     public CSVFileWriter(File f) {
         try {
             this.writer = new BufferedWriter(new FileWriter(f));
+            this.writerName = f.getName();
             this.format = new CSVFormat();
         } catch (IOException ex) {
             Logger.getLogger(CSVFileWriter.class.getName()).log(Level.SEVERE, null, ex);
@@ -89,12 +95,14 @@ public final class CSVFileWriter {
 
     public CSVFileWriter(OutputStream input) {
         writer = new BufferedWriter(new OutputStreamWriter(input));
+        this.writerName = input.toString();
         this.format = new CSVFormat();
     }
 
     public CSVFileWriter(String filename, CSVFormat format) {
         try {
             this.writer = new BufferedWriter(new FileWriter(filename));
+            this.writerName = filename;
             this.format = format;
         } catch (IOException ex) {
             Logger.getLogger(CSVFileWriter.class.getName()).log(Level.SEVERE, null, ex);
@@ -104,11 +112,13 @@ public final class CSVFileWriter {
 
     public CSVFileWriter(File f, CSVFormat format) throws IOException {
         this.writer = new BufferedWriter(new FileWriter(f));
+        this.writerName = f.getName();
         this.format = format;
     }
 
     public CSVFileWriter(OutputStream input, CSVFormat format) {
         writer = new BufferedWriter(new OutputStreamWriter(input));
+        this.writerName = input.toString();
         this.format = format;
     }
 
@@ -216,6 +226,15 @@ public final class CSVFileWriter {
             return str;
         }
     }
+    /**
+     * compares the value of writerName to the input string
+     * 
+     * @param   String  input for comparison
+     * @return  boolean
+     */
+    public boolean nameEquals(String str){
+    	return writerName.equals(str);  
+    }
 
     /**
      * close session
@@ -249,312 +268,325 @@ public final class CSVFileWriter {
             throw new CSVException("Cannot flush", ex);
         }
     }
-}
-
-class CSVFile {
-
-    private ArrayList<CSVLine> lines; //lines inside a CSV file
-
     /**
-     * Default constructor
+     * Instantiate a CSVLine Object
+     * @return  CSVLine 
      */
-    public CSVFile() {
-        this.lines = new ArrayList<CSVLine>();
+    public CSVLine newCSVLine(){
+    	return new CSVLine();
     }
+    public class CSVLine {
 
-    public CSVLine[] getLines() {
-        return this.lines.toArray(new CSVLine[0]);
-    }
+        private ArrayList<Object> elements;
 
-    /**
-     * Get line at a specified index
-     * @param idx
-     * @return
-     * @throws IndexOutOfBoundsException
-     */
-    public CSVLine getLine(int idx) throws IndexOutOfBoundsException{
-        return this.lines.get(idx);
-    }
-
-    /**
-     * Add a new line to current csv
-     * @return new line object
-     */
-    public CSVLine newLine() {
-        CSVLine line = new CSVLine();
-        this.lines.add(line);
-        return line;
-    }
-
-    /**
-     * get number of line
-     * @return number of line
-     */
-    public int size() {
-        return this.lines.size();
-    }
-
-    /**
-     * discard a line at the specified index
-     * @param idx
-     */
-    public void discard(int idx) {
-        if (idx >= 0 && idx < size()) {
-            this.lines.remove(idx);
+        /**
+         * Default constructor
+         */
+        public CSVLine() {
+            this.elements = new ArrayList<Object>();
         }
-    }
 
-    /**
-     * discard empty record
-     */
-    public void discardEmpty() {
-        for (int i = this.lines.size() - 1; i > -1; i--) {
-            if (this.lines.get(i) == null || this.lines.get(i).isEmpty()) {
-                discard(i);
+        /**
+         * Get all elements (cells) inside a line
+         * @return empty String array if there's no element found inside
+         */
+        public Object[] getElements() {
+            return this.elements.toArray();
+        }
+
+        /**
+         * Get element at index
+         * @param idx
+         * @return
+         * @throws IndexOutOfBoundsException
+         */
+        public Object getElementAt(int idx) throws IndexOutOfBoundsException {
+            return elements.get(idx);
+        }
+
+        /**
+         * Set element at
+         * @param idx
+         * @param value
+         * @throws IndexOutOfBoundsException
+         */
+        public void setElementAt(int idx, Object value) throws IndexOutOfBoundsException {
+            elements.set(idx, value);
+        }
+
+        /**
+         * count elements inside this line
+         * @return
+         */
+        public int size() {
+            return elements.size();
+        }
+
+        /**
+         * Add a new element
+         */
+        public CSVLine add(Object obj) {
+            this.elements.add(obj);
+            return this;
+        }
+
+        /**
+         * if CSV line is empty
+         * @return
+         */
+        public boolean isEmpty() {
+            return this.elements.isEmpty();
+        }
+
+        /**
+         * Remove all elements
+         */
+        public void clear() {
+            this.elements.clear();
+        }
+
+        /**
+         * Remove element at a specified index
+         * @param idx
+         * @throws IndexOutOfBoundsException
+         */
+        public void remove(int idx) throws IndexOutOfBoundsException {
+            elements.remove(idx);
+        }
+
+        /**
+         * Trim down or expand with null cell to a new length
+         * @param newLength
+         */
+        public void setLength(int newLength) {
+            if (elements.size() > newLength) {
+                //trim down
+                while (elements.size() > newLength) {
+                    elements.remove(elements.size() - 1);
+                }
+            } else {
+                //add more
+                while (elements.size() < newLength) {
+                    add(null);
+                }
             }
         }
     }
-
     /**
-     * append a CSV line to file (line is ignored if null)
-     * @param line
+     * Instantiate a CSVFile Object
+     * @return  CSVLine 
      */
-    void append(CSVLine line) {
-        if (line == null) {
-            return;
+    public CSVFile newCSVFile(){
+    	return new CSVFile();
+    }
+    public class CSVFile {
+
+        private ArrayList<CSVLine> lines; //lines inside a CSV file
+
+        /**
+         * Default constructor
+         */
+        public CSVFile() {
+            this.lines = new ArrayList<CSVLine>();
         }
-        this.lines.add(line);
-    }
-}
-class CSVException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+        public CSVLine[] getLines() {
+            return this.lines.toArray(new CSVLine[0]);
+        }
 
-    public CSVException() {
-    }
+        /**
+         * Get line at a specified index
+         * @param idx
+         * @return
+         * @throws IndexOutOfBoundsException
+         */
+        public CSVLine getLine(int idx) throws IndexOutOfBoundsException{
+            return this.lines.get(idx);
+        }
 
-    public CSVException(Throwable throwable) {
-        super(throwable);
-    }
+        /**
+         * Add a new line to current csv
+         * @return new line object
+         */
+        public CSVLine newLine() {
+            CSVLine line = new CSVLine();
+            this.lines.add(line);
+            return line;
+        }
 
-    public CSVException(String message) {
-        super(message);
-    }
+        /**
+         * get number of line
+         * @return number of line
+         */
+        public int size() {
+            return this.lines.size();
+        }
 
-    public CSVException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
-
-}
-class CSVLine {
-
-    private ArrayList<Object> elements;
-
-    /**
-     * Default constructor
-     */
-    public CSVLine() {
-        this.elements = new ArrayList<Object>();
-    }
-
-    /**
-     * Get all elements (cells) inside a line
-     * @return empty String array if there's no element found inside
-     */
-    public Object[] getElements() {
-        return this.elements.toArray();
-    }
-
-    /**
-     * Get element at index
-     * @param idx
-     * @return
-     * @throws IndexOutOfBoundsException
-     */
-    public Object getElementAt(int idx) throws IndexOutOfBoundsException {
-        return elements.get(idx);
-    }
-
-    /**
-     * Set element at
-     * @param idx
-     * @param value
-     * @throws IndexOutOfBoundsException
-     */
-    public void setElementAt(int idx, Object value) throws IndexOutOfBoundsException {
-        elements.set(idx, value);
-    }
-
-    /**
-     * count elements inside this line
-     * @return
-     */
-    public int size() {
-        return elements.size();
-    }
-
-    /**
-     * Add a new element
-     */
-    public CSVLine add(Object obj) {
-        this.elements.add(obj);
-        return this;
-    }
-
-    /**
-     * if CSV line is empty
-     * @return
-     */
-    public boolean isEmpty() {
-        return this.elements.isEmpty();
-    }
-
-    /**
-     * Remove all elements
-     */
-    public void clear() {
-        this.elements.clear();
-    }
-
-    /**
-     * Remove element at a specified index
-     * @param idx
-     * @throws IndexOutOfBoundsException
-     */
-    public void remove(int idx) throws IndexOutOfBoundsException {
-        elements.remove(idx);
-    }
-
-    /**
-     * Trim down or expand with null cell to a new length
-     * @param newLength
-     */
-    public void setLength(int newLength) {
-        if (elements.size() > newLength) {
-            //trim down
-            while (elements.size() > newLength) {
-                elements.remove(elements.size() - 1);
-            }
-        } else {
-            //add more
-            while (elements.size() < newLength) {
-                add(null);
+        /**
+         * discard a line at the specified index
+         * @param idx
+         */
+        public void discard(int idx) {
+            if (idx >= 0 && idx < size()) {
+                this.lines.remove(idx);
             }
         }
-    }
-}
-class CSVFormat {
 
-    private String charset;
-    private char fieldDelimiter;
-    private char textDelimiter;
-    private char lineTerminator;
-    private char[] ignoreCharacters;
-
-    /**
-     * Construct a standard CSV format
-     */
-    public CSVFormat() {
-        this.setCharset("UTF-8");
-        this.setFieldDelimiter(',');
-        this.setTextDelimiter('"');
-
-        //auto detect line separator
-        String s = System.getProperty("line.separator");
-        if (s.length() > 0) {
-            this.setLineTerminator(s.charAt(0));
-            char[] ignoreChars = new char[s.length() - 1];
-            for (int i = 1; i < s.length(); i++) {
-                ignoreChars[i-1] = s.charAt(i);
+        /**
+         * discard empty record
+         */
+        public void discardEmpty() {
+            for (int i = this.lines.size() - 1; i > -1; i--) {
+                if (this.lines.get(i) == null || this.lines.get(i).isEmpty()) {
+                    discard(i);
+                }
             }
-            this.setIgnoreCharacters(ignoreChars);
-        } else {
-            this.setLineTerminator('\n');
-            this.setIgnoreCharacters(new char[]{'\r'});
+        }
+
+        /**
+         * append a CSV line to file (line is ignored if null)
+         * @param line
+         */
+        void append(CSVLine line) {
+            if (line == null) {
+                return;
+            }
+            this.lines.add(line);
         }
     }
+    class CSVFormat {
 
-    /**
-     * @param lineTerminator
-     *            the lineTerminator to set
-     */
-    public void setLineTerminator(char lineTerminator) {
-        this.lineTerminator = lineTerminator;
+        private String charset;
+        private char fieldDelimiter;
+        private char textDelimiter;
+        private char lineTerminator;
+        private char[] ignoreCharacters;
+
+        /**
+         * Construct a standard CSV format
+         */
+        public CSVFormat() {
+            this.setCharset("UTF-8");
+            this.setFieldDelimiter(',');
+            this.setTextDelimiter('"');
+
+            //auto detect line separator
+            String s = System.getProperty("line.separator");
+            if (s.length() > 0) {
+                this.setLineTerminator(s.charAt(0));
+                char[] ignoreChars = new char[s.length() - 1];
+                for (int i = 1; i < s.length(); i++) {
+                    ignoreChars[i-1] = s.charAt(i);
+                }
+                this.setIgnoreCharacters(ignoreChars);
+            } else {
+                this.setLineTerminator('\n');
+                this.setIgnoreCharacters(new char[]{'\r'});
+            }
+        }
+
+        /**
+         * @param lineTerminator
+         *            the lineTerminator to set
+         */
+        public void setLineTerminator(char lineTerminator) {
+            this.lineTerminator = lineTerminator;
+        }
+
+        /**
+         * @return the lineTerminator
+         */
+        public char getLineTerminator() {
+            return lineTerminator;
+        }
+
+        /**
+         * @param ignoreCharacters
+         *            the ignoreCharacters to set
+         */
+        public void setIgnoreCharacters(char[] ignoreCharacters) {
+            this.ignoreCharacters = ignoreCharacters;
+        }
+
+        /**
+         * @return the ignoreCharacters
+         */
+        public char[] getIgnoreCharacters() {
+            return ignoreCharacters;
+        }
+
+        /**
+         * @param charset
+         *            the charset to set
+         */
+        public void setCharset(String charset) {
+            this.charset = charset;
+        }
+
+        /**
+         * @return the charset
+         */
+        public String getCharset() {
+            return charset;
+        }
+
+        /**
+         * @param fieldDelimiter
+         *            the fieldDelimiter to set
+         */
+        public void setFieldDelimiter(char fieldDelimiter) {
+            this.fieldDelimiter = fieldDelimiter;
+        }
+
+        /**
+         * @return the fieldDelimiter
+         */
+        public char getFieldDelimiter() {
+            return fieldDelimiter;
+        }
+
+        /**
+         * @param textDelimiter
+         *            the textDelimiter to set
+         */
+        public void setTextDelimiter(char textDelimiter) {
+            this.textDelimiter = textDelimiter;
+        }
+
+        /**
+         * @return the textDelimiter
+         */
+        public char getTextDelimiter() {
+            return textDelimiter;
+        }
+
+        /**
+         * is ignored characters
+         * @param c
+         * @return
+         */
+        public boolean isIgnored(char c) {
+            return Arrays.binarySearch(ignoreCharacters, c) >= 0;
+        }
     }
+    class CSVException extends RuntimeException {
 
-    /**
-     * @return the lineTerminator
-     */
-    public char getLineTerminator() {
-        return lineTerminator;
-    }
+        private static final long serialVersionUID = 1L;
 
-    /**
-     * @param ignoreCharacters
-     *            the ignoreCharacters to set
-     */
-    public void setIgnoreCharacters(char[] ignoreCharacters) {
-        this.ignoreCharacters = ignoreCharacters;
-    }
+        public CSVException() {
+        }
 
-    /**
-     * @return the ignoreCharacters
-     */
-    public char[] getIgnoreCharacters() {
-        return ignoreCharacters;
-    }
+        public CSVException(Throwable throwable) {
+            super(throwable);
+        }
 
-    /**
-     * @param charset
-     *            the charset to set
-     */
-    public void setCharset(String charset) {
-        this.charset = charset;
-    }
+        public CSVException(String message) {
+            super(message);
+        }
 
-    /**
-     * @return the charset
-     */
-    public String getCharset() {
-        return charset;
-    }
+        public CSVException(String message, Throwable throwable) {
+            super(message, throwable);
+        }
 
-    /**
-     * @param fieldDelimiter
-     *            the fieldDelimiter to set
-     */
-    public void setFieldDelimiter(char fieldDelimiter) {
-        this.fieldDelimiter = fieldDelimiter;
-    }
-
-    /**
-     * @return the fieldDelimiter
-     */
-    public char getFieldDelimiter() {
-        return fieldDelimiter;
-    }
-
-    /**
-     * @param textDelimiter
-     *            the textDelimiter to set
-     */
-    public void setTextDelimiter(char textDelimiter) {
-        this.textDelimiter = textDelimiter;
-    }
-
-    /**
-     * @return the textDelimiter
-     */
-    public char getTextDelimiter() {
-        return textDelimiter;
-    }
-
-    /**
-     * is ignored characters
-     * @param c
-     * @return
-     */
-    public boolean isIgnored(char c) {
-        return Arrays.binarySearch(ignoreCharacters, c) >= 0;
     }
 }
