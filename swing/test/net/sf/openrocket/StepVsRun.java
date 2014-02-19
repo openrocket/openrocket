@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -25,13 +27,12 @@ import net.sf.openrocket.simulation.*;
 /**
  * @author nubjub
  */
-public class rockettalk extends OpenRocketAPI{
+public class StepVsRun extends OpenRocketAPI{
 	SimulationStatus rc_simStatus;
 	FlightDataBranch rc_flightData;
 	ArrayList<FlightDataBranch> rc_fdl;
-	double [][] sensor_matrix = {{1,0,0},{0,1,0},{0,0,1}};
 
-	public rockettalk(){
+	public StepVsRun(){
 		super();
 	}
 	/**
@@ -74,34 +75,34 @@ public class rockettalk extends OpenRocketAPI{
 		this.RunSimulation();
 		this.StartSimulation();
 		int iteration =-1;
+		int count = -1;
 		double timestep =-1;
 		while(this.IsSimulationLoopRunning()){
-			double[] p = GetData();
-			
+			while(this.IsSimulationLoopRunning()){
+				iteration = this.GetIteration();
+				count = this.SimulationStep(); //step the simulation.
+				timestep = this.GetTimeStep();
+				FlightDataStep rc_s = flightDataStep();
+				
+//				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
+//				Coordinate v1 = this.m_CStatus.getRocketVelocity();
+//				Coordinate p1 = this.m_CStatus.getRocketPosition();
+/*				List<Double> T = rc_f.get(FlightDataType.TYPE_TIME);
+				List<Double> Alz = rc_f.get(FlightDataType.TYPE_ACCELERATION_LINEAR_Z);
+				List<Double> Px = rc_f.get(FlightDataType.TYPE_POSITION_X);
+				List<Double> Py = rc_f.get(FlightDataType.TYPE_POSITION_Y);
+				List<Double> Pz = rc_f.get(FlightDataType.TYPE_POSITION_Z);
+				List<Double> Pz_a = rc_f.get(FlightDataType.TYPE_ALTITUDE);
+				List<Double> Vx = rc_f.get(FlightDataType.TYPE_VELOCITY_X);
+				List<Double> Vy = rc_f.get(FlightDataType.TYPE_VELOCITY_Y);
+				List<Double> Vz = rc_f.get(FlightDataType.TYPE_VELOCITY_Z);*/
+				
+				System.out.println(rc_s.getBranchName() +", Time:" + this.GetValue(FlightDataType.TYPE_ACCELERATION_ANGULAR_Z) );
+				count = this.SimulationStep(); //step the simulation.
+
+			}
 	        this.StagesStep();
-	        
 		}
-	}
-	private double[] GetData(){
-		int iteration = this.GetIteration();
-		double[] p = new double[12];
-		//Gyro
-		p[0] = this.GetValue(FlightDataType.TYPE_PITCH_RATE);
-		p[1] = this.GetValue(FlightDataType.TYPE_YAW_RATE);
-		p[2] = this.GetValue(FlightDataType.TYPE_ROLL_RATE);
-		
-		double[] vec = new double[3];
-		vec[0] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_X);
-	    vec[1] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_Y);
-	    double gravity = this.GetValue(FlightDataType.TYPE_GRAVITY);
-	    vec[2] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_Z) + gravity;
-	    
-	    double[] nVec = new double[3];
-	    p[4] = vec[0] * sensor_matrix[0][0] + vec[1] * sensor_matrix[0][1] + vec[2] * sensor_matrix[0][2];
-	    p[5] = vec[0] * sensor_matrix[1][0] + vec[1] * sensor_matrix[1][1] + vec[2] * sensor_matrix[1][2];
-	    p[6] = vec[0] * sensor_matrix[2][0] + vec[1] * sensor_matrix[2][1] + vec[2] * sensor_matrix[2][2];
-	    
-	    return p;
 	}
 	private FlightDataBranch flightData() {
 		return this.GetFlightData();

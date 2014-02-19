@@ -411,56 +411,6 @@ public class OpenRocketAPI {
 		return 0;
 	}
 
-	/****************************************************
-	 * flight data maximums (RK4) functions
-	 *****************************************************/
-
-	public double getMaxAltitude(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getMaxAltitude();
-	}
-	public double getMaxVelocity(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getMaxVelocity();
-	}
-	public double getMaxAcceleration(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getTimeToApogee();
-	}
-	public double getMaxMachNumber(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getMaxMachNumber();
-	}
-	public double getTimeToApogee(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getTimeToApogee();
-	}
-	public double getFlightTime(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getFlightTime();
-	}
-	public double getGroundHitVelocity(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getGroundHitVelocity();
-	}
-	public double getLaunchRodVelocity(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getLaunchRodVelocity();
-	}
-	public double getDeploymentVelocity(){
-		if (m_CFlightData == null)
-			return -1;
-		return m_CFlightData.getDeploymentVelocity();
-	}
-	
 	/**********************************************************************
 	 * seters and getters for simulation data
 	 ********************************************************************* */
@@ -616,5 +566,55 @@ public class OpenRocketAPI {
 			if(m_CStatus == null)
 				return false;
 			return m_CStatus.isLiftoff();
+		}
+
+		/****************************************************
+		 * flight data maximums (RK4) functions
+		 *****************************************************/
+
+		public double getMaxAltitude(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getMaxAltitude();
+		}
+		public double getMaxVelocity(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getMaxVelocity();
+		}
+		public double getMaxAcceleration(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getTimeToApogee();
+		}
+		public double getMaxMachNumber(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getMaxMachNumber();
+		}
+		public double getTimeToApogee(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getTimeToApogee();
+		}
+		public double getFlightTime(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getFlightTime();
+		}
+		public double getGroundHitVelocity(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getGroundHitVelocity();
+		}
+		public double getLaunchRodVelocity(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getLaunchRodVelocity();
+		}
+		public double getDeploymentVelocity(){
+			if (m_CFlightData == null)
+				return -1;
+			return m_CFlightData.getDeploymentVelocity();
 		}
 };
