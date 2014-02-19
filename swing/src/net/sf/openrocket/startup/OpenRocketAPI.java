@@ -305,7 +305,10 @@ public class OpenRocketAPI {
 			
 		return 0;
 	}
-
+	/**
+	 * The random seed can be set here making OpenRocket determinisitic.
+	 * @param  int  random seed to use in simulation  
+	 */
 	public void SetRandomSeed(int rand_seed){
 		m_rand_seed = rand_seed;
 	}
