@@ -243,18 +243,22 @@ public class OpenRocketAPI {
 		if(m_CRocket==null)
 			return -1;
 		
-		m_CStatus=m_CRocket.stagestep(null, m_CStatus);
+		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
 		if(m_CStatus==null)
 			m_bIsSimulationStagesRunning=false;
 			
 		return 0;
 	}
+
+	public void SetRandomSeed(int rand_seed)
+	{
+		m_rand_seed = rand_seed;
+	}
 	
 	public int LoadRocket(String szFileName){
 		
 		return LoadRocket(szFileName,1);
-	}
-	
+	}	
 	/*
 	 * loads a rocket and simulationconditions from an ork file
 	 * 
@@ -264,11 +268,6 @@ public class OpenRocketAPI {
 	 *               -3 simulation data not present in simulation
 	 *               -4 exception thrown
 	 * */
-	public void SetRandomSeed(int rand_seed)
-	{
-		m_rand_seed = rand_seed;
-	}
-	
 	public int LoadRocket(String szFileName, int simtograb) {
 		try {
 			File Filename = new File(szFileName);
@@ -331,9 +330,9 @@ public class OpenRocketAPI {
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		
 		try {
-			FlightData fm_temp = boink.simulate(m_CSimulationConditions);
+			m_CFlightData = boink.simulate(m_CSimulationConditions);
 			System.out.print("Number of branches in simulation: ");
-			System.out.println(fm_temp.getBranchCount());
+			System.out.println(m_CFlightData.getBranchCount());
 		} catch (SimulationException e) {
 			System.err.println("oops RunSimulation threw an error");
 			return -3;
