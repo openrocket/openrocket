@@ -24,6 +24,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+import net.sf.openrocket.utils.CSVFileWriter;
+
 
 public class OpenRocketAPI {
 
@@ -34,6 +36,7 @@ public class OpenRocketAPI {
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket = null;
+	private CSVFileWriter CSVOutputFile = null; 
 	//TODO: Not fully Implemented
 	private double timeStep = 0.0;
 	private int m_rand_seed = 0;
@@ -70,7 +73,6 @@ public class OpenRocketAPI {
 	 */
 	public double GetTimeStep(){
 		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
-		if(i < 0) return -1;
 		return i;
 	}
 	/**
@@ -79,16 +81,14 @@ public class OpenRocketAPI {
 	 */
 	public double GetTime(){
 		double i = this.GetValue(FlightDataType.TYPE_TIME);
-		if(i == -2) return -1;
-		if(i == -1) return 0;
 		return i;
 	}
 	/**
 	 * Returns one value correlating to the key type and the
 	 * current iteration.
 	 *
-	 * @param   FlightDataType The data type to return
-	 * @return  double         Value of the specified type
+	 * @param   FlightDataType  The data type to return
+	 * @return  double          Value of the specified type
 	 */
 	public double GetValue(FlightDataType type){
 		return GetValue(type, -1);
@@ -137,6 +137,70 @@ public class OpenRocketAPI {
 			return;
 		}
 		GetFlightData().setValue(type, value);
+	}
+	/**
+	 * Writes the values for the specified iteration to the specified file
+	 * 
+	 * @param  string  filename to write to
+	 */
+	public int FlightDataStepToCSV(String filename){
+		FlightDataStep fds_temp = GetFlightDataStep();
+		return CSVWriter(filename,fds_temp);
+	}
+	/**
+	 * Writes the values for the specified iteration to the specified file
+	 * 
+	 * @param  string  filename to write to
+	 *                 "close" closes the csv file.
+	 * @param  int     Desired iteration (the first iteration is iteration 1)
+	 */
+	public int FlightDataStepToCSV(String filename, int iteration){
+		FlightDataStep fds_temp = GetFlightDataStep(iteration);
+		return CSVWriter(filename,fds_temp);
+	}
+	private int CSVWriter(String file,FlightDataStep fds){
+		if(CSVOutputFile != null){
+			if(file.equals("close")){
+				CSVOutputFile.close();
+			}
+			else if(!(CSVOutputFile.nameEquals(file))){
+				CSVOutputFile.close();
+				CSVOutputFile = new CSVFileWriter(file);
+				CSVFileWriter.CSVFile csvLines = CSVCreateLine(fds,true);
+				CSVOutputFile.writeFile(csvLines);
+			}
+			else{
+				CSVFileWriter.CSVFile csvLines = CSVCreateLine(fds,false);
+				CSVOutputFile.writeFile(csvLines);
+			}
+		}
+		else{
+			CSVOutputFile = new CSVFileWriter(file);
+			CSVFileWriter.CSVFile csvLines = CSVCreateLine(fds,true);
+			CSVOutputFile.writeFile(csvLines);
+		}
+		return 0;
+	}
+	private CSVFileWriter.CSVFile CSVCreateLine(FlightDataStep fds, boolean writeKeys){
+		CSVFileWriter.CSVFile csvLineS = CSVOutputFile.newCSVFile();
+		CSVFileWriter.CSVLine csvLine = null;
+		if(writeKeys){
+			csvLine = csvLineS.newLine();
+			for (FlightDataType t : FlightDataType.ALL_TYPES) {
+				csvLine.add(t.getName());
+			}
+		}
+		csvLine = csvLineS.newLine();
+		for (FlightDataType t : FlightDataType.ALL_TYPES) {
+			Double v = fds.get(t);
+			if (!(v.equals(Double.MAX_VALUE))) {
+				csvLine.add(v);
+			}
+			else{
+				csvLine.add(null);
+			}
+		}
+		return csvLineS;
 	}
 	/**
 	 * Returns the values for the current iteration of the simulation
