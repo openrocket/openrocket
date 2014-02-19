@@ -250,11 +250,6 @@ public class OpenRocketAPI {
 		return 0;
 	}
 	
-	public void SetRandomSeed(int rand_seed){
-		m_rand_seed = rand_seed;
-		
-	}
-	
 	public int LoadRocket(String szFileName){
 		
 		return LoadRocket(szFileName,1);
@@ -269,12 +264,16 @@ public class OpenRocketAPI {
 	 *               -3 simulation data not present in simulation
 	 *               -4 exception thrown
 	 * */
+	public void SetRandomSeed(int rand_seed)
+	{
+		m_rand_seed = rand_seed;
+	}
 	
-	public int LoadRocket(String szFileName,int simtograb) {
+	public int LoadRocket(String szFileName, int simtograb) {
 		try {
 			File Filename = new File(szFileName);
 			System.out.println("loading rocket from "+szFileName);
-
+			
 			GeneralRocketLoader rocketLoader = new GeneralRocketLoader(Filename);
 			OpenRocketDocument Rocket = rocketLoader.load();
 			
@@ -292,11 +291,11 @@ public class OpenRocketAPI {
 				{
 					System.out.print("Getting Simulation Conditions for: ");
 					System.out.println(Rocket.getSimulation(simtograb).getName());
-					System.out.println("status of rocket is "+rocketSimulation.getStatus());
+					System.out.println("status of rocket is " + rocketSimulation.getStatus());
 					SimulationOptions opt = rocketSimulation.getOptions();
-					if (m_rand_seed != 0) 
+					if (m_rand_seed != 0)
 						opt.setRandomSeed(m_rand_seed);
-					m_CSimulationConditions = opt.toSimulationConditions();
+					m_CSimulationConditions =  opt.toSimulationConditions();
 					
 				}
 				else{
