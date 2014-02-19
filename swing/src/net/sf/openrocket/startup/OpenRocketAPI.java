@@ -96,16 +96,6 @@ public class OpenRocketAPI {
 	}
 	/**
 	 * Returns one value correlating to the key type and the
-	 * current iteration.
-	 *
-	 * @param   FlightDataType The data type to return
-	 * @return  double         Value of the specified type
-	 */
-	public double GetValue(FlightDataType type){
-		return GetValue(type, -1);
-	}
-	/**
-	 * Returns one value correlating to the key type and the
 	 * specified iteration.
 	 * 
 	 * @param   FlightDataType  This type of data to return
@@ -235,12 +225,8 @@ public class OpenRocketAPI {
 			{System.err.println("Rocket is null");
 			return -2;}
 		if(m_CStatus==null)
-		{System.err.println("simualtion is null");
-		return -2;}
-		
-		m_CStatus.setPreviousTimeStep(.5);
-		return -2;
-		}
+			{System.err.println("simualtion is null");
+			return -2;}
 		//m_CFlightData is only populated at the end of the simulation
 		//m_CStatus.getRocketPosition().z < 0
 		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
@@ -263,16 +249,37 @@ public class OpenRocketAPI {
 		return 0;
 	}
 
-	public void SetRandomSeed(int rand_seed)
-	{
+	public void SetRandomSeed(int rand_seed){
 		m_rand_seed = rand_seed;
 	}
-	
+	/**
+	 * Sets the user-specified time step
+	 * OpenRocket uses the minimum of the following
+	 * the user-specified time step (or 1/5th of it if still on the launch rod)
+	 * maxTimeStep
+	 * maximum pitch step angle limit
+	 * maximum roll step angle limit
+	 * maximum roll rate change limit
+	 * maximum pitch change limit
+	 * 1/10th of the launch rod length if still on the launch rod
+	 * 1.50 times the previous time step
+	 * 
+	 * @param  double  timeStep
+	 */
+	public void SetTimeStep(double timeStep){
+		//TODO: This may be the place to provide feedback about invalid timestep
+		this.timeStep = timeStep;
+	}
+	/**
+	 * Calls LoadRocket with the first simulation in the file specified
+	 * @param   string  filename to load
+	 * @return  int     see LoadROcket(String,int)
+	 */
 	public int LoadRocket(String szFileName){
 		
 		return LoadRocket(szFileName,1);
 	}	
-	/*
+	/**
 	 * loads a rocket and simulationconditions from an ork file
 	 * 
 	 * @return  int  0 everything went fine;
@@ -328,7 +335,7 @@ public class OpenRocketAPI {
 		return 0;
 	}
 
-	/*
+	/**
 	 * runs simulation start to finish just like openrocket main.
 	 * */
 	
@@ -406,7 +413,6 @@ public class OpenRocketAPI {
 	/**********************************************************************
 	 * seters and getters for simulation data
 	 ********************************************************************* */
-	//TODO: These should all be remade to use m_CFlightDataBranch and 	
 
 		public double GetAccelerationX() {
 			if(m_CStatus==null)
