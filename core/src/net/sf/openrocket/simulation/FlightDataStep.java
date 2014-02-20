@@ -41,22 +41,19 @@ public class FlightDataStep {
 		if (branch == null) {
 			throw new IllegalArgumentException("Flight data branch parameter cannot be null.");
 		}
-		if (branch.getLength() < step) {
+		if (step < 1 || branch.getLength() < step) {
 			throw new IllegalArgumentException("Step does not exist in Flight data branch");
 		}
 		branchName = branch.getBranchName();
 		iteration = step;
 		modID = -1;
 		
-		if (step > 0) {
-			step = step - 1;
-			FlightDataType[] types = branch.getTypes();
-			for (FlightDataType t : types) {
-				ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
-				Double v = new Double(list.get(step));
-				if (!v.isNaN()) {
-					values.put(t, v);
-				}
+		FlightDataType[] types = branch.getTypes();
+		for (FlightDataType t : types) {
+			ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
+			Double v = new Double(list.get(step - 1));
+			if (!v.isNaN()) {
+				values.put(t, v);
 			}
 		}
 	}
