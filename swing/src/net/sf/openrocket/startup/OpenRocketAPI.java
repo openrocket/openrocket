@@ -40,6 +40,8 @@ public class OpenRocketAPI {
 	//TODO: Not fully Implemented
 	private double timeStep = 0.0;
 	private int m_rand_seed = 0;
+	//TODO: What should this failure value be??
+	private double ERROR = Double.NEGATIVE_INFINITY;
 	
 	public int setlogfile(String filename){
 		return 0;
@@ -73,15 +75,21 @@ public class OpenRocketAPI {
 	 */
 	public double GetTimeStep(){
 		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
-		return i;
+		if(!Double.isNaN(i))
+			return i;
+		return ERROR;
 	}
 	/**
-	 * Returns the total time as of the current step of the simulation
+	 * Returns the total time as of the end current step of the simulation
 	 * @return  double  Total time of the current simulation
 	 */
 	public double GetTime(){
-		double i = this.GetValue(FlightDataType.TYPE_TIME);
-		return i;
+		FlightDataStep fds = GetFlightDataStep();
+		double i = fds.get(FlightDataType.TYPE_TIME);
+		double j = fds.get(FlightDataType.TYPE_TIME_STEP);
+		if(!(Double.isNaN(i) || Double.isNaN(j)))
+			return i + j;
+		return ERROR;
 	}
 	/**
 	 * Returns one value correlating to the key type and the
@@ -111,7 +119,9 @@ public class OpenRocketAPI {
 			fds = GetFlightDataStep(step);
 		}
 		double tsl = fds.get(type);
-		return tsl;
+		if(!(Double.isNaN(tsl)))
+			return tsl;
+		return ERROR;
 	}
 	/**
 	 * 
@@ -119,7 +129,10 @@ public class OpenRocketAPI {
 	 * @return  double          Value requested
 	 */
 	public double GetMaximum(FlightDataType type){
-		return GetFlightData().getMaximum(type);
+		double i = GetFlightData().getMaximum(type);
+		if(!Double.isNaN(i))
+			return i;
+		return ERROR;
 	}
 	/**
 	 * 
@@ -127,7 +140,10 @@ public class OpenRocketAPI {
 	 * @return  double          Value requested
 	 */
 	public double GetMinimum(FlightDataType type){
-		return GetFlightData().getMinimum(type);
+		double i = GetFlightData().getMinimum(type);
+		if(!Double.isNaN(i))
+			return i;
+		return ERROR;
 	}
 	
 	//TODO: Definately not implemented correctly
@@ -237,7 +253,7 @@ public class OpenRocketAPI {
 		}
 		} catch (Throwable t) {
 			System.err.println("OpenRocketAPI.GetFlightData() threw a m_CStatus related exception"+ t);
-			System.err.println("OpenRocketAPI.GetFlightData() consider where you're stepping the simulation");
+			System.err.println("OpenRocketAPI.GetFlightData() perhaps the simulation isn't running");
 			fdb_temp= new FlightDataBranch("empty", FlightDataType.TYPE_TIME);
 		}
 		return fdb_temp;
