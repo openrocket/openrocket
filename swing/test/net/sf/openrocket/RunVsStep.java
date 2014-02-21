@@ -56,7 +56,7 @@ public class RunVsStep extends OpenRocketAPI{
 	    this.SetRandomSeed(1);
 		try {
 		    System.out.println("Opening file");
-		    this.LoadRocket("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork");
+		    this.SimulationSetup("resources-psas/threeStageRocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -68,26 +68,12 @@ public class RunVsStep extends OpenRocketAPI{
 	 */
 	@After
 	public void tearDown() throws Exception {
-	}
-
-	@Test
-	public void testStep() {
-		this.StartSimulation();
-		while(this.IsSimulationLoopRunning()){
-			while(this.IsSimulationLoopRunning()){
-				int iteration = this.SimulationStep();
-				if(this.IsSimulationLoopRunning()){
-					int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step.csv", null, -1);
-				}
-			}
-			this.StagesStep();
-		}
 		this.FlightDataStepToCSV("close");
 	}
 	
 	@Test
 	public void testRun() {
-		this.RunSimulation();
+		this.SimulationRun();
 		FlightData fd = m_CFlightData;
 		int branches = m_CFlightData.getBranchCount();
 		FlightDataBranch fdb = null;
@@ -95,11 +81,29 @@ public class RunVsStep extends OpenRocketAPI{
 			fdb = fd.getBranch(j);
 			int fdb_length = fdb.getLength()+1; //(iterations start at 1)
 			for(int i =1; i < fdb_length; i++){
-				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/run.csv", fdb, i);
+				int rval = GetData("resources-psas/run.csv", fdb, i);
 			}
 		}
-		this.FlightDataStepToCSV("close");
 	}
+	
+	@Test
+	public void testStep() {
+		this.SimulationStep(1);
+		while(this.SimulationIsRunning()){
+			int rval = GetData("resources-psas/step1.csv", null, -1);
+			this.SimulationStep(1);
+			}
+		FlightData fd = m_CFlightData;
+		int branches = m_CFlightData.getBranchCount();
+		FlightDataBranch fdb = null;
+		for(int j =0; j < branches; j++){
+			fdb = fd.getBranch(j);
+			int fdb_length = fdb.getLength()+1; //(iterations start at 1)
+			for(int i =1; i < fdb_length; i++){
+				int rval = GetData("resources-psas/step2.csv", fdb, i);
+		}
+	}
+
 
 	private int GetData(String CSVFile, FlightDataBranch b, int i){
 		if(i < 0){
