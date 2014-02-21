@@ -29,13 +29,15 @@ import com.google.inject.Module;
 
 public class OpenRocketAPI {
 
-	private boolean m_bIsSimulationStagesRunning = false;
-	private boolean m_bIsSimulationLoopRunning = false;
+	private BasicEventSimulationEngine basicEngine = null;
+	private SteppingEventSimulationEngine steppingEngine = null;
+	
+	//private boolean m_bIsSimulationStagesRunning = false;
+	//private boolean m_bIsSimulationLoopRunning = false;
 	protected FlightData m_CFlightData = null;
 	//private FlightDataBranch m_CFlightDataBranch = null; //use GetFlightData()
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
-	private UserControledSimulation m_CRocket = null;
 	private CSVWriter CSVOutputFile = null; 
 	//TODO: Not fully Implemented
 	private double timeStep = 0.0;
@@ -273,7 +275,7 @@ public class OpenRocketAPI {
 	protected FlightDataBranch GetFlightData(){
 		FlightDataBranch fdb_temp = null;
 		try {
-			fdb_temp = m_CStatus.getFlightData();
+			fdb_temp = steppingEngine.getFlightData();
 			if (fdb_temp == null) {
 				throw new IllegalStateException("fdb_temp == null");
 		}
@@ -287,9 +289,20 @@ public class OpenRocketAPI {
 	/******************************************************************
 	 * rocket simulation functions
 	 * **************************************************************/
-	public boolean IsSimulationStagesRunning(){return m_bIsSimulationStagesRunning;}
-
-	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
+	/**
+	 * Returns weather a simulation is currently running.
+	 *  @return  boolean
+	 */
+	public boolean IsSimulationRunning(){
+		if(steppingEngine != null){
+			return steppingEngine.simulationRunning();
+		}
+		return false;
+	}
+	/**
+	 * @return  boolean  IsSimulationRunning()
+	 */
+	public boolean IsSimulationLoopRunning(){return IsSimulationRunning();}
 
 	/**
 	 * The random seed can be set here making OpenRocket determinisitic.
@@ -317,144 +330,100 @@ public class OpenRocketAPI {
 		this.timeStep = timeStep;
 	}
 	/**
-	 * Calls LoadRocket with the first simulation in the file specified
-	 * @param   string  filename to load
-	 * @return  int     see LoadROcket(String,int)
-	 */
-	public int LoadRocket(String szFileName){
-		return LoadRocket(szFileName,1);
-	}	
-	/**
 	 * loads a rocket and simulationconditions from an ork file
 	 * 
-	 * @return  int  0 everything went fine;
-	 *               -1 simcount==0 //no simulations in file 
-	 *               -2 !(simcount < simtograb) //you asked for a simulation not present
-	 *               -3 simulation data not present in simulation
-	 *               -4 exception thrown
 	 * */
-	public int LoadRocket(String szFileName, int simtograb) {
+	private OpenRocketDocument LoadRocket(String szFileName) {
+		OpenRocketDocument Rocket = null;
 		try {
 			File Filename = new File(szFileName);
 			System.out.println("loading rocket from "+szFileName);
 			GeneralRocketLoader rocketLoader = new GeneralRocketLoader(Filename);
-			OpenRocketDocument Rocket = rocketLoader.load();
-			int simCount = Rocket.getSimulationCount();
-			System.out.print("Number of Simulations in file: ");
-			System.out.println(simCount);
-			if (simCount == 0){ 
-				return -1; 
-			}
-			if (!(simCount < simtograb)){
-				simtograb--;
-				Simulation rocketSimulation = Rocket.getSimulation(simtograb);
-				if (rocketSimulation != null){
-				System.out.print("Getting Simulation Conditions for: ");
-					System.out.println(Rocket.getSimulation(simtograb).getName());
-					System.out.println("status of rocket is " + rocketSimulation.getStatus());
-					SimulationOptions opt = rocketSimulation.getOptions();
-					if (m_rand_seed != 0)
-						opt.setRandomSeed(m_rand_seed);
-					m_CSimulationConditions =  opt.toSimulationConditions();
-				}
-				else{
-					//System.err.println("simulation is null");
-					return -3;
-				}
-			} else{
-				//System.err.println("asked for simulation not present");
-				return -2;
-			}
-			//TODO: return loadorkfile(szFileName); //this needs to be more complex...
+			Rocket = rocketLoader.load();
 		} catch (RocketLoadException oops) {
 			System.err.print("made a mistake file : ");
 			System.err.println(szFileName+" "+oops.toString());
-			return -4;
-			
 		}
+		return Rocket;
+	}
+	public int SetupSimulation(String orkFile, int simToGrab, int randomSeed, int timeStep){
+		OpenRocketDocument Rocket = LoadRocket(orkFile);
+		if(Rocket == null){
+			//System.err.println("ork file failed to load");
+			return -4;
+		}
+		int simCount = Rocket.getSimulationCount();
+		System.out.print("Number of Simulations in file: ");
+		System.out.println(simCount);
+		if (simCount == 0){
+			//System.err.println("no simulatinos in ork file");
+			return -1; 
+		}
+		if ((simCount < simToGrab)){
+			//System.err.println("asked for simulation not present");
+			return -2;
+		}
+		Simulation rocketSimulation = Rocket.getSimulation(simToGrab-1);
+		if (rocketSimulation == null){
+			//System.err.println("simulation is null");
+			return -3;
+		}
+		System.out.print("Getting Simulation Conditions for: ");
+		System.out.println(rocketSimulation.getName());
+		System.out.println("status of rocket is " + rocketSimulation.getStatus());
+		//It looks like the following is overly complicated, having tested it
+		//without using SimulationOptions it appears to be necessary.
+		SimulationOptions opt = rocketSimulation.getOptions();
+		if (m_rand_seed != 0){
+			opt.setRandomSeed(m_rand_seed);
+		}
+		m_CSimulationConditions = opt.toSimulationConditions();
+		m_CSimulationConditions.setCalculateExtras(true);
 		return 0;
 	}
 	/**
 	 * runs simulation start to finish just like openrocket main.
 	 * */
 	public int RunSimulation(){
-		if(m_bIsSimulationStagesRunning==true){
-			System.err.println("error calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
-			return-1 ;}
+		//if(m_bIsSimulationStagesRunning==true){
+		//	System.err.println("error calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
+		//	return-1 ;}
 		if(m_CSimulationConditions == null)
-			{System.err.println("no simulation data");
+			{System.err.println("Simulation is not setup; Hint: SetupSimulation");
 			return -2;}
-		m_CSimulationConditions.setCalculateExtras(true);
-		SimulationEngine boink = new BasicEventSimulationEngine();
+		basicEngine = new BasicEventSimulationEngine();
 		try{
-			m_CFlightData = boink.simulate(m_CSimulationConditions);
+			m_CFlightData = basicEngine.simulate(m_CSimulationConditions);
 		} catch (SimulationException e) {
 			System.err.println("oops RunSimulation threw an error");
 			return -3;
 		}
 		return 0;
 	}
-	public int StartSimulation(){
-		if(m_CSimulationConditions==null)
-			return -2;
-		m_CSimulationConditions.setCalculateExtras(true);
-		if(timeStep != 0){
-			//TODO: check for min / max (validate this parameter)
-			m_CSimulationConditions.setTimeStep(timeStep);
+	public int StepSimulation(int steps){
+		if(steppingEngine == null){
+			steppingEngine = new SteppingEventSimulationEngine();
+			try {
+				m_CFlightData = steppingEngine.initialize(m_CSimulationConditions);
+			} catch (SimulationException e) {
+				//System.err.println("steppingEngine.initialize:" + e);
+				return -3;
+			}
 		}
-		m_CRocket=new UserControledSimulation();
-		m_CFlightData = new FlightData(new FlightDataBranch("empty", FlightDataType.TYPE_TIME));
-		try{
-		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, m_CFlightData);
-		if(m_CStatus==null)
-			{System.err.println("simulation is not valid");
-			return -1;
+		if(IsSimulationRunning()){
+			try {
+				return steppingEngine.simulate(steps);
+			} catch (SimulationException e) {
+				//System.err.println("steppingEngine.simulate:" + e);
+				return -2;
+			}
 		}
-		// m_CFlightData = fm_temp; //"empty" FlightDataBranch from above is in here.
-		//TODO: Flight data class can potentially have more then one Branch.
-		m_bIsSimulationLoopRunning = true;
-		m_bIsSimulationStagesRunning = true;
-		}
-		catch(SimulationException e){
-			System.out.println(e);}
-		return 0;
-	}
-
-	public int SimulationStep(){
-		if(m_bIsSimulationLoopRunning != true){
-			System.err.println("not running");
-			return -1;}
-		if(m_CRocket == null){
-			System.err.println("Rocket is null");
-			return -2;}
-		if(m_CStatus == null){
-			System.err.println("simualtion is null");
-			return -2;}
-		//m_CFlightData is only populated at the end of the simulation
-		//m_CStatus.getRocketPosition().z < 0
-		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
-		
-		if(m_CStatus == null){
-			m_bIsSimulationLoopRunning = false;
-			return -3;}
-		return this.GetIteration();
-		}
-	
-	public int StagesStep(){
-		if(m_CRocket==null)
-			return -1;
-		
-		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
-		if(m_CStatus==null)
-			m_bIsSimulationStagesRunning = false;
-			
-		return 0;
+		return -1;
 	}
 
 	/**********************************************************************
 	 * seters and getters for simulation data
 	 ********************************************************************* */
-		
 		public double setOrientationXYZ(double W,double X,double Y,double Z){
 			if(m_CStatus == null)
 				return -1;

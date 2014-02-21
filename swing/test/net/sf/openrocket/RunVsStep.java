@@ -56,7 +56,7 @@ public class RunVsStep extends OpenRocketAPI{
 	    this.SetRandomSeed(1);
 		try {
 		    System.out.println("Opening file");
-		    this.LoadRocket("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork");
+		    this.SetupSimulation("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -68,20 +68,6 @@ public class RunVsStep extends OpenRocketAPI{
 	 */
 	@After
 	public void tearDown() throws Exception {
-	}
-
-	@Test
-	public void testStep() {
-		this.StartSimulation();
-		while(this.IsSimulationLoopRunning()){
-			while(this.IsSimulationLoopRunning()){
-				int iteration = this.SimulationStep();
-				if(this.IsSimulationLoopRunning()){
-					int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step.csv", null, -1);
-				}
-			}
-			this.StagesStep();
-		}
 		this.FlightDataStepToCSV("close");
 	}
 	
@@ -98,8 +84,18 @@ public class RunVsStep extends OpenRocketAPI{
 				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/run.csv", fdb, i);
 			}
 		}
-		this.FlightDataStepToCSV("close");
 	}
+	
+	@Test
+	public void testStep() {
+		while(this.IsSimulationLoopRunning()){
+			int iteration = this.StepSimulation(1);
+			if(this.IsSimulationLoopRunning()){
+				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step.csv", null, -1);
+			}
+		}
+	}
+
 
 	private int GetData(String CSVFile, FlightDataBranch b, int i){
 		if(i < 0){
