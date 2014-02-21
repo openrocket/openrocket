@@ -53,6 +53,7 @@ public class RunVsStep extends OpenRocketAPI{
 	 */
 	@Before
 	public void setUp() throws Exception {
+	    this.SetRandomSeed(1);
 		try {
 		    System.out.println("Opening file");
 		    this.LoadRocket("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork");
@@ -60,7 +61,6 @@ public class RunVsStep extends OpenRocketAPI{
 		catch (Exception e){
 			System.out.println("Failure to open file");
 		}
-	    this.SetRandomSeed(1);
 	}
 
 	/**
