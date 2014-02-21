@@ -291,62 +291,6 @@ public class OpenRocketAPI {
 
 	public boolean IsSimulationLoopRunning(){return m_bIsSimulationLoopRunning;}
 
-	public int StartSimulation(){
-		if(m_CSimulationConditions==null)
-			return -2;
-		m_CSimulationConditions.setCalculateExtras(true);
-		if(timeStep != 0){
-			//TODO: check for min / max (validate this parameter)
-			m_CSimulationConditions.setTimeStep(timeStep);
-		}
-		m_CRocket=new UserControledSimulation();
-		m_CFlightData = new FlightData(new FlightDataBranch("empty", FlightDataType.TYPE_TIME));
-		try{
-		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, m_CFlightData);
-		if(m_CStatus==null)
-			{System.err.println("simulation is not valid");
-			return -1;
-		}
-		// m_CFlightData = fm_temp; //"empty" FlightDataBranch from above is in here.
-		//TODO: Flight data class can potentially have more then one Branch.
-		m_bIsSimulationLoopRunning = true;
-		m_bIsSimulationStagesRunning = true;
-		}
-		catch(SimulationException e){
-			System.out.println(e);}
-		return 0;
-	}
-
-	public int SimulationStep(){
-		if(m_bIsSimulationLoopRunning != true){
-			System.err.println("not running");
-			return -1;}
-		if(m_CRocket == null){
-			System.err.println("Rocket is null");
-			return -2;}
-		if(m_CStatus == null){
-			System.err.println("simualtion is null");
-			return -2;}
-		//m_CFlightData is only populated at the end of the simulation
-		//m_CStatus.getRocketPosition().z < 0
-		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
-		
-		if(m_CStatus == null){
-			m_bIsSimulationLoopRunning = false;
-			return -3;}
-		return this.GetIteration();
-		}
-	
-	public int StagesStep(){
-		if(m_CRocket==null)
-			return -1;
-		
-		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
-		if(m_CStatus==null)
-			m_bIsSimulationStagesRunning = false;
-			
-		return 0;
-	}
 	/**
 	 * The random seed can be set here making OpenRocket determinisitic.
 	 * @param  int  random seed to use in simulation  
@@ -444,12 +388,66 @@ public class OpenRocketAPI {
 		SimulationEngine boink = new BasicEventSimulationEngine();
 		try{
 			m_CFlightData = boink.simulate(m_CSimulationConditions);
-			System.out.print("Number of branches in simulation: ");
-			System.out.println(m_CFlightData.getBranchCount());
 		} catch (SimulationException e) {
 			System.err.println("oops RunSimulation threw an error");
 			return -3;
 		}
+		return 0;
+	}
+	public int StartSimulation(){
+		if(m_CSimulationConditions==null)
+			return -2;
+		m_CSimulationConditions.setCalculateExtras(true);
+		if(timeStep != 0){
+			//TODO: check for min / max (validate this parameter)
+			m_CSimulationConditions.setTimeStep(timeStep);
+		}
+		m_CRocket=new UserControledSimulation();
+		m_CFlightData = new FlightData(new FlightDataBranch("empty", FlightDataType.TYPE_TIME));
+		try{
+		m_CStatus=m_CRocket.firstInitialize(m_CSimulationConditions,m_CStatus, m_CFlightData);
+		if(m_CStatus==null)
+			{System.err.println("simulation is not valid");
+			return -1;
+		}
+		// m_CFlightData = fm_temp; //"empty" FlightDataBranch from above is in here.
+		//TODO: Flight data class can potentially have more then one Branch.
+		m_bIsSimulationLoopRunning = true;
+		m_bIsSimulationStagesRunning = true;
+		}
+		catch(SimulationException e){
+			System.out.println(e);}
+		return 0;
+	}
+
+	public int SimulationStep(){
+		if(m_bIsSimulationLoopRunning != true){
+			System.err.println("not running");
+			return -1;}
+		if(m_CRocket == null){
+			System.err.println("Rocket is null");
+			return -2;}
+		if(m_CStatus == null){
+			System.err.println("simualtion is null");
+			return -2;}
+		//m_CFlightData is only populated at the end of the simulation
+		//m_CStatus.getRocketPosition().z < 0
+		m_CStatus=m_CRocket.step(m_CStatus,m_CFlightData);
+		
+		if(m_CStatus == null){
+			m_bIsSimulationLoopRunning = false;
+			return -3;}
+		return this.GetIteration();
+		}
+	
+	public int StagesStep(){
+		if(m_CRocket==null)
+			return -1;
+		
+		m_CStatus=m_CRocket.stagestep(m_CFlightData, m_CStatus);
+		if(m_CStatus==null)
+			m_bIsSimulationStagesRunning = false;
+			
 		return 0;
 	}
 
