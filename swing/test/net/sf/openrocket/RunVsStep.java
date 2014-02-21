@@ -76,7 +76,9 @@ public class RunVsStep extends OpenRocketAPI{
 		while(this.IsSimulationLoopRunning()){
 			while(this.IsSimulationLoopRunning()){
 				int iteration = this.SimulationStep();
-				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step.csv");
+				if(this.IsSimulationLoopRunning()){
+					int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step.csv", null, -1);
+				}
 			}
 			this.StagesStep();
 		}
@@ -86,13 +88,25 @@ public class RunVsStep extends OpenRocketAPI{
 	@Test
 	public void testRun() {
 		this.RunSimulation();
+		FlightData fd = m_CFlightData;
+		int branches = m_CFlightData.getBranchCount();
+		FlightDataBranch fdb = null;
+		for(int j =0; j < branches; j++){
+			fdb = fd.getBranch(j);
+			int fdb_length = fdb.getLength()+1; //(iterations start at 1)
+			for(int i =1; i < fdb_length; i++){
+				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/run.csv", fdb, i);
+			}
+		}
 		this.FlightDataStepToCSV("close");
 	}
 
-	private int GetData(String CSVFile){
-		if(this.IsSimulationLoopRunning()){
+	private int GetData(String CSVFile, FlightDataBranch b, int i){
+		if(i < 0){
 			return this.FlightDataStepToCSV(CSVFile);
 		}
-		return -1;
+		else{
+			return this.FlightDataStepToCSV(CSVFile, b, i);
+		}
 	}
 }

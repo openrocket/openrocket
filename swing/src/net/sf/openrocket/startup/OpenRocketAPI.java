@@ -31,7 +31,7 @@ public class OpenRocketAPI {
 
 	private boolean m_bIsSimulationStagesRunning = false;
 	private boolean m_bIsSimulationLoopRunning = false;
-	private FlightData m_CFlightData = null;
+	protected FlightData m_CFlightData = null;
 	//private FlightDataBranch m_CFlightDataBranch = null; //use GetFlightData()
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
@@ -174,6 +174,18 @@ public class OpenRocketAPI {
 		FlightDataStep fds_temp = GetFlightDataStep(iteration);
 		return CSVWriter(filename,fds_temp);
 	}
+	/**
+	 * Writes the values for the specified iteration to the specified file
+	 * 
+	 * @param  string  filename to write to
+	 *                 "close" closes the csv file.
+	 * @param  FlightDataBranch  FlightDataBranch to get data from
+	 * @param  int     Desired iteration (the first iteration is iteration 1)
+	 */
+	public int FlightDataStepToCSV(String filename, FlightDataBranch branch, int iteration){
+		FlightDataStep fds_temp = GetFlightDataStep(branch, iteration);
+		return CSVWriter(filename,fds_temp);
+	}
 	private int CSVWriter(String file,FlightDataStep fds){
 		if(CSVOutputFile != null){
 			if(file.equals("close")){
@@ -202,11 +214,15 @@ public class OpenRocketAPI {
 		CSVLine csvLine = null;
 		if(writeKeys){
 			csvLine = csvLineS.newLine();
+			csvLine.add("Branch Name");
+			csvLine.add("Iteration");
 			for (FlightDataType t : FlightDataType.ALL_TYPES) {
 				csvLine.add(t.getName());
 			}
 		}
 		csvLine = csvLineS.newLine();
+		csvLine.add(fds.getBranchName());
+		csvLine.add(fds.getIteration());
 		for (FlightDataType t : FlightDataType.ALL_TYPES) {
 			Double v = fds.get(t);
 			if (!(v.equals(Double.NaN))) {
@@ -234,6 +250,16 @@ public class OpenRocketAPI {
 	 */
 	public FlightDataStep GetFlightDataStep(int i){
 		return new FlightDataStep(GetFlightData(), i);
+	}
+	/**
+	 * Returns the values for the specified iteration of the simulation
+	 * 
+	 * @param   FlightDataBranch  FlightDataBranch to get data from
+	 * @param   int  Desired iteration (the first iteration is iteration 1)
+	 * @return  FlightDataStep
+	 */
+	public FlightDataStep GetFlightDataStep(FlightDataBranch b, int i){
+		return new FlightDataStep(b, i);
 	}
 	/**
 	 * Returns the entire class containing all of the simulation data. The
