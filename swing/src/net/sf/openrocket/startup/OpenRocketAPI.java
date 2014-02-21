@@ -89,7 +89,7 @@ public class OpenRocketAPI {
 		double j = fds.get(FlightDataType.TYPE_TIME_STEP);
 		if(!(Double.isNaN(i) || Double.isNaN(j)))
 			return i + j;
-		return ERROR;
+		return 0;
 	}
 	/**
 	 * Returns one value correlating to the key type and the
@@ -308,7 +308,7 @@ public class OpenRocketAPI {
 		if(m_CStatus == null){
 			m_bIsSimulationLoopRunning = false;
 			return -3;}
-		return 0;
+		return this.GetIteration();
 		}
 	
 	public int StagesStep(){
