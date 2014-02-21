@@ -72,7 +72,6 @@ public class RunVsStep extends OpenRocketAPI{
 
 	@Test
 	public void testStepper() {
-		this.RunSimulation();
 		this.StartSimulation();
 		while(this.IsSimulationLoopRunning()){
 			while(this.IsSimulationLoopRunning()){

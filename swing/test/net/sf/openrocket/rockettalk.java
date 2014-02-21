@@ -71,7 +71,7 @@ public class rockettalk extends OpenRocketAPI{
 
 	@Test
 	public void test() {
-		this.RunSimulation();
+		//this.RunSimulation();
 		this.StartSimulation();
 		double iteration =-1;
         double simTime = 0;
