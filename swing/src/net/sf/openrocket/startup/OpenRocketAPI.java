@@ -20,11 +20,11 @@ import net.sf.openrocket.startup.APIGuiModule;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Quaternion;
 
+import net.sf.openrocket.utils.csv.*;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-
-import net.sf.openrocket.utils.CSVFileWriter;
 
 
 public class OpenRocketAPI {
@@ -36,12 +36,12 @@ public class OpenRocketAPI {
 	private SimulationConditions m_CSimulationConditions = null;
 	protected RK4SimulationStatus m_CStatus;
 	private UserControledSimulation m_CRocket = null;
-	private CSVFileWriter CSVOutputFile = null; 
+	private CSVWriter CSVOutputFile = null; 
 	//TODO: Not fully Implemented
 	private double timeStep = 0.0;
 	private int m_rand_seed = 0;
 	//TODO: What should this failure value be??
-	private double ERROR = Double.NEGATIVE_INFINITY;
+	private double ERROR = -1.79769313486e+308;
 	
 	public int setlogfile(String filename){
 		return 0;
@@ -181,25 +181,25 @@ public class OpenRocketAPI {
 			}
 			else if(!(CSVOutputFile.nameEquals(file))){
 				CSVOutputFile.close();
-				CSVOutputFile = new CSVFileWriter(file);
-				CSVFileWriter.CSVFile csvLines = CSVCreateLine(fds,true);
+				CSVOutputFile = new CSVWriter(file);
+				CSVFile csvLines = CSVCreateLine(fds,true);
 				CSVOutputFile.writeFile(csvLines);
 			}
 			else{
-				CSVFileWriter.CSVFile csvLines = CSVCreateLine(fds,false);
+				CSVFile csvLines = CSVCreateLine(fds,false);
 				CSVOutputFile.writeFile(csvLines);
 			}
 		}
 		else{
-			CSVOutputFile = new CSVFileWriter(file);
-			CSVFileWriter.CSVFile csvLines = CSVCreateLine(fds,true);
+			CSVOutputFile = new CSVWriter(file);
+			CSVFile csvLines = CSVCreateLine(fds,true);
 			CSVOutputFile.writeFile(csvLines);
 		}
 		return 0;
 	}
-	private CSVFileWriter.CSVFile CSVCreateLine(FlightDataStep fds, boolean writeKeys){
-		CSVFileWriter.CSVFile csvLineS = CSVOutputFile.newCSVFile();
-		CSVFileWriter.CSVLine csvLine = null;
+	private CSVFile CSVCreateLine(FlightDataStep fds, boolean writeKeys){
+		CSVFile csvLineS = new CSVFile();
+		CSVLine csvLine = null;
 		if(writeKeys){
 			csvLine = csvLineS.newLine();
 			for (FlightDataType t : FlightDataType.ALL_TYPES) {
@@ -209,7 +209,7 @@ public class OpenRocketAPI {
 		csvLine = csvLineS.newLine();
 		for (FlightDataType t : FlightDataType.ALL_TYPES) {
 			Double v = fds.get(t);
-			if (!(v.equals(Double.MAX_VALUE))) {
+			if (!(v.equals(Double.NaN))) {
 				csvLine.add(v);
 			}
 			else{

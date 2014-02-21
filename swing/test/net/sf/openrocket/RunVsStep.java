@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.simulation.FlightDataBranch;
@@ -27,12 +25,13 @@ import net.sf.openrocket.simulation.*;
 /**
  * @author nubjub
  */
-public class StepVsRun extends OpenRocketAPI{
+public class RunVsStep extends OpenRocketAPI{
 	SimulationStatus rc_simStatus;
 	FlightDataBranch rc_flightData;
 	ArrayList<FlightDataBranch> rc_fdl;
+	double [][] sensor_matrix = {{1,0,0},{0,1,0},{0,0,1}};
 
-	public StepVsRun(){
+	public RunVsStep(){
 		super();
 	}
 	/**
@@ -56,7 +55,8 @@ public class StepVsRun extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.LoadRocket("/home/panman/desk/src/openrocket/swing/test/net/sf/openrocket/threeStageRocket.ork");
+		    this.LoadRocket("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork");
+		    this.SetRandomSeed(1);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -71,38 +71,23 @@ public class StepVsRun extends OpenRocketAPI{
 	}
 
 	@Test
-	public void test() {
+	public void testStepper() {
 		this.RunSimulation();
 		this.StartSimulation();
-		int iteration =-1;
-		int count = -1;
-		double timestep =-1;
 		while(this.IsSimulationLoopRunning()){
 			while(this.IsSimulationLoopRunning()){
-				iteration = this.GetIteration();
-				count = this.SimulationStep(); //step the simulation.
-				timestep = this.GetTimeStep();
-				FlightDataStep rc_s = flightDataStep();
-				
-//				rc_s.get(FlightDataType.TYPE_ACCELERATION_TOTAL);
-//				Coordinate v1 = this.m_CStatus.getRocketVelocity();
-//				Coordinate p1 = this.m_CStatus.getRocketPosition();
-/*				List<Double> T = rc_f.get(FlightDataType.TYPE_TIME);
-				List<Double> Alz = rc_f.get(FlightDataType.TYPE_ACCELERATION_LINEAR_Z);
-				List<Double> Px = rc_f.get(FlightDataType.TYPE_POSITION_X);
-				List<Double> Py = rc_f.get(FlightDataType.TYPE_POSITION_Y);
-				List<Double> Pz = rc_f.get(FlightDataType.TYPE_POSITION_Z);
-				List<Double> Pz_a = rc_f.get(FlightDataType.TYPE_ALTITUDE);
-				List<Double> Vx = rc_f.get(FlightDataType.TYPE_VELOCITY_X);
-				List<Double> Vy = rc_f.get(FlightDataType.TYPE_VELOCITY_Y);
-				List<Double> Vz = rc_f.get(FlightDataType.TYPE_VELOCITY_Z);*/
-				
-				System.out.println(rc_s.getBranchName() +", Time:" + this.GetValue(FlightDataType.TYPE_ACCELERATION_ANGULAR_Z) );
-				count = this.SimulationStep(); //step the simulation.
-
+				int rval = GetData();
 			}
-	        this.StagesStep();
+			this.StagesStep();
 		}
+		this.FlightDataStepToCSV("close");
+	}
+	private int GetData(){
+		int iteration = this.SimulationStep();
+		if(this.GetTimeStep() > 0){
+			return this.FlightDataStepToCSV("/home/panman/desk/src/openrocket/resources-psas/stepper.csv");
+		}
+		return -1;
 	}
 	private FlightDataBranch flightData() {
 		return this.GetFlightData();
