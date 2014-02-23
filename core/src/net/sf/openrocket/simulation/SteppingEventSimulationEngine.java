@@ -19,48 +19,58 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 	private MotorInstanceConfiguration motorConfiguration = null;
 	private FlightData flightData = null;
 	private FlightDataBranch dataBranch = null;
-	
 	Coordinate origin = null;
 	Coordinate originVelocity = null;
-	
 	double maxAlt = Double.NEGATIVE_INFINITY;
 	
+	/**
+	 * Initializes a FlightData object that will be used for the simulation.
+	 * @param   simulationConditions (SimulationConditions) necessary to initialize a new simulation engine.
+	 * @return  (FlightData)  This object contains all the data for the simulation.
+	 * @throws  (SimulationException)
+	 */
 	public FlightData initialize(SimulationConditions simulationConditions) throws SimulationException {
 		
-		// Set up flight data
-		flightData = new FlightData();
-		
-		// Set up rocket configuration
-		configuration = setupConfiguration(simulationConditions);
-		flightConfigurationId = configuration.getFlightConfigurationID();
-		motorConfiguration = setupMotorConfiguration(configuration);
-		if (motorConfiguration.getMotorIDs().isEmpty()) {
-			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
+		try {
+			// Set up flight data
+			flightData = new FlightData();
+			
+			// Set up rocket configuration
+			configuration = setupConfiguration(simulationConditions);
+			flightConfigurationId = configuration.getFlightConfigurationID();
+			motorConfiguration = setupMotorConfiguration(configuration);
+			if (motorConfiguration.getMotorIDs().isEmpty()) {
+				throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
+			}
+			
+			status = new SimulationStatus(configuration, motorConfiguration, simulationConditions);
+			status.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
+			{
+				// main sustainer stage
+				RocketComponent sustainer = configuration.getRocket().getChild(0);
+				FlightDataType fdt = FlightDataType.TYPE_TIME;
+				FlightDataBranch fdb = new FlightDataBranch(sustainer.getName(), fdt);
+				status.setFlightData(fdb);
+			}
+			stages.add(status);
+			
+			SimulationListenerHelper.fireStartSimulation(status);
+		} catch (Throwable t) {
+			throw new SimulationException(t);
 		}
-		
-		status = new SimulationStatus(configuration, motorConfiguration, simulationConditions);
-		status.getEventQueue().add(new FlightEvent(FlightEvent.Type.LAUNCH, 0, simulationConditions.getRocket()));
-		{
-			// main sustainer stage
-			RocketComponent sustainer = configuration.getRocket().getChild(0);
-			FlightDataType fdt = FlightDataType.TYPE_TIME;
-			FlightDataBranch fdb = new FlightDataBranch(sustainer.getName(), fdt);
-			status.setFlightData(fdb);
-		}
-		stages.add(status);
-		
-		SimulationListenerHelper.fireStartSimulation(status);
 		
 		return flightData;
 	}
 	
-	public int simulate(int steps) {
+	/**
+	 * Executes the specified number of simulation steps.
+	 * @param   steps (int) number of steps to iterate
+	 * @return  (int) number of iterations this simulation
+	 *                engine has done since it was initialized.      
+	 * @throws  SimulationException
+	 */
+	public int simulate(int steps) throws SimulationException {
 		try {
-			boolean result = true;
-			steps = 1;
-			while (result) {
-				result = simulateSub(steps);
-			}
 			if (!simulateSub(steps)) {
 				SimulationListenerHelper.fireEndSimulation(status, null);
 				
@@ -71,11 +81,16 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 				}
 			}
 		} catch (Throwable t) {
-			return -1;
+			throw new SimulationException(t);
 		}
 		return iteration;
 	}
 	
+	/**
+	 * Executes the specified number of simulation steps.
+	 * @param   steps (int) number of steps to iterate
+	 * @return  (boolean) false if the simulation is complete
+	 */
 	protected boolean simulateSub(int steps) {
 		
 		for (; steps > 0; steps--) {
@@ -108,6 +123,77 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 		return true;
 	}
 	
+	/**
+	 * @return  (boolean) this function is used to set a persistent
+	 *                    state from running handleEvents() and
+	 *                    return the result of running handleEvents()
+	 */
+	protected boolean branchRunning() throws SimulationException {
+		handleEventsReturn = handleEvents();
+		if (handleEventsReturn) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Sets the user-specified time step
+	 * OpenRocket uses the minimum of the following
+	 * the user-specified time step (or 1/5th of it if still on the launch rod)
+	 * maxTimeStep
+	 * maximum pitch step angle limit
+	 * maximum roll step angle limit
+	 * maximum roll rate change limit
+	 * maximum pitch change limit
+	 * 1/10th of the launch rod length if still on the launch rod
+	 * 1.50 times the previous time step
+	 * 
+	 * @param  timeStep (double)  
+	 */
+	public void setTimeStep(double timeStep) {
+		if (status != null) {
+			SimulationConditions sc = status.getSimulationConditions();
+			sc.setTimeStep(timeStep);
+		}
+		//TODO: This may be the place to provide feedback about invalid timestep
+	}
+	
+	/**
+	 * @return  (FlightDataBranch) returns the currently active FlightDataBranch
+	 */
+	public FlightDataBranch getFlightData() {
+		if (status != null) {
+			return status.getFlightData();
+		}
+		return null;
+	}
+	
+	/**
+	 * @return  (SimulationStatus) returns the currently active SimulationStatus
+	 */
+	public SimulationStatus getSimulationStatus() {
+		return status;
+	}
+	
+	/**
+	 * Status of the current simulation
+	 * @return  (boolean) true = the simulation is running.
+	 */
+	public boolean simulationRunning() {
+		if (handleEventsReturn || stages.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Iterates a single simulation step, very UN-loop like
+	 * 
+	 * @return returns (FlightDataBranch) strictly to retain 
+	 *                 compatibility with the function it
+	 *                 overrides.
+	 */
+	@Override
 	protected FlightDataBranch simulateLoop() {
 		
 		try {
@@ -223,28 +309,6 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 		}
 		
 		return status.getFlightData();
-	}
-	
-	private boolean branchRunning() throws SimulationException {
-		handleEventsReturn = handleEvents();
-		if (handleEventsReturn) {
-			return true;
-		}
-		return false;
-	}
-	
-	public FlightDataBranch getFlightData() {
-		if (status != null) {
-			return status.getFlightData();
-		}
-		return null;
-	}
-	
-	public boolean simulationRunning() {
-		if (handleEventsReturn || stages.size() > 0) {
-			return true;
-		}
-		return false;
 	}
 	
 	/**

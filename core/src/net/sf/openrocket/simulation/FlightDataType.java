@@ -211,6 +211,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	// An array of all the built in types
 	public static final FlightDataType[] ALL_TYPES = {
 			TYPE_TIME,
+			TYPE_TIME_STEP,
 			TYPE_ALTITUDE,
 			TYPE_VELOCITY_Z,
 			TYPE_ACCELERATION_Z,
@@ -275,7 +276,6 @@ public class FlightDataType implements Comparable<FlightDataType> {
 			TYPE_AIR_TEMPERATURE,
 			TYPE_AIR_PRESSURE,
 			TYPE_SPEED_OF_SOUND,
-			TYPE_TIME_STEP,
 			TYPE_COMPUTATION_TIME
 	};
 	

@@ -23,7 +23,7 @@ import net.sf.openrocket.startup.OpenRocketAPI;
 import net.sf.openrocket.simulation.*;
 
 /**
- * @author nubjub
+ * @author bejon
  */
 public class rockettalk extends OpenRocketAPI{
 	SimulationStatus rc_simStatus;
@@ -55,7 +55,7 @@ public class rockettalk extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.LoadRocket("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork");
+		    this.SetupSimulation("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -71,28 +71,24 @@ public class rockettalk extends OpenRocketAPI{
 
 	@Test
 	public void test() {
-		//this.RunSimulation();
-		this.StartSimulation();
 		double iteration =-1;
         double simTime = 0;
-		while(this.IsSimulationLoopRunning()){
-			while(this.IsSimulationLoopRunning()){
-				this.SimulationStep();
-				iteration = this.GetIteration();
-				simTime = this.GetTime();
+		this.StepSimulation(1);
+		while(this.IsSimulationRunning()){
+			iteration = this.GetIteration();
+			simTime = this.GetTime();
 				
-				double[] p = GetData();
-			}
-			this.StagesStep();
+			double[] p = GetData();
+			this.StepSimulation(1);
 		}
 	}
 	private double[] GetData(){
 		int iteration = this.GetIteration();
 		double[] p = new double[12];
 		//Gyro
-		p[0] = this.GetValue(FlightDataType.TYPE_PITCH_RATE);
-		p[1] = this.GetValue(FlightDataType.TYPE_YAW_RATE);
-		p[2] = this.GetValue(FlightDataType.TYPE_ROLL_RATE);
+		p[1] = this.GetValue(FlightDataType.TYPE_PITCH_RATE);
+		p[2] = this.GetValue(FlightDataType.TYPE_YAW_RATE);
+		p[3] = this.GetValue(FlightDataType.TYPE_ROLL_RATE);
 		
 		double[] vec = new double[3];
 		vec[0] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_X);

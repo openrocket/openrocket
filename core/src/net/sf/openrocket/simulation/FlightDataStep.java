@@ -12,7 +12,7 @@ public class FlightDataStep {
 	 * A single step of flight data. One step of data is extracted from a FlightDataBranch
 	 * object and stored as <key,value> linked hash map in the variable values.
 	 * 
-	 * @author nubjub <nubjub@gmail.com>
+	 * @author bejon <nubjub@gmail.com>
 	 */
 	private String branchName;
 	private int iteration = -1;
@@ -24,7 +24,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Simple constructor, the branch must not be null.
-	 * @param FlightDataBranch
+	 * @param  branch (FlightDataBranch)
 	 */
 	public FlightDataStep(FlightDataBranch branch) {
 		this(branch, getLastStep(branch));
@@ -34,8 +34,8 @@ public class FlightDataStep {
 	 * Will create a FlightDataStep from the specified iteration in the
 	 * specified FlightDataBranch
 	 * 
-	 * @param FlightDataBranch	This should be an existing FlightDataBranch object
-	 * @param int        		The iteration within the FlightDataBranch to extract
+	 * @param  branch (FlightDataBranch)This should be an existing FlightDataBranch object
+	 * @param  step (int) The iteration within the FlightDataBranch to extract
 	 */
 	public FlightDataStep(FlightDataBranch branch, int step) {
 		if (branch == null) {
@@ -64,8 +64,8 @@ public class FlightDataStep {
 	 * Will create a FlightDataStep from the last iteration in the
 	 * specified FlightDataBranch
 	 * 
-	 * @param   FlightDataBranch
-	 * @return  int
+	 * @param  branch (FlightDataBranch)
+	 * @return  (int)
 	 */
 	private static int getLastStep(FlightDataBranch branch) {
 		if (branch == null) {
@@ -76,7 +76,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Get an array of all the keys within the data step
-	 * @return  FlightDataType[]
+	 * @return  (FlightDataType[])
 	 */
 	public FlightDataType[] getTypes() {
 		FlightDataType[] array = values.keySet().toArray(new FlightDataType[0]);
@@ -86,7 +86,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Get a count of all the keys in the data step
-	 * @return  int
+	 * @return  (int)
 	 */
 	public int getTypesCount() {
 		return values.size();
@@ -94,8 +94,8 @@ public class FlightDataStep {
 	
 	/**
 	 * Return one value corresponding to the key type, from within the data step
-	 * @param type	
-	 * @return		double
+	 * @param  type (FlightDataType)	
+	 * @return  (double)
 	 */
 	public double get(FlightDataType type) {
 		if (values.containsKey(type)) {
@@ -106,7 +106,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Get the iteration of the FlightDataBranch which this data step corresponds to.
-	 * @return  int
+	 * @return  (int)
 	 */
 	public int getIteration() {
 		return iteration;
@@ -114,7 +114,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Returns the branch name this step was derived from.
-	 * @return  String.
+	 * @return  (String)
 	 */
 	public String getBranchName() {
 		return branchName;
@@ -122,7 +122,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Returns the unique modification index
-	 * @return  int
+	 * @return  (int)
 	 */
 	//TODO: Not yet implemented
 	public int getModID() {
@@ -141,7 +141,7 @@ public class FlightDataStep {
 	
 	/**
 	 * Returns whether this branch is still mutable.
-	 * @return  boolean
+	 * @return  (boolean)
 	 */
 	//TODO: Not yet implemented
 	public boolean isMutable() {

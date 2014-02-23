@@ -23,13 +23,9 @@ import net.sf.openrocket.startup.OpenRocketAPI;
 import net.sf.openrocket.simulation.*;
 
 /**
- * @author nubjub
+ * @author bejon
  */
 public class RunVsStep extends OpenRocketAPI{
-	SimulationStatus rc_simStatus;
-	FlightDataBranch rc_flightData;
-	ArrayList<FlightDataBranch> rc_fdl;
-	double [][] sensor_matrix = {{1,0,0},{0,1,0},{0,0,1}};
 
 	public RunVsStep(){
 		super();
@@ -53,7 +49,6 @@ public class RunVsStep extends OpenRocketAPI{
 	 */
 	@Before
 	public void setUp() throws Exception {
-	    this.SetRandomSeed(1);
 		try {
 		    System.out.println("Opening file");
 		    this.SetupSimulation("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
@@ -68,12 +63,30 @@ public class RunVsStep extends OpenRocketAPI{
 	 */
 	@After
 	public void tearDown() throws Exception {
-		this.FlightDataStepToCSV("close");
 	}
 	
 	@Test
 	public void testRun() {
 		this.RunSimulation();
+		int branches = m_CFlightData.getBranchCount();
+		FlightDataBranch fdb = null;
+		for(int j =0; j < branches; j++){
+			fdb = m_CFlightData.getBranch(j);
+			int fdb_length = fdb.getLength()+1; //(iterations start at 1)
+			for(int i =1; i < fdb_length; i++){
+				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/run.csv", fdb, i);
+			}
+		}
+		this.FlightDataStepToCSV("close");
+	}
+	
+	@Test
+	public void testStep() {
+		this.StepSimulation(1);
+		while(this.IsSimulationRunning()){
+			int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step1.csv", null, -1);
+			this.StepSimulation(1);
+		}
 		FlightData fd = m_CFlightData;
 		int branches = m_CFlightData.getBranchCount();
 		FlightDataBranch fdb = null;
@@ -81,21 +94,11 @@ public class RunVsStep extends OpenRocketAPI{
 			fdb = fd.getBranch(j);
 			int fdb_length = fdb.getLength()+1; //(iterations start at 1)
 			for(int i =1; i < fdb_length; i++){
-				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/run.csv", fdb, i);
+				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step2.csv", fdb, i);
 			}
 		}
+		this.FlightDataStepToCSV("close");
 	}
-	
-	@Test
-	public void testStep() {
-		while(this.IsSimulationLoopRunning()){
-			int iteration = this.StepSimulation(1);
-			if(this.IsSimulationLoopRunning()){
-				int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step.csv", null, -1);
-			}
-		}
-	}
-
 
 	private int GetData(String CSVFile, FlightDataBranch b, int i){
 		if(i < 0){
