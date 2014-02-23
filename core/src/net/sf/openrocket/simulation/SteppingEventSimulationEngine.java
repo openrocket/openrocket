@@ -13,18 +13,18 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
 
 public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
-	private boolean branchRunning = false;
+	private boolean handleEventsReturn = false;
 	private int iteration = 0;
 	private Configuration configuration = null;
+	private MotorInstanceConfiguration motorConfiguration = null;
 	private FlightData flightData = null;
 	private FlightDataBranch dataBranch = null;
 	
-	/**
-	 * Initializes a FlightData object that will be used for the simulation.
-	 * @param   SimulationConditions  necessary to initialize a new simulation engine.
-	 * @return  FlightData  This object contains all the data for the simulation.
-	 * @throws  SimulationException
-	 */
+	Coordinate origin = null;
+	Coordinate originVelocity = null;
+	
+	double maxAlt = Double.NEGATIVE_INFINITY;
+	
 	public FlightData initialize(SimulationConditions simulationConditions) throws SimulationException {
 		
 		// Set up flight data
@@ -33,7 +33,7 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 		// Set up rocket configuration
 		configuration = setupConfiguration(simulationConditions);
 		flightConfigurationId = configuration.getFlightConfigurationID();
-		MotorInstanceConfiguration motorConfiguration = setupMotorConfiguration(configuration);
+		motorConfiguration = setupMotorConfiguration(configuration);
 		if (motorConfiguration.getMotorIDs().isEmpty()) {
 			throw new MotorIgnitionException(trans.get("BasicEventSimulationEngine.error.noMotorsDefined"));
 		}
@@ -54,82 +54,67 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 		return flightData;
 	}
 	
-	/**
-	 * Status of the current simulation
-	 * @return  boolean  true = the simulation is running.
-	 */
-	public boolean simulationRunning() {
-		if (stages.size() > 0) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * @return  returns the currently active flightDataBranch
-	 */
-	public FlightDataBranch getFlightData() {
-		return dataBranch;
-	}
-	
-	/**
-	 * Executes the specified number of simulation steps.
-	 * @param   int  number of steps to iterate
-	 * @return  int  number of iterations this simulation
-	 *               engine has done since it was initialized.
-	 * @throws SimulationException
-	 */
-	public int simulate(int steps) throws SimulationException {
-		while (steps > 0) {
-			if (!simulationRunning()) {
-				break;
+	public int simulate(int steps) {
+		try {
+			boolean result = true;
+			steps = 1;
+			while (result) {
+				result = simulateSub(steps);
 			}
-			if (!branchRunning) {
-				SimulationStatus stageStatus = stages.pop();
-				if (stageStatus == null) {
-					throw new SimulationException("SimulationStatus inconsitency");
+			if (!simulateSub(steps)) {
+				SimulationListenerHelper.fireEndSimulation(status, null);
+				
+				configuration.release();
+				
+				if (!flightData.getWarningSet().isEmpty()) {
+					log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 				}
-				flightData.addBranch(status.getFlightData());
 			}
-			dataBranch = simulateLoop();
-			iteration++;
-		}
-		if (!branchRunning) {
-			flightData.getWarningSet().addAll(status.getWarnings());
-		}
-		if (!simulationRunning()) {
-			SimulationListenerHelper.fireEndSimulation(status, null);
-			configuration.release();
-			
-			if (!flightData.getWarningSet().isEmpty()) {
-				log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
-			}
+		} catch (Throwable t) {
+			return -1;
 		}
 		return iteration;
 	}
 	
-	/**
-	 * Iterates a single simulation step, very UN-loop like
-	 * 
-	 * @return  returns junk
-	 */
-	@Override
+	protected boolean simulateSub(int steps) {
+		
+		for (; steps > 0; steps--) {
+			//while (true) {
+			if (!handleEventsReturn) {
+				if (stages.size() < 1) {
+					return false;
+				}
+				SimulationStatus stageStatus = stages.pop();
+				if (stageStatus == null) {
+					return false;
+				}
+				status = stageStatus;
+				
+				// Initialize the simulation
+				currentStepper = flightStepper;
+				status = currentStepper.initialize(status);
+				
+				// Get originating position (in case listener has modified launch position)
+				origin = status.getRocketPosition();
+				originVelocity = status.getRocketVelocity();
+				maxAlt = Double.NEGATIVE_INFINITY;
+			}
+			dataBranch = simulateLoop();
+			if (!handleEventsReturn) {
+				flightData.addBranch(dataBranch);
+				flightData.getWarningSet().addAll(status.getWarnings());
+			}
+		}
+		return true;
+	}
+	
 	protected FlightDataBranch simulateLoop() {
 		
-		// Initialize the simulation
-		currentStepper = flightStepper;
-		status = currentStepper.initialize(status);
-		
-		// Get originating position (in case listener has modified launch position)
-		Coordinate origin = status.getRocketPosition();
-		Coordinate originVelocity = status.getRocketVelocity();
-		
 		try {
-			double maxAlt = Double.NEGATIVE_INFINITY;
 			
 			// Start the simulation
-			branchRunning = handleEvents();
-			if (branchRunning) {
+			if (branchRunning()) {
+				iteration++;
 				
 				// Take the step
 				double oldAlt = status.getRocketPosition().z;
@@ -237,7 +222,29 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 			status.getWarnings().add(e.getLocalizedMessage());
 		}
 		
-		return dataBranch;
+		return status.getFlightData();
+	}
+	
+	private boolean branchRunning() throws SimulationException {
+		handleEventsReturn = handleEvents();
+		if (handleEventsReturn) {
+			return true;
+		}
+		return false;
+	}
+	
+	public FlightDataBranch getFlightData() {
+		if (status != null) {
+			return status.getFlightData();
+		}
+		return null;
+	}
+	
+	public boolean simulationRunning() {
+		if (handleEventsReturn || stages.size() > 0) {
+			return true;
+		}
+		return false;
 	}
 	
 	/**
