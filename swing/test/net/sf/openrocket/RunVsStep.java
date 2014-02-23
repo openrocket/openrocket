@@ -51,7 +51,7 @@ public class RunVsStep extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.SetupSimulation("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
+		    this.SimulationSetup("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -67,7 +67,7 @@ public class RunVsStep extends OpenRocketAPI{
 	
 	@Test
 	public void testRun() {
-		this.RunSimulation();
+		this.SimulationRun();
 		int branches = m_CFlightData.getBranchCount();
 		FlightDataBranch fdb = null;
 		for(int j =0; j < branches; j++){
@@ -82,10 +82,10 @@ public class RunVsStep extends OpenRocketAPI{
 	
 	@Test
 	public void testStep() {
-		this.StepSimulation(1);
-		while(this.IsSimulationRunning()){
+		this.SimulationStep(1);
+		while(this.SimulationIsRunning()){
 			int rval = GetData("/home/panman/desk/src/openrocket/resources-psas/step1.csv", null, -1);
-			this.StepSimulation(1);
+			this.SimulationStep(1);
 		}
 		FlightData fd = m_CFlightData;
 		int branches = m_CFlightData.getBranchCount();

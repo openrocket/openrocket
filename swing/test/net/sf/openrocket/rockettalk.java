@@ -55,7 +55,7 @@ public class rockettalk extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.SetupSimulation("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
+		    this.SimulationSetup("/home/panman/desk/src/openrocket/resources-psas/threeStageRocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -73,13 +73,13 @@ public class rockettalk extends OpenRocketAPI{
 	public void test() {
 		double iteration =-1;
         double simTime = 0;
-		this.StepSimulation(1);
-		while(this.IsSimulationRunning()){
+		this.SimulationStep(1);
+		while(this.SimulationIsRunning()){
 			iteration = this.GetIteration();
 			simTime = this.GetTime();
 				
 			double[] p = GetData();
-			this.StepSimulation(1);
+			this.SimulationStep(1);
 		}
 	}
 	private double[] GetData(){

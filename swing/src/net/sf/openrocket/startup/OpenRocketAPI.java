@@ -41,7 +41,7 @@ public class OpenRocketAPI {
 	private SimulationConditions m_CSimulationConditions = null;
 	private CSVWriter CSVOutputFile = null;
 	//TODO: What should this failure value be??
-	private double ERROR = -1.79769313486e+308;
+	private double ERROR = -999;
 	
 	public int setlogfile(String filename){
 		return 0;
@@ -330,7 +330,7 @@ public class OpenRocketAPI {
 	 * Returns whether a simulation is currently running.
 	 *  @return  (boolean)
 	 */
-	public boolean IsSimulationRunning(){
+	public boolean SimulationIsRunning(){
 		if(steppingEngine != null){
 			if(steppingEngine.simulationRunning()){
 				return true;
@@ -343,7 +343,7 @@ public class OpenRocketAPI {
 	 * Returns whether the a simulation is currently running.
 	 * @return  (boolean)
 	 */
-	public boolean IsSimulationLoopRunning(){return IsSimulationRunning();}
+	public boolean SimulationLoopIsRunning(){return SimulationIsRunning();}
 
 	/**
 	 * Sets the user-specified time step
@@ -391,8 +391,8 @@ public class OpenRocketAPI {
 	 * @param  timeStep (double) TimeStep to use.
 	 * @return  (int) result
 	 */
-	public int SetupSimulation(String orkFile){
-		return SetupSimulation(orkFile, 1, 0, 0);
+	public int SimulationSetup(String orkFile){
+		return SimulationSetup(orkFile, 1, 0, 0);
 	}
 	/**
 	 * Setup a new simulation
@@ -403,8 +403,8 @@ public class OpenRocketAPI {
 	 * @param  timeStep (double) TimeStep to use.
 	 * @return  (int) result
 	 */
-	public int SetupSimulation(String orkFile, int simToGrab){
-		return SetupSimulation(orkFile, simToGrab, 0, 0);
+	public int SimulationSetup(String orkFile, int simToGrab){
+		return SimulationSetup(orkFile, simToGrab, 0, 0);
 	}
 	/**
 	 * Setup a new simulation
@@ -415,8 +415,8 @@ public class OpenRocketAPI {
 	 * @param  timeStep (double) TimeStep to use.
 	 * @return  (int) result
 	 */
-	public int SetupSimulation(String orkFile, int simToGrab, int randomSeed){
-		return SetupSimulation(orkFile, simToGrab, randomSeed, 0);
+	public int SimulationSetup(String orkFile, int simToGrab, int randomSeed){
+		return SimulationSetup(orkFile, simToGrab, randomSeed, 0);
 	}
 	/**
 	 * Setup a new simulation
@@ -427,7 +427,7 @@ public class OpenRocketAPI {
 	 * @param  timeStep (double) TimeStep to use.
 	 * @return  (int) result
 	 */
-	public int SetupSimulation(String orkFile, int simToGrab, int randomSeed, double timeStep){
+	public int SimulationSetup(String orkFile, int simToGrab, int randomSeed, double timeStep){
 		OpenRocketDocument Rocket = LoadRocket(orkFile);
 		if(Rocket == null){
 			//System.err.println("ork file failed to load");
@@ -471,7 +471,7 @@ public class OpenRocketAPI {
 	 * The simulation must be setup with SetupSimulation first.
 	 * @return  (int) result
 	 */
-	public int RunSimulation(){
+	public int SimulationRun(){
 		//if(m_bIsSimulationStagesRunning==true){
 		//	System.err.println("error calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
 		//	return-1 ;}
@@ -493,7 +493,7 @@ public class OpenRocketAPI {
 	 *                    before returning.
 	 * @return  (int) result
 	 */
-	public int StepSimulation(int steps){
+	public int SimulationStep(int steps){
 		if(steppingEngine == null){
 			steppingEngine = new SteppingEventSimulationEngine();
 			try {
@@ -503,7 +503,7 @@ public class OpenRocketAPI {
 				return -2;
 			}
 		}
-		if(IsSimulationRunning()){
+		if(SimulationIsRunning()){
 			try {
 				return steppingEngine.simulate(steps);
 			} catch (SimulationException e) {
