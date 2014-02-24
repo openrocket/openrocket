@@ -16,7 +16,6 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationEngine;
 import net.sf.openrocket.simulation.SteppingEventSimulationEngine;
-import net.sf.openrocket.simulation.SteppingEventSimulationEngine_Junk;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.APIGuiModule;
