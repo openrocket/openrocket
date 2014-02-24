@@ -161,7 +161,7 @@ public class OpenRocketAPI {
 	 */
 	public int FlightDataStepToCSV(String filename){
 		FlightDataStep fds_temp = null;
-		//if(!filename.equals("close"))
+		if(!filename.equals("close"))
 			fds_temp = GetFlightDataStep();
 		return CSVWriter(filename,fds_temp);
 	}
