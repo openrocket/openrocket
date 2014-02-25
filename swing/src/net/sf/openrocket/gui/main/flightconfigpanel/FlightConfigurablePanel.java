@@ -169,21 +169,23 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 
 			column = table.convertColumnIndexToModel(column);
 			switch (column) {
-			case 0: {
-				label.setText(descriptor.format(rocket, (String) value));
-				regular(label);
-				setSelected(label, table, isSelected, hasFocus);
-				return label;
-			}
-			default: {
-				Pair<String, T> v = (Pair<String, T>) value;
-				String id = v.getU();
-				T component = v.getV();
-				label = format(component, id, label );
-				setSelected(label, table, isSelected, hasFocus);
-				return label;
-			}
-			}
+				case 0: {
+					label.setText(descriptor.format(rocket, (String) value));
+					regular(label);
+					setSelected(label, table, isSelected, hasFocus);
+					return label;
+				}
+				default: {
+					Pair<String, T> v = (Pair<String, T>) value;
+					if(v!=null){
+						String id = v.getU();
+						T component = v.getV();
+						label = format(component, id, label );
+					}
+					setSelected(label, table, isSelected, hasFocus);
+					return label;
+				}
+			}	
 		}
 
 		private final void setSelected( JComponent c, JTable table, boolean isSelected, boolean hasFocus ) {
