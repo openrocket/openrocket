@@ -1,6 +1,5 @@
-Downloaded 2013/03/13
 Rocket motor simulation data downloaded from ThrustCurve.org.
-This ZIP file contains 1581 simulator data files.
+This ZIP file contains 1600 simulator data files.
 For more info, please see http://www.thrustcurve.org/
 
 AMW_I195.eng
@@ -1459,6 +1458,13 @@ AeroTech_G12.rse
     Data Source:  user
     Contributor:  John Coker
 
+AeroTech_G125.eng
+    Manufacturer: AeroTech
+    Designation:  G125T
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 AeroTech_G138.eng
     Manufacturer: AeroTech
     Designation:  G138T
@@ -1477,13 +1483,20 @@ AeroTech_G25.eng
     Manufacturer: AeroTech
     Designation:  G25
     Data Format:  RASP
-    Data Source:  user
-    Contributor:  John Coker
+    Data Source:  cert
+    Contributor:  Mark Koelsch
 
 AeroTech_G25.rse
     Manufacturer: AeroTech
     Designation:  G25
     Data Format:  RockSim
+    Data Source:  user
+    Contributor:  John Coker
+
+AeroTech_G25_1.eng
+    Manufacturer: AeroTech
+    Designation:  G25
+    Data Format:  RASP
     Data Source:  user
     Contributor:  John Coker
 
@@ -1783,28 +1796,35 @@ AeroTech_G79_1.eng
 
 AeroTech_G80.eng
     Manufacturer: AeroTech
-    Designation:  G80
+    Designation:  G80NT-10A
     Data Format:  RASP
     Data Source:  cert
-    Contributor:  John DeMar
+    Contributor:  John Coker
 
 AeroTech_G80.rse
     Manufacturer: AeroTech
-    Designation:  G80
+    Designation:  G80NT-10A
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
 
 AeroTech_G80_1.eng
     Manufacturer: AeroTech
-    Designation:  G80
+    Designation:  G80NT-10A
     Data Format:  RASP
     Data Source:  cert
     Contributor:  John DeMar
 
 AeroTech_G80_2.eng
     Manufacturer: AeroTech
-    Designation:  G80
+    Designation:  G80NT-10A
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  John DeMar
+
+AeroTech_G80_3.eng
+    Manufacturer: AeroTech
+    Designation:  G80NT-10A
     Data Format:  RASP
     Data Source:  cert
     Contributor:  John DeMar
@@ -1822,6 +1842,13 @@ AeroTech_H112.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_H115.eng
+    Manufacturer: AeroTech
+    Designation:  H115DM
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
 
 AeroTech_H123.eng
     Manufacturer: AeroTech
@@ -1926,6 +1953,13 @@ AeroTech_H180.rse
     Designation:  H180W
     Data Format:  RockSim
     Data Source:  user
+    Contributor:  John Coker
+
+AeroTech_H195.eng
+    Manufacturer: AeroTech
+    Designation:  H195NT-10A
+    Data Format:  RASP
+    Data Source:  cert
     Contributor:  John Coker
 
 AeroTech_H210.eng
@@ -2159,6 +2193,13 @@ AeroTech_I132.rse
     Data Source:  user
     Contributor:  John Coker
 
+AeroTech_I140.eng
+    Manufacturer: AeroTech
+    Designation:  I140W
+    Data Format:  RASP
+    Data Source:  mfr
+    Contributor:  Mark Koelsch
+
 AeroTech_I154.eng
     Manufacturer: AeroTech
     Designation:  I154J
@@ -2298,6 +2339,13 @@ AeroTech_I245.rse
     Data Format:  RockSim
     Data Source:  mfr
     Contributor:  Jim Yehle
+
+AeroTech_I280.eng
+    Manufacturer: AeroTech
+    Designation:  I280DM
+    Data Format:  RASP
+    Data Source:  mfr
+    Contributor:  Mark Koelsch
 
 AeroTech_I284.eng
     Manufacturer: AeroTech
@@ -2450,6 +2498,13 @@ AeroTech_I49.rse
     Manufacturer: AeroTech
     Designation:  I49N
     Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
+AeroTech_I500.eng
+    Manufacturer: AeroTech
+    Designation:  I500T
+    Data Format:  RASP
     Data Source:  cert
     Contributor:  Mark Koelsch
 
@@ -2620,6 +2675,13 @@ AeroTech_J260.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_J270.eng
+    Manufacturer: AeroTech
+    Designation:  J270W
+    Data Format:  RASP
+    Data Source:  mfr
+    Contributor:  Mark Koelsch
 
 AeroTech_J275.eng
     Manufacturer: AeroTech
@@ -3230,6 +3292,13 @@ AeroTech_L1170.eng
     Data Source:  cert
     Contributor:  Mark Koelsch
 
+AeroTech_L1250.eng
+    Manufacturer: AeroTech
+    Designation:  L1250DM
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 AeroTech_L1300.eng
     Manufacturer: AeroTech
     Designation:  L1300R
@@ -3243,6 +3312,13 @@ AeroTech_L1300.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_L1365.eng
+    Manufacturer: AeroTech
+    Designation:  L1365M
+    Data Format:  RASP
+    Data Source:  mfr
+    Contributor:  Mark Koelsch
 
 AeroTech_L1390.eng
     Manufacturer: AeroTech
@@ -3621,6 +3697,13 @@ AeroTech_N2000.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_N2220.eng
+    Manufacturer: AeroTech
+    Designation:  N2220DM
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
 
 AeroTech_N3300.eng
     Manufacturer: AeroTech
@@ -4146,6 +4229,13 @@ Cesaroni_G131.rse
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Len Bryan
+
+Cesaroni_G145.eng
+    Manufacturer: Cesaroni Technology
+    Designation:  CTI 140-G145-PK-15A
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Greg Gardner
 
 Cesaroni_G145.rse
     Manufacturer: Cesaroni Technology
@@ -7199,6 +7289,13 @@ Cesaroni_M1810.rse
     Data Source:  cert
     Contributor:  Len Bryan
 
+Cesaroni_M1830.eng
+    Manufacturer: Cesaroni Technology
+    Designation:  5604M1830-P
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Greg Gardner
+
 Cesaroni_M1830.rse
     Manufacturer: Cesaroni Technology
     Designation:  5604M1830-P
@@ -7500,6 +7597,13 @@ Cesaroni_N1975.rse
     Data Source:  mfr
     Contributor:  Andre Choquette
 
+Cesaroni_N2200.eng
+    Manufacturer: Cesaroni Technology
+    Designation:  CTI N2200-PK-P
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Greg Gardner
+
 Cesaroni_N2200.rse
     Manufacturer: Cesaroni Technology
     Designation:  CTI N2200-PK-P
@@ -7584,11 +7688,11 @@ Cesaroni_N2900.eng
     Data Source:  cert
     Contributor:  Andre Choquette
 
-Cesaroni_N2900_1.eng
+Cesaroni_N2900.rse
     Manufacturer: Cesaroni Technology
     Designation:  17613-N2900-CL-P
-    Data Format:  RASP
-    Data Source:  cert
+    Data Format:  RockSim
+    Data Source:  user
     Contributor:  Andre Choquette
 
 Cesaroni_N3180.rse
@@ -7650,6 +7754,20 @@ Cesaroni_N4100.eng
 Cesaroni_N4100.rse
     Manufacturer: Cesaroni Technology
     Designation:  17790-N4100-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
+Cesaroni_N5600.eng
+    Manufacturer: Cesaroni Technology
+    Designation:  N5600WT
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
+Cesaroni_N5600.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  N5600WT
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Andre Choquette
@@ -9030,7 +9148,7 @@ Estes_A8.eng
     Manufacturer: Estes Industries
     Designation:  A8
     Data Format:  RASP
-    Data Source:  user
+    Data Source:  cert
     Contributor:  John Coker
 
 Estes_A8.rse
@@ -9145,6 +9263,13 @@ Estes_E12.eng
     Data Source:  cert
     Contributor:  John Coker
 
+Estes_E16.eng
+    Manufacturer: Estes Industries
+    Designation:  E16
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  John Coker
+
 Estes_E30.eng
     Manufacturer: Estes Industries
     Designation:  E30
@@ -9166,12 +9291,19 @@ Estes_E9.rse
     Data Source:  user
     Contributor:  John Coker
 
-Estes_F26.eng
+Estes_F15.eng
     Manufacturer: Estes Industries
-    Designation:  F26
+    Designation:  F15
     Data Format:  RASP
     Data Source:  cert
-    Contributor:  David Moore
+    Contributor:  John Coker
+
+Estes_F15_1.eng
+    Manufacturer: Estes Industries
+    Designation:  F15
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Howard Smart
 
 Estes_F50.eng
     Manufacturer: Estes Industries
