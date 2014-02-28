@@ -3,6 +3,12 @@
 	<classpathentry excluding="net/sf/openrocket/android/" kind="src" path="src"/>
 	<classpathentry kind="src" path="src-extra"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<accessrules>
+			<accessrule kind="nonaccessible" pattern="com/sun/**"/>
+			<accessrule kind="nonaccessible" pattern="java/awt/List"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib-extra/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
@@ -19,15 +25,5 @@
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/junit-dep-4.8.2.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/test-plugin.jar"/>
 	<classpathentry kind="lib" path="/OpenRocket Test Libraries/uispec4j-2.3-jdk16.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
