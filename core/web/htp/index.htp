@@ -23,6 +23,10 @@
 	<a href="http://sourceforge.net/donate/index.php?group_id=260357"><img src="project-support.jpg" width="88" height="32" alt="Support This Project" /> </a>
       </div>
 
+      <div class="support">
+	<a href="http://www.yourkit.com/java/profiler/index.jsp"><img src="yourkit.png" width="88" height="32" alt="YourKit Supports This Project" /> </a>
+      </div>
+
    </div>
 
     <p><strong>OpenRocket</strong> is a free, fully featured model
@@ -54,6 +58,16 @@
       <a href="getinvolved.html"><em>Get&nbsp;involved!</em></a> 
     </p>
 
+
+<p>YourKit is supporting OpenRocket open source project with its
+full-featured Java Profiler.
+YourKit, LLC is the creator of innovative and intelligent tools for profiling
+Java and .NET applications. Take a look at YourKit's leading software products:
+<a href="http://www.yourkit.com/java/profiler/index.jsp">YourKit Java
+Profiler</a> and
+<a href="http://www.yourkit.com/.net/profiler/index.jsp">YourKit .NET
+Profiler</a>.
+</p>
 
     <div class="clear"></div>
 
