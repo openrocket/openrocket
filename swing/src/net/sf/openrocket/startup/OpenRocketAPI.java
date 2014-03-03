@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.sf.openrocket.simulation.*;
@@ -21,16 +22,17 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.SimulationEngine;
 import net.sf.openrocket.simulation.SteppingEventSimulationEngine;
+import net.sf.openrocket.simulation.exception.ReturnTypeException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.APIGuiModule;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Quaternion;
 import net.sf.openrocket.utils.csv.*;
-
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.util.StatusPrinter;
+//import ch.qos.logback.classic.LoggerContext;
+//import ch.qos.logback.core.util.StatusPrinter;
+
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -38,20 +40,17 @@ import com.google.inject.Module;
 
 public class OpenRocketAPI {
 	// protected RK4SimulationStatus m_CStatus;
-	// private boolean m_bIsSimulationStagesRunning = false;
-	// private boolean m_bIsSimulationLoopRunning = false;
-	// private FlightDataBranch m_CFlightDataBranch = null; //use
-	// GetFlightData()
-	// private int m_rand_seed = 0;
+	// private FlightDataBranch m_CFlightDataBranch = null; 
 	private BasicEventSimulationEngine basicEngine = null;
 	private SteppingEventSimulationEngine steppingEngine = null;
 	protected FlightData m_CFlightData = null;
 	private SimulationConditions m_CSimulationConditions = null;
 	private CSVWriter CSVOutputFile = null;
-	// TODO: What should this failure value be??
-	private double ERROR = -999;
 
+	//private final static Logger log = LoggerFactory.getLogger(OpenRocketAPI.class);
+	
 	public int setlogfile(String filename) {
+		
 	
 		LoggingSystemSetup.addFileAppender(filename,Level.DEBUG);
 		return 0;
@@ -66,6 +65,9 @@ public class OpenRocketAPI {
 		guiModule.startLoader();// might just do some initializing
 		
 		LoggingSystemSetup.setupLoggingAppender();
+		if (System.getProperty("openrocket.debug") != null) {
+			LoggingSystemSetup.addConsoleAppender();
+		}
 	}
 
 	/****************************************************
@@ -86,12 +88,13 @@ public class OpenRocketAPI {
 	 * 
 	 * @return (double) End time of current time step - end time of previous
 	 *         time step.
+	 * @throws ReturnTypeException 
 	 */
-	public double GetTimeStep() {
+	public double GetTimeStep() throws ReturnTypeException {
 		double i = this.GetValue(FlightDataType.TYPE_TIME_STEP);
 		if (!Double.isNaN(i))
 			return i;
-		return ERROR;
+		throw new ReturnTypeException("Return Value is NaN");
 	}
 
 	/**
@@ -112,11 +115,11 @@ public class OpenRocketAPI {
 	 * Returns one value correlating to the key type and the specified
 	 * iteration.
 	 * 
-	 * @param type
-	 *            (FlightDataType) Type of data to get the min of
+	 * @param type (FlightDataType) Type of data to get the min of
 	 * @return (double) Value requested
+	 * @throws ReturnTypeException 
 	 */
-	public double GetValue(FlightDataType type) {
+	public double GetValue(FlightDataType type) throws ReturnTypeException {
 		return GetValue(type, -1);
 	}
 
@@ -124,64 +127,53 @@ public class OpenRocketAPI {
 	 * Returns one value correlating to the key type and the specified
 	 * iteration.
 	 * 
-	 * @param type
-	 *            (FlightDataType) Type of data to get the min of
-	 * @param step
-	 *            (int) Step to obtain value from
+	 * @param type (FlightDataType) Type of data to get the min of
+	 * @param step (int) Step to obtain value from
 	 * @return (double) Value requested
+	 * @throws ReturnTypeException 
 	 */
-	public double GetValue(FlightDataType type, int step) {
+	public double GetValue(FlightDataType type, int step) throws ReturnTypeException {
 		FlightDataStep fds = null;
 		if (step < 0) {
 			fds = GetFlightDataStep();
 		} else {
-			// TODO: Untested
 			fds = GetFlightDataStep(step);
 		}
 		double tsl = fds.get(type);
 		if (!(Double.isNaN(tsl)))
 			return tsl;
-		return ERROR;
+		throw new ReturnTypeException("Return Value is NaN");
 	}
 
 	/**
-	 * @param type
-	 *            (FlightDataType) Type of data to get the min of
+	 * @param type (FlightDataType) Type of data to get the min of
 	 * @return (double) Value requested
+	 * @throws ReturnTypeException 
 	 */
-	public double GetMaximum(FlightDataType type) {
+	public double GetMaximum(FlightDataType type) throws ReturnTypeException {
 		double i = GetFlightData().getMaximum(type);
 		if (!Double.isNaN(i))
 			return i;
-		return ERROR;
+		throw new ReturnTypeException("Return Value is NaN");
 	}
 
 	/**
-	 * @param type
-	 *            (FlightDataType) Type of data to get the min of
+	 * @param type (FlightDataType) Type of data to get the min of
 	 * @return (double) Value requested
+	 * @throws ReturnTypeException 
 	 */
-	public double GetMinimum(FlightDataType type) {
+	public double GetMinimum(FlightDataType type) throws ReturnTypeException {
 		double i = GetFlightData().getMinimum(type);
 		if (!Double.isNaN(i))
 			return i;
-		return ERROR;
-	}
-
-	// TODO: Definately not implemented correctly
-	public void SetValue(FlightDataType type, double value) {
-		if (GetFlightData() == null) {
-			System.out.println("ERROR NULL");
-			return;
-		}
-		GetFlightData().setValue(type, value);
+		throw new ReturnTypeException("Return Value is NaN");
 	}
 
 	/**
 	 * Writes the values for the specified iteration to the specified file
 	 * 
-	 * @param filename
-	 *            (string) file to write to "close" closes the csv file.
+	 * @param filename (string) file to write to 
+	 *                          "close" closes the csv file.
 	 * @return (int) error code.
 	 */
 	public int FlightDataStepToCSV(String filename) {
@@ -194,10 +186,10 @@ public class OpenRocketAPI {
 	/**
 	 * Writes the values for the specified iteration to the specified file
 	 * 
-	 * @param filename
-	 *            (string) file to write to "close" closes the csv file.
-	 * @param iteration
-	 *            (int) Desired iteration (the first iteration is 1)
+	 * @param filename (string) file to write to 
+	 *                          "close" closes the csv file.
+	 * @param iteration (int) Desired iteration 
+	 *                        (the first iteration is 1)
 	 * @return (int) error code.
 	 */
 	public int FlightDataStepToCSV(String filename, int iteration) {
@@ -208,12 +200,11 @@ public class OpenRocketAPI {
 	/**
 	 * Writes the values for the specified iteration to the specified file
 	 * 
-	 * @param filename
-	 *            (string) file to write to "close" closes the csv file.
-	 * @param branch
-	 *            (FlightDataBranch) FlightDataBranch to get data from
-	 * @param iteration
-	 *            (int) Desired iteration (the first iteration is 1)
+	 * @param filename (string) file to write to 
+	 *                          "close" closes the csv file.
+	 * @param branch (FlightDataBranch) FlightDataBranch to get data from
+	 * @param iteration (int) Desired iteration 
+	 *                        (the first iteration is 1)
 	 * @return (int) error code.
 	 */
 	public int FlightDataStepToCSV(String filename, FlightDataBranch branch,
@@ -225,8 +216,7 @@ public class OpenRocketAPI {
 	/**
 	 * Outputs to filename CSV of the entire simulation.
 	 * 
-	 * @param filename
-	 *            (String)
+	 * @param filename (String)
 	 * @return (int) result
 	 */
 	public int FullCSVOut(String filename) {
@@ -247,7 +237,7 @@ public class OpenRocketAPI {
 				int rval = FlightDataStepToCSV(filename, fdb, i);
 			}
 		}
-		this.CSVOutputFile.close();
+		CSVOutputFile.close();
 		return 0;
 	}
 
@@ -317,8 +307,7 @@ public class OpenRocketAPI {
 	/**
 	 * Returns the values for the specified iteration of the simulation
 	 * 
-	 * @param i
-	 *            (int) Desired iteration (the first iteration is iteration 1)
+	 * @param i (int) Desired iteration (the first iteration is iteration 1)
 	 * @return (FlightDataStep)
 	 */
 	public FlightDataStep GetFlightDataStep(int i) {
@@ -328,13 +317,11 @@ public class OpenRocketAPI {
 	/**
 	 * Returns the values for the specified iteration of the simulation
 	 * 
-	 * @param i
-	 *            (FlightDataBranch) FlightDataBranch to get data from
-	 * @param b
-	 *            (int) Desired iteration (the first iteration is iteration 1)
+	 * @param i (FlightDataBranch) FlightDataBranch to get data from
+	 * @param b (int) Desired iteration (the first iteration is iteration 1)
 	 * @return (FlightDataStep)
 	 */
-	public FlightDataStep GetFlightDataStep(FlightDataBranch b, int i) {
+	protected FlightDataStep GetFlightDataStep(FlightDataBranch b, int i) {
 		return new FlightDataStep(b, i);
 	}
 
@@ -392,15 +379,20 @@ public class OpenRocketAPI {
 	}
 
 	/**
-	 * Sets the user-specified time step OpenRocket uses the minimum of the
-	 * following the user-specified time step (or 1/5th of it if still on the
-	 * launch rod) maxTimeStep maximum pitch step angle limit maximum roll step
-	 * angle limit maximum roll rate change limit maximum pitch change limit
-	 * 1/10th of the launch rod length if still on the launch rod 1.50 times the
+	 * Sets the user-specified time step 
+	 * OpenRocket uses the minimum of the following;
+	 * The user-specified time step 
+	 *    (or 1/5th of it if still on the launch rod)
+	 * maxTimeStep 
+	 * maximum pitch step angle limit 
+	 * maximum roll step angle limit 
+	 * maximum roll rate change limit 
+	 * maximum pitch change limit
+	 * 1/10th of the launch rod length 
+	 *    if still on the launch rod 1.50 times the
 	 * previous time step
 	 * 
-	 * @param timeStep
-	 *            (double)
+	 * @param timeStep (double)
 	 */
 	public void SetTimeStep(double timeStep) {
 		if (steppingEngine != null) {
@@ -411,8 +403,7 @@ public class OpenRocketAPI {
 	/**
 	 * Loads a rocket from an ork file
 	 * 
-	 * @param filename
-	 *            (String) name of the ork file to load
+	 * @param filename (String) name of the ork file to load
 	 * @return (OpenRocketDocument) loaded from the fileName
 	 * */
 	protected OpenRocketDocument LoadRocket(String fileName) {
@@ -432,15 +423,11 @@ public class OpenRocketAPI {
 	/**
 	 * Setup a new simulation
 	 * 
-	 * @param orkFile
-	 *            (String) Name of the ork file to use
-	 * @param simToGrab
-	 *            (int) Simulation in the ork file to use. The first simulation
-	 *            is 1.
-	 * @param randomSeed
-	 *            (int) Random seed to use.
-	 * @param timeStep
-	 *            (double) TimeStep to use.
+	 * @param orkFile (String) Name of the ork file to use
+	 * @param simToGrab (int) Simulation in the ork file to use. 
+	 *                        The first simulation is 1.
+	 * @param randomSeed (int) Random seed to use.
+	 * @param timeStep (double) TimeStep to use.
 	 * @return (int) result
 	 */
 	public int SimulationSetup(String orkFile) {
@@ -450,15 +437,11 @@ public class OpenRocketAPI {
 	/**
 	 * Setup a new simulation
 	 * 
-	 * @param orkFile
-	 *            (String) Name of the ork file to use
-	 * @param simToGrab
-	 *            (int) Simulation in the ork file to use. The first simulation
-	 *            is 1.
-	 * @param randomSeed
-	 *            (int) Random seed to use.
-	 * @param timeStep
-	 *            (double) TimeStep to use.
+	 * @param orkFile (String) Name of the ork file to use
+	 * @param simToGrab (int) Simulation in the ork file to use. 
+	 *                        The first simulation is 1.
+	 * @param randomSeed (int) Random seed to use.
+	 * @param timeStep (double) TimeStep to use.
 	 * @return (int) result
 	 */
 	public int SimulationSetup(String orkFile, int simToGrab) {
@@ -468,15 +451,11 @@ public class OpenRocketAPI {
 	/**
 	 * Setup a new simulation
 	 * 
-	 * @param orkFile
-	 *            (String) Name of the ork file to use
-	 * @param simToGrab
-	 *            (int) Simulation in the ork file to use. The first simulation
-	 *            is 1.
-	 * @param randomSeed
-	 *            (int) Random seed to use.
-	 * @param timeStep
-	 *            (double) TimeStep to use.
+	 * @param orkFile (String) Name of the ork file to use
+	 * @param simToGrab (int) Simulation in the ork file to use. 
+	 *                        The first simulation is 1.
+	 * @param randomSeed (int) Random seed to use.
+	 * @param timeStep (double) TimeStep to use.
 	 * @return (int) result
 	 */
 	public int SimulationSetup(String orkFile, int simToGrab, int randomSeed) {
@@ -486,15 +465,11 @@ public class OpenRocketAPI {
 	/**
 	 * Setup a new simulation
 	 * 
-	 * @param orkFile
-	 *            (String) Name of the ork file to use
-	 * @param simToGrab
-	 *            (int) Simulation in the ork file to use. The first simulation
-	 *            is 1.
-	 * @param randomSeed
-	 *            (int) Random seed to use.
-	 * @param timeStep
-	 *            (double) TimeStep to use.
+	 * @param orkFile (String) Name of the ork file to use
+	 * @param simToGrab (int) Simulation in the ork file to use. 
+	 *                        The first simulation is 1.
+	 * @param randomSeed (int) Random seed to use.
+	 * @param timeStep (double) TimeStep to use.
 	 * @return (int) result
 	 */
 	public int SimulationSetup(String orkFile, int simToGrab, int randomSeed,
@@ -511,7 +486,7 @@ public class OpenRocketAPI {
 			// System.err.println("no simulatinos in ork file");
 			return -1;
 		}
-		if ((simCount < simToGrab)) {
+		if ((simToGrab < 1) || (simCount < simToGrab)) {
 			// System.err.println("asked for simulation not present");
 			return -2;
 		}
@@ -540,18 +515,14 @@ public class OpenRocketAPI {
 	}
 
 	/**
-	 * Runs simulation start to finish just like openrocket main. The simulation
+	 * Runs simulation start to finish just like OpenRocket main. The simulation
 	 * must be setup with SetupSimulation first.
 	 * 
 	 * @return (int) result
 	 */
 	public int SimulationRun() {
-		// if(m_bIsSimulationStagesRunning==true){
-		// System.err.println("error calling RunSimulation while StartSimulation is running may Invalidate StartSimulations FlightData");
-		// return-1 ;}
 		if (m_CSimulationConditions == null) {
-			System.err
-					.println("Simulation is not setup; Hint: SetupSimulation");
+			System.err.println("Simulation is not setup; Hint: SetupSimulation");
 			return -2;
 		}
 		basicEngine = new BasicEventSimulationEngine();
@@ -567,8 +538,7 @@ public class OpenRocketAPI {
 	/**
 	 * Step a simulation has has been setup with SetupSimulation.
 	 * 
-	 * @param steps
-	 *            (int) Number of steps to attempt to iterat before returning.
+	 * @param steps (int) Number of steps to attempt to iterat before returning.
 	 * @return (int) result
 	 */
 	public int SimulationStep(int steps) {
