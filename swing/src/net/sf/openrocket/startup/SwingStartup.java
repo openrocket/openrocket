@@ -58,7 +58,7 @@ public class SwingStartup {
 		
 		// Initialize logging first so we can use it
 		initializeLogging();
-		log.info("Starting up OpenRocket version " + BuildProperties.getVersion());
+		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
 		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");

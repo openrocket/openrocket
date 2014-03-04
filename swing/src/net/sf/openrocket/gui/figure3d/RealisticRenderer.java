@@ -1,14 +1,9 @@
 package net.sf.openrocket.gui.figure3d;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLProfile;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.fixedfunc.GLMatrixFunc;
 
@@ -23,28 +18,24 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Color;
 
 import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureData;
-import com.jogamp.opengl.util.texture.TextureIO;
 
 public class RealisticRenderer extends RocketRenderer {
 	private final float[] colorClear = { 0, 0, 0, 0 };
 	private final float[] colorWhite = { 1, 1, 1, 1 };
 	private final float[] color = new float[4];
 	
-	private Map<String, Texture> oldTexCache = new HashMap<String, Texture>();
-	private Map<String, Texture> texCache = new HashMap<String, Texture>();
+	private final TextureCache textures;
 	private float anisotrophy = 0;
 	
 	public RealisticRenderer(OpenRocketDocument document) {
-		
+		textures = new TextureCache();
 	}
 	
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
 		
-		oldTexCache = new HashMap<String, Texture>();
-		texCache = new HashMap<String, Texture>();
+		textures.init(drawable);
 		
 		GL2 gl = drawable.getGL().getGL2();
 		
@@ -73,15 +64,14 @@ public class RealisticRenderer extends RocketRenderer {
 	@Override
 	public void updateFigure(GLAutoDrawable drawable) {
 		super.updateFigure(drawable);
-		clearCaches(drawable.getGL().getGL2());
+		textures.advanceCacheGeneration(drawable);
 	}
 	
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		flushTextureCache(drawable);
 		super.dispose(drawable);
-		oldTexCache = null;
-		texCache = null;
+		textures.dispose(drawable);
 	}
 	
 	@Override
@@ -108,7 +98,7 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	private void render(GL2 gl, Geometry g, Appearance a, boolean decals, float alpha) {
 		final Decal t = a.getTexture();
-		final Texture tex = getTexture(t);
+		final Texture tex = textures.getTexture(t);
 		
 		gl.glLightModeli(GL2.GL_LIGHT_MODEL_COLOR_CONTROL, GL2.GL_SEPARATE_SPECULAR_COLOR);
 		
@@ -179,54 +169,9 @@ public class RealisticRenderer extends RocketRenderer {
 	
 	@Override
 	public void flushTextureCache(GLAutoDrawable drawable) {
-		// Flush the cache twice to get rid of old images.
-		clearCaches(drawable.getGL().getGL2());
-		clearCaches(drawable.getGL().getGL2());
+		textures.flushTextureCache(drawable);
 	}
 	
-	private void clearCaches(GL2 gl) {
-		log.debug("ClearCaches");
-		for (Map.Entry<String, Texture> e : oldTexCache.entrySet()) {
-			log.debug("Destroying Texture for " + e.getKey());
-			if (e.getValue() != null)
-				e.getValue().destroy(gl);
-		}
-		oldTexCache = texCache;
-		texCache = new HashMap<String, Texture>();
-	}
-	
-	private Texture getTexture(Decal t) {
-		if (t == null)
-			return null;
-		
-		String imageName = t.getImage().getName();
-		
-		// Return the Cached value if available
-		if (texCache.containsKey(imageName))
-			return texCache.get(imageName);
-		
-		// If the texture is in the Old Cache, save it.
-		if (oldTexCache.containsKey(imageName)) {
-			texCache.put(imageName, oldTexCache.get(imageName));
-			oldTexCache.remove(imageName);
-			return texCache.get(imageName);
-		}
-		
-		// Otherwise load it.
-		Texture tex = null;
-		try {
-			log.debug("Loading texture " + t);
-			InputStream is = t.getImage().getBytes();
-			TextureData data = TextureIO.newTextureData(GLProfile.getDefault(), is, GL.GL_RGBA, GL.GL_RGBA, true, null);
-			tex = TextureIO.newTexture(data);
-		} catch (Throwable e) {
-			log.error("Error loading Texture", e);
-		}
-		texCache.put(imageName, tex);
-		
-		return tex;
-		
-	}
 	
 	protected Appearance getAppearance(RocketComponent c) {
 		Appearance ret = c.getAppearance();

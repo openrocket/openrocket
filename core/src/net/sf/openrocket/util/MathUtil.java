@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 
 public class MathUtil {
 	private static final Logger log = LoggerFactory.getLogger(MathUtil.class);
-
+	
 	public static final double EPSILON = 0.00000001; // 10mm^3 in m^3
-
+	
 	/**
 	 * The square of x (x^2).  On Sun's JRE using this method is as fast as typing x*x. 
 	 * @param x  x
@@ -22,7 +22,7 @@ public class MathUtil {
 	public static double pow2(double x) {
 		return x * x;
 	}
-
+	
 	/**
 	 * The cube of x (x^3).
 	 * @param x  x
@@ -31,11 +31,11 @@ public class MathUtil {
 	public static double pow3(double x) {
 		return x * x * x;
 	}
-
+	
 	public static double pow4(double x) {
 		return (x * x) * (x * x);
 	}
-
+	
 	/**
 	 * Clamps the value x to the range min - max.  
 	 * @param x    Original value.
@@ -50,7 +50,7 @@ public class MathUtil {
 			return max;
 		return x;
 	}
-
+	
 	public static float clamp(float x, float min, float max) {
 		if (x < min)
 			return min;
@@ -58,7 +58,7 @@ public class MathUtil {
 			return max;
 		return x;
 	}
-
+	
 	public static int clamp(int x, int min, int max) {
 		if (x < min)
 			return min;
@@ -66,8 +66,8 @@ public class MathUtil {
 			return max;
 		return x;
 	}
-
-
+	
+	
 	/**
 	 * Maps a value from one value range to another.
 	 * 
@@ -90,8 +90,8 @@ public class MathUtil {
 		}
 		return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
 	}
-
-
+	
+	
 	/**
 	 * Maps a coordinate from one value range to another.
 	 * 
@@ -115,8 +115,8 @@ public class MathUtil {
 		double a = (value - fromMin) / (fromMax - fromMin);
 		return toMax.multiply(a).add(toMin.multiply(1 - a));
 	}
-
-
+	
+	
 	/**
 	 * Compute the minimum of two values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is
@@ -127,7 +127,7 @@ public class MathUtil {
 			return x;
 		return (x < y) ? x : y;
 	}
-
+	
 	/**
 	 * Compute the maximum of two values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is
@@ -138,7 +138,7 @@ public class MathUtil {
 			return y;
 		return (x < y) ? y : x;
 	}
-
+	
 	/**
 	 * Compute the minimum of three values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is
@@ -151,9 +151,9 @@ public class MathUtil {
 			return min(y, z);
 		}
 	}
-
-
-
+	
+	
+	
 	/**
 	 * Compute the minimum of three values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is
@@ -162,8 +162,8 @@ public class MathUtil {
 	public static double min(double w, double x, double y, double z) {
 		return min(min(w, x), min(y, z));
 	}
-
-
+	
+	
 	/**
 	 * Compute the maximum of three values.  This is performed by direct comparison. 
 	 * However, if one of the values is NaN and the other is not, the non-NaN value is
@@ -176,7 +176,7 @@ public class MathUtil {
 			return max(y, z);
 		}
 	}
-
+	
 	/**
 	 * Calculates the hypotenuse <code>sqrt(x^2+y^2)</code>.  This method is SIGNIFICANTLY
 	 * faster than <code>Math.hypot(x,y)</code>.
@@ -184,7 +184,7 @@ public class MathUtil {
 	public static double hypot(double x, double y) {
 		return Math.sqrt(x * x + y * y);
 	}
-
+	
 	/**
 	 * Reduce the angle x to the range 0 - 2*PI.
 	 * @param x  Original angle.
@@ -194,7 +194,7 @@ public class MathUtil {
 		double d = Math.floor(x / (2 * Math.PI));
 		return x - d * 2 * Math.PI;
 	}
-
+	
 	/**
 	 * Reduce the angle x to the range -PI - PI.
 	 * 
@@ -207,8 +207,8 @@ public class MathUtil {
 		double d = Math.rint(x / (2 * Math.PI));
 		return x - d * 2 * Math.PI;
 	}
-
-
+	
+	
 	/**
 	 * Return the square root of a value.  If the value is negative, zero is returned.
 	 * This is safer in cases where rounding errors might make a value slightly negative.
@@ -225,20 +225,22 @@ public class MathUtil {
 		}
 		return Math.sqrt(d);
 	}
-
-
-
-	public static boolean equals(double a, double b) {
+	
+	
+	public static boolean equals(double a, double b, double epsilon) {
 		double absb = Math.abs(b);
-
-		if (absb < EPSILON / 2) {
+		
+		if (absb < epsilon / 2) {
 			// Near zero
-			return Math.abs(a) < EPSILON / 2;
+			return Math.abs(a) < epsilon / 2;
 		}
-		return Math.abs(a - b) < EPSILON * absb;
+		return Math.abs(a - b) < epsilon * absb;
 	}
-
-
+	
+	public static boolean equals(double a, double b) {
+		return equals(a, b, EPSILON);
+	}
+	
 	/**
 	 * Return the sign of the number.  This corresponds to Math.signum, but ignores
 	 * the special cases of zero and NaN.  The value returned for those is arbitrary.
@@ -251,20 +253,20 @@ public class MathUtil {
 	public static double sign(double x) {
 		return (x < 0) ? -1.0 : 1.0;
 	}
-
+	
 	/* Math.abs() is about 3x as fast as this:
 
 	public static double abs(double x) {
 		return (x<0) ? -x : x;
 	}
 	 */
-
-
+	
+	
 	public static double average(Collection<? extends Number> values) {
 		if (values.isEmpty()) {
 			return Double.NaN;
 		}
-
+		
 		double avg = 0.0;
 		int count = 0;
 		for (Number n : values) {
@@ -273,12 +275,12 @@ public class MathUtil {
 		}
 		return avg / count;
 	}
-
+	
 	public static double stddev(Collection<? extends Number> values) {
 		if (values.size() < 2) {
 			return Double.NaN;
 		}
-
+		
 		double avg = average(values);
 		double stddev = 0.0;
 		int count = 0;
@@ -289,12 +291,12 @@ public class MathUtil {
 		stddev = Math.sqrt(stddev / (count - 1));
 		return stddev;
 	}
-
+	
 	public static double median(Collection<? extends Number> values) {
 		if (values.isEmpty()) {
 			return Double.NaN;
 		}
-
+		
 		List<Number> sorted = new ArrayList<Number>(values);
 		Collections.sort(sorted, new Comparator<Number>() {
 			@Override
@@ -302,7 +304,7 @@ public class MathUtil {
 				return Double.compare(o1.doubleValue(), o2.doubleValue());
 			}
 		});
-
+		
 		int n = sorted.size();
 		if (n % 2 == 0) {
 			return (sorted.get(n / 2).doubleValue() + sorted.get(n / 2 - 1).doubleValue()) / 2;
@@ -322,36 +324,36 @@ public class MathUtil {
 	 * @param t domain value at which to interpolate
 	 * @return returns Double.NaN if either list is null or empty or different size, or if t is outsize the domain.
 	 */
-	public static double interpolate( List<Double> domain, List<Double> range, double t ) {
-
-		if ( domain == null || range == null || domain.size() != range.size() ) {
+	public static double interpolate(List<Double> domain, List<Double> range, double t) {
+		
+		if (domain == null || range == null || domain.size() != range.size()) {
 			return Double.NaN;
 		}
-
+		
 		int length = domain.size();
-		if ( length <= 1 || t < domain.get(0) || t > domain.get( length-1 ) ) {
+		if (length <= 1 || t < domain.get(0) || t > domain.get(length - 1)) {
 			return Double.NaN;
 		}
-
+		
 		// Look for the index of the right end point.
 		int right = 1;
-		while( t > domain.get(right) ) {
-			right ++;
+		while (t > domain.get(right)) {
+			right++;
 		}
-		int left = right -1;
-
+		int left = right - 1;
+		
 		// Points are:
 		
 		double deltax = domain.get(right) - domain.get(left);
 		double deltay = range.get(right) - range.get(left);
-
+		
 		// For numerical stability, if deltax is small,
-		if ( Math.abs(deltax) < EPSILON ) {
-			if ( deltay < -1.0 * EPSILON ) {
+		if (Math.abs(deltax) < EPSILON) {
+			if (deltay < -1.0 * EPSILON) {
 				// return neg infinity if deltay is negative
 				return Double.NEGATIVE_INFINITY;
 			}
-			else if ( deltay > EPSILON ) {
+			else if (deltay > EPSILON) {
 				// return infinity if deltay is large
 				return Double.POSITIVE_INFINITY;
 			} else {
@@ -360,8 +362,8 @@ public class MathUtil {
 			}
 		}
 		
-		return  range.get(left) + ( t - domain.get(left) ) * deltay / deltax;
-
+		return range.get(left) + (t - domain.get(left)) * deltay / deltax;
+		
 	}
-
+	
 }

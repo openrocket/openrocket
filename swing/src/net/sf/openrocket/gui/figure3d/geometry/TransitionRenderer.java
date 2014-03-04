@@ -114,13 +114,11 @@
  */
 package net.sf.openrocket.gui.figure3d.geometry;
 
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import net.sf.openrocket.rocketcomponent.Transition;
 
 final class TransitionRenderer {
-	private static final boolean textureFlag = true;
 	
 	private TransitionRenderer() {
 	}
@@ -132,7 +130,7 @@ final class TransitionRenderer {
 		double x, y, z, nz, lnz = 0;
 		int i;
 		
-		da = 2.0f * PI / slices;
+		da = 2.0f * Math.PI / slices;
 		dzBase = (double) tr.getLength() / stacks;
 		
 		double ds = 1.0f / slices;
@@ -148,19 +146,18 @@ final class TransitionRenderer {
 			r = Math.max(0, tr.getRadius(z) + offsetRadius);
 			double rNext = Math.max(0, tr.getRadius(zNext) + offsetRadius);
 			
-			
 			// Z component of normal vectors
 			nz = (r - rNext) / dz;
 			
 			double s = 0.0f;
-			glBegin(gl, GL2.GL_QUAD_STRIP);
+			gl.glBegin(GL2.GL_QUAD_STRIP);
 			for (i = 0; i <= slices; i++) {
 				if (i == slices) {
-					x = sin(0.0f);
-					y = cos(0.0f);
+					x = Math.sin(0.0f);
+					y = Math.cos(0.0f);
 				} else {
-					x = sin((i * da));
-					y = cos((i * da));
+					x = Math.sin((i * da));
+					y = Math.cos((i * da));
 				}
 				
 				if (r == 0) {
@@ -180,77 +177,31 @@ final class TransitionRenderer {
 				} else {
 					normal3d(gl, x, y, lnz);
 				}
-				TXTR_COORD(gl, s, z / tr.getLength());
-				glVertex3d(gl, (x * r), (y * r), z);
+				gl.glTexCoord2d(s, z / tr.getLength());
+				gl.glVertex3d((x * r), (y * r), z);
 				
 				normal3d(gl, x, y, nz);
-				TXTR_COORD(gl, s, zNext / tr.getLength());
-				glVertex3d(gl, (x * rNext), (y * rNext), zNext);
+				gl.glTexCoord2d(s, zNext / tr.getLength());
+				gl.glVertex3d((x * rNext), (y * rNext), zNext);
 				
 				s += ds;
 			} // for slices
-			glEnd(gl);
+			gl.glEnd();
 			lnz = nz;
 			z = Math.min(z + dz, tr.getLength());
 		} // for stacks
 		
 	}
 	
-	// ----------------------------------------------------------------------
-	// Internals only below this point
-	//
-	
-	private static final double PI = (double) Math.PI;
-	
-	private static final void glBegin(GL gl, int mode) {
-		gl.getGL2().glBegin(mode);
-	}
-	
-	private static final void glEnd(GL gl) {
-		gl.getGL2().glEnd();
-	}
-	
-	private static final void glVertex3d(GL gl, double x, double y, double z) {
-		gl.getGL2().glVertex3d(x, y, z);
-	}
-	
-	private static final void glNormal3d(GL gl, double x, double y, double z) {
-		gl.getGL2().glNormal3d(x, y, z);
-	}
-	
-	private static final void glTexCoord2d(GL gl, double x, double y) {
-		gl.getGL2().glTexCoord2d(x, y);
-	}
-	
-	/**
-	 * Call glNormal3f after scaling normal to unit length.
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 */
-	private static final void normal3d(GL gl, double x, double y, double z) {
+	static final void normal3d(GL2 gl, double x, double y, double z) {
 		double mag;
-		
 		mag = (double) Math.sqrt(x * x + y * y + z * z);
 		if (mag > 0.00001F) {
 			x /= mag;
 			y /= mag;
 			z /= mag;
 		}
-		glNormal3d(gl, x, y, z);
+		gl.glNormal3d(x, y, z);
 	}
 	
-	private static final void TXTR_COORD(GL gl, double x, double y) {
-		if (textureFlag)
-			glTexCoord2d(gl, x, y);
-	}
-	
-	private static final double sin(double r) {
-		return (double) Math.sin(r);
-	}
-	
-	private static final double cos(double r) {
-		return (double) Math.cos(r);
-	}
 }

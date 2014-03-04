@@ -42,9 +42,13 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	protected SimulationStepper landingStepper = new BasicLandingStepper();
 	protected SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	
-	// Constant holding 10 degress in radians.  This is the AOA condition
+	// Constant holding 20 degress in radians.  This is the AOA condition
 	// necessary to transistion to tumbling.
 	protected final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
+	
+	// The thrust must be below this value for the transition to tumbling.
+	// TODO: this is an arbitrary value
+	private final static double THRUST_TUMBLE_CONDITION = 0.01;
 	
 	protected SimulationStepper currentStepper;
 	
@@ -204,18 +208,32 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				// Check for Tumbling
 				// Conditions for transision are:
-				//  apogee reached
+				//  apogee reached (if sustainer stage)
 				// and is not already tumbling
 				// and not stable (cg > cp)
-				// and aoa > 30
+				// and aoa > AOA_TUMBLE_CONDITION threshold
+				// and thrust < THRUST_TUMBLE_CONDITION threshold
 				
-				if (status.isApogeeReached() && !status.isTumbling()) {
-					double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
-					double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
-					double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
-					if (cg > cp && aoa > AOA_TUMBLE_CONDITION) {
-						addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
-						status.setTumbling(true);
+				if (!status.isTumbling()) {
+					final double t = status.getFlightData().getLast(FlightDataType.TYPE_THRUST_FORCE);
+					final double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
+					final double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
+					final double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
+					
+					final boolean wantToTumble = (cg > cp && aoa > AOA_TUMBLE_CONDITION);
+					
+					if (wantToTumble) {
+						final boolean tooMuchThrust = t > THRUST_TUMBLE_CONDITION;
+						final boolean isSustainer = status.getConfiguration().isStageActive(0);
+						final boolean notUntilApogee = isSustainer && !status.isApogeeReached();
+						if (tooMuchThrust) {
+							status.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
+						} else if (notUntilApogee) {
+							status.getWarnings().add(Warning.TUMBLE_BEFORE_APOGEE);
+						} else {
+							addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
+							status.setTumbling(true);
+						}
 					}
 					
 				}

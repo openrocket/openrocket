@@ -325,4 +325,10 @@ public abstract class Warning {
 	
 	public static final Warning RECOVERY_LAUNCH_ROD =
 			new Other(trans.get("Warning.RECOVERY_LAUNCH_ROD"));
+	
+	public static final Warning TUMBLE_UNDER_THRUST =
+			new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
+	
+	public static final Warning TUMBLE_BEFORE_APOGEE =
+			new Other(trans.get("Warning.TUMBLE_BEFORE_APOGEE"));
 }

@@ -81,6 +81,7 @@ import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
+import net.sf.openrocket.gui.figure3d.photo.PhotoFrame;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
@@ -681,6 +682,18 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.debug("Custom expressions selected");
 				new CustomExpressionDialog(document, BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		item = new JMenuItem(trans.get("PhotoFrame.title"), KeyEvent.VK_P);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Photo... selected");
+				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
+				pa.setVisible(true);
 			}
 		});
 		menu.add(item);

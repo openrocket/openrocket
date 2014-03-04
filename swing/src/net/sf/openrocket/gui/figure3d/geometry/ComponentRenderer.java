@@ -312,7 +312,7 @@ public class ComponentRenderer {
 			final double da = (2.0f * Math.PI) / LOD;
 			final double dt = 1.0 / LOD;
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			gl.glNormal3d(0, 0, 1);
+			gl.glNormal3d(0, 0, -1);
 			for (int i = 0; i < LOD + 1; i++) {
 				gl.glTexCoord2d(i * dt, .875);
 				gl.glVertex3d(r * Math.cos(da * i), r * Math.sin(da * i), 0);
@@ -323,7 +323,7 @@ public class ComponentRenderer {
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			
 			for (int i = 0; i < LOD + 1; i++) {
-				gl.glNormal3d(-Math.cos(da * i), -Math.sin(da * i), 1);
+				gl.glNormal3d(-Math.cos(da * i), -Math.sin(da * i), -1);
 				gl.glTexCoord2d(i * dt, .9);
 				gl.glVertex3d(.8 * r * Math.cos(da * i), .8 * r * Math.sin(da * i), 0);
 				gl.glTexCoord2d(i * dt, 1);
