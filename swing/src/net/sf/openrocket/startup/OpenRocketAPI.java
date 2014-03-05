@@ -1,6 +1,9 @@
 package net.sf.openrocket.startup;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import net.sf.openrocket.simulation.*;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.file.CSVExport;
 import net.sf.openrocket.file.GeneralRocketLoader;
 import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.logging.LoggingSystemSetup;
@@ -22,11 +26,11 @@ import net.sf.openrocket.simulation.exception.ReturnTypeException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.APIGuiModule;
+import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Quaternion;
 import net.sf.openrocket.utils.csv.*;
 import ch.qos.logback.classic.Level;
-
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -285,7 +289,33 @@ public class OpenRocketAPI {
 		}
 		return csvLineS;
 	}
-
+	/**
+	 * Matches the export from the GUI Export data functionality
+	 * In the GUI: Select ALL variables, ',' field separator,
+	 *   Only check Comments: "Included field descriptions"
+	 *   Comment character: '#'
+	 * This function will export each stage to a separate file.
+	 *   
+	 * @param filename (String)
+	 * @return (int)
+	 * @throws IOException
+	 */
+	public int CSVTest(String filename) throws IOException {
+		int branch_len = m_CFlightData.getBranchCount();
+		for (int i =0; i < branch_len; i++){
+			FlightDataBranch fdb = m_CFlightData.getBranch(i);
+			FlightDataType[] keys = fdb.getTypes();
+			int l = keys.length;
+			Unit[] units = new Unit[l];
+			for (int j =0; j < l; j++){
+				units[j] = keys[j].getUnitGroup().getUnit(0);
+			}
+			String f = filename + "." + Integer.toString(i) + "_" + fdb.getBranchName() +  ".csv";
+			OutputStream output = new FileOutputStream(f);
+			CSVExport.exportCSV(output, m_CSimulationConditions.getSimulation(), fdb, keys, units, ",", "#", false, true, false);
+		}
+		return 0;
+	}
 	/**
 	 * Returns the values for the current iteration of the simulation
 	 * 
@@ -497,6 +527,7 @@ public class OpenRocketAPI {
 			opt.setTimeStep(timeStep);
 		}
 		m_CSimulationConditions = opt.toSimulationConditions();
+		m_CSimulationConditions.setSimulation(rocketSimulation);
 		m_CSimulationConditions.setCalculateExtras(true);
 		return 0;
 	}
