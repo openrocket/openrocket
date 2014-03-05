@@ -29,7 +29,7 @@ import net.sf.openrocket.startup.APIGuiModule;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Quaternion;
-import net.sf.openrocket.utils.csv.*;
+import net.sf.openrocket.file.csv.*;
 import ch.qos.logback.classic.Level;
 
 import com.google.inject.Guice;

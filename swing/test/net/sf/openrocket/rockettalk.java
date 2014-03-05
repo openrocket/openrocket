@@ -99,10 +99,10 @@ public class rockettalk extends OpenRocketAPI{
 		
 		double[] vec = new double[3];
 		try {
-			vec[0] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_X);
-		    vec[1] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_Y);
+			vec[0] = this.GetValue(FlightDataType.TYPE_ACCELERATION_X);
+		    vec[1] = this.GetValue(FlightDataType.TYPE_ACCELERATION_Y);
 		    double gravity = this.GetValue(FlightDataType.TYPE_GRAVITY);
-		    vec[2] = this.GetValue(FlightDataType.TYPE_ACCELERATION_LINEAR_Z) + gravity;
+		    vec[2] = this.GetValue(FlightDataType.TYPE_ACCELERATION_Z) + gravity;
 		} catch (ReturnTypeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -85,7 +85,6 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		data.setValue(FlightDataType.TYPE_POSITION_Z, status.getRocketPosition().z);
 		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
 		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 		if (extra) {
