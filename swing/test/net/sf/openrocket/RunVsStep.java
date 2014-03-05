@@ -51,7 +51,7 @@ public class RunVsStep extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    System.out.println("Opening file");
-		    this.SimulationSetup("resources-psas/threeStageRocket.ork",1,1,0);
+		    this.SimulationSetup("swing/resources/datafiles/examples/Three-stage rocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			System.out.println("Failure to open file");
@@ -74,7 +74,7 @@ public class RunVsStep extends OpenRocketAPI{
 			fdb = m_CFlightData.getBranch(j);
 			int fdb_length = fdb.getLength()+1; //(iterations start at 1)
 			for(int i =1; i < fdb_length; i++){
-				int rval = GetData("resources-psas/run.csv", fdb, i);
+				int rval = GetData("psas/run.csv", fdb, i);
 			}
 		}
 		this.FlightDataStepToCSV("close");
@@ -83,14 +83,14 @@ public class RunVsStep extends OpenRocketAPI{
 	@Test
 	public void testRunTest() throws IOException {
 		this.SimulationRun();
-		this.CSVTest("resources-psas/run");
+		this.CSVTest("psas/run");
 	}
 	
 	@Test
 	public void testStep() {
 		this.SimulationStep(1);
 		while(this.SimulationIsRunning()){
-			int rval = GetData("resources-psas/step.csv", null, -1);
+			int rval = GetData("psas/step.csv", null, -1);
 			this.SimulationStep(1);
 		}
 		this.FlightDataStepToCSV("close");

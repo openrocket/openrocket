@@ -56,8 +56,8 @@ public class rockettalk extends OpenRocketAPI{
 	public void setUp() throws Exception {
 		try {
 		    //System.out.println("Opening file");
-		    this.setlogfile("resources-psas/rockettalk.log");
-		    this.SimulationSetup("resources-psas/threeStageRocket.ork",1,1,0);
+		    this.setlogfile("psas/rockettalk.log");
+		    this.SimulationSetup("swing/resources/datafiles/examples/Three-stage rocket.ork",1,1,0);
 		}
 		catch (Exception e){
 			//System.out.println("Failure to open file");
