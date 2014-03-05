@@ -16,7 +16,7 @@ public class FlightDataStep {
 	 */
 	private String branchName;
 	private int iteration = -1;
-	private int modID = -1;
+	private int modID = 0;
 	private final Map<FlightDataType, Double> values =
 			new LinkedHashMap<FlightDataType, Double>();
 	
@@ -46,16 +46,14 @@ public class FlightDataStep {
 		}
 		branchName = branch.getBranchName();
 		iteration = step;
-		modID = -1;
+		modID = branch.getModID() + step;
 		
 		FlightDataType[] types = branch.getTypes();
-		if (step > 0) {
-			for (FlightDataType t : types) {
-				ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
-				Double v = new Double(list.get(step - 1));
-				if (!v.isNaN()) {
-					values.put(t, v);
-				}
+		for (FlightDataType t : types) {
+			ArrayList<Double> list = new ArrayList<Double>(branch.get(t));
+			Double v = new Double(list.get(step - 1));
+			if (!v.isNaN()) {
+				values.put(t, v);
 			}
 		}
 	}
@@ -124,7 +122,6 @@ public class FlightDataStep {
 	 * Returns the unique modification index
 	 * @return  (int)
 	 */
-	//TODO: Not yet implemented
 	public int getModID() {
 		return modID;
 	}
@@ -134,7 +131,7 @@ public class FlightDataStep {
 	 * modify this object will after this call throw an <code>IllegalStateException</code>.
 	 * 
 	 */
-	//TODO: Not yet implemented
+	//TODO: Untested
 	public void immute() {
 		mutable.immute();
 	}
@@ -143,7 +140,7 @@ public class FlightDataStep {
 	 * Returns whether this branch is still mutable.
 	 * @return  (boolean)
 	 */
-	//TODO: Not yet implemented
+	//TODO: Untested
 	public boolean isMutable() {
 		return mutable.isMutable();
 	}
