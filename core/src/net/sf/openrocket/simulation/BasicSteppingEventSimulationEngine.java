@@ -1,7 +1,5 @@
 package net.sf.openrocket.simulation;
 
-import net.sf.openrocket.motor.MotorId;
-import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -9,10 +7,8 @@ import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.util.Coordinate;
-import net.sf.openrocket.util.MathUtil;
-import net.sf.openrocket.util.Pair;
 
-public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
+public class BasicSteppingEventSimulationEngine extends BasicEventSimulationEngine {
 	private boolean handleEventsReturn = false;
 	private int iteration = 0;
 	private Configuration configuration = null;
@@ -197,110 +193,13 @@ public class SteppingEventSimulationEngine extends BasicEventSimulationEngine {
 	protected FlightDataBranch simulateLoop() {
 		
 		try {
+			double maxAlt = Double.NEGATIVE_INFINITY;
 			
 			// Start the simulation
 			if (branchRunning()) {
 				iteration++;
-				
-				// Take the step
-				double oldAlt = status.getRocketPosition().z;
-				
-				if (SimulationListenerHelper.firePreStep(status)) {
-					// Step at most to the next event
-					double maxStepTime = Double.MAX_VALUE;
-					FlightEvent nextEvent = status.getEventQueue().peek();
-					if (nextEvent != null) {
-						maxStepTime = MathUtil.max(nextEvent.getTime() - status.getSimulationTime(), 0.001);
-					}
-					log.trace("BasicEventSimulationEngine: Taking simulation step at t=" + status.getSimulationTime());
-					currentStepper.step(status, maxStepTime);
-				}
-				SimulationListenerHelper.firePostStep(status);
-				
-				
-				// Check for NaN values in the simulation status
-				checkNaN();
-				
-				// Add altitude event
-				addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, status.getSimulationTime(),
-						status.getConfiguration().getRocket(),
-						new Pair<Double, Double>(oldAlt, status.getRocketPosition().z)));
-				
-				if (status.getRocketPosition().z > maxAlt) {
-					maxAlt = status.getRocketPosition().z;
-				}
-				
-				
-				// Position relative to start location
-				Coordinate relativePosition = status.getRocketPosition().sub(origin);
-				
-				// Add appropriate events
-				if (!status.isLiftoff()) {
-					
-					// Avoid sinking into ground before liftoff
-					if (relativePosition.z < 0) {
-						status.setRocketPosition(origin);
-						status.setRocketVelocity(originVelocity);
-					}
-					// Detect lift-off
-					if (relativePosition.z > 0.02) {
-						addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, status.getSimulationTime()));
-					}
-					
-				} else {
-					
-					// Check ground hit after liftoff
-					if (status.getRocketPosition().z < 0) {
-						status.setRocketPosition(status.getRocketPosition().setZ(0));
-						addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, status.getSimulationTime()));
-						addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, status.getSimulationTime()));
-					}
-					
-				}
-				
-				// Check for launch guide clearance
-				if (!status.isLaunchRodCleared() &&
-						relativePosition.length() > status.getSimulationConditions().getLaunchRodLength()) {
-					addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, status.getSimulationTime(), null));
-				}
-				
-				
-				// Check for apogee
-				if (!status.isApogeeReached() && status.getRocketPosition().z < maxAlt - 0.01) {
-					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, status.getSimulationTime(),
-							status.getConfiguration().getRocket()));
-				}
-				
-				
-				// Check for burnt out motors
-				for (MotorId motorId : status.getMotorConfiguration().getMotorIDs()) {
-					MotorInstance motor = status.getMotorConfiguration().getMotorInstance(motorId);
-					if (!motor.isActive() && status.addBurntOutMotor(motorId)) {
-						addEvent(new FlightEvent(FlightEvent.Type.BURNOUT, status.getSimulationTime(),
-								(RocketComponent) status.getMotorConfiguration().getMotorMount(motorId), motorId));
-					}
-				}
-				
-				// Check for Tumbling
-				// Conditions for transision are:
-				//  apogee reached
-				// and is not already tumbling
-				// and not stable (cg > cp)
-				// and aoa > 30
-				
-				if (status.isApogeeReached() && !status.isTumbling()) {
-					double cp = status.getFlightData().getLast(FlightDataType.TYPE_CP_LOCATION);
-					double cg = status.getFlightData().getLast(FlightDataType.TYPE_CG_LOCATION);
-					double aoa = status.getFlightData().getLast(FlightDataType.TYPE_AOA);
-					if (cg > cp && aoa > AOA_TUMBLE_CONDITION) {
-						addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
-						status.setTumbling(true);
-					}
-					
-				}
-				
+				simulateLoop(origin, originVelocity, maxAlt);
 			}
-			
 		} catch (SimulationException e) {
 			SimulationListenerHelper.fireEndSimulation(status, e);
 			// Add FlightEvent for Abort.
