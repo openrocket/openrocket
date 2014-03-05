@@ -81,11 +81,11 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 		
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
+			data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
+			data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 			data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
 					Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
 			
@@ -93,6 +93,8 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 					MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
 			data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
 					MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+			data.setValue(FlightDataType.TYPE_ACCELERATION_X, linearAcceleration.x);
+			data.setValue(FlightDataType.TYPE_ACCELERATION_Y, linearAcceleration.y);
 			
 			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
 			

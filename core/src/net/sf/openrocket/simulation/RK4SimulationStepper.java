@@ -550,8 +550,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		data.addPoint();
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 		
 		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
 		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
@@ -562,6 +560,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
+			data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
+			data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 			data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
 					Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
 			
@@ -571,6 +571,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			if (store.linearAcceleration != null) {
 				data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
 						MathUtil.hypot(store.linearAcceleration.x, store.linearAcceleration.y));
+				data.setValue(FlightDataType.TYPE_ACCELERATION_X, store.linearAcceleration.x);
+				data.setValue(FlightDataType.TYPE_ACCELERATION_Y, store.linearAcceleration.y);
 				
 				data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, store.linearAcceleration.length());
 			}
