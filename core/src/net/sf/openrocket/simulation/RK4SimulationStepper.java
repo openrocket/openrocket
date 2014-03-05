@@ -571,6 +571,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			if (store.linearAcceleration != null) {
 				data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
 						MathUtil.hypot(store.linearAcceleration.x, store.linearAcceleration.y));
+				data.setValue(FlightDataType.TYPE_ACCELERATION_X, store.linearAcceleration.x);
+				data.setValue(FlightDataType.TYPE_ACCELERATION_Y, store.linearAcceleration.y);
 				
 				data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, store.linearAcceleration.length());
 			}
@@ -586,8 +588,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		data.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
 		if (store.linearAcceleration != null) {
 			data.setValue(FlightDataType.TYPE_ACCELERATION_Z, store.linearAcceleration.z);
-			data.setValue(FlightDataType.TYPE_ACCELERATION_X, store.linearAcceleration.x);
-			data.setValue(FlightDataType.TYPE_ACCELERATION_Y, store.linearAcceleration.y);
 		}
 		
 		if (store.flightConditions != null) {

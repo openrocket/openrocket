@@ -93,6 +93,8 @@ public class BasicTumbleStepper extends AbstractSimulationStepper {
 					MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
 			data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
 					MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+			data.setValue(FlightDataType.TYPE_ACCELERATION_X, linearAcceleration.x);
+			data.setValue(FlightDataType.TYPE_ACCELERATION_Y, linearAcceleration.y);
 			
 			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
 			
