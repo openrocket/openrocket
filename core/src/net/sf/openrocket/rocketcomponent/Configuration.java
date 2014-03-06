@@ -188,7 +188,8 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * This configuration may not be used after a call to this method!
 	 */
 	public void release() {
-		rocket.removeComponentChangeListener(this);
+		if (rocket != null)
+			rocket.removeComponentChangeListener(this);
 		listenerList = null;
 		rocket = null;
 	}

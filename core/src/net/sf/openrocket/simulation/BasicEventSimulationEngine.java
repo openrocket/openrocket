@@ -38,19 +38,19 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	protected static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private SimulationStepper flightStepper = new RK4SimulationStepper();
-	private SimulationStepper landingStepper = new BasicLandingStepper();
-	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
+	protected SimulationStepper flightStepper = new RK4SimulationStepper();
+	protected SimulationStepper landingStepper = new BasicLandingStepper();
+	protected SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	
 	// Constant holding 20 degress in radians.  This is the AOA condition
 	// necessary to transistion to tumbling.
-	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
+	protected final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	// The thrust must be below this value for the transition to tumbling.
 	// TODO: this is an arbitrary value
 	private final static double THRUST_TUMBLE_CONDITION = 0.01;
 	
-	private SimulationStepper currentStepper;
+	protected SimulationStepper currentStepper;
 	
 	protected SimulationStatus status;
 	
@@ -78,7 +78,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		{
 			// main sustainer stage
 			RocketComponent sustainer = configuration.getRocket().getChild(0);
-			status.setFlightData(new FlightDataBranch(sustainer.getName(), FlightDataType.TYPE_TIME));
+			FlightDataType fdt = FlightDataType.TYPE_TIME;
+			FlightDataBranch fdb = new FlightDataBranch(sustainer.getName(), fdt);
+			status.setFlightData(fdb);
 		}
 		stages.add(status);
 		
@@ -543,7 +545,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 *
 	 * @param event		the event to add to the queue.
 	 */
-	private void addEvent(FlightEvent event) throws SimulationException {
+	protected void addEvent(FlightEvent event) throws SimulationException {
 		if (SimulationListenerHelper.fireAddFlightEvent(status, event)) {
 			status.getEventQueue().add(event);
 		}
@@ -558,7 +560,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 *
 	 * @return			the flight event to handle, or null
 	 */
-	private FlightEvent nextEvent() {
+	protected FlightEvent nextEvent() {
 		EventQueue queue = status.getEventQueue();
 		FlightEvent event = queue.peek();
 		if (event == null)
@@ -577,7 +579,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	
 	
-	private void checkNaN() throws SimulationException {
+	protected void checkNaN() throws SimulationException {
 		double d = 0;
 		boolean b = false;
 		d += status.getSimulationTime();
