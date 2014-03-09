@@ -6,7 +6,7 @@ import java.util.List;
 import net.sf.openrocket.android.db.DbAdapter;
 import net.sf.openrocket.android.motor.ExtendedThrustCurveMotor;
 import net.sf.openrocket.android.util.AndroidLogWrapper;
-import net.sf.openrocket.database.MotorDatabase;
+import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.Motor.Type;
 import android.content.Context;

@@ -48,7 +48,6 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	//// Vertical acceleration
 	public static final FlightDataType TYPE_ACCELERATION_Z = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Z"), "Az", UnitGroup.UNITS_ACCELERATION, 12);
 	
-	
 	//// Total motion
 	//// Total velocity
 	public static final FlightDataType TYPE_VELOCITY_TOTAL = newType(trans.get("FlightDataType.TYPE_VELOCITY_TOTAL"), "Vt", UnitGroup.UNITS_VELOCITY, 20);
@@ -69,23 +68,27 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	public static final FlightDataType TYPE_VELOCITY_XY = newType(trans.get("FlightDataType.TYPE_VELOCITY_XY"), "Vl", UnitGroup.UNITS_VELOCITY, 34);
 	//// Lateral acceleration
 	public static final FlightDataType TYPE_ACCELERATION_XY = newType(trans.get("FlightDataType.TYPE_ACCELERATION_XY"), "Al", UnitGroup.UNITS_ACCELERATION, 35);
+	//// X axis acceleration
+	public static final FlightDataType TYPE_ACCELERATION_X = newType(trans.get("FlightDataType.TYPE_ACCELERATION_X"), "Ax", UnitGroup.UNITS_ACCELERATION, 36);
+	//// Y axis acceleration
+	public static final FlightDataType TYPE_ACCELERATION_Y = newType(trans.get("FlightDataType.TYPE_ACCELERATION_Y"), "Ay", UnitGroup.UNITS_ACCELERATION, 37);
 	//// Latitude
-	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE, 36);
+	public static final FlightDataType TYPE_LATITUDE = newType(trans.get("FlightDataType.TYPE_LATITUDE"), "\u03c6", UnitGroup.UNITS_ANGLE, 38);
 	//// Longitude
-	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE, 37);
+	public static final FlightDataType TYPE_LONGITUDE = newType(trans.get("FlightDataType.TYPE_LONGITUDE"), "\u03bb", UnitGroup.UNITS_ANGLE, 39);
 	
 	//// Gravity
-	public static final FlightDataType TYPE_GRAVITY = newType(trans.get("FlightDataType.TYPE_GRAVITY"), "g", UnitGroup.UNITS_ACCELERATION, 38);
+	public static final FlightDataType TYPE_GRAVITY = newType(trans.get("FlightDataType.TYPE_GRAVITY"), "g", UnitGroup.UNITS_ACCELERATION, 40);
 	
 	//// Angular motion
 	//// Angle of attack
-	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), "\u03b1", UnitGroup.UNITS_ANGLE, 40);
+	public static final FlightDataType TYPE_AOA = newType(trans.get("FlightDataType.TYPE_AOA"), "\u03b1", UnitGroup.UNITS_ANGLE, 45);
 	//// Roll rate
-	public static final FlightDataType TYPE_ROLL_RATE = newType(trans.get("FlightDataType.TYPE_ROLL_RATE"), "d\u03a6", UnitGroup.UNITS_ROLL, 41);
+	public static final FlightDataType TYPE_ROLL_RATE = newType(trans.get("FlightDataType.TYPE_ROLL_RATE"), "d\u03a6", UnitGroup.UNITS_ROLL, 46);
 	//// Pitch rate
-	public static final FlightDataType TYPE_PITCH_RATE = newType(trans.get("FlightDataType.TYPE_PITCH_RATE"), "d\u03b8", UnitGroup.UNITS_ROLL, 42);
+	public static final FlightDataType TYPE_PITCH_RATE = newType(trans.get("FlightDataType.TYPE_PITCH_RATE"), "d\u03b8", UnitGroup.UNITS_ROLL, 47);
 	//// Yaw rate
-	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), "d\u03a8", UnitGroup.UNITS_ROLL, 43);
+	public static final FlightDataType TYPE_YAW_RATE = newType(trans.get("FlightDataType.TYPE_YAW_RATE"), "d\u03a8", UnitGroup.UNITS_ROLL, 48);
 	
 	
 	//// Stability information
@@ -190,6 +193,7 @@ public class FlightDataType implements Comparable<FlightDataType> {
 	// An array of all the built in types
 	public static final FlightDataType[] ALL_TYPES = { 
 		TYPE_TIME,
+		TYPE_TIME_STEP,
 		TYPE_ALTITUDE ,
 		TYPE_VELOCITY_Z ,
 		TYPE_ACCELERATION_Z, 
@@ -201,6 +205,8 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		TYPE_POSITION_DIRECTION, 
 		TYPE_VELOCITY_XY, 
 		TYPE_ACCELERATION_XY, 
+		TYPE_ACCELERATION_X, 
+		TYPE_ACCELERATION_Y, 
 		TYPE_LATITUDE, 
 		TYPE_LONGITUDE,
 		TYPE_GRAVITY,
@@ -242,7 +248,6 @@ public class FlightDataType implements Comparable<FlightDataType> {
 		TYPE_AIR_TEMPERATURE,
 		TYPE_AIR_PRESSURE,
 		TYPE_SPEED_OF_SOUND,
-		TYPE_TIME_STEP,
 		TYPE_COMPUTATION_TIME
 		};
 	

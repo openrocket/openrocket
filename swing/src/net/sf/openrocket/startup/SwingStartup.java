@@ -142,7 +142,7 @@ public class SwingStartup {
 		Module pluginModule = new PluginModule();
 		Injector injector = Guice.createInjector(guiModule, pluginModule);
 		Application.setInjector(injector);
-		
+
 		guiModule.startLoader();
 		
 		// Start update info fetching

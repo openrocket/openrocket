@@ -1,5 +1,6 @@
-
 *~
+.*
+!/.gitignore
 
 # /
 /bin
@@ -14,6 +15,8 @@
 /loganalysis
 
 # /android/
+/android/.settings
+/android/gen
 /android/bin
 
 # /android-libraries/achartengine/
@@ -21,9 +24,23 @@
 /android-libraries/achartengine/bin
 /android-libraries/achartengine/lint.xml
 
+# /android-libraries/ActionBarSherlock/
+/android-libraries/ActionBarSherlock/gen
+/android-libraries/ActionBarSherlock/bin
+
+# /android-libraries/TreeViewList/
+/android-libraries/TreeViewList/gen
+/android-libraries/TreeViewList/bin
+
+# /lib-test
+/lib-test/bin
+
 # /core/
+/core/resources/datafiles/thrustcurves
 /core/loganalysis
 /core/build
+/core/bin
+/core/target
 /core/tmp
 /core/misc
 
@@ -38,5 +55,9 @@
 /core/resources-src/pix/splashscreen-sormus.png
 /core/resources-src/pix/splashscreen-sormus.xcf.gz
 
+# /swing
 /swing/build
 /swing/tmp
+/swing/bin
+/swing/target
+/swing/resources/datafiles/presets
