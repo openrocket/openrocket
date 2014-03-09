@@ -21,7 +21,7 @@ import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationConditions;
-import net.sf.openrocket.simulation.SteppingEventSimulationEngine;
+import net.sf.openrocket.simulation.BasicSteppingEventSimulationEngine;
 import net.sf.openrocket.simulation.exception.ReturnTypeException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
@@ -38,7 +38,7 @@ import com.google.inject.Module;
 
 public class OpenRocketAPI {
 	private BasicEventSimulationEngine basicEngine = null;
-	private SteppingEventSimulationEngine steppingEngine = null;
+	private BasicSteppingEventSimulationEngine steppingEngine = null;
 	protected FlightData m_CFlightData = null;
 	private SimulationConditions m_CSimulationConditions = null;
 	private CSVWriter CSVOutputFile = null;
@@ -561,7 +561,7 @@ public class OpenRocketAPI {
 	 */
 	public int SimulationStep(int steps) {
 		if (steppingEngine == null) {
-			steppingEngine = new SteppingEventSimulationEngine();
+			steppingEngine = new BasicSteppingEventSimulationEngine();
 			try {
 				m_CFlightData = steppingEngine.initialize(m_CSimulationConditions);
 			} catch (SimulationException e) {
