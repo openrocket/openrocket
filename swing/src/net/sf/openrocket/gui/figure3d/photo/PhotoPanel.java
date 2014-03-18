@@ -465,7 +465,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 	@Override
 	public void init(final GLAutoDrawable drawable) {
 		log.trace("GL - init()");
-		drawable.setGL(new DebugGL2(drawable.getGL().getGL2()));
+		//drawable.setGL(new DebugGL2(drawable.getGL().getGL2()));
 
 		final GL2 gl = drawable.getGL().getGL2();
 
