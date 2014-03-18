@@ -15,7 +15,6 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.material.Material;
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -98,10 +97,6 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		check.setText(trans.get("BodyTubecfg.checkbox.Filled"));
 		panel.add(check, "skip, span 2, wrap");
 
-		MotorConfig motorConfig = new MotorConfig((MotorMount)c);
-
-		panel.add(motorConfig,"spanx, growx");
-		
 		//// Material
 		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
 				"cell 4 0, gapleft paragraph, aligny 0%, spany");
@@ -111,6 +106,11 @@ public class BodyTubeConfig extends RocketComponentConfig {
 				trans.get("BodyTubecfg.tab.Generalproperties"), 0);
 
 		tabbedPane.setSelectedIndex(0);
+
+		MotorConfig motorConfig = new MotorConfig((MotorMount)c);
+
+		tabbedPane.insertTab(trans.get("BodyTubecfg.tab.Motor"), null, motorConfig,
+				trans.get("BodyTubecfg.tab.Motormountconf"), 1);
 
 
 	}

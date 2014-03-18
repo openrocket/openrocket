@@ -18,19 +18,21 @@ public class BasicTumbleStatus extends SimulationStatus {
 	// offset the indexes so finEff[1] is the coefficient for one fin from the table in techdoc.pdf
 	private final static double[] finEff = { 0.0, 0.5, 1.0, 1.41, 1.81, 1.73, 1.90, 1.85 };
 	
-	private double drag;
+	private final double drag;
 	
 	public BasicTumbleStatus(Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
 			SimulationConditions simulationConditions) {
 		super(configuration, motorConfiguration, simulationConditions);
-		computeTumbleDrag();
+		this.drag = computeTumbleDrag();
 	}
 	
 	public BasicTumbleStatus(SimulationStatus orig) {
 		super(orig);
 		if (orig instanceof BasicTumbleStatus) {
 			this.drag = ((BasicTumbleStatus) orig).drag;
+		} else {
+			this.drag = computeTumbleDrag();
 		}
 	}
 	
@@ -39,7 +41,7 @@ public class BasicTumbleStatus extends SimulationStatus {
 	}
 	
 	
-	public void computeTumbleDrag() {
+	private double computeTumbleDrag() {
 		
 		// Computed based on Sampo's experimentation as documented in the pdf.
 		
@@ -69,6 +71,6 @@ public class BasicTumbleStatus extends SimulationStatus {
 			}
 		}
 		
-		drag = (cDFin * aFins + cDBt * aBt);
+		return (cDFin * aFins + cDBt * aBt);
 	}
 }

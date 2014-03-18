@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -22,9 +21,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -48,7 +45,6 @@ import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StageSelector;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
-import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.figure3d.RocketFigure3d;
 import net.sf.openrocket.gui.figureelements.CGCaret;
 import net.sf.openrocket.gui.figureelements.CPCaret;
@@ -323,20 +319,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		JLabel label = new JLabel(trans.get("RocketPanel.lbl.Flightcfg"));
 		label.setHorizontalAlignment(JLabel.RIGHT);
 		add(label, "growx, right");
-		add(new JComboBox(new FlightConfigurationModel(configuration)), "");
-		
-		//// Edit button
-		JButton button = new JButton(trans.get("RocketPanel.but.FlightcfgEdit"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JDialog configDialog = new FlightConfigurationDialog(document.getRocket(), SwingUtilities.windowForComponent(RocketPanel.this));
-				configDialog.show();
-			}
-		});
-		add(button, "wrap");
-		
-		
+		add(new JComboBox(new FlightConfigurationModel(configuration)), "wrap");
 		
 		
 		// Create slider and scroll pane

@@ -42,9 +42,10 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	private static final List<Locale> SUPPORTED_LOCALES;
 	static {
 		List<Locale> list = new ArrayList<Locale>();
-		for (String lang : new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl", "ja", "pt" }) {
+		for (String lang : new String[] { "en", "de", "es", "fr", "it", "ru", "cs", "pl", "ja", "pt", "tr" }) {
 			list.add(new Locale(lang));
 		}
+		list.add(new Locale("zh","CN"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
 	

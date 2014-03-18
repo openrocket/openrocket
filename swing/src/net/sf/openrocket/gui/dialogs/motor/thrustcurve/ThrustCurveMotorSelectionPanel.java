@@ -2,14 +2,12 @@ package net.sf.openrocket.gui.dialogs.motor.thrustcurve;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,14 +17,12 @@ import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
@@ -58,12 +54,10 @@ import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.utils.MotorCorrelation;
 
 import org.jfree.chart.ChartColor;
-import org.jfree.chart.axis.ValueAxis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +139,6 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 		////  GUI
 		JPanel panel = new JPanel(new MigLayout("fill","[][grow]"));
-		this.add(panel, "grow");
 
 		//// Select thrust curve:
 		{
@@ -266,7 +259,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 
 			JScrollPane scrollpane = new JScrollPane();
 			scrollpane.setViewportView(table);
-			panel.add(scrollpane, "grow, width :500:, height :300:, spanx, wrap");
+			panel.add(scrollpane, "grow, width :500:, spanx, wrap");
 
 		}
 
@@ -311,30 +304,25 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		this.add(rightSide);
 
 		// Update the panel data
-		scrollSelectionVisible();
 		updateData();
 		setDelays(false);
 
 	}
 
 	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
-		double diameter = 0;
-
-		if ( mount != null ) {
-			diameter = mount.getMotorMountDiameter();
-		}
-
+		ThrustCurveMotor motorToSelect = null;
 		if (currentConfig != null && mount != null) {
 			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
-			selectedMotor = (ThrustCurveMotor) motorConf.getMotor();
+			motorToSelect = (ThrustCurveMotor) motorConf.getMotor();
 			selectedDelay = motorConf.getEjectionDelay();
-			diameter = mount.getMotorMountDiameter();
 		}
 
+		selectedMotorSet = null;
+		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
-		if (selectedMotor != null) {
+		if (motorToSelect != null) {
 			for (ThrustCurveMotorSet motorSet : database) {
-				if (motorSet.getMotors().contains(selectedMotor)) {
+				if (motorSet.getMotors().contains(motorToSelect)) {
 					selectedMotorSet = motorSet;
 					break;
 				}
@@ -342,15 +330,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			if (selectedMotorSet == null) {
 				database = new ArrayList<ThrustCurveMotorSet>(database);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
-				extra.addMotor(selectedMotor);
+				extra.addMotor(motorToSelect);
 				selectedMotorSet = extra;
 				database.add(extra);
 				Collections.sort(database);
 			}
 		}
 
-		updateData();
-		setDelays(true);
+		select(motorToSelect);
 
 		motorFilterPanel.setMotorMount(mount);
 		scrollSelectionVisible();
@@ -406,7 +393,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * Called when a different motor is selected from within the panel.
 	 */
 	private void select(ThrustCurveMotor motor) {
-		if (selectedMotor == motor)
+		if (selectedMotor == motor || motor == null)
 			return;
 
 		ThrustCurveMotorSet set = findMotorSet(motor);
@@ -422,6 +409,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 		if (updateDelays) {
 			setDelays(true);
 		}
+		scrollSelectionVisible();
 	}
 
 
@@ -433,6 +421,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			curveSelectionBox.setEnabled(false);
 			curveSelectionLabel.setEnabled(false);
 			motorInformationPanel.clearData();
+			table.clearSelection();
 			return;
 		}
 

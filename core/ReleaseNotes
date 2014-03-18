@@ -1,3 +1,34 @@
+OpenRocket 13.11.2 (2014-01-01):
+------------------------------
+
+Bug Fixes:
+    * Numerous bug fixes and usability improvements in the new
+      flight configuration tab.
+    * Fix couple of layout issues
+    * Updated Spanish, French and Chinese translations
+
+OpenRocket 13.11.1 (2013-11-15):
+------------------------------
+
+Bug Fixes:
+    * Added back the TubeConfiguration Configuration dialog
+    * Seems the jogl update didn't happen in the 13.11 build.
+    * Made the motor filter remember previous settings
+    * Fixed various exceptions in flight configuration tables due to column reordering
+    * Fixed NPE when deleting a configuration
+
+OpenRocket 13.11  (2013-11-08):
+------------------------------
+
+New Features:
+    * Chinese translations
+    * Replaced flight configuration dialog with more efficient configuration tab
+    * Improved filtering in motor chooser dialog
+
+Bug Fixes:
+    * Updated jogl to correct 3d problems on various platforms
+    * Fixed NPE introduced by changes in Java 1.7.0_45-b18
+
 OpenRocket 13.09.1 (2013-10-05):
 ------------------------------
 

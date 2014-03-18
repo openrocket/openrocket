@@ -39,6 +39,7 @@ public class EventGraphics {
 		EVENT_COLORS.put(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, new Color(0, 0, 128));
 		EVENT_COLORS.put(FlightEvent.Type.GROUND_HIT, new Color(0, 0, 0));
 		EVENT_COLORS.put(FlightEvent.Type.SIMULATION_END, new Color(128, 0, 0));
+		EVENT_COLORS.put(FlightEvent.Type.TUMBLE, new Color(196, 0, 255));
 	}
 
 	private static final Map<FlightEvent.Type, Image> EVENT_IMAGES = new HashMap<FlightEvent.Type, Image>();

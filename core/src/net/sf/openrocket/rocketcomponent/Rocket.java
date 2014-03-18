@@ -545,6 +545,12 @@ public class Rocket extends RocketComponent {
 		checkState();
 		if (id == null)
 			return;
+		// Get current configuration:
+		String currentId = getDefaultConfiguration().getFlightConfigurationID();
+		// If we're removing the current configuration, we need to switch to a different one first.
+		if (currentId != null && currentId.equals(id)) {
+			getDefaultConfiguration().setFlightConfigurationID(null);
+		}
 		flightConfigurationIDs.remove(id);
 		fireComponentChangeEvent(ComponentChangeEvent.MOTOR_CHANGE);
 	}

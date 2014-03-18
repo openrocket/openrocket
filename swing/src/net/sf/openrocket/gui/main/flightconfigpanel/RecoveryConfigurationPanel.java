@@ -1,8 +1,5 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,20 +12,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.DeploymentSelectionDialog;
-import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Pair;
 
 public class RecoveryConfigurationPanel extends FlightConfigurablePanel<RecoveryDevice> {
 
@@ -55,7 +48,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 				selectDeployment();
 			}
 		});
-		this.add(selectDeploymentButton, "split, sizegroup button");
+		this.add(selectDeploymentButton, "split, align right, sizegroup button");
 
 		//// Reset deployment
 		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetdeployment"));
@@ -74,6 +67,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		//// Recovery selection 
 		recoveryTableModel = new FlightConfigurableTableModel<RecoveryDevice>(RecoveryDevice.class, rocket);
 		JTable recoveryTable = new JTable(recoveryTableModel);
+		recoveryTable.getTableHeader().setReorderingAllowed(false);
 		recoveryTable.setCellSelectionEnabled(true);
 		recoveryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		recoveryTable.addMouseListener(new MouseAdapter() {
@@ -90,16 +84,6 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		recoveryTable.setDefaultRenderer(Object.class, new RecoveryTableCellRenderer());
 
 		return recoveryTable;
-	}
-
-	public void fireTableDataChanged() {
-		int selected = table.getSelectedRow();
-		recoveryTableModel.fireTableDataChanged();
-		if (selected >= 0) {
-			selected = Math.min(selected, table.getRowCount() - 1);
-			table.getSelectionModel().setSelectionInterval(selected, selected);
-		}
-		updateButtonState();
 	}
 
 	private void selectDeployment() {
@@ -131,7 +115,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 	class RecoveryTableCellRenderer extends FlightConfigurablePanel<RecoveryDevice>.FlightConfigurableCellRenderer {
 
 		@Override
-		protected void format(RecoveryDevice recovery, String configId, JLabel label) {
+		protected JLabel format(RecoveryDevice recovery, String configId, JLabel label) {
 			DeploymentConfiguration deployConfig = recovery.getDeploymentConfiguration().get(configId);
 			String spec = getDeploymentSpecification(deployConfig);
 			label.setText(spec);
@@ -140,6 +124,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 			} else {
 				regular(label);
 			}
+			return label;
 		}
 
 		private String getDeploymentSpecification( DeploymentConfiguration config ) {

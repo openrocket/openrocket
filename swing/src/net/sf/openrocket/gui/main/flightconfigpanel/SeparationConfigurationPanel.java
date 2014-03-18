@@ -1,8 +1,5 @@
 package net.sf.openrocket.gui.main.flightconfigpanel;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -15,20 +12,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.dialogs.flightconfiguration.SeparationSelectionDialog;
-import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.Pair;
 
 public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage> {
 	
@@ -55,7 +47,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 				selectDeployment();
 			}
 		});
-		this.add(selectSeparationButton, "split, sizegroup button");
+		this.add(selectSeparationButton, "split, align right, sizegroup button");
 		
 		//// Reset deployment
 		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetseparation"));
@@ -81,6 +73,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 
 		};
 		JTable separationTable = new JTable(separationTableModel);
+		separationTable.getTableHeader().setReorderingAllowed(false);
 		separationTable.setCellSelectionEnabled(true);
 		separationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		separationTable.addMouseListener(new MouseAdapter() {
@@ -97,17 +90,6 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 		
 		return separationTable;
 	}
-
-	public void fireTableDataChanged() {
-		int selected = table.getSelectedRow();
-		separationTableModel.fireTableDataChanged();
-		if (selected >= 0) {
-			selected = Math.min(selected, table.getRowCount() - 1);
-			table.getSelectionModel().setSelectionInterval(selected, selected);
-		}
-		updateButtonState();
-	}
-	
 
 	private void selectDeployment() {
 		Stage stage = getSelectedComponent();
@@ -137,7 +119,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 	private class SeparationTableCellRenderer extends FlightConfigurablePanel<Stage>.FlightConfigurableCellRenderer {
 		
 		@Override
-		protected void format(Stage stage, String configId, JLabel label) {
+		protected JLabel format(Stage stage, String configId, JLabel label) {
 			StageSeparationConfiguration sepConfig = stage.getStageSeparationConfiguration().get(configId);
 			String spec = getSeparationSpecification(sepConfig);
 			label.setText(spec);
@@ -146,6 +128,7 @@ public class SeparationConfigurationPanel extends FlightConfigurablePanel<Stage>
 			} else {
 				regular(label);
 			}
+			return label;
 		}
 
 		private String getSeparationSpecification( StageSeparationConfiguration sepConfig ) {

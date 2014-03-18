@@ -64,6 +64,6 @@ public class LogbackBufferLoggerAdaptor extends AppenderBase<ILoggingEvent> {
 		if (e.getThrowableProxy() != null) {
 			t = ((ThrowableProxy) e.getThrowableProxy()).getThrowable();
 		}
-		return new LogLine(l, new TraceException(), e.getMessage(), t);
+		return new LogLine(l, new TraceException(), e.getFormattedMessage(), t);
 	}
 }

@@ -3,6 +3,10 @@ package net.sf.openrocket.rocketcomponent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import net.sf.openrocket.aerodynamics.AerodynamicForces;
+import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.aerodynamics.barrowman.FinSetCalc;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.material.Material.Type;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
@@ -122,6 +126,45 @@ public class FinSetTest extends BaseTestCase {
 			assertEquals(0.4444, coords.y, 0.001);
 		}
 		
+	}
+	
+	@Test
+	public void testWildmanVindicatorShape() throws Exception {
+		// This fin shape is similar to the aft fins on the Wildman Vindicator.
+		// A user noticed that if the y values are similar but not equal,
+		// the compuation of CP was incorrect because of numerical instability.
+		//
+		//     +-----------------+
+		//      \                 \
+		//       \                 \
+		//        +                 \
+		//       /                   \
+		//      +---------------------+
+		//
+		FreeformFinSet fins = new FreeformFinSet();
+		fins.setFinCount(1);
+		Coordinate[] points = new Coordinate[] {
+				new Coordinate(0, 0),
+				new Coordinate(0.02143125, 0.01143),
+				new Coordinate(0.009524999999999999, 0.032543749999999996),
+				new Coordinate(0.041275, 0.032537399999999994),
+				new Coordinate(0.066675, 0)
+		};
+		fins.setPoints(points);
+		Coordinate coords = fins.getCG();
+		assertEquals(0.00130, fins.getFinArea(), 0.00001);
+		assertEquals(0.03423, coords.x, 0.00001);
+		assertEquals(0.01427, coords.y, 0.00001);
+		
+		BodyTube bt = new BodyTube();
+		bt.addChild(fins);
+		FinSetCalc calc = new FinSetCalc(fins);
+		FlightConditions conditions = new FlightConditions(null);
+		AerodynamicForces forces = new AerodynamicForces();
+		WarningSet warnings = new WarningSet();
+		calc.calculateNonaxialForces(conditions, forces, warnings);
+		System.out.println(forces);
+		assertEquals(0.023409, forces.getCP().x, 0.0001);
 	}
 	
 	@Test

@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
+import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -12,25 +14,42 @@ import net.sf.openrocket.util.ArrayList;
 /**
  * The table model for selecting whether components are motor mounts or not.
  */
-class MotorMountTableModel extends AbstractTableModel {
+class MotorMountTableModel extends AbstractTableModel implements ComponentChangeListener {
 	
-	private final MotorConfigurationPanel motorConfigurationPanel;
+	private final MotorMountConfigurationPanel motorConfigurationPanel;
 	
 	private final List<MotorMount> potentialMounts = new ArrayList<MotorMount>();
+	
+	private final Rocket rocket;
 	
 	/**
 	 * @param motorConfigurationPanel
 	 */
-	MotorMountTableModel(MotorConfigurationPanel motorConfigurationPanel, Rocket rocket) {
+	MotorMountTableModel(MotorMountConfigurationPanel motorConfigurationPanel, Rocket rocket) {
 		this.motorConfigurationPanel = motorConfigurationPanel;
+		this.rocket = rocket;
 		
+		initialize();
+		rocket.addComponentChangeListener(this);
+	}
+	
+	private void initialize() {
+		potentialMounts.clear();
 		for (RocketComponent c : rocket) {
 			if (c instanceof MotorMount) {
 				potentialMounts.add((MotorMount) c);
 			}
 		}
 	}
-	
+
+	@Override
+	public void componentChanged(ComponentChangeEvent e) {
+		if ( e.isMotorChange() || e.isTreeChange() ) {
+			initialize();
+			fireTableStructureChanged();
+		}
+	}
+
 	@Override
 	public int getColumnCount() {
 		return 2;
@@ -82,6 +101,6 @@ class MotorMountTableModel extends AbstractTableModel {
 		
 		MotorMount mount = potentialMounts.get(row);
 		mount.setMotorMount((Boolean) value);
-		this.motorConfigurationPanel.fireTableDataChanged();
+		this.motorConfigurationPanel.onDataChanged();
 	}
 }

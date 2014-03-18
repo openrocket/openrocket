@@ -39,7 +39,6 @@ public class MotorConfig extends JPanel {
 		
 		this.mount = motorMount;
 		
-		this.setBorder( BorderFactory.createLineBorder(Color.BLACK,1) );
 		BooleanModel model;
 		
 		model = new BooleanModel(motorMount, "MotorMount");

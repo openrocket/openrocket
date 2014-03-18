@@ -81,6 +81,7 @@ import net.sf.openrocket.gui.dialogs.SwingWorkerDialog;
 import net.sf.openrocket.gui.dialogs.WarningDialog;
 import net.sf.openrocket.gui.dialogs.optimization.GeneralOptimizationDialog;
 import net.sf.openrocket.gui.dialogs.preferences.PreferencesDialog;
+import net.sf.openrocket.gui.figure3d.photo.PhotoFrame;
 import net.sf.openrocket.gui.help.tours.GuidedTourSelectionDialog;
 import net.sf.openrocket.gui.main.componenttree.ComponentTree;
 import net.sf.openrocket.gui.main.flightconfigpanel.FlightConfigurationPanel;
@@ -119,7 +120,8 @@ public class BasicFrame extends JFrame {
 	private static final int SHORTCUT_KEY = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 	
 	public static final int COMPONENT_TAB = 0;
-	public static final int SIMULATION_TAB = 1;
+	public static final int CONFIGURATION_TAB = 1;
+	public static final int SIMULATION_TAB = 2;
 	
 	
 	/**
@@ -266,7 +268,7 @@ public class BasicFrame extends JFrame {
 		
 		//  Upper-left segment, component tree
 		
-		JPanel panel = new JPanel(new MigLayout("fill, flowy", "", "[grow]"));
+		JPanel panel = new JPanel(new MigLayout("fill, flowy", "[grow][grow 0]","[grow]"));
 		
 		tree = new ComponentTree(document);
 		tree.setSelectionModel(componentSelectionModel);
@@ -680,6 +682,18 @@ public class BasicFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				log.debug("Custom expressions selected");
 				new CustomExpressionDialog(document, BasicFrame.this).setVisible(true);
+			}
+		});
+		menu.add(item);
+		
+		item = new JMenuItem(trans.get("PhotoFrame.title"), KeyEvent.VK_P);
+		item.getAccessibleContext().setAccessibleDescription(trans.get("PhotoFrame.desc"));
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				log.info(Markers.USER_MARKER, "Photo... selected");
+				PhotoFrame pa = new PhotoFrame(document, BasicFrame.this);
+				pa.setVisible(true);
 			}
 		});
 		menu.add(item);

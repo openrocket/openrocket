@@ -13,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -23,7 +22,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
-import net.sf.openrocket.gui.dialogs.flightconfiguration.FlightConfigurationDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -158,18 +156,7 @@ public class SimulationEditDialog extends JDialog {
 					conditions.setMotorConfigurationID(configuration.getFlightConfigurationID());
 				}
 			});
-			panel.add(combo, "span, split");
-			
-			//// Edit button
-			JButton button = new JButton(trans.get("simedtdlg.but.FlightcfgEdit"));
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					JDialog configDialog = new FlightConfigurationDialog(SimulationEditDialog.this.document.getRocket(), SwingUtilities.windowForComponent(SimulationEditDialog.this));
-					configDialog.setVisible(true);
-				}
-			});
-			panel.add(button, "align left");
+			panel.add(combo, "span");
 			
 			panel.add(new JPanel(), "growx, wrap");
 			
