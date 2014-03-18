@@ -31,8 +31,12 @@ public class MotorCorrelation {
 	 */
 	public static double similarity(Motor motor1, Motor motor2) {
 		double d;
-		
-		d = crossCorrelation(motor1, motor2);
+		try {
+			d = crossCorrelation(motor1, motor2);
+		}
+		catch (Exception e) {
+			d = 0;
+		}
 		d = Math.min(d, diff(motor1.getAverageThrustEstimate(), motor2.getAverageThrustEstimate()));
 		d = Math.min(d, 2 * diff(motor1.getBurnTimeEstimate(), motor2.getBurnTimeEstimate()));
 		d = Math.min(d, diff(motor1.getTotalImpulseEstimate(), motor2.getTotalImpulseEstimate()));
