@@ -1,3 +1,13 @@
+OpenRocket 14.03 (2014-03-20):
+------------------------------
+
+New Features:
+    * Photo Realistic 3d rocket renderer
+
+Bug Fixes:
+    * Fixes to the flight configuration tab and motor selection dialog
+    * Updated thrustcurves
+
 OpenRocket 13.11.2 (2014-01-01):
 ------------------------------
 

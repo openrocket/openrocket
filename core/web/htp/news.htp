@@ -9,6 +9,13 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">21.03.2014:</span> Version 14.03 is
+   <a href="download.html">released</a>!  This release contains the
+   new photo realistic renderer (in the Tools menu) which allows one to visualize
+   the rocket in the air.  There are various bug fixes in the configuration
+   and motor selection windows as well.
+   </p>
+
   <p><span class="date">01.01.2014:</span> Version 13.11.2 is
    <a href="download.html">released</a>!  This release contains bug fixes,
    usability improvements, and layout fixes.
@@ -26,6 +33,9 @@
    tab.  Motor filtering in the motor chooser dialog has been enhanced.
    Chineese translations have been added and Russian translations updated.
    Updated the 3D libraries, and squashed some bugs introduced by Java 1.7.0_45-b18.</p>
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
+
 
   <p><span class="date">6.10.2013:</span> Version 13.09.1 is
    <a href="download.html">released</a>!  This is a bug-fix release,
@@ -48,9 +58,6 @@
   <p>Version 13.05 also changes the file format to be ZIP-based.
     Versions earlier than 12.03 will not be able to read files saved
     by this version.</p>
-
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
 
 
   <p><span class="date">28.9.2012:</span> Version 12.09.1 is
