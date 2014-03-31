@@ -42,6 +42,10 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		branch = new FlightDataBranch(name, types);
 	}
 	
+	public void setDeployTimeFromApogee(double deployTimeFromApogee) {
+		branch.setDeployTimeFromApogee(deployTimeFromApogee);
+	}
+	
 	// Find the full flight data type given name only
 	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
 	// not the nicest but this is always the case anyway.

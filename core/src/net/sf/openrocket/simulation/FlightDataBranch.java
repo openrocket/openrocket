@@ -36,7 +36,8 @@ public class FlightDataBranch implements Monitorable {
 	private final Map<FlightDataType, Double> maxValues = new HashMap<FlightDataType, Double>();
 	private final Map<FlightDataType, Double> minValues = new HashMap<FlightDataType, Double>();
 	
-
+	private double deployTimeFromApogee = Double.NaN;
+	
 	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
 	
 	private Mutable mutable = new Mutable();
@@ -73,12 +74,12 @@ public class FlightDataBranch implements Monitorable {
 	 */
 	public FlightDataBranch() {
 		branchName = "Empty branch";
-		for (FlightDataType type : FlightDataType.ALL_TYPES){
+		for (FlightDataType type : FlightDataType.ALL_TYPES) {
 			this.setValue(type, Double.NaN);
 		}
 		this.immute();
 	}
-
+	
 	/**
 	 * Adds a new point into the data branch.  The value for all types is set to NaN by default.
 	 * 
@@ -115,10 +116,10 @@ public class FlightDataBranch implements Monitorable {
 			}
 			values.put(type, list);
 			minValues.put(type, value);
-			maxValues.put(type, value);		
+			maxValues.put(type, value);
 		}
 		
-		if (list.size() > 0){
+		if (list.size() > 0) {
 			list.set(list.size() - 1, value);
 		}
 		
@@ -241,6 +242,16 @@ public class FlightDataBranch implements Monitorable {
 		return events.clone();
 	}
 	
+	
+	public double getDeployTimeFromApogee() {
+		return deployTimeFromApogee;
+	}
+	
+	public void setDeployTimeFromApogee(double deployTimeFromApogee) {
+		mutable.check();
+		this.deployTimeFromApogee = deployTimeFromApogee;
+		modID++;
+	}
 	
 	/**
 	 * Make this FlightDataBranch immutable.  Any calls to the set methods that would

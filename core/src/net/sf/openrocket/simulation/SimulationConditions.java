@@ -29,7 +29,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private String motorID = null;
 	
 	private Simulation simulation; // The parent simulation 
-
+	
 	private double launchRodLength = 1;
 	
 	/** Launch rod angle >= 0, radians from vertical */
@@ -45,7 +45,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
-
+	
 	private WindModel windModel;
 	private AtmosphericModel atmosphericModel;
 	private GravityModel gravityModel;
@@ -53,25 +53,25 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	private AerodynamicCalculator aerodynamicCalculator;
 	private MassCalculator massCalculator;
 	
-
+	
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngleStep = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	/* Whether to calculate additional data or only primary simulation figures */
 	private boolean calculateExtras = true;
 	
-
+	
 	private List<SimulationListener> simulationListeners = new ArrayList<SimulationListener>();
 	
-
+	
 	private int randomSeed = 0;
 	
 	private int modID = 0;
 	private int modIDadd = 0;
 	
 	
-
-
+	
+	
 	public AerodynamicCalculator getAerodynamicCalculator() {
 		return aerodynamicCalculator;
 	}
@@ -253,7 +253,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	}
 	
 	
-
+	
 	public int getRandomSeed() {
 		return randomSeed;
 	}
@@ -267,8 +267,8 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	public void setSimulation(Simulation sim) {
 		this.simulation = sim;
 	}
-
-	public Simulation getSimulation(){
+	
+	public Simulation getSimulation() {
 		return this.simulation;
 	}
 	
@@ -291,7 +291,9 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	public SimulationConditions clone() {
 		try {
 			// TODO: HIGH: Deep clone models
-			return (SimulationConditions) super.clone();
+			SimulationConditions clone = (SimulationConditions) super.clone();
+			clone.simulationListeners = new ArrayList<SimulationListener>(this.simulationListeners);
+			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException(e);
 		}

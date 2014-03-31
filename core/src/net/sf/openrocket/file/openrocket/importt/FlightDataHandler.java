@@ -48,6 +48,15 @@ class FlightDataHandler extends AbstractElementHandler {
 			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
 					attributes.get("types"),
 					simHandler, context);
+			
+			if (attributes.get("deployTimeFromApogee") != null) {
+				double deployTimeFromApogee = Double.NaN;
+				try {
+					deployTimeFromApogee = Double.parseDouble(attributes.get("deployTimeFromApogee"));
+				} catch (NumberFormatException ignore) {
+				}
+				dataHandler.setDeployTimeFromApogee(deployTimeFromApogee);
+			}
 			return dataHandler;
 		}
 		
