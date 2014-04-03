@@ -8,6 +8,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.FileAppender;
 
 
 public class LoggingSystemSetup {
@@ -34,6 +35,25 @@ public class LoggingSystemSetup {
 		appender.setEncoder(layout);
 		appender.start();
 		logger.addAppender(appender);
+	}
+	
+	public static void addFileAppender(String Filename,Level lev){
+		Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		FileAppender<ILoggingEvent> appender = new FileAppender<ILoggingEvent>();
+		appender.setName("File");
+		appender.setFile(Filename);
+		appender.setAppend(false);
+		logger.setLevel(lev);
+		appender.setContext(context);
+		PatternLayoutEncoder layout = new PatternLayoutEncoder();
+		layout.setContext(context);
+		layout.setPattern("%-8relative %-5marker %-5level [%thread] %logger{2} - %message%n");
+		layout.start();
+		appender.setEncoder(layout);
+		appender.start();
+		logger.addAppender(appender);
+		
 	}
 	
 	public static void setupLoggingAppender() {

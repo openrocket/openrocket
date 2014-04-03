@@ -17,13 +17,13 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 	
 	public RK4SimulationStatus(Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
-			SimulationConditions simulationConditions ) {
+			SimulationConditions simulationConditions) {
 		super(configuration, motorConfiguration, simulationConditions);
 	}
-
-	public RK4SimulationStatus( SimulationStatus other ) {
+	
+	public RK4SimulationStatus(SimulationStatus other) {
 		super(other);
-		if ( other instanceof RK4SimulationStatus ) {
+		if (other instanceof RK4SimulationStatus) {
 			this.launchRodDirection = ((RK4SimulationStatus) other).launchRodDirection;
 			this.previousAcceleration = ((RK4SimulationStatus) other).previousAcceleration;
 			this.maxZVelocity = ((RK4SimulationStatus) other).maxZVelocity;
@@ -31,6 +31,7 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 			this.previousAtmosphericConditions = ((RK4SimulationStatus) other).previousAtmosphericConditions;
 		}
 	}
+	
 	public void setLaunchRodDirection(Coordinate launchRodDirection) {
 		this.launchRodDirection = launchRodDirection;
 	}
@@ -40,8 +41,11 @@ public class RK4SimulationStatus extends SimulationStatus implements Cloneable {
 		return launchRodDirection;
 	}
 	
+	//TODO: This is almost certainly not the correct implementation. 
+	public double getRocketLinearAcceleration() {
+		return previousAcceleration;
+	}
 	
-
 	public double getPreviousAcceleration() {
 		return previousAcceleration;
 	}
