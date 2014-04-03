@@ -43,6 +43,7 @@ import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.gui.adaptors.Column;
+import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.FlightConfigurationModel;
@@ -243,7 +244,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 					}
 				};
 		
-		table = new JTable(cpTableModel);
+		table = new ColumnTable(cpTableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);

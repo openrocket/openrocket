@@ -72,7 +72,7 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	 * Return an array of any flight data types this listener creates.
 	 */
 	@Override
-	public FlightDataType[] getFlightDataTypes(){
+	public FlightDataType[] getFlightDataTypes() {
 		return new FlightDataType[] {};
 	}
 	
@@ -181,6 +181,11 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	@Override
 	public Coordinate postWindModel(SimulationStatus status, Coordinate wind) throws SimulationException {
 		return null;
+	}
+	
+	@Override
+	public AbstractSimulationListener clone() throws CloneNotSupportedException {
+		return (AbstractSimulationListener) super.clone();
 	}
 	
 }

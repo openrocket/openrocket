@@ -21,6 +21,7 @@ import net.sf.openrocket.simulation.exception.MotorIgnitionException;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
+import net.sf.openrocket.simulation.listeners.system.OptimumCoastListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
@@ -120,8 +121,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		Coordinate originVelocity = status.getRocketVelocity();
 		
 		try {
-			double maxAlt = Double.NEGATIVE_INFINITY;
-			
 			// Start the simulation
 			while (handleEvents()) {
 				
@@ -149,8 +148,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						status.getConfiguration().getRocket(),
 						new Pair<Double, Double>(oldAlt, status.getRocketPosition().z)));
 				
-				if (status.getRocketPosition().z > maxAlt) {
-					maxAlt = status.getRocketPosition().z;
+				if (status.getRocketPosition().z > status.getMaxAlt()) {
+					status.setMaxAlt(status.getRocketPosition().z);
 				}
 				
 				
@@ -189,7 +188,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				
 				
 				// Check for apogee
-				if (!status.isApogeeReached() && status.getRocketPosition().z < maxAlt - 0.01) {
+				if (!status.isApogeeReached() && status.getRocketPosition().z < status.getMaxAlt() - 0.01) {
+					status.setMaxAltTime(status.getSimulationTime());
 					addEvent(new FlightEvent(FlightEvent.Type.APOGEE, status.getSimulationTime(),
 							status.getConfiguration().getRocket()));
 				}
@@ -501,6 +501,16 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					status.setLiftoff(true);
 					status.getDeployedRecoveryDevices().add((RecoveryDevice) c);
 					
+					// Check if we've reached apogee
+					if (status.getSimulationConditions().isCalculateExtras() && status.isApogeeReached()) {
+						status.getFlightData().setOptimumAltitude(status.getMaxAlt());
+						status.getFlightData().setTimeToOptimumAltitude(status.getMaxAltTime());
+					} else {
+						FlightData coastStatus = computeCoastTime();
+						status.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
+						status.getFlightData().setTimeToOptimumAltitude(coastStatus.getTimeToApogee());
+					}
+					
 					this.currentStepper = this.landingStepper;
 					this.status = currentStepper.initialize(status);
 					
@@ -601,5 +611,20 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 	
-	
+	private FlightData computeCoastTime() {
+		try {
+			// FIXME - we're actually completely simulating so only need conditions
+			SimulationStatus coastStatus = new SimulationStatus(status);
+			coastStatus.setFlightData(new FlightDataBranch("dummy", FlightDataType.TYPE_TIME));
+			
+			BasicEventSimulationEngine e = new BasicEventSimulationEngine();
+			coastStatus.getSimulationConditions().getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
+			
+			FlightData d = e.simulate(coastStatus.getSimulationConditions());
+			return d;
+		} catch (Exception e) {
+			log.warn("Exception computing coast time: ", e);
+			return null;
+		}
+	}
 }
