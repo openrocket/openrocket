@@ -81,7 +81,6 @@ public class SimulationStatus implements Monitorable {
 	
 	double maxAlt = Double.NEGATIVE_INFINITY;
 	double maxAltTime = 0;
-	double deployTimeFromApogee = Double.NaN;
 	
 	private int modID = 0;
 	private int modIDadd = 0;
@@ -407,15 +406,6 @@ public class SimulationStatus implements Monitorable {
 	
 	public void setMaxAltTime(double maxAltTime) {
 		this.maxAltTime = maxAltTime;
-		this.modID++;
-	}
-	
-	public double getDeployTimeFromApogee() {
-		return deployTimeFromApogee;
-	}
-	
-	public void setDeployTimeFromApogee(double deployTimeFromApogee) {
-		this.deployTimeFromApogee = deployTimeFromApogee;
 		this.modID++;
 	}
 	

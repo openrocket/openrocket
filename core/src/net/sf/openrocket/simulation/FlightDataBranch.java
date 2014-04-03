@@ -36,7 +36,14 @@ public class FlightDataBranch implements Monitorable {
 	private final Map<FlightDataType, Double> maxValues = new HashMap<FlightDataType, Double>();
 	private final Map<FlightDataType, Double> minValues = new HashMap<FlightDataType, Double>();
 	
-	private double deployTimeFromApogee = Double.NaN;
+	/**
+	 * time for the rocket to reach apogee if the flight had been no recovery deployment
+	 */
+	private double timeToOptimumAltitude = Double.NaN;
+	/**
+	 * Altitude the rocket would reach if there had been no recovery deployment.
+	 */
+	private double optimumAltitude = Double.NaN;
 	
 	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
 	
@@ -221,6 +228,34 @@ public class FlightDataBranch implements Monitorable {
 	
 	
 	/**
+	 * @return the timeToOptimumAltitude
+	 */
+	public double getTimeToOptimumAltitude() {
+		return timeToOptimumAltitude;
+	}
+	
+	/**
+	 * @param timeToOptimumAltitude the timeToOptimumAltitude to set
+	 */
+	public void setTimeToOptimumAltitude(double timeToOptimumAltitude) {
+		this.timeToOptimumAltitude = timeToOptimumAltitude;
+	}
+	
+	/**
+	 * @return the optimumAltitude
+	 */
+	public double getOptimumAltitude() {
+		return optimumAltitude;
+	}
+	
+	/**
+	 * @param optimumAltitude the optimumAltitude to set
+	 */
+	public void setOptimumAltitude(double optimumAltitude) {
+		this.optimumAltitude = optimumAltitude;
+	}
+	
+	/**
 	 * Add a flight event to this branch.
 	 * 
 	 * @param event		the event to add.
@@ -242,15 +277,33 @@ public class FlightDataBranch implements Monitorable {
 		return events.clone();
 	}
 	
-	
-	public double getDeployTimeFromApogee() {
-		return deployTimeFromApogee;
+	/**
+	 * Return the first event of the given type.
+	 * @param type
+	 * @return
+	 */
+	public FlightEvent getFirstEvent(FlightEvent.Type type) {
+		for (FlightEvent e : events) {
+			if (e.getType() == type) {
+				return e;
+			}
+		}
+		return null;
 	}
 	
-	public void setDeployTimeFromApogee(double deployTimeFromApogee) {
-		mutable.check();
-		this.deployTimeFromApogee = deployTimeFromApogee;
-		modID++;
+	/**
+	 * Return the last event of the given type.
+	 * @param type
+	 * @return
+	 */
+	public FlightEvent getLastEvent(FlightEvent.Type type) {
+		FlightEvent retval = null;
+		for (FlightEvent e : events) {
+			if (e.getType() == type) {
+				retval = e;
+			}
+		}
+		return retval;
 	}
 	
 	/**

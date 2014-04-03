@@ -49,6 +49,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
+import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
@@ -391,8 +392,8 @@ public class SimulationPanel extends JPanel {
 				},
 
 				//// Deployment Time from Apogee
-				new ValueColumn(trans.get("simpanel.col.DeployTimeFromApogee"),
-						trans.get("simpanel.col.DeployTimeFromApogee.ttip"),
+				new ValueColumn(trans.get("simpanel.col.OptimumCoastTime"),
+						trans.get("simpanel.col.OptimumCoastTime.ttip"),
 						UnitGroup.UNITS_SHORT_TIME) {
 					@Override
 					public Double valueAt(int row) {
@@ -403,8 +404,18 @@ public class SimulationPanel extends JPanel {
 						if (data == null || data.getBranchCount() == 0)
 							return null;
 
-						double val = data.getBranch(0).getDeployTimeFromApogee();
-						return (val == Double.NaN) ? null : val;
+						double val = data.getBranch(0).getTimeToOptimumAltitude();
+						if ( Double.isNaN(val) ) {
+							return null;
+						}
+						// FIXME - we really want the first burnout of this stage.  which
+						// could be computed as the first burnout after the last stage separation event.
+						// however, that's not quite so concise
+						FlightEvent e = data.getBranch(0).getLastEvent( FlightEvent.Type.BURNOUT );
+						if ( e != null ) {
+							return val - e.getTime();
+						}
+						return null;
 					}
 				},
 

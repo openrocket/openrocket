@@ -548,9 +548,15 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		*/
 		
-		if (branch.getDeployTimeFromApogee() != Double.NaN) {
-			sb.append("deployTimeFromApogee=\"");
-			sb.append(branch.getDeployTimeFromApogee());
+		if (!Double.isNaN(branch.getOptimumAltitude())) {
+			sb.append("optimumAltitude=\"");
+			sb.append(branch.getOptimumAltitude());
+			sb.append("\" ");
+		}
+		
+		if (!Double.isNaN(branch.getTimeToOptimumAltitude())) {
+			sb.append("timeToOptimumAltitude=\"");
+			sb.append(branch.getTimeToOptimumAltitude());
 			sb.append("\" ");
 		}
 		
@@ -596,7 +602,6 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</databranch>");
 	}
-	
 	
 	/* TODO: LOW: This is largely duplicated from above! */
 	private int countFlightDataBranchPoints(FlightDataBranch branch, double timeSkip) {

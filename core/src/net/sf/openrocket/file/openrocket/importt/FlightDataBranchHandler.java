@@ -42,8 +42,20 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		branch = new FlightDataBranch(name, types);
 	}
 	
-	public void setDeployTimeFromApogee(double deployTimeFromApogee) {
-		branch.setDeployTimeFromApogee(deployTimeFromApogee);
+	/**
+	 * @param timeToOptimumAltitude
+	 * @see net.sf.openrocket.simulation.FlightDataBranch#setTimeToOptimumAltitude(double)
+	 */
+	public void setTimeToOptimumAltitude(double timeToOptimumAltitude) {
+		branch.setTimeToOptimumAltitude(timeToOptimumAltitude);
+	}
+	
+	/**
+	 * @param optimumAltitude
+	 * @see net.sf.openrocket.simulation.FlightDataBranch#setOptimumAltitude(double)
+	 */
+	public void setOptimumAltitude(double optimumAltitude) {
+		branch.setOptimumAltitude(optimumAltitude);
 	}
 	
 	// Find the full flight data type given name only

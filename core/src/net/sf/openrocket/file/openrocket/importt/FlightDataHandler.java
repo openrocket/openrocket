@@ -49,13 +49,21 @@ class FlightDataHandler extends AbstractElementHandler {
 					attributes.get("types"),
 					simHandler, context);
 			
-			if (attributes.get("deployTimeFromApogee") != null) {
-				double deployTimeFromApogee = Double.NaN;
+			if (attributes.get("optimumAltitude") != null) {
+				double optimumAltitude = Double.NaN;
 				try {
-					deployTimeFromApogee = Double.parseDouble(attributes.get("deployTimeFromApogee"));
+					optimumAltitude = Double.parseDouble(attributes.get("optimumAltitude"));
 				} catch (NumberFormatException ignore) {
 				}
-				dataHandler.setDeployTimeFromApogee(deployTimeFromApogee);
+				dataHandler.setOptimumAltitude(optimumAltitude);
+			}
+			if (attributes.get("timeToOptimumAltitude") != null) {
+				double timeToOptimumAltitude = Double.NaN;
+				try {
+					timeToOptimumAltitude = Double.parseDouble(attributes.get("timeToOptimumAltitude"));
+				} catch (NumberFormatException ignore) {
+				}
+				dataHandler.setTimeToOptimumAltitude(timeToOptimumAltitude);
 			}
 			return dataHandler;
 		}

@@ -501,24 +501,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					status.setLiftoff(true);
 					status.getDeployedRecoveryDevices().add((RecoveryDevice) c);
 					
-					// If we haven't already computed the deployment time from apogee
-					// (ie, this isn't the first deployment event), then we want to do that.
-					if (Double.isNaN(status.getDeployTimeFromApogee())) {
-						if (status.getMaxAltTime() == 0) {
-							// Here we need to kick off another simulation without recovery.
-							status.setMaxAltTime(computeCoastTime());
-						}
-						if (status.getMaxAltTime() > 0) {
-							double deployTimeFromApogee = event.getTime() - status.getMaxAltTime();
-							// Because there is a minimum delay of 0.001 seconds (in this code),
-							// we want to make that tiny time delay look like zero.
-							if (deployTimeFromApogee > 0 && deployTimeFromApogee <= 0.002) {
-								deployTimeFromApogee = 0.0;
-							}
-							status.getFlightData().setDeployTimeFromApogee(deployTimeFromApogee);
-						} else {
-							status.setDeployTimeFromApogee(0.0);
-						}
+					// Check if we've reached apogee
+					if (status.getSimulationConditions().isCalculateExtras() && status.isApogeeReached()) {
+						status.getFlightData().setOptimumAltitude(status.getMaxAlt());
+						status.getFlightData().setTimeToOptimumAltitude(status.getMaxAltTime());
+					} else {
+						FlightData coastStatus = computeCoastTime();
+						status.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
+						status.getFlightData().setTimeToOptimumAltitude(coastStatus.getTimeToApogee());
 					}
 					
 					this.currentStepper = this.landingStepper;
@@ -621,18 +611,20 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		}
 	}
 	
-	private double computeCoastTime() {
+	private FlightData computeCoastTime() {
 		try {
-			SimulationStatus boosterStatus = new SimulationStatus(status);
-			boosterStatus.setFlightData(new FlightDataBranch("dummy", FlightDataType.TYPE_TIME));
+			// FIXME - we're actually completely simulating so only need conditions
+			SimulationStatus coastStatus = new SimulationStatus(status);
+			coastStatus.setFlightData(new FlightDataBranch("dummy", FlightDataType.TYPE_TIME));
 			
 			BasicEventSimulationEngine e = new BasicEventSimulationEngine();
-			boosterStatus.getSimulationConditions().getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
+			coastStatus.getSimulationConditions().getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			
-			FlightData d = e.simulate(boosterStatus.getSimulationConditions());
-			return d.getBranch(0).getMaximum(FlightDataType.TYPE_TIME);
+			FlightData d = e.simulate(coastStatus.getSimulationConditions());
+			return d;
 		} catch (Exception e) {
-			return 0.0d;
+			log.warn("Exception computing coast time: ", e);
+			return null;
 		}
 	}
 }
