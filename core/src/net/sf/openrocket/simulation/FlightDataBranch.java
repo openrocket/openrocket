@@ -36,7 +36,15 @@ public class FlightDataBranch implements Monitorable {
 	private final Map<FlightDataType, Double> maxValues = new HashMap<FlightDataType, Double>();
 	private final Map<FlightDataType, Double> minValues = new HashMap<FlightDataType, Double>();
 	
-
+	/**
+	 * time for the rocket to reach apogee if the flight had been no recovery deployment
+	 */
+	private double timeToOptimumAltitude = Double.NaN;
+	/**
+	 * Altitude the rocket would reach if there had been no recovery deployment.
+	 */
+	private double optimumAltitude = Double.NaN;
+	
 	private final ArrayList<FlightEvent> events = new ArrayList<FlightEvent>();
 	
 	private Mutable mutable = new Mutable();
@@ -73,12 +81,12 @@ public class FlightDataBranch implements Monitorable {
 	 */
 	public FlightDataBranch() {
 		branchName = "Empty branch";
-		for (FlightDataType type : FlightDataType.ALL_TYPES){
+		for (FlightDataType type : FlightDataType.ALL_TYPES) {
 			this.setValue(type, Double.NaN);
 		}
 		this.immute();
 	}
-
+	
 	/**
 	 * Adds a new point into the data branch.  The value for all types is set to NaN by default.
 	 * 
@@ -115,10 +123,10 @@ public class FlightDataBranch implements Monitorable {
 			}
 			values.put(type, list);
 			minValues.put(type, value);
-			maxValues.put(type, value);		
+			maxValues.put(type, value);
 		}
 		
-		if (list.size() > 0){
+		if (list.size() > 0) {
 			list.set(list.size() - 1, value);
 		}
 		
@@ -220,6 +228,34 @@ public class FlightDataBranch implements Monitorable {
 	
 	
 	/**
+	 * @return the timeToOptimumAltitude
+	 */
+	public double getTimeToOptimumAltitude() {
+		return timeToOptimumAltitude;
+	}
+	
+	/**
+	 * @param timeToOptimumAltitude the timeToOptimumAltitude to set
+	 */
+	public void setTimeToOptimumAltitude(double timeToOptimumAltitude) {
+		this.timeToOptimumAltitude = timeToOptimumAltitude;
+	}
+	
+	/**
+	 * @return the optimumAltitude
+	 */
+	public double getOptimumAltitude() {
+		return optimumAltitude;
+	}
+	
+	/**
+	 * @param optimumAltitude the optimumAltitude to set
+	 */
+	public void setOptimumAltitude(double optimumAltitude) {
+		this.optimumAltitude = optimumAltitude;
+	}
+	
+	/**
 	 * Add a flight event to this branch.
 	 * 
 	 * @param event		the event to add.
@@ -241,6 +277,34 @@ public class FlightDataBranch implements Monitorable {
 		return events.clone();
 	}
 	
+	/**
+	 * Return the first event of the given type.
+	 * @param type
+	 * @return
+	 */
+	public FlightEvent getFirstEvent(FlightEvent.Type type) {
+		for (FlightEvent e : events) {
+			if (e.getType() == type) {
+				return e;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Return the last event of the given type.
+	 * @param type
+	 * @return
+	 */
+	public FlightEvent getLastEvent(FlightEvent.Type type) {
+		FlightEvent retval = null;
+		for (FlightEvent e : events) {
+			if (e.getType() == type) {
+				retval = e;
+			}
+		}
+		return retval;
+	}
 	
 	/**
 	 * Make this FlightDataBranch immutable.  Any calls to the set methods that would

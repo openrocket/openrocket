@@ -125,6 +125,7 @@ public class DesignReport {
 	private static final String SIZE = "Size";
 	private static final String ALTITUDE = "Altitude";
 	private static final String FLIGHT_TIME = "Flight Time";
+	private static final String OPTIMUM_DELAY = "Optimum Delay";
 	private static final String TIME_TO_APOGEE = "Time to Apogee";
 	private static final String VELOCITY_OFF_PAD = "Velocity off Pad";
 	private static final String MAX_VELOCITY = "Max Velocity";
@@ -467,6 +468,9 @@ public class DesignReport {
 				
 				labelTable.addCell(ITextHelper.createCell(TIME_TO_APOGEE, 2, 2));
 				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getTimeToApogee()), 2, 2));
+				
+				labelTable.addCell(ITextHelper.createCell(OPTIMUM_DELAY, 2, 2));
+				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getBranch(0).getTimeToOptimumAltitude()), 2, 2));
 				
 				labelTable.addCell(ITextHelper.createCell(VELOCITY_OFF_PAD, 2, 2));
 				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getLaunchRodVelocity()), 2, 2));

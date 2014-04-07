@@ -4,9 +4,13 @@ import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 
-
-
-public interface SimulationListener {
+/**
+ * Listen to simulation events and possibly take action.
+ * 
+ * If the implementation maintains any state, it should be properly cloned.
+ * 
+ */
+public interface SimulationListener extends Cloneable {
 	
 	/**
 	 * Get the name of this simulation listener.  Ideally this should be localized, as
@@ -83,5 +87,5 @@ public interface SimulationListener {
 	 */
 	public FlightDataType[] getFlightDataTypes();
 	
-	
+	public SimulationListener clone() throws CloneNotSupportedException;
 }

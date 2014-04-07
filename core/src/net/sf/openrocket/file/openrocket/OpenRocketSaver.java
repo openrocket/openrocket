@@ -536,6 +536,7 @@ public class OpenRocketSaver extends RocketSaver {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<databranch name=\"");
 		sb.append(TextUtil.escapeXML(branch.getBranchName()));
+		sb.append("\" ");
 		
 		// Kevins version where typekeys are used
 		/*
@@ -547,7 +548,19 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 		*/
 		
-		sb.append("\" types=\"");
+		if (!Double.isNaN(branch.getOptimumAltitude())) {
+			sb.append("optimumAltitude=\"");
+			sb.append(branch.getOptimumAltitude());
+			sb.append("\" ");
+		}
+		
+		if (!Double.isNaN(branch.getTimeToOptimumAltitude())) {
+			sb.append("timeToOptimumAltitude=\"");
+			sb.append(branch.getTimeToOptimumAltitude());
+			sb.append("\" ");
+		}
+		
+		sb.append("types=\"");
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)
 				sb.append(",");
@@ -589,8 +602,6 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</databranch>");
 	}
-	
-	
 	
 	/* TODO: LOW: This is largely duplicated from above! */
 	private int countFlightDataBranchPoints(FlightDataBranch branch, double timeSkip) {

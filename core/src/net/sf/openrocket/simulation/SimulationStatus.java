@@ -27,10 +27,6 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 public class SimulationStatus implements Monitorable {
 	
-	/*
-	 * NOTE!  All fields must be added to copyFrom() method!!
-	 */
-
 	private SimulationConditions simulationConditions;
 	private Configuration configuration;
 	private MotorInstanceConfiguration motorConfiguration;
@@ -51,12 +47,12 @@ public class SimulationStatus implements Monitorable {
 	
 	// Set of burnt out motors
 	Set<MotorId> motorBurntOut = new HashSet<MotorId>();
-
-
+	
+	
 	/** Nanosecond time when the simulation was started. */
 	private long simulationStartWallTime = Long.MIN_VALUE;
 	
-
+	
 	/** Set to true when a motor has ignited. */
 	private boolean motorIgnited = false;
 	
@@ -83,38 +79,40 @@ public class SimulationStatus implements Monitorable {
 	/** Available for special purposes by the listeners. */
 	private final Map<String, Object> extraData = new HashMap<String, Object>();
 	
-
+	double maxAlt = Double.NEGATIVE_INFINITY;
+	double maxAltTime = 0;
+	
 	private int modID = 0;
 	private int modIDadd = 0;
 	
-	public SimulationStatus( Configuration configuration,
+	public SimulationStatus(Configuration configuration,
 			MotorInstanceConfiguration motorConfiguration,
-			SimulationConditions simulationConditions ) {
+			SimulationConditions simulationConditions) {
 		
 		this.simulationConditions = simulationConditions;
 		this.configuration = configuration;
 		this.motorConfiguration = motorConfiguration;
-
+		
 		this.time = 0;
 		this.previousTimeStep = this.simulationConditions.getTimeStep();
 		this.position = Coordinate.NUL;
 		this.velocity = Coordinate.NUL;
 		this.worldPosition = this.simulationConditions.getLaunchSite();
-
+		
 		// Initialize to roll angle with least stability w.r.t. the wind
 		Quaternion o;
 		FlightConditions cond = new FlightConditions(this.configuration);
 		this.simulationConditions.getAerodynamicCalculator().getWorstCP(this.configuration, cond, null);
 		double angle = -cond.getTheta() - this.simulationConditions.getLaunchRodDirection();
 		o = Quaternion.rotation(new Coordinate(0, 0, angle));
-
+		
 		// Launch rod angle and direction
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, this.simulationConditions.getLaunchRodDirection())));
-
+		
 		this.orientation = o;
 		this.rotationVelocity = Coordinate.NUL;
-
+		
 		/*
 		 * Calculate the effective launch rod length taking into account launch lugs.
 		 * If no lugs are found, assume a tower launcher of full length.
@@ -140,16 +138,16 @@ public class SimulationStatus implements Monitorable {
 			}
 		}
 		this.effectiveLaunchRodLength = length;
-
+		
 		this.simulationStartWallTime = System.nanoTime();
-
+		
 		this.motorIgnited = false;
 		this.liftoff = false;
 		this.launchRodCleared = false;
 		this.apogeeReached = false;
-
+		
 		this.warnings = new WarningSet();
-
+		
 	}
 	
 	/**
@@ -163,7 +161,7 @@ public class SimulationStatus implements Monitorable {
 	 * 
 	 * @param orig	the object from which to copy
 	 */
-	public SimulationStatus( SimulationStatus orig ) {
+	public SimulationStatus(SimulationStatus orig) {
 		this.simulationConditions = orig.simulationConditions.clone();
 		this.configuration = orig.configuration.clone();
 		this.motorConfiguration = orig.motorConfiguration.clone();
@@ -292,11 +290,11 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public boolean addBurntOutMotor( MotorId motor ) {
+	public boolean addBurntOutMotor(MotorId motor) {
 		return motorBurntOut.add(motor);
 	}
-
-
+	
+	
 	public Quaternion getRocketOrientationQuaternion() {
 		return orientation;
 	}
@@ -384,13 +382,31 @@ public class SimulationStatus implements Monitorable {
 	}
 	
 	
-	public void setTumbling( boolean tumbling ) {
+	public void setTumbling(boolean tumbling) {
 		this.tumbling = tumbling;
 		this.modID++;
 	}
 	
 	public boolean isTumbling() {
 		return tumbling;
+	}
+	
+	public double getMaxAlt() {
+		return maxAlt;
+	}
+	
+	public void setMaxAlt(double maxAlt) {
+		this.maxAlt = maxAlt;
+		this.modID++;
+	}
+	
+	public double getMaxAltTime() {
+		return maxAltTime;
+	}
+	
+	public void setMaxAltTime(double maxAltTime) {
+		this.maxAltTime = maxAltTime;
+		this.modID++;
 	}
 	
 	public Set<RecoveryDevice> getDeployedRecoveryDevices() {
@@ -477,5 +493,5 @@ public class SimulationStatus implements Monitorable {
 				eventQueue.getModID() + warnings.getModID());
 	}
 	
-
+	
 }

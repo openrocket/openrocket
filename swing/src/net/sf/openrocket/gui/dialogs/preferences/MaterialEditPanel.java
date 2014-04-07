@@ -23,6 +23,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.gui.adaptors.Column;
+import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -108,7 +109,7 @@ public class MaterialEditPanel extends JPanel {
 					}
 				};
 		
-		table = new JTable(model);
+		table = new ColumnTable(model);
 		model.setColumnWidths(table.getColumnModel());
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(Object.class, new MaterialCellRenderer());

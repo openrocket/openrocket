@@ -6,6 +6,7 @@ import javax.swing.table.TableColumnModel;
 
 public abstract class Column {
 	private final String name;
+	private final String toolTip;
 	
 	/**
 	 * Create a new column with specified name.  Additionally, the {@link #getValueAt(int)}
@@ -15,6 +16,17 @@ public abstract class Column {
 	 */
 	public Column(String name) {
 		this.name = name;
+		this.toolTip = null;
+	}
+	
+	/**
+	 * Create a new column with specified name and toolTip.
+	 * 
+	 * 
+	 */
+	public Column(String name, String toolTip ) {
+		this.name = name;
+		this.toolTip = toolTip;
 	}
 	
 	/**
@@ -86,6 +98,10 @@ public abstract class Column {
 	 */
 	public Comparator getComparator() {
 		return null;
+	}
+
+	public String getToolTip() {
+		return toolTip;
 	}
 	
 }
