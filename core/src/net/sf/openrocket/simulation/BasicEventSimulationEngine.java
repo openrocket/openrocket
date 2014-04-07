@@ -464,6 +464,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				// Mark apogee as reached
 				status.setApogeeReached(true);
 				status.getFlightData().addEvent(event);
+				// This apogee event might be the optimum if recovery has not already happened.
+				if (status.getSimulationConditions().isCalculateExtras() && status.getDeployedRecoveryDevices().size() == 0) {
+					status.getFlightData().setOptimumAltitude(status.getMaxAlt());
+					status.getFlightData().setTimeToOptimumAltitude(status.getMaxAltTime());
+				}
 				break;
 			
 			case RECOVERY_DEVICE_DEPLOYMENT:
@@ -501,11 +506,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					status.setLiftoff(true);
 					status.getDeployedRecoveryDevices().add((RecoveryDevice) c);
 					
-					// Check if we've reached apogee
-					if (status.getSimulationConditions().isCalculateExtras() && status.isApogeeReached()) {
-						status.getFlightData().setOptimumAltitude(status.getMaxAlt());
-						status.getFlightData().setTimeToOptimumAltitude(status.getMaxAltTime());
-					} else {
+					// If we haven't already reached apogee, then we need to compute the actual coast time
+					// to determine the optimum altitude.
+					if (status.getSimulationConditions().isCalculateExtras() && !status.isApogeeReached()) {
 						FlightData coastStatus = computeCoastTime();
 						status.getFlightData().setOptimumAltitude(coastStatus.getMaxAltitude());
 						status.getFlightData().setTimeToOptimumAltitude(coastStatus.getTimeToApogee());
