@@ -616,14 +616,11 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	private FlightData computeCoastTime() {
 		try {
-			// FIXME - we're actually completely simulating so only need conditions
-			SimulationStatus coastStatus = new SimulationStatus(status);
-			coastStatus.setFlightData(new FlightDataBranch("dummy", FlightDataType.TYPE_TIME));
-			
+			SimulationConditions conds = status.getSimulationConditions().clone();
+			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			BasicEventSimulationEngine e = new BasicEventSimulationEngine();
-			coastStatus.getSimulationConditions().getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			
-			FlightData d = e.simulate(coastStatus.getSimulationConditions());
+			FlightData d = e.simulate(conds);
 			return d;
 		} catch (Exception e) {
 			log.warn("Exception computing coast time: ", e);

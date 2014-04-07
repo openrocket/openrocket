@@ -408,7 +408,7 @@ public class SimulationPanel extends JPanel {
 						if ( Double.isNaN(val) ) {
 							return null;
 						}
-						// FIXME - we really want the first burnout of this stage.  which
+						// TODO - we really want the first burnout of this stage.  which
 						// could be computed as the first burnout after the last stage separation event.
 						// however, that's not quite so concise
 						FlightEvent e = data.getBranch(0).getLastEvent( FlightEvent.Type.BURNOUT );
