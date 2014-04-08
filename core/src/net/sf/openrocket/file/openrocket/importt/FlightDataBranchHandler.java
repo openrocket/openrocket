@@ -42,6 +42,22 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		branch = new FlightDataBranch(name, types);
 	}
 	
+	/**
+	 * @param timeToOptimumAltitude
+	 * @see net.sf.openrocket.simulation.FlightDataBranch#setTimeToOptimumAltitude(double)
+	 */
+	public void setTimeToOptimumAltitude(double timeToOptimumAltitude) {
+		branch.setTimeToOptimumAltitude(timeToOptimumAltitude);
+	}
+	
+	/**
+	 * @param optimumAltitude
+	 * @see net.sf.openrocket.simulation.FlightDataBranch#setOptimumAltitude(double)
+	 */
+	public void setOptimumAltitude(double optimumAltitude) {
+		branch.setOptimumAltitude(optimumAltitude);
+	}
+	
 	// Find the full flight data type given name only
 	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
 	// not the nicest but this is always the case anyway.
