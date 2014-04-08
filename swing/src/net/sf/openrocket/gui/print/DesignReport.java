@@ -470,7 +470,7 @@ public class DesignReport {
 				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getTimeToApogee()), 2, 2));
 				
 				labelTable.addCell(ITextHelper.createCell(OPTIMUM_DELAY, 2, 2));
-				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getBranch(0).getTimeToOptimumAltitude()), 2, 2));
+				labelTable.addCell(ITextHelper.createCell(flightTimeUnit.toStringUnit(flight.getBranch(0).getOptimumDelay()), 2, 2));
 				
 				labelTable.addCell(ITextHelper.createCell(VELOCITY_OFF_PAD, 2, 2));
 				labelTable.addCell(ITextHelper.createCell(velocityUnit.toStringUnit(flight.getLaunchRodVelocity()), 2, 2));

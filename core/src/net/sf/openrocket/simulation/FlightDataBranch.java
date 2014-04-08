@@ -255,6 +255,22 @@ public class FlightDataBranch implements Monitorable {
 		this.optimumAltitude = optimumAltitude;
 	}
 	
+	public double getOptimumDelay() {
+		
+		if (Double.isNaN(timeToOptimumAltitude)) {
+			return Double.NaN;
+		}
+		// TODO - we really want the first burnout of this stage.  which
+		// could be computed as the first burnout after the last stage separation event.
+		// however, that's not quite so concise
+		FlightEvent e = getLastEvent(FlightEvent.Type.BURNOUT);
+		if (e != null) {
+			return timeToOptimumAltitude - e.getTime();
+		}
+		
+		return Double.NaN;
+	}
+	
 	/**
 	 * Add a flight event to this branch.
 	 * 

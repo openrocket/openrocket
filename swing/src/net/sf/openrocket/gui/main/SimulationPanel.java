@@ -404,18 +404,11 @@ public class SimulationPanel extends JPanel {
 						if (data == null || data.getBranchCount() == 0)
 							return null;
 
-						double val = data.getBranch(0).getTimeToOptimumAltitude();
+						double val = data.getBranch(0).getOptimumDelay();
 						if ( Double.isNaN(val) ) {
 							return null;
 						}
-						// TODO - we really want the first burnout of this stage.  which
-						// could be computed as the first burnout after the last stage separation event.
-						// however, that's not quite so concise
-						FlightEvent e = data.getBranch(0).getLastEvent( FlightEvent.Type.BURNOUT );
-						if ( e != null ) {
-							return val - e.getTime();
-						}
-						return null;
+						return val;
 					}
 				},
 
