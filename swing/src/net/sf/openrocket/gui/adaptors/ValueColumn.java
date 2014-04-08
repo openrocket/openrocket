@@ -15,6 +15,11 @@ public abstract class ValueColumn extends Column {
 		this.unit = unit;
 	}
 	
+	public ValueColumn( String name, String toolTip, UnitGroup unit ) {
+		super( name, toolTip );
+		this.unit = unit;
+	}
+	
 	@Override
 	public Object getValueAt(int row) {
 		Double d = valueAt(row);

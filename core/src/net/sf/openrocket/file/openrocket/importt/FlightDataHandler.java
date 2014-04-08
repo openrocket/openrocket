@@ -48,6 +48,23 @@ class FlightDataHandler extends AbstractElementHandler {
 			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
 					attributes.get("types"),
 					simHandler, context);
+			
+			if (attributes.get("optimumAltitude") != null) {
+				double optimumAltitude = Double.NaN;
+				try {
+					optimumAltitude = Double.parseDouble(attributes.get("optimumAltitude"));
+				} catch (NumberFormatException ignore) {
+				}
+				dataHandler.setOptimumAltitude(optimumAltitude);
+			}
+			if (attributes.get("timeToOptimumAltitude") != null) {
+				double timeToOptimumAltitude = Double.NaN;
+				try {
+					timeToOptimumAltitude = Double.parseDouble(attributes.get("timeToOptimumAltitude"));
+				} catch (NumberFormatException ignore) {
+				}
+				dataHandler.setTimeToOptimumAltitude(timeToOptimumAltitude);
+			}
 			return dataHandler;
 		}
 		
