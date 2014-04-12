@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
@@ -87,18 +86,4 @@ public class ConfigHandler extends AbstractElementHandler {
 		return config;
 	}
 	
-	
-	public static void main(String[] args) {
-		Random rnd = new Random();
-		for (int i = 0; i < 1000000000; i++) {
-			double d = Double.longBitsToDouble(rnd.nextLong());
-			if (Double.isNaN(d))
-				continue;
-			String s = "" + d;
-			BigDecimal dec = new BigDecimal(s);
-			if (dec.doubleValue() != d) {
-				System.out.println("Fail:  d=" + d + "  dec=" + dec);
-			}
-		}
-	}
 }
