@@ -21,7 +21,7 @@ import net.sf.openrocket.simulation.SimulationEngine;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.SimulationStepper;
 import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.simulation.exception.SimulationListenerException;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
@@ -76,7 +76,8 @@ public class Simulation implements ChangeSource, Cloneable {
 	// TODO: HIGH: Change to use actual conditions class??
 	private SimulationOptions options;
 	
-	private ArrayList<String> simulationListeners = new ArrayList<String>();
+	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<SimulationExtension>();
+	
 	
 	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
 	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
@@ -116,7 +117,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	public Simulation(Rocket rocket, Status status, String name, SimulationOptions options,
-			List<String> listeners, FlightData data) {
+			List<SimulationExtension> extensions, FlightData data) {
 		
 		if (rocket == null)
 			throw new IllegalArgumentException("rocket cannot be null");
@@ -142,8 +143,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.options = options;
 		options.addChangeListener(new ConditionListener());
 		
-		if (listeners != null) {
-			this.simulationListeners.addAll(listeners);
+		if (extensions != null) {
+			this.simulationExtensions.addAll(extensions);
 		}
 		
 		
@@ -196,14 +197,14 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	/**
-	 * Get the list of simulation listeners.  The returned list is the one used by
+	 * Get the list of simulation extensions.  The returned list is the one used by
 	 * this object; changes to it will reflect changes in the simulation.
 	 *
-	 * @return	the actual list of simulation listeners.
+	 * @return	the actual list of simulation extensions.
 	 */
-	public List<String> getSimulationListeners() {
+	public List<SimulationExtension> getSimulationExtensions() {
 		mutex.verify();
-		return simulationListeners;
+		return simulationExtensions;
 	}
 	
 	
@@ -293,16 +294,8 @@ public class Simulation implements ChangeSource, Cloneable {
 				simulationConditions.getSimulationListenerList().add(l);
 			}
 			
-			for (String className : simulationListeners) {
-				SimulationListener l = null;
-				try {
-					Class<?> c = Class.forName(className);
-					l = (SimulationListener) c.newInstance();
-				} catch (Exception e) {
-					throw new SimulationListenerException("Could not instantiate listener of " +
-							"class: " + className, e);
-				}
-				simulationConditions.getSimulationListenerList().add(l);
+			for (SimulationExtension extension : simulationExtensions) {
+				extension.initialize(simulationConditions);
 			}
 			
 			long t1, t2;
@@ -410,7 +403,9 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
 			copy.options = this.options.clone();
-			copy.simulationListeners = this.simulationListeners.clone();
+			for (SimulationExtension c : this.simulationExtensions) {
+				copy.simulationExtensions.add(c.clone());
+			}
 			copy.listeners = new ArrayList<EventListener>();
 			copy.simulatedConditions = null;
 			copy.simulatedConfiguration = null;
@@ -442,7 +437,9 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.name = this.name;
 			copy.options.copyFrom(this.options);
 			copy.simulatedConfiguration = this.simulatedConfiguration;
-			copy.simulationListeners = this.simulationListeners.clone();
+			for (SimulationExtension c : this.simulationExtensions) {
+				copy.simulationExtensions.add(c.clone());
+			}
 			copy.simulationStepperClass = this.simulationStepperClass;
 			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 			

@@ -1,21 +1,26 @@
 package net.sf.openrocket.gui.simulation;
 
-import java.awt.Component;
+import java.awt.Color;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.ListCellRenderer;
+import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
@@ -25,22 +30,30 @@ import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.DescriptionArea;
+import net.sf.openrocket.gui.components.StyledLabel;
+import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
+import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.simulation.SimulationOptions;
-import net.sf.openrocket.simulation.listeners.SimulationListener;
-import net.sf.openrocket.simulation.listeners.example.CSVSaveListener;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
+import net.sf.openrocket.simulation.extension.SimulationExtensionProvider;
+import net.sf.openrocket.simulation.extension.SwingSimulationExtensionConfigurator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
+
+import com.google.inject.Key;
 
 class SimulationOptionsPanel extends JPanel {
 	
 	private static final Translator trans = Application.getTranslator();
 	
 	final Simulation simulation;
+	
+	private JPanel currentExtensions;
 	
 	SimulationOptionsPanel(final Simulation simulation) {
 		super(new MigLayout("fill"));
@@ -162,133 +175,255 @@ class SimulationOptionsPanel extends JPanel {
 		
 		
 		
-		//// Simulation listeners
+		//// Simulation extensions
 		sub = new JPanel(new MigLayout("fill, gap 0 0"));
-		//// Simulator listeners
-		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simlist")));
-		this.add(sub, "growx, growy");
+		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.SimExt")));
+		this.add(sub, "wmin 300lp, growx, growy");
 		
 		
 		DescriptionArea desc = new DescriptionArea(5);
-		//// <html><i>Simulation listeners</i> is an advanced feature that allows user-written code to listen to and interact with the simulation.  
-		//// For details on writing simulation listeners, see the OpenRocket technical documentation.
-		desc.setText(trans.get("simedtdlg.txt.longA1") +
-				trans.get("simedtdlg.txt.longA2"));
-		sub.add(desc, "aligny 0, growx, wrap para");
+		desc.setText(trans.get("simedtdlg.SimExt.desc"));
+		sub.add(desc, "aligny 0, hmin 100lp, growx, wrap para");
 		
-		//// Current listeners:
-		label = new JLabel(trans.get("simedtdlg.lbl.Curlist"));
-		sub.add(label, "spanx, wrap rel");
 		
-		final ListenerListModel listenerModel = new ListenerListModel();
-		final JList list = new JList(listenerModel);
-		list.setCellRenderer(new ListenerCellRenderer());
-		JScrollPane scroll = new JScrollPane(list);
-		//		scroll.setPreferredSize(new Dimension(1,1));
-		sub.add(scroll, "height 1px, grow, wrap rel");
-		
-		//// Add button
-		button = new JButton(trans.get("simedtdlg.but.add"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String previous = Application.getPreferences().getString("previousListenerName", "");
-				String input = (String) JOptionPane.showInputDialog(SwingUtilities.getRoot(SimulationOptionsPanel.this),
-						new Object[] {
-								//// Type the full Java class name of the simulation listener, for example:
-								"Type the full Java class name of the simulation listener, for example:",
-								"<html><tt>" + CSVSaveListener.class.getName() + "</tt>" },
-						//// Add simulation listener
-						trans.get("simedtdlg.lbl.Addsimlist"),
-						JOptionPane.QUESTION_MESSAGE,
-						null, null,
-						previous
-						);
-				if (input == null || input.equals(""))
-					return;
-				
-				Application.getPreferences().putString("previousListenerName", input);
-				simulation.getSimulationListeners().add(input);
-				listenerModel.fireContentsChanged();
+		final JButton addExtension = new JButton("Add extension");
+		final JPopupMenu menu = getExtensionMenu();
+		addExtension.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				menu.show(addExtension, 5, addExtension.getBounds().height);
 			}
 		});
-		sub.add(button, "split 2, sizegroup buttons, alignx 50%, gapright para");
+		sub.add(addExtension, "growx, wrap 0");
 		
-		//// Remove button
-		button = new JButton(trans.get("simedtdlg.but.remove"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] selected = list.getSelectedIndices();
-				Arrays.sort(selected);
-				for (int i = selected.length - 1; i >= 0; i--) {
-					simulation.getSimulationListeners().remove(selected[i]);
+		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
+		JScrollPane scroll = new JScrollPane(currentExtensions);
+		//  &#$%! scroll pane will not honor "growy"...
+		sub.add(scroll, "growx, growy, h 100%");
+		
+		updateCurrentExtensions();
+		
+	}
+	
+	private JPopupMenu getExtensionMenu() {
+		Set<SimulationExtensionProvider> extensions = Application.getInjector().getInstance(new Key<Set<SimulationExtensionProvider>>() {
+		});
+		
+		JPopupMenu basemenu = new JPopupMenu();
+		
+		for (final SimulationExtensionProvider provider : extensions) {
+			List<String> ids = provider.getIds();
+			for (final String id : ids) {
+				List<String> menuItems = provider.getName(id);
+				if (menuItems != null) {
+					JComponent menu = findMenu(basemenu, menuItems);
+					JMenuItem item = new JMenuItem(menuItems.get(menuItems.size() - 1));
+					item.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							SimulationExtension e = provider.getInstance(id);
+							simulation.getSimulationExtensions().add(e);
+							updateCurrentExtensions();
+						}
+					});
+					menu.add(item);
 				}
-				listenerModel.fireContentsChanged();
 			}
-		});
-		sub.add(button, "sizegroup buttons, alignx 50%");
-		
-		
+		}
+		return basemenu;
 	}
 	
-	private class ListenerCellRenderer extends JLabel implements ListCellRenderer {
+	private JComponent findMenu(MenuElement menu, List<String> menuItems) {
+		for (int i = 0; i < menuItems.size() - 1; i++) {
+			String menuItem = menuItems.get(i);
+			
+			MenuElement found = null;
+			for (MenuElement e : menu.getSubElements()) {
+				if (e instanceof JMenu && ((JMenu) e).getText().equals(menuItem)) {
+					found = e;
+					break;
+				}
+			}
+			
+			if (found != null) {
+				menu = found;
+			} else {
+				JMenu m = new JMenu(menuItem);
+				((JComponent) menu).add(m);
+				menu = m;
+			}
+		}
+		return (JComponent) menu;
+	}
+	
+	
+	private void updateCurrentExtensions() {
+		currentExtensions.removeAll();
 		
-		@Override
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus) {
-			String s = value.toString();
-			setText(s);
+		if (simulation.getSimulationExtensions().isEmpty()) {
+			StyledLabel l = new StyledLabel(trans.get("simedtdlg.SimExt.noExtensions"), Style.ITALIC);
+			l.setForeground(Color.DARK_GRAY);
+			currentExtensions.add(l, "growx, pad 5 5 5 5, wrap");
+		} else {
+			for (SimulationExtension e : simulation.getSimulationExtensions()) {
+				currentExtensions.add(new SimulationExtensionPanel(e), "growx, wrap");
+			}
+		}
+		// Both needed:
+		this.revalidate();
+		this.repaint();
+	}
+	
+	
+	private class SimulationExtensionPanel extends JPanel {
+		
+		public SimulationExtensionPanel(final SimulationExtension extension) {
+			super(new MigLayout("fillx, gapx 0"));
 			
-			// Attempt instantiating, catch any exceptions
-			Exception ex = null;
-			try {
-				Class<?> c = Class.forName(s);
-				@SuppressWarnings("unused")
-				SimulationListener l = (SimulationListener) c.newInstance();
-			} catch (Exception e) {
-				ex = e;
+			this.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+			this.add(new JLabel(extension.getName()), "spanx, growx, wrap");
+			
+			JButton button;
+			
+			this.add(new JPanel(), "spanx, split, growx, right");
+			
+			if (findConfigurator(extension) != null) {
+				button = new JButton(Icons.CONFIGURE);
+				button.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						findConfigurator(extension).configure(extension, simulation,
+								SwingUtilities.windowForComponent(SimulationOptionsPanel.this));
+						updateCurrentExtensions();
+					}
+				});
+				this.add(button, "right");
 			}
 			
-			if (ex == null) {
-				setIcon(Icons.SIMULATION_LISTENER_OK);
-				//// Listener instantiated successfully.
-				setToolTipText("Listener instantiated successfully.");
-			} else {
-				setIcon(Icons.SIMULATION_LISTENER_ERROR);
-				//// <html>Unable to instantiate listener due to exception:<br>
-				setToolTipText("<html>Unable to instantiate listener due to exception:<br>" +
-						ex.toString());
+			if (extension.getDescription() != null) {
+				button = new JButton(Icons.HELP);
+				button.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						final JDialog dialog = new JDialog(SwingUtilities.windowForComponent(SimulationOptionsPanel.this),
+								extension.getName(), ModalityType.APPLICATION_MODAL);
+						JPanel panel = new JPanel(new MigLayout("fill"));
+						DescriptionArea area = new DescriptionArea(extension.getDescription(), 10, 0);
+						panel.add(area, "width 400lp, wrap para");
+						JButton close = new JButton(trans.get("button.close"));
+						close.addActionListener(new ActionListener() {
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								dialog.setVisible(false);
+							}
+						});
+						panel.add(close, "right");
+						dialog.add(panel);
+						GUIUtil.setDisposableDialogOptions(dialog, close);
+						dialog.setLocationRelativeTo(SwingUtilities.windowForComponent(SimulationOptionsPanel.this));
+						dialog.setVisible(true);
+					}
+				});
+				this.add(button, "right");
 			}
 			
-			if (isSelected) {
-				setBackground(list.getSelectionBackground());
-				setForeground(list.getSelectionForeground());
-			} else {
-				setBackground(list.getBackground());
-				setForeground(list.getForeground());
+			button = new JButton(Icons.DELETE);
+			button.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					Iterator<SimulationExtension> iter = simulation.getSimulationExtensions().iterator();
+					while (iter.hasNext()) {
+						// Compare with identity
+						if (iter.next() == extension) {
+							iter.remove();
+							break;
+						}
+					}
+					updateCurrentExtensions();
+				}
+			});
+			this.add(button, "right");
+			
+		}
+		
+		private SwingSimulationExtensionConfigurator findConfigurator(SimulationExtension extension) {
+			Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<Set<SwingSimulationExtensionConfigurator>>() {
+			});
+			for (SwingSimulationExtensionConfigurator c : configurators) {
+				if (c.support(extension)) {
+					return c;
+				}
 			}
-			setOpaque(true);
-			return this;
+			return null;
 		}
 	}
 	
-	private class ListenerListModel extends AbstractListModel {
-		@Override
-		public String getElementAt(int index) {
-			if (index < 0 || index >= getSize())
-				return null;
-			return simulation.getSimulationListeners().get(index);
-		}
-		
-		@Override
-		public int getSize() {
-			return simulation.getSimulationListeners().size();
-		}
-		
-		public void fireContentsChanged() {
-			super.fireContentsChanged(this, 0, getSize());
-		}
-	}
+	//	
+	//	
+	//	private class ExtensionListModel extends AbstractListModel {
+	//		@Override
+	//		public SimulationExtensionConfiguration getElementAt(int index) {
+	//			if (index < 0 || index >= getSize())
+	//				return null;
+	//			return simulation.getSimulationExtensions().get(index);
+	//		}
+	//		
+	//		@Override
+	//		public int getSize() {
+	//			return simulation.getSimulationExtensions().size();
+	//		}
+	//	}
+	//	
+	//	
+	//	private class ExtensionCellRenderer extends JPanel implements ListCellRenderer {
+	//		private JLabel label;
+	//		
+	//		public ExtensionCellRenderer() {
+	//			super(new MigLayout("fill"));
+	//			label = new JLabel();
+	//			
+	//		}
+	//		
+	//		@Override
+	//		public Component getListCellRendererComponent(JList list, Object value,
+	//				int index, boolean isSelected, boolean cellHasFocus) {
+	//			SimulationExtensionConfiguration config = (SimulationExtensionConfiguration) value;
+	//			
+	//			
+	//			
+	//			String s = value.toString();
+	//			setText(s);
+	//			
+	//			// Attempt instantiating, catch any exceptions
+	//			Exception ex = null;
+	//			try {
+	//				Class<?> c = Class.forName(s);
+	//				@SuppressWarnings("unused")
+	//				SimulationListener l = (SimulationListener) c.newInstance();
+	//			} catch (Exception e) {
+	//				ex = e;
+	//			}
+	//			
+	//			if (ex == null) {
+	//				setIcon(Icons.SIMULATION_LISTENER_OK);
+	//				//// Listener instantiated successfully.
+	//				setToolTipText("Listener instantiated successfully.");
+	//			} else {
+	//				setIcon(Icons.SIMULATION_LISTENER_ERROR);
+	//				//// <html>Unable to instantiate listener due to exception:<br>
+	//				setToolTipText("<html>Unable to instantiate listener due to exception:<br>" +
+	//						ex.toString());
+	//			}
+	//			
+	//			if (isSelected) {
+	//				setBackground(list.getSelectionBackground());
+	//				setForeground(list.getSelectionForeground());
+	//			} else {
+	//				setBackground(list.getBackground());
+	//				setForeground(list.getForeground());
+	//			}
+	//			setOpaque(true);
+	//			return this;
+	//		}
+	//	}
 	
 }
