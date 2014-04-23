@@ -1565,19 +1565,6 @@
             <PartNumber>PNC-80BB</PartNumber>
             <Description>Plastic Nose cone</Description>
             <Material Type="BULK">Polystyrene PS</Material>
-            <Mass Unit="kg">0.03685438003</Mass>
-            <Shape>PARABOLIC</Shape>
-            <OutsideDiameter Unit="m">0.06604</OutsideDiameter>
-            <ShoulderDiameter Unit="m">0.0649732</ShoulderDiameter>
-            <ShoulderLength Unit="m">0.044449999999999996</ShoulderLength>
-            <Length Unit="m">0.1016</Length>
-            <Thickness Unit="m">0.003175</Thickness>
-        </NoseCone>
-        <NoseCone>
-            <Manufacturer>Estes</Manufacturer>
-            <PartNumber>PNC-80FB</PartNumber>
-            <Description>Estes PNC-80 Fat Boy profile cone</Description>
-            <Material Type="BULK">Polystyrene PS</Material>
             <Mass Unit="kg">0.035892</Mass>
             <Shape>ELLIPSOID</Shape>
             <OutsideDiameter Unit="m">0.06604</OutsideDiameter>
