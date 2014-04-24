@@ -2,8 +2,8 @@ package net.sf.openrocket.gui.main.componenttree;
 
 
 
-import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,13 +12,17 @@ import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.openrocket.gui.main.ComponentIcons;
-import net.sf.openrocket.rocketcomponent.MassComponent;
+import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.TextUtil;
 
 public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 	
+	private static final Translator trans = Application.getTranslator();
+
 	@Override
 	public Component getTreeCellRendererComponent(
 			JTree tree,
@@ -36,13 +40,18 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		
 		RocketComponent c = (RocketComponent) value;
 
-		if ( c.isMassOverridden() ) {
+		if ( c.isMassOverridden() || c.isCGOverridden()) {
 			JPanel p = new JPanel();
-			p.setLayout( new BorderLayout() );
+			p.setLayout( new FlowLayout( FlowLayout.LEFT, 1,1) );
 			p.setBackground( UIManager.getColor("Tree.textBackground"));
 			p.setForeground( UIManager.getColor("Tree.textForeground"));
-			p.add(comp, BorderLayout.WEST);
-			p.add(new JLabel( ComponentIcons.getSmallIcon(MassComponent.class) ), BorderLayout.EAST );
+			p.add(comp/*, BorderLayout.WEST*/);
+			if ( c.isMassOverridden() ) {
+				p.add( new JLabel( Icons.MASS_OVERRIDE ) );
+			}
+			if ( c.isCGOverridden() ) {
+				p.add( new JLabel(Icons.CG_OVERRIDE) );
+			}
 			p.setToolTipText(getToolTip(c));
 			comp = p;
 		}
@@ -64,7 +73,11 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		}
 		
 		if ( c.isMassOverridden() ) {
-			sb.append(" mass override");
+			sb.append(" ").append(trans.get("ComponentTree.ttip.massoverride"));
+		}
+		
+		if ( c.isCGOverridden() ) {
+			sb.append(" ").append(trans.get("ComponentTree.ttip.cgoverride"));
 		}
 		
 		String comment = c.getComment().trim();
