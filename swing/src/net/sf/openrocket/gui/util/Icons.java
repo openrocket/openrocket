@@ -83,7 +83,7 @@ public class Icons {
 	public static final Icon NOT_FAVORITE = loadImageIcon("pix/icons/star_silver.png", "Not favorite");
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
 	
-	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-marker.png", "CG Override");
+	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
 	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
 	
 	
