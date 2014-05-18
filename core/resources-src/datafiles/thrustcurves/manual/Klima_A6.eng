@@ -2,7 +2,7 @@
 ; Official manufacturer thrust data - A6
 ; Created by Leo Nutz for OpenRocket,
 ; released into the Public Domain (3/2014)
-A6 18 70 4 0.0035 0.014500000000000002 Klima
+A6 18 70 4 0.0035 0.0145 Klima
    0.088 0.502
    0.186 4.601
    0.232 7.089
