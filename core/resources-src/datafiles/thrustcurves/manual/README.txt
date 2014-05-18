@@ -5,7 +5,10 @@ All other thrust curves are from www.thrustcurve.org
 
 WECO_*.eng - Thrust curves for Weco Feuerwerk motors, created by Sampo N.
 
+Klima_*.eng - Thrust curves for Klima motors, created by Leo Nutz
+
 Loki_J175.rse - Corrected motor type from hybrid to reloadable
 
 at130702.eng - preliminary thrustcurve for new AT C3
 at130721.eng - preliminary thrustcurve for new AT D2
+
