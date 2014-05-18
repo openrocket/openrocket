@@ -1,0 +1,20 @@
+; Raketenmodellbau Klima GmbH
+; Official manufacturer thrust data - D9
+; Created by Leo Nutz for OpenRocket,
+; released into the Public Domain (3/2014)
+D9 18 70 0-3-5-7-P 0.0161 0.0271 Klima
+   0.04 2.111
+   0.116 9.685
+   0.213 25.0
+   0.286 15.738
+   0.329 12.472
+   0.369 10.67
+   0.42 9.713
+   0.495 9.178
+   0.597 8.896
+   1.711 8.925
+   1.826 8.699
+   1.917 8.052
+   1.975 6.954
+   2.206 1.07
+   2.242 0.0
