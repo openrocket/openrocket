@@ -329,6 +329,4 @@ public abstract class Warning {
 	public static final Warning TUMBLE_UNDER_THRUST =
 			new Other(trans.get("Warning.TUMBLE_UNDER_THRUST"));
 	
-	public static final Warning TUMBLE_BEFORE_APOGEE =
-			new Other(trans.get("Warning.TUMBLE_BEFORE_APOGEE"));
 }
