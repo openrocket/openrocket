@@ -1,3 +1,15 @@
+OpenRocket 14.05 (2014-05-21):
+------------------------------
+
+New Features:
+    * Compute optimimum delay time when simulating
+    * Display cg/mass overrides using icons in the component tree
+
+Bug Fixes:
+    * Bug fixes in the motor selection dialog
+    * Updated thrustcurves
+    * Updated 3d libraries to 2.1.5
+
 OpenRocket 14.03 (2014-03-20):
 ------------------------------
 

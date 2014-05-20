@@ -80,11 +80,20 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "14.03";
+$unstable = "14.05";
 $stable = "1.0.0";
 
 
-if (preg_match("/^13.11.2$/", $version)) {
+if (preg_match("/^14.03$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "10: Simulations will now compute the optimum delay for the sustainer\n" .
+    "10: CG and Mass overrides are now indicated in the component tree\n" .
+    "6: Updated thrustcurves - added Klima and SCR motors and various others\n" .
+    "4: Removed the preset component Estes PNC-80FB since it was never produced\n" .
+    "4: Updated 3D libraries\n" .
+    "4: Bug fixes in motor selection dialog\n".
+    "";
+} else if (preg_match("/^13.11.2$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "10: Realistic in flight 3D photo construction\n" .
     "6: Updated thrustcurves\n".

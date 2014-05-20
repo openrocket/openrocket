@@ -9,6 +9,14 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">21.05.2014:</span> Version 14.05 is
+   <a href="download.html">released</a>!  This release contains some minor features,
+   bug fixes and updated thrust curves.  New motor vendors Klima and Southern
+   Cross Rocketry are included.  The simulation will now compute optimum delay based
+   on actual coast time.  Components with CG and mass overrides are decorated with
+   an icon in the component tree.
+   </p>
+
   <p><span class="date">21.03.2014:</span> Version 14.03 is
    <a href="download.html">released</a>!  This release contains the
    new photo realistic renderer (in the Tools menu) which allows one to visualize
