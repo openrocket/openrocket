@@ -1,5 +1,5 @@
 Rocket motor simulation data downloaded from ThrustCurve.org.
-This ZIP file contains 1600 simulator data files.
+This ZIP file contains 1617 simulator data files.
 For more info, please see http://www.thrustcurve.org/
 
 AMW_I195.eng
@@ -856,6 +856,13 @@ AMW_N4000.rse
     Data Source:  user
     Contributor:  John Coker
 
+AeroTech_C3.eng
+    Manufacturer: AeroTech
+    Designation:  C3.4
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  John Coker
+
 AeroTech_D10.eng
     Manufacturer: AeroTech
     Designation:  D10
@@ -889,6 +896,13 @@ AeroTech_D15.rse
     Designation:  D15
     Data Format:  RockSim
     Data Source:  user
+    Contributor:  John Coker
+
+AeroTech_D2.eng
+    Manufacturer: AeroTech
+    Designation:  D2.3
+    Data Format:  RASP
+    Data Source:  cert
     Contributor:  John Coker
 
 AeroTech_D21.eng
@@ -1367,6 +1381,13 @@ AeroTech_F42.rse
     Data Source:  user
     Contributor:  John Coker
 
+AeroTech_F44.eng
+    Manufacturer: AeroTech
+    Designation:  F44W
+    Data Format:  RASP
+    Data Source:  mfr
+    Contributor:  Mark Koelsch
+
 AeroTech_F50.eng
     Manufacturer: AeroTech
     Designation:  F50
@@ -1689,6 +1710,13 @@ AeroTech_G71_1.eng
     Data Source:  mfr
     Contributor:  Edward K. Chess
 
+AeroTech_G74.eng
+    Manufacturer: AeroTech
+    Designation:  G74W
+    Data Format:  RASP
+    Data Source:  mfr
+    Contributor:  Mark Koelsch
+
 AeroTech_G75.eng
     Manufacturer: AeroTech
     Designation:  G75J
@@ -1955,6 +1983,13 @@ AeroTech_H180.rse
     Data Source:  user
     Contributor:  John Coker
 
+AeroTech_H182.eng
+    Manufacturer: AeroTech
+    Designation:  H182R-14A
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Mike Caplinger
+
 AeroTech_H195.eng
     Manufacturer: AeroTech
     Designation:  H195NT-10A
@@ -2055,16 +2090,23 @@ AeroTech_H268.rse
 
 AeroTech_H45.eng
     Manufacturer: AeroTech
-    Designation:  H45W
+    Designation:  H45W-10A
     Data Format:  RASP
-    Data Source:  cert
-    Contributor:  John Coker
+    Data Source:  user
+    Contributor:  Mike Caplinger
 
 AeroTech_H45.rse
     Manufacturer: AeroTech
     Designation:  H45W
     Data Format:  RockSim
     Data Source:  user
+    Contributor:  John Coker
+
+AeroTech_H45_1.eng
+    Manufacturer: AeroTech
+    Designation:  H45W
+    Data Format:  RASP
+    Data Source:  cert
     Contributor:  John Coker
 
 AeroTech_H55.eng
@@ -2269,6 +2311,13 @@ AeroTech_I200.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_I205.eng
+    Manufacturer: AeroTech
+    Designation:  I205W-14A
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Mike Caplinger
 
 AeroTech_I211.eng
     Manufacturer: AeroTech
@@ -2545,16 +2594,23 @@ AeroTech_I600.rse
 
 AeroTech_I65.eng
     Manufacturer: AeroTech
-    Designation:  I65W
+    Designation:  I65W-10A
     Data Format:  RASP
-    Data Source:  cert
-    Contributor:  John Coker
+    Data Source:  user
+    Contributor:  Mike Caplinger
 
 AeroTech_I65.rse
     Manufacturer: AeroTech
     Designation:  I65W
     Data Format:  RockSim
     Data Source:  user
+    Contributor:  John Coker
+
+AeroTech_I65_1.eng
+    Manufacturer: AeroTech
+    Designation:  I65W
+    Data Format:  RASP
+    Data Source:  cert
     Contributor:  John Coker
 
 AeroTech_J125.eng
@@ -2612,6 +2668,13 @@ AeroTech_J145.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_J170.eng
+    Manufacturer: AeroTech
+    Designation:  J170H 3-jet std.
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Jesus Manuel Recuenco
 
 AeroTech_J180.eng
     Manufacturer: AeroTech
@@ -2794,6 +2857,13 @@ AeroTech_J420.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+AeroTech_J425.eng
+    Manufacturer: AeroTech
+    Designation:  J425R-14A
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Mike Caplinger
 
 AeroTech_J460.eng
     Manufacturer: AeroTech
@@ -3117,6 +3187,13 @@ AeroTech_K513.eng
     Data Source:  user
     Contributor:  John Coker
 
+AeroTech_K535.eng
+    Manufacturer: AeroTech
+    Designation:  K535W-14A
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Mike Caplinger
+
 AeroTech_K540.rse
     Manufacturer: AeroTech
     Designation:  K540M
@@ -3249,6 +3326,13 @@ AeroTech_K828.rse
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Victor Merle Barlow
+
+AeroTech_L1000.eng
+    Manufacturer: AeroTech
+    Designation:  L1000W-18A
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Mike Caplinger
 
 AeroTech_L1040.eng
     Manufacturer: AeroTech
@@ -9571,6 +9655,13 @@ GR_M1665.eng
     Data Source:  mfr
     Contributor:  John Coker
 
+GR_O2700.eng
+    Manufacturer: Gorilla Rocket Motors
+    Designation:  O2700BL
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 Hypertek_I130.eng
     Manufacturer: Hypertek
     Designation:  300CC098J - I130
@@ -10719,6 +10810,13 @@ PP_J140.eng
     Data Source:  user
     Contributor:  John Coker
 
+Quest_A3.eng
+    Manufacturer: Quest Aerospace
+    Designation:  A3T
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Howard Smart
+
 Quest_A6.eng
     Manufacturer: Quest Aerospace
     Designation:  A6
@@ -10970,6 +11068,27 @@ Roadrunner_G80.rse
     Data Format:  RockSim
     Data Source:  mfr
     Contributor:  Roadrunner Rocketry
+
+SCR_A3.rse
+    Manufacturer: Southern Cross Rocketry
+    Designation:  SCR-A8
+    Data Format:  RockSim
+    Data Source:  mfr
+    Contributor:  John Coker
+
+SCR_B4.rse
+    Manufacturer: Southern Cross Rocketry
+    Designation:  SCR-B6
+    Data Format:  RockSim
+    Data Source:  mfr
+    Contributor:  John Coker
+
+SCR_C3.rse
+    Manufacturer: Southern Cross Rocketry
+    Designation:  SCR-C6
+    Data Format:  RockSim
+    Data Source:  mfr
+    Contributor:  John Coker
 
 SkyR_G125.eng
     Manufacturer: Sky Ripper Systems

@@ -1,0 +1,31 @@
+; Aerotech C3.4-PT RASP.ENG file made from NAR published data
+; File produced, 2013
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+C3.4 18 72 0, .0052 .0239 A
+0.023 3.188
+0.028 5.669
+0.093 9.080
+0.235 8.208
+0.427 6.881
+0.513 6.188
+0.600 5.438
+0.666 4.803
+0.762 3.649
+0.838 2.668
+0.970 2.149
+1.228 1.918
+1.522 1.918
+1.800 1.860
+2.013 1.745
+2.068 2.034
+2.134 1.803
+2.326 1.803
+2.509 1.745
+2.645 1.687
+2.721 1.457
+2.807 0.879
+2.860 0.000

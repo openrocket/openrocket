@@ -223,12 +223,10 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					if (wantToTumble) {
 						final boolean tooMuchThrust = t > THRUST_TUMBLE_CONDITION;
 						final boolean isSustainer = status.getConfiguration().isStageActive(0);
-						final boolean notUntilApogee = isSustainer && !status.isApogeeReached();
+						final boolean isApogee = status.isApogeeReached();
 						if (tooMuchThrust) {
 							status.getWarnings().add(Warning.TUMBLE_UNDER_THRUST);
-						} else if (notUntilApogee) {
-							status.getWarnings().add(Warning.TUMBLE_BEFORE_APOGEE);
-						} else {
+						} else if (isApogee) {
 							addEvent(new FlightEvent(FlightEvent.Type.TUMBLE, status.getSimulationTime()));
 							status.setTumbling(true);
 						}

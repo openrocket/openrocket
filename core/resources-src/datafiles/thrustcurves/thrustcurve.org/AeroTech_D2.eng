@@ -1,0 +1,34 @@
+; Aerotech D2.3-PT RASP.ENG file made from NAR published data
+; File produced, 2013
+; The total impulse, peak thrust, average thrust and burn time are
+; the same as the averaged static test data on the NAR web site in
+; the certification file. The curve drawn with these data points is as
+; close to the certification curve as can be with such a limited
+; number of points (32) allowed with wRASP up to v1.6.
+D2.3 18 72 0, .0107 .0293 A
+0.020 5.071
+0.039 9.478
+0.093 10.140
+0.184 9.478
+0.275 8.429
+0.438 6.820
+0.657 4.372
+0.747 3.392
+0.838 2.413
+1.056 2.064
+1.365 1.923
+1.892 1.783
+2.528 1.713
+2.946 1.713
+3.219 1.643
+4.091 1.573
+4.727 1.573
+5.218 1.573
+5.636 1.573
+6.217 1.573
+6.726 1.433
+7.199 1.503
+7.635 1.363
+7.907 1.224
+8.016 0.734
+8.140 0.000
