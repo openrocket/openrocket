@@ -1,0 +1,22 @@
+<engine-database>
+  <engine-list>
+  <engine  mfg="Southern Cross Rocketry" code="B6" Type="single-use" dia="18." len="70."
+initWt="14.8" propWt="6." delays="4" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="3.886" peakThrust="12.202" throatDia="0." exitDia="0." Itot="4.69"
+burn-time="1.21" massFrac="40.54" Isp="79.71" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+  <data>
+    <eng-data  t="0." f="0." m="6." cg="35."/>
+    <eng-data  t="0.3545" f="12.2017" m="3.2334" cg="35."/>
+    <eng-data  t="0.478189" f="3.63025" m="1.98092" cg="35."/>
+    <eng-data  t="0.51132" f="2.78992" m="1.84487" cg="35."/>
+    <eng-data  t="0.549972" f="2.35294" m="1.71773" cg="35."/>
+    <eng-data  t="1.00607" f="2.28571" m="0.364525" cg="35."/>
+    <eng-data  t="1.11099" f="1.81513" m="0.0893446" cg="35."/>
+    <eng-data  t="1.18167" f="0.10084" m="0.00273043" cg="35."/>
+    <eng-data  t="1.20707" f="0.0672269" m="0." cg="35."/>
+  </data>
+</engine>
+</engine-list>
+</engine-database>
