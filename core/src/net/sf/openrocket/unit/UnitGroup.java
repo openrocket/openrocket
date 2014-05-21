@@ -196,6 +196,7 @@ public class UnitGroup {
 		UNITS_WINDSPEED.addUnit(new GeneralUnit(1 / 3.6, "km/h"));
 		UNITS_WINDSPEED.addUnit(new GeneralUnit(0.3048, "ft/s"));
 		UNITS_WINDSPEED.addUnit(new GeneralUnit(0.44704, "mph"));
+		UNITS_WINDSPEED.addUnit(new GeneralUnit(0.51444445, "kt"));
 		UNITS_WINDSPEED.setDefaultUnit(0);
 		
 		UNITS_ACCELERATION = new UnitGroup();
