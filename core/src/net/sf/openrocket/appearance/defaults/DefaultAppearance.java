@@ -62,6 +62,7 @@ public class DefaultAppearance {
 	
 	private static Appearance ESTES_MOTOR = simple("/datafiles/textures/motors/estes.jpg");
 	private static Appearance AEROTECH_MOTOR = simple("/datafiles/textures/motors/aerotech.png");
+	private static Appearance KLIMA_MOTOR = simple("/datafiles/textures/motors/klima.jpg");
 	private static Appearance REUSABLE_MOTOR = simpleAlpha(new Color(195, 60, 50), .6f, "/datafiles/textures/motors/reusable.png");
 	
 	private static HashMap<Color, Appearance> plastics = new HashMap<Color, Appearance>();
@@ -104,6 +105,9 @@ public class DefaultAppearance {
 			}
 			if ("AeroTech".equals(tcm.getManufacturer().getSimpleName())) {
 				return AEROTECH_MOTOR;
+			}
+			if ("Klima".equals(tcm.getManufacturer().getSimpleName())) {
+				return KLIMA_MOTOR;
 			}
 		}
 		return REUSABLE_MOTOR;
