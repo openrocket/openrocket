@@ -18,6 +18,9 @@ public class ColumnTable extends JTable {
 				String tip = null;
 				java.awt.Point p = e.getPoint();
 				int index = columnModel.getColumnIndexAtX(p.x);
+				if ( index < 0 ) {
+					return null;
+				}
 				int realIndex = columnModel.getColumn(index).getModelIndex();
 				tip = ((ColumnTableModel) getModel()).getColumn(realIndex).getToolTip();
 				return tip;
