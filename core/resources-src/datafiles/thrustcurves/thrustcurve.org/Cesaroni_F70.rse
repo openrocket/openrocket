@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="53-F70-WT-14A" Type="unspecified" dia="24." len="101.001"
+initWt="73." propWt="29." delays="14,11,9,7,5" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="64.725" peakThrust="96.149" throatDia="0."
+exitDia="0." Itot="52.816" burn-time="0.82" massFrac="39.73" Isp="185.71"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI 53-F70-WT-14A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="29." cg="50.5"/>
+      <eng-data  t="0.001" f="8.303" m="28.9977" cg="50.5"/>
+      <eng-data  t="0.013" f="85.68" m="28.6881" cg="50.5"/>
+      <eng-data  t="0.023" f="96.149" m="28.1889" cg="50.5"/>
+      <eng-data  t="0.052" f="78.821" m="26.7959" cg="50.5"/>
+      <eng-data  t="0.1" f="83.634" m="24.655" cg="50.5"/>
+      <eng-data  t="0.379" f="77.858" m="12.2853" cg="50.5"/>
+      <eng-data  t="0.641" f="62.575" m="2.18404" cg="50.5"/>
+      <eng-data  t="0.665" f="55.716" m="1.40463" cg="50.5"/>
+      <eng-data  t="0.706" f="23.947" m="0.507928" cg="50.5"/>
+      <eng-data  t="0.744" f="9.146" m="0.162685" cg="50.5"/>
+      <eng-data  t="0.787" f="2.768" m="0.0220379" cg="50.5"/>
+      <eng-data  t="0.816" f="0." m="0." cg="50.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

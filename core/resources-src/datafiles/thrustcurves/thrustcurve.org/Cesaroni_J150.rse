@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="949-J150-MY-P" Type="unspecified" dia="38." len="499.999"
+initWt="951." propWt="596." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="146.606" peakThrust="324.576" throatDia="0." exitDia="0."
+Itot="943.266" burn-time="6.43" massFrac="62.67" Isp="161.39" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI 949-J150-MY-P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="596." cg="250."/>
+      <eng-data  t="0.004" f="33.051" m="595.958" cg="250."/>
+      <eng-data  t="0.03" f="324.576" m="593.021" cg="250."/>
+      <eng-data  t="0.12" f="248.729" m="576.72" cg="250."/>
+      <eng-data  t="0.617" f="225." m="502.338" cg="250."/>
+      <eng-data  t="1.385" f="201.271" m="398.912" cg="250."/>
+      <eng-data  t="2.306" f="183.475" m="286.964" cg="250."/>
+      <eng-data  t="3.425" f="177.119" m="159.487" cg="250."/>
+      <eng-data  t="4.149" f="123.729" m="90.6746" cg="250."/>
+      <eng-data  t="4.934" f="79.661" m="40.2339" cg="250."/>
+      <eng-data  t="5.59" f="42.373" m="14.9428" cg="250."/>
+      <eng-data  t="6.318" f="19.492" m="0.714326" cg="250."/>
+      <eng-data  t="6.434" f="0." m="0." cg="250."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

@@ -1,5 +1,5 @@
 Rocket motor simulation data downloaded from ThrustCurve.org.
-This ZIP file contains 1617 simulator data files.
+This ZIP file contains 1638 simulator data files.
 For more info, please see http://www.thrustcurve.org/
 
 AMW_I195.eng
@@ -1495,7 +1495,7 @@ AeroTech_G138.eng
 
 AeroTech_G142.eng
     Manufacturer: AeroTech
-    Designation:  G142
+    Designation:  G142T
     Data Format:  RASP
     Data Source:  cert
     Contributor:  John Coker
@@ -1651,13 +1651,6 @@ AeroTech_G64.eng
     Manufacturer: AeroTech
     Designation:  G64
     Data Format:  RASP
-    Data Source:  user
-    Contributor:  John Coker
-
-AeroTech_G64.rse
-    Manufacturer: AeroTech
-    Designation:  G64
-    Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
 
@@ -2676,6 +2669,20 @@ AeroTech_J170.eng
     Data Source:  user
     Contributor:  Jesus Manuel Recuenco
 
+AeroTech_J1799.eng
+    Manufacturer: AeroTech
+    Designation:  J1799N-P
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Greg Gardner
+
+AeroTech_J1799.rse
+    Manufacturer: AeroTech
+    Designation:  J1799N-P
+    Data Format:  RockSim
+    Data Source:  user
+    Contributor:  John Coker
+
 AeroTech_J180.eng
     Manufacturer: AeroTech
     Designation:  J180T
@@ -2686,20 +2693,6 @@ AeroTech_J180.eng
 AeroTech_J180.rse
     Manufacturer: AeroTech
     Designation:  J180T
-    Data Format:  RockSim
-    Data Source:  user
-    Contributor:  John Coker
-
-AeroTech_J1999.eng
-    Manufacturer: AeroTech
-    Designation:  J1999N-P
-    Data Format:  RASP
-    Data Source:  user
-    Contributor:  Greg Gardner
-
-AeroTech_J1999.rse
-    Manufacturer: AeroTech
-    Designation:  J1999N-P
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
@@ -2811,14 +2804,14 @@ AeroTech_J350_1.rse
 
 AeroTech_J390.eng
     Manufacturer: AeroTech
-    Designation:  J390-turbo
+    Designation:  J390H-turbo
     Data Format:  RASP
     Data Source:  user
     Contributor:  John Coker
 
 AeroTech_J390.rse
     Manufacturer: AeroTech
-    Designation:  J390-turbo
+    Designation:  J390H-turbo
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
@@ -3749,14 +3742,14 @@ AeroTech_M750.rse
 
 AeroTech_M845.eng
     Manufacturer: AeroTech
-    Designation:  M845
+    Designation:  M845H
     Data Format:  RASP
     Data Source:  user
     Contributor:  John Coker
 
 AeroTech_M845.rse
     Manufacturer: AeroTech
-    Designation:  M845
+    Designation:  M845H
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
@@ -4083,6 +4076,20 @@ Cesaroni_F30.rse
     Data Source:  cert
     Contributor:  Len Bryan
 
+Cesaroni_F31.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  56-F31-12A 
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
+Cesaroni_F32.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  53-F32-12A 
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_F36.eng
     Manufacturer: Cesaroni Technology
     Designation:  41-F36-11A
@@ -4134,6 +4141,13 @@ Cesaroni_F51.eng
 
 Cesaroni_F51.rse
     Manufacturer: Cesaroni Technology
+    Designation:  50-F51-13A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
+Cesaroni_F51_1.rse
+    Manufacturer: Cesaroni Technology
     Designation:  F51-CL-12A
     Data Format:  RockSim
     Data Source:  cert
@@ -4152,6 +4166,13 @@ Cesaroni_F59.rse
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Len Bryan
+
+Cesaroni_F70.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  53-F70-14A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 Cesaroni_F79.eng
     Manufacturer: Cesaroni Technology
@@ -4363,6 +4384,13 @@ Cesaroni_G250.rse
     Data Source:  mfr
     Contributor:  Andre Choquette
 
+Cesaroni_G33.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  143-G33-9A 
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_G46.rse
     Manufacturer: Cesaroni Technology
     Designation:  127 G46-11A
@@ -4477,10 +4505,10 @@ Cesaroni_G69.eng
 
 Cesaroni_G69.rse
     Manufacturer: Cesaroni Technology
-    Designation:  117G69-14A
+    Designation:  121 G69-14A
     Data Format:  RockSim
-    Data Source:  cert
-    Contributor:  Andre Choquette
+    Data Source:  user
+    Contributor:  John Coker
 
 Cesaroni_G69_1.eng
     Manufacturer: Cesaroni Technology
@@ -4488,13 +4516,6 @@ Cesaroni_G69_1.eng
     Data Format:  RASP
     Data Source:  user
     Contributor:  Pete Carr
-
-Cesaroni_G69_1.rse
-    Manufacturer: Cesaroni Technology
-    Designation:  121 G69-14A
-    Data Format:  RockSim
-    Data Source:  user
-    Contributor:  John Coker
 
 Cesaroni_G69_2.eng
     Manufacturer: Cesaroni Technology
@@ -5049,6 +5070,20 @@ Cesaroni_H410.rse
     Data Source:  mfr
     Contributor:  Andre Choquette
 
+Cesaroni_H42.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  186-H42-10A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
+Cesaroni_H53.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  234-H53-12A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_H54.eng
     Manufacturer: Cesaroni Technology
     Designation:  168-H54-10A
@@ -5518,6 +5553,13 @@ Cesaroni_I540.rse
     Data Source:  user
     Contributor:  John Coker
 
+Cesaroni_I55.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  395-I55-9A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_I566.rse
     Manufacturer: Cesaroni Technology
     Designation:  I566-16A
@@ -5559,6 +5601,20 @@ Cesaroni_J140.rse
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Len Bryan
+
+Cesaroni_J145.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  699-J145-19A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
+Cesaroni_J150.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  949-J150-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 Cesaroni_J1520.rse
     Manufacturer: Cesaroni Technology
@@ -6092,6 +6148,13 @@ Cesaroni_J760.rse
     Data Source:  cert
     Contributor:  Len Bryan
 
+Cesaroni_J94.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  644-J94-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_K1075.eng
     Manufacturer: Cesaroni Technology
     Designation:  2245-K1075-P
@@ -6372,6 +6435,13 @@ Cesaroni_K515.rse
     Data Source:  cert
     Contributor:  Len Bryan
 
+Cesaroni_K520.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  1711-K520-17A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_K530.eng
     Manufacturer: Cesaroni Technology
     Designation:  1412 K530SS-16A
@@ -6448,6 +6518,13 @@ Cesaroni_K590.rse
     Data Format:  RockSim
     Data Source:  mfr
     Contributor:  Thomas Raithby
+
+Cesaroni_K600.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  2130-K600-17A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 Cesaroni_K610.eng
     Manufacturer: Cesaroni Technology
@@ -6588,6 +6665,13 @@ Cesaroni_K710.rse
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Len Bryan
+
+Cesaroni_K711.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  2377-K711-18A
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 Cesaroni_K735.eng
     Manufacturer: Cesaroni Technology
@@ -6862,6 +6946,20 @@ Cesaroni_L2375.rse
     Data Source:  user
     Contributor:  John Coker
 
+Cesaroni_L265.eng
+    Manufacturer: Cesaroni Technology
+    Designation:  2645-L265-P
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Andrew Wimmer
+
+Cesaroni_L265.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  2645-L265-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
 Cesaroni_L3150.rse
     Manufacturer: Cesaroni Technology
     Designation:  4807 L3150-P
@@ -6879,6 +6977,20 @@ Cesaroni_L3200.eng
 Cesaroni_L3200.rse
     Manufacturer: Cesaroni Technology
     Designation:  L3200-VM-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
+
+Cesaroni_L395.eng
+    Manufacturer: Cesaroni Technology
+    Designation:  4937-L395-P
+    Data Format:  RASP
+    Data Source:  user
+    Contributor:  Mark Stumbaugh
+
+Cesaroni_L395.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  4937-L395-P
     Data Format:  RockSim
     Data Source:  cert
     Contributor:  Andre Choquette
@@ -7106,6 +7218,13 @@ Cesaroni_M1060.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+Cesaroni_M1101.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  5198-M1101-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 Cesaroni_M1160.eng
     Manufacturer: Cesaroni Technology
@@ -7652,6 +7771,13 @@ Cesaroni_N1100.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+Cesaroni_N1560.rse
+    Manufacturer: Cesaroni Technology
+    Designation:  16803-N1560-P
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 Cesaroni_N1800.eng
     Manufacturer: Cesaroni Technology
@@ -10306,6 +10432,20 @@ KBA_M3500.rse
     Data Source:  mfr
     Contributor:  John Coker
 
+Kosdon_G65.eng
+    Manufacturer: Kosdon TRM
+    Designation:  G65DH
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
+Kosdon_H155.eng
+    Manufacturer: Kosdon TRM
+    Designation:  H155F
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 Kosdon_I560.eng
     Manufacturer: Kosdon TRM
     Designation:  I560F
@@ -10760,6 +10900,11 @@ Loki_N3800.rse
     Data Format:  RockSim
     Data Source:  mfr
     Contributor:  Mark Koelsch
+
+Mfr_Motor643.rse
+    Data Format:  RockSim
+    Data Source:  cert
+    Contributor:  Andre Choquette
 
 PML_F50.eng
     Manufacturer: Public Missiles, Ltd.

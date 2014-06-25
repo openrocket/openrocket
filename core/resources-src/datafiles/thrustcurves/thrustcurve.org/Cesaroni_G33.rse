@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="143-G33-MY-9A" Type="unspecified" dia="29." len="187."
+initWt="197." propWt="89." delays="9,6,4,2" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="32.122" peakThrust="62.823" throatDia="0." exitDia="0." Itot="143.298"
+burn-time="4.46" massFrac="45.18" Isp="164.18" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>CTI 143-G33-MY-9A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="89." cg="93.5"/>
+      <eng-data  t="0.009" f="5.657" m="88.9842" cg="93.5"/>
+      <eng-data  t="0.035" f="62.823" m="88.4313" cg="93.5"/>
+      <eng-data  t="0.07" f="27.443" m="87.4502" cg="93.5"/>
+      <eng-data  t="0.143" f="34.789" m="86.0394" cg="93.5"/>
+      <eng-data  t="0.228" f="38.589" m="84.1025" cg="93.5"/>
+      <eng-data  t="0.568" f="39.771" m="75.829" cg="93.5"/>
+      <eng-data  t="1.358" f="37.66" m="56.833" cg="93.5"/>
+      <eng-data  t="3.126" f="36.14" m="16.3141" cg="93.5"/>
+      <eng-data  t="3.405" f="31.58" m="10.4468" cg="93.5"/>
+      <eng-data  t="3.762" f="21.616" m="4.54931" cg="93.5"/>
+      <eng-data  t="4.224" f="6.671" m="0.490974" cg="93.5"/>
+      <eng-data  t="4.461" f="0." m="0." cg="93.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>
