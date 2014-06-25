@@ -1,0 +1,44 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="228.74" Itot="1250.35" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="1866.19" burn-time="0.67" cgDiv="10" cgFix="1" cgStep="-1." code="J1999N" delays="1000" dia="54." exitDia="0." initWt="1111." len="314." mDiv="10" mFix="1" mStep="-1." massFrac="50.17" mfg="Aerotech" peakThrust="2150." propWt="557.4" tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AT 54-852
+Greg Gardner - 09/15/06
+</comments>
+<data>
+<eng-data cg="157." f="0." m="557.4" t="0."/>
+<eng-data cg="157." f="830." m="555.55" t="0.01"/>
+<eng-data cg="157." f="1716." m="549.875" t="0.02"/>
+<eng-data cg="157." f="1787." m="542.067" t="0.03"/>
+<eng-data cg="157." f="1873." m="533.909" t="0.04"/>
+<eng-data cg="157." f="1896." m="525.508" t="0.05"/>
+<eng-data cg="157." f="1918." m="517.006" t="0.06"/>
+<eng-data cg="157." f="1984." m="508.309" t="0.07"/>
+<eng-data cg="157." f="2007." m="499.413" t="0.08"/>
+<eng-data cg="157." f="2051." m="490.368" t="0.09"/>
+<eng-data cg="157." f="2058." m="481.209" t="0.1"/>
+<eng-data cg="157." f="2090." m="462.717" t="0.12"/>
+<eng-data cg="157." f="2098." m="444.047" t="0.14"/>
+<eng-data cg="157." f="2135." m="425.177" t="0.16"/>
+<eng-data cg="157." f="2138." m="406.128" t="0.18"/>
+<eng-data cg="157." f="2142." m="387.048" t="0.2"/>
+<eng-data cg="157." f="2146." m="339.258" t="0.25"/>
+<eng-data cg="157." f="2150." m="291.38" t="0.3"/>
+<eng-data cg="157." f="2146." m="243.501" t="0.35"/>
+<eng-data cg="157." f="2138." m="195.756" t="0.4"/>
+<eng-data cg="157." f="2096." m="148.569" t="0.45"/>
+<eng-data cg="157." f="1974." m="103.209" t="0.5"/>
+<eng-data cg="157." f="1864." m="60.4345" t="0.55"/>
+<eng-data cg="157." f="1829." m="43.9712" t="0.57"/>
+<eng-data cg="157." f="1815." m="27.7263" t="0.59"/>
+<eng-data cg="157." f="1762." m="19.7533" t="0.6"/>
+<eng-data cg="157." f="1673." m="12.0967" t="0.61"/>
+<eng-data cg="157." f="1085." m="5.94916" t="0.62"/>
+<eng-data cg="157." f="490." m="2.43851" t="0.63"/>
+<eng-data cg="157." f="190." m="0.9228" t="0.64"/>
+<eng-data cg="157." f="81." m="0.318745" t="0.65"/>
+<eng-data cg="157." f="31." m="0.0690985" t="0.66"/>
+<eng-data cg="157." f="0." m="0." t="0.67"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

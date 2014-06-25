@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="2130-K600-WH-17A" Type="unspecified" dia="54." len="488."
+initWt="1892." propWt="1238." delays="17,15,13,11,9,7" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="599.274" peakThrust="785.114" throatDia="0."
+exitDia="0." Itot="2118.43" burn-time="3.54" massFrac="65.43" Isp="174.49"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI 2130-K600-WH-17A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="1238." cg="244."/>
+      <eng-data  t="0.002" f="97.239" m="1237.94" cg="244."/>
+      <eng-data  t="0.007" f="785.114" m="1236.65" cg="244."/>
+      <eng-data  t="0.03" f="741.897" m="1226.39" cg="244."/>
+      <eng-data  t="0.101" f="745.498" m="1195.53" cg="244."/>
+      <eng-data  t="0.148" f="731.092" m="1175.26" cg="244."/>
+      <eng-data  t="0.455" f="699.88" m="1046.89" cg="244."/>
+      <eng-data  t="1.711" f="669.868" m="544.194" cg="244."/>
+      <eng-data  t="2.313" f="619.448" m="317.4" cg="244."/>
+      <eng-data  t="2.911" f="559.424" m="111.411" cg="244."/>
+      <eng-data  t="3.093" f="420.168" m="59.3164" cg="244."/>
+      <eng-data  t="3.513" f="60.024" m="0.385855" cg="244."/>
+      <eng-data  t="3.535" f="0." m="0." cg="244."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>
