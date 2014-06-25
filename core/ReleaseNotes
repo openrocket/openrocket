@@ -1,3 +1,14 @@
+OpenRocket 14.06 (2014-06-25):
+------------------------------
+
+New Features:
+    * Klima motor textures
+    * Added knots to windspeed and velocity units
+    * Updated thrustcurves
+
+Bug Fixes:
+    * Fixed annoying IndexOutOfBounds bug in tables.
+
 OpenRocket 14.05 (2014-05-21):
 ------------------------------
 

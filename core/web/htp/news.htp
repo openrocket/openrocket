@@ -9,6 +9,10 @@
 
   <!--- Remember to move the position of "onlyrecent" below! --->
 
+  <p><span class="date">25.06.2014:</span> Version 14.06 is
+   <a href="download.html">released</a>!  This release contains very minimal changes.  It fixes an annoying bug in tables that many people experience.  A texture is added for Klima motors.
+   </p>
+
   <p><span class="date">21.05.2014:</span> Version 14.05 is
    <a href="download.html">released</a>!  This release contains some minor features,
    bug fixes and updated thrust curves.  New motor vendors Klima and Southern

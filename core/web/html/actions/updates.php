@@ -80,11 +80,18 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "14.05";
+$unstable = "14.06";
 $stable = "1.0.0";
 
 
-if (preg_match("/^14.03$/", $version)) {
+if (preg_match("/^14.05$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "10: Added Knots to windspeed and velocity units\n" .
+    "6: Updated thrustcurves\n" .
+    "4: Added Klima motor texture\n" .
+    "4: Fixed annoying table bug\n" .
+    "";
+} else if (preg_match("/^14.03$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "10: Simulations will now compute the optimum delay for the sustainer\n" .
     "10: CG and Mass overrides are now indicated in the component tree\n" .
