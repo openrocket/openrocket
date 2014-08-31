@@ -3,8 +3,6 @@
  */
 package net.sf.openrocket.file.rocksim.importt;
 
-import java.util.HashMap;
-
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
@@ -12,20 +10,22 @@ import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 
+import java.util.HashMap;
+
 /**
- * A SAX handler for the Rocksim AttachedParts XML type.  
+ * A SAX handler for the Rocksim AttachedParts XML type.
  */
 class AttachedPartsHandler extends AbstractElementHandler {
 	private final DocumentLoadingContext context;
-	
+
 	/** The parent component. */
 	private final RocketComponent component;
-	
+
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param c  the parent
-	 * 
+	 *
 	 * @throws IllegalArgumentException   thrown if <code>c</code> is null
 	 */
 	public AttachedPartsHandler(DocumentLoadingContext context, RocketComponent c) throws IllegalArgumentException {
@@ -33,10 +33,18 @@ class AttachedPartsHandler extends AbstractElementHandler {
 			throw new IllegalArgumentException("The parent component of any attached part may not be null.");
 		}
 		this.context = context;
-		component = c;
+		this.component = c;
 	}
-	
-	@Override
+
+    DocumentLoadingContext getContext() {
+        return context;
+    }
+
+    RocketComponent getComponent() {
+        return component;
+    }
+
+    @Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes, WarningSet warnings) {
 		if (RocksimCommonConstants.FIN_SET.equals(element)) {
 			return new FinSetHandler(context, component);
@@ -64,6 +72,9 @@ class AttachedPartsHandler extends AbstractElementHandler {
 		}
 		if (RocksimCommonConstants.TRANSITION.equals(element)) {
 			return new TransitionHandler(context, component, warnings);
+		}
+		if (RocksimCommonConstants.SUBASSEMBLY.equals(element)) {
+			return new SubAssemblyHandler(context, component);
 		}
 		if (RocksimCommonConstants.TUBE_FIN_SET.equals(element)) {
 			warnings.add("Tube fins are not currently supported. Ignoring.");
