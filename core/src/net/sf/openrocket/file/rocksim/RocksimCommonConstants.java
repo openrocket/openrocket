@@ -9,6 +9,7 @@ public class RocksimCommonConstants {
     public static final String WALL_THICKNESS = "WallThickness";
     public static final String SHAPE_PARAMETER = "ShapeParameter";
     public static final String ATTACHED_PARTS = "AttachedParts";
+    public static final String SUBASSEMBLY = "SubAssembly";
     public static final String BODY_TUBE = "BodyTube";
     public static final String FIN_SET = "FinSet";
     public static final String CUSTOM_FIN_SET = "CustomFinSet";
