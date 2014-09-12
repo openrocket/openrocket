@@ -41,7 +41,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		MassData massData = calculateMassData(status);
 		double mass = massData.getCG().weight;
 		
-
+		
 		// Compute drag acceleration
 		Coordinate linearAcceleration;
 		if (airSpeed.length() > 0.001) {
@@ -54,14 +54,14 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		double gravity = modelGravity(status);
 		linearAcceleration = linearAcceleration.sub(0, 0, gravity);
 		
-
+		
 		// Add coriolis acceleration
 		Coordinate coriolisAcceleration = status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(
 				status.getRocketWorldPosition(), status.getRocketVelocity());
 		linearAcceleration = linearAcceleration.add(coriolisAcceleration);
 		
-
-
+		
+		
 		// Select time step
 		double timeStep = MathUtil.min(0.5 / linearAcceleration.length(), RECOVERY_TIME_STEP);
 		
@@ -71,13 +71,13 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		status.setRocketVelocity(status.getRocketVelocity().add(linearAcceleration.multiply(timeStep)));
 		status.setSimulationTime(status.getSimulationTime() + timeStep);
 		
-
+		
 		// Update the world coordinate
 		WorldCoordinate w = status.getSimulationConditions().getLaunchSite();
 		w = status.getSimulationConditions().getGeodeticComputation().addCoordinate(w, status.getRocketPosition());
 		status.setRocketWorldPosition(w);
 		
-
+		
 		// Store data
 		FlightDataBranch data = status.getFlightData();
 		boolean extra = status.getSimulationConditions().isCalculateExtras();
@@ -85,11 +85,11 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 		
 		data.setValue(FlightDataType.TYPE_TIME, status.getSimulationTime());
 		data.setValue(FlightDataType.TYPE_ALTITUDE, status.getRocketPosition().z);
-		data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
-		data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 		if (extra) {
 			data.setValue(FlightDataType.TYPE_POSITION_XY,
 					MathUtil.hypot(status.getRocketPosition().x, status.getRocketPosition().y));
+			data.setValue(FlightDataType.TYPE_POSITION_X, status.getRocketPosition().x);
+			data.setValue(FlightDataType.TYPE_POSITION_Y, status.getRocketPosition().y);
 			data.setValue(FlightDataType.TYPE_POSITION_DIRECTION,
 					Math.atan2(status.getRocketPosition().y, status.getRocketPosition().x));
 			
@@ -97,6 +97,8 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 					MathUtil.hypot(status.getRocketVelocity().x, status.getRocketVelocity().y));
 			data.setValue(FlightDataType.TYPE_ACCELERATION_XY,
 					MathUtil.hypot(linearAcceleration.x, linearAcceleration.y));
+			data.setValue(FlightDataType.TYPE_ACCELERATION_X, linearAcceleration.x);
+			data.setValue(FlightDataType.TYPE_ACCELERATION_Y, linearAcceleration.y);
 			
 			data.setValue(FlightDataType.TYPE_ACCELERATION_TOTAL, linearAcceleration.length());
 			
@@ -106,7 +108,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_REYNOLDS_NUMBER, Re);
 		}
 		
-
+		
 		data.setValue(FlightDataType.TYPE_LATITUDE, status.getRocketWorldPosition().getLatitudeRad());
 		data.setValue(FlightDataType.TYPE_LONGITUDE, status.getRocketWorldPosition().getLongitudeRad());
 		data.setValue(FlightDataType.TYPE_GRAVITY, gravity);
@@ -115,7 +117,7 @@ public class BasicLandingStepper extends AbstractSimulationStepper {
 			data.setValue(FlightDataType.TYPE_CORIOLIS_ACCELERATION, coriolisAcceleration.length());
 		}
 		
-
+		
 		data.setValue(FlightDataType.TYPE_VELOCITY_Z, status.getRocketVelocity().z);
 		data.setValue(FlightDataType.TYPE_ACCELERATION_Z, linearAcceleration.z);
 		

@@ -35,29 +35,29 @@ import org.slf4j.LoggerFactory;
 
 public class BasicEventSimulationEngine implements SimulationEngine {
 	
-	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
+	protected static final Translator trans = Application.getTranslator();
+	protected static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private SimulationStepper flightStepper = new RK4SimulationStepper();
-	private SimulationStepper landingStepper = new BasicLandingStepper();
-	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
+	protected SimulationStepper flightStepper = new RK4SimulationStepper();
+	protected SimulationStepper landingStepper = new BasicLandingStepper();
+	protected SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	
 	// Constant holding 20 degress in radians.  This is the AOA condition
 	// necessary to transistion to tumbling.
-	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
+	protected final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	// The thrust must be below this value for the transition to tumbling.
 	// TODO: this is an arbitrary value
 	private final static double THRUST_TUMBLE_CONDITION = 0.01;
 	
-	private SimulationStepper currentStepper;
+	protected SimulationStepper currentStepper;
 	
-	private SimulationStatus status;
+	protected SimulationStatus status;
 	
-	private String flightConfigurationId;
+	protected String flightConfigurationId;
 	
-	private SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
+	protected SimpleStack<SimulationStatus> stages = new SimpleStack<SimulationStatus>();
 	
 	
 	@Override
@@ -79,7 +79,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		{
 			// main sustainer stage
 			RocketComponent sustainer = configuration.getRocket().getChild(0);
-			status.setFlightData(new FlightDataBranch(sustainer.getName(), FlightDataType.TYPE_TIME));
+			FlightDataType fdt = FlightDataType.TYPE_TIME;
+			FlightDataBranch fdb = new FlightDataBranch(sustainer.getName(), fdt);
+			status.setFlightData(fdb);
 		}
 		stages.add(status);
 		
@@ -110,7 +112,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		return flightData;
 	}
 	
-	private FlightDataBranch simulateLoop() {
+	protected FlightDataBranch simulateLoop() {
 		
 		// Initialize the simulation
 		currentStepper = flightStepper;
@@ -252,7 +254,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @param simulation	the launch conditions.
 	 * @return				a rocket configuration with all stages attached.
 	 */
-	private Configuration setupConfiguration(SimulationConditions simulation) {
+	protected Configuration setupConfiguration(SimulationConditions simulation) {
 		Configuration configuration = new Configuration(simulation.getRocket());
 		configuration.setAllStages();
 		configuration.setFlightConfigurationID(simulation.getMotorConfigurationID());
@@ -268,7 +270,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * @param configuration		the rocket configuration.
 	 * @return					a new motor instance configuration with all motors in place.
 	 */
-	private MotorInstanceConfiguration setupMotorConfiguration(Configuration configuration) {
+	protected MotorInstanceConfiguration setupMotorConfiguration(Configuration configuration) {
 		MotorInstanceConfiguration motors = new MotorInstanceConfiguration();
 		final String flightConfigId = configuration.getFlightConfigurationID();
 		
@@ -298,7 +300,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 * Each event that has occurred before or at the current simulation time is
 	 * processed.  Suitable events are also added to the flight data.
 	 */
-	private boolean handleEvents() throws SimulationException {
+	protected boolean handleEvents() throws SimulationException {
 		boolean ret = true;
 		FlightEvent event;
 		
@@ -554,7 +556,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 *
 	 * @param event		the event to add to the queue.
 	 */
-	private void addEvent(FlightEvent event) throws SimulationException {
+	protected void addEvent(FlightEvent event) throws SimulationException {
 		if (SimulationListenerHelper.fireAddFlightEvent(status, event)) {
 			status.getEventQueue().add(event);
 		}
@@ -569,7 +571,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	 *
 	 * @return			the flight event to handle, or null
 	 */
-	private FlightEvent nextEvent() {
+	protected FlightEvent nextEvent() {
 		EventQueue queue = status.getEventQueue();
 		FlightEvent event = queue.peek();
 		if (event == null)
@@ -588,7 +590,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	
 	
 	
-	private void checkNaN() throws SimulationException {
+	protected void checkNaN() throws SimulationException {
 		double d = 0;
 		boolean b = false;
 		d += status.getSimulationTime();
