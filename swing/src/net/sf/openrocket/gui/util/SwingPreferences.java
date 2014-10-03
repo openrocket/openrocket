@@ -46,6 +46,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			list.add(new Locale(lang));
 		}
 		list.add(new Locale("zh","CN"));
+		list.add(new Locale("uk","UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
 	
