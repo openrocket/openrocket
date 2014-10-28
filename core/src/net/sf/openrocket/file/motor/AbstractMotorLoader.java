@@ -15,7 +15,7 @@ import net.sf.openrocket.util.MathUtil;
 
 public abstract class AbstractMotorLoader implements MotorLoader {
 	
-
+	
 	/**
 	 * {@inheritDoc}
 	 * <p>
@@ -40,7 +40,6 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	protected abstract List<Motor> load(Reader reader, String filename) throws IOException;
 	
 	
-
 	/**
 	 * Return the default charset to use when loading rocket files of this type.
 	 * <p>
@@ -52,11 +51,11 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	protected abstract Charset getDefaultCharset();
 	
 	
-
-
+	
+	
 	//////////  Helper methods  //////////
 	
-
+	
 	/**
 	 * Calculate the mass of a motor at distinct points in time based on the
 	 * initial total mass, propellant weight and thrust.
@@ -88,6 +87,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 			double f1 = thrust.get(i);
 			
 			double dm = 0.5 * (f0 + f1) * (t1 - t0);
+			
 			deltam.add(dm);
 			totalMassChange += dm;
 			t0 = t1;
@@ -102,9 +102,14 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 			mass.add(total);
 		}
 		
+		// to correct negative mass error condition: (caused by rounding errors in the above loops)
+		for (int mass_index = 0; mass_index < mass.size(); mass_index++) {
+			if (mass.get(mass_index) < 0) {
+				mass.set(mass_index, 0.0d);
+			}
+		}
 		return mass;
 	}
-	
 	
 	/**
 	 * Helper method to remove a delay (or plugged) from the end of a motor designation,
@@ -121,7 +126,6 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	}
 	
 	
-
 	/**
 	 * Helper method to tokenize a string using whitespace as the delimiter.
 	 */
@@ -168,7 +172,7 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 	}
 	
 	
-
+	
 	@SuppressWarnings("unchecked")
 	protected static void finalizeThrustCurve(List<Double> time, List<Double> thrust,
 			List... lists) {
