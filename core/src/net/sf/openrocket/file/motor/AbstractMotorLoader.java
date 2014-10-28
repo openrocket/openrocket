@@ -99,14 +99,12 @@ public abstract class AbstractMotorLoader implements MotorLoader {
 		scale = prop / totalMassChange;
 		for (double dm : deltam) {
 			total -= dm * scale;
-			mass.add(total);
-		}
-		
-		// to correct negative mass error condition: (caused by rounding errors in the above loops)
-		for (int mass_index = 0; mass_index < mass.size(); mass_index++) {
-			if (mass.get(mass_index) < 0) {
-				mass.set(mass_index, 0.0d);
+			// to correct negative mass error condition: (caused by rounding errors in the above loop)
+			if (total < 0) {
+				total = 0;
 			}
+			mass.add(total);
+			
 		}
 		return mass;
 	}
