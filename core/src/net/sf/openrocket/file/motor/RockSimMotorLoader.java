@@ -135,8 +135,8 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 		private final double initMass;
 		private final double propMass;
 		private final Motor.Type type;
-		private boolean calculateMass;
-		private boolean calculateCG;
+		private boolean calculateMass = false;
+		private boolean calculateCG = false;
 		
 		private String description = "";
 		
@@ -324,8 +324,8 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			if (time == null || time.size() == 0)
 				throw new SAXException("Illegal motor data");
 			
-			
 			finalizeThrustCurve(time, force, mass, cg);
+			
 			final int n = time.size();
 			
 			if (hasIllegalValue(mass))
@@ -336,6 +336,7 @@ public class RockSimMotorLoader extends AbstractMotorLoader {
 			if (calculateMass) {
 				mass = calculateMass(time, force, initMass, propMass);
 			}
+			
 			if (calculateCG) {
 				for (int i = 0; i < n; i++) {
 					cg.set(i, length / 2);

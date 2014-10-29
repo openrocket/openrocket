@@ -1,6 +1,8 @@
 package net.sf.openrocket.file.motor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,7 @@ public class TestMotorLoader {
 	
 	private static final String DIGEST1 = "e523030bc96d5e63313b5723aaea267d";
 	private static final String DIGEST2 = "6a41f0f10b7283793eb0e6b389753729";
+	private static final String DIGEST3 = "e3164a735f9a50500f2725f0a33d246b";
 	
 	
 	@Test
@@ -25,7 +28,7 @@ public class TestMotorLoader {
 		test(loader, "test1.eng", DIGEST1);
 		test(loader, "test2.rse", DIGEST2);
 		test(loader, "test.zip", DIGEST2, DIGEST1);
-		
+		test(loader, "test3.rse", DIGEST3);
 	}
 	
 	@Test
@@ -36,6 +39,11 @@ public class TestMotorLoader {
 	@Test
 	public void testRocksimMotorLoader() throws IOException {
 		test(new RockSimMotorLoader(), "test2.rse", DIGEST2);
+	}
+	
+	@Test
+	public void testRocksimMotorLoader3() throws IOException {
+		test(new RockSimMotorLoader(), "test3.rse", DIGEST3);
 	}
 	
 	@Test
