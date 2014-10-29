@@ -148,7 +148,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 	protected String getSelectedConfigurationId() {
 		int col = table.convertColumnIndexToModel(table.getSelectedColumn());
 		int row = table.convertRowIndexToModel(table.getSelectedRow());
-		if ( row < 0 || col < 0 ) {
+		if ( row < 0 || col < 0 || row >= table.getRowCount() || col >= table.getColumnCount() ) {
 			return null;
 		}
 		Object tableValue = table.getModel().getValueAt(row, col);
