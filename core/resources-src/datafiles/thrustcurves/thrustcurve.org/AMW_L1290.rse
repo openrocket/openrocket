@@ -1,0 +1,34 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="L1290-SK" Type="unspecified" dia="76." len="785." initWt="5399."
+propWt="3047." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1234.96"
+peakThrust="1476.83" throatDia="0." exitDia="0." Itot="4692.85" burn-time="3.8"
+massFrac="56.44" Isp="157.05" tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+    <comments>ABC-76-6000 4701L1290-SK P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="3047." cg="392.5"/>
+      <eng-data  t="0.022" f="117.623" m="3046.16" cg="392.5"/>
+      <eng-data  t="0.081" f="786.023" m="3028.85" cg="392.5"/>
+      <eng-data  t="0.11" f="797.226" m="3013.95" cg="392.5"/>
+      <eng-data  t="0.176" f="1226.64" m="2970.58" cg="392.5"/>
+      <eng-data  t="0.691" f="1357.34" m="2538.56" cg="392.5"/>
+      <eng-data  t="1.231" f="1461.89" m="2044.33" cg="392.5"/>
+      <eng-data  t="1.761" f="1476.83" m="1538.69" cg="392.5"/>
+      <eng-data  t="2.008" f="1467.49" m="1302.6" cg="392.5"/>
+      <eng-data  t="2.311" f="1417.08" m="1018.85" cg="392.5"/>
+      <eng-data  t="2.835" f="1299.46" m="556.734" cg="392.5"/>
+      <eng-data  t="3.101" f="1235.98" m="337.786" cg="392.5"/>
+      <eng-data  t="3.167" f="1230.38" m="284.94" cg="392.5"/>
+      <eng-data  t="3.34" f="1321.86" m="141.598" cg="392.5"/>
+      <eng-data  t="3.373" f="1286.39" m="113.656" cg="392.5"/>
+      <eng-data  t="3.532" f="365.94" m="28.3652" cg="392.5"/>
+      <eng-data  t="3.602" f="201.64" m="15.467" cg="392.5"/>
+      <eng-data  t="3.734" f="91.485" m="2.90574" cg="392.5"/>
+      <eng-data  t="3.782" f="69.08" m="0.403674" cg="392.5"/>
+      <eng-data  t="3.8" f="0." m="0." cg="392.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

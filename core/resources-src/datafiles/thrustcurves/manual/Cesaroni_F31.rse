@@ -1,6 +1,6 @@
 <engine-database>
   <engine-list>
-    <engine  mfg="CTI" code="56-F31-CL-12A" Type="unspecified" dia="24." len="98.0008"
+    <engine  mfg="CTI" code="56-F31-CL-12A" Type="unspecified" dia="29." len="98.0008"
 initWt="102." propWt="32." delays="13,9,7,5,3" auto-calc-mass="1"
 auto-calc-cg="1" avgThrust="30.41" peakThrust="64.053" throatDia="0."
 exitDia="0." Itot="55.589" burn-time="1.83" massFrac="31.37" Isp="177.14"
