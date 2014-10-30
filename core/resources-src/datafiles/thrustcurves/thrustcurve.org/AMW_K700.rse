@@ -1,44 +1,62 @@
 <engine-database>
- <engine-list>
-<engine FDiv="10" FFix="1" FStep="-1." Isp="217.41" Itot="1607.6" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="717.677" burn-time="2.24" cgDiv="10" cgFix="1" cgStep="-1." code="K700BB" delays="1000" dia="54." exitDia="0." initWt="1483.1" len="430." mDiv="10" mFix="1" mStep="-1." massFrac="50.84" mfg="Animal Motor Works" peakThrust="847.06" propWt="754." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
-<comments>AMW K700 RASP.ENG file made from NAR published data
-File produced April 19, 2004
-The total impulse, peak thrust, average thrust and burn time are
-the same as the averaged static test data on the NAR web site in
-the certification file. The curve drawn with these data points is as
-close to the certification curve as can be with such a limited
-number of points (32) allowed with wRASP up to v1.6.
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="K701BB" Type="reloadable" dia="54."
+len="491." initWt="2088." propWt="1205." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="697.011" peakThrust="840.686" throatDia="0."
+exitDia="0." Itot="1658.19" burn-time="2.38" massFrac="57.71" Isp="140.32"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Entered by Tim Van Milligan for RockSim users. Used ThrustCurve Tracer by John
+Coker. Data from CAR web site, thrust curve from AMW web site.
 </comments>
 <data>
-<eng-data cg="215." f="0." m="754." t="0."/>
-<eng-data cg="215." f="359.559" m="752.82" t="0.014"/>
-<eng-data cg="215." f="625.425" m="750.972" t="0.022"/>
-<eng-data cg="215." f="737.756" m="748.414" t="0.03"/>
-<eng-data cg="215." f="771.505" m="742.397" t="0.047"/>
-<eng-data cg="215." f="786.516" m="729.609" t="0.082"/>
-<eng-data cg="215." f="771.505" m="720.84" t="0.106"/>
-<eng-data cg="215." f="775.233" m="707.056" t="0.144"/>
-<eng-data cg="215." f="786.516" m="660.177" t="0.272"/>
-<eng-data cg="215." f="812.71" m="583.294" t="0.477"/>
-<eng-data cg="215." f="842.632" m="499.444" t="0.693"/>
-<eng-data cg="215." f="847.06" m="389.682" t="0.97"/>
-<eng-data cg="215." f="838.904" m="265.928" t="1.283"/>
-<eng-data cg="215." f="816.438" m="175.479" t="1.516"/>
-<eng-data cg="215." f="801.427" m="103.391" t="1.706"/>
-<eng-data cg="215." f="793.972" m="76.0788" t="1.779"/>
-<eng-data cg="215." f="775.233" m="64.3029" t="1.811"/>
-<eng-data cg="215." f="726.573" m="53.7372" t="1.841"/>
-<eng-data cg="215." f="625.425" m="43.5913" t="1.873"/>
-<eng-data cg="215." f="509.367" m="34.0109" t="1.909"/>
-<eng-data cg="215." f="393.208" m="25.3327" t="1.95"/>
-<eng-data cg="215." f="337.093" m="19.8523" t="1.982"/>
-<eng-data cg="215." f="292.16" m="12.0312" t="2.035"/>
-<eng-data cg="215." f="228.489" m="7.39147" t="2.073"/>
-<eng-data cg="215." f="153.535" m="3.98709" t="2.111"/>
-<eng-data cg="215." f="86.137" m="1.51403" t="2.155"/>
-<eng-data cg="215." f="37.446" m="0.412731" t="2.193"/>
-<eng-data cg="215." f="0." m="0." t="2.24"/>
+<eng-data  t="0." f="0." m="1205." cg="245.5"/>
+<eng-data  t="0.015" f="605.685" m="1201.7" cg="245.5"/>
+<eng-data  t="0.02" f="693.81" m="1199.34" cg="245.5"/>
+<eng-data  t="0.037" f="714.793" m="1190.64" cg="245.5"/>
+<eng-data  t="0.056" f="744.168" m="1180.57" cg="245.5"/>
+<eng-data  t="0.073" f="711.995" m="1171.57" cg="245.5"/>
+<eng-data  t="0.1" f="695.209" m="1157.77" cg="245.5"/>
+<eng-data  t="0.132" f="685.418" m="1141.71" cg="245.5"/>
+<eng-data  t="0.157" f="691.013" m="1129.21" cg="245.5"/>
+<eng-data  t="0.235" f="710.596" m="1089.49" cg="245.5"/>
+<eng-data  t="0.333" f="731.578" m="1038.13" cg="245.5"/>
+<eng-data  t="0.428" f="749.763" m="987." cg="245.5"/>
+<eng-data  t="0.531" f="762.352" m="930.409" cg="245.5"/>
+<eng-data  t="0.617" f="774.941" m="882.372" cg="245.5"/>
+<eng-data  t="0.69" f="781.936" m="841.077" cg="245.5"/>
+<eng-data  t="0.764" f="790.328" m="798.802" cg="245.5"/>
+<eng-data  t="0.876" f="802.918" m="733.965" cg="245.5"/>
+<eng-data  t="0.957" f="812.709" m="686.415" cg="245.5"/>
+<eng-data  t="1.023" f="819.703" m="647.268" cg="245.5"/>
+<eng-data  t="1.084" f="826.697" m="610.777" cg="245.5"/>
+<eng-data  t="1.192" f="832.293" m="545.675" cg="245.5"/>
+<eng-data  t="1.246" f="840.686" m="512.85" cg="245.5"/>
+<eng-data  t="1.307" f="833.692" m="475.739" cg="245.5"/>
+<eng-data  t="1.393" f="826.697" m="423.855" cg="245.5"/>
+<eng-data  t="1.444" f="821.102" m="393.32" cg="245.5"/>
+<eng-data  t="1.508" f="811.311" m="355.359" cg="245.5"/>
+<eng-data  t="1.574" f="794.525" m="316.85" cg="245.5"/>
+<eng-data  t="1.633" f="776.34" m="283.174" cg="245.5"/>
+<eng-data  t="1.713" f="744.168" m="238.976" cg="245.5"/>
+<eng-data  t="1.777" f="709.197" m="205.179" cg="245.5"/>
+<eng-data  t="1.853" f="668.632" m="167.131" cg="245.5"/>
+<eng-data  t="1.916" f="640.656" m="137.161" cg="245.5"/>
+<eng-data  t="1.956" f="615.477" m="118.904" cg="245.5"/>
+<eng-data  t="2.012" f="602.888" m="94.1132" cg="245.5"/>
+<eng-data  t="2.044" f="588.9" m="80.2562" cg="245.5"/>
+<eng-data  t="2.083" f="553.929" m="64.0616" cg="245.5"/>
+<eng-data  t="2.115" f="518.959" m="51.587" cg="245.5"/>
+<eng-data  t="2.146" f="483.989" m="40.29" cg="245.5"/>
+<eng-data  t="2.169" f="463.007" m="32.3759" cg="245.5"/>
+<eng-data  t="2.186" f="426.637" m="26.8806" cg="245.5"/>
+<eng-data  t="2.222" f="328.721" m="17.0001" cg="245.5"/>
+<eng-data  t="2.249" f="253.185" m="11.2914" cg="245.5"/>
+<eng-data  t="2.279" f="179.048" m="6.57987" cg="245.5"/>
+<eng-data  t="2.306" f="123.095" m="3.61572" cg="245.5"/>
+<eng-data  t="2.352" f="58.75" m="0.576361" cg="245.5"/>
+<eng-data  t="2.379" f="0." m="0." cg="245.5"/>
 </data>
 </engine>
- </engine-list>
+</engine-list>
 </engine-database>

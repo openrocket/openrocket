@@ -1,0 +1,42 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="176.09" Itot="1751.06" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="668.342" burn-time="2.62" cgDiv="10" cgFix="1" cgStep="-1." code="K670GG" delays="1000" dia="54." exitDia="0." initWt="1914.5" len="492." mDiv="10" mFix="1" mStep="-1." massFrac="52.96" mfg="Animal Motor Works" peakThrust="804.56" propWt="1014." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AMW K670 RASP.ENG file made from NAR published data
+File produced SEPT 4, 2002
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+<eng-data cg="246." f="0." m="1014." t="0."/>
+<eng-data cg="246." f="294.05" m="1012.64" t="0.016"/>
+<eng-data cg="246." f="398.577" m="1008.83" t="0.035"/>
+<eng-data cg="246." f="506.292" m="995.466" t="0.086"/>
+<eng-data cg="246." f="496.428" m="976.014" t="0.153"/>
+<eng-data cg="246." f="506.093" m="943.794" t="0.264"/>
+<eng-data cg="246." f="558.108" m="883.093" t="0.461"/>
+<eng-data cg="246." f="629.553" m="793.341" t="0.722"/>
+<eng-data cg="246." f="688.044" m="693.771" t="0.983"/>
+<eng-data cg="246." f="714.051" m="639.778" t="1.116"/>
+<eng-data cg="246." f="785.795" m="606.34" t="1.193"/>
+<eng-data cg="246." f="788.784" m="507.865" t="1.409"/>
+<eng-data cg="246." f="804.56" m="356.547" t="1.737"/>
+<eng-data cg="246." f="781.41" m="201.796" t="2.074"/>
+<eng-data cg="246." f="764.87" m="147.623" t="2.195"/>
+<eng-data cg="246." f="781.211" m="133.746" t="2.226"/>
+<eng-data cg="246." f="764.77" m="110.917" t="2.277"/>
+<eng-data cg="246." f="751.517" m="57.7952" t="2.398"/>
+<eng-data cg="246." f="744.941" m="39.5973" t="2.44"/>
+<eng-data cg="246." f="718.834" m="27.7303" t="2.468"/>
+<eng-data cg="246." f="666.521" m="21.3125" t="2.484"/>
+<eng-data cg="246." f="418.107" m="8.43676" t="2.525"/>
+<eng-data cg="246." f="218.818" m="3.64197" t="2.551"/>
+<eng-data cg="246." f="120.768" m="1.47886" t="2.573"/>
+<eng-data cg="246." f="52.143" m="0.377436" t="2.595"/>
+<eng-data cg="246." f="0." m="0." t="2.62"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>
