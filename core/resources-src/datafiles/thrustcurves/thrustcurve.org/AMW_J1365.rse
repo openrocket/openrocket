@@ -1,0 +1,49 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Cesaroni Technology Inc." code="J1365ST" Type="reloadable" dia="54."
+len="326." initWt="1200." propWt="444." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1355.49" peakThrust="1576.58" throatDia="0."
+exitDia="0." Itot="931.222" burn-time="0.69" massFrac="29.6" Isp="213.87"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+<comments>Input by Tim Van Milligan for RockSim users. Used John Coker's ThrustCruve
+Tracer program. Thrust curve from the AMW web site and CAR/NAR/TRA certified
+rocket motor list dated 9/28/08. The total weight was estimated based on
+similar motors such as the J325TT, J395RR, and the J401BB</comments>
+<data>
+<eng-data  t="0." f="0." m="444." cg="163."/>
+<eng-data  t="0.007" f="1576.58" m="441.369" cg="163."/>
+<eng-data  t="0.011" f="1083.9" m="438.832" cg="163."/>
+<eng-data  t="0.014" f="1402.03" m="437.054" cg="163."/>
+<eng-data  t="0.019" f="1083.9" m="434.091" cg="163."/>
+<eng-data  t="0.023" f="1402.03" m="431.72" cg="163."/>
+<eng-data  t="0.027" f="1196.52" m="429.242" cg="163."/>
+<eng-data  t="0.03" f="1266.9" m="427.481" cg="163."/>
+<eng-data  t="0.049" f="1311.94" m="415.8" cg="163."/>
+<eng-data  t="0.078" f="1379.51" m="397.192" cg="163."/>
+<eng-data  t="0.124" f="1447.08" m="366.195" cg="163."/>
+<eng-data  t="0.164" f="1483.68" m="338.248" cg="163."/>
+<eng-data  t="0.219" f="1514.65" m="298.935" cg="163."/>
+<eng-data  t="0.267" f="1523.09" m="264.174" cg="163."/>
+<eng-data  t="0.311" f="1531.54" m="232.132" cg="163."/>
+<eng-data  t="0.361" f="1525.91" m="195.688" cg="163."/>
+<eng-data  t="0.391" f="1506.2" m="174.003" cg="163."/>
+<eng-data  t="0.455" f="1447.08" m="128.943" cg="163."/>
+<eng-data  t="0.489" f="1418.93" m="105.713" cg="163."/>
+<eng-data  t="0.526" f="1393.59" m="80.9048" cg="163."/>
+<eng-data  t="0.564" f="1371.07" m="55.8597" cg="163."/>
+<eng-data  t="0.595" f="1354.17" m="35.7194" cg="163."/>
+<eng-data  t="0.612" f="1342.91" m="24.7888" cg="163."/>
+<eng-data  t="0.62" f="1334.47" m="19.6826" cg="163."/>
+<eng-data  t="0.624" f="1300.68" m="17.1697" cg="163."/>
+<eng-data  t="0.633" f="1185.25" m="11.836" cg="163."/>
+<eng-data  t="0.643" f="881.198" m="6.90964" cg="163."/>
+<eng-data  t="0.649" f="661.602" m="4.70285" cg="163."/>
+<eng-data  t="0.655" f="458.899" m="3.10011" cg="163."/>
+<eng-data  t="0.663" f="289.979" m="1.67187" cg="163."/>
+<eng-data  t="0.676" f="135.136" m="0.354375" cg="163."/>
+<eng-data  t="0.687" f="0." m="0." cg="163."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>
