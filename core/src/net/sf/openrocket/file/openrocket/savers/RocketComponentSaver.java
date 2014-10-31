@@ -54,7 +54,7 @@ public class RocketComponentSaver {
 				String name = decal.getImage().getName();
 				double rotation = decal.getRotation();
 				EdgeMode edgeMode = decal.getEdgeMode();
-				elements.add("<decal name=\"" + name + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
+				elements.add("<decal name=\"" + TextUtil.escapeXML(name) + "\" rotation=\"" + rotation + "\" edgemode=\"" + edgeMode.name() + "\">");
 				Coordinate center = decal.getCenter();
 				elements.add("<center x=\"" + center.x + "\" y=\"" + center.y + "\"/>");
 				Coordinate offset = decal.getOffset();
