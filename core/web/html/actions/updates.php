@@ -80,11 +80,16 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "14.06";
+$unstable = "14.11";
 $stable = "1.0.0";
 
 
-if (preg_match("/^14.05$/", $version)) {
+if (preg_match("/^14.06$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "6: Updated thrustcurves\n" .
+    "4: Fixed a few bugs\n" .
+    "";
+} else if (preg_match("/^14.05$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "10: Added Knots to windspeed and velocity units\n" .
     "6: Updated thrustcurves\n" .
