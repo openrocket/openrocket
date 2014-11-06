@@ -25,9 +25,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.components.StyledLabel;
@@ -54,11 +51,15 @@ import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Pair;
 import net.sf.openrocket.util.Reflection;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A component that contains addition buttons to add different types of rocket components
@@ -122,6 +123,8 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new FinButton(EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
 				//// Freeform
 				new FinButton(FreeformFinSet.class, trans.get("compaddbuttons.Freeform")),
+				//// Freeform
+				new FinButton(TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
 				//// Launch lug
 				new FinButton(LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
 		

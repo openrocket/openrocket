@@ -9,6 +9,7 @@ import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 
 class PositionSetter implements Setter {
 	
@@ -39,6 +40,9 @@ class PositionSetter implements Setter {
 			c.setPositionValue(pos);
 		} else if (c instanceof InternalComponent) {
 			((InternalComponent) c).setRelativePosition(type);
+			c.setPositionValue(pos);
+		} else if (c instanceof TubeFinSet) {
+			((TubeFinSet) c).setRelativePosition(type);
 			c.setPositionValue(pos);
 		} else {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);

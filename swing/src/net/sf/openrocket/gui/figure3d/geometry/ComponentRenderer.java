@@ -17,6 +17,7 @@ import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Coordinate;
 
 import org.slf4j.Logger;
@@ -28,28 +29,28 @@ import org.slf4j.LoggerFactory;
 public class ComponentRenderer {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(ComponentRenderer.class);
-	
+
 	private int LOD = 80;
-	
+
 	GLU glu;
 	GLUquadric q;
 	FinRenderer fr = new FinRenderer();
-	
+
 	public ComponentRenderer() {
-		
+
 	}
-	
+
 	public void init(GLAutoDrawable drawable) {
 		glu = new GLU();
 		q = glu.gluNewQuadric();
 		glu.gluQuadricTexture(q, true);
 	}
-	
-	
+
+
 	public void updateFigure(GLAutoDrawable drawable) {
-		
+
 	}
-	
+
 	public Geometry getGeometry(final RocketComponent c, final Surface which) {
 		return new Geometry() {
 			@Override
@@ -64,7 +65,7 @@ public class ComponentRenderer {
 			}
 		};
 	}
-	
+
 	public Geometry getGeometry(final Motor motor, Surface which) {
 		return new Geometry() {
 			@Override
@@ -73,20 +74,20 @@ public class ComponentRenderer {
 			}
 		};
 	}
-	
+
 	protected void renderGeometry(GL2 gl, RocketComponent c, Surface which) {
 		if (glu == null)
 			throw new IllegalStateException(this + " Not Initialized");
-		
+
 		glu.gluQuadricNormals(q, GLU.GLU_SMOOTH);
-		
+
 		Coordinate[] oo = c.toAbsolute(new Coordinate(0, 0, 0));
-		
+
 		for (Coordinate o : oo) {
 			gl.glPushMatrix();
-			
+
 			gl.glTranslated(o.x, o.y, o.z);
-			
+
 			if (c instanceof BodyTube) {
 				renderTube(gl, (BodyTube) c, which);
 			} else if (c instanceof LaunchLug) {
@@ -102,14 +103,16 @@ public class ComponentRenderer {
 			} else if (c instanceof FinSet) {
 				if (which == Surface.OUTSIDE)
 					fr.renderFinSet(gl, (FinSet) c);
+			} else if (c instanceof TubeFinSet) {
+				renderTubeFins( gl, (TubeFinSet) c, which);
 			} else {
 				renderOther(gl, c);
 			}
 			gl.glPopMatrix();
 		}
-		
+
 	}
-	
+
 	private void renderOther(GL2 gl, RocketComponent c) {
 		gl.glBegin(GL.GL_LINES);
 		for (Coordinate cc : c.getComponentBounds()) {
@@ -120,9 +123,9 @@ public class ComponentRenderer {
 		}
 		gl.glEnd();
 	}
-	
+
 	private void renderTransition(GL2 gl, Transition t, Surface which) {
-		
+
 		if (which == Surface.OUTSIDE || which == Surface.INSIDE) {
 			gl.glPushMatrix();
 			gl.glRotated(90, 0, 1.0, 0);
@@ -135,7 +138,7 @@ public class ComponentRenderer {
 			}
 			gl.glPopMatrix();
 		}
-		
+
 		if (which == Surface.EDGES || which == Surface.INSIDE) {
 			//Render aft edge
 			gl.glPushMatrix();
@@ -148,7 +151,7 @@ public class ComponentRenderer {
 				glu.gluDisk(q, Math.max(0, t.getAftRadius() - t.getThickness()), t.getAftRadius(), LOD, 2);
 			}
 			gl.glPopMatrix();
-			
+
 			// Render AFT shoulder
 			if (t.getAftShoulderLength() > 0) {
 				gl.glPushMatrix();
@@ -161,7 +164,7 @@ public class ComponentRenderer {
 					gl.glRotated(90, 0, 1.0, 0);
 					glu.gluDisk(q, t.getAftShoulderRadius(), t.getAftRadius(), LOD, 2);
 					gl.glPopMatrix();
-					
+
 				} else {
 					renderTube(gl, Surface.INSIDE, t.getAftShoulderRadius(), iR, t.getAftShoulderLength());
 					gl.glPushMatrix();
@@ -171,7 +174,7 @@ public class ComponentRenderer {
 				}
 				gl.glPopMatrix();
 			}
-			
+
 			//Render Fore edge
 			gl.glPushMatrix();
 			gl.glRotated(180, 0, 1.0, 0);
@@ -183,7 +186,7 @@ public class ComponentRenderer {
 				glu.gluDisk(q, Math.max(0, t.getForeRadius() - t.getThickness()), t.getForeRadius(), LOD, 2);
 			}
 			gl.glPopMatrix();
-			
+
 			// Render Fore shoulder
 			if (t.getForeShoulderLength() > 0) {
 				gl.glPushMatrix();
@@ -197,7 +200,7 @@ public class ComponentRenderer {
 					gl.glRotated(90, 0, 1.0, 0);
 					glu.gluDisk(q, t.getForeShoulderRadius(), t.getForeRadius(), LOD, 2);
 					gl.glPopMatrix();
-					
+
 				} else {
 					renderTube(gl, Surface.INSIDE, t.getForeShoulderRadius(), iR, t.getForeShoulderLength());
 					gl.glPushMatrix();
@@ -207,28 +210,28 @@ public class ComponentRenderer {
 				}
 				gl.glPopMatrix();
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	private void renderTube(final GL2 gl, final Surface which, final double oR, final double iR, final double len) {
 		gl.glPushMatrix();
 		//outside
 		gl.glRotated(90, 0, 1.0, 0);
 		if (which == Surface.OUTSIDE)
 			glu.gluCylinder(q, oR, oR, len, LOD, 1);
-		
+
 		//edges
 		gl.glRotated(180, 0, 1.0, 0);
 		if (which == Surface.EDGES)
 			glu.gluDisk(q, iR, oR, LOD, 2);
-		
+
 		gl.glRotated(180, 0, 1.0, 0);
 		gl.glTranslated(0, 0, len);
 		if (which == Surface.EDGES)
 			glu.gluDisk(q, iR, oR, LOD, 2);
-		
+
 		//inside
 		if (which == Surface.INSIDE) {
 			glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
@@ -237,59 +240,74 @@ public class ComponentRenderer {
 		}
 		gl.glPopMatrix();
 	}
-	
+
 	private void renderTube(GL2 gl, BodyTube t, Surface which) {
 		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
 	}
-	
+
 	private void renderRing(GL2 gl, RingComponent r) {
-		
+
 		gl.glRotated(90, 0, 1.0, 0);
 		glu.gluCylinder(q, r.getOuterRadius(), r.getOuterRadius(),
 				r.getLength(), LOD, 1);
-		
+
 		gl.glRotated(180, 0, 1.0, 0);
 		glu.gluDisk(q, r.getInnerRadius(), r.getOuterRadius(), LOD, 2);
-		
+
 		gl.glRotated(180, 0, 1.0, 0);
 		gl.glTranslated(0, 0, r.getLength());
 		glu.gluDisk(q, r.getInnerRadius(), r.getOuterRadius(), LOD, 2);
-		
+
 		glu.gluQuadricOrientation(q, GLU.GLU_INSIDE);
 		glu.gluCylinder(q, r.getInnerRadius(), r.getInnerRadius(),
 				-r.getLength(), LOD, 1);
 		glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
-		
+
 	}
-	
+
 	private void renderLug(GL2 gl, LaunchLug t, Surface which) {
 		renderTube(gl, which, t.getOuterRadius(), t.getInnerRadius(), t.getLength());
 	}
-	
+
+	private void renderTubeFins(GL2 gl, TubeFinSet fs, Surface which) {
+		gl.glPushMatrix();
+		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+		System.out.println(fs.getBaseRotation());
+		gl.glRotated(fs.getBaseRotation() * (180.0 / Math.PI), 1, 0, 0);
+		for( int i = 0; i< fs.getFinCount(); i++ ) {
+			gl.glPushMatrix();
+			gl.glTranslated(0, fs.getOuterRadius() + fs.getBodyRadius(), 0);
+			renderTube(gl, which, fs.getOuterRadius(), fs.getInnerRadius(), fs.getLength());
+			gl.glPopMatrix();
+			gl.glRotated(360.0 / fs.getFinCount(), 1, 0, 0);
+		}
+		gl.glPopMatrix();
+	}
+
 	private void renderMassObject(GL2 gl, MassObject o) {
 		gl.glRotated(90, 0, 1.0, 0);
-		
+
 		MassObjectRenderer.drawMassObject(gl, o, LOD / 2, LOD / 2);
 	}
-	
+
 	private void renderMotor(final GL2 gl, Motor motor) {
 		double l = motor.getLength();
 		double r = motor.getDiameter() / 2;
-		
+
 		gl.glPushMatrix();
-		
+
 		gl.glRotated(90, 0, 1.0, 0);
-		
+
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPushMatrix();
 		gl.glTranslated(0, .125, 0);
 		gl.glScaled(1, .75, 0);
-		
+
 		glu.gluCylinder(q, r, r, l, LOD, 1);
-		
+
 		gl.glPopMatrix();
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-		
+
 		{
 			final double da = (2.0f * Math.PI) / LOD;
 			final double dt = 1.0 / LOD;
@@ -300,14 +318,14 @@ public class ComponentRenderer {
 				gl.glVertex3d(r * Math.cos(da * i), r * Math.sin(da * i), 0);
 				gl.glTexCoord2d(i * dt, 0);
 				gl.glVertex3d(0, 0, 0);
-				
+
 			}
 			gl.glEnd();
 		}
-		
+
 		gl.glTranslated(0, 0, l);
 		gl.glRotated(180, 0, 1.0, 0);
-		
+
 		{
 			final double da = (2.0f * Math.PI) / LOD;
 			final double dt = 1.0 / LOD;
@@ -321,7 +339,7 @@ public class ComponentRenderer {
 			}
 			gl.glEnd();
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			
+
 			for (int i = 0; i < LOD + 1; i++) {
 				gl.glNormal3d(-Math.cos(da * i), -Math.sin(da * i), -1);
 				gl.glTexCoord2d(i * dt, .9);

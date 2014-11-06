@@ -26,6 +26,7 @@ import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.startup.Application;
 
 
@@ -56,6 +57,8 @@ public class ComponentIcons {
 		load("ellipticalfin", trans.get("ComponentIcons.Ellipticalfinset"), EllipticalFinSet.class);
 		//// Freeform fin set
 		load("freeformfin", trans.get("ComponentIcons.Freeformfinset"), FreeformFinSet.class);
+		//// Tube fin set
+		load("tubefin", trans.get("ComponentIcons.Tubefinset"), TubeFinSet.class);
 		//// Launch lug
 		load("launchlug", trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
 		//// Inner tube
