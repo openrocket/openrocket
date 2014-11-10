@@ -76,8 +76,22 @@ public class TubeFinSet extends ExternalComponent {
 					r = ((SymmetricComponent) c).getAftRadius();
 				}
 			}
-			if (r < 0)
+			if (r < 0) {
 				r = DEFAULT_RADIUS;
+			} else {
+				// for 5,6, and 8 fins, adjust the diameter to provide touching fins.
+				switch (fins) {
+				case 5:
+					r *= 1.43; //  sin(36) / (1- sin(36), 36 = 360/5/2
+					break;
+				case 7:
+					r *= 0.77; // sin(25.7) / (1- sin(25.7)
+					break;
+				case 8:
+					r *= 0.62; // sin(22.5) / (1- sin(22.5)
+					break;
+				}
+			}
 			return r;
 		}
 		return outerRadius;
