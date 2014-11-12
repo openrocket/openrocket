@@ -86,7 +86,7 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	}
 	
 	
-
+	
 	public void setLength(double length) {
 		if (MathUtil.equals(this.length, length))
 			return;
@@ -95,9 +95,9 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	}
 	
 	
-
-
-
+	
+	
+	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
@@ -112,30 +112,30 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	}
 	
 	
-
+	
 	@Override
 	protected void loadFromPreset(ComponentPreset preset) {
-		if ( preset.has(ComponentPreset.OUTER_DIAMETER) )  {
+		if (preset.has(ComponentPreset.OUTER_DIAMETER)) {
 			double outerDiameter = preset.get(ComponentPreset.OUTER_DIAMETER);
-			this.radius = outerDiameter/2.0;
-			if ( preset.has(ComponentPreset.INNER_DIAMETER) ) {
+			this.radius = outerDiameter / 2.0;
+			if (preset.has(ComponentPreset.INNER_DIAMETER)) {
 				double innerDiameter = preset.get(ComponentPreset.INNER_DIAMETER);
-				this.thickness = (outerDiameter-innerDiameter) / 2.0;
+				this.thickness = (outerDiameter - innerDiameter) / 2.0;
 			}
 		}
-
+		
 		super.loadFromPreset(preset);
-
+		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-
-
+	
+	
 	@Override
 	public Type getPresetType() {
 		return ComponentPreset.Type.LAUNCH_LUG;
 	}
-
-
+	
+	
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] array) {
 		array = super.shiftCoordinates(array);
@@ -183,8 +183,8 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public double getComponentVolume() {
 		return length * Math.PI * (MathUtil.pow2(radius) - MathUtil.pow2(radius - thickness));
@@ -211,8 +211,8 @@ public class LaunchLug extends ExternalComponent implements Coaxial {
 	
 	@Override
 	public double getLongitudinalUnitInertia() {
-		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
-		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getLength())) / 12;
+		// 1/12 * (3 * (r2^2 + r1^2) + h^2)
+		return (3 * (MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLength())) / 12;
 	}
 	
 	@Override
