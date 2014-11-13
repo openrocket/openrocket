@@ -1,6 +1,7 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,7 +35,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::][]", ""));
 		
 		////  Number of fins
-		panel.add(new JLabel(trans.get("EllipticalFinSetCfg.Nbroffins")));
+		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Nbroffins")));
 		
 		IntegerModel im = new IntegerModel(component, "FinCount", 1, 8);
 		
@@ -43,7 +44,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(spin, "growx, wrap");
 
 		//// Length:
-		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Length")));
+		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Length")));
 		
 		DoubleModel m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -56,7 +57,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		
 		
 		//// Outer diameter:
-		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Outerdiam")));
+		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Outerdiam")));
 		
 		DoubleModel od = new DoubleModel(component, "OuterRadius", 2, UnitGroup.UNITS_LENGTH, 0);
 		// Diameter = 2*Radius
@@ -68,9 +69,13 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		panel.add(new UnitSelector(od), "growx");
 		panel.add(new BasicSlider(od.getSliderModel(0, 0.04, 0.2)), "w 100lp, wrap rel");
 		
-		
+		JCheckBox check = new JCheckBox(od.getAutomaticAction());
+		//// Automatic
+		check.setText(trans.get("TubeFinSetCfg.checkbox.Automatic"));
+		panel.add(check, "skip, span 2, wrap");
+
 		////  Inner diameter:
-		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Innerdiam")));
+		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Innerdiam")));
 		
 		// Diameter = 2*Radius
 		m = new DoubleModel(component, "InnerRadius", 2, UnitGroup.UNITS_LENGTH, 0);
@@ -86,7 +91,7 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		
 		////  Wall thickness
 		//// Thickness:
-		panel.add(new JLabel(trans.get("LaunchLugCfg.lbl.Thickness")));
+		panel.add(new JLabel(trans.get("TubeFinSetCfg.lbl.Thickness")));
 		
 		m = new DoubleModel(component, "Thickness", UnitGroup.UNITS_LENGTH, 0);
 		
@@ -100,9 +105,9 @@ public class TubeFinSetConfig extends RocketComponentConfig {
 		
 		////  Base rotation
 		//// Fin rotation:
-		JLabel label = new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Finrotation"));
+		JLabel label = new JLabel(trans.get("TubeFinSetCfg.lbl.Finrotation"));
 		//// The angle of the first fin in the fin set.
-		label.setToolTipText(trans.get("TrapezoidFinSetCfg.lbl.ttip.Finrotation"));
+		label.setToolTipText(trans.get("TubeFinSetCfg.lbl.ttip.Finrotation"));
 		panel.add(label);
 		
 		m = new DoubleModel(component, "BaseRotation", UnitGroup.UNITS_ANGLE);
