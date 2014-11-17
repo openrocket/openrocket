@@ -251,19 +251,33 @@ public class TubeFinSet extends ExternalComponent {
 		double halflength = length / 2;
 		
 		if (fins == 1) {
-			return baseRotation.transform(
-					new Coordinate(halflength, getOuterRadius() + getBodyRadius(), 0, mass));
+			return baseRotation.transform(new Coordinate(halflength, getOuterRadius() + getBodyRadius(), 0, mass));
 		} else {
-			return new Coordinate(halflength, 0, 0, mass);
+			return baseRotation.transform(new Coordinate(halflength, 0, 0, mass));
 		}
 		
 	}
 	
 	@Override
 	public double getLongitudinalUnitInertia() {
-		// FIXME - this is very likely completely wrong
+		// Logitudinal Unit Inertia for a single tube fin.
 		// 1/12 * (3 * (r1^2 + r2^2) + h^2)
-		return (3 * (MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getLength())) / 12;
+		final double inertia = (3 * (MathUtil.pow2(getOuterRadius()) + MathUtil.pow2(getInnerRadius())) + MathUtil.pow2(getLength())) / 12;
+		if (fins == 1) {
+			return inertia;
+		}
+		
+		// translate each to the center of mass.
+		final double hypot = getOuterRadius() + getBodyRadius();
+		final double finrotation = 2 * Math.PI / fins;
+		double angularoffset = 0.0;
+		double totalInertia = 0.0;
+		for (int i = 0; i < fins; i++) {
+			double offset = hypot * Math.cos(angularoffset);
+			totalInertia += inertia + MathUtil.pow2(offset);
+			angularoffset += finrotation;
+		}
+		return totalInertia;
 	}
 	
 	@Override
