@@ -314,6 +314,14 @@ class DocumentConfig {
 		// MassComponent
 		setters.put("MassComponent:mass", new DoubleSetter(
 				Reflection.findMethod(MassComponent.class, "setComponentMass", double.class)));
+		/*setters.put("MassComponent:masscomponenttype", new DoubleSetter(
+				Reflection.findMethod(MassComponent.class, "setMassComponentType", double.class)));*/
+		setters.put("MassComponent:masscomponenttype", new EnumSetter<MassComponent.MassComponentType>(
+				Reflection.findMethod(MassComponent.class, "setMassComponentType", MassComponent.MassComponentType.class),
+				MassComponent.MassComponentType.class));
+		/*		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
+						Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
+						Transition.Shape.class));*/
 		
 		// ShockCord
 		setters.put("ShockCord:cordlength", new DoubleSetter(
