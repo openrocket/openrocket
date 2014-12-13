@@ -44,7 +44,8 @@ public class MassComponentConfig extends RocketComponentConfig {
 								MassComponent.MassComponentType.DEPLOYMENTCHARGE,
 								MassComponent.MassComponentType.TRACKER,
 								MassComponent.MassComponentType.PAYLOAD,
-								MassComponent.MassComponentType.RECOVERYHARDWARE}));
+								MassComponent.MassComponentType.RECOVERYHARDWARE,
+								MassComponent.MassComponentType.BATTERY}));
 		
 		panel.add(typecombo, "spanx, growx, wrap");
 		

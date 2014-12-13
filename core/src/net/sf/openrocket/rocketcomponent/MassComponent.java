@@ -22,7 +22,8 @@ public class MassComponent extends MassObject {
 		DEPLOYMENTCHARGE(Application.getTranslator().get("MassComponent.DeploymentCharge")),
 		TRACKER(Application.getTranslator().get("MassComponent.Tracker")),
 		PAYLOAD(Application.getTranslator().get("MassComponent.Payload")),
-		RECOVERYHARDWARE(Application.getTranslator().get("MassComponent.RecoveryHardware"));
+		RECOVERYHARDWARE(Application.getTranslator().get("MassComponent.RecoveryHardware")),
+		BATTERY(Application.getTranslator().get("MassComponent.Battery"));
 		
 		private String title;
 		
