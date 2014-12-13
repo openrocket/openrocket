@@ -7,6 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Random;
 
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
@@ -139,13 +140,52 @@ public class MassObjectShapes extends RocketComponentShapes {
 		return newShape;
 	}
 	private static Shape[] addPayloadSymbol(Shape[] baseShape){
-		return baseShape;
+		Shape[] newShape = new Shape[baseShape.length+1];
+		newShape[0]=baseShape[0];
+		Rectangle2D bounds = baseShape[0].getBounds2D();
+		Double vMargin=bounds.getHeight()/10;
+		Double hMargin=bounds.getWidth()/10;
+		
+	
+		newShape[1]= new Ellipse2D.Double(bounds.getX()+hMargin, bounds.getY()+vMargin,bounds.getWidth()-2*hMargin,bounds.getHeight()-2*vMargin);
+		
+		return newShape;
 	}
 	private static Shape[] addRecoveryHardwareSymbol(Shape[] baseShape){
-		return baseShape;
+		Shape[] newShape = new Shape[baseShape.length+3];
+		newShape[0]=baseShape[0];
+		Rectangle2D bounds = baseShape[0].getBounds2D();
+		Double vMargin=bounds.getHeight()/8;
+		Double hMargin=bounds.getWidth()/8;
+		
+	
+		newShape[1]= new RoundRectangle2D.Double(bounds.getX()+hMargin, bounds.getY()+vMargin,bounds.getWidth()-2*hMargin,bounds.getHeight()-2*vMargin, 15, 5);
+		newShape[2]= new RoundRectangle2D.Double(bounds.getX()+hMargin+vMargin, bounds.getY()+2*vMargin,bounds.getWidth()-2*hMargin-2*vMargin,bounds.getHeight()-4*vMargin, 15, 5);
+		newShape[3]= new Rectangle2D.Double(bounds.getCenterX()-1.5*hMargin, bounds.getCenterY()+1.5*vMargin, 3*hMargin, 2*vMargin);
+		return newShape;
 	}
+
 	private static Shape[] addDeploymentChargeSymbol(Shape[] baseShape){
-		return baseShape;
+		int rays=15;
+		Shape[] newShape = new Shape[baseShape.length+rays];
+		newShape[0]=baseShape[0];
+			
+		Rectangle2D bounds = baseShape[0].getBounds2D();
+		
+		Double vMargin=bounds.getWidth()/10;
+		Double xCenter=bounds.getCenterX();
+		Double yCenter=bounds.getCenterY();
+		Random rand = new Random();
+	
+		newShape[1]= new Arc2D.Double(xCenter-2*vMargin, yCenter-2*vMargin,4*vMargin,4*vMargin, 55.0, 180.0, Arc2D.OPEN);
+		for(int i=1; i<rays; i++){
+			Double rx = rand.nextDouble()*3.0;
+			Double ry = rand.nextDouble()*2.0;
+			Double rx0 = rand.nextDouble()*0.25;
+			Double ry0 = rand.nextDouble()*0.25;
+			newShape[i+1]= new Line2D.Double(xCenter-rx0*vMargin, yCenter-ry0*vMargin, xCenter+rx*vMargin, yCenter+ry*vMargin);		
+		}
+		return newShape;
 	}
 
 	private static Shape[] addBatterySymbol(Shape[] baseShape){
