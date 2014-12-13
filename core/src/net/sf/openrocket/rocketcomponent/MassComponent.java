@@ -15,6 +15,28 @@ public class MassComponent extends MassObject {
 	
 	private double mass = 0;
 	
+	public enum MassComponentType {
+		MASSCOMPONENT(Application.getTranslator().get("MassComponent.MassComponent")),
+		ALTIMETER(Application.getTranslator().get("MassComponent.Altimeter")),
+		FLIGHTCOMPUTER(Application.getTranslator().get("MassComponent.FlightComputer")),
+		DEPLOYMENTCHARGE(Application.getTranslator().get("MassComponent.DeploymentCharge")),
+		TRACKER(Application.getTranslator().get("MassComponent.Tracker")),
+		PAYLOAD(Application.getTranslator().get("MassComponent.Payload")),
+		RECOVERYHARDWARE(Application.getTranslator().get("MassComponent.RecoveryHardware"));
+		
+		private String title;
+		
+		MassComponentType(String title) {
+			this.title = title;
+		}
+		
+		@Override
+		public String toString() {
+			return title;
+		}
+	}
+	
+	private MassComponentType massComponentType = MassComponentType.MASSCOMPONENT;
 	
 	public MassComponent() {
 		super();
@@ -65,6 +87,21 @@ public class MassComponent extends MassObject {
 	public String getComponentName() {
 		//// Mass component
 		return trans.get("MassComponent.MassComponent");
+	}
+	
+	public final MassComponent.MassComponentType getMassComponentType() {
+		mutex.verify();
+		return this.massComponentType;
+	}
+	
+	public void setMassComponentType(MassComponent.MassComponentType compType) {
+		mutex.verify();
+		if (this.massComponentType == compType) {
+			return;
+		}
+		checkState();
+		this.massComponentType = compType;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override

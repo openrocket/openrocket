@@ -32,7 +32,21 @@ public class MassComponentConfig extends RocketComponentConfig {
 		
 		JPanel panel = new JPanel(new MigLayout("gap rel unrel", "[][65lp::][30lp::]", ""));
 		
+		//// Mass component type
+		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.type")));
+		@SuppressWarnings("unchecked")
+		JComboBox typecombo = new JComboBox(
+				new EnumModel<MassComponent.MassComponentType>(component, "MassComponentType",
+						new MassComponent.MassComponentType[] {
+								MassComponent.MassComponentType.MASSCOMPONENT,
+								MassComponent.MassComponentType.ALTIMETER,
+								MassComponent.MassComponentType.FLIGHTCOMPUTER,
+								MassComponent.MassComponentType.DEPLOYMENTCHARGE,
+								MassComponent.MassComponentType.TRACKER,
+								MassComponent.MassComponentType.PAYLOAD,
+								MassComponent.MassComponentType.RECOVERYHARDWARE}));
 		
+		panel.add(typecombo, "spanx, growx, wrap");
 		
 		////  Mass
 		panel.add(new JLabel(trans.get("MassComponentCfg.lbl.Mass")));
@@ -115,6 +129,7 @@ public class MassComponentConfig extends RocketComponentConfig {
 				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
 				new DoubleModel(component.getParent(), "Length"))),
 				"w 100lp, wrap");
+		
 		
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("MassComponentCfg.tab.General"), null, panel,
