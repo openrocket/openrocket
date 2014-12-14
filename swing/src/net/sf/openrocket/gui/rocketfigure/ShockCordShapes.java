@@ -1,15 +1,16 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.RoundRectangle2D;
-
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 
-public class MassObjectShapes extends RocketComponentShapes {
-	
+public class ShockCordShapes extends RocketComponentShapes {
+
 	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation) {
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
@@ -24,8 +25,7 @@ public class MassObjectShapes extends RocketComponentShapes {
 			s[i] = new RoundRectangle2D.Double(start[i].x*S,(start[i].y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
 		}
-		
-		return s;
+		return addSymbol(s);
 	}
 	
 
@@ -43,5 +43,29 @@ public class MassObjectShapes extends RocketComponentShapes {
 		}
 		return s;
 	}
+	
+	private static Shape[] addSymbol(Shape[] baseShape){
+		int offset=baseShape.length;
+		Shape[] newShape = new Shape[baseShape.length+1];
+		System.arraycopy(baseShape, 0, newShape, 0, baseShape.length);
+			
+		Rectangle2D bounds = baseShape[0].getBounds2D();
 
+		Double left=bounds.getX()+bounds.getWidth()/4;
+		Double cordWidth=bounds.getWidth()/2;
+		Double top=bounds.getCenterY();
+		Double flutterHeight=bounds.getHeight()/4;
+		Double flutterWidth=cordWidth/4;
+		
+		Path2D.Double streamer= new Path2D.Double();
+		streamer.moveTo(left, bounds.getCenterY()); 
+
+		for(int i=0; i<4; i++){
+			streamer.curveTo(left+(4*i+1)*flutterWidth/4, top+flutterHeight, left+(4*i+1)*flutterWidth/4, top+flutterHeight, left+(4*i+2)*flutterWidth/4, top);
+			streamer.curveTo(left+(4*i+3)*flutterWidth/4, top-flutterHeight, left+(4*i+3)*flutterWidth/4, top-flutterHeight, left+(4*i+4)*flutterWidth/4, top);
+		}
+		
+		newShape[offset]=streamer;
+		return newShape;
+	}
 }
