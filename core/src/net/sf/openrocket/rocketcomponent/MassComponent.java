@@ -102,7 +102,7 @@ public class MassComponent extends MassObject {
 		}
 		checkState();
 		this.massComponentType = compType;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 	}
 	
 	@Override

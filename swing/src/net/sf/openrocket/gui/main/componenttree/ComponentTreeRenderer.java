@@ -69,10 +69,15 @@ public class ComponentTreeRenderer extends DefaultTreeCellRenderer {
 		
 		sb.append("<b>").append(c.getName()).append("</b>");
 		if (c.isMassive() || c.isMassOverridden() ) {
-			sb.append(" (").append(UnitGroup.UNITS_MASS.toStringUnit(c.getMass())).append(" of ");
-			sb.append(UnitGroup.UNITS_MASS.toStringUnit(c.getSectionMass())).append( " total)");
+			sb.append(" (").append(UnitGroup.UNITS_MASS.toStringUnit(c.getMass()));
+			if(c.getChildCount()>0){
+				sb.append(" of ").append(UnitGroup.UNITS_MASS.toStringUnit(c.getSectionMass())).append( " total");
+			}
+			sb.append(")");
 		} else {
-			sb.append(" (").append(UnitGroup.UNITS_MASS.toStringUnit(c.getSectionMass())).append( " total)");
+			if((c.getChildCount()>0) && (c.getSectionMass()>0)){
+				sb.append(" (").append(UnitGroup.UNITS_MASS.toStringUnit(c.getSectionMass())).append( " total)");
+			}
 		}
 		
 		if ( c.isMassOverridden() ) {
