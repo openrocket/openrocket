@@ -1122,6 +1122,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	/**
+	 * Return the mass of this component and all of its subcomponents.
+	 */
+	public final double getSectionMass() {
+		Double massSubtotal = getMass();
+		mutex.verify();
+		for (RocketComponent rc : children) {
+			massSubtotal += rc.getSectionMass();
+		}
+		
+		return massSubtotal;
+	}
+	
+	/**
 	 * Return the (possibly overridden) center of gravity and mass.
 	 *
 	 * Returns the CG with the weight of the coordinate set to the weight of the component.
