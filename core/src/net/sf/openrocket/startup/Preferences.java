@@ -31,6 +31,7 @@ public abstract class Preferences {
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 	public static final String AUTO_RUN_SIMULATIONS = "AutoRunSimulations";
+	
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";

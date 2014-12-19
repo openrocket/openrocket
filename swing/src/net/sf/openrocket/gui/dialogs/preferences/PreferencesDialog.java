@@ -334,6 +334,18 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(automaticallyRunSimsBox, "wrap, growx, sg combos ");
 
+		//// Automatically run all simulation out-dated by design changes.
+		final JCheckBox updateEstimates =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Updateestimates"));
+				updateEstimates.setSelected(preferences.computeFlightInBackground());
+				updateEstimates.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setComputeFlightInBackground(updateEstimates.isSelected());
+			}
+		});
+		panel.add(updateEstimates, "wrap, growx, sg combos ");
+
 		return panel;
 	}
 	
