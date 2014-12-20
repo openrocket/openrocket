@@ -98,6 +98,8 @@ public class PreferencesDialog extends JDialog {
 		//// Decal Editor selection
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Graphics"), graphicsOptionsPane());
 		
+		//// Default Colors Preferences
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Colors"), colorOptionsPane());
 		//// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
@@ -123,6 +125,9 @@ public class PreferencesDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, close);
 	}
 	
+	private JPanel colorOptionsPane(){
+		return new JPanel(new MigLayout("fillx, ins 301p n n n"));
+	}
 	
 	private JPanel optionsPane() {
 		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
