@@ -68,7 +68,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	private double windAverage = 2.0;
 	private double windTurbulence = 0.1;
-	
+	private double windDirection = Math.PI / 2;
 	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
@@ -211,8 +211,25 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
+	/**
+	 * Set the wind direction
+	 * 
+	 * @param direction the wind direction
+	 */
 	
+	public void setWindDirection(double direction) {
+		direction = MathUtil.reduce360(direction);
+		if (MathUtil.equals(this.windDirection, direction))
+			return;
+		this.windDirection = direction;
+		fireChangeEvent();
+		
+	}
 	
+	public double getWindDirection() {
+		return this.windDirection;
+		
+	}
 	
 	public double getLaunchAltitude() {
 		return launchAltitude;
@@ -446,6 +463,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		this.timeStep = src.timeStep;
 		this.windAverage = src.windAverage;
 		this.windTurbulence = src.windTurbulence;
+		this.windDirection = src.windDirection;
 		this.calculateExtras = src.calculateExtras;
 		this.randomSeed = src.randomSeed;
 		
@@ -501,6 +519,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.windAverage = src.windAverage;
 		}
+		if (this.windDirection != src.windDirection) {
+			isChanged = true;
+			this.windDirection = src.windDirection;
+		}
 		if (this.windTurbulence != src.windTurbulence) {
 			isChanged = true;
 			this.windTurbulence = src.windTurbulence;
@@ -542,6 +564,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.windAverage, o.windAverage) &&
 				MathUtil.equals(this.windTurbulence, o.windTurbulence) &&
+				MathUtil.equals(this.windDirection, o.windDirection) &&
 				this.calculateExtras == o.calculateExtras && this.randomSeed == o.randomSeed);
 	}
 	
@@ -595,6 +618,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		PinkNoiseWindModel windModel = new PinkNoiseWindModel(randomSeed);
 		windModel.setAverage(getWindSpeedAverage());
 		windModel.setStandardDeviation(getWindSpeedDeviation());
+		windModel.setDirection(windDirection);
+		
 		conditions.setWindModel(windModel);
 		
 		conditions.setAtmosphericModel(getAtmosphericModel());

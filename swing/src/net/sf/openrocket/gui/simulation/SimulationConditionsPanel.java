@@ -43,7 +43,7 @@ public class SimulationConditionsPanel extends JPanel {
 		DoubleModel m;
 		JSpinner spin;
 		
-		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation
+		//// Wind settings:  Average wind speed, turbulence intensity, std. deviation, and direction
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
 		//// Wind
@@ -99,6 +99,30 @@ public class SimulationConditionsPanel extends JPanel {
 		slider = new BasicSlider(m.getSliderModel(new DoubleModel(0), m2));
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
+		
+		// Wind Direction:
+		label = new JLabel(trans.get("simedtdlg.lbl.Winddirection"));
+		//// Direction of the wind. 0 is north
+		tip = trans.get("simedtdlg.lbl.ttip.Winddirection");
+		label.setToolTipText(tip);
+		sub.add(label);
+		
+		m = new DoubleModel(conditions, "WindDirection", 1.0, UnitGroup.UNITS_ANGLE,
+				0, 2*Math.PI);
+					
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		sub.add(spin, "w 65lp!");
+		
+		unit = new UnitSelector(m);
+		unit.setToolTipText(tip);
+		sub.add(unit, "growx");
+		slider = new BasicSlider(m.getSliderModel(0, 2*Math.PI));
+		slider.setToolTipText(tip);
+		sub.add(slider, "w 75lp, wrap");
+			
+		
 		
 		
 		// Wind turbulence intensity
