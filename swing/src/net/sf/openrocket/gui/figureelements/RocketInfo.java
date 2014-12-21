@@ -77,7 +77,9 @@ public class RocketInfo implements FigureElement {
 	public void paint(Graphics2D myG2, double scale, Rectangle visible) {
 		this.g2 = myG2;
 		this.line = FONT.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-				myG2.getFontRenderContext()).getHeight();
+				myG2.getFontRenderContext()).getHeight() + 
+				FONT.getLineMetrics("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+						myG2.getFontRenderContext()).getDescent();
 		
 		x1 = visible.x + MARGIN;
 		x2 = visible.x + visible.width - MARGIN;
@@ -429,11 +431,13 @@ public class RocketInfo implements FigureElement {
 	
 	
 	private GlyphVector createText(String text) {
-		return FONT.createGlyphVector(g2.getFontRenderContext(), text);
+		float size=Application.getPreferences().getRocketInfoFontSize();
+		return (FONT.deriveFont(size)).createGlyphVector(g2.getFontRenderContext(), text);
 	}
 
 	private GlyphVector createSmallText(String text) {
-		return SMALLFONT.createGlyphVector(g2.getFontRenderContext(), text);
+		float size=(float) (Application.getPreferences().getRocketInfoFontSize()-2.0);
+		return (SMALLFONT.deriveFont(size)).createGlyphVector(g2.getFontRenderContext(), text);
 	}
 
 }
