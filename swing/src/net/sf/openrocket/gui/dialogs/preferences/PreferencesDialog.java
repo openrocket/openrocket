@@ -178,8 +178,17 @@ public class PreferencesDialog extends JDialog {
 				//// Delete
 				//// Confirm
 				trans.get("pref.dlg.PrefBooleanSelector1"),
-				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap para, growx, sg combos");
+				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap, growx, sg combos");
+		//// Position to insert new body components:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketinfofontsize")), "gapright para");
 
+		panel.add(new JComboBox(new PrefChoiceSelector(Preferences.ROCKET_INFO_FONT_SIZE,
+				//// Small
+				//// Medium
+				//// Large
+				trans.get("pref.dlg.PrefFontSmall"),
+				trans.get("pref.dlg.PrefFontMedium"),
+				trans.get("pref.dlg.PrefFontLarge"))), "wrap 40lp, growx, sg combos");
 		
 
 		//// User-defined thrust curves:
