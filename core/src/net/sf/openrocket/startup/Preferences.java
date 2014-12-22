@@ -30,6 +30,8 @@ public abstract class Preferences {
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
+	public static final String AUTO_RUN_SIMULATIONS = "AutoRunSimulations";
+	
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
@@ -99,6 +101,14 @@ public abstract class Preferences {
 	
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
+	}
+	
+	public final boolean getAutoRunSimulations() {
+		return this.getBoolean(AUTO_RUN_SIMULATIONS, false);
+	}
+	
+	public final void setAutoRunSimulations(boolean check) {
+		this.putBoolean(AUTO_RUN_SIMULATIONS, check);
 	}
 	
 	public final double getDefaultMach() {
