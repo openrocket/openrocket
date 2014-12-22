@@ -189,7 +189,7 @@ public class PreferencesDialog extends JDialog {
 				trans.get("pref.dlg.PrefFontSmall"),
 				trans.get("pref.dlg.PrefFontMedium"),
 				trans.get("pref.dlg.PrefFontLarge"))), "wrap 40lp, growx, sg combos");
-		
+
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
@@ -295,6 +295,7 @@ public class PreferencesDialog extends JDialog {
 		
 		
 		
+
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
 				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
@@ -327,8 +328,32 @@ public class PreferencesDialog extends JDialog {
 				preferences.setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
 			}
 		});
-		panel.add(autoOpenDesignFile);
+		panel.add(autoOpenDesignFile, "wrap, growx, span 2");
 		
+		//// Automatically run all simulation out-dated by design changes.
+		final JCheckBox automaticallyRunSimsBox =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Runsimulations"));
+		automaticallyRunSimsBox.setSelected(preferences.getAutoRunSimulations());
+		automaticallyRunSimsBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoRunSimulations(automaticallyRunSimsBox.isSelected());
+			}
+		});
+		panel.add(automaticallyRunSimsBox, "wrap, growx, sg combos ");
+
+		//// Update flight estimates in the design window
+		final JCheckBox updateEstimates =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Updateestimates"));
+				updateEstimates.setSelected(preferences.computeFlightInBackground());
+				updateEstimates.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setComputeFlightInBackground(updateEstimates.isSelected());
+			}
+		});
+		panel.add(updateEstimates, "wrap, growx, sg combos ");
+
 		return panel;
 	}
 	

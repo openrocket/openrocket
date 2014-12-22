@@ -43,8 +43,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private SimulationStepper landingStepper = new BasicLandingStepper();
 	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	
-	// Constant holding 20 degress in radians.  This is the AOA condition
-	// necessary to transistion to tumbling.
+	// Constant holding 20 degrees in radians.  This is the AOA condition
+	// necessary to transition to tumbling.
 	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	// The thrust must be below this value for the transition to tumbling.
