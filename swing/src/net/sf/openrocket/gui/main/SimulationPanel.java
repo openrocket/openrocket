@@ -44,6 +44,7 @@ import net.sf.openrocket.gui.simulation.SimulationEditDialog;
 import net.sf.openrocket.gui.simulation.SimulationRunDialog;
 import net.sf.openrocket.gui.simulation.SimulationWarningDialog;
 import net.sf.openrocket.gui.util.Icons;
+import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
@@ -584,6 +585,44 @@ public class SimulationPanel extends JPanel {
 			deleteButton.setEnabled(true);
 		}
 
+	}
+
+	/// when the simulation tab is selected this run outdated simulated if appropriate.
+	public void activating(){
+		if( ((Preferences) Application.getPreferences()).getAutoRunSimulations()){
+			int nSims = simulationTable.getRowCount();
+			int outdated = 0;
+			if (nSims == 0) {
+				return;
+			}
+			
+			for (int i = 0; i < nSims; i++) {
+				Simulation.Status s = document.getSimulation(simulationTable.convertRowIndexToModel(i)).getStatus();
+				if((s==Simulation.Status.NOT_SIMULATED) ||
+						(s==Simulation.Status.OUTDATED)){
+					outdated++;
+				}	
+			}
+			if(outdated>0){
+				Simulation[] sims = new Simulation[outdated];
+				
+				int index=0;
+				for (int i = 0; i < nSims; i++) {
+					int t = simulationTable.convertRowIndexToModel(i);
+					Simulation s = document.getSimulation(t);
+					if((s.getStatus()==Status.NOT_SIMULATED)||(s.getStatus()==Status.OUTDATED)){
+						sims[index] = s;
+						index++;
+					}
+				}
+	
+				long t = System.currentTimeMillis();
+				new SimulationRunDialog(SwingUtilities.getWindowAncestor(
+						SimulationPanel.this), document, sims).setVisible(true);
+				log.info("Running simulations took " + (System.currentTimeMillis() - t) + " ms");
+				fireMaintainSelection();
+			}
+		}
 	}
 
 	public ListSelectionModel getSimulationListSelectionModel() {

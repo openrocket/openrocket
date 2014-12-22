@@ -699,15 +699,17 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		}
 		
 		// Start calculation process
-		extraText.setCalculatingData(true);
+		if(((SwingPreferences) Application.getPreferences()).computeFlightInBackground()){ 
+			extraText.setCalculatingData(true);
+			
+			Rocket duplicate = (Rocket) configuration.getRocket().copy();
+			Simulation simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
+			simulation.getOptions().setMotorConfigurationID(
+					configuration.getFlightConfigurationID());
 		
-		Rocket duplicate = (Rocket) configuration.getRocket().copy();
-		Simulation simulation = ((SwingPreferences) Application.getPreferences()).getBackgroundSimulation(duplicate);
-		simulation.getOptions().setMotorConfigurationID(
-				configuration.getFlightConfigurationID());
-		
-		backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
-		backgroundSimulationExecutor.execute(backgroundSimulationWorker);
+			backgroundSimulationWorker = new BackgroundSimulationWorker(document, simulation);
+			backgroundSimulationExecutor.execute(backgroundSimulationWorker);
+		}
 	}
 	
 	/**

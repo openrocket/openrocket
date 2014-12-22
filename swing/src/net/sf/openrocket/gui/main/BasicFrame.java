@@ -54,6 +54,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -153,7 +154,7 @@ public class BasicFrame extends JFrame {
 	/** Actions available for rocket modifications */
 	private final RocketActions actions;
 	
-	
+	private SimulationPanel simulationPanel;
 	
 	
 	/**
@@ -174,7 +175,7 @@ public class BasicFrame extends JFrame {
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
 		// Obtain the simulation selection model that will be used
-		SimulationPanel simulationPanel = new SimulationPanel(document);
+		simulationPanel = new SimulationPanel(document);
 		simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
 		
 		// Combine into a DocumentSelectionModel
@@ -202,6 +203,11 @@ public class BasicFrame extends JFrame {
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, new FlightConfigurationPanel(document));
 		//// Flight simulations
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
+		
+		// Add change listener to catch when the tabs are changed.  This is to run simulations 
+		// automagically when the simulation tab is selected.
+		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
+		
 		
 		vertical.setTopComponent(tabbedPane);
 		
@@ -1553,4 +1559,24 @@ public class BasicFrame extends JFrame {
 			return null;
 		}
 	}
+	
+	public void stateChanged(ChangeEvent e) {
+	    JTabbedPane tabSource = (JTabbedPane) e.getSource();
+	    String tab = tabSource.getTitleAt(tabSource.getSelectedIndex());
+	    if (tab.equals(trans.get("BasicFrame.tab.Flightsim"))) {
+	      simulationPanel.activating();
+	    }
+	  }
+}
+
+
+class BasicFrame_changeAdapter implements javax.swing.event.ChangeListener {
+	BasicFrame adaptee;
+
+  BasicFrame_changeAdapter(BasicFrame adaptee) {
+    this.adaptee = adaptee;
+  }
+  public void stateChanged(ChangeEvent e) {
+    adaptee.stateChanged(e);
+  }
 }
