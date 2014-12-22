@@ -59,10 +59,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	private double launchRodLength = 1;
 	
-	/** Launch rod angle > 0, radians from vertical */
+	/** Keep launch rod parallel to wind*/
+	private boolean launchIntoWind = true;
+	/** Launch rod angle, |radians|<90 from vertical, positive is upwind, negative is downwind */
 	private double launchRodAngle = 0;
 	
-	/** Launch rod direction, 0 = upwind, PI = downwind. */
+	/** Launch rod direction, 0 = north. */
 	private double launchRodDirection = 0;
 	
 	
@@ -139,12 +141,20 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
+	public boolean getLaunchIntoWind() {
+		return launchIntoWind;
+	}
+	
+	public void setLaunchIntoWind(boolean i) {
+		launchIntoWind = i;
+	}
+	
 	public double getLaunchRodAngle() {
 		return launchRodAngle;
 	}
 	
 	public void setLaunchRodAngle(double launchRodAngle) {
-		launchRodAngle = MathUtil.clamp(launchRodAngle, 0, MAX_LAUNCH_ROD_ANGLE);
+		launchRodAngle = MathUtil.clamp(launchRodAngle, -MAX_LAUNCH_ROD_ANGLE, MAX_LAUNCH_ROD_ANGLE);
 		if (MathUtil.equals(this.launchRodAngle, launchRodAngle))
 			return;
 		this.launchRodAngle = launchRodAngle;
@@ -157,7 +167,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	public void setLaunchRodDirection(double launchRodDirection) {
-		launchRodDirection = MathUtil.reduce180(launchRodDirection);
+		launchRodDirection = MathUtil.reduce360(launchRodDirection);
 		if (MathUtil.equals(this.launchRodDirection, launchRodDirection))
 			return;
 		this.launchRodDirection = launchRodDirection;

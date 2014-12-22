@@ -352,7 +352,19 @@ public class SimulationConditionsPanel extends JPanel {
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
 		
+		// Keep launch rod parallel to the wind.
 		
+		BooleanModel intoWind = new BooleanModel(conditions, "LaunchIntoWind");
+		JCheckBox checkWind = new JCheckBox(intoWind);
+		//// Use International Standard Atmosphere
+		checkWind.setText(trans.get("simedtdlg.checkbox.Intowind"));
+		checkWind.setToolTipText(
+				trans.get("simedtdlg.checkbox.ttip.Intowind1") +
+				trans.get("simedtdlg.checkbox.ttip.Intowind2") +
+				trans.get("simedtdlg.checkbox.ttip.Intowind3") +
+				trans.get("simedtdlg.checkbox.ttip.Intowind4"));
+		sub.add(checkWind, "spanx, wrap unrel");
+	
 		
 		// Angle:
 		label = new JLabel(trans.get("simedtdlg.lbl.Angle"));
@@ -362,7 +374,7 @@ public class SimulationConditionsPanel extends JPanel {
 		sub.add(label);
 		
 		m = new DoubleModel(conditions, "LaunchRodAngle", UnitGroup.UNITS_ANGLE,
-				0, SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
+				-SimulationOptions.MAX_LAUNCH_ROD_ANGLE, SimulationOptions.MAX_LAUNCH_ROD_ANGLE);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -372,7 +384,7 @@ public class SimulationConditionsPanel extends JPanel {
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
 		sub.add(unit, "growx");
-		slider = new BasicSlider(m.getSliderModel(0, Math.PI / 9,
+		slider = new BasicSlider(m.getSliderModel(-SimulationOptions.MAX_LAUNCH_ROD_ANGLE, 0,
 				SimulationOptions.MAX_LAUNCH_ROD_ANGLE));
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
@@ -381,19 +393,17 @@ public class SimulationConditionsPanel extends JPanel {
 		
 		// Direction:
 		label = new JLabel(trans.get("simedtdlg.lbl.Direction"));
-		//// <html>Direction of the launch rod relative to the wind.<br>
-		////  = towards the wind, 
-		////  = downwind.
+		//// <html>Direction of the launch rod.
 		tip = trans.get("simedtdlg.lbl.ttip.Direction1") +
 				UnitGroup.UNITS_ANGLE.toStringUnit(0) +
 				" " + trans.get("simedtdlg.lbl.ttip.Direction2") + " " +
-				UnitGroup.UNITS_ANGLE.toStringUnit(Math.PI) +
+				UnitGroup.UNITS_ANGLE.toStringUnit(2*Math.PI) +
 				" " + trans.get("simedtdlg.lbl.ttip.Direction3");
 		label.setToolTipText(tip);
 		sub.add(label);
 		
-		m = new DoubleModel(conditions, "LaunchRodDirection", UnitGroup.UNITS_ANGLE,
-				-Math.PI, Math.PI);
+		m = new DoubleModel(conditions, "LaunchRodDirection", 1.0, UnitGroup.UNITS_ANGLE,
+				0, 2*Math.PI);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -403,9 +413,10 @@ public class SimulationConditionsPanel extends JPanel {
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
 		sub.add(unit, "growx");
-		slider = new BasicSlider(m.getSliderModel(-Math.PI, Math.PI));
+		slider = new BasicSlider(m.getSliderModel(0, 2*Math.PI));
 		slider.setToolTipText(tip);
 		sub.add(slider, "w 75lp, wrap");
+		
 		
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));
 		restoreDefaults.addActionListener(new ActionListener() {

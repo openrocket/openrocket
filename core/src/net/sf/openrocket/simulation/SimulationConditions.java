@@ -35,7 +35,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	/** Launch rod angle >= 0, radians from vertical */
 	private double launchRodAngle = 0;
 	
-	/** Launch rod direction, 0 = upwind, PI = downwind. */
+	/** Launch rod direction, 0 = north */
 	private double launchRodDirection = 0;
 	
 	// TODO: Depreciate these and use worldCoordinate only.
