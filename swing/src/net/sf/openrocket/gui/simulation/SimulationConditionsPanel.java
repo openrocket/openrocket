@@ -392,30 +392,37 @@ public class SimulationConditionsPanel extends JPanel {
 		
 		
 		// Direction:
-		label = new JLabel(trans.get("simedtdlg.lbl.Direction"));
+		JLabel directionLabel = new JLabel(trans.get("simedtdlg.lbl.Direction"));
 		//// <html>Direction of the launch rod.
 		tip = trans.get("simedtdlg.lbl.ttip.Direction1") +
 				UnitGroup.UNITS_ANGLE.toStringUnit(0) +
 				" " + trans.get("simedtdlg.lbl.ttip.Direction2") + " " +
 				UnitGroup.UNITS_ANGLE.toStringUnit(2*Math.PI) +
 				" " + trans.get("simedtdlg.lbl.ttip.Direction3");
-		label.setToolTipText(tip);
-		sub.add(label);
+		directionLabel.setToolTipText(tip);
+		sub.add(directionLabel);
 		
 		m = new DoubleModel(conditions, "LaunchRodDirection", 1.0, UnitGroup.UNITS_ANGLE,
 				0, 2*Math.PI);
 		
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
+		JSpinner directionSpin = new JSpinner(m.getSpinnerModel());
+		directionSpin.setEditor(new SpinnerEditor(directionSpin));
+		directionSpin.setToolTipText(tip);
+		sub.add(directionSpin, "w 65lp!");
 		
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
 		sub.add(unit, "growx");
-		slider = new BasicSlider(m.getSliderModel(0, 2*Math.PI));
-		slider.setToolTipText(tip);
-		sub.add(slider, "w 75lp, wrap");
+		BasicSlider directionSlider = new BasicSlider(m.getSliderModel(0, 2*Math.PI));
+		directionSlider.setToolTipText(tip);
+		sub.add(directionSlider, "w 75lp, wrap");
+		intoWind.addEnableComponent(directionLabel, false);
+		intoWind.addEnableComponent(directionSpin, false);
+		intoWind.addEnableComponent(unit, false);
+		intoWind.addEnableComponent(directionSlider, false);
+		
+		
+	
 		
 		
 		JButton restoreDefaults = new JButton(trans.get("simedtdlg.but.resettodefault"));

@@ -65,12 +65,12 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double launchRodAngle = 0;
 	
 	/** Launch rod direction, 0 = north. */
+	private double windDirection = Math.PI / 2;
 	private double launchRodDirection = 0;
 	
 	
 	private double windAverage = 2.0;
 	private double windTurbulence = 0.1;
-	private double windDirection = Math.PI / 2;
 	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
@@ -163,6 +163,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	
 	public double getLaunchRodDirection() {
+		if (launchIntoWind) {
+			this.setLaunchRodDirection(windDirection);
+		}
 		return launchRodDirection;
 	}
 	
@@ -229,6 +232,9 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	public void setWindDirection(double direction) {
 		direction = MathUtil.reduce360(direction);
+		if (launchIntoWind) {
+			this.setLaunchRodDirection(direction);
+		}
 		if (MathUtil.equals(this.windDirection, direction))
 			return;
 		this.windDirection = direction;
