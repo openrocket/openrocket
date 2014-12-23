@@ -219,6 +219,9 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
+		 * File version 1.7 is required for:
+		 *  - simulation extensions
+		 * 
 		 * File version 1.6 is required for:
 		 *  - saving files using appearances and textures, flight configurations.
 		 *  
@@ -237,6 +240,16 @@ public class OpenRocketSaver extends RocketSaver {
 		 * 
 		 * Otherwise use version 1.0.
 		 */
+		
+		/////////////////
+		// Version 1.7 // 
+		/////////////////
+		for (Simulation sim : document.getSimulations()) {
+			if (!sim.getSimulationExtensions().isEmpty()) {
+				return FILE_VERSION_DIVISOR + 7;
+			}
+		}
+		
 		
 		/////////////////
 		// Version 1.6 // 
