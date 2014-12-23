@@ -8,6 +8,21 @@
   </if>
 
   <!--- Remember to move the position of "onlyrecent" below! --->
+  <p><span class="date">02.11.2014:</span> Version 14.11 is
+   <a href="download.html">released</a>!  This release contains very few changes. Thrustcurves have been updated and now include AeroTech DMS motors.  A few bugs have been fixed. 
+   </p>
+
+  <p><span class="date">25.06.2014:</span> Version 14.06 is
+   <a href="download.html">released</a>!  This release contains very minimal changes.  It fixes an annoying bug in tables that many people experience.  A texture is added for Klima motors.
+   </p>
+
+  <p><span class="date">21.05.2014:</span> Version 14.05 is
+   <a href="download.html">released</a>!  This release contains some minor features,
+   bug fixes and updated thrust curves.  New motor vendors Klima and Southern
+   Cross Rocketry are included.  The simulation will now compute optimum delay based
+   on actual coast time.  Components with CG and mass overrides are decorated with
+   an icon in the component tree.
+   </p>
 
   <p><span class="date">21.03.2014:</span> Version 14.03 is
    <a href="download.html">released</a>!  This release contains the
@@ -15,6 +30,8 @@
    the rocket in the air.  There are various bug fixes in the configuration
    and motor selection windows as well.
    </p>
+
+  <if not onlyrecent><!--- Older items not shown on download page:  --->
 
   <p><span class="date">01.01.2014:</span> Version 13.11.2 is
    <a href="download.html">released</a>!  This release contains bug fixes,
@@ -33,9 +50,6 @@
    tab.  Motor filtering in the motor chooser dialog has been enhanced.
    Chineese translations have been added and Russian translations updated.
    Updated the 3D libraries, and squashed some bugs introduced by Java 1.7.0_45-b18.</p>
-
-  <if not onlyrecent><!--- Older items not shown on download page:  --->
-
 
   <p><span class="date">6.10.2013:</span> Version 13.09.1 is
    <a href="download.html">released</a>!  This is a bug-fix release,

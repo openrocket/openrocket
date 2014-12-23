@@ -164,7 +164,7 @@ public class PreferencesDialog extends JDialog {
 		
 		//// Position to insert new body components:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
-		panel.add(new JComboBox(new PrefChoiseSelector(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY,
+		panel.add(new JComboBox(new PrefChoiceSelector(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY,
 				//// Always ask
 				//// Insert in middle
 				//// Add to end
@@ -178,8 +178,18 @@ public class PreferencesDialog extends JDialog {
 				//// Delete
 				//// Confirm
 				trans.get("pref.dlg.PrefBooleanSelector1"),
-				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap 40lp, growx, sg combos");
-		
+				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap, growx, sg combos");
+		//// Position to insert new body components:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketinfofontsize")), "gapright para");
+
+		panel.add(new JComboBox(new PrefChoiceSelector(Preferences.ROCKET_INFO_FONT_SIZE,
+				//// Small
+				//// Medium
+				//// Large
+				trans.get("pref.dlg.PrefFontSmall"),
+				trans.get("pref.dlg.PrefFontMedium"),
+				trans.get("pref.dlg.PrefFontLarge"))), "wrap 40lp, growx, sg combos");
+
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
@@ -285,6 +295,7 @@ public class PreferencesDialog extends JDialog {
 		
 		
 		
+
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
 				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
@@ -317,8 +328,32 @@ public class PreferencesDialog extends JDialog {
 				preferences.setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
 			}
 		});
-		panel.add(autoOpenDesignFile);
+		panel.add(autoOpenDesignFile, "wrap, growx, span 2");
 		
+		//// Automatically run all simulation out-dated by design changes.
+		final JCheckBox automaticallyRunSimsBox =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Runsimulations"));
+		automaticallyRunSimsBox.setSelected(preferences.getAutoRunSimulations());
+		automaticallyRunSimsBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoRunSimulations(automaticallyRunSimsBox.isSelected());
+			}
+		});
+		panel.add(automaticallyRunSimsBox, "wrap, growx, sg combos ");
+
+		//// Update flight estimates in the design window
+		final JCheckBox updateEstimates =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Updateestimates"));
+				updateEstimates.setSelected(preferences.computeFlightInBackground());
+				updateEstimates.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setComputeFlightInBackground(updateEstimates.isSelected());
+			}
+		});
+		panel.add(updateEstimates, "wrap, growx, sg combos ");
+
 		return panel;
 	}
 	
@@ -673,11 +708,11 @@ public class PreferencesDialog extends JDialog {
 	
 	
 	
-	private class PrefChoiseSelector extends AbstractListModel implements ComboBoxModel {
+	private class PrefChoiceSelector extends AbstractListModel implements ComboBoxModel {
 		private final String preference;
 		private final String[] descriptions;
 		
-		public PrefChoiseSelector(String preference, String... descriptions) {
+		public PrefChoiceSelector(String preference, String... descriptions) {
 			this.preference = preference;
 			this.descriptions = descriptions;
 		}

@@ -1,0 +1,22 @@
+<engine-database>
+  <engine-list>
+<engine  mfg="Southern Cross Rocketry" code="A8" Type="single-use" dia="18." len="70."
+initWt="11.5" propWt="3." delays="3,5" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="3.338" peakThrust="8.706" throatDia="0." exitDia="0." Itot="2.46"
+burn-time="0.74" massFrac="0." Isp="0." tDiv="10" tStep="-1." tFix="1" FDiv="10"
+FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
+cgFix="1">
+<data>
+  <eng-data  t="0." f="0." m="0." cg="0."/>
+  <eng-data  t="0.0806184" f="0.403361" m="0." cg="0."/>
+  <eng-data  t="0.13915" f="1.31092" m="0." cg="0."/>
+  <eng-data  t="0.213694" f="3.04202" m="0." cg="0."/>
+  <eng-data  t="0.399779" f="8.70588" m="0." cg="0."/>
+  <eng-data  t="0.581999" f="2.30252" m="0." cg="0."/>
+  <eng-data  t="0.631143" f="1.15966" m="0." cg="0."/>
+  <eng-data  t="0.685257" f="0.352941" m="0." cg="0."/>
+  <eng-data  t="0.737162" f="0.0168067" m="0." cg="0."/>
+</data>
+</engine>
+</engine-list>
+</engine-database>

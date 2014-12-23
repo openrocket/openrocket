@@ -1,0 +1,42 @@
+<engine-database>
+ <engine-list>
+<engine FDiv="10" FFix="1" FStep="-1." Isp="200.08" Itot="1094.88" Type="reloadable" auto-calc-cg="1" auto-calc-mass="1" avgThrust="411.61" burn-time="2.66" cgDiv="10" cgFix="1" cgStep="-1." code="J400RR" delays="1000" dia="54." exitDia="0." initWt="1231.4" len="326." mDiv="10" mFix="1" mStep="-1." massFrac="45.31" mfg="Animal Motor Works" peakThrust="469.24" propWt="558." tDiv="10" tFix="1" tStep="-1." throatDia="0.">
+<comments>AMW J400 RASP.ENG file made from NAR published data
+File produced April 19, 2004
+The total impulse, peak thrust, average thrust and burn time are
+the same as the averaged static test data on the NAR web site in
+the certification file. The curve drawn with these data points is as
+close to the certification curve as can be with such a limited
+number of points (32) allowed with wRASP up to v1.6.
+</comments>
+<data>
+  <eng-data cg="163." f="0." m="558." t="0."/>
+  <eng-data cg="163." f="246.55" m="555.298" t="0.043"/>
+  <eng-data cg="163." f="317.381" m="552.856" t="0.06"/>
+  <eng-data cg="163." f="344.709" m="549.313" t="0.081"/>
+  <eng-data cg="163." f="358.372" m="544.654" t="0.107"/>
+  <eng-data cg="163." f="356.06" m="536.826" t="0.15"/>
+  <eng-data cg="163." f="365.204" m="527.453" t="0.201"/>
+  <eng-data cg="163." f="392.532" m="506.792" t="0.308"/>
+  <eng-data cg="163." f="435.734" m="451.916" t="0.568"/>
+  <eng-data cg="163." f="458.339" m="384.707" t="0.863"/>
+  <eng-data cg="163." f="469.24" m="330.106" t="1.094"/>
+  <eng-data cg="163." f="467.18" m="302.665" t="1.209"/>
+  <eng-data cg="163." f="460.148" m="241.935" t="1.466"/>
+  <eng-data cg="163." f="443.972" m="186.871" t="1.705"/>
+  <eng-data cg="163." f="423.275" m="138.695" t="1.923"/>
+  <eng-data cg="163." f="409.411" m="94.3478" t="2.132"/>
+  <eng-data cg="163." f="413.831" m="58.4754" t="2.303"/>
+  <eng-data cg="163." f="420.563" m="37.4258" t="2.402"/>
+  <eng-data cg="163." f="413.831" m="22.9675" t="2.47"/>
+  <eng-data cg="163." f="395.445" m="13.2751" t="2.517"/>
+  <eng-data cg="163." f="347.421" m="8.35334" t="2.543"/>
+  <eng-data cg="163." f="265.238" m="4.45036" t="2.568"/>
+  <eng-data cg="163." f="128.198" m="1.44268" t="2.598"/>
+  <eng-data cg="163." f="68.801" m="0.589283" t="2.615"/>
+  <eng-data cg="163." f="25.398" m="0.181215" t="2.632"/>
+  <eng-data cg="163." f="0." m="0." t="2.66"/>
+</data>
+</engine>
+ </engine-list>
+</engine-database>

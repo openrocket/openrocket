@@ -310,6 +310,10 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	}
 
 	public void setMotorMountAndConfig( MotorMount mount, String currentConfig ) {
+		selectedMotor = null;
+		selectedMotorSet = null;
+		selectedDelay = 0;
+		
 		ThrustCurveMotor motorToSelect = null;
 		if (currentConfig != null && mount != null) {
 			MotorConfiguration motorConf = mount.getMotorConfiguration().get(currentConfig);
@@ -317,21 +321,14 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 			selectedDelay = motorConf.getEjectionDelay();
 		}
 
-		selectedMotorSet = null;
-		
 		// If current motor is not found in db, add a new ThrustCurveMotorSet containing it
 		if (motorToSelect != null) {
-			for (ThrustCurveMotorSet motorSet : database) {
-				if (motorSet.getMotors().contains(motorToSelect)) {
-					selectedMotorSet = motorSet;
-					break;
-				}
-			}
-			if (selectedMotorSet == null) {
+			ThrustCurveMotorSet motorSetToSelect = null;
+			motorSetToSelect = findMotorSet(motorToSelect);
+			if (motorSetToSelect == null) {
 				database = new ArrayList<ThrustCurveMotorSet>(database);
 				ThrustCurveMotorSet extra = new ThrustCurveMotorSet();
 				extra.addMotor(motorToSelect);
-				selectedMotorSet = extra;
 				database.add(extra);
 				Collections.sort(database);
 			}

@@ -134,11 +134,14 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			if (c.isNaN()) {
 				throw new IllegalArgumentException("Invalid CG " + c);
 			}
-			if (c.x < 0 || c.x > length) {
-				throw new IllegalArgumentException("Invalid CG position " + c.x);
+			if (c.x < 0) {
+				throw new IllegalArgumentException("Invalid CG position " + String.format("%f", c.x) + ": CG is below the start of the motor.");
+			}
+			if (c.x > length) {
+				throw new IllegalArgumentException("Invalid CG position: " + String.format("%f", c.x) + ": CG is above the end of the motor.");
 			}
 			if (c.weight < 0) {
-				throw new IllegalArgumentException("Negative mass " + c.weight);
+				throw new IllegalArgumentException("Negative mass " + c.weight + "at time=" + time[Arrays.asList(cg).indexOf(c)]);
 			}
 		}
 		

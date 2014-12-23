@@ -31,6 +31,7 @@ public class Icons {
 	static {
 		HashMap<Simulation.Status, Icon> map = new HashMap<Simulation.Status, Icon>();
 		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon("pix/spheres/gray-16x16.png", "Not simulated"));
+		map.put(Simulation.Status.CANT_RUN, loadImageIcon("pix/spheres/yellow-16x16.png", "Can't run, no motors assigned."));
 		map.put(Simulation.Status.UPTODATE, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
 		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/yellow-16x16.png", "Loaded from file"));
 		map.put(Simulation.Status.OUTDATED, loadImageIcon("pix/spheres/red-16x16.png", "Out-of-date"));
@@ -84,6 +85,9 @@ public class Icons {
 	
 	public static final Icon NOT_FAVORITE = loadImageIcon("pix/icons/star_silver.png", "Not favorite");
 	public static final Icon FAVORITE = loadImageIcon("pix/icons/star_gold.png", "Favorite");
+	
+	public static final Icon CG_OVERRIDE = loadImageIcon("pix/icons/cg-override.png", "CG Override");
+	public static final Icon MASS_OVERRIDE = loadImageIcon("pix/icons/mass-override.png", "Mass Override");
 	
 	
 	static {

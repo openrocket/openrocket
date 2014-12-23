@@ -40,6 +40,7 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.gui.adaptors.Column;
+import net.sf.openrocket.gui.adaptors.ColumnTable;
 import net.sf.openrocket.gui.adaptors.ColumnTableModel;
 import net.sf.openrocket.gui.components.SelectableLabel;
 import net.sf.openrocket.gui.util.GUIUtil;
@@ -266,7 +267,7 @@ public class DebugLogDialog extends JDialog {
 					}
 				};
 		
-		table = new JTable(model);
+		table = new ColumnTable(model);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		table.setSelectionBackground(Color.LIGHT_GRAY);
 		table.setSelectionForeground(Color.BLACK);

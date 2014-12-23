@@ -1,0 +1,29 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="I223SK" Type="unspecified" dia="38." len="302." initWt="494."
+propWt="266." delays="5,7,9,11,14" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="219.321" peakThrust="260.157" throatDia="0." exitDia="0."
+Itot="435.133" burn-time="1.98" massFrac="53.85" Isp="166.81" tDiv="10"
+tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1."
+mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI Pro38-4G 434 I223 Skidmark 14A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="266." cg="151."/>
+      <eng-data  t="0.016" f="199.183" m="265.026" cg="151."/>
+      <eng-data  t="0.024" f="260.157" m="263.903" cg="151."/>
+      <eng-data  t="0.07" f="207.313" m="257.33" cg="151."/>
+      <eng-data  t="0.148" f="227.637" m="246.96" cg="151."/>
+      <eng-data  t="0.425" f="244.71" m="206.969" cg="151."/>
+      <eng-data  t="0.721" f="254.466" m="161.807" cg="151."/>
+      <eng-data  t="1.015" f="256.905" m="115.854" cg="151."/>
+      <eng-data  t="1.3" f="248.775" m="71.8032" cg="151."/>
+      <eng-data  t="1.459" f="240.645" m="48.0179" cg="151."/>
+      <eng-data  t="1.615" f="234.954" m="25.3404" cg="151."/>
+      <eng-data  t="1.712" f="195.931" m="12.5654" cg="151."/>
+      <eng-data  t="1.782" f="119.51" m="5.81627" cg="151."/>
+      <eng-data  t="1.9" f="24.39" m="0.626211" cg="151."/>
+      <eng-data  t="1.984" f="0." m="0." cg="151."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

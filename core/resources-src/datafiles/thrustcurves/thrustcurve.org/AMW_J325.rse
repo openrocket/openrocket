@@ -1,0 +1,44 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="Cesaroni Technology Inc." code="J325TT" Type="reloadable" dia="54."
+len="326." initWt="1230." propWt="537." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="323.289" peakThrust="540.652" throatDia="0."
+exitDia="0." Itot="1089.16" burn-time="3.37" massFrac="43.66" Isp="206.82"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>Entered by Tim Van Milligan for RockSim users. Used ThrustCurve Tracer by John
+Coker. Data from CAR web site, thrust curve from AMW web site.
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="537." cg="163."/>
+      <eng-data  t="0.013" f="334.689" m="535.927" cg="163."/>
+      <eng-data  t="0.034" f="534.215" m="531.429" cg="163."/>
+      <eng-data  t="0.046" f="523.488" m="528.3" cg="163."/>
+      <eng-data  t="0.072" f="540.652" m="521.48" cg="163."/>
+      <eng-data  t="0.084" f="474.143" m="518.478" cg="163."/>
+      <eng-data  t="0.156" f="474.143" m="501.646" cg="163."/>
+      <eng-data  t="0.215" f="474.143" m="487.853" cg="163."/>
+      <eng-data  t="0.342" f="463.416" m="458.5" cg="163."/>
+      <eng-data  t="0.519" f="454.834" m="418.433" cg="163."/>
+      <eng-data  t="1.004" f="414.071" m="314.545" cg="163."/>
+      <eng-data  t="1.286" f="392.616" m="258.465" cg="163."/>
+      <eng-data  t="1.78" f="328.253" m="170.677" cg="163."/>
+      <eng-data  t="2.222" f="274.617" m="104.987" cg="163."/>
+      <eng-data  t="2.458" f="251.017" m="74.4061" cg="163."/>
+      <eng-data  t="2.555" f="240.29" m="62.6577" cg="163."/>
+      <eng-data  t="2.606" f="233.853" m="56.6966" cg="163."/>
+      <eng-data  t="2.766" f="216.69" m="38.9257" cg="163."/>
+      <eng-data  t="2.863" f="205.963" m="28.819" cg="163."/>
+      <eng-data  t="2.922" f="199.526" m="22.9213" cg="163."/>
+      <eng-data  t="2.964" f="188.799" m="18.9006" cg="163."/>
+      <eng-data  t="3.011" f="173.781" m="14.6996" cg="163."/>
+      <eng-data  t="3.057" f="150.181" m="11.0259" cg="163."/>
+      <eng-data  t="3.104" f="124.436" m="7.84404" cg="163."/>
+      <eng-data  t="3.15" f="98.69" m="5.3138" cg="163."/>
+      <eng-data  t="3.243" f="57.927" m="1.72314" cg="163."/>
+      <eng-data  t="3.289" f="34.327" m="0.676984" cg="163."/>
+      <eng-data  t="3.369" f="0." m="0." cg="163."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

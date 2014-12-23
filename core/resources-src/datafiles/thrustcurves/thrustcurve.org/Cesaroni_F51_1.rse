@@ -1,0 +1,26 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="75-F51-CL-12A" Type="unspecified" dia="24." len="133."
+initWt="95." propWt="40." delays="12,9,7,5" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="47.72" peakThrust="84.148" throatDia="0." exitDia="0." Itot="75.254"
+burn-time="1.58" massFrac="42.11" Isp="191.85" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>Classic 24mm 3G
+75-F51-CL-12A
+</comments>
+    <data>
+      <eng-data  t="0." f="0." m="40." cg="66.5"/>
+      <eng-data  t="0.02" f="75.924" m="39.5964" cg="66.5"/>
+      <eng-data  t="0.031" f="84.148" m="39.1285" cg="66.5"/>
+      <eng-data  t="0.062" f="70.441" m="37.8549" cg="66.5"/>
+      <eng-data  t="0.117" f="73.659" m="35.7485" cg="66.5"/>
+      <eng-data  t="1.211" f="38.737" m="3.06972" cg="66.5"/>
+      <eng-data  t="1.376" f="14.779" m="0.722981" cg="66.5"/>
+      <eng-data  t="1.456" f="7.271" m="0.254171" cg="66.5"/>
+      <eng-data  t="1.532" f="3.337" m="0.0399086" cg="66.5"/>
+      <eng-data  t="1.577" f="0." m="0." cg="66.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

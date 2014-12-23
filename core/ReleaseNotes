@@ -1,3 +1,35 @@
+OpenRocket 14.11 (2014-11-02):
+------------------------------
+
+New Features:
+    * Updated thrustcurves
+
+Bug Fixes:
+    * Fixed a couple of bugs.
+
+OpenRocket 14.06 (2014-06-25):
+------------------------------
+
+New Features:
+    * Klima motor textures
+    * Added knots to windspeed and velocity units
+    * Updated thrustcurves
+
+Bug Fixes:
+    * Fixed annoying IndexOutOfBounds bug in tables.
+
+OpenRocket 14.05 (2014-05-21):
+------------------------------
+
+New Features:
+    * Compute optimimum delay time when simulating
+    * Display cg/mass overrides using icons in the component tree
+
+Bug Fixes:
+    * Bug fixes in the motor selection dialog
+    * Updated thrustcurves
+    * Updated 3d libraries to 2.1.5
+
 OpenRocket 14.03 (2014-03-20):
 ------------------------------
 

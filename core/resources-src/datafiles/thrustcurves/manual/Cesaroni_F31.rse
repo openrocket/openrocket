@@ -1,0 +1,27 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="56-F31-CL-12A" Type="unspecified" dia="29." len="98.0008"
+initWt="102." propWt="32." delays="13,9,7,5,3" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="30.41" peakThrust="64.053" throatDia="0."
+exitDia="0." Itot="55.589" burn-time="1.83" massFrac="31.37" Isp="177.14"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
+    <comments>CTI 56-F31-CL-12A</comments>
+    <data>
+      <eng-data  t="0." f="0." m="32." cg="49."/>
+      <eng-data  t="0.001" f="3.483" m="31.999" cg="49."/>
+      <eng-data  t="0.023" f="64.053" m="31.5714" cg="49."/>
+      <eng-data  t="0.05" f="31.347" m="30.83" cg="49."/>
+      <eng-data  t="0.059" f="28.459" m="30.6751" cg="49."/>
+      <eng-data  t="0.095" f="32.027" m="30.0483" cg="49."/>
+      <eng-data  t="0.212" f="36.189" m="27.7511" cg="49."/>
+      <eng-data  t="0.344" f="37.549" m="24.9496" cg="49."/>
+      <eng-data  t="1.567" f="26.165" m="2.5217" cg="49."/>
+      <eng-data  t="1.631" f="26.93" m="1.54365" cg="49."/>
+      <eng-data  t="1.663" f="25.316" m="1.06244" cg="49."/>
+      <eng-data  t="1.785" f="3.653" m="0.0452111" cg="49."/>
+      <eng-data  t="1.828" f="0." m="0." cg="49."/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

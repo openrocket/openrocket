@@ -46,6 +46,7 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 			list.add(new Locale(lang));
 		}
 		list.add(new Locale("zh","CN"));
+		list.add(new Locale("uk","UA"));
 		SUPPORTED_LOCALES = Collections.unmodifiableList(list);
 	}
 	
@@ -417,7 +418,11 @@ public class SwingPreferences extends net.sf.openrocket.startup.Preferences {
 	public boolean computeFlightInBackground() {
 		return PREFNODE.getBoolean("backgroundFlight", true);
 	}
-	
+
+	public void setComputeFlightInBackground(boolean b) {
+		PREFNODE.putBoolean("backgroundFlight", b);
+	}
+
 	public Simulation getBackgroundSimulation(Rocket rocket) {
 		Simulation s = new Simulation(rocket);
 		SimulationOptions cond = s.getOptions();

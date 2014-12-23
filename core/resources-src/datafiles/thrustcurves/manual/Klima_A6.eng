@@ -1,0 +1,13 @@
+; Raketenmodellbau Klima GmbH
+; Official manufacturer thrust data - A6
+; Created by Leo Nutz for OpenRocket,
+; released into the Public Domain (3/2014)
+A6 18 70 4 0.0035 0.0145 Klima
+   0.088 0.502
+   0.186 4.601
+   0.232 7.089
+   0.314 10.477
+   0.418 6.713
+   0.467 3.011
+   0.501 0.418
+   0.71 0.0

@@ -1,0 +1,32 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="M1630-TT" Type="unspecified" dia="75." len="1039."
+initWt="7237." propWt="4349." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1666.9" peakThrust="3368.28" throatDia="0." exitDia="0." Itot="8167.8"
+burn-time="4.9" massFrac="60.09" Isp="191.51" tDiv="10" tStep="-1." tFix="1"
+FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>AMW75-7600 8212M1630-TT/DT P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="4349." cg="519.5"/>
+      <eng-data  t="0.003" f="147.481" m="4348.88" cg="519.5"/>
+      <eng-data  t="0.032" f="2040.95" m="4331.99" cg="519.5"/>
+      <eng-data  t="0.078" f="3235.07" m="4267.37" cg="519.5"/>
+      <eng-data  t="0.158" f="3368.28" m="4126.73" cg="519.5"/>
+      <eng-data  t="0.463" f="3258.86" m="3588.61" cg="519.5"/>
+      <eng-data  t="0.647" f="2992.44" m="3282.39" cg="519.5"/>
+      <eng-data  t="0.949" f="2697.48" m="2824.91" cg="519.5"/>
+      <eng-data  t="1.052" f="2040.95" m="2694.98" cg="519.5"/>
+      <eng-data  t="1.101" f="1883.95" m="2643.78" cg="519.5"/>
+      <eng-data  t="1.392" f="1907.74" m="2350.02" cg="519.5"/>
+      <eng-data  t="1.786" f="1812.59" m="1959.78" cg="519.5"/>
+      <eng-data  t="3.6" f="1327.33" m="443.396" cg="519.5"/>
+      <eng-data  t="3.899" f="875.372" m="268.056" cg="519.5"/>
+      <eng-data  t="4.595" f="347.294" m="41.5017" cg="519.5"/>
+      <eng-data  t="4.857" f="195.056" m="3.67179" cg="519.5"/>
+      <eng-data  t="4.891" f="166.511" m="0.39897" cg="519.5"/>
+      <eng-data  t="4.9" f="0." m="0." cg="519.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>

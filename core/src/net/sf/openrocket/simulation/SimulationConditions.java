@@ -318,7 +318,12 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	public SimulationConditions clone() {
 		try {
 			// TODO: HIGH: Deep clone models
-			return (SimulationConditions) super.clone();
+			SimulationConditions clone = (SimulationConditions) super.clone();
+			clone.simulationListeners = new ArrayList<SimulationListener>(this.simulationListeners.size());
+			for (SimulationListener listener : this.simulationListeners) {
+				clone.simulationListeners.add(listener.clone());
+			}
+			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new BugException(e);
 		}

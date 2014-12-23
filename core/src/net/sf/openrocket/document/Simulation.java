@@ -2,6 +2,7 @@ package net.sf.openrocket.document;
 
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
@@ -10,8 +11,14 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
 import net.sf.openrocket.simulation.FlightData;
@@ -58,7 +65,10 @@ public class Simulation implements ChangeSource, Cloneable {
 		EXTERNAL,
 		
 		/** Not yet simulated */
-		NOT_SIMULATED
+		NOT_SIMULATED,
+		
+		/** Can't be simulated, NO_MOTORS **/
+		CANT_RUN
 	}
 	
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -251,12 +261,34 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public Status getStatus() {
 		mutex.verify();
-		
 		if (status == Status.UPTODATE || status == Status.LOADED) {
-			if (rocket.getFunctionalModID() != simulatedRocketID ||
-					!options.equals(simulatedConditions))
-				return Status.OUTDATED;
+			if (rocket.getFunctionalModID() != simulatedRocketID || !options.equals(simulatedConditions)) {
+				status = Status.OUTDATED;
+			}
 		}
+		
+		
+		//Make sure this simulation has motors.
+		Configuration c = new Configuration(this.getRocket());
+		MotorInstanceConfiguration motors = new MotorInstanceConfiguration();
+		c.setFlightConfigurationID(options.getMotorConfigurationID());
+		final String flightConfigId = c.getFlightConfigurationID();
+		
+		Iterator<MotorMount> iterator = c.motorIterator();
+		boolean no_motors = true;
+		
+		while (iterator.hasNext()) {
+			MotorMount mount = iterator.next();
+			RocketComponent component = (RocketComponent) mount;
+			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(flightConfigId);
+			IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
+			Motor motor = motorConfig.getMotor();
+			if (motor != null)
+				no_motors = false;
+		}
+		
+		if (no_motors)
+			status = Status.CANT_RUN;
 		
 		return status;
 	}

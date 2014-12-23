@@ -27,10 +27,6 @@ import net.sf.openrocket.util.WorldCoordinate;
  */
 public class SimulationStatus implements Monitorable {
 	
-	/*
-	 * NOTE!  All fields must be added to copyFrom() method!!
-	 */
-	
 	private SimulationConditions simulationConditions;
 	private Configuration configuration;
 	private MotorInstanceConfiguration motorConfiguration;
@@ -83,6 +79,8 @@ public class SimulationStatus implements Monitorable {
 	/** Available for special purposes by the listeners. */
 	private final Map<String, Object> extraData = new HashMap<String, Object>();
 	
+	double maxAlt = Double.NEGATIVE_INFINITY;
+	double maxAltTime = 0;
 	
 	private int modID = 0;
 	private int modIDadd = 0;
@@ -391,6 +389,24 @@ public class SimulationStatus implements Monitorable {
 	
 	public boolean isTumbling() {
 		return tumbling;
+	}
+	
+	public double getMaxAlt() {
+		return maxAlt;
+	}
+	
+	public void setMaxAlt(double maxAlt) {
+		this.maxAlt = maxAlt;
+		this.modID++;
+	}
+	
+	public double getMaxAltTime() {
+		return maxAltTime;
+	}
+	
+	public void setMaxAltTime(double maxAltTime) {
+		this.maxAltTime = maxAltTime;
+		this.modID++;
 	}
 	
 	public Set<RecoveryDevice> getDeployedRecoveryDevices() {

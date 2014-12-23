@@ -1,0 +1,26 @@
+<engine-database>
+  <engine-list>
+    <engine  mfg="CTI" code="5198-M1101-WH-P" Type="unspecified" dia="75." len="621."
+initWt="4938." propWt="3096." delays="0" auto-calc-mass="1" auto-calc-cg="1"
+avgThrust="1097.89" peakThrust="1436.62" throatDia="0." exitDia="0."
+Itot="5199.6" burn-time="4.74" massFrac="62.7" Isp="171.26" tDiv="10" tStep="-1."
+tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10"
+cgStep="-1." cgFix="1">
+    <comments>CTI 5198-M1101-WH-P</comments>
+    <data>
+      <eng-data  t="0." f="0." m="3096." cg="310.5"/>
+      <eng-data  t="0.003" f="281.69" m="3095.75" cg="310.5"/>
+      <eng-data  t="0.05" f="1436.62" m="3071.7" cg="310.5"/>
+      <eng-data  t="0.121" f="1363.38" m="3012.52" cg="310.5"/>
+      <eng-data  t="0.366" f="1263.85" m="2820.89" cg="310.5"/>
+      <eng-data  t="0.59" f="1230.05" m="2654.57" cg="310.5"/>
+      <eng-data  t="1.745" f="1322.07" m="1777." cg="310.5"/>
+      <eng-data  t="2.835" f="1166.2" m="969.535" cg="310.5"/>
+      <eng-data  t="4." f="974.648" m="227.007" cg="310.5"/>
+      <eng-data  t="4.158" f="839.437" m="141.675" cg="310.5"/>
+      <eng-data  t="4.668" f="82.629" m="1.6728" cg="310.5"/>
+      <eng-data  t="4.736" f="0." m="0." cg="310.5"/>
+    </data>
+  </engine>
+</engine-list>
+</engine-database>
