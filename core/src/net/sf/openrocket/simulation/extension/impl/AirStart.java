@@ -18,8 +18,15 @@ public class AirStart extends AbstractSimulationExtension {
 	
 	@Override
 	public String getName() {
-		String name = trans.get("SimulationExtension.airstart.name");
-		return L10N.replace(name, "{alt}", UnitGroup.UNITS_DISTANCE.toStringUnit(getLaunchAltitude()));
+		String name;
+		if (getLaunchVelocity() > 0.01) {
+			name = trans.get("SimulationExtension.airstart.name.altvel");
+		} else {
+			name = trans.get("SimulationExtension.airstart.name.alt");
+		}
+		name = L10N.replace(name, "{alt}", UnitGroup.UNITS_DISTANCE.toStringUnit(getLaunchAltitude()));
+		name = L10N.replace(name, "{vel}", UnitGroup.UNITS_VELOCITY.toStringUnit(getLaunchVelocity()));
+		return name;
 	}
 	
 	public double getLaunchAltitude() {
@@ -31,11 +38,21 @@ public class AirStart extends AbstractSimulationExtension {
 		fireChangeEvent();
 	}
 	
+	public double getLaunchVelocity() {
+		return config.getDouble("launchVelocity", 0.0);
+	}
+	
+	public void setLaunchVelocity(double launchVelocity) {
+		config.put("launchVelocity", launchVelocity);
+		fireChangeEvent();
+	}
+	
 	
 	private class AirStartListener extends AbstractSimulationListener {
 		@Override
 		public void startSimulation(SimulationStatus status) throws SimulationException {
 			status.setRocketPosition(new Coordinate(0, 0, getLaunchAltitude()));
+			status.setRocketVelocity(status.getRocketOrientationQuaternion().rotate(new Coordinate(0, 0, getLaunchVelocity())));
 		}
 	}
 }
