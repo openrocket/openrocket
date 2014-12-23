@@ -435,6 +435,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
 			copy.options = this.options.clone();
+			copy.simulationExtensions = new ArrayList<SimulationExtension>();
 			for (SimulationExtension c : this.simulationExtensions) {
 				copy.simulationExtensions.add(c.clone());
 			}
