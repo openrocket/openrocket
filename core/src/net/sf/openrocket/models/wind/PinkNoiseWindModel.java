@@ -18,8 +18,8 @@ public class PinkNoiseWindModel implements WindModel {
 	/** Random value with which to XOR the random seed value */
 	private static final int SEED_RANDOMIZATION = 0x7343AA03;
 	
-
-
+	
+	
 	/** Pink noise alpha parameter. */
 	private static final double ALPHA = 5.0 / 3.0;
 	
@@ -32,8 +32,9 @@ public class PinkNoiseWindModel implements WindModel {
 	/** Time difference between random samples. */
 	private static final double DELTA_T = 0.05;
 	
-
+	
 	private double average = 0;
+	private double direction = Math.PI / 2; // this is an East wind
 	private double standardDeviation = 0;
 	
 	private final int seed;
@@ -52,7 +53,7 @@ public class PinkNoiseWindModel implements WindModel {
 	}
 	
 	
-
+	
 	/**
 	 * Return the average wind speed.
 	 * 
@@ -74,8 +75,14 @@ public class PinkNoiseWindModel implements WindModel {
 		setTurbulenceIntensity(intensity);
 	}
 	
+	public void setDirection(double direction) {
+		this.direction = direction;
+	}
 	
-
+	public double getDirection() {
+		return this.direction;
+	}
+	
 	/**
 	 * Return the standard deviation from the average wind speed.
 	 * 
@@ -120,9 +127,9 @@ public class PinkNoiseWindModel implements WindModel {
 	}
 	
 	
-
-
-
+	
+	
+	
 	@Override
 	public Coordinate getWindVelocity(double time, double altitude) {
 		if (time < 0) {
@@ -150,8 +157,8 @@ public class PinkNoiseWindModel implements WindModel {
 		double a = (time - time1) / DELTA_T;
 		
 		double speed = average + (value1 * (1 - a) + value2 * a) * standardDeviation / STDDEV;
-		// TODO: MEDIUM: Make wind direction configurable
-		return new Coordinate(speed, 0, 0);
+		return new Coordinate(speed * Math.sin(direction), speed * Math.cos(direction), 0);
+		
 	}
 	
 	
@@ -160,7 +167,7 @@ public class PinkNoiseWindModel implements WindModel {
 	}
 	
 	
-
+	
 	@Override
 	public int getModID() {
 		return (int) (average * 1000 + standardDeviation);
