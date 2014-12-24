@@ -11,8 +11,8 @@ import net.miginfocom.swing.MigLayout;
  * @author cpearls
  *
  */
-public class ColorDefaultsPanel extends JPanel {
-	public ColorDefaultsPanel(){
+public class DisplayPreferencesPanel extends PreferencesPanel {
+	public DisplayPreferencesPanel(){
 		super(new MigLayout("fillx"));
 	}
 }

@@ -16,6 +16,7 @@ import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -45,6 +46,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
+	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
 	private String motorID = null;
@@ -55,36 +57,29 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 * equals and copyFrom methods!!
 	 */
 	
-	// TODO: HIGH: Fetch default values from Prefs!
-	
-	private double launchRodLength = 1;
-	
-	/** Keep launch rod parallel to wind*/
-	private boolean launchIntoWind = true;
-	/** Launch rod angle, |radians|<90 from vertical, positive is upwind, negative is downwind */
-	private double launchRodAngle = 0;
-	
-	/** Launch rod direction, 0 = north. */
-	private double windDirection = Math.PI / 2;
-	private double launchRodDirection = 0;
+	private double launchRodLength = preferences.getDouble(Preferences.LAUNCH_ROD_LENGTH, 1);
+	private boolean launchIntoWind = preferences.getBoolean(Preferences.LAUNCH_INTO_WIND, true);
+	private double launchRodAngle = preferences.getDouble(Preferences.LAUNCH_ROD_ANGLE, 0);
+	private double windDirection = preferences.getDouble(Preferences.WIND_DIRECTION, Math.PI / 2);
+	private double launchRodDirection = preferences.getDouble(Preferences.LAUNCH_ROD_DIRECTION, Math.PI / 2);
 	
 	
-	private double windAverage = 2.0;
-	private double windTurbulence = 0.1;
+	private double windAverage = preferences.getDouble(Preferences.WIND_AVERAGE, 2.0);
+	private double windTurbulence = preferences.getDouble(Preferences.WIND_TURBULANCE, 0.1);
 	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
 	 */
-	private double launchAltitude = 0;
-	private double launchLatitude = 45;
-	private double launchLongitude = 0;
+	
+	private double launchAltitude = preferences.getDouble(Preferences.LAUNCH_ALTITUDE, 0);
+	private double launchLatitude = preferences.getDouble(Preferences.LAUNCH_LATITUDE, 28.61);
+	private double launchLongitude = preferences.getDouble(Preferences.LAUNCH_LONGITUDE, -80.60);
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
-	private boolean useISA = true;
-	private double launchTemperature = ExtendedISAModel.STANDARD_TEMPERATURE;
-	private double launchPressure = ExtendedISAModel.STANDARD_PRESSURE;
-	
+	private boolean useISA = preferences.getBoolean(Preferences.LAUNCH_USE_ISA, true);
+	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
+	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
 	
 	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
