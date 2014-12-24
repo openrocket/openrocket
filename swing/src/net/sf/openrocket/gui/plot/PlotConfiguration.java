@@ -67,6 +67,18 @@ public class PlotConfiguration implements Cloneable {
 		config.setEvent(FlightEvent.Type.TUMBLE, true);
 		config.setEvent(FlightEvent.Type.EXCEPTION, true);
 		configs.add(config);
+	
+		
+		//// Ground track
+		config = new PlotConfiguration(trans.get("PlotConfiguration.Groundtrack"), FlightDataType.TYPE_POSITION_X);
+		config.addPlotDataType(FlightDataType.TYPE_POSITION_Y, 0);
+		config.addPlotDataType(FlightDataType.TYPE_ALTITUDE, 1);
+		config.setEvent(FlightEvent.Type.IGNITION, true);
+		config.setEvent(FlightEvent.Type.BURNOUT, true);
+		config.setEvent(FlightEvent.Type.APOGEE, true);
+		config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT, true);
+		config.setEvent(FlightEvent.Type.GROUND_HIT, true);
+		configs.add(config);
 		
 		//// Stability vs. time
 		config = new PlotConfiguration(trans.get("PlotConfiguration.Stability"));

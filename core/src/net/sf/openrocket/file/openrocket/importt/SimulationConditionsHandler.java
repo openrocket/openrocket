@@ -70,7 +70,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 			if (Double.isNaN(d)) {
 				warnings.add("Illegal launch rod direction defined, ignoring.");
 			} else {
-				conditions.setLaunchRodDirection(d * Math.PI / 180);
+				conditions.setLaunchRodDirection(d * 2.0 * Math.PI / 360);
 			}
 		} else if (element.equals("windaverage")) {
 			if (Double.isNaN(d)) {
@@ -113,7 +113,7 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		} else if (element.equals("atmosphere")) {
 			atmosphereHandler.storeSettings(conditions, warnings);
 		} else if (element.equals("timestep")) {
-			if (Double.isNaN(d) || d <= 0 ) {
+			if (Double.isNaN(d) || d <= 0) {
 				warnings.add("Illegal time step defined, ignoring.");
 			} else {
 				conditions.setTimeStep(d);
