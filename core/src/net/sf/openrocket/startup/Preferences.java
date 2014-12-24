@@ -1,6 +1,10 @@
 package net.sf.openrocket.startup;
 
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,13 +20,15 @@ import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
+import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
-public abstract class Preferences {
-	
+public abstract class Preferences implements ChangeSource {
+
 	/*
 	 * Well known string keys to preferences.
 	 * There are other strings out there in the source as well.
@@ -31,7 +37,8 @@ public abstract class Preferences {
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 	public static final String AUTO_RUN_SIMULATIONS = "AutoRunSimulations";
-	
+
+	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
@@ -89,44 +96,52 @@ public abstract class Preferences {
 	 * @return
 	 */
 	public abstract String getString(String directory, String key, String defaultValue);
-	
+
 	public abstract void putString(String directory, String key, String value);
-	
+
 	/*
 	 * ******************************************************************************************
 	 */
 	public final boolean getCheckUpdates() {
 		return this.getBoolean(CHECK_UPDATES, BuildProperties.getDefaultCheckUpdates());
 	}
-	
+
 	public final void setCheckUpdates(boolean check) {
 		this.putBoolean(CHECK_UPDATES, check);
 	}
-	
+
 	public final boolean getAutoRunSimulations() {
 		return this.getBoolean(AUTO_RUN_SIMULATIONS, false);
 	}
-	
+
 	public final void setAutoRunSimulations(boolean check) {
 		this.putBoolean(AUTO_RUN_SIMULATIONS, check);
 	}
-	
+
 	public final double getDefaultMach() {
-		// TODO: HIGH: implement custom default mach number
-		return 0.3;
+		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
 	}
-	
+
+	public final void setDefaultMach(double dfn) {
+		double oldDFN = Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+
+		if (MathUtil.equals(oldDFN, dfn))
+			return;
+		this.putDouble(Preferences.DEFAULT_MACH_NUMBER, dfn);
+		fireChangeEvent();
+	}
+
 	public final float getRocketInfoFontSize() {
 		return (float) (11.0 + 3 * Application.getPreferences().getChoice(Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
 	}
-	
+
 	/**
 	 * Enable/Disable the auto-opening of the last edited design file on startup.
 	 */
 	public final void setAutoOpenLastDesignOnStartup(boolean enabled) {
 		this.putBoolean(AUTO_OPEN_LAST_DESIGN, enabled);
 	}
-	
+
 	/**
 	 * Answer if the auto-opening of the last edited design file on startup is enabled.
 	 *
@@ -166,7 +181,25 @@ public abstract class Preferences {
 			return def;
 		return v;
 	}
-	
+
+	/**
+	 * Returns a limited-range double value from the preferences.  If the value
+	 * in the preferences is negative or greater than max, then the default value
+	 * is returned.
+	 *
+	 * @param key  The preference to retrieve.
+	 * @param max  Maximum allowed value for the choice.
+	 * @param def  Default value.
+	 * @return   The preference value.
+	 */
+	public final double getChoice(String key, double max, double def) {
+		double v = this.getDouble(key, def);
+		if ((v < 0) || (v > max))
+			return def;
+		return v;
+	}
+
+
 	/**
 	 * Helper method that puts an integer choice value into the preferences.
 	 *
@@ -176,7 +209,7 @@ public abstract class Preferences {
 	public final void putChoice(String key, int value) {
 		this.putInt(key, value);
 	}
-	
+
 	/**
 	 * Retrieve an enum value from the user preferences.
 	 *
@@ -189,19 +222,19 @@ public abstract class Preferences {
 		if (def == null) {
 			throw new BugException("Default value cannot be null");
 		}
-		
+
 		String value = getString(key, null);
 		if (value == null) {
 			return def;
 		}
-		
+
 		try {
 			return Enum.valueOf(def.getDeclaringClass(), value);
 		} catch (IllegalArgumentException e) {
 			return def;
 		}
 	}
-	
+
 	/**
 	 * Store an enum value to the user preferences.
 	 *
@@ -215,12 +248,12 @@ public abstract class Preferences {
 			putString(key, value.name());
 		}
 	}
-	
+
 	public Color getDefaultColor(Class<? extends RocketComponent> c) {
 		String color = get("componentColors", c, StaticFieldHolder.DEFAULT_COLORS);
 		if (color == null)
 			return Color.BLACK;
-		
+
 		Color clr = parseColor(color);
 		if (clr != null) {
 			return clr;
@@ -228,14 +261,14 @@ public abstract class Preferences {
 			return Color.BLACK;
 		}
 	}
-	
+
 	public final void setDefaultColor(Class<? extends RocketComponent> c, Color color) {
 		if (color == null)
 			return;
 		putString("componentColors", c.getSimpleName(), stringifyColor(color));
 	}
-	
-	
+
+
 	/**
 	 * Retrieve a Line style for the given component.
 	 * @param c
@@ -249,7 +282,7 @@ public abstract class Preferences {
 			return LineStyle.SOLID;
 		}
 	}
-	
+
 	/**
 	 * Set a default line style for the given component.
 	 * @param c
@@ -261,7 +294,7 @@ public abstract class Preferences {
 			return;
 		putString("componentStyle", c.getSimpleName(), style.name());
 	}
-	
+
 	/**
 	 * Get the default material type for the given component.
 	 * @param componentClass
@@ -271,7 +304,7 @@ public abstract class Preferences {
 	public Material getDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass,
 			Material.Type type) {
-		
+
 		String material = get("componentMaterials", componentClass, null);
 		if (material != null) {
 			try {
@@ -281,7 +314,7 @@ public abstract class Preferences {
 			} catch (IllegalArgumentException ignore) {
 			}
 		}
-		
+
 		switch (type) {
 		case LINE:
 			return StaticFieldHolder.DEFAULT_LINE_MATERIAL;
@@ -292,7 +325,7 @@ public abstract class Preferences {
 		}
 		throw new IllegalArgumentException("Unknown material type: " + type);
 	}
-	
+
 	/**
 	 * Set the default material for a component type.
 	 * @param componentClass
@@ -300,11 +333,11 @@ public abstract class Preferences {
 	 */
 	public void setDefaultComponentMaterial(
 			Class<? extends RocketComponent> componentClass, Material material) {
-		
+
 		putString("componentMaterials", componentClass.getSimpleName(),
 				material == null ? null : material.toStorableString());
 	}
-	
+
 	/**
 	 * get a net.sf.openrocket.util.Color object for the given key.
 	 * @param key
@@ -318,7 +351,7 @@ public abstract class Preferences {
 		}
 		return c;
 	}
-	
+
 	/**
 	 * set a net.sf.openrocket.util.Color preference value for the given key.
 	 * @param key
@@ -327,7 +360,7 @@ public abstract class Preferences {
 	public final void putColor(String key, Color value) {
 		putString(key, stringifyColor(value));
 	}
-	
+
 	/**
 	 * Helper function to convert a string representation into a net.sf.openrocket.util.Color object.
 	 * @param color
@@ -337,7 +370,7 @@ public abstract class Preferences {
 		if (color == null) {
 			return null;
 		}
-		
+
 		String[] rgb = color.split(",");
 		if (rgb.length == 3) {
 			try {
@@ -350,7 +383,7 @@ public abstract class Preferences {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Helper function to convert a net.sf.openrocket.util.Color object into a
 	 * String before storing in a preference.
@@ -361,7 +394,7 @@ public abstract class Preferences {
 		String string = color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 		return string;
 	}
-	
+
 	/**
 	 * Special helper function which allows for a map of default values.
 	 *
@@ -437,5 +470,28 @@ public abstract class Preferences {
 			DEFAULT_COLORS.put(RecoveryDevice.class, "255,0,0");
 		}
 	}
-	
+
+	private List<EventListener> listeners = new ArrayList<EventListener>();
+	private final EventObject event = new EventObject(this);
+
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	private void fireChangeEvent() {
+
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
+			}
+		}
+	}
 }

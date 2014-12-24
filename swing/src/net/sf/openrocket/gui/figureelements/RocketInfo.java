@@ -175,7 +175,7 @@ public class RocketInfo implements FigureElement {
 	private void drawStabilityInfo() {
 		String at;
 		//// at M=
-		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(mach);
+		at = trans.get("RocketInfo.at")+UnitGroup.UNITS_COEFFICIENT.getDefaultUnit().toStringUnit(Application.getPreferences().getDefaultMach());
 		if (!Double.isNaN(aoa)) {
 			at += " "+ALPHA+"=" + UnitGroup.UNITS_ANGLE.getDefaultUnit().toStringUnit(aoa);
 		}

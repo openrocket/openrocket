@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -42,7 +43,9 @@ import javax.swing.event.DocumentListener;
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.communication.UpdateInfo;
 import net.sf.openrocket.communication.UpdateInfoRetriever;
+import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
+import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -86,15 +89,21 @@ public class PreferencesDialog extends JDialog {
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "grow, wrap");
 		
+		//// Options and Miscellaneous options
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, generalOptionsPane(),
+				trans.get("pref.dlg.tab.Miscellaneousoptions"));
+		//// Options and Miscellaneous options
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Design"), null, designOptionsPane(),
+				trans.get("pref.dlg.tab.Design"));
+		//// Options and Miscellaneous options
+		tabbedPane.addTab(trans.get("pref.dlg.tab.Simulation"), null, simulationOptionsPane(),
+				trans.get("pref.dlg.tab.Design"));
 		//// Units and Default units
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null, unitsPane(),
 				trans.get("pref.dlg.tab.Defaultunits"));
 		//// Materials and Custom materials
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Materials"), null, new MaterialEditPanel(),
 				trans.get("pref.dlg.tab.Custommaterials"));
-		//// Options and Miscellaneous options
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null, optionsPane(),
-				trans.get("pref.dlg.tab.Miscellaneousoptions"));
 		//// Decal Editor selection
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Graphics"), graphicsOptionsPane());
 		
@@ -129,7 +138,82 @@ public class PreferencesDialog extends JDialog {
 		return new JPanel(new MigLayout("fillx, ins 301p n n n"));
 	}
 	
-	private JPanel optionsPane() {
+	@SuppressWarnings("unchecked")
+	private JPanel designOptionsPane() {
+		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
+		
+		//// Position to insert new body components:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
+		panel.add(new JComboBox<Object>(new PrefChoiceSelector(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY,
+				//// Always ask
+				//// Insert in middle
+				//// Add to end
+				trans.get("pref.dlg.PrefChoiseSelector1"),
+				trans.get("pref.dlg.PrefChoiseSelector2"),
+				trans.get("pref.dlg.PrefChoiseSelector3"))), "wrap para, growx, sg combos");
+	
+		//// Font size of information in panel window
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketinfofontsize")), "gapright para");
+
+		panel.add(new JComboBox<Object>(new PrefChoiceSelector(Preferences.ROCKET_INFO_FONT_SIZE,
+				//// Small
+				//// Medium
+				//// Large
+				trans.get("pref.dlg.PrefFontSmall"),
+				trans.get("pref.dlg.PrefFontMedium"),
+				trans.get("pref.dlg.PrefFontLarge"))), "wrap para, growx, sg combos");
+		
+		//// Default Mach number
+		JLabel dfn = new JLabel(trans.get("pref.dlg.lbl.DefaultMach"));
+		panel.add(dfn, "gapright para");
+		dfn.setToolTipText(trans.get("pref.dlg.ttip.DefaultMach1")+
+				trans.get("pref.dlg.ttip.DefaultMach2"));
+
+		DoubleModel m = new DoubleModel(preferences, "DefaultMach", 1.0, UnitGroup.UNITS_COEFFICIENT, 0.1, 0.9);
+		//mach = new DoubleModel(rocketPanel, "CPMach", UnitGroup.UNITS_COEFFICIENT, 0);
+		
+		JSpinner spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(trans.get("pref.dlg.ttip.DefaultMach1")+
+							trans.get("pref.dlg.ttip.DefaultMach2"));
+		panel.add(spin, "wrap");
+
+		
+		/*
+		panel.add(new JComboBox(new PrefChoiceSelector(Preferences.ROCKET_INFO_FONT_SIZE,
+				//// Small
+				//// Medium
+				//// Large
+				trans.get("pref.dlg.PrefFontSmall"),
+				trans.get("pref.dlg.PrefFontMedium"),
+				trans.get("pref.dlg.PrefFontLarge"))), "wrap 40lp, growx, sg combos");
+	*/
+		final JCheckBox autoOpenDesignFile = new JCheckBox(trans.get("pref.dlg.but.openlast"));
+		autoOpenDesignFile.setSelected(preferences.isAutoOpenLastDesignOnStartupEnabled());
+		autoOpenDesignFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
+			}
+		});
+		panel.add(autoOpenDesignFile, "wrap, growx, span 2");
+
+		//// Update flight estimates in the design window
+		final JCheckBox updateEstimates =
+				new JCheckBox(trans.get("pref.dlg.checkbox.Updateestimates"));
+				updateEstimates.setSelected(preferences.computeFlightInBackground());
+				updateEstimates.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setComputeFlightInBackground(updateEstimates.isSelected());
+			}
+		});
+		panel.add(updateEstimates, "wrap, growx, sg combos ");
+
+		return panel;
+	}
+
+	private JPanel generalOptionsPane() {
 		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
 		
 		
@@ -146,7 +230,7 @@ public class PreferencesDialog extends JDialog {
 		Collections.sort(locales);
 		locales.add(0, new Named<Locale>(null, trans.get("languages.default")));
 		
-		final JComboBox languageCombo = new JComboBox(locales.toArray());
+		final JComboBox<?> languageCombo = new JComboBox<Object>(locales.toArray());
 		for (int i = 0; i < locales.size(); i++) {
 			if (Utils.equals(userLocale, locales.get(i).get())) {
 				languageCombo.setSelectedIndex(i);
@@ -166,35 +250,6 @@ public class PreferencesDialog extends JDialog {
 		
 		panel.add(new StyledLabel(trans.get("PreferencesDialog.lbl.languageEffect"), -3, Style.ITALIC), "span, wrap para*2");
 		
-		
-		//// Position to insert new body components:
-		panel.add(new JLabel(trans.get("pref.dlg.lbl.Positiontoinsert")), "gapright para");
-		panel.add(new JComboBox(new PrefChoiceSelector(Preferences.BODY_COMPONENT_INSERT_POSITION_KEY,
-				//// Always ask
-				//// Insert in middle
-				//// Add to end
-				trans.get("pref.dlg.PrefChoiseSelector1"),
-				trans.get("pref.dlg.PrefChoiseSelector2"),
-				trans.get("pref.dlg.PrefChoiseSelector3"))), "wrap para, growx, sg combos");
-		
-		//// Confirm deletion of simulations:
-		panel.add(new JLabel(trans.get("pref.dlg.lbl.Confirmdeletion")));
-		panel.add(new JComboBox(new PrefBooleanSelector(Preferences.CONFIRM_DELETE_SIMULATION,
-				//// Delete
-				//// Confirm
-				trans.get("pref.dlg.PrefBooleanSelector1"),
-				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap, growx, sg combos");
-		//// Position to insert new body components:
-		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketinfofontsize")), "gapright para");
-
-		panel.add(new JComboBox(new PrefChoiceSelector(Preferences.ROCKET_INFO_FONT_SIZE,
-				//// Small
-				//// Medium
-				//// Large
-				trans.get("pref.dlg.PrefFontSmall"),
-				trans.get("pref.dlg.PrefFontMedium"),
-				trans.get("pref.dlg.PrefFontLarge"))), "wrap 40lp, growx, sg combos");
-
 		//// User-defined thrust curves:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.User-definedthrust")), "spanx, wrap");
 		final JTextField field = new JTextField();
@@ -324,16 +379,21 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		panel.add(button, "right, wrap");
+
+		return panel;
+	}
+
+	private JPanel simulationOptionsPane() {
+		JPanel panel = new JPanel(new MigLayout("fillx, ins 30lp n n n"));
 		
-		final JCheckBox autoOpenDesignFile = new JCheckBox(trans.get("pref.dlg.but.openlast"));
-		autoOpenDesignFile.setSelected(preferences.isAutoOpenLastDesignOnStartupEnabled());
-		autoOpenDesignFile.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setAutoOpenLastDesignOnStartup(autoOpenDesignFile.isSelected());
-			}
-		});
-		panel.add(autoOpenDesignFile, "wrap, growx, span 2");
+		//// Confirm deletion of simulations:
+		panel.add(new JLabel(trans.get("pref.dlg.lbl.Confirmdeletion")));
+		panel.add(new JComboBox<Object>(new PrefBooleanSelector(Preferences.CONFIRM_DELETE_SIMULATION,
+				//// Delete
+				//// Confirm
+				trans.get("pref.dlg.PrefBooleanSelector1"),
+				trans.get("pref.dlg.PrefBooleanSelector2"), true)), "wrap, growx, sg combos");
+
 		
 		//// Automatically run all simulation out-dated by design changes.
 		final JCheckBox automaticallyRunSimsBox =
@@ -347,24 +407,12 @@ public class PreferencesDialog extends JDialog {
 		});
 		panel.add(automaticallyRunSimsBox, "wrap, growx, sg combos ");
 
-		//// Update flight estimates in the design window
-		final JCheckBox updateEstimates =
-				new JCheckBox(trans.get("pref.dlg.checkbox.Updateestimates"));
-				updateEstimates.setSelected(preferences.computeFlightInBackground());
-				updateEstimates.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				preferences.setComputeFlightInBackground(updateEstimates.isSelected());
-			}
-		});
-		panel.add(updateEstimates, "wrap, growx, sg combos ");
-
 		return panel;
 	}
-	
+
 	private JPanel unitsPane() {
 		JPanel panel = new JPanel(new MigLayout("", "[][]40lp[][]"));
-		JComboBox combo;
+		JComboBox<?> combo;
 		
 		//// Select your preferred units:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Selectprefunits")), "span, wrap paragraph");
@@ -372,110 +420,110 @@ public class PreferencesDialog extends JDialog {
 		
 		//// Rocket dimensions:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rocketdimensions")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_LENGTH));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_LENGTH));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Line density:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Linedensity")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_LINE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_LINE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Motor dimensions:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Motordimensions")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_MOTOR_DIMENSIONS));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_MOTOR_DIMENSIONS));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Surface density:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Surfacedensity")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_SURFACE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_SURFACE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Distance:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Distance")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DISTANCE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_DISTANCE));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Bulk density::
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Bulkdensity")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_BULK));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_DENSITY_BULK));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Velocity:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Velocity")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_VELOCITY));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_VELOCITY));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Surface roughness:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Surfaceroughness")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ROUGHNESS));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_ROUGHNESS));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Acceleration:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Acceleration")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ACCELERATION));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_ACCELERATION));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Area:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Area")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_AREA));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_AREA));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Mass:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Mass")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_MASS));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_MASS));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Angle:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Angle")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ANGLE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_ANGLE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Force:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Force")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_FORCE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_FORCE));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Roll rate:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Rollrate")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_ROLL));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_ROLL));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Total impulse:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Totalimpulse")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_IMPULSE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_IMPULSE));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Temperature:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Temperature")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_TEMPERATURE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_TEMPERATURE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		//// Moment of inertia:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Momentofinertia")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_INERTIA));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Pressure:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Pressure")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_PRESSURE));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_PRESSURE));
 		panel.add(combo, "sizegroup boxes, wrap");
 		
 		
 		//// Stability:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Stability")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_STABILITY));
 		panel.add(combo, "sizegroup boxes");
 		
 		//// Windspeed:
 		panel.add(new JLabel(trans.get("pref.dlg.lbl.Windspeed")));
-		combo = new JComboBox(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
+		combo = new JComboBox<Object>(new DefaultUnitSelector(UnitGroup.UNITS_WINDSPEED));
 		panel.add(combo, "sizegroup boxes, wrap para");
 		
 		
@@ -669,7 +717,7 @@ public class PreferencesDialog extends JDialog {
 	
 	
 	
-	private class DefaultUnitSelector extends AbstractListModel implements ComboBoxModel {
+	private class DefaultUnitSelector extends AbstractListModel<Object> implements ComboBoxModel<Object> {
 		
 		private final UnitGroup group;
 		
@@ -713,7 +761,7 @@ public class PreferencesDialog extends JDialog {
 	
 	
 	
-	private class PrefChoiceSelector extends AbstractListModel implements ComboBoxModel {
+	private class PrefChoiceSelector extends AbstractListModel<Object> implements ComboBoxModel<Object> {
 		private final String preference;
 		private final String[] descriptions;
 		
@@ -760,7 +808,7 @@ public class PreferencesDialog extends JDialog {
 	}
 	
 	
-	private class PrefBooleanSelector extends AbstractListModel implements ComboBoxModel {
+	private class PrefBooleanSelector extends AbstractListModel<Object> implements ComboBoxModel<Object> {
 		private final String preference;
 		private final String trueDesc, falseDesc;
 		private final boolean def;
