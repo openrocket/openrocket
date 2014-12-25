@@ -33,6 +33,21 @@ public class DesignPreferencesPanel extends PreferencesPanel {
 								.get("pref.dlg.PrefChoiseSelector3"))),
 				"wrap para, growx, sg combos");
 
+		// Font size of information in panel window
+		this.add(new JLabel(trans.get("pref.dlg.lbl.Rocketinfofontsize")),
+				"gapright para");
+
+		this.add(
+				new JComboBox<Object>(new PrefChoiceSelector(
+						Preferences.ROCKET_INFO_FONT_SIZE,
+						// // Small
+						// // Medium
+						// // Large
+						trans.get("pref.dlg.PrefFontSmall"), trans
+								.get("pref.dlg.PrefFontMedium"), trans
+								.get("pref.dlg.PrefFontLarge"))),
+				"wrap para, growx, sg combos");
+
 		// // Default Mach number
 		JLabel dfn = new JLabel(trans.get("pref.dlg.lbl.DefaultMach"));
 		this.add(dfn, "gapright para");

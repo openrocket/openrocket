@@ -81,7 +81,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
 	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
 	
-	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
+	private double timeStep = preferences.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
@@ -90,8 +90,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	
 	private List<EventListener> listeners = new ArrayList<EventListener>();
-	
-	
 	
 	public SimulationOptions(Rocket rocket) {
 		this.rocket = rocket;

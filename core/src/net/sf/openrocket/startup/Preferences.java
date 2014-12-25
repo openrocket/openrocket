@@ -20,10 +20,12 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
@@ -84,6 +86,7 @@ public abstract class Preferences implements ChangeSource {
 	public static final String LAUNCH_PRESSURE = "LaunchPressure";
 	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
 	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
+	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
 	
 	
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
@@ -377,7 +380,7 @@ public abstract class Preferences implements ChangeSource {
 	 * 
 	 * @return	an AtmosphericModel object.
 	 */
-	private AtmosphericModel getAtmosphericModel() {
+	public AtmosphericModel getAtmosphericModel() {
 		if (this.getBoolean(LAUNCH_USE_ISA, true)) {
 			return ISA_ATMOSPHERIC_MODEL;
 		}
@@ -385,13 +388,20 @@ public abstract class Preferences implements ChangeSource {
 				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE));
 	}
 	
+	public GeodeticComputationStrategy getGeodeticComputation() {
+		return this.getEnum(GEODETIC_COMPUTATION, GeodeticComputationStrategy.SPHERICAL);
+	}
+	
+	public void setGeodeticComputation(GeodeticComputationStrategy gcs) {
+		this.putEnum(GEODETIC_COMPUTATION, gcs);
+	}
 	
 	public double getTimeStep() {
-		return this.getDouble(this.SIMULATION_TIME_STEP, 0.05);
+		return this.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	}
 	
 	public void setTimeStep(double timeStep) {
-		if (MathUtil.equals(this.getDouble(SIMULATION_TIME_STEP, 0.05), timeStep))
+		if (MathUtil.equals(this.getDouble(SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP), timeStep))
 			return;
 		this.putDouble(SIMULATION_TIME_STEP, timeStep);
 		fireChangeEvent();
@@ -727,6 +737,7 @@ public abstract class Preferences implements ChangeSource {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
 		}
+		
 		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
 		static {
 			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");

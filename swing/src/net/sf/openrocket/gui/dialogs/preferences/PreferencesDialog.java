@@ -43,36 +43,37 @@ public class PreferencesDialog extends JDialog {
 		JTabbedPane tabbedPane = new JTabbedPane();
 		panel.add(tabbedPane, "grow, wrap");
 
-		// // Options and Miscellaneous options
+		// Options and Miscellaneous options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Options"), null,
 				new GeneralPreferencesPanel(this),
 				trans.get("pref.dlg.tab.Miscellaneousoptions"));
-		// // Designer options
+		// Designer options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Design"), null,
 				new DesignPreferencesPanel(), trans.get("pref.dlg.tab.Design"));
-		// // Simulation options
+		// Simulation options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Simulation"), null,
 				new SimulationPreferencesPanel(),
 				trans.get("pref.dlg.tab.Design"));
-		// // Launch options
+		// Launch options
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Launch"), null,
 				new LaunchPreferencesPanel(), trans.get("pref.dlg.tab.Launch"));
-		// // Units and Default units
+		// Units and Default units
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Units"), null,
 				new UnitsPreferencesPanel(this),
 				trans.get("pref.dlg.tab.Defaultunits"));
-		// // Materials and Custom materials
+		// Materials and Custom materials
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Materials"), null,
 				new MaterialEditPanel(),
 				trans.get("pref.dlg.tab.Custommaterials"));
-		// // Decal Editor selection
+		// Decal Editor selection
 		tabbedPane.addTab(trans.get("pref.dlg.tab.Graphics"),
 				new GraphicsPreferencesPanel(this));
 
-		// // Default Colors Preferences
-		tabbedPane.addTab(trans.get("pref.dlg.tab.Colors"),
-				new DisplayPreferencesPanel());
-		// // Close button
+		// Default Colors Preferences
+		// tabbedPane.addTab(trans.get("pref.dlg.tab.Colors"),
+		// new DisplayPreferencesPanel());
+
+		// Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
