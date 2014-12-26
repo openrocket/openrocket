@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.Motor.Type;
 import net.sf.openrocket.startup.Application;
@@ -45,12 +46,12 @@ public class DatabaseMotorFinder implements MotorFinder {
 			return null;
 		}
 		
-		List<? extends Motor> motors = Application.getMotorSetDatabase().findMotors(type, manufacturer, designation, diameter, length);
+		List<? extends Motor> motors = Application.getInjector().getInstance(MotorDatabase.class).findMotors(type, manufacturer, designation, diameter, length);
 		
 		// No motors
 		if (motors.size() == 0) {
 			return handleMissingMotor(type, manufacturer, designation, diameter, length, digest, warnings);
-		}		
+		}
 		
 		// One motor
 		if (motors.size() == 1) {

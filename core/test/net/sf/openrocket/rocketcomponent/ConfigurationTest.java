@@ -476,7 +476,7 @@ public class ConfigurationTest extends BaseTestCase {
 		// Flight configuration
 		String id = rocket.newFlightConfigurationID();
 		
-		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
+		//		Motor m = Application.getInjector().getInstance(MotorDatabase.class).findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
 		//		tube3.setMotor(id, m);
 		//		tube3.setMotorOverhang(0.02);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(id);

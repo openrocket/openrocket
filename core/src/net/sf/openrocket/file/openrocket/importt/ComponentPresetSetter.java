@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
@@ -43,7 +44,7 @@ class ComponentPresetSetter implements Setter {
 			warnings.add(Warning.fromString("Invalid ComponentPreset for component " + c.getName() + ", no type specified."));
 		}
 		
-		List<ComponentPreset> presets = Application.getComponentPresetDao().find(manufacturerName, productNo);
+		List<ComponentPreset> presets = Application.getInjector().getInstance(ComponentPresetDao.class).find(manufacturerName, productNo);
 		
 		ComponentPreset matchingPreset = null;
 		

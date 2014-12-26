@@ -7,9 +7,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.Database;
 import net.sf.openrocket.database.DatabaseListener;
 import net.sf.openrocket.document.OpenRocketDocument;
@@ -22,6 +20,9 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PresetModel extends AbstractListModel implements ComboBoxModel, ComponentChangeListener, DatabaseListener<ComponentPreset> {
 	
@@ -41,7 +42,7 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	public PresetModel(Component parent, OpenRocketDocument document, RocketComponent component) {
 		this.parent = parent;
 		this.document = document;
-		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
+		presets = Application.getInjector().getInstance(ComponentPresetDao.class).listForType(component.getPresetType(), true);
 		this.component = component;
 		previousPreset = component.getPresetComponent();
 		component.addComponentChangeListener(this);
@@ -110,13 +111,13 @@ public class PresetModel extends AbstractListModel implements ComboBoxModel, Com
 	
 	@Override
 	public void elementAdded(ComponentPreset element, Database<ComponentPreset> source) {
-		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
+		presets = Application.getInjector().getInstance(ComponentPresetDao.class).listForType(component.getPresetType(), true);
 		this.fireContentsChanged(this, 0, getSize());
 	}
 	
 	@Override
 	public void elementRemoved(ComponentPreset element, Database<ComponentPreset> source) {
-		presets = Application.getComponentPresetDao().listForType(component.getPresetType(), true);
+		presets = Application.getInjector().getInstance(ComponentPresetDao.class).listForType(component.getPresetType(), true);
 		this.fireContentsChanged(this, 0, getSize());
 	}
 	

@@ -24,6 +24,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.preset.TypedKey;
@@ -77,7 +78,7 @@ public class ComponentPresetTable extends JTable {
 					return;
 				}
 				ComponentPreset preset = ComponentPresetTable.this.presets.get(rowIndex);
-				Application.getComponentPresetDao().setFavorite(preset, presetType, (Boolean) aValue);
+				Application.getInjector().getInstance(ComponentPresetDao.class).setFavorite(preset, presetType, (Boolean) aValue);
 				ComponentPresetTable.this.updateFavorites();
 			}
 

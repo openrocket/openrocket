@@ -25,6 +25,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.preset.ComponentPreset;
@@ -69,7 +70,7 @@ public class ComponentPresetChooserDialog extends JDialog {
 		super(owner, trans.get("title"), Dialog.ModalityType.APPLICATION_MODAL);
 		this.component = component;
 		this.presetType = component.getPresetType();
-		this.presets = Application.getComponentPresetDao().listForType(component.getPresetType());
+		this.presets = Application.getInjector().getInstance(ComponentPresetDao.class).listForType(component.getPresetType());
 		
 		List<TypedKey<?>> displayedColumnKeys = Arrays.asList(component.getPresetType().getDisplayedColumns());
 		
@@ -105,7 +106,8 @@ public class ComponentPresetChooserDialog extends JDialog {
 		sub.add(filterLabel, "gapright para");
 		
 		filterText = new JTextField();
-		sub.add(filterText, "growx");
+	
+		sub.add(filterText, "growx, width 150:200:250");
 		filterText.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -188,9 +190,9 @@ public class ComponentPresetChooserDialog extends JDialog {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
 					if (((JCheckBox) e.getItem()).isSelected()) {
-						presets = Application.getComponentPresetDao().listForTypes(compatibleTypes);
+						presets = Application.getInjector().getInstance(ComponentPresetDao.class).listForTypes(compatibleTypes);
 					} else {
-						presets = Application.getComponentPresetDao().listForType(nativeType);
+						presets = Application.getInjector().getInstance(ComponentPresetDao.class).listForType(nativeType);
 					}
 					componentSelectionTable.updateData(presets);
 				}
