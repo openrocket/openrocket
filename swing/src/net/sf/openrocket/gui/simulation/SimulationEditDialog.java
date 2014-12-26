@@ -26,6 +26,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.SimulationOptions;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 
 
@@ -91,8 +92,10 @@ public class SimulationEditDialog extends JDialog {
 		if (simulation.length > 1) {
 			for (int i = 1; i < simulation.length; i++) {
 				simulation[i].getOptions().copyConditionsFrom(simulation[0].getOptions());
-				simulation[i].getSimulationListeners().clear();
-				simulation[i].getSimulationListeners().addAll(simulation[0].getSimulationListeners());
+				simulation[i].getSimulationExtensions().clear();
+				for (SimulationExtension c : simulation[0].getSimulationExtensions()) {
+					simulation[i].getSimulationExtensions().add(c.clone());
+				}
 			}
 		}
 	}

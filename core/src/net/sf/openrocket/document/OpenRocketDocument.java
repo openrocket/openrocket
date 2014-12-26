@@ -23,7 +23,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
-import net.sf.openrocket.simulation.listeners.SimulationListener;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
 
@@ -146,17 +146,8 @@ public class OpenRocketDocument implements ComponentChangeListener {
 		
 		// simulation listeners
 		for (Simulation sim : simulations) {
-			for (String className : sim.getSimulationListeners()) {
-				SimulationListener l = null;
-				try {
-					Class<?> c = Class.forName(className);
-					l = (SimulationListener) c.newInstance();
-					
-					Collections.addAll(allTypes, l.getFlightDataTypes());
-					//System.out.println("This document has expression datatype from "+l.getName());
-				} catch (Exception e) {
-					log.error("Could not instantiate listener: " + className);
-				}
+			for (SimulationExtension c : sim.getSimulationExtensions()) {
+				allTypes.addAll(c.getFlightDataTypes());
 			}
 		}
 		
