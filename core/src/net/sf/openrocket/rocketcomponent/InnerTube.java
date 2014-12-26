@@ -257,27 +257,6 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return getInnerRadius() * 2;
 	}
 	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public int getMotorCount() {
-		return getClusterCount();
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public Motor getMotor(String id) {
-		return this.motorConfigurations.get(id).getMotor();
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public double getMotorDelay(String id) {
-		return this.motorConfigurations.get(id).getEjectionDelay();
-	}
-	
 	@Override
 	public double getMotorOverhang() {
 		return overhang;
@@ -293,7 +272,7 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 	
 	@Override
 	public Coordinate getMotorPosition(String id) {
-		Motor motor = getMotor(id);
+		Motor motor = getMotorConfiguration().get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}

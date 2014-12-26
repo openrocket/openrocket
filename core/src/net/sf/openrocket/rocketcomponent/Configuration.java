@@ -241,7 +241,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 				MotorMount mount = (MotorMount) c;
 				if (!mount.isMotorMount())
 					continue;
-				if (mount.getMotor(this.flightConfigurationId) != null) {
+				if (mount.getMotorConfiguration().get(this.flightConfigurationId).getMotor() != null) {
 					return true;
 				}
 			}
@@ -456,7 +456,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 				RocketComponent c = iterator.next();
 				if (c instanceof MotorMount) {
 					MotorMount mount = (MotorMount) c;
-					if (mount.isMotorMount() && mount.getMotor(flightConfigurationId) != null) {
+					if (mount.isMotorMount() && mount.getMotorConfiguration().get(flightConfigurationId).getMotor() != null) {
 						next = mount;
 						return;
 					}

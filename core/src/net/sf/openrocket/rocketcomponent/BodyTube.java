@@ -374,29 +374,6 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	}
 	
 	
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public Motor getMotor(String id) {
-		return this.motorConfigurations.get(id).getMotor();
-	}
-	
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public double getMotorDelay(String id) {
-		return this.motorConfigurations.get(id).getEjectionDelay();
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Deprecated
-	@Override
-	public int getMotorCount() {
-		return 1;
-	}
-	
 	@Override
 	public double getMotorMountDiameter() {
 		return getInnerRadius() * 2;
@@ -419,7 +396,7 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	
 	@Override
 	public Coordinate getMotorPosition(String id) {
-		Motor motor = getMotor(id);
+		Motor motor = getMotorConfiguration().get(id).getMotor();
 		if (motor == null) {
 			throw new IllegalArgumentException("No motor with id " + id + " defined.");
 		}
