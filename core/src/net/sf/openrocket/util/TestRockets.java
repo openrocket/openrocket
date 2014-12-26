@@ -4,6 +4,7 @@ import java.util.Random;
 
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.database.Databases;
+import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.Simulation;
@@ -281,7 +282,7 @@ public class TestRockets {
 		String id = rocket.newFlightConfigurationID();
 		bodytube.setMotorMount(true);
 		
-		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "B4", Double.NaN, Double.NaN).get(0);
+		Motor m = Application.getInjector().getInstance(MotorDatabase.class).findMotors(null, null, "B4", Double.NaN, Double.NaN).get(0);
 		bodytube.getMotorConfiguration().get(id).setMotor(m);
 		bodytube.setMotorOverhang(0.005);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
@@ -350,7 +351,7 @@ public class TestRockets {
 		String id = rocket.newFlightConfigurationID();
 		bodytube.setMotorMount(true);
 		
-		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "F12J", Double.NaN, Double.NaN).get(0);
+		//		Motor m = Application.getInjector().getInstance(MotorDatabase.class).findMotors(null, null, "F12J", Double.NaN, Double.NaN).get(0);
 		//		bodytube.setMotor(id, m);
 		//		bodytube.setMotorOverhang(0.005);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
@@ -531,7 +532,7 @@ public class TestRockets {
 		String id = rocket.newFlightConfigurationID();
 		tube3.setMotorMount(true);
 		
-		//		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
+		//		Motor m = Application.getInjector().getInstance(MotorDatabase.class).findMotors(null, null, "L540", Double.NaN, Double.NaN).get(0);
 		//		tube3.setMotor(id, m);
 		//		tube3.setMotorOverhang(0.02);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(id);

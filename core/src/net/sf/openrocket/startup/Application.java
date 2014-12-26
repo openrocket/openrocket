@@ -1,8 +1,5 @@
 package net.sf.openrocket.startup;
 
-import net.sf.openrocket.database.ComponentPresetDao;
-import net.sf.openrocket.database.motor.MotorDatabase;
-import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
@@ -67,33 +64,6 @@ public final class Application {
 	 */
 	public static void setExceptionHandler(ExceptionHandler exceptionHandler) {
 		Application.exceptionHandler = exceptionHandler;
-	}
-	
-	/**
-	 * Return the database of all thrust curves loaded into the system.
-	 * 
-	 * @deprecated Fetch the db from Guice instead.
-	 */
-	@Deprecated
-	public static MotorDatabase getMotorSetDatabase() {
-		return injector.getInstance(MotorDatabase.class);
-	}
-	
-	/**
-	 * Return the ThrustCurveMotorSetDatabase for the system.
-	 * 
-	 * @deprecated Fetch the db from Guice instead.
-	 */
-	@Deprecated
-	public static ThrustCurveMotorSetDatabase getThrustCurveMotorSetDatabase() {
-		return injector.getInstance(ThrustCurveMotorSetDatabase.class);
-	}
-	
-	
-	@Deprecated
-	public static ComponentPresetDao getComponentPresetDao() {
-		return injector.getInstance(ComponentPresetDao.class);
-		
 	}
 	
 	public static Injector getInjector() {
