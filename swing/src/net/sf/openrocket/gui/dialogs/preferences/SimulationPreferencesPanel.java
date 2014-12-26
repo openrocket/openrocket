@@ -1,53 +1,68 @@
-package net.sf.openrocket.gui.simulation;
+package net.sf.openrocket.gui.dialogs.preferences;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
-import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.components.BasicSlider;
-import net.sf.openrocket.gui.components.DescriptionArea;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.util.Icons;
-import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
-import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
-import net.sf.openrocket.simulation.listeners.example.CSVSaveListener;
-import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 
-class SimulationOptionsPanel extends JPanel {
+public class SimulationPreferencesPanel extends PreferencesPanel {
 
-	private static final Translator trans = Application.getTranslator();
+	/*
+	 * private GeodeticComputationStrategy geodeticComputation =
+	 * GeodeticComputationStrategy.SPHERICAL;
+	 */
 
-	final Simulation simulation;
-
-	SimulationOptionsPanel(final Simulation simulation) {
+	public SimulationPreferencesPanel() {
 		super(new MigLayout("fill"));
-		this.simulation = simulation;
 
-		final SimulationOptions conditions = simulation.getOptions();
+		// Confirm deletion of simulations:
+		final JCheckBox confirmDelete = new JCheckBox(
+				trans.get("pref.dlg.lbl.Confirmdeletion"));
+		confirmDelete.setSelected(preferences.getConfirmSimDeletion());
+		confirmDelete.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoRunSimulations(confirmDelete.isSelected());
+			}
+		});
+		this.add(confirmDelete, "wrap, growx, sg combos ");
+
+		// Automatically run all simulation out-dated by design changes.
+		final JCheckBox automaticallyRunSimsBox = new JCheckBox(
+				trans.get("pref.dlg.checkbox.Runsimulations"));
+		automaticallyRunSimsBox
+				.setSelected(preferences.getAutoRunSimulations());
+		automaticallyRunSimsBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				preferences.setAutoRunSimulations(automaticallyRunSimsBox
+						.isSelected());
+			}
+		});
+		this.add(automaticallyRunSimsBox, "wrap, growx, sg combos ");
+
+		GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 
 		JPanel sub, subsub;
 		String tip;
@@ -58,8 +73,7 @@ class SimulationOptionsPanel extends JPanel {
 		BasicSlider slider;
 
 		// // Simulation options
-		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][65lp!][30lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout("fill"));
 		// // Simulator options
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simopt")));
@@ -97,7 +111,7 @@ class SimulationOptionsPanel extends JPanel {
 		subsub.add(label, "gapright para");
 
 		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
-				conditions, "GeodeticComputation");
+				preferences, "GeodeticComputation");
 		final JComboBox gcsCombo = new JComboBox(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
@@ -109,9 +123,9 @@ class SimulationOptionsPanel extends JPanel {
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
 		gcsTTipListener.actionPerformed(null);
-		subsub.add(gcsCombo, "span 3, wrap para");
+		subsub.add(gcsCombo, "span 3, wrap");
 
-		
+
 		// // Time step:
 		label = new JLabel(trans.get("simedtdlg.lbl.Timestep"));
 		tip = trans.get("simedtdlg.lbl.ttip.Timestep1")
@@ -121,9 +135,9 @@ class SimulationOptionsPanel extends JPanel {
 						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
 				+ ".";
 		label.setToolTipText(tip);
-		subsub.add(label,"gapright para");
+		subsub.add(label, "gapright para");
 
-		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP,
+		m = new DoubleModel(preferences, "TimeStep", UnitGroup.UNITS_TIME_STEP,
 				0, 1);
 
 		spin = new JSpinner(m.getSpinnerModel());
@@ -150,90 +164,73 @@ class SimulationOptionsPanel extends JPanel {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Preferences preferences = Application.getPreferences();
-				conditions.setTimeStep(preferences.getDouble(
-						Preferences.SIMULATION_TIME_STEP,
-						RK4SimulationStepper.RECOMMENDED_TIME_STEP));
-				conditions.setGeodeticComputation(preferences.getEnum(
-						Preferences.GEODETIC_COMPUTATION,
-						GeodeticComputationStrategy.SPHERICAL));
+				preferences
+						.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+				preferences
+						.setGeodeticComputation(GeodeticComputationStrategy.SPHERICAL);
 			}
 		});
 
 		sub.add(button, "align left");
 
-		// Simulation listeners
-		sub = new JPanel(new MigLayout("fill, gap 0 0"));
-		// Simulator listeners
-		sub.setBorder(BorderFactory.createTitledBorder(trans
-				.get("simedtdlg.border.Simlist")));
-		this.add(sub, "growx, growy");
-
-		DescriptionArea desc = new DescriptionArea(5);
-		// <html><i>Simulation listeners</i> is an advanced feature that
-		// allows user-written code to listen to and interact with the
-		// simulation.
-		// // For details on writing simulation listeners, see the OpenRocket
-		// technical documentation.
-		desc.setText(trans.get("simedtdlg.txt.longA1")
-				+ trans.get("simedtdlg.txt.longA2"));
-		sub.add(desc, "aligny 0, growx, wrap para");
-
-		// // Current listeners:
-		label = new JLabel(trans.get("simedtdlg.lbl.Curlist"));
-		sub.add(label, "spanx, wrap rel");
-
-		final ListenerListModel listenerModel = new ListenerListModel();
-		final JList list = new JList(listenerModel);
-		list.setCellRenderer(new ListenerCellRenderer());
-		JScrollPane scroll = new JScrollPane(list);
-		// scroll.setPreferredSize(new Dimension(1,1));
-		sub.add(scroll, "height 1px, grow, wrap rel");
-
-		// // Add button
-		button = new JButton(trans.get("simedtdlg.but.add"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String previous = Application.getPreferences().getString(
-						"previousListenerName", "");
-				String input = (String) JOptionPane.showInputDialog(
-						SwingUtilities.getRoot(SimulationOptionsPanel.this),
-						new Object[] {
-								// // Type the full Java class name of the
-								// simulation listener, for example:
-								"Type the full Java class name of the simulation listener, for example:",
-								"<html><tt>" + CSVSaveListener.class.getName()
-										+ "</tt>" },
-						// // Add simulation listener
-						trans.get("simedtdlg.lbl.Addsimlist"),
-						JOptionPane.QUESTION_MESSAGE, null, null, previous);
-				if (input == null || input.equals(""))
-					return;
-
-				Application.getPreferences().putString("previousListenerName",
-						input);
-				simulation.getSimulationListeners().add(input);
-				listenerModel.fireContentsChanged();
-			}
-		});
-		sub.add(button, "split 2, sizegroup buttons, alignx 50%, gapright para");
-
-		// // Remove button
-		button = new JButton(trans.get("simedtdlg.but.remove"));
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] selected = list.getSelectedIndices();
-				Arrays.sort(selected);
-				for (int i = selected.length - 1; i >= 0; i--) {
-					simulation.getSimulationListeners().remove(selected[i]);
-				}
-				listenerModel.fireContentsChanged();
-			}
-		});
-		sub.add(button, "sizegroup buttons, alignx 50%");
-
+		/*
+		 * // // Simulation listeners sub = new JPanel(new
+		 * MigLayout("fill, gap 0 0")); // // Simulator listeners
+		 * sub.setBorder(BorderFactory.createTitledBorder(trans
+		 * .get("simedtdlg.border.Simlist"))); this.add(sub, "growx, growy");
+		 * 
+		 * DescriptionArea desc = new DescriptionArea(5); // //
+		 * <html><i>Simulation listeners</i> is an advanced feature that //
+		 * allows user-written code to listen to and interact with the //
+		 * simulation. // // For details on writing simulation listeners, see
+		 * the OpenRocket // technical documentation.
+		 * desc.setText(trans.get("simedtdlg.txt.longA1") +
+		 * trans.get("simedtdlg.txt.longA2")); sub.add(desc,
+		 * "aligny 0, growx, wrap para");
+		 * 
+		 * // // Current listeners: label = new
+		 * JLabel(trans.get("simedtdlg.lbl.Curlist")); sub.add(label,
+		 * "spanx, wrap rel");
+		 * 
+		 * final ListenerListModel listenerModel = new ListenerListModel();
+		 * final JList list = new JList(listenerModel); list.setCellRenderer(new
+		 * ListenerCellRenderer()); JScrollPane scroll = new JScrollPane(list);
+		 * // scroll.setPreferredSize(new Dimension(1,1)); sub.add(scroll,
+		 * "height 1px, grow, wrap rel");
+		 * 
+		 * // // Add button button = new
+		 * JButton(trans.get("simedtdlg.but.add")); button.addActionListener(new
+		 * ActionListener() {
+		 * 
+		 * @Override public void actionPerformed(ActionEvent e) { String
+		 * previous = Application.getPreferences().getString(
+		 * "previousListenerName", ""); String input = (String)
+		 * JOptionPane.showInputDialog(
+		 * SwingUtilities.getRoot(SimulationPreferencesPanel.this), new Object[]
+		 * { // // Type the full Java class name of the // simulation listener,
+		 * for example:
+		 * "Type the full Java class name of the simulation listener, for example:"
+		 * , "<html><tt>" + CSVSaveListener.class.getName() + "</tt>" }, // //
+		 * Add simulation listener trans.get("simedtdlg.lbl.Addsimlist"),
+		 * JOptionPane.QUESTION_MESSAGE, null, null, previous); if (input ==
+		 * null || input.equals("")) return;
+		 * 
+		 * Application.getPreferences().putString("previousListenerName",
+		 * input); // preferences.getSimulationListeners().add(input);
+		 * listenerModel.fireContentsChanged(); } }); sub.add(button,
+		 * "split 2, sizegroup buttons, alignx 50%, gapright para");
+		 * 
+		 * // // Remove button button = new
+		 * JButton(trans.get("simedtdlg.but.remove"));
+		 * button.addActionListener(new ActionListener() {
+		 * 
+		 * @Override public void actionPerformed(ActionEvent e) { int[] selected
+		 * = list.getSelectedIndices(); Arrays.sort(selected); for (int i =
+		 * selected.length - 1; i >= 0; i--) { //
+		 * simulation.getSimulationListeners().remove(selected[i]); }
+		 * listenerModel.fireContentsChanged(); } }); sub.add(button,
+		 * "sizegroup buttons, alignx 50%");
+		 */
 	}
 
 	private class ListenerCellRenderer extends JLabel implements
@@ -278,22 +275,17 @@ class SimulationOptionsPanel extends JPanel {
 		}
 	}
 
-	private class ListenerListModel extends AbstractListModel {
-		@Override
-		public String getElementAt(int index) {
-			if (index < 0 || index >= getSize())
-				return null;
-			return simulation.getSimulationListeners().get(index);
-		}
-
-		@Override
-		public int getSize() {
-			return simulation.getSimulationListeners().size();
-		}
-
-		public void fireContentsChanged() {
-			super.fireContentsChanged(this, 0, getSize());
-		}
-	}
-
+	/*
+	 * private class ListenerListModel extends AbstractListModel {
+	 * 
+	 * @Override public String getElementAt(int index) { if (index < 0 || index
+	 * >= getSize()) return null; return
+	 * simulation.getSimulationListeners().get(index); }
+	 * 
+	 * @Override public int getSize() { return
+	 * simulation.getSimulationListeners().size(); }
+	 * 
+	 * public void fireContentsChanged() { super.fireContentsChanged(this, 0,
+	 * getSize()); } }
+	 */
 }
