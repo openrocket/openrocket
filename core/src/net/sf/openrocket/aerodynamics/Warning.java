@@ -92,6 +92,37 @@ public abstract class Warning {
 		}
 	}
 	
+	/**
+	 * A <code>Warning</code> indicating recovery device deployment at high speed was encountered.
+	 * 
+	 * @author Craig Earls <enderw88@gmail.com>
+	 */
+	public static class HighSpeedDeployment extends Warning {
+		private double recoverySpeed;
+		
+		/**
+		 * Sole constructor.  The argument is the speed that caused this warning.
+		 * 
+		 * @param speed  the speed that caused this warning
+		 */
+		public HighSpeedDeployment(double speed) {
+			this.recoverySpeed = speed;
+		}
+		
+		@Override
+		public String toString() {
+			if (Double.isNaN(recoverySpeed)) {
+				return trans.get("Warning.RECOVERY_HIGH_SPEED");
+			}
+			return trans.get("Warning.RECOVERY_HIGH_SPEED") + " (" + UnitGroup.UNITS_VELOCITY.toStringUnit(recoverySpeed) + ")";
+		}
+		
+		@Override
+		public boolean replaceBy(Warning other) {
+			return false;
+		}
+	}
+	
 	public static class MissingMotor extends Warning {
 		
 		private Motor.Type type = null;
