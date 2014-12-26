@@ -67,7 +67,7 @@ class SimulationOptionsPanel extends JPanel {
 
 		// Separate panel for computation methods, as they use a different
 		// layout
-		subsub = new JPanel(new MigLayout("insets 0, fill"));
+		subsub = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
 
 		// // Calculation method:
 		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
@@ -78,7 +78,7 @@ class SimulationOptionsPanel extends JPanel {
 		// // Extended Barrowman
 		label = new JLabel(trans.get("simedtdlg.lbl.ExtBarrowman"));
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, wrap para");
+		subsub.add(label, "growx, span 3, wrap");
 
 		// Simulation method
 		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1")
@@ -89,7 +89,7 @@ class SimulationOptionsPanel extends JPanel {
 
 		label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, wrap para");
+		subsub.add(label, "growx, span 3, wrap");
 
 		// // Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));
@@ -109,10 +109,9 @@ class SimulationOptionsPanel extends JPanel {
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
 		gcsTTipListener.actionPerformed(null);
-		subsub.add(gcsCombo, "growx, wrap para");
+		subsub.add(gcsCombo, "span 3, wrap para");
 
-		sub.add(subsub, "spanx, wrap para");
-
+		
 		// // Time step:
 		label = new JLabel(trans.get("simedtdlg.lbl.Timestep"));
 		tip = trans.get("simedtdlg.lbl.ttip.Timestep1")
@@ -122,7 +121,7 @@ class SimulationOptionsPanel extends JPanel {
 						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
 				+ ".";
 		label.setToolTipText(tip);
-		sub.add(label);
+		subsub.add(label,"gapright para");
 
 		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP,
 				0, 1);
@@ -130,21 +129,20 @@ class SimulationOptionsPanel extends JPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
-		// sub.add(spin, "nogrid");
+		subsub.add(spin, "");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
-		sub.add(unit, "w 25");
-		// sub.add(unit, "nogrid");
+		subsub.add(unit, "");
 		slider = new BasicSlider(m.getSliderModel(0, 0.2));
 		slider.setToolTipText(tip);
-		sub.add(slider, "w 75lp, wrap");
-		// sub.add(slider,"wrap");
+		subsub.add(slider, "w 100");
 
-		// // Reset to default button
+		sub.add(subsub, "spanx, wrap para");
+
+		// Reset to default button
 		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
-		// // Reset the time step to its default value (
+		// Reset the time step to its default value (
 		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
 				+ UnitGroup.UNITS_SHORT_TIME
 						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
@@ -164,15 +162,15 @@ class SimulationOptionsPanel extends JPanel {
 
 		sub.add(button, "align left");
 
-		// // Simulation listeners
+		// Simulation listeners
 		sub = new JPanel(new MigLayout("fill, gap 0 0"));
-		// // Simulator listeners
+		// Simulator listeners
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simlist")));
 		this.add(sub, "growx, growy");
 
 		DescriptionArea desc = new DescriptionArea(5);
-		// // <html><i>Simulation listeners</i> is an advanced feature that
+		// <html><i>Simulation listeners</i> is an advanced feature that
 		// allows user-written code to listen to and interact with the
 		// simulation.
 		// // For details on writing simulation listeners, see the OpenRocket

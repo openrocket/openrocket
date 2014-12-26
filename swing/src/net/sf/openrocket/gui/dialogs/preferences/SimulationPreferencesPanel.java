@@ -34,7 +34,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 	 */
 
 	public SimulationPreferencesPanel() {
-		super(new MigLayout("fillx, ins 30lp n n n"));
+		super(new MigLayout("fill"));
 
 		// Confirm deletion of simulations:
 		final JCheckBox confirmDelete = new JCheckBox(
@@ -73,8 +73,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		BasicSlider slider;
 
 		// // Simulation options
-		sub = new JPanel(new MigLayout("fill, gap rel unrel",
-				"[grow][65lp!][30lp!][75lp!]", ""));
+		sub = new JPanel(new MigLayout("fill"));
 		// // Simulator options
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simopt")));
@@ -82,7 +81,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		// Separate panel for computation methods, as they use a different
 		// layout
-		subsub = new JPanel(new MigLayout("insets 0, fill"));
+		subsub = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
 
 		// // Calculation method:
 		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
@@ -93,7 +92,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		// // Extended Barrowman
 		label = new JLabel(trans.get("simedtdlg.lbl.ExtBarrowman"));
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, wrap para");
+		subsub.add(label, "growx, span 3, wrap");
 
 		// Simulation method
 		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1")
@@ -104,7 +103,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 
 		label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, wrap para");
+		subsub.add(label, "growx, span 3, wrap");
 
 		// // Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));
@@ -124,9 +123,8 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
 		gcsTTipListener.actionPerformed(null);
-		subsub.add(gcsCombo, "growx, wrap para");
+		subsub.add(gcsCombo, "span 3, wrap");
 
-		sub.add(subsub, "spanx, wrap para");
 
 		// // Time step:
 		label = new JLabel(trans.get("simedtdlg.lbl.Timestep"));
@@ -137,7 +135,7 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
 				+ ".";
 		label.setToolTipText(tip);
-		sub.add(label);
+		subsub.add(label, "gapright para");
 
 		m = new DoubleModel(preferences, "TimeStep", UnitGroup.UNITS_TIME_STEP,
 				0, 1);
@@ -145,21 +143,20 @@ public class SimulationPreferencesPanel extends PreferencesPanel {
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
-		// sub.add(spin, "nogrid");
+		subsub.add(spin, "");
 
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
-		sub.add(unit, "w 25");
-		// sub.add(unit, "nogrid");
+		subsub.add(unit, "");
 		slider = new BasicSlider(m.getSliderModel(0, 0.2));
 		slider.setToolTipText(tip);
-		sub.add(slider, "w 75lp, wrap");
-		// sub.add(slider,"wrap");
+		subsub.add(slider, "w 100");
 
-		// // Reset to default button
+		sub.add(subsub, "spanx, wrap para");
+
+		// Reset to default button
 		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
-		// // Reset the time step to its default value (
+		// Reset the time step to its default value (
 		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
 				+ UnitGroup.UNITS_SHORT_TIME
 						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
