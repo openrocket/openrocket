@@ -8,7 +8,6 @@ import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.AccelerationData;
-import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.simulation.SimulationStatus;
@@ -27,16 +26,6 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 		SimulationEventListener {
 	
 	////  SimulationListener  ////
-	
-	@Override
-	public String getName() {
-		return this.getClass().getSimpleName();
-	}
-	
-	@Override
-	public String[] getMenuPosition() {
-		return new String[0];
-	}
 	
 	@Override
 	public void startSimulation(SimulationStatus status) throws SimulationException {
@@ -66,14 +55,6 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	@Override
 	public boolean isSystemListener() {
 		return false;
-	}
-	
-	/**
-	 * Return an array of any flight data types this listener creates.
-	 */
-	@Override
-	public FlightDataType[] getFlightDataTypes() {
-		return new FlightDataType[] {};
 	}
 	
 	
