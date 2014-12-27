@@ -4,6 +4,7 @@ import net.sf.openrocket.database.ComponentPresetDao;
 import net.sf.openrocket.database.motor.MotorDatabase;
 import net.sf.openrocket.database.motor.ThrustCurveMotorSetDatabase;
 import net.sf.openrocket.l10n.ClassBasedTranslator;
+import net.sf.openrocket.l10n.DebugTranslator;
 import net.sf.openrocket.l10n.ExceptionSuppressingTranslator;
 import net.sf.openrocket.l10n.Translator;
 
@@ -33,6 +34,10 @@ public final class Application {
 	}
 	
 	private static Translator getBaseTranslator() {
+		if (injector == null) {
+			// Occurs in some unit tests
+			return new DebugTranslator(null);
+		}
 		return injector.getInstance(Translator.class);
 	}
 	
