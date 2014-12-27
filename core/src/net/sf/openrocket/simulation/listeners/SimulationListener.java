@@ -9,7 +9,7 @@ import net.sf.openrocket.simulation.exception.SimulationException;
  * If the implementation maintains any state, it should be properly cloned.
  * 
  */
-public interface SimulationListener extends Cloneable {
+public interface SimulationListener {
 	
 	/**
 	 * Called when starting a simulation.
@@ -62,5 +62,8 @@ public interface SimulationListener extends Cloneable {
 	public boolean isSystemListener();
 	
 	
-	public SimulationListener clone() throws CloneNotSupportedException;
+	/**
+	 * Return a deep copy of this simulation listener including its state.
+	 */
+	public SimulationListener clone();
 }

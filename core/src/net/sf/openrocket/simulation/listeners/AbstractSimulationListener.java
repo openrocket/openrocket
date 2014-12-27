@@ -12,6 +12,7 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -23,7 +24,7 @@ import net.sf.openrocket.util.Coordinate;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class AbstractSimulationListener implements SimulationListener, SimulationComputationListener,
-		SimulationEventListener {
+		SimulationEventListener, Cloneable {
 	
 	////  SimulationListener  ////
 	
@@ -165,8 +166,12 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 	
 	@Override
-	public AbstractSimulationListener clone() throws CloneNotSupportedException {
-		return (AbstractSimulationListener) super.clone();
+	public AbstractSimulationListener clone() {
+		try {
+			return (AbstractSimulationListener) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new BugException(e);
+		}
 	}
 	
 }
