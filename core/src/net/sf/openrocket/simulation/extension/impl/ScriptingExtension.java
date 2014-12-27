@@ -13,10 +13,10 @@ import net.sf.openrocket.simulation.listeners.SimulationListener;
 
 public class ScriptingExtension extends AbstractSimulationExtension {
 	
-	private static final String JS = "JavaScript";
+	private static final String DEFAULT_LANGUAGE = "JavaScript";
 	
 	public ScriptingExtension() {
-		setLanguage(JS);
+		setLanguage(DEFAULT_LANGUAGE);
 	}
 	
 	@Override
@@ -46,8 +46,7 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	}
 	
 	public String getLanguage() {
-		// TODO: Support other languages
-		return JS;
+		return config.getString("language", DEFAULT_LANGUAGE);
 	}
 	
 	public void setLanguage(String language) {
@@ -57,7 +56,10 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	
 	SimulationListener getListener() throws SimulationException {
 		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("JavaScript");
+		ScriptEngine engine = manager.getEngineByName(getLanguage());
+		if (engine == null) {
+			throw new SimulationException("Your JRE does not support the scripting language '" + getLanguage() + "'");
+		}
 		
 		try {
 			engine.eval(getScript());

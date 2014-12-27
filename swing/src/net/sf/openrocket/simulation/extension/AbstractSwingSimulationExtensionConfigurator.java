@@ -24,6 +24,8 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 	
 	private final Class<E> extensionClass;
 	
+	private JDialog dialog;
+	
 	protected AbstractSwingSimulationExtensionConfigurator(Class<E> extensionClass) {
 		this.extensionClass = extensionClass;
 	}
@@ -37,7 +39,7 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(SimulationExtension extension, Simulation simulation, Window parent) {
-		final JDialog dialog = new JDialog(parent, getTitle(extension, simulation), ModalityType.APPLICATION_MODAL);
+		dialog = new JDialog(parent, getTitle(extension, simulation), ModalityType.APPLICATION_MODAL);
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		JPanel sub = new JPanel(new MigLayout("fill, ins 0"));
 		
@@ -55,6 +57,8 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 		dialog.add(panel);
 		GUIUtil.setDisposableDialogOptions(dialog, close);
 		dialog.setVisible(true);
+		GUIUtil.setNullModels(dialog);
+		dialog = null;
 	}
 	
 	/**
@@ -62,6 +66,13 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 	 */
 	protected String getTitle(SimulationExtension extension, Simulation simulation) {
 		return extension.getName();
+	}
+	
+	/**
+	 * Return the dialog currently open.
+	 */
+	protected JDialog getDialog() {
+		return dialog;
 	}
 	
 	protected abstract JComponent getConfigurationComponent(E extension, Simulation simulation, JPanel panel);
