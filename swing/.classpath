@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="/OpenRocket Core/lib/annotation-detector-3.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-4.0-swing.jar" sourcepath="reference/miglayout-4.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
