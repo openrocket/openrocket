@@ -125,6 +125,7 @@ public abstract class FinSet extends ExternalComponent {
 	
 	protected Material filletMaterial = null;
 	protected double filletRadius = 0;
+	protected double filletCenterY = 0;
 	
 	// Cached fin area & CG.  Validity of both must be checked using finArea!
 	// Fin area does not include fin tabs, CG does.
@@ -410,12 +411,27 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
+	@Override
+	public double getComponentMass() {
+		return getFilletMass() + getFinMass();
+	}
+	
+	public double getFinMass() {
+		return getComponentVolume() * material.getDensity();
+	}
+	
+	public double getFilletMass() {
+		return getFilletVolume() * filletMaterial.getDensity();
+	}
+	
 	
 	@Override
 	public double getComponentVolume() {
+		// this is for the fins alone, fillets are taken care of separately.
 		return fins * (getFinArea() + tabHeight * tabLength) * thickness *
 				crossSection.getRelativeVolume();
 	}
+	
 	
 	
 	@Override
@@ -423,16 +439,54 @@ public abstract class FinSet extends ExternalComponent {
 		if (finArea < 0)
 			calculateAreaCG();
 		
-		double mass = getComponentMass(); // safe
+		double mass = getFinMass();
+		double filletMass = getFilletMass();
+		double filletCenter = length / 2;
+		
+		double newCGx = (filletCenter * filletMass + finCGx * mass) / (filletMass + mass);
+		
+		// FilletRadius/5 is a good estimate for where the vertical centroid of the fillet
+		// is.  Finding the actual position is very involved and won't make a huge difference.
+		double newCGy = (filletRadius / 5 * filletMass + finCGy * mass) / (filletMass + mass);
 		
 		if (fins == 1) {
 			return baseRotation.transform(
-					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, mass));
+					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
 		} else {
-			return new Coordinate(finCGx, 0, 0, mass);
+			return new Coordinate(finCGx, 0, 0, (filletMass + mass));
 		}
 	}
 	
+	public double getFilletVolume() {
+		/*
+		 * Here is how the volume of the fillet is found.  It assumes a circular concave 
+		 * fillet tangent to the fin and the body tube. 
+		 * 
+		 * 1. Form a triangle with vertices at the BT center, the tangent point between 
+		 *    the fillet and the fin, and the center of the fillet radius.
+		 * 2. The line between the center of the BT and the center of the fillet radius 
+		 *    will pass through the tangent point between the fillet and the BT.
+		 * 3. Find the area of the triangle, then subtract the portion of the BT and 
+		 *    fillet that is in that triangle. (angle/2PI * pi*r^2= angle/2 * r^2)
+		 * 4. Multiply the remaining area by the length.
+		 * 5. Return twice that since there is a fillet on each side of the fin.
+		 * 
+		 */
+		double btRadius = 1000.0; // assume a really big body tube if we can't get the radius,
+		RocketComponent c = this.getParent();
+		if (BodyTube.class.isInstance(c)) {
+			btRadius = ((BodyTube) c).getOuterRadius();
+		}
+		double totalRad = filletRadius + btRadius;
+		double innerAngle = Math.asin(filletRadius / totalRad);
+		double outerAngle = Math.acos(filletRadius / totalRad);
+		
+		double outerArea = Math.tan(outerAngle) * filletRadius * filletRadius / 2;
+		double filletVolume = length * (outerArea
+				- outerAngle * filletRadius * filletRadius / 2
+				- innerAngle * btRadius * btRadius / 2);
+		return 2 * filletVolume;
+	}
 	
 	private void calculateAreaCG() {
 		Coordinate[] points = this.getFinPoints();
