@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.Coordinate;
@@ -14,6 +15,7 @@ import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
+	
 	
 	/**
 	 * Maximum allowed cant of fins.
@@ -87,7 +89,7 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	protected Transformation baseRotation = Transformation.rotate_x(rotation);
 	
-
+	
 	/**
 	 * Cant angle of fins.
 	 */
@@ -96,19 +98,19 @@ public abstract class FinSet extends ExternalComponent {
 	/* Cached value: */
 	private Transformation cantRotation = null;
 	
-
+	
 	/**
 	 * Thickness of the fins.
 	 */
 	protected double thickness = 0.003;
 	
-
+	
 	/**
 	 * The cross-section shape of the fins.
 	 */
 	protected CrossSection crossSection = CrossSection.SQUARE;
 	
-
+	
 	/*
 	 * Fin tab properties.
 	 */
@@ -117,7 +119,13 @@ public abstract class FinSet extends ExternalComponent {
 	private double tabShift = 0;
 	private TabRelativePosition tabRelativePosition = TabRelativePosition.CENTER;
 	
-
+	/*
+	 * Fin fillet properties
+	 */
+	
+	protected Material filletMaterial = null;
+	protected double filletRadius = 0;
+	
 	// Cached fin area & CG.  Validity of both must be checked using finArea!
 	// Fin area does not include fin tabs, CG does.
 	private double finArea = -1;
@@ -132,10 +140,11 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	public FinSet() {
 		super(RocketComponent.Position.BOTTOM);
+		this.filletMaterial = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
 	
 	
-
+	
 	/**
 	 * Return the number of fins in the set.
 	 * @return The number of fins.
@@ -190,7 +199,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	public double getCantAngle() {
 		return cantAngle;
 	}
@@ -219,7 +228,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	public double getThickness() {
 		return thickness;
 	}
@@ -244,9 +253,9 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
-
+	
+	
+	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
@@ -261,8 +270,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
+	
+	
 	public double getTabHeight() {
 		return tabHeight;
 	}
@@ -307,7 +316,7 @@ public abstract class FinSet extends ExternalComponent {
 		if (this.tabRelativePosition == position)
 			return;
 		
-
+		
 		double front = getTabFrontEdge();
 		switch (position) {
 		case FRONT:
@@ -369,8 +378,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
+	
+	
 	///////////  Calculation methods  ///////////
 	
 	/**
@@ -401,7 +410,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	@Override
 	public double getComponentVolume() {
 		return fins * (getFinArea() + tabHeight * tabLength) * thickness *
@@ -594,7 +603,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isAerodynamicChange()) {
@@ -641,8 +650,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return a list of coordinates defining the geometry of a single fin.  
 	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
@@ -686,12 +695,12 @@ public abstract class FinSet extends ExternalComponent {
 		points[n++] = new Coordinate(x1, y);
 		if (add1)
 			points[n++] = new Coordinate(x1, 0);
-			
+		
 		return points;
 	}
 	
 	
-
+	
 	/**
 	 * Get the span of a single fin.  That is, the length from the root to the tip of the fin.
 	 * @return  Span of a single fin.
@@ -717,4 +726,38 @@ public abstract class FinSet extends ExternalComponent {
 		
 		return super.copyFrom(c);
 	}
+	
+	/*
+	 * Handle fin fillet mass properties	
+	 */
+	
+	public Material getFilletMaterial() {
+		return filletMaterial;
+	}
+	
+	public void setFilletMaterial(Material mat) {
+		if (mat.getType() != Material.Type.BULK) {
+			throw new IllegalArgumentException("ExternalComponent requires a bulk material" +
+					" type=" + mat.getType());
+		}
+		
+		if (filletMaterial.equals(mat))
+			return;
+		filletMaterial = mat;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+	
+	public double getFilletRadius() {
+		return filletRadius;
+	}
+	
+	public void setFilletRadius(double r) {
+		if (MathUtil.equals(filletRadius, r))
+			return;
+		filletRadius = r;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+	
 }

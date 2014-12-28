@@ -49,7 +49,7 @@ public class ShockCordConfig extends RocketComponentConfig {
 
 		// Material
 		//// Shock cord material:
-		materialPanel(panel, Material.Type.LINE, trans.get("ShockCordCfg.lbl.Shockcordmaterial"), null);
+		panel.add(materialPanel(Material.Type.LINE, trans.get("ShockCordCfg.lbl.Shockcordmaterial"), null, "Material"), "span, wrap");
 		
 
 
