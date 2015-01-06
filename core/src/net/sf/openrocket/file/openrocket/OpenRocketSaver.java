@@ -219,6 +219,8 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
+		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
+		 * 
 		 * File version 1.7 is required for:
 		 *  - simulation extensions
 		 * 
@@ -553,7 +555,7 @@ public class OpenRocketSaver extends RocketSaver {
 		} else if (value instanceof Number) {
 			writeln("<entry " + keyAttr + "type=\"number\">" + value + "</entry>");
 		} else if (value instanceof String) {
-			writeln("<entry " + keyAttr + "type=\"string\">" + value + "</entry>");
+			writeln("<entry " + keyAttr + "type=\"string\">" + TextUtil.escapeXML((String) value) + "</entry>");
 		} else if (value instanceof List) {
 			List<?> list = (List<?>) value;
 			writeln("<entry " + keyAttr + "type=\"list\">");
