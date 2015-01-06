@@ -9,27 +9,36 @@ import java.util.Set;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.sf.openrocket.document.Simulation;
+import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.simulation.extension.AbstractSwingSimulationExtensionConfigurator;
-import net.sf.openrocket.util.ScriptingUtil;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import com.google.inject.Inject;
+
 @Plugin
 public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfigurator<ScriptingExtension> {
 	
+	@Inject
+	private ScriptingUtil util;
+	
 	private JComboBox languageSelector;
 	private RSyntaxTextArea text;
+	private JCheckBox trusted;
 	
 	private ScriptingExtension extension;
 	private Simulation simulation;
@@ -43,9 +52,9 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		this.extension = extension;
 		this.simulation = simulation;
 		
-		panel.add(new StyledLabel(trans.get("SimulationExtension.scripting.language.label"), Style.BOLD), "");
+		panel.add(new StyledLabel(trans.get("SimulationExtension.scripting.language.label"), Style.BOLD), "spanx, split");
 		
-		String[] languages = ScriptingUtil.getLanguages().toArray(new String[0]);
+		String[] languages = util.getLanguages().toArray(new String[0]);
 		languageSelector = new JComboBox(languages);
 		languageSelector.setEditable(false);
 		languageSelector.addActionListener(new ActionListener() {
@@ -79,12 +88,47 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		});
 		
 		RTextScrollPane scroll = new RTextScrollPane(text);
-		panel.add(scroll, "spanx, grow");
+		panel.add(scroll, "spanx, grow, wrap para");
 		
-		setLanguage(ScriptingUtil.getLanguage(extension.getLanguage()));
+		
+		BooleanModel enabled = new BooleanModel(extension, "Enabled");
+		JCheckBox check = new JCheckBox(enabled);
+		check.setText(trans.get("SimulationExtension.scripting.text.enabled"));
+		check.setToolTipText(trans.get("SimulationExtension.scripting.text.enabled.ttip"));
+		panel.add(check, "spanx, wrap rel");
+		
+		trusted = new JCheckBox(trans.get("SimulationExtension.scripting.text.trusted"));
+		trusted.setSelected(util.isTrustedScript(extension.getLanguage(), extension.getScript()));
+		panel.add(trusted, "spanx, split");
+		
+		panel.add(new JPanel(), "growx");
+		
+		JButton button = new JButton(trans.get("SimulationExtension.scripting.text.trusted.clear"));
+		button.setToolTipText(trans.get("SimulationExtension.scripting.text.trusted.clear.ttip"));
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				util.clearTrustedScripts();
+				JOptionPane.showMessageDialog(getDialog(), trans.get("SimulationExtension.scripting.text.trusted.cleared"),
+						trans.get("SimulationExtension.scripting.text.trusted.cleared.title"), JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		panel.add(button, "wrap rel");
+		
+		
+		StyledLabel label = new StyledLabel(trans.get("SimulationExtension.scripting.text.trusted.msg"), -1, Style.ITALIC);
+		panel.add(label);
+		
+		setLanguage(util.getLanguage(extension.getLanguage()));
 		
 		return panel;
 	}
+	
+	@Override
+	protected void close() {
+		util.setTrustedScript(extension.getLanguage(), extension.getScript(), trusted.isSelected());
+	}
+	
 	
 	private void setLanguage(String language) {
 		if (language == null) {

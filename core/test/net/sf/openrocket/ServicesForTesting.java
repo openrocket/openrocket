@@ -151,5 +151,11 @@ public class ServicesForTesting extends AbstractModule {
 			return null;
 		}
 		
+		@Override
+		public java.util.prefs.Preferences getNode(String nodeName) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
 }

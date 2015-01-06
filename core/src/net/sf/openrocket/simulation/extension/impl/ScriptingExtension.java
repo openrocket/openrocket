@@ -5,18 +5,30 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import net.sf.openrocket.aerodynamics.Warning;
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.L10N;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.extension.AbstractSimulationExtension;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 
+import com.google.inject.Inject;
+
 public class ScriptingExtension extends AbstractSimulationExtension {
 	
 	private static final String DEFAULT_LANGUAGE = "JavaScript";
 	
+	@Inject
+	private ScriptingUtil util;
+	
+	
 	public ScriptingExtension() {
 		setLanguage(DEFAULT_LANGUAGE);
+		setScript("");
+		setEnabled(true);
 	}
 	
 	@Override
@@ -32,8 +44,24 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	}
 	
 	@Override
+	public void documentLoaded(OpenRocketDocument document, Simulation simulation, WarningSet warnings) {
+		/*
+		 * Scripts that the user has not explicitly indicated as trusted are disabled
+		 * when loading from a file.  This is to prevent trojans.
+		 */
+		if (isEnabled()) {
+			if (!util.isTrustedScript(getLanguage(), getScript())) {
+				setEnabled(false);
+				warnings.add(Warning.fromString(trans.get("SimulationExtension.scripting.warning.disabled")));
+			}
+		}
+	}
+	
+	@Override
 	public void initialize(SimulationConditions conditions) throws SimulationException {
-		conditions.getSimulationListenerList().add(getListener());
+		if (isEnabled()) {
+			conditions.getSimulationListenerList().add(getListener());
+		}
 	}
 	
 	
@@ -51,6 +79,14 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 	
 	public void setLanguage(String language) {
 		config.put("language", language);
+	}
+	
+	public boolean isEnabled() {
+		return config.getBoolean("enabled", false);
+	}
+	
+	public void setEnabled(boolean enabled) {
+		config.put("enabled", enabled);
 	}
 	
 	

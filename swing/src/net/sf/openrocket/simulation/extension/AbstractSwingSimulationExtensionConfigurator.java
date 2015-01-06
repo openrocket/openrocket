@@ -57,6 +57,7 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 		dialog.add(panel);
 		GUIUtil.setDisposableDialogOptions(dialog, close);
 		dialog.setVisible(true);
+		close();
 		GUIUtil.setNullModels(dialog);
 		dialog = null;
 	}
@@ -73,6 +74,13 @@ public abstract class AbstractSwingSimulationExtensionConfigurator<E extends Sim
 	 */
 	protected JDialog getDialog() {
 		return dialog;
+	}
+	
+	/**
+	 * Called when the default dialog is closed.  By default does nothing.
+	 */
+	protected void close() {
+		
 	}
 	
 	protected abstract JComponent getConfigurationComponent(E extension, Simulation simulation, JPanel panel);

@@ -3,6 +3,9 @@ package net.sf.openrocket.simulation.extension;
 import java.util.Collections;
 import java.util.List;
 
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.util.AbstractChangeSource;
@@ -42,7 +45,9 @@ public abstract class AbstractSimulationExtension extends AbstractChangeSource i
 	}
 	
 	/**
-	 * By default, returns the canonical name of this class.
+	 * {@inheritDoc}
+	 * <p>
+	 * By default, this method returns the canonical name of this class.
 	 */
 	@Override
 	public String getId() {
@@ -50,7 +55,9 @@ public abstract class AbstractSimulationExtension extends AbstractChangeSource i
 	}
 	
 	/**
-	 * By default, returns the name provided to the constructor.
+	 * {@inheritDoc}
+	 * <p>
+	 * By default, this method returns the name provided to the constructor.
 	 */
 	@Override
 	public String getName() {
@@ -58,7 +65,9 @@ public abstract class AbstractSimulationExtension extends AbstractChangeSource i
 	}
 	
 	/**
-	 * By default, returns null.
+	 * {@inheritDoc}
+	 * <p>
+	 * By default, this method returns null.
 	 */
 	@Override
 	public String getDescription() {
@@ -66,7 +75,9 @@ public abstract class AbstractSimulationExtension extends AbstractChangeSource i
 	}
 	
 	/**
-	 * By default, returns an empty list.
+	 * {@inheritDoc}
+	 * <p>
+	 * By default, this method returns an empty list.
 	 */
 	@Override
 	public List<FlightDataType> getFlightDataTypes() {
@@ -74,7 +85,18 @@ public abstract class AbstractSimulationExtension extends AbstractChangeSource i
 	}
 	
 	/**
-	 * By default, returns a new object obtained by calling Object.clone().
+	 * {@inheritDoc}
+	 * <p>
+	 * By default, this method does nothing.
+	 */
+	@Override
+	public void documentLoaded(OpenRocketDocument document, Simulation simulation, WarningSet warnings) {
+		
+	}
+	
+	/**
+	 * By default, returns a new object obtained by calling Object.clone() and
+	 * cloning the config object.
 	 */
 	@Override
 	public SimulationExtension clone() {

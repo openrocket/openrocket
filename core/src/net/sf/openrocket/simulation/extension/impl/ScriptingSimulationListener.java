@@ -18,6 +18,7 @@ import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.exception.SimulationListenerException;
 import net.sf.openrocket.simulation.listeners.SimulationComputationListener;
 import net.sf.openrocket.simulation.listeners.SimulationEventListener;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
@@ -68,25 +69,25 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	
 	@Override
 	public void startSimulation(SimulationStatus status) throws SimulationException {
-		invoke(null, "startSimulation", status);
+		invoke(Void.class, null, "startSimulation", status);
 	}
 	
 	@Override
 	public void endSimulation(SimulationStatus status, SimulationException exception) {
 		try {
-			invoke(null, "endSimulation", status, exception);
+			invoke(Void.class, null, "endSimulation", status, exception);
 		} catch (SimulationException e) {
 		}
 	}
 	
 	@Override
 	public boolean preStep(SimulationStatus status) throws SimulationException {
-		return invoke(true, "preStep", status);
+		return invoke(Boolean.class, true, "preStep", status);
 	}
 	
 	@Override
 	public void postStep(SimulationStatus status) throws SimulationException {
-		invoke(null, "postStep", status);
+		invoke(Void.class, null, "postStep", status);
 	}
 	
 	
@@ -95,22 +96,22 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	
 	@Override
 	public boolean addFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
-		return invoke(true, "addFlightEvent", status, event);
+		return invoke(Boolean.class, true, "addFlightEvent", status, event);
 	}
 	
 	@Override
 	public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) throws SimulationException {
-		return invoke(true, "handleFlightEvent", status, event);
+		return invoke(Boolean.class, true, "handleFlightEvent", status, event);
 	}
 	
 	@Override
 	public boolean motorIgnition(SimulationStatus status, MotorId motorId, MotorMount mount, MotorInstance instance) throws SimulationException {
-		return invoke(true, "motorIgnition", status, motorId, mount, instance);
+		return invoke(Boolean.class, true, "motorIgnition", status, motorId, mount, instance);
 	}
 	
 	@Override
 	public boolean recoveryDeviceDeployment(SimulationStatus status, RecoveryDevice recoveryDevice) throws SimulationException {
-		return invoke(true, "recoveryDeviceDeployment", status, recoveryDevice);
+		return invoke(Boolean.class, true, "recoveryDeviceDeployment", status, recoveryDevice);
 	}
 	
 	
@@ -119,90 +120,99 @@ public class ScriptingSimulationListener implements SimulationListener, Simulati
 	
 	@Override
 	public AccelerationData preAccelerationCalculation(SimulationStatus status) throws SimulationException {
-		return invoke(null, "preAccelerationCalculation", status);
+		return invoke(AccelerationData.class, null, "preAccelerationCalculation", status);
 	}
 	
 	@Override
 	public AerodynamicForces preAerodynamicCalculation(SimulationStatus status) throws SimulationException {
-		return invoke(null, "preAerodynamicCalculation", status);
+		return invoke(AerodynamicForces.class, null, "preAerodynamicCalculation", status);
 	}
 	
 	@Override
 	public AtmosphericConditions preAtmosphericModel(SimulationStatus status) throws SimulationException {
-		return invoke(null, "preAtmosphericModel", status);
+		return invoke(AtmosphericConditions.class, null, "preAtmosphericModel", status);
 	}
 	
 	@Override
 	public FlightConditions preFlightConditions(SimulationStatus status) throws SimulationException {
-		return invoke(null, "preFlightConditions", status);
+		return invoke(FlightConditions.class, null, "preFlightConditions", status);
 	}
 	
 	@Override
 	public double preGravityModel(SimulationStatus status) throws SimulationException {
-		return invoke(Double.NaN, "preGravityModel", status);
+		return invoke(Double.class, Double.NaN, "preGravityModel", status);
 	}
 	
 	@Override
 	public MassData preMassCalculation(SimulationStatus status) throws SimulationException {
-		return invoke(null, "preMassCalculation", status);
+		return invoke(MassData.class, null, "preMassCalculation", status);
 	}
 	
 	@Override
 	public double preSimpleThrustCalculation(SimulationStatus status) throws SimulationException {
-		return invoke(Double.NaN, "preSimpleThrustCalculation", status);
+		return invoke(Double.class, Double.NaN, "preSimpleThrustCalculation", status);
 	}
 	
 	@Override
 	public Coordinate preWindModel(SimulationStatus status) throws SimulationException {
-		return invoke(null, "preWindModel", status);
+		return invoke(Coordinate.class, null, "preWindModel", status);
 	}
 	
 	@Override
 	public AccelerationData postAccelerationCalculation(SimulationStatus status, AccelerationData acceleration) throws SimulationException {
-		return invoke(null, "postAccelerationCalculation", status, acceleration);
+		return invoke(AccelerationData.class, null, "postAccelerationCalculation", status, acceleration);
 	}
 	
 	@Override
 	public AerodynamicForces postAerodynamicCalculation(SimulationStatus status, AerodynamicForces forces) throws SimulationException {
-		return invoke(null, "postAerodynamicCalculation", status, forces);
+		return invoke(AerodynamicForces.class, null, "postAerodynamicCalculation", status, forces);
 	}
 	
 	@Override
 	public AtmosphericConditions postAtmosphericModel(SimulationStatus status, AtmosphericConditions atmosphericConditions) throws SimulationException {
-		return invoke(null, "postAtmosphericModel", status, atmosphericConditions);
+		return invoke(AtmosphericConditions.class, null, "postAtmosphericModel", status, atmosphericConditions);
 	}
 	
 	@Override
 	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) throws SimulationException {
-		return invoke(null, "postFlightConditions", status, flightConditions);
+		return invoke(FlightConditions.class, null, "postFlightConditions", status, flightConditions);
 	}
 	
 	@Override
 	public double postGravityModel(SimulationStatus status, double gravity) throws SimulationException {
-		return invoke(Double.NaN, "postGravityModel", status, gravity);
+		return invoke(Double.class, Double.NaN, "postGravityModel", status, gravity);
 	}
 	
 	@Override
 	public MassData postMassCalculation(SimulationStatus status, MassData massData) throws SimulationException {
-		return invoke(null, "postMassCalculation", status, massData);
+		return invoke(MassData.class, null, "postMassCalculation", status, massData);
 	}
 	
 	@Override
 	public double postSimpleThrustCalculation(SimulationStatus status, double thrust) throws SimulationException {
-		return invoke(Double.NaN, "postSimpleThrustCalculation", status, thrust);
+		return invoke(Double.class, Double.NaN, "postSimpleThrustCalculation", status, thrust);
 	}
 	
 	@Override
 	public Coordinate postWindModel(SimulationStatus status, Coordinate wind) throws SimulationException {
-		return invoke(null, "postWindModel", status, wind);
+		return invoke(Coordinate.class, null, "postWindModel", status, wind);
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	private <T> T invoke(T def, String method, Object... args) throws SimulationException {
+	private <T> T invoke(Class<T> retType, T def, String method, Object... args) throws SimulationException {
 		try {
 			if (!missing.contains(method)) {
-				return (T) invocable.invokeFunction(method, args);
+				Object o = invocable.invokeFunction(method, args);
+				if (o == null) {
+					// Use default/null if function returns nothing
+					return def;
+				} else if (!o.getClass().equals(retType)) {
+					throw new SimulationListenerException("Custom script function " + method + " returned type " +
+							o.getClass().getSimpleName() + ", expected " + retType.getSimpleName());
+				} else {
+					return (T) o;
+				}
 			}
 		} catch (NoSuchMethodException e) {
 			missing.add(method);

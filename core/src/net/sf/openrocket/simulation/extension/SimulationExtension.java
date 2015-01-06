@@ -2,6 +2,9 @@ package net.sf.openrocket.simulation.extension;
 
 import java.util.List;
 
+import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationConditions;
 import net.sf.openrocket.simulation.exception.SimulationException;
@@ -34,6 +37,16 @@ public interface SimulationExtension {
 	 * @return		a longer description about this extension, or null if not available
 	 */
 	public String getDescription();
+	
+	/**
+	 * Called once for each simulation this extension is attached to when loading a document.
+	 * This may perform necessary changes to the document at load time.
+	 * 
+	 * @param document		the loaded document
+	 * @param simulation	the simulation this extension is attached to
+	 * @param warnings		the document loading warnings
+	 */
+	public void documentLoaded(OpenRocketDocument document, Simulation simulation, WarningSet warnings);
 	
 	/**
 	 * Initialize this simulation extension for running within a simulation.

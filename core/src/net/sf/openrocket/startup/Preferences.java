@@ -92,6 +92,8 @@ public abstract class Preferences {
 	
 	public abstract void putString(String directory, String key, String value);
 	
+	public abstract java.util.prefs.Preferences getNode(String nodeName);
+	
 	/*
 	 * ******************************************************************************************
 	 */

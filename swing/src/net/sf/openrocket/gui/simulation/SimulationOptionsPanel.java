@@ -186,7 +186,7 @@ class SimulationOptionsPanel extends JPanel {
 		sub.add(desc, "aligny 0, hmin 100lp, growx, wrap para");
 		
 		
-		final JButton addExtension = new JButton("Add extension");
+		final JButton addExtension = new JButton(trans.get("simedtdlg.SimExt.add"));
 		final JPopupMenu menu = getExtensionMenu();
 		addExtension.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
@@ -223,6 +223,10 @@ class SimulationOptionsPanel extends JPanel {
 							SimulationExtension e = provider.getInstance(id);
 							simulation.getSimulationExtensions().add(e);
 							updateCurrentExtensions();
+							SwingSimulationExtensionConfigurator configurator = findConfigurator(e);
+							if (configurator != null) {
+								configurator.configure(e, simulation, SwingUtilities.windowForComponent(SimulationOptionsPanel.this));
+							}
 						}
 					});
 					menu.add(item);
@@ -344,86 +348,17 @@ class SimulationOptionsPanel extends JPanel {
 			this.add(button, "right");
 			
 		}
-		
-		private SwingSimulationExtensionConfigurator findConfigurator(SimulationExtension extension) {
-			Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<Set<SwingSimulationExtensionConfigurator>>() {
-			});
-			for (SwingSimulationExtensionConfigurator c : configurators) {
-				if (c.support(extension)) {
-					return c;
-				}
-			}
-			return null;
-		}
 	}
 	
-	//	
-	//	
-	//	private class ExtensionListModel extends AbstractListModel {
-	//		@Override
-	//		public SimulationExtensionConfiguration getElementAt(int index) {
-	//			if (index < 0 || index >= getSize())
-	//				return null;
-	//			return simulation.getSimulationExtensions().get(index);
-	//		}
-	//		
-	//		@Override
-	//		public int getSize() {
-	//			return simulation.getSimulationExtensions().size();
-	//		}
-	//	}
-	//	
-	//	
-	//	private class ExtensionCellRenderer extends JPanel implements ListCellRenderer {
-	//		private JLabel label;
-	//		
-	//		public ExtensionCellRenderer() {
-	//			super(new MigLayout("fill"));
-	//			label = new JLabel();
-	//			
-	//		}
-	//		
-	//		@Override
-	//		public Component getListCellRendererComponent(JList list, Object value,
-	//				int index, boolean isSelected, boolean cellHasFocus) {
-	//			SimulationExtensionConfiguration config = (SimulationExtensionConfiguration) value;
-	//			
-	//			
-	//			
-	//			String s = value.toString();
-	//			setText(s);
-	//			
-	//			// Attempt instantiating, catch any exceptions
-	//			Exception ex = null;
-	//			try {
-	//				Class<?> c = Class.forName(s);
-	//				@SuppressWarnings("unused")
-	//				SimulationListener l = (SimulationListener) c.newInstance();
-	//			} catch (Exception e) {
-	//				ex = e;
-	//			}
-	//			
-	//			if (ex == null) {
-	//				setIcon(Icons.SIMULATION_LISTENER_OK);
-	//				//// Listener instantiated successfully.
-	//				setToolTipText("Listener instantiated successfully.");
-	//			} else {
-	//				setIcon(Icons.SIMULATION_LISTENER_ERROR);
-	//				//// <html>Unable to instantiate listener due to exception:<br>
-	//				setToolTipText("<html>Unable to instantiate listener due to exception:<br>" +
-	//						ex.toString());
-	//			}
-	//			
-	//			if (isSelected) {
-	//				setBackground(list.getSelectionBackground());
-	//				setForeground(list.getSelectionForeground());
-	//			} else {
-	//				setBackground(list.getBackground());
-	//				setForeground(list.getForeground());
-	//			}
-	//			setOpaque(true);
-	//			return this;
-	//		}
-	//	}
+	private SwingSimulationExtensionConfigurator findConfigurator(SimulationExtension extension) {
+		Set<SwingSimulationExtensionConfigurator> configurators = Application.getInjector().getInstance(new Key<Set<SwingSimulationExtensionConfigurator>>() {
+		});
+		for (SwingSimulationExtensionConfigurator c : configurators) {
+			if (c.support(extension)) {
+				return c;
+			}
+		}
+		return null;
+	}
 	
 }
