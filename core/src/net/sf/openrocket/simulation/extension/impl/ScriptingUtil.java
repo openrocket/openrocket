@@ -25,6 +25,11 @@ public class ScriptingUtil {
 	
 	static final String NODE_ID = ScriptingExtension.class.getCanonicalName();
 	
+	private static final List<String> DEFAULT_TRUSTED_HASHES = Arrays.asList(
+			// Roll control script in roll control example file:
+			"SHA-256:9bf364ce4d4a75f09b29178bf9d6872b232084f73dae20dc7b5b073e54e95a42"
+			);
+	
 	/** The name to be chosen from a list of alternatives.  If not found, will use the default name. */
 	private static final List<String> PREFERRED_LANGUAGE_NAMES = Arrays.asList("JavaScript");
 	
@@ -88,6 +93,9 @@ public class ScriptingUtil {
 			return true;
 		}
 		String hash = hash(language, script);
+		if (DEFAULT_TRUSTED_HASHES.contains(hash)) {
+			return true;
+		}
 		return prefs.getNode(NODE_ID).getBoolean(hash, false);
 	}
 	
