@@ -24,6 +24,7 @@ import javax.swing.MenuElement;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
@@ -51,12 +52,14 @@ class SimulationOptionsPanel extends JPanel {
 	
 	private static final Translator trans = Application.getTranslator();
 	
+	private OpenRocketDocument document;
 	final Simulation simulation;
 	
 	private JPanel currentExtensions;
 	
-	SimulationOptionsPanel(final Simulation simulation) {
+	SimulationOptionsPanel(OpenRocketDocument document, final Simulation simulation) {
 		super(new MigLayout("fill"));
+		this.document = document;
 		this.simulation = simulation;
 		
 		final SimulationOptions conditions = simulation.getOptions();
@@ -233,6 +236,38 @@ class SimulationOptionsPanel extends JPanel {
 				}
 			}
 		}
+		
+		JMenu copyMenu = null;
+		for (Simulation sim : document.getSimulations()) {
+			if (!sim.getSimulationExtensions().isEmpty()) {
+				JMenu menu = new JMenu(sim.getName());
+				for (final SimulationExtension ext : sim.getSimulationExtensions()) {
+					JMenuItem item = new JMenuItem(ext.getName());
+					item.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							SimulationExtension e = ext.clone();
+							simulation.getSimulationExtensions().add(e);
+							updateCurrentExtensions();
+							SwingSimulationExtensionConfigurator configurator = findConfigurator(e);
+							if (configurator != null) {
+								configurator.configure(e, simulation, SwingUtilities.windowForComponent(SimulationOptionsPanel.this));
+							}
+						}
+					});
+					menu.add(item);
+				}
+				
+				if (copyMenu == null) {
+					copyMenu = new JMenu(trans.get("simedtdlg.SimExt.copyExtension"));
+				}
+				copyMenu.add(menu);
+			}
+		}
+		if (copyMenu != null) {
+			basemenu.add(copyMenu);
+		}
+		
 		return basemenu;
 	}
 	

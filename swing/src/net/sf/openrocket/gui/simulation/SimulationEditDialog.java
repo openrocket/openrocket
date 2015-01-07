@@ -170,7 +170,7 @@ public class SimulationEditDialog extends JDialog {
 		//// Launch conditions
 		tabbedPane.addTab(trans.get("simedtdlg.tab.Launchcond"), new SimulationConditionsPanel(simulation[0]));
 		//// Simulation options
-		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), new SimulationOptionsPanel(simulation[0]));
+		tabbedPane.addTab(trans.get("simedtdlg.tab.Simopt"), new SimulationOptionsPanel(document, simulation[0]));
 		
 		tabbedPane.setSelectedIndex(0);
 		
