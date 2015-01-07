@@ -43,6 +43,7 @@ import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.simulation.extension.SimulationExtensionProvider;
 import net.sf.openrocket.simulation.extension.SwingSimulationExtensionConfigurator;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 
@@ -72,109 +73,110 @@ class SimulationOptionsPanel extends JPanel {
 		UnitSelector unit;
 		BasicSlider slider;
 		
-		
-		//// Simulation options
+		// // Simulation options
 		sub = new JPanel(new MigLayout("fill, gap rel unrel",
 				"[grow][65lp!][30lp!][75lp!]", ""));
-		//// Simulator options
-		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.Simopt")));
+		// // Simulator options
+		sub.setBorder(BorderFactory.createTitledBorder(trans
+				.get("simedtdlg.border.Simopt")));
 		this.add(sub, "growx, growy, aligny 0");
 		
+		// Separate panel for computation methods, as they use a different
+		// layout
+		subsub = new JPanel(new MigLayout("insets 0, fill", "[grow][min!][min!][]"));
 		
-		// Separate panel for computation methods, as they use a different layout
-		subsub = new JPanel(new MigLayout("insets 0, fill"));
-		
-		
-		//// Calculation method:
+		// // Calculation method:
 		tip = trans.get("simedtdlg.lbl.ttip.Calcmethod");
 		label = new JLabel(trans.get("simedtdlg.lbl.Calcmethod"));
 		label.setToolTipText(tip);
 		subsub.add(label, "gapright para");
 		
-		//// Extended Barrowman
+		// // Extended Barrowman
 		label = new JLabel(trans.get("simedtdlg.lbl.ExtBarrowman"));
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, wrap para");
+		subsub.add(label, "growx, span 3, wrap");
 		
-		
-		//  Simulation method
-		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1") +
-				trans.get("simedtdlg.lbl.ttip.Simmethod2");
+		// Simulation method
+		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1")
+				+ trans.get("simedtdlg.lbl.ttip.Simmethod2");
 		label = new JLabel(trans.get("simedtdlg.lbl.Simmethod"));
 		label.setToolTipText(tip);
 		subsub.add(label, "gapright para");
 		
 		label = new JLabel("6-DOF Runge-Kutta 4");
 		label.setToolTipText(tip);
-		subsub.add(label, "growx, wrap para");
+		subsub.add(label, "growx, span 3, wrap");
 		
-		
-		//// Geodetic calculation method:
+		// // Geodetic calculation method:
 		label = new JLabel(trans.get("simedtdlg.lbl.GeodeticMethod"));
 		label.setToolTipText(trans.get("simedtdlg.lbl.ttip.GeodeticMethodTip"));
 		subsub.add(label, "gapright para");
 		
-		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(conditions, "GeodeticComputation");
+		EnumModel<GeodeticComputationStrategy> gcsModel = new EnumModel<GeodeticComputationStrategy>(
+				conditions, "GeodeticComputation");
 		final JComboBox gcsCombo = new JComboBox(gcsModel);
 		ActionListener gcsTTipListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GeodeticComputationStrategy gcs = (GeodeticComputationStrategy) gcsCombo.getSelectedItem();
+				GeodeticComputationStrategy gcs = (GeodeticComputationStrategy) gcsCombo
+						.getSelectedItem();
 				gcsCombo.setToolTipText(gcs.getDescription());
 			}
 		};
 		gcsCombo.addActionListener(gcsTTipListener);
 		gcsTTipListener.actionPerformed(null);
-		subsub.add(gcsCombo, "growx, wrap para");
-		
-		sub.add(subsub, "spanx, wrap para");
+		subsub.add(gcsCombo, "span 3, wrap para");
 		
 		
-		//// Time step:
+		// // Time step:
 		label = new JLabel(trans.get("simedtdlg.lbl.Timestep"));
-		tip = trans.get("simedtdlg.lbl.ttip.Timestep1") +
-				trans.get("simedtdlg.lbl.ttip.Timestep2") + " " +
-				UnitGroup.UNITS_TIME_STEP.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP) +
-				".";
+		tip = trans.get("simedtdlg.lbl.ttip.Timestep1")
+				+ trans.get("simedtdlg.lbl.ttip.Timestep2")
+				+ " "
+				+ UnitGroup.UNITS_TIME_STEP
+						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
+				+ ".";
 		label.setToolTipText(tip);
-		sub.add(label);
+		subsub.add(label, "gapright para");
 		
-		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP, 0, 1);
+		m = new DoubleModel(conditions, "TimeStep", UnitGroup.UNITS_TIME_STEP,
+				0, 1);
 		
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		spin.setToolTipText(tip);
-		sub.add(spin, "w 65lp!");
-		//sub.add(spin, "nogrid");
+		subsub.add(spin, "");
 		
 		unit = new UnitSelector(m);
 		unit.setToolTipText(tip);
-		sub.add(unit, "w 25");
-		//sub.add(unit, "nogrid");
+		subsub.add(unit, "");
 		slider = new BasicSlider(m.getSliderModel(0, 0.2));
 		slider.setToolTipText(tip);
-		sub.add(slider, "w 75lp, wrap");
-		//sub.add(slider,"wrap");
+		subsub.add(slider, "w 100");
 		
+		sub.add(subsub, "spanx, wrap para");
 		
-		
-		
-		//// Reset to default button
+		// Reset to default button
 		JButton button = new JButton(trans.get("simedtdlg.but.resettodefault"));
-		//// Reset the time step to its default value (
-		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault") +
-				UnitGroup.UNITS_SHORT_TIME.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP) +
-				").");
+		// Reset the time step to its default value (
+		button.setToolTipText(trans.get("simedtdlg.but.ttip.resettodefault")
+				+ UnitGroup.UNITS_SHORT_TIME
+						.toStringUnit(RK4SimulationStepper.RECOMMENDED_TIME_STEP)
+				+ ").");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				conditions.setTimeStep(RK4SimulationStepper.RECOMMENDED_TIME_STEP);
-				conditions.setGeodeticComputation(GeodeticComputationStrategy.SPHERICAL);
+				Preferences preferences = Application.getPreferences();
+				conditions.setTimeStep(preferences.getDouble(
+						Preferences.SIMULATION_TIME_STEP,
+						RK4SimulationStepper.RECOMMENDED_TIME_STEP));
+				conditions.setGeodeticComputation(preferences.getEnum(
+						Preferences.GEODETIC_COMPUTATION,
+						GeodeticComputationStrategy.SPHERICAL));
 			}
 		});
 		
 		sub.add(button, "align left");
-		
 		
 		
 		

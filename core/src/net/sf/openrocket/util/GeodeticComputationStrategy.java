@@ -47,7 +47,7 @@ public enum GeodeticComputationStrategy {
 	},
 	
 	/**
-	 * Perform geodetic computations with a spherical Earch approximation.
+	 * Perform geodetic computations with a spherical Earth approximation.
 	 */
 	SPHERICAL {
 		

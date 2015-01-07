@@ -59,24 +59,24 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	
 	private static final double MIN_TIME_STEP = 0.001;
 	
-
+	
 	private Random random;
 	
 	
-
-
+	
+	
 	@Override
 	public RK4SimulationStatus initialize(SimulationStatus original) {
 		
 		RK4SimulationStatus status = new RK4SimulationStatus(original);
 		// Copy the existing warnings
-		status.setWarnings( original.getWarnings() );
+		status.setWarnings(original.getWarnings());
 		
 		SimulationConditions sim = original.getSimulationConditions();
 		
 		status.setLaunchRodDirection(new Coordinate(
-				Math.sin(sim.getLaunchRodAngle()) * Math.cos(sim.getLaunchRodDirection()),
-				Math.sin(sim.getLaunchRodAngle()) * Math.sin(sim.getLaunchRodDirection()),
+				Math.sin(sim.getLaunchRodAngle()) * Math.cos(Math.PI / 2.0 - sim.getLaunchRodDirection()),
+				Math.sin(sim.getLaunchRodAngle()) * Math.sin(Math.PI / 2.0 - sim.getLaunchRodDirection()),
 				Math.cos(sim.getLaunchRodAngle())
 				));
 		
