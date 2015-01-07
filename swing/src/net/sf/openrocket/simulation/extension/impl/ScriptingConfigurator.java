@@ -66,7 +66,7 @@ public class ScriptingConfigurator extends AbstractSwingSimulationExtensionConfi
 		panel.add(languageSelector, "wrap para");
 		
 		
-		text = new RSyntaxTextArea(extension.getScript(), 15, 60);
+		text = new RSyntaxTextArea(extension.getScript(), 20, 80);
 		text.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 		text.setCodeFoldingEnabled(true);
 		text.setLineWrap(true);
