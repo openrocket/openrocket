@@ -1,16 +1,34 @@
 package net.sf.openrocket.gui.configdialog;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SwingUtilities;
+
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
+import net.sf.openrocket.gui.adaptors.MaterialModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
+import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.Coaxial;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -20,18 +38,8 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
-import javax.swing.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 
 
 public abstract class FinSetConfig extends RocketComponentConfig {
@@ -468,5 +476,41 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		public double positionFromTop() {
 			return positionFromTop;
 		}
+	}
+	
+	protected JPanel filletMaterialPanel(){
+	    
+	    JPanel filletPanel=new JPanel(new MigLayout("", "[][65lp::][30lp::]"));
+	    String tip = trans.get("FinsetCfg.ttip.Finfillets1") +
+		    	trans.get("FinsetCfg.ttip.Finfillets2") +
+		    	trans.get("FinsetCfg.ttip.Finfillets3");
+	    filletPanel.setBorder(BorderFactory.createTitledBorder("Root Fillets"));
+	    filletPanel.add(new JLabel(trans.get("FinSetCfg.lbl.Filletradius")));
+		
+	    DoubleModel m = new DoubleModel(component, "FilletRadius", UnitGroup.UNITS_LENGTH, 0);
+		
+	    JSpinner spin = new JSpinner(m.getSpinnerModel());
+	    spin.setEditor(new SpinnerEditor(spin));
+	    spin.setToolTipText(tip);
+	    filletPanel.add(spin, "growx, w 40");
+	    UnitSelector us = new UnitSelector(m); 
+	    filletPanel.add(us, "growx");
+	    us.setToolTipText(tip);
+	    BasicSlider bs =new BasicSlider(m.getSliderModel(0, 10));
+	    filletPanel.add(bs, "w 100lp, wrap para");
+	    bs.setToolTipText(tip);
+	    
+	    JLabel label = new JLabel(trans.get("FinSetCfg.lbl.Finfilletmaterial"));
+	    label.setToolTipText(tip);
+	    //// The component material affects the weight of the component.
+	    label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
+	    filletPanel.add(label, "spanx 4, wrap rel");
+		
+	    JComboBox combo = new JComboBox(new MaterialModel(filletPanel, component, Material.Type.BULK, "FilletMaterial"));
+	    //// The component material affects the weight of the component.
+	    combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
+	    filletPanel.add(combo, "spanx 4, growx, wrap paragraph");
+	    filletPanel.setToolTipText(tip);
+	    return filletPanel;
 	}
 }

@@ -140,7 +140,7 @@ public class LaunchLugConfig extends RocketComponentConfig {
 		
 		
 		//// Material
-		materialPanel(panel, Material.Type.BULK);
+		panel.add(materialPanel( Material.Type.BULK), "span, wrap");
 		
 		
 		primary.add(panel, "grow");

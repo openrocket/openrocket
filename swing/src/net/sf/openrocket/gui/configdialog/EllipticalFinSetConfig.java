@@ -170,9 +170,10 @@ public class EllipticalFinSetConfig extends FinSetConfig {
 		
 		
 		//// Material
-		materialPanel(panel, Material.Type.BULK);
+		panel.add(materialPanel(Material.Type.BULK), "span, wrap");
 		
-		
+		panel.add(filletMaterialPanel(), "span, wrap");
+	
 		
 		
 		

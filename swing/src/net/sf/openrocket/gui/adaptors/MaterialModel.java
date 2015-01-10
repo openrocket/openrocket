@@ -25,9 +25,9 @@ public class MaterialModel extends AbstractListModel implements
 	private final String custom;
 
 	
-	private final Component parentComponent;
+	private final Component parentUIComponent;
 	
-	private final RocketComponent component;
+	private final RocketComponent rocketComponent;
 	private final Material.Type type;
 	private final Database<Material> database;
 	
@@ -44,8 +44,8 @@ public class MaterialModel extends AbstractListModel implements
 
 	public MaterialModel(Component parent, RocketComponent component, Material.Type type, 
 			String name) {
-		this.parentComponent = parent;
-		this.component = component;
+		this.parentUIComponent = parent;
+		this.rocketComponent = component;
 		this.type = type;
 		this.custom = trans.get ("Material.CUSTOM");
 		
@@ -81,7 +81,7 @@ public class MaterialModel extends AbstractListModel implements
 	
 	@Override
 	public Object getSelectedItem() {
-		return getMethod.invoke(component);
+		return getMethod.invoke(rocketComponent);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class MaterialModel extends AbstractListModel implements
 				@Override
 				public void run() {
 					CustomMaterialDialog dialog = new CustomMaterialDialog(
-							SwingUtilities.getWindowAncestor(parentComponent), 
+							SwingUtilities.getWindowAncestor(parentUIComponent), 
 							(Material) getSelectedItem(), true,
 							//// Define custom material
 							trans.get("MaterialModel.title.Defcustmat"));
@@ -109,7 +109,7 @@ public class MaterialModel extends AbstractListModel implements
 						return;
 					
 					Material material = dialog.getMaterial();
-					setMethod.invoke(component, material);
+					setMethod.invoke(rocketComponent, material);
 					
 					if (dialog.isAddSelected()) {
 						database.add(material);
@@ -119,7 +119,7 @@ public class MaterialModel extends AbstractListModel implements
 			
 		} else if (item instanceof Material) {
 			
-			setMethod.invoke(component, item);
+			setMethod.invoke(rocketComponent, item);
 			
 		} else {
 			throw new IllegalArgumentException("Illegal item class " + item.getClass() + 

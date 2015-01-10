@@ -24,9 +24,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -54,6 +51,9 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FreeformFinSetConfig extends FinSetConfig {
 	
@@ -187,9 +187,10 @@ public class FreeformFinSetConfig extends FinSetConfig {
 		
 		
 		//// Material
-		materialPanel(panel, Material.Type.BULK);
+		panel.add(materialPanel(Material.Type.BULK), "span, wrap");
 		
-		
+		panel.add(filletMaterialPanel(), "span, wrap");
+
 		
 		mainPanel.add(panel, "aligny 20%");
 		

@@ -98,7 +98,7 @@ public class BodyTubeConfig extends RocketComponentConfig {
 		panel.add(check, "skip, span 2, wrap");
 
 		//// Material
-		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
+		panel.add(materialPanel(Material.Type.BULK),
 				"cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		//// General and General properties

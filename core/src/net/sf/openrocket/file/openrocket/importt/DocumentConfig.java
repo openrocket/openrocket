@@ -207,7 +207,11 @@ class DocumentConfig {
 		setters.put("FinSet:tablength", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setTabLength", double.class)));
 		setters.put("FinSet:tabposition", new FinTabPositionSetter());
-		
+		setters.put("FinSet:filletradius", new DoubleSetter(
+				Reflection.findMethod(FinSet.class, "setFilletRadius", double.class)));
+		setters.put("FinSet:filletmaterial", new MaterialSetter(
+				Reflection.findMethod(FinSet.class, "setFilletMaterial", Material.class),
+				Material.Type.BULK));
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setRootChord", double.class)));
