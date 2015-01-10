@@ -71,7 +71,7 @@
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.6" target="1.6"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.7" target="1.7"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
