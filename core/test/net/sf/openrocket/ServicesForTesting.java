@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.prefs.BackingStoreException;
 
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.formatting.RocketDescriptorImpl;
@@ -61,6 +62,8 @@ public class ServicesForTesting extends AbstractModule {
 	}
 	
 	public static class PreferencesForTesting extends Preferences {
+		
+		private static java.util.prefs.Preferences root = null;
 		
 		@Override
 		public boolean getBoolean(String key, boolean defaultValue) {
@@ -153,8 +156,25 @@ public class ServicesForTesting extends AbstractModule {
 		
 		@Override
 		public java.util.prefs.Preferences getNode(String nodeName) {
-			// TODO Auto-generated method stub
-			return null;
+			return getBaseNode().node(nodeName);
+		}
+		
+		private java.util.prefs.Preferences getBaseNode() {
+			if (root == null) {
+				final String name = "OpenRocket-unittest-" + System.currentTimeMillis();
+				root = java.util.prefs.Preferences.userRoot().node(name);
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
+					public void run() {
+						try {
+							root.removeNode();
+						} catch (BackingStoreException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			}
+			return root;
 		}
 		
 	}
