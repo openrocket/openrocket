@@ -152,7 +152,7 @@ public class RingComponentConfig extends RocketComponentConfig {
 		
 		
 		//// Material
-		JPanel sub = materialPanel(new JPanel(new MigLayout()), Material.Type.BULK);
+		JPanel sub = materialPanel( Material.Type.BULK);
 		
 		if (component instanceof EngineBlock) {
 			final DescriptionArea desc = new DescriptionArea(6);

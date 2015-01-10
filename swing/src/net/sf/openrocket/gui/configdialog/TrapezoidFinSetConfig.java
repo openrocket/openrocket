@@ -163,6 +163,34 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 				"w 100lp, wrap paragraph");
 		
 		
+		////  Position
+		//// Position relative to:
+		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
+		
+		combo = new JComboBox(
+				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
+						new RocketComponent.Position[] {
+								RocketComponent.Position.TOP,
+								RocketComponent.Position.MIDDLE,
+								RocketComponent.Position.BOTTOM,
+								RocketComponent.Position.ABSOLUTE
+						}));
+		panel.add(combo, "spanx, growx, wrap");
+		//// plus
+		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
+		
+		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+		
+		panel.add(new UnitSelector(m), "growx");
+		panel.add(new BasicSlider(m.getSliderModel(
+				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
+				new DoubleModel(component.getParent(), "Length"))),
+				"w 100lp, wrap para");
+		
+
 		
 		
 		
@@ -196,43 +224,15 @@ public class TrapezoidFinSetConfig extends FinSetConfig {
 		panel.add(new BasicSlider(m.getSliderModel(0, 0.01)), "w 100lp, wrap para");
 		
 		
-		////  Position
-		//// Position relative to:
-		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.Posrelativeto")));
-		
-		combo = new JComboBox(
-				new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-						new RocketComponent.Position[] {
-								RocketComponent.Position.TOP,
-								RocketComponent.Position.MIDDLE,
-								RocketComponent.Position.BOTTOM,
-								RocketComponent.Position.ABSOLUTE
-						}));
-		panel.add(combo, "spanx, growx, wrap");
-		//// plus
-		panel.add(new JLabel(trans.get("TrapezoidFinSetCfg.lbl.plus")), "right");
-		
-		m = new DoubleModel(component, "PositionValue", UnitGroup.UNITS_LENGTH);
-		spin = new JSpinner(m.getSpinnerModel());
-		spin.setEditor(new SpinnerEditor(spin));
-		panel.add(spin, "growx");
-		
-		panel.add(new UnitSelector(m), "growx");
-		panel.add(new BasicSlider(m.getSliderModel(
-				new DoubleModel(component.getParent(), "Length", -1.0, UnitGroup.UNITS_NONE),
-				new DoubleModel(component.getParent(), "Length"))),
-				"w 100lp, wrap para");
-		
-		
 		
 		//// Material
-		materialPanel(panel, Material.Type.BULK);
-		
+		panel.add(materialPanel(Material.Type.BULK), "span, wrap");
 		
 		
 		
 		mainPanel.add(panel, "aligny 20%");
 		
+		panel.add(filletMaterialPanel(), "span, wrap");
 		//// General and General properties
 		tabbedPane.insertTab(trans.get("TrapezoidFinSetCfg.tab.General"), null, mainPanel,
 				trans.get("TrapezoidFinSetCfg.tab.Generalproperties"), 0);

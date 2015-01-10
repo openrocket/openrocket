@@ -168,7 +168,7 @@ public class InnerTubeConfig extends RocketComponentConfig {
 				"w 100lp, wrap");
 
 		//// Material
-		panel.add(materialPanel(new JPanel(new MigLayout()), Material.Type.BULK),
+		panel.add(materialPanel(Material.Type.BULK),
 				"cell 4 0, gapleft paragraph, aligny 0%, spany");
 
 		tabbedPane.insertTab(trans.get("ThicknessRingCompCfg.tab.General"), null, panel,
