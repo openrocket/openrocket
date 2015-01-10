@@ -103,7 +103,9 @@ public class ScriptingExtension extends AbstractSimulationExtension {
 			throw new SimulationException("Invalid script: " + e.getMessage());
 		}
 		
-		// TODO: Check for implementation first
+		if (!(engine instanceof Invocable)) {
+			throw new SimulationException("The scripting language '" + getLanguage() + "' does not implement the Invocable interface");
+		}
 		return new ScriptingSimulationListener((Invocable) engine);
 	}
 	
