@@ -95,8 +95,8 @@ public class SimulationStatus implements Monitorable {
 		
 		this.time = 0;
 		this.previousTimeStep = this.simulationConditions.getTimeStep();
-		this.position = Coordinate.NUL;
-		this.velocity = Coordinate.NUL;
+		this.position = this.simulationConditions.getLaunchPosition();
+		this.velocity = this.simulationConditions.getLaunchVelocity();
 		this.worldPosition = this.simulationConditions.getLaunchSite();
 		
 		// Initialize to roll angle with least stability w.r.t. the wind

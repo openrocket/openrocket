@@ -1,6 +1,5 @@
 package net.sf.openrocket.simulation.listeners;
 
-import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
 
@@ -10,26 +9,7 @@ import net.sf.openrocket.simulation.exception.SimulationException;
  * If the implementation maintains any state, it should be properly cloned.
  * 
  */
-public interface SimulationListener extends Cloneable {
-	
-	/**
-	 * Get the name of this simulation listener.  Ideally this should be localized, as
-	 * it can be displayed in the UI.
-	 * 
-	 * @return	the name of this simulation listener.
-	 */
-	public String getName();
-	
-	
-	/**
-	 * Get the menu position of this simulation listener.  This should be an array
-	 * of localized submenu names in descending order, or an empty array for positioning
-	 * in the base menu.
-	 * 
-	 * @return	the menu position of this simulation listener.
-	 */
-	public String[] getMenuPosition();
-	
+public interface SimulationListener {
 	
 	/**
 	 * Called when starting a simulation.
@@ -83,9 +63,7 @@ public interface SimulationListener extends Cloneable {
 	
 	
 	/**
-	 * Return a list of any flight data types this listener creates.
+	 * Return a deep copy of this simulation listener including its state.
 	 */
-	public FlightDataType[] getFlightDataTypes();
-	
-	public SimulationListener clone() throws CloneNotSupportedException;
+	public SimulationListener clone();
 }

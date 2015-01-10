@@ -28,6 +28,8 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.ThrustCurveMotor;
 import net.sf.openrocket.plugin.PluginModule;
+import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
+import net.sf.openrocket.simulation.extension.impl.ScriptingUtil;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.TestRockets;
 
@@ -47,6 +49,10 @@ public class OpenRocketSaverTest {
 	private OpenRocketSaver saver = new OpenRocketSaver();
 	private static final String TMP_DIR = "./tmp/";
 	
+	public static final String SIMULATION_EXTENSION_SCRIPT = "// Test <  &\n// >\n// <![CDATA[";
+	
+	private static Injector injector;
+	
 	@BeforeClass
 	public static void setup() {
 		Module applicationModule = new ServicesForTesting();
@@ -61,7 +67,7 @@ public class OpenRocketSaverTest {
 			}
 		};
 		
-		Injector injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
+		injector = Guice.createInjector(Modules.override(applicationModule).with(dbOverrides), pluginModule);
 		Application.setInjector(injector);
 		
 		File tmpDir = new File("./tmp");
@@ -122,6 +128,7 @@ public class OpenRocketSaverTest {
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withMotorMountIgnitionConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withRecoveryDeviceDeploymentConfig());
 		rocketDocs.add(TestRockets.makeTestRocket_v106_withStageSeparationConfig());
+		rocketDocs.add(TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT));
 		rocketDocs.add(TestRockets.makeTestRocket_for_estimateFileSize());
 		
 		StorageOptions options = new StorageOptions();
@@ -134,6 +141,35 @@ public class OpenRocketSaverTest {
 			assertNotNull(rocketDocLoaded);
 		}
 	}
+	
+	@Test
+	public void testUntrustedScriptDisabledOnLoad() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
+		StorageOptions options = new StorageOptions();
+		File file = saveRocket(rocketDoc, options);
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		assertEquals(1, rocketDocLoaded.getSimulations().size());
+		assertEquals(1, rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().size());
+		ScriptingExtension ext = (ScriptingExtension) rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().get(0);
+		assertEquals(false, ext.isEnabled());
+		assertEquals(SIMULATION_EXTENSION_SCRIPT, ext.getScript());
+	}
+	
+	
+	@Test
+	public void testTrustedScriptEnabledOnLoad() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension("TESTING");
+		injector.getInstance(ScriptingUtil.class).setTrustedScript("JavaScript", "TESTING", true);
+		StorageOptions options = new StorageOptions();
+		File file = saveRocket(rocketDoc, options);
+		OpenRocketDocument rocketDocLoaded = loadRocket(file.getPath());
+		assertEquals(1, rocketDocLoaded.getSimulations().size());
+		assertEquals(1, rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().size());
+		ScriptingExtension ext = (ScriptingExtension) rocketDocLoaded.getSimulations().get(0).getSimulationExtensions().get(0);
+		assertEquals(true, ext.isEnabled());
+		assertEquals("TESTING", ext.getScript());
+	}
+	
 	
 	/*
 	 * Test how accurate estimatedFileSize is.
@@ -258,6 +294,17 @@ public class OpenRocketSaverTest {
 		assertEquals(106, getCalculatedFileVersion(rocketDoc));
 	}
 	
+	////////////////////////////////
+	// Tests for File Version 1.7 // 
+	////////////////////////////////
+	
+	@Test
+	public void testFileVersion107_withSimulationExtension() {
+		OpenRocketDocument rocketDoc = TestRockets.makeTestRocket_v107_withSimulationExtension(SIMULATION_EXTENSION_SCRIPT);
+		assertEquals(107, getCalculatedFileVersion(rocketDoc));
+	}
+	
+	
 	/*
 	 * Utility Functions
 	 */
@@ -273,6 +320,7 @@ public class OpenRocketSaverTest {
 		try {
 			rocketDoc = loader.load();
 		} catch (RocketLoadException e) {
+			e.printStackTrace();
 			fail("RocketLoadException while loading file " + fileName + " : " + e.getMessage());
 		}
 		return rocketDoc;

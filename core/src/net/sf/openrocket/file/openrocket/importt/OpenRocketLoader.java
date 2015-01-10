@@ -13,6 +13,7 @@ import net.sf.openrocket.file.RocketLoadException;
 import net.sf.openrocket.file.simplesax.SimpleSAX;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,11 +78,17 @@ public class OpenRocketLoader extends AbstractRocketLoader {
 				previousTime = time;
 			}
 		}
-		// Round value
 		timeSkip = Math.rint(timeSkip * 100) / 100;
-		
 		doc.getDefaultStorageOptions().setSimulationTimeSkip(timeSkip);
 		doc.getDefaultStorageOptions().setExplicitlySet(false);
+		
+		// Call simulation extensions
+		for (Simulation sim : doc.getSimulations()) {
+			for (SimulationExtension ext : sim.getSimulationExtensions()) {
+				ext.documentLoaded(doc, sim, warnings);
+			}
+		}
+		
 		
 		doc.clearUndo();
 		log.info("Loading done");

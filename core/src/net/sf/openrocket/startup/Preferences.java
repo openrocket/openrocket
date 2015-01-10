@@ -124,6 +124,8 @@ public abstract class Preferences implements ChangeSource {
 	
 	public abstract void putString(String directory, String key, String value);
 	
+	public abstract java.util.prefs.Preferences getNode(String nodeName);
+	
 	/*
 	 * ******************************************************************************************
 	 */
