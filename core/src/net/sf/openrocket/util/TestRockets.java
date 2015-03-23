@@ -48,6 +48,7 @@ import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.simulation.extension.impl.ScriptingExtension;
 import net.sf.openrocket.simulation.listeners.AbstractSimulationListener;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
@@ -241,7 +242,7 @@ public class TestRockets {
 	}
 	
 	
-	public Rocket makeSmallFlyable() {
+	public static Rocket makeSmallFlyable() {
 		double noseconeLength = 0.10, noseconeRadius = 0.01;
 		double bodytubeLength = 0.20, bodytubeRadius = 0.01, bodytubeThickness = 0.001;
 		
@@ -281,8 +282,12 @@ public class TestRockets {
 		String id = rocket.newFlightConfigurationID();
 		bodytube.setMotorMount(true);
 		
-		Motor m = Application.getMotorSetDatabase().findMotors(null, null, "B4", Double.NaN, Double.NaN).get(0);
-		bodytube.getMotorConfiguration().get(id).setMotor(m);
+		MotorConfiguration motorConfig = new MotorConfiguration();
+		ThrustCurveMotor motor = getTestMotor();
+		motorConfig.setMotor(motor);
+		motorConfig.setEjectionDelay(5);
+		
+		bodytube.getMotorConfiguration().set(id, motorConfig);
 		bodytube.setMotorOverhang(0.005);
 		rocket.getDefaultConfiguration().setFlightConfigurationID(id);
 		
@@ -643,11 +648,7 @@ public class TestRockets {
 		
 		// create motor config and add a motor to it
 		MotorConfiguration motorConfig = new MotorConfiguration();
-		ThrustCurveMotor motor = new ThrustCurveMotor(
-				Manufacturer.getManufacturer("A"),
-				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
+		ThrustCurveMotor motor = getTestMotor();
 		motorConfig.setMotor(motor);
 		motorConfig.setEjectionDelay(5);
 		
@@ -685,11 +686,7 @@ public class TestRockets {
 		
 		// create motor config and add a motor to it
 		MotorConfiguration motorConfig = new MotorConfiguration();
-		ThrustCurveMotor motor = new ThrustCurveMotor(
-				Manufacturer.getManufacturer("A"),
-				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
-				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
-				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
+		ThrustCurveMotor motor = getTestMotor();
 		motorConfig.setMotor(motor);
 		motorConfig.setEjectionDelay(5);
 		
@@ -918,6 +915,20 @@ public class TestRockets {
 		return OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
 	}
 	
+	
+	public static OpenRocketDocument makeTestRocket_v107_withSimulationExtension(String script) {
+		Rocket rocket = makeSmallFlyable();
+		OpenRocketDocument document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+		Simulation sim = new Simulation(rocket);
+		ScriptingExtension ext = new ScriptingExtension();
+		ext.setEnabled(true);
+		ext.setLanguage("JavaScript");
+		ext.setScript(script);
+		sim.getSimulationExtensions().add(ext);
+		document.addSimulation(sim);
+		return document;
+	}
+	
 	/*
 	 * Create a new test rocket for testing OpenRocketSaver.estimateFileSize()
 	 */
@@ -988,6 +999,17 @@ public class TestRockets {
 		}
 		
 		return rocketDoc;
+	}
+	
+	
+	
+	
+	private static ThrustCurveMotor getTestMotor() {
+		return new ThrustCurveMotor(
+				Manufacturer.getManufacturer("A"),
+				"F12X", "Desc", Motor.Type.UNKNOWN, new double[] {},
+				0.024, 0.07, new double[] { 0, 1, 2 }, new double[] { 0, 1, 0 },
+				new Coordinate[] { Coordinate.NUL, Coordinate.NUL, Coordinate.NUL }, "digestA");
 	}
 	
 	

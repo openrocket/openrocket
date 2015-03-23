@@ -16,6 +16,7 @@ import net.sf.openrocket.models.gravity.WGSGravityModel;
 import net.sf.openrocket.models.wind.PinkNoiseWindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
@@ -45,6 +46,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 */
 	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
+	protected final Preferences preferences = Application.getPreferences();
 	
 	private final Rocket rocket;
 	private String motorID = null;
@@ -55,36 +57,31 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	 * equals and copyFrom methods!!
 	 */
 	
-	// TODO: HIGH: Fetch default values from Prefs!
-	
-	private double launchRodLength = 1;
-	
-	/** Launch rod angle > 0, radians from vertical */
-	private double launchRodAngle = 0;
-	
-	/** Launch rod direction, 0 = upwind, PI = downwind. */
-	private double launchRodDirection = 0;
+	private double launchRodLength = preferences.getDouble(Preferences.LAUNCH_ROD_LENGTH, 1);
+	private boolean launchIntoWind = preferences.getBoolean(Preferences.LAUNCH_INTO_WIND, true);
+	private double launchRodAngle = preferences.getDouble(Preferences.LAUNCH_ROD_ANGLE, 0);
+	private double windDirection = preferences.getDouble(Preferences.WIND_DIRECTION, Math.PI / 2);
+	private double launchRodDirection = preferences.getDouble(Preferences.LAUNCH_ROD_DIRECTION, Math.PI / 2);
 	
 	
-	private double windAverage = 2.0;
-	private double windTurbulence = 0.1;
-	
+	private double windAverage = preferences.getDouble(Preferences.WIND_AVERAGE, 2.0);
+	private double windTurbulence = preferences.getDouble(Preferences.WIND_TURBULANCE, 0.1);
 	
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
 	 * and converts them into a WorldCoordinate when converting to SimulationConditions.
 	 */
-	private double launchAltitude = 0;
-	private double launchLatitude = 45;
-	private double launchLongitude = 0;
+	
+	private double launchAltitude = preferences.getDouble(Preferences.LAUNCH_ALTITUDE, 0);
+	private double launchLatitude = preferences.getDouble(Preferences.LAUNCH_LATITUDE, 28.61);
+	private double launchLongitude = preferences.getDouble(Preferences.LAUNCH_LONGITUDE, -80.60);
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
-	private boolean useISA = true;
-	private double launchTemperature = ExtendedISAModel.STANDARD_TEMPERATURE;
-	private double launchPressure = ExtendedISAModel.STANDARD_PRESSURE;
+	private boolean useISA = preferences.getBoolean(Preferences.LAUNCH_USE_ISA, true);
+	private double launchTemperature = preferences.getDouble(Preferences.LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
+	private double launchPressure = preferences.getDouble(Preferences.LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
 	
-	
-	private double timeStep = RK4SimulationStepper.RECOMMENDED_TIME_STEP;
+	private double timeStep = preferences.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
@@ -93,8 +90,6 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	
 	private List<EventListener> listeners = new ArrayList<EventListener>();
-	
-	
 	
 	public SimulationOptions(Rocket rocket) {
 		this.rocket = rocket;
@@ -139,12 +134,20 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
+	public boolean getLaunchIntoWind() {
+		return launchIntoWind;
+	}
+	
+	public void setLaunchIntoWind(boolean i) {
+		launchIntoWind = i;
+	}
+	
 	public double getLaunchRodAngle() {
 		return launchRodAngle;
 	}
 	
 	public void setLaunchRodAngle(double launchRodAngle) {
-		launchRodAngle = MathUtil.clamp(launchRodAngle, 0, MAX_LAUNCH_ROD_ANGLE);
+		launchRodAngle = MathUtil.clamp(launchRodAngle, -MAX_LAUNCH_ROD_ANGLE, MAX_LAUNCH_ROD_ANGLE);
 		if (MathUtil.equals(this.launchRodAngle, launchRodAngle))
 			return;
 		this.launchRodAngle = launchRodAngle;
@@ -153,11 +156,14 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	
 	
 	public double getLaunchRodDirection() {
+		if (launchIntoWind) {
+			this.setLaunchRodDirection(windDirection);
+		}
 		return launchRodDirection;
 	}
 	
 	public void setLaunchRodDirection(double launchRodDirection) {
-		launchRodDirection = MathUtil.reduce180(launchRodDirection);
+		launchRodDirection = MathUtil.reduce360(launchRodDirection);
 		if (MathUtil.equals(this.launchRodDirection, launchRodDirection))
 			return;
 		this.launchRodDirection = launchRodDirection;
@@ -211,8 +217,28 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 	}
 	
 	
+	/**
+	 * Set the wind direction
+	 * 
+	 * @param direction the wind direction
+	 */
 	
+	public void setWindDirection(double direction) {
+		direction = MathUtil.reduce360(direction);
+		if (launchIntoWind) {
+			this.setLaunchRodDirection(direction);
+		}
+		if (MathUtil.equals(this.windDirection, direction))
+			return;
+		this.windDirection = direction;
+		fireChangeEvent();
+		
+	}
 	
+	public double getWindDirection() {
+		return this.windDirection;
+		
+	}
 	
 	public double getLaunchAltitude() {
 		return launchAltitude;
@@ -446,6 +472,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		this.timeStep = src.timeStep;
 		this.windAverage = src.windAverage;
 		this.windTurbulence = src.windTurbulence;
+		this.windDirection = src.windDirection;
 		this.calculateExtras = src.calculateExtras;
 		this.randomSeed = src.randomSeed;
 		
@@ -501,6 +528,10 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 			isChanged = true;
 			this.windAverage = src.windAverage;
 		}
+		if (this.windDirection != src.windDirection) {
+			isChanged = true;
+			this.windDirection = src.windDirection;
+		}
 		if (this.windTurbulence != src.windTurbulence) {
 			isChanged = true;
 			this.windTurbulence = src.windTurbulence;
@@ -542,6 +573,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 				MathUtil.equals(this.timeStep, o.timeStep) &&
 				MathUtil.equals(this.windAverage, o.windAverage) &&
 				MathUtil.equals(this.windTurbulence, o.windTurbulence) &&
+				MathUtil.equals(this.windDirection, o.windDirection) &&
 				this.calculateExtras == o.calculateExtras && this.randomSeed == o.randomSeed);
 	}
 	
@@ -595,6 +627,8 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		PinkNoiseWindModel windModel = new PinkNoiseWindModel(randomSeed);
 		windModel.setAverage(getWindSpeedAverage());
 		windModel.setStandardDeviation(getWindSpeedDeviation());
+		windModel.setDirection(windDirection);
+		
 		conditions.setWindModel(windModel);
 		
 		conditions.setAtmosphericModel(getAtmosphericModel());

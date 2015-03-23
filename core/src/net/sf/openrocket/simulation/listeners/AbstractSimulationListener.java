@@ -8,11 +8,11 @@ import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.simulation.AccelerationData;
-import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.simulation.exception.SimulationException;
+import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 
 
@@ -24,19 +24,9 @@ import net.sf.openrocket.util.Coordinate;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public class AbstractSimulationListener implements SimulationListener, SimulationComputationListener,
-		SimulationEventListener {
+		SimulationEventListener, Cloneable {
 	
 	////  SimulationListener  ////
-	
-	@Override
-	public String getName() {
-		return this.getClass().getSimpleName();
-	}
-	
-	@Override
-	public String[] getMenuPosition() {
-		return new String[0];
-	}
 	
 	@Override
 	public void startSimulation(SimulationStatus status) throws SimulationException {
@@ -66,14 +56,6 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	@Override
 	public boolean isSystemListener() {
 		return false;
-	}
-	
-	/**
-	 * Return an array of any flight data types this listener creates.
-	 */
-	@Override
-	public FlightDataType[] getFlightDataTypes() {
-		return new FlightDataType[] {};
 	}
 	
 	
@@ -184,8 +166,12 @@ public class AbstractSimulationListener implements SimulationListener, Simulatio
 	}
 	
 	@Override
-	public AbstractSimulationListener clone() throws CloneNotSupportedException {
-		return (AbstractSimulationListener) super.clone();
+	public AbstractSimulationListener clone() {
+		try {
+			return (AbstractSimulationListener) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new BugException(e);
+		}
 	}
 	
 }

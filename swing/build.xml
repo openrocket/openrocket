@@ -27,7 +27,7 @@
 	<property name="dist.src"    value="${jar.dir}/${pkgname}-src.zip"/>
 	
 	<!-- The main class of the application -->
-	<property name="main-class"  value="net.sf.openrocket.startup.Startup"/>
+	<property name="main-class"  value="net.sf.openrocket.startup.OpenRocket"/>
 
 	<!-- Classpath definitions -->
 	<path id="classpath">
@@ -71,7 +71,7 @@
 	<target name="build">
 		<mkdir dir="${classes.dir}"/>
 		<echo level="info">Compiling main classes</echo>
-		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.6" target="1.6"/>
+		<javac debug="true" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" source="1.7" target="1.7"/>
 	</target>
 	
 	<!-- Executible Eclipse-Jar-In-Jar style JAR -->
@@ -105,6 +105,7 @@
 			<zipfileset src="${core.dir}/lib/slf4j-api-1.7.5.jar"/>
 			<zipfileset src="${lib.dir}/logback-classic-1.0.12.jar"/>
 			<zipfileset src="${lib.dir}/logback-core-1.0.12.jar"/>
+			<zipfileset src="${lib.dir}/rsyntaxtextarea-2.5.6.jar"/>
 									
 			
 			<!-- JOGL libraries need to be jar-in-jar -->

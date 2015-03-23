@@ -20,20 +20,7 @@ import net.sf.openrocket.util.Coordinate;
 public class DampingMoment extends AbstractSimulationListener {
 	
 	private static final FlightDataType type = FlightDataType.getType("Damping moment coefficient", "Cdm", UnitGroup.UNITS_COEFFICIENT);
-	private static final FlightDataType[] typeList = {type};
-	
-	@Override
-	public String getName(){
-		return "Damping moment listener";
-	}
-	
-	/**
-	 * Return a list of any flight data types this listener creates.
-	 */
-	@Override
-	public FlightDataType[] getFlightDataTypes(){
-		return typeList;
-	}
+	private static final FlightDataType[] typeList = { type };
 	
 	@Override
 	public FlightConditions postFlightConditions(SimulationStatus status, FlightConditions flightConditions) throws SimulationException {
@@ -42,11 +29,11 @@ public class DampingMoment extends AbstractSimulationListener {
 		
 		//status.getFlightData().setValue(type, aerodynamicPart + propulsivePart);
 		status.getFlightData().setValue(type, calculate(status, flightConditions));
-
+		
 		return flightConditions;
 	}
 	
-	private double calculate(SimulationStatus status, FlightConditions flightConditions){
+	private double calculate(SimulationStatus status, FlightConditions flightConditions) {
 		
 		// Work out the propulsive/jet damping part of the moment.
 		
@@ -55,15 +42,15 @@ public class DampingMoment extends AbstractSimulationListener {
 		
 		List<Double> mpAll = data.get(FlightDataType.TYPE_PROPELLANT_MASS);
 		List<Double> time = data.get(FlightDataType.TYPE_TIME);
-		if (mpAll == null || time == null){
+		if (mpAll == null || time == null) {
 			return Double.NaN;
 		}
 		
 		int len = mpAll.size();
 		
 		// This isn't as accurate as I would like
-		double mdot=Double.NaN;
-		if (len > 2){
+		double mdot = Double.NaN;
+		if (len > 2) {
 			// Using polynomial interpolator for derivative. Doesn't help much
 			//double[] x = { time.get(len-5), time.get(len-4), time.get(len-3), time.get(len-2), time.get(len-1) };
 			//double[] y = { mpAll.get(len-5), mpAll.get(len-4), mpAll.get(len-3), mpAll.get(len-2), mpAll.get(len-1) };
@@ -71,22 +58,22 @@ public class DampingMoment extends AbstractSimulationListener {
 			//double[] coeff = interp.interpolator(y);
 			//double dt = .01;
 			//mdot = (interp.eval(x[4], coeff) - interp.eval(x[4]-dt, coeff))/dt; 
-						
-			mdot = (mpAll.get(len-1) - mpAll.get(len-2)) / (time.get(len-1) - time.get(len-2));
+			
+			mdot = (mpAll.get(len - 1) - mpAll.get(len - 2)) / (time.get(len - 1) - time.get(len - 2));
 		}
 		
 		double cg = data.getLast(FlightDataType.TYPE_CG_LOCATION);
 		
 		// find the maximum distance from nose to nozzle. 
 		double nozzleDistance = 0;
-		for (MotorId id: status.getMotorConfiguration().getMotorIDs()){
+		for (MotorId id : status.getMotorConfiguration().getMotorIDs()) {
 			MotorInstanceConfiguration config = status.getMotorConfiguration();
 			Coordinate position = config.getMotorPosition(id);
 			
 			double x = position.x + config.getMotorInstance(id).getParentMotor().getLength();
-			if (x > nozzleDistance){
+			if (x > nozzleDistance) {
 				nozzleDistance = x;
-			}			
+			}
 		}
 		
 		// now can get the propulsive part
@@ -99,11 +86,12 @@ public class DampingMoment extends AbstractSimulationListener {
 		
 		// Must go through each component ...
 		Map<RocketComponent, AerodynamicForces> forces = aerocalc.getForceAnalysis(status.getConfiguration(), flightConditions, null);
-		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forces.entrySet()){
+		for (Map.Entry<RocketComponent, AerodynamicForces> entry : forces.entrySet()) {
 			
 			RocketComponent comp = entry.getKey();
 			
-			if (!comp.isAerodynamic()) continue;
+			if (!comp.isAerodynamic())
+				continue;
 			
 			//System.out.println(comp.toString());
 			
@@ -111,7 +99,7 @@ public class DampingMoment extends AbstractSimulationListener {
 			double Cp = entry.getValue().getCP().length();
 			double z = comp.getPositionValue(); //?
 			
-			aerodynamicPart += CNa*Math.pow(z-Cp, 2);
+			aerodynamicPart += CNa * Math.pow(z - Cp, 2);
 		}
 		
 		double v = flightConditions.getVelocity();
@@ -121,7 +109,7 @@ public class DampingMoment extends AbstractSimulationListener {
 		aerodynamicPart = aerodynamicPart * .5 * rho * v * ar;
 		
 		return aerodynamicPart + propulsivePart;
-	
+		
 	}
 	
 }

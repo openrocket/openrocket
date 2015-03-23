@@ -196,24 +196,34 @@ public class RocketComponentConfig extends JPanel {
 	}
 	
 	
-	protected JPanel materialPanel(JPanel panel, Material.Type type) {
+	protected JPanel materialPanel(Material.Type type) {
 		////Component material: and Component finish:
-		return materialPanel(panel, type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
-				trans.get("RocketCompCfg.lbl.Componentfinish"));
+		return materialPanel(type, 
+				trans.get("RocketCompCfg.lbl.Componentmaterial"),
+				trans.get("RocketCompCfg.lbl.Componentfinish"), 
+				"Material");
 	}
 	
-	protected JPanel materialPanel(JPanel panel, Material.Type type,
-			String materialString, String finishString) {
+	protected JPanel materialPanel(Material.Type type, String partName){
+		return materialPanel(type, trans.get("RocketCompCfg.lbl.Componentmaterial"),
+			trans.get("RocketCompCfg.lbl.Componentfinish"), partName);
+	    	}
+	
+	protected JPanel materialPanel(Material.Type type,
+					String materialString, 
+					String finishString, 
+					String partName) {
 		
-		JLabel label = new JLabel(materialString);
+	    JPanel subPanel = new JPanel(new MigLayout());
+	    	JLabel label = new JLabel(materialString);
 		//// The component material affects the weight of the component.
 		label.setToolTipText(trans.get("RocketCompCfg.lbl.ttip.componentmaterialaffects"));
-		panel.add(label, "spanx 4, wrap rel");
+		subPanel.add(label, "spanx 4, wrap rel");
 		
-		JComboBox combo = new JComboBox(new MaterialModel(panel, component, type));
+		JComboBox combo = new JComboBox(new MaterialModel(subPanel, component, type, partName));
 		//// The component material affects the weight of the component.
 		combo.setToolTipText(trans.get("RocketCompCfg.combo.ttip.componentmaterialaffects"));
-		panel.add(combo, "spanx 4, growx, wrap paragraph");
+		subPanel.add(combo, "spanx 4, growx, wrap paragraph");
 		
 		
 		if (component instanceof ExternalComponent) {
@@ -223,11 +233,11 @@ public class RocketComponentConfig extends JPanel {
 					//// The value indicated is the average roughness height of the surface.
 					+ trans.get("RocketCompCfg.lbl.longA2");
 			label.setToolTipText(tip);
-			panel.add(label, "spanx 4, wmin 220lp, wrap rel");
+			subPanel.add(label, "spanx 4, wmin 220lp, wrap rel");
 			
 			combo = new JComboBox(new EnumModel<ExternalComponent.Finish>(component, "Finish"));
 			combo.setToolTipText(tip);
-			panel.add(combo, "spanx 4, growx, split");
+			subPanel.add(combo, "spanx 4, growx, split");
 			
 			//// Set for all
 			JButton button = new JButton(trans.get("RocketCompCfg.but.Setforall"));
@@ -253,10 +263,9 @@ public class RocketComponentConfig extends JPanel {
 					}
 				}
 			});
-			panel.add(button, "wrap paragraph");
+			subPanel.add(button, "wrap paragraph");
 		}
-		
-		return panel;
+		return subPanel;
 	}
 	
 	

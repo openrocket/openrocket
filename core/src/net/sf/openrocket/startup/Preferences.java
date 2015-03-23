@@ -1,11 +1,17 @@
 package net.sf.openrocket.startup;
 
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.material.Material;
+import net.sf.openrocket.models.atmosphere.AtmosphericModel;
+import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.FinSet;
@@ -15,14 +21,18 @@ import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
+import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
+import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Color;
+import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.LineStyle;
 import net.sf.openrocket.util.MathUtil;
+import net.sf.openrocket.util.StateChangeListener;
 import net.sf.openrocket.util.UniqueID;
 
-public abstract class Preferences {
+public abstract class Preferences implements ChangeSource {
 	
 	/*
 	 * Well known string keys to preferences.
@@ -30,7 +40,8 @@ public abstract class Preferences {
 	 */
 	public static final String BODY_COMPONENT_INSERT_POSITION_KEY = "BodyComponentInsertPosition";
 	public static final String USER_THRUST_CURVES_KEY = "UserThrustCurves";
-	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
+	
+	public static final String DEFAULT_MACH_NUMBER = "DefaultMachNumber";
 	// Preferences related to data export
 	public static final String EXPORT_FIELD_SEPARATOR = "ExportFieldSeparator";
 	public static final String EXPORT_SIMULATION_COMMENT = "ExportSimulationComment";
@@ -55,6 +66,31 @@ public abstract class Preferences {
 	public static final String OPENGL_ENABLED = "OpenGL_Is_Enabled";
 	public static final String OPENGL_ENABLE_AA = "OpenGL_Antialiasing_Is_Enabled";
 	public static final String OPENGL_USE_FBO = "OpenGL_Use_FBO";
+	
+	public static final String ROCKET_INFO_FONT_SIZE = "RocketInfoFontSize";
+	
+	//Preferences Related to Simulations
+	
+	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
+	public static final String AUTO_RUN_SIMULATIONS = "AutoRunSimulations";
+	public static final String LAUNCH_ROD_LENGTH = "LaunchRodLength";
+	public static final String LAUNCH_INTO_WIND = "LaunchIntoWind";
+	public static final String LAUNCH_ROD_ANGLE = "LaunchRodAngle";
+	public static final String LAUNCH_ROD_DIRECTION = "LaunchRodDirection";
+	public static final String WIND_DIRECTION = "WindDirection";
+	public static final String WIND_AVERAGE = "WindAverage";
+	public static final String WIND_TURBULANCE = "WindTurbulence";
+	public static final String LAUNCH_ALTITUDE = "LaunchAltitude";
+	public static final String LAUNCH_LATITUDE = "LaunchLatitude";
+	public static final String LAUNCH_LONGITUDE = "LaunchLongitude";
+	public static final String LAUNCH_TEMPERATURE = "LaunchTemperature";
+	public static final String LAUNCH_PRESSURE = "LaunchPressure";
+	public static final String LAUNCH_USE_ISA = "LaunchUseISA";
+	public static final String SIMULATION_TIME_STEP = "SimulationTimeStep";
+	public static final String GEODETIC_COMPUTATION = "GeodeticComputationStrategy";
+	
+	
+	private static final AtmosphericModel ISA_ATMOSPHERIC_MODEL = new ExtendedISAModel();
 	
 	/*
 	 * ******************************************************************************************
@@ -89,6 +125,8 @@ public abstract class Preferences {
 	
 	public abstract void putString(String directory, String key, String value);
 	
+	public abstract java.util.prefs.Preferences getNode(String nodeName);
+	
 	/*
 	 * ******************************************************************************************
 	 */
@@ -100,9 +138,281 @@ public abstract class Preferences {
 		this.putBoolean(CHECK_UPDATES, check);
 	}
 	
+	public final boolean getConfirmSimDeletion() {
+		return this.getBoolean(CONFIRM_DELETE_SIMULATION, true);
+	}
+	
+	public final void setConfirmSimDeletion(boolean check) {
+		this.putBoolean(CONFIRM_DELETE_SIMULATION, check);
+	}
+	
+	public final boolean getAutoRunSimulations() {
+		return this.getBoolean(AUTO_RUN_SIMULATIONS, false);
+	}
+	
+	public final void setAutoRunSimulations(boolean check) {
+		this.putBoolean(AUTO_RUN_SIMULATIONS, check);
+	}
+	
+	public final boolean getLaunchIntoWind() {
+		return this.getBoolean(LAUNCH_INTO_WIND, false);
+	}
+	
+	public final void setLaunchIntoWind(boolean check) {
+		this.putBoolean(LAUNCH_INTO_WIND, check);
+	}
+	
 	public final double getDefaultMach() {
-		// TODO: HIGH: implement custom default mach number
-		return 0.3;
+		return Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+	}
+	
+	public final void setDefaultMach(double dfn) {
+		double oldDFN = Application.getPreferences().getChoice(Preferences.DEFAULT_MACH_NUMBER, 0.9, 0.3);
+		
+		if (MathUtil.equals(oldDFN, dfn))
+			return;
+		this.putDouble(Preferences.DEFAULT_MACH_NUMBER, dfn);
+		fireChangeEvent();
+	}
+	
+	public final double getWindTurbulenceIntensity() {
+		return Application.getPreferences().getChoice(Preferences.WIND_TURBULANCE, 0.9, 0.1);
+	}
+	
+	public final void setWindTurbulenceIntensity(double wti) {
+		double oldWTI = Application.getPreferences().getChoice(Preferences.WIND_TURBULANCE, 0.9, 0.3);
+		
+		if (MathUtil.equals(oldWTI, wti))
+			return;
+		this.putDouble(Preferences.WIND_TURBULANCE, wti);
+		fireChangeEvent();
+	}
+	
+	public double getLaunchRodLength() {
+		return this.getDouble(LAUNCH_ROD_LENGTH, 1);
+	}
+	
+	public void setLaunchRodLength(double launchRodLength) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_LENGTH, 1), launchRodLength))
+			return;
+		this.putDouble(LAUNCH_ROD_LENGTH, launchRodLength);
+		fireChangeEvent();
+	}
+	
+	
+	public double getLaunchRodAngle() {
+		return this.getDouble(LAUNCH_ROD_ANGLE, 0);
+	}
+	
+	public void setLaunchRodAngle(double launchRodAngle) {
+		launchRodAngle = MathUtil.clamp(launchRodAngle, -Math.PI / 6.0, Math.PI / 6.0);
+		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_ANGLE, 0), launchRodAngle))
+			return;
+		this.putDouble(LAUNCH_ROD_ANGLE, launchRodAngle);
+		;
+		fireChangeEvent();
+	}
+	
+	
+	public double getLaunchRodDirection() {
+		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
+			this.setLaunchRodDirection(this.getDouble(WIND_DIRECTION, Math.PI / 2));
+		}
+		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
+	}
+	
+	public void setLaunchRodDirection(double launchRodDirection) {
+		launchRodDirection = MathUtil.reduce360(launchRodDirection);
+		if (MathUtil.equals(this.getDouble(LAUNCH_ROD_DIRECTION, Math.PI / 2.0), launchRodDirection))
+			return;
+		this.putDouble(LAUNCH_ROD_DIRECTION, launchRodDirection);
+		fireChangeEvent();
+	}
+	
+	
+	
+	public double getWindSpeedAverage() {
+		return this.getDouble(WIND_AVERAGE, 2);
+	}
+	
+	public void setWindSpeedAverage(double windAverage) {
+		if (MathUtil.equals(this.getDouble(WIND_AVERAGE, 2), windAverage))
+			return;
+		this.putDouble(WIND_AVERAGE, MathUtil.max(windAverage, 0));
+		fireChangeEvent();
+	}
+	
+	
+	public double getWindSpeedDeviation() {
+		return this.getDouble(WIND_AVERAGE, 2) * this.getDouble(WIND_TURBULANCE, .1);
+	}
+	
+	public void setWindSpeedDeviation(double windDeviation) {
+		double windAverage = this.getDouble(WIND_DIRECTION, 2);
+		if (windAverage < 0.1) {
+			windAverage = 0.1;
+		}
+		setWindTurbulenceIntensity(windDeviation / windAverage);
+	}
+	
+	public void setWindDirection(double direction) {
+		direction = MathUtil.reduce360(direction);
+		if (this.getBoolean(LAUNCH_INTO_WIND, true)) {
+			this.setLaunchRodDirection(direction);
+		}
+		if (MathUtil.equals(this.getDouble(WIND_DIRECTION, Math.PI / 2), direction))
+			return;
+		this.putDouble(WIND_DIRECTION, direction);
+		fireChangeEvent();
+		
+	}
+	
+	public double getWindDirection() {
+		return this.getDouble(WIND_DIRECTION, Math.PI / 2);
+		
+	}
+	
+	public double getLaunchAltitude() {
+		return this.getDouble(LAUNCH_ALTITUDE, 0);
+	}
+	
+	public void setLaunchAltitude(double altitude) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_ALTITUDE, 0), altitude))
+			return;
+		this.putDouble(LAUNCH_ALTITUDE, altitude);
+		fireChangeEvent();
+	}
+	
+	
+	public double getLaunchLatitude() {
+		return this.getDouble(LAUNCH_LATITUDE, 28.61);
+	}
+	
+	public void setLaunchLatitude(double launchLatitude) {
+		launchLatitude = MathUtil.clamp(launchLatitude, -90, 90);
+		if (MathUtil.equals(this.getDouble(LAUNCH_LATITUDE, 28.61), launchLatitude))
+			return;
+		this.putDouble(LAUNCH_LATITUDE, launchLatitude);
+		fireChangeEvent();
+	}
+	
+	public double getLaunchLongitude() {
+		return this.getDouble(LAUNCH_LONGITUDE, -80.60);
+	}
+	
+	public void setLaunchLongitude(double launchLongitude) {
+		launchLongitude = MathUtil.clamp(launchLongitude, -180, 180);
+		if (MathUtil.equals(this.getDouble(LAUNCH_LONGITUDE, -80.60), launchLongitude))
+			return;
+		this.putDouble(LAUNCH_LONGITUDE, launchLongitude);
+		fireChangeEvent();
+	}
+	
+	/*	
+		public GeodeticComputationStrategy getGeodeticComputation() {
+			return geodeticComputation;
+		}
+		
+		public void setGeodeticComputation(GeodeticComputationStrategy geodeticComputation) {
+			if (this.geodeticComputation == geodeticComputation)
+				return;
+			if (geodeticComputation == null) {
+				throw new IllegalArgumentException("strategy cannot be null");
+			}
+			this.geodeticComputation = geodeticComputation;
+			fireChangeEvent();
+		}
+		
+		
+		public boolean isISAAtmosphere() {
+			return useISA;
+		}
+		
+		public void setISAAtmosphere(boolean isa) {
+			if (isa == useISA)
+				return;
+			useISA = isa;
+			fireChangeEvent();
+		}
+		*/
+	
+	public double getLaunchTemperature() {
+		return this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE);
+	}
+	
+	
+	
+	public void setLaunchTemperature(double launchTemperature) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE), launchTemperature))
+			return;
+		this.putDouble(LAUNCH_TEMPERATURE, launchTemperature);
+		fireChangeEvent();
+	}
+	
+	
+	
+	public double getLaunchPressure() {
+		return this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE);
+	}
+	
+	
+	
+	public void setLaunchPressure(double launchPressure) {
+		if (MathUtil.equals(this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE), launchPressure))
+			return;
+		this.putDouble(LAUNCH_PRESSURE, launchPressure);
+		fireChangeEvent();
+	}
+	
+	
+	public boolean getISAAtmosphere() {
+		return this.getBoolean(LAUNCH_USE_ISA, true);
+	}
+	
+	public void setISAAtmosphere(boolean isa) {
+		if (this.getBoolean(LAUNCH_USE_ISA, true) == isa) {
+			return;
+		}
+		this.putBoolean(LAUNCH_USE_ISA, isa);
+		fireChangeEvent();
+	}
+	
+	/**
+	 * Returns an atmospheric model corresponding to the launch conditions.  The
+	 * atmospheric models may be shared between different calls.
+	 * 
+	 * @return	an AtmosphericModel object.
+	 */
+	public AtmosphericModel getAtmosphericModel() {
+		if (this.getBoolean(LAUNCH_USE_ISA, true)) {
+			return ISA_ATMOSPHERIC_MODEL;
+		}
+		return new ExtendedISAModel(getLaunchAltitude(), this.getDouble(LAUNCH_TEMPERATURE, ExtendedISAModel.STANDARD_TEMPERATURE),
+				this.getDouble(LAUNCH_PRESSURE, ExtendedISAModel.STANDARD_PRESSURE));
+	}
+	
+	public GeodeticComputationStrategy getGeodeticComputation() {
+		return this.getEnum(GEODETIC_COMPUTATION, GeodeticComputationStrategy.SPHERICAL);
+	}
+	
+	public void setGeodeticComputation(GeodeticComputationStrategy gcs) {
+		this.putEnum(GEODETIC_COMPUTATION, gcs);
+	}
+	
+	public double getTimeStep() {
+		return this.getDouble(Preferences.SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP);
+	}
+	
+	public void setTimeStep(double timeStep) {
+		if (MathUtil.equals(this.getDouble(SIMULATION_TIME_STEP, RK4SimulationStepper.RECOMMENDED_TIME_STEP), timeStep))
+			return;
+		this.putDouble(SIMULATION_TIME_STEP, timeStep);
+		fireChangeEvent();
+	}
+	
+	
+	public final float getRocketInfoFontSize() {
+		return (float) (11.0 + 3 * Application.getPreferences().getChoice(Preferences.ROCKET_INFO_FONT_SIZE, 2, 0));
 	}
 	
 	/**
@@ -151,6 +461,24 @@ public abstract class Preferences {
 			return def;
 		return v;
 	}
+	
+	/**
+	 * Returns a limited-range double value from the preferences.  If the value
+	 * in the preferences is negative or greater than max, then the default value
+	 * is returned.
+	 *
+	 * @param key  The preference to retrieve.
+	 * @param max  Maximum allowed value for the choice.
+	 * @param def  Default value.
+	 * @return   The preference value.
+	 */
+	public final double getChoice(String key, double max, double def) {
+		double v = this.getDouble(key, def);
+		if ((v < 0) || (v > max))
+			return def;
+		return v;
+	}
+	
 	
 	/**
 	 * Helper method that puts an integer choice value into the preferences.
@@ -412,6 +740,7 @@ public abstract class Preferences {
 			DEFAULT_LINE_STYLES.put(RocketComponent.class, LineStyle.SOLID.name());
 			DEFAULT_LINE_STYLES.put(MassObject.class, LineStyle.DASHED.name());
 		}
+		
 		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
 		static {
 			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
@@ -424,4 +753,27 @@ public abstract class Preferences {
 		}
 	}
 	
+	private List<EventListener> listeners = new ArrayList<EventListener>();
+	private final EventObject event = new EventObject(this);
+	
+	@Override
+	public void addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	@Override
+	public void removeChangeListener(StateChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private void fireChangeEvent() {
+		
+		// Copy the list before iterating to prevent concurrent modification exceptions.
+		EventListener[] list = listeners.toArray(new EventListener[0]);
+		for (EventListener l : list) {
+			if (l instanceof StateChangeListener) {
+				((StateChangeListener) l).stateChanged(event);
+			}
+		}
+	}
 }

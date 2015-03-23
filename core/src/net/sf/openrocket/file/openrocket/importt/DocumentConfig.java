@@ -209,7 +209,11 @@ class DocumentConfig {
 		setters.put("FinSet:tablength", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setTabLength", double.class)));
 		setters.put("FinSet:tabposition", new FinTabPositionSetter());
-		
+		setters.put("FinSet:filletradius", new DoubleSetter(
+				Reflection.findMethod(FinSet.class, "setFilletRadius", double.class)));
+		setters.put("FinSet:filletmaterial", new MaterialSetter(
+				Reflection.findMethod(FinSet.class, "setFilletMaterial", Material.class),
+				Material.Type.BULK));
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setRootChord", double.class)));
@@ -330,6 +334,14 @@ class DocumentConfig {
 		// MassComponent
 		setters.put("MassComponent:mass", new DoubleSetter(
 				Reflection.findMethod(MassComponent.class, "setComponentMass", double.class)));
+		/*setters.put("MassComponent:masscomponenttype", new DoubleSetter(
+				Reflection.findMethod(MassComponent.class, "setMassComponentType", double.class)));*/
+		setters.put("MassComponent:masscomponenttype", new EnumSetter<MassComponent.MassComponentType>(
+				Reflection.findMethod(MassComponent.class, "setMassComponentType", MassComponent.MassComponentType.class),
+				MassComponent.MassComponentType.class));
+		/*		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
+						Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
+						Transition.Shape.class));*/
 		
 		// ShockCord
 		setters.put("ShockCord:cordlength", new DoubleSetter(

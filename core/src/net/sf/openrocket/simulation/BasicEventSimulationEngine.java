@@ -23,7 +23,6 @@ import net.sf.openrocket.simulation.exception.SimulationLaunchException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.simulation.listeners.system.OptimumCoastListener;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Pair;
@@ -43,8 +42,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private SimulationStepper landingStepper = new BasicLandingStepper();
 	private SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	
-	// Constant holding 20 degress in radians.  This is the AOA condition
-	// necessary to transistion to tumbling.
+	// Constant holding 20 degrees in radians.  This is the AOA condition
+	// necessary to transition to tumbling.
 	private final static double AOA_TUMBLE_CONDITION = Math.PI / 9.0;
 	
 	// The thrust must be below this value for the transition to tumbling.
@@ -494,11 +493,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 					
 					// Check current velocity
 					if (status.getRocketVelocity().length() > 20) {
-						// TODO: LOW: Custom warning.
-						status.getWarnings().add(Warning.fromString(trans.get("Warning.RECOVERY_HIGH_SPEED") +
-								" ("
-								+ UnitGroup.UNITS_VELOCITY.toStringUnit(status.getRocketVelocity().length())
-								+ ")."));
+						status.getWarnings().add(new Warning.HighSpeedDeployment(status.getRocketVelocity().length()));
 					}
 					
 					status.setLiftoff(true);
