@@ -20,6 +20,7 @@ import net.sf.openrocket.rocketcomponent.LaunchLug;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.RK4SimulationStepper;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
@@ -743,6 +744,7 @@ public abstract class Preferences implements ChangeSource {
 		private static final HashMap<Class<?>, String> DEFAULT_COLORS = new HashMap<Class<?>, String>();
 		static {
 			DEFAULT_COLORS.put(BodyComponent.class, "0,0,240");
+			DEFAULT_COLORS.put(TubeFinSet.class, "0,0,200");
 			DEFAULT_COLORS.put(FinSet.class, "0,0,200");
 			DEFAULT_COLORS.put(LaunchLug.class, "0,0,180");
 			DEFAULT_COLORS.put(InternalComponent.class, "170,0,100");

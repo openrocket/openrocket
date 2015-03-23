@@ -24,6 +24,7 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
@@ -223,6 +224,7 @@ public class OpenRocketSaver extends RocketSaver {
 		 * 
 		 * File version 1.7 is required for:
 		 *  - simulation extensions
+		 *  - saving tube fins.
 		 * 
 		 * File version 1.6 is required for:
 		 *  - saving files using appearances and textures, flight configurations.
@@ -248,6 +250,13 @@ public class OpenRocketSaver extends RocketSaver {
 		/////////////////
 		for (Simulation sim : document.getSimulations()) {
 			if (!sim.getSimulationExtensions().isEmpty()) {
+				return FILE_VERSION_DIVISOR + 7;
+			}
+		}
+		
+		// Search the rocket for any TubeFinSet objects (version 1.7)
+		for (RocketComponent c : document.getRocket()) {
+			if (c instanceof TubeFinSet) {
 				return FILE_VERSION_DIVISOR + 7;
 			}
 		}

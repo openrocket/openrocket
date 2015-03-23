@@ -27,6 +27,7 @@ import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.startup.Application;
 
 public class ComponentIcons {
@@ -45,31 +46,25 @@ public class ComponentIcons {
 		load("nosecone", trans.get("ComponentIcons.Nosecone"), NoseCone.class);
 		// // Body tube
 		load("bodytube", trans.get("ComponentIcons.Bodytube"), BodyTube.class);
-		// // Transition
-		load("transition", trans.get("ComponentIcons.Transition"),
-				Transition.class);
-		// // Trapezoidal fin set
-		load("trapezoidfin", trans.get("ComponentIcons.Trapezoidalfinset"),
-				TrapezoidFinSet.class);
-		// // Elliptical fin set
-		load("ellipticalfin", trans.get("ComponentIcons.Ellipticalfinset"),
-				EllipticalFinSet.class);
-		// // Freeform fin set
-		load("freeformfin", trans.get("ComponentIcons.Freeformfinset"),
-				FreeformFinSet.class);
-		// // Launch lug
-		load("launchlug", trans.get("ComponentIcons.Launchlug"),
-				LaunchLug.class);
-		// // Inner tube
-		load("innertube", trans.get("ComponentIcons.Innertube"),
-				InnerTube.class);
-		// // Tube coupler
-		load("tubecoupler", trans.get("ComponentIcons.Tubecoupler"),
-				TubeCoupler.class);
-		// // Centering ring
-		load("centeringring", trans.get("ComponentIcons.Centeringring"),
-				CenteringRing.class);
-		// // Bulk head
+		//// Transition
+		load("transition", trans.get("ComponentIcons.Transition"), Transition.class);
+		//// Trapezoidal fin set
+		load("trapezoidfin", trans.get("ComponentIcons.Trapezoidalfinset"), TrapezoidFinSet.class);
+		//// Elliptical fin set
+		load("ellipticalfin", trans.get("ComponentIcons.Ellipticalfinset"), EllipticalFinSet.class);
+		//// Freeform fin set
+		load("freeformfin", trans.get("ComponentIcons.Freeformfinset"), FreeformFinSet.class);
+		//// Tube fin set
+		load("tubefin", trans.get("ComponentIcons.Tubefinset"), TubeFinSet.class);
+		//// Launch lug
+		load("launchlug", trans.get("ComponentIcons.Launchlug"), LaunchLug.class);
+		//// Inner tube
+		load("innertube", trans.get("ComponentIcons.Innertube"), InnerTube.class);
+		//// Tube coupler
+		load("tubecoupler", trans.get("ComponentIcons.Tubecoupler"), TubeCoupler.class);
+		//// Centering ring
+		load("centeringring", trans.get("ComponentIcons.Centeringring"), CenteringRing.class);
+		//// Bulk head
 		load("bulkhead", trans.get("ComponentIcons.Bulkhead"), Bulkhead.class);
 		// // Engine block
 		load("engineblock", trans.get("ComponentIcons.Engineblock"),
