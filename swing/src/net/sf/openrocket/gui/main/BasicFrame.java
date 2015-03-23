@@ -12,6 +12,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -92,6 +94,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
+import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
@@ -111,7 +114,7 @@ import net.sf.openrocket.utils.ComponentPresetEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BasicFrame extends JFrame {
+public class BasicFrame extends JFrame implements PropertyChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 	
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
@@ -1274,6 +1277,37 @@ public class BasicFrame extends JFrame {
 		return saveAs(file);
 	}
 	
+	private static String oldFileName=null;
+	public void propertyChange(PropertyChangeEvent event){
+		if( JFileChooser.SELECTED_FILE_CHANGED_PROPERTY == event.getPropertyName()){
+			if(null != event.getOldValue()){
+				BasicFrame.oldFileName = ((File)event.getOldValue()).getName();
+			}
+			return;
+		}else if(JFileChooser.FILE_FILTER_CHANGED_PROPERTY == event.getPropertyName()){
+			JFileChooser chooser = (JFileChooser)event.getSource();	
+			SimpleFileFilter filter = (SimpleFileFilter)(chooser.getFileFilter());
+			String desiredExtension = filter.getExtensions()[0];
+			
+			if( null == BasicFrame.oldFileName){
+				return;
+			}
+			String thisFileName = BasicFrame.oldFileName;
+			
+			if ( filter.accept( new File(thisFileName))){
+				// nop 
+				return;
+			}else{
+				String[] splitResults = thisFileName.split("\\.");
+				if(0 < splitResults.length){
+					thisFileName = splitResults[0];
+				}
+				chooser.setSelectedFile(new File( thisFileName+desiredExtension));
+				return;
+			}
+		}
+	}
+		
 	/**
 	 * "Save As" action.
 	 *
@@ -1292,8 +1326,12 @@ public class BasicFrame extends JFrame {
 		StorageOptionChooser storageChooser =
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 		final JFileChooser chooser = new JFileChooser();
+		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 		chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+		chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, this);
+		chooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, this);
+		chooser.addPropertyChangeListener(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY, this);
 		
 		//Force the file filter to match the file extension that was opened.  Will default to OR if the file is null.
 		if (FileHelper.ROCKSIM_DESIGN_FILTER.accept(document.getFile())) {
@@ -1336,7 +1374,7 @@ public class BasicFrame extends JFrame {
 			return result;
 		}
 	}
-	
+
 	/**
 	 * Perform the writing of the design to the given file in Rocksim format.
 	 *
