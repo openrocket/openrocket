@@ -1,33 +1,23 @@
-;
-;Estes C6 RASP.ENG file made from NAR published data
-;File produced October 3, 2000
-;The total impulse, peak thrust, average thrust and burn time are
-;the same as the averaged static test data on the NAR web site in
-;the certification file. The curve drawn with these data points is as
-;close to the certification curve as can be with such a limited
-;number of points (32) allowed with wRASP up to v1.6.
-C6 18 70 0-3-5-7 0.0108 0.0231 Estes 
-0.031 0.946
-0.092 4.826
-0.139 9.936
-0.192 14.09
-0.209 11.446
-0.231 7.381
-0.248 6.151
-0.292 5.489
-0.37 4.921
-0.475 4.448
-0.671 4.258
-0.702 4.542
-0.723 4.164
-0.85 4.448
-1.063 4.353
-1.211 4.353
-1.242 4.069
-1.303 4.258
-1.468 4.353
-1.656 4.448
-1.821 4.448
-1.834 2.933
-1.847 1.325
-1.86 0
+; C6-0
+C6-0 18 70 P 0.012480000000000002 0.0227 E
+   0.014 0.633
+   0.026 1.533
+   0.067 2.726
+   0.099 5.136
+   0.15 9.103
+   0.183 11.465
+   0.207 11.635
+   0.219 11.391
+   0.262 6.377
+   0.333 5.014
+   0.349 5.209
+   0.392 4.722
+   0.475 4.771
+   0.653 4.746
+   0.913 4.673
+   1.366 4.625
+   1.607 4.625
+   1.745 4.868
+   1.978 4.795
+   2.023 0.828
+   2.024 0.0
