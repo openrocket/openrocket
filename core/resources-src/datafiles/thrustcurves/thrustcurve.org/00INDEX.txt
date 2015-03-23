@@ -1,5 +1,5 @@
 Rocket motor simulation data downloaded from ThrustCurve.org.
-This ZIP file contains 1645 simulator data files.
+This ZIP file contains 1656 simulator data files.
 For more info, please see http://www.thrustcurve.org/
 
 AMW_I195.eng
@@ -7434,14 +7434,14 @@ Cesaroni_M1590.eng
     Designation:  7545M1590-P
     Data Format:  RASP
     Data Source:  cert
-    Contributor:  Andre Choquette
+    Contributor:  Mark Koelsch
 
 Cesaroni_M1590.rse
     Manufacturer: Cesaroni Technology
     Designation:  7545M1590-P
     Data Format:  RockSim
     Data Source:  cert
-    Contributor:  Andre Choquette
+    Contributor:  Mark Koelsch
 
 Cesaroni_M1670.eng
     Manufacturer: Cesaroni Technology
@@ -9394,12 +9394,19 @@ Estes_B4.eng
     Designation:  B4
     Data Format:  RASP
     Data Source:  user
-    Contributor:  John Coker
+    Contributor:  Nicholas Domansky
 
 Estes_B4.rse
     Manufacturer: Estes Industries
     Designation:  B4
     Data Format:  RockSim
+    Data Source:  user
+    Contributor:  John Coker
+
+Estes_B4_1.eng
+    Manufacturer: Estes Industries
+    Designation:  B4
+    Data Format:  RASP
     Data Source:  user
     Contributor:  John Coker
 
@@ -9450,12 +9457,19 @@ Estes_C6.eng
     Designation:  C6
     Data Format:  RASP
     Data Source:  user
-    Contributor:  John Coker
+    Contributor:  Nicholas Domansky
 
 Estes_C6.rse
     Manufacturer: Estes Industries
     Designation:  C6
     Data Format:  RockSim
+    Data Source:  user
+    Contributor:  John Coker
+
+Estes_C6_1.eng
+    Manufacturer: Estes Industries
+    Designation:  C6
+    Data Format:  RASP
     Data Source:  user
     Contributor:  John Coker
 
@@ -9732,6 +9746,13 @@ GR_L1065.eng
     Data Source:  mfr
     Contributor:  John Coker
 
+GR_L1112.eng
+    Manufacturer: Gorilla Rocket Motors
+    Designation:  L1112BT
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 GR_L1150.rse
     Manufacturer: Gorilla Rocket Motors
     Designation:  L1150WC
@@ -9801,6 +9822,13 @@ GR_M1665.eng
     Data Format:  RASP
     Data Source:  mfr
     Contributor:  John Coker
+
+GR_M1952.eng
+    Manufacturer: Gorilla Rocket Motors
+    Designation:  M1952BT
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
 
 GR_O2700.eng
     Manufacturer: Gorilla Rocket Motors
@@ -10635,6 +10663,13 @@ Loki_J1000.rse
     Data Source:  mfr
     Contributor:  Mark Koelsch
 
+Loki_J1026.eng
+    Manufacturer: Loki Research
+    Designation:  J1026 CT
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 Loki_J175.eng
     Manufacturer: Loki Research
     Designation:  J175-LW
@@ -10754,6 +10789,13 @@ Loki_J820.rse
     Data Source:  user
     Contributor:  John Coker
 
+Loki_K1127.eng
+    Manufacturer: Loki Research
+    Designation:  K1127LB
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 Loki_K250.eng
     Manufacturer: Loki Research
     Designation:  K250-LW
@@ -10781,6 +10823,13 @@ Loki_K350.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+Loki_K527.eng
+    Manufacturer: Loki Research
+    Designation:  K527LR
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
 
 Loki_K690.eng
     Manufacturer: Loki Research
@@ -10852,6 +10901,13 @@ Loki_L780.eng
     Data Source:  mfr
     Contributor:  John Coker
 
+Loki_L840.eng
+    Manufacturer: Loki Research
+    Designation:  L840CT
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 Loki_L930.eng
     Manufacturer: Loki Research
     Designation:  L930-LW
@@ -10873,6 +10929,13 @@ Loki_M1200.eng
     Data Source:  mfr
     Contributor:  John Coker
 
+Loki_M1650.eng
+    Manufacturer: Loki Research
+    Designation:  M1650LC
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
+
 Loki_M1882.eng
     Manufacturer: Loki Research
     Designation:  M1882-LW
@@ -10886,6 +10949,13 @@ Loki_M1882.rse
     Data Format:  RockSim
     Data Source:  user
     Contributor:  John Coker
+
+Loki_M1969.eng
+    Manufacturer: Loki Research
+    Designation:  M1969SF
+    Data Format:  RASP
+    Data Source:  cert
+    Contributor:  Mark Koelsch
 
 Loki_M2550.eng
     Manufacturer: Loki Research
@@ -10913,6 +10983,13 @@ Loki_M3000.rse
     Designation:  M3000-LW
     Data Format:  RockSim
     Data Source:  mfr
+    Contributor:  Mark Koelsch
+
+Loki_M3464.eng
+    Manufacturer: Loki Research
+    Designation:  M3464LB
+    Data Format:  RASP
+    Data Source:  cert
     Contributor:  Mark Koelsch
 
 Loki_M900.rse
