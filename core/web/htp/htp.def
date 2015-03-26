@@ -1,5 +1,5 @@
-<set version="14.11">
-<set androidversion="12.09">
+<set version="15.03">
+<set androidversion="13.11">
 
 <def name="downloadbox">
   <div class="downloadbox">
