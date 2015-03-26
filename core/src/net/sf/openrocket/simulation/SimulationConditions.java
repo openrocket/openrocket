@@ -12,6 +12,7 @@ import net.sf.openrocket.models.wind.WindModel;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.util.BugException;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.GeodeticComputationStrategy;
 import net.sf.openrocket.util.Monitorable;
 import net.sf.openrocket.util.WorldCoordinate;
@@ -35,14 +36,17 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	/** Launch rod angle >= 0, radians from vertical */
 	private double launchRodAngle = 0;
 	
-	/** Launch rod direction, 0 = upwind, PI = downwind. */
+	/** Launch rod direction, 0 = north */
 	private double launchRodDirection = 0;
 	
-	// TODO: Depreciate these and use worldCoordinate only.
-	//private double launchAltitude = 0;
-	//private double launchLatitude = 45;
-	//private double launchLongitude = 0;
+	// Launch site location (lat, lon, alt)
 	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
+	
+	// Launch location in simulation coordinates (normally always 0, air-start would override this)
+	private Coordinate launchPosition = Coordinate.NUL;
+	
+	private Coordinate launchVelocity = Coordinate.NUL;
+	
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
 	
@@ -162,6 +166,29 @@ public class SimulationConditions implements Monitorable, Cloneable {
 		if (this.launchSite.equals(site))
 			return;
 		this.launchSite = site;
+		this.modID++;
+	}
+	
+	
+	public Coordinate getLaunchPosition() {
+		return launchPosition;
+	}
+	
+	public void setLaunchPosition(Coordinate launchPosition) {
+		if (this.launchPosition.equals(launchPosition))
+			return;
+		this.launchPosition = launchPosition;
+		this.modID++;
+	}
+	
+	public Coordinate getLaunchVelocity() {
+		return launchVelocity;
+	}
+	
+	public void setLaunchVelocity(Coordinate launchVelocity) {
+		if (this.launchVelocity.equals(launchVelocity))
+			return;
+		this.launchVelocity = launchVelocity;
 		this.modID++;
 	}
 	

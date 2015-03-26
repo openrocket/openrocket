@@ -2,6 +2,7 @@ package net.sf.openrocket.document;
 
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
@@ -10,8 +11,14 @@ import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
+import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.BasicEventSimulationEngine;
 import net.sf.openrocket.simulation.DefaultSimulationOptionFactory;
 import net.sf.openrocket.simulation.FlightData;
@@ -21,7 +28,7 @@ import net.sf.openrocket.simulation.SimulationEngine;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.SimulationStepper;
 import net.sf.openrocket.simulation.exception.SimulationException;
-import net.sf.openrocket.simulation.exception.SimulationListenerException;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.simulation.listeners.SimulationListener;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayList;
@@ -58,7 +65,10 @@ public class Simulation implements ChangeSource, Cloneable {
 		EXTERNAL,
 		
 		/** Not yet simulated */
-		NOT_SIMULATED
+		NOT_SIMULATED,
+		
+		/** Can't be simulated, NO_MOTORS **/
+		CANT_RUN
 	}
 	
 	private RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
@@ -76,7 +86,8 @@ public class Simulation implements ChangeSource, Cloneable {
 	// TODO: HIGH: Change to use actual conditions class??
 	private SimulationOptions options;
 	
-	private ArrayList<String> simulationListeners = new ArrayList<String>();
+	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<SimulationExtension>();
+	
 	
 	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
 	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
@@ -116,7 +127,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	public Simulation(Rocket rocket, Status status, String name, SimulationOptions options,
-			List<String> listeners, FlightData data) {
+			List<SimulationExtension> extensions, FlightData data) {
 		
 		if (rocket == null)
 			throw new IllegalArgumentException("rocket cannot be null");
@@ -142,8 +153,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.options = options;
 		options.addChangeListener(new ConditionListener());
 		
-		if (listeners != null) {
-			this.simulationListeners.addAll(listeners);
+		if (extensions != null) {
+			this.simulationExtensions.addAll(extensions);
 		}
 		
 		
@@ -196,14 +207,14 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	
 	/**
-	 * Get the list of simulation listeners.  The returned list is the one used by
+	 * Get the list of simulation extensions.  The returned list is the one used by
 	 * this object; changes to it will reflect changes in the simulation.
 	 *
-	 * @return	the actual list of simulation listeners.
+	 * @return	the actual list of simulation extensions.
 	 */
-	public List<String> getSimulationListeners() {
+	public List<SimulationExtension> getSimulationExtensions() {
 		mutex.verify();
-		return simulationListeners;
+		return simulationExtensions;
 	}
 	
 	
@@ -250,12 +261,34 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public Status getStatus() {
 		mutex.verify();
-		
 		if (status == Status.UPTODATE || status == Status.LOADED) {
-			if (rocket.getFunctionalModID() != simulatedRocketID ||
-					!options.equals(simulatedConditions))
-				return Status.OUTDATED;
+			if (rocket.getFunctionalModID() != simulatedRocketID || !options.equals(simulatedConditions)) {
+				status = Status.OUTDATED;
+			}
 		}
+		
+		
+		//Make sure this simulation has motors.
+		Configuration c = new Configuration(this.getRocket());
+		MotorInstanceConfiguration motors = new MotorInstanceConfiguration();
+		c.setFlightConfigurationID(options.getMotorConfigurationID());
+		final String flightConfigId = c.getFlightConfigurationID();
+		
+		Iterator<MotorMount> iterator = c.motorIterator();
+		boolean no_motors = true;
+		
+		while (iterator.hasNext()) {
+			MotorMount mount = iterator.next();
+			RocketComponent component = (RocketComponent) mount;
+			MotorConfiguration motorConfig = mount.getMotorConfiguration().get(flightConfigId);
+			IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
+			Motor motor = motorConfig.getMotor();
+			if (motor != null)
+				no_motors = false;
+		}
+		
+		if (no_motors)
+			status = Status.CANT_RUN;
 		
 		return status;
 	}
@@ -293,16 +326,8 @@ public class Simulation implements ChangeSource, Cloneable {
 				simulationConditions.getSimulationListenerList().add(l);
 			}
 			
-			for (String className : simulationListeners) {
-				SimulationListener l = null;
-				try {
-					Class<?> c = Class.forName(className);
-					l = (SimulationListener) c.newInstance();
-				} catch (Exception e) {
-					throw new SimulationListenerException("Could not instantiate listener of " +
-							"class: " + className, e);
-				}
-				simulationConditions.getSimulationListenerList().add(l);
+			for (SimulationExtension extension : simulationExtensions) {
+				extension.initialize(simulationConditions);
 			}
 			
 			long t1, t2;
@@ -410,7 +435,10 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
 			copy.options = this.options.clone();
-			copy.simulationListeners = this.simulationListeners.clone();
+			copy.simulationExtensions = new ArrayList<SimulationExtension>();
+			for (SimulationExtension c : this.simulationExtensions) {
+				copy.simulationExtensions.add(c.clone());
+			}
 			copy.listeners = new ArrayList<EventListener>();
 			copy.simulatedConditions = null;
 			copy.simulatedConfiguration = null;
@@ -442,7 +470,9 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.name = this.name;
 			copy.options.copyFrom(this.options);
 			copy.simulatedConfiguration = this.simulatedConfiguration;
-			copy.simulationListeners = this.simulationListeners.clone();
+			for (SimulationExtension c : this.simulationExtensions) {
+				copy.simulationExtensions.add(c.clone());
+			}
 			copy.simulationStepperClass = this.simulationStepperClass;
 			copy.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 			

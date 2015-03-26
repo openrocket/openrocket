@@ -25,7 +25,7 @@ public class DocumentConfigTest extends BaseTestCase {
 	public void testAllVersionsTested() {
 		
 		// Update this after creating new unit tests in OpenRocketSaver for a new OR file version
-		String[] testedVersionsStr = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6" };
+		String[] testedVersionsStr = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7" };
 		
 		List<String> supportedVersions = Arrays.asList(DocumentConfig.SUPPORTED_VERSIONS);
 		List<String> testedVersions = Arrays.asList(testedVersionsStr);

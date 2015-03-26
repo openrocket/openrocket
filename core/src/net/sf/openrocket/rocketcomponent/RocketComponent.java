@@ -1122,6 +1122,19 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	/**
+	 * Return the mass of this component and all of its subcomponents.
+	 */
+	public final double getSectionMass() {
+		Double massSubtotal = getMass();
+		mutex.verify();
+		for (RocketComponent rc : children) {
+			massSubtotal += rc.getSectionMass();
+		}
+		
+		return massSubtotal;
+	}
+	
+	/**
 	 * Return the (possibly overridden) center of gravity and mass.
 	 *
 	 * Returns the CG with the weight of the coordinate set to the weight of the component.
@@ -1638,47 +1651,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
-	///////////  Iterators  //////////
-	
-	/**
-	 * Returns an iterator that iterates over all children and sub-children.
-	 * <p>
-	 * The iterator iterates through all children below this object, including itself if
-	 * <code>returnSelf</code> is true.  The order of the iteration is not specified
-	 * (it may be specified in the future).
-	 * <p>
-	 * If an iterator iterating over only the direct children of the component is required,
-	 * use <code>component.getChildren().iterator()</code>.
-	 *
-	 * TODO: HIGH: Remove this after merges have been done
-	 *
-	 * @param returnSelf boolean value specifying whether the component itself should be
-	 * 					 returned
-	 * @return An iterator for the children and sub-children.
-	 * @deprecated Use {@link #iterator(boolean)} instead
-	 */
-	@Deprecated
-	public final Iterator<RocketComponent> deepIterator(boolean returnSelf) {
-		return iterator(returnSelf);
-	}
-	
-	
-	/**
-	 * Returns an iterator that iterates over all children and sub-children, including itself.
-	 * <p>
-	 * This method is equivalent to <code>deepIterator(true)</code>.
-	 *
-	 * TODO: HIGH: Remove this after merges have been done
-	 *
-	 * @return An iterator for this component, its children and sub-children.
-	 * @deprecated Use {@link #iterator()} instead
-	 */
-	@Deprecated
-	public final Iterator<RocketComponent> deepIterator() {
-		return iterator();
-	}
-	
-	
+	///////////  Iterators  //////////	
 	
 	/**
 	 * Returns an iterator that iterates over all children and sub-children.

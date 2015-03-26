@@ -95,20 +95,20 @@ public class SimulationStatus implements Monitorable {
 		
 		this.time = 0;
 		this.previousTimeStep = this.simulationConditions.getTimeStep();
-		this.position = Coordinate.NUL;
-		this.velocity = Coordinate.NUL;
+		this.position = this.simulationConditions.getLaunchPosition();
+		this.velocity = this.simulationConditions.getLaunchVelocity();
 		this.worldPosition = this.simulationConditions.getLaunchSite();
 		
 		// Initialize to roll angle with least stability w.r.t. the wind
 		Quaternion o;
 		FlightConditions cond = new FlightConditions(this.configuration);
 		this.simulationConditions.getAerodynamicCalculator().getWorstCP(this.configuration, cond, null);
-		double angle = -cond.getTheta() - this.simulationConditions.getLaunchRodDirection();
+		double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
 		o = Quaternion.rotation(new Coordinate(0, 0, angle));
 		
 		// Launch rod angle and direction
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
-		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, this.simulationConditions.getLaunchRodDirection())));
+		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
 		
 		this.orientation = o;
 		this.rotationVelocity = Coordinate.NUL;

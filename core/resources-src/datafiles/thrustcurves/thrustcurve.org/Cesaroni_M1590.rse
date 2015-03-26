@@ -1,11 +1,11 @@
 <engine-database>
   <engine-list>
-    <engine  mfg="CTI" code="M1590-CL" Type="unspecified" dia="75." len="893." initWt="5223."
-propWt="3159." delays="0" auto-calc-mass="1" auto-calc-cg="1" avgThrust="1574.92"
-peakThrust="2302.94" throatDia="0." exitDia="0." Itot="7559.63" burn-time="4.8"
-massFrac="60.48" Isp="244.02" tDiv="10" tStep="-1." tFix="1" FDiv="10"
-FStep="-1." FFix="1" mDiv="10" mStep="-1." mFix="1" cgDiv="10" cgStep="-1."
-cgFix="1">
+    <engine  mfg="Cesaroni Technology Inc." code="M1590-CL" Type="reloadable" dia="75."
+len="893." initWt="6076." propWt="3590." delays="1000" auto-calc-mass="1"
+auto-calc-cg="1" avgThrust="1574.92" peakThrust="2302.94" throatDia="0."
+exitDia="0." Itot="7559.63" burn-time="4.8" massFrac="60.48" Isp="244.02"
+tDiv="10" tStep="-1." tFix="1" FDiv="10" FStep="-1." FFix="1" mDiv="10"
+mStep="-1." mFix="1" cgDiv="10" cgStep="-1." cgFix="1">
     <comments>Pro75-6G 7545M1590-CL P</comments>
     <data>
       <eng-data  t="0." f="0." m="3159." cg="446.5"/>

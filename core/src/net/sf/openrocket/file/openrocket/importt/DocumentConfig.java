@@ -40,6 +40,7 @@ import net.sf.openrocket.rocketcomponent.ThicknessRingComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.LineStyle;
@@ -48,7 +49,7 @@ import net.sf.openrocket.util.Reflection;
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7" };
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
@@ -69,6 +70,7 @@ class DocumentConfig {
 			constructors.put("trapezoidfinset", TrapezoidFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("ellipticalfinset", EllipticalFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("freeformfinset", FreeformFinSet.class.getConstructor(new Class<?>[0]));
+			constructors.put("tubefinset", TubeFinSet.class.getConstructor(new Class<?>[0]));
 			constructors.put("launchlug", LaunchLug.class.getConstructor(new Class<?>[0]));
 			
 			// Internal components
@@ -207,7 +209,11 @@ class DocumentConfig {
 		setters.put("FinSet:tablength", new DoubleSetter(
 				Reflection.findMethod(FinSet.class, "setTabLength", double.class)));
 		setters.put("FinSet:tabposition", new FinTabPositionSetter());
-		
+		setters.put("FinSet:filletradius", new DoubleSetter(
+				Reflection.findMethod(FinSet.class, "setFilletRadius", double.class)));
+		setters.put("FinSet:filletmaterial", new MaterialSetter(
+				Reflection.findMethod(FinSet.class, "setFilletMaterial", Material.class),
+				Material.Type.BULK));
 		// TrapezoidFinSet
 		setters.put("TrapezoidFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setRootChord", double.class)));
@@ -225,6 +231,20 @@ class DocumentConfig {
 				Reflection.findMethod(EllipticalFinSet.class, "setHeight", double.class)));
 		
 		// FreeformFinSet points handled as a special handler
+		
+		// TubeFinSet
+		setters.put("TubeFinSet:fincount", new IntSetter(
+				Reflection.findMethod(TubeFinSet.class, "setFinCount", int.class)));
+		setters.put("TubeFinSet:rotation", new DoubleSetter(
+				Reflection.findMethod(TubeFinSet.class, "setBaseRotation", double.class), Math.PI / 180.0));
+		setters.put("TubeFinSet:thickness", new DoubleSetter(
+				Reflection.findMethod(TubeFinSet.class, "setThickness", double.class)));
+		setters.put("TubeFinSet:length", new DoubleSetter(
+				Reflection.findMethod(TubeFinSet.class, "setLength", double.class)));
+		setters.put("TubeFinSet:radius", new DoubleSetter(
+				Reflection.findMethod(TubeFinSet.class, "setOuterRadius", double.class),
+				"auto",
+				Reflection.findMethod(TubeFinSet.class, "setOuterRadiusAutomatic", boolean.class)));
 		
 		// LaunchLug
 		setters.put("LaunchLug:radius", new DoubleSetter(
@@ -314,6 +334,14 @@ class DocumentConfig {
 		// MassComponent
 		setters.put("MassComponent:mass", new DoubleSetter(
 				Reflection.findMethod(MassComponent.class, "setComponentMass", double.class)));
+		/*setters.put("MassComponent:masscomponenttype", new DoubleSetter(
+				Reflection.findMethod(MassComponent.class, "setMassComponentType", double.class)));*/
+		setters.put("MassComponent:masscomponenttype", new EnumSetter<MassComponent.MassComponentType>(
+				Reflection.findMethod(MassComponent.class, "setMassComponentType", MassComponent.MassComponentType.class),
+				MassComponent.MassComponentType.class));
+		/*		setters.put("Transition:shape", new EnumSetter<Transition.Shape>(
+						Reflection.findMethod(Transition.class, "setType", Transition.Shape.class),
+						Transition.Shape.class));*/
 		
 		// ShockCord
 		setters.put("ShockCord:cordlength", new DoubleSetter(

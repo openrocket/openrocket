@@ -12,6 +12,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -54,6 +56,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -91,6 +94,7 @@ import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.gui.util.OpenFileWorker;
 import net.sf.openrocket.gui.util.SaveFileWorker;
+import net.sf.openrocket.gui.util.SimpleFileFilter;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
@@ -110,7 +114,7 @@ import net.sf.openrocket.utils.ComponentPresetEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BasicFrame extends JFrame {
+public class BasicFrame extends JFrame implements PropertyChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(BasicFrame.class);
 	
 	private static final GeneralRocketSaver ROCKET_SAVER = new GeneralRocketSaver();
@@ -153,7 +157,7 @@ public class BasicFrame extends JFrame {
 	/** Actions available for rocket modifications */
 	private final RocketActions actions;
 	
-	
+	private SimulationPanel simulationPanel;
 	
 	
 	/**
@@ -174,7 +178,7 @@ public class BasicFrame extends JFrame {
 		componentSelectionModel.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
 		// Obtain the simulation selection model that will be used
-		SimulationPanel simulationPanel = new SimulationPanel(document);
+		simulationPanel = new SimulationPanel(document);
 		simulationSelectionModel = simulationPanel.getSimulationListSelectionModel();
 		
 		// Combine into a DocumentSelectionModel
@@ -202,6 +206,11 @@ public class BasicFrame extends JFrame {
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightconfig"), null, new FlightConfigurationPanel(document));
 		//// Flight simulations
 		tabbedPane.addTab(trans.get("BasicFrame.tab.Flightsim"), null, simulationPanel);
+		
+		// Add change listener to catch when the tabs are changed.  This is to run simulations 
+		// automagically when the simulation tab is selected.
+		tabbedPane.addChangeListener(new BasicFrame_changeAdapter(this));
+		
 		
 		vertical.setTopComponent(tabbedPane);
 		
@@ -1268,6 +1277,37 @@ public class BasicFrame extends JFrame {
 		return saveAs(file);
 	}
 	
+	private static String oldFileName=null;
+	public void propertyChange(PropertyChangeEvent event){
+		if( JFileChooser.SELECTED_FILE_CHANGED_PROPERTY == event.getPropertyName()){
+			if(null != event.getOldValue()){
+				BasicFrame.oldFileName = ((File)event.getOldValue()).getName();
+			}
+			return;
+		}else if(JFileChooser.FILE_FILTER_CHANGED_PROPERTY == event.getPropertyName()){
+			JFileChooser chooser = (JFileChooser)event.getSource();	
+			SimpleFileFilter filter = (SimpleFileFilter)(chooser.getFileFilter());
+			String desiredExtension = filter.getExtensions()[0];
+			
+			if( null == BasicFrame.oldFileName){
+				return;
+			}
+			String thisFileName = BasicFrame.oldFileName;
+			
+			if ( filter.accept( new File(thisFileName))){
+				// nop 
+				return;
+			}else{
+				String[] splitResults = thisFileName.split("\\.");
+				if(0 < splitResults.length){
+					thisFileName = splitResults[0];
+				}
+				chooser.setSelectedFile(new File( thisFileName+desiredExtension));
+				return;
+			}
+		}
+	}
+		
 	/**
 	 * "Save As" action.
 	 *
@@ -1286,8 +1326,12 @@ public class BasicFrame extends JFrame {
 		StorageOptionChooser storageChooser =
 				new StorageOptionChooser(document, document.getDefaultStorageOptions());
 		final JFileChooser chooser = new JFileChooser();
+		chooser.setAcceptAllFileFilterUsed(false);
 		chooser.addChoosableFileFilter(FileHelper.OPENROCKET_DESIGN_FILTER);
 		chooser.addChoosableFileFilter(FileHelper.ROCKSIM_DESIGN_FILTER);
+		chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, this);
+		chooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, this);
+		chooser.addPropertyChangeListener(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY, this);
 		
 		//Force the file filter to match the file extension that was opened.  Will default to OR if the file is null.
 		if (FileHelper.ROCKSIM_DESIGN_FILTER.accept(document.getFile())) {
@@ -1330,7 +1374,7 @@ public class BasicFrame extends JFrame {
 			return result;
 		}
 	}
-	
+
 	/**
 	 * Perform the writing of the design to the given file in Rocksim format.
 	 *
@@ -1553,4 +1597,24 @@ public class BasicFrame extends JFrame {
 			return null;
 		}
 	}
+	
+	public void stateChanged(ChangeEvent e) {
+	    JTabbedPane tabSource = (JTabbedPane) e.getSource();
+	    String tab = tabSource.getTitleAt(tabSource.getSelectedIndex());
+	    if (tab.equals(trans.get("BasicFrame.tab.Flightsim"))) {
+	      simulationPanel.activating();
+	    }
+	  }
+}
+
+
+class BasicFrame_changeAdapter implements javax.swing.event.ChangeListener {
+	BasicFrame adaptee;
+
+  BasicFrame_changeAdapter(BasicFrame adaptee) {
+    this.adaptee = adaptee;
+  }
+  public void stateChanged(ChangeEvent e) {
+    adaptee.stateChanged(e);
+  }
 }

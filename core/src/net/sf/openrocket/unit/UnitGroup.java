@@ -278,6 +278,7 @@ public class UnitGroup {
 		
 		UNITS_ROLL = new UnitGroup();
 		UNITS_ROLL.addUnit(new GeneralUnit(1, "rad/s"));
+		UNITS_ROLL.addUnit(new GeneralUnit(Math.PI / 180, DEGREE + "/s"));
 		UNITS_ROLL.addUnit(new GeneralUnit(2 * Math.PI, "r/s"));
 		UNITS_ROLL.addUnit(new GeneralUnit(2 * Math.PI / 60, "rpm"));
 		UNITS_ROLL.setDefaultUnit(1);

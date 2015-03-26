@@ -13,7 +13,7 @@ public class MassObjectShapes extends RocketComponentShapes {
 	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation) {
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
-
+		
 		double length = tube.getLength();
 		double radius = tube.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
@@ -24,6 +24,7 @@ public class MassObjectShapes extends RocketComponentShapes {
 			s[i] = new RoundRectangle2D.Double(start[i].x*S,(start[i].y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
 		}
+		
 		return s;
 	}
 	
@@ -42,6 +43,5 @@ public class MassObjectShapes extends RocketComponentShapes {
 		}
 		return s;
 	}
-	
-	
+
 }

@@ -18,6 +18,7 @@ import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.util.Color;
 import net.sf.openrocket.util.Coordinate;
 
@@ -77,7 +78,7 @@ public class DefaultAppearance {
 	public static Appearance getDefaultAppearance(RocketComponent c) {
 		if (c instanceof BodyTube)
 			return ESTES_BT;
-		if (c instanceof InnerTube || c instanceof TubeCoupler)
+		if (c instanceof InnerTube || c instanceof TubeCoupler || c instanceof TubeFinSet)
 			return ESTES_IT;
 		if (c instanceof FinSet)
 			return BALSA;

@@ -30,6 +30,9 @@ public class SimpleFileFilter extends FileFilter implements java.io.FileFilter {
 		this(description, true, extensions);
 	}
 	
+	public String[] getExtensions() {
+		return extensions;
+	}
 	
 	/**
 	 * Create filter that accepts files with the provided extensions.

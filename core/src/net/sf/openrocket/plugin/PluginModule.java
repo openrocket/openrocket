@@ -42,9 +42,8 @@ public class PluginModule extends AbstractModule {
 			if (c.isInterface())
 				continue;
 			
-			for (Class<?> intf : c.getInterfaces()) {
-				
-				if (interfaces.contains(intf)) {
+			for (Class<?> intf : interfaces) {
+				if (intf.isAssignableFrom(c)) {
 					// Ugly hack to enable dynamic binding...  Can this be done type-safely?
 					Multibinder<Object> binder = (Multibinder<Object>) findBinder(intf);
 					binder.addBinding().to(c);

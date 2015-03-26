@@ -24,14 +24,17 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.FlightDataBranch;
 import net.sf.openrocket.simulation.FlightDataType;
 import net.sf.openrocket.simulation.FlightEvent;
 import net.sf.openrocket.simulation.SimulationOptions;
 import net.sf.openrocket.simulation.customexpression.CustomExpression;
+import net.sf.openrocket.simulation.extension.SimulationExtension;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.BuildProperties;
+import net.sf.openrocket.util.Config;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Reflection;
 import net.sf.openrocket.util.TextUtil;
@@ -217,6 +220,12 @@ public class OpenRocketSaver extends RocketSaver {
 	 */
 	private int calculateNecessaryFileVersion(OpenRocketDocument document, StorageOptions opts) {
 		/*
+		 * NOTE:  Remember to update the supported versions in DocumentConfig as well!
+		 * 
+		 * File version 1.7 is required for:
+		 *  - simulation extensions
+		 *  - saving tube fins.
+		 * 
 		 * File version 1.6 is required for:
 		 *  - saving files using appearances and textures, flight configurations.
 		 *  
@@ -235,6 +244,23 @@ public class OpenRocketSaver extends RocketSaver {
 		 * 
 		 * Otherwise use version 1.0.
 		 */
+		
+		/////////////////
+		// Version 1.7 // 
+		/////////////////
+		for (Simulation sim : document.getSimulations()) {
+			if (!sim.getSimulationExtensions().isEmpty()) {
+				return FILE_VERSION_DIVISOR + 7;
+			}
+		}
+		
+		// Search the rocket for any TubeFinSet objects (version 1.7)
+		for (RocketComponent c : document.getRocket()) {
+			if (c instanceof TubeFinSet) {
+				return FILE_VERSION_DIVISOR + 7;
+			}
+		}
+		
 		
 		/////////////////
 		// Version 1.6 // 
@@ -431,7 +457,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("configid", cond.getMotorConfigurationID());
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
-		writeElement("launchroddirection", cond.getLaunchRodDirection() * 180.0 / Math.PI);
+		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
 		writeElement("windaverage", cond.getWindSpeedAverage());
 		writeElement("windturbulence", cond.getWindTurbulenceIntensity());
 		writeElement("launchaltitude", cond.getLaunchAltitude());
@@ -455,9 +481,18 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</conditions>");
 		
-		
-		for (String s : simulation.getSimulationListeners()) {
-			writeElement("listener", TextUtil.escapeXML(s));
+		for (SimulationExtension extension : simulation.getSimulationExtensions()) {
+			Config config = extension.getConfig();
+			writeln("<extension extensionid=\"" + TextUtil.escapeXML(extension.getId()) + "\">");
+			indent++;
+			if (config != null) {
+				for (String key : config.keySet()) {
+					Object value = config.get(key, null);
+					writeEntry(key, value);
+				}
+			}
+			indent--;
+			writeln("</extension>");
 		}
 		
 		// Write basic simulation data
@@ -511,6 +546,39 @@ public class OpenRocketSaver extends RocketSaver {
 		
 	}
 	
+	
+	private void writeEntry(String key, Object value) throws IOException {
+		if (value == null) {
+			return;
+		}
+		String keyAttr;
+		
+		if (key != null) {
+			keyAttr = "key=\"" + key + "\" ";
+		} else {
+			keyAttr = "";
+		}
+		
+		if (value instanceof Boolean) {
+			writeln("<entry " + keyAttr + "type=\"boolean\">" + value + "</entry>");
+		} else if (value instanceof Number) {
+			writeln("<entry " + keyAttr + "type=\"number\">" + value + "</entry>");
+		} else if (value instanceof String) {
+			writeln("<entry " + keyAttr + "type=\"string\">" + TextUtil.escapeXML((String) value) + "</entry>");
+		} else if (value instanceof List) {
+			List<?> list = (List<?>) value;
+			writeln("<entry " + keyAttr + "type=\"list\">");
+			indent++;
+			for (Object o : list) {
+				writeEntry(null, o);
+			}
+			indent--;
+			writeln("</entry>");
+		} else {
+			// Unknown type
+			log.error("Unknown configuration value type " + value.getClass() + "  value=" + value);
+		}
+	}
 	
 	private void saveFlightDataBranch(FlightDataBranch branch, double timeSkip)
 			throws IOException {

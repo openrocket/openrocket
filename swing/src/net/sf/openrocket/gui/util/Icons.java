@@ -8,12 +8,12 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Icons {
@@ -31,6 +31,7 @@ public class Icons {
 	static {
 		HashMap<Simulation.Status, Icon> map = new HashMap<Simulation.Status, Icon>();
 		map.put(Simulation.Status.NOT_SIMULATED, loadImageIcon("pix/spheres/gray-16x16.png", "Not simulated"));
+		map.put(Simulation.Status.CANT_RUN, loadImageIcon("pix/spheres/yellow-16x16.png", "Can't run, no motors assigned."));
 		map.put(Simulation.Status.UPTODATE, loadImageIcon("pix/spheres/green-16x16.png", "Up to date"));
 		map.put(Simulation.Status.LOADED, loadImageIcon("pix/spheres/yellow-16x16.png", "Loaded from file"));
 		map.put(Simulation.Status.OUTDATED, loadImageIcon("pix/spheres/red-16x16.png", "Out-of-date"));
@@ -77,6 +78,8 @@ public class Icons {
 	
 	public static final Icon DELETE = loadImageIcon("pix/icons/delete.png", "Delete");
 	public static final Icon EDIT = loadImageIcon("pix/icons/pencil.png", "Edit");
+	public static final Icon CONFIGURE = loadImageIcon("pix/icons/configure.png", "Configure");
+	public static final Icon HELP = loadImageIcon("pix/icons/help-about.png", "Help");
 	public static final Icon UP = loadImageIcon("pix/icons/up.png", "Up");
 	public static final Icon DOWN = loadImageIcon("pix/icons/down.png", "Down");
 	

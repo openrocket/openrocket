@@ -23,7 +23,7 @@ import net.sf.openrocket.startup.jij.PluginClasspathProvider;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Startup {
+public class OpenRocket {
 	
 	private static final String STARTUP_CLASS = "net.sf.openrocket.startup.SwingStartup";
 	

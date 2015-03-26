@@ -30,6 +30,9 @@ public class FinSetSaver extends ExternalComponentSaver {
 					fins.getTabShift() + "</tabposition>");
 			
 		}
+		
+		elements.add("<filletradius>" + fins.getFilletRadius() + "</filletradius>");
+		elements.add(materialParam("filletmaterial", fins.getFilletMaterial()));
 	}
 	
 }

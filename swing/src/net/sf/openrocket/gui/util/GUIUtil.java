@@ -71,15 +71,15 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.gui.Resettable;
 import net.sf.openrocket.logging.Markers;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Invalidatable;
 import net.sf.openrocket.util.MemoryManagement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GUIUtil {
 	private static final Logger log = LoggerFactory.getLogger(GUIUtil.class);
@@ -147,6 +147,7 @@ public class GUIUtil {
 		installEscapeCloseOperation(dialog);
 		setWindowIcons(dialog);
 		addModelNullingListener(dialog);
+		dialog.setLocationRelativeTo(dialog.getOwner());
 		dialog.setLocationByPlatform(true);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.pack();

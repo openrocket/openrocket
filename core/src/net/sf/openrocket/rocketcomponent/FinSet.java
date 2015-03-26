@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.material.Material;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.ArrayUtils;
 import net.sf.openrocket.util.Coordinate;
@@ -14,6 +15,7 @@ import net.sf.openrocket.util.Transformation;
 
 public abstract class FinSet extends ExternalComponent {
 	private static final Translator trans = Application.getTranslator();
+	
 	
 	/**
 	 * Maximum allowed cant of fins.
@@ -87,7 +89,7 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	protected Transformation baseRotation = Transformation.rotate_x(rotation);
 	
-
+	
 	/**
 	 * Cant angle of fins.
 	 */
@@ -96,19 +98,19 @@ public abstract class FinSet extends ExternalComponent {
 	/* Cached value: */
 	private Transformation cantRotation = null;
 	
-
+	
 	/**
 	 * Thickness of the fins.
 	 */
 	protected double thickness = 0.003;
 	
-
+	
 	/**
 	 * The cross-section shape of the fins.
 	 */
 	protected CrossSection crossSection = CrossSection.SQUARE;
 	
-
+	
 	/*
 	 * Fin tab properties.
 	 */
@@ -117,7 +119,14 @@ public abstract class FinSet extends ExternalComponent {
 	private double tabShift = 0;
 	private TabRelativePosition tabRelativePosition = TabRelativePosition.CENTER;
 	
-
+	/*
+	 * Fin fillet properties
+	 */
+	
+	protected Material filletMaterial = null;
+	protected double filletRadius = 0;
+	protected double filletCenterY = 0;
+	
 	// Cached fin area & CG.  Validity of both must be checked using finArea!
 	// Fin area does not include fin tabs, CG does.
 	private double finArea = -1;
@@ -132,10 +141,11 @@ public abstract class FinSet extends ExternalComponent {
 	 */
 	public FinSet() {
 		super(RocketComponent.Position.BOTTOM);
+		this.filletMaterial = Application.getPreferences().getDefaultComponentMaterial(this.getClass(), Material.Type.BULK);
 	}
 	
 	
-
+	
 	/**
 	 * Return the number of fins in the set.
 	 * @return The number of fins.
@@ -190,7 +200,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	public double getCantAngle() {
 		return cantAngle;
 	}
@@ -219,7 +229,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	public double getThickness() {
 		return thickness;
 	}
@@ -244,9 +254,9 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
-
+	
+	
+	
 	@Override
 	public void setRelativePosition(RocketComponent.Position position) {
 		super.setRelativePosition(position);
@@ -261,8 +271,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
+	
+	
 	public double getTabHeight() {
 		return tabHeight;
 	}
@@ -307,7 +317,7 @@ public abstract class FinSet extends ExternalComponent {
 		if (this.tabRelativePosition == position)
 			return;
 		
-
+		
 		double front = getTabFrontEdge();
 		switch (position) {
 		case FRONT:
@@ -369,8 +379,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
+	
+	
 	///////////  Calculation methods  ///////////
 	
 	/**
@@ -401,12 +411,27 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	@Override
+	public double getComponentMass() {
+		return getFilletMass() + getFinMass();
+	}
+	
+	public double getFinMass() {
+		return getComponentVolume() * material.getDensity();
+	}
+	
+	public double getFilletMass() {
+		return getFilletVolume() * filletMaterial.getDensity();
+	}
+	
+	
 	@Override
 	public double getComponentVolume() {
+		// this is for the fins alone, fillets are taken care of separately.
 		return fins * (getFinArea() + tabHeight * tabLength) * thickness *
 				crossSection.getRelativeVolume();
 	}
+	
 	
 	
 	@Override
@@ -414,16 +439,54 @@ public abstract class FinSet extends ExternalComponent {
 		if (finArea < 0)
 			calculateAreaCG();
 		
-		double mass = getComponentMass(); // safe
+		double mass = getFinMass();
+		double filletMass = getFilletMass();
+		double filletCenter = length / 2;
+		
+		double newCGx = (filletCenter * filletMass + finCGx * mass) / (filletMass + mass);
+		
+		// FilletRadius/5 is a good estimate for where the vertical centroid of the fillet
+		// is.  Finding the actual position is very involved and won't make a huge difference.
+		double newCGy = (filletRadius / 5 * filletMass + finCGy * mass) / (filletMass + mass);
 		
 		if (fins == 1) {
 			return baseRotation.transform(
-					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, mass));
+					new Coordinate(finCGx, finCGy + getBodyRadius(), 0, (filletMass + mass)));
 		} else {
-			return new Coordinate(finCGx, 0, 0, mass);
+			return new Coordinate(finCGx, 0, 0, (filletMass + mass));
 		}
 	}
 	
+	public double getFilletVolume() {
+		/*
+		 * Here is how the volume of the fillet is found.  It assumes a circular concave 
+		 * fillet tangent to the fin and the body tube. 
+		 * 
+		 * 1. Form a triangle with vertices at the BT center, the tangent point between 
+		 *    the fillet and the fin, and the center of the fillet radius.
+		 * 2. The line between the center of the BT and the center of the fillet radius 
+		 *    will pass through the tangent point between the fillet and the BT.
+		 * 3. Find the area of the triangle, then subtract the portion of the BT and 
+		 *    fillet that is in that triangle. (angle/2PI * pi*r^2= angle/2 * r^2)
+		 * 4. Multiply the remaining area by the length.
+		 * 5. Return twice that since there is a fillet on each side of the fin.
+		 * 
+		 */
+		double btRadius = 1000.0; // assume a really big body tube if we can't get the radius,
+		RocketComponent c = this.getParent();
+		if (BodyTube.class.isInstance(c)) {
+			btRadius = ((BodyTube) c).getOuterRadius();
+		}
+		double totalRad = filletRadius + btRadius;
+		double innerAngle = Math.asin(filletRadius / totalRad);
+		double outerAngle = Math.acos(filletRadius / totalRad);
+		
+		double outerArea = Math.tan(outerAngle) * filletRadius * filletRadius / 2;
+		double filletVolume = length * (outerArea
+				- outerAngle * filletRadius * filletRadius / 2
+				- innerAngle * btRadius * btRadius / 2);
+		return 2 * filletVolume;
+	}
 	
 	private void calculateAreaCG() {
 		Coordinate[] points = this.getFinPoints();
@@ -594,7 +657,7 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
+	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
 		if (e.isAerodynamicChange()) {
@@ -641,8 +704,8 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return a list of coordinates defining the geometry of a single fin.  
 	 * The coordinates are the XY-coordinates of points defining the shape of a single fin,
@@ -686,12 +749,12 @@ public abstract class FinSet extends ExternalComponent {
 		points[n++] = new Coordinate(x1, y);
 		if (add1)
 			points[n++] = new Coordinate(x1, 0);
-			
+		
 		return points;
 	}
 	
 	
-
+	
 	/**
 	 * Get the span of a single fin.  That is, the length from the root to the tip of the fin.
 	 * @return  Span of a single fin.
@@ -717,4 +780,38 @@ public abstract class FinSet extends ExternalComponent {
 		
 		return super.copyFrom(c);
 	}
+	
+	/*
+	 * Handle fin fillet mass properties	
+	 */
+	
+	public Material getFilletMaterial() {
+		return filletMaterial;
+	}
+	
+	public void setFilletMaterial(Material mat) {
+		if (mat.getType() != Material.Type.BULK) {
+			throw new IllegalArgumentException("ExternalComponent requires a bulk material" +
+					" type=" + mat.getType());
+		}
+		
+		if (filletMaterial.equals(mat))
+			return;
+		filletMaterial = mat;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+	
+	public double getFilletRadius() {
+		return filletRadius;
+	}
+	
+	public void setFilletRadius(double r) {
+		if (MathUtil.equals(filletRadius, r))
+			return;
+		filletRadius = r;
+		clearPreset();
+		fireComponentChangeEvent(ComponentChangeEvent.MASS_CHANGE);
+	}
+	
 }
