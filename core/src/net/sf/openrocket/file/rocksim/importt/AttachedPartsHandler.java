@@ -77,7 +77,7 @@ class AttachedPartsHandler extends AbstractElementHandler {
 			return new SubAssemblyHandler(context, component);
 		}
 		if (RocksimCommonConstants.TUBE_FIN_SET.equals(element)) {
-			warnings.add("Tube fins are not currently supported. Ignoring.");
+			return new TubeFinSetHandler(context, component, warnings);
 		}
 		if (RocksimCommonConstants.RING_TAIL.equals(element)) {
 			warnings.add("Ring tails are not currently supported. Ignoring.");

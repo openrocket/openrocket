@@ -122,7 +122,7 @@ public class RocksimLoaderTest extends BaseTestCase {
         Assert.assertEquals(0.185d, stage1.getOverrideMass(), 0.001);
         Assert.assertTrue(stage1.isCGOverridden());
         Assert.assertEquals(0.3d, stage1.getOverrideCG().x, 0.001);
-        Assert.assertEquals(4, loader.getWarnings().size());
+        Assert.assertEquals(3, loader.getWarnings().size());
 
         Assert.assertEquals(1, stage2.getChildCount());
         Assert.assertEquals("2nd Stage Tube", stage2.getChild(0).getName());
