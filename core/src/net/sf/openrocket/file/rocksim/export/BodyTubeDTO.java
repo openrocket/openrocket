@@ -15,6 +15,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
+import net.sf.openrocket.rocketcomponent.TubeFinSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -53,10 +54,11 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
             @XmlElementRef(name = RocksimCommonConstants.LAUNCH_LUG, type = LaunchLugDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.FIN_SET, type = FinSetDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.CUSTOM_FIN_SET, type = CustomFinSetDTO.class),
+            @XmlElementRef(name = RocksimCommonConstants.TUBE_FIN_SET, type = TubeFinSetDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.STREAMER, type = StreamerDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.PARACHUTE, type = ParachuteDTO.class),
             @XmlElementRef(name = RocksimCommonConstants.MASS_OBJECT, type = MassObjectDTO.class)})
-    List<BasePartDTO> attachedParts = new ArrayList<BasePartDTO>();
+    List<BasePartDTO> attachedParts = new ArrayList();
 
     /**
      * Constructor.
@@ -121,6 +123,8 @@ public class BodyTubeDTO extends BasePartDTO implements AttachableParts {
                 attachedParts.add(new CustomFinSetDTO((FreeformFinSet) rocketComponents));
             } else if (rocketComponents instanceof FinSet) {
                 attachedParts.add(new FinSetDTO((FinSet) rocketComponents));
+            } else if (rocketComponents instanceof TubeFinSet) {
+                attachedParts.add(new TubeFinSetDTO((TubeFinSet) rocketComponents));
             }
         }
     }

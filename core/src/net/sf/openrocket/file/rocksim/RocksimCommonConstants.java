@@ -84,6 +84,8 @@ public class RocksimCommonConstants {
     public static final String RING_TAIL = "RingTail";
     public static final String EXTERNAL_POD = "ExternalPod";
     public static final String TEXTURE = "Texture";
+    public static final String TUBE_COUNT = "TubeCount";
+    public static final String MAX_TUBES_ALLOWED = "MaxTubesAllowed";
 
     /**
      * Length conversion.  Rocksim is in millimeters, OpenRocket in meters.
