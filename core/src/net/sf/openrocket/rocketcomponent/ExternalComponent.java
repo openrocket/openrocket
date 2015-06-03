@@ -131,15 +131,18 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
-	
-	@Override
 	public boolean isInline() {
 		return this.axial;
 	}
 	
 	@Override
-	public void setInline(final boolean inline) {
-		this.axial = inline;
+	public boolean getParallel() {
+		return !this.axial;
+	}
+	
+	@Override
+	public void setParallel(final boolean parallel) {
+		this.axial = !parallel;
 	}
 	
 	@Override

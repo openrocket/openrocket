@@ -9,14 +9,14 @@ public interface OutsideComponent {
 	 * @return              <code> True </code> This component is aligned with its parent
 	 *                              <code> False </code> This component is offset from its parent -- like an external pod, or strap-on stage
 	 */
-	public boolean isInline();
+	public boolean getParallel();
 	
 	/**
 	 * Change whether this component is located inside or outside of the rest of the rocket. (Specifically, inside or outside its parent.)
 	 * 
 	 * @param inline True indicates that this component axially aligned with its parent.  False indicates an off-center component.
 	 */
-	public void setInline(final boolean inline);
+	public void setParallel(final boolean inline);
 	
 	/**
 	 * Get the position of this component in polar coordinates 

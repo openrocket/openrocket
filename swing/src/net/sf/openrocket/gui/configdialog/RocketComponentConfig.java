@@ -1,6 +1,8 @@
 package net.sf.openrocket.gui.configdialog;
 
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -17,10 +19,14 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.database.ComponentPresetDatabase;
@@ -41,6 +47,8 @@ import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.ExternalComponent;
+import net.sf.openrocket.rocketcomponent.OutsideComponent;
+import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.ExternalComponent.Finish;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -65,6 +73,9 @@ public class RocketComponentConfig extends JPanel {
 	protected JTextArea commentTextArea;
 	private final TextFieldListener textFieldListener;
 	
+	private BooleanModel podsEnabledModel = null;
+	private JPanel podsEnabledPanel = null;
+
 	private JPanel buttonPanel;
 	
 	private JLabel infoLabel;
@@ -115,6 +126,8 @@ public class RocketComponentConfig extends JPanel {
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
 		
+		
+		
 		addButtons();
 		
 		updateFields();
@@ -145,6 +158,10 @@ public class RocketComponentConfig extends JPanel {
 			}
 		});
 		buttonPanel.add(closeButton, "right, gap 30lp");
+		
+		if( component instanceof ExternalComponent ){
+			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Pod"), null, podTab( (ExternalComponent) component ), trans.get("RocketCompCfg.tab.PodComment"), 2);
+		}
 		
 		updateFields();
 		
@@ -266,6 +283,53 @@ public class RocketComponentConfig extends JPanel {
 			subPanel.add(button, "wrap paragraph");
 		}
 		return subPanel;
+	}
+	
+	private JPanel podTab( final ExternalComponent pod ){
+		// enable parallel staging
+		JPanel motherPanel = new JPanel( new MigLayout("fill"));
+		podsEnabledModel = new BooleanModel( component, "Parallel");
+		podsEnabledModel.setValue(false);
+		JCheckBox parallelEnabled = new JCheckBox( podsEnabledModel);
+		parallelEnabled.setText(trans.get("RocketCompCfg.parallel.inline"));
+		motherPanel.add(parallelEnabled, "wrap");
+
+		JPanel enabledPanel = new JPanel( new MigLayout("fill"));
+		this.podsEnabledPanel = enabledPanel;
+		
+		enabledPanel.add(new JSeparator(SwingConstants.HORIZONTAL), "growx,wrap");
+
+		// set radial distance 
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.radius")), "align left");
+		DoubleModel radiusModel = new DoubleModel( pod, "RadialPosition", 0.);
+		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
+		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
+		enabledPanel.add(radiusSpinner , "growx, wrap, align right");
+
+		// set angle around the primary stage
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.angle")), "align left");
+		DoubleModel angleModel = new DoubleModel( pod, "AngularPosition", 0., Math.PI*2);
+		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
+		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
+		enabledPanel.add(angleSpinner, "growx, wrap");
+
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.rotation")), "align left");
+		DoubleModel rotationModel = new DoubleModel( pod, "Rotation", 0.0, Math.PI*2);
+		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
+		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
+		enabledPanel.add(rotationSpinner, "growx, wrap");
+		
+		setDeepEnabled( enabledPanel, podsEnabledModel.getValue());
+		parallelEnabled.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				setDeepEnabled( podsEnabledPanel, podsEnabledModel.getValue());
+			}
+		});
+
+		motherPanel.add( enabledPanel , "growx, wrap");
+				
+		return motherPanel;
 	}
 	
 	
@@ -569,4 +633,12 @@ public class RocketComponentConfig extends JPanel {
 		
 	}
 	
+	protected static void setDeepEnabled(Component component, boolean enabled) {
+		component.setEnabled(enabled);
+		if (component instanceof Container) {
+			for (Component c : ((Container) component).getComponents()) {
+				setDeepEnabled(c, enabled);
+			}
+		}
+	}
 }

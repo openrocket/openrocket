@@ -14,6 +14,8 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	private double position_radial_m = 0;
 	private double rotation_rad = 0;
 	
+	//	ParallelStagingConfiguration parallelConfiguration = null;
+	
 	public Stage() {
 		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 	}
@@ -29,7 +31,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return separationConfigurations;
 	}
 	
-	
+	//	public ParallelStagingConfiguration getParallelStageConfiguration() {
+	//		return parallelConfiguration;
+	//	}
 	
 	
 	@Override
@@ -66,13 +70,17 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	}
 	
 	@Override
-	public boolean isInline() {
+	public boolean getParallel() {
+		return !this.axial;
+	}
+	
+	public boolean getInline() {
 		return this.axial;
 	}
 	
 	@Override
-	public void setInline(final boolean inline) {
-		this.axial = inline;
+	public void setParallel(final boolean parallel) {
+		this.axial = !parallel;
 	}
 	
 	@Override
@@ -84,8 +92,8 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	}
 	
 	@Override
-	public void setAngularPosition(final double phi) {
-		this.position_angular_rad = phi;
+	public void setAngularPosition(final double angle_rad) {
+		this.position_angular_rad = angle_rad;
 	}
 	
 	@Override
