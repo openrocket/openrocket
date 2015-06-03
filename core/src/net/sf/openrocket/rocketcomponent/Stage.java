@@ -3,12 +3,16 @@ package net.sf.openrocket.rocketcomponent;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
-public class Stage extends ComponentAssembly implements FlightConfigurableComponent {
+public class Stage extends ComponentAssembly implements FlightConfigurableComponent, OutsideComponent {
 	
 	static final Translator trans = Application.getTranslator();
 	
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
+	private boolean axial = true;
+	private double position_angular_rad = 0;
+	private double position_radial_m = 0;
+	private double rotation_rad = 0;
 	
 	public Stage() {
 		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
@@ -59,6 +63,46 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		copy.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(separationConfigurations,
 				copy, ComponentChangeEvent.EVENT_CHANGE);
 		return copy;
+	}
+	
+	@Override
+	public boolean isInline() {
+		return this.axial;
+	}
+	
+	@Override
+	public void setInline(final boolean inline) {
+		this.axial = inline;
+	}
+	
+	@Override
+	public double getAngularPosition() {
+		return this.position_angular_rad;
+	}
+	
+	@Override
+	public void setAngularPosition(final double phi) {
+		this.position_angular_rad = phi;
+	}
+	
+	@Override
+	public double getRadialPosition() {
+		return this.position_radial_m;
+	}
+	
+	@Override
+	public void setRadialPosition(final double radius) {
+		this.position_radial_m = radius;
+	}
+	
+	@Override
+	public double getRotation() {
+		return this.rotation_rad;
+	}
+	
+	@Override
+	public void setRotation(final double rotation) {
+		this.rotation_rad = rotation;
 	}
 	
 }
