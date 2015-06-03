@@ -77,6 +77,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public double getAngularPosition() {
+		if (axial) {
+			return 0.;
+		}
 		return this.position_angular_rad;
 	}
 	
@@ -87,6 +90,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public double getRadialPosition() {
+		if (axial) {
+			return 0.;
+		}
 		return this.position_radial_m;
 	}
 	
@@ -97,6 +103,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public double getRotation() {
+		if (axial) {
+			return 0.;
+		}
 		return this.rotation_rad;
 	}
 	
