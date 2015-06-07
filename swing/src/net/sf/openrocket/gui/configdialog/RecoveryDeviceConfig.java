@@ -13,6 +13,8 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 
 public abstract class RecoveryDeviceConfig extends RocketComponentConfig {
 	
+	private static final long serialVersionUID = 7263235700953855062L;
+	
 	protected final List<JComponent> altitudeComponents = new ArrayList<JComponent>();
 	
 	public RecoveryDeviceConfig(OpenRocketDocument d, RocketComponent component) {
