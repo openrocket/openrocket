@@ -147,7 +147,7 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 	
 	@Override
 	public double getAngularPosition() {
-		if (outside) {
+		if (this.isInline()) {
 			return 0.;
 		}
 		return this.position_angular_rad;
@@ -160,7 +160,7 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 	
 	@Override
 	public double getRadialPosition() {
-		if (outside) {
+		if (this.isInline()) {
 			return 0.;
 		}
 		return this.position_radial_m;
@@ -173,7 +173,7 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 	
 	@Override
 	public double getRotation() {
-		if (outside) {
+		if (this.isInline()) {
 			return 0.;
 		}
 		return this.rotation_rad;
