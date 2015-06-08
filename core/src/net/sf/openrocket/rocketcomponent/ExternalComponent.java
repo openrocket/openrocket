@@ -18,7 +18,7 @@ import net.sf.openrocket.unit.UnitGroup;
 
 public abstract class ExternalComponent extends RocketComponent implements OutsideComponent {
 	
-	private boolean axial = true;
+	private boolean outside = false;
 	private double position_angular_rad = 0;
 	private double position_radial_m = 0;
 	private double rotation_rad = 0;
@@ -131,23 +131,23 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
+	@Override
+	public boolean getOutside() {
+		return this.outside;
+	}
+	
 	public boolean isInline() {
-		return this.axial;
+		return !this.outside;
 	}
 	
 	@Override
-	public boolean getParallel() {
-		return !this.axial;
-	}
-	
-	@Override
-	public void setParallel(final boolean parallel) {
-		this.axial = !parallel;
+	public void setOutside(final boolean _outside) {
+		this.outside = _outside;
 	}
 	
 	@Override
 	public double getAngularPosition() {
-		if (axial) {
+		if (outside) {
 			return 0.;
 		}
 		return this.position_angular_rad;
@@ -160,7 +160,7 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 	
 	@Override
 	public double getRadialPosition() {
-		if (axial) {
+		if (outside) {
 			return 0.;
 		}
 		return this.position_radial_m;
@@ -173,7 +173,7 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 	
 	@Override
 	public double getRotation() {
-		if (axial) {
+		if (outside) {
 			return 0.;
 		}
 		return this.rotation_rad;

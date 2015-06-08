@@ -9,7 +9,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
-	private boolean axial = true;
+	private boolean outside = false;
 	private double position_angular_rad = 0;
 	private double position_radial_m = 0;
 	private double rotation_rad = 0;
@@ -70,22 +70,23 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	}
 	
 	@Override
-	public boolean getParallel() {
-		return !this.axial;
+	public boolean getOutside() {
+		return this.outside;
 	}
 	
-	public boolean getInline() {
-		return this.axial;
+	
+	public boolean isInline() {
+		return !this.outside;
 	}
 	
 	@Override
-	public void setParallel(final boolean parallel) {
-		this.axial = !parallel;
+	public void setOutside(final boolean _outside) {
+		this.outside = _outside;
 	}
 	
 	@Override
 	public double getAngularPosition() {
-		if (axial) {
+		if (this.isInline()) {
 			return 0.;
 		}
 		return this.position_angular_rad;
@@ -98,7 +99,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public double getRadialPosition() {
-		if (axial) {
+		if (this.isInline()) {
 			return 0.;
 		}
 		return this.position_radial_m;
@@ -111,7 +112,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public double getRotation() {
-		if (axial) {
+		if (this.isInline()) {
 			return 0.;
 		}
 		return this.rotation_rad;

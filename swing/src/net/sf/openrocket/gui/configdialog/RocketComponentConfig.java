@@ -126,6 +126,9 @@ public class RocketComponentConfig extends JPanel {
 		tabbedPane.addTab(trans.get("RocketCompCfg.tab.Comment"), null, commentTab(),
 				trans.get("RocketCompCfg.tab.Specifyacomment"));
 		
+		if( component instanceof ExternalComponent ){
+			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Pod"), null, podTab( (ExternalComponent) component ), trans.get("RocketCompCfg.tab.PodComment"), 2);
+		}
 		
 		
 		addButtons();
@@ -158,10 +161,6 @@ public class RocketComponentConfig extends JPanel {
 			}
 		});
 		buttonPanel.add(closeButton, "right, gap 30lp");
-		
-		if( component instanceof ExternalComponent ){
-			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Pod"), null, podTab( (ExternalComponent) component ), trans.get("RocketCompCfg.tab.PodComment"), 2);
-		}
 		
 		updateFields();
 		
@@ -288,10 +287,10 @@ public class RocketComponentConfig extends JPanel {
 	private JPanel podTab( final ExternalComponent pod ){
 		// enable parallel staging
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
-		podsEnabledModel = new BooleanModel( component, "Parallel");
-		podsEnabledModel.setValue(false);
+		podsEnabledModel = new BooleanModel( component, "Outside");
+		podsEnabledModel.setValue( pod.getOutside());
 		JCheckBox parallelEnabled = new JCheckBox( podsEnabledModel);
-		parallelEnabled.setText(trans.get("RocketCompCfg.parallel.inline"));
+		parallelEnabled.setText(trans.get("RocketCompCfg.outside.pod"));
 		motherPanel.add(parallelEnabled, "wrap");
 
 		JPanel enabledPanel = new JPanel( new MigLayout("fill"));
@@ -300,25 +299,35 @@ public class RocketComponentConfig extends JPanel {
 		enabledPanel.add(new JSeparator(SwingConstants.HORIZONTAL), "growx,wrap");
 
 		// set radial distance 
-		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.radius")), "align left");
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.outside.radius")), "align left");
 		DoubleModel radiusModel = new DoubleModel( pod, "RadialPosition", 0.);
+		radiusModel.setCurrentUnit( UnitGroup.UNITS_DISTANCE.getSIUnit() );
 		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
 		enabledPanel.add(radiusSpinner , "growx, wrap, align right");
 
 		// set angle around the primary stage
-		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.angle")), "align left");
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.outside.angle")), "align left");
 		DoubleModel angleModel = new DoubleModel( pod, "AngularPosition", 0., Math.PI*2);
+		angleModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad") );
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 		enabledPanel.add(angleSpinner, "growx, wrap");
 
-		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.rotation")), "align left");
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.outside.rotation")), "align left");
 		DoubleModel rotationModel = new DoubleModel( pod, "Rotation", 0.0, Math.PI*2);
+		rotationModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad") );
 		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
 		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
 		enabledPanel.add(rotationSpinner, "growx, wrap");
 		
+		// TODO: add multiplicity
+//		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.rotation")), "align left");
+//		DoubleModel rotationModel = new DoubleModel( pod, "Rotation", 0.0, Math.PI*2);
+//		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
+//		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
+//		enabledPanel.add(rotationSpinner, "growx, wrap");
+//		
 		setDeepEnabled( enabledPanel, podsEnabledModel.getValue());
 		parallelEnabled.addChangeListener(new ChangeListener() {
 			@Override

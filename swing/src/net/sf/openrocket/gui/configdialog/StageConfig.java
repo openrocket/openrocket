@@ -27,6 +27,7 @@ import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.unit.UnitGroup;
 
 public class StageConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
@@ -53,10 +54,10 @@ public class StageConfig extends RocketComponentConfig {
 	private JPanel parallelTab( final Stage stage ){
 		// enable parallel staging
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
-		parallelEnabledModel = new BooleanModel( component, "Parallel");
-		parallelEnabledModel.setValue( stage.getInline());
+		parallelEnabledModel = new BooleanModel( component, "Outside");
+		parallelEnabledModel.setValue( stage.getOutside());
 		JCheckBox parallelEnabled = new JCheckBox( parallelEnabledModel);
-		parallelEnabled.setText(trans.get("RocketCompCfg.parallel.inline"));
+		parallelEnabled.setText(trans.get("RocketCompCfg.outside.stage"));
 		motherPanel.add(parallelEnabled, "wrap");
 
 		JPanel enabledPanel = new JPanel( new MigLayout("fill"));
@@ -65,32 +66,36 @@ public class StageConfig extends RocketComponentConfig {
 		enabledPanel.add(new JSeparator(SwingConstants.HORIZONTAL), "growx,wrap");
 
 		// set radial distance 
-		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.radius")), "align left");
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.outside.radius")), "align left");
 		DoubleModel radiusModel = new DoubleModel( stage, "RadialPosition", 0.0);
+		radiusModel.setCurrentUnit( UnitGroup.UNITS_DISTANCE.getSIUnit() );
 		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
 		enabledPanel.add(radiusSpinner , "growx, wrap, align right");
 
 		// set angle around the primary stage
-		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.angle")), "align left");
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.outside.angle")), "align left");
 		DoubleModel angleModel = new DoubleModel( stage, "AngularPosition", 0.0, Math.PI*2);
+		angleModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad"));
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
 		enabledPanel.add(angleSpinner, "growx, wrap");
 
-		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.parallel.rotation")), "align left");
+		enabledPanel.add(new JLabel(trans.get("RocketCompCfg.outside.rotation")), "align left");
 		DoubleModel rotationModel = new DoubleModel( stage, "Rotation", 0.0, Math.PI*2);
+		rotationModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad") );
 		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
 		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
 		enabledPanel.add(rotationSpinner, "growx, wrap");
 		
-		setDeepEnabled( enabledPanel, parallelEnabledModel.getValue());
+		
 		parallelEnabled.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				setDeepEnabled( parallelEnabledPanel, parallelEnabledModel.getValue());
 			}
 		});
+		setDeepEnabled( parallelEnabledPanel, parallelEnabledModel.getValue());
 
 		motherPanel.add( enabledPanel , "growx, wrap");
 				
