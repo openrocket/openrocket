@@ -54,7 +54,7 @@ public class StageConfig extends RocketComponentConfig {
 		// enable parallel staging
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
 		parallelEnabledModel = new BooleanModel( component, "Parallel");
-		parallelEnabledModel.setValue(false);
+		parallelEnabledModel.setValue( stage.getInline());
 		JCheckBox parallelEnabled = new JCheckBox( parallelEnabledModel);
 		parallelEnabled.setText(trans.get("RocketCompCfg.parallel.inline"));
 		motherPanel.add(parallelEnabled, "wrap");
