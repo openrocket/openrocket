@@ -16,12 +16,7 @@ import net.sf.openrocket.unit.UnitGroup;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 
-public abstract class ExternalComponent extends RocketComponent implements OutsideComponent {
-	
-	private boolean outside = false;
-	private double position_angular_rad = 0;
-	private double position_radial_m = 0;
-	private double rotation_rad = 0;
+public abstract class ExternalComponent extends RocketComponent {
 	
 	public enum Finish {
 		//// Rough
@@ -129,59 +124,6 @@ public abstract class ExternalComponent extends RocketComponent implements Outsi
 			return;
 		this.finish = finish;
 		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-	}
-	
-	@Override
-	public boolean getOutside() {
-		return this.outside;
-	}
-	
-	public boolean isInline() {
-		return !this.outside;
-	}
-	
-	@Override
-	public void setOutside(final boolean _outside) {
-		this.outside = _outside;
-	}
-	
-	@Override
-	public double getAngularPosition() {
-		if (this.isInline()) {
-			return 0.;
-		}
-		return this.position_angular_rad;
-	}
-	
-	@Override
-	public void setAngularPosition(final double phi) {
-		this.position_angular_rad = phi;
-	}
-	
-	@Override
-	public double getRadialPosition() {
-		if (this.isInline()) {
-			return 0.;
-		}
-		return this.position_radial_m;
-	}
-	
-	@Override
-	public void setRadialPosition(final double radius) {
-		this.position_radial_m = radius;
-	}
-	
-	@Override
-	public double getRotation() {
-		if (this.isInline()) {
-			return 0.;
-		}
-		return this.rotation_rad;
-	}
-	
-	@Override
-	public void setRotation(final double rotation) {
-		this.rotation_rad = rotation;
 	}
 	
 	
