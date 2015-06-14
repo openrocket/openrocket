@@ -173,9 +173,6 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	
-
-
-
 	/**
 	 * Updates the figure shapes and figure size.
 	 */
@@ -195,6 +192,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 		}
 		
+		System.err.println(" updating the RocketFigure.");
 		repaint();
 		fireChangeEvent();
 	}

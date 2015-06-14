@@ -1000,11 +1000,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.lock("toRelative");
 		try {
 			double absoluteX = Double.NaN;
+			double relativeY = 0;
+			double relativeZ = 0;
 			RocketComponent search = dest;
 			Coordinate[] array = new Coordinate[1];
 			array[0] = c;
 			
 			RocketComponent component = this;
+			if (component instanceof OutsideComponent) {
+				OutsideComponent ext = (OutsideComponent) component;
+				double phi = ext.getAngularPosition();
+				double r = ext.getRadialPosition();
+				relativeY = r * Math.cos(phi);
+				relativeZ = r * Math.sin(phi);
+				array[0].setY(relativeY);
+				array[0].setZ(relativeZ);
+			}
 			while ((component != search) && (component.parent != null)) {
 				
 				array = component.shiftCoordinates(array);
@@ -1012,21 +1023,21 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				switch (component.relativePosition) {
 				case TOP:
 					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(component.position, 0, 0);
+						array[i] = array[i].add(component.position, relativeY, relativeZ);
 					}
 					break;
 				
 				case MIDDLE:
 					for (int i = 0; i < array.length; i++) {
 						array[i] = array[i].add(component.position +
-								(component.parent.length - component.length) / 2, 0, 0);
+								(component.parent.length - component.length) / 2, relativeY, relativeZ);
 					}
 					break;
 				
 				case BOTTOM:
 					for (int i = 0; i < array.length; i++) {
 						array[i] = array[i].add(component.position +
-								(component.parent.length - component.length), 0, 0);
+								(component.parent.length - component.length), relativeY, relativeZ);
 					}
 					break;
 				
@@ -1038,17 +1049,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 						RocketComponent comp = component.parent.children.get(index);
 						double componentLength = comp.getTotalLength();
 						for (int i = 0; i < array.length; i++) {
-							array[i] = array[i].add(componentLength, 0, 0);
+							array[i] = array[i].add(componentLength, relativeY, relativeZ);
 						}
 					}
 					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(component.position + component.parent.length, 0, 0);
+						array[i] = array[i].add(component.position + component.parent.length, relativeY, relativeZ);
 					}
 					break;
 				
 				case ABSOLUTE:
 					search = null; // Requires back-search if dest!=null
 					if (Double.isNaN(absoluteX)) {
+						// TODO: requires debugging if thsi component is an External Pods or stage 
 						absoluteX = component.position;
 					}
 					break;
@@ -1063,6 +1075,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			
 			if (!Double.isNaN(absoluteX)) {
 				for (int i = 0; i < array.length; i++) {
+					// TODO: requires debugging if thsi component is an External Pods or stage
 					array[i] = array[i].setX(absoluteX + c.x);
 				}
 			}

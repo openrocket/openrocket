@@ -14,8 +14,6 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	private double position_radial_m = 0;
 	private double rotation_rad = 0;
 	
-	//	ParallelStagingConfiguration parallelConfiguration = null;
-	
 	public Stage() {
 		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 	}
@@ -30,11 +28,6 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	public FlightConfiguration<StageSeparationConfiguration> getStageSeparationConfiguration() {
 		return separationConfigurations;
 	}
-	
-	//	public ParallelStagingConfiguration getParallelStageConfiguration() {
-	//		return parallelConfiguration;
-	//	}
-	
 	
 	@Override
 	public boolean allowsChildren() {
@@ -54,8 +47,6 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return BodyComponent.class.isAssignableFrom(type);
 	}
 	
-	
-	
 	@Override
 	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
 		separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
@@ -74,7 +65,6 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return this.outside;
 	}
 	
-	
 	public boolean isInline() {
 		return !this.outside;
 	}
@@ -82,6 +72,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setOutside(final boolean _outside) {
 		this.outside = _outside;
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
 	}
 	
 	@Override
@@ -95,6 +88,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setAngularPosition(final double angle_rad) {
 		this.position_angular_rad = angle_rad;
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
 	}
 	
 	@Override
@@ -108,6 +104,10 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setRadialPosition(final double radius) {
 		this.position_radial_m = radius;
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
+		
 	}
 	
 	@Override
@@ -121,6 +121,30 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setRotation(final double rotation) {
 		this.rotation_rad = rotation;
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
+		
 	}
+	
+	public RocketComponent.Position getRelativePositionMethod() {
+		return this.relativePosition;
+	}
+	
+	@Override
+	public void setRelativePosition(final Position position) {
+		super.setRelativePosition(position);
+	}
+	
+	public double getAxialPosition() {
+		return super.getPositionValue();
+	}
+	
+	public void setAxialPosition(final double _pos) {
+		super.setPositionValue(_pos);
+	}
+	
+	
+	
 	
 }
