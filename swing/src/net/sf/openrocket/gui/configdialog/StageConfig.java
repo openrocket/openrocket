@@ -120,9 +120,34 @@ public class StageConfig extends RocketComponentConfig {
 						RocketComponent.Position.ABSOLUTE
 				});
 		JComboBox<?> combo = new JComboBox<RocketComponent.Position>( posRelModel );
-		motherPanel.add(combo, "spanx, growx, wrap");
+		motherPanel.add(combo, "spanx 2, growx, wrap");
 		parallelEnabledModel.addEnableComponent( positionLabel);
 		
+		
+		// setPositions relative to parent component
+		JLabel parentLabel = new JLabel(trans.get("RocketCompCfg.outside.componentname"));
+		motherPanel.add( parentLabel);
+		parallelEnabledModel.addEnableComponent( parentLabel);
+
+		// setPositions relative to parent component
+//		ComboBoxModel<?> componentModel = new Enj
+//		JComboBox<?> relToCombo = new JComboBox<?>( componentModel );
+		JLabel relToCombo = new JLabel( stage.getParent().getName() );
+		motherPanel.add( relToCombo , "growx, wrap");
+		parallelEnabledModel.addEnableComponent( relToCombo );
+		
+//		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
+//		ComboBoxModel<RocketComponent.Position> posRelModel = new EnumModel<RocketComponent.Position>(component, "RelativePosition",
+//				new RocketComponent.Position[] {
+//						RocketComponent.Position.TOP,
+//						RocketComponent.Position.MIDDLE,
+//						RocketComponent.Position.BOTTOM,
+//						RocketComponent.Position.ABSOLUTE
+//				});
+//		JComboBox<?> combo = new JComboBox<RocketComponent.Position>( posRelModel );
+//		motherPanel.add(combo, "spanx, growx, wrap");
+//		parallelEnabledModel.addEnableComponent( positionLabel);
+//		
 		// plus
 		JLabel positionPlusLabel = new JLabel(trans.get("LaunchLugCfg.lbl.plus"));
 		motherPanel.add( positionPlusLabel );

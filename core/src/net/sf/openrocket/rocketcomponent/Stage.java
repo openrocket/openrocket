@@ -73,58 +73,62 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	public void setOutside(final boolean _outside) {
 		this.outside = _outside;
 		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
 	}
 	
 	@Override
 	public double getAngularPosition() {
-		if (this.isInline()) {
+		if (this.outside) {
+			return this.position_angular_rad;
+		} else {
 			return 0.;
 		}
-		return this.position_angular_rad;
+		
 	}
 	
 	@Override
 	public void setAngularPosition(final double angle_rad) {
 		this.position_angular_rad = angle_rad;
 		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
 	}
 	
 	@Override
 	public double getRadialPosition() {
-		if (this.isInline()) {
+		if (this.outside) {
+			return this.position_radial_m;
+		} else {
 			return 0.;
 		}
-		return this.position_radial_m;
 	}
 	
 	@Override
 	public void setRadialPosition(final double radius) {
 		this.position_radial_m = radius;
 		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
 		
 	}
 	
 	@Override
 	public double getRotation() {
-		if (this.isInline()) {
+		if (this.outside) {
+			return this.rotation_rad;
+		} else {
 			return 0.;
 		}
-		return this.rotation_rad;
+		
 	}
 	
 	@Override
 	public void setRotation(final double rotation) {
 		this.rotation_rad = rotation;
 		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
-		
 	}
 	
 	public RocketComponent.Position getRelativePositionMethod() {
@@ -134,6 +138,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setRelativePosition(final Position position) {
 		super.setRelativePosition(position);
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		}
 	}
 	
 	public double getAxialPosition() {
@@ -142,6 +149,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	public void setAxialPosition(final double _pos) {
 		super.setPositionValue(_pos);
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		}
 	}
 	
 	
