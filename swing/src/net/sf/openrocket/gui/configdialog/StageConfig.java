@@ -20,6 +20,7 @@ import net.sf.openrocket.gui.SpinnerEditor;
 import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
+import net.sf.openrocket.gui.adaptors.IntegerModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -106,6 +107,17 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( rotationUnitSelector, "growx 1, wrap");
 		parallelEnabledModel.addEnableComponent( rotationUnitSelector , true);
 
+		// set multiplicity
+		JLabel countLabel = new JLabel(trans.get("RocketCompCfg.outside.count"));
+		motherPanel.add( countLabel, "align left");
+		parallelEnabledModel.addEnableComponent( countLabel, true);
+		
+		IntegerModel countModel = new IntegerModel( stage, "Count", 1 );
+		JSpinner countSpinner = new JSpinner(countModel.getSpinnerModel());
+		countSpinner.setEditor(new SpinnerEditor(countSpinner));
+		motherPanel.add(countSpinner, "growx 1, wrap");
+		parallelEnabledModel.addEnableComponent( countSpinner, true);
+		
 		// setPositions relative to parent component
 		JLabel positionLabel = new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto"));
 		motherPanel.add( positionLabel);
@@ -136,18 +148,7 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( relToCombo , "growx, wrap");
 		parallelEnabledModel.addEnableComponent( relToCombo );
 		
-//		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
-//		ComboBoxModel<RocketComponent.Position> posRelModel = new EnumModel<RocketComponent.Position>(component, "RelativePosition",
-//				new RocketComponent.Position[] {
-//						RocketComponent.Position.TOP,
-//						RocketComponent.Position.MIDDLE,
-//						RocketComponent.Position.BOTTOM,
-//						RocketComponent.Position.ABSOLUTE
-//				});
-//		JComboBox<?> combo = new JComboBox<RocketComponent.Position>( posRelModel );
-//		motherPanel.add(combo, "spanx, growx, wrap");
-//		parallelEnabledModel.addEnableComponent( positionLabel);
-//		
+
 		// plus
 		JLabel positionPlusLabel = new JLabel(trans.get("LaunchLugCfg.lbl.plus"));
 		motherPanel.add( positionPlusLabel );

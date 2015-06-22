@@ -33,9 +33,24 @@ public interface OutsideComponent {
 	public void setAngularPosition(final double phi);
 	
 	/**
+	 * Number of instances this stage represents 
+	 * 
+	 * @return  number of instances this stage currently represents
+	 */
+	public int getCount();
+	
+	/** 
+	 * Set the multiplicity of this component 
+	 * 
+	 * @param number of instances this component should represent
+	 */
+	public void setCount(final int phi);
+	
+	
+	/**
 	 * Get the position of this component in polar coordinates 
 	 * 
-	 * @return              Radial position in radians (m)
+	 * @return Radial position in radians (m)
 	 */
 	public double getRadialPosition();
 	

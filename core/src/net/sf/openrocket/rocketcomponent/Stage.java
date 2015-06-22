@@ -3,16 +3,24 @@ package net.sf.openrocket.rocketcomponent;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Stage extends ComponentAssembly implements FlightConfigurableComponent, OutsideComponent {
 	
 	static final Translator trans = Application.getTranslator();
+	private static final Logger log = LoggerFactory.getLogger(Stage.class);
 	
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
 	private boolean outside = false;
-	private double position_angular_rad = 0;
-	private double position_radial_m = 0;
+	private double angularPosition_rad = 0;
+	private double radialPosition_m = 0;
 	private double rotation_rad = 0;
+	
+	private int count = 2;
+	private double separationAngle = Math.PI;
+	
 	
 	public Stage() {
 		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
@@ -72,6 +80,26 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setOutside(final boolean _outside) {
 		this.outside = _outside;
+		if (Position.AFTER == this.relativePosition) {
+			this.relativePosition = Position.BOTTOM;
+			this.position = 0;
+		}
+		if (this.outside) {
+			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		}
+	}
+	
+	@Override
+	public int getCount() {
+		return this.count;
+	}
+	
+	@Override
+	public void setCount(final int _count) {
+		mutex.verify();
+		this.count = _count;
+		this.separationAngle = Math.PI * 2 / this.count;
+		
 		if (this.outside) {
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
@@ -80,7 +108,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public double getAngularPosition() {
 		if (this.outside) {
-			return this.position_angular_rad;
+			return this.angularPosition_rad;
 		} else {
 			return 0.;
 		}
@@ -89,7 +117,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public void setAngularPosition(final double angle_rad) {
-		this.position_angular_rad = angle_rad;
+		this.angularPosition_rad = angle_rad;
 		if (this.outside) {
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
@@ -98,7 +126,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public double getRadialPosition() {
 		if (this.outside) {
-			return this.position_radial_m;
+			return this.radialPosition_m;
 		} else {
 			return 0.;
 		}
@@ -106,7 +134,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public void setRadialPosition(final double radius) {
-		this.position_radial_m = radius;
+		this.radialPosition_m = radius;
 		if (this.outside) {
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
