@@ -135,6 +135,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setRadialPosition(final double radius) {
 		this.radialPosition_m = radius;
+		log.error("  set radial position for: " + this.getName() + " to: " + this.radialPosition_m + " ... in meters?");
 		if (this.outside) {
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}

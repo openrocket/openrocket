@@ -89,8 +89,8 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	private static final Translator trans = Application.getTranslator();
 	
 	public static enum VIEW_TYPE {
-		Sideview(false, RocketFigure.TYPE_SIDE),
-		Backview(false, RocketFigure.TYPE_BACK),
+		SideView(false, RocketFigure.VIEW_SIDE),
+		BackView(false, RocketFigure.VIEW_BACK),
 		Figure3D(true, RocketFigure3d.TYPE_FIGURE),
 		Unfinished(true, RocketFigure3d.TYPE_UNFINISHED),
 		Finished(true, RocketFigure3d.TYPE_FINISHED);
@@ -283,7 +283,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		
 		// View Type Dropdown
-		ComboBoxModel cm = new DefaultComboBoxModel(VIEW_TYPE.values()) {
+		@SuppressWarnings("serial") // because java throws a warning without this.
+		ComboBoxModel<VIEW_TYPE> cm = new DefaultComboBoxModel<VIEW_TYPE>(VIEW_TYPE.values()) {
+			
 			@Override
 			public void setSelectedItem(Object o) {
 				super.setSelectedItem(o);
@@ -292,14 +294,14 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 					figure3d.setType(v.type);
 					go3D();
 				} else {
-					figure.setType(v.type);
+					figure.setType(v);
 					updateExtras(); // when switching from side view to back view, need to clear CP & CG markers
 					go2D();
 				}
 			}
 		};
 		add(new JLabel(trans.get("RocketPanel.lbl.ViewType")), "spanx, split");
-		add(new JComboBox(cm));
+		add(new JComboBox<VIEW_TYPE>(cm));
 		
 		
 		// Zoom level selector
@@ -655,7 +657,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		extraText.setWarnings(warnings);
 		
 		
-		if (figure.getType() == RocketFigure.TYPE_SIDE && length > 0) {
+		if (figure.getType() == RocketPanel.VIEW_TYPE.SideView && length > 0) {
 			
 			// TODO: LOW: Y-coordinate and rotation
 			extraCP.setPosition(cpx * RocketFigure.EXTRA_SCALE, 0);
@@ -844,9 +846,9 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 	 */
 	private class FigureTypeAction extends AbstractAction implements StateChangeListener {
 		private static final long serialVersionUID = 1L;
-		private final int type;
+		private final VIEW_TYPE type;
 		
-		public FigureTypeAction(int type) {
+		public FigureTypeAction(VIEW_TYPE type) {
 			this.type = type;
 			stateChanged(null);
 			figure.addChangeListener(this);

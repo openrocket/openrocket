@@ -56,9 +56,9 @@ import com.jogamp.opengl.util.awt.Overlay;
  */
 public class RocketFigure3d extends JPanel implements GLEventListener {
 	
-	public static final int TYPE_FIGURE = 0;
-	public static final int TYPE_UNFINISHED = 1;
-	public static final int TYPE_FINISHED = 2;
+	public static final int TYPE_FIGURE = 2;
+	public static final int TYPE_UNFINISHED = 3;
+	public static final int TYPE_FINISHED = 4;
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(RocketFigure3d.class);

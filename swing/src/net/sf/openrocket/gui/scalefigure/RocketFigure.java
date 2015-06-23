@@ -26,6 +26,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -47,8 +48,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	private static final String ROCKET_FIGURE_PACKAGE = "net.sf.openrocket.gui.rocketfigure";
 	private static final String ROCKET_FIGURE_SUFFIX = "Shapes";
 	
-	public static final int TYPE_SIDE = 1;
-	public static final int TYPE_BACK = 2;
+	public static final int VIEW_SIDE=0;
+	public static final int VIEW_BACK=1;
 	
 	// Width for drawing normal and selected components
 	public static final double NORMAL_WIDTH = 1.0;
@@ -58,7 +59,7 @@ public class RocketFigure extends AbstractScaleFigure {
 	private Configuration configuration;
 	private RocketComponent[] selection = new RocketComponent[0];
 	
-	private int type = TYPE_SIDE;
+	private RocketPanel.VIEW_TYPE currentViewType = RocketPanel.VIEW_TYPE.SideView;
 	
 	private double rotation;
 	private Transformation transformation;
@@ -158,17 +159,17 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	
-	public int getType() {
-		return type;
+	public RocketPanel.VIEW_TYPE  getType() {
+		return currentViewType;
 	}
 	
-	public void setType(int type) {
-		if (type != TYPE_BACK && type != TYPE_SIDE) {
+	public void setType(final RocketPanel.VIEW_TYPE type) {
+		if (type != RocketPanel.VIEW_TYPE.BackView && type != RocketPanel.VIEW_TYPE.SideView) {
 			throw new IllegalArgumentException("Illegal type: " + type);
 		}
-		if (this.type == type)
+		if (this.currentViewType == type)
 			return;
-		this.type = type;
+		this.currentViewType = type;
 		updateFigure();
 	}
 	
@@ -185,7 +186,9 @@ public class RocketFigure extends AbstractScaleFigure {
 		
 		// Get shapes for all active components
 		for (RocketComponent c : configuration) {
-			Shape[] s = getShapes(c);
+			Shape[] s = getShapes( this.currentViewType, c, this.transformation);
+			
+			
 			for (int i = 0; i < s.length; i++) {
 				figureShapes.add(s[i]);
 				figureComponents.add(c);
@@ -249,19 +252,19 @@ public class RocketFigure extends AbstractScaleFigure {
 		if (figureWidthPx + 2 * borderPixelsWidth < getWidth()) {
 			
 			// Figure fits in the viewport
-			if (type == TYPE_BACK)
+			if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
 				tx = getWidth() / 2;
-			else
+			}else{
 				tx = (getWidth() - figureWidthPx) / 2 - minX * scale;
-			
+			}
 		} else {
 			
 			// Figure does not fit in viewport
-			if (type == TYPE_BACK)
+			if (currentViewType == RocketPanel.VIEW_TYPE.BackView){
 				tx = borderPixelsWidth + figureWidthPx / 2;
-			else
+			}else{
 				tx = borderPixelsWidth - minX * scale;
-			
+			}
 		}
 		
 		ty = computeTy(figureHeightPx);
@@ -365,7 +368,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			
 			for (Coordinate coord : position) {
 				Shape s;
-				if (type == TYPE_SIDE) {
+				if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
 					s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
 							EXTRA_SCALE * (coord.y - radius), EXTRA_SCALE * length,
 							EXTRA_SCALE * 2 * radius);
@@ -436,17 +439,17 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * @param params
 	 * @return
 	 */
-	private Shape[] getShapes(RocketComponent component) {
+	private static Shape[] getShapes(final RocketPanel.VIEW_TYPE type, final RocketComponent component, final Transformation transformation) {
 		Reflection.Method m;
 		
 		// Find the appropriate method
 		switch (type) {
-		case TYPE_SIDE:
+		case SideView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesSide",
 					RocketComponent.class, Transformation.class);
 			break;
 		
-		case TYPE_BACK:
+		case BackView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesBack",
 					RocketComponent.class, Transformation.class);
 			break;
@@ -513,19 +516,19 @@ public class RocketFigure extends AbstractScaleFigure {
 	private void calculateSize() {
 		calculateFigureBounds();
 		
-		switch (type) {
-		case TYPE_SIDE:
+		switch (currentViewType) {
+		case SideView:
 			figureWidth = maxX - minX;
 			figureHeight = 2 * maxR;
 			break;
 		
-		case TYPE_BACK:
+		case BackView:
 			figureWidth = 2 * maxR;
 			figureHeight = 2 * maxR;
 			break;
 		
 		default:
-			assert (false) : "Should not occur, type=" + type;
+			assert (false) : "Should not occur, type=" + currentViewType;
 			figureWidth = 0;
 			figureHeight = 0;
 		}
@@ -544,15 +547,15 @@ public class RocketFigure extends AbstractScaleFigure {
 	}
 	
 	public Rectangle2D getDimensions() {
-		switch (type) {
-		case TYPE_SIDE:
+		switch (currentViewType) {
+		case SideView:
 			return new Rectangle2D.Double(minX, -maxR, maxX - minX, 2 * maxR);
 			
-		case TYPE_BACK:
+		case BackView:
 			return new Rectangle2D.Double(-maxR, -maxR, 2 * maxR, 2 * maxR);
 			
 		default:
-			throw new BugException("Illegal figure type = " + type);
+			throw new BugException("Illegal figure type = " + currentViewType);
 		}
 	}
 	
