@@ -836,40 +836,40 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		figure3d.setSelection(components);
 	}
 	
-	
-	
-	/**
-	 * An <code>Action</code> that shows whether the figure type is the type
-	 * given in the constructor.
-	 * 
-	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
-	 */
-	private class FigureTypeAction extends AbstractAction implements StateChangeListener {
-		private static final long serialVersionUID = 1L;
-		private final VIEW_TYPE type;
-		
-		public FigureTypeAction(VIEW_TYPE type) {
-			this.type = type;
-			stateChanged(null);
-			figure.addChangeListener(this);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			boolean state = (Boolean) getValue(Action.SELECTED_KEY);
-			if (state == true) {
-				// This view has been selected
-				figure.setType(type);
-				go2D();
-				updateExtras();
-			}
-			stateChanged(null);
-		}
-		
-		@Override
-		public void stateChanged(EventObject e) {
-			putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
-		}
-	}
-	
+//	
+//	
+//	/**
+//	 * An <code>Action</code> that shows whether the figure type is the type
+//	 * given in the constructor.
+//	 * 
+//	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+//	 */
+//	private class FigureTypeAction extends AbstractAction implements StateChangeListener {
+//		private static final long serialVersionUID = 1L;
+//		private final VIEW_TYPE type;
+//		
+//		public FigureTypeAction(VIEW_TYPE type) {
+//			this.type = type;
+//			stateChanged(null);
+//			figure.addChangeListener(this);
+//		}
+//		
+//		@Override
+//		public void actionPerformed(ActionEvent e) {
+//			boolean state = (Boolean) getValue(Action.SELECTED_KEY);
+//			if (state == true) {
+//				// This view has been selected
+//				figure.setType(type);
+//				go2D();
+//				updateExtras();
+//			}
+//			stateChanged(null);
+//		}
+//		
+//		@Override
+//		public void stateChanged(EventObject e) {
+//			putValue(Action.SELECTED_KEY, figure.getType() == type && !is3d);
+//		}
+//	}
+//	
 }
