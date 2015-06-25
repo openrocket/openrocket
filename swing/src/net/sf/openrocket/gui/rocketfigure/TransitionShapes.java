@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.gui.scalefigure.RocketFigure;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
@@ -7,6 +8,7 @@ import net.sf.openrocket.util.Transformation;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 
@@ -18,14 +20,14 @@ public class TransitionShapes extends RocketComponentShape {
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
 			Coordinate instanceOffset) {
-        return getShapesSide(component, transformation, instanceOffset, S);
+		return getShapesSide(component, transformation, instanceOffset, S);
     }
 
     public static RocketComponentShape[] getShapesSide(
-    		net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation,
-			Coordinate instanceOffset,
-			final double scaleFactor) {
+               net.sf.openrocket.rocketcomponent.RocketComponent component,
+                       Transformation transformation,
+                       Coordinate instanceOffset,
+                       final double scaleFactor) {
 		net.sf.openrocket.rocketcomponent.Transition transition = (net.sf.openrocket.rocketcomponent.Transition)component;
 
 		RocketComponentShape[] mainShapes;
@@ -37,12 +39,12 @@ public class TransitionShapes extends RocketComponentShape {
 			double r2 = transition.getAftRadius();
 			Coordinate start = transformation.transform(transition.
 					toAbsolute(instanceOffset)[0]);
-			
+					
 			Path2D.Float path = new Path2D.Float();
-			path.moveTo(start.x* scaleFactor, r1* scaleFactor);
-			path.lineTo((start.x+length)* scaleFactor, r2* scaleFactor);
-			path.lineTo((start.x+length)* scaleFactor, -r2* scaleFactor);
-			path.lineTo(start.x* scaleFactor, -r1* scaleFactor);
+			path.moveTo( start.x* scaleFactor, (start.y+ r1)* scaleFactor);
+			path.lineTo( (start.x+length)* scaleFactor, (start.y+r2)* scaleFactor);
+			path.lineTo( (start.x+length)* scaleFactor, (start.y-r2)* scaleFactor);
+			path.lineTo( start.x* scaleFactor, (start.y-r1)* scaleFactor);
 			path.closePath();
 			
 			mainShapes = new RocketComponentShape[] { new RocketComponentShape( path, component) };

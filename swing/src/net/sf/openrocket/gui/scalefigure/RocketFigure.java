@@ -449,7 +449,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			for ( int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++ ){
 				childrenToReplicate.clear();
 				Coordinate curInstanceOffset = componentLocation.add( instanceOffsets[instanceNumber] );
-
+				
 				// get n children shapes toReplicate
 				for ( int childNumber = 0; childNumber < childCount; childNumber++ ){
 					RocketComponent curChildComp = comp.getChild( childNumber);

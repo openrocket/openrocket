@@ -142,7 +142,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setRadialPosition(final double radius) {
 		this.radialPosition_m = radius;
-		log.error("  set radial position for: " + this.getName() + " to: " + this.radialPosition_m + " ... in meters?");
+		//		log.error("  set radial position for: " + this.getName() + " to: " + this.radialPosition_m + " ... in meters?");
 		if (this.outside) {
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
@@ -207,11 +207,9 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		double angle0 = this.angularPosition_rad;
 		double angleIncr = this.angularSeparation;
 		
-		System.err.println("Producing offsets list: ");
 		double thisAngle = angle0;
 		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
 			toReturn[instanceNumber] = new Coordinate(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
-			System.err.println("  instance#: " + instanceNumber + " = " + toReturn[instanceNumber]);
 			thisAngle += angleIncr;
 		}
 		
