@@ -188,7 +188,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		Coordinate zero = new Coordinate(0,0,0);
 		getShapeTree( figureShapes, theRocket, zero);	
 		
-		System.err.println(" updating the RocketFigure.");
+//		System.err.println(" updating the RocketFigure.");
 		repaint();
 		fireChangeEvent();
 	}
