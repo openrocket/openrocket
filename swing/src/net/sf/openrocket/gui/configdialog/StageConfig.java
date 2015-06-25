@@ -2,8 +2,10 @@ package net.sf.openrocket.gui.configdialog;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.util.List;
 
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -121,7 +123,7 @@ public class StageConfig extends RocketComponentConfig {
 		// setPositions relative to parent component
 		JLabel positionLabel = new JLabel(trans.get("LaunchLugCfg.lbl.Posrelativeto"));
 		motherPanel.add( positionLabel);
-		parallelEnabledModel.addEnableComponent( positionLabel);
+		parallelEnabledModel.addEnableComponent( positionLabel, true);
 		
 		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
 		ComboBoxModel<RocketComponent.Position> posRelModel = new EnumModel<RocketComponent.Position>(component, "RelativePosition",
@@ -131,34 +133,35 @@ public class StageConfig extends RocketComponentConfig {
 						RocketComponent.Position.BOTTOM,
 						RocketComponent.Position.ABSOLUTE
 				});
-		JComboBox<?> combo = new JComboBox<RocketComponent.Position>( posRelModel );
-		motherPanel.add(combo, "spanx 2, growx, wrap");
-		parallelEnabledModel.addEnableComponent( positionLabel);
-		
+		JComboBox<?> positionMethodCombo = new JComboBox<RocketComponent.Position>( posRelModel );
+		motherPanel.add(positionMethodCombo, "spanx 2, growx, wrap");
+		parallelEnabledModel.addEnableComponent( positionMethodCombo, true);
 		
 		// setPositions relative to parent component
-		JLabel parentLabel = new JLabel(trans.get("RocketCompCfg.outside.componentname"));
-		motherPanel.add( parentLabel);
-		parallelEnabledModel.addEnableComponent( parentLabel);
-
-		// setPositions relative to parent component
-//		ComboBoxModel<?> componentModel = new Enj
-//		JComboBox<?> relToCombo = new JComboBox<?>( componentModel );
-		JLabel relToCombo = new JLabel( stage.getParent().getName() );
+		JLabel relativeStageLabel = new JLabel(trans.get("RocketCompCfg.outside.componentname"));
+		motherPanel.add( relativeStageLabel);
+		parallelEnabledModel.addEnableComponent( relativeStageLabel, true);
+		// may need to implement a new ComponentComboModel or something
+		List<RocketComponent> stageList = stage.getParent().getChildren(); 
+		RocketComponent[] forCombo = new RocketComponent[stageList.size()];
+		forCombo = stageList.toArray(forCombo);
+		DefaultComboBoxModel<RocketComponent> relativeStageComboModel = new DefaultComboBoxModel<RocketComponent>( forCombo );
+		ComboBoxModel<RocketComponent> relativeStageCombo = relativeStageComboModel;
+		JComboBox<?> relToCombo = new JComboBox<RocketComponent>( relativeStageCombo );
 		motherPanel.add( relToCombo , "growx, wrap");
-		parallelEnabledModel.addEnableComponent( relToCombo );
+		parallelEnabledModel.addEnableComponent( relToCombo, true );
 		
 
 		// plus
 		JLabel positionPlusLabel = new JLabel(trans.get("LaunchLugCfg.lbl.plus"));
 		motherPanel.add( positionPlusLabel );
-		parallelEnabledModel.addEnableComponent( positionPlusLabel );
+		parallelEnabledModel.addEnableComponent( positionPlusLabel, true );
 		
 		DoubleModel axialPositionModel = new DoubleModel(component, "AxialPosition", UnitGroup.UNITS_LENGTH);
 		JSpinner axPosSpin= new JSpinner( axialPositionModel.getSpinnerModel());
 		axPosSpin.setEditor(new SpinnerEditor(axPosSpin));
 		motherPanel.add(axPosSpin, "growx");
-		parallelEnabledModel.addEnableComponent( positionPlusLabel );
+		parallelEnabledModel.addEnableComponent( axPosSpin, true );
 		
 		return motherPanel;
 	}
