@@ -25,7 +25,10 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.MultipleComponent;
+import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BugException;
@@ -71,9 +74,8 @@ public class RocketFigure extends AbstractScaleFigure {
 	/*
 	 * figureComponents contains the corresponding RocketComponents of the figureShapes
 	 */
-	private final ArrayList<Shape> figureShapes = new ArrayList<Shape>();
-	private final ArrayList<RocketComponent> figureComponents =
-			new ArrayList<RocketComponent>();
+	private final ArrayList<RocketComponentShape> figureShapes = new ArrayList<RocketComponentShape>();
+
 	
 	private double minX = 0, maxX = 0, maxR = 0;
 	// Figure width and height in SI-units and pixels
@@ -172,7 +174,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		this.currentViewType = type;
 		updateFigure();
 	}
-	
+		
 	
 	/**
 	 * Updates the figure shapes and figure size.
@@ -180,20 +182,11 @@ public class RocketFigure extends AbstractScaleFigure {
 	@Override
 	public void updateFigure() {
 		figureShapes.clear();
-		figureComponents.clear();
 		
 		calculateSize();
-		
-		// Get shapes for all active components
-		for (RocketComponent c : configuration) {
-			Shape[] s = getShapes( this.currentViewType, c, this.transformation);
-			
-			
-			for (int i = 0; i < s.length; i++) {
-				figureShapes.add(s[i]);
-				figureComponents.add(c);
-			}
-		}
+		Rocket theRocket = configuration.getRocket(); 
+		Coordinate zero = new Coordinate(0,0,0);
+		getShapeTree( figureShapes, theRocket, zero);	
 		
 		System.err.println(" updating the RocketFigure.");
 		repaint();
@@ -298,8 +291,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		// Draw all shapes
 		
 		for (int i = 0; i < figureShapes.size(); i++) {
-			RocketComponent c = figureComponents.get(i);
-			Shape s = figureShapes.get(i);
+			RocketComponentShape rcs = figureShapes.get(i);
+			RocketComponent c = rcs.getComponent(); 
 			boolean selected = false;
 			
 			// Check if component is in the selection
@@ -311,13 +304,13 @@ public class RocketFigure extends AbstractScaleFigure {
 			}
 			
 			// Set component color and line style
-			net.sf.openrocket.util.Color color = c.getColor();
+			net.sf.openrocket.util.Color color = rcs.color;
 			if (color == null) {
 				color = Application.getPreferences().getDefaultColor(c.getClass());
 			}
 			g2.setColor(ColorConversion.toAwtColor(color));
 			
-			LineStyle style = c.getLineStyle();
+			LineStyle style = rcs.lineStyle;
 			if (style == null)
 				style = Application.getPreferences().getDefaultLineStyle(c.getClass());
 			
@@ -337,7 +330,7 @@ public class RocketFigure extends AbstractScaleFigure {
 				g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 						RenderingHints.VALUE_STROKE_NORMALIZE);
 			}
-			g2.draw(s);
+			g2.draw(rcs.shape);
 			
 		}
 		
@@ -424,13 +417,78 @@ public class RocketFigure extends AbstractScaleFigure {
 		LinkedHashSet<RocketComponent> l = new LinkedHashSet<RocketComponent>();
 		
 		for (int i = 0; i < figureShapes.size(); i++) {
-			if (figureShapes.get(i).contains(p))
-				l.add(figureComponents.get(i));
+			RocketComponentShape rcs = this.figureShapes.get(i);
+			if (rcs.shape.contains(p))
+				l.add(rcs.component);
 		}
 		return l.toArray(new RocketComponent[0]);
 	}
 	
+	// NOTE:  Recursive function
+	private void getShapeTree(
+			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter 
+			final RocketComponent comp, 
+			final Coordinate parentOffset){
 	
+		RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
+		Transformation viewTransform = this.transformation;
+		
+		
+		// TODO: Implement actual locations in the components
+		Coordinate componentLocation = new Coordinate(comp.getPositionValue(),0,0);
+		
+		if( comp instanceof MultipleComponent ){
+			MultipleComponent multi = (MultipleComponent)comp;
+			int instanceCount;
+			instanceCount = multi.getInstanceCount();
+				
+			
+			// get m instance locations
+			Coordinate[] instanceOffsets = multi.getInstanceOffsets();
+			assert(false);
+			assert( instanceOffsets.length == instanceCount );
+				
+			// replicate n children m times each
+			int childCount = comp.getChildCount();
+			ArrayList<RocketComponentShape> childrenToReplicate = new ArrayList<RocketComponentShape>();
+			for ( int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++ ){
+				childrenToReplicate.clear();
+				Coordinate curInstanceOffset = componentLocation.add( instanceOffsets[instanceNumber] );
+
+				// get n children shapes toReplicate
+				for ( int childNumber = 0; childNumber < childCount; childNumber++ ){
+					RocketComponent curChildComp = comp.getChild( childNumber);
+					getShapeTree( childrenToReplicate, curChildComp, curInstanceOffset);
+				}
+			
+				for ( RocketComponentShape curShape : childrenToReplicate ){
+					allShapes.add( curShape);
+				}
+				
+			}
+			
+		}else{
+			if( comp instanceof Rocket){
+				// the Rocket doesn't have any graphics to get.  
+				// Noop 
+			}else{
+			    // for most RocketComponents
+   				// TODO: HIGH: TEST that getThisShape will actually relocate by the given offset
+			    RocketComponentShape[] childShapes = getThisShape( viewType, comp, parentOffset, viewTransform);
+								
+				for ( RocketComponentShape curShape : childShapes ){
+					allShapes.add( curShape );
+				}
+			}
+				
+		    // recurse to each child
+		    for( RocketComponent child: comp.getChildren() ){
+		    	getShapeTree( allShapes, child, parentOffset);
+		    }
+		}
+		
+		return;
+	}
 
 	/**
 	 * Gets the shapes required to draw the component.
@@ -439,32 +497,32 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * @param params
 	 * @return
 	 */
-	private static Shape[] getShapes(final RocketPanel.VIEW_TYPE type, final RocketComponent component, final Transformation transformation) {
+	private static RocketComponentShape[] getThisShape(final RocketPanel.VIEW_TYPE viewType, final RocketComponent component, final Coordinate instanceOffset, final Transformation transformation) {
 		Reflection.Method m;
 		
 		// Find the appropriate method
-		switch (type) {
+		switch (viewType) {
 		case SideView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesSide",
-					RocketComponent.class, Transformation.class);
+					RocketComponent.class, Transformation.class, Coordinate.class);
 			break;
 		
 		case BackView:
 			m = Reflection.findMethod(ROCKET_FIGURE_PACKAGE, component, ROCKET_FIGURE_SUFFIX, "getShapesBack",
-					RocketComponent.class, Transformation.class);
+					RocketComponent.class, Transformation.class, Coordinate.class);
 			break;
 		
 		default:
-			throw new BugException("Unknown figure type = " + type);
+			throw new BugException("Unknown figure type = " + viewType);
 		}
 		
 		if (m == null) {
 			Application.getExceptionHandler().handleErrorCondition("ERROR: Rocket figure paint method not found for "
 					+ component);
-			return new Shape[0];
+			return new RocketComponentShape[0];
 		}
 		
-		return (Shape[]) m.invokeStatic(component, transformation);
+		return (RocketComponentShape[]) m.invokeStatic(component, transformation, instanceOffset);
 	}
 	
 	

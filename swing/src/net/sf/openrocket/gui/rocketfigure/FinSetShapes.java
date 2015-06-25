@@ -8,16 +8,18 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
 
-public class FinSetShapes extends RocketComponentShapes {
+public class FinSetShapes extends RocketComponentShape {
 
 	// TODO: LOW:  Clustering is ignored (FinSet cannot currently be clustered)
 
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
 
 		
-		int fins = finset.getFinCount();
+		int finCount = finset.getFinCount();
 		Transformation cantRotation = finset.getCantRotation();
 		Transformation baseRotation = finset.getBaseRotationTransformation();
 		Transformation finRotation = finset.getFinRotationTransformation();
@@ -36,8 +38,8 @@ public class FinSetShapes extends RocketComponentShapes {
 		
 		
 		// Generate shapes
-		Shape[] s = new Shape[fins];
-		for (int fin=0; fin<fins; fin++) {
+		RocketComponentShape[] rcs = new RocketComponentShape[ finCount];
+		for (int fin=0; fin<finCount; fin++) {
 			Coordinate a;
 			Path2D.Float p;
 
@@ -52,26 +54,32 @@ public class FinSetShapes extends RocketComponentShapes {
 			}
 			
 			p.closePath();
-			s[fin] = p;
+			rcs[fin] = new RocketComponentShape( p, finset);
 
 			// Rotate fin coordinates
 			for (int i=0; i<finPoints.length; i++)
 				finPoints[i] = finRotation.transform(finPoints[i]);
 		}
 		
-		return s;
+		return rcs;
 	}
 	
-	public static Shape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
-
+	public static RocketComponentShape[] getShapesBack(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
+	
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
+		Shape[] toReturn;
 
-		if (MathUtil.equals(finset.getCantAngle(),0))
-			return uncantedShapesBack(finset, transformation);
-		else
-			return cantedShapesBack(finset, transformation);
+		if (MathUtil.equals(finset.getCantAngle(),0)){
+			toReturn = uncantedShapesBack(finset, transformation);
+		}else{
+			toReturn = cantedShapesBack(finset, transformation);
+		}
 		
+		
+		return RocketComponentShape.toArray( toReturn, finset);
 	}
 	
 	

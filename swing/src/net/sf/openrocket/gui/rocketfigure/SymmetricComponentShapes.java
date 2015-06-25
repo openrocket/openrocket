@@ -9,7 +9,7 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
 
-public class SymmetricComponentShapes extends RocketComponentShapes {
+public class SymmetricComponentShapes extends RocketComponentShape {
 	private static final int MINPOINTS = 91;
 	private static final double ACCEPTABLE_ANGLE = Math.cos(7.0 * Math.PI / 180.0);
 	
@@ -17,13 +17,19 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 	
 	// TODO: LOW: Uses only first component of cluster (not currently clusterable)
 
-    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
-                                        Transformation transformation) {
-        return getShapesSide(component, transformation, S);
+    public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
+
+        return getShapesSide(component, transformation, instanceOffset, S);
     }
 
-    public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component,
-                                        Transformation transformation, final double scaleFactor) {
+    public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset,
+			final double scaleFactor) {
 		net.sf.openrocket.rocketcomponent.SymmetricComponent c = (net.sf.openrocket.rocketcomponent.SymmetricComponent) component;
 		int i;
 		
@@ -94,7 +100,7 @@ public class SymmetricComponentShapes extends RocketComponentShapes {
 		
 		//s[len] = path;
 		//return s;
-		return new Shape[] { path };
+		return new RocketComponentShape[] { new RocketComponentShape(path, component) };
 	}
 	
 	private static boolean angleAcceptable(Coordinate v1, Coordinate v2, Coordinate v3) {

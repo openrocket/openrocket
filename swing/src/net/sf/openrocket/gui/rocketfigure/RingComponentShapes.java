@@ -9,10 +9,13 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
 
-public class RingComponentShapes extends RocketComponentShapes {
+public class RingComponentShapes extends RocketComponentShape {
 
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
+
 		net.sf.openrocket.rocketcomponent.RingComponent tube = (net.sf.openrocket.rocketcomponent.RingComponent)component;
 		Shape[] s;
 		
@@ -21,7 +24,7 @@ public class RingComponentShapes extends RocketComponentShapes {
 		double ir = tube.getInnerRadius();
 		
 
-		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
+		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
 
 		if ((or-ir >= 0.0012) && (ir > 0)) {
 			// Draw outer and inner
@@ -40,11 +43,11 @@ public class RingComponentShapes extends RocketComponentShapes {
 						length*S,2*or*S);
 			}
 		}
-		return s;
+		return RocketComponentShape.toArray( s, component);
 	}
 	
 
-	public static Shape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
+	public static RocketComponentShape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation) {
 		net.sf.openrocket.rocketcomponent.RingComponent tube = (net.sf.openrocket.rocketcomponent.RingComponent)component;
 		Shape[] s;
@@ -71,7 +74,7 @@ public class RingComponentShapes extends RocketComponentShapes {
 				s[i] = new Ellipse2D.Double((start[i].z-or)*S,(start[i].y-or)*S,2*or*S,2*or*S);
 			}
 		}
-		return s;
+		return RocketComponentShape.toArray( s, component);
 	}
 	
 }

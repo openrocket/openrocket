@@ -8,10 +8,13 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
 
-public class TubeFinSetShapes extends RocketComponentShapes {
+public class TubeFinSetShapes extends RocketComponentShape {
 	
-	public static Shape[] getShapesSide(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesSide(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
+
 		net.sf.openrocket.rocketcomponent.TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
 
 		int fins = finset.getFinCount();
@@ -19,7 +22,7 @@ public class TubeFinSetShapes extends RocketComponentShapes {
 		double outerradius = finset.getOuterRadius();
 		double bodyradius = finset.getBodyRadius();
 
-		Coordinate[] start = finset.toAbsolute(new Coordinate(0,0,0));
+		Coordinate[] start = finset.toAbsolute(instanceOffset);
 
 		Transformation baseRotation = finset.getBaseRotationTransformation();
 		Transformation finRotation = finset.getFinRotationTransformation();
@@ -36,19 +39,22 @@ public class TubeFinSetShapes extends RocketComponentShapes {
 			s[i] = new Rectangle2D.Double(start[0].x*S,(start[0].y-outerradius)*S,length*S,2*outerradius*S);
 			start = finRotation.transform(start);
 		}
-		return s;
+		return RocketComponentShape.toArray(s, component);
 	}
 	
 
-	public static Shape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesBack(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
+			
 		net.sf.openrocket.rocketcomponent.TubeFinSet finset = (net.sf.openrocket.rocketcomponent.TubeFinSet)component;
 		
 		int fins = finset.getFinCount();
 		double outerradius = finset.getOuterRadius();
 		double bodyradius = finset.getBodyRadius();
 		
-		Coordinate[] start = finset.toAbsolute(new Coordinate(0,0,0));
+		Coordinate[] start = finset.toAbsolute( instanceOffset);
 
 		Transformation baseRotation = finset.getBaseRotationTransformation();
 		Transformation finRotation = finset.getFinRotationTransformation();
@@ -63,7 +69,7 @@ public class TubeFinSetShapes extends RocketComponentShapes {
 			s[i] = new Ellipse2D.Double((start[0].z-outerradius)*S,(start[0].y-outerradius)*S,2*outerradius*S,2*outerradius*S);
 			start = finRotation.transform(start);
 		}
-		return s;
+		return RocketComponentShape.toArray(s, component);
 	}
 	
 	
