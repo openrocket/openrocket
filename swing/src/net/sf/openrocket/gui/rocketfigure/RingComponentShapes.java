@@ -47,8 +47,10 @@ public class RingComponentShapes extends RocketComponentShape {
 	}
 	
 
-	public static RocketComponentShape[] getShapesBack(net.sf.openrocket.rocketcomponent.RocketComponent component, 
-			Transformation transformation) {
+	public static RocketComponentShape[] getShapesBack(
+			net.sf.openrocket.rocketcomponent.RocketComponent component, 
+			Transformation transformation,
+			Coordinate instanceOffset) {
 		net.sf.openrocket.rocketcomponent.RingComponent tube = (net.sf.openrocket.rocketcomponent.RingComponent)component;
 		Shape[] s;
 		
@@ -56,7 +58,7 @@ public class RingComponentShapes extends RocketComponentShape {
 		double ir = tube.getInnerRadius();
 		
 
-		Coordinate[] start = transformation.transform(tube.toAbsolute(new Coordinate(0,0,0)));
+		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
 
 		if ((ir < or) && (ir > 0)) {
 			// Draw inner and outer

@@ -89,13 +89,16 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 			this.count = 1;
 		}
 		
-		
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
 	public int getCount() {
-		return this.count;
+		if (this.isInline()) {
+			return 1;
+		} else {
+			return this.count;
+		}
 	}
 	
 	@Override
@@ -194,19 +197,25 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public Coordinate[] getInstanceOffsets() {
+		if (this.isInline()) {
+			return new Coordinate[] { new Coordinate(0, 0, 0) };
+		}
+		
 		Coordinate[] toReturn = new Coordinate[this.count];
 		
 		double radius = this.radialPosition_m;
 		double angle0 = this.angularPosition_rad;
 		double angleIncr = this.angularSeparation;
 		
+		System.err.println("Producing offsets list: ");
 		double thisAngle = angle0;
 		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			
 			toReturn[instanceNumber] = new Coordinate(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
+			System.err.println("  instance#: " + instanceNumber + " = " + toReturn[instanceNumber]);
 			thisAngle += angleIncr;
 		}
 		
 		return toReturn;
 	}
+	
 }

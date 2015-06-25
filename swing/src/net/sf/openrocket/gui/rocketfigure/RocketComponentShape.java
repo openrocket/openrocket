@@ -30,7 +30,6 @@ public class RocketComponentShape {
 		this.color = null;
 		this.lineStyle = null;
 		this.component=null;
-		
 	}
 	
 	public RocketComponentShape( final Shape _shape, final RocketComponent _comp){

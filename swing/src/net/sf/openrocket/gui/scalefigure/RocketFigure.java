@@ -433,20 +433,15 @@ public class RocketFigure extends AbstractScaleFigure {
 		RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
 		Transformation viewTransform = this.transformation;
 		
-		
-		// TODO: Implement actual locations in the components
-		Coordinate componentLocation = new Coordinate(comp.getPositionValue(),0,0);
+		Coordinate componentLocation = comp.getRelativePositionVector();
 		
 		if( comp instanceof MultipleComponent ){
 			MultipleComponent multi = (MultipleComponent)comp;
 			int instanceCount;
 			instanceCount = multi.getInstanceCount();
-				
 			
-			// get m instance locations
+			// get the offsets for m instances
 			Coordinate[] instanceOffsets = multi.getInstanceOffsets();
-			assert(false);
-			assert( instanceOffsets.length == instanceCount );
 				
 			// replicate n children m times each
 			int childCount = comp.getChildCount();
@@ -465,8 +460,7 @@ public class RocketFigure extends AbstractScaleFigure {
 					allShapes.add( curShape);
 				}
 				
-			}
-			
+			}	
 		}else{
 			if( comp instanceof Rocket){
 				// the Rocket doesn't have any graphics to get.  

@@ -967,6 +967,22 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	
+	/*
+	 * 
+	 */
+	public Coordinate getRelativePositionVector() {
+		// ghetto version of this....
+		return new Coordinate(this.getPositionValue(), 0, 0);
+	}
+	
+	
+	/*
+	 * 
+	 */
+	public void setRelativePositionVector(final Coordinate _newPos) {
+		// ghetto version of this....
+		this.position = _newPos.x;
+	}
 	
 	///////////  Coordinate changes  ///////////
 	
