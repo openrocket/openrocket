@@ -57,18 +57,19 @@ public class TransitionShapes extends RocketComponentShape {
 		
 		if (transition.getForeShoulderLength() > 0.0005) {
 			Coordinate start = transformation.transform(transition.
-					toAbsolute(Coordinate.NUL)[0]);
+					toAbsolute(instanceOffset)[0]);
 			double r = transition.getForeShoulderRadius();
 			double l = transition.getForeShoulderLength();
-			shoulder1 = new Rectangle2D.Double((start.x-l)* scaleFactor, -r* scaleFactor, l* scaleFactor, 2*r* scaleFactor);
+			shoulder1 = new Rectangle2D.Double((start.x-l)* scaleFactor, (start.y-r)* scaleFactor, l* scaleFactor, 2*r* scaleFactor);
 			arrayLength++;
 		}
 		if (transition.getAftShoulderLength() > 0.0005) {
 			Coordinate start = transformation.transform(transition.
-					toAbsolute(new Coordinate(transition.getLength()))[0]);
+					toAbsolute(instanceOffset.add(transition.getLength(),0, 0))[0]);
+
 			double r = transition.getAftShoulderRadius();
 			double l = transition.getAftShoulderLength();
-			shoulder2 = new Rectangle2D.Double(start.x* scaleFactor, -r* scaleFactor, l* scaleFactor, 2*r* scaleFactor);
+			shoulder2 = new Rectangle2D.Double(start.x* scaleFactor, (start.y-r)* scaleFactor, l* scaleFactor, 2*r* scaleFactor);
 			arrayLength++;
 		}
 		if (shoulder1==null && shoulder2==null)
@@ -102,11 +103,10 @@ public class TransitionShapes extends RocketComponentShape {
 		double r2 = transition.getAftRadius();
 
 		Coordinate center = instanceOffset;
-		// adjust center heree... somehow
 		
 		Shape[] s = new Shape[2];
-		s[0] = new Ellipse2D.Double(-r1*S,-r1*S,2*r1*S,2*r1*S);
-		s[1] = new Ellipse2D.Double(-r2*S,-r2*S,2*r2*S,2*r2*S);
+		s[0] = new Ellipse2D.Double((center.z-r1)*S,(center.y-r1)*S,2*r1*S,2*r1*S);
+		s[1] = new Ellipse2D.Double((center.z-r2)*S,(center.y-r2)*S,2*r2*S,2*r2*S);
 		return RocketComponentShape.toArray(s, component);
 	}
 	

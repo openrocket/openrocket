@@ -35,6 +35,7 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 		
 		final double delta = 0.0000001;
 		double x;
+		  
 		
 		ArrayList<Coordinate> points = new ArrayList<Coordinate>();
 		x = delta;
@@ -86,16 +87,18 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 
 		//System.out.println("here");
 		
+		Coordinate center = instanceOffset;
+		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo(points.get(len - 1).x * scaleFactor, points.get(len - 1).y * scaleFactor);
+		path.moveTo(points.get(len - 1).x * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo(points.get(i).x * scaleFactor, points.get(i).y * scaleFactor);
+			path.lineTo(points.get(i).x * scaleFactor, (center.y+points.get(i).y) * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo(points.get(i).x * scaleFactor, -points.get(i).y * scaleFactor);
+			path.lineTo(points.get(i).x * scaleFactor, (center.y-points.get(i).y) * scaleFactor);
 		}
-		path.lineTo(points.get(len - 1).x * scaleFactor, points.get(len - 1).y * scaleFactor);
+		path.lineTo(points.get(len - 1).x * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;
