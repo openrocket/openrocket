@@ -95,19 +95,20 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( angleUnitSelector, "growx 1, wrap");
 		parallelEnabledModel.addEnableComponent( angleUnitSelector , true);
 
-		// set rotation angle of the stage.  Does not affect the location
-		JLabel rotationLabel = new JLabel(trans.get("RocketCompCfg.outside.rotation"));
-		motherPanel.add( rotationLabel, "align left");
-		parallelEnabledModel.addEnableComponent( rotationLabel, true);
-		DoubleModel rotationModel = new DoubleModel( stage, "Rotation", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
-		rotationModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad") );
-		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
-		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
-		motherPanel.add(rotationSpinner, "growx 1");
-		parallelEnabledModel.addEnableComponent( rotationSpinner, true);
-		UnitSelector rotationUnitSelector = new UnitSelector( rotationModel);
-		motherPanel.add( rotationUnitSelector, "growx 1, wrap");
-		parallelEnabledModel.addEnableComponent( rotationUnitSelector , true);
+		// Not convinced this is a useful option, or that the user will need to modify this. 
+//		// set rotation angle of the stage.  Does not affect the location
+//		JLabel rotationLabel = new JLabel(trans.get("RocketCompCfg.outside.rotation"));
+//		motherPanel.add( rotationLabel, "align left");
+//		parallelEnabledModel.addEnableComponent( rotationLabel, true);
+//		DoubleModel rotationModel = new DoubleModel( stage, "Rotation", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
+//		rotationModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad") );
+//		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
+//		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
+//		motherPanel.add(rotationSpinner, "growx 1");
+//		parallelEnabledModel.addEnableComponent( rotationSpinner, true);
+//		UnitSelector rotationUnitSelector = new UnitSelector( rotationModel);
+//		motherPanel.add( rotationUnitSelector, "growx 1, wrap");
+//		parallelEnabledModel.addEnableComponent( rotationUnitSelector , true);
 
 		// set multiplicity
 		JLabel countLabel = new JLabel(trans.get("RocketCompCfg.outside.count"));
