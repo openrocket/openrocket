@@ -95,21 +95,6 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( angleUnitSelector, "growx 1, wrap");
 		parallelEnabledModel.addEnableComponent( angleUnitSelector , true);
 
-		// Not convinced this is a useful option, or that the user will need to modify this. 
-//		// set rotation angle of the stage.  Does not affect the location
-//		JLabel rotationLabel = new JLabel(trans.get("RocketCompCfg.outside.rotation"));
-//		motherPanel.add( rotationLabel, "align left");
-//		parallelEnabledModel.addEnableComponent( rotationLabel, true);
-//		DoubleModel rotationModel = new DoubleModel( stage, "Rotation", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
-//		rotationModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad") );
-//		JSpinner rotationSpinner = new JSpinner(rotationModel.getSpinnerModel());
-//		rotationSpinner.setEditor(new SpinnerEditor(rotationSpinner));
-//		motherPanel.add(rotationSpinner, "growx 1");
-//		parallelEnabledModel.addEnableComponent( rotationSpinner, true);
-//		UnitSelector rotationUnitSelector = new UnitSelector( rotationModel);
-//		motherPanel.add( rotationUnitSelector, "growx 1, wrap");
-//		parallelEnabledModel.addEnableComponent( rotationUnitSelector , true);
-
 		// set multiplicity
 		JLabel countLabel = new JLabel(trans.get("RocketCompCfg.outside.count"));
 		motherPanel.add( countLabel, "align left");
@@ -127,7 +112,7 @@ public class StageConfig extends RocketComponentConfig {
 		parallelEnabledModel.addEnableComponent( positionLabel, true);
 		
 		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
-		ComboBoxModel<RocketComponent.Position> posRelModel = new EnumModel<RocketComponent.Position>(component, "RelativePosition",
+		ComboBoxModel<RocketComponent.Position> posRelModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
 				new RocketComponent.Position[] {
 						RocketComponent.Position.TOP,
 						RocketComponent.Position.MIDDLE,
@@ -143,6 +128,7 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( relativeStageLabel);
 		parallelEnabledModel.addEnableComponent( relativeStageLabel, true);
 		// may need to implement a new ComponentComboModel or something
+		IntegerModel relToStageModel = new IntegerModel( stage, "RelativeToStage",0);
 		List<RocketComponent> stageList = stage.getParent().getChildren(); 
 		RocketComponent[] forCombo = new RocketComponent[stageList.size()];
 		forCombo = stageList.toArray(forCombo);
@@ -152,7 +138,6 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( relToCombo , "growx, wrap");
 		parallelEnabledModel.addEnableComponent( relToCombo, true );
 		
-
 		// plus
 		JLabel positionPlusLabel = new JLabel(trans.get("LaunchLugCfg.lbl.plus"));
 		motherPanel.add( positionPlusLabel );

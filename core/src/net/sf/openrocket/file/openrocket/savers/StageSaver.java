@@ -1,6 +1,7 @@
 package net.sf.openrocket.file.openrocket.savers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,6 +29,10 @@ public class StageSaver extends ComponentAssemblySaver {
 		super.addParams(c, elements);
 		Stage stage = (Stage) c;
 		
+		if (stage.getOutside()) {
+			elements.addAll(this.addStageReplicationParams(stage));
+		}
+		
 		if (stage.getStageNumber() > 0) {
 			// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
 			elements.addAll(separationConfig(stage.getStageSeparationConfiguration().getDefault(), false));
@@ -49,9 +54,41 @@ public class StageSaver extends ComponentAssemblySaver {
 					elements.add("<separationconfiguration configid=\"" + id + "\">");
 					elements.addAll(separationConfig(config, true));
 					elements.add("</separationconfiguration>");
+					
 				}
 			}
 		}
+	}
+	
+	private Collection<? extends String> addStageReplicationParams(final Stage currentStage) {
+		List<String> elementsToReturn = new ArrayList<String>();
+		
+		if (null != currentStage) {
+			
+			boolean outsideFlag = currentStage.getOutside();
+			elementsToReturn.add("<outside=\"" + outsideFlag + "\">");
+			int instanceCount = currentStage.getInstanceCount();
+			elementsToReturn.add("<instanceCount=\"" + instanceCount + "\">");
+			double radialOffset = currentStage.getRadialPosition();
+			elementsToReturn.add("<radialOffset=\"" + radialOffset + "\">");
+			double angularOffset = currentStage.getAngularPosition();
+			elementsToReturn.add("<angleOffset=\"" + angularOffset + "\">");
+			
+			// Save position unless "AFTER"
+			if (currentStage.getRelativePosition() != RocketComponent.Position.AFTER) {
+				// The type names are currently equivalent to the enum names except for case.
+				String type = currentStage.getRelativePositionMethod().name().toLowerCase(Locale.ENGLISH);
+				double axialOffset = currentStage.getAxialPosition();
+				elementsToReturn.add("<position type=\"" + type + "\">" + axialOffset + "</position>");
+				int relativeTo = currentStage.getRelativeToStage();
+				elementsToReturn.add("<relativeTo=\"" + relativeTo + "\">");
+			}
+			
+			// do not save
+			double angularSeparation = Double.NaN; // doesn't need to be saved b/c it's derived from instanceCount 
+		}
+		
+		return elementsToReturn;
 	}
 	
 	private List<String> separationConfig(StageSeparationConfiguration config, boolean indent) {

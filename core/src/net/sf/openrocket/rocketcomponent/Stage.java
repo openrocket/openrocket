@@ -17,7 +17,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	private boolean outside = false;
 	private double angularPosition_rad = 0;
 	private double radialPosition_m = 0;
-	private double rotation_rad = 0;
+	private int stageRelativeTo = 0;
 	
 	private int count = 1;
 	private double angularSeparation = Math.PI;
@@ -146,37 +146,33 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		if (this.outside) {
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
-		
 	}
 	
-	@Override
-	public double getRotation() {
-		if (this.outside) {
-			return this.rotation_rad;
-		} else {
-			return 0.;
-		}
-		
+	/** 
+	 * Stages may be positioned relative to other stages. In that case, this will set the stage number 
+	 * against which this stage is positioned.
+	 * 
+	 * @return the stage number which this stage is positioned relative to
+	 */
+	public int getRelativeToStage() {
+		return this.stageRelativeTo;
 	}
 	
-	@Override
-	public void setRotation(final double rotation) {
-		this.rotation_rad = rotation;
-		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		}
+	/*
+	 * 
+	 * @param _relTo the stage number which this stage is positioned relative to
+	 */
+	public void setRelativeToStage(final int _relTo) {
+		mutex.verify();
+		this.stageRelativeTo = _relTo;
 	}
 	
 	public RocketComponent.Position getRelativePositionMethod() {
 		return this.relativePosition;
 	}
 	
-	@Override
-	public void setRelativePosition(final Position position) {
+	public void setRelativePositionMethod(final Position position) {
 		super.setRelativePosition(position);
-		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		}
 	}
 	
 	public double getAxialPosition() {

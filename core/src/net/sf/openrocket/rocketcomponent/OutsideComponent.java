@@ -61,19 +61,4 @@ public interface OutsideComponent {
 	 */
 	public void setRadialPosition(final double radius);
 	
-	/**
-	 *      If component is not symmetric, this is the axial rotation angle (around it's own center). Defaults to 0. 
-	 * 
-	 * @return              Rotation angle in radians.
-	 */
-	public double getRotation();
-	
-	/**
-	 *      If component is not symmetric, this is the axial rotation angle (around it's own center). Defaults to 0. 
-	 * 
-	 * @param rotation Rotation angle in radians.
-	 */
-	public void setRotation(final double rotation);
-	
-	
 }
