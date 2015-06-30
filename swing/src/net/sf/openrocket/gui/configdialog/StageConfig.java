@@ -23,6 +23,7 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
+import net.sf.openrocket.gui.adaptors.StageSelectModel;
 import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
@@ -127,14 +128,8 @@ public class StageConfig extends RocketComponentConfig {
 		JLabel relativeStageLabel = new JLabel(trans.get("RocketCompCfg.outside.componentname"));
 		motherPanel.add( relativeStageLabel);
 		parallelEnabledModel.addEnableComponent( relativeStageLabel, true);
-		// may need to implement a new ComponentComboModel or something
-		IntegerModel relToStageModel = new IntegerModel( stage, "RelativeToStage",0);
-		List<RocketComponent> stageList = stage.getParent().getChildren(); 
-		RocketComponent[] forCombo = new RocketComponent[stageList.size()];
-		forCombo = stageList.toArray(forCombo);
-		DefaultComboBoxModel<RocketComponent> relativeStageComboModel = new DefaultComboBoxModel<RocketComponent>( forCombo );
-		ComboBoxModel<RocketComponent> relativeStageCombo = relativeStageComboModel;
-		JComboBox<?> relToCombo = new JComboBox<RocketComponent>( relativeStageCombo );
+		ComboBoxModel<Stage> relativeStageModel = new StageSelectModel( stage );
+		JComboBox<Stage> relToCombo = new JComboBox<Stage>( relativeStageModel );
 		motherPanel.add( relToCombo , "growx, wrap");
 		parallelEnabledModel.addEnableComponent( relToCombo, true );
 		

@@ -164,6 +164,10 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	 */
 	public void setRelativeToStage(final int _relTo) {
 		mutex.verify();
+		if ((_relTo < 0) || (_relTo >= this.getRocket().getStageCount())) {
+			log.error("attempt to position this stage relative to a non-existent stage number. Ignoring.");
+			return;
+		}
 		this.stageRelativeTo = _relTo;
 	}
 	
