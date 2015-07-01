@@ -28,7 +28,6 @@ public class StageSelectModel extends AbstractListModel<Stage> implements ComboB
 	protected Stage sourceStage = null;
 	protected ArrayList<Stage> displayValues = new ArrayList<Stage>();
 	protected Stage selectedStage = null;
-	protected int selectedStageIndex=-1; // index of stage in rocket, as returned by stage.getStageNumber();
 
 	//@SuppressWarnings("unchecked")
 	public StageSelectModel( final Stage _stage, String nullText) {
@@ -91,20 +90,13 @@ public class StageSelectModel extends AbstractListModel<Stage> implements ComboB
 		
 		if( newItem instanceof Stage ){
 			Stage nextStage = (Stage) newItem;
-			int nextStageIndex = nextStage.getStageNumber();
-
+	
 			if (nextStage.equals(this.selectedStage)){
 				return; // i.e. no change
 			}
-
-			this.selectedStage = nextStage;
-			this.selectedStageIndex = nextStageIndex;
-			this.sourceStage.setRelativeToStage(nextStageIndex);
 			
-			// DEVEL
-			int nextDisplayIndex = this.displayValues.indexOf(newItem);
-			log.error("DEVEL success. set stage number to: "+nextDisplayIndex+" @"+nextStageIndex);
-			log.error("DEVEL success. set stage number to: "+nextStage.getName()+" ="+nextStage.toString()); 
+			this.selectedStage = nextStage;
+			this.sourceStage.setRelativeToStage(nextStage.getStageNumber());		
 			return;
 		}
 		
@@ -134,7 +126,7 @@ public class StageSelectModel extends AbstractListModel<Stage> implements ComboB
 	
 	@Override
 	public String toString() {
-		return "StageSelectModel["+this.selectedStage.getName()+" @"+this.selectedStageIndex+"]";
+		return "StageSelectModel["+this.selectedStage.getName()+" ("+this.selectedStage.getStageNumber()+")]";
 	}
 
 

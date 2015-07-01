@@ -62,30 +62,33 @@ public class StageSaver extends ComponentAssemblySaver {
 	
 	private Collection<? extends String> addStageReplicationParams(final Stage currentStage) {
 		List<String> elementsToReturn = new ArrayList<String>();
+		final String relTo_tag = "relativeto";
+		final String outside_tag = "outside";
+		final String instCt_tag = "instancecount";
+		final String radoffs_tag = "radialoffset";
+		final String startangle_tag = "angleoffset";
+		
 		
 		if (null != currentStage) {
-			
-			boolean outsideFlag = currentStage.getOutside();
-			elementsToReturn.add("<outside=\"" + outsideFlag + "\">");
-			int instanceCount = currentStage.getInstanceCount();
-			elementsToReturn.add("<instanceCount=\"" + instanceCount + "\">");
-			double radialOffset = currentStage.getRadialPosition();
-			elementsToReturn.add("<radialOffset=\"" + radialOffset + "\">");
-			double angularOffset = currentStage.getAngularPosition();
-			elementsToReturn.add("<angleOffset=\"" + angularOffset + "\">");
-			
 			// Save position unless "AFTER"
 			if (currentStage.getRelativePosition() != RocketComponent.Position.AFTER) {
-				// The type names are currently equivalent to the enum names except for case.
-				String type = currentStage.getRelativePositionMethod().name().toLowerCase(Locale.ENGLISH);
-				double axialOffset = currentStage.getAxialPosition();
-				elementsToReturn.add("<position type=\"" + type + "\">" + axialOffset + "</position>");
+				// position type and offset are saved in superclass
+				//				String type = currentStage.getRelativePositionMethod().name().toLowerCase(Locale.ENGLISH);
+				//				double axialOffset = currentStage.getAxialPosition();
+				//				elementsToReturn.add("<position type=\"" + type + "\">" + axialOffset + "</position>");
 				int relativeTo = currentStage.getRelativeToStage();
-				elementsToReturn.add("<relativeTo=\"" + relativeTo + "\">");
+				elementsToReturn.add("<" + relTo_tag + ">" + relativeTo + "</" + relTo_tag + ">");
 			}
 			
-			// do not save
-			double angularSeparation = Double.NaN; // doesn't need to be saved b/c it's derived from instanceCount 
+			boolean outsideFlag = currentStage.getOutside();
+			elementsToReturn.add("<" + outside_tag + ">" + outsideFlag + "</" + outside_tag + ">");
+			int instanceCount = currentStage.getInstanceCount();
+			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
+			double radialOffset = currentStage.getRadialPosition();
+			elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
+			double angularOffset = currentStage.getAngularPosition();
+			elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
+			
 		}
 		
 		return elementsToReturn;
