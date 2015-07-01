@@ -23,25 +23,21 @@ public class StageSelectModel extends AbstractListModel<Stage> implements ComboB
 	private static final long serialVersionUID = 1311302134934033684L;
 	private static final Logger log = LoggerFactory.getLogger(StageSelectModel.class);
 
-	protected final String nullText;//?
+//	protected final String nullText;
 	
 	protected Stage sourceStage = null;
 	protected ArrayList<Stage> displayValues = new ArrayList<Stage>();
 	protected Stage selectedStage = null;
 
 	//@SuppressWarnings("unchecked")
-	public StageSelectModel( final Stage _stage, String nullText) {
+	public StageSelectModel( final Stage _stage) {
 		this.sourceStage = _stage;
-		this.nullText = nullText;
+//		this.nullText = nullText;
 		
 		populateDisplayValues();
 		
 		stateChanged(null);  // Update current value
 		this.sourceStage.addChangeListener(this);
-	}
-
-	public StageSelectModel( final Stage _stage ){
-		this( _stage, "(no stage selected)");
 	}
 	
 	private void populateDisplayValues(){
@@ -110,18 +106,18 @@ public class StageSelectModel extends AbstractListModel<Stage> implements ComboB
 
 	@Override
 	public void stateChanged(EventObject eo) {
-		if(( null == this.sourceStage)||(null==this.selectedStage)){
+		if( null == this.sourceStage){
 			return;
 		}
+		Rocket rkt = sourceStage.getRocket();
 		int sourceRelToIndex = this.sourceStage.getRelativeToStage();
-		int selectedRelIndex = this.selectedStage.getStageNumber();
-		if ( selectedRelIndex != sourceRelToIndex){
-			this.selectedStage = (Stage)sourceStage.getRocket().getChild(sourceRelToIndex);
-			
-			// I don't think this is required -- we're not changing the list, just the selected item.
-			//this.fireContentsChanged(this, 0, values.length);
+		int selectedStageIndex = -1;
+		if( null != this.selectedStage ){
+			selectedStageIndex = this.selectedStage.getStageNumber();
 		}
-	
+		if ( selectedStageIndex != sourceRelToIndex){
+			this.selectedStage = (Stage)rkt.getChild(sourceRelToIndex);
+		}
 	}
 	
 	@Override
