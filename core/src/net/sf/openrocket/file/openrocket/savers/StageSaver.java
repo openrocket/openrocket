@@ -84,9 +84,9 @@ public class StageSaver extends ComponentAssemblySaver {
 			elementsToReturn.add("<" + outside_tag + ">" + outsideFlag + "</" + outside_tag + ">");
 			int instanceCount = currentStage.getInstanceCount();
 			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
-			double radialOffset = currentStage.getRadialPosition();
+			double radialOffset = currentStage.getRadialOffset();
 			elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
-			double angularOffset = currentStage.getAngularPosition();
+			double angularOffset = currentStage.getAngularOffset();
 			elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
 			
 		}

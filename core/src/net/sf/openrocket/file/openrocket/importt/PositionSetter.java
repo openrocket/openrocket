@@ -35,19 +35,19 @@ class PositionSetter implements Setter {
 		
 		if (c instanceof FinSet) {
 			((FinSet) c).setRelativePosition(type);
-			c.setPositionValue(pos);
+			c.setAxialOffset(pos);
 		} else if (c instanceof LaunchLug) {
 			((LaunchLug) c).setRelativePosition(type);
-			c.setPositionValue(pos);
+			c.setAxialOffset(pos);
 		} else if (c instanceof InternalComponent) {
 			((InternalComponent) c).setRelativePosition(type);
-			c.setPositionValue(pos);
+			c.setAxialOffset(pos);
 		} else if (c instanceof TubeFinSet) {
 			((TubeFinSet) c).setRelativePosition(type);
-			c.setPositionValue(pos);
+			c.setAxialOffset(pos);
 		} else if (c instanceof Stage) {
 			((Stage) c).setRelativePositionMethod(type);
-			((Stage) c).setPositionValue(pos);
+			c.setAxialOffset(pos);
 		} else {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);
 		}

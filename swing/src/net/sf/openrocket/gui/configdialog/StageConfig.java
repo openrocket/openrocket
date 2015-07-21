@@ -58,21 +58,28 @@ public class StageConfig extends RocketComponentConfig {
 	}
 	
 	private JPanel parallelTab( final Stage stage ){
-		// enable parallel staging
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
+	
+		// this stage is positioned relative to what stage? 
+		JLabel relativeStageLabel = new JLabel(trans.get("Stage.parallel.componentname"));
+		motherPanel.add( relativeStageLabel);
+		ComboBoxModel<Stage> relativeStageModel = new StageSelectModel( stage );
+		JComboBox<Stage> relToCombo = new JComboBox<Stage>( relativeStageModel );
+		motherPanel.add( relToCombo , "growx, wrap");
+		
+		// enable parallel staging
+		motherPanel.add(new JSeparator(SwingConstants.HORIZONTAL), "spanx 3, growx, wrap");	
 		BooleanModel parallelEnabledModel = new BooleanModel( component, "Outside");
 		parallelEnabledModel.setValue( stage.getOutside());
 		JCheckBox parallelEnabled = new JCheckBox( parallelEnabledModel);
-		parallelEnabled.setText(trans.get("RocketCompCfg.outside.stage"));
+		parallelEnabled.setText(trans.get("Stage.parallel.toggle"));
 		motherPanel.add(parallelEnabled, "wrap");
 
-		motherPanel.add(new JSeparator(SwingConstants.HORIZONTAL), "spanx 3, growx, wrap");
-
 		// set radial distance
-		JLabel radiusLabel = new JLabel(trans.get("RocketCompCfg.outside.radius"));  
+		JLabel radiusLabel = new JLabel(trans.get("Stage.parallel.radius"));  
 		motherPanel.add( radiusLabel , "align left");
 		parallelEnabledModel.addEnableComponent( radiusLabel, true);
-		DoubleModel radiusModel = new DoubleModel( stage, "RadialPosition", UnitGroup.UNITS_LENGTH, 0);
+		DoubleModel radiusModel = new DoubleModel( stage, "RadialOffset", UnitGroup.UNITS_LENGTH, 0);
 		//radiusModel.setCurrentUnit( UnitGroup.UNITS_LENGTH.getUnit("cm"));
 		JSpinner radiusSpinner = new JSpinner( radiusModel.getSpinnerModel());
 		radiusSpinner.setEditor(new SpinnerEditor(radiusSpinner ));
@@ -83,10 +90,10 @@ public class StageConfig extends RocketComponentConfig {
 		parallelEnabledModel.addEnableComponent( radiusUnitSelector , true);
 		
 		// set location angle around the primary stage
-		JLabel angleLabel = new JLabel(trans.get("RocketCompCfg.outside.angle"));
+		JLabel angleLabel = new JLabel(trans.get("Stage.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
 		parallelEnabledModel.addEnableComponent( angleLabel, true);
-		DoubleModel angleModel = new DoubleModel( stage, "AngularPosition", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
+		DoubleModel angleModel = new DoubleModel( stage, "AngularOffset", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
 		angleModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad"));
 		JSpinner angleSpinner = new JSpinner(angleModel.getSpinnerModel());
 		angleSpinner.setEditor(new SpinnerEditor(angleSpinner));
@@ -97,11 +104,11 @@ public class StageConfig extends RocketComponentConfig {
 		parallelEnabledModel.addEnableComponent( angleUnitSelector , true);
 
 		// set multiplicity
-		JLabel countLabel = new JLabel(trans.get("RocketCompCfg.outside.count"));
+		JLabel countLabel = new JLabel(trans.get("Stage.parallel.count"));
 		motherPanel.add( countLabel, "align left");
 		parallelEnabledModel.addEnableComponent( countLabel, true);
 		
-		IntegerModel countModel = new IntegerModel( stage, "Count", 1 );
+		IntegerModel countModel = new IntegerModel( stage, "InstanceCount", 1 );
 		JSpinner countSpinner = new JSpinner(countModel.getSpinnerModel());
 		countSpinner.setEditor(new SpinnerEditor(countSpinner));
 		motherPanel.add(countSpinner, "growx 1, wrap");
@@ -113,36 +120,31 @@ public class StageConfig extends RocketComponentConfig {
 		parallelEnabledModel.addEnableComponent( positionLabel, true);
 		
 		//	EnumModel(ChangeSource source, String valueName, Enum<T>[] values) {
-		ComboBoxModel<RocketComponent.Position> posRelModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
+		ComboBoxModel<RocketComponent.Position> relativePositionMethodModel = new EnumModel<RocketComponent.Position>(component, "RelativePositionMethod",
 				new RocketComponent.Position[] {
 						RocketComponent.Position.TOP,
 						RocketComponent.Position.MIDDLE,
 						RocketComponent.Position.BOTTOM,
-						RocketComponent.Position.ABSOLUTE
+						RocketComponent.Position.ABSOLUTE,
+						RocketComponent.Position.AFTER
 				});
-		JComboBox<?> positionMethodCombo = new JComboBox<RocketComponent.Position>( posRelModel );
+		JComboBox<?> positionMethodCombo = new JComboBox<RocketComponent.Position>( relativePositionMethodModel );
 		motherPanel.add(positionMethodCombo, "spanx 2, growx, wrap");
 		parallelEnabledModel.addEnableComponent( positionMethodCombo, true);
 		
-		// setPositions relative to parent component
-		JLabel relativeStageLabel = new JLabel(trans.get("RocketCompCfg.outside.componentname"));
-		motherPanel.add( relativeStageLabel);
-		parallelEnabledModel.addEnableComponent( relativeStageLabel, true);
-		ComboBoxModel<Stage> relativeStageModel = new StageSelectModel( stage );
-		JComboBox<Stage> relToCombo = new JComboBox<Stage>( relativeStageModel );
-		motherPanel.add( relToCombo , "growx, wrap");
-		parallelEnabledModel.addEnableComponent( relToCombo, true );
-		
-		// plus
-		JLabel positionPlusLabel = new JLabel(trans.get("LaunchLugCfg.lbl.plus"));
+		// relative offset labels
+		JLabel positionPlusLabel = new JLabel(trans.get("Stage.parallel.offset"));
 		motherPanel.add( positionPlusLabel );
-		parallelEnabledModel.addEnableComponent( positionPlusLabel, true );
-		
-		DoubleModel axialPositionModel = new DoubleModel(component, "AxialPosition", UnitGroup.UNITS_LENGTH);
-		JSpinner axPosSpin= new JSpinner( axialPositionModel.getSpinnerModel());
+		parallelEnabledModel.addEnableComponent( positionPlusLabel, true );		
+		DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
+		axialOffsetModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getUnit("cm"));
+		JSpinner axPosSpin= new JSpinner( axialOffsetModel.getSpinnerModel());
 		axPosSpin.setEditor(new SpinnerEditor(axPosSpin));
 		motherPanel.add(axPosSpin, "growx");
 		parallelEnabledModel.addEnableComponent( axPosSpin, true );
+		UnitSelector axialOffsetUnitSelector = new UnitSelector(axialOffsetModel);
+		motherPanel.add(axialOffsetUnitSelector, "growx 1, wrap");
+		parallelEnabledModel.addEnableComponent( axialOffsetUnitSelector , true);		
 		
 		return motherPanel;
 	}

@@ -83,7 +83,7 @@ public class RocketComponentSaver {
 		if (c.getRelativePosition() != RocketComponent.Position.AFTER) {
 			// The type names are currently equivalent to the enum names except for case.
 			String type = c.getRelativePosition().name().toLowerCase(Locale.ENGLISH);
-			elements.add("<position type=\"" + type + "\">" + c.getPositionValue() + "</position>");
+			elements.add("<position type=\"" + type + "\">" + c.getAxialOffset() + "</position>");
 		}
 		
 		

@@ -23,28 +23,28 @@ public interface OutsideComponent {
 	 * 
 	 * @return              Angular position in radians.
 	 */
-	public double getAngularPosition();
+	public double getAngularOffset();
 	
 	/** 
 	 * Set the position of this component in polar coordinates 
 	 * 
 	 * @param phi Angular position in radians
 	 */
-	public void setAngularPosition(final double phi);
+	public void setAngularOffset(final double phi);
 	
 	/**
 	 * Number of instances this stage represents 
 	 * 
 	 * @return  number of instances this stage currently represents
 	 */
-	public int getCount();
+	public int getInstanceCount();
 	
 	/** 
 	 * Set the multiplicity of this component 
 	 * 
 	 * @param number of instances this component should represent
 	 */
-	public void setCount(final int phi);
+	public void setInstanceCount(final int phi);
 	
 	
 	/**
@@ -52,13 +52,13 @@ public interface OutsideComponent {
 	 * 
 	 * @return Radial position in radians (m)
 	 */
-	public double getRadialPosition();
+	public double getRadialOffset();
 	
 	/**
 	 * Get the position of this component in polar coordinates 
 	 * 
 	 * @param radius Radial distance in standard units. (m)
 	 */
-	public void setRadialPosition(final double radius);
+	public void setRadialOffset(final double radius);
 	
 }

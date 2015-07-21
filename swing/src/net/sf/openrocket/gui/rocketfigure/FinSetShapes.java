@@ -15,17 +15,18 @@ public class FinSetShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
+			Coordinate componentAbsoluteLocation) {
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
 
 		
 		int finCount = finset.getFinCount();
 		Transformation cantRotation = finset.getCantRotation();
-		Transformation baseRotation = finset.getBaseRotationTransformation();
+		Transformation baseRotation = finset.getBaseRotationTransformation(); // rotation about x-axis
 		Transformation finRotation = finset.getFinRotationTransformation();
 		
+		double rootChord = finset.getLength(); 
+		Coordinate finSetFront = componentAbsoluteLocation.sub( rootChord/2 , 0, 0);
 		Coordinate finPoints[] = finset.getFinPointsWithTab();
-		
 		
 		// TODO: MEDIUM: sloping radius
 		double radius = finset.getBodyRadius();
@@ -36,17 +37,20 @@ public class FinSetShapes extends RocketComponentShape {
 			finPoints[i] = baseRotation.transform(finPoints[i].add(0,radius,0));
 		}
 		
-		
+
 		// Generate shapes
-		RocketComponentShape[] rcs = new RocketComponentShape[ finCount];
-		for (int fin=0; fin<finCount; fin++) {
+		RocketComponentShape[] finShape = new RocketComponentShape[ finCount];
+		for (int finNum=0; finNum<finCount; finNum++) {
 			Coordinate a;
 			Path2D.Float p;
-
+			
 			// Make polygon
 			p = new Path2D.Float();
 			for (int i=0; i<finPoints.length; i++) {
-				a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
+				// previous version
+				// a = transformation.transform(finset.toAbsolute(finPoints[i])[0]);
+				a = transformation.transform(finSetFront.add(finPoints[i]));
+				
 				if (i==0)
 					p.moveTo(a.x*S, a.y*S);
 				else
@@ -54,20 +58,20 @@ public class FinSetShapes extends RocketComponentShape {
 			}
 			
 			p.closePath();
-			rcs[fin] = new RocketComponentShape( p, finset);
+			finShape[finNum] = new RocketComponentShape( p, finset);
 
 			// Rotate fin coordinates
 			for (int i=0; i<finPoints.length; i++)
 				finPoints[i] = finRotation.transform(finPoints[i]);
 		}
 		
-		return rcs;
+		return finShape;
 	}
 	
 	public static RocketComponentShape[] getShapesBack(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
+			Coordinate componentAbsoluteLocation) {
 	
 		net.sf.openrocket.rocketcomponent.FinSet finset = (net.sf.openrocket.rocketcomponent.FinSet)component;
 		Shape[] toReturn;
@@ -90,7 +94,7 @@ public class FinSetShapes extends RocketComponentShape {
 		double radius = finset.getBodyRadius();
 		double thickness = finset.getThickness();
 		double height = finset.getSpan();
-		
+		Coordinate compCenter = finset.getAbsolutePositionVector();
 		Transformation baseRotation = finset.getBaseRotationTransformation();
 		Transformation finRotation = finset.getFinRotationTransformation();
 		
@@ -113,13 +117,13 @@ public class FinSetShapes extends RocketComponentShape {
 
 			// Make polygon
 			p = new Path2D.Double();
-			a = transformation.transform(finset.toAbsolute(c[0])[0]);
+			a = transformation.transform(compCenter.add( c[0] ));
 			p.moveTo(a.z*S, a.y*S);
-			a = transformation.transform(finset.toAbsolute(c[1])[0]);
+			a = transformation.transform(compCenter.add( c[1] ));
 			p.lineTo(a.z*S, a.y*S);			
-			a = transformation.transform(finset.toAbsolute(c[2])[0]);
+			a = transformation.transform(compCenter.add( c[2] ));
 			p.lineTo(a.z*S, a.y*S);			
-			a = transformation.transform(finset.toAbsolute(c[3])[0]);
+			a = transformation.transform(compCenter.add( c[3] ));
 			p.lineTo(a.z*S, a.y*S);	
 			p.closePath();
 			s[fin] = p;
@@ -222,10 +226,11 @@ public class FinSetShapes extends RocketComponentShape {
 			Transformation t) {
 		Path2D.Float p;
 
+		Coordinate compCenter = finset.getAbsolutePositionVector(); 
 		// Make polygon
 		p = new Path2D.Float();
 		for (int i=0; i < array.length; i++) {
-			Coordinate a = t.transform(finset.toAbsolute(array[i])[0]);
+			Coordinate a = t.transform(compCenter.add( array[i]) );
 			if (i==0)
 				p.moveTo(a.z*S, a.y*S);
 			else

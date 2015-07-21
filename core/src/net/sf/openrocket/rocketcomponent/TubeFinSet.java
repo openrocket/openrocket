@@ -333,7 +333,7 @@ public class TubeFinSet extends ExternalComponent {
 		s = this.getParent();
 		while (s != null) {
 			if (s instanceof SymmetricComponent) {
-				double x = this.toRelative(new Coordinate(0, 0, 0), s)[0].x;
+				double x = this.getRelativePositionVector().x;
 				return ((SymmetricComponent) s).getRadius(x);
 			}
 			s = s.getParent();

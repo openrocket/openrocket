@@ -24,10 +24,12 @@ import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.MultipleComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.startup.Application;
@@ -186,9 +188,8 @@ public class RocketFigure extends AbstractScaleFigure {
 		calculateSize();
 		Rocket theRocket = configuration.getRocket(); 
 		Coordinate zero = new Coordinate(0,0,0);
-		getShapeTree( figureShapes, theRocket, zero);	
+		getShapeTree( figureShapes, theRocket, zero);
 		
-//		System.err.println(" updating the RocketFigure.");
 		repaint();
 		fireChangeEvent();
 	}
@@ -348,27 +349,32 @@ public class RocketFigure extends AbstractScaleFigure {
 		while (iterator.hasNext()) {
 			MotorMount mount = iterator.next();
 			Motor motor = mount.getMotor(motorID);
-			double length = motor.getLength();
-			double radius = motor.getDiameter() / 2;
+			double motorLength = motor.getLength();
+			double motorRadius = motor.getDiameter() / 2;
 			
-			Coordinate[] position = ((RocketComponent) mount).toAbsolute(
-					new Coordinate(((RocketComponent) mount).getLength() +
-							mount.getMotorOverhang() - length));
+			RocketComponent mountComponent = ((RocketComponent) mount);
+			Coordinate mountPosition = mountComponent.getAbsolutePositionVector();
+			double mountLength = mountComponent.getLength();
+
+			Coordinate[] motorPositions;
+			Coordinate[] clusterTop = new Coordinate[]{mountPosition.add( mountLength/2 - motorLength + mount.getMotorOverhang() , 0, 0)};
 			
-			for (int i = 0; i < position.length; i++) {
-				position[i] = transformation.transform(position[i]);
+			motorPositions = mountComponent.shiftCoordinates(clusterTop);
+			
+			for (int i = 0; i < motorPositions.length; i++) {
+				motorPositions[i] = transformation.transform(motorPositions[i]);
 			}
 			
-			for (Coordinate coord : position) {
+			for (Coordinate coord : motorPositions) {
 				Shape s;
 				if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
 					s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
-							EXTRA_SCALE * (coord.y - radius), EXTRA_SCALE * length,
-							EXTRA_SCALE * 2 * radius);
+							EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * motorLength,
+							EXTRA_SCALE * 2 * motorRadius);
 				} else {
-					s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - radius),
-							EXTRA_SCALE * (coord.y - radius), EXTRA_SCALE * 2 * radius,
-							EXTRA_SCALE * 2 * radius);
+					s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - motorRadius),
+							EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
+							EXTRA_SCALE * 2 * motorRadius);
 				}
 				g2.setColor(fillColor);
 				g2.fill(s);
@@ -433,53 +439,29 @@ public class RocketFigure extends AbstractScaleFigure {
 		RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
 		Transformation viewTransform = this.transformation;
 		
-		Coordinate componentLocation = comp.getRelativePositionVector();
+//		Coordinate componentRelativeLocation = comp.getRelativePositionVector();
+		Coordinate componentAbsoluteLocation = parentOffset.add(comp.getRelativePositionVector());
 		
-		if( comp instanceof MultipleComponent ){
-			MultipleComponent multi = (MultipleComponent)comp;
-			int instanceCount;
-			instanceCount = multi.getInstanceCount();
-			
-			// get the offsets for m instances
-			Coordinate[] instanceOffsets = multi.getInstanceOffsets();
-				
-			// replicate n children m times each
-			int childCount = comp.getChildCount();
-			ArrayList<RocketComponentShape> childrenToReplicate = new ArrayList<RocketComponentShape>();
-			for ( int instanceNumber = 0; instanceNumber < instanceCount; instanceNumber++ ){
-				childrenToReplicate.clear();
-				Coordinate curInstanceOffset = componentLocation.add( instanceOffsets[instanceNumber] );
-				
-				// get n children shapes toReplicate
-				for ( int childNumber = 0; childNumber < childCount; childNumber++ ){
-					RocketComponent curChildComp = comp.getChild( childNumber);
-					getShapeTree( childrenToReplicate, curChildComp, curInstanceOffset);
-				}
-			
-				for ( RocketComponentShape curShape : childrenToReplicate ){
-					allShapes.add( curShape);
-				}
-				
-			}	
+		//System.err.println(">>  Drawing component "+comp.getName()+" at relloc: "+componentAbsoluteLocation);
+		if( ( comp instanceof Rocket)||( comp instanceof Stage )){
+			// these components don't have any shapes to generate / get  
+			// No-Op 
 		}else{
-			if( comp instanceof Rocket){
-				// the Rocket doesn't have any graphics to get.  
-				// Noop 
-			}else{
-			    // for most RocketComponents
-   				// TODO: HIGH: TEST that getThisShape will actually relocate by the given offset
-			    RocketComponentShape[] childShapes = getThisShape( viewType, comp, parentOffset, viewTransform);
-								
-				for ( RocketComponentShape curShape : childShapes ){
-					allShapes.add( curShape );
-				}
+//			if( comp instanceof FinSet ){
+//				System.err.println(">>  Drawing component "+comp.getName()+" at absloc: "+componentAbsoluteLocation);
+//				System.err.println("      (parent was at: "+parentOffset);
+//			}
+		    RocketComponentShape[] childShapes = getThisShape( viewType, comp, componentAbsoluteLocation, viewTransform);
+							
+			for ( RocketComponentShape curShape : childShapes ){
+				allShapes.add( curShape );
 			}
-				
-		    // recurse to each child
-		    for( RocketComponent child: comp.getChildren() ){
-		    	getShapeTree( allShapes, child, parentOffset);
-		    }
 		}
+			
+	    // recurse to each child
+	    for( RocketComponent child: comp.getChildren() ){
+	    	getShapeTree( allShapes, child, componentAbsoluteLocation);
+	    }
 		
 		return;
 	}

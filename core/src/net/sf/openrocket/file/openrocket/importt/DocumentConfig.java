@@ -408,9 +408,9 @@ class DocumentConfig {
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
 		setters.put("Stage:outside", new BooleanSetter(Reflection.findMethod(Stage.class, "setOutside", boolean.class)));
 		setters.put("Stage:relativeto", new IntSetter(Reflection.findMethod(Stage.class, "setRelativeToStage", int.class)));
-		setters.put("Stage:instancecount", new IntSetter(Reflection.findMethod(Stage.class, "setCount", int.class)));
-		setters.put("Stage:radialoffset", new DoubleSetter(Reflection.findMethod(Stage.class, "setRadialPosition", double.class)));
-		setters.put("Stage:angleoffset", new DoubleSetter(Reflection.findMethod(Stage.class, "setAngularPosition", double.class)));
+		setters.put("Stage:instancecount", new IntSetter(Reflection.findMethod(Stage.class, "setInstanceCount", int.class)));
+		setters.put("Stage:radialoffset", new DoubleSetter(Reflection.findMethod(Stage.class, "setRadialOffset", double.class)));
+		setters.put("Stage:angleoffset", new DoubleSetter(Reflection.findMethod(Stage.class, "setAngularOffset", double.class)));
 		
 	}
 	

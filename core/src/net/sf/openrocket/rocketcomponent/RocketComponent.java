@@ -106,8 +106,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Offset of the position of this component relative to the normal position given by
 	 * relativePosition.  By default zero, i.e. no position change.
 	 */
-	protected double position = 0;
+	//	protected double position = 0;
 	
+	/**
+	 * Position of this component relative to it's parent.  
+	 * In case (null == parent ): i.e. the Rocket/root component, the position is constrained to 0,0,0, and is the reference origin for the entire rocket.
+	 * Defaults to (0,0,0)
+	 */
+	protected Coordinate position = new Coordinate();
 	
 	// Color of the component, null means to use the default color
 	private Color color = null;
@@ -653,8 +659,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return isCGOverridden() || isMassOverridden();
 	}
 	
-	
-	
+	/** 
+	 * placeholder. This allows code to generally test if this component represents multiple instances with just one function call. 
+	 * 
+	 * @return number of instances
+	 */
+	public int getInstanceCount() {
+		return 1;
+	}
 	
 	/**
 	 * Get the user-defined name of the component.
@@ -844,6 +856,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return length;
 	}
 	
+	public RocketComponent.Position getRelativePositionMethod() {
+		return this.relativePosition;
+	}
+	
 	/**
 	 * Get the positioning of the component relative to its parent component.
 	 * This is one of the enums of {@link Position}.  A setter method is not provided,
@@ -867,40 +883,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param position	the relative positioning.
 	 */
 	protected void setRelativePosition(RocketComponent.Position position) {
-		if (this.relativePosition == position)
-			return;
-		checkState();
 		
-		// Update position so as not to move the component
-		if (this.parent != null) {
-			double thisPos = this.toRelative(Coordinate.NUL, this.parent)[0].x;
-			
-			switch (position) {
-			case ABSOLUTE:
-				this.position = this.toAbsolute(Coordinate.NUL)[0].x;
-				break;
-			
-			case TOP:
-				this.position = thisPos;
-				break;
-			
-			case MIDDLE:
-				this.position = thisPos - (this.parent.length - this.length) / 2;
-				break;
-			
-			case BOTTOM:
-				this.position = thisPos - (this.parent.length - this.length);
-				break;
-			
-			default:
-				throw new BugException("Unknown position type: " + position);
-			}
-		}
-		
+		// this variable does not change the internal representation
+		// the relativePosition (method) is just the lens through which external code may view this component's position. 
 		this.relativePosition = position;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
-	
 	
 	/**
 	 * Determine position relative to given position argument.  Note: This is a side-effect free method.  No state
@@ -912,22 +899,34 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return double position of the component relative to the parent, with respect to <code>position</code>
 	 */
 	public double asPositionValue(Position thePosition, RocketComponent relativeTo) {
-		double result = this.position;
+		double result = this.position.x; // relative
+		// this should be the usual case.... only 'Stage' classes should call this with anything else....
+		double relativeAxialPosition = this.position.x;
+		if (relativeTo != this.parent) {
+			Coordinate refAbsPos = relativeTo.getAbsolutePositionVector();
+			Coordinate curAbsPos = this.getAbsolutePositionVector();
+			relativeAxialPosition = (curAbsPos.x - refAbsPos.x);
+		}
+		
 		if (relativeTo != null) {
-			double thisPos = this.toRelative(Coordinate.NUL, relativeTo)[0].x;
+			double relLength = relativeTo.getLength();
 			
 			switch (thePosition) {
+			case AFTER:
+				result = relativeAxialPosition + (-relLength - this.getLength()) / 2;
+				break;
 			case ABSOLUTE:
-				result = this.toAbsolute(Coordinate.NUL)[0].x;
+				Coordinate curAbsPos = this.getAbsolutePositionVector();
+				result = curAbsPos.x;
 				break;
 			case TOP:
-				result = thisPos;
+				result = relativeAxialPosition + (relLength - this.getLength()) / 2;
 				break;
 			case MIDDLE:
-				result = thisPos - (relativeTo.length - this.length) / 2;
+				result = relativeAxialPosition;
 				break;
 			case BOTTOM:
-				result = thisPos - (relativeTo.length - this.length);
+				result = relativeAxialPosition + (this.length - relLength) / 2;
 				break;
 			default:
 				throw new BugException("Unknown position type: " + thePosition);
@@ -942,58 +941,143 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @return  the positional value.
 	 */
-	public final double getPositionValue() {
-		mutex.verify();
-		return position;
+	public double getPositionValue() {
+		return this.getAxialOffset();
 	}
 	
+	
+	public double getAxialOffset() {
+		mutex.verify();
+		return this.asPositionValue(this.relativePosition, this.parent);
+	}
+	
+	/**
+	 * 
+	 * @return always returns false for base components.  This enables one-line testing if a component is on the rocket center-line or not.
+	 */
+	public boolean isCenterline() {
+		return true;
+	}
+	
+	public boolean isAncestor(final RocketComponent testComp) {
+		RocketComponent curComp = testComp.parent;
+		while (curComp != null) {
+			if (this == curComp) {
+				return true;
+			}
+			curComp = curComp.parent;
+		}
+		return false;
+	}
 	
 	/**
 	 * Set the position value of the component.  The exact meaning of the value
 	 * depends on the current relative positioning.
 	 * <p>
-	 * The default implementation is of protected visibility, since many components
-	 * do not support setting the relative position.  A component that does support
+	 * Mince many components do not support setting the relative position.  A component that does support
 	 * it should override this with a public method that simply calls this
 	 * supermethod AND fire a suitable ComponentChangeEvent.
-	 *
+	 * 
+	 * @deprecated name is ambiguous in three-dimensional space: value may refer to any of the three dimensions.  Please use 'setPositionX' instead.
+	 * 
 	 * @param value		the position value of the component.
 	 */
 	public void setPositionValue(double value) {
-		if (MathUtil.equals(this.position, value))
+		//		if (MathUtil.equals(this.position.x, value))
+		//			return;
+		//		//		checkState();
+		//		//		this.position = new Coordinate(value, 0, 0);
+		setAxialOffset(value);
+	}
+	
+	public void setAxialOffset(double value) {
+		this.setAxialOffset(this.relativePosition, value, this.getParent());
+		this.fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+	}
+	
+	protected void setAxialOffset(Position positionMethod, double newOffset, RocketComponent referenceComponent) {
+		// if this is the root of a hierarchy, constrain the position to zeros.
+		// if referenceComponent is null, the function call is simply in error
+		
+		if ((null == this.parent) || (referenceComponent == null)) {
 			return;
+		}
+		if (referenceComponent == this) {
+			throw new BugException("cannot move a component relative to itself!");
+		}
 		checkState();
-		this.position = value;
+		//		if (this instanceof Stage) {
+		//			System.err.println(String.format(" Setting Stage X offs: type: %s   pos: %f    <==  (%s,%f,%s)", this.relativePosition.name(), this.position.x,
+		//					positionMethod.name(), newOffset, referenceComponent.getName()));
+		//		}
+		
+		double newAxialPosition = Double.NaN;
+		double refRelX = referenceComponent.position.x;
+		double refLength = referenceComponent.getLength();
+		
+		if (referenceComponent.isAncestor(this)) {
+			referenceComponent = this.parent;
+			refRelX = 0;
+		}
+		
+		switch (positionMethod) {
+		case ABSOLUTE:
+			newAxialPosition = newOffset - this.parent.position.x;
+			break;
+		case AFTER:
+			newAxialPosition = refRelX + (refLength + this.length) / 2;
+			break;
+		case TOP:
+			newAxialPosition = refRelX + (-refLength + this.length) / 2 + newOffset;
+			break;
+		case MIDDLE:
+			newAxialPosition = refRelX + newOffset;
+			break;
+		case BOTTOM:
+			newAxialPosition = refRelX + (+refLength - this.length) / 2 + newOffset;
+			break;
+		default:
+			throw new BugException("Unknown position type: " + positionMethod);
+		}
+		
+		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
+		
+		//		if ((this instanceof Stage) && (2 == this.getStageNumber())) {
+		//			System.err.println(String.format(" Set Stage X offs: type: %s   pos: %f", this.relativePosition.name(), this.position.x));
+		//		}
 	}
 	
-	
-	/*
-	 * 
-	 */
 	public Coordinate getRelativePositionVector() {
-		// ghetto version of this....
-		return new Coordinate(this.getPositionValue(), 0, 0);
+		return this.position;
 	}
 	
+	// disabled
+	//	public void setRelativePositionVector(final Coordinate _newPos) {
+	//		//		this.setPosition( this.relativePosition, _newPos );
+	//	}
 	
-	/*
-	 * 
-	 */
-	public void setRelativePositionVector(final Coordinate _newPos) {
-		// ghetto version of this....
-		this.position = _newPos.x;
+	public Coordinate getAbsolutePositionVector() {
+		if (null == this.parent) { // i.e. root / Rocket instance OR improperly initialized components
+			return new Coordinate();
+		} else {
+			return this.parent.getAbsolutePositionVector().add(this.getRelativePositionVector());
+		}
 	}
 	
 	///////////  Coordinate changes  ///////////
 	
 	/**
-	 * Returns coordinate c in absolute coordinates.  Equivalent to toComponent(c,null).
+	 * Returns coordinate c in absolute/global/rocket coordinates.  Equivalent to toComponent(c,null).
+	 * 
+	 * @param c    Coordinate in the component's coordinate system.
+	 * @return     an array of coordinates describing <code>c</code> in global coordinates.
 	 */
 	public Coordinate[] toAbsolute(Coordinate c) {
-		checkState();
-		return toRelative(c, null);
+		//		checkState();
+		//		return toRelative(c, null);
+		Coordinate absCoord = this.getAbsolutePositionVector().add(c);
+		return new Coordinate[] { absCoord };
 	}
-	
 	
 	/**
 	 * Return coordinate <code>c</code> described in the coordinate system of
@@ -1006,16 +1090,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * The current implementation does not support rotating components.
 	 *
+	 * @deprecated to test alternate interface... 
 	 * @param c    Coordinate in the component's coordinate system.
 	 * @param dest Destination component coordinate system.
 	 * @return     an array of coordinates describing <code>c</code> in coordinates
 	 * 			   relative to <code>dest</code>.
 	 */
+	@Deprecated
 	public final Coordinate[] toRelative(Coordinate c, RocketComponent dest) {
 		checkState();
 		mutex.lock("toRelative");
+		
+		if (null == dest) {
+			throw new BugException("calling toRelative(c,null) is being refactored. ");
+		}
+		
 		try {
 			double absoluteX = Double.NaN;
+			double relativeX = 0;
 			double relativeY = 0;
 			double relativeZ = 0;
 			RocketComponent search = dest;
@@ -1023,15 +1115,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			array[0] = c;
 			
 			RocketComponent component = this;
-			if (component instanceof OutsideComponent) {
-				OutsideComponent ext = (OutsideComponent) component;
-				double phi = ext.getAngularPosition();
-				double r = ext.getRadialPosition();
-				relativeY = r * Math.cos(phi);
-				relativeZ = r * Math.sin(phi);
-				array[0].setY(relativeY);
-				array[0].setZ(relativeZ);
-			}
 			while ((component != search) && (component.parent != null)) {
 				
 				array = component.shiftCoordinates(array);
@@ -1039,25 +1122,28 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 				switch (component.relativePosition) {
 				case TOP:
 					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(component.position, relativeY, relativeZ);
+						array[i] = array[i].add(relativeX, relativeY, relativeZ);
 					}
 					break;
 				
 				case MIDDLE:
+					relativeX = component.position.x;
 					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(component.position +
-								(component.parent.length - component.length) / 2, relativeY, relativeZ);
+						array[i] = array[i].add(relativeX + (component.parent.length - component.length) / 2,
+								relativeY, relativeZ);
 					}
 					break;
 				
 				case BOTTOM:
+					relativeX = component.position.x;
 					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(component.position +
-								(component.parent.length - component.length), relativeY, relativeZ);
+						array[i] = array[i].add(relativeX + (component.parent.length - component.length),
+								relativeY, relativeZ);
 					}
 					break;
 				
 				case AFTER:
+					relativeX = component.position.x;
 					// Add length of all previous brother-components with POSITION_RELATIVE_AFTER
 					int index = component.parent.children.indexOf(component);
 					assert (index >= 0);
@@ -1069,7 +1155,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 						}
 					}
 					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(component.position + component.parent.length, relativeY, relativeZ);
+						array[i] = array[i].add(relativeX + component.parent.length, relativeY, relativeZ);
 					}
 					break;
 				
@@ -1077,7 +1163,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 					search = null; // Requires back-search if dest!=null
 					if (Double.isNaN(absoluteX)) {
 						// TODO: requires debugging if thsi component is an External Pods or stage 
-						absoluteX = component.position;
+						absoluteX = relativeX;
 					}
 					break;
 				
@@ -1099,9 +1185,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			// Check whether destination has been found or whether to backtrack
 			// TODO: LOW: Backtracking into clustered components uses only one component
 			if ((dest != null) && (component != dest)) {
-				Coordinate[] origin = dest.toAbsolute(Coordinate.NUL);
+				
+				Coordinate origin = dest.getAbsolutePositionVector();
 				for (int i = 0; i < array.length; i++) {
-					array[i] = array[i].sub(origin[0]);
+					array[i] = array[i].sub(origin);
 				}
 			}
 			
@@ -1111,9 +1198,29 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
+	//	public final Coordinate[] toRelative(Coordinate[] coords, RocketComponent dest) {
+	//		Coordinate[] toReturn = new Coordinate[coords.length];
+	//		
+	//		
+	//		//		Coordinate[] array = new Coordinate[] { c };
+	//		//		//		if( dest.isCluster() ){
+	//		//		//		if( dest.multiplicity > 1){
+	//		//		array = dest.shiftCoordinates(array);
+	//		//		return this.toRelative(array, dest);
+	//		//		//		}
+	//		
+	//		Coordinate destCenter = dest.getAbsolutePositionVector();
+	//		Coordinate thisCenter = this.getAbsolutePositionVector();
+	//		Coordinate relVector = destCenter.sub(thisCenter);
+	//		
+	//		for (int coord_index = 0; coord_index < coords.length; coord_index++) {
+	//			toReturn[coord_index] = coords[coord_index].add(relVector);
+	//		}
+	//		return toReturn;
+	//	}
 	
 	/**
-	 * Recursively sum the lengths of all subcomponents that have position
+	 * Iteratively sum the lengths of all subcomponents that have position
 	 * Position.AFTER.
 	 *
 	 * @return  Sum of the lengths.
@@ -1227,7 +1334,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		addChild(component, children.size());
 	}
 	
-	
 	/**
 	 * Adds a child to the rocket component tree.  The component is added to
 	 * the given position of the component's child list.
@@ -1258,7 +1364,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			throw new IllegalStateException("Component " + component.getComponentName() +
 					" not currently compatible with component " + getComponentName());
 		}
-		
 		children.add(index, component);
 		component.parent = this;
 		
@@ -1282,6 +1387,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.checkComponentStructure();
 		component.checkComponentStructure();
 		
+		updateBounds();
 		fireAddRemoveEvent(component);
 	}
 	
@@ -1303,6 +1409,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.checkComponentStructure();
 			component.checkComponentStructure();
 			
+			updateBounds();
 			fireAddRemoveEvent(component);
 			return true;
 		}
@@ -1327,6 +1434,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			this.checkComponentStructure();
 			component.checkComponentStructure();
 			
+			updateBounds();
 			fireAddRemoveEvent(component);
 		}
 	}
@@ -1737,6 +1845,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		return id.hashCode();
 	}
 	
+	/** 
+	 * the default implementation is mostly a placeholder here, however in inheriting classes, 
+	 * this function is useful to indicate adjacent placements and view sizes
+	 */
+	protected void updateBounds() {
+		return;
+	}
+	
 	///////////// Visitor pattern implementation
 	public <R> R accept(RocketComponentVisitor<R> visitor) {
 		visitor.visit(this);
@@ -1961,4 +2077,16 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
+	// Primarily for debug use
+	public void dumpTree(final boolean includeHeader, final String prefix) {
+		if (includeHeader) {
+			System.err.println("     [Name]                     [Length]         [Rel Pos]              [Abs Pos] ");
+		}
+		
+		System.err.println(String.format("%s >> %-24s  %5.3f %24s %24s", prefix, this.getName(), this.getLength(), this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+		Iterator<RocketComponent> iterator = this.children.iterator();
+		while (iterator.hasNext()) {
+			iterator.next().dumpTree(false, prefix + "  ");
+		}
+	}
 }

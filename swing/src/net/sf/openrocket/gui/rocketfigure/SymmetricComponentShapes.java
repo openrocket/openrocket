@@ -4,7 +4,6 @@ import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Transformation;
 
-import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
@@ -20,22 +19,21 @@ public class SymmetricComponentShapes extends RocketComponentShape {
     public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
+			Coordinate componentAbsoluteLocation) {
 
-        return getShapesSide(component, transformation, instanceOffset, S);
+        return getShapesSide(component, transformation, componentAbsoluteLocation, S);
     }
 
     public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset,
+			Coordinate componentAbsoluteLocation,
 			final double scaleFactor) {
 		net.sf.openrocket.rocketcomponent.SymmetricComponent c = (net.sf.openrocket.rocketcomponent.SymmetricComponent) component;
 		int i;
 		
 		final double delta = 0.0000001;
 		double x;
-		  
 		
 		ArrayList<Coordinate> points = new ArrayList<Coordinate>();
 		x = delta;
@@ -71,11 +69,10 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 
 		//System.out.println("Final points: "+points.size());
 		
-		final int len = points.size();
 		
-		for (i = 0; i < len; i++) {
-			points.set(i, c.toAbsolute(points.get(i))[0]);
-		}
+//		for (i = 0; i < len; i++) {
+//			points.set(i, c.toAbsolute(points.get(i))[0]);
+//		}
 		
 		/*   Show points:
 		Shape[] s = new Shape[len+1];
@@ -87,18 +84,20 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 
 		//System.out.println("here");
 		
-		Coordinate center = instanceOffset;
+		final int len = points.size();
+		Coordinate center = componentAbsoluteLocation;
+		Coordinate nose = center.sub( component.getLength()/2, 0, 0);
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo(points.get(len - 1).x * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
+		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo(points.get(i).x * scaleFactor, (center.y+points.get(i).y) * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x)* scaleFactor, (center.y+points.get(i).y) * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo(points.get(i).x * scaleFactor, (center.y-points.get(i).y) * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (center.y-points.get(i).y) * scaleFactor);
 		}
-		path.lineTo(points.get(len - 1).x * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
+		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;

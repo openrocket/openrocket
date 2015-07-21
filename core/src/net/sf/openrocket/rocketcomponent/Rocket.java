@@ -391,8 +391,6 @@ public class Rocket extends RocketComponent {
 				return;
 			}
 			
-			log.debug("Firing rocket change event " + e);
-			
 			// Notify all components first
 			Iterator<RocketComponent> iterator = this.iterator(true);
 			while (iterator.hasNext()) {
@@ -636,8 +634,6 @@ public class Rocket extends RocketComponent {
 	
 	
 	////////  Obligatory component information
-	
-	
 	@Override
 	public String getComponentName() {
 		//// Rocket
