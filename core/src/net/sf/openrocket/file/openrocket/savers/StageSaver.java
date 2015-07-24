@@ -62,26 +62,12 @@ public class StageSaver extends ComponentAssemblySaver {
 	
 	private Collection<? extends String> addStageReplicationParams(final Stage currentStage) {
 		List<String> elementsToReturn = new ArrayList<String>();
-		final String relTo_tag = "relativeto";
-		final String outside_tag = "outside";
 		final String instCt_tag = "instancecount";
 		final String radoffs_tag = "radialoffset";
 		final String startangle_tag = "angleoffset";
 		
 		
 		if (null != currentStage) {
-			// Save position unless "AFTER"
-			if (currentStage.getRelativePosition() != RocketComponent.Position.AFTER) {
-				// position type and offset are saved in superclass
-				//				String type = currentStage.getRelativePositionMethod().name().toLowerCase(Locale.ENGLISH);
-				//				double axialOffset = currentStage.getAxialPosition();
-				//				elementsToReturn.add("<position type=\"" + type + "\">" + axialOffset + "</position>");
-				int relativeTo = currentStage.getRelativeToStage();
-				elementsToReturn.add("<" + relTo_tag + ">" + relativeTo + "</" + relTo_tag + ">");
-			}
-			
-			boolean outsideFlag = currentStage.getOutside();
-			elementsToReturn.add("<" + outside_tag + ">" + outsideFlag + "</" + outside_tag + ">");
 			int instanceCount = currentStage.getInstanceCount();
 			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
 			double radialOffset = currentStage.getRadialOffset();

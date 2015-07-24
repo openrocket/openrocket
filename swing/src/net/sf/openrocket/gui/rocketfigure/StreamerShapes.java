@@ -22,7 +22,7 @@ public class StreamerShapes extends RocketComponentShape {
 		double radius = massObj.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
 		
-		Shape[] s = new Shape[0];
+		Shape[] s = new Shape[1];
 		Coordinate center = componentAbsoluteLocation;
 		s[0] = new RoundRectangle2D.Double((center.x-radius)*S,(center.y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
@@ -45,7 +45,7 @@ public class StreamerShapes extends RocketComponentShape {
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
 		double or = tube.getRadius();
-		Shape[] s = new Shape[0];
+		Shape[] s = new Shape[1];
 		Coordinate center = componentAbsoluteLocation;
 		s[0] = new Ellipse2D.Double((center.z-or)*S,(center.y-or)*S,2*or*S,2*or*S);
 		 

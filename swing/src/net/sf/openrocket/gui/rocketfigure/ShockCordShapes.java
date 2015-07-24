@@ -22,7 +22,7 @@ public class ShockCordShapes extends RocketComponentShape {
 		double radius = massObj.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
 		
-		Shape[] s = new Shape[0];
+		Shape[] s = new Shape[1];
 		Coordinate start = componentAbsoluteLocation;
 		s[0] = new RoundRectangle2D.Double((start.x-radius)*S,(start.y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
@@ -47,7 +47,7 @@ public class ShockCordShapes extends RocketComponentShape {
 		
 		double or = tube.getRadius();
 		
-		Shape[] s = new Shape[0];
+		Shape[] s = new Shape[1];
 		Coordinate start = componentAbsoluteLocation;
 		s[0] = new Ellipse2D.Double((start.z-or)*S,(start.y-or)*S,2*or*S,2*or*S);
 		

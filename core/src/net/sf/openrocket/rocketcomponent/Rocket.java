@@ -77,7 +77,6 @@ public class Rocket extends RocketComponent {
 		flightConfigurationIDs.add(null);
 	}
 	
-	
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
 	
@@ -93,6 +92,8 @@ public class Rocket extends RocketComponent {
 		treeModID = modID;
 		functionalModID = modID;
 		defaultConfiguration = new Configuration(this);
+		
+		Stage.resetStageCount();
 	}
 	
 	

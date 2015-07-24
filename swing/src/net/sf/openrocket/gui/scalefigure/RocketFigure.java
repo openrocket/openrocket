@@ -23,9 +23,11 @@ import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.OutsideComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
@@ -442,27 +444,50 @@ public class RocketFigure extends AbstractScaleFigure {
 //		Coordinate componentRelativeLocation = comp.getRelativePositionVector();
 		Coordinate componentAbsoluteLocation = parentOffset.add(comp.getRelativePositionVector());
 		
-		//System.err.println(">>  Drawing component "+comp.getName()+" at relloc: "+componentAbsoluteLocation);
-		if( ( comp instanceof Rocket)||( comp instanceof Stage )){
-			// these components don't have any shapes to generate / get  
-			// No-Op 
+		// generate shapes:
+		if( comp instanceof Rocket){
+			// no-op.  no shapes
+		}else if( comp instanceof Stage ){
+			// no-op; no shapes here, either.
 		}else{
-//			if( comp instanceof FinSet ){
-//				System.err.println(">>  Drawing component "+comp.getName()+" at absloc: "+componentAbsoluteLocation);
-//				System.err.println("      (parent was at: "+parentOffset);
-//			}
+			// get all shapes for this component, add to return list.
 		    RocketComponentShape[] childShapes = getThisShape( viewType, comp, componentAbsoluteLocation, viewTransform);
-							
 			for ( RocketComponentShape curShape : childShapes ){
 				allShapes.add( curShape );
 			}
 		}
-			
-	    // recurse to each child
-	    for( RocketComponent child: comp.getChildren() ){
-	    	getShapeTree( allShapes, child, componentAbsoluteLocation);
-	    }
 		
+		// recurse differently, depending on if this node has instances or not....
+		if( comp.isCenterline() ){	
+			// recurse to each child with just the center
+		    for( RocketComponent child: comp.getChildren() ){
+		    	getShapeTree( allShapes, child, componentAbsoluteLocation);
+		    }
+
+		}else{
+		
+			// DEBUG -- for external stages....
+			System.err.println(">>  Drawing pStage: "+comp.getName()+" at absloc: "+componentAbsoluteLocation);
+			Stage testStage = (Stage)comp;
+			//	System.err.println(">>  Starting component "+component.getName()+" at: "+(instanceOffsets[0]));
+		
+			// recurse to each child with each instance of this component
+			OutsideComponent outer = (OutsideComponent)comp;
+//			int instanceCount = outer.getInstanceCount();
+
+			// get the offsets for m instances
+			Coordinate[] instanceOffsets = new Coordinate[]{ componentAbsoluteLocation };
+			instanceOffsets = comp.shiftCoordinates( instanceOffsets);
+            
+			// recurse to each child with each offset 
+		    for( RocketComponent child: comp.getChildren() ){
+		    	for( Coordinate curInstanceCoordinate : instanceOffsets){
+		    		getShapeTree( allShapes, child, curInstanceCoordinate);
+		    	}
+		    }
+
+		}
+
 		return;
 	}
 

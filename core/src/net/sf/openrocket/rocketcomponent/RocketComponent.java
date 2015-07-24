@@ -79,12 +79,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Parent component of the current component, or null if none exists.
 	 */
-	private RocketComponent parent = null;
+	protected RocketComponent parent = null;
+	
+	/** 
+	 * previous child in parent's child list
+	 */
+	protected RocketComponent previousComponent = null;
 	
 	/**
 	 * List of child components of this component.
 	 */
-	private ArrayList<RocketComponent> children = new ArrayList<RocketComponent>();
+	protected ArrayList<RocketComponent> children = new ArrayList<RocketComponent>();
 	
 	
 	////////  Parameters common to all components:
@@ -106,7 +111,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * Offset of the position of this component relative to the normal position given by
 	 * relativePosition.  By default zero, i.e. no position change.
 	 */
-	//	protected double position = 0;
+	protected double offset = 0;
 	
 	/**
 	 * Position of this component relative to it's parent.  
@@ -298,8 +303,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	protected void componentChanged(ComponentChangeEvent e) {
 		// No-op
 		checkState();
+		this.update();
 	}
-	
 	
 	
 	
@@ -883,7 +888,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @param position	the relative positioning.
 	 */
 	protected void setRelativePosition(RocketComponent.Position position) {
-		
 		// this variable does not change the internal representation
 		// the relativePosition (method) is just the lens through which external code may view this component's position. 
 		this.relativePosition = position;
@@ -898,40 +902,41 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @return double position of the component relative to the parent, with respect to <code>position</code>
 	 */
-	public double asPositionValue(Position thePosition, RocketComponent relativeTo) {
-		double result = this.position.x; // relative
-		// this should be the usual case.... only 'Stage' classes should call this with anything else....
-		double relativeAxialPosition = this.position.x;
-		if (relativeTo != this.parent) {
-			Coordinate refAbsPos = relativeTo.getAbsolutePositionVector();
-			Coordinate curAbsPos = this.getAbsolutePositionVector();
-			relativeAxialPosition = (curAbsPos.x - refAbsPos.x);
+	public double asPositionValue(Position thePosition) {
+		if (null == this.parent) {
+			return 0.0;
 		}
 		
-		if (relativeTo != null) {
-			double relLength = relativeTo.getLength();
-			
-			switch (thePosition) {
-			case AFTER:
-				result = relativeAxialPosition + (-relLength - this.getLength()) / 2;
-				break;
-			case ABSOLUTE:
-				Coordinate curAbsPos = this.getAbsolutePositionVector();
-				result = curAbsPos.x;
-				break;
-			case TOP:
-				result = relativeAxialPosition + (relLength - this.getLength()) / 2;
-				break;
-			case MIDDLE:
-				result = relativeAxialPosition;
-				break;
-			case BOTTOM:
-				result = relativeAxialPosition + (this.length - relLength) / 2;
-				break;
-			default:
-				throw new BugException("Unknown position type: " + thePosition);
+		double thisCenterX = this.position.x;
+		double relativeLength = this.parent.length;
+		double result = Double.NaN;
+		
+		switch (thePosition) {
+		case AFTER:
+			if (null == this.previousComponent) {
+				result = thisCenterX + (relativeLength - this.getLength()) / 2;
+			} else {
+				double relativeAxialOffset = this.previousComponent.getRelativePositionVector().x;
+				relativeLength = this.previousComponent.getLength();
+				result = (thisCenterX - relativeAxialOffset) - (relativeLength + this.getLength()) / 2;
 			}
+			break;
+		case ABSOLUTE:
+			result = this.getAbsolutePositionVector().x;
+			break;
+		case TOP:
+			result = thisCenterX + (relativeLength - this.getLength()) / 2;
+			break;
+		case MIDDLE:
+			result = thisCenterX;
+			break;
+		case BOTTOM:
+			result = thisCenterX + (this.length - relativeLength) / 2;
+			break;
+		default:
+			throw new BugException("Unknown position type: " + thePosition);
 		}
+		
 		return result;
 	}
 	
@@ -948,7 +953,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	public double getAxialOffset() {
 		mutex.verify();
-		return this.asPositionValue(this.relativePosition, this.parent);
+		return this.asPositionValue(this.relativePosition);
 	}
 	
 	/**
@@ -990,71 +995,87 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		setAxialOffset(value);
 	}
 	
-	public void setAxialOffset(double value) {
-		this.setAxialOffset(this.relativePosition, value, this.getParent());
+	public void setAxialOffset(double _value) {
+		this.setAxialOffset(this.relativePosition, _value);
 		this.fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	protected void setAxialOffset(Position positionMethod, double newOffset, RocketComponent referenceComponent) {
-		// if this is the root of a hierarchy, constrain the position to zeros.
-		// if referenceComponent is null, the function call is simply in error
+	protected void setAfter(RocketComponent referenceComponent) {
+		checkState();
 		
-		if ((null == this.parent) || (referenceComponent == null)) {
+		double newAxialPosition;
+		double refLength;
+		
+		if (null == referenceComponent) {
+			// if this is the first component in the stage, position from the top of the parent
+			if (null == this.parent) {
+				// Probably initialization order issue.  Ignore a.t.t.
+				return;
+			} else {
+				refLength = this.parent.getLength();
+				newAxialPosition = (-refLength + this.length) / 2;
+			}
+		} else {
+			refLength = referenceComponent.getLength();
+			double refRelX = referenceComponent.getRelativePositionVector().x;
+			
+			newAxialPosition = refRelX + (refLength + this.length) / 2;
+		}
+		
+		//this.relativePosition = Position.AFTER;
+		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
+	}
+	
+	protected void setAxialOffset(Position positionMethod, double newOffset) {
+		// if this is the root of a hierarchy, constrain the position to zero.
+		if (null == this.parent) {
 			return;
 		}
-		if (referenceComponent == this) {
-			throw new BugException("cannot move a component relative to itself!");
-		}
 		checkState();
-		//		if (this instanceof Stage) {
-		//			System.err.println(String.format(" Setting Stage X offs: type: %s   pos: %f    <==  (%s,%f,%s)", this.relativePosition.name(), this.position.x,
-		//					positionMethod.name(), newOffset, referenceComponent.getName()));
-		//		}
+		
+		this.relativePosition = positionMethod;
+		this.offset = newOffset;
 		
 		double newAxialPosition = Double.NaN;
-		double refRelX = referenceComponent.position.x;
-		double refLength = referenceComponent.getLength();
-		
-		if (referenceComponent.isAncestor(this)) {
-			referenceComponent = this.parent;
-			refRelX = 0;
-		}
+		double refLength = this.parent.getLength();
 		
 		switch (positionMethod) {
 		case ABSOLUTE:
 			newAxialPosition = newOffset - this.parent.position.x;
 			break;
 		case AFTER:
-			newAxialPosition = refRelX + (refLength + this.length) / 2;
-			break;
+			this.setAfter(this.previousComponent);
+			return;
 		case TOP:
-			newAxialPosition = refRelX + (-refLength + this.length) / 2 + newOffset;
+			newAxialPosition = (-refLength + this.length) / 2 + newOffset;
 			break;
 		case MIDDLE:
-			newAxialPosition = refRelX + newOffset;
+			newAxialPosition = newOffset;
 			break;
 		case BOTTOM:
-			newAxialPosition = refRelX + (+refLength - this.length) / 2 + newOffset;
+			newAxialPosition = (+refLength - this.length) / 2 + newOffset;
 			break;
 		default:
 			throw new BugException("Unknown position type: " + positionMethod);
 		}
 		
+		if (Double.NaN == newAxialPosition) {
+			throw new BugException("setAxialOffset is broken -- attempted to update as NaN: " + this.toDebugDetail());
+		}
 		this.position = new Coordinate(newAxialPosition, this.position.y, this.position.z);
+	}
+	
+	protected void update() {
+		if (null == this.parent) {
+			return;
+		}
 		
-		//		if ((this instanceof Stage) && (2 == this.getStageNumber())) {
-		//			System.err.println(String.format(" Set Stage X offs: type: %s   pos: %f", this.relativePosition.name(), this.position.x));
-		//		}
+		this.setAxialOffset(this.relativePosition, this.offset);
 	}
 	
 	public Coordinate getRelativePositionVector() {
 		return this.position;
 	}
-	
-	// disabled
-	//	public void setRelativePositionVector(final Coordinate _newPos) {
-	//		//		this.setPosition( this.relativePosition, _newPos );
-	//	}
 	
 	public Coordinate getAbsolutePositionVector() {
 		if (null == this.parent) { // i.e. root / Rocket instance OR improperly initialized components
@@ -1364,6 +1385,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			throw new IllegalStateException("Component " + component.getComponentName() +
 					" not currently compatible with component " + getComponentName());
 		}
+		
 		children.add(index, component);
 		component.parent = this;
 		
@@ -1556,23 +1578,24 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @return   the stage number this component belongs to.
 	 */
-	public final int getStageNumber() {
+	public int getStageNumber() {
 		checkState();
 		if (parent == null) {
 			throw new IllegalArgumentException("getStageNumber() called for root component");
 		}
 		
-		RocketComponent stage = this;
-		while (!(stage instanceof Stage)) {
-			stage = stage.parent;
-			if (stage == null || stage.parent == null) {
+		RocketComponent curComponent = this;
+		while (!(curComponent instanceof Stage)) {
+			curComponent = curComponent.parent;
+			if (curComponent == null || curComponent.parent == null) {
 				throw new IllegalStateException("getStageNumber() could not find parent " +
 						"stage.");
 			}
 		}
-		return stage.parent.getChildPosition(stage);
+		Stage stage = (Stage) curComponent;
+		
+		return stage.getStageNumber();
 	}
-	
 	
 	/**
 	 * Find a component with the given ID.  The component tree is searched from this component
@@ -2077,16 +2100,46 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 	}
 	
-	// Primarily for debug use
-	public void dumpTree(final boolean includeHeader, final String prefix) {
-		if (includeHeader) {
-			System.err.println("     [Name]                     [Length]         [Rel Pos]              [Abs Pos] ");
+	// multi-line output
+	protected StringBuilder toDebugDetail() {
+		StringBuilder buf = new StringBuilder();
+		StackTraceElement[] stackTrace = (new Exception()).getStackTrace();
+		buf.append(" >> Dumping Detailed Information from: " + stackTrace[1].getMethodName() + "\n");
+		buf.append("      current Component: " + this.getName() + "  ofClass: " + this.getClass().getSimpleName() + "\n");
+		buf.append("      offset: " + this.offset + " via: " + this.relativePosition.name() + "  => " + this.getAxialOffset() + "\n");
+		buf.append("      thisCenterX: " + this.position.x + "\n");
+		buf.append("      this length: " + this.length + "\n");
+		if (null == this.previousComponent) {
+			buf.append("      ..prevComponent: " + null + "\n");
+		} else {
+			RocketComponent refComp = this.previousComponent;
+			buf.append("      >>prevCompName: " + refComp.getName() + "\n");
+			buf.append("      ..prevCenterX: " + refComp.position.x + "\n");
+			buf.append("      ..prevLength: " + refComp.getLength() + "\n");
 		}
+		return buf;
+	}
+	
+	// Primarily for debug use
+	public String toDebugTree() {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
+		buffer.append("     [Name]                     [Length]         [Rel Pos]              [Abs Pos]  \n");
+		this.dumpTreeHelper(buffer, "");
+		return buffer.toString();
+	}
+	
+	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
+				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+	}
+	
+	public void dumpTreeHelper(StringBuilder buffer, final String prefix) {
+		this.toDebugTreeNode(buffer, prefix);
 		
-		System.err.println(String.format("%s >> %-24s  %5.3f %24s %24s", prefix, this.getName(), this.getLength(), this.getRelativePositionVector(), this.getAbsolutePositionVector()));
 		Iterator<RocketComponent> iterator = this.children.iterator();
 		while (iterator.hasNext()) {
-			iterator.next().dumpTree(false, prefix + "  ");
+			iterator.next().dumpTreeHelper(buffer, prefix + "    ");
 		}
 	}
 }

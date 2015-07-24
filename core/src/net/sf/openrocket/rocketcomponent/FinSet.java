@@ -664,6 +664,7 @@ public abstract class FinSet extends ExternalComponent {
 			finArea = -1;
 			cantRotation = null;
 		}
+		super.componentChanged(e);
 	}
 	
 	

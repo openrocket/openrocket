@@ -17,74 +17,25 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
-	private boolean outside = false;
+	private boolean centerline = true;
 	private double angularPosition_rad = 0;
 	private double radialPosition_m = 0;
-	private Stage stageRelativeTo = null;
 	
 	private int count = 1;
 	private double angularSeparation = Math.PI;
 	
+	private int stageNumber;
+	private static int stageCount;
 	
 	public Stage() {
 		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
-	}
-	
-	@Override
-	protected void componentChanged(ComponentChangeEvent e) {
-		checkState();
-		
-		if (e.isAerodynamicChange() || e.isMassChange()) {
-			//			System.err.println(">> in (" + this.getStageNumber() + ")" + this.getName());
-			// update this component		
-			this.updateBounds();
-			this.updateCenter();
-			
-			// now update children relative to this
-			int childIndex = 0;
-			int childCount = this.getChildCount();
-			RocketComponent prevComp = null;
-			while (childIndex < childCount) {
-				RocketComponent curComp = this.getChild(childIndex);
-				//				System.err.println("      updating position of " + curComp + " via (AFTER, O, " + prevComp + ")");
-				if (0 == childIndex) {
-					curComp.setAxialOffset(Position.TOP, 0, this);
-				} else {
-					if (Position.AFTER != curComp.getRelativePositionMethod()) {
-						throw new IllegalStateException(" direct children of a Stage are expected to be positioned via AFTER.");
-					}
-					curComp.setAxialOffset(Position.AFTER, 0, prevComp);
-				}
-				//				System.err.println("        position updated to: " + curComp.getAxialOffset());
-				
-				prevComp = curComp;
-				childIndex++;
-			}
-			
-			
-		}
+		stageNumber = Stage.stageCount;
+		Stage.stageCount++;
 	}
 	
 	protected String toPositionString() {
 		return ">> " + this.getName() + "   rel: " + this.getRelativePositionVector().x + "  abs: " + this.getAbsolutePositionVector().x;
-	}
-	
-	protected void dumpDetail() {
-		StackTraceElement[] stackTrace = (new Exception()).getStackTrace();
-		System.err.println(" >> Dumping Stage Detailed Information from: " + stackTrace[1].getMethodName());
-		System.err.println("      curStageName: " + this.getName());
-		System.err.println("      method: " + this.relativePosition.name());
-		System.err.println("      thisCenterX: " + this.position.x);
-		System.err.println("      this length: " + this.length);
-		if (-1 == this.getRelativeToStage()) {
-			System.err.println("      ..refStageName: " + null);
-		} else {
-			Stage refStage = this.stageRelativeTo;
-			System.err.println("      ..refStageName: " + refStage.getName());
-			System.err.println("      ..refCenterX: " + refStage.position.x);
-			System.err.println("      ..refLength: " + refStage.getLength());
-		}
 	}
 	
 	
@@ -103,6 +54,30 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return true;
 	}
 	
+	@Override
+	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		
+		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
+		
+		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s", prefix, thisLabel, this.getLength(),
+				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+		
+		if (this.isCenterline()) {
+			buffer.append("\n");
+		} else {
+			buffer.append(String.format("  %4.1f//%s \n", this.getAxialOffset(), this.relativePosition.name()));
+			Coordinate componentAbsolutePosition = this.getAbsolutePositionVector();
+			Coordinate[] instanceCoords = new Coordinate[] { componentAbsolutePosition };
+			instanceCoords = this.shiftCoordinates(instanceCoords);
+			
+			for (int instance = 0; instance < this.count; instance++) {
+				Coordinate instanceAbsolutePosition = instanceCoords[instance];
+				buffer.append(String.format("%s                 [instance %2d of %2d]  %s\n", prefix, instance, count, instanceAbsolutePosition));
+			}
+		}
+		
+	}
+	
 	/**
 	 * Check whether the given type can be added to this component.  A Stage allows
 	 * only BodyComponents to be added.
@@ -113,7 +88,11 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		return BodyComponent.class.isAssignableFrom(type);
+		if (type.equals(Stage.class)) {
+			return true;
+		} else {
+			return BodyComponent.class.isAssignableFrom(type);
+		}
 	}
 	
 	@Override
@@ -129,35 +108,34 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return copy;
 	}
 	
+	
 	@Override
 	public boolean getOutside() {
-		return this.outside;
+		return !isCenterline();
 	}
 	
+	/**
+	 * Detects if this Stage is attached directly to the Rocket (and is thus centerline)
+	 * Or if this stage is a parallel (external) stage.
+	 * 
+	 * @return whether this Stage is along the center line of the Rocket.
+	 */
 	@Override
 	public boolean isCenterline() {
-		return !this.outside;
+		if (this.parent instanceof Rocket) {
+			this.centerline = true;
+		} else {
+			this.centerline = false;
+		}
+		return this.centerline;
 	}
 	
+	/** 
+	 * Stub. 
+	 * The actual value is set via 'isCenterline()'
+	 */
 	@Override
 	public void setOutside(final boolean _outside) {
-		if (this.outside == _outside) {
-			return;
-		}
-		
-		this.outside = _outside;
-		if (this.outside) {
-			this.relativePosition = Position.BOTTOM;
-			if (null == this.stageRelativeTo) {
-				this.stageRelativeTo = this.updatePrevAxialStage();
-			}
-		} else {
-			this.relativePosition = Position.AFTER;
-			this.stageRelativeTo = this.updatePrevAxialStage();
-			this.count = 1;
-		}
-		
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
@@ -172,67 +150,81 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setInstanceCount(final int _count) {
 		mutex.verify();
+		if (this.centerline) {
+			return;
+		}
+		
 		this.count = _count;
 		this.angularSeparation = Math.PI * 2 / this.count;
-		
-		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		}
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
 	public double getAngularOffset() {
-		if (this.outside) {
-			return this.angularPosition_rad;
-		} else {
+		if (this.centerline) {
 			return 0.;
+		} else {
+			return this.angularPosition_rad;
 		}
-		
 	}
 	
 	@Override
 	public void setAngularOffset(final double angle_rad) {
-		this.angularPosition_rad = angle_rad;
-		if (this.outside) {
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+		if (this.centerline) {
+			return;
 		}
+		
+		this.angularPosition_rad = angle_rad;
+		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
 	public double getRadialOffset() {
-		if (this.outside) {
-			return this.radialPosition_m;
-		} else {
+		if (this.centerline) {
 			return 0.;
+		} else {
+			return this.radialPosition_m;
 		}
 	}
 	
 	@Override
 	public void setRadialOffset(final double radius) {
-		this.radialPosition_m = radius;
 		//		log.error("  set radial position for: " + this.getName() + " to: " + this.radialPosition_m + " ... in meters?");
-		if (this.outside) {
+		if (false == this.centerline) {
+			this.radialPosition_m = radius;
 			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 		}
 	}
 	
 	public void setRelativePositionMethod(final Position _newPosition) {
-		if (Position.AFTER != _newPosition) {
-			this.outside = true;
+		if (null == this.parent) {
+			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
 		}
-		
-		super.setRelativePosition(_newPosition);
+		if (this.isCenterline()) {
+			// Centerline stages must be set via AFTER-- regardless of what was requested:
+			super.setRelativePosition(Position.AFTER);
+		} else if (this.parent instanceof Stage) {
+			if (Position.AFTER == _newPosition) {
+				log.warn("Stages cannot be relative to other stages via AFTER! Ignoring.");
+				super.setRelativePosition(Position.TOP);
+			} else {
+				super.setRelativePosition(_newPosition);
+			}
+		}
 	}
 	
 	@Override
 	public double getPositionValue() {
 		mutex.verify();
 		
-		if (null == this.stageRelativeTo) {
-			return super.asPositionValue(this.relativePosition, this.getParent());
-		} else {
-			return getAxialOffset();
-		}
+		return getAxialOffset();
+	}
+	
+	/*
+	 * @deprecated remove when the file is fixed....
+	 */
+	public void setRelativeToStage(final int _relToStage) {
+		// no-op
 	}
 	
 	/** 
@@ -242,46 +234,43 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	 * @return the stage number which this stage is positioned relative to
 	 */
 	public int getRelativeToStage() {
-		if (null == this.stageRelativeTo) {
+		if (null == this.parent) {
 			return -1;
-		}
-		
-		return this.getRocket().getChildPosition(this.stageRelativeTo);
-	}
-	
-	
-	/*
-	 * 
-	 * @param _relTo the stage number which this stage is positioned relative to
-	 */
-	public Stage setRelativeToStage(final int _relTo) {
-		mutex.verify();
-		if ((_relTo < 0) || (_relTo >= this.getRocket().getStageCount())) {
-			log.error("attempt to position this stage relative to a non-existent stage number. Ignoring.");
-			this.stageRelativeTo = null;
-		} else if (_relTo == this.getRocket().getChildPosition(this)) {
-			// self-referential: also an error
-			this.stageRelativeTo = null;
+		} else if (this.parent instanceof Stage) {
+			return this.parent.parent.getChildPosition(this.parent);
 		} else if (this.isCenterline()) {
-			this.relativePosition = Position.AFTER;
-			updatePrevAxialStage();
-		} else {
-			this.stageRelativeTo = (Stage) this.getRocket().getChild(_relTo);
+			if (0 < this.stageNumber) {
+				return --this.stageNumber;
+			}
 		}
 		
-		return this.stageRelativeTo;
+		return -1;
 	}
 	
+	public static void resetStageCount() {
+		Stage.stageCount = 0;
+	}
+	
+	@Override
+	public int getStageNumber() {
+		return this.stageNumber;
+	}
 	
 	@Override
 	public double getAxialOffset() {
 		double returnValue;
-		if (null == this.stageRelativeTo) {
-			returnValue = super.asPositionValue(Position.TOP, this.getParent());
-		} else if (this.isCenterline()) {
-			returnValue = super.asPositionValue(Position.AFTER, this.stageRelativeTo);
+		
+		if (this.isCenterline()) {
+			if (Position.AFTER == this.relativePosition) {
+				returnValue = super.getAxialOffset();
+			} else if (Position.TOP == this.relativePosition) {
+				this.relativePosition = Position.AFTER;
+				returnValue = super.getAxialOffset();
+			} else {
+				throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
+			}
 		} else {
-			returnValue = super.asPositionValue(this.relativePosition, this.stageRelativeTo);
+			returnValue = super.asPositionValue(this.relativePosition);
 		}
 		
 		if (0.000001 > Math.abs(returnValue)) {
@@ -294,12 +283,10 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public void setAxialOffset(final double _pos) {
 		this.updateBounds();
-		super.setAxialOffset(this.relativePosition, _pos, this.stageRelativeTo);
+		super.setAxialOffset(this.relativePosition, _pos);
 		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
-	// TOOD: unify with 'generate instanceOffsets()'
-	// what is the use of this again? 
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
@@ -328,56 +315,74 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return toReturn;
 	}
 	
+	@Override
+	protected StringBuilder toDebugDetail() {
+		StringBuilder buf = super.toDebugDetail();
+		//		if (-1 == this.getRelativeToStage()) {
+		//			System.err.println("      >>refStageName: " + null + "\n");
+		//		} else {
+		//			Stage refStage = (Stage) this.parent;
+		//			System.err.println("      >>refStageName: " + refStage.getName() + "\n");
+		//			System.err.println("      ..refCenterX: " + refStage.position.x + "\n");
+		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
+		//		}
+		return buf;
+	}
 	
 	@Override
 	public void updateBounds() {
-		
 		// currently only updates the length 
 		this.length = 0;
 		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
 		while (childIterator.hasNext()) {
 			RocketComponent curChild = childIterator.next();
-			this.length += curChild.getLength();
+			if (curChild.isCenterline()) {
+				this.length += curChild.getLength();
+			}
 		}
 		
 	}
 	
-	/**
-	 * @Warning this will return the previous axial stage REGARDLESS of whether 'this' is in the centerline stack or not. 
-	 * @return previous axial stage (defined as above, in the direction of launch) 
-	 */
-	protected Stage updatePrevAxialStage() {
-		if (null != this.getParent()) {
-			Rocket rocket = this.getRocket();
-			int thisStageNumber = rocket.getChildPosition(this);
-			int curStageIndex = thisStageNumber - 1;
-			while (curStageIndex >= 0) {
-				Stage curStage = (Stage) rocket.getChild(curStageIndex);
-				if (curStage.isCenterline()) {
-					this.stageRelativeTo = curStage;
-					return this.stageRelativeTo;
-				}
-				curStageIndex--;
-			}
+	@Override
+	protected void update() {
+		if (null == this.parent) {
+			return;
 		}
 		
-		this.stageRelativeTo = null;
-		return null;
+		this.updateBounds();
+		if (this.parent instanceof Rocket) {
+			int childNumber = this.parent.getChildPosition(this);
+			if (0 == childNumber) {
+				this.setAfter(null);
+			} else {
+				RocketComponent prevStage = this.parent.getChild(childNumber - 1);
+				this.setAfter(prevStage);
+			}
+		} else if (this.parent instanceof Stage) {
+			this.updateBounds();
+			super.update();
+		}
+		
+		
+		this.updateChildSequence();
+		
+		return;
 	}
 	
-	protected void updateCenter() {
-		if (null == this.stageRelativeTo) {
-			this.updatePrevAxialStage();
-			if (null == this.stageRelativeTo) {
-				// this stage is actually the topmost Stage, instead of just out-of-date
-				this.setAxialOffset(Position.ABSOLUTE, this.getLength() / 2, this.getRocket());
-				return;
+	protected void updateChildSequence() {
+		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
+		RocketComponent prevComp = null;
+		while (childIterator.hasNext()) {
+			RocketComponent curChild = childIterator.next();
+			if (curChild.isCenterline()) {
+				curChild.previousComponent = prevComp;
+				prevComp = curChild;
+			} else {
+				curChild.previousComponent = null;
 			}
 		}
-		
-		// general case:
-		double offset = super.asPositionValue(this.relativePosition, this.stageRelativeTo);
-		this.setAxialOffset(this.relativePosition, offset, this.stageRelativeTo);
 	}
+	
+	
 	
 }

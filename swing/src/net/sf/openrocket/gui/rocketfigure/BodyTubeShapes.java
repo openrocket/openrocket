@@ -1,5 +1,6 @@
 package net.sf.openrocket.gui.rocketfigure;
 
+import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 
@@ -21,7 +22,6 @@ public class BodyTubeShapes extends RocketComponentShape {
 		Coordinate[] instanceOffsets = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
 		instanceOffsets = component.shiftCoordinates(instanceOffsets);
 		
-//		System.err.println(">>  Starting component "+component.getName()+" at: "+(instanceOffsets[0].x - length/2));
 		Shape[] s = new Shape[instanceOffsets.length];
 		for (int i=0; i < instanceOffsets.length; i++) {
 			s[i] = new Rectangle2D.Double((instanceOffsets[i].x-length/2)*S,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D

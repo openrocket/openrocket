@@ -1,11 +1,6 @@
 package net.sf.openrocket.gui.configdialog;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.util.List;
-
 import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -13,9 +8,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.gui.SpinnerEditor;
@@ -23,8 +15,6 @@ import net.sf.openrocket.gui.adaptors.BooleanModel;
 import net.sf.openrocket.gui.adaptors.DoubleModel;
 import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.adaptors.IntegerModel;
-import net.sf.openrocket.gui.adaptors.StageSelectModel;
-import net.sf.openrocket.gui.components.BasicSlider;
 import net.sf.openrocket.gui.components.StyledLabel;
 import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
@@ -35,7 +25,6 @@ import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
-import net.sf.openrocket.util.ChangeSource;
 
 public class StageConfig extends RocketComponentConfig {
 	private static final Translator trans = Application.getTranslator();
@@ -60,13 +49,6 @@ public class StageConfig extends RocketComponentConfig {
 	private JPanel parallelTab( final Stage stage ){
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
 	
-		// this stage is positioned relative to what stage? 
-		JLabel relativeStageLabel = new JLabel(trans.get("Stage.parallel.componentname"));
-		motherPanel.add( relativeStageLabel);
-		ComboBoxModel<Stage> relativeStageModel = new StageSelectModel( stage );
-		JComboBox<Stage> relToCombo = new JComboBox<Stage>( relativeStageModel );
-		motherPanel.add( relToCombo , "growx, wrap");
-		
 		// enable parallel staging
 		motherPanel.add(new JSeparator(SwingConstants.HORIZONTAL), "spanx 3, growx, wrap");	
 		BooleanModel parallelEnabledModel = new BooleanModel( component, "Outside");
@@ -145,6 +127,8 @@ public class StageConfig extends RocketComponentConfig {
 		UnitSelector axialOffsetUnitSelector = new UnitSelector(axialOffsetModel);
 		motherPanel.add(axialOffsetUnitSelector, "growx 1, wrap");
 		parallelEnabledModel.addEnableComponent( axialOffsetUnitSelector , true);		
+		
+		System.err.println(stage.getRocket().toDebugTree());
 		
 		return motherPanel;
 	}
