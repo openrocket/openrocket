@@ -1,6 +1,5 @@
 package net.sf.openrocket.gui.rocketfigure;
 
-import net.sf.openrocket.rocketcomponent.Stage;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Transformation;
 

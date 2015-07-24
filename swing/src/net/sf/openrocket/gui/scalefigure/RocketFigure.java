@@ -23,15 +23,11 @@ import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.MotorMount;
-import net.sf.openrocket.rocketcomponent.OutsideComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.Stage;
-import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.startup.Application;
@@ -463,29 +459,17 @@ public class RocketFigure extends AbstractScaleFigure {
 		    for( RocketComponent child: comp.getChildren() ){
 		    	getShapeTree( allShapes, child, componentAbsoluteLocation);
 		    }
-
 		}else{
-		
-			// DEBUG -- for external stages....
-			System.err.println(">>  Drawing pStage: "+comp.getName()+" at absloc: "+componentAbsoluteLocation);
-			Stage testStage = (Stage)comp;
-			//	System.err.println(">>  Starting component "+component.getName()+" at: "+(instanceOffsets[0]));
-		
-			// recurse to each child with each instance of this component
-			OutsideComponent outer = (OutsideComponent)comp;
-//			int instanceCount = outer.getInstanceCount();
-
-			// get the offsets for m instances
+			// get the offsets for each component instance
 			Coordinate[] instanceOffsets = new Coordinate[]{ componentAbsoluteLocation };
 			instanceOffsets = comp.shiftCoordinates( instanceOffsets);
             
-			// recurse to each child with each offset 
-		    for( RocketComponent child: comp.getChildren() ){
+			// recurse to each child with each instance of this component
+			for( RocketComponent child: comp.getChildren() ){
 		    	for( Coordinate curInstanceCoordinate : instanceOffsets){
 		    		getShapeTree( allShapes, child, curInstanceCoordinate);
 		    	}
 		    }
-
 		}
 
 		return;
