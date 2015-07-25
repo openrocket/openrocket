@@ -271,14 +271,12 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
 			for (RocketComponent component : this) {
-				for (Coordinate c : component.getComponentBounds()) {
-					for (Coordinate coord : component.toAbsolute(c)) {
-						cachedBounds.add(coord);
-						if (coord.x < minX)
-							minX = coord.x;
-						if (coord.x > maxX)
-							maxX = coord.x;
-					}
+				for (Coordinate coord : component.getComponentBounds()) {
+					cachedBounds.add(coord);
+					if (coord.x < minX)
+						minX = coord.x;
+					if (coord.x > maxX)
+						maxX = coord.x;
 				}
 			}
 			

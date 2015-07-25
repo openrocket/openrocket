@@ -1,5 +1,7 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
@@ -54,28 +56,23 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return true;
 	}
 	
+	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
 	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+	public Collection<Coordinate> getComponentBounds() {
+		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		final double WAG_FACTOR = 1.05;
+		Coordinate center = this.getAbsolutePositionVector();
+		double startx = center.x - this.length / 2;
+		double endx = center.x + this.length / 2;
+		double r = this.getRadialOffset() * WAG_FACTOR;
 		
-		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
-		
-		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s", prefix, thisLabel, this.getLength(),
-				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
-		
-		if (this.isCenterline()) {
-			buffer.append("\n");
-		} else {
-			buffer.append(String.format("  %4.1f//%s \n", this.getAxialOffset(), this.relativePosition.name()));
-			Coordinate componentAbsolutePosition = this.getAbsolutePositionVector();
-			Coordinate[] instanceCoords = new Coordinate[] { componentAbsolutePosition };
-			instanceCoords = this.shiftCoordinates(instanceCoords);
-			
-			for (int instance = 0; instance < this.count; instance++) {
-				Coordinate instanceAbsolutePosition = instanceCoords[instance];
-				buffer.append(String.format("%s                 [instance %2d of %2d]  %s\n", prefix, instance, count, instanceAbsolutePosition));
-			}
+		if (!this.isCenterline()) {
+			System.err.println(">> <Stage: " + this.getName() + ">.getComponentBounds(): r=" + r);
 		}
+		addBound(bounds, startx, r);
+		addBound(bounds, endx, r);
 		
+		return bounds;
 	}
 	
 	/**
@@ -328,6 +325,31 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		//		}
 		return buf;
 	}
+	
+	@Override
+	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
+		
+		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
+		
+		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s", prefix, thisLabel, this.getLength(),
+				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+		
+		if (this.isCenterline()) {
+			buffer.append("\n");
+		} else {
+			buffer.append(String.format("  %4.1f//%s \n", this.getAxialOffset(), this.relativePosition.name()));
+			Coordinate componentAbsolutePosition = this.getAbsolutePositionVector();
+			Coordinate[] instanceCoords = new Coordinate[] { componentAbsolutePosition };
+			instanceCoords = this.shiftCoordinates(instanceCoords);
+			
+			for (int instance = 0; instance < this.count; instance++) {
+				Coordinate instanceAbsolutePosition = instanceCoords[instance];
+				buffer.append(String.format("%s                 [instance %2d of %2d]  %s\n", prefix, instance, count, instanceAbsolutePosition));
+			}
+		}
+		
+	}
+	
 	
 	@Override
 	public void updateBounds() {

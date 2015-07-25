@@ -252,6 +252,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Return a collection of bounding coordinates.  The coordinates must be such that
 	 * the component is fully enclosed in their convex hull.
+	 * 
+	 * Note: this function gets the bounds only for this component.  Subchildren must be called individually.
 	 *
 	 * @return	a collection of coordinates that bound the component.
 	 */
@@ -1078,7 +1080,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	public Coordinate getAbsolutePositionVector() {
-		if (null == this.parent) { // i.e. root / Rocket instance OR improperly initialized components
+		if (null == this.parent) {
+			// == improperly initialized components OR the root Rocket instance 
 			return new Coordinate();
 		} else {
 			return this.parent.getAbsolutePositionVector().add(this.getRelativePositionVector());
@@ -1888,7 +1891,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	/**
-	 * Helper method to add rotationally symmetric bounds at the specified coordinates.
+	 * Helper method to add four bounds rotated around the given x coordinate at radius 'r', and 90deg between each.
 	 * The X-axis value is <code>x</code> and the radius at the specified position is
 	 * <code>r</code>.
 	 */
