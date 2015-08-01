@@ -128,7 +128,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	public int[] getActiveStages() {
-		int stageCount = Stage.getStageCount();
+		// temporary hack fix 
+		//int stageCount = Stage.getStageCount();
+		int stageCount = getRocket().getChildCount();
 		List<Integer> active = new ArrayList<Integer>();
 		int[] ret;
 		

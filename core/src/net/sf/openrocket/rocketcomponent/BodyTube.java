@@ -311,9 +311,10 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		Coordinate ref = this.getAbsolutePositionVector();
 		double r = getOuterRadius();
-		addBound(bounds, 0, r);
-		addBound(bounds, length, r);
+		addBound(bounds, ref.x, r);
+		addBound(bounds, ref.x + length, r);
 		return bounds;
 	}
 	

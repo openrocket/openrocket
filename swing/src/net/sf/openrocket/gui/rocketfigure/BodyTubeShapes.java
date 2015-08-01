@@ -23,7 +23,7 @@ public class BodyTubeShapes extends RocketComponentShape {
 		
 		Shape[] s = new Shape[instanceOffsets.length];
 		for (int i=0; i < instanceOffsets.length; i++) {
-			s[i] = new Rectangle2D.Double((instanceOffsets[i].x-length/2)*S,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
+			s[i] = new Rectangle2D.Double((instanceOffsets[i].x)*S,    //x - the X coordinate of the upper-left corner of the newly constructed Rectangle2D
 					(instanceOffsets[i].y-radius)*S, // y - the Y coordinate of the upper-left corner of the newly constructed Rectangle2D
 					length*S, // w - the width of the newly constructed Rectangle2D
 					2*radius*S); //  h - the height of the newly constructed Rectangle2D

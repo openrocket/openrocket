@@ -85,19 +85,18 @@ public class SymmetricComponentShapes extends RocketComponentShape {
 		//System.out.println("here");
 		
 		final int len = points.size();
-		Coordinate center = componentAbsoluteLocation;
-		Coordinate nose = center.sub( component.getLength()/2, 0, 0);
+		Coordinate nose = componentAbsoluteLocation;
 		
 		// TODO: LOW: curved path instead of linear
 		Path2D.Double path = new Path2D.Double();
-		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
+		path.moveTo((nose.x + points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
 		for (i = len - 2; i >= 0; i--) {
-			path.lineTo((nose.x+points.get(i).x)* scaleFactor, (center.y+points.get(i).y) * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x)* scaleFactor, (nose.y+points.get(i).y) * scaleFactor);
 		}
 		for (i = 0; i < len; i++) {
-			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (center.y-points.get(i).y) * scaleFactor);
+			path.lineTo((nose.x+points.get(i).x) * scaleFactor, (nose.y-points.get(i).y) * scaleFactor);
 		}
-		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor, (center.y+points.get(len - 1).y) * scaleFactor);
+		path.lineTo((nose.x+points.get(len - 1).x) * scaleFactor, (nose.y+points.get(len - 1).y) * scaleFactor);
 		path.closePath();
 		
 		//s[len] = path;

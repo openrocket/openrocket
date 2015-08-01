@@ -20,7 +20,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	
 	private static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
 	
-
+	
 	/*
 	 * Cached data.  All CG data is in absolute coordinates.  All moments of inertia
 	 * are relative to their respective CG.
@@ -30,10 +30,10 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	private double rotationalInertiaCache[] = null;
 	
 	
-
+	
 	//////////////////  Mass property calculations  ///////////////////
 	
-
+	
 	/**
 	 * Return the CG of the rocket with the specified motor status (no motors,
 	 * ignition, burnout).
@@ -76,8 +76,8 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	}
 	
 	
-
-
+	
+	
 	/**
 	 * Return the CG of the rocket with the provided motor configuration.
 	 */
@@ -128,7 +128,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 					stageCG.weight * MathUtil.pow2(stageCG.x - totalCG.x));
 		}
 		
-
+		
 		// Motors
 		if (motors != null) {
 			for (MotorId id : motors.getMotorIDs()) {
@@ -148,7 +148,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	}
 	
 	
-
+	
 	/**
 	 * Return the rotational inertia of the rocket with the specified motor instance
 	 * configuration.
@@ -173,7 +173,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 							MathUtil.pow2(stageCG.z - totalCG.z)));
 		}
 		
-
+		
 		// Motors
 		if (motors != null) {
 			for (MotorId id : motors.getMotorIDs()) {
@@ -200,13 +200,13 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	 * @return					the total mass of all motors
 	 */
 	@Override
-	public double getPropellantMass(Configuration configuration, MotorInstanceConfiguration motors){
+	public double getPropellantMass(Configuration configuration, MotorInstanceConfiguration motors) {
 		double mass = 0;
-				
+		
 		// add up the masses of all motors in the rocket
 		if (motors != null) {
 			for (MotorId id : motors.getMotorIDs()) {
-				MotorInstance motor = motors.getMotorInstance(id);					
+				MotorInstance motor = motors.getMotorInstance(id);
 				mass = mass + motor.getCG().weight - motor.getParentMotor().getEmptyCG().weight;
 			}
 		}
@@ -239,7 +239,9 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	private void calculateStageCache(Configuration config) {
 		if (cgCache == null) {
 			
-			int stages = config.getRocket().getStageCount();
+			//int stages = config.getRocket().getStageCount();
+			// temporary fix .  this undercounts the stages
+			int stages = config.getRocket().getChildCount();
 			
 			cgCache = new Coordinate[stages];
 			longitudinalInertiaCache = new double[stages];
@@ -257,7 +259,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	}
 	
 	
-
+	
 	/**
 	 * Returns the mass and inertia data for this component and all subcomponents.
 	 * The inertia is returned relative to the CG, and the CG is in the coordinates
@@ -271,7 +273,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 		if (parentData.cg.weight < MIN_MASS)
 			parentData.cg = parentData.cg.setWeight(MIN_MASS);
 		
-
+		
 		// Override only this component's data
 		if (!parent.getOverrideSubcomponents()) {
 			if (parent.isMassOverridden())
@@ -283,7 +285,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 		parentData.longitudinalInertia = parent.getLongitudinalUnitInertia() * parentData.cg.weight;
 		parentData.rotationalInetria = parent.getRotationalUnitInertia() * parentData.cg.weight;
 		
-
+		
 		// Combine data for subcomponents
 		for (RocketComponent sibling : parent.getChildren()) {
 			Coordinate combinedCG;
@@ -305,7 +307,7 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 				dr2 = pow2(parentData.cg.y - combinedCG.y) + pow2(parentData.cg.z - combinedCG.z);
 				parentData.rotationalInetria += parentData.cg.weight * dr2;
 				
-
+				
 				// Add inertia of sibling
 				parentData.longitudinalInertia += siblingData.longitudinalInertia;
 				parentData.rotationalInetria += siblingData.rotationalInetria;
@@ -359,13 +361,13 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public int getModID() {
 		return 0;
 	}
 	
-
-
+	
+	
 }

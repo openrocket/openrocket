@@ -18,7 +18,7 @@ public class MassComponentShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
+			Coordinate componentAbsoluteLocation) {
 
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
@@ -27,11 +27,16 @@ public class MassComponentShapes extends RocketComponentShape {
 		double length = tube.getLength();
 		double radius = tube.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
-		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
-
-		Shape[] s = new Shape[start.length];
-		for (int i=0; i < start.length; i++) {
-			s[i] = new RoundRectangle2D.Double(start[i].x*S,(start[i].y-radius)*S,
+		
+		Coordinate oldStart = transformation.transform( componentAbsoluteLocation );
+		Coordinate start = transformation.transform( componentAbsoluteLocation);
+//		Shape s = new RoundRectangle2D.Double(start.x*S,(start.y-radius)*S,
+//					length*S,2*radius*S,arc*S,arc*S);
+					
+		
+		Shape[] s = new Shape[1];
+		for (int i=0; i < 1; i++) {
+			s[i] = new RoundRectangle2D.Double((start.x)*S,(start.y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
 		}
 
@@ -67,13 +72,13 @@ public class MassComponentShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesBack(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
+			Coordinate componentAbsoluteLocation) {
 
 		net.sf.openrocket.rocketcomponent.MassObject tube = (net.sf.openrocket.rocketcomponent.MassObject)component;
 		
 		double or = tube.getRadius();
 		
-		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
+		Coordinate[] start = new Coordinate[]{transformation.transform( componentAbsoluteLocation )};
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {

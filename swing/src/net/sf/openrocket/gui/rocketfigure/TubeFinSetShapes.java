@@ -22,7 +22,7 @@ public class TubeFinSetShapes extends RocketComponentShape {
 		double outerRadius = finset.getOuterRadius();
 		double bodyRadius = finset.getBodyRadius();
 
-		Coordinate[] start = new Coordinate[]{ transformation.transform( componentAbsoluteLocation.sub( length/2, 0, 0) )};
+		Coordinate[] start = new Coordinate[]{ transformation.transform( componentAbsoluteLocation )};
 		start = component.shiftCoordinates( start);
 
 		Transformation baseRotation = finset.getBaseRotationTransformation();

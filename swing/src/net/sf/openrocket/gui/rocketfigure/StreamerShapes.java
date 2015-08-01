@@ -23,8 +23,8 @@ public class StreamerShapes extends RocketComponentShape {
 		double arc = Math.min(length, 2*radius) * 0.7;
 		
 		Shape[] s = new Shape[1];
-		Coordinate center = componentAbsoluteLocation;
-		s[0] = new RoundRectangle2D.Double((center.x-radius)*S,(center.y-radius)*S,
+		Coordinate frontCenter = componentAbsoluteLocation;
+		s[0] = new RoundRectangle2D.Double((frontCenter.x)*S,(frontCenter.y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
 					
 //		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));

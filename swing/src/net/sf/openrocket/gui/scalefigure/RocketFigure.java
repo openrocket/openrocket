@@ -355,7 +355,7 @@ public class RocketFigure extends AbstractScaleFigure {
 			double mountLength = mountComponent.getLength();
 
 			Coordinate[] motorPositions;
-			Coordinate[] clusterTop = new Coordinate[]{mountPosition.add( mountLength/2 - motorLength + mount.getMotorOverhang() , 0, 0)};
+			Coordinate[] clusterTop = new Coordinate[]{mountPosition.add( mountLength - motorLength + mount.getMotorOverhang() , 0, 0)};
 			
 			motorPositions = mountComponent.shiftCoordinates(clusterTop);
 			

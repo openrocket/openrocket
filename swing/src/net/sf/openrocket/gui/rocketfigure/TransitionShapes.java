@@ -30,20 +30,20 @@ public class TransitionShapes extends RocketComponentShape {
 
 		RocketComponentShape[] mainShapes;
 		
-		Coordinate center = transformation.transform( componentAbsoluteLocation );
+		Coordinate frontCenter = transformation.transform( componentAbsoluteLocation );
 		// this component type does not allow multiple instances
 		
 		// Simpler shape for conical transition, others use the method from SymmetricComponent
 		if (transition.getType() == Transition.Shape.CONICAL) {
-			double halflength = transition.getLength()/2;
+			double length = transition.getLength();
 			double r1 = transition.getForeRadius();
 			double r2 = transition.getAftRadius();
 					
 			Path2D.Float path = new Path2D.Float();
-			path.moveTo( (center.x-halflength)* scaleFactor, (center.y+ r1)* scaleFactor);
-			path.lineTo( (center.x+halflength)* scaleFactor, (center.y+r2)* scaleFactor);
-			path.lineTo( (center.x+halflength)* scaleFactor, (center.y-r2)* scaleFactor);
-			path.lineTo( (center.x-halflength)* scaleFactor, (center.y-r1)* scaleFactor);
+			path.moveTo( (frontCenter.x)* scaleFactor, (frontCenter.y+ r1)* scaleFactor);
+			path.lineTo( (frontCenter.x+length)* scaleFactor, (frontCenter.y+r2)* scaleFactor);
+			path.lineTo( (frontCenter.x+length)* scaleFactor, (frontCenter.y-r2)* scaleFactor);
+			path.lineTo( (frontCenter.x)* scaleFactor, (frontCenter.y-r1)* scaleFactor);
 			path.closePath();
 			
 			mainShapes = new RocketComponentShape[] { new RocketComponentShape( path, component) };
@@ -55,21 +55,21 @@ public class TransitionShapes extends RocketComponentShape {
 		int arrayLength = mainShapes.length;
 		
 		if (transition.getForeShoulderLength() > 0.0005) {
-			Coordinate foreTransitionShoulderCenter = componentAbsoluteLocation.sub( (transition.getLength() + transition.getForeShoulderLength())/2, 0, 0);
-			center = transformation.transform( foreTransitionShoulderCenter);
+			Coordinate foreTransitionShoulderCenter = componentAbsoluteLocation.sub( transition.getForeShoulderLength()/2, 0, 0);
+			frontCenter = transformation.transform( foreTransitionShoulderCenter);
 					
 			double rad = transition.getForeShoulderRadius();
 			double len = transition.getForeShoulderLength();
-			foreShoulder = new Rectangle2D.Double((center.x-len/2)* scaleFactor, (center.y-rad)* scaleFactor, len* scaleFactor, 2*rad* scaleFactor);
+			foreShoulder = new Rectangle2D.Double((frontCenter.x-len/2)* scaleFactor, (frontCenter.y-rad)* scaleFactor, len* scaleFactor, 2*rad* scaleFactor);
 			arrayLength++;
 		}
 		if (transition.getAftShoulderLength() > 0.0005) {
-			Coordinate aftTransitionShoulderCenter = componentAbsoluteLocation.add( (transition.getLength() + transition.getAftShoulderLength())/2, 0, 0);
-			center= transformation.transform( aftTransitionShoulderCenter );
+			Coordinate aftTransitionShoulderCenter = componentAbsoluteLocation.add( transition.getLength() + (transition.getAftShoulderLength())/2, 0, 0);
+			frontCenter= transformation.transform( aftTransitionShoulderCenter );
 		
 			double rad = transition.getAftShoulderRadius();
 			double len = transition.getAftShoulderLength();
-			aftShoulder = new Rectangle2D.Double((center.x-len/2)* scaleFactor, (center.y-rad)* scaleFactor, len* scaleFactor, 2*rad* scaleFactor);
+			aftShoulder = new Rectangle2D.Double((frontCenter.x-len/2)* scaleFactor, (frontCenter.y-rad)* scaleFactor, len* scaleFactor, 2*rad* scaleFactor);
 			arrayLength++;
 		}
 		if (foreShoulder==null && aftShoulder==null)

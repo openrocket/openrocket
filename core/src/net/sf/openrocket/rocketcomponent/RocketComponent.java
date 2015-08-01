@@ -81,11 +81,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	protected RocketComponent parent = null;
 	
-	/** 
-	 * previous child in parent's child list
-	 */
-	protected RocketComponent previousComponent = null;
-	
 	/**
 	 * List of child components of this component.
 	 */
@@ -909,31 +904,25 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			return 0.0;
 		}
 		
-		double thisCenterX = this.position.x;
+		double thisX = this.position.x;
 		double relativeLength = this.parent.length;
 		double result = Double.NaN;
 		
 		switch (thePosition) {
 		case AFTER:
-			if (null == this.previousComponent) {
-				result = thisCenterX + (relativeLength - this.getLength()) / 2;
-			} else {
-				double relativeAxialOffset = this.previousComponent.getRelativePositionVector().x;
-				relativeLength = this.previousComponent.getLength();
-				result = (thisCenterX - relativeAxialOffset) - (relativeLength + this.getLength()) / 2;
-			}
+			result = thisX - relativeLength;
 			break;
 		case ABSOLUTE:
 			result = this.getAbsolutePositionVector().x;
 			break;
 		case TOP:
-			result = thisCenterX + (relativeLength - this.getLength()) / 2;
+			result = thisX;
 			break;
 		case MIDDLE:
-			result = thisCenterX;
+			result = thisX + (-relativeLength + this.getLength()) / 2;
 			break;
 		case BOTTOM:
-			result = thisCenterX + (this.length - relativeLength) / 2;
+			result = thisX + (-relativeLength + this.getLength());
 			break;
 		default:
 			throw new BugException("Unknown position type: " + thePosition);
@@ -1008,20 +997,20 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		double newAxialPosition;
 		double refLength;
 		
+		// DEBUG
 		if (null == referenceComponent) {
-			// if this is the first component in the stage, position from the top of the parent
 			if (null == this.parent) {
 				// Probably initialization order issue.  Ignore a.t.t.
 				return;
 			} else {
-				refLength = this.parent.getLength();
-				newAxialPosition = (-refLength + this.length) / 2;
+				// if this is ACTUALLY the first component in the stage, position from the top of the parent 
+				newAxialPosition = 0;
 			}
 		} else {
 			refLength = referenceComponent.getLength();
 			double refRelX = referenceComponent.getRelativePositionVector().x;
 			
-			newAxialPosition = refRelX + (refLength + this.length) / 2;
+			newAxialPosition = refRelX + refLength;
 		}
 		
 		//this.relativePosition = Position.AFTER;
@@ -1032,11 +1021,15 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// if this is the root of a hierarchy, constrain the position to zero.
 		if (null == this.parent) {
 			return;
+		} else if ((this.isCenterline()) && (this instanceof Stage)) {
+			// enforce AFTER
+			positionMethod = Position.AFTER;
 		}
 		checkState();
 		
 		this.relativePosition = positionMethod;
 		this.offset = newOffset;
+		
 		
 		double newAxialPosition = Double.NaN;
 		double refLength = this.parent.getLength();
@@ -1046,16 +1039,17 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			newAxialPosition = newOffset - this.parent.position.x;
 			break;
 		case AFTER:
-			this.setAfter(this.previousComponent);
+			// no-op 
+			// this.setAfter(this.previousComponent);
 			return;
 		case TOP:
-			newAxialPosition = (-refLength + this.length) / 2 + newOffset;
-			break;
-		case MIDDLE:
 			newAxialPosition = newOffset;
 			break;
+		case MIDDLE:
+			newAxialPosition = (refLength - this.length) / 2 + newOffset;
+			break;
 		case BOTTOM:
-			newAxialPosition = (+refLength - this.length) / 2 + newOffset;
+			newAxialPosition = (refLength - this.length) + newOffset;
 			break;
 		default:
 			throw new BugException("Unknown position type: " + positionMethod);
@@ -2032,14 +2026,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		buf.append("      offset: " + this.offset + " via: " + this.relativePosition.name() + "  => " + this.getAxialOffset() + "\n");
 		buf.append("      thisCenterX: " + this.position.x + "\n");
 		buf.append("      this length: " + this.length + "\n");
-		if (null == this.previousComponent) {
-			buf.append("      ..prevComponent: " + null + "\n");
-		} else {
-			RocketComponent refComp = this.previousComponent;
-			buf.append("      >>prevCompName: " + refComp.getName() + "\n");
-			buf.append("      ..prevCenterX: " + refComp.position.x + "\n");
-			buf.append("      ..prevLength: " + refComp.getLength() + "\n");
-		}
+		//		if (null == this.previousComponent) {
+		//			buf.append("      ..prevComponent: " + null + "\n");
+		//		} else {
+		//			RocketComponent refComp = this.previousComponent;
+		//			buf.append("      >>prevCompName: " + refComp.getName() + "\n");
+		//			buf.append("      ..prevCenterX: " + refComp.position.x + "\n");
+		//			buf.append("      ..prevLength: " + refComp.getLength() + "\n");
+		//		}
 		return buf;
 	}
 	
@@ -2053,8 +2047,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
-				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+		buffer.append(String.format("%s    %-24s  %5.3f %24f %24f\n", prefix, this.getName(), this.getLength(),
+				this.getRelativePositionVector().x, this.getAbsolutePositionVector().x));
+		//		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
+		//				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
 	}
 	
 	public void dumpTreeHelper(StringBuilder buffer, final String prefix) {

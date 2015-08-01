@@ -256,17 +256,11 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	
 	@Override
 	public double getAxialOffset() {
-		double returnValue;
+		double returnValue = Double.NaN;
 		
-		if (this.isCenterline()) {
-			if (Position.AFTER == this.relativePosition) {
-				returnValue = super.getAxialOffset();
-			} else if (Position.TOP == this.relativePosition) {
-				this.relativePosition = Position.AFTER;
-				returnValue = super.getAxialOffset();
-			} else {
-				throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
-			}
+		if ((this.isCenterline() && (Position.AFTER != this.relativePosition))) {
+			// remember the implicit (this instanceof Stage)
+			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
 		} else {
 			returnValue = super.asPositionValue(this.relativePosition);
 		}
@@ -374,19 +368,21 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		
 		this.updateBounds();
 		if (this.parent instanceof Rocket) {
+			// stages which are directly children of the rocket are inline, and positioned
 			int childNumber = this.parent.getChildPosition(this);
 			if (0 == childNumber) {
-				this.setAfter(null);
+				this.setAfter(this.parent);
 			} else {
 				RocketComponent prevStage = this.parent.getChild(childNumber - 1);
 				this.setAfter(prevStage);
 			}
 		} else if (this.parent instanceof Stage) {
 			this.updateBounds();
+			// because if parent is instanceof Stage, that means 'this' is positioned externally 
 			super.update();
 		}
 		
-		
+		// updates the internal 'previousComponent' field.
 		this.updateChildSequence();
 		
 		return;
@@ -398,10 +394,11 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		while (childIterator.hasNext()) {
 			RocketComponent curChild = childIterator.next();
 			if (curChild.isCenterline()) {
-				curChild.previousComponent = prevComp;
+				//curChild.previousComponent = prevComp;
+				curChild.setAfter(prevComp);
 				prevComp = curChild;
-			} else {
-				curChild.previousComponent = null;
+				//			} else {
+				//				curChild.previousComponent = null;
 			}
 		}
 	}

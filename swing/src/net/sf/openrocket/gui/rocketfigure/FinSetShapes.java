@@ -24,8 +24,7 @@ public class FinSetShapes extends RocketComponentShape {
 		Transformation baseRotation = finset.getBaseRotationTransformation(); // rotation about x-axis
 		Transformation finRotation = finset.getFinRotationTransformation();
 		
-		double rootChord = finset.getLength(); 
-		Coordinate finSetFront = componentAbsoluteLocation.sub( rootChord/2 , 0, 0);
+		Coordinate finSetFront = componentAbsoluteLocation;
 		Coordinate finPoints[] = finset.getFinPointsWithTab();
 		
 		// TODO: MEDIUM: sloping radius
