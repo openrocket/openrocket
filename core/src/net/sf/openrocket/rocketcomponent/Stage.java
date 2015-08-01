@@ -36,8 +36,10 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		Stage.stageCount++;
 	}
 	
-	protected String toPositionString() {
-		return ">> " + this.getName() + "   rel: " + this.getRelativePositionVector().x + "  abs: " + this.getAbsolutePositionVector().x;
+	
+	@Override
+	public boolean allowsChildren() {
+		return true;
 	}
 	
 	
@@ -47,13 +49,12 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return trans.get("Stage.Stage");
 	}
 	
-	public FlightConfiguration<StageSeparationConfiguration> getStageSeparationConfiguration() {
-		return separationConfigurations;
+	public static int getStageCount() {
+		return Stage.stageCount;
 	}
 	
-	@Override
-	public boolean allowsChildren() {
-		return true;
+	public FlightConfiguration<StageSeparationConfiguration> getStageSeparationConfiguration() {
+		return separationConfigurations;
 	}
 	
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 

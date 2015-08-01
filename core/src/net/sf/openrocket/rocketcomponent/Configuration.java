@@ -2,7 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.Iterator;
@@ -29,7 +28,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		Iterable<RocketComponent>, Monitorable {
 	
 	private Rocket rocket;
-	private BitSet stages = new BitSet();
+	private BitSet stagesActive = new BitSet();
 	
 	private String flightConfigurationId = null;
 	
@@ -68,8 +67,8 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	
 	public void setAllStages() {
-		stages.clear();
-		stages.set(0, rocket.getStageCount());
+		stagesActive.clear();
+		stagesActive.set(0, Stage.getStageCount());
 		fireChangeEvent();
 	}
 	
@@ -81,15 +80,15 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * @param stage		the stage number.
 	 */
 	public void setToStage(int stage) {
-		stages.clear();
-		stages.set(0, stage + 1, true);
+		stagesActive.clear();
+		stagesActive.set(0, stage + 1, true);
 		//		stages.set(stage+1, rocket.getStageCount(), false);
 		fireChangeEvent();
 	}
 	
 	public void setOnlyStage(int stage) {
-		stages.clear();
-		stages.set(stage, stage + 1, true);
+		stagesActive.clear();
+		stagesActive.set(stage, stage + 1, true);
 		fireChangeEvent();
 	}
 	
@@ -108,33 +107,33 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * Check whether the stage specified by the index is active.
 	 */
 	public boolean isStageActive(int stage) {
-		if (stage >= rocket.getStageCount())
+		if (stage >= Stage.getStageCount())
 			return false;
-		return stages.get(stage);
+		return stagesActive.get(stage);
 	}
 	
 	public int getStageCount() {
-		return rocket.getStageCount();
+		return Stage.getStageCount();
 	}
 	
 	public int getActiveStageCount() {
 		int count = 0;
-		int s = rocket.getStageCount();
+		int s = Stage.getStageCount();
 		
 		for (int i = 0; i < s; i++) {
-			if (stages.get(i))
+			if (stagesActive.get(i))
 				count++;
 		}
 		return count;
 	}
 	
 	public int[] getActiveStages() {
-		int stageCount = rocket.getStageCount();
+		int stageCount = Stage.getStageCount();
 		List<Integer> active = new ArrayList<Integer>();
 		int[] ret;
 		
 		for (int i = 0; i < stageCount; i++) {
-			if (stages.get(i)) {
+			if (stagesActive.get(i)) {
 				active.add(i);
 			}
 		}
@@ -262,7 +261,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	/**
 	 * Return the bounds of the current configuration.  The bounds are cached.
 	 * 
-	 * @return	a <code>Collection</code> containing coordinates bouding the rocket.
+	 * @return	a <code>Collection</code> containing coordinates bounding the rocket.
 	 */
 	public Collection<Coordinate> getBounds() {
 		if (rocket.getModID() != boundsModID) {
@@ -313,8 +312,29 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 */
 	@Override
 	public Iterator<RocketComponent> iterator() {
-		return new ConfigurationIterator();
+		List<RocketComponent> accumulator = new ArrayList<RocketComponent>();
+		
+		accumulator = this.getActiveComponents(accumulator, rocket.getChildren());
+		
+		return accumulator.iterator();
 	}
+	
+	private List<RocketComponent> getActiveComponents(List<RocketComponent> accumulator, final List<RocketComponent> toScan) {
+		for (RocketComponent rc : toScan) {
+			if (rc instanceof Stage) {
+				if (isStageActive(rc.getStageNumber())) {
+					// recurse to children
+					getActiveComponents(accumulator, rc.getChildren());
+				} else {
+					continue;
+				}
+			} else {
+				accumulator.add(rc);
+			}
+		}
+		return accumulator;
+	}
+	
 	
 	
 	/**
@@ -337,7 +357,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		try {
 			Configuration config = (Configuration) super.clone();
 			config.listenerList = new ArrayList<EventListener>();
-			config.stages = (BitSet) this.stages.clone();
+			config.stagesActive = (BitSet) this.stagesActive.clone();
 			config.cachedBounds = new ArrayList<Coordinate>();
 			config.boundsModID = -1;
 			config.refLengthModID = -1;
@@ -352,68 +372,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	@Override
 	public int getModID() {
 		return modID + rocket.getModID();
-	}
-	
-	
-	/**
-	 * A class that iterates over all currently active components.
-	 * 
-	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
-	 */
-	private class ConfigurationIterator implements Iterator<RocketComponent> {
-		Iterator<Iterator<RocketComponent>> iterators;
-		Iterator<RocketComponent> current = null;
-		
-		public ConfigurationIterator() {
-			List<Iterator<RocketComponent>> list = new ArrayList<Iterator<RocketComponent>>();
-			
-			for (RocketComponent stage : rocket.getChildren()) {
-				if (isComponentActive(stage)) {
-					list.add(stage.iterator(false));
-				}
-			}
-			
-			// Get iterators and initialize current
-			iterators = list.iterator();
-			if (iterators.hasNext()) {
-				current = iterators.next();
-			} else {
-				List<RocketComponent> l = Collections.emptyList();
-				current = l.iterator();
-			}
-		}
-		
-		
-		@Override
-		public boolean hasNext() {
-			if (!current.hasNext())
-				getNextIterator();
-			
-			return current.hasNext();
-		}
-		
-		@Override
-		public RocketComponent next() {
-			if (!current.hasNext())
-				getNextIterator();
-			
-			return current.next();
-		}
-		
-		/**
-		 * Get the next iterator that has items.  If such an iterator does
-		 * not exist, current is left to an empty iterator.
-		 */
-		private void getNextIterator() {
-			while ((!current.hasNext()) && iterators.hasNext()) {
-				current = iterators.next();
-			}
-		}
-		
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("remove unsupported");
-		}
 	}
 	
 	private class MotorIterator implements Iterator<MotorMount> {

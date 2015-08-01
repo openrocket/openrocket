@@ -130,7 +130,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public int getStageCount() {
 		checkState();
-		return this.getChildCount();
+		return Stage.getStageCount();
 	}
 	
 	

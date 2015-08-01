@@ -1068,10 +1068,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	protected void update() {
-		if (null == this.parent) {
-			return;
-		}
-		
 		this.setAxialOffset(this.relativePosition, this.offset);
 	}
 	
@@ -1092,16 +1088,28 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	/**
 	 * Returns coordinate c in absolute/global/rocket coordinates.  Equivalent to toComponent(c,null).
+	 * Input coordinate C is interpreted to be position relative to this component's *center*, just as 
+	 * this component's center is the root of the component coordinate frame. 
 	 * 
 	 * @param c    Coordinate in the component's coordinate system.
 	 * @return     an array of coordinates describing <code>c</code> in global coordinates.
 	 */
 	public Coordinate[] toAbsolute(Coordinate c) {
-		//		checkState();
-		//		return toRelative(c, null);
+		checkState();
+		
 		Coordinate absCoord = this.getAbsolutePositionVector().add(c);
 		return new Coordinate[] { absCoord };
 	}
+	
+	//	public Coordinate[] toAbsolute(final Coordinate[] toMove) {
+	//		Coordinate[] toReturn = new Coordinate[toMove.length];
+	//		
+	//		Coordinate translation = this.getAbsolutePositionVector();
+	//		for (int coordIndex = 0; coordIndex < toMove.length; coordIndex++) {
+	//			toReturn[coordIndex] = translation.add(toMove[coordIndex]);
+	//		}
+	//		return toReturn;
+	//	}
 	
 	/**
 	 * Return coordinate <code>c</code> described in the coordinate system of
@@ -1122,126 +1130,39 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	@Deprecated
 	public final Coordinate[] toRelative(Coordinate c, RocketComponent dest) {
-		checkState();
-		mutex.lock("toRelative");
-		
 		if (null == dest) {
 			throw new BugException("calling toRelative(c,null) is being refactored. ");
 		}
 		
-		try {
-			double absoluteX = Double.NaN;
-			double relativeX = 0;
-			double relativeY = 0;
-			double relativeZ = 0;
-			RocketComponent search = dest;
-			Coordinate[] array = new Coordinate[1];
-			array[0] = c;
-			
-			RocketComponent component = this;
-			while ((component != search) && (component.parent != null)) {
-				
-				array = component.shiftCoordinates(array);
-				
-				switch (component.relativePosition) {
-				case TOP:
-					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(relativeX, relativeY, relativeZ);
-					}
-					break;
-				
-				case MIDDLE:
-					relativeX = component.position.x;
-					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(relativeX + (component.parent.length - component.length) / 2,
-								relativeY, relativeZ);
-					}
-					break;
-				
-				case BOTTOM:
-					relativeX = component.position.x;
-					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(relativeX + (component.parent.length - component.length),
-								relativeY, relativeZ);
-					}
-					break;
-				
-				case AFTER:
-					relativeX = component.position.x;
-					// Add length of all previous brother-components with POSITION_RELATIVE_AFTER
-					int index = component.parent.children.indexOf(component);
-					assert (index >= 0);
-					for (index--; index >= 0; index--) {
-						RocketComponent comp = component.parent.children.get(index);
-						double componentLength = comp.getTotalLength();
-						for (int i = 0; i < array.length; i++) {
-							array[i] = array[i].add(componentLength, relativeY, relativeZ);
-						}
-					}
-					for (int i = 0; i < array.length; i++) {
-						array[i] = array[i].add(relativeX + component.parent.length, relativeY, relativeZ);
-					}
-					break;
-				
-				case ABSOLUTE:
-					search = null; // Requires back-search if dest!=null
-					if (Double.isNaN(absoluteX)) {
-						// TODO: requires debugging if thsi component is an External Pods or stage 
-						absoluteX = relativeX;
-					}
-					break;
-				
-				default:
-					throw new BugException("Unknown relative positioning type of component" +
-							component + ": " + component.relativePosition);
-				}
-				
-				component = component.parent; // parent != null
-			}
-			
-			if (!Double.isNaN(absoluteX)) {
-				for (int i = 0; i < array.length; i++) {
-					// TODO: requires debugging if thsi component is an External Pods or stage
-					array[i] = array[i].setX(absoluteX + c.x);
-				}
-			}
-			
-			// Check whether destination has been found or whether to backtrack
-			// TODO: LOW: Backtracking into clustered components uses only one component
-			if ((dest != null) && (component != dest)) {
-				
-				Coordinate origin = dest.getAbsolutePositionVector();
-				for (int i = 0; i < array.length; i++) {
-					array[i] = array[i].sub(origin);
-				}
-			}
-			
-			return array;
-		} finally {
-			mutex.unlock("toRelative");
-		}
+		checkState();
+		mutex.lock("toRelative");
+		
+		final Coordinate sourceLoc = this.getAbsolutePositionVector();
+		final Coordinate destLoc = dest.getAbsolutePositionVector();
+		Coordinate newCoord = c.add(sourceLoc).sub(destLoc);
+		Coordinate[] toReturn = new Coordinate[] { newCoord };
+		
+		mutex.unlock("toRelative");
+		return toReturn;
 	}
 	
-	//	public final Coordinate[] toRelative(Coordinate[] coords, RocketComponent dest) {
-	//		Coordinate[] toReturn = new Coordinate[coords.length];
-	//		
-	//		
-	//		//		Coordinate[] array = new Coordinate[] { c };
-	//		//		//		if( dest.isCluster() ){
-	//		//		//		if( dest.multiplicity > 1){
-	//		//		array = dest.shiftCoordinates(array);
-	//		//		return this.toRelative(array, dest);
-	//		//		//		}
-	//		
-	//		Coordinate destCenter = dest.getAbsolutePositionVector();
-	//		Coordinate thisCenter = this.getAbsolutePositionVector();
-	//		Coordinate relVector = destCenter.sub(thisCenter);
-	//		
-	//		for (int coord_index = 0; coord_index < coords.length; coord_index++) {
-	//			toReturn[coord_index] = coords[coord_index].add(relVector);
-	//		}
-	//		return toReturn;
-	//	}
+	/*
+	 * @deprecated ? is this used by anything? 
+	 */
+	protected static final Coordinate[] rebase(final Coordinate toMove[], final Coordinate source, final Coordinate dest) {
+		if ((null == toMove) || (null == source) || (null == dest)) {
+			throw new NullPointerException("rebase with any null pointer is out-of-spec.");
+		}
+		
+		Coordinate[] toReturn = new Coordinate[toMove.length];
+		
+		Coordinate translation = source.sub(dest);
+		for (int coordIndex = 0; coordIndex < toMove.length; coordIndex++) {
+			toReturn[coordIndex] = toMove[coordIndex].add(translation);
+		}
+		
+		return toReturn;
+	}
 	
 	/**
 	 * Iteratively sum the lengths of all subcomponents that have position
@@ -1264,7 +1185,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			mutex.unlock("getTotalLength");
 		}
 	}
-	
 	
 	
 	/////////// Total mass and CG calculation ////////////
