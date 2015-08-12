@@ -61,17 +61,26 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		final double WAG_FACTOR = 1.05;
-		Coordinate center = this.getAbsolutePositionVector();
-		double startx = center.x - this.length / 2;
-		double endx = center.x + this.length / 2;
-		double r = this.getRadialOffset() * WAG_FACTOR;
+		final double WAG_FACTOR = 1.1;
+		double x_min = Double.MAX_VALUE;
+		double x_max = Double.MIN_VALUE;
+		double r_max = 0;
 		
-		if (!this.isCenterline()) {
-			System.err.println(">> <Stage: " + this.getName() + ">.getComponentBounds(): r=" + r);
+		Coordinate[] instanceLocations = this.getLocation();
+		
+		for (Coordinate currentInstanceLocation : instanceLocations) {
+			if (x_min > (currentInstanceLocation.x)) {
+				x_min = currentInstanceLocation.x;
+			}
+			if (x_max < (currentInstanceLocation.x + this.length)) {
+				x_max = currentInstanceLocation.x + this.length;
+			}
+			if (r_max < (this.getRadialOffset() * WAG_FACTOR)) {
+				r_max = this.getRadialOffset() * WAG_FACTOR;
+			}
 		}
-		addBound(bounds, startx, r);
-		addBound(bounds, endx, r);
+		addBound(bounds, x_min, r_max);
+		addBound(bounds, x_max, r_max);
 		
 		return bounds;
 	}
@@ -106,6 +115,27 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		return copy;
 	}
 	
+	@Override
+	public Coordinate[] getLocation() {
+		if (null == this.parent) {
+			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
+		}
+		
+		if (this.isCenterline()) {
+			return super.getLocation();
+		} else {
+			Coordinate[] parentInstances = this.parent.getLocation();
+			if (1 != parentInstances.length) {
+				throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
+						"(assumed reason for getting multiple parent locations into an external stage.)");
+			}
+			
+			Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
+			
+			return toReturn;
+		}
+		
+	}
 	
 	@Override
 	public boolean getOutside() {
@@ -149,6 +179,10 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	public void setInstanceCount(final int _count) {
 		mutex.verify();
 		if (this.centerline) {
+			return;
+		}
+		if (_count < 1) {
+			// there must be at least one instance....   
 			return;
 		}
 		
@@ -209,13 +243,14 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 				super.setRelativePosition(_newPosition);
 			}
 		}
+		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
 	}
 	
 	@Override
 	public double getPositionValue() {
 		mutex.verify();
 		
-		return getAxialOffset();
+		return this.getAxialOffset();
 	}
 	
 	/*
@@ -294,11 +329,12 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		double radius = this.radialPosition_m;
 		double angle0 = this.angularPosition_rad;
 		double angleIncr = this.angularSeparation;
+		Coordinate center = this.position;
 		Coordinate[] toReturn = new Coordinate[this.count];
 		Coordinate thisOffset;
 		double thisAngle = angle0;
 		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			thisOffset = new Coordinate(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
+			thisOffset = center.add(0, radius * Math.cos(thisAngle), radius * Math.sin(thisAngle));
 			
 			toReturn[instanceNumber] = thisOffset.add(c[0]);
 			thisAngle += angleIncr;
@@ -326,25 +362,24 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		
 		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
 		
-		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s", prefix, thisLabel, this.getLength(),
-				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
 		
 		if (this.isCenterline()) {
-			buffer.append("\n");
+			buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
 		} else {
-			buffer.append(String.format("  %4.1f//%s \n", this.getAxialOffset(), this.relativePosition.name()));
-			Coordinate componentAbsolutePosition = this.getAbsolutePositionVector();
-			Coordinate[] instanceCoords = new Coordinate[] { componentAbsolutePosition };
-			instanceCoords = this.shiftCoordinates(instanceCoords);
+			buffer.append(String.format("  %4.1f  via: %s \n", this.getAxialOffset(), this.relativePosition.name()));
+			Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+			Coordinate[] absCoords = this.getLocation();
 			
-			for (int instance = 0; instance < this.count; instance++) {
-				Coordinate instanceAbsolutePosition = instanceCoords[instance];
-				buffer.append(String.format("%s                 [instance %2d of %2d]  %s\n", prefix, instance, count, instanceAbsolutePosition));
+			for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+				Coordinate instanceRelativePosition = relCoords[instanceNumber];
+				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+				buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
+						instanceRelativePosition, instanceAbsolutePosition));
 			}
 		}
 		
 	}
-	
 	
 	@Override
 	public void updateBounds() {

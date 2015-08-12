@@ -621,7 +621,7 @@ public abstract class FinSet extends ExternalComponent {
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		List<Coordinate> bounds = new ArrayList<Coordinate>();
-		double refx = this.getAbsolutePositionVector().x;
+		double refx = this.getLocation()[0].x;
 		double r = getBodyRadius();
 		
 		for (Coordinate point : getFinPoints()) {

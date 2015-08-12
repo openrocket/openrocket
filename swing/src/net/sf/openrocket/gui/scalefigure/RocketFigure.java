@@ -349,35 +349,41 @@ public class RocketFigure extends AbstractScaleFigure {
 			Motor motor = mount.getMotor(motorID);
 			double motorLength = motor.getLength();
 			double motorRadius = motor.getDiameter() / 2;
-			
+		
+			// Steps for instancing:
+			// 1) mountComponent has an instanced ancestor:
+			// 2) which may be an arbitrary number of levels up, so calling mount.parent.getInstances is not enough.   
+			// 3) therefore <component>.getLocation() will return all the instances of this owning component
+			// 4) Then, for each instance of the component, draw each cluster.
 			RocketComponent mountComponent = ((RocketComponent) mount);
-			Coordinate mountPosition = mountComponent.getAbsolutePositionVector();
+			Coordinate[] mountLocations = mountComponent.getLocation();
+			
+			//Coordinate curInstancePosition = mountLocations[0]; // placeholder
 			double mountLength = mountComponent.getLength();
-
-			Coordinate[] motorPositions;
-			Coordinate[] clusterTop = new Coordinate[]{mountPosition.add( mountLength - motorLength + mount.getMotorOverhang() , 0, 0)};
-			
-			motorPositions = mountComponent.shiftCoordinates(clusterTop);
-			
-			for (int i = 0; i < motorPositions.length; i++) {
-				motorPositions[i] = transformation.transform(motorPositions[i]);
-			}
-			
-			for (Coordinate coord : motorPositions) {
-				Shape s;
-				if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
-					s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
-							EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * motorLength,
-							EXTRA_SCALE * 2 * motorRadius);
-				} else {
-					s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - motorRadius),
-							EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
-							EXTRA_SCALE * 2 * motorRadius);
+			for ( Coordinate curInstanceLocation : mountLocations ){
+				Coordinate[] motorPositions;
+				Coordinate[] clusterCenterTop = new Coordinate[]{ curInstanceLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0)};
+				motorPositions = mountComponent.shiftCoordinates(clusterCenterTop);
+				for (int i = 0; i < motorPositions.length; i++) {
+					motorPositions[i] = transformation.transform(motorPositions[i]);
 				}
-				g2.setColor(fillColor);
-				g2.fill(s);
-				g2.setColor(borderColor);
-				g2.draw(s);
+				
+				for (Coordinate coord : motorPositions) {
+					Shape s;
+					if (currentViewType == RocketPanel.VIEW_TYPE.SideView) {
+						s = new Rectangle2D.Double(EXTRA_SCALE * coord.x,
+								EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * motorLength,
+								EXTRA_SCALE * 2 * motorRadius);
+					} else {
+						s = new Ellipse2D.Double(EXTRA_SCALE * (coord.z - motorRadius),
+								EXTRA_SCALE * (coord.y - motorRadius), EXTRA_SCALE * 2 * motorRadius,
+								EXTRA_SCALE * 2 * motorRadius);
+					}
+					g2.setColor(fillColor);
+					g2.fill(s);
+					g2.setColor(borderColor);
+					g2.draw(s);
+				}
 			}
 		}
 		
@@ -432,14 +438,13 @@ public class RocketFigure extends AbstractScaleFigure {
 	private void getShapeTree(
 			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter 
 			final RocketComponent comp, 
-			final Coordinate parentOffset){
+			final Coordinate parentLocation){
 	
 		RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
 		Transformation viewTransform = this.transformation;
 		
-//		Coordinate componentRelativeLocation = comp.getRelativePositionVector();
-		Coordinate componentAbsoluteLocation = parentOffset.add(comp.getRelativePositionVector());
-		
+		Coordinate componentAbsoluteLocation = parentLocation.add(comp.getOffset());
+			
 		// generate shapes:
 		if( comp instanceof Rocket){
 			// no-op.  no shapes
@@ -461,9 +466,9 @@ public class RocketFigure extends AbstractScaleFigure {
 		    }
 		}else{
 			// get the offsets for each component instance
-			Coordinate[] instanceOffsets = new Coordinate[]{ componentAbsoluteLocation };
+			Coordinate[] instanceOffsets = new Coordinate[]{ parentLocation };
 			instanceOffsets = comp.shiftCoordinates( instanceOffsets);
-            
+			
 			// recurse to each child with each instance of this component
 			for( RocketComponent child: comp.getChildren() ){
 		    	for( Coordinate curInstanceCoordinate : instanceOffsets){

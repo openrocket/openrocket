@@ -100,7 +100,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	/**
 	 * Positioning of this component relative to the parent component.
 	 */
-	protected Position relativePosition;
+	protected Position relativePosition = Position.AFTER;
 	
 	/**
 	 * Offset of the position of this component relative to the normal position given by
@@ -913,7 +913,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			result = thisX - relativeLength;
 			break;
 		case ABSOLUTE:
-			result = this.getAbsolutePositionVector().x;
+			Coordinate[] insts = this.getLocation();
+			if (1 < insts.length) {
+				return Double.NaN;
+			}
+			result = insts[0].x;
 			break;
 		case TOP:
 			result = thisX;
@@ -940,7 +944,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public double getPositionValue() {
 		return this.getAxialOffset();
 	}
-	
 	
 	public double getAxialOffset() {
 		mutex.verify();
@@ -1008,7 +1011,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			}
 		} else {
 			refLength = referenceComponent.getLength();
-			double refRelX = referenceComponent.getRelativePositionVector().x;
+			double refRelX = referenceComponent.getOffset().x;
 			
 			newAxialPosition = refRelX + refLength;
 		}
@@ -1065,16 +1068,37 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.setAxialOffset(this.relativePosition, this.offset);
 	}
 	
-	public Coordinate getRelativePositionVector() {
+	public Coordinate getOffset() {
 		return this.position;
 	}
 	
-	public Coordinate getAbsolutePositionVector() {
+	
+	/**
+	 * @deprecated kept around as example code. instead use 
+	 * @return
+	 */
+	private Coordinate getAbsoluteVector() {
 		if (null == this.parent) {
 			// == improperly initialized components OR the root Rocket instance 
-			return new Coordinate();
+			return Coordinate.ZERO;
 		} else {
-			return this.parent.getAbsolutePositionVector().add(this.getRelativePositionVector());
+			return this.getAbsoluteVector().add(this.getOffset());
+		}
+	}
+	
+	public Coordinate[] getLocation() {
+		if (null == this.parent) {
+			// == improperly initialized components OR the root Rocket instance 
+			return new Coordinate[] { Coordinate.ZERO };
+		} else {
+			Coordinate[] parentPositions = this.parent.getLocation();
+			int instCount = parentPositions.length;
+			Coordinate[] thesePositions = new Coordinate[instCount];
+			
+			for (int pi = 0; pi < instCount; pi++) {
+				thesePositions[pi] = parentPositions[pi].add(this.getOffset());
+			}
+			return thesePositions;
 		}
 	}
 	
@@ -1090,9 +1114,18 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public Coordinate[] toAbsolute(Coordinate c) {
 		checkState();
+		final String lockText = "toAbsolute";
+		mutex.lock(lockText);
+		Coordinate[] thesePositions = this.getLocation();
 		
-		Coordinate absCoord = this.getAbsolutePositionVector().add(c);
-		return new Coordinate[] { absCoord };
+		final int instanceCount = this.getInstanceCount();
+		Coordinate[] toReturn = new Coordinate[instanceCount];
+		for (int coordIndex = 0; coordIndex < instanceCount; coordIndex++) {
+			toReturn[coordIndex] = thesePositions[coordIndex].add(c);
+		}
+		
+		mutex.unlock(lockText);
+		return toReturn;
 	}
 	
 	//	public Coordinate[] toAbsolute(final Coordinate[] toMove) {
@@ -1116,13 +1149,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * <p>
 	 * The current implementation does not support rotating components.
 	 *
-	 * @deprecated to test alternate interface... 
 	 * @param c    Coordinate in the component's coordinate system.
 	 * @param dest Destination component coordinate system.
 	 * @return     an array of coordinates describing <code>c</code> in coordinates
 	 * 			   relative to <code>dest</code>.
 	 */
-	@Deprecated
 	public final Coordinate[] toRelative(Coordinate c, RocketComponent dest) {
 		if (null == dest) {
 			throw new BugException("calling toRelative(c,null) is being refactored. ");
@@ -1131,32 +1162,28 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		mutex.lock("toRelative");
 		
-		final Coordinate sourceLoc = this.getAbsolutePositionVector();
-		final Coordinate destLoc = dest.getAbsolutePositionVector();
-		Coordinate newCoord = c.add(sourceLoc).sub(destLoc);
-		Coordinate[] toReturn = new Coordinate[] { newCoord };
+		// not sure if this will give us an answer, or THE answer... 
+		//final Coordinate sourceLoc = this.getLocation()[0];
+		final Coordinate[] destLocs = dest.getLocation();
+		Coordinate[] toReturn = new Coordinate[destLocs.length];
+		for (int coordIndex = 0; coordIndex < dest.getInstanceCount(); coordIndex++) {
+			toReturn[coordIndex] = this.getLocation()[0].add(c).sub(destLocs[coordIndex]);
+		}
 		
 		mutex.unlock("toRelative");
 		return toReturn;
 	}
 	
-	/*
-	 * @deprecated ? is this used by anything? 
-	 */
 	protected static final Coordinate[] rebase(final Coordinate toMove[], final Coordinate source, final Coordinate dest) {
-		if ((null == toMove) || (null == source) || (null == dest)) {
-			throw new NullPointerException("rebase with any null pointer is out-of-spec.");
-		}
-		
+		final Coordinate delta = source.sub(dest);
 		Coordinate[] toReturn = new Coordinate[toMove.length];
-		
-		Coordinate translation = source.sub(dest);
 		for (int coordIndex = 0; coordIndex < toMove.length; coordIndex++) {
-			toReturn[coordIndex] = toMove[coordIndex].add(translation);
+			toReturn[coordIndex] = toMove[coordIndex].add(delta);
 		}
 		
 		return toReturn;
 	}
+	
 	
 	/**
 	 * Iteratively sum the lengths of all subcomponents that have position
@@ -2047,10 +2074,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	}
 	
 	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		buffer.append(String.format("%s    %-24s  %5.3f %24f %24f\n", prefix, this.getName(), this.getLength(),
-				this.getRelativePositionVector().x, this.getAbsolutePositionVector().x));
-		//		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
-		//				this.getRelativePositionVector(), this.getAbsolutePositionVector()));
+		buffer.append(String.format("%s    %-24s  %5.3f %24s %24s\n", prefix, this.getName(), this.getLength(),
+				this.getOffset(), this.getLocation()[0]));
 	}
 	
 	public void dumpTreeHelper(StringBuilder buffer, final String prefix) {

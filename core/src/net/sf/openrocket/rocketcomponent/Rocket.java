@@ -196,7 +196,23 @@ public class Rocket extends RocketComponent {
 		return functionalModID;
 	}
 	
+	public ArrayList<Stage> getStageList() {
+		ArrayList<Stage> toReturn = new ArrayList<Stage>();
+		
+		toReturn = Rocket.getStages(toReturn, this);
+		
+		return toReturn;
+	}
 	
+	private static ArrayList<Stage> getStages(ArrayList<Stage> accumulator, final RocketComponent parent) {
+		for (RocketComponent curChild : parent.getChildren()) {
+			if (curChild instanceof Stage) {
+				Stage curStage = (Stage) curChild;
+				accumulator.add(curStage);
+			}
+		}
+		return accumulator; // technically redundant, btw.
+	}
 	
 	
 	public ReferenceType getReferenceType() {

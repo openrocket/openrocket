@@ -24,6 +24,9 @@ public class RocketComponentShape {
 	final public LineStyle lineStyle;
 	final public RocketComponent component;
 	
+	//fillColor);
+	//borderColor);
+
 	protected RocketComponentShape(){
 		this.hasShape = false;
 		this.shape = null;

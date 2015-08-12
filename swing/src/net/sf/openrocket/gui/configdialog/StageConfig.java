@@ -107,8 +107,7 @@ public class StageConfig extends RocketComponentConfig {
 						RocketComponent.Position.TOP,
 						RocketComponent.Position.MIDDLE,
 						RocketComponent.Position.BOTTOM,
-						RocketComponent.Position.ABSOLUTE,
-						RocketComponent.Position.AFTER
+						RocketComponent.Position.ABSOLUTE
 				});
 		JComboBox<?> positionMethodCombo = new JComboBox<RocketComponent.Position>( relativePositionMethodModel );
 		motherPanel.add(positionMethodCombo, "spanx 2, growx, wrap");

@@ -98,7 +98,7 @@ public class StageTest extends BaseTestCase {
 		expectedPosition = ZERO;
 		targetPosition = new Coordinate(+4.0, 0.0, 0.0);
 		rocket.setAxialOffset(targetPosition.x);
-		resultPosition = rocket.getRelativePositionVector();
+		resultPosition = rocket.getOffset();
 		assertThat(" Moved the rocket rocket itself-- this should not be enabled.", expectedPosition.x, equalTo(resultPosition.x));
 		
 	}
@@ -126,23 +126,23 @@ public class StageTest extends BaseTestCase {
 		assertThat(" createTestRocket failed: Sustainer size: ", sustainer.getLength(), equalTo(expectedSustainerLength));
 		double expectedSustainerX = 0;
 		double sustainerX;
-		sustainerX = sustainer.getRelativePositionVector().x;
+		sustainerX = sustainer.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Relative position: ", sustainerX, equalTo(expectedSustainerX));
-		sustainerX = sustainer.getAbsolutePositionVector().x;
+		sustainerX = sustainer.getLocation()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Absolute position: ", sustainerX, equalTo(expectedSustainerX));
 		
 		double expectedSustainerNoseX = 0;
-		double sustainerNosePosition = sustainerNose.getRelativePositionVector().x;
+		double sustainerNosePosition = sustainerNose.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Nose X position: ", sustainerNosePosition, equalTo(expectedSustainerNoseX));
 		expectedSustainerNoseX = 0;
-		sustainerNosePosition = sustainerNose.getAbsolutePositionVector().x;
+		sustainerNosePosition = sustainerNose.getLocation()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer Nose X position: ", sustainerNosePosition, equalTo(expectedSustainerNoseX));
 		
 		double expectedSustainerBodyX = 2;
-		double sustainerBodyX = sustainerBody.getRelativePositionVector().x;
+		double sustainerBodyX = sustainerBody.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer body rel X position: ", sustainerBodyX, equalTo(expectedSustainerBodyX));
 		expectedSustainerBodyX = 2;
-		sustainerBodyX = sustainerBody.getAbsolutePositionVector().x;
+		sustainerBodyX = sustainerBody.getLocation()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " sustainer body abs X position: ", sustainerBodyX, equalTo(expectedSustainerBodyX));
 		
 	}
@@ -166,37 +166,37 @@ public class StageTest extends BaseTestCase {
 		int relToStage = core.getRelativeToStage();
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core relative position: ", relToStage, equalTo(relToExpected));
 		
-		coreX = core.getRelativePositionVector().x;
+		coreX = core.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core Relative position: ", coreX, equalTo(expectedCoreX));
-		coreX = core.getAbsolutePositionVector().x;
+		coreX = core.getLocation()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core Absolute position: ", coreX, equalTo(expectedCoreX));
 		
 		RocketComponent coreUpperBody = core.getChild(0);
 		double expectedX = 0;
-		double resultantX = coreUpperBody.getRelativePositionVector().x;
+		double resultantX = coreUpperBody.getOffset().x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core body rel X: ", resultantX, equalTo(expectedX));
 		expectedX = expectedCoreX;
-		resultantX = coreUpperBody.getAbsolutePositionVector().x;
+		resultantX = coreUpperBody.getLocation()[0].x;
 		assertThat(" createTestRocket failed:\n" + rocketTree + " core body abs X: ", resultantX, equalTo(expectedX));
 		
 		RocketComponent coreLowerBody = core.getChild(1);
 		expectedX = coreUpperBody.getLength();
-		resultantX = coreLowerBody.getRelativePositionVector().x;
+		resultantX = coreLowerBody.getOffset().x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core body rel X: ", expectedX, resultantX, EPSILON);
 		expectedX = expectedCoreX + coreUpperBody.getLength();
-		resultantX = coreLowerBody.getAbsolutePositionVector().x;
+		resultantX = coreLowerBody.getLocation()[0].x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core body abs X: ", expectedX, resultantX, EPSILON);
 		
 		
 		RocketComponent coreFins = coreLowerBody.getChild(0);
 		// default is offset=0, method=0
 		expectedX = 0.2;
-		resultantX = coreFins.getRelativePositionVector().x;
+		resultantX = coreFins.getOffset().x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core Fins rel X: ", expectedX, resultantX, EPSILON);
 		// 5 + 1.8 + 4.2 = 11
 		//                 11 - 4 = 7;
 		expectedX = 7.0;
-		resultantX = coreFins.getAbsolutePositionVector().x;
+		resultantX = coreFins.getLocation()[0].x;
 		assertEquals(" createTestRocket failed:\n" + rocketTree + " core Fins abs X: ", expectedX, resultantX, EPSILON);
 		
 	}
@@ -220,10 +220,10 @@ public class StageTest extends BaseTestCase {
 		// ^^ function under test
 		String rocketTree = rocket.toDebugTree();
 		
-		Coordinate resultantRelativePosition = sustainer.getRelativePositionVector();
+		Coordinate resultantRelativePosition = sustainer.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed:\n" + rocketTree + " Relative position: ", resultantRelativePosition.x, equalTo(expectedPosition.x));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = sustainer.getAbsolutePositionVector();
+		Coordinate resultantAbsolutePosition = sustainer.getLocation()[0];
 		assertThat(" 'setAxialPosition(double)' failed:\n" + rocketTree + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedPosition.x));
 		
 	}
@@ -250,8 +250,8 @@ public class StageTest extends BaseTestCase {
 		assertThat(" 'setInstancecount(int)' failed: ", instanceCount, equalTo(expectedInstanceCount));
 		
 		double expectedAbsX = 6.0;
-		Coordinate resultantCenter = boosterSet.getAbsolutePositionVector();
-		assertEquals(treeDump + "\n>>'setAxialOffset()' failed:\n" + treeDump + "  absolute position", expectedAbsX, resultantCenter.x, EPSILON);
+		double resultantX = boosterSet.getLocation()[0].x;
+		assertEquals(">>'setAxialOffset()' failed:\n" + treeDump + "  1st Inst absolute position", expectedAbsX, resultantX, EPSILON);
 		
 		double expectedRadialOffset = 4.0;
 		double radialOffset = boosterSet.getRadialOffset();
@@ -286,24 +286,24 @@ public class StageTest extends BaseTestCase {
 		double angle = Math.PI * 2 / targetInstanceCount;
 		double radius = targetRadialOffset;
 		
-		Coordinate componentAbsolutePosition = boosterSet.getAbsolutePositionVector();
-		Coordinate[] instanceCoords = new Coordinate[] { componentAbsolutePosition };
-		instanceCoords = boosterSet.shiftCoordinates(instanceCoords);
+		Coordinate[] instanceAbsoluteCoords = boosterSet.getLocation();
+		//		Coordinate[] instanceRelativeCoords = new Coordinate[] { componentAbsolutePosition };
+		//		instanceRelativeCoords = boosterSet.shiftCoordinates(instanceRelativeCoords);
 		
 		int inst = 0;
 		Coordinate expectedPosition0 = new Coordinate(expectedX, radius * Math.cos(angle * inst), radius * Math.sin(angle * inst));
-		Coordinate resultantPosition0 = instanceCoords[0];
-		assertEquals(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", expectedPosition0, resultantPosition0);
+		Coordinate resultantPosition0 = instanceAbsoluteCoords[inst];
+		assertThat(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", resultantPosition0, equalTo(expectedPosition0));
 		
 		inst = 1;
 		Coordinate expectedPosition1 = new Coordinate(expectedX, radius * Math.cos(angle * inst), radius * Math.sin(angle * inst));
-		Coordinate resultantPosition1 = instanceCoords[1];
-		assertEquals(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", expectedPosition1, resultantPosition1);
+		Coordinate resultantPosition1 = instanceAbsoluteCoords[inst];
+		assertThat(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", resultantPosition1, equalTo(expectedPosition1));
 		
 		inst = 2;
 		Coordinate expectedPosition2 = new Coordinate(expectedX, radius * Math.cos(angle * inst), radius * Math.sin(angle * inst));
-		Coordinate resultantPosition2 = instanceCoords[2];
-		assertEquals(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", expectedPosition2, resultantPosition2);
+		Coordinate resultantPosition2 = instanceAbsoluteCoords[inst];
+		assertThat(treeDump + "\n>> Failed to generate Parallel Stage instances correctly: ", resultantPosition2, equalTo(expectedPosition2));
 		
 	}
 	
@@ -318,7 +318,7 @@ public class StageTest extends BaseTestCase {
 		core.addChild(booster);
 		
 		double targetX = +17.0;
-		double expectedX = targetX - core.getAbsolutePositionVector().x;
+		double expectedX = targetX - core.getLocation()[0].x;
 		
 		// when subStages should be freely movable		
 		// vv function under test
@@ -326,14 +326,14 @@ public class StageTest extends BaseTestCase {
 		// ^^ function under test
 		String treeDump = rocket.toDebugTree();
 		
-		Coordinate resultantRelativePosition = booster.getRelativePositionVector();
+		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedX));
 		double resultantPositionValue = booster.getPositionValue();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " PositionValue: ", resultantPositionValue, equalTo(targetX));
 		double resultantAxialPosition = booster.getAxialOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantAxialPosition, equalTo(targetX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getAbsolutePositionVector();
+		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(targetX));
 	}
 	
@@ -359,7 +359,7 @@ public class StageTest extends BaseTestCase {
 		String treeDump = rocket.toDebugTree();
 		
 		double expectedX = 0;
-		Coordinate resultantRelativePosition = sustainer.getRelativePositionVector();
+		Coordinate resultantRelativePosition = sustainer.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Sustainer Relative position: ", resultantRelativePosition.x, equalTo(expectedX));
 		double expectedPositionValue = 0;
 		double resultantPositionValue = sustainer.getPositionValue();
@@ -369,7 +369,7 @@ public class StageTest extends BaseTestCase {
 		double resultantAxialOffset = sustainer.getAxialOffset();
 		assertThat(" 'getAxialPosition()' failed: \n" + treeDump + " Relative position: ", resultantAxialOffset, equalTo(expectedAxialOffset));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = sustainer.getAbsolutePositionVector();
+		Coordinate resultantAbsolutePosition = sustainer.getLocation()[0];
 		assertThat(" 'setAbsolutePositionVector()' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedX));
 	}
 	
@@ -389,10 +389,10 @@ public class StageTest extends BaseTestCase {
 		
 		double expectedRelativeX = 2;
 		double expectedAbsoluteX = 7;
-		Coordinate resultantRelativePosition = booster.getRelativePositionVector();
+		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + "  Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativeX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getAbsolutePositionVector();
+		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + "  Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
 		double resultantAxialOffset = booster.getAxialOffset();
@@ -419,10 +419,10 @@ public class StageTest extends BaseTestCase {
 		
 		double expectedRelativeX = 2.5;
 		double expectedAbsoluteX = 7.5;
-		Coordinate resultantRelativePosition = booster.getRelativePositionVector();
+		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativeX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getAbsolutePositionVector();
+		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
 		double resultantPositionValue = booster.getPositionValue();
@@ -448,10 +448,10 @@ public class StageTest extends BaseTestCase {
 		
 		double expectedRelativeX = 5;
 		double expectedAbsoluteX = +10;
-		Coordinate resultantRelativePosition = booster.getRelativePositionVector();
+		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativeX));
 		// for all stages, the absolute position should equal the relative, because the direct parent is the rocket component (i.e. the Rocket)
-		Coordinate resultantAbsolutePosition = booster.getAbsolutePositionVector();
+		Coordinate resultantAbsolutePosition = booster.getLocation()[0];
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Absolute position: ", resultantAbsolutePosition.x, equalTo(expectedAbsoluteX));
 		
 		double resultantPositionValue = booster.getPositionValue();
@@ -474,7 +474,7 @@ public class StageTest extends BaseTestCase {
 		String treeDump = rocket.toDebugTree();
 		
 		double expectedRelativePositionX = targetOffset;
-		Coordinate resultantRelativePosition = booster.getRelativePositionVector();
+		Coordinate resultantRelativePosition = booster.getOffset();
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantRelativePosition.x, equalTo(expectedRelativePositionX));
 		
 		// vv function under test
@@ -498,7 +498,7 @@ public class StageTest extends BaseTestCase {
 		String treeDump = rocket.toDebugTree();
 		
 		double expectedRelativeX = targetOffset;
-		double resultantX = booster.getRelativePositionVector().x;
+		double resultantX = booster.getOffset().x;
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantX, equalTo(expectedRelativeX));
 		
 		// vv function under test
@@ -522,7 +522,7 @@ public class StageTest extends BaseTestCase {
 		String treeDump = rocket.toDebugTree();
 		
 		double expectedRelativeX = targetOffset;
-		double resultantX = booster.getRelativePositionVector().x;
+		double resultantX = booster.getOffset().x;
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantX, equalTo(expectedRelativeX));
 		
 		double resultantAxialPosition;
@@ -548,7 +548,7 @@ public class StageTest extends BaseTestCase {
 		String treeDump = rocket.toDebugTree();
 		
 		double expectedRelativeX = targetOffset;
-		double resultantX = booster.getRelativePositionVector().x;
+		double resultantX = booster.getOffset().x;
 		assertThat(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", resultantX, equalTo(expectedRelativeX));
 		
 		// vv function under test
@@ -572,7 +572,7 @@ public class StageTest extends BaseTestCase {
 		String treeDump = rocket.toDebugTree();
 		
 		double expectedRelativeX = +5.5;
-		double resultantX = booster.getRelativePositionVector().x;
+		double resultantX = booster.getOffset().x;
 		assertEquals(" 'setAxialPosition(double)' failed: \n" + treeDump + " Relative position: ", expectedRelativeX, resultantX, EPSILON);
 		
 		// vv function under test
@@ -599,7 +599,7 @@ public class StageTest extends BaseTestCase {
 		// requirement:  regardless of initialization order (which we cannot control) 
 		//     a booster should retain it's positioning method and offset while adding on children
 		double expectedRelativeX = 2.5;
-		double resultantOffset = booster.getRelativePositionVector().x;
+		double resultantOffset = booster.getOffset().x;
 		assertEquals(" init order error: Booster: " + treeDumpBefore + " initial relative X: ", expectedRelativeX, resultantOffset, EPSILON);
 		double expectedAxialOffset = targetOffset;
 		resultantOffset = booster.getAxialOffset();
@@ -613,7 +613,7 @@ public class StageTest extends BaseTestCase {
 		String treeDumpAfter = rocket.toDebugTree();
 		
 		expectedRelativeX = 2.5; // no change
-		resultantOffset = booster.getRelativePositionVector().x;
+		resultantOffset = booster.getOffset().x;
 		assertEquals(" init order error: Booster: " + treeDumpBefore + " =======> " + treeDumpAfter + " populated relative X: ", expectedRelativeX, resultantOffset, EPSILON);
 		expectedAxialOffset = targetOffset; // again, no change
 		resultantOffset = booster.getAxialOffset();
@@ -642,8 +642,8 @@ public class StageTest extends BaseTestCase {
 		boosterB.setAxialOffset(targetOffset);
 		String treeDump = rocket.toDebugTree();
 		
-		double resultantOffsetA = boosterA.getRelativePositionVector().x;
-		double resultantOffsetB = boosterB.getRelativePositionVector().x;
+		double resultantOffsetA = boosterA.getOffset().x;
+		double resultantOffsetB = boosterB.getOffset().x;
 		
 		assertEquals(" init order error: " + treeDump + " Booster A: resultant positions: ", expectedOffset, resultantOffsetA, EPSILON);
 		assertEquals(" init order error: " + treeDump + " Booster B: resultant positions: ", expectedOffset, resultantOffsetB, EPSILON);
@@ -683,6 +683,44 @@ public class StageTest extends BaseTestCase {
 		
 	}
 	
+	
+	@Test
+	public void testToAbsolute() {
+		Rocket rocket = createTestRocket();
+		Stage core = (Stage) rocket.getChild(1);
+		String treeDump = rocket.toDebugTree();
+		
+		Coordinate input = new Coordinate(3, 0, 0);
+		Coordinate[] actual = core.toAbsolute(input);
+		
+		double expectedX = 8;
+		assertEquals(treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ", expectedX, actual[0].x, EPSILON);
+	}
+	
+	@Test
+	public void testToRelative() {
+		Rocket rocket = createTestRocket();
+		Stage core = (Stage) rocket.getChild(1);
+		RocketComponent ubody = core.getChild(0);
+		RocketComponent lbody = core.getChild(1);
+		
+		String treeDump = rocket.toDebugTree();
+		
+		Coordinate input = new Coordinate(1, 0, 0);
+		Coordinate actual = core.toAbsolute(input)[0];
+		
+		double expectedX = 6;
+		assertEquals(treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ", expectedX, actual.x, EPSILON);
+		
+		input = new Coordinate(1, 0, 0);
+		actual = ubody.toRelative(input, lbody)[0];
+		
+		expectedX = -0.8;
+		assertEquals(treeDump + " coordinate transform through 'core.toAbsolute(c)' failed: ", expectedX, actual.x, EPSILON);
+		
+		
+		
+	}
 	
 	
 	
