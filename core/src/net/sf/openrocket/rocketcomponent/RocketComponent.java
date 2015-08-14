@@ -1118,7 +1118,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		mutex.lock(lockText);
 		Coordinate[] thesePositions = this.getLocation();
 		
-		final int instanceCount = this.getInstanceCount();
+		final int instanceCount = thesePositions.length;
+		
 		Coordinate[] toReturn = new Coordinate[instanceCount];
 		for (int coordIndex = 0; coordIndex < instanceCount; coordIndex++) {
 			toReturn[coordIndex] = thesePositions[coordIndex].add(c);

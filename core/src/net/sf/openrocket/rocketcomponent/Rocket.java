@@ -205,13 +205,18 @@ public class Rocket extends RocketComponent {
 	}
 	
 	private static ArrayList<Stage> getStages(ArrayList<Stage> accumulator, final RocketComponent parent) {
+		if ((null == accumulator) || (null == parent)) {
+			return new ArrayList<Stage>();
+		}
+		
 		for (RocketComponent curChild : parent.getChildren()) {
 			if (curChild instanceof Stage) {
 				Stage curStage = (Stage) curChild;
 				accumulator.add(curStage);
 			}
+			getStages(accumulator, curChild);
 		}
-		return accumulator; // technically redundant, btw.
+		return accumulator;
 	}
 	
 	

@@ -23,7 +23,12 @@ import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
+import net.sf.openrocket.rocketcomponent.FlightConfiguration;
+import net.sf.openrocket.rocketcomponent.InnerTube;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
@@ -61,6 +66,8 @@ public class RocketFigure extends AbstractScaleFigure {
 
 	private Configuration configuration;
 	private RocketComponent[] selection = new RocketComponent[0];
+	private double figureWidth = 0, figureHeight = 0;
+	protected int figureWidthPx = 0, figureHeightPx = 0;
 	
 	private RocketPanel.VIEW_TYPE currentViewType = RocketPanel.VIEW_TYPE.SideView;
 	
@@ -79,8 +86,6 @@ public class RocketFigure extends AbstractScaleFigure {
 	
 	private double minX = 0, maxX = 0, maxR = 0;
 	// Figure width and height in SI-units and pixels
-	private double figureWidth = 0, figureHeight = 0;
-	protected int figureWidthPx = 0, figureHeightPx = 0;
 	
 	private AffineTransform g2transformation = null;
 	
@@ -337,8 +342,7 @@ public class RocketFigure extends AbstractScaleFigure {
 				BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
 		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
 				RenderingHints.VALUE_STROKE_NORMALIZE);
-		
-
+	
 		// Draw motors
 		String motorID = configuration.getFlightConfigurationID();
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
@@ -358,15 +362,16 @@ public class RocketFigure extends AbstractScaleFigure {
 			RocketComponent mountComponent = ((RocketComponent) mount);
 			Coordinate[] mountLocations = mountComponent.getLocation();
 			
-			//Coordinate curInstancePosition = mountLocations[0]; // placeholder
 			double mountLength = mountComponent.getLength();
 			for ( Coordinate curInstanceLocation : mountLocations ){
 				Coordinate[] motorPositions;
 				Coordinate[] clusterCenterTop = new Coordinate[]{ curInstanceLocation.add( mountLength - motorLength + mount.getMotorOverhang(), 0, 0)};
 				motorPositions = mountComponent.shiftCoordinates(clusterCenterTop);
+				
 				for (int i = 0; i < motorPositions.length; i++) {
 					motorPositions[i] = transformation.transform(motorPositions[i]);
 				}
+				
 				
 				for (Coordinate coord : motorPositions) {
 					Shape s;
@@ -545,16 +550,15 @@ public class RocketFigure extends AbstractScaleFigure {
 		}
 	}
 	
-	
-	public double getBestZoom(Rectangle2D bounds) {
-		double zh = 1, zv = 1;
-		if (bounds.getWidth() > 0.0001)
-			zh = (getWidth() - 2 * borderPixelsWidth) / bounds.getWidth();
-		if (bounds.getHeight() > 0.0001)
-			zv = (getHeight() - 2 * borderPixelsHeight) / bounds.getHeight();
-		return Math.min(zh, zv);
-	}
-	
+//	public double getBestZoom(Rectangle2D bounds) {
+//		double zh = 1, zv = 1;
+//		if (bounds.getWidth() > 0.0001)
+//			zh = (getWidth() - 2 * borderPixelsWidth) / bounds.getWidth();
+//		if (bounds.getHeight() > 0.0001)
+//			zv = (getHeight() - 2 * borderPixelsHeight) / bounds.getHeight();
+//		return Math.min(zh, zv);
+//	}
+//	
 	
 
 	/**
@@ -562,39 +566,28 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * property accordingly.
 	 */
 	private void calculateSize() {
-		calculateFigureBounds();
+		Rectangle2D dimensions = this.getDimensions();
 		
-		switch (currentViewType) {
-		case SideView:
-			figureWidth = maxX - minX;
-			figureHeight = 2 * maxR;
-			break;
-		
-		case BackView:
-			figureWidth = 2 * maxR;
-			figureHeight = 2 * maxR;
-			break;
-		
-		default:
-			assert (false) : "Should not occur, type=" + currentViewType;
-			figureWidth = 0;
-			figureHeight = 0;
-		}
-		
+		figureHeight = dimensions.getHeight(); 
+		figureWidth = dimensions.getWidth();
+			
 		figureWidthPx = (int) (figureWidth * scale);
 		figureHeightPx = (int) (figureHeight * scale);
 		
-		Dimension d = new Dimension(figureWidthPx + 2 * borderPixelsWidth,
+		Dimension dpx = new Dimension(
+				figureWidthPx + 2 * borderPixelsWidth,
 				figureHeightPx + 2 * borderPixelsHeight);
 		
-		if (!d.equals(getPreferredSize()) || !d.equals(getMinimumSize())) {
-			setPreferredSize(d);
-			setMinimumSize(d);
+		if (!dpx.equals(getPreferredSize()) || !dpx.equals(getMinimumSize())) {
+			setPreferredSize(dpx);
+			setMinimumSize(dpx);
 			revalidate();
 		}
 	}
 	
 	public Rectangle2D getDimensions() {
+		calculateFigureBounds();
+		
 		switch (currentViewType) {
 		case SideView:
 			return new Rectangle2D.Double(minX, -maxR, maxX - minX, 2 * maxR);

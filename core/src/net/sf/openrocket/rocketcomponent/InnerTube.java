@@ -128,6 +128,11 @@ public class InnerTube extends ThicknessRingComponent implements Clusterable, Ra
 		return cluster.getClusterCount();
 	}
 	
+	@Override
+	public int getInstanceCount() {
+		return cluster.getClusterCount();
+	}
+	
 	/**
 	 * Get the cluster scaling.  A value of 1.0 indicates that the tubes are packed
 	 * touching each other, larger values separate the tubes and smaller values

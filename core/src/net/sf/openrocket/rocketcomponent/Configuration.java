@@ -325,19 +325,17 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	private List<RocketComponent> getActiveComponents(List<RocketComponent> accumulator, final List<RocketComponent> toScan) {
 		for (RocketComponent rc : toScan) {
 			if (rc instanceof Stage) {
-				if (isStageActive(rc.getStageNumber())) {
-					// recurse to children
-					getActiveComponents(accumulator, rc.getChildren());
-				} else {
+				if (!isStageActive(rc.getStageNumber())) {
 					continue;
 				}
 			} else {
 				accumulator.add(rc);
 			}
+			// recurse to children
+			getActiveComponents(accumulator, rc.getChildren());
 		}
 		return accumulator;
 	}
-	
 	
 	
 	/**

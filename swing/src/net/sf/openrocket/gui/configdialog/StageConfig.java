@@ -127,7 +127,8 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add(axialOffsetUnitSelector, "growx 1, wrap");
 		parallelEnabledModel.addEnableComponent( axialOffsetUnitSelector , true);		
 		
-		System.err.println(stage.getRocket().toDebugTree());
+		// For DEBUG purposes
+		//System.err.println(stage.getRocket().toDebugTree());
 		
 		return motherPanel;
 	}
