@@ -28,17 +28,10 @@ public class MassComponentShapes extends RocketComponentShape {
 		double radius = tube.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
 		
-		Coordinate oldStart = transformation.transform( componentAbsoluteLocation );
 		Coordinate start = transformation.transform( componentAbsoluteLocation);
-//		Shape s = new RoundRectangle2D.Double(start.x*S,(start.y-radius)*S,
-//					length*S,2*radius*S,arc*S,arc*S);
-					
-		
 		Shape[] s = new Shape[1];
-		for (int i=0; i < 1; i++) {
-			s[i] = new RoundRectangle2D.Double((start.x)*S,(start.y-radius)*S,
+		s[0] = new RoundRectangle2D.Double(start.x*S,(start.y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
-		}
 
 		switch (type) {
 		case ALTIMETER:

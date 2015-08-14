@@ -22,18 +22,12 @@ public class ShockCordShapes extends RocketComponentShape {
 		double radius = massObj.getRadius();
 		double arc = Math.min(length, 2*radius) * 0.7;
 		
+		
+		Coordinate start = transformation.transform( componentAbsoluteLocation);
 		Shape[] s = new Shape[1];
-		Coordinate start = componentAbsoluteLocation;
-		s[0] = new RoundRectangle2D.Double((start.x-radius)*S,(start.y-radius)*S,
+		s[0] = new RoundRectangle2D.Double(start.x*S,(start.y-radius)*S,
 					length*S,2*radius*S,arc*S,arc*S);
 		
-//		Coordinate[] start = transformation.transform(tube.toAbsolute(instanceOffset));
-//
-//		Shape[] s = new Shape[start.length];
-//		for (int i=0; i < start.length; i++) {
-//			s[i] = new RoundRectangle2D.Double(start[i].x*S,(start[i].y-radius)*S,
-//					length*S,2*radius*S,arc*S,arc*S);
-//		}
 		return RocketComponentShape.toArray( addSymbol(s), component);
 	}
 	
