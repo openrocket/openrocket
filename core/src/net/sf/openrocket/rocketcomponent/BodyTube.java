@@ -311,14 +311,39 @@ public class BodyTube extends SymmetricComponent implements MotorMount, Coaxial 
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		// not exact, but should *usually* give the right bounds
-		Coordinate ref = this.getLocation()[0];
-		double r = getOuterRadius();
-		addBound(bounds, ref.x, r);
-		addBound(bounds, ref.x + length, r);
+		double x_min_shape = 0;
+		double x_max_shape = this.length;
+		double r_max_shape = getOuterRadius();
+		
+		Coordinate[] locs = this.getLocation();
+		// not strictly accurate, but this should provide an acceptable estimate for total vehicle size
+		double x_min_inst = Double.MAX_VALUE;
+		double x_max_inst = Double.MIN_VALUE;
+		double r_max_inst = 0.0;
+		
+		// refactor: get component inherent bounds
+		for (Coordinate cur : locs) {
+			double x_cur = cur.x;
+			double r_cur = MathUtil.hypot(cur.y, cur.z);
+			if (x_min_inst > x_cur) {
+				x_min_inst = x_cur;
+			}
+			if (x_max_inst < x_cur) {
+				x_max_inst = x_cur;
+			}
+			if (r_cur > r_max_inst) {
+				r_max_inst = r_cur;
+			}
+		}
+		
+		// combine the position bounds with the inherent shape bounds
+		double x_min = x_min_shape + x_min_inst;
+		double x_max = x_max_shape + x_max_inst;
+		double r_max = r_max_shape + r_max_inst;
+		
+		addBoundingBox(bounds, x_min, x_max, r_max);
 		return bounds;
 	}
-	
 	
 	
 	/**

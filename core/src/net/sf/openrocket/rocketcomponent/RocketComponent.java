@@ -1831,6 +1831,13 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	
 	
 	
+	/**
+	 * Helper method to add eight bounds in a box around the rocket centerline.  This box will be (x_max - x_min) long, and 2*r wide/high.
+	 */
+	protected static final void addBoundingBox(Collection<Coordinate> bounds, double x_min, double x_max, double r) {
+		addBound(bounds, x_min, r);
+		addBound(bounds, x_max, r);
+	}
 	
 	/**
 	 * Helper method to add four bounds rotated around the given x coordinate at radius 'r', and 90deg between each.

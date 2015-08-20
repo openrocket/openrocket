@@ -13,13 +13,13 @@ public class LaunchLugShapes extends RocketComponentShape {
 	public static RocketComponentShape[] getShapesSide(
 			net.sf.openrocket.rocketcomponent.RocketComponent component, 
 			Transformation transformation,
-			Coordinate instanceOffset) {
+			Coordinate componentAbsoluteLocation) {
 	
 		net.sf.openrocket.rocketcomponent.LaunchLug lug = (net.sf.openrocket.rocketcomponent.LaunchLug)component;
 
 		double length = lug.getLength();
 		double radius = lug.getOuterRadius();
-		Coordinate[] start = transformation.transform(lug.toAbsolute(instanceOffset));
+		Coordinate[] start = transformation.transform( lug.getLocation());
 
 		Shape[] s = new Shape[start.length];
 		for (int i=0; i < start.length; i++) {

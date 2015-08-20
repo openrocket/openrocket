@@ -615,22 +615,40 @@ public abstract class FinSet extends ExternalComponent {
 	}
 	
 	
+	
 	/**
-	 * Adds the fin set's bounds to the collection.
+	 * Adds bounding coordinates to the given set.  The body tube will fit within the
+	 * convex hull of the points.
+	 *
+	 * Currently the points are simply a rectangular box around the body tube.
 	 */
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
-		List<Coordinate> bounds = new ArrayList<Coordinate>();
-		double refx = this.getLocation()[0].x;
-		double r = getBodyRadius();
+		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
+		
+		// should simply return this component's bounds in this component's body frame.
+		
+		double x_min = Double.MAX_VALUE;
+		double x_max = Double.MIN_VALUE;
+		double r_max = 0.0;
 		
 		for (Coordinate point : getFinPoints()) {
-			addFinBound(bounds, refx + point.x, point.y + r);
+			double hypot = MathUtil.hypot(point.y, point.z);
+			double x_cur = point.x;
+			if (x_min > x_cur) {
+				x_min = x_cur;
+			}
+			if (x_max < x_cur) {
+				x_max = x_cur;
+			}
+			if (r_max < hypot) {
+				r_max = hypot;
+			}
 		}
 		
+		addBoundingBox(bounds, x_min, x_max, r_max);
 		return bounds;
 	}
-	
 	
 	/**
 	 * Adds the 2d-coordinate bound (x,y) to the collection for both z-components and for
