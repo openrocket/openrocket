@@ -90,7 +90,7 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( countLabel, "align left");
 		parallelEnabledModel.addEnableComponent( countLabel, true);
 		
-		IntegerModel countModel = new IntegerModel( stage, "InstanceCount", 1 );
+		IntegerModel countModel = new IntegerModel( stage, "InstanceCount", 2);
 		JSpinner countSpinner = new JSpinner(countModel.getSpinnerModel());
 		countSpinner.setEditor(new SpinnerEditor(countSpinner));
 		motherPanel.add(countSpinner, "growx 1, wrap");

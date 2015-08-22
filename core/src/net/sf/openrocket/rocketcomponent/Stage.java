@@ -23,7 +23,7 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 	private double angularPosition_rad = 0;
 	private double radialPosition_m = 0;
 	
-	private int count = 1;
+	private int count = 2;
 	private double angularSeparation = Math.PI;
 	
 	private int stageNumber;
@@ -36,12 +36,10 @@ public class Stage extends ComponentAssembly implements FlightConfigurableCompon
 		Stage.stageCount++;
 	}
 	
-	
 	@Override
 	public boolean allowsChildren() {
 		return true;
 	}
-	
 	
 	@Override
 	public String getComponentName() {
