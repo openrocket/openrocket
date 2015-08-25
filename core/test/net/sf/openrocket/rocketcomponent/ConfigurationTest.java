@@ -356,7 +356,7 @@ public class ConfigurationTest extends BaseTestCase {
 		// TODO: get units correct, these units are prob wrong, are lengths are CM, mass are grams
 		
 		Rocket rocket;
-		Stage stage;
+		AxialStage stage;
 		NoseCone nosecone;
 		BodyTube tube1;
 		TrapezoidFinSet finset;
@@ -370,7 +370,7 @@ public class ConfigurationTest extends BaseTestCase {
 		final double R2 = 2.3 / 2;
 		
 		rocket = new Rocket();
-		stage = new Stage();
+		stage = new AxialStage();
 		stage.setName("Stage1");
 		
 		nosecone = new NoseCone(Transition.Shape.OGIVE, 10.0, R);
@@ -498,7 +498,7 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		Rocket rocket = makeSingleStageTestRocket();
 		
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Booster");
 		
 		BodyTube boosterTube = new BodyTube(9.0, R, BT_T);

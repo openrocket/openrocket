@@ -22,7 +22,7 @@ import net.sf.openrocket.gui.adaptors.EnumModel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 import net.sf.openrocket.startup.Application;
@@ -36,7 +36,7 @@ public class SeparationSelectionDialog extends JDialog {
 	
 	private StageSeparationConfiguration newConfiguration;
 	
-	public SeparationSelectionDialog(Window parent, final Rocket rocket, final Stage component) {
+	public SeparationSelectionDialog(Window parent, final Rocket rocket, final AxialStage component) {
 		super(parent, trans.get("edtmotorconfdlg.title.Selectseparationconf"), Dialog.ModalityType.APPLICATION_MODAL);
 		final String id = rocket.getDefaultConfiguration().getFlightConfigurationID();
 		

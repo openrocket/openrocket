@@ -93,7 +93,7 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		defaultConfiguration = new Configuration(this);
 		
-		Stage.resetStageCount();
+		AxialStage.resetStageCount();
 	}
 	
 	
@@ -130,7 +130,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public int getStageCount() {
 		checkState();
-		return Stage.getStageCount();
+		return AxialStage.getStageCount();
 	}
 	
 	
@@ -196,22 +196,22 @@ public class Rocket extends RocketComponent {
 		return functionalModID;
 	}
 	
-	public ArrayList<Stage> getStageList() {
-		ArrayList<Stage> toReturn = new ArrayList<Stage>();
+	public ArrayList<AxialStage> getStageList() {
+		ArrayList<AxialStage> toReturn = new ArrayList<AxialStage>();
 		
 		toReturn = Rocket.getStages(toReturn, this);
 		
 		return toReturn;
 	}
 	
-	private static ArrayList<Stage> getStages(ArrayList<Stage> accumulator, final RocketComponent parent) {
+	private static ArrayList<AxialStage> getStages(ArrayList<AxialStage> accumulator, final RocketComponent parent) {
 		if ((null == accumulator) || (null == parent)) {
-			return new ArrayList<Stage>();
+			return new ArrayList<AxialStage>();
 		}
 		
 		for (RocketComponent curChild : parent.getChildren()) {
-			if (curChild instanceof Stage) {
-				Stage curStage = (Stage) curChild;
+			if (curChild instanceof AxialStage) {
+				AxialStage curStage = (AxialStage) curChild;
 				accumulator.add(curStage);
 			}
 			getStages(accumulator, curChild);
@@ -707,7 +707,7 @@ public class Rocket extends RocketComponent {
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		return (Stage.class.isAssignableFrom(type));
+		return (AxialStage.class.isAssignableFrom(type));
 	}
 	
 }

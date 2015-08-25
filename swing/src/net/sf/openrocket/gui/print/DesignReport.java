@@ -21,7 +21,7 @@ import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.startup.Application;
@@ -341,7 +341,7 @@ public class DesignReport {
 		boolean topBorder = false;
 		for (RocketComponent c : rocket) {
 			
-			if (c instanceof Stage) {
+			if (c instanceof AxialStage) {
 				config.setToStage(stage);
 				stage++;
 				stageMass = massCalc.getCG(config, MassCalcType.LAUNCH_MASS).weight;

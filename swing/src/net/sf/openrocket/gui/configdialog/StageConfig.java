@@ -16,7 +16,7 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.components.StyledLabel.Style;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
@@ -30,18 +30,18 @@ public class StageConfig extends RocketComponentConfig {
 		
 		// Stage separation config (for non-first stage)
 		if (component.getStageNumber() > 0) {
-			JPanel tab = separationTab((Stage) component);
+			JPanel tab = separationTab((AxialStage) component);
 			tabbedPane.insertTab(trans.get("tab.Separation"), null, tab,
 					trans.get("tab.Separation.ttip"), 1);
 		}
 	 	
 	 	// only stages which are actually off-centerline will get the dialog here:
 		if( ! component.isCenterline()){
-			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (Stage) component ), trans.get("RocketCompCfg.tab.ParallelComment"), 2);
+			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (AxialStage) component ), trans.get("RocketCompCfg.tab.ParallelComment"), 2);
 		}
 	}
 	
-	private JPanel parallelTab( final Stage stage ){
+	private JPanel parallelTab( final AxialStage stage ){
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
 	
 		// set radial distance
@@ -107,7 +107,7 @@ public class StageConfig extends RocketComponentConfig {
 		return motherPanel;
 	}
 	
-	private JPanel separationTab(Stage stage) {
+	private JPanel separationTab(AxialStage stage) {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Select separation event

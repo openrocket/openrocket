@@ -68,7 +68,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	public void setAllStages() {
 		stagesActive.clear();
-		stagesActive.set(0, Stage.getStageCount());
+		stagesActive.set(0, AxialStage.getStageCount());
 		fireChangeEvent();
 	}
 	
@@ -107,18 +107,18 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * Check whether the stage specified by the index is active.
 	 */
 	public boolean isStageActive(int stage) {
-		if (stage >= Stage.getStageCount())
+		if (stage >= AxialStage.getStageCount())
 			return false;
 		return stagesActive.get(stage);
 	}
 	
 	public int getStageCount() {
-		return Stage.getStageCount();
+		return AxialStage.getStageCount();
 	}
 	
 	public int getActiveStageCount() {
 		int count = 0;
-		int s = Stage.getStageCount();
+		int s = AxialStage.getStageCount();
 		
 		for (int i = 0; i < s; i++) {
 			if (stagesActive.get(i))
@@ -324,7 +324,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	private List<RocketComponent> getActiveComponents(List<RocketComponent> accumulator, final List<RocketComponent> toScan) {
 		for (RocketComponent rc : toScan) {
-			if (rc instanceof Stage) {
+			if (rc instanceof AxialStage) {
 				if (!isStageActive(rc.getStageNumber())) {
 					continue;
 				}

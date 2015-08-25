@@ -44,7 +44,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Color;
@@ -417,7 +417,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 		
 		//Figure out the lowest stage shown
 		final int currentStageNumber = configuration.getActiveStages()[configuration.getActiveStages().length-1];
-		final Stage currentStage = (Stage)configuration.getRocket().getChild(currentStageNumber);
+		final AxialStage currentStage = (AxialStage)configuration.getRocket().getChild(currentStageNumber);
 		
 		final String motorID = configuration.getFlightConfigurationID();
 		final Iterator<MotorMount> iterator = configuration.motorIterator();
@@ -427,7 +427,7 @@ public class PhotoPanel extends JPanel implements GLEventListener {
 			//If this mount is not in currentStage continue on to the next one.
 			RocketComponent parent = ((RocketComponent)mount);
 			while ( null != (parent = parent.getParent()) ){
-				if ( parent instanceof Stage ){
+				if ( parent instanceof AxialStage ){
 					if ( parent != currentStage )
 						continue motor;
 					break;

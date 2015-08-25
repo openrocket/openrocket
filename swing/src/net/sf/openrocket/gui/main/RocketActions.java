@@ -24,7 +24,7 @@ import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
 import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.util.Pair;
@@ -174,7 +174,7 @@ public class RocketActions {
 			return false;
 
 		// Cannot remove last stage
-		if ((c instanceof Stage) && (c.getParent().getChildCount() == 1)) {
+		if ((c instanceof AxialStage) && (c.getParent().getChildCount() == 1)) {
 			return false;
 		}
 
@@ -597,7 +597,7 @@ public class RocketActions {
 			
 			ComponentConfigDialog.hideDialog();
 
-			RocketComponent stage = new Stage();
+			RocketComponent stage = new AxialStage();
 			//// Booster stage
 			stage.setName(trans.get("RocketActions.ActBoosterstage"));
 			//// Add stage

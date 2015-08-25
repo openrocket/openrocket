@@ -11,6 +11,7 @@ import javax.swing.ImageIcon;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
@@ -22,6 +23,7 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassComponent.MassComponentType;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.ShockCord;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.Transition;
@@ -79,6 +81,10 @@ public class ComponentIcons {
 				ShockCord.class);
 		load("mass", trans.get("ComponentIcons.Masscomponent"),
 				MassComponent.class);
+		load("boosters", trans.get("ComponentIcons.Boosters"),
+				BoosterSet.class);
+		load("pods", trans.get("ComponentIcons.Pods"),
+				PodSet.class);
 		// // Mass components
 		loadMassTypeIcon("mass", trans.get("ComponentIcons.Masscomponent"),
 				MassComponentType.MASSCOMPONENT);

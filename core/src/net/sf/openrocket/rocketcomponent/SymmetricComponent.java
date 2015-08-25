@@ -570,7 +570,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			if (c instanceof SymmetricComponent) {
 				return (SymmetricComponent) c;
 			}
-			if (!(c instanceof Stage) &&
+			if (!(c instanceof AxialStage) &&
 					(c.relativePosition == RocketComponent.Position.AFTER))
 				return null; // Bad component type as "parent"
 		}
@@ -590,7 +590,7 @@ public abstract class SymmetricComponent extends BodyComponent implements Radial
 			if (c instanceof SymmetricComponent) {
 				return (SymmetricComponent) c;
 			}
-			if (!(c instanceof Stage) &&
+			if (!(c instanceof AxialStage) &&
 					(c.relativePosition == RocketComponent.Position.AFTER))
 				return null; // Bad component type as "parent"
 		}

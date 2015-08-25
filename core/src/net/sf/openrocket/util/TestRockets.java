@@ -39,7 +39,7 @@ import net.sf.openrocket.rocketcomponent.ReferenceType;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Transition;
 import net.sf.openrocket.rocketcomponent.Transition.Shape;
@@ -104,7 +104,7 @@ public class TestRockets {
 		rocket.setRevision("Rocket revision " + key);
 		rocket.setName(key);
 		
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		setBasics(stage);
 		rocket.addChild(stage);
 		
@@ -251,13 +251,13 @@ public class TestRockets {
 		double finRootChord = 0.04, finTipChord = 0.05, finSweep = 0.01, finThickness = 0.003, finHeight = 0.03;
 		
 		Rocket rocket;
-		Stage stage;
+		AxialStage stage;
 		NoseCone nosecone;
 		BodyTube bodytube;
 		TrapezoidFinSet finset;
 		
 		rocket = new Rocket();
-		stage = new Stage();
+		stage = new AxialStage();
 		stage.setName("Stage1");
 		
 		nosecone = new NoseCone(Transition.Shape.ELLIPSOID, noseconeLength, noseconeRadius);
@@ -299,14 +299,14 @@ public class TestRockets {
 	
 	public static Rocket makeBigBlue() {
 		Rocket rocket;
-		Stage stage;
+		AxialStage stage;
 		NoseCone nosecone;
 		BodyTube bodytube;
 		FreeformFinSet finset;
 		MassComponent mcomp;
 		
 		rocket = new Rocket();
-		stage = new Stage();
+		stage = new AxialStage();
 		stage.setName("Stage1");
 		
 		nosecone = new NoseCone(Transition.Shape.ELLIPSOID, 0.105, 0.033);
@@ -368,7 +368,7 @@ public class TestRockets {
 	
 	public static Rocket makeIsoHaisu() {
 		Rocket rocket;
-		Stage stage;
+		AxialStage stage;
 		NoseCone nosecone;
 		BodyTube tube1, tube2, tube3;
 		TrapezoidFinSet finset;
@@ -379,7 +379,7 @@ public class TestRockets {
 		final double R = 0.07;
 		
 		rocket = new Rocket();
-		stage = new Stage();
+		stage = new AxialStage();
 		stage.setName("Stage1");
 		
 		nosecone = new NoseCone(Transition.Shape.OGIVE, 0.53, R);
@@ -557,7 +557,7 @@ public class TestRockets {
 		rocket.setName("v100");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		
 		// make body tube 
@@ -578,7 +578,7 @@ public class TestRockets {
 		rocket.setName("v101_withFinTabs");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -607,7 +607,7 @@ public class TestRockets {
 		rocket.setName("v101_withTubeCouplerChild");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -633,7 +633,7 @@ public class TestRockets {
 		rocket.setName("v104_withMotorConfig");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -671,7 +671,7 @@ public class TestRockets {
 		rocket.setName("v104_withSimulationData");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -719,7 +719,7 @@ public class TestRockets {
 		rocket.setName("v105_withCustomExpression");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -743,7 +743,7 @@ public class TestRockets {
 		rocket.setName("v105_withComponentPreset");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -779,7 +779,7 @@ public class TestRockets {
 		rocket.setName("v105_withLowerStageRecoveryDevice");
 		
 		// make 1st stage
-		Stage stage1 = new Stage();
+		AxialStage stage1 = new AxialStage();
 		stage1.setName("Stage1");
 		rocket.addChild(stage1);
 		
@@ -795,7 +795,7 @@ public class TestRockets {
 		bodyTube1.addChild(parachute);
 		
 		// make 2nd stage
-		Stage stage2 = new Stage();
+		AxialStage stage2 = new AxialStage();
 		stage2.setName("Stage2");
 		rocket.addChild(stage2);
 		
@@ -810,7 +810,7 @@ public class TestRockets {
 		rocket.setName("v106_withAppearance");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -831,7 +831,7 @@ public class TestRockets {
 		rocket.setName("v106_withwithMotorMountIgnitionConfig");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -860,7 +860,7 @@ public class TestRockets {
 		rocket.setName("v106_withRecoveryDeviceDeploymentConfig");
 		
 		// make stage
-		Stage stage = new Stage();
+		AxialStage stage = new AxialStage();
 		stage.setName("Stage1");
 		rocket.addChild(stage);
 		
@@ -886,7 +886,7 @@ public class TestRockets {
 		rocket.setName("v106_withStageSeparationConfig");
 		
 		// make 1st stage
-		Stage stage1 = new Stage();
+		AxialStage stage1 = new AxialStage();
 		stage1.setName("Stage1");
 		rocket.addChild(stage1);
 		
@@ -904,7 +904,7 @@ public class TestRockets {
 		stage1.getStageSeparationConfiguration().set("3SecondDelay", stageSepConfig);
 		
 		// make 2nd stage
-		Stage stage2 = new Stage();
+		AxialStage stage2 = new AxialStage();
 		stage2.setName("Stage2");
 		rocket.addChild(stage2);
 		
@@ -937,7 +937,7 @@ public class TestRockets {
 		rocket.setName("for_estimateFileSize");
 		
 		// make 1st stage
-		Stage stage1 = new Stage();
+		AxialStage stage1 = new AxialStage();
 		stage1.setName("Stage1");
 		rocket.addChild(stage1);
 		
@@ -959,7 +959,7 @@ public class TestRockets {
 		bodyTube1.addChild(parachute);
 		
 		// make 2nd stage
-		Stage stage2 = new Stage();
+		AxialStage stage2 = new AxialStage();
 		stage2.setName("Stage2");
 		rocket.addChild(stage2);
 		

@@ -6,7 +6,7 @@ package net.sf.openrocket.gui.print.components;
 import net.sf.openrocket.gui.print.OpenRocketPrintable;
 import net.sf.openrocket.gui.print.PrintableContext;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -70,7 +70,7 @@ public class RocketPrintTree extends JTree {
 				toAddTo = parent;
 			}
 			for (RocketComponent stage : stages) {
-				if (stage instanceof Stage) {
+				if (stage instanceof AxialStage) {
 					toAddTo.add(createNamedVector(stage.getName(), createPrintTreeNode(true), stage.getStageNumber()));
 				}
 			}

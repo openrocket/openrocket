@@ -27,7 +27,7 @@ public class StageTest extends BaseTestCase {
 		Rocket rocket = new Rocket();
 		rocket.setName("Rocket");
 		
-		Stage sustainer = new Stage();
+		AxialStage sustainer = new AxialStage();
 		sustainer.setName("Sustainer stage");
 		RocketComponent sustainerNose = new NoseCone(Transition.Shape.CONICAL, 2.0, tubeRadius);
 		sustainerNose.setName("Sustainer Nosecone");
@@ -37,7 +37,7 @@ public class StageTest extends BaseTestCase {
 		sustainer.addChild(sustainerBody);
 		rocket.addChild(sustainer);
 		
-		Stage core = new Stage();
+		AxialStage core = new AxialStage();
 		core.setName("Core stage");
 		rocket.addChild(core);
 		BodyTube coreUpperBody = new BodyTube(1.8, tubeRadius, 0.01);
@@ -52,10 +52,10 @@ public class StageTest extends BaseTestCase {
 		return rocket;
 	}
 	
-	public Stage createBooster() {
+	public AxialStage createBooster() {
 		double tubeRadius = 0.8;
 		
-		Stage booster = new Stage();
+		AxialStage booster = new AxialStage();
 		booster.setName("Booster Stage");
 		booster.setOutside(true);
 		RocketComponent boosterNose = new NoseCone(Transition.Shape.CONICAL, 2.0, tubeRadius);
@@ -108,7 +108,7 @@ public class StageTest extends BaseTestCase {
 		RocketComponent rocket = createTestRocket();
 		
 		// Sustainer Stage
-		Stage sustainer = (Stage) rocket.getChild(0);
+		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		RocketComponent sustainerNose = sustainer.getChild(0);
 		RocketComponent sustainerBody = sustainer.getChild(1);
 		assertThat(" createTestRocket failed: is sustainer stage an ancestor of the sustainer stage?  ", sustainer.isAncestor(sustainer), equalTo(false));
@@ -156,7 +156,7 @@ public class StageTest extends BaseTestCase {
 		String rocketTree = rocket.toDebugTree();
 		
 		// Core Stage
-		Stage core = (Stage) rocket.getChild(1);
+		AxialStage core = (AxialStage) rocket.getChild(1);
 		double expectedCoreLength = 6.0;
 		assertThat(" createTestRocket failed: Core size: ", core.getLength(), equalTo(expectedCoreLength));
 		double expectedCoreX = 5;
@@ -205,7 +205,7 @@ public class StageTest extends BaseTestCase {
 	public void testSetStagePosition_topOfStack() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage sustainer = (Stage) rocket.getChild(0);
+		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		Coordinate expectedPosition = new Coordinate(0, 0., 0.); // i.e. half the tube length
 		Coordinate targetPosition = new Coordinate(+4.0, 0., 0.);
 		
@@ -232,8 +232,8 @@ public class StageTest extends BaseTestCase {
 	public void testBoosterInitialization() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage boosterSet = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage boosterSet = createBooster();
 		core.addChild(boosterSet);
 		
 		double targetOffset = 0;
@@ -268,8 +268,8 @@ public class StageTest extends BaseTestCase {
 	public void testBoosterInstanceLocation_BOTTOM() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage boosterSet = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage boosterSet = createBooster();
 		core.addChild(boosterSet);
 		
 		double targetOffset = 0;
@@ -313,8 +313,8 @@ public class StageTest extends BaseTestCase {
 	public void testSetStagePosition_outsideABSOLUTE() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetX = +17.0;
@@ -344,7 +344,7 @@ public class StageTest extends BaseTestCase {
 	public void testSetStagePosition_outsideTopOfStack() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage sustainer = (Stage) rocket.getChild(0);
+		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		Coordinate targetPosition = new Coordinate(+4.0, 0., 0.);
 		Coordinate expectedPosition = targetPosition;
 		
@@ -376,8 +376,8 @@ public class StageTest extends BaseTestCase {
 	@Test
 	public void testSetStagePosition_outsideTOP() {
 		Rocket rocket = this.createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +2.0;
@@ -406,8 +406,8 @@ public class StageTest extends BaseTestCase {
 	public void testSetStagePosition_outsideMIDDLE() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		// when 'external' the stage should be freely movable
@@ -436,8 +436,8 @@ public class StageTest extends BaseTestCase {
 	public void testSetStagePosition_outsideBOTTOM() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		// vv function under test
@@ -465,8 +465,8 @@ public class StageTest extends BaseTestCase {
 	public void testAxial_setTOP_getABSOLUTE() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -489,8 +489,8 @@ public class StageTest extends BaseTestCase {
 	public void testAxial_setTOP_getAFTER() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -513,8 +513,8 @@ public class StageTest extends BaseTestCase {
 	public void testAxial_setTOP_getMIDDLE() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -538,8 +538,8 @@ public class StageTest extends BaseTestCase {
 	public void testAxial_setTOP_getBOTTOM() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		
@@ -563,8 +563,8 @@ public class StageTest extends BaseTestCase {
 	public void testAxial_setBOTTOM_getTOP() {
 		// setup
 		RocketComponent rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage booster = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -586,9 +586,9 @@ public class StageTest extends BaseTestCase {
 	public void testOutsideStageRepositionTOPAfterAdd() {
 		final double boosterRadius = 0.8;
 		Rocket rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
+		AxialStage core = (AxialStage) rocket.getChild(1);
 		
-		Stage booster = new Stage();
+		AxialStage booster = new AxialStage();
 		booster.setName("Booster Stage");
 		core.addChild(booster);
 		final double targetOffset = +2.50;
@@ -623,11 +623,11 @@ public class StageTest extends BaseTestCase {
 	@Test
 	public void testStageInitializationMethodValueOrder() {
 		Rocket rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
-		Stage boosterA = createBooster();
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage boosterA = createBooster();
 		boosterA.setName("Booster A Stage");
 		core.addChild(boosterA);
-		Stage boosterB = createBooster();
+		AxialStage boosterB = createBooster();
 		boosterB.setName("Booster B Stage");
 		core.addChild(boosterB);
 		
@@ -653,13 +653,13 @@ public class StageTest extends BaseTestCase {
 	@Test
 	public void testStageNumbering() {
 		Rocket rocket = createTestRocket();
-		Stage sustainer = (Stage) rocket.getChild(0);
-		Stage core = (Stage) rocket.getChild(1);
-		Stage boosterA = createBooster();
+		AxialStage sustainer = (AxialStage) rocket.getChild(0);
+		AxialStage core = (AxialStage) rocket.getChild(1);
+		AxialStage boosterA = createBooster();
 		boosterA.setName("Booster A Stage");
 		core.addChild(boosterA);
 		boosterA.setAxialOffset(Position.BOTTOM, 0.0);
-		Stage boosterB = createBooster();
+		AxialStage boosterB = createBooster();
 		boosterB.setName("Booster B Stage");
 		core.addChild(boosterB);
 		boosterB.setAxialOffset(Position.BOTTOM, 0);
@@ -687,7 +687,7 @@ public class StageTest extends BaseTestCase {
 	@Test
 	public void testToAbsolute() {
 		Rocket rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
+		AxialStage core = (AxialStage) rocket.getChild(1);
 		String treeDump = rocket.toDebugTree();
 		
 		Coordinate input = new Coordinate(3, 0, 0);
@@ -700,7 +700,7 @@ public class StageTest extends BaseTestCase {
 	@Test
 	public void testToRelative() {
 		Rocket rocket = createTestRocket();
-		Stage core = (Stage) rocket.getChild(1);
+		AxialStage core = (AxialStage) rocket.getChild(1);
 		RocketComponent ubody = core.getChild(0);
 		RocketComponent lbody = core.getChild(1);
 		

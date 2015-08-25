@@ -22,7 +22,7 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.FlightData;
@@ -284,8 +284,8 @@ public class OpenRocketSaver extends RocketSaver {
 						return FILE_VERSION_DIVISOR + 6;
 					}
 				}
-				if (c instanceof Stage) {
-					Stage stage = (Stage) c;
+				if (c instanceof AxialStage) {
+					AxialStage stage = (AxialStage) c;
 					if (stage.getStageSeparationConfiguration().size() > 0) {
 						return FILE_VERSION_DIVISOR + 6;
 					}

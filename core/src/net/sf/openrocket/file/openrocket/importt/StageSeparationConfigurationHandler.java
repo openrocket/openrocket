@@ -8,19 +8,19 @@ import net.sf.openrocket.file.DocumentLoadingContext;
 import net.sf.openrocket.file.simplesax.AbstractElementHandler;
 import net.sf.openrocket.file.simplesax.ElementHandler;
 import net.sf.openrocket.file.simplesax.PlainTextHandler;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration.SeparationEvent;
 
 import org.xml.sax.SAXException;
 
 class StageSeparationConfigurationHandler extends AbstractElementHandler {
-	private final Stage stage;
+	private final AxialStage stage;
 	
 	private SeparationEvent event = null;
 	private double delay = Double.NaN;
 	
-	public StageSeparationConfigurationHandler(Stage stage, DocumentLoadingContext context) {
+	public StageSeparationConfigurationHandler(AxialStage stage, DocumentLoadingContext context) {
 		this.stage = stage;
 	}
 	

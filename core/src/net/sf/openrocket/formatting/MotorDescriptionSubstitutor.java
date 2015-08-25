@@ -12,7 +12,7 @@ import net.sf.openrocket.plugin.Plugin;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Chars;
 
@@ -59,7 +59,7 @@ public class MotorDescriptionSubstitutor implements RocketSubstitutor {
 		while (iterator.hasNext()) {
 			RocketComponent c = iterator.next();
 			
-			if (c instanceof Stage) {
+			if (c instanceof AxialStage) {
 				
 				currentList = new ArrayList<String>();
 				list.add(currentList);

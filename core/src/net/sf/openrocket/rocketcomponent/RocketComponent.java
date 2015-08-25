@@ -1024,7 +1024,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// if this is the root of a hierarchy, constrain the position to zero.
 		if (null == this.parent) {
 			return;
-		} else if ((this.isCenterline()) && (this instanceof Stage)) {
+		} else if ((this.isCenterline()) && (this instanceof AxialStage)) {
 			// enforce AFTER
 			positionMethod = Position.AFTER;
 		}
@@ -1506,12 +1506,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * @return	The Stage component this component belongs to.
 	 * @throws	IllegalStateException   if a Stage component is not in the parentage.
 	 */
-	public final Stage getStage() {
+	public final AxialStage getStage() {
 		checkState();
 		RocketComponent c = this;
 		while (c != null) {
-			if (c instanceof Stage)
-				return (Stage) c;
+			if (c instanceof AxialStage)
+				return (AxialStage) c;
 			c = c.getParent();
 		}
 		throw new IllegalStateException("getStage() called without Stage as a parent.");
@@ -1530,14 +1530,14 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		
 		RocketComponent curComponent = this;
-		while (!(curComponent instanceof Stage)) {
+		while (!(curComponent instanceof AxialStage)) {
 			curComponent = curComponent.parent;
 			if (curComponent == null || curComponent.parent == null) {
 				throw new IllegalStateException("getStageNumber() could not find parent " +
 						"stage.");
 			}
 		}
-		Stage stage = (Stage) curComponent;
+		AxialStage stage = (AxialStage) curComponent;
 		
 		return stage.getStageNumber();
 	}

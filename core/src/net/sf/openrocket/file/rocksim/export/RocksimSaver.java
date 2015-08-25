@@ -17,7 +17,7 @@ import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,7 @@ public class RocksimSaver extends RocketSaver {
 		return result;
 	}
 	
-	private StageDTO toStageDTO(Stage stage, RocketDesignDTO designDTO, int stageNumber) {
+	private StageDTO toStageDTO(AxialStage stage, RocketDesignDTO designDTO, int stageNumber) {
 		return new StageDTO(stage, designDTO, stageNumber);
 	}
 	

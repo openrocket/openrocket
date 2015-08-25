@@ -7,7 +7,7 @@ import java.util.Locale;
 
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.Stage;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 
 public class StageSaver extends ComponentAssemblySaver {
@@ -27,7 +27,7 @@ public class StageSaver extends ComponentAssemblySaver {
 	@Override
 	protected void addParams(RocketComponent c, List<String> elements) {
 		super.addParams(c, elements);
-		Stage stage = (Stage) c;
+		AxialStage stage = (AxialStage) c;
 		
 		if (stage.getOutside()) {
 			elements.addAll(this.addStageReplicationParams(stage));
@@ -60,7 +60,7 @@ public class StageSaver extends ComponentAssemblySaver {
 		}
 	}
 	
-	private Collection<? extends String> addStageReplicationParams(final Stage currentStage) {
+	private Collection<? extends String> addStageReplicationParams(final AxialStage currentStage) {
 		List<String> elementsToReturn = new ArrayList<String>();
 		final String instCt_tag = "instancecount";
 		final String radoffs_tag = "radialoffset";
