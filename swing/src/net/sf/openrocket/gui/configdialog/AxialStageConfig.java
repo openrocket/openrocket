@@ -21,20 +21,21 @@ import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 
-public class StageConfig extends RocketComponentConfig {
+public class AxialStageConfig extends RocketComponentConfig {
 	private static final long serialVersionUID = -944969957186522471L;
 	private static final Translator trans = Application.getTranslator();
 	
-	public StageConfig(OpenRocketDocument document, RocketComponent component) {
+	public AxialStageConfig(OpenRocketDocument document, RocketComponent component) {
 		super(document, component);
 		
 		// Stage separation config (for non-first stage)
 		if (component.getStageNumber() > 0) {
 			JPanel tab = separationTab((AxialStage) component);
-			tabbedPane.insertTab(trans.get("tab.Separation"), null, tab,
-					trans.get("tab.Separation.ttip"), 1);
+			tabbedPane.insertTab(trans.get("StageConfig.tab.Separation"), null, tab,
+					trans.get("StageConfig.tab.Separation.ttip"), 1);
 		}
 	 	
+		System.err.println(" building Stage Config Dialogue for: "+component.getName()+" type: "+component.getComponentName());
 	 	// only stages which are actually off-centerline will get the dialog here:
 		if( ! component.isCenterline()){
 			tabbedPane.insertTab( trans.get("RocketCompCfg.tab.Parallel"), null, parallelTab( (AxialStage) component ), trans.get("RocketCompCfg.tab.ParallelComment"), 2);
@@ -45,7 +46,7 @@ public class StageConfig extends RocketComponentConfig {
 		JPanel motherPanel = new JPanel( new MigLayout("fill"));
 	
 		// set radial distance
-		JLabel radiusLabel = new JLabel(trans.get("Stage.parallel.radius"));  
+		JLabel radiusLabel = new JLabel(trans.get("StageConfig.parallel.radius"));  
 		motherPanel.add( radiusLabel , "align left");
 		DoubleModel radiusModel = new DoubleModel( stage, "RadialOffset", UnitGroup.UNITS_LENGTH, 0);
 		//radiusModel.setCurrentUnit( UnitGroup.UNITS_LENGTH.getUnit("cm"));
@@ -56,7 +57,7 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add(radiusUnitSelector, "growx 1, wrap");
 		
 		// set location angle around the primary stage
-		JLabel angleLabel = new JLabel(trans.get("Stage.parallel.angle"));
+		JLabel angleLabel = new JLabel(trans.get("StageConfig.parallel.angle"));
 		motherPanel.add( angleLabel, "align left");
 		DoubleModel angleModel = new DoubleModel( stage, "AngularOffset", 1.0, UnitGroup.UNITS_ANGLE, 0.0, Math.PI*2);
 		angleModel.setCurrentUnit( UnitGroup.UNITS_ANGLE.getUnit("rad"));
@@ -67,7 +68,7 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add( angleUnitSelector, "growx 1, wrap");
 		
 		// set multiplicity
-		JLabel countLabel = new JLabel(trans.get("Stage.parallel.count"));
+		JLabel countLabel = new JLabel(trans.get("StageConfig.parallel.count"));
 		motherPanel.add( countLabel, "align left");
 		
 		IntegerModel countModel = new IntegerModel( stage, "InstanceCount", 2);
@@ -91,7 +92,7 @@ public class StageConfig extends RocketComponentConfig {
 		motherPanel.add(positionMethodCombo, "spanx 2, growx, wrap");
 		
 		// relative offset labels
-		JLabel positionPlusLabel = new JLabel(trans.get("Stage.parallel.offset"));
+		JLabel positionPlusLabel = new JLabel(trans.get("StageConfig.parallel.offset"));
 		motherPanel.add( positionPlusLabel );
 		DoubleModel axialOffsetModel = new DoubleModel(component, "AxialOffset", UnitGroup.UNITS_LENGTH);
 		axialOffsetModel.setCurrentUnit(UnitGroup.UNITS_LENGTH.getUnit("cm"));
@@ -111,14 +112,14 @@ public class StageConfig extends RocketComponentConfig {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Select separation event
-		panel.add(new StyledLabel(trans.get("separation.lbl.title") + " " + CommonStrings.dagger, Style.BOLD), "spanx, wrap rel");
+		panel.add(new StyledLabel(trans.get("StageConfig.separation.lbl.title") + " " + CommonStrings.dagger, Style.BOLD), "spanx, wrap rel");
 		
 		StageSeparationConfiguration config = stage.getStageSeparationConfiguration().getDefault();
 		JComboBox combo = new JComboBox(new EnumModel<StageSeparationConfiguration.SeparationEvent>(config, "SeparationEvent"));
 		panel.add(combo, "");
 		
 		// ... and delay
-		panel.add(new JLabel(trans.get("separation.lbl.plus")), "");
+		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.plus")), "");
 		
 		DoubleModel dm = new DoubleModel(config, "SeparationDelay", 0);
 		JSpinner spin = new JSpinner(dm.getSpinnerModel());
@@ -126,7 +127,7 @@ public class StageConfig extends RocketComponentConfig {
 		panel.add(spin, "width 45");
 		
 		//// seconds
-		panel.add(new JLabel(trans.get("separation.lbl.seconds")), "wrap unrel");
+		panel.add(new JLabel(trans.get("StageConfig.separation.lbl.seconds")), "wrap unrel");
 		
 		panel.add(new StyledLabel(CommonStrings.override_description, -1), "spanx, wrap para");
 		

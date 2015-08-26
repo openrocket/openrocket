@@ -12,12 +12,10 @@ import net.sf.openrocket.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PodSet extends ComponentAssembly implements FlightConfigurableComponent, OutsideComponent {
+public class PodSet extends ComponentAssembly implements OutsideComponent {
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(PodSet.class);
-	
-	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
 	private boolean centerline = true;
 	private double angularPosition_rad = 0;
@@ -26,29 +24,10 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 	private int count = 2;
 	private double angularSeparation = Math.PI;
 	
-	private int stageNumber;
-	private static int stageCount;
 	
 	public PodSet() {
-		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
-		this.relativePosition = Position.AFTER;
-		stageNumber = PodSet.stageCount;
-		PodSet.stageCount++;
+		this.relativePosition = Position.BOTTOM;
 	}
-	
-	public class Boosters extends PodSet {
-		public Boosters() {
-			super();
-		}
-	};
-	
-	public class Pods extends PodSet {
-		public Pods() {
-			super();
-		}
-		
-	};
-	
 	
 	@Override
 	public boolean allowsChildren() {
@@ -61,9 +40,6 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 		return trans.get("PodSet.PodSet");
 	}
 	
-	public FlightConfiguration<StageSeparationConfiguration> getStageSeparationConfiguration() {
-		return separationConfigurations;
-	}
 	
 	// not strictly accurate, but this should provide an acceptable estimate for total vehicle size 
 	@Override
@@ -103,24 +79,7 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		if (type.equals(PodSet.class)) {
-			return true;
-		} else {
-			return BodyComponent.class.isAssignableFrom(type);
-		}
-	}
-	
-	@Override
-	public void cloneFlightConfiguration(String oldConfigId, String newConfigId) {
-		separationConfigurations.cloneFlightConfiguration(oldConfigId, newConfigId);
-	}
-	
-	@Override
-	protected RocketComponent copyWithOriginalID() {
-		PodSet copy = (PodSet) super.copyWithOriginalID();
-		copy.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(separationConfigurations,
-				copy, ComponentChangeEvent.EVENT_CHANGE);
-		return copy;
+		return BodyComponent.class.isAssignableFrom(type);
 	}
 	
 	@Override
@@ -158,29 +117,12 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 	 */
 	@Override
 	public boolean isCenterline() {
-		if (this.parent instanceof Rocket) {
-			this.centerline = true;
-		} else {
-			this.centerline = false;
-		}
-		return this.centerline;
-	}
-	
-	/** 
-	 * Stub. 
-	 * The actual value is set via 'isCenterline()'
-	 */
-	@Override
-	public void setOutside(final boolean _outside) {
+		return false;
 	}
 	
 	@Override
 	public int getInstanceCount() {
-		if (this.isCenterline()) {
-			return 1;
-		} else {
-			return this.count;
-		}
+		return this.count;
 	}
 	
 	@Override
@@ -189,7 +131,7 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 		if (this.centerline) {
 			return;
 		}
-		if (_count < 1) {
+		if (_count < 2) {
 			// there must be at least one instance....   
 			return;
 		}
@@ -279,22 +221,9 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 			return -1;
 		} else if (this.parent instanceof PodSet) {
 			return this.parent.parent.getChildPosition(this.parent);
-		} else if (this.isCenterline()) {
-			if (0 < this.stageNumber) {
-				return --this.stageNumber;
-			}
 		}
 		
 		return -1;
-	}
-	
-	public static void resetStageCount() {
-		PodSet.stageCount = 0;
-	}
-	
-	@Override
-	public int getStageNumber() {
-		return this.stageNumber;
 	}
 	
 	@Override
@@ -325,10 +254,6 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
-		
-		if (this.isCenterline()) {
-			return c;
-		}
 		
 		if (1 < c.length) {
 			throw new BugException("implementation of 'shiftCoordinates' assumes the coordinate array has len == 1; this is not true, and may produce unexpected behavior! ");
@@ -372,19 +297,15 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 		
 		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
 		
-		if (this.isCenterline()) {
-			buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
-		} else {
-			buffer.append(String.format("  %4.1f  via: %s \n", this.getAxialOffset(), this.relativePosition.name()));
-			Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
-			Coordinate[] absCoords = this.getLocation();
-			
-			for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
-						instanceRelativePosition, instanceAbsolutePosition));
-			}
+		buffer.append(String.format("  %4.1f  via: %s \n", this.getAxialOffset(), this.relativePosition.name()));
+		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
+		Coordinate[] absCoords = this.getLocation();
+		
+		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
+			Coordinate instanceRelativePosition = relCoords[instanceNumber];
+			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
+			buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
+					instanceRelativePosition, instanceAbsolutePosition));
 		}
 		
 	}
@@ -396,9 +317,7 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
 		while (childIterator.hasNext()) {
 			RocketComponent curChild = childIterator.next();
-			if (curChild.isCenterline()) {
-				this.length += curChild.getLength();
-			}
+			this.length += curChild.getLength();
 		}
 		
 	}
@@ -410,20 +329,9 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 		}
 		
 		this.updateBounds();
-		if (this.parent instanceof Rocket) {
-			// stages which are directly children of the rocket are inline, and positioned
-			int childNumber = this.parent.getChildPosition(this);
-			if (0 == childNumber) {
-				this.setAfter(this.parent);
-			} else {
-				RocketComponent prevStage = this.parent.getChild(childNumber - 1);
-				this.setAfter(prevStage);
-			}
-		} else if (this.parent instanceof PodSet) {
-			this.updateBounds();
-			// because if parent is instanceof Stage, that means 'this' is positioned externally 
-			super.update();
-		}
+		this.updateBounds();
+		// because if parent is instanceof Stage, that means 'this' is positioned externally 
+		super.update();
 		
 		// updates the internal 'previousComponent' field.
 		this.updateChildSequence();
@@ -436,16 +344,14 @@ public class PodSet extends ComponentAssembly implements FlightConfigurableCompo
 		RocketComponent prevComp = null;
 		while (childIterator.hasNext()) {
 			RocketComponent curChild = childIterator.next();
-			if (curChild.isCenterline()) {
-				//curChild.previousComponent = prevComp;
-				curChild.setAfter(prevComp);
-				prevComp = curChild;
-				//			} else {
-				//				curChild.previousComponent = null;
-			}
+			//curChild.previousComponent = prevComp;
+			curChild.setAfter(prevComp);
+			prevComp = curChild;
+			//			} else {
+			//				curChild.previousComponent = null;
+			
 		}
+		
 	}
-	
-	
 	
 }

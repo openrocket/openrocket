@@ -5,9 +5,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 
 public class StageSaver extends ComponentAssemblySaver {
@@ -29,8 +30,9 @@ public class StageSaver extends ComponentAssemblySaver {
 		super.addParams(c, elements);
 		AxialStage stage = (AxialStage) c;
 		
-		if (stage.getOutside()) {
-			elements.addAll(this.addStageReplicationParams(stage));
+		if (stage instanceof BoosterSet) {
+			BoosterSet booster = (BoosterSet) stage;
+			elements.addAll(this.addStageReplicationParams(booster));
 		}
 		
 		if (stage.getStageNumber() > 0) {
@@ -60,7 +62,7 @@ public class StageSaver extends ComponentAssemblySaver {
 		}
 	}
 	
-	private Collection<? extends String> addStageReplicationParams(final AxialStage currentStage) {
+	private Collection<? extends String> addStageReplicationParams(final BoosterSet currentStage) {
 		List<String> elementsToReturn = new ArrayList<String>();
 		final String instCt_tag = "instancecount";
 		final String radoffs_tag = "radialoffset";
@@ -74,7 +76,6 @@ public class StageSaver extends ComponentAssemblySaver {
 			elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
 			double angularOffset = currentStage.getAngularOffset();
 			elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
-			
 		}
 		
 		return elementsToReturn;

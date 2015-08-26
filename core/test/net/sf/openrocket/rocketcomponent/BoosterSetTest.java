@@ -10,7 +10,7 @@ import net.sf.openrocket.util.BaseTestCase.BaseTestCase;
 
 import org.junit.Test;
 
-public class StageTest extends BaseTestCase {
+public class BoosterSetTest extends BaseTestCase {
 	
 	// tolerance for compared double test results
 	protected final double EPSILON = 0.00001;
@@ -52,12 +52,11 @@ public class StageTest extends BaseTestCase {
 		return rocket;
 	}
 	
-	public AxialStage createBooster() {
+	public BoosterSet createBooster() {
 		double tubeRadius = 0.8;
 		
-		AxialStage booster = new AxialStage();
+		BoosterSet booster = new BoosterSet();
 		booster.setName("Booster Stage");
-		booster.setOutside(true);
 		RocketComponent boosterNose = new NoseCone(Transition.Shape.CONICAL, 2.0, tubeRadius);
 		boosterNose.setName("Booster Nosecone");
 		booster.addChild(boosterNose);
@@ -212,7 +211,7 @@ public class StageTest extends BaseTestCase {
 		
 		// without making the rocket 'external' and the Stage should be restricted to AFTER positioning.
 		sustainer.setRelativePositionMethod(Position.ABSOLUTE);
-		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.getOutside(), equalTo(false));
+		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.isCenterline(), equalTo(true));
 		assertThat("Setting a centerline stage to anything other than AFTER is ignored.", sustainer.getRelativePosition(), equalTo(Position.AFTER));
 		
 		// vv function under test
@@ -233,32 +232,32 @@ public class StageTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage boosterSet = createBooster();
-		core.addChild(boosterSet);
+		BoosterSet set0 = createBooster();
+		core.addChild(set0);
 		
 		double targetOffset = 0;
-		boosterSet.setAxialOffset(Position.BOTTOM, targetOffset);
+		set0.setAxialOffset(Position.BOTTOM, targetOffset);
 		// vv function under test
-		boosterSet.setInstanceCount(2);
-		boosterSet.setRadialOffset(4.0);
-		boosterSet.setAngularOffset(Math.PI / 2);
+		set0.setInstanceCount(2);
+		set0.setRadialOffset(4.0);
+		set0.setAngularOffset(Math.PI / 2);
 		// ^^ function under test
 		String treeDump = rocket.toDebugTree();
 		
 		int expectedInstanceCount = 2;
-		int instanceCount = boosterSet.getInstanceCount();
+		int instanceCount = set0.getInstanceCount();
 		assertThat(" 'setInstancecount(int)' failed: ", instanceCount, equalTo(expectedInstanceCount));
 		
 		double expectedAbsX = 6.0;
-		double resultantX = boosterSet.getLocation()[0].x;
+		double resultantX = set0.getLocation()[0].x;
 		assertEquals(">>'setAxialOffset()' failed:\n" + treeDump + "  1st Inst absolute position", expectedAbsX, resultantX, EPSILON);
 		
 		double expectedRadialOffset = 4.0;
-		double radialOffset = boosterSet.getRadialOffset();
+		double radialOffset = set0.getRadialOffset();
 		assertEquals(" 'setRadialOffset(double)' failed: \n" + treeDump + "  radial offset: ", expectedRadialOffset, radialOffset, EPSILON);
 		
 		double expectedAngularOffset = Math.PI / 2;
-		double angularOffset = boosterSet.getAngularOffset();
+		double angularOffset = set0.getAngularOffset();
 		assertEquals(" 'setAngularOffset(double)' failed:\n" + treeDump + "  angular offset: ", expectedAngularOffset, angularOffset, EPSILON);
 	}
 	
@@ -269,16 +268,16 @@ public class StageTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage boosterSet = createBooster();
-		core.addChild(boosterSet);
+		BoosterSet set0 = createBooster();
+		core.addChild(set0);
 		
 		double targetOffset = 0;
-		boosterSet.setAxialOffset(Position.BOTTOM, targetOffset);
+		set0.setAxialOffset(Position.BOTTOM, targetOffset);
 		int targetInstanceCount = 3;
 		double targetRadialOffset = 1.8;
 		// vv function under test
-		boosterSet.setInstanceCount(targetInstanceCount);
-		boosterSet.setRadialOffset(targetRadialOffset);
+		set0.setInstanceCount(targetInstanceCount);
+		set0.setRadialOffset(targetRadialOffset);
 		// ^^ function under test
 		String treeDump = rocket.toDebugTree();
 		
@@ -286,7 +285,7 @@ public class StageTest extends BaseTestCase {
 		double angle = Math.PI * 2 / targetInstanceCount;
 		double radius = targetRadialOffset;
 		
-		Coordinate[] instanceAbsoluteCoords = boosterSet.getLocation();
+		Coordinate[] instanceAbsoluteCoords = set0.getLocation();
 		//		Coordinate[] instanceRelativeCoords = new Coordinate[] { componentAbsolutePosition };
 		//		instanceRelativeCoords = boosterSet.shiftCoordinates(instanceRelativeCoords);
 		
@@ -346,7 +345,6 @@ public class StageTest extends BaseTestCase {
 		RocketComponent rocket = createTestRocket();
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		Coordinate targetPosition = new Coordinate(+4.0, 0., 0.);
-		Coordinate expectedPosition = targetPosition;
 		
 		int expectedRelativeIndex = -1;
 		int resultantRelativeIndex = sustainer.getRelativeToStage();

@@ -1327,8 +1327,8 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		}
 		
 		if (!isCompatible(component)) {
-			throw new IllegalStateException("Component " + component.getComponentName() +
-					" not currently compatible with component " + getComponentName());
+			throw new IllegalStateException("Component: " + component.getComponentName() +
+					" not currently compatible with component: " + getComponentName());
 		}
 		
 		children.add(index, component);

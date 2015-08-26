@@ -12,13 +12,6 @@ public interface OutsideComponent {
 	public boolean getOutside();
 	
 	/**
-	 * Change whether this component is located inside or outside of the rest of the rocket. (Specifically, inside or outside its parent.)
-	 * 
-	 * @param inline False indicates that this component axially aligned with its parent.  True indicates an off-center component.
-	 */
-	public void setOutside(final boolean inline);
-	
-	/**
 	 * Get the position of this component in polar coordinates 
 	 * 
 	 * @return              Angular position in radians.

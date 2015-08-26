@@ -133,7 +133,6 @@ public class Rocket extends RocketComponent {
 		return AxialStage.getStageCount();
 	}
 	
-	
 	/**
 	 * Return the non-negative modification ID of this rocket.  The ID is changed
 	 * every time any change occurs in the rocket.  This can be used to check
@@ -703,11 +702,11 @@ public class Rocket extends RocketComponent {
 	}
 	
 	/**
-	 * Allows only <code>Stage</code> components to be added to the type Rocket.
+	 * Allows only <code>AxialStage</code> components to be added to the type Rocket.
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		return (AxialStage.class.isAssignableFrom(type));
+		return (AxialStage.class.equals(type));
 	}
 	
 }

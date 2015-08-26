@@ -6,20 +6,16 @@ import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
-import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AxialStage extends ComponentAssembly implements FlightConfigurableComponent {
 	
 	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
+	//private static final Logger log = LoggerFactory.getLogger(AxialStage.class);
 	
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
-	private int stageNumber;
+	protected int stageNumber;
 	private static int stageCount;
 	
 	public AxialStage() {
@@ -57,7 +53,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		double x_max = x_min + this.length;
 		double r_max = 0;
 		
-		
 		addBound(bounds, x_min, r_max);
 		addBound(bounds, x_max, r_max);
 		
@@ -74,11 +69,16 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 */
 	@Override
 	public boolean isCompatible(Class<? extends RocketComponent> type) {
-		if (type.equals(AxialStage.class)) {
+		if (BoosterSet.class.isAssignableFrom(type)) {
 			return true;
-		} else {
-			return BodyComponent.class.isAssignableFrom(type);
+		} else if (PodSet.class.isAssignableFrom(type)) {
+			return true;
+			// DEBUG ONLY.  Remove this clause before production.
+		} else if (AxialStage.class.isAssignableFrom(type)) {
+			return true;
 		}
+		
+		return BodyComponent.class.isAssignableFrom(type);
 	}
 	
 	@Override
@@ -94,46 +94,10 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return copy;
 	}
 	
-	@Override
-	public Coordinate[] getLocation() {
-		if (null == this.parent) {
-			throw new BugException(" Attempted to get absolute position Vector of a Stage without a parent. ");
-		}
-		
-		if (this.isCenterline()) {
-			return super.getLocation();
-		} else {
-			Coordinate[] parentInstances = this.parent.getLocation();
-			if (1 != parentInstances.length) {
-				throw new BugException(" OpenRocket does not (yet) support external stages attached to external stages. " +
-						"(assumed reason for getting multiple parent locations into an external stage.)");
-			}
-			
-			Coordinate[] toReturn = this.shiftCoordinates(parentInstances);
-			
-			return toReturn;
-		}
-		
-	}
-	
-	
 	
 	public void setRelativePositionMethod(final Position _newPosition) {
-		if (null == this.parent) {
-			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
-		}
-		if (this.isCenterline()) {
-			// Centerline stages must be set via AFTER-- regardless of what was requested:
-			super.setRelativePosition(Position.AFTER);
-		} else if (this.parent instanceof AxialStage) {
-			if (Position.AFTER == _newPosition) {
-				log.warn("Stages cannot be relative to other stages via AFTER! Ignoring.");
-				super.setRelativePosition(Position.TOP);
-			} else {
-				super.setRelativePosition(_newPosition);
-			}
-		}
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		// Axial Stages are restricted to .AFTER, and cannot be changed.
+		return;
 	}
 	
 	@Override
@@ -152,8 +116,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public int getRelativeToStage() {
 		if (null == this.parent) {
 			return -1;
-		} else if (this.parent instanceof AxialStage) {
-			return this.parent.parent.getChildPosition(this.parent);
 		} else if (this.isCenterline()) {
 			if (0 < this.stageNumber) {
 				return --this.stageNumber;
@@ -174,14 +136,7 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	
 	@Override
 	public double getAxialOffset() {
-		double returnValue = Double.NaN;
-		
-		if ((this.isCenterline() && (Position.AFTER != this.relativePosition))) {
-			// remember the implicit (this instanceof Stage)
-			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
-		} else {
-			returnValue = super.asPositionValue(this.relativePosition);
-		}
+		double returnValue = super.asPositionValue(this.relativePosition);
 		
 		if (0.000001 > Math.abs(returnValue)) {
 			returnValue = 0.0;
@@ -248,19 +203,13 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		}
 		
 		this.updateBounds();
-		if (this.parent instanceof Rocket) {
-			// stages which are directly children of the rocket are inline, and positioned
-			int childNumber = this.parent.getChildPosition(this);
-			if (0 == childNumber) {
-				this.setAfter(this.parent);
-			} else {
-				RocketComponent prevStage = this.parent.getChild(childNumber - 1);
-				this.setAfter(prevStage);
-			}
-		} else if (this.parent instanceof AxialStage) {
-			this.updateBounds();
-			// because if parent is instanceof Stage, that means 'this' is positioned externally 
-			super.update();
+		// stages which are directly children of the rocket are inline, and positioned
+		int childNumber = this.parent.getChildPosition(this);
+		if (0 == childNumber) {
+			this.setAfter(this.parent);
+		} else {
+			RocketComponent prevStage = this.parent.getChild(childNumber - 1);
+			this.setAfter(prevStage);
 		}
 		
 		// updates the internal 'previousComponent' field.

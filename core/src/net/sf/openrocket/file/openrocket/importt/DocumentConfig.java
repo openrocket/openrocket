@@ -6,8 +6,10 @@ import java.util.Locale;
 
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.preset.ComponentPreset;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.BodyComponent;
 import net.sf.openrocket.rocketcomponent.BodyTube;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.Bulkhead;
 import net.sf.openrocket.rocketcomponent.CenteringRing;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration;
@@ -24,6 +26,7 @@ import net.sf.openrocket.rocketcomponent.MassComponent;
 import net.sf.openrocket.rocketcomponent.MassObject;
 import net.sf.openrocket.rocketcomponent.NoseCone;
 import net.sf.openrocket.rocketcomponent.Parachute;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RadiusRingComponent;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.ReferenceType;
@@ -31,7 +34,6 @@ import net.sf.openrocket.rocketcomponent.RingComponent;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.ShockCord;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 import net.sf.openrocket.rocketcomponent.Streamer;
 import net.sf.openrocket.rocketcomponent.StructuralComponent;
@@ -49,7 +51,7 @@ import net.sf.openrocket.util.Reflection;
 class DocumentConfig {
 	
 	/* Remember to update OpenRocketSaver as well! */
-	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7" };
+	public static final String[] SUPPORTED_VERSIONS = { "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8" };
 	
 	/**
 	 * Divisor used in converting an integer version to the point-represented version.
@@ -87,6 +89,8 @@ class DocumentConfig {
 			
 			// Other
 			constructors.put("stage", AxialStage.class.getConstructor(new Class<?>[0]));
+			constructors.put("boosterset", BoosterSet.class.getConstructor(new Class<?>[0]));
+			constructors.put("podset", PodSet.class.getConstructor(new Class<?>[0]));
 			
 		} catch (NoSuchMethodException e) {
 			throw new BugException(
@@ -406,11 +410,21 @@ class DocumentConfig {
 		setters.put("Stage:separationdelay", new DoubleSetter(
 				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
-		setters.put("Stage:outside", new BooleanSetter(Reflection.findMethod(AxialStage.class, "setOutside", boolean.class)));
-		setters.put("Stage:relativeto", new IntSetter(Reflection.findMethod(AxialStage.class, "setRelativeToStage", int.class)));
-		setters.put("Stage:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
-		setters.put("Stage:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
-		setters.put("Stage:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
+		
+		//		// Stage
+		//		setters.put("Stage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
+		//				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
+		//				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
+		//				StageSeparationConfiguration.SeparationEvent.class));
+		//		setters.put("Stage:separationdelay", new DoubleSetter(
+		//				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
+		//				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
+		//				
+		//		setters.put("Stage:outside", new BooleanSetter(Reflection.findMethod(AxialStage.class, "setOutside", boolean.class)));
+		//		setters.put("Stage:relativeto", new IntSetter(Reflection.findMethod(AxialStage.class, "setRelativeToStage", int.class)));
+		//		setters.put("Stage:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
+		//		setters.put("Stage:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
+		//		setters.put("Stage:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
 		
 	}
 	
