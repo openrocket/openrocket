@@ -15,6 +15,7 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.FlightConfigurableComponent;
@@ -22,7 +23,6 @@ import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RecoveryDevice;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.TubeCoupler;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.simulation.FlightData;
@@ -384,18 +384,46 @@ public class OpenRocketSaver extends RocketSaver {
 	}
 	
 	
+	/**
+	 * Finds a getElements method somewhere in the *saver class hiearchy corresponding to the given component. 
+	 */
+	private static Reflection.Method findGetElementsMethod(RocketComponent component) {
+		String currentclassname;
+		Class<?> currentclass;
+		String saverclassname;
+		Class<?> saverClass;
+		
+		Reflection.Method mtr = null; // method-to-return
+		
+		currentclass = component.getClass();
+		while ((currentclass != null) && (currentclass != Object.class)) {
+			currentclassname = currentclass.getSimpleName();
+			saverclassname = METHOD_PACKAGE + "." + currentclassname + METHOD_SUFFIX;
+			
+			try {
+				saverClass = Class.forName(saverclassname);
+				
+				// if class exists
+				java.lang.reflect.Method m = saverClass.getMethod("getElements", RocketComponent.class);
+				mtr = new Reflection.Method(m);
+				
+				return mtr;
+			} catch (Exception ignore) {
+			}
+			
+			currentclass = currentclass.getSuperclass();
+		}
+		
+		// if( null == mtr ){
+		throw new BugException("Unable to find saving class for component " +
+				METHOD_PACKAGE + "." + component.getClass().getSimpleName() + " ... " + METHOD_SUFFIX);
+	}
 	
 	@SuppressWarnings("unchecked")
 	private void saveComponent(RocketComponent component) throws IOException {
-		
 		log.debug("Saving component " + component.getComponentName());
 		
-		Reflection.Method m = Reflection.findMethod(METHOD_PACKAGE, component, METHOD_SUFFIX,
-				"getElements", RocketComponent.class);
-		if (m == null) {
-			throw new BugException("Unable to find saving class for component " +
-					component.getComponentName());
-		}
+		Reflection.Method m = findGetElementsMethod(component);
 		
 		// Get the strings to save
 		List<String> list = (List<String>) m.invokeStatic(component);

@@ -72,9 +72,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 			return true;
 		} else if (PodSet.class.isAssignableFrom(type)) {
 			return true;
-			// DEBUG ONLY.  Remove this clause before production.
-		} else if (AxialStage.class.isAssignableFrom(type)) {
-			return true;
 		}
 		
 		return BodyComponent.class.isAssignableFrom(type);

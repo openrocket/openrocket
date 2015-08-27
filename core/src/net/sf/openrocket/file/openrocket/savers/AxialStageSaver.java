@@ -1,7 +1,6 @@
 package net.sf.openrocket.file.openrocket.savers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -11,16 +10,28 @@ import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.StageSeparationConfiguration;
 
-public class StageSaver extends ComponentAssemblySaver {
+public class AxialStageSaver extends ComponentAssemblySaver {
 	
-	private static final StageSaver instance = new StageSaver();
+	private static final AxialStageSaver instance = new AxialStageSaver();
 	
 	public static ArrayList<String> getElements(net.sf.openrocket.rocketcomponent.RocketComponent c) {
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add("<stage>");
-		instance.addParams(c, list);
-		list.add("</stage>");
+		if (c.isCenterline()) {
+			// yes, this test is redundant.  I'm merely paranoid, and attempting to future-proof it
+			if (c.getClass().equals(AxialStage.class)) {
+				// kept as simply 'stage' for backward compatability
+				list.add("<stage>");
+				instance.addParams(c, list);
+				list.add("</stage>");
+			}
+		} else {
+			if (c instanceof BoosterSet) {
+				list.add("<boosterset>");
+				instance.addParams(c, list);
+				list.add("</boosterset>");
+			}
+		}
 		
 		return list;
 	}
@@ -29,11 +40,6 @@ public class StageSaver extends ComponentAssemblySaver {
 	protected void addParams(RocketComponent c, List<String> elements) {
 		super.addParams(c, elements);
 		AxialStage stage = (AxialStage) c;
-		
-		if (stage instanceof BoosterSet) {
-			BoosterSet booster = (BoosterSet) stage;
-			elements.addAll(this.addStageReplicationParams(booster));
-		}
 		
 		if (stage.getStageNumber() > 0) {
 			// NOTE:  Default config must be BEFORE overridden config for proper backward compatibility later on
@@ -60,25 +66,6 @@ public class StageSaver extends ComponentAssemblySaver {
 				}
 			}
 		}
-	}
-	
-	private Collection<? extends String> addStageReplicationParams(final BoosterSet currentStage) {
-		List<String> elementsToReturn = new ArrayList<String>();
-		final String instCt_tag = "instancecount";
-		final String radoffs_tag = "radialoffset";
-		final String startangle_tag = "angleoffset";
-		
-		
-		if (null != currentStage) {
-			int instanceCount = currentStage.getInstanceCount();
-			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
-			double radialOffset = currentStage.getRadialOffset();
-			elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
-			double angularOffset = currentStage.getAngularOffset();
-			elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
-		}
-		
-		return elementsToReturn;
 	}
 	
 	private List<String> separationConfig(StageSeparationConfiguration config, boolean indent) {

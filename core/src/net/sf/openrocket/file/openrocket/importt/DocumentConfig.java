@@ -403,28 +403,17 @@ class DocumentConfig {
 				Reflection.findMethod(Rocket.class, "setRevision", String.class)));
 		
 		// Stage
-		setters.put("Stage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
+		setters.put("AxialStage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
 				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
 				StageSeparationConfiguration.SeparationEvent.class));
-		setters.put("Stage:separationdelay", new DoubleSetter(
+		setters.put("AxialStage:separationdelay", new DoubleSetter(
 				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
 				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
 		
-		//		// Stage
-		//		setters.put("Stage:separationevent", new EnumSetter<StageSeparationConfiguration.SeparationEvent>(
-		//				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
-		//				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationEvent", StageSeparationConfiguration.SeparationEvent.class),
-		//				StageSeparationConfiguration.SeparationEvent.class));
-		//		setters.put("Stage:separationdelay", new DoubleSetter(
-		//				Reflection.findMethod(AxialStage.class, "getStageSeparationConfiguration"),
-		//				Reflection.findMethod(StageSeparationConfiguration.class, "setSeparationDelay", double.class)));
-		//				
-		//		setters.put("Stage:outside", new BooleanSetter(Reflection.findMethod(AxialStage.class, "setOutside", boolean.class)));
-		//		setters.put("Stage:relativeto", new IntSetter(Reflection.findMethod(AxialStage.class, "setRelativeToStage", int.class)));
-		//		setters.put("Stage:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
-		//		setters.put("Stage:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
-		//		setters.put("Stage:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
+		setters.put("ComponentAssembly:instancecount", new IntSetter(Reflection.findMethod(AxialStage.class, "setInstanceCount", int.class)));
+		setters.put("ComponentAssembly:radialoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setRadialOffset", double.class)));
+		setters.put("ComponentAssembly:angleoffset", new DoubleSetter(Reflection.findMethod(AxialStage.class, "setAngularOffset", double.class)));
 		
 	}
 	

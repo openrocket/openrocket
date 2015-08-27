@@ -1,7 +1,65 @@
 package net.sf.openrocket.file.openrocket.savers;
 
-public class ComponentAssemblySaver extends RocketComponentSaver {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-	// No-op
+import net.sf.openrocket.rocketcomponent.BoosterSet;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
+import net.sf.openrocket.rocketcomponent.PodSet;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
+
+public class ComponentAssemblySaver extends RocketComponentSaver {
+	
+	
+	private static final ComponentAssemblySaver instance = new ComponentAssemblySaver();
+	
+	public static ArrayList<String> getElements(net.sf.openrocket.rocketcomponent.RocketComponent c) {
+		ArrayList<String> list = new ArrayList<String>();
+		
+		if (!c.isCenterline()) {
+			if (c instanceof PodSet) {
+				list.add("<podset>");
+				instance.addParams(c, list);
+				list.add("</podset>");
+			} else if (c instanceof BoosterSet) {
+				list.add("<booster>");
+				instance.addParams(c, list);
+				list.add("</booster>");
+			}
+		}
+		
+		return list;
+	}
+	
+	@Override
+	protected void addParams(RocketComponent c, List<String> elements) {
+		super.addParams(c, elements);
+		ComponentAssembly ca = (ComponentAssembly) c;
+		
+		if (!ca.isCenterline()) {
+			elements.addAll(this.addAssemblyInstanceParams(ca));
+		}
+		
+	}
+	
+	protected Collection<? extends String> addAssemblyInstanceParams(final ComponentAssembly currentStage) {
+		List<String> elementsToReturn = new ArrayList<String>();
+		final String instCt_tag = "instancecount";
+		final String radoffs_tag = "radialoffset";
+		final String startangle_tag = "angleoffset";
+		
+		
+		if (null != currentStage) {
+			int instanceCount = currentStage.getInstanceCount();
+			elementsToReturn.add("<" + instCt_tag + ">" + instanceCount + "</" + instCt_tag + ">");
+			double radialOffset = currentStage.getRadialOffset();
+			elementsToReturn.add("<" + radoffs_tag + ">" + radialOffset + "</" + radoffs_tag + ">");
+			double angularOffset = currentStage.getAngularOffset();
+			elementsToReturn.add("<" + startangle_tag + ">" + angularOffset + "</" + startangle_tag + ">");
+		}
+		
+		return elementsToReturn;
+	}
 	
 }
