@@ -2,7 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -17,15 +16,8 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(PodSet.class);
 	
-	private boolean centerline = true;
-	private double angularPosition_rad = 0;
-	private double radialPosition_m = 0;
-	
-	private int count = 2;
-	private double angularSeparation = Math.PI;
-	
-	
 	public PodSet() {
+		this.count = 2;
 		this.relativePosition = Position.BOTTOM;
 	}
 	
@@ -45,7 +37,6 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		
 		double x_min = Double.MAX_VALUE;
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
@@ -121,93 +112,10 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 	}
 	
 	@Override
-	public int getInstanceCount() {
-		return this.count;
-	}
-	
-	@Override
-	public void setInstanceCount(final int _count) {
-		mutex.verify();
-		if (this.centerline) {
-			return;
-		}
-		if (_count < 2) {
-			// there must be at least one instance....   
-			return;
-		}
-		
-		this.count = _count;
-		this.angularSeparation = Math.PI * 2 / this.count;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
-	public double getAngularOffset() {
-		if (this.centerline) {
-			return 0.;
-		} else {
-			return this.angularPosition_rad;
-		}
-	}
-	
-	@Override
-	public void setAngularOffset(final double angle_rad) {
-		if (this.centerline) {
-			return;
-		}
-		
-		this.angularPosition_rad = angle_rad;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
-	public double getRadialOffset() {
-		if (this.centerline) {
-			return 0.;
-		} else {
-			return this.radialPosition_m;
-		}
-	}
-	
-	@Override
-	public void setRadialOffset(final double radius) {
-		//		log.error("  set radial position for: " + this.getName() + " to: " + this.radialPosition_m + " ... in meters?");
-		if (false == this.centerline) {
-			this.radialPosition_m = radius;
-			fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-		}
-	}
-	
-	public void setRelativePositionMethod(final Position _newPosition) {
-		if (null == this.parent) {
-			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
-		}
-		if (this.isCenterline()) {
-			// Centerline stages must be set via AFTER-- regardless of what was requested:
-			super.setRelativePosition(Position.AFTER);
-		} else if (this.parent instanceof PodSet) {
-			if (Position.AFTER == _newPosition) {
-				log.warn("Stages cannot be relative to other stages via AFTER! Ignoring.");
-				super.setRelativePosition(Position.TOP);
-			} else {
-				super.setRelativePosition(_newPosition);
-			}
-		}
-		fireComponentChangeEvent(ComponentChangeEvent.AERODYNAMIC_CHANGE);
-	}
-	
-	@Override
 	public double getPositionValue() {
 		mutex.verify();
 		
 		return this.getAxialOffset();
-	}
-	
-	/*
-	 * @deprecated remove when the file is fixed....
-	 */
-	public void setRelativeToStage(final int _relToStage) {
-		// no-op
 	}
 	
 	/** 
@@ -242,13 +150,6 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 		}
 		
 		return returnValue;
-	}
-	
-	@Override
-	public void setAxialOffset(final double _pos) {
-		this.updateBounds();
-		super.setAxialOffset(this.relativePosition, _pos);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
 	}
 	
 	@Override
@@ -288,70 +189,6 @@ public class PodSet extends ComponentAssembly implements OutsideComponent {
 		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
 		//		}
 		return buf;
-	}
-	
-	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		
-		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
-		
-		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
-		
-		buffer.append(String.format("  %4.1f  via: %s \n", this.getAxialOffset(), this.relativePosition.name()));
-		Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
-		Coordinate[] absCoords = this.getLocation();
-		
-		for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-			Coordinate instanceRelativePosition = relCoords[instanceNumber];
-			Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-			buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
-					instanceRelativePosition, instanceAbsolutePosition));
-		}
-		
-	}
-	
-	@Override
-	public void updateBounds() {
-		// currently only updates the length 
-		this.length = 0;
-		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
-		while (childIterator.hasNext()) {
-			RocketComponent curChild = childIterator.next();
-			this.length += curChild.getLength();
-		}
-		
-	}
-	
-	@Override
-	protected void update() {
-		if (null == this.parent) {
-			return;
-		}
-		
-		this.updateBounds();
-		this.updateBounds();
-		// because if parent is instanceof Stage, that means 'this' is positioned externally 
-		super.update();
-		
-		// updates the internal 'previousComponent' field.
-		this.updateChildSequence();
-		
-		return;
-	}
-	
-	protected void updateChildSequence() {
-		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
-		RocketComponent prevComp = null;
-		while (childIterator.hasNext()) {
-			RocketComponent curChild = childIterator.next();
-			//curChild.previousComponent = prevComp;
-			curChild.setAfter(prevComp);
-			prevComp = curChild;
-			//			} else {
-			//				curChild.previousComponent = null;
-			
-		}
-		
 	}
 	
 }

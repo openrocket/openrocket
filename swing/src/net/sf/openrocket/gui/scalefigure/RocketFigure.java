@@ -23,16 +23,11 @@ import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.ClusterConfiguration;
+import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.FlightConfiguration;
-import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.gui.rocketfigure.RocketComponentShape;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.startup.Application;
@@ -453,7 +448,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		// generate shapes:
 		if( comp instanceof Rocket){
 			// no-op.  no shapes
-		}else if( comp instanceof AxialStage ){
+		}else if( comp instanceof ComponentAssembly ){
 			// no-op; no shapes here, either.
 		}else{
 			// get all shapes for this component, add to return list.

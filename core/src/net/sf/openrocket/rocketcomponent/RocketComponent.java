@@ -884,7 +884,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 *
 	 * @param position	the relative positioning.
 	 */
-	protected void setRelativePosition(RocketComponent.Position position) {
+	protected void setRelativePosition(final RocketComponent.Position position) {
+		if (position == this.relativePosition) {
+			// no change.
+			return;
+		}
+		
 		// this variable does not change the internal representation
 		// the relativePosition (method) is just the lens through which external code may view this component's position. 
 		this.relativePosition = position;
@@ -901,7 +906,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 */
 	public double asPositionValue(Position thePosition) {
 		if (null == this.parent) {
-			return 0.0;
+			return Double.NaN;
 		}
 		
 		double thisX = this.position.x;
@@ -914,9 +919,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			break;
 		case ABSOLUTE:
 			Coordinate[] insts = this.getLocation();
-			if (1 < insts.length) {
-				return Double.NaN;
-			}
 			result = insts[0].x;
 			break;
 		case TOP:
@@ -932,6 +934,12 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			throw new BugException("Unknown position type: " + thePosition);
 		}
 		
+		//		if ((this instanceof BoosterSet) && (Position.ABSOLUTE == thePosition)) {
+		//			System.err.println("Fetching position Value for: " + this.getName() + " ( " + this.getClass().getSimpleName() + ")");
+		//			System.err.println("       polling offset set to: " + this.position.x + " via: " + this.relativePosition.name());
+		//			System.err.println("       resultant offset: " + result + " via: " + thePosition.name());
+		//		}
+		//		
 		return result;
 	}
 	
@@ -1033,7 +1041,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		this.relativePosition = positionMethod;
 		this.offset = newOffset;
 		
-		
+		final double EPSILON = 0.000001;
 		double newAxialPosition = Double.NaN;
 		double refLength = this.parent.getLength();
 		
@@ -1058,6 +1066,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 			throw new BugException("Unknown position type: " + positionMethod);
 		}
 		
+		// snap to zero if less than the threshold 'EPSILON'
+		if (EPSILON > Math.abs(newAxialPosition)) {
+			newAxialPosition = 0.0;
+		}
 		if (Double.NaN == newAxialPosition) {
 			throw new BugException("setAxialOffset is broken -- attempted to update as NaN: " + this.toDebugDetail());
 		}
@@ -1167,7 +1179,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		//final Coordinate sourceLoc = this.getLocation()[0];
 		final Coordinate[] destLocs = dest.getLocation();
 		Coordinate[] toReturn = new Coordinate[destLocs.length];
-		for (int coordIndex = 0; coordIndex < dest.getInstanceCount(); coordIndex++) {
+		for (int coordIndex = 0; coordIndex < destLocs.length; coordIndex++) {
 			toReturn[coordIndex] = this.getLocation()[0].add(c).sub(destLocs[coordIndex]);
 		}
 		
@@ -2061,14 +2073,6 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		buf.append("      offset: " + this.offset + " via: " + this.relativePosition.name() + "  => " + this.getAxialOffset() + "\n");
 		buf.append("      thisCenterX: " + this.position.x + "\n");
 		buf.append("      this length: " + this.length + "\n");
-		//		if (null == this.previousComponent) {
-		//			buf.append("      ..prevComponent: " + null + "\n");
-		//		} else {
-		//			RocketComponent refComp = this.previousComponent;
-		//			buf.append("      >>prevCompName: " + refComp.getName() + "\n");
-		//			buf.append("      ..prevCenterX: " + refComp.position.x + "\n");
-		//			buf.append("      ..prevLength: " + refComp.getLength() + "\n");
-		//		}
 		return buf;
 	}
 	
@@ -2076,7 +2080,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	public String toDebugTree() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("\n   ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ====== ======\n");
-		buffer.append("     [Name]                     [Length]         [Rel Pos]              [Abs Pos]  \n");
+		buffer.append("     [Name]                     [Length]            [Rel Pos]                [Abs Pos]  \n");
 		this.dumpTreeHelper(buffer, "");
 		return buffer.toString();
 	}

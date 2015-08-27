@@ -2,7 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -94,12 +93,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		return copy;
 	}
 	
-	
-	public void setRelativePositionMethod(final Position _newPosition) {
-		// Axial Stages are restricted to .AFTER, and cannot be changed.
-		return;
-	}
-	
 	@Override
 	public double getPositionValue() {
 		mutex.verify();
@@ -135,24 +128,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	}
 	
 	@Override
-	public double getAxialOffset() {
-		double returnValue = super.asPositionValue(this.relativePosition);
-		
-		if (0.000001 > Math.abs(returnValue)) {
-			returnValue = 0.0;
-		}
-		
-		return returnValue;
-	}
-	
-	@Override
-	public void setAxialOffset(final double _pos) {
-		this.updateBounds();
-		super.setAxialOffset(this.relativePosition, _pos);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
 		return c;
@@ -170,67 +145,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
 		//		}
 		return buf;
-	}
-	
-	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		
-		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
-		
-		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
-		buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
-		
-	}
-	
-	@Override
-	public void updateBounds() {
-		// currently only updates the length 
-		this.length = 0;
-		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
-		while (childIterator.hasNext()) {
-			RocketComponent curChild = childIterator.next();
-			if (curChild.isCenterline()) {
-				this.length += curChild.getLength();
-			}
-		}
-		
-	}
-	
-	@Override
-	protected void update() {
-		if (null == this.parent) {
-			return;
-		}
-		
-		this.updateBounds();
-		// stages which are directly children of the rocket are inline, and positioned
-		int childNumber = this.parent.getChildPosition(this);
-		if (0 == childNumber) {
-			this.setAfter(this.parent);
-		} else {
-			RocketComponent prevStage = this.parent.getChild(childNumber - 1);
-			this.setAfter(prevStage);
-		}
-		
-		// updates the internal 'previousComponent' field.
-		this.updateChildSequence();
-		
-		return;
-	}
-	
-	protected void updateChildSequence() {
-		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
-		RocketComponent prevComp = null;
-		while (childIterator.hasNext()) {
-			RocketComponent curChild = childIterator.next();
-			if (curChild.isCenterline()) {
-				//curChild.previousComponent = prevComp;
-				curChild.setAfter(prevComp);
-				prevComp = curChild;
-				//			} else {
-				//				curChild.previousComponent = null;
-			}
-		}
 	}
 	
 	

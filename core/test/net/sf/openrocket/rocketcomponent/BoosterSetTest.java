@@ -313,7 +313,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		double targetX = +17.0;
@@ -375,7 +375,7 @@ public class BoosterSetTest extends BaseTestCase {
 	public void testSetStagePosition_outsideTOP() {
 		Rocket rocket = this.createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +2.0;
@@ -405,7 +405,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		// when 'external' the stage should be freely movable
@@ -435,7 +435,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		// vv function under test
@@ -464,7 +464,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -488,7 +488,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -512,7 +512,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -537,7 +537,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		
@@ -562,7 +562,7 @@ public class BoosterSetTest extends BaseTestCase {
 		// setup
 		RocketComponent rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage booster = createBooster();
+		BoosterSet booster = createBooster();
 		core.addChild(booster);
 		
 		double targetOffset = +4.50;
@@ -586,7 +586,7 @@ public class BoosterSetTest extends BaseTestCase {
 		Rocket rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
 		
-		AxialStage booster = new AxialStage();
+		BoosterSet booster = new BoosterSet();
 		booster.setName("Booster Stage");
 		core.addChild(booster);
 		final double targetOffset = +2.50;
@@ -622,10 +622,10 @@ public class BoosterSetTest extends BaseTestCase {
 	public void testStageInitializationMethodValueOrder() {
 		Rocket rocket = createTestRocket();
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage boosterA = createBooster();
+		BoosterSet boosterA = createBooster();
 		boosterA.setName("Booster A Stage");
 		core.addChild(boosterA);
-		AxialStage boosterB = createBooster();
+		BoosterSet boosterB = createBooster();
 		boosterB.setName("Booster B Stage");
 		core.addChild(boosterB);
 		
@@ -653,11 +653,11 @@ public class BoosterSetTest extends BaseTestCase {
 		Rocket rocket = createTestRocket();
 		AxialStage sustainer = (AxialStage) rocket.getChild(0);
 		AxialStage core = (AxialStage) rocket.getChild(1);
-		AxialStage boosterA = createBooster();
+		BoosterSet boosterA = createBooster();
 		boosterA.setName("Booster A Stage");
 		core.addChild(boosterA);
 		boosterA.setAxialOffset(Position.BOTTOM, 0.0);
-		AxialStage boosterB = createBooster();
+		BoosterSet boosterB = createBooster();
 		boosterB.setName("Booster B Stage");
 		core.addChild(boosterB);
 		boosterB.setAxialOffset(Position.BOTTOM, 0);

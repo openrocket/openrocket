@@ -4,12 +4,13 @@ import java.util.HashMap;
 
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.InternalComponent;
 import net.sf.openrocket.rocketcomponent.LaunchLug;
+import net.sf.openrocket.rocketcomponent.PodSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.RocketComponent.Position;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.TubeFinSet;
 
 class PositionSetter implements Setter {
@@ -45,8 +46,11 @@ class PositionSetter implements Setter {
 		} else if (c instanceof TubeFinSet) {
 			((TubeFinSet) c).setRelativePosition(type);
 			c.setAxialOffset(pos);
-		} else if (c instanceof AxialStage) {
-			((AxialStage) c).setRelativePositionMethod(type);
+		} else if (c instanceof BoosterSet) {
+			((BoosterSet) c).setRelativePositionMethod(type);
+			c.setAxialOffset(pos);
+		} else if (c instanceof PodSet) {
+			((PodSet) c).setRelativePositionMethod(type);
 			c.setAxialOffset(pos);
 		} else {
 			warnings.add(Warning.FILE_INVALID_PARAMETER);

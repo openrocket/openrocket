@@ -2,7 +2,6 @@ package net.sf.openrocket.rocketcomponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
@@ -19,15 +18,9 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
-	private double angularPosition_rad = 0;
-	private double radialPosition_m = 0;
-	
-	private int count = 2;
-	private double angularSeparation = Math.PI;
-	
 	public BoosterSet() {
+		this.count = 2;
 		this.relativePosition = Position.BOTTOM;
-		
 	}
 	
 	@Override
@@ -40,7 +33,6 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	@Override
 	public Collection<Coordinate> getComponentBounds() {
 		Collection<Coordinate> bounds = new ArrayList<Coordinate>(8);
-		final double WAG_FACTOR = 1.1;
 		double x_min = Double.MAX_VALUE;
 		double x_max = Double.MIN_VALUE;
 		double r_max = 0;
@@ -54,8 +46,8 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 			if (x_max < (currentInstanceLocation.x + this.length)) {
 				x_max = currentInstanceLocation.x + this.length;
 			}
-			if (r_max < (this.getRadialOffset() * WAG_FACTOR)) {
-				r_max = this.getRadialOffset() * WAG_FACTOR;
+			if (r_max < (this.getRadialOffset())) {
+				r_max = this.getRadialOffset();
 			}
 		}
 		addBound(bounds, x_min, r_max);
@@ -121,47 +113,6 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	}
 	
 	@Override
-	public int getInstanceCount() {
-		return this.count;
-	}
-	
-	@Override
-	public void setInstanceCount(final int _count) {
-		mutex.verify();
-		if (_count < 2) {
-			// there must be at least one instance....   
-			return;
-		}
-		
-		this.count = _count;
-		this.angularSeparation = Math.PI * 2 / this.count;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
-	public double getAngularOffset() {
-		return this.angularPosition_rad;
-	}
-	
-	@Override
-	public void setAngularOffset(final double angle_rad) {
-		this.angularPosition_rad = angle_rad;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
-	public double getRadialOffset() {
-		return this.radialPosition_m;
-	}
-	
-	@Override
-	public void setRadialOffset(final double radius) {
-		//		log.error("  set radial position for: " + this.getName() + " to: " + this.radialPosition_m + " ... in meters?");
-		this.radialPosition_m = radius;
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
 	public void setRelativePositionMethod(final Position _newPosition) {
 		if (null == this.parent) {
 			throw new NullPointerException(" a Stage requires a parent before any positioning! ");
@@ -206,31 +157,6 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 	}
 	
 	@Override
-	public double getAxialOffset() {
-		double returnValue = Double.NaN;
-		
-		if ((this.isCenterline() && (Position.AFTER != this.relativePosition))) {
-			// remember the implicit (this instanceof Stage)
-			throw new BugException("found a Stage on centerline, but not positioned as AFTER.  Please fix this! " + this.getName() + "  is " + this.getRelativePosition().name());
-		} else {
-			returnValue = super.asPositionValue(this.relativePosition);
-		}
-		
-		if (0.000001 > Math.abs(returnValue)) {
-			returnValue = 0.0;
-		}
-		
-		return returnValue;
-	}
-	
-	@Override
-	public void setAxialOffset(final double _pos) {
-		this.updateBounds();
-		super.setAxialOffset(this.relativePosition, _pos);
-		fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
-	}
-	
-	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();
 		
@@ -257,72 +183,6 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		}
 		
 		return toReturn;
-	}
-	
-	@Override
-	protected StringBuilder toDebugDetail() {
-		StringBuilder buf = super.toDebugDetail();
-		//		if (-1 == this.getRelativeToStage()) {
-		//			System.err.println("      >>refStageName: " + null + "\n");
-		//		} else {
-		//			Stage refStage = (Stage) this.parent;
-		//			System.err.println("      >>refStageName: " + refStage.getName() + "\n");
-		//			System.err.println("      ..refCenterX: " + refStage.position.x + "\n");
-		//			System.err.println("      ..refLength: " + refStage.getLength() + "\n");
-		//		}
-		return buf;
-	}
-	
-	@Override
-	public void toDebugTreeNode(final StringBuilder buffer, final String prefix) {
-		
-		String thisLabel = this.getName() + " (" + this.getStageNumber() + ")";
-		
-		buffer.append(String.format("%s    %-24s  %5.3f", prefix, thisLabel, this.getLength()));
-		
-		if (this.isCenterline()) {
-			buffer.append(String.format("  %24s  %24s\n", this.getOffset(), this.getLocation()[0]));
-		} else {
-			buffer.append(String.format("  %4.1f  via: %s \n", this.getAxialOffset(), this.relativePosition.name()));
-			Coordinate[] relCoords = this.shiftCoordinates(new Coordinate[] { Coordinate.ZERO });
-			Coordinate[] absCoords = this.getLocation();
-			
-			for (int instanceNumber = 0; instanceNumber < this.count; instanceNumber++) {
-				Coordinate instanceRelativePosition = relCoords[instanceNumber];
-				Coordinate instanceAbsolutePosition = absCoords[instanceNumber];
-				buffer.append(String.format("%s                 [instance %2d of %2d]  %32s  %32s\n", prefix, instanceNumber, count,
-						instanceRelativePosition, instanceAbsolutePosition));
-			}
-		}
-		
-	}
-	
-	@Override
-	public void updateBounds() {
-		// currently only updates the length 
-		this.length = 0;
-		Iterator<RocketComponent> childIterator = this.getChildren().iterator();
-		while (childIterator.hasNext()) {
-			RocketComponent curChild = childIterator.next();
-			this.length += curChild.getLength();
-		}
-		
-	}
-	
-	@Override
-	protected void update() {
-		if (null == this.parent) {
-			return;
-		}
-		
-		this.updateBounds();
-		// because if parent is instanceof Stage, that means 'this' is positioned externally 
-		super.update();
-		
-		// updates the internal 'previousComponent' field.
-		this.updateChildSequence();
-		
-		return;
 	}
 	
 }
