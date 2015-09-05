@@ -8,7 +8,7 @@ import java.util.Random;
 
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.formatting.MotorDescriptionSubstitutor;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
+import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericModel;
 import net.sf.openrocket.models.atmosphere.ExtendedISAModel;
 import net.sf.openrocket.models.gravity.GravityModel;
@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimulationOptions implements ChangeSource, Cloneable {
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SimulationOptions.class);
 	
 	public static final double MAX_LAUNCH_ROD_ANGLE = Math.PI / 3;
@@ -638,7 +639,7 @@ public class SimulationOptions implements ChangeSource, Cloneable {
 		conditions.setGravityModel(gravityModel);
 		
 		conditions.setAerodynamicCalculator(new BarrowmanCalculator());
-		conditions.setMassCalculator(new BasicMassCalculator());
+		conditions.setMassCalculator(new MassCalculator());
 		
 		conditions.setTimeStep(getTimeStep());
 		conditions.setMaximumAngleStep(getMaximumStepAngle());

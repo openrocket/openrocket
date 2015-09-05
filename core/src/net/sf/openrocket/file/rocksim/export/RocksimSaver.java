@@ -13,11 +13,10 @@ import net.sf.openrocket.document.OpenRocketDocument;
 import net.sf.openrocket.document.StorageOptions;
 import net.sf.openrocket.file.RocketSaver;
 import net.sf.openrocket.file.rocksim.RocksimCommonConstants;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.AxialStage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +92,7 @@ public class RocksimSaver extends RocketSaver {
 	private RocketDesignDTO toRocketDesignDTO(Rocket rocket) {
 		RocketDesignDTO result = new RocketDesignDTO();
 		
-		MassCalculator massCalc = new BasicMassCalculator();
+		MassCalculator massCalc = new MassCalculator();
 		
 		final Configuration configuration = new Configuration(rocket);
 		final double cg = massCalc.getCG(configuration, MassCalculator.MassCalcType.NO_MOTORS).x *

@@ -54,7 +54,6 @@ import net.sf.openrocket.gui.main.componenttree.ComponentTreeModel;
 import net.sf.openrocket.gui.simulation.SimulationWorker;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
@@ -184,7 +183,7 @@ public class RocketPanel extends JPanel implements TreeSelectionListener, Change
 		
 		// TODO: FUTURE: calculator selection
 		aerodynamicCalculator = new BarrowmanCalculator();
-		massCalculator = new BasicMassCalculator();
+		massCalculator = new MassCalculator();
 		
 		// Create figure and custom scroll pane
 		figure = new RocketFigure(configuration);

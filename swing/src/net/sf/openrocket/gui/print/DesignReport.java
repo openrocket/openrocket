@@ -13,7 +13,6 @@ import net.sf.openrocket.formatting.RocketDescriptor;
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.figureelements.RocketInfo;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
@@ -325,7 +324,7 @@ public class DesignReport {
 		
 		DecimalFormat ttwFormat = new DecimalFormat("0.00");
 		
-		MassCalculator massCalc = new BasicMassCalculator();
+		MassCalculator massCalc = new MassCalculator();
 		
 		Configuration config = new Configuration(rocket);
 		config.setFlightConfigurationID(motorId);

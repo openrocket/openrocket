@@ -9,7 +9,6 @@ import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.formatting.RocketDescriptor;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
@@ -93,7 +92,7 @@ public class Simulation implements ChangeSource, Cloneable {
 	private Class<? extends SimulationStepper> simulationStepperClass = RK4SimulationStepper.class;
 	private Class<? extends AerodynamicCalculator> aerodynamicCalculatorClass = BarrowmanCalculator.class;
 	@SuppressWarnings("unused")
-	private Class<? extends MassCalculator> massCalculatorClass = BasicMassCalculator.class;
+	private Class<? extends MassCalculator> massCalculatorClass = MassCalculator.class;
 	
 	/** Listeners for this object */
 	private List<EventListener> listeners = new ArrayList<EventListener>();

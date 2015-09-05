@@ -4,7 +4,6 @@ import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.document.Simulation;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.optimization.rocketoptimization.SimulationDomain;
@@ -50,8 +49,8 @@ public class StabilityDomain implements SimulationDomain {
 	}
 	
 	
-
-
+	
+	
 	@Override
 	public Pair<Double, Value> getDistanceToDomain(Simulation simulation) {
 		Coordinate cp, cg;
@@ -64,9 +63,9 @@ public class StabilityDomain implements SimulationDomain {
 		 * Caching would in any case be inefficient since the rocket changes all the time.
 		 */
 		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
-		MassCalculator massCalculator = new BasicMassCalculator();
+		MassCalculator massCalculator = new MassCalculator();
 		
-
+		
 		Configuration configuration = simulation.getConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
@@ -87,7 +86,7 @@ public class StabilityDomain implements SimulationDomain {
 		else
 			cgx = Double.NaN;
 		
-
+		
 		// Calculate the reference (absolute or relative)
 		absolute = cpx - cgx;
 		
@@ -101,7 +100,7 @@ public class StabilityDomain implements SimulationDomain {
 		}
 		relative = absolute / diameter;
 		
-
+		
 		Value desc;
 		if (minAbsolute && maxAbsolute) {
 			desc = new Value(absolute, UnitGroup.UNITS_LENGTH);

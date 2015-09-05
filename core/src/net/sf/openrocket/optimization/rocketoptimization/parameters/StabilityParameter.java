@@ -1,14 +1,10 @@
 package net.sf.openrocket.optimization.rocketoptimization.parameters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.openrocket.aerodynamics.AerodynamicCalculator;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.optimization.general.OptimizationException;
@@ -21,6 +17,9 @@ import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * An optimization parameter that computes either the absolute or relative stability of a rocket.
  * 
@@ -31,7 +30,7 @@ public class StabilityParameter implements OptimizableParameter {
 	private static final Logger log = LoggerFactory.getLogger(StabilityParameter.class);
 	private static final Translator trans = Application.getTranslator();
 	
-
+	
 	private final boolean absolute;
 	
 	public StabilityParameter(boolean absolute) {
@@ -57,9 +56,9 @@ public class StabilityParameter implements OptimizableParameter {
 		 * Caching would in any case be inefficient since the rocket changes all the time.
 		 */
 		AerodynamicCalculator aerodynamicCalculator = new BarrowmanCalculator();
-		MassCalculator massCalculator = new BasicMassCalculator();
+		MassCalculator massCalculator = new MassCalculator();
 		
-
+		
 		Configuration configuration = simulation.getConfiguration();
 		FlightConditions conditions = new FlightConditions(configuration);
 		conditions.setMach(Application.getPreferences().getDefaultMach());
@@ -79,7 +78,7 @@ public class StabilityParameter implements OptimizableParameter {
 		else
 			cgx = Double.NaN;
 		
-
+		
 		// Calculate the reference (absolute or relative)
 		stability = cpx - cgx;
 		

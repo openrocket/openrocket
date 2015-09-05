@@ -54,7 +54,6 @@ import net.sf.openrocket.gui.components.UnitSelector;
 import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.masscalc.BasicMassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.rocketcomponent.Configuration;
@@ -69,7 +68,7 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.StateChangeListener;
 
 public class ComponentAnalysisDialog extends JDialog implements StateChangeListener {
-	
+	private static final long serialVersionUID = 9131240570600307935L;
 	private static ComponentAnalysisDialog singletonDialog = null;
 	private static final Translator trans = Application.getTranslator();
 	
@@ -80,7 +79,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 	private final JToggleButton worstToggle;
 	private boolean fakeChange = false;
 	private AerodynamicCalculator aerodynamicCalculator;
-	private final MassCalculator massCalculator = new BasicMassCalculator();
+	private final MassCalculator massCalculator = new MassCalculator();
 	
 	private final ColumnTableModel cpTableModel;
 	private final ColumnTableModel dragTableModel;
