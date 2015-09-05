@@ -2,6 +2,7 @@ package net.sf.openrocket.masscalc;
 
 import static net.sf.openrocket.util.MathUtil.pow2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -10,16 +11,24 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 
-public class BasicMassCalculator extends AbstractMassCalculator {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class BasicMassCalculator implements MassCalculator {
 	
 	private static final double MIN_MASS = 0.001 * MathUtil.EPSILON;
+	private static final Logger log = LoggerFactory.getLogger(MassCalculator.class);
 	
+	private int rocketMassModID = -1;
+	private int rocketTreeModID = -1;
 	
 	/*
 	 * Cached data.  All CG data is in absolute coordinates.  All moments of inertia
@@ -238,21 +247,19 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	
 	private void calculateStageCache(Configuration config) {
 		if (cgCache == null) {
+			ArrayList<AxialStage> stageList = config.getRocket().getStageList();
+			int stageCount = stageList.size();
 			
-			//int stages = config.getRocket().getStageCount();
-			// temporary fix .  this undercounts the stages
-			int stages = config.getRocket().getChildCount();
+			cgCache = new Coordinate[stageCount];
+			longitudinalInertiaCache = new double[stageCount];
+			rotationalInertiaCache = new double[stageCount];
 			
-			cgCache = new Coordinate[stages];
-			longitudinalInertiaCache = new double[stages];
-			rotationalInertiaCache = new double[stages];
-			
-			for (int i = 0; i < stages; i++) {
-				RocketComponent stage = config.getRocket().getChild(i);
+			for (int i = 0; i < stageCount; i++) {
+				RocketComponent stage = stageList.get(i);
 				MassData data = calculateAssemblyMassData(stage);
-				cgCache[i] = stage.toAbsolute(data.cg)[0];
-				longitudinalInertiaCache[i] = data.longitudinalInertia;
-				rotationalInertiaCache[i] = data.rotationalInetria;
+				cgCache[i] = stage.toAbsolute(data.getCG())[0];
+				longitudinalInertiaCache[i] = data.getLongitudinalInertia();
+				rotationalInertiaCache[i] = data.getRotationalInertia();
 			}
 			
 		}
@@ -266,24 +273,26 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	 * of the specified component, not global coordinates.
 	 */
 	private MassData calculateAssemblyMassData(RocketComponent parent) {
-		MassData parentData = new MassData();
+		Coordinate parentCG = Coordinate.ZERO;
+		double longitudinalInertia = 0.0;
+		double rotationalInertia = 0.0;
 		
 		// Calculate data for this component
-		parentData.cg = parent.getComponentCG();
-		if (parentData.cg.weight < MIN_MASS)
-			parentData.cg = parentData.cg.setWeight(MIN_MASS);
+		parentCG = parent.getComponentCG();
+		if (parentCG.weight < MIN_MASS)
+			parentCG = parentCG.setWeight(MIN_MASS);
 		
 		
 		// Override only this component's data
 		if (!parent.getOverrideSubcomponents()) {
 			if (parent.isMassOverridden())
-				parentData.cg = parentData.cg.setWeight(MathUtil.max(parent.getOverrideMass(), MIN_MASS));
+				parentCG = parentCG.setWeight(MathUtil.max(parent.getOverrideMass(), MIN_MASS));
 			if (parent.isCGOverridden())
-				parentData.cg = parentData.cg.setXYZ(parent.getOverrideCG());
+				parentCG = parentCG.setXYZ(parent.getOverrideCG());
 		}
 		
-		parentData.longitudinalInertia = parent.getLongitudinalUnitInertia() * parentData.cg.weight;
-		parentData.rotationalInetria = parent.getRotationalUnitInertia() * parentData.cg.weight;
+		longitudinalInertia = parent.getLongitudinalUnitInertia() * parentCG.weight;
+		rotationalInertia = parent.getRotationalUnitInertia() * parentCG.weight;
 		
 		
 		// Combine data for subcomponents
@@ -293,68 +302,87 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 			
 			// Compute data of sibling
 			MassData siblingData = calculateAssemblyMassData(sibling);
-			Coordinate[] siblingCGs = sibling.toRelative(siblingData.cg, parent);
+			Coordinate[] siblingCGs = sibling.toRelative(siblingData.getCG(), parent);
 			
 			for (Coordinate siblingCG : siblingCGs) {
 				
 				// Compute CG of this + sibling
-				combinedCG = parentData.cg.average(siblingCG);
+				combinedCG = parentCG.average(siblingCG);
 				
 				// Add effect of this CG change to parent inertia
-				dx2 = pow2(parentData.cg.x - combinedCG.x);
-				parentData.longitudinalInertia += parentData.cg.weight * dx2;
+				dx2 = pow2(parentCG.x - combinedCG.x);
+				longitudinalInertia += parentCG.weight * dx2;
 				
-				dr2 = pow2(parentData.cg.y - combinedCG.y) + pow2(parentData.cg.z - combinedCG.z);
-				parentData.rotationalInetria += parentData.cg.weight * dr2;
+				dr2 = pow2(parentCG.y - combinedCG.y) + pow2(parentCG.z - combinedCG.z);
+				rotationalInertia += parentCG.weight * dr2;
 				
 				
 				// Add inertia of sibling
-				parentData.longitudinalInertia += siblingData.longitudinalInertia;
-				parentData.rotationalInetria += siblingData.rotationalInetria;
+				longitudinalInertia += siblingData.getLongitudinalInertia();
+				rotationalInertia += siblingData.getRotationalInertia();
 				
 				// Add effect of sibling CG change
-				dx2 = pow2(siblingData.cg.x - combinedCG.x);
-				parentData.longitudinalInertia += siblingData.cg.weight * dx2;
+				dx2 = pow2(siblingData.getCG().x - combinedCG.x);
+				longitudinalInertia += siblingData.getCG().weight * dx2;
 				
-				dr2 = pow2(siblingData.cg.y - combinedCG.y) + pow2(siblingData.cg.z - combinedCG.z);
-				parentData.rotationalInetria += siblingData.cg.weight * dr2;
+				dr2 = pow2(siblingData.getCG().y - combinedCG.y) + pow2(siblingData.getCG().z - combinedCG.z);
+				rotationalInertia += siblingData.getCG().weight * dr2;
 				
 				// Set combined CG
-				parentData.cg = combinedCG;
+				parentCG = combinedCG;
 			}
 		}
 		
 		// Override total data
 		if (parent.getOverrideSubcomponents()) {
 			if (parent.isMassOverridden()) {
-				double oldMass = parentData.cg.weight;
+				double oldMass = parentCG.weight;
 				double newMass = MathUtil.max(parent.getOverrideMass(), MIN_MASS);
-				parentData.longitudinalInertia = parentData.longitudinalInertia * newMass / oldMass;
-				parentData.rotationalInetria = parentData.rotationalInetria * newMass / oldMass;
-				parentData.cg = parentData.cg.setWeight(newMass);
+				longitudinalInertia = longitudinalInertia * newMass / oldMass;
+				rotationalInertia = rotationalInertia * newMass / oldMass;
+				parentCG = parentCG.setWeight(newMass);
 			}
 			if (parent.isCGOverridden()) {
-				double oldx = parentData.cg.x;
+				double oldx = parentCG.x;
 				double newx = parent.getOverrideCGX();
-				parentData.longitudinalInertia += parentData.cg.weight * pow2(oldx - newx);
-				parentData.cg = parentData.cg.setX(newx);
+				longitudinalInertia += parentCG.weight * pow2(oldx - newx);
+				parentCG = parentCG.setX(newx);
 			}
 		}
 		
+		MassData parentData = new MassData(parentCG, longitudinalInertia, rotationalInertia, 0);
 		return parentData;
 	}
 	
-	
-	private static class MassData {
-		public Coordinate cg = Coordinate.NUL;
-		public double longitudinalInertia = 0;
-		public double rotationalInetria = 0;
+	/**
+	 * Check the current cache consistency.  This method must be called by all
+	 * methods that may use any cached data before any other operations are
+	 * performed.  If the rocket has changed since the previous call to
+	 * <code>checkCache()</code>, then {@link #voidMassCache()} is called.
+	 * <p>
+	 * This method performs the checking based on the rocket's modification IDs,
+	 * so that these method may be called from listeners of the rocket itself.
+	 * 
+	 * @param	configuration	the configuration of the current call
+	 */
+	protected final void checkCache(Configuration configuration) {
+		if (rocketMassModID != configuration.getRocket().getMassModID() ||
+				rocketTreeModID != configuration.getRocket().getTreeModID()) {
+			rocketMassModID = configuration.getRocket().getMassModID();
+			rocketTreeModID = configuration.getRocket().getTreeModID();
+			log.debug("Voiding the mass cache");
+			voidMassCache();
+		}
 	}
 	
-	
-	@Override
+	/**
+	 * Void cached mass data.  This method is called whenever a change occurs in 
+	 * the rocket structure that affects the mass of the rocket and when a new 
+	 * Rocket is used.  This method must be overridden to void any cached data 
+	 * necessary.  The method must call <code>super.voidMassCache()</code> during 
+	 * its execution.
+	 */
 	protected void voidMassCache() {
-		super.voidMassCache();
 		this.cgCache = null;
 		this.longitudinalInertiaCache = null;
 		this.rotationalInertiaCache = null;
@@ -367,6 +395,8 @@ public class BasicMassCalculator extends AbstractMassCalculator {
 	public int getModID() {
 		return 0;
 	}
+	
+	
 	
 	
 	
