@@ -1,9 +1,13 @@
 package net.sf.openrocket.gui.adaptors;
 
+import java.util.ArrayList;
 import java.util.EventObject;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
+import javax.swing.MutableComboBoxModel;
+
+import org.jfree.util.Log;
 
 import net.sf.openrocket.util.ChangeSource;
 import net.sf.openrocket.util.Reflection;
@@ -11,7 +15,7 @@ import net.sf.openrocket.util.StateChangeListener;
 
 
 public class EnumModel<T extends Enum<T>> extends AbstractListModel 
-		implements ComboBoxModel, StateChangeListener {
+		implements ComboBoxModel, MutableComboBoxModel, StateChangeListener {
 
 	private final ChangeSource source;
 	private final String valueName;
@@ -19,6 +23,8 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 	
 	private final Enum<T>[] values;
 	private Enum<T> currentValue = null;
+	
+	ArrayList<Enum<T>> displayedValues = new ArrayList<Enum<T>>();
 	
 	private final Reflection.Method getMethod;
 	private final Reflection.Method setMethod;
@@ -60,6 +66,9 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 		else 
 			this.values = enumClass.getEnumConstants();
 		
+		for (Enum<T> e : this.values){
+			this.displayedValues.add( e );
+		}
 		this.nullText = nullText;
 		
 		stateChanged(null);  // Update current value
@@ -99,19 +108,19 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 
 	@Override
 	public Object getElementAt(int index) {
+		if( ( index < 0 ) || ( index >= this.displayedValues.size())){
+			return nullText; // bad parameter
+		}
+
 		if (values[index] == null)
 			return nullText;
-		return values[index];
+		return displayedValues.get( index);
 	}
 
 	@Override
 	public int getSize() {
-		return values.length;
+		return displayedValues.size();
 	}
-
-
-
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -128,6 +137,33 @@ public class EnumModel<T extends Enum<T>> extends AbstractListModel
 	@Override
 	public String toString() {
 		return "EnumModel["+source.getClass().getCanonicalName()+":"+valueName+"]";
+	}
+
+	@Override
+	public void addElement(Object item) {
+		// Not actually allowed.  The model starts out with all the enums, and only allows hiding some.
+	}
+
+	@Override
+	public void removeElement(Object obj) {
+		if( null == obj ){
+			return;
+		}
+		this.displayedValues.remove( obj );
+	}
+
+	@Override
+	public void insertElementAt(Object item, int index) {
+		// Not actually allowed.  The model starts out with all the enums, and only allows hiding some.
+	}
+
+	@Override
+	public void removeElementAt(int index) {
+		if( ( index < 0 ) || ( index >= this.displayedValues.size())){
+			return; // bad parameter
+		}
+
+		this.displayedValues.remove( index );
 	}
 
 }

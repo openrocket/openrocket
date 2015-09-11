@@ -76,7 +76,11 @@ public class DeploymentSelectionDialog extends JDialog {
 		//// Deploys at:
 		panel.add(new JLabel(trans.get("ParachuteCfg.lbl.Deploysat")), "");
 		
-		final JComboBox event = new JComboBox(new EnumModel<DeployEvent>(newConfiguration, "DeployEvent"));
+		final JComboBox<?> event = new JComboBox(new EnumModel<DeployEvent>(newConfiguration, "DeployEvent"));
+		if( (component.getStageNumber() + 1 ) == rocket.getStageCount() ){
+			//	This is the bottom stage:  Restrict deployment options.
+			event.removeItem( DeployEvent.LOWER_STAGE_SEPARATION );
+		}
 		panel.add(event, "spanx 3, growx, wrap");
 		
 		// ... and delay

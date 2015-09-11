@@ -80,11 +80,19 @@ header("Content-type: text/plain");
 $version = $_GET["version"];
 $updates = "";
 
-$unstable = "14.11";
+$unstable = "15.03";
 $stable = "1.0.0";
 
 
-if (preg_match("/^14.06$/", $version)) {
+if (preg_match("/^14.11$/", $version)) {
+  $updates = "Version: " . $unstable . "\n" .
+    "10: Experimental support for TubeFins\n".
+    "10: Scriptable simulation extensions\n".
+    "10: User configurable default mach\n".
+    "6: Updated thrustcurves\n" .
+    "4: Fixed a few bugs\n" .
+    "";
+} else if (preg_match("/^14.06$/", $version)) {
   $updates = "Version: " . $unstable . "\n" .
     "6: Updated thrustcurves\n" .
     "4: Fixed a few bugs\n" .

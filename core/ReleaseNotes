@@ -1,3 +1,20 @@
+OpenRocket 15.03 (2015-03-28):
+------------------------------
+
+OpenRocket now requires Java 1.7 for execution.
+
+New Features:
+    * Experimental support for tube fins
+    * Updated thrustcurves
+    * Scriptable simulation extensions
+    * Fin fillet mass
+    * Better icons for different kinds of masses - altimeters, computers, etc.
+    * Configurable default mach number
+    * Improved preferences UI
+
+Bug Fixes:
+    * Always use the correct filename extension when saving
+    
 OpenRocket 14.11 (2014-11-02):
 ------------------------------
 

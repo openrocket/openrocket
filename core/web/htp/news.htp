@@ -8,6 +8,10 @@
   </if>
 
   <!--- Remember to move the position of "onlyrecent" below! --->
+  <p><span class="date">28.03.2015:</span> Version 15.03 is
+   <a href="download.html">released</a>!  This release contains scriptable simulation extensions and experimental support for tube fins along with many additional improvements.
+   </p>
+
   <p><span class="date">02.11.2014:</span> Version 14.11 is
    <a href="download.html">released</a>!  This release contains very few changes. Thrustcurves have been updated and now include AeroTech DMS motors.  A few bugs have been fixed. 
    </p>

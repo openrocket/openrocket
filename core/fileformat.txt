@@ -47,6 +47,6 @@ The following file format versions exist:
 1.6:  Introduced with OpenRocket 13.04.  Added component Appearances (decals & paint)
       Added configurable parameters to recovery devices, motor ignition and separation.
       
-1.7:  Introduced with OpenRocket 15.01.  Added simulation extensions and related
-      configuration.
-      
+1.7:  Introduced with OpenRocket 15.03.
+      Added simulation extensions and related configuration.
+      Support for TubeFins.
