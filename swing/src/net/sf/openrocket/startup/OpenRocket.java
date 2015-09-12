@@ -28,6 +28,10 @@ public class OpenRocket {
 	private static final String STARTUP_CLASS = "net.sf.openrocket.startup.SwingStartup";
 	
 	public static void main(String[] args) {
+		// This property works around some fundimental bugs in TimSort in the java library which has had known issues
+		// since it was introduced in JDK 1.7.  In OpenRocket it manifests when you sort the motors in the motor chooser dialog
+		// by designation.
+		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
 		addClasspathUrlHandler();
 		JarInJarStarter.runMain(STARTUP_CLASS, args, new CurrentClasspathProvider(),
 				new ManifestClasspathProvider(), new PluginClasspathProvider());
