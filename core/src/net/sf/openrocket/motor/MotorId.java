@@ -8,10 +8,18 @@ package net.sf.openrocket.motor;
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
 public final class MotorId {
-
+	
 	private final String componentId;
 	private final int number;
 	
+	private final String COMPONENT_ERROR_ID = "Error Motor Instance";
+	private final int ERROR_NUMBER = -1;
+	public final static MotorId ERROR_ID = new MotorId();
+	
+	public MotorId() {
+		this.componentId = COMPONENT_ERROR_ID;
+		this.number = ERROR_NUMBER;
+	}
 	
 	/**
 	 * Sole constructor.
@@ -20,7 +28,6 @@ public final class MotorId {
 	 * @param number		a positive motor doun5 number
 	 */
 	public MotorId(String componentId, int number) {
-		super();
 		
 		if (componentId == null) {
 			throw new IllegalArgumentException("Component ID was null");
@@ -52,7 +59,7 @@ public final class MotorId {
 		if (!(o instanceof MotorId))
 			return false;
 		
-		MotorId other = (MotorId)o;
+		MotorId other = (MotorId) o;
 		// Comparison with == ok since string is intern()'ed
 		return this.componentId == other.componentId && this.number == other.number;
 	}

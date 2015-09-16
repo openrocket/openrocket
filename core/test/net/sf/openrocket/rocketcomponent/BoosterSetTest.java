@@ -647,7 +647,6 @@ public class BoosterSetTest extends BaseTestCase {
 		assertEquals(" init order error: " + treeDump + " Booster B: resultant positions: ", expectedOffset, resultantOffsetB, EPSILON);
 	}
 	
-	
 	@Test
 	public void testStageNumbering() {
 		Rocket rocket = createTestRocket();
@@ -679,8 +678,29 @@ public class BoosterSetTest extends BaseTestCase {
 		actualStageNumber = boosterB.getStageNumber();
 		assertEquals(" init order error: Booster B: resultant positions: ", expectedStageNumber, actualStageNumber);
 		
+		//rocket.getDefaultConfiguration().dumpConfig();
+		
+		core.removeChild(2);
+		
+		String treedump = rocket.toDebugTree();
+		int expectedStageCount = 3;
+		int actualStageCount = rocket.getStageCount();
+		
+		assertEquals(" Stage tracking error:  removed booster A, but count not updated: " + treedump, expectedStageCount, actualStageCount);
+		actualStageCount = rocket.getDefaultConfiguration().getStageCount();
+		assertEquals(" Stage tracking error:  removed booster A, but configuration not updated: " + treedump, expectedStageCount, actualStageCount);
+		
+		BoosterSet boosterC = createBooster();
+		boosterC.setName("Booster C Stage");
+		core.addChild(boosterC);
+		boosterC.setAxialOffset(Position.BOTTOM, 0);
+		
+		expectedStageNumber = 2;
+		actualStageNumber = boosterC.getStageNumber();
+		assertEquals(" init order error: Booster B: resultant positions: ", expectedStageNumber, actualStageNumber);
+		
+		//rocket.getDefaultConfiguration().dumpConfig();
 	}
-	
 	
 	@Test
 	public void testToAbsolute() {

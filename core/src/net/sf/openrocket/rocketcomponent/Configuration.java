@@ -1,13 +1,13 @@
 package net.sf.openrocket.rocketcomponent;
 
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.NoSuchElementException;
 
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.ChangeSource;
@@ -16,33 +16,44 @@ import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
 import net.sf.openrocket.util.StateChangeListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
- * A class defining a rocket configuration, including motors and which stages are active.
+ * A class defining a rocket configuration, including which stages are active.
  * 
- * TODO: HIGH: Remove motor ignition times from this class.
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public class Configuration implements Cloneable, ChangeSource, ComponentChangeListener,
-		Iterable<RocketComponent>, Monitorable {
+public class Configuration implements Cloneable, ChangeSource, ComponentChangeListener, Monitorable {
+	private static final Logger log = LoggerFactory.getLogger(Configuration.class);
 	
-	private Rocket rocket;
-	private BitSet stagesActive = new BitSet();
-	
-	private String flightConfigurationId = null;
-	
+	protected Rocket rocket;
+	protected String flightConfigurationId = null;
 	private List<EventListener> listenerList = new ArrayList<EventListener>();
 	
+	protected class StageFlags {
+		public boolean active = true;
+		public int prev = -1;
+		public AxialStage stage = null;
+		
+		public StageFlags(AxialStage _stage, int _prev, boolean _active) {
+			this.stage = _stage;
+			this.prev = _prev;
+			this.active = _active;
+		}
+	}
 	
 	/* Cached data */
+	protected HashMap<Integer, StageFlags> stageMap = new HashMap<Integer, StageFlags>();
+	
 	private int boundsModID = -1;
 	private ArrayList<Coordinate> cachedBounds = new ArrayList<Coordinate>();
 	private double cachedLength = -1;
 	
 	private int refLengthModID = -1;
 	private double cachedRefLength = -1;
-	
 	
 	private int modID = 0;
 	
@@ -55,98 +66,156 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 */
 	public Configuration(Rocket rocket) {
 		this.rocket = rocket;
-		setAllStages();
+		updateStageMap();
 		rocket.addComponentChangeListener(this);
 	}
-	
-	
 	
 	public Rocket getRocket() {
 		return rocket;
 	}
 	
 	
+	public void clearAllStages() {
+		this.setAllStages(false);
+	}
+	
 	public void setAllStages() {
-		stagesActive.clear();
-		stagesActive.set(0, AxialStage.getStageCount());
+		this.setAllStages(true);
+	}
+	
+	public void setAllStages(final boolean _value) {
+		for (StageFlags cur : stageMap.values()) {
+			cur.active = _value;
+		}
 		fireChangeEvent();
 	}
 	
+	/** 
+	 * This method flags a stage inactive.  Other stages are unaffected.
+	 * 
+	 * @param stageNumber  stage number to inactivate
+	 */
+	public void clearOnlyStage(final int stageNumber) {
+		setStage(stageNumber, false);
+	}
+	
+	/** 
+	 * This method flags a stage active.  Other stages are unaffected.
+	 * 
+	 * @param stageNumber  stage number to activate
+	 */
+	public void setOnlyStage(final int stageNumber) {
+		setStage(stageNumber, true);
+	}
+	
+	/** 
+	 * This method flags the specified stage as requested.  Other stages are unaffected.
+	 * 
+	 * @param stageNumber   stage number to flag
+	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
+	 */
+	public void setStage(final int stageNumber, final boolean _active) {
+		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
+			log.error("debug: setting stage " + stageNumber + " to " + _active);
+			stageMap.get(stageNumber).active = _active;
+			fireChangeEvent();
+			return;
+		}
+		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
+	}
+	
+	
+	public void toggleStage(final int stageNumber) {
+		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
+			
+			StageFlags flags = stageMap.get(stageNumber);
+			log.error("debug: toggling stage " + stageNumber + " to " + !flags.active);
+			flags.active = !flags.active;
+			fireChangeEvent();
+			return;
+		}
+		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
+	}
 	
 	/**
-	 * Set all stages up to and including the given stage number.  For example,
-	 * <code>setToStage(0)</code> will set only the first stage active.
-	 * 
-	 * @param stage		the stage number.
+	 * Check whether the stage is active.
 	 */
-	public void setToStage(int stage) {
-		stagesActive.clear();
-		stagesActive.set(0, stage + 1, true);
-		//		stages.set(stage+1, rocket.getStageCount(), false);
-		fireChangeEvent();
+	public boolean isStageActive(final AxialStage stage) {
+		return this.isStageActive(stage.getStageNumber());
 	}
-	
-	public void setOnlyStage(int stage) {
-		stagesActive.clear();
-		stagesActive.set(stage, stage + 1, true);
-		fireChangeEvent();
-	}
-	
-	/**
-	 * Check whether the up-most stage of the rocket is in this configuration.
-	 * 
-	 * @return	<code>true</code> if the first stage is active in this configuration.
-	 */
-	public boolean isHead() {
-		return isStageActive(0);
-	}
-	
-	
 	
 	/**
 	 * Check whether the stage specified by the index is active.
 	 */
-	public boolean isStageActive(int stage) {
-		if (stage >= AxialStage.getStageCount())
+	public boolean isStageActive(int stageNumber) {
+		if (stageNumber >= this.rocket.getStageCount()) {
 			return false;
-		return stagesActive.get(stage);
-	}
-	
-	public int getStageCount() {
-		return AxialStage.getStageCount();
-	}
-	
-	public int getActiveStageCount() {
-		int count = 0;
-		int s = AxialStage.getStageCount();
-		
-		for (int i = 0; i < s; i++) {
-			if (stagesActive.get(i))
-				count++;
 		}
-		return count;
+		return stageMap.get(stageNumber).active;
 	}
 	
-	public int[] getActiveStages() {
-		// temporary hack fix 
-		//int stageCount = Stage.getStageCount();
-		
-		int stageCount = getRocket().getChildCount();
-		List<Integer> active = new ArrayList<Integer>();
-		int[] ret;
-		
-		for (int i = 0; i < stageCount; i++) {
-			if (stagesActive.get(i)) {
-				active.add(i);
+	public List<RocketComponent> getActiveComponents() {
+		ArrayList<RocketComponent> toReturn = new ArrayList<RocketComponent>();
+		for (StageFlags curFlags : this.stageMap.values()) {
+			if (curFlags.active) {
+				toReturn.add(curFlags.stage);
 			}
 		}
 		
-		ret = new int[active.size()];
-		for (int i = 0; i < ret.length; i++) {
-			ret[i] = active.get(i);
+		return toReturn;
+	}
+	
+	public List<MotorInstance> getActiveMotors(final MotorInstanceConfiguration mic) {
+		ArrayList<MotorInstance> toReturn = new ArrayList<MotorInstance>();
+		for (MotorInstance inst : mic.getAllMotors()) {
+			MotorMount mount = inst.getMount();
+			if (mount instanceof RocketComponent) {
+				RocketComponent comp = (RocketComponent) mount;
+				if (this.isStageActive(comp.getStage().getStageNumber())) {
+					toReturn.add(inst);
+				}
+			}
 		}
 		
-		return ret;
+		return toReturn;
+	}
+	
+	public List<AxialStage> getActiveStages() {
+		List<AxialStage> activeStages = new ArrayList<AxialStage>();
+		
+		for (StageFlags flags : this.stageMap.values()) {
+			activeStages.add(flags.stage);
+		}
+		
+		return activeStages;
+	}
+	
+	public int getActiveStageCount() {
+		int activeCount = 0;
+		for (StageFlags cur : this.stageMap.values()) {
+			if (cur.active) {
+				activeCount++;
+			}
+		}
+		return activeCount;
+	}
+	
+	/** 
+	 * Retrieve the bottom-most active stage.
+	 * @return 
+	 */
+	public AxialStage getBottomStage() {
+		AxialStage bottomStage = null;
+		for (StageFlags curFlags : this.stageMap.values()) {
+			if (curFlags.active) {
+				bottomStage = curFlags.stage;
+			}
+		}
+		return bottomStage;
+	}
+	
+	public int getStageCount() {
+		return stageMap.size();
 	}
 	
 	
@@ -221,8 +290,38 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 				((StateChangeListener) l).stateChanged(e);
 			}
 		}
+		
+		updateStageMap();
 	}
 	
+	private void updateStageMap() {
+		if (this.rocket.getStageCount() == this.stageMap.size()) {
+			// no changes needed
+			return;
+		}
+		
+		this.stageMap.clear();
+		for (AxialStage curStage : this.rocket.getStageList()) {
+			int prevStageNum = curStage.getStageNumber() - 1;
+			if (curStage.getParent() instanceof AxialStage) {
+				prevStageNum = curStage.getParent().getStageNumber();
+			}
+			StageFlags flagsToAdd = new StageFlags(curStage, prevStageNum, true);
+			this.stageMap.put(curStage.getStageNumber(), flagsToAdd);
+		}
+	}
+	
+	// DEBUG / DEVEL
+	public String toDebug() {
+		StringBuilder buf = new StringBuilder();
+		buf.append(String.format("\nDumping stage config: \n"));
+		for (StageFlags flags : this.stageMap.values()) {
+			AxialStage curStage = flags.stage;
+			buf.append(String.format("    [%d]: %24s: %b\n", curStage.getStageNumber(), curStage.getName(), flags.active));
+		}
+		buf.append("\n\n");
+		return buf.toString();
+	}
 	
 	@Override
 	public void componentChanged(ComponentChangeEvent e) {
@@ -231,26 +330,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	
 	///////////////  Helper methods  ///////////////
-	
-	/**
-	 * Return whether this configuration has any motors defined to it.
-	 * 
-	 * @return  true if this configuration has active motor mounts with motors defined to them.
-	 */
-	public boolean hasMotors() {
-		for (RocketComponent c : this) {
-			if (c instanceof MotorMount) {
-				MotorMount mount = (MotorMount) c;
-				if (!mount.isMotorMount())
-					continue;
-				if (mount.getMotor(this.flightConfigurationId) != null) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	
 	/**
 	 * Return whether a component is in the currently active stages.
@@ -272,7 +351,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			cachedBounds.clear();
 			
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
-			for (RocketComponent component : this) {
+			for (RocketComponent component : this.getActiveComponents()) {
 				for (Coordinate coord : component.getComponentBounds()) {
 					cachedBounds.add(coord);
 					if (coord.x < minX)
@@ -309,56 +388,16 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	
 	/**
-	 * Return an iterator that iterates over the currently active components.
-	 * The <code>Rocket</code> and <code>Stage</code> components are not returned,
-	 * but instead all components that are within currently active stages.
-	 */
-	@Override
-	public Iterator<RocketComponent> iterator() {
-		List<RocketComponent> accumulator = new ArrayList<RocketComponent>();
-		
-		accumulator = this.getActiveComponents(accumulator, rocket.getChildren());
-		
-		return accumulator.iterator();
-	}
-	
-	private List<RocketComponent> getActiveComponents(List<RocketComponent> accumulator, final List<RocketComponent> toScan) {
-		for (RocketComponent rc : toScan) {
-			if (rc instanceof AxialStage) {
-				if (!isStageActive(rc.getStageNumber())) {
-					continue;
-				}
-			} else {
-				accumulator.add(rc);
-			}
-			// recurse to children
-			getActiveComponents(accumulator, rc.getChildren());
-		}
-		return accumulator;
-	}
-	
-	
-	/**
-	 * Return an iterator that iterates over all <code>MotorMount</code>s within the
-	 * current configuration that have an active motor.
-	 * 
-	 * @return  an iterator over active motor mounts.
-	 */
-	public Iterator<MotorMount> motorIterator() {
-		return new MotorIterator();
-	}
-	
-	
-	/**
 	 * Perform a deep-clone.  The object references are also cloned and no
 	 * listeners are listening on the cloned object.  The rocket instance remains the same.
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Configuration clone() {
 		try {
 			Configuration config = (Configuration) super.clone();
 			config.listenerList = new ArrayList<EventListener>();
-			config.stagesActive = (BitSet) this.stagesActive.clone();
+			config.stageMap = (HashMap<Integer, StageFlags>) this.stageMap.clone();
 			config.cachedBounds = new ArrayList<Coordinate>();
 			config.boundsModID = -1;
 			config.refLengthModID = -1;
@@ -375,51 +414,5 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		return modID + rocket.getModID();
 	}
 	
-	private class MotorIterator implements Iterator<MotorMount> {
-		private final Iterator<RocketComponent> iterator;
-		private MotorMount next = null;
-		
-		public MotorIterator() {
-			this.iterator = iterator();
-		}
-		
-		@Override
-		public boolean hasNext() {
-			getNext();
-			return (next != null);
-		}
-		
-		@Override
-		public MotorMount next() {
-			getNext();
-			if (next == null) {
-				throw new NoSuchElementException("iterator called for too long");
-			}
-			
-			MotorMount ret = next;
-			next = null;
-			return ret;
-		}
-		
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("remove unsupported");
-		}
-		
-		private void getNext() {
-			if (next != null)
-				return;
-			while (iterator.hasNext()) {
-				RocketComponent c = iterator.next();
-				if (c instanceof MotorMount) {
-					MotorMount mount = (MotorMount) c;
-					if (mount.isMotorMount() && mount.getMotor(flightConfigurationId) != null) {
-						next = mount;
-						return;
-					}
-				}
-			}
-		}
-	}
 	
 }

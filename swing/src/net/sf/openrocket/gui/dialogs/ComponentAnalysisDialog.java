@@ -513,7 +513,7 @@ public class ComponentAnalysisDialog extends JDialog implements StateChangeListe
 		cgData.clear();
 		dragData.clear();
 		rollData.clear();
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			forces = aeroData.get(c);
 			Coordinate cg = massData.get(c);
 			

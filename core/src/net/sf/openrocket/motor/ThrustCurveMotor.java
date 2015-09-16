@@ -415,9 +415,9 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 	
 	
 	////////  Motor instance implementation  ////////
-	private class ThrustCurveMotorInstance implements MotorInstance {
+	private class ThrustCurveMotorInstance extends MotorInstance {
 		
-		private int position;
+		private int timeIndex;
 		
 		// Previous time step value
 		private double prevTime;
@@ -434,13 +434,12 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		private final double unitRotationalInertia;
 		private final double unitLongitudinalInertia;
-		private final Motor parentMotor;
 		
 		private int modID = 0;
 		
 		public ThrustCurveMotorInstance() {
 			log.debug("ThrustCurveMotor:  Creating motor instance of " + ThrustCurveMotor.this);
-			position = 0;
+			timeIndex = 0;
 			prevTime = 0;
 			instThrust = 0;
 			stepThrust = 0;
@@ -449,11 +448,6 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			unitRotationalInertia = Inertia.filledCylinderRotational(getDiameter() / 2);
 			unitLongitudinalInertia = Inertia.filledCylinderLongitudinal(getDiameter() / 2, getLength());
 			parentMotor = ThrustCurveMotor.this;
-		}
-		
-		@Override
-		public Motor getParentMotor() {
-			return parentMotor;
 		}
 		
 		@Override
@@ -500,7 +494,7 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			
 			modID++;
 			
-			if (position >= time.length - 1) {
+			if (timeIndex >= time.length - 1) {
 				// Thrust has ended
 				prevTime = nextTime;
 				stepThrust = 0;
@@ -511,33 +505,33 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			
 			
 			// Compute average & instantaneous thrust
-			if (nextTime < time[position + 1]) {
+			if (nextTime < time[timeIndex + 1]) {
 				
 				// Time step between time points
-				double nextF = MathUtil.map(nextTime, time[position], time[position + 1],
-						thrust[position], thrust[position + 1]);
+				double nextF = MathUtil.map(nextTime, time[timeIndex], time[timeIndex + 1],
+						thrust[timeIndex], thrust[timeIndex + 1]);
 				stepThrust = (instThrust + nextF) / 2;
 				instThrust = nextF;
 				
 			} else {
 				
 				// Portion of previous step
-				stepThrust = (instThrust + thrust[position + 1]) / 2 * (time[position + 1] - prevTime);
+				stepThrust = (instThrust + thrust[timeIndex + 1]) / 2 * (time[timeIndex + 1] - prevTime);
 				
 				// Whole steps
-				position++;
-				while ((position < time.length - 1) && (nextTime >= time[position + 1])) {
-					stepThrust += (thrust[position] + thrust[position + 1]) / 2 *
-							(time[position + 1] - time[position]);
-					position++;
+				timeIndex++;
+				while ((timeIndex < time.length - 1) && (nextTime >= time[timeIndex + 1])) {
+					stepThrust += (thrust[timeIndex] + thrust[timeIndex + 1]) / 2 *
+							(time[timeIndex + 1] - time[timeIndex]);
+					timeIndex++;
 				}
 				
 				// End step
-				if (position < time.length - 1) {
-					instThrust = MathUtil.map(nextTime, time[position], time[position + 1],
-							thrust[position], thrust[position + 1]);
-					stepThrust += (thrust[position] + instThrust) / 2 *
-							(nextTime - time[position]);
+				if (timeIndex < time.length - 1) {
+					instThrust = MathUtil.map(nextTime, time[timeIndex], time[timeIndex + 1],
+							thrust[timeIndex], thrust[timeIndex + 1]);
+					stepThrust += (thrust[timeIndex] + instThrust) / 2 *
+							(nextTime - time[timeIndex]);
 				} else {
 					// Thrust ended during this step
 					instThrust = 0;
@@ -549,9 +543,9 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 			
 			// Compute average and instantaneous CG (simple average between points)
 			Coordinate nextCG;
-			if (position < time.length - 1) {
-				nextCG = MathUtil.map(nextTime, time[position], time[position + 1],
-						cg[position], cg[position + 1]);
+			if (timeIndex < time.length - 1) {
+				nextCG = MathUtil.map(nextTime, time[timeIndex], time[timeIndex + 1],
+						cg[timeIndex], cg[timeIndex + 1]);
 			} else {
 				nextCG = cg[cg.length - 1];
 			}
@@ -564,11 +558,12 @@ public class ThrustCurveMotor implements Motor, Comparable<ThrustCurveMotor>, Se
 		
 		@Override
 		public MotorInstance clone() {
-			try {
-				return (MotorInstance) super.clone();
-			} catch (CloneNotSupportedException e) {
-				throw new BugException("CloneNotSupportedException", e);
-			}
+			throw new BugException("CloneNotSupportedException");
+			//try {
+			//	return (MotorInstance) super.clone();
+			//} catch (CloneNotSupportedException e) {
+			//	throw new BugException("CloneNotSupportedException", e);
+			//}
 		}
 		
 		@Override

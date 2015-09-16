@@ -1,12 +1,12 @@
 package net.sf.openrocket.simulation;
 
+import java.util.List;
+
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
-import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.exception.SimulationException;
 import net.sf.openrocket.simulation.listeners.SimulationListenerHelper;
 import net.sf.openrocket.util.BugException;
@@ -45,7 +45,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
+	
 	/**
 	 * Compute the wind to use, allowing listeners to override.
 	 * 
@@ -75,7 +75,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
+	
 	/**
 	 * Compute the gravity to use, allowing listeners to override.
 	 * 
@@ -104,7 +104,7 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
+	
 	/**
 	 * Compute the mass data to use, allowing listeners to override.
 	 * 
@@ -142,9 +142,9 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 	}
 	
 	
-
-
-
+	
+	
+	
 	/**
 	 * Calculate the average thrust produced by the motors in the current configuration, allowing
 	 * listeners to override.  The average is taken between <code>status.time</code> and 
@@ -171,19 +171,18 @@ public abstract class AbstractSimulationStepper implements SimulationStepper {
 		}
 		
 		Configuration configuration = status.getConfiguration();
+		MotorInstanceConfiguration mic = status.getMotorConfiguration();
 		
 		// Iterate over the motors and calculate combined thrust
-		MotorInstanceConfiguration mic = status.getMotorConfiguration();
 		if (!stepMotors) {
 			mic = mic.clone();
 		}
 		mic.step(status.getSimulationTime() + timestep, acceleration, atmosphericConditions);
 		thrust = 0;
-		for (MotorId id : mic.getMotorIDs()) {
-			if (configuration.isComponentActive((RocketComponent) mic.getMotorMount(id))) {
-				MotorInstance motor = mic.getMotorInstance(id);
-				thrust += motor.getThrust();
-			}
+		
+		List<MotorInstance> activeMotors = configuration.getActiveMotors(mic);
+		for (MotorInstance currentMotorInstance : activeMotors) {
+			thrust += currentMotorInstance.getThrust();
 		}
 		
 		// Post-listeners

@@ -119,7 +119,7 @@ public class SimulationStatus implements Monitorable {
 		 */
 		double length = this.simulationConditions.getLaunchRodLength();
 		double lugPosition = Double.NaN;
-		for (RocketComponent c : this.configuration) {
+		for (RocketComponent c : this.configuration.getActiveComponents()) {
 			if (c instanceof LaunchLug) {
 				double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
 				if (Double.isNaN(lugPosition) || pos > lugPosition) {

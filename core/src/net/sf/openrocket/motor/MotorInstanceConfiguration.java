@@ -1,13 +1,16 @@
 package net.sf.openrocket.motor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import net.sf.openrocket.models.atmosphere.AtmosphericConditions;
+import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
-import net.sf.openrocket.rocketcomponent.IgnitionConfiguration.IgnitionEvent;
+import net.sf.openrocket.rocketcomponent.MotorConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
+import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.Monitorable;
 
@@ -17,21 +20,55 @@ import net.sf.openrocket.util.Monitorable;
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
  */
-public final class MotorInstanceConfiguration implements Monitorable, Cloneable {
-	
-	private final List<MotorId> ids = new ArrayList<MotorId>();
-	private final List<MotorId> unmodifiableIds = Collections.unmodifiableList(ids);
-	private final List<MotorInstance> motors = new ArrayList<MotorInstance>();
-	private final List<Double> ejectionDelays = new ArrayList<Double>();
-	private final List<MotorMount> mounts = new ArrayList<MotorMount>();
-	private final List<IgnitionConfiguration.IgnitionEvent> ignitionEvents = new ArrayList<IgnitionConfiguration.IgnitionEvent>();
-	private final List<Double> ignitionDelays = new ArrayList<Double>();
-	private final List<Coordinate> positions = new ArrayList<Coordinate>();
-	private final List<Double> ignitionTimes = new ArrayList<Double>();
-	
+public class MotorInstanceConfiguration implements Cloneable, Iterable<MotorInstance>, Monitorable {
+	protected final HashMap<MotorId, MotorInstance> motors = new HashMap<MotorId, MotorInstance>();
 	
 	private int modID = 0;
 	
+	private MotorInstanceConfiguration() {
+	}
+	
+	/**
+	 * Create a new motor instance configuration for the rocket configuration.
+	 *
+	 * @param configuration		the rocket configuration.
+	 */
+	public MotorInstanceConfiguration(Configuration configuration) {
+		// motors == this
+		final String flightConfigId = configuration.getFlightConfigurationID();
+		
+		Iterator<RocketComponent> iterator = configuration.getRocket().iterator(false);
+		while (iterator.hasNext()) {
+			RocketComponent component = iterator.next();
+			if (component instanceof MotorMount) {
+				MotorMount mount = (MotorMount) component;
+				
+				MotorConfiguration motorConfig = mount.getMotorConfiguration().get(flightConfigId);
+				IgnitionConfiguration ignitionConfig = mount.getIgnitionConfiguration().get(flightConfigId);
+				Motor motor = motorConfig.getMotor();
+				
+				if (motor != null) {
+					int count = mount.getMotorConfiguration().size();
+					Coordinate[] positions = component.toAbsolute(mount.getMotorPosition(flightConfigId));
+					for (int i = 0; i < positions.length; i++) {
+						Coordinate position = positions[i];
+						MotorId id = new MotorId(component.getID(), i + 1);
+						MotorInstance inst = motor.getInstance();
+						inst.setID(id);
+						inst.setEjectionDelay(motorConfig.getEjectionDelay());
+						inst.setMount(mount);
+						inst.setIgnitionDelay(ignitionConfig.getIgnitionDelay());
+						inst.setIgnitionEvent(ignitionConfig.getIgnitionEvent());
+						inst.setPosition(position);
+						
+						motors.put(id, inst);
+					}
+				}
+			}
+		}
+		
+		
+	}
 	
 	/**
 	 * Add a motor instance to this configuration.  The motor is placed at
@@ -45,89 +82,70 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 	 * @param position		the position of the motor in absolute coordinates.
 	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
 	 */
-	public void addMotor(MotorId id, MotorInstance motor, double ejectionDelay, MotorMount mount,
-			IgnitionEvent ignitionEvent, double ignitionDelay, Coordinate position) {
-		if (this.ids.contains(id)) {
+	//	public void addMotor(MotorId _id, Motor _motor, double _ejectionDelay, MotorMount _mount,
+	//			IgnitionEvent _ignitionEvent, double _ignitionDelay, Coordinate _position) {
+	//		
+	//		MotorInstance instanceToAdd = new MotorInstance(_id, _motor, _mount, _ejectionDelay,
+	//				_ignitionEvent, _ignitionDelay, _position);
+	//		
+	//		
+	//		//		this.ids.add(id);
+	//		//		this.motors.add(motor);
+	//		//		this.ejectionDelays.add(ejectionDelay);
+	//		//		this.mounts.add(mount);
+	//		//		this.ignitionEvents.add(ignitionEvent);
+	//		//		this.ignitionDelays.add(ignitionDelay);
+	//		//		this.positions.add(position);
+	//		//		this.ignitionTimes.add(Double.POSITIVE_INFINITY);
+	//	}
+	
+	
+	/**
+	 * Add a motor instance to this configuration.  
+	 * 
+	 * @param motor			the motor instance.
+	 * @throws IllegalArgumentException	if a motor with the specified ID already exists.
+	 */
+	public void addMotor(MotorInstance motor) {
+		MotorId id = motor.getID();
+		if (this.motors.containsKey(id)) {
 			throw new IllegalArgumentException("MotorInstanceConfiguration already " +
 					"contains a motor with id " + id);
 		}
-		this.ids.add(id);
-		this.motors.add(motor);
-		this.ejectionDelays.add(ejectionDelay);
-		this.mounts.add(mount);
-		this.ignitionEvents.add(ignitionEvent);
-		this.ignitionDelays.add(ignitionDelay);
-		this.positions.add(position);
-		this.ignitionTimes.add(Double.POSITIVE_INFINITY);
+		this.motors.put(id, motor);
+		
 		modID++;
 	}
 	
-	/**
-	 * Return a list of all motor IDs in this configuration (not only ones in active stages).
-	 */
-	public List<MotorId> getMotorIDs() {
-		return unmodifiableIds;
+	public Collection<MotorInstance> getAllMotors() {
+		return motors.values();
+	}
+	
+	public int getMotorCount() {
+		return motors.size();
+	}
+	
+	public Set<MotorId> getMotorIDs() {
+		return this.motors.keySet();
 	}
 	
 	public MotorInstance getMotorInstance(MotorId id) {
-		return motors.get(indexOf(id));
+		return motors.get(id);
 	}
 	
-	public double getEjectionDelay(MotorId id) {
-		return ejectionDelays.get(indexOf(id));
+	public boolean hasMotors() {
+		return (0 < motors.size());
 	}
-	
-	public MotorMount getMotorMount(MotorId id) {
-		return mounts.get(indexOf(id));
-	}
-	
-	public Coordinate getMotorPosition(MotorId id) {
-		return positions.get(indexOf(id));
-	}
-	
-	public void setMotorPosition(MotorId id, Coordinate position) {
-		positions.set(indexOf(id), position);
-		modID++;
-	}
-	
-	public double getMotorIgnitionTime(MotorId id) {
-		return ignitionTimes.get(indexOf(id));
-	}
-	
-	public void setMotorIgnitionTime(MotorId id, double time) {
-		this.ignitionTimes.set(indexOf(id), time);
-		modID++;
-	}
-	
-	public double getMotorIgnitionDelay(MotorId id) {
-		return ignitionDelays.get(indexOf(id));
-	}
-	
-	public IgnitionEvent getMotorIgnitionEvent(MotorId id) {
-		return ignitionEvents.get(indexOf(id));
-	}
-	
-	
-	private int indexOf(MotorId id) {
-		int index = ids.indexOf(id);
-		if (index < 0) {
-			throw new IllegalArgumentException("MotorInstanceConfiguration does not " +
-					"contain a motor with id " + id);
-		}
-		return index;
-	}
-	
-	
 	
 	/**
 	 * Step all of the motor instances to the specified time minus their ignition time.
 	 * @param time	the "global" time
 	 */
 	public void step(double time, double acceleration, AtmosphericConditions cond) {
-		for (int i = 0; i < motors.size(); i++) {
-			double t = time - ignitionTimes.get(i);
+		for (MotorInstance inst : motors.values()) {
+			double t = time - inst.getIgnitionTime();
 			if (t >= 0) {
-				motors.get(i).step(t, acceleration, cond);
+				inst.step(t, acceleration, cond);
 			}
 		}
 		modID++;
@@ -136,7 +154,7 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 	@Override
 	public int getModID() {
 		int id = modID;
-		for (MotorInstance motor : motors) {
+		for (MotorInstance motor : motors.values()) {
 			id += motor.getModID();
 		}
 		return id;
@@ -149,18 +167,17 @@ public final class MotorInstanceConfiguration implements Monitorable, Cloneable 
 	@Override
 	public MotorInstanceConfiguration clone() {
 		MotorInstanceConfiguration clone = new MotorInstanceConfiguration();
-		clone.ids.addAll(this.ids);
-		clone.mounts.addAll(this.mounts);
-		clone.positions.addAll(this.positions);
-		clone.ejectionDelays.addAll(this.ejectionDelays);
-		clone.ignitionTimes.addAll(this.ignitionTimes);
-		clone.ignitionEvents.addAll(this.ignitionEvents);
-		clone.ignitionDelays.addAll(this.ignitionDelays);
-		for (MotorInstance motor : this.motors) {
-			clone.motors.add(motor.clone());
+		for (MotorInstance motor : this.motors.values()) {
+			clone.motors.put(motor.id, motor.clone());
 		}
 		clone.modID = this.modID;
 		return clone;
 	}
+	
+	@Override
+	public Iterator<MotorInstance> iterator() {
+		return this.motors.values().iterator();
+	}
+	
 	
 }

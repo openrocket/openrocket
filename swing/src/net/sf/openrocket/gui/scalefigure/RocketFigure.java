@@ -23,6 +23,8 @@ import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.util.ColorConversion;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -339,13 +341,13 @@ public class RocketFigure extends AbstractScaleFigure {
 				RenderingHints.VALUE_STROKE_NORMALIZE);
 	
 		// Draw motors
-		String motorID = configuration.getFlightConfigurationID();
 		Color fillColor = ((SwingPreferences)Application.getPreferences()).getMotorFillColor();
 		Color borderColor = ((SwingPreferences)Application.getPreferences()).getMotorBorderColor();
-		Iterator<MotorMount> iterator = configuration.motorIterator();
-		while (iterator.hasNext()) {
-			MotorMount mount = iterator.next();
-			Motor motor = mount.getMotor(motorID);
+		
+		MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
+		for( MotorInstance curInstance : configuration.getActiveMotors(mic)){
+			MotorMount mount = curInstance.getMount();
+			Motor motor = curInstance.getMotor();
 			double motorLength = motor.getLength();
 			double motorRadius = motor.getDiameter() / 2;
 		

@@ -130,32 +130,6 @@ public class BoosterSet extends AxialStage implements FlightConfigurableComponen
 		return this.getAxialOffset();
 	}
 	
-	/** 
-	 * Stages may be positioned relative to other stages. In that case, this will set the stage number 
-	 * against which this stage is positioned.
-	 * 
-	 * @return the stage number which this stage is positioned relative to
-	 */
-	@Override
-	public int getRelativeToStage() {
-		if (null == this.parent) {
-			return -1;
-		} else if (this.parent instanceof BoosterSet) {
-			return this.parent.parent.getChildPosition(this.parent);
-		} else if (this.isCenterline()) {
-			if (0 < this.stageNumber) {
-				return --this.stageNumber;
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public int getStageNumber() {
-		return this.stageNumber;
-	}
-	
 	@Override
 	public Coordinate[] shiftCoordinates(Coordinate[] c) {
 		checkState();

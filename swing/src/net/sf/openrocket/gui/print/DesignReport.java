@@ -16,6 +16,7 @@ import net.sf.openrocket.gui.scalefigure.RocketPanel;
 import net.sf.openrocket.masscalc.MassCalculator;
 import net.sf.openrocket.masscalc.MassCalculator.MassCalcType;
 import net.sf.openrocket.motor.Motor;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.Rocket;
@@ -192,7 +193,9 @@ public class DesignReport {
 		canvas.showText("" + rocket.getStageCount());
 		
 		
-		if (configuration.hasMotors()) {
+		
+		MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
+		if (mic.hasMotors()){
 			if (configuration.getStageCount() > 1) {
 				canvas.newlineShowText(MASS_WITH_MOTORS);
 			} else {
@@ -341,7 +344,8 @@ public class DesignReport {
 		for (RocketComponent c : rocket) {
 			
 			if (c instanceof AxialStage) {
-				config.setToStage(stage);
+				config.clearAllStages();
+				config.setOnlyStage(stage);
 				stage++;
 				stageMass = massCalc.getCG(config, MassCalcType.LAUNCH_MASS).weight;
 				// Calculate total thrust-to-weight from only lowest stage motors

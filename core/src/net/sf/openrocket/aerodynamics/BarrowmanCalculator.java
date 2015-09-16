@@ -74,11 +74,16 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				new LinkedHashMap<RocketComponent, AerodynamicForces>();
 		
 		// Add all components to the map
-		for (RocketComponent c : configuration) {
-			f = new AerodynamicForces();
-			f.setComponent(c);
+		for (RocketComponent component : configuration.getActiveComponents()) {
 			
-			map.put(c, f);
+			// Skip non-aerodynamic components
+			if (!component.isAerodynamic())
+				continue;
+			
+			f = new AerodynamicForces();
+			f.setComponent(component);
+			
+			map.put(component, f);
 		}
 		
 		
@@ -172,7 +177,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		if (calcMap == null)
 			buildCalcMap(configuration);
 		
-		for (RocketComponent component : configuration) {
+		for (RocketComponent component : configuration.getActiveComponents()) {
 			
 			// Skip non-aerodynamic components
 			if (!component.isAerodynamic())
@@ -367,7 +372,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		double[] roughnessLimited = new double[Finish.values().length];
 		Arrays.fill(roughnessLimited, Double.NaN);
 		
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			
 			// Consider only SymmetricComponents and FinSets:
 			if (!(c instanceof SymmetricComponent) &&
@@ -469,7 +474,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		base = calculateBaseCD(conditions.getMach());
 		
 		total = 0;
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (!c.isAerodynamic())
 				continue;
 			
@@ -517,7 +522,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		base = calculateBaseCD(conditions.getMach());
 		total = 0;
 		
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (!(c instanceof SymmetricComponent))
 				continue;
 			
@@ -646,7 +651,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			cacheLength = 0;
 			cacheDiameter = 0;
 			
-			for (RocketComponent c : configuration) {
+			for (RocketComponent c : configuration.getActiveComponents()) {
 				if (c instanceof SymmetricComponent) {
 					SymmetricComponent s = (SymmetricComponent) c;
 					area += s.getComponentPlanformArea();
@@ -665,7 +670,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 		
 		// Fins
 		// TODO: LOW: This could be optimized a lot...
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (c instanceof FinSet) {
 				FinSet f = (FinSet) c;
 				mul += 0.6 * Math.min(f.getFinCount(), 4) * f.getFinArea() *

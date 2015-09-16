@@ -23,8 +23,8 @@ public class CaliberUnit extends GeneralUnit {
 	private double caliber = -1;
 	
 	
-
-
+	
+	
 	public CaliberUnit(Configuration configuration) {
 		super(1.0, "cal");
 		this.configuration = configuration;
@@ -69,7 +69,7 @@ public class CaliberUnit extends GeneralUnit {
 	}
 	
 	
-
+	
 	private void checkCaliber() {
 		if (configuration != null && configuration.getModID() != configurationModId) {
 			caliber = -1;
@@ -98,7 +98,7 @@ public class CaliberUnit extends GeneralUnit {
 	 * @return			the caliber of the rocket, or the default caliber.
 	 */
 	public static double calculateCaliber(Configuration config) {
-		return calculateCaliber(config.iterator());
+		return calculateCaliber(config.getActiveComponents().iterator());
 	}
 	
 	/**
@@ -112,7 +112,7 @@ public class CaliberUnit extends GeneralUnit {
 	}
 	
 	
-
+	
 	private static double calculateCaliber(Iterator<RocketComponent> iterator) {
 		double cal = 0;
 		

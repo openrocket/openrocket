@@ -84,7 +84,7 @@ public class StabilityParameter implements OptimizableParameter {
 		
 		if (!absolute) {
 			double diameter = 0;
-			for (RocketComponent c : configuration) {
+			for (RocketComponent c : configuration.getActiveComponents()) {
 				if (c instanceof SymmetricComponent) {
 					double d1 = ((SymmetricComponent) c).getForeRadius() * 2;
 					double d2 = ((SymmetricComponent) c).getAftRadius() * 2;

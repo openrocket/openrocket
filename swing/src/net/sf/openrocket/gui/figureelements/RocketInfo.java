@@ -13,6 +13,7 @@ import java.awt.geom.Rectangle2D;
 import net.sf.openrocket.aerodynamics.Warning;
 import net.sf.openrocket.aerodynamics.WarningSet;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.simulation.FlightData;
 import net.sf.openrocket.startup.Application;
@@ -47,7 +48,9 @@ public class RocketInfo implements FigureElement {
 	private double cg = 0, cp = 0;
 	private double length = 0, diameter = 0;
 	private double mass = 0;
-	private double aoa = Double.NaN, theta = Double.NaN, mach = Application.getPreferences().getDefaultMach();
+	private double aoa = Double.NaN;
+	private double theta = Double.NaN;
+	private double mach = Application.getPreferences().getDefaultMach();
 	
 	private WarningSet warnings = null;
 	
@@ -151,7 +154,8 @@ public class RocketInfo implements FigureElement {
 				UnitGroup.UNITS_LENGTH.getDefaultUnit().toStringUnit(diameter));
 		
 		String massText;
-		if (configuration.hasMotors())
+		MotorInstanceConfiguration mic = new MotorInstanceConfiguration(configuration);
+		if (mic.hasMotors())
 			//// Mass with motors 
 			massText = trans.get("RocketInfo.massText1") +" ";
 		else

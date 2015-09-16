@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 
 public abstract class RocketComponent implements ChangeSource, Cloneable, Iterable<RocketComponent> {
+	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(RocketComponent.class);
 	
 	// Because of changes to Java 1.7.0-45's mechanism to construct DataFlavor objects (used in Drag and Drop)
@@ -985,8 +986,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 	 * it should override this with a public method that simply calls this
 	 * supermethod AND fire a suitable ComponentChangeEvent.
 	 * 
-	 * @deprecated name is ambiguous in three-dimensional space: value may refer to any of the three dimensions.  Please use 'setPositionX' instead.
-	 * 
+	 * @deprecated name is ambiguous in three-dimensional space: value may refer to any of the three dimensions.  Please use 'setAxialOffset' instead.
 	 * @param value		the position value of the component.
 	 */
 	public void setPositionValue(double value) {
@@ -1346,6 +1346,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		children.add(index, component);
 		component.parent = this;
 		
+		if (component instanceof AxialStage) {
+			AxialStage nStage = (AxialStage) component;
+			this.getRocket().trackStage(nStage);
+		}
+		
 		this.checkComponentStructure();
 		component.checkComponentStructure();
 		
@@ -1362,6 +1367,11 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		checkState();
 		RocketComponent component = children.remove(n);
 		component.parent = null;
+		
+		if (component instanceof AxialStage) {
+			AxialStage nStage = (AxialStage) component;
+			this.getRocket().forgetStage(nStage);
+		}
 		
 		this.checkComponentStructure();
 		component.checkComponentStructure();

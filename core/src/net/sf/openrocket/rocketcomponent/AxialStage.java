@@ -15,13 +15,11 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	private FlightConfigurationImpl<StageSeparationConfiguration> separationConfigurations;
 	
 	protected int stageNumber;
-	private static int stageCount;
 	
 	public AxialStage() {
 		this.separationConfigurations = new FlightConfigurationImpl<StageSeparationConfiguration>(this, ComponentChangeEvent.EVENT_CHANGE, new StageSeparationConfiguration());
 		this.relativePosition = Position.AFTER;
-		stageNumber = AxialStage.stageCount;
-		AxialStage.stageCount++;
+		this.stageNumber = 0;
 	}
 	
 	@Override
@@ -33,10 +31,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	public String getComponentName() {
 		//// Stage
 		return trans.get("Stage.Stage");
-	}
-	
-	public static int getStageCount() {
-		return AxialStage.stageCount;
 	}
 	
 	public FlightConfiguration<StageSeparationConfiguration> getStageSeparationConfiguration() {
@@ -107,21 +101,19 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 		if (null == this.parent) {
 			return -1;
 		} else if (this.isCenterline()) {
-			if (0 < this.stageNumber) {
-				return --this.stageNumber;
-			}
+			return --this.stageNumber;
+		} else {
+			return this.parent.getStageNumber();
 		}
-		
-		return -1;
-	}
-	
-	public static void resetStageCount() {
-		AxialStage.stageCount = 0;
 	}
 	
 	@Override
 	public int getStageNumber() {
 		return this.stageNumber;
+	}
+	
+	public void setStageNumber(final int newStageNumber) {
+		this.stageNumber = newStageNumber;
 	}
 	
 	@Override

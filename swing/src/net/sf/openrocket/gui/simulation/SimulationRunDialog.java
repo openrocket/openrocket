@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -30,6 +31,8 @@ import net.sf.openrocket.gui.dialogs.DetailDialog;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.l10n.Translator;
+import net.sf.openrocket.motor.MotorInstance;
+import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.IgnitionConfiguration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -306,11 +309,13 @@ public class SimulationRunDialog extends JDialog {
 			// Calculate estimate of motor burn time
 			double launchBurn = 0;
 			double otherBurn = 0;
-			Configuration config = simulation.getConfiguration();
 			String id = simulation.getOptions().getMotorConfigurationID();
-			Iterator<MotorMount> iterator = config.motorIterator();
-			while (iterator.hasNext()) {
-				MotorMount m = iterator.next();
+			
+			Configuration config = simulation.getConfiguration();
+			MotorInstanceConfiguration mic = new MotorInstanceConfiguration(config);
+			Collection<MotorInstance> activeMotors = config.getActiveMotors(mic );
+			for( MotorInstance curInstance : activeMotors ){
+				MotorMount m = curInstance.getMount();
 				if (m.getIgnitionConfiguration().getDefault().getIgnitionEvent() == IgnitionConfiguration.IgnitionEvent.LAUNCH)
 					launchBurn = MathUtil.max(launchBurn, m.getMotor(id).getBurnTimeEstimate());
 				else

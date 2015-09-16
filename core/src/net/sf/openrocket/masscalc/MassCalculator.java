@@ -4,16 +4,13 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import net.sf.openrocket.motor.Motor;
-import net.sf.openrocket.motor.MotorId;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.Configuration;
-import net.sf.openrocket.rocketcomponent.MotorMount;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.simulation.MassData;
 import net.sf.openrocket.util.Coordinate;
@@ -80,35 +77,21 @@ public class MassCalculator implements Monitorable {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
-		Coordinate totalCG = null;
+		Coordinate dryCG = null;
 		
 		// Stage contribution
-		for (int stage : configuration.getActiveStages()) {
-			totalCG = cgCache[stage].average(totalCG);
+		for (AxialStage stage : configuration.getActiveStages()) {
+			int stageNumber = stage.getStageNumber();
+			dryCG = cgCache[stageNumber].average(dryCG);
 		}
 		
-		if (totalCG == null)
-			totalCG = Coordinate.NUL;
+		if (dryCG == null)
+			dryCG = Coordinate.NUL;
 		
-		// Add motor CGs
-		String motorId = configuration.getFlightConfigurationID();
-		if (type != MassCalcType.NO_MOTORS && motorId != null) {
-			Iterator<MotorMount> iterator = configuration.motorIterator();
-			while (iterator.hasNext()) {
-				MotorMount mount = iterator.next();
-				RocketComponent comp = (RocketComponent) mount;
-				Motor motor = mount.getMotorConfiguration().get(motorId).getMotor();
-				if (motor == null)
-					continue;
-				
-				Coordinate motorCG = type.getCG(motor).add(mount.getMotorPosition(motorId));
-				Coordinate[] cgs = comp.toAbsolute(motorCG);
-				for (Coordinate cg : cgs) {
-					totalCG = totalCG.average(cg);
-				}
-			}
-		}
+		MotorInstanceConfiguration motorConfig = new MotorInstanceConfiguration(configuration);
+		Coordinate motorCG = getMotorCG(configuration, motorConfig, MassCalcType.LAUNCH_MASS);
 		
+		Coordinate totalCG = dryCG.average(motorCG);
 		return totalCG;
 	}
 	
@@ -123,23 +106,27 @@ public class MassCalculator implements Monitorable {
 		checkCache(configuration);
 		calculateStageCache(configuration);
 		
-		Coordinate totalCG = getCG(configuration, MassCalcType.NO_MOTORS);
+		Coordinate dryCG = getCG(configuration, MassCalcType.NO_MOTORS);
+		Coordinate motorCG = getMotorCG(configuration, motors, MassCalcType.LAUNCH_MASS);
 		
+		Coordinate totalCG = dryCG.average(motorCG);
+		return totalCG;
+	}
+	
+	public Coordinate getMotorCG(Configuration config, MotorInstanceConfiguration motors, MassCalcType type) {
+		Coordinate motorCG = Coordinate.ZERO;
 		// Add motor CGs
 		if (motors != null) {
-			for (MotorId id : motors.getMotorIDs()) {
-				int stage = ((RocketComponent) motors.getMotorMount(id)).getStageNumber();
-				if (configuration.isStageActive(stage)) {
-					
-					MotorInstance motor = motors.getMotorInstance(id);
-					Coordinate position = motors.getMotorPosition(id);
-					Coordinate cg = motor.getCG().add(position);
-					totalCG = totalCG.average(cg);
-					
+			for (MotorInstance inst : config.getActiveMotors(motors)) {
+				int stage = ((RocketComponent) inst.getMount()).getStageNumber();
+				if (config.isStageActive(stage)) {
+					Coordinate position = inst.getPosition();
+					Coordinate curCG = type.getCG(inst.getMotor()).add(position);
+					motorCG = motorCG.average(curCG);
 				}
 			}
 		}
-		return totalCG;
+		return motorCG;
 	}
 	
 	/**
@@ -158,21 +145,21 @@ public class MassCalculator implements Monitorable {
 		double totalInertia = 0;
 		
 		// Stages
-		for (int stage : configuration.getActiveStages()) {
-			Coordinate stageCG = cgCache[stage];
+		for (AxialStage stage : configuration.getActiveStages()) {
+			int stageNumber = stage.getStageNumber();
+			Coordinate stageCG = cgCache[stageNumber];
 			
-			totalInertia += (longitudinalInertiaCache[stage] +
+			totalInertia += (longitudinalInertiaCache[stageNumber] +
 					stageCG.weight * MathUtil.pow2(stageCG.x - totalCG.x));
 		}
 		
 		
 		// Motors
 		if (motors != null) {
-			for (MotorId id : motors.getMotorIDs()) {
-				int stage = ((RocketComponent) motors.getMotorMount(id)).getStageNumber();
+			for (MotorInstance motor : configuration.getActiveMotors(motors)) {
+				int stage = ((RocketComponent) motor.getMount()).getStageNumber();
 				if (configuration.isStageActive(stage)) {
-					MotorInstance motor = motors.getMotorInstance(id);
-					Coordinate position = motors.getMotorPosition(id);
+					Coordinate position = motor.getPosition();
 					Coordinate cg = motor.getCG().add(position);
 					
 					double inertia = motor.getLongitudinalInertia();
@@ -200,10 +187,11 @@ public class MassCalculator implements Monitorable {
 		double totalInertia = 0;
 		
 		// Stages
-		for (int stage : configuration.getActiveStages()) {
-			Coordinate stageCG = cgCache[stage];
+		for (AxialStage stage : configuration.getActiveStages()) {
+			int stageNumber = stage.getStageNumber();
+			Coordinate stageCG = cgCache[stageNumber];
 			
-			totalInertia += (rotationalInertiaCache[stage] +
+			totalInertia += (rotationalInertiaCache[stageNumber] +
 					stageCG.weight * (MathUtil.pow2(stageCG.y - totalCG.y) +
 							MathUtil.pow2(stageCG.z - totalCG.z)));
 		}
@@ -211,11 +199,10 @@ public class MassCalculator implements Monitorable {
 		
 		// Motors
 		if (motors != null) {
-			for (MotorId id : motors.getMotorIDs()) {
-				int stage = ((RocketComponent) motors.getMotorMount(id)).getStageNumber();
+			for (MotorInstance motor : configuration.getActiveMotors(motors)) {
+				int stage = ((RocketComponent) motor.getMount()).getStageNumber();
 				if (configuration.isStageActive(stage)) {
-					MotorInstance motor = motors.getMotorInstance(id);
-					Coordinate position = motors.getMotorPosition(id);
+					Coordinate position = motor.getPosition();
 					Coordinate cg = motor.getCG().add(position);
 					
 					double inertia = motor.getRotationalInertia();
@@ -241,9 +228,8 @@ public class MassCalculator implements Monitorable {
 		
 		// add up the masses of all motors in the rocket
 		if (motors != null) {
-			for (MotorId id : motors.getMotorIDs()) {
-				MotorInstance motor = motors.getMotorInstance(id);
-				mass = mass + motor.getCG().weight - motor.getParentMotor().getEmptyCG().weight;
+			for (MotorInstance motor : configuration.getActiveMotors(motors)) {
+				mass = mass + motor.getCG().weight - motor.getMotor().getEmptyCG().weight;
 			}
 		}
 		return mass;
@@ -266,13 +252,13 @@ public class MassCalculator implements Monitorable {
 		
 		Map<RocketComponent, Coordinate> map = new HashMap<RocketComponent, Coordinate>();
 		
-		for (RocketComponent c : configuration) {
-			Coordinate[] cgs = c.toAbsolute(c.getCG());
+		for (RocketComponent comp : configuration.getActiveComponents()) {
+			Coordinate[] cgs = comp.toAbsolute(comp.getCG());
 			Coordinate totalCG = Coordinate.NUL;
 			for (Coordinate cg : cgs) {
 				totalCG = totalCG.average(cg);
 			}
-			map.put(c, totalCG);
+			map.put(comp, totalCG);
 		}
 		
 		map.put(configuration.getRocket(), getCG(configuration, type));
@@ -284,7 +270,8 @@ public class MassCalculator implements Monitorable {
 	
 	private void calculateStageCache(Configuration config) {
 		if (cgCache == null) {
-			ArrayList<AxialStage> stageList = config.getRocket().getStageList();
+			ArrayList<AxialStage> stageList = new ArrayList<AxialStage>();
+			stageList.addAll(config.getRocket().getStageList());
 			int stageCount = stageList.size();
 			
 			cgCache = new Coordinate[stageCount];

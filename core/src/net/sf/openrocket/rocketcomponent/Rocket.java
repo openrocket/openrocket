@@ -80,7 +80,7 @@ public class Rocket extends RocketComponent {
 	// Does the rocket have a perfect finish (a notable amount of laminar flow)
 	private boolean perfectFinish = false;
 	
-	
+	private final HashMap<Integer, AxialStage> stageMap = new HashMap<Integer, AxialStage>();
 	
 	/////////////  Constructor  /////////////
 	
@@ -93,7 +93,6 @@ public class Rocket extends RocketComponent {
 		functionalModID = modID;
 		defaultConfiguration = new Configuration(this);
 		
-		AxialStage.resetStageCount();
 	}
 	
 	
@@ -130,7 +129,7 @@ public class Rocket extends RocketComponent {
 	 */
 	public int getStageCount() {
 		checkState();
-		return AxialStage.getStageCount();
+		return this.stageMap.size();
 	}
 	
 	/**
@@ -195,29 +194,34 @@ public class Rocket extends RocketComponent {
 		return functionalModID;
 	}
 	
-	public ArrayList<AxialStage> getStageList() {
-		ArrayList<AxialStage> toReturn = new ArrayList<AxialStage>();
-		
-		toReturn = Rocket.getStages(toReturn, this);
-		
-		return toReturn;
+	public Collection<AxialStage> getStageList() {
+		return this.stageMap.values();
 	}
 	
-	private static ArrayList<AxialStage> getStages(ArrayList<AxialStage> accumulator, final RocketComponent parent) {
-		if ((null == accumulator) || (null == parent)) {
-			return new ArrayList<AxialStage>();
+	private int getNewStageNumber() {
+		int guess = 0;
+		while (stageMap.containsKey(guess)) {
+			guess++;
 		}
-		
-		for (RocketComponent curChild : parent.getChildren()) {
-			if (curChild instanceof AxialStage) {
-				AxialStage curStage = (AxialStage) curChild;
-				accumulator.add(curStage);
-			}
-			getStages(accumulator, curChild);
-		}
-		return accumulator;
+		return guess;
 	}
 	
+	public void trackStage(final AxialStage newStage) {
+		int stageNumber = newStage.getStageNumber();
+		AxialStage value = stageMap.get(stageNumber);
+		
+		if (newStage.equals(value)) {
+			// stage is already added. skip.
+		} else {
+			stageNumber = getNewStageNumber();
+			newStage.setStageNumber(stageNumber);
+			this.stageMap.put(stageNumber, newStage);
+		}
+	}
+	
+	public void forgetStage(final AxialStage oldStage) {
+		this.stageMap.remove(oldStage.getStageNumber());
+	}
 	
 	public ReferenceType getReferenceType() {
 		checkState();

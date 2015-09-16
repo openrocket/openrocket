@@ -2,7 +2,6 @@ package net.sf.openrocket.gui.figure3d;
 
 import java.awt.Point;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -62,7 +61,7 @@ public abstract class RocketRenderer {
 		// Store a vector of pickable parts.
 		final Vector<RocketComponent> pickParts = new Vector<RocketComponent>();
 		
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (ignore != null && ignore.contains(c))
 				continue;
 			
@@ -116,7 +115,7 @@ public abstract class RocketRenderer {
 			gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_SPECULAR, colorBlack, 0);
 			gl.glLineWidth(5.0f);
 			
-			for (RocketComponent c : configuration) {
+			for (RocketComponent c : configuration.getActiveComponents()) {
 				if (selection.contains(c)) {
 					// Draw as lines, set Z to nearest
 					gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
@@ -141,7 +140,7 @@ public abstract class RocketRenderer {
 		gl.glCullFace(GL.GL_BACK);
 		
 		// Draw all inner components
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (isDrawn(c)) {
 				if (!isDrawnTransparent(c)) {
 					renderComponent(gl, c, 1.0f);
@@ -153,7 +152,7 @@ public abstract class RocketRenderer {
 		
 		// Draw T&T front faces blended, without depth test
 		gl.glEnable(GL.GL_BLEND);
-		for (RocketComponent c : configuration) {
+		for (RocketComponent c : configuration.getActiveComponents()) {
 			if (isDrawn(c)) {
 				if (isDrawnTransparent(c)) {
 					renderComponent(gl, c, 0.2f);
@@ -166,20 +165,23 @@ public abstract class RocketRenderer {
 	
 	private void renderMotors(GL2 gl, Configuration configuration) {
 		String motorID = configuration.getFlightConfigurationID();
-		Iterator<MotorMount> iterator = configuration.motorIterator();
-		while (iterator.hasNext()) {
-			MotorMount mount = iterator.next();
-			Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
-			double length = motor.getLength();
+		
+		for( RocketComponent comp : configuration.getActiveComponents()){
+			if( comp instanceof MotorMount){
 			
-			Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
-					.getLength() + mount.getMotorOverhang() - length));
+				MotorMount mount = (MotorMount) comp;
+				Motor motor = mount.getMotorConfiguration().get(motorID).getMotor();
+				double length = motor.getLength();
 			
-			for (int i = 0; i < position.length; i++) {
-				gl.glPushMatrix();
-				gl.glTranslated(position[i].x, position[i].y, position[i].z);
-				renderMotor(gl, motor);
-				gl.glPopMatrix();
+				Coordinate[] position = ((RocketComponent) mount).toAbsolute(new Coordinate(((RocketComponent) mount)
+						.getLength() + mount.getMotorOverhang() - length));
+			
+				for (int i = 0; i < position.length; i++) {
+					gl.glPushMatrix();
+					gl.glTranslated(position[i].x, position[i].y, position[i].z);
+					renderMotor(gl, motor);
+					gl.glPopMatrix();
+				}
 			}
 		}
 		
