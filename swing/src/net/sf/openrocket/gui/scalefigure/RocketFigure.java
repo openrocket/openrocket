@@ -16,7 +16,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
@@ -25,6 +24,7 @@ import net.sf.openrocket.gui.util.SwingPreferences;
 import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
+import net.sf.openrocket.rocketcomponent.AxialStage;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -446,7 +446,14 @@ public class RocketFigure extends AbstractScaleFigure {
 		Transformation viewTransform = this.transformation;
 		
 		Coordinate componentAbsoluteLocation = parentLocation.add(comp.getOffset());
-			
+		
+		if( comp instanceof AxialStage){
+			int num = ((AxialStage) comp).getStageNumber();
+			if( ! this.configuration.isStageActive(num)){
+				return;
+			}
+		}
+		
 		// generate shapes:
 		if( comp instanceof Rocket){
 			// no-op.  no shapes
