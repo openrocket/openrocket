@@ -271,7 +271,7 @@ public class ConfigurationTest extends BaseTestCase {
 		
 		// test explicitly setting all stages up to second stage active
 		config.setOnlyStage(1);
-		assertThat(config.toDebug() + "Setting single stage active: ", config.isStageActive(1), equalTo(true));
+		assertThat(config.toDebugDetail() + "Setting single stage active: ", config.isStageActive(1), equalTo(true));
 		
 		config.clearOnlyStage(0);
 		assertThat(" deactivate stage #0: ", config.isStageActive(0), equalTo(false));

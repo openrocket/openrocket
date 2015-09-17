@@ -1,10 +1,12 @@
 package net.sf.openrocket.rocketcomponent;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
 
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
@@ -127,10 +129,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	
 	public void toggleStage(final int stageNumber) {
 		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
-			
 			StageFlags flags = stageMap.get(stageNumber);
-			log.error("debug: toggling stage " + stageNumber + " to " + !flags.active);
 			flags.active = !flags.active;
+			//log.error("debug: toggling stage " + stageNumber + " to " + !flags.active + "    " + this.toDebug());
 			fireChangeEvent();
 			return;
 		}
@@ -154,11 +155,22 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		return stageMap.get(stageNumber).active;
 	}
 	
-	public List<RocketComponent> getActiveComponents() {
+	public Collection<RocketComponent> getActiveComponents() {
+		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.rocket.getChildren());
 		ArrayList<RocketComponent> toReturn = new ArrayList<RocketComponent>();
-		for (StageFlags curFlags : this.stageMap.values()) {
-			if (curFlags.active) {
-				toReturn.add(curFlags.stage);
+		
+		while (!toProcess.isEmpty()) {
+			RocketComponent comp = toProcess.poll();
+			
+			if (comp instanceof AxialStage) {
+				if (!isStageActive(comp.getStageNumber())) {
+					continue;
+				}
+			}
+			
+			toReturn.add(comp);
+			for (RocketComponent child : comp.getChildren()) {
+				toProcess.offer(child);
 			}
 		}
 		
@@ -314,6 +326,17 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	// DEBUG / DEVEL
 	public String toDebug() {
 		StringBuilder buf = new StringBuilder();
+		buf.append(String.format("["));
+		for (StageFlags flags : this.stageMap.values()) {
+			buf.append(String.format(" %d", (flags.active ? 1 : 0)));
+		}
+		buf.append("]\n");
+		return buf.toString();
+	}
+	
+	// DEBUG / DEVEL
+	public String toDebugDetail() {
+		StringBuilder buf = new StringBuilder();
 		buf.append(String.format("\nDumping stage config: \n"));
 		for (StageFlags flags : this.stageMap.values()) {
 			AxialStage curStage = flags.stage;
@@ -352,6 +375,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
 			for (RocketComponent component : this.getActiveComponents()) {
+				System.err.println("..bounds checking component: " + component.getName());
 				for (Coordinate coord : component.getComponentBounds()) {
 					cachedBounds.add(coord);
 					if (coord.x < minX)
