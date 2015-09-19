@@ -1,12 +1,12 @@
 Release Notes
 =============
 
-OpenRocket 15.03 (2015-03-28):
-------------------------------
+OpenRocket 15.03 (2015-03-28)
+-----------------------------
 
 OpenRocket now requires Java 1.7 for execution.
 
-New Features:
+New Features
   * Experimental support for tube fins
   * Updated thrustcurves
   * Scriptable simulation extensions
@@ -15,101 +15,101 @@ New Features:
   * Configurable default mach number
   * Improved preferences UI
 
-Bug Fixes:
+Bug Fixes
   * Always use the correct filename extension when saving
     
-OpenRocket 14.11 (2014-11-02):
-------------------------------
+OpenRocket 14.11 (2014-11-02)
+-----------------------------
 
-New Features:
+New Features
   * Updated thrustcurves
 
-Bug Fixes:
+Bug Fixes
   * Fixed a couple of bugs.
 
-OpenRocket 14.06 (2014-06-25):
-------------------------------
+OpenRocket 14.06 (2014-06-25)
+-----------------------------
 
-New Features:
+New Features
   * Klima motor textures
   * Added knots to windspeed and velocity units
   * Updated thrustcurves
 
-Bug Fixes:
+Bug Fixes
   * Fixed annoying IndexOutOfBounds bug in tables.
 
-OpenRocket 14.05 (2014-05-21):
-------------------------------
+OpenRocket 14.05 (2014-05-21)
+-----------------------------
 
-New Features:
+New Features
   * Compute optimimum delay time when simulating
   * Display cg/mass overrides using icons in the component tree
 
-Bug Fixes:
+Bug Fixes
   * Bug fixes in the motor selection dialog
   * Updated thrustcurves
   * Updated 3d libraries to 2.1.5
 
-OpenRocket 14.03 (2014-03-20):
-------------------------------
+OpenRocket 14.03 (2014-03-20)
+-----------------------------
 
-New Features:
+New Features
   * Photo Realistic 3d rocket renderer
 
-Bug Fixes:
+Bug Fixes
   * Fixes to the flight configuration tab and motor selection dialog
   * Updated thrustcurves
 
-OpenRocket 13.11.2 (2014-01-01):
-------------------------------
+OpenRocket 13.11.2 (2014-01-01)
+-------------------------------
 
-Bug Fixes:
+Bug Fixes
   * Numerous bug fixes and usability improvements in the new
       flight configuration tab.
   * Fix couple of layout issues
   * Updated Spanish, French and Chinese translations
 
-OpenRocket 13.11.1 (2013-11-15):
-------------------------------
+OpenRocket 13.11.1 (2013-11-15)
+-------------------------------
 
-Bug Fixes:
+Bug Fixes
   * Added back the TubeConfiguration Configuration dialog
   * Seems the jogl update didn't happen in the 13.11 build.
   * Made the motor filter remember previous settings
   * Fixed various exceptions in flight configuration tables due to column reordering
   * Fixed NPE when deleting a configuration
 
-OpenRocket 13.11  (2013-11-08):
+OpenRocket 13.11  (2013-11-08)
 ------------------------------
 
-New Features:
+New Features
   * Chinese translations
   * Replaced flight configuration dialog with more efficient configuration tab
   * Improved filtering in motor chooser dialog
 
-Bug Fixes:
+Bug Fixes
   * Updated jogl to correct 3d problems on various platforms
   * Fixed NPE introduced by changes in Java 1.7.0_45-b18
 
-OpenRocket 13.09.1 (2013-10-05):
-------------------------------
+OpenRocket 13.09.1 (2013-10-05)
+-------------------------------
 
 This release contains a number of bug fixes, updated 3D JOGL
 libraries.  Added preliminary thrustcurves for Aerotech C3 and D2 18mm
 reloads.
 
 
-OpenRocket 13.09 (2013-09-08):
-------------------------------
+OpenRocket 13.09 (2013-09-08)
+-----------------------------
 
 This release contains a number of bug fixes, updated 3D JOGL
 libraries, and separates simulation edit and plot dialogs.
 
 
-OpenRocket 13.05 (2013-05-04):
-------------------------------
+OpenRocket 13.05 (2013-05-04)
+-----------------------------
 
-New Features:
+New Features
 
   * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
       apply decals (images) to rocket components.  Added ability to launch external graphics editor to edit decals and monitor
@@ -133,18 +133,18 @@ New Features:
       contributed a more logical mouse controlled zoom - right click and drag will zoom (either domain, range or both).
 
 
-OpenRocket 12.09.1 (2012-06-28):
---------------------------------
+OpenRocket 12.09.1 (2012-06-28)
+-------------------------------
 
 Bug-fix release for 12.09, fixing numerous bugs.  Only new feature is
 the possiblity to automatically open the latest design file on startup
 (in Edit -> Preferences -> Options).
 
 
-OpenRocket 12.09  (2012-09-16):
--------------------------------
+OpenRocket 12.09  (2012-09-16)
+------------------------------
 
-Numerous new features by many contributors:
+Numerous new features by many contributors
 
 - 3D rocket design view
 - Component Presets
@@ -160,8 +160,8 @@ Numerous new features by many contributors:
 - Translations in Czech and Polish, numerous updates
 
 
-OpenRocket 12.03  (2012-03-17):
--------------------------------
+OpenRocket 12.03  (2012-03-17)
+------------------------------
 
 In this release the version numbering scheme has been changed to be
 "YY.MM" indicating the year and month of the release.
@@ -179,8 +179,8 @@ data and motor files.  The Android port is thanks to work by Kevin
 Ruland.
 
 
-OpenRocket 1.1.9  (2011-11-24):
--------------------------------
+OpenRocket 1.1.9  (2011-11-24)
+------------------------------
 
 This release calculates rocket flight in real-world coordinates and
 takes into account geodetic effects (including coriolis effect) thanks
@@ -189,24 +189,24 @@ profiles and fin marking guides is available thanks to Doug Pedrick.
 It also contains some usability features and bug fixes.
 
 
-OpenRocket 1.1.8  (2011-08-25):
--------------------------------
+OpenRocket 1.1.8  (2011-08-25)
+------------------------------
 
 This release contains bug fixes to the optimization methods.
 It also contains a workaround to a JRE bug that prevents running
 OpenRocket on Java 7.
 
 
-OpenRocket 1.1.7  (2011-08-12):
--------------------------------
+OpenRocket 1.1.7  (2011-08-12)
+------------------------------
 
 This release contains automatic rocket design optimization
 functionality.  However, be cautious when using it and take the
 results with a grain of salt.
 
 
-OpenRocket 1.1.6  (2011-07-22):
--------------------------------
+OpenRocket 1.1.6  (2011-07-22)
+------------------------------
 
 Internationalization support thanks to work by Boris du Reau and
 translations by Tripoli Spain, Tripoli France and Stefan Lobas
@@ -214,35 +214,35 @@ translations by Tripoli Spain, Tripoli France and Stefan Lobas
 and numerous bug fixes.
 
 
-OpenRocket 1.1.5  (2011-06-10):
--------------------------------
+OpenRocket 1.1.5  (2011-06-10)
+------------------------------
 
 Removed native printing support.  Printing is now handled via PDF
 viewer, which should make printing much more reliable and less
 bug-prone.
 
 
-OpenRocket 1.1.4  (2011-03-05):
--------------------------------
+OpenRocket 1.1.4  (2011-03-05)
+------------------------------
 
 Initial printing support by Doug Pedrick, and various bug fixes.
 
 
-OpenRocket 1.1.3  (2010-10-06):
--------------------------------
+OpenRocket 1.1.3  (2010-10-06)
+------------------------------
 
 Support for drag-drop moving and copying of components.  Fixes a
 severe bug in the undo system.
 
 
-OpenRocket 1.1.2  (2010-09-07):
--------------------------------
+OpenRocket 1.1.2  (2010-09-07)
+------------------------------
 
 Fixes a severe bug that prevented adding stages to rockets.
 
 
-OpenRocket 1.1.1  (2010-09-03):
--------------------------------
+OpenRocket 1.1.1  (2010-09-03)
+------------------------------
 
 Major rewrite of the simulation code, enhanced support for thrust
 curve loading and selection, faster startup time and bug fixes.
@@ -250,67 +250,67 @@ curve loading and selection, faster startup time and bug fixes.
 Old simulation listeners are incompatible with this release.
 
 
-OpenRocket 1.1.0  (2010-03-21):
--------------------------------
+OpenRocket 1.1.0  (2010-03-21)
+------------------------------
 
 Support for loading RockSim rocket design files (.rkt) thanks to
 Doug Pedrick.
 
 
-OpenRocket 1.0.0  (2010-03-10):
--------------------------------
+OpenRocket 1.0.0  (2010-03-10)
+------------------------------
 
 Added numerous new motor thrustcurves from thrustcurve.org, and fixed
 a few more bugs.
 
 
-OpenRocket 0.9.6  (2010-02-17):
--------------------------------
+OpenRocket 0.9.6  (2010-02-17)
+------------------------------
 
 Updated aerodynamic calculation methods to be more in line with the
 Barrowman method and enhanced simulation time step selection.  Fixed
 numerous bugs.
 
 
-OpenRocket 0.9.5  (2009-11-28):
--------------------------------
+OpenRocket 0.9.5  (2009-11-28)
+------------------------------
 
 Fixed a serious defect which prevented adding a tube coupler and
 centering ring on the same body tube.  Other minor improvements.
 
 
-OpenRocket 0.9.4  (2009-11-24):
--------------------------------
+OpenRocket 0.9.4  (2009-11-24)
+------------------------------
 
 Added through-the-wall fin tabs, attaching components to tube
 couplers, material editing and automatic update checks, and fixed
 numerous of the most commonly occurring bugs.
 
 
-OpenRocket 0.9.3  (2009-09-01):
--------------------------------
+OpenRocket 0.9.3  (2009-09-01)
+------------------------------
 
 Numerous bug fixes and enhancements including data exporting, showing
 flight events in plots, example rocket designs, splitting clustered
 inner tubes and automated bug reporting.
 
 
-OpenRocket 0.9.2  (2009-07-13):
--------------------------------
+OpenRocket 0.9.2  (2009-07-13)
+------------------------------
 
 Fixed imperial unit conversions.  Significant UI enhancements to the
 motor configuration edit dialog, motor selection dialog and file
 open/save.
 
 
-OpenRocket 0.9.1  (2009-06-09):
--------------------------------
+OpenRocket 0.9.1  (2009-06-09)
+------------------------------
 
 Bug fixes to file dialog and saving; initial support for cut/copy/paste
 of simulations.
 
 
-OpenRocket 0.9.0  (2009-05-24):
--------------------------------
+OpenRocket 0.9.0  (2009-05-24)
+------------------------------
 
 Initial release.
