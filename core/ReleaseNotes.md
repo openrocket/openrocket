@@ -7,6 +7,7 @@ OpenRocket 15.03 (2015-03-28)
 OpenRocket now requires Java 1.7 for execution.
 
 New Features
+
   * Experimental support for tube fins
   * Updated thrustcurves
   * Scriptable simulation extensions
@@ -16,36 +17,43 @@ New Features
   * Improved preferences UI
 
 Bug Fixes
+
   * Always use the correct filename extension when saving
     
 OpenRocket 14.11 (2014-11-02)
 -----------------------------
 
 New Features
+
   * Updated thrustcurves
 
 Bug Fixes
+
   * Fixed a couple of bugs.
 
 OpenRocket 14.06 (2014-06-25)
 -----------------------------
 
 New Features
+
   * Klima motor textures
   * Added knots to windspeed and velocity units
   * Updated thrustcurves
 
 Bug Fixes
+
   * Fixed annoying IndexOutOfBounds bug in tables.
 
 OpenRocket 14.05 (2014-05-21)
 -----------------------------
 
 New Features
+
   * Compute optimimum delay time when simulating
   * Display cg/mass overrides using icons in the component tree
 
 Bug Fixes
+
   * Bug fixes in the motor selection dialog
   * Updated thrustcurves
   * Updated 3d libraries to 2.1.5
@@ -54,9 +62,11 @@ OpenRocket 14.03 (2014-03-20)
 -----------------------------
 
 New Features
+
   * Photo Realistic 3d rocket renderer
 
 Bug Fixes
+
   * Fixes to the flight configuration tab and motor selection dialog
   * Updated thrustcurves
 
@@ -64,6 +74,7 @@ OpenRocket 13.11.2 (2014-01-01)
 -------------------------------
 
 Bug Fixes
+
   * Numerous bug fixes and usability improvements in the new
       flight configuration tab.
   * Fix couple of layout issues
@@ -73,6 +84,7 @@ OpenRocket 13.11.1 (2013-11-15)
 -------------------------------
 
 Bug Fixes
+
   * Added back the TubeConfiguration Configuration dialog
   * Seems the jogl update didn't happen in the 13.11 build.
   * Made the motor filter remember previous settings
@@ -83,11 +95,13 @@ OpenRocket 13.11  (2013-11-08)
 ------------------------------
 
 New Features
+
   * Chinese translations
   * Replaced flight configuration dialog with more efficient configuration tab
   * Improved filtering in motor chooser dialog
 
 Bug Fixes
+
   * Updated jogl to correct 3d problems on various platforms
   * Fixed NPE introduced by changes in Java 1.7.0_45-b18
 
