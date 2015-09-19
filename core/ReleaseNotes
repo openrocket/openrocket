@@ -1,92 +1,95 @@
+Release Notes
+=============
+
 OpenRocket 15.03 (2015-03-28):
 ------------------------------
 
 OpenRocket now requires Java 1.7 for execution.
 
 New Features:
-    * Experimental support for tube fins
-    * Updated thrustcurves
-    * Scriptable simulation extensions
-    * Fin fillet mass
-    * Better icons for different kinds of masses - altimeters, computers, etc.
-    * Configurable default mach number
-    * Improved preferences UI
+  * Experimental support for tube fins
+  * Updated thrustcurves
+  * Scriptable simulation extensions
+  * Fin fillet mass
+  * Better icons for different kinds of masses - altimeters, computers, etc.
+  * Configurable default mach number
+  * Improved preferences UI
 
 Bug Fixes:
-    * Always use the correct filename extension when saving
+  * Always use the correct filename extension when saving
     
 OpenRocket 14.11 (2014-11-02):
 ------------------------------
 
 New Features:
-    * Updated thrustcurves
+  * Updated thrustcurves
 
 Bug Fixes:
-    * Fixed a couple of bugs.
+  * Fixed a couple of bugs.
 
 OpenRocket 14.06 (2014-06-25):
 ------------------------------
 
 New Features:
-    * Klima motor textures
-    * Added knots to windspeed and velocity units
-    * Updated thrustcurves
+  * Klima motor textures
+  * Added knots to windspeed and velocity units
+  * Updated thrustcurves
 
 Bug Fixes:
-    * Fixed annoying IndexOutOfBounds bug in tables.
+  * Fixed annoying IndexOutOfBounds bug in tables.
 
 OpenRocket 14.05 (2014-05-21):
 ------------------------------
 
 New Features:
-    * Compute optimimum delay time when simulating
-    * Display cg/mass overrides using icons in the component tree
+  * Compute optimimum delay time when simulating
+  * Display cg/mass overrides using icons in the component tree
 
 Bug Fixes:
-    * Bug fixes in the motor selection dialog
-    * Updated thrustcurves
-    * Updated 3d libraries to 2.1.5
+  * Bug fixes in the motor selection dialog
+  * Updated thrustcurves
+  * Updated 3d libraries to 2.1.5
 
 OpenRocket 14.03 (2014-03-20):
 ------------------------------
 
 New Features:
-    * Photo Realistic 3d rocket renderer
+  * Photo Realistic 3d rocket renderer
 
 Bug Fixes:
-    * Fixes to the flight configuration tab and motor selection dialog
-    * Updated thrustcurves
+  * Fixes to the flight configuration tab and motor selection dialog
+  * Updated thrustcurves
 
 OpenRocket 13.11.2 (2014-01-01):
 ------------------------------
 
 Bug Fixes:
-    * Numerous bug fixes and usability improvements in the new
+  * Numerous bug fixes and usability improvements in the new
       flight configuration tab.
-    * Fix couple of layout issues
-    * Updated Spanish, French and Chinese translations
+  * Fix couple of layout issues
+  * Updated Spanish, French and Chinese translations
 
 OpenRocket 13.11.1 (2013-11-15):
 ------------------------------
 
 Bug Fixes:
-    * Added back the TubeConfiguration Configuration dialog
-    * Seems the jogl update didn't happen in the 13.11 build.
-    * Made the motor filter remember previous settings
-    * Fixed various exceptions in flight configuration tables due to column reordering
-    * Fixed NPE when deleting a configuration
+  * Added back the TubeConfiguration Configuration dialog
+  * Seems the jogl update didn't happen in the 13.11 build.
+  * Made the motor filter remember previous settings
+  * Fixed various exceptions in flight configuration tables due to column reordering
+  * Fixed NPE when deleting a configuration
 
 OpenRocket 13.11  (2013-11-08):
 ------------------------------
 
 New Features:
-    * Chinese translations
-    * Replaced flight configuration dialog with more efficient configuration tab
-    * Improved filtering in motor chooser dialog
+  * Chinese translations
+  * Replaced flight configuration dialog with more efficient configuration tab
+  * Improved filtering in motor chooser dialog
 
 Bug Fixes:
-    * Updated jogl to correct 3d problems on various platforms
-    * Fixed NPE introduced by changes in Java 1.7.0_45-b18
+  * Updated jogl to correct 3d problems on various platforms
+  * Fixed NPE introduced by changes in Java 1.7.0_45-b18
 
 OpenRocket 13.09.1 (2013-10-05):
 ------------------------------
@@ -108,24 +111,24 @@ OpenRocket 13.05 (2013-05-04):
 
 New Features:
 
-    * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
+  * Added support for decals on rockets.  Added two new 3d views - 3d finished and 3d unfinshed.  Added support to export and
       apply decals (images) to rocket components.  Added ability to launch external graphics editor to edit decals and monitor
       file for writes to update the rocket view.
-    * Added simulation of tumble recovery based on experimentation done by Sampo Niskanen.  This is particularly useful
+  * Added simulation of tumble recovery based on experimentation done by Sampo Niskanen.  This is particularly useful
       for low power staged flights.
-    * Extended "motor configuration" concept to cover more properties.  The concept was renamed "Flight Configuration" and
+  * Extended "motor configuration" concept to cover more properties.  The concept was renamed "Flight Configuration" and
       allows the user to override stage separation, recovery deployment, and motor ignition per flight configuration.
       These configurations are stored in the ork file with each component.  If no override is specified then the user specified
       default is used (set in the component edit dialog).  The flight configuration dialog was reworked to make it more
       usable.  The user selects the configuration in a drop down with buttons for "add", "delete" and "rename".  After selecting
       the configuration, the tabbed area below allows the user to change the configuration for this simulation.
-    * Allow simulation of stages without a motor.  Users in the past have attempted to simulate separate recovery of payload
+  * Allow simulation of stages without a motor.  Users in the past have attempted to simulate separate recovery of payload
       and booster by tricking OpenRocket using a dummy motor with trivial thrust curve.  Now the user does not need to do this.
       There is an example of this provided in TARC Payloader.ork and Boosted Dart.ork
-    * Simulate recovery of boosters.  The simulation engine will create new FlightDataBranches for each stage after
+  * Simulate recovery of boosters.  The simulation engine will create new FlightDataBranches for each stage after
       separation.  The data for the boosters begins at t=separation.  The simulation plot allows the user to select
       which stage's data to show (or all).
-    * Modified the zoom and pan controls in the simulation plot.  Added zoom in, out, and reset buttons.  Added
+  * Modified the zoom and pan controls in the simulation plot.  Added zoom in, out, and reset buttons.  Added
       scroll with mouse wheel.  If the alt key is used with either of these, only the domain is zoomed.  Richard
       contributed a more logical mouse controlled zoom - right click and drag will zoom (either domain, range or both).
 
