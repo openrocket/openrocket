@@ -17,6 +17,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import net.sf.openrocket.gui.figureelements.FigureElement;
 import net.sf.openrocket.gui.util.ColorConversion;
@@ -25,6 +26,7 @@ import net.sf.openrocket.motor.Motor;
 import net.sf.openrocket.motor.MotorInstance;
 import net.sf.openrocket.motor.MotorInstanceConfiguration;
 import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.BoosterSet;
 import net.sf.openrocket.rocketcomponent.ComponentAssembly;
 import net.sf.openrocket.rocketcomponent.Configuration;
 import net.sf.openrocket.rocketcomponent.MotorMount;
@@ -186,9 +188,7 @@ public class RocketFigure extends AbstractScaleFigure {
 		figureShapes.clear();
 		
 		calculateSize();
-		Rocket theRocket = configuration.getRocket(); 
-		Coordinate zero = new Coordinate(0,0,0);
-		getShapeTree( figureShapes, theRocket, zero);
+		getShapes( figureShapes, configuration);
 		
 		repaint();
 		fireChangeEvent();
@@ -436,57 +436,46 @@ public class RocketFigure extends AbstractScaleFigure {
 		return l.toArray(new RocketComponent[0]);
 	}
 	
-	// NOTE:  Recursive function
-	private void getShapeTree(
-			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter 
-			final RocketComponent comp, 
-			final Coordinate parentLocation){
-	
-		RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
-		Transformation viewTransform = this.transformation;
-		
-		Coordinate componentAbsoluteLocation = parentLocation.add(comp.getOffset());
-		
-		if( comp instanceof AxialStage){
-			int num = ((AxialStage) comp).getStageNumber();
-			if( ! this.configuration.isStageActive(num)){
-				return;
-			}
-		}
-		
-		// generate shapes:
-		if( comp instanceof Rocket){
-			// no-op.  no shapes
-		}else if( comp instanceof ComponentAssembly ){
-			// no-op; no shapes here, either.
-		}else{
-			// get all shapes for this component, add to return list.
-		    RocketComponentShape[] childShapes = getThisShape( viewType, comp, componentAbsoluteLocation, viewTransform);
-			for ( RocketComponentShape curShape : childShapes ){
-				allShapes.add( curShape );
-			}
-		}
-		
-		// recurse differently, depending on if this node has instances or not....
-		if( comp.isCenterline() ){	
-			// recurse to each child with just the center
-		    for( RocketComponent child: comp.getChildren() ){
-		    	getShapeTree( allShapes, child, componentAbsoluteLocation);
-		    }
-		}else{
-			// get the offsets for each component instance
-			Coordinate[] instanceOffsets = new Coordinate[]{ parentLocation };
-			instanceOffsets = comp.shiftCoordinates( instanceOffsets);
+	// facade for the recursive function below
+	private void getShapes(ArrayList<RocketComponentShape> allShapes, Configuration configuration){
+		System.err.println("getting shapes for stages: " + this.configuration.toDebug());
+		for( AxialStage stage : configuration.getActiveStages()){
+			int stageNumber = stage.getStageNumber();
+			String activeString = ( configuration.isStageActive(stageNumber) ? "active" : "inactive");
+			System.err.println("    "+stage.getName()+ "[" + stageNumber + "] is " + activeString );
 			
-			// recurse to each child with each instance of this component
-			for( RocketComponent child: comp.getChildren() ){
-		    	for( Coordinate curInstanceCoordinate : instanceOffsets){
-		    		getShapeTree( allShapes, child, curInstanceCoordinate);
-		    	}
-		    }
+			getShapeTree( allShapes, stage, Coordinate.ZERO);
 		}
+	}
+	
+    // NOTE:  Recursive function
+    private void getShapeTree(
+    		ArrayList<RocketComponentShape> allShapes,  // this is the output parameter 
+    		final RocketComponent comp, 
+    		final Coordinate parentLocation){
+   
+    	RocketPanel.VIEW_TYPE viewType = this.currentViewType; 
+    	Transformation viewTransform = this.transformation;
+    	Coordinate[] locs = comp.getLocation();
+    	
+        // generate shapes
+    	for( Coordinate curLocation : locs){
+    		allShapes = addThisShape( allShapes, viewType, comp, curLocation, viewTransform);
+    	}
 
-		return;
+		// recurse into component's children
+    	for( RocketComponent child: comp.getChildren() ){
+    		if( child instanceof AxialStage ){
+    			// recursing into BoosterSet here would double count its tree
+    			continue;
+    		}
+    		
+    		for( Coordinate curLocation : locs){
+    			getShapeTree( allShapes, child, curLocation);
+    		}
+    	}
+        
+	    return;
 	}
 
 	/**
@@ -494,10 +483,20 @@ public class RocketFigure extends AbstractScaleFigure {
 	 * 
 	 * @param component
 	 * @param params
-	 * @return
+	 * @return the <code>ArrayList</code> containing all the shapes to draw.
 	 */
-	private static RocketComponentShape[] getThisShape(final RocketPanel.VIEW_TYPE viewType, final RocketComponent component, final Coordinate instanceOffset, final Transformation transformation) {
+	private static ArrayList<RocketComponentShape> addThisShape(
+			ArrayList<RocketComponentShape> allShapes,  // this is the output parameter
+			final RocketPanel.VIEW_TYPE viewType, 
+			final RocketComponent component, 
+			final Coordinate instanceOffset, 
+			final Transformation transformation) {
 		Reflection.Method m;
+		
+		if(( component instanceof Rocket)||( component instanceof ComponentAssembly )){
+			// no-op; no shapes here, either.
+			return allShapes;
+		}
 		
 		// Find the appropriate method
 		switch (viewType) {
@@ -518,10 +517,15 @@ public class RocketFigure extends AbstractScaleFigure {
 		if (m == null) {
 			Application.getExceptionHandler().handleErrorCondition("ERROR: Rocket figure paint method not found for "
 					+ component);
-			return new RocketComponentShape[0];
+			return allShapes;
 		}
 		
-		return (RocketComponentShape[]) m.invokeStatic(component, transformation, instanceOffset);
+	
+		RocketComponentShape[] returnValue =  (RocketComponentShape[]) m.invokeStatic(component, transformation, instanceOffset);
+		for ( RocketComponentShape curShape : returnValue ){
+			allShapes.add( curShape );
+		}
+		return allShapes;
 	}
 	
 	

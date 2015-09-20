@@ -98,7 +98,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * @param stageNumber  stage number to inactivate
 	 */
 	public void clearOnlyStage(final int stageNumber) {
-		setStage(stageNumber, false);
+		setStageActive(stageNumber, false);
 	}
 	
 	/** 
@@ -107,7 +107,7 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * @param stageNumber  stage number to activate
 	 */
 	public void setOnlyStage(final int stageNumber) {
-		setStage(stageNumber, true);
+		setStageActive(stageNumber, true);
 	}
 	
 	/** 
@@ -116,9 +116,10 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	 * @param stageNumber   stage number to flag
 	 * @param _active       inactive (<code>false</code>) or active (<code>true</code>)
 	 */
-	public void setStage(final int stageNumber, final boolean _active) {
+	public void setStageActive(final int stageNumber, final boolean _active) {
 		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
-			log.error("debug: setting stage " + stageNumber + " to " + _active);
+			String activeString = (_active ? "active" : "inactive");
+			log.error("debug: setting stage " + stageNumber + " to " + activeString + "    " + this.toDebug());
 			stageMap.get(stageNumber).active = _active;
 			fireChangeEvent();
 			return;
@@ -131,20 +132,21 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		if ((0 <= stageNumber) && (stageMap.containsKey(stageNumber))) {
 			StageFlags flags = stageMap.get(stageNumber);
 			flags.active = !flags.active;
-			//log.error("debug: toggling stage " + stageNumber + " to " + !flags.active + "    " + this.toDebug());
+			String activeString = (flags.active ? "active" : "inactive");
+			log.error("debug: toggling stage " + stageNumber + " to " + activeString + "    " + this.toDebug());
 			fireChangeEvent();
 			return;
 		}
 		log.error("error: attempt to retrieve via a bad stage number: " + stageNumber);
 	}
 	
-	/**
-	 * Check whether the stage is active.
-	 */
-	public boolean isStageActive(final AxialStage stage) {
-		return this.isStageActive(stage.getStageNumber());
-	}
-	
+	//	/**
+	//	 * Check whether the stage is active.
+	//	 */
+	//	public boolean isStageActive(final AxialStage stage) {
+	//		return this.isStageActive(stage.getStageNumber());
+	//	}
+	//	
 	/**
 	 * Check whether the stage specified by the index is active.
 	 */
@@ -156,21 +158,19 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 	}
 	
 	public Collection<RocketComponent> getActiveComponents() {
-		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.rocket.getChildren());
+		Queue<RocketComponent> toProcess = new ArrayDeque<RocketComponent>(this.getActiveStages());
 		ArrayList<RocketComponent> toReturn = new ArrayList<RocketComponent>();
 		
 		while (!toProcess.isEmpty()) {
 			RocketComponent comp = toProcess.poll();
 			
-			if (comp instanceof AxialStage) {
-				if (!isStageActive(comp.getStageNumber())) {
-					continue;
-				}
-			}
-			
 			toReturn.add(comp);
 			for (RocketComponent child : comp.getChildren()) {
-				toProcess.offer(child);
+				if (child instanceof AxialStage) {
+					continue;
+				} else {
+					toProcess.offer(child);
+				}
 			}
 		}
 		
@@ -196,7 +196,9 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 		List<AxialStage> activeStages = new ArrayList<AxialStage>();
 		
 		for (StageFlags flags : this.stageMap.values()) {
-			activeStages.add(flags.stage);
+			if (flags.active) {
+				activeStages.add(flags.stage);
+			}
 		}
 		
 		return activeStages;
@@ -375,7 +377,6 @@ public class Configuration implements Cloneable, ChangeSource, ComponentChangeLi
 			
 			double minX = Double.POSITIVE_INFINITY, maxX = Double.NEGATIVE_INFINITY;
 			for (RocketComponent component : this.getActiveComponents()) {
-				System.err.println("..bounds checking component: " + component.getName());
 				for (Coordinate coord : component.getComponentBounds()) {
 					cachedBounds.add(coord);
 					if (coord.x < minX)
